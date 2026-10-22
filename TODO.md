@@ -935,6 +935,14 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       - Bring the cold gate back near 2.5 to 3 minutes: pose only the body of the role in the
         set `move`, use a step of 0.02 s with one pause point, and run the set `move` in its own
         child process.
+- [x] Tools of a hold (retro of the hippo bass rounds, 2026-10-21): `pnpm hold-scan`, and
+      `--per-bone`, `--every`, and `--where` of `pnpm pose-depth` (`2026-10-21-hold-tools.md`).
+- [ ] Hold scan of the winds and the percussion: give `pnpm hold-scan` the spare reach of a wind
+      grip and the strikes of a percussion hold, and lift and lowering samples
+      (`2026-10-21-hold-tools.md`).
+- [ ] `pnpm close-views --camera-at <bone>`: crop pairs from four directions around a bone, after
+      the arm form round merges (`cams.ts` and `sheet.py` of
+      `docs/research/2026-10-21-hippo-bass-arms/`).
 - [ ] Check with the user the slurs that the bow plan infers from the MIDI files (21% to 38% of the
       notes) (`2026-10-17-bow-arm.md`).
 - [x] Sway of a fast notated beat: the file of the user notates a ballad at 241 BPM in 4/4, and
