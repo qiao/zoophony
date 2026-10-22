@@ -59,7 +59,7 @@ byte.
 | Item | Value |
 |---|---|
 | File | `pig-arms.glb`, 16,002,492 bytes |
-| SHA-256 | `01a46c85a218a918be9a3ffb32e3a02d943029a829cb2449931ef5d9b5fd08ff` |
+| SHA-256 | `6ab329a042084d08ab779d14aae359dc41e1e02512dfb80a95a255f7075942be` |
 | Writer | Khronos glTF Blender I/O of Blender 5.2.2, from an import of `pig.glb` |
 | Contents | One mesh of 3,162 triangles in one closed part, with the texture of `pig.glb` |
 | License | As `pig.glb` |
@@ -70,6 +70,8 @@ arm at a plane just below the elbow, removes the 93 to 95 faces of the bulge, fi
 with a fan, and builds a round tube of two rings of 10 edges from the loop of the cut to a closed
 dome around the shoulder joint. The middle of the fan, the rim of the hole, and two rings of the
 trunk around the rim then move toward the mean of their neighbors in 12 rounds, so that the wall
-is smooth with no star of spikes at the top of the shoulder. The tube and the forearm have no face
+is smooth with no star of spikes at the top of the shoulder. The dome of the right tube stands 1.2
+times its radius above the shoulder joint (0.6 on the left), so that no gap shows between the top
+of the tube and the wall at the back. The tube and the forearm have no face
 that joins them to the trunk. The tube takes the fur color of the forearm. `pig_arms.py` of
 `docs/research/2026-10-21-arm-form/` gives the edit.

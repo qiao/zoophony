@@ -25,7 +25,8 @@ from mathutils.geometry import intersect_point_line
 #: of the tube at the shoulder as a factor of the radius at the cut, the height of the dome above
 #: the shoulder, the halved loop of the cut, the move of the middle of the wall fan, the rounds of
 #: smoothing of the wall and the rings of the trunk around its rim that move with it, and a factor
-#: of the radius of the last ring. With no smoothing, the saw rim of the hole and the fan from its
+#: of the radius of the last ring. The dome of the right arm is higher (`domeR`): with 0.6, a
+#: small dark notch showed between the top of its tube and the wall at the back. With no smoothing, the saw rim of the hole and the fan from its
 #: middle showed as a star of dark spikes at the top of each shoulder (round `arm-form-2`).
 OPTIONS = {
     'cut': -0.07,
@@ -35,6 +36,7 @@ OPTIONS = {
     'sides': 10,
     'grow': 1.15,
     'dome': 0.6,
+    'domeR': 1.2,
     'halve': True,
     'bulge': 0.0,
     'smooth': 12,
@@ -295,7 +297,7 @@ def remodel_side(bm, frame, sign, opts):
             tube.append(bm.faces.new((a[q], a[r], b[r], b[q])))
     last = rings[-1]
     radius = sum(((R(v.co) - S).length for v in last), 0.0) / len(last)
-    tip = bm.verts.new(B(S + up * radius * opts['dome']))
+    tip = bm.verts.new(B(S + up * radius * opts.get('domeL' if sign > 0 else 'domeR', opts['dome'])))
     column[tip] = column[last[0]]
     for q in range(sides):
         tube.append(bm.faces.new((last[q], last[(q + 1) % sides], tip)))
