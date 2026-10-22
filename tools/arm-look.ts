@@ -38,7 +38,8 @@ import { armBinds } from './arm-shape.ts';
 import { FOLD_ROLES, probeFolds, roleAnimal } from './fold-probe.ts';
 import { rigConfigPath, runTool, takeGlb, withGlbBody } from './glb-swap.ts';
 import { setHolds } from './hold-sets.ts';
-import { patchedDemos } from './patch-demos.ts';
+import type { DemoFile } from './patch-demos.ts';
+import { probeDemos } from './probe-demos.ts';
 import { trackFolder } from './stop-cleanup.ts';
 import { STUDIO_BONES } from '../src/models/studio-format.ts';
 import type { Side, StudioBone, StudioMesh } from '../src/models/studio-format.ts';
@@ -421,7 +422,7 @@ export async function sourceCorners(animal: string): Promise<(SourceFace | null)
 export function probeArmLook(
   role: string,
   sources: readonly (SourceFace | null)[],
-  demos: Awaited<ReturnType<typeof patchedDemos>>,
+  demos: readonly DemoFile[],
   step: number,
 ): Readonly<Record<Side, ArmLookValues>> {
   const source = FOLD_ROLES.get(role);
@@ -520,7 +521,7 @@ async function main(): Promise<void> {
   if (!(step > 0)) {
     throw new Error('The step must be a number of seconds above 0.');
   }
-  const all = await patchedDemos();
+  const all = await probeDemos();
   const demos = chosen.length > 0 ? all.filter((demo) => chosen.includes(demo.file)) : all;
   const holds = args.flatMap((arg, i) => (args[i - 1] === '--set' ? [arg] : [])).join(';');
   const changes = holds ? setHolds(holds) : null;
@@ -544,6 +545,10 @@ async function main(): Promise<void> {
       const values = probeArmLook(role, sources, demos, step);
       for (const side of ['L', 'R'] as const) {
         const v = values[side];
+        if (v.samples === 0) {
+          lines.push(`| ${role} | ${side} | 0 | - | - |`);
+          continue;
+        }
         const crease = lookVerdict(v.crease, ARM_LOOK_LIMITS.crease);
         const section = lookVerdict(v.section, ARM_LOOK_LIMITS.section);
         failed ||= crease === 'FAIL' || section === 'FAIL';
