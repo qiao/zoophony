@@ -5,9 +5,9 @@ import { createButton, createElement, setAttribute } from './dom.ts';
 import type { Tooltips } from './tooltip.ts';
 
 /**
- * The least level at which a dot shows with reduced motion, where the dot is on or off with no
- * fade (design 2.8). The dot then stays on for nearly all of its fade of 0.3 s, so that short
- * notes do not make it flicker.
+ * The least level at which a dot is full with reduced motion, where the dot is small or full with
+ * no fade (design 2.8). The dot then stays full for nearly all of its fade of 0.3 s, so that
+ * short notes do not make it flicker.
  */
 const GLOW_ON = 0.05;
 
@@ -18,7 +18,7 @@ const GLOW_STEP = 0.01;
 interface SeatRow {
   /** The row. */
   readonly item: HTMLLIElement;
-  /** The dot in the fur color, which shows with a glow while the seat plays. */
+  /** The dot in the fur color, which grows and glows while the seat plays. */
   readonly dot: HTMLSpanElement;
   /** The button "M". */
   readonly mute: HTMLButtonElement;
@@ -135,13 +135,12 @@ export class SeatList {
   }
 
   /**
-   * Shows the dot of each seat that plays (design 2.8). The level sets the opacity, the size, and
-   * the glow of the dot through `--glow`, and the class `playing` turns the dot on with reduced
-   * motion. The dot shows only after the piece starts, as the meter of the demo row, and before
-   * the piece ends.
+   * Grows the dot of each seat that plays (design 2.8). The level sets the opacity, the size, and
+   * the glow of the dot through `--glow`, and the class `playing` makes the dot full with reduced
+   * motion. The dot grows only between the start and the end of the piece.
    *
    * @param levels The level of each seat, from 0 to 1, from `seatLevels()`.
-   * @param inPiece True after the piece has left its start and before it gets to its end.
+   * @param inPiece True while the song time is after the start and before the end of the piece.
    */
   showLevels(levels: Float32Array, inPiece: boolean): void {
     for (const [i, row] of this.#rows.entries()) {
