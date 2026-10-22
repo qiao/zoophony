@@ -1,0 +1,10 @@
+
+> zoophony@0.0.0 arm-look /Users/xueqiaoxu/proj/zoophony/.claude/worktrees/panda-armpit
+> node tools/arm-look.ts trombonist --glb scratch/rigs/vP/variant-1.glb
+
+Arm look of 1 roles, play step 1 s. Limits: crease share 14.6% (twice the worst arm of the red fox (7.3%)), section 0.44 (0.6 of the worst arm of the red fox (0.74)).
+
+| Role | Arm | Play samples | Crease share p50 | Section p50 |
+|---|---|---:|---:|---:|
+| trombonist | L | 1199 | 3.4% | 0.57 |
+| trombonist | R | 1199 | 7.9% | 0.58 |

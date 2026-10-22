@@ -1,0 +1,14 @@
+
+> zoophony@0.0.0 arm-shape /Users/xueqiaoxu/proj/zoophony/.claude/worktrees/panda-armpit
+> node tools/arm-shape.ts tubist
+
+Arm skin of tubist over 2 demos: twist and roll in degrees, collapse and flat as shares of the bind, spikes of the shoulder and the armpit (edge growth > 1.8).
+
+| Set | Side | Samples | Bone roll | Twist p50 / p95 | Collapse p50 / p5 | Flat p50 / p5 | Spikes mean / max | Folds |
+|---|---|---|---|---|---|---|---|---|
+| rest | L | 2 | 90 | 32 / 32 | 0.81 / 0.81 | 0.86 / 0.86 | 1.0 / 1 | 100.0% |
+| rest | R | 2 | -64 | 27 / 27 | 0.76 / 0.76 | 0.74 / 0.74 | 0.0 / 0 | 100.0% |
+| play | L | 4147 | 101 | 35 / 35 | 0.80 / 0.80 | 0.84 / 0.84 | 1.0 / 1 | 100.0% |
+| play | R | 4147 | -67 | 26 / 26 | 0.76 / 0.76 | 0.73 / 0.73 | 0.0 / 0 | 100.0% |
+| lift | L | 62 | 101 | 35 / 35 | 0.80 / 0.80 | 0.84 / 0.84 | 1.0 / 1 | 100.0% |
+| lift | R | 62 | -67 | 26 / 27 | 0.76 / 0.76 | 0.73 / 0.73 | 0.0 / 0 | 100.0% |

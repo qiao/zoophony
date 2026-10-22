@@ -1,0 +1,15 @@
+
+> zoophony@0.0.0 arm-look /Users/xueqiaoxu/proj/zoophony/.claude/worktrees/panda-armpit
+> node tools/arm-look.ts tubist trombonist fox-violinist
+
+Arm look of 3 roles, play step 1 s. Limits: crease share 14.6% (twice the worst arm of the red fox (7.3%)), section 0.44 (0.6 of the worst arm of the red fox (0.74)).
+
+| Role | Arm | Play samples | Crease share p50 | Section p50 |
+|---|---|---:|---:|---:|
+| tubist | L | 1038 | 16.7% FAIL | 0.39 FAIL |
+| tubist | R | 1038 | 11.0% | 0.41 FAIL |
+| trombonist | L | 1199 | 5.2% | 0.87 |
+| trombonist | R | 1199 | 4.3% | 0.60 |
+| fox-violinist | L | 4454 | 3.5% | 0.74 |
+| fox-violinist | R | 4454 | 7.3% | 0.93 |
+ ELIFECYCLE  Command failed with exit code 1.

@@ -1,0 +1,23 @@
+
+> zoophony@0.0.0 body-probe /Users/xueqiaoxu/proj/zoophony/.claude/worktrees/panda-armpit
+> node tools/body-probe.ts --base c5fae22c
+
+base c5fae22c, new: the working tree
+bodies equal: 90 of 95
+players equal: 22 of 23
+pose sets equal: 1474 of 1492
+body panda chair: mesh differs (positions, colors, bones, blendBones, blendWeights, finishes, correctives, normals), joints same
+body panda stool: mesh differs (positions, colors, bones, blendBones, blendWeights, finishes, correctives, normals), joints same
+body panda high-stool: mesh differs (positions, colors, bones, blendBones, blendWeights, finishes, correctives, normals), joints same
+body panda bench: mesh differs (positions, colors, bones, blendBones, blendWeights, finishes, correctives, normals), joints same
+body panda stand: mesh differs (positions, colors, bones, blendBones, blendWeights, finishes, correctives, normals), joints same
+player trombone/panda/trombone: mesh differs (positions, colors, bones, blendBones, blendWeights, finishes, correctives, normals), moved bones: none
+pose beethoven-9 conductor/bear/baton: lift from sample 9 of 40 (song -1.11 s, wall 10.80 s), play from sample 3 of 321 (song -0.91 s, wall 11.00 s)
+pose brahms-2 14 contrabass/hippo/contrabass: play from sample 30 of 1509 (song 12.88 s, wall 24.50 s)
+pose brahms-2 15 contrabass/hippo/contrabass: rest from sample 1 of 4 (song -1.62 s, wall 10.00 s), lift from sample 1 of 40 (song -1.62 s, wall 10.00 s), play from sample 1 of 1509 (song -1.62 s, wall 10.00 s), lower from sample 1 of 58 (song 376.23 s, wall 10.00 s)
+pose brahms-2 23 bassoon/beaver/bassoon: rest from sample 1 of 4 (song -1.62 s, wall 10.00 s), lift from sample 1 of 40 (song -1.62 s, wall 10.00 s)
+pose brahms-2 28 trumpet/monkey/trumpet: lower from sample 19 of 58 (song 376.23 s, wall 14.20 s)
+pose brahms-2 32 trombone/panda/trombone: rest from sample 2 of 4 (song -1.62 s, wall 11.00 s), lift from sample 7 of 40 (song -1.02 s, wall 10.60 s)
+pose brahms-2 34 timpani/elephant/timpani: rest from sample 3 of 4 (song -1.62 s, wall 12.00 s), lift from sample 16 of 40 (song -0.12 s, wall 11.50 s), play from sample 4 of 1509 (song -0.12 s, wall 11.50 s), lower from sample 4 of 58 (song 376.23 s, wall 11.50 s)
+pose brahms-2 conductor/bear/baton: lift from sample 8 of 40 (song -0.92 s, wall 10.70 s), play from sample 3 of 1509 (song -0.62 s, wall 11.00 s)
+ ELIFECYCLE  Command failed with exit code 1.

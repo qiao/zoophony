@@ -1,0 +1,11 @@
+
+> zoophony@0.0.0 arm-look /Users/xueqiaoxu/proj/zoophony/.claude/worktrees/panda-armpit
+> node tools/arm-look.ts tubist --glb scratch/rigs/rA0.03/base.glb
+
+Arm look of 1 roles, play step 1 s. Limits: crease share 14.6% (twice the worst arm of the red fox (7.3%)), section 0.44 (0.6 of the worst arm of the red fox (0.74)).
+
+| Role | Arm | Play samples | Crease share p50 | Section p50 |
+|---|---|---:|---:|---:|
+| tubist | L | 1038 | 15.7% FAIL | 0.44 |
+| tubist | R | 1038 | 8.7% | 0.49 |
+ ELIFECYCLE  Command failed with exit code 1.

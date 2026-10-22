@@ -1,0 +1,60 @@
+
+> zoophony@0.0.0 rig-mesh /Users/xueqiaoxu/proj/zoophony/.claude/worktrees/panda-armpit
+> node tools/rig-mesh.ts panda
+
+Arm factor 1.497: reach 0.5778 m in the app.
+rig_mesh: source: 1575 vertices, 3146 triangles, scale 0.525909
+rig_mesh: cut L: 2 fins go [2683, 2664]
+rig_mesh: cut R: 1 fins go [405]
+rig_mesh: cut L: 26 faces go, 22 new faces close the hole (smallest angle 5.6 degrees, median 18.9), the arm run [539, 538, 537, 473, 796, 797, 794, 792, 673, 461, 464, 463], the body run [432, 455, 457, 460, 788, 790, 787, 793, 800, 534, 533, 536]
+rig_mesh: cut R: 28 faces go, 24 new faces close the hole (smallest angle 6.3 degrees, median 22.1), the arm run [579, 585, 1282, 1281, 1287, 1289, 1298, 638, 637, 639, 636, 601], the body run [609, 641, 640, 1299, 1304, 1284, 1279, 1120, 1285, 591, 1286, 588, 586, 587]
+rig_mesh: cut: 3146 triangles before, 3138 after
+rig_mesh: bone heat: 0 vertices with no weight took the nearest bone
+rig_mesh: slivers: 12 faces below 10°, 7 groups of 21 vertices, the largest 3
+rig_mesh: lines: 48 middle corners of faces with a corner angle above 150°
+rig_mesh: arm L: reach 0.4027 m before, 0.5778 m after the factor 1.497 (target 0.5778 m)
+rig_mesh: arm R: reach 0.4027 m before, 0.5778 m after the factor 1.497 (target 0.5778 m)
+rig_mesh: legs and head: the leg factor 1.5 raises the body 0.0500 u, the shoulder joint to 0.6590 u (0.9987 m), and the head factor 1 grows the head around the neck joint
+rig_mesh: trunk: the pelvis turns 1.25 degrees back, so that the hip angle opens 1 degrees, from 116.4 to 117.4 degrees. The shares of the turn: {'hips': 1, 'spine': 1, 'spine1': 0.75, 'chest': 0.5, 'neck': 0.25, 'head': 0}. The head turns 0.00 degrees
+rig_mesh: refine: 9 flips, the largest move 2.370 mm, 0 cut edges, 0 new faces
+rig_mesh: eyes: 19 faces left, 16 faces right, nose: 60 faces
+rig_mesh: eye L: the eye box takes 19 of the 46 faces of a dark patch. The Oklab lightness of the eye faces is 0.125 to 0.193 (median 0.150), and of the other faces of the patch 0.139 to 0.195 (median 0.147)
+rig_mesh: eye R: the eye box takes 16 of the 40 faces of a dark patch. The Oklab lightness of the eye faces is 0.127 to 0.195 (median 0.168), and of the other faces of the patch 0.141 to 0.207 (median 0.149)
+rig_mesh: arm: 185 vertices in the free left arm beyond |x| = 0.16
+rig_mesh: bind: 22 faces turn over from the source, on the bones ['forearm_R', 'hips', 'thigh_L', 'thigh_R']
+rig_mesh: bind: after 60 rounds of relaxing, 3 faces turn over, on the bones forearm_R 1, upper_arm_R 2
+rig_mesh: seat: before the sit, the lowest point of the haunch behind the hips joint is 2.00 cm below the seat top 0.2163 u
+rig_mesh: sit: 127 vertices of the haunch move down, at most 0.0300 u (4.55 cm). The side view of the underside behind the hip joints is at most 10.73 cm above the seat before and 7.08 cm after. 3 faces turn over, on the bones forearm_R 1, upper_arm_R 2
+rig_mesh: trunk: 76 vertices of the haunch and the tail rise toward the seat top 0.2163 u of the upright body, at most 0.0740 u (11.21 cm). The lowest point over the seat is 0.2157 u. After 60 rounds of relaxing, 3 faces turn over, on the bones forearm_R 1, upper_arm_R 2
+rig_mesh: crease: 41 seam vertices, 189 vertices move, at most 0.0336 u (5.10 cm). 3 faces turn over, on the bones forearm_R 1, upper_arm_R 2
+rig_mesh: seat: the side view of the underside of the final bind behind the hip joints is at most 5.98 cm above the seat top
+rig_mesh: eye L: 19 dark faces, an edge of 11 points, a fan of 11 faces, 0.0061 u over the eye, 31 faces of the old eye
+rig_mesh: eye R: 16 dark faces, an edge of 8 points, a fan of 8 faces, 0.0055 u over the eye, 17 faces of the old eye
+rig_mesh: palette: 48 colors, the Oklab distance of a face from its color 0.0018 on the mean, 0.0095 at most
+rig_mesh: eye L: the 31 faces of the old eye take the color of 37% of the area of the faces around it
+rig_mesh: eye R: the 17 faces of the old eye take the color of 62% of the area of the faces around it
+rig_mesh: tone: 2225 faces of the plain fur move in Oklab
+rig_mesh: border: 5 dark faces (2 left, 3 right) take the color of the nearest light fur face
+rig_mesh: patch: 18 dark faces of the eye patches (9 left, 9 right) take the color of the nearest light fur face. The patches keep the color [0.0491, 0.0365, 0.0268]
+rig_mesh: smile: the bands take [18, 6] faces
+rig_mesh: border: the faces of the module [90, 531, 533, 858, 1644]
+rig_mesh: corrective: the smallest determinant of the skin is 0.7164 at the vertex 1301
+rig_mesh: corrective: the clip gives the source back within 3.28e-16 u (0.0000 mm)
+rig_mesh: raise arm_raise_R: the arm-down shape has the weight 0.639 in the pose, 3 faces turn over before and 0 after 1 rounds of relaxing, 7 vertices move (faces of the module before [90, 103, 305], after [])
+rig_mesh: raise arm_raise_R2: the arm-down shape has the weight 0.536 in the pose, 4 faces turn over before and 0 after 2 rounds of relaxing, 11 vertices move (faces of the module before [90, 103, 292, 305], after [])
+rig_mesh: raise arm_raise_R3: the arm-down shape has the weight 0.590 in the pose, 1 faces turn over before and 0 after 1 rounds of relaxing, 3 vertices move (faces of the module before [90], after [])
+rig_mesh: raise arm_raise_R4: the arm-down shape has the weight 0.607 in the pose, 1 faces turn over before and 0 after 1 rounds of relaxing, 3 vertices move (faces of the module before [292], after [])
+rig_mesh: shape arm_down_L: 197 vertices, largest move 0.0256 u
+rig_mesh: shape arm_down_R: 212 vertices, largest move 0.0839 u
+rig_mesh: shape legs_straight_L: 251 vertices, largest move 0.0659 u
+rig_mesh: shape legs_straight_R: 246 vertices, largest move 0.0671 u
+rig_mesh: shape arm_raise_R: 7 vertices, largest move 0.0133 u
+rig_mesh: shape arm_raise_R2: 11 vertices, largest move 0.0144 u
+rig_mesh: shape arm_raise_R3: 3 vertices, largest move 0.0082 u
+rig_mesh: shape arm_raise_R4: 3 vertices, largest move 0.0072 u
+rig_mesh: chair: the tail goes 0.0426 u over the seat top at its lowest point over the seat
+rig_mesh: chair: front edge at z -0.1 u, the shins and the feet from z -0.0124 u
+rig_mesh: chair: seat top 0.2196 u, lowest point of the body 0.0365 u
+rig_mesh: triangles: 3157 (79 gloss)
+rig_mesh: wrote /Users/xueqiaoxu/proj/zoophony/.claude/worktrees/panda-armpit/assets/models/panda/panda.rig.glb: 632348 bytes
+Wrote assets/models/panda/panda.rig.glb: 632348 B, sha256 092889099afc61c1e0722b6c1365ba7e63b4ca3ae4702c815e5b09db21485415.

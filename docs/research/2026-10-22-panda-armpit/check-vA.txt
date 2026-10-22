@@ -1,0 +1,8 @@
+| Variant | Triangles | Mesh gzip B | Scale m/u | Seat m | Leg seat m | Chair m | Reach L m | Reach R m | Standing mm | trombonist play | trombonist lift | trombonist rest | trombonist bones | Shapes: faces left turned |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| base | 3146 | 22782 | 1.5154 | 0.277 | 0.277 | 0.212 | 0.578 | 0.578 | 0.234 | 0.0% | 0.0% | 0.0% | none | arm_raise_R: none / arm_raise_R2: none |
+| weights.armSplit=0.16;weights.armFree={"turn":0,"radius":0.11,"floor":0.3};cut.fins=true | 3136 | 22474 | 1.5154 | 0.278 | 0.278 | 0.212 | 0.578 | 0.578 | 0.239 | 0.0% | 16.1% | 100.0% | forearm_R 16, upper_arm_R 2 | arm_raise_R: none / arm_raise_R2: none |
+| weights.armBelow=[0.5,0.56] | 3146 | 22522 | 1.5154 | 0.277 | 0.277 | 0.212 | 0.578 | 0.578 | 0.234 | 100.0% | 100.0% | 100.0% | spine1 19536 | arm_raise_R: 368, 369, 486, 562 FAIL / arm_raise_R2: 368, 369, 486, 562 FAIL |
+| weights.armBelow=[0.45,0.58] | 3146 | 22622 | 1.5154 | 0.277 | 0.277 | 0.212 | 0.578 | 0.578 | 0.234 | 100.0% | 100.0% | 100.0% | spine1 19536, upper_arm_R 4885 | arm_raise_R: 367, 368, 485, 562 FAIL / arm_raise_R2: 367, 368, 485, 562 FAIL |
+| weights.armBelow=[0.52,0.58] | 3146 | 22438 | 1.5154 | 0.277 | 0.277 | 0.212 | 0.578 | 0.578 | 0.234 | 100.0% | 100.0% | 100.0% | spine1 14651, upper_arm_R 1 | arm_raise_R: 369, 486, 562 FAIL / arm_raise_R2: 369, 486, 562 FAIL |
+

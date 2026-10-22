@@ -1,0 +1,34 @@
+191 trunk faces in the boxes, shoulder joint -0.239,0.943,-0.116
+Worst play sample: boulanger-matin.mid 260.38 s, flap 1198.4 cm²
+  face 616 L  area 85.2->94.2 cm² ny 0.21 drag 2.2,0.0,0.0 cm arm w 0.13,0.00,0.00
+  face 615 L  area 57.1->75.7 cm² ny 0.27 drag 0.0,0.0,2.2 cm arm w 0.00,0.00,0.13
+  face 631 L  area 64.3->67.6 cm² ny 0.18 drag 2.2,2.2,0.0 cm arm w 0.13,0.18,0.00
+  face 1027 L  area 35.1->48.3 cm² ny 0.27 drag 2.8,2.5,4.0 cm arm w 0.16,0.22,0.31
+  face 613 L  area 32.4->41.1 cm² ny 0.22 drag 0.0,2.0,2.6 cm arm w 0.00,0.09,0.15
+  face 614 L  area 30.7->38.2 cm² ny 0.09 drag 2.6,2.2,0.0 cm arm w 0.15,0.13,0.00
+  face 627 L  area 44.8->38.0 cm² ny 0.13 drag 0.0,2.2,0.0 cm arm w 0.00,0.18,0.00
+  face 1401 L  area 45.6->36.4 cm² ny 0.41 drag 1.5,4.5,2.2 cm arm w 0.16,0.40,0.13
+  face 610 L  area 23.2->30.6 cm² ny 0.30 drag 1.9,2.8,1.9 cm arm w 0.12,0.16,0.09
+  face 1047 L  area 28.0->30.2 cm² ny 0.08 drag 3.3,1.6,3.1 cm arm w 0.40,0.14,0.23
+  face 1044 L  area 22.3->30.2 cm² ny 0.04 drag 4.0,2.6,2.8 cm arm w 0.31,0.15,0.16
+  face 1028 L  area 23.7->30.1 cm² ny 0.31 drag 2.5,4.3,4.0 cm arm w 0.22,0.50,0.31
+  face 365 R  area 41.0->29.5 cm² ny 0.15 drag 2.4,1.8,3.0 cm arm w 0.42,0.24,0.46
+  face 1400 L  area 33.6->28.8 cm² ny 0.45 drag 2.2,4.5,2.8 cm arm w 0.13,0.40,0.18
+  face 1026 L  area 22.9->27.6 cm² ny 0.30 drag 1.9,2.5,2.8 cm arm w 0.12,0.22,0.16
+  face 1763 L  area 21.6->27.1 cm² ny 0.19 drag 1.2,2.5,1.9 cm arm w 0.09,0.22,0.12
+  face 356 R  area 33.3->26.3 cm² ny 0.35 drag 2.4,1.9,0.8 cm arm w 0.29,0.24,0.07
+  face 611 L  area 20.7->24.6 cm² ny -0.03 drag 2.0,1.9,2.8 cm arm w 0.09,0.09,0.16
+  face 612 L  area 20.1->23.9 cm² ny -0.02 drag 2.8,2.6,2.0 cm arm w 0.16,0.15,0.09
+  face 1764 L  area 20.6->23.0 cm² ny 0.25 drag 1.0,2.5,1.2 cm arm w 0.13,0.22,0.09
+  face 1045 L  area 18.1->22.5 cm² ny 0.07 drag 2.6,4.0,3.1 cm arm w 0.15,0.31,0.23
+  face 1386 L  area 37.8->22.0 cm² ny 0.47 drag 1.7,1.9,2.8 cm arm w 0.09,0.10,0.18
+  face 1046 L  area 19.2->22.0 cm² ny 0.02 drag 4.0,3.3,3.1 cm arm w 0.31,0.40,0.23
+  face 490 R  area 26.7->22.0 cm² ny 0.42 drag 2.4,0.8,1.4 cm arm w 0.29,0.07,0.14
+  face 1048 L  area 17.2->21.7 cm² ny 0.04 drag 1.6,3.3,3.0 cm arm w 0.14,0.40,0.40
+drag: the largest move of a trunk vertex that the arm bones give past the clavicle, cm. down: the area of the trunk faces that face down (normal y < -0.3), cm². flap: the area of the trunk faces with a corner dragged more than 2 cm, cm². Each cell: p50 / p95.
+own: the down area of the faces that keep their own normals (no cap and no rim of the cut), cm².
+| Set | Samples | drag L | drag R | down L | down R | own L | own R | flap L | flap R |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| rest | 3 | 3.8 / 3.8 | 4.7 / 4.7 | 35.9 / 35.9 | 40.2 / 40.2 | 35.9 / 35.9 | 40.2 / 40.2 | 675.3 / 675.9 | 1201.0 / 1201.0 |
+| play | 1199 | 4.5 / 4.5 | 2.8 / 3.0 | 35.1 / 35.2 | 30.3 / 30.5 | 35.1 / 35.2 | 30.3 / 30.5 | 1018.6 / 1023.1 | 172.7 / 175.6 |
+| lift | 93 | 4.5 / 4.5 | 2.8 / 4.7 | 35.1 / 35.9 | 30.3 / 40.2 | 35.1 / 35.9 | 30.3 / 40.2 | 1019.1 / 1023.1 | 172.7 / 1200.6 |

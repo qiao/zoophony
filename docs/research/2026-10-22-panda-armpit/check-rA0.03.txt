@@ -1,0 +1,4 @@
+| Variant | Triangles | Mesh gzip B | Scale m/u | Seat m | Leg seat m | Chair m | Reach L m | Reach R m | Standing mm | tubist play | tubist lift | tubist rest | tubist bones |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| base | 3173 | 23085 | 1.5529 | 0.155 | 0.155 | 0.351 | 0.431 | 0.431 | 0.913 | 100.0% | 100.0% | 100.0% |  11462, clavicle_L 4211, clavicle_R 4211 |
+
