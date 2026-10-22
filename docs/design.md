@@ -141,7 +141,7 @@ The decision files:
 - [`2026-10-11-penguin-body.md`](decisions/2026-10-11-penguin-body.md): the beak snout that left the biped, and the gallery views of `pnpm choir-check`.
 - [`2026-10-11-short-legs.md`](decisions/2026-10-11-short-legs.md): the short legs of the reference images.
 - [`2026-10-12-studio-bear.md`](decisions/2026-10-12-studio-bear.md): the retarget of the studio bodies, first for the studio bear of `lowpoly-studio/` as the conductor, which the mesh bear replaced on 2026-10-22.
-- [`2026-10-12-studio-polar-bear.md`](decisions/2026-10-12-studio-polar-bear.md): the studio polar bear of `lowpoly-studio/` as the pianist.
+- [`2026-10-12-studio-polar-bear.md`](decisions/2026-10-12-studio-polar-bear.md): the studio polar bear of `lowpoly-studio/` as the pianist, which the mesh polar bear replaced on 2026-10-22.
 - [`2026-10-13-frame-time.md`](decisions/2026-10-13-frame-time.md): the GPU time of the frame target in a Metal System Trace.
 - [`2026-10-13-frame-tools.md`](decisions/2026-10-13-frame-tools.md): the guards and the checks of `pnpm frame`.
 - [`2026-10-13-mesh-rabbit.md`](decisions/2026-10-13-mesh-rabbit.md): the rabbit mesh of the user as the violinist, rigged as a studio body.
@@ -282,3 +282,4 @@ The decision files:
 - [`2026-10-21-perf-retro.md`](decisions/2026-10-21-perf-retro.md): the decisions of the performance retro: the fair lock of the measures, the tools of the load and the frame rounds, and the facts of the docs.
 - [`2026-10-22-rabbit-elbow.md`](decisions/2026-10-22-rabbit-elbow.md): the copy of the rabbit mesh with a round inner side of each arm, the islands of the free arm, the open trunk hole of the cut, and the section of the right upper arm.
 - [`2026-10-22-mesh-bear.md`](decisions/2026-10-22-mesh-bear.md): the bear mesh of the user as the conductor in place of the studio bear, near its size, with the arms of the mesh and a cut of each arm seam, the brown of the reference image, a smile line, the baton along the index finger, and the smaller bow at the song end.
+- [`2026-10-22-mesh-polar-bear.md`](decisions/2026-10-22-mesh-polar-bear.md): the polar bear mesh of the user as the pianist in place of the studio polar bear, at its skull top, on a bench that fits its legs, with arms 1.25 times the mesh, a cut of each arm seam, a twist bone, the keys in front of the belly, the elbows out and level, the white of the reference, and a smile line.
