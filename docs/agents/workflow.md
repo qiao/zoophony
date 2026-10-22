@@ -171,6 +171,13 @@ a crop set, and the crop pairs of a report (user, 2026-10-21). Add other views, 
 only after these four. Look at all four images before you report: a clip, a fold, or a dark line
 that shows only from the back or from one side is a fail.
 
+Render each moment of the role, not only the first moment and rest (`--moments` with each name
+of `ROLE_VIEWS`), at `--elevation 20` and `--elevation 40`, and add az150 and az-150. The stage
+camera looks from behind and above. On 2026-10-22 a fix of the bear armpit passed at one
+moment with raised arms, and the user then found a dent at the arm root from above, with the
+arms lowered and at rest. A measure that says that no view shows a defect is no proof. Show the
+images.
+
 ## Audits
 
 - Write a codebase audit in `docs/audits/`, in a file whose name starts with the date. Give the
