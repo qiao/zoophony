@@ -192,6 +192,9 @@ mesh with no skeleton into route 3" of `docs/agents/model-work.md`).
   4. the look of the hold.
 - **The checks before the docs.** Run `pnpm rig-mesh <animal> --check`, each check of the app,
   `pnpm arm-look <role>`, and the close views before the first docs commit.
+- **The depth of each variant.** Run `pnpm pose-depth <role> --glb <kept file> --every 4` on the
+  first variant of a mesh edit, not only at the end. A patch of the rabbit elbow went 5.9 cm
+  into the trunk, and the round found it with no time left (retro, 2026-10-22).
 - **A moved instrument.** Read the hold anchors of `pnpm rig-mesh --check` against `main`, because
   a moved instrument can break a user rule.
 - **The demos of a fit.** Fit each step on the default demos of `pnpm hold-fit`: `FIT_DEMOS`, or
