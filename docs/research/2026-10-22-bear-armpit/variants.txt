@@ -1,0 +1,24 @@
+Variants of the free arm and the cut of tools/mesh-rigs/bear.json (base 5593e92b). Each rig comes
+from `pnpm rig-mesh bear --check --roles conductor --keep <dir> --set '<changes>'` (check-*.txt).
+"own L / R" is the play p50 of the down area of `flap.ts` (cm², trunk faces in the box under each
+arm that face down and keep their own normals; L is the left arm of the bear). "in body" is
+`pnpm pose-depth conductor --glb <rig> --every 4`, play upper arms in the body (cm).
+
+| Variant | Folds play / lift / rest | own L / R | In body | Look at beat-1 (close-views --lineup) |
+|---|---|---|---|---|
+| base (radius 0.085) | 2.9% / 7.7% / 0% | 55.7 / 56.5 | 0.8 | dark flap under each arm |
+| armBelow [0.5,0.6] | 2.9% / 7.5% / 0% | - | - | - |
+| armBelow [0.58,0.66] | 10.9% / 13.3% / 100% | - | - | - |
+| armBelow [0.6,0.7] | 100% / 97.4% / 100% | - | - | flap stays: the strip keeps its source place, out from the trunk |
+| radius 0.089 | 2.9% / 7.5% / 0% | 12.8 / 21.7 | - | small tag at az150 |
+| radius 0.095 | 2.8% / 7.5% / 0% | 11.8 / 0.0 | 4.3 (83% over 1.5) | clean, a repeated face at the left notch |
+| radius 0.1 | 36.4% / 46.9% / 100% | 12.3 / 19.1 | - | clean, the quad at the top of the cut folds |
+| radius 0.095, fins | 2.8% / 7.5% / 0% | 11.8 / 0.0 | 4.3 | clean |
+| radius 0.09, shift z -0.01, fins (chosen) | 2.8% / 7.5% / 0% | 19.2 / 23.3 | 0.9 | clean |
+| red fox (fox-violinist) | - | 4.7 / 5.4 | - | - |
+
+The radius 0.095 takes the front edge of the arm root (source 0.215, 0.544, 0.041, 0.085 u from the
+chain) into the free arm. In the sweep, the corner of that vertex then goes 3 cm into the closed
+body in most play samples. The shift of the chain 0.01 u back keeps it on the trunk (0.095 u) and
+takes the back strip (0.079 u to 0.080 u). The radius 0.085 with the shift -0.005 gives the same
+rig, with a margin of 0.0004 u on the back strip.

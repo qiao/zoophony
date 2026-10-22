@@ -1,0 +1,9 @@
+165 trunk faces in the boxes, shoulder joint -0.109,0.970,-0.063
+Worst play sample: boulanger-matin.mid 278.38 s, flap 1562.0 cm²
+drag: the largest move of a trunk vertex that the arm bones give past the clavicle, cm. down: the area of the trunk faces that face down (normal y < -0.3), cm². flap: the area of the trunk faces with a corner dragged more than 2 cm, cm². Each cell: p50 / p95.
+own: the down area of the faces that keep their own normals (no cap and no rim of the cut), cm².
+| Set | Samples | drag L | drag R | down L | down R | own L | own R | flap L | flap R |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| rest | 14 | 6.7 / 7.0 | 8.8 / 8.8 | 4.9 / 4.9 | 39.9 / 39.9 | 4.9 / 4.9 | 39.9 / 39.9 | 779.6 / 833.7 | 968.9 / 969.4 |
+| play | 4454 | 4.3 / 4.6 | 6.7 / 8.2 | 4.7 / 4.8 | 5.4 / 7.3 | 4.7 / 4.8 | 5.4 / 7.3 | 440.1 / 444.4 | 961.5 / 1058.5 |
+| lift | 434 | 4.4 / 6.7 | 5.8 / 8.8 | 4.7 / 9.2 | 5.3 / 39.9 | 4.7 / 9.2 | 5.3 / 39.9 | 441.6 / 779.6 | 830.0 / 1022.2 |

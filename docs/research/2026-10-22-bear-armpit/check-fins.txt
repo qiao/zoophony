@@ -1,0 +1,275 @@
+
+> zoophony@0.0.0 rig-mesh /Users/xueqiaoxu/proj/zoophony/.claude/worktrees/bear-armpit
+> node tools/rig-mesh.ts bear --check --roles conductor --keep scratch/v4 --set weights.armFree.radius\=0.095\;cut.fins\=true --set weights.armFree.radius\=0.1\;cut.fins\=true
+
+The variant "weights.armFree.radius=0.095;cut.fins=true" adds the new keys cut.fins. tools/blender/rig_mesh.py reads only the keys that it knows.
+The variant "weights.armFree.radius=0.1;cut.fins=true" adds the new keys cut.fins. tools/blender/rig_mesh.py reads only the keys that it knows.
+
+base:
+Shoulder joint at 0.585 u, 1.6500 m for each unit. Reach L: 0.4701 m with no factor, 0.4701 m with 1, and the factor 1.0000 gives 0.4701 m. Reach R: 0.4701 m with no factor, 0.4701 m with 1, and the factor 1.0000 gives 0.4701 m.
+rig_mesh: source: 1471 vertices, 2938 triangles, scale 0.525702
+rig_mesh: cut L: 20 faces go, 20 new faces close the hole (smallest angle 3.6 degrees, median 22.5), the arm run [457, 465, 863, 861, 856, 858, 872, 437, 431, 441, 443], the body run [439, 435, 427, 429, 432, 434, 871, 484, 862, 485, 483]
+rig_mesh: cut R: 19 faces go, 19 new faces close the hole (smallest angle 8.6 degrees, median 24.9), the arm run [521, 523, 528, 530, 1279, 1098, 1097, 1107, 1090, 578, 580], the body run [586, 581, 587, 589, 591, 532, 531, 529, 526, 524]
+rig_mesh: cut: 2938 triangles before, 2938 after
+rig_mesh: bone heat: 0 vertices with no weight took the nearest bone
+rig_mesh: slivers: 65 faces below 10°, 24 groups of 103 vertices, the largest 9
+rig_mesh: lines: 62 middle corners of faces with a corner angle above 150°
+rig_mesh: arm L: reach 0.4701 m before, 0.4701 m after the factor 1 (target 0.4701 m)
+rig_mesh: arm R: reach 0.4701 m before, 0.4701 m after the factor 1 (target 0.4701 m)
+rig_mesh: refine: 17 flips, the largest move 1.723 mm, 0 cut edges, 0 new faces
+rig_mesh: eyes: 7 faces left, 8 faces right, nose: 85 faces
+rig_mesh: colors: 121 of 2938 faces (4.1%) are dark outside the eye and nose boxes, with the dark limit 0.0121
+rig_mesh: arm: 260 vertices in the free left arm beyond |x| = 0.19
+rig_mesh: bind: 0 faces turn over from the source, on the bones []
+rig_mesh: bind: after 0 rounds of relaxing, 0 faces turn over
+rig_mesh: seat: before the sit, the lowest point of the haunch behind the hips joint is 1.59 cm below the seat top 0.1550 u
+rig_mesh: crease: 13 seam vertices, 138 vertices move, at most 0.0323 u (5.32 cm). 0 faces turn over
+rig_mesh: eye L: 7 dark faces, an edge of 7 points, a fan of 7 faces, 0.0035 u over the eye, 8 faces of the old eye
+rig_mesh: eye R: 8 dark faces, an edge of 6 points, a fan of 6 faces, 0.0045 u over the eye, 8 faces of the old eye
+rig_mesh: palette: 48 colors, the Oklab distance of a face from its color 0.0053 on the mean, 0.0217 at most
+rig_mesh: eye L: the 8 faces of the old eye take the color of 31% of the area of the faces around it
+rig_mesh: eye R: the 8 faces of the old eye take the color of 25% of the area of the faces around it
+rig_mesh: tone: 2570 faces of the plain fur move in Oklab
+rig_mesh: smile: the bands take [16] faces
+rig_mesh: corners: the source corners of 2951 faces of the module in /var/folders/54/0kcjqfln35d4bzyptzpj1nlm0000gn/T/rig-mesh-check-oiwei4/corners.json
+rig_mesh: stretch: 0 faces turn more than 45° or keep less than 0.5 of the shortest edge from the source to the long-armed source
+rig_mesh: uncut: 3 long thin faces across an arm joint with no ring (corner below 10°, longest edge from 0.08 u, the plane of the joint within 0.1 u)
+rig_mesh:   shoulder L: face 1669 (chest), 9.2°, 0.116 u, 0.066 u from the joint
+rig_mesh:   shoulder L: face 2214 (chest), 3.6°, 0.124 u, 0.057 u from the joint
+rig_mesh:   shoulder R: face 219 (upper_arm_R), 6.7°, 0.095 u, 0.075 u from the joint
+rig_mesh: corrective: the smallest determinant of the skin is 0.7778 at the vertex 544
+rig_mesh: corrective: the clip gives the source back within 3.28e-16 u (0.0000 mm)
+rig_mesh: shape arm_down_L: 289 vertices, largest move 0.0178 u
+rig_mesh: shape arm_down_R: 239 vertices, largest move 0.0195 u
+rig_mesh: shape legs_straight_L: 69 vertices, largest move 0.0279 u
+rig_mesh: shape legs_straight_R: 72 vertices, largest move 0.0278 u
+rig_mesh: chair: the tail goes 0.0558 u over the seat top at its lowest point over the seat
+rig_mesh: chair: front edge at z -0.145 u, the shins and the feet from z -0.1395 u
+rig_mesh: chair: seat top 0.1768 u, lowest point of the body -0.0000 u
+rig_mesh: triangles: 2951 (98 gloss)
+rig_mesh: caps: 39 caps of the cut take the normals of the skin in the app
+rig_mesh: rim: 52 skin faces around the caps of the body take the normals of the skin in the app
+rig_mesh: wrote /var/folders/54/0kcjqfln35d4bzyptzpj1nlm0000gn/T/rig-mesh-check-oiwei4/bear.rig.glb: 487664 bytes
+Rig: 487664 B, sha256 e6ee47dc8a554523c9f243d6468be98f8dbb62240690fc120c6e5e9e9eda7566.
+Kept the rig as scratch/v4/base.glb, with its corners for pnpm arm-look.
+Triangles: 2938 of the budget of 3200 of a studio body.
+Finished in 1ms on 1 files using 10 threads.
+Module: 48,170 B, 22,743 B after gzip. Packed mesh: 21,268 B after gzip, budget 32,000 B (src/models/studio-size.test.ts).
+Scale 1.65 m for each unit. Head height H 0.430 m. Seat height 0.292 m, 0.292 m with no seat of ANIMALS (the seat of the legs). Chair depth 0.183 m.
+Arm from the shoulder joint to the middle of the palm: L 0.470 m, R 0.470 m.
+Lowest point above the floor, seated bind (seat height 0.292 m): leg L 0.000 m, leg R 0.000 m, tail 0.354 m. Standing body: leg L 0.000 m, leg R 0.000 m, tail 0.354 m.
+Standing body against the long-armed source: 0.246 mm at most (limit 1.000 mm), 0.246 mm back, 1486 vertices, 0 eye vertices left out.
+Worst standing vertex: 308, 0.246 mm, bones hand_R 0.608, forearm_twist_R 0.290, fingers_R 0.067, forearm_R 0.035.
+Tip of the nose: 0.005, 1.424, -0.600 m, 0.5 cm from the middle plane.
+Thin faces near the joints of the limbs (corner below 10°, longest edge from 0.08 u, joint within 0.1 u), candidates for a ring:
+  shoulder L: 1663 (4.0°, 0.150 m, 0.146 m from the joint), 1669 (9.1°, 0.186 m, 0.096 m from the joint), 2214 (3.5°, 0.200 m, 0.090 m from the joint)
+  shoulder R: 555 (9.8°, 0.163 m, 0.112 m from the joint)
+  ankle R: 965 (3.6°, 0.164 m, 0.141 m from the joint), 1526 (2.8°, 0.149 m, 0.127 m from the joint)
+
+fold-probe conductor with the body of the rig:
+Folded faces of the studio body of the conductor (2938 faces), play step 0.25 s.
+Demos: bach-bwv1047.mid, bach-bwv1048.mid, bach-bwv1050.mid, beethoven-1.mid, beethoven-8-4.mid, beethoven-8.mid, beethoven-9.mid, boulanger-matin.mid, brahms-2.mid, mendelssohn-op61.mid, mozart-k191.mid, mozart-k315.mid, mozart-k417.mid, mozart-k525.mid, percussion-test.mid
+
+| Set | Samples | With a fold | Share | Most faces (by the side of the main bone) | Worst sample |
+|---|---:|---:|---:|---:|---|
+| rest | 15 | 0 | 0.0% | 0 (L 0 / R 0 / other 0) | - |
+| play | 17949 | 512 | 2.9% | 4 (L 1 / R 0 / other 3) | boulanger-matin.mid 59.13 s |
+| lift | 465 | 36 | 7.7% | 3 (L 3 / R 0 / other 0) | bach-bwv1047.mid wall 0.2 s |
+| all | 18429 | 548 | 3.0% | 4 (L 1 / R 0 / other 3) | boulanger-matin.mid 59.13 s |
+
+Folded faces of all samples by the main studio bone: head 812, upper_arm_L 53, upper_arm_R 14, clavicle_R 7, hand_L 1
+
+tail-gap conductor with the body of the rig:
+Tail of the conductor (conductor, standing) in the rest of bach-bwv1047.mid over one sway period of 5.5 s, at steps of 0.25 s. A negative gap is a depth inside the part.
+  floor: 34.2 cm (rest, wall 14.00 s)
+
+weights.armFree.radius=0.095;cut.fins=true:
+Shoulder joint at 0.585 u, 1.6500 m for each unit. Reach L: 0.4701 m with no factor, 0.4701 m with 1, and the factor 1.0000 gives 0.4701 m. Reach R: 0.4701 m with no factor, 0.4701 m with 1, and the factor 1.0000 gives 0.4701 m.
+rig_mesh: source: 1471 vertices, 2938 triangles, scale 0.525702
+rig_mesh: cut L: 2 fins go [2160, 2175]
+rig_mesh: cut R: 1 fins go [463]
+rig_mesh: cut L: 24 faces go, 18 new faces close the hole (smallest angle 5.0 degrees, median 21.1), the arm run [483, 484, 872, 437, 431, 435, 443], the body run [439, 425, 424, 427, 429, 432, 434, 871, 482, 478, 479, 477, 474]
+rig_mesh: cut R: 22 faces go, 18 new faces close the hole (smallest angle 6.3 degrees, median 21.3), the arm run [521, 526, 528, 530, 1279, 589, 586], the body run [593, 597, 590, 594, 596, 595, 591, 532, 531, 529, 507, 502, 524]
+rig_mesh: cut: 2938 triangles before, 2928 after
+rig_mesh: bone heat: 0 vertices with no weight took the nearest bone
+rig_mesh: slivers: 64 faces below 10°, 24 groups of 101 vertices, the largest 9
+rig_mesh: lines: 63 middle corners of faces with a corner angle above 150°
+rig_mesh: arm L: reach 0.4701 m before, 0.4701 m after the factor 1 (target 0.4701 m)
+rig_mesh: arm R: reach 0.4701 m before, 0.4701 m after the factor 1 (target 0.4701 m)
+rig_mesh: refine: 16 flips, the largest move 1.723 mm, 0 cut edges, 0 new faces
+rig_mesh: eyes: 7 faces left, 8 faces right, nose: 85 faces
+rig_mesh: colors: 121 of 2928 faces (4.1%) are dark outside the eye and nose boxes, with the dark limit 0.0121
+rig_mesh: arm: 266 vertices in the free left arm beyond |x| = 0.19
+rig_mesh: bind: 0 faces turn over from the source, on the bones []
+rig_mesh: bind: after 0 rounds of relaxing, 0 faces turn over
+rig_mesh: seat: before the sit, the lowest point of the haunch behind the hips joint is 1.59 cm below the seat top 0.1550 u
+rig_mesh: crease: 13 seam vertices, 138 vertices move, at most 0.0323 u (5.32 cm). 0 faces turn over
+rig_mesh: eye L: 7 dark faces, an edge of 7 points, a fan of 7 faces, 0.0035 u over the eye, 8 faces of the old eye
+rig_mesh: eye R: 8 dark faces, an edge of 6 points, a fan of 6 faces, 0.0045 u over the eye, 8 faces of the old eye
+rig_mesh: palette: 48 colors, the Oklab distance of a face from its color 0.0053 on the mean, 0.0217 at most
+rig_mesh: eye L: the 8 faces of the old eye take the color of 31% of the area of the faces around it
+rig_mesh: eye R: the 8 faces of the old eye take the color of 25% of the area of the faces around it
+rig_mesh: tone: 2560 faces of the plain fur move in Oklab
+rig_mesh: smile: the bands take [16] faces
+rig_mesh: corners: the source corners of 2941 faces of the module in /var/folders/54/0kcjqfln35d4bzyptzpj1nlm0000gn/T/rig-mesh-check-UR9BPS/corners.json
+rig_mesh: stretch: 0 faces turn more than 45° or keep less than 0.5 of the shortest edge from the source to the long-armed source
+rig_mesh: uncut: 1 long thin faces across an arm joint with no ring (corner below 10°, longest edge from 0.08 u, the plane of the joint within 0.1 u)
+rig_mesh:   shoulder R: face 344 (upper_arm_R), 6.7°, 0.095 u, 0.075 u from the joint
+rig_mesh: corrective: the smallest determinant of the skin is 0.7778 at the vertex 453
+rig_mesh: corrective: the clip gives the source back within 3.47e-16 u (0.0000 mm)
+rig_mesh: shape arm_down_L: 288 vertices, largest move 0.0178 u
+rig_mesh: shape arm_down_R: 235 vertices, largest move 0.0179 u
+rig_mesh: shape legs_straight_L: 69 vertices, largest move 0.0279 u
+rig_mesh: shape legs_straight_R: 72 vertices, largest move 0.0278 u
+rig_mesh: chair: the tail goes 0.0558 u over the seat top at its lowest point over the seat
+rig_mesh: chair: front edge at z -0.145 u, the shins and the feet from z -0.1395 u
+rig_mesh: chair: seat top 0.1768 u, lowest point of the body -0.0000 u
+rig_mesh: triangles: 2941 (98 gloss)
+rig_mesh: caps: 36 caps of the cut take the normals of the skin in the app
+rig_mesh: rim: 57 skin faces around the caps of the body take the normals of the skin in the app
+rig_mesh: wrote /var/folders/54/0kcjqfln35d4bzyptzpj1nlm0000gn/T/rig-mesh-check-UR9BPS/bear.rig.glb: 485624 bytes
+Rig: 485624 B, sha256 a1fec81ea2b5c2533ca2a525beff93ba4dfbf36219526ca8613e14cc92e3b78e.
+Kept the rig as scratch/v4/variant-1.glb, with its corners for pnpm arm-look.
+Triangles: 2928 of the budget of 3200 of a studio body.
+Finished in 1ms on 1 files using 10 threads.
+Module: 47,904 B, 22,623 B after gzip. Packed mesh: 21,143 B after gzip, budget 32,000 B (src/models/studio-size.test.ts).
+Scale 1.65 m for each unit. Head height H 0.430 m. Seat height 0.292 m, 0.292 m with no seat of ANIMALS (the seat of the legs). Chair depth 0.183 m.
+Arm from the shoulder joint to the middle of the palm: L 0.470 m, R 0.470 m.
+Lowest point above the floor, seated bind (seat height 0.292 m): leg L 0.000 m, leg R 0.000 m, tail 0.354 m. Standing body: leg L 0.000 m, leg R 0.000 m, tail 0.354 m.
+Standing body against the long-armed source: 0.253 mm at most (limit 1.000 mm), 33.623 mm back, 1481 vertices, 0 eye vertices left out.
+Worst standing vertex: 413, 0.253 mm, bones hips 0.718, spine 0.247, chest 0.024, spine1 0.012.
+Tip of the nose: 0.005, 1.424, -0.600 m, 0.5 cm from the middle plane.
+Thin faces near the joints of the limbs (corner below 10°, longest edge from 0.08 u, joint within 0.1 u), candidates for a ring:
+  shoulder L: 1688 (4.9°, 0.143 m, 0.110 m from the joint), 2107 (4.1°, 0.150 m, 0.147 m from the joint), 2148 (9.9°, 0.155 m, 0.117 m from the joint)
+  shoulder R: 437 (6.6°, 0.229 m, 0.080 m from the joint), 624 (9.8°, 0.147 m, 0.159 m from the joint)
+  ankle R: 809 (3.6°, 0.164 m, 0.141 m from the joint), 1289 (2.8°, 0.149 m, 0.127 m from the joint)
+
+fold-probe conductor with the body of the rig:
+Folded faces of the studio body of the conductor (2928 faces), play step 0.25 s.
+Demos: bach-bwv1047.mid, bach-bwv1048.mid, bach-bwv1050.mid, beethoven-1.mid, beethoven-8-4.mid, beethoven-8.mid, beethoven-9.mid, boulanger-matin.mid, brahms-2.mid, mendelssohn-op61.mid, mozart-k191.mid, mozart-k315.mid, mozart-k417.mid, mozart-k525.mid, percussion-test.mid
+
+| Set | Samples | With a fold | Share | Most faces (by the side of the main bone) | Worst sample |
+|---|---:|---:|---:|---:|---|
+| rest | 15 | 0 | 0.0% | 0 (L 0 / R 0 / other 0) | - |
+| play | 17949 | 511 | 2.8% | 4 (L 1 / R 0 / other 3) | boulanger-matin.mid 59.13 s |
+| lift | 465 | 35 | 7.5% | 3 (L 3 / R 0 / other 0) | bach-bwv1047.mid wall 0.2 s |
+| all | 18429 | 546 | 3.0% | 4 (L 1 / R 0 / other 3) | boulanger-matin.mid 59.13 s |
+
+Folded faces of all samples by the main studio bone: head 812, upper_arm_L 52, upper_arm_R 12, clavicle_R 5, hand_L 1
+
+tail-gap conductor with the body of the rig:
+Tail of the conductor (conductor, standing) in the rest of bach-bwv1047.mid over one sway period of 5.5 s, at steps of 0.25 s. A negative gap is a depth inside the part.
+  floor: 34.2 cm (rest, wall 14.00 s)
+
+weights.armFree.radius=0.1;cut.fins=true:
+Shoulder joint at 0.585 u, 1.6500 m for each unit. Reach L: 0.4701 m with no factor, 0.4701 m with 1, and the factor 1.0000 gives 0.4701 m. Reach R: 0.4701 m with no factor, 0.4701 m with 1, and the factor 1.0000 gives 0.4701 m.
+rig_mesh: source: 1471 vertices, 2938 triangles, scale 0.525702
+rig_mesh: cut L: 2 fins go [2160, 2175]
+rig_mesh: cut R: 1 fins go [463]
+rig_mesh: cut L: 23 faces go, 17 new faces close the hole (smallest angle 5.0 degrees, median 15.5), the arm run [483, 484, 872, 437, 431, 435, 439], the body run [425, 424, 427, 429, 432, 434, 871, 482, 478, 479, 477, 474]
+rig_mesh: cut R: 21 faces go, 17 new faces close the hole (smallest angle 6.3 degrees, median 16.9), the arm run [524, 526, 528, 530, 1279, 589, 586], the body run [593, 597, 590, 594, 596, 595, 591, 532, 531, 529, 507, 502]
+rig_mesh: cut: 2938 triangles before, 2928 after
+rig_mesh: bone heat: 0 vertices with no weight took the nearest bone
+rig_mesh: slivers: 64 faces below 10°, 24 groups of 101 vertices, the largest 9
+rig_mesh: lines: 63 middle corners of faces with a corner angle above 150°
+rig_mesh: arm L: reach 0.4701 m before, 0.4701 m after the factor 1 (target 0.4701 m)
+rig_mesh: arm R: reach 0.4701 m before, 0.4701 m after the factor 1 (target 0.4701 m)
+rig_mesh: refine: 17 flips, the largest move 1.986 mm, 0 cut edges, 0 new faces
+rig_mesh: eyes: 7 faces left, 8 faces right, nose: 85 faces
+rig_mesh: colors: 121 of 2928 faces (4.1%) are dark outside the eye and nose boxes, with the dark limit 0.0121
+rig_mesh: arm: 268 vertices in the free left arm beyond |x| = 0.19
+rig_mesh: bind: 0 faces turn over from the source, on the bones []
+rig_mesh: bind: after 0 rounds of relaxing, 0 faces turn over
+rig_mesh: seat: before the sit, the lowest point of the haunch behind the hips joint is 1.59 cm below the seat top 0.1550 u
+rig_mesh: crease: 13 seam vertices, 138 vertices move, at most 0.0323 u (5.32 cm). 0 faces turn over
+rig_mesh: eye L: 7 dark faces, an edge of 7 points, a fan of 7 faces, 0.0035 u over the eye, 8 faces of the old eye
+rig_mesh: eye R: 8 dark faces, an edge of 6 points, a fan of 6 faces, 0.0045 u over the eye, 8 faces of the old eye
+rig_mesh: palette: 48 colors, the Oklab distance of a face from its color 0.0053 on the mean, 0.0217 at most
+rig_mesh: eye L: the 8 faces of the old eye take the color of 31% of the area of the faces around it
+rig_mesh: eye R: the 8 faces of the old eye take the color of 25% of the area of the faces around it
+rig_mesh: tone: 2560 faces of the plain fur move in Oklab
+rig_mesh: smile: the bands take [16] faces
+rig_mesh: corners: the source corners of 2941 faces of the module in /var/folders/54/0kcjqfln35d4bzyptzpj1nlm0000gn/T/rig-mesh-check-PAqwL9/corners.json
+rig_mesh: stretch: 0 faces turn more than 45° or keep less than 0.5 of the shortest edge from the source to the long-armed source
+rig_mesh: uncut: 1 long thin faces across an arm joint with no ring (corner below 10°, longest edge from 0.08 u, the plane of the joint within 0.1 u)
+rig_mesh:   shoulder R: face 366 (upper_arm_R), 6.7°, 0.095 u, 0.075 u from the joint
+rig_mesh: corrective: the smallest determinant of the skin is 0.7778 at the vertex 453
+rig_mesh: corrective: the clip gives the source back within 3.42e-16 u (0.0000 mm)
+rig_mesh: shape arm_down_L: 290 vertices, largest move 0.0179 u
+rig_mesh: shape arm_down_R: 234 vertices, largest move 0.0179 u
+rig_mesh: shape legs_straight_L: 69 vertices, largest move 0.0279 u
+rig_mesh: shape legs_straight_R: 72 vertices, largest move 0.0278 u
+rig_mesh: chair: the tail goes 0.0558 u over the seat top at its lowest point over the seat
+rig_mesh: chair: front edge at z -0.145 u, the shins and the feet from z -0.1395 u
+rig_mesh: chair: seat top 0.1768 u, lowest point of the body -0.0000 u
+rig_mesh: triangles: 2941 (98 gloss)
+rig_mesh: caps: 34 caps of the cut take the normals of the skin in the app
+rig_mesh: rim: 53 skin faces around the caps of the body take the normals of the skin in the app
+rig_mesh: wrote /var/folders/54/0kcjqfln35d4bzyptzpj1nlm0000gn/T/rig-mesh-check-PAqwL9/bear.rig.glb: 485872 bytes
+Rig: 485872 B, sha256 c6402ea77b4ae4ab310c71b570fd3400edae0e9a302872de5c3f73834d683725.
+Kept the rig as scratch/v4/variant-2.glb, with its corners for pnpm arm-look.
+Triangles: 2928 of the budget of 3200 of a studio body.
+Finished in 3ms on 1 files using 10 threads.
+Module: 47,903 B, 22,684 B after gzip. Packed mesh: 21,223 B after gzip, budget 32,000 B (src/models/studio-size.test.ts).
+Scale 1.65 m for each unit. Head height H 0.430 m. Seat height 0.292 m, 0.292 m with no seat of ANIMALS (the seat of the legs). Chair depth 0.183 m.
+Arm from the shoulder joint to the middle of the palm: L 0.470 m, R 0.470 m.
+Lowest point above the floor, seated bind (seat height 0.292 m): leg L 0.000 m, leg R 0.000 m, tail 0.354 m. Standing body: leg L 0.000 m, leg R 0.000 m, tail 0.354 m.
+Standing body against the long-armed source: 0.253 mm at most (limit 1.000 mm), 33.426 mm back, 1481 vertices, 0 eye vertices left out.
+Worst standing vertex: 505, 0.253 mm, bones hips 0.718, spine 0.247, chest 0.024, spine1 0.012.
+Tip of the nose: 0.005, 1.424, -0.600 m, 0.5 cm from the middle plane.
+Thin faces near the joints of the limbs (corner below 10°, longest edge from 0.08 u, joint within 0.1 u), candidates for a ring:
+  shoulder L: 1736 (4.8°, 0.142 m, 0.109 m from the joint), 2045 (4.5°, 0.150 m, 0.146 m from the joint), 2199 (8.3°, 0.219 m, 0.082 m from the joint), 2345 (7.9°, 0.283 m, 0.065 m from the joint)
+  shoulder R: 277 (8.7°, 0.290 m, 0.042 m from the joint), 279 (8.1°, 0.287 m, 0.062 m from the joint), 474 (6.5°, 0.229 m, 0.081 m from the joint), 609 (9.9°, 0.148 m, 0.159 m from the joint)
+  ankle R: 943 (3.6°, 0.164 m, 0.141 m from the joint), 1565 (2.8°, 0.149 m, 0.127 m from the joint)
+
+fold-probe conductor with the body of the rig:
+Folded faces of the studio body of the conductor (2928 faces), play step 0.25 s.
+Demos: bach-bwv1047.mid, bach-bwv1048.mid, bach-bwv1050.mid, beethoven-1.mid, beethoven-8-4.mid, beethoven-8.mid, beethoven-9.mid, boulanger-matin.mid, brahms-2.mid, mendelssohn-op61.mid, mozart-k191.mid, mozart-k315.mid, mozart-k417.mid, mozart-k525.mid, percussion-test.mid
+
+| Set | Samples | With a fold | Share | Most faces (by the side of the main bone) | Worst sample |
+|---|---:|---:|---:|---:|---|
+| rest | 15 | 15 | 100.0% | 1 (L 1 / R 0 / other 0) | bach-bwv1047.mid rest |
+| play | 17949 | 6525 | 36.4% | 6 (L 0 / R 2 / other 4) | boulanger-matin.mid 33.88 s |
+| lift | 465 | 218 | 46.9% | 3 (L 3 / R 0 / other 0) | bach-bwv1047.mid wall 0.2 s |
+| all | 18429 | 6758 | 36.7% | 6 (L 0 / R 2 / other 4) | boulanger-matin.mid 33.88 s |
+
+Folded faces of all samples by the main studio bone: upper_arm_R 6504, head 804, upper_arm_L 57, chest 43, clavicle_L 30, clavicle_R 5, hand_L 1
+
+tail-gap conductor with the body of the rig:
+Tail of the conductor (conductor, standing) in the rest of bach-bwv1047.mid over one sway period of 5.5 s, at steps of 0.25 s. A negative gap is a depth inside the part.
+  floor: 34.2 cm (rest, wall 14.00 s)
+
+| Variant | Triangles | Mesh gzip B | Scale m/u | Seat m | Leg seat m | Chair m | Reach L m | Reach R m | Standing mm | conductor play | conductor lift | conductor rest | conductor bones |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| base | 2938 | 21268 | 1.6500 | 0.292 | 0.292 | 0.183 | 0.470 | 0.470 | 0.246 | 2.9% | 7.7% | 0.0% | head 812, upper_arm_L 53, upper_arm_R 14 |
+| weights.armFree.radius=0.095;cut.fins=true | 2928 | 21143 | 1.6500 | 0.292 | 0.292 | 0.183 | 0.470 | 0.470 | 0.253 | 2.8% | 7.5% | 0.0% | head 812, upper_arm_L 52, upper_arm_R 12 |
+| weights.armFree.radius=0.1;cut.fins=true | 2928 | 21223 | 1.6500 | 0.292 | 0.292 | 0.183 | 0.470 | 0.470 | 0.253 | 36.4% | 46.9% | 100.0% | upper_arm_R 6504, head 804, upper_arm_L 57 |
+
+Form of the players against no commit (each value with its difference from no commit):
+
+| Variant | Player | Seat m | Visible head m | Standing head top m | Seated head top m | Footprint m |
+|---|---|---|---|---|---|---|
+
+Hold anchors of the seated players against no commit (each move from no commit in mm, MOVED above 1 mm):
+
+| Variant | Player | Head center m | Head height m | Nose m | Instrument box m |
+|---|---|---|---|---|---|
+
+Stage side of each demo against no commit:
+
+| Demo | base | weights.armFree.radius=0.095;cut.fins=true | weights.armFree.radius=0.1;cut.fins=true |
+|---|---|---|---|
+| bach-bwv1047.mid | 10.520 | 10.520 | 10.520 |
+| bach-bwv1048.mid | 10.505 | 10.505 | 10.505 |
+| bach-bwv1050.mid | 8.942 | 8.942 | 8.942 |
+| beethoven-1.mid | 9.932 | 9.932 | 9.932 |
+| beethoven-8-4.mid | 10.353 | 10.353 | 10.353 |
+| beethoven-8.mid | 9.809 | 9.809 | 9.809 |
+| beethoven-9.mid | 12.549 | 12.549 | 12.549 |
+| boulanger-matin.mid | 11.333 | 11.333 | 11.333 |
+| brahms-2.mid | 11.200 | 11.200 | 11.200 |
+| mendelssohn-op61.mid | 9.949 | 9.949 | 9.949 |
+| mozart-k191.mid | 8.517 | 8.517 | 8.517 |
+| mozart-k315.mid | 8.975 | 8.975 | 8.975 |
+| mozart-k417.mid | 8.353 | 8.353 | 8.353 |
+| mozart-k525.mid | 6.787 | 6.787 | 6.787 |

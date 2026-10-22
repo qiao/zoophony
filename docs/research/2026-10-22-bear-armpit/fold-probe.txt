@@ -1,0 +1,11 @@
+
+> zoophony@0.0.0 fold-probe /Users/xueqiaoxu/proj/zoophony/.claude/worktrees/bear-armpit
+> node tools/fold-probe.ts conductor --base 5593e92b
+
+Folded faces of the studio body of the conductor on 5593e92b (5593e92b) and on the working tree: 51.7 s.
+
+| Set | 5593e92b (5593e92b) | Working tree |
+|---|---:|---:|
+| rest | 0.0% (0/15), most 0 (L 0 / R 0 / other 0) | 0.0% (0/15), most 0 (L 0 / R 0 / other 0) |
+| play | 2.9% (512/17949), most 4 (L 1 / R 0 / other 3) | 2.8% (511/17949), most 4 (L 1 / R 0 / other 3) |
+| lift | 7.7% (36/465), most 3 (L 3 / R 0 / other 0) | 7.5% (35/465), most 3 (L 3 / R 0 / other 0) |
