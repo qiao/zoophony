@@ -298,9 +298,11 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
 - [ ] Rhino: the agent chose the stand, the arms of the mesh, the lead pipe, and the hold while the
       user slept. The user reviews them in `docs/research/2026-10-21-mesh-rhino/tubist-base-views.webp`
       and `lineup-base-views.webp` (`2026-10-21-mesh-rhino.md`).
-- [ ] Rhino: faces 38 and 2413, thin faces at the shoulders above the cut of the seam, and faces 396
-      and 727 at the clavicles fold in each sample of the tubist. Count their pixels in a probe
-      build, or try rigid weights (`docs/research/2026-10-21-mesh-rhino/fold-probe.txt`).
+- [x] Rhino: faces 38 and 2413, thin faces at the shoulders above the cut of the seam, fold in
+      each sample of the tubist. They move rigidly (`weights.rigid`, `2026-10-22-rhino-arm.md`).
+- [ ] Rhino: face 773 at the middle of the chest (727 before) folds in each sample of the tubist,
+      and face 448 (396 before) at rest. Count their pixels in a probe build, or try rigid weights
+      (`docs/research/2026-10-22-rhino-arm/fold-probe.txt`).
 - [ ] Rhino: with an assumed tuba of 10 kg, the center of mass is 2.7 cm to 3.4 cm in front of the
       middle of the soles, at 59% to 61% of the support depth, at the top of the stable range of
       30% to 60%. A small lean of the trunk back is an option (`balance.txt`).
@@ -361,9 +363,9 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       in the play, below the limit 0.44 of `pnpm arm-look`.
 - [ ] Beaver: the narrow axis of the middle of each upper arm is 0.40 and 0.35 of the wide axis in
       the play, below the limit 0.44 of `pnpm arm-look`.
-- [ ] Rhino: the left arm skin creases in 16.7% of the edges in the play, and the narrow axis of
-      the middle of each upper arm is 0.39 and 0.41 of the wide axis, past both limits of
-      `pnpm arm-look`.
+- [x] Rhino: the left arm skin creased in 16.7% of the edges in the play, and the narrow axis of
+      the middle of each upper arm was 0.39 and 0.41 of the wide axis. Now 11.1% and 12.0%, and
+      0.65 and 0.63 (`2026-10-22-rhino-arm.md`).
 - [ ] Pig: the dome of each new upper arm lies inside the shoulder, so `pnpm pose-depth hornist`
       gives the upper arms 4.2 cm in the body in each set (0.5 cm before). Give the sweep an
       accepted depth after the test pause. Small dark facets show at the top of the shoulders.
@@ -1062,7 +1064,7 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       - [ ] Deer marks after the cut: at az150, a dark area with a light jagged line on the back
             of the right upper arm root, most at rest from 40°, and a small dark V under the left
             root at az-150 (`deer-root-rest-e40.webp` of the round `deer-dog-seams`).
-      - [ ] Deer arm gate: the right twist p95 rises from 40° to 55° (`FAIL`, limit 55°), because
+      - [x] Deer arm gate: the right twist p95 rises from 40° to 55° (`FAIL`, limit 55°), because
             the free root turns with the bone and the measure starts at the chest. The twist along
             the upper arm falls from 17° to 6°. Accept it as a decision row, or let the twist of
             `tools/arm-shape.ts` start at the shoulder ring for a cut arm.
@@ -1072,11 +1074,18 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
             folds in 5.3% of the lift (16.1% to 17.5%), and the upper arms go 5.5 cm into the
             body. Next: a `raise` shape of the lift for face 342 (`pnpm raise-fit cellist --faces
             342 --side R --sets lift --glb <rig>`), then the audit.
-      - [ ] Rhino flat forearm: the flat cap of the cut over the whole inner side of the arm. A
-            round patch in a copy (`arm_patch.py` of `docs/research/2026-10-22-panda-armpit/`,
-            step 0.03, `weights.armIslands`, `cut.low` 0.17) lifts the left section from 0.39 to
-            0.44, but the crease share stays 15.7% (`FAIL`). Next: a finer patch on the forearm
-            only, within 3,200 triangles.
+      - [x] Rhino flat forearm: the flat cap of the cut over the whole inner side of the arm. The
+            rig reads a copy with a round patch of each inner arm (`rhino-arms.glb`), and the
+            flat dark sheet under the left forearm is gone (`2026-10-22-rhino-arm.md`).
+      - [ ] Rhino trunk holes: the cut closes each hole of the trunk of `rhino-arms.glb` with a
+            fan of 26 faces. Its long faces face down under the arm, and the down area of
+            `flap.ts` grows from 114 and 211 cm² to 298 and 428 cm². A dark vertical slit stays
+            on the side of the trunk below each arm. Try `cut.bodyNormals`, or a round patch of
+            the trunk hole with a coarser patch of the upper arms (3 triangles are left).
+      - [ ] Rhino right forearm: from az150, its underside stays a dark facet with a straight
+            lower edge, as on the base (`pairs-*-e20.webp` of `2026-10-22-rhino-arm/`).
+      - [ ] Rhino face 188: a face of the right trunk beside the forearm folds at rest. The
+            hanging arm covers it in the crops. Count its pixels in a probe build.
       - [ ] Body probe of the panda round: 18 pose sets of other players change at the start of
             brahms-2 and beethoven-9. Find the shared input that the panda rig moves.
 - [ ] Tools of a mesh round (retro of the bear mesh round, 2026-10-22):
