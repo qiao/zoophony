@@ -112,9 +112,12 @@ type RestingHand =
 export const HANDS_HOLDS = {
   // The polar bear mesh has a round belly in front of short arms (arm factor 1.25 of
   // `tools/mesh-rigs/polar-bear.json`). The keys stand in front of the belly (`PIANO_FRONT_H`),
-  // and the spine leans 28° forward, so that the paws reach each key of the demos. With 26°, the
-  // left paw missed the far keys by up to 13 mm. The palm is 0.12 m in front of the front edge of
-  // the keys and 0.09 m above them, and the curled claws lie on the keys (`pianoKeyFront()`).
+  // and the spine leans 24° forward, so that the paws reach each key of the demos. The bear sits
+  // on level thighs, with its shoulders about 10 cm lower than on the old seat of straight legs.
+  // With 22°, the left paw missed the far keys by up to 12 mm. With 26° and more, the paws went
+  // up to 1.7 cm into the belly (`docs/research/2026-10-22-polar-seat.md`). The palm is 0.12 m in
+  // front of the front edge of the keys and 0.09 m above them, and the curled claws lie on the
+  // keys (`pianoKeyFront()`).
   // The elbows point out and a little up: with the poles of the studio polar bear (out, down, and
   // back), the inner elbows went up to 16 cm into the sides of the belly. A real pianist holds
   // the elbows a little out from the body and a little in front of it
@@ -130,7 +133,7 @@ export const HANDS_HOLDS = {
     faceR: [0, -1, 0],
     aimL: null,
     aimR: null,
-    lean: 28 * MathUtils.DEG2RAD,
+    lean: 24 * MathUtils.DEG2RAD,
     restLean: 8 * MathUtils.DEG2RAD,
     restHeadLift: 8 * MathUtils.DEG2RAD,
     reach: { leftHighest: 70, rightLowest: 60 },
@@ -157,17 +160,19 @@ export const HANDS_HOLDS = {
     // The arms are short, so the forearms and the upper arms lie on the belly, up to 3 cm into
     // it. Higher paws with the elbows forward looked as if the bear held its paws up at the keys
     // (review of 2026-10-13). With the trunk of the studio rest clip, the bear slumped forward over
-    // its knees, and the paws hung beside them (user report of 2026-10-13).
+    // its knees, and the paws hung beside them (user report of 2026-10-13). On the level thighs of
+    // the polar bear mesh, the lap places lie 0.6 H in front of the lap, so that the paws rest
+    // about 4 cm from the belly. At 0.7 H, they hung 9 cm in front of it.
     restL: {
       kind: 'lap',
-      lap: { along: 1, offset: [0.03, 0.14, -0.7] },
+      lap: { along: 1, offset: [0.03, 0.14, -0.6] },
       palm: [0.06, -0.57, 0.79],
       fingers: [1.18, -0.09, -0.92],
       pole: [-1, -1, 0.77],
     },
     restR: {
       kind: 'lap',
-      lap: { along: 1, offset: [-0.03, 0.14, -0.7] },
+      lap: { along: 1, offset: [-0.03, 0.14, -0.6] },
       palm: [-0.06, -0.57, 0.79],
       fingers: [-1.18, -0.09, -0.92],
       pole: [1, -1, 0.77],
