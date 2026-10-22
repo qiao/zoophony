@@ -439,12 +439,12 @@ const HANGING_BOW = {
  * the left also reached the nut, but folded the skin of the left arm in 76% to 100% of the play
  * samples (2026-10-14-arms-rest decisions). The back stays straight. The bow lies nearly square
  * across the strings. The right arm has the shoulder turn of the chin hold. At the frog, the right
- * elbow points out, forward, and down, (1.5, -1.5, -1), and the bow keeps 0.06 m of free hair at
- * each end: with the larger violin, the bow paw went 3.2 cm into the body at the frog, and 1.9 cm
- * with the elbow (1.5, -0.7, -1), nearer to the level of the bow, and this free hair. With the
- * stick through the middle of the paw of 2026-10-17, that elbow put the right paw 2.1 cm into the
- * violin at the first note after the lift (1.2 cm before), and this elbow 1.4 cm
- * (2026-10-17-grip-all decisions). The right elbow points down at the tip too: up, as in the chin
+ * elbow points out, forward, and a little down, (1.8, -0.7, -1), as the bow elbow of the red fox,
+ * and the bow keeps 0.06 m of free hair at each end. The user chose this elbow on 2026-10-21
+ * ("the rabbit and pig's arms are still very deformed"): with the elbow (1.5, -1.5, -1), the
+ * broad side of the long upper arm faced the front as a flat plank, and with this elbow the upper
+ * arm reads across the body. The bow paw goes 2.4 cm into the violin in the worst play sample
+ * (2.1 cm before, `docs/research/2026-10-21-arm-form.md`). The right elbow points down at the tip too: up, as in the chin
  * hold, the skin of the studio rabbit folded at the right upper arm (`pnpm fold-probe violinist`).
  * The left elbow points out, down, and a little forward, (-1, -1, -0.5), further out than the pole
  * of the chin hold: with that pole, the left paw went 2.3 cm into the violin and the play folded in
@@ -487,7 +487,7 @@ const SHOULDER_HOLD = {
   poleL: [-1, -1, -0.5],
   playShift: [-0.054, -0.05, 0.19],
   playTurn: violinTurn(-25, 5),
-  poleR: [1.5, -1.5, -1],
+  poleR: [1.8, -0.7, -1],
   freeHair: 0.06,
   poleTipR: CHIN_HOLD.poleR,
   lean: 0,
@@ -524,7 +524,7 @@ const SHOULDER_HOLD = {
  * 15°, and the right elbow at the tip points less down: with the bow of the rabbit (5°, 30°), the
  * skin of the right shoulder of the fox mesh folded in 18% of the play samples
  * (`pnpm fold-probe fox-violinist`), and with the full violin, the turn of 15° folds fewer samples
- * than 25°. At the frog, the right elbow points further out than the elbow of the rabbit,
+ * than 25°. At the frog, the right elbow points out, forward, and a little down,
  * (1.8, -0.7, -1), and the bow keeps 0.12 m of free hair at each end: with 0.08 m and the violin
  * further back, the bow paw went 3.7 cm into the body at the frog, with 0.1 m and the elbow
  * (1.4, -0.7, -1) 3.0 cm, and with this hold 2.4 cm, with the same share of folded play samples

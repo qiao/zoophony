@@ -413,7 +413,9 @@ The code constants of each family hold the times, the angles, and the lengths of
       the bow nearly square, and the back straight. The violin sits back toward the neck, so that
       the left paw reaches the nut with the size that the user set (`SpeciesParams.violinScale`).
       The bow keeps a free hair at each end (`BowedHold.freeHair`), so that the paw stays out of
-      the body at the frog.
+      the body at the frog. The bow elbow points out and forward as the elbow of the red fox
+      (`BowedHold.poleR`), so that the flat upper arm reads across the body and does not turn its
+      broad side to the front (`docs/decisions/2026-10-21-arm-form.md`).
     - The red foxes take the shoulder hold (`FOX_HOLD`) with the tail end under the long jaw and
       their own bow arm, because the bow of the rabbit folded the skin of the fox mesh.
     - The cat holds the viola under the chin (`CAT_HOLD`), back toward the neck, so that the left

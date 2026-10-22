@@ -413,6 +413,12 @@ A round that changes the motion updates the items.
   The app had 9° (7° on the contrabass) before. The arm levels come from the
   geometry: the bow plane of the string turns the hand, and the arm follows it, higher for the
   lower strings of the violin and the viola.
+- **The bow elbow at the frog.** No source of this file gives the direction of the right elbow at
+  the frog. The vertical move of the upper arm makes the crossings (section 2.3), so each hold
+  keeps the elbow near the level of the bow. The rabbit and the red fox point the elbow out,
+  forward, and a little down (`BowedHold.poleR` of `pose/bowed-rig.ts`). With the elbow further
+  down, the long flat upper arm of the rabbit turned its broad side to the front as a plank (user,
+  2026-10-21, `docs/decisions/2026-10-21-arm-form.md`).
 - **The string crossing leads the note** (section 2.3). `bowStateAt()` of `pose/strokes.ts` turns
   the bow to the string of the next note in at most 0.08 s, and in at most 0.3 of the time from
   the note start to the next note (`BOW_MOTION.crossSec` and `crossShare`). The turn ends 0.01 s
