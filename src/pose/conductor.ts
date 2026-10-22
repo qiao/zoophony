@@ -2,6 +2,7 @@ import { MathUtils, Quaternion, Vector3 } from 'three';
 
 import type { PlayerModel } from '../models/player.ts';
 import { boneIndex } from '../models/rig.ts';
+import { BATON_ALONG, BATON_TOP } from '../models/instruments/baton.ts';
 import { placePoint } from '../models/instruments/hold.ts';
 import { toVec3 } from '../models/tuples.ts';
 import type { Vec3 } from '../models/tuples.ts';
@@ -158,8 +159,15 @@ const MIRROR_SCALE = 0.45;
 /** The curl of the closed left hand of a cut-off. */
 const CLOSE_CURL = 80 * MathUtils.DEG2RAD;
 
-/** The rotation of the baton in the bind pose: its tip to the front, +y up (design 4.6). */
-const BATON_BIND = setFromBasis(new Quaternion(), new Vector3(0, 0, -1), new Vector3(0, 1, 0));
+/**
+ * The rotation of the baton in the bind pose: its tip along the fingers of the hanging right hand,
+ * and its top out of the back of the hand (design 4.6, {@link BATON_ALONG}).
+ */
+const BATON_BIND = setFromBasis(
+  new Quaternion(),
+  new Vector3(...BATON_ALONG),
+  new Vector3(...BATON_TOP),
+);
 
 /** The inverse of {@link BATON_BIND}. */
 const BATON_INVERSE = BATON_BIND.clone().invert();
