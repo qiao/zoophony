@@ -481,7 +481,12 @@ twist bone (`docs/decisions/2026-10-19-arm-skin.md`).
     |x| = `armSplit` then cuts through the arm or the trunk, so the plane turns around the
     vertical through both notches, and the free arm keeps within a radius of the arm joints and
     above a floor (`weights.armFree`). The cut of the seam then opens the arm from the trunk up to
-    just below the shoulder. Each flipper of the penguin is an arm of the rig, free of the body
+    just below the shoulder. The root of the bear arm reaches farther back than forward, so a
+    radius around the joints left its back strip on the trunk, and a raised arm pulled that strip
+    out as a dark flap. The chain of the joints moves back before the distance
+    (`weights.armFree.shift`), so that the free arm takes the back strip and leaves the front edge
+    on the trunk. A kept face that sticks into the hole of the cut with two edges goes too
+    (`cut.fins`), because the cap repeats it with the opposite winding. Each flipper of the penguin is an arm of the rig, free of the body
     below its root, so the plane frees it with no cut. The upper arm of its bind points far down
     (`studio.bindArms`), because the large turn from the hanging flipper to the bind arm of the
     other meshes turned the faces at the root of the flipper over.
