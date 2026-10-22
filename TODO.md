@@ -460,17 +460,24 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       a lean of 35°, so the rig makes them 1.25 times as long. The user chose to keep these arms
       (`2026-10-22-mesh-polar-bear.md`).
 - [ ] Polar bear folds: faces of the head, the neck, the right forearm, and the cut of the
-      shoulders fold in 52% of the play samples (9.6% on the studio polar bear). The arm gate
+      shoulders fold in 37% of the play samples since the seat of `2026-10-22-polar-seat.md`
+      (52% before, 9.6% on the studio polar bear). The arm gate
       passes. Fit the head line and a shape of the right forearm (`fold.txt` of
       `docs/research/2026-10-22-mesh-polar-bear/`).
 - [ ] Polar bear upper arms: the thick upper arms press up to 10 cm into the sides of the round
       belly near the elbows in a play (`PIANIST_SWEEP`). Try a rounder inner side of the upper
       arm in a copy of the mesh, as for the rabbit (`2026-10-22-rabbit-elbow.md`).
-- [ ] Polar bear seat (user, 2026-10-22: "also the polar bear's pose is very wrong now"): the mesh
-      polar bear does not read as seated. Its legs are near straight, the bench (0.173 m) is a low
-      block behind its heels, and the body leans over the keys. Give it a seated pose with the
-      haunch on the bench, level thighs, knees near 90° under the key bed, and the soles on the
-      floor, at each moment and in the rest pose. The user chose to queue this round.
+- [x] Polar bear seat (user, 2026-10-22: "also the polar bear's pose is very wrong now"): the mesh
+      polar bear sits on near level thighs with its knees at 95°, the hip joints in the haunch,
+      and the haunch on a bench under the thighs (`2026-10-22-polar-seat.md`).
+- [ ] Polar bear legs: with the legs of the mesh, the bench is 0.142 m high, and the round belly
+      hides the short thighs from the side, so the bear sits low and still reads in part as a
+      squat. Ask the user for longer legs (`legFactor`). With a leg factor, the landmark of the
+      standing shoulders shrinks the whole body, so keep the size first
+      (`docs/research/2026-10-22-polar-seat.md`).
+- [ ] Polar bear balance: the center of mass of the seated polar bear is 6 cm (rest) to 16 cm
+      (play) in front of the front edge of the bench, between the bench and the soles. The calves
+      stop the bench front (`seat-round.txt` of `docs/research/2026-10-22-polar-seat/`).
 - [ ] Polar bear rest: in the rest pose, the paws of the mesh polar bear rest on the upper belly,
       higher than a pianist before a performance. Lower lap places fold 9 faces at rest
       (`scans/rest-lap.txt` of `docs/research/2026-10-22-mesh-polar-bear/`).
