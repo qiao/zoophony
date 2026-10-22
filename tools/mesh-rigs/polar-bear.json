@@ -320,10 +320,10 @@
     "fingers": 0.5,
     "haunch": {
       "height": [
-        0.175,
-        0.29
+        0.16,
+        0.24
       ],
-      "note": "The part of the thigh weight that goes to the hips grows from 0 at the lower height to 1 at the upper height, so that the buttocks stay on the hips: from 0.03 units above the knee to 0.03 units above the thigh joint, as for the deer."
+      "note": "The part of the thigh weight that goes to the hips grows from 0 at the lower height to 1 at the upper height, so that the buttocks stay on the hips: from 0.015 units above the knee to 0.02 units below the thigh joint. With the ramp of the deer (0.03 units above the knee to 0.03 units above the thigh joint, 0.175 to 0.29), the thighs took the root of the tail, and a light spike stood over the tail ball from behind (docs/research/2026-10-22-polar-seat.md)."
     },
     "note": "Beyond the plane of armSplit (armFree), only the free arm follows the arm bones. Above headFrom, each vertex follows the head only: with 0.77 at the neck, the head turns of the cues folded the faces of the neck in about 2,900 samples, and with 0.8 and shoulderHead from 0.1 to 0.16, in about 1,400. Each ear follows its ear bone above the heights of earBase. The tail ball holds the short tail (sections-z.txt: the tail from z -0.204 to -0.239, y 0.29 to 0.41). With the radius 0.06 and the plane at -0.2, the sit of the haunch pulled the faces of the tail root into a spike that pointed up in the side view. armTop is the rule of the deer, moved with the shoulder joint (y 0.6) of the polar bear.",
     "armFree": {
