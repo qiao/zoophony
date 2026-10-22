@@ -1,0 +1,18 @@
+pnpm arm-check conductor --base 7c1747ed with hold variants (before the grip entry of the new grip; the grip turn FAIL is the old entry). A: beatPoint [-0.042,0.742,-1.774], batonPivot [0.718,-0.157,0.316] (up 22 degrees); B30: [-0.016,0.966,-1.703], [0.694,-0.233,0.249] (chosen); C35: [0.004,0.987,-1.648], [0.675,-0.388,0.198]; -out and -mid: poleR [1,-0.5,0] and [0.8,-0.8,-0.2].
+| Variant | Role | Arm | folds p95 (8) | twist p95 (55) | forearm twist p95 (80) | flat p5 (0.55) | paw twist p95 (170) | paw swing p95 (70) | paw jumps (0.5%) | stretch p95 (0.35) | grip turn p50 (45) | move twist max (176) | move turn max (3000) | Verdict |
+| A | conductor | L | 0 (1) | 28 (22) | 14 (40) | 0.82 (0.79) | 49 (58) | 25 (42) | 0.0% (0.0%) | 0.20 (0.34) | 22 (3) FAIL | 53 (60) | 455 (497) | FAIL |
+| A | conductor | R | 0 (0) | 23 (27) | 12 (40) | 0.85 (0.75) | 44 (80) | 35 (62) | 0.0% (0.0%) | 0.24 (0.32) | 89 (7) FAIL | 71 (95) | 4249 (994) FAIL | FAIL |
+| A-out | conductor | L | 0 (1) | 28 (22) | 14 (40) | 0.82 (0.79) | 49 (58) | 25 (42) | 0.0% (0.0%) | 0.20 (0.34) | 22 (3) FAIL | 53 (60) | 455 (497) | FAIL |
+| A-out | conductor | R | 0 (0) | 23 (27) | 19 (40) | 0.84 (0.75) | 65 (80) | 35 (62) | 0.0% (0.0%) | 0.24 (0.32) | 46 (7) FAIL | 96 (95) | 4331 (994) FAIL | FAIL |
+| A-mid | conductor | L | 0 (1) | 28 (22) | 14 (40) | 0.82 (0.79) | 49 (58) | 25 (42) | 0.0% (0.0%) | 0.20 (0.34) | 22 (3) FAIL | 53 (60) | 455 (497) | FAIL |
+| A-mid | conductor | R | 0 (0) | 23 (27) | 14 (40) | 0.86 (0.75) | 48 (80) | 34 (62) | 0.0% (0.0%) | 0.23 (0.32) | 65 (7) FAIL | 84 (95) | 4306 (994) FAIL | FAIL |
+| conductor | R | move turn max | move | 17415 | 3 | 393 | 88.2% | 4249 at brahms-2.mid lower 250.82 s, wall 0.10 s | 4249 | 3000 | 994 | FAIL |
+| conductor | R | move turn max | move | 17415 | 3 | 442 | 86.1% | 4331 at brahms-2.mid lower 250.82 s, wall 0.10 s | 4331 | 3000 | 994 | FAIL |
+| conductor | R | move turn max | move | 17415 | 3 | 413 | 87.2% | 4306 at brahms-2.mid lower 250.82 s, wall 0.10 s | 4306 | 3000 | 994 | FAIL |
+| Variant | Role | Arm | folds p95 (8) | twist p95 (55) | forearm twist p95 (80) | flat p5 (0.55) | paw twist p95 (170) | paw swing p95 (70) | paw jumps (0.5%) | stretch p95 (0.35) | grip turn p50 (45) | move twist max (176) | move turn max (3000) | Verdict |
+| B30 | conductor | L | 0 (1) | 28 (22) | 14 (40) | 0.82 (0.79) | 49 (58) | 25 (42) | 0.0% (0.0%) | 0.20 (0.34) | 22 (3) FAIL | 53 (60) | 455 (497) | FAIL |
+| B30 | conductor | R | 0 (0) | 23 (27) | 11 (40) | 0.84 (0.75) | 41 (80) | 34 (62) | 0.0% (0.0%) | 0.24 (0.32) | 85 (7) FAIL | 73 (95) | 1150 (994) | FAIL |
+| C35 | conductor | L | 0 (1) | 28 (22) | 14 (40) | 0.82 (0.79) | 49 (58) | 25 (42) | 0.0% (0.0%) | 0.20 (0.34) | 22 (3) FAIL | 53 (60) | 455 (497) | FAIL |
+| C35 | conductor | R | 0 (0) | 23 (27) | 11 (40) | 0.86 (0.75) | 39 (80) | 33 (62) | 0.0% (0.0%) | 0.24 (0.32) | 83 (7) FAIL | 75 (95) | 1054 (994) | FAIL |
+| B30-out | conductor | L | 0 (1) | 28 (22) | 14 (40) | 0.82 (0.79) | 49 (58) | 25 (42) | 0.0% (0.0%) | 0.20 (0.34) | 22 (3) FAIL | 53 (60) | 455 (497) | FAIL |
+| B30-out | conductor | R | 0 (0) | 23 (27) | 20 (40) | 0.84 (0.75) | 69 (80) | 37 (62) | 0.0% (0.0%) | 0.24 (0.32) | 43 (7) FAIL | 99 (95) FAIL | 1240 (994) | FAIL |

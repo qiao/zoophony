@@ -1,0 +1,11 @@
+Demos: boulanger-matin.mid, mozart-k525.mid, beethoven-9.mid. Samples: 2752.
+| Value | p5 | median | p95 |
+|---|---|---|---|
+| baton to forearm deg | 33 | 35 | 40 |
+| baton lift deg | 32 | 38 | 46 |
+| baton inward deg | -3 | 12 | 31 |
+| palm normal y | -0.742 | -0.685 | -0.608 |
+| wrist out m | 0.095 | 0.208 | 0.268 |
+| wrist up m | 0.171 | 0.222 | 0.276 |
+| wrist forward m | 0.206 | 0.271 | 0.304 |
+| elbow up m | 0.025 | 0.081 | 0.120 |

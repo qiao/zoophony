@@ -1,0 +1,12 @@
+
+> zoophony@0.0.0 fold-probe /Users/xueqiaoxu/proj/zoophony/.claude/worktrees/mesh-bear
+> node tools/fold-probe.ts conductor --base 7c1747ed
+
+Folded faces of the studio body of the conductor on 7c1747ed (7c1747ed) and on the working tree: 48.4 s.
+
+| Set | 7c1747ed (7c1747ed) | Working tree |
+|---|---:|---:|
+| rest | 100.0% (15/15), most 1 (L 1 / R 0 / other 0) | 0.0% (0/15), most 0 (L 0 / R 0 / other 0) |
+| play | 50.9% (9128/17949), most 7 (L 6 / R 1 / other 0) | 2.9% (512/17949), most 4 (L 1 / R 0 / other 3) |
+| lift | 13.3% (62/465), most 3 (L 3 / R 0 / other 0) | 7.7% (36/465), most 3 (L 3 / R 0 / other 0) |
+fold=0

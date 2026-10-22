@@ -1,0 +1,56 @@
+
+> zoophony@0.0.0 body-probe /Users/xueqiaoxu/proj/zoophony/.claude/worktrees/mesh-bear
+> node tools/body-probe.ts --base 7c1747ed
+
+base 7c1747ed, new: the working tree
+bodies equal: 90 of 95
+players equal: 22 of 23
+body bear chair: mesh differs (positions, colors, bones, blendBones, blendWeights, finishes, correctives, normals), joints differ
+body bear stool: mesh differs (positions, colors, bones, blendBones, blendWeights, finishes, correctives, normals), joints differ
+body bear high-stool: mesh differs (positions, colors, bones, blendBones, blendWeights, finishes, correctives, normals), joints differ
+body bear bench: mesh differs (positions, colors, bones, blendBones, blendWeights, finishes, correctives, normals), joints differ
+body bear stand: mesh differs (positions, colors, bones, blendBones, blendWeights, finishes, correctives, normals), joints differ
+player conductor/bear/baton: mesh differs (positions, colors, bones, blendBones, blendWeights, finishes, correctives, normals), moved bones: hips spine chest neck head jaw eyeL eyeR earL earR tail1 tail2 trunk1 trunk2 trunk3 shoulderL upperArmL forearmL handL fingersL shoulderR upperArmR forearmR handR fingersR thighL shinL footL thighR shinR footR instrument bow malletL malletR baton slide
+ ELIFECYCLE  Command failed with exit code 1.
+bp=1
+pose sets equal: 901 of 1492
+pose bach-bwv1047 0 violin/rabbit/violin: play from sample 21 of 560 (song 7.90 s, wall 20.00 s)
+pose bach-bwv1047 1 violin/rabbit/violin: play from sample 24 of 560 (song 9.40 s, wall 21.50 s)
+pose bach-bwv1047 2 violin/rabbit/violin: play from sample 21 of 560 (song 7.90 s, wall 20.00 s)
+pose bach-bwv1047 3 violin/rabbit/violin: lift from sample 37 of 40 (song 0.00 s, wall 13.60 s), play from sample 9 of 560 (song 1.90 s, wall 14.00 s), lower from sample 13 of 58 (song 138.75 s, wall 13.60 s)
+pose bach-bwv1047 4 violin/fox-red/violin: play from sample 20 of 560 (song 7.40 s, wall 19.50 s)
+pose bach-bwv1047 5 violin/fox-red/violin: rest from sample 1 of 4 (song -2.10 s, wall 10.00 s), lift from sample 1 of 40 (song -2.10 s, wall 10.00 s), play from sample 1 of 560 (song -2.10 s, wall 10.00 s), lower from sample 1 of 58 (song 138.75 s, wall 10.00 s)
+pose bach-bwv1047 6 violin/fox-red/violin: play from sample 27 of 560 (song 10.90 s, wall 23.00 s)
+pose bach-bwv1047 7 violin/fox-red/violin: play from sample 10 of 560 (song 2.40 s, wall 14.50 s), lower from sample 22 of 58 (song 138.75 s, wall 14.50 s)
+pose bach-bwv1047 8 violin/rabbit/violin: rest from sample 3 of 4 (song -2.10 s, wall 12.00 s), lift from sample 18 of 40 (song -0.40 s, wall 11.70 s), play from sample 5 of 560 (song -0.10 s, wall 12.00 s), lower from sample 5 of 58 (song 138.75 s, wall 12.00 s)
+pose bach-bwv1047 9 violin/rabbit/violin: play from sample 37 of 560 (song 15.90 s, wall 28.00 s)
+pose bach-bwv1047 10 violin/rabbit/violin: rest from sample 4 of 4 (song -2.10 s, wall 13.00 s), lift from sample 29 of 40 (song 0.00 s, wall 12.80 s), play from sample 7 of 560 (song 0.90 s, wall 13.00 s), lower from sample 7 of 58 (song 138.75 s, wall 13.00 s)
+pose bach-bwv1047 11 violin/rabbit/violin: play from sample 25 of 560 (song 9.90 s, wall 22.00 s)
+pose bach-bwv1047 12 viola/cat/viola: play from sample 43 of 560 (song 18.90 s, wall 31.00 s)
+pose bach-bwv1047 13 viola/cat/viola: play from sample 82 of 560 (song 38.40 s, wall 50.50 s)
+pose bach-bwv1047 14 viola/cat/viola: play from sample 30 of 560 (song 12.40 s, wall 24.50 s)
+pose bach-bwv1047 15 cello/dog/cello: rest from sample 1 of 4 (song -2.10 s, wall 10.00 s), lift from sample 1 of 40 (song -2.10 s, wall 10.00 s), play from sample 1 of 560 (song -2.10 s, wall 10.00 s), lower from sample 1 of 58 (song 138.75 s, wall 10.00 s)
+pose bach-bwv1047 16 cello/dog/cello: play from sample 12 of 560 (song 3.40 s, wall 15.50 s)
+pose bach-bwv1047 17 cello/dog/cello: play from sample 25 of 560 (song 9.90 s, wall 22.00 s)
+pose bach-bwv1047 18 piano/polar-bear/piano: rest from sample 2 of 4 (song -2.10 s, wall 11.00 s), lift from sample 11 of 40 (song -1.10 s, wall 11.00 s), play from sample 3 of 560 (song -1.10 s, wall 11.00 s), lower from sample 3 of 58 (song 138.75 s, wall 11.00 s)
+pose bach-bwv1047 conductor/bear/baton: rest from sample 1 of 4 (song -2.10 s, wall 10.00 s), lift from sample 1 of 40 (song -2.10 s, wall 10.00 s), play from sample 1 of 560 (song -2.10 s, wall 10.00 s), lower from sample 1 of 58 (song 138.75 s, wall 10.00 s)
+pose bach-bwv1048 0 violin/rabbit/violin: play from sample 21 of 658 (song 8.50 s, wall 20.00 s)
+pose bach-bwv1048 1 violin/rabbit/violin: play from sample 24 of 658 (song 10.00 s, wall 21.50 s)
+pose bach-bwv1048 2 violin/rabbit/violin: play from sample 21 of 658 (song 8.50 s, wall 20.00 s)
+pose bach-bwv1048 3 violin/rabbit/violin: lift from sample 37 of 40 (song 0.00 s, wall 13.60 s), play from sample 9 of 658 (song 2.50 s, wall 14.00 s), lower from sample 13 of 58 (song 163.65 s, wall 13.60 s)
+pose bach-bwv1048 4 violin/fox-red/violin: play from sample 20 of 658 (song 8.00 s, wall 19.50 s)
+pose bach-bwv1048 5 violin/fox-red/violin: rest from sample 1 of 4 (song -1.50 s, wall 10.00 s), lift from sample 1 of 40 (song -1.50 s, wall 10.00 s), play from sample 1 of 658 (song -1.50 s, wall 10.00 s), lower from sample 1 of 58 (song 163.65 s, wall 10.00 s)
+pose bach-bwv1048 6 violin/fox-red/violin: play from sample 27 of 658 (song 11.50 s, wall 23.00 s)
+pose bach-bwv1048 7 violin/fox-red/violin: play from sample 10 of 658 (song 3.00 s, wall 14.50 s), lower from sample 22 of 58 (song 163.65 s, wall 14.50 s)
+pose bach-bwv1048 8 violin/rabbit/violin: rest from sample 3 of 4 (song -1.50 s, wall 12.00 s), lift from sample 18 of 40 (song 0.00 s, wall 11.70 s), play from sample 5 of 658 (song 0.50 s, wall 12.00 s), lower from sample 5 of 58 (song 163.65 s, wall 12.00 s)
+pose bach-bwv1048 9 violin/rabbit/violin: play from sample 37 of 658 (song 16.50 s, wall 28.00 s)
+pose bach-bwv1048 10 violin/rabbit/violin: rest from sample 4 of 4 (song -1.50 s, wall 13.00 s), lift from sample 29 of 40 (song 0.00 s, wall 12.80 s), play from sample 7 of 658 (song 1.50 s, wall 13.00 s), lower from sample 7 of 58 (song 163.65 s, wall 13.00 s)
+pose bach-bwv1048 11 violin/rabbit/violin: play from sample 25 of 658 (song 10.50 s, wall 22.00 s)
+pose bach-bwv1048 12 viola/cat/viola: play from sample 43 of 658 (song 19.50 s, wall 31.00 s)
+pose bach-bwv1048 13 viola/cat/viola: play from sample 82 of 658 (song 39.00 s, wall 50.50 s)
+pose bach-bwv1048 14 viola/cat/viola: play from sample 30 of 658 (song 13.00 s, wall 24.50 s)
+pose bach-bwv1048 15 cello/dog/cello: rest from sample 1 of 4 (song -1.50 s, wall 10.00 s), lift from sample 1 of 40 (song -1.50 s, wall 10.00 s), play from sample 1 of 658 (song -1.50 s, wall 10.00 s), lower from sample 1 of 58 (song 163.65 s, wall 10.00 s)
+pose bach-bwv1048 16 cello/dog/cello: play from sample 12 of 658 (song 4.00 s, wall 15.50 s)
+pose bach-bwv1048 17 cello/dog/cello: play from sample 25 of 658 (song 10.50 s, wall 22.00 s)
+pose bach-bwv1048 18 contrabass/hippo/contrabass: rest from sample 2 of 4 (song -1.50 s, wall 11.00 s), lift from sample 11 of 40 (song -0.50 s, wall 11.00 s), play from sample 3 of 658 (song -0.50 s, wall 11.00 s), lower from sample 3 of 58 (song 163.65 s, wall 11.00 s)
+(the list of the changed player poses goes on: 299 lines in all, the conductor and the players of each demo)

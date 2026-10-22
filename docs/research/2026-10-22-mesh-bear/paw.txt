@@ -1,0 +1,11 @@
+forearm axis [ 0.4062 -0.8575  0.3159]; upper arm 0.1488, forearm 0.1108
+paw: 199 vertices beyond the wrist, middle [0.334  0.3245 0.0483], spread [0.426 0.242 0.187], normal of the palm [-0.65  -0.283 -0.705], second [-0.029  0.936 -0.35 ], first [ 0.759 -0.207 -0.617], tip [0.3571 0.285  0.0378], lowest [0.3558 0.284  0.0311], farthest 0.0808
+reach shoulder to the middle of the paw 0.2990 u
+  far vertex [0.3571 0.285  0.0378] 0.0808
+  far vertex [0.3558 0.284  0.0311] 0.0791
+  far vertex [0.3529 0.285  0.0366] 0.0788
+  far vertex [0.3525 0.2851 0.0305] 0.0766
+  far vertex [0.3447 0.2896 0.0521] 0.0764
+  far vertex [0.3523 0.289  0.0382] 0.0756
+  far vertex [0.3447 0.2897 0.0459] 0.0744
+  far vertex [0.3763 0.3007 0.0351] 0.0743

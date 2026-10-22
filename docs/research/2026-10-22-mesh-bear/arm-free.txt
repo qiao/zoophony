@@ -1,0 +1,23 @@
+variant turn 0.0, split 0.19, radius 0.085, floor 0.27, top 0.57:
+  side +1: 260 vertices, y 0.284 to 0.646, x +0.192 to +0.397, z -0.117 to +0.081
+  side -1: 195 vertices, y 0.283 to 0.648, x -0.397 to -0.205, z -0.117 to +0.081
+  cut L: 17 faces go, 17 new faces, the arm run 10 and the body run 9 vertices
+  cut R: 16 faces go, 16 new faces, the arm run 10 and the body run 8 vertices
+variant turn 0.0, split 0.19, radius 0.075, floor 0.27, top 0.57:
+  side +1: 247 vertices, y 0.284 to 0.646, x +0.192 to +0.397, z -0.086 to +0.080
+  side -1: 182 vertices, y 0.283 to 0.642, x -0.397 to -0.208, z -0.086 to +0.080
+  cut failed: The cut of the seam leaves a vertex with two loop edges.
+variant turn 0.0, split 0.2, radius 0.085, floor 0.27, top 0.57:
+  side +1: 258 vertices, y 0.284 to 0.646, x +0.205 to +0.397, z -0.117 to +0.081
+  side -1: 195 vertices, y 0.283 to 0.648, x -0.397 to -0.205, z -0.117 to +0.081
+  cut L: 17 faces go, 15 new faces, the arm run 10 and the body run 7 vertices
+  cut R: 16 faces go, 16 new faces, the arm run 10 and the body run 8 vertices
+variant turn 0.0, split 0.19, radius 0.1, floor 0.27, top 0.57:
+  side +1: 269 vertices, y 0.284 to 0.646, x +0.192 to +0.397, z -0.127 to +0.081
+  side -1: 205 vertices, y 0.283 to 0.648, x -0.397 to -0.191, z -0.127 to +0.081
+  cut L: 18 faces go, 16 new faces, the arm run 6 and the body run 12 vertices
+  cut R: 15 faces go, 13 new faces, the arm run 6 and the body run 9 vertices
+variant turn 0.0, split 0.19, radius 0.085, floor 0.27, top 0.55:
+  side +1: 260 vertices, y 0.284 to 0.646, x +0.192 to +0.397, z -0.117 to +0.081
+  side -1: 195 vertices, y 0.283 to 0.648, x -0.397 to -0.205, z -0.117 to +0.081
+  cut failed: The cut of the seam leaves a vertex with two loop edges.

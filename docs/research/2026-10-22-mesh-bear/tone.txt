@@ -1,0 +1,27 @@
+Oklab medians of the back of the bear (lightness, hue in degrees, chroma), 2026-10-22.
+
+Play frame of the default camera, Boulanger at 30 s, the box 0.58 to 0.66 of the height and
+0.475 to 0.525 of the width (pnpm close-views play <dir> --demo boulanger-matin --time 30
+--camera default --base 7c1747ed):
+  reference orchestra-latest.png, the back of the bear: L 0.330 hue 46 chroma 0.056
+  studio bear of main (7c1747ed): L 0.427 hue 46 chroma 0.084
+  mesh bear, no tone:             L 0.482 hue 49 chroma 0.090
+
+Gallery view from the back at rest, the box 0.45 to 0.65 of the height and 0.42 to 0.58 of the
+width (pnpm close-views conductor <dir> --glb <variant> --views front,back --moments rest):
+  studio bear of main:            L 0.558 hue 45 chroma 0.138
+  mesh bear, no tone:             L 0.655 hue 52 chroma 0.143
+  tone 0.85 L, 0.8 C, hue -5:     L 0.562 hue 45 chroma 0.134
+  tone 0.72 L, 0.8 C, hue -5:     L 0.481 hue 40 chroma 0.133
+
+The play frame follows the gallery by the ratio of the lightness: the tone 0.72 gives about
+0.482 * 0.481 / 0.655 = 0.354 in the play frame, near the reference 0.330. The hue turn of -5
+degrees made the fur red (hue 40), so the chosen tone keeps the hue and takes 0.7 of the chroma.
+tone-views.webp: base back, no tone back, 0.85 back, 0.72 back, no tone front, 0.85 front, 0.72
+front.
+
+The chosen tone (0.72 of the lightness, 0.7 of the chroma, no hue turn), in the play frame of the
+default camera at Boulanger 30 s (pnpm close-views play <dir> --demo boulanger-matin --time 30
+--camera default --base 7c1747ed), the same box:
+  mesh bear with the tone:        L 0.363 hue 45 chroma 0.075
+  studio bear of main:            L 0.427 hue 46 chroma 0.084
