@@ -466,6 +466,11 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
 - [ ] Polar bear upper arms: the thick upper arms press up to 10 cm into the sides of the round
       belly near the elbows in a play (`PIANIST_SWEEP`). Try a rounder inner side of the upper
       arm in a copy of the mesh, as for the rabbit (`2026-10-22-rabbit-elbow.md`).
+- [ ] Polar bear seat (user, 2026-10-22: "also the polar bear's pose is very wrong now"): the mesh
+      polar bear does not read as seated. Its legs are near straight, the bench (0.173 m) is a low
+      block behind its heels, and the body leans over the keys. Give it a seated pose with the
+      haunch on the bench, level thighs, knees near 90° under the key bed, and the soles on the
+      floor, at each moment and in the rest pose. The user chose to queue this round.
 - [ ] Polar bear rest: in the rest pose, the paws of the mesh polar bear rest on the upper belly,
       higher than a pianist before a performance. Lower lap places fold 9 faces at rest
       (`scans/rest-lap.txt` of `docs/research/2026-10-22-mesh-polar-bear/`).
