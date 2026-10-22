@@ -691,6 +691,14 @@ function chamberLooks(layout: SceneLayout, models: ModelCache, leader: number): 
   });
 }
 
+/** A plan to reuse in {@link preparePoses}, with the players to prepare again. */
+export interface PlanReuse {
+  /** The plan of the same score, layout, seed, and models. */
+  readonly plan: PosePlan;
+  /** The indices of the players of the layout to prepare again. */
+  readonly players: ReadonlySet<number>;
+}
+
 /**
  * Calculates the data of a score that the pose needs at each frame (design 5.1): the plan of each
  * player and of the conductor. Pure: the same inputs give the same plan.
@@ -700,6 +708,10 @@ function chamberLooks(layout: SceneLayout, models: ModelCache, leader: number): 
  * @param seed The seed of the scene.
  * @param models The player models of the score, which the layout and the scene can share. A new
  *   cache by default.
+ * @param reuse The plan of the same score, layout, seed, and models, and the indices of the
+ *   players to prepare again. Each other player keeps its plan. A tool that changes one hold in
+ *   memory, such as `pnpm hold-scan`, prepares only the players of that hold. `null` prepares
+ *   each player.
  * @returns The plan for `poseAt()`.
  */
 export function preparePoses(
@@ -707,6 +719,7 @@ export function preparePoses(
   layout: SceneLayout,
   seed: number,
   models = new ModelCache(),
+  reuse: PlanReuse | null = null,
 ): PosePlan {
   const rigs = createRigCache();
   const bear = models.get(CONDUCTOR.species, CONDUCTOR.instrument);
@@ -723,6 +736,10 @@ export function preparePoses(
   const notes = notesOfPlayers(score, layout, loudness);
   const beats = Float64Array.from(score.beats, (b) => b.timeSec);
   const players = layout.players.map((place, index): PlayerPlan => {
+    const kept = reuse && !reuse.players.has(index) ? reuse.plan.players[index] : undefined;
+    if (kept) {
+      return kept;
+    }
     const { cast } = place;
     const own = notes[index] ?? { notes: [], loudness: [] };
     return preparePlayer(
