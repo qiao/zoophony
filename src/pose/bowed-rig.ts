@@ -768,45 +768,39 @@ const DOG_HOLD = {
 } as const satisfies BowedHold;
 
 /**
- * The hold of the contrabass of the hippo mesh, which stands (design 4.6, 5.3). The round belly
- * of the hippo reaches far in front of its shoulder joints, and its arms reach 0.54 m, so the
- * contact point of the bow lies in front of the belly, and the nut within reach of the left paw
- * beside the head. The smaller contrabass of the hippo (`bassScale`) spans that height. Its end pin
- * of 0.2 m (`BASS_END_PIN`) stands on the floor 0.42 m right of the place of `UPRIGHT_HOLDS`
- * and 2 cm forward (`playShift`), and the contrabass turns around it (`playTurn`), so that the
- * strings run from the contact point 0.17 m in front of the middle of the belly up to the nut
- * 0.45 m left of the middle, beside the head: it leans 37° from the vertical, to the left and back,
- * and its top plate faces forward. With the end pin on the floor, the lean sets the height of the
- * contact point, 0.30 m below the right shoulder joint. With the contact point 5 cm further back,
- * the right paw went 5.6 cm into the belly. With the top plate turned 29° to the right, as the hold
- * of the parametric hippo, the bow ran back into the belly. The trunk leans 12° forward, and the
- * right shoulder turns 50° forward: with 30°, the right forearm went 8.4 cm into the body. The
- * reasons and the measures are in the 2026-10-18-mesh-hippo decisions.
+ * The hold of the contrabass of the hippo mesh, which stands (design 4.6, 5.3). A real bassist
+ * leans the contrabass on the body, and the contrabass does not go in
+ * (`docs/reference/string-technique.md`, section 2.8). The round belly of the hippo reaches 0.35 m
+ * in front of its shoulder joints, the back of its smaller contrabass (`bassScale`) lies 0.26 m
+ * behind the strings, and its arms are only 0.51 m long. Thus the back of the contrabass touches the
+ * front of the belly, and the arms reach the strings with the help of the shoulders. The end pin of
+ * 0.2 m (`BASS_END_PIN`) stands on the floor 0.48 m right of the place of `UPRIGHT_HOLDS` and 8 cm
+ * forward (`playShift`), and the contrabass turns around it (`playTurn`): it leans 33° from the
+ * vertical, to the left and 6° back, and its top plate faces forward. The strings run from the
+ * contact point 0.28 m in front of the belly up to the nut beside the head. With the place of
+ * 2026-10-18, which leaned 5° further back and stood 11 cm further back at the contact point, the
+ * back of the contrabass went 14.8 cm into the belly and the chest (the 2026-10-21-hippo-bass
+ * decisions). The trunk leans 12° forward. The right shoulder turns 50° forward, and the left
+ * shoulder 25° (`reachL`), also in the rest: with no left turn, the left paw reached one place of
+ * the fingerboard only, and the left forearm went 3.7 cm into the neck. With a right turn of 55°,
+ * the skin of the chest under the chin folded (the 2026-10-19-hippo-chest decisions).
  *
- * The contrabass leans back, so its upper bout lies under the chin. With the trunk at 15° and the
- * end pin 2 cm further back, the chest under the chin covered the upper bout: the top plate went
- * 4.5 cm into the chest on the mean of the play samples. With 12° and the end pin 2 cm forward, it
- * goes at most 1.5 cm in. With a roll of 20° to the left, the top plate went 6.2 cm into the chest.
- * The bow arm is then straight in its deepest samples, so no right elbow pole changes them. With
- * the shoulder turn of 45°, the right elbow went 8.1 cm into the body. The turn of 50° brings the
- * shoulder joint nearer to the bow (4.7 cm). With 55°, the skin of the chest under the chin folded
- * in 94% of the play samples. The measures are in the 2026-10-19-hippo-chest decisions.
- *
- * The string planes are 12° apart, below the 25° of a real contrabass: with 25°, the bow paw on the
- * lowest string went 9.1 cm into the belly. The right elbow points forward, out, and a little
- * down, also in pizzicato, and the left elbow points out to the left, a little down, and forward.
- * The user chose lower elbows with the twist bone of the upper arm (the 2026-10-19-arm-skin
- * decisions): with the level elbow, the right upper arm rolled 86° on the median of the play, and
- * the shoulder skin twisted into a flat band. With the elbow down and out, (1, -1.5, -0.5), the
- * right forearm went 8.2 cm into the belly on `beethoven-9`, so the elbow comes forward past the
- * belly: there, the forearm goes 2.7 cm in, 0.3 cm deeper than with the level elbow, and the
- * upper arm rolls 83°, of which the shoulder ring takes 30°. With the left elbow up and back, the
- * left upper arm turned 80° (28° now, the 2026-10-19-hippo-arms decisions). The left elbow turns
- * up 2° for each lower string, as on the cello of the dog: with 10°, the thick left upper arm went
- * 7.0 cm into the contrabass (6.4 cm with 2°). The left paw tilts 55° over the neck, as the paw of
- * the dog: with the 30° of the floor hold, the left arm went 6.9 cm into the body (5.6 cm with
- * 55°). In the high positions, the thick left forearm crosses the upper bout, and no left elbow,
- * tilt, or place of the contrabass that keeps the upper bout out of the chest changed it.
+ * The string planes are 6° apart, below the 25° of a real contrabass, as on the cello of the dog:
+ * with 12°, the bow arm reached 4 cm of the hair at the new place, and the right arm went 5.1 cm
+ * into the contrabass. The bow plays no hair within 0.25 m of the frog (`frogHair`): the short bow
+ * arm reaches the frog only straight, and then the right upper arm went 5.2 cm into the right rim
+ * of the upper bout. The right elbow points forward,
+ * out, and a little down, also in pizzicato, and further down at the tip: with the elbow of the
+ * frog, the skin of the bow arm went flat at the tip (0.54 of its round shape in the arm gate,
+ * limit 0.55). The left elbow points out
+ * to the left, a little down, and forward. The user chose lower elbows with the twist bone of the
+ * upper arm (the 2026-10-19-arm-skin decisions): with the level elbow, the right upper arm rolled
+ * 86° on the median of the play, and the shoulder skin twisted into a flat band. With the left
+ * elbow up and back, the left upper arm turned 80° (the 2026-10-19-hippo-arms decisions). The left
+ * elbow turns up 2° for each lower string, as on the cello of the dog: with 10°, the thick left
+ * upper arm went 7.0 cm into the contrabass (6.4 cm with 2°). The left paw tilts 55° over the neck,
+ * as the paw of the dog: with the 30° of the floor hold, the left arm went 6.9 cm into the body
+ * (5.6 cm with 55°). In the high positions, the thick left forearm still crosses the upper bout.
  *
  * The right elbow lies near the backward line of the stick, and on the E and the A strings it lies
  * near the far side of the stick for the roll of the hand. With the far side at 180°, a change of
@@ -816,33 +810,39 @@ const DOG_HOLD = {
  * strings, the paw then goes more than 1.5 cm into the belly in 4.6% of the play samples (0% with
  * 180°). The measures are in the 2026-10-18-hippo-arm decisions.
  *
- * In the rest pose, the contrabass stays at its playing place, and the left paw holds the neck. The
- * right paw hangs beside the belly with the bow tip down (`HANGING_BOW`), and the elbow points down
- * and out, as the arms of the mesh hang: the knee of the floor hold lies under the belly, and the
- * right forearm went 13.8 cm into the body. In the lift and the lowering, the tip turns through the
- * front, as the upright bow of the violinists, with the grip 0.3 H out and 0.6 H to the front.
+ * In the rest pose, the contrabass stays at its playing place, and the left paw holds the neck
+ * with the elbow out to the left and a little down: with the elbow further down, the left forearm
+ * went 2.2 cm into the neck in the lift and the lowering, and with a level elbow, the left paw
+ * twisted 178° on its forearm in the lowering (limit 176°). The right paw hangs beside the belly with the
+ * bow tip down (`HANGING_BOW`), and the elbow points down and out, as the arms of the mesh hang: the
+ * knee of the floor hold lies under the belly, and the right forearm went 13.8 cm into the body. In
+ * the lift and the lowering, the tip turns through the front, as the upright bow of the violinists,
+ * with the grip 0.3 H out, 0.3 H up, and 0.6 H to the front: with no move up, the bow paw turned
+ * 2,959°/s at the most in the lowering (1,877°/s on 2026-10-21 before the move of the contrabass).
  */
 const HIPPO_HOLD = {
   ...BOWED_HOLDS.contrabass,
   lean: 12 * MathUtils.DEG2RAD,
   reach: 50 * MathUtils.DEG2RAD,
-  playShift: [0.84, 0, -0.04],
-  playTurn: [-0.0664, 0.2385, 0.215, 0.9447],
-  stringTurn: 12 * MathUtils.DEG2RAD,
+  reachL: 25 * MathUtils.DEG2RAD,
+  playShift: [0.9489, 0, -0.1588],
+  playTurn: [-0.1075, 0.2477, 0.2044, 0.9409],
+  stringTurn: 6 * MathUtils.DEG2RAD,
+  frogHair: 0.25,
   tiltL: 55 * MathUtils.DEG2RAD,
   poleL: [-1, -0.3, -0.7],
   elbowPerString: 2 * MathUtils.DEG2RAD,
   poleR: [1.5, -0.5, -2],
-  poleTipR: [1.5, -0.5, -2],
+  poleTipR: [1.5, -0.8, -2],
   polePizzicato: [1.5, -0.5, -2],
   farSideR: 30 * MathUtils.DEG2RAD,
   restPoleR: [1, -1, 0],
-  restPoleL: [-1, -0.5, 0],
+  restPoleL: [-1, -0.3, 0],
   restBow: {
     lap: { along: 1, offset: [0.7, 1, -0.4] },
     tip: HANGING_BOW.tip,
     hair: HANGING_BOW.hair,
-    via: { ...UPRIGHT_BOW.via, reach: [0.3, 0, -0.6] },
+    via: { ...UPRIGHT_BOW.via, reach: [0.3, 0.3, -0.6] },
   },
 } as const satisfies BowedHold;
 

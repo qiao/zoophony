@@ -1109,8 +1109,9 @@ fox play almost the violin of the app, and the cat the viola of the app. Their a
 than the rule needs, so their holds put the instrument nearer to the neck, and the left paw still
 reaches the nut (5.3, `docs/decisions/2026-10-16-mesh-cat.md`). The dog plays a 1/2 cello, and its
 left paw reaches the whole fingerboard (`docs/decisions/2026-10-17-dog-arms.md`). The hippo plays
-a smaller contrabass (`bassScale`), and its left paw reaches the whole fingerboard and its bow paw
-the whole hair (`docs/decisions/2026-10-18-mesh-hippo.md`). The tan fox
+a smaller contrabass (`bassScale`) in front of its belly. Its left paw reaches nearly the whole
+fingerboard with a forward turn of the left shoulder, and its bow paw the part of the hair away
+from the frog (`docs/decisions/2026-10-21-hippo-bass.md`). The tan fox
 plays the flute of the app, and each palm reaches its grip in the play and in the rest
 (`docs/decisions/2026-10-17-fox-form.md`). The panda plays the trombone of the app, and its right
 paw reaches the first part of the slide travel, from the grip of the first position

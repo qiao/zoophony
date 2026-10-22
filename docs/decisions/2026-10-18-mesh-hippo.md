@@ -18,8 +18,6 @@ reverse each decision. Then update its section, and remove its row.
 | The arm factor 1.5 gives arms of 0.94 of the trunk, as the red fox and the dog. The legs keep the mesh, because the hippo stands. | 4.4 |
 | A smaller contrabass (`bassScale` 0.8) brings the strings to the short arms, in place of longer arms, which the user refused on the dog. | 4.6 |
 | The user, second quote: the contrabass player stands (`INSTRUMENT_SUPPORTS`) in the standing pose of the rig (`soloist` of `ANIMALS`), and the contrabass has an end pin of 0.2 m at each size (`BASS_END_PIN`, 0.55 m before). | 4.4, 4.6, 5.3 |
-| The contrabass leans 37° to the left of the head with its top plate forward, and the bow plays in front of the belly (`HIPPO_HOLD`). The left paw reaches the whole fingerboard, and the bow paw nearly the whole hair. | 5.3 |
-| The trunk leans forward (`2026-10-19-hippo-chest.md`), the right shoulder turns 45°, the string planes are 12° apart, and the right elbow points out and forward, so that the paw and the bow keep out of the belly. | 5.3 |
 | At rest, the bow hangs from the right paw beside the belly (`HANGING_BOW`), because the knee is under the belly. | 5.2 |
 | The rig has no gloss nose: the export took the two gloss nostrils as eyes (`noseBox`). The nose tip is the front of the muzzle. | 4.4 |
 | Each plain face takes the hue and the chroma of `SPECIES_COLORS.hippo` with its own lightness (`colors.tone`), as the user chose the reference white of the panda. | 4.5 |

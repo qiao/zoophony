@@ -504,19 +504,23 @@ A round that changes the motion updates the items.
   a child plays a fractional size (section 1.1 gives the string lengths of real sizes), with an end
   pin of 0.2 m (`BASS_END_PIN`). Its arms reach 0.54 m, and its round belly reaches far in front of
   its shoulder joints.
-- **The contacts.** The hippo stands, as many orchestral bassists do, with its own hold
-  (`HIPPO_HOLD` of `pose/bowed-rig.ts`). The end pin stands on the floor in front of it, and the
-  contrabass leans 37° to the left and back, so that the bow plays 0.17 m in front of the belly
-  and the nut is beside the head, within reach of the left paw. A real bassist leans the contrabass
-  less, against the left side of the body. The app differs from that, because the bow of a real
-  hold met the round belly of the hippo. The hippo leans forward less than the first hold, so that
-  the upper bout stays in front of the chest under the chin. Its right shoulder turns further
-  forward than the shoulders of the other players, so that the straight bow arm keeps off the
-  belly.
+- **The contacts** (section 2.8). The hippo stands, as many orchestral bassists do, with its own
+  hold (`HIPPO_HOLD` of `pose/bowed-rig.ts`). The end pin stands on the floor in front of it, and
+  the contrabass leans 33° to the left and 6° back, with the nut beside the head. The back of the
+  contrabass touches the front of the belly and goes at most 2 cm in, as a real bassist rests the
+  bass against the stomach [69]. The sweep limits this depth (`INSTRUMENT_CONTACT`). The app
+  differs from the source: a real bassist leans the bass against the left side of the hip and the
+  left knee [69, 70], but the knee of the hippo lies under its belly, so the contrabass stands in
+  front of the belly. Both shoulders of the hippo turn forward (`BowedHold.reach`,
+  `BowedHold.reachL`), so that the short arms reach the strings 0.28 m in front of the belly.
 - **The left hand over the neck.** The thick left paw of the hippo tilts 55° over the neck, as the
   paw of the dog (section 3.3), so that the left arm keeps off the body. In the high positions, its
   thick forearm crosses the upper bout. No source gives the left arm of a player with such a round
   body.
+- **The part of the bow.** The short bow arm reaches the frog only straight, and then it crosses
+  the rim of the upper bout. So the hippo plays no hair within 0.25 m of the frog
+  (`BowedHold.frogHair`), as the dog on the cello (section 3.3). No source gives the bow of a
+  player with such short arms.
 - **The bow hand.** A real bassist holds the French bow with the palm toward the bass (section
   2.1). The app rolls the paw around the stick so that the back of the paw points to the elbow,
   within a range of the roll (`rollToward()` of `pose/bowed.ts`). The elbow of the hippo lies near
