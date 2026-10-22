@@ -1,7 +1,7 @@
 """Rigs a textured mesh with no skeleton into the GLB format of a studio body (design 4.4).
 
     blender -b --factory-startup --python tools/blender/rig_mesh.py -- <config.json> <out.glb> \
-        [--preview <dir>] [--obj <file>] [--faces <file>] [--check]
+        [--preview <dir>] [--obj <file>] [--faces <file>] [--corners <file>] [--check]
 
 `pnpm rig-mesh <animal>` runs this script with `tools/mesh-rigs/<animal>.json`. The output has
 the format of `lowpoly-studio/animals/<animal>/out/<animal>.glb`, so that `pnpm studio-body`
@@ -109,7 +109,8 @@ gives the share of the dark faces outside the eye and nose boxes, and warns abov
 with a dark limit that brings the share under it (`dark_check()`). The flag changes no byte of
 the rig. With `--faces`, it also writes the middle of each face of the
 module in the units of the source into the file as JSON (`face_sources()`), for
-`pnpm fold-probe --faces`.
+`pnpm fold-probe --faces`. With `--corners`, it writes the corners of the source face of each face
+of the module, in the source and in the long-armed source (`face_corners()`), for `pnpm arm-look`.
 """
 
 import colorsys
@@ -248,12 +249,12 @@ def warn(text):
 
 
 def args():
-    """Reads the config path, the output path, the preview folder, the OBJ file, the JSON file of
-    the face sources, and the flag `--check` after `--`."""
+    """Reads the config path, the output path, the preview folder, the OBJ file, the JSON files of
+    the face sources and of the face corners, and the flag `--check` after `--`."""
     rest = sys.argv[sys.argv.index('--') + 1 :]
     check = '--check' in rest
     rest = [arg for arg in rest if arg != '--check']
-    options = {'--preview': None, '--obj': None, '--faces': None}
+    options = {'--preview': None, '--obj': None, '--faces': None, '--corners': None}
     for flag in options:
         if flag in rest:
             at = rest.index(flag)
@@ -261,9 +262,10 @@ def args():
             rest = rest[:at] + rest[at + 2 :]
     if len(rest) != 2:
         raise SystemExit('Usage: blender -b --python rig_mesh.py -- <config> <out.glb> '
-                         '[--preview <dir>] [--obj <file>] [--faces <file>] [--check]')
+                         '[--preview <dir>] [--obj <file>] [--faces <file>] [--corners <file>] '
+                         '[--check]')
     return (rest[0], rest[1], options['--preview'], options['--obj'], options['--faces'],
-            check)
+            options['--corners'], check)
 
 
 def to_blender(v):
@@ -1955,6 +1957,21 @@ def module_faces(order, materials):
     return rank[position]
 
 
+def face_corners(verts, long_verts, source_tris, count, order, materials):
+    """Gives the corners of the source face of each face of the module of `pnpm studio-body`, in
+    the units of the source (`s`) and in the long-armed source (`l`), for `pnpm arm-look`: a face
+    of the rig keeps the index of its source face, as in `face_sources()`. The other parts of a
+    face that a ring splits give None, and a face of an eye shell gives 'eye'."""
+    index = module_faces(order, materials)
+    out = [None] * len(order)
+    for f in range(min(count, len(source_tris))):
+        out[int(index[f])] = {'s': np.round(verts[source_tris[f]], 5).tolist(),
+                              'l': np.round(long_verts[source_tris[f]], 5).tolist()}
+    for f in range(count, len(order)):
+        out[int(index[f])] = 'eye'
+    return out
+
+
 def face_sources(verts, source_tris, count, order, materials):
     """Gives the middle of each face of the module of `pnpm studio-body` in the units of the
     source, as `rigid` of the weight rules takes it (`rigid_faces()`): the middle of the source face
@@ -3618,7 +3635,7 @@ def write_obj(path, verts, tris):
 
 
 def main():
-    config_path, out_path, preview_dir, obj_path, faces_path, check = args()
+    config_path, out_path, preview_dir, obj_path, faces_path, corners_path, check = args()
     with open(config_path) as f:
         config = json.load(f)
     rules = config['weights']
@@ -3950,6 +3967,10 @@ def main():
         with open(faces_path, 'w') as f:
             json.dump(face_sources(verts, source_tris, len(tris), order, materials), f)
         log(f'faces: the source middles of {len(order)} faces of the module in {faces_path}')
+    if corners_path:
+        with open(corners_path, 'w') as f:
+            json.dump(face_corners(verts, long_verts, source_tris, len(tris), order, materials), f)
+        log(f'corners: the source corners of {len(order)} faces of the module in {corners_path}')
     if thin_rule:
         log_check(stretched, uncut, module_faces(order, materials),
                   weights[tris].sum(axis=1).argmax(axis=1), thin_rule)
