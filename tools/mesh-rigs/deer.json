@@ -1,5 +1,6 @@
 {
-  "source": "assets/models/deer/deer.glb",
+  "source": "assets/models/deer/deer-arms.glb",
+  "sourceNote": "The mesh of the user with one local edit (assets/models/deer/README.md). The user said on 2026-10-22: \"note that many animals are having this issue now\". Each arm of the source joins the side of the trunk from the shoulder down to 0.86 (left) and 0.94 (right) of the upper arm, and the raised harp arms stretched the faces of the seam at the back of each arm root into dark shards. The faces that join each arm to the trunk below the cut top go (18 on the left, 19 on the right), and a round patch of 11 new vertices closes the inner side of each arm (deer-arms.glb, SHA-256 58281cbafd422434d4562ea5fe7c874618711adb4873d19a2ea37ce867ae2b5f, docs/research/2026-10-22-deer-dog-seams/arm_patch.py with the options {\"step\":0.025,\"freeR\":false,\"fade\":[0.35,0.65]}). With only the cut, the flat cap of the arm showed as a dark sheet behind the raised right arm from the azimuth 150. The hole of the trunk stays open, and the cut closes it (docs/research/2026-10-22-deer-dog-seams.md).",
   "output": "assets/models/deer/deer.rig.glb",
   "name": "Deer",
   "weld": 1e-05,
@@ -318,6 +319,16 @@
       0.066
     ],
     "fingers": 0.5,
+    "armIslands": true,
+    "armIslandsNote": "The round inner side of each arm of deer-arms.glb lies inside the plane armSplit, and only free arm vertices surround it. It follows the arm as the free arm beyond the plane (arm_islands() of tools/blender/rig_mesh.py).",
+    "rigid": [
+      [
+        -0.0973,
+        0.5467,
+        0.0333
+      ]
+    ],
+    "rigidNote": "The face of the patch at the front top of the right arm root, with the corner angles 172.7, 4.6, and 2.7 degrees, joins two corners on the arm (0.81 and 0.89 of arm weight) to the top of the run (0.28). It folded in each sample. With the mean weights of its corners, it folds in none, and the folds of the role fall to 0% at rest and 83.9% in the lift (docs/research/2026-10-22-deer-dog-seams.md).",
     "haunch": {
       "height": [
         0.185,
@@ -326,6 +337,13 @@
       "note": "The part of the thigh weight that goes to the hips grows from 0 at the lower height to 1 at the upper height, so that the buttocks stay on the hips. This is the rule of the dog, moved with the joints of the deer: it starts 0.03 units above the knee and ends 0.03 units above the thigh joint."
     },
     "note": "Beyond the plane |x| = armSplit, only the free arm follows the arm bones: the cuts show the arm apart from the body from x 0.09 out, and the free left arm has 139 vertices with no leg vertex (free-arm.txt). Above headFrom, each vertex follows the head only: the head starts at y 0.67. The ears and the antlers stay on the head: the ears stand out at the sides of the head at the height of the skull, so the height rule of earBase would also take the top of the head and the antlers, and earBase lies above the head, as for the dog and the panda. The tail ball holds the puff tail: the vertices within radius of center and behind the plane z = behind follow the tail bone only (sections-z.txt: the tail from z -0.10 to -0.173, y 0.29 to 0.42). clavicleFrom, armTop, and shoulderHead are the rules of the wolf, moved with the shoulder joint (y 0.535) and the neck (x ±0.056) of the deer."
+  },
+  "cut": {
+    "top": 0.575,
+    "fins": true,
+    "skinNormals": true,
+    "bodyNormals": "LR",
+    "note": "The user said on 2026-10-22: \"note that many animals are having this issue now\". The audit found dark shards at the back of both shoulders of the harpist: long thin faces of the seam from the trunk above the back notch (y 0.562) down to the back of the upper arm (y 0.46), which the arms that reach forward to the harp stretched. The cut ends above the shoulder joint (y 0.535) and above the top of the back notch, so that these faces go. At 0.56, face 980 of the left notch stayed and kept its shard. The copy of the mesh closed each arm with a round patch, so the cut closes only the hole of the trunk, with the caps of the body and the quad at the top (open_loop() of tools/blender/rig_mesh.py, docs/research/2026-10-22-deer-dog-seams.md)."
   },
   "refine": {
     "rings": [],
