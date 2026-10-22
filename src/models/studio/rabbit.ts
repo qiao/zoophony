@@ -6,7 +6,7 @@ import type { StudioBody } from '../studio-format.ts';
  */
 export const STUDIO_RABBIT = {
   source: 'assets/models/rabbit/rabbit-4.rig.glb',
-  sha256: '297d71f6885731a305c6bdf4e24db6b1635915e232bbd3c02ebf0edcffab21ce',
+  sha256: '06711342e64cadee320228885c1e1f317511631a0528e9f143d6eed4c2679120',
   scale: 1.46779,
   heads: {
     root: [0, -0.087976, -0.114315],
@@ -113,12 +113,12 @@ export const STUDIO_RABBIT = {
     {
       side: 'R',
       turn: [-0.45305, 0.08468, -0.21515, 0.86098],
-      fade: [0.261799, 0.523599],
+      fade: [0.349066, 0.698132],
     },
     {
       side: 'R',
       turn: [-0.563887, 0.304393, 0.220095, 0.735483],
-      fade: [0.261799, 0.436332],
+      fade: [0.261799, 0.698132],
     },
   ],
   caps: [

@@ -131,10 +131,10 @@
       "clavicle": [0, 0, 0, 1],
       "upper_arm": [0.45305, 0.08468, 0.21515, 0.86098]
     },
-    "fade": [15, 30],
+    "fade": [20, 40],
     "below": 0.5,
     "grow": 1,
-    "note": "The shape of the right arm in the seated rest (raise_shape() of tools/blender/rig_mesh.py). The right elbow hangs at the side in the rest (docs/decisions/2026-10-16-rabbit-arm.md), the arm-down shape has its full weight there, and faces 224, 225, 372, 373, 374, and 581 at the front of the right armpit turned over in each rest sample. The upper arm takes the turn of the rest, which is the same in each rest sample, and the clavicle does not turn (rest-turn.py of docs/research/2026-10-17-rabbit-pose/). Each play sample stays 34 degrees or more from that turn, so the fade from 15 to 30 degrees keeps the weight 0 in the play. With the relaxing of the clavicle and the upper arm only, faces 372 and 373 kept a corner on the trunk under the armpit (spine 0.65, hips 0.21) and stayed turned over. One ring of neighbors (grow) lets that corner move, and each face below the cosine 0.5 relaxes: no face turns over in a rest sample. The cosines 0.3 and 0.4 left 2 and 1 faces turned over in the pose of the rule, and 0.7 left 4 faces and folded each rest sample (rig-check-raise*.log of the research folder)."
+    "note": "The shape of the right arm in the seated rest (raise_shape() of tools/blender/rig_mesh.py). The right elbow hangs at the side in the rest (docs/decisions/2026-10-16-rabbit-arm.md), the arm-down shape has its full weight there, and faces 224, 225, 372, 373, 374, and 581 at the front of the right armpit turned over in each rest sample. The upper arm takes the turn of the rest, which is the same in each rest sample, and the clavicle does not turn (rest-turn.py of docs/research/2026-10-17-rabbit-pose/). Each play sample stays 34 degrees or more from that turn, so the fade from 20 to 40 degrees gives the shape at most the weight 0.22 in the play. The fade from 15 to 30 degrees kept the weight 0 in the play, but with the rounder right arm, face 224 between the trunk and the back of the arm turned over at the start of the lift in 42 samples. The fades to 40 degrees of both shapes leave 14 such samples, each of which also folds at the left wrist (docs/research/2026-10-21-arm-form.md, round arm-form-3). With the relaxing of the clavicle and the upper arm only, faces 372 and 373 kept a corner on the trunk under the armpit (spine 0.65, hips 0.21) and stayed turned over. One ring of neighbors (grow) lets that corner move, and each face below the cosine 0.5 relaxes: no face turns over in a rest sample. The cosines 0.3 and 0.4 left 2 and 1 faces turned over in the pose of the rule, and 0.7 left 4 faces and folded each rest sample (rig-check-raise*.log of the research folder)."
   },
   {
     "side": "R",
@@ -143,10 +143,10 @@
       "upper_arm": [0.5639, 0.3044, -0.2201, 0.7355],
       "forearm": [-0.1781, 0.1007, -0.2318, 0.951]
     },
-    "fade": [15, 25],
+    "fade": [15, 40],
     "below": 0.5,
     "grow": 1,
-    "note": "The shape of the right arm in the play, with the mean turns of the play samples of the bow arm (pnpm raise-fit violinist --faces 422 --side R on the rig with the cut): the upper arm 85 degrees from the bind, with the clavicle 30 degrees forward. Each face below the cosine 0.5 relaxes with one ring of trunk corners (grow). With the cosine 0, the face 422 at the top of the cut folded in 9.3% of the play samples. With 0.5, the play folds are 0.3% (docs/research/2026-10-20-armpits.md)."
+    "note": "The shape of the right arm in the play, with the mean turns of the play samples of the bow arm (pnpm raise-fit violinist --faces 422 --side R on the rig with the cut): the upper arm 85 degrees from the bind, with the clavicle 30 degrees forward. Each face below the cosine 0.5 relaxes with one ring of trunk corners (grow). With the cosine 0, the face 422 at the top of the cut folded in 9.3% of the play samples. With 0.5, the play folds are 0.3% (docs/research/2026-10-20-armpits.md). The fade runs to 40 degrees (25 before), so that the shape keeps a weight at the start of the lift (the note of the rest shape)."
   }
   ],
   "crease": {
