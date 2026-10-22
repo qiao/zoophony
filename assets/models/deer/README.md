@@ -1,6 +1,7 @@
 # Deer model
 
-This folder holds the deer mesh that the user gave. The app does not serve it.
+This folder holds the deer mesh that the user gave, and one local copy of it. The app does not
+serve them.
 
 ## deer.glb
 
@@ -48,3 +49,31 @@ side of the animal), with the probes of `docs/research/2026-10-21-mesh-deer/`:
   underside at the back of the haunch (y 0.29 to 0.41, z down to -0.173).
 - The large ears stand out at the sides of the head (x 0.12 to 0.19), and two dark brown antlers
   with three tines rise from the top of the head to y 1.
+
+## deer-arms.glb
+
+`deer-arms.glb` is `deer.glb` with one local edit of the inner side of each arm, in Blender
+(batch). The user said on 2026-10-22: "note that many animals are having this issue now". The rig
+of the deer (`source` of `tools/mesh-rigs/deer.json`) reads this file. `deer.glb` stays the file
+of the user, byte for byte.
+
+| Item | Value |
+|---|---|
+| File | `deer-arms.glb`, 16,530,456 bytes |
+| SHA-256 | `58281cbafd422434d4562ea5fe7c874618711adb4873d19a2ea37ce867ae2b5f` |
+| Writer | Khronos glTF Blender I/O of Blender 5.2.2, from an import of `deer.glb` |
+| License | As `deer.glb` |
+
+The edit: each arm of the source joins the side of the trunk from the shoulder down to near the
+elbow. The edit removes the faces that join each arm to the trunk below the cut top of the rig
+(18 on the left, 19 on the right), and closes the inner side of each arm with a round patch of
+11 new vertices (32 and 33 faces). The hole of the trunk stays open, and the cut of the rig
+closes it. No vertex of the source moves. The copy has 3,168 triangles. To make it again:
+
+```bash
+blender -b --factory-startup --python docs/research/2026-10-22-deer-dog-seams/arm_patch.py -- \
+  tools/mesh-rigs/deer.json assets/models/deer/deer.glb assets/models/deer/deer-arms.glb \
+  '{"step":0.025,"freeR":false,"fade":[0.35,0.65]}'
+```
+
+A run gives the same bytes (`docs/research/2026-10-22-deer-dog-seams.md`).
