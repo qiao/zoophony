@@ -698,14 +698,10 @@ export class BeamDepth {
    * The pass also renders the shadow map of the frame, and the scene pass keeps it
    * (`StageScene.render()`). No hidden object casts a shadow, so the shadow map does not change.
    *
-   * three.js updates a skeleton when the frame number of the renderer changed since its last
-   * update. A render updates the skeletons in its list of objects, then adds one to the frame
-   * number, and then updates them again in the shadow pass. When both updates come before the
-   * first draw, each bone texture uploads one time. A shadow pass in the scene pass updated the
-   * skeletons after this pass drew with them, so each bone texture uploaded two times in a frame.
-   * The second upload of a texture that the GPU uses split the shadow pass into small passes
-   * with a copy before each one, 0.3 ms of GPU time on the development Mac. The scene pass now
-   * starts at the frame number of the shadow pass, so it does not update the skeletons again.
+   * Each bone texture uploads one time in a frame: the stage computes the bone matrices before
+   * this pass and keeps them for each render of the frame (`holdSkeletons()` of
+   * `scene/player.ts`). A second upload of a texture that the GPU uses split the shadow pass into
+   * small passes with a copy before each one, 0.3 ms of GPU time on the development Mac.
    *
    * @param renderer The renderer.
    * @param scene The scene.

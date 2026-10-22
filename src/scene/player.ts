@@ -97,6 +97,68 @@ interface StudioPlayer {
   readonly pose: StudioPose;
 }
 
+/**
+ * A skeleton that the stage poses one time in each frame (design 4.5). three.js calls `update()` in
+ * each render that draws a skinned mesh. A frame of the stage has three such renders: the depth
+ * pass of the beam, its shadow pass, and the depth pass of the depth of field. The bones do not
+ * move between them, so each later call computed the same bone matrices again, and the call of the
+ * depth of field uploaded each bone texture a second time. Out of a hold, the skeleton updates as
+ * a skeleton of three.js, for example in the gallery.
+ */
+export class FrameSkeleton extends Skeleton {
+  /** True between {@link FrameSkeleton.hold} and {@link FrameSkeleton.release}. */
+  #held = false;
+
+  /**
+   * Computes the bone matrices from the world matrices of the bones, and keeps them until
+   * {@link FrameSkeleton.release}.
+   */
+  hold(): void {
+    this.#held = false;
+    this.update();
+    this.#held = true;
+  }
+
+  /** Ends the hold: the next call of `update()` computes the bone matrices again. */
+  release(): void {
+    this.#held = false;
+  }
+
+  /** Computes the bone matrices, except during a hold. */
+  override update(): void {
+    if (!this.#held) {
+      super.update();
+    }
+  }
+}
+
+/**
+ * Computes the bone matrices of the players of a frame one time, and keeps them for each render of
+ * the frame ({@link FrameSkeleton}). The world matrices of the bones must be ready.
+ *
+ * @param meshes The player meshes of {@link createPlayers}.
+ */
+export function holdSkeletons(meshes: readonly SkinnedMesh[]): void {
+  for (const mesh of meshes) {
+    if (mesh.skeleton instanceof FrameSkeleton) {
+      mesh.skeleton.hold();
+    }
+  }
+}
+
+/**
+ * Ends the hold of {@link holdSkeletons} after the renders of a frame.
+ *
+ * @param meshes The player meshes of {@link createPlayers}.
+ */
+export function releaseSkeletons(meshes: readonly SkinnedMesh[]): void {
+  for (const mesh of meshes) {
+    if (mesh.skeleton instanceof FrameSkeleton) {
+      mesh.skeleton.release();
+    }
+  }
+}
+
 /** The player meshes with a studio body. */
 const studioPlayers = new WeakMap<SkinnedMesh, StudioPlayer>();
 
@@ -170,7 +232,7 @@ export function createPlayerMesh(
     mesh.add(root);
   }
   mesh.updateMatrixWorld(true);
-  mesh.bind(new Skeleton(bones));
+  mesh.bind(new FrameSkeleton(bones));
   const slide = bones[SLIDE];
   const instrument = bones[INSTRUMENT];
   if (slide && instrument) {
@@ -212,7 +274,7 @@ function createStudioMesh(
   });
   mesh.updateMatrixWorld(true);
   mesh.bind(
-    new Skeleton(
+    new FrameSkeleton(
       bones,
       bones.map(() => new Matrix4()),
     ),

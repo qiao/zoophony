@@ -32,7 +32,13 @@ import { createPoolUniforms, defaultAim, setPoolAim } from './light-pool.ts';
 import type { LightAim } from './light-pool.ts';
 import { tierPixelRatio } from './quality.ts';
 import type { QualityTier } from './quality.ts';
-import { applyScenePose, createPlayers, createStaticMesh } from './player.ts';
+import {
+  applyScenePose,
+  createPlayers,
+  createStaticMesh,
+  holdSkeletons,
+  releaseSkeletons,
+} from './player.ts';
 import type { PlayerSpot } from './player.ts';
 import { PostPipeline, targetFormatOf } from './post.ts';
 import type { HazeFrame } from './post.ts';
@@ -577,6 +583,7 @@ export class StageScene {
     const beamGroup = view.lights.children.find((child) => child instanceof Group);
     const depthPass = beamGroup instanceof Group;
     if (depthPass) {
+      this.#holdPose(view);
       this.#beamDepth.render(this.#renderer, view.scene, camera, [...view.effects, view.hall]);
       setBeamFrame(beamGroup, {
         stageSide: view.stageSide,
@@ -589,8 +596,9 @@ export class StageScene {
     }
     setHallCamera(view.hall, view.stageSide, camera.position, this.#beamDepth.size[1]);
     const focus = this.#focusOf(view, shot !== null, performance.now());
-    // The depth pass of the beam updated the world matrices of the frame (BeamDepth.render).
-    view.scene.matrixWorldAutoUpdate = !depthPass;
+    if (!depthPass) {
+      this.#holdPose(view);
+    }
     renderScenePass(this.#renderer.shadowMap, depthPass, () => {
       if (this.#post) {
         const haze = depthPass ? this.#hazeOf(view) : null;
@@ -601,6 +609,19 @@ export class StageScene {
       }
     });
     view.scene.matrixWorldAutoUpdate = true;
+    releaseSkeletons(view.players);
+  }
+
+  /**
+   * Updates the world matrices and the bone matrices of a frame one time, before its first render
+   * (`holdSkeletons()`). The renders of the frame then update neither of them again.
+   *
+   * @param view The layout of the frame.
+   */
+  #holdPose(view: LayoutView): void {
+    view.scene.updateMatrixWorld();
+    view.scene.matrixWorldAutoUpdate = false;
+    holdSkeletons(view.players);
   }
 
   /**
