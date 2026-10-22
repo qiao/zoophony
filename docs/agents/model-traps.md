@@ -18,6 +18,8 @@ group of your work before you plan it. A probe that a trap names is in its resea
   line.
 - A hold can trade the folds against the clearance, and a more bent elbow folds more faces. Check
   each hold change with `pnpm hold-fit --set` and `pnpm pose-depth --set` before you write it.
+- Run `pnpm arm-check <role> --variant ...` next to the depth variants from the first scan
+  (`pnpm hold-scan`), before the choice of a hold.
 - A big head puts the grips of a hanging instrument at shoulder height, and elbows out and level
   twist the upper arms into bands: point the elbows down. A deeper trunk takes the room of the
   elbows: point them out (`poleL`, `restPoleL`). Compare the arm turns of each pole after a change
