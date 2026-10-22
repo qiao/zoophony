@@ -36,10 +36,11 @@ export const PIANO = {
 
 /**
  * The distance of the front of the keys in front of the floor point of the body of the pianist,
- * in head heights `H`, before a further 0.05 m (design 4.6). The head of the polar bear pianist
- * keeps 5 cm from the open lid (`docs/decisions/2026-10-14-polar-fix.md`).
+ * in head heights `H`, before a further 0.05 m (design 4.6). The keys stand in front of the round
+ * belly of the polar bear pianist, and its head keeps about 5 cm from the open lid
+ * (`docs/decisions/2026-10-22-mesh-polar-bear.md`).
  */
-export const PIANO_FRONT_H = 1.68;
+export const PIANO_FRONT_H = 1.5;
 
 /** The piano bench: a seat of 0.75 × 0.35 m at the height of a chair seat (design 4.5). */
 export const PIANO_BENCH = {
@@ -375,12 +376,10 @@ export function buildPiano(): InstrumentModel {
   );
   piece.add(box(0.2, 0.03, 0.12), dark, transform([0, 0.035, -0.42]));
 
-  // The round belly of the studio polar bear reaches 0.45 m in front of the floor point, so the
-  // keys of 2026-10-11 (0.55 H + 0.05 m, 0.26 m) went 15 cm into it. The keys of 2026-10-12
-  // (0.60 m) kept the paws out of the belly (`pose/test-pianist-clearance.ts`), and the muzzle
-  // came 2.2 cm near the front edge of the open lid. At 1.68 H + 0.05 m (0.66 m with the head of
-  // the longer shins of 2026-10-14), the muzzle keeps 5.7 cm from it in a play
-  // (`docs/research/2026-10-14-polar-fix.md`).
+  // The round belly of the polar bear mesh reaches about 0.42 m in front of the floor point, from
+  // the bench up to the chest, so the keys stand in front of it: 1.5 H + 0.05 m. Nearer keys need
+  // more lean for the far keys, and the muzzle then comes within 2 cm of the front edge of the
+  // open lid (`docs/research/2026-10-22-mesh-polar-bear.md`).
   const instrument = piece.build(
     'instrument',
     hold('floor', [0, 0, -PIANO_FRONT_H], undefined, [0, 0, -0.05]),

@@ -110,31 +110,27 @@ type RestingHand =
 
 /** The holds of the piano and the harp. */
 export const HANDS_HOLDS = {
-  // The paw of the studio polar bear is longer than a white key, so the palm is 0.07 m in front
-  // of the front edge of the keys and 0.065 m above them, and the curled claws lie on the keys
-  // (`pianoKeyFront()`). Further back, the claws went into the fallboard, and lower, into the
-  // key bed. The keys stand far in front of the round belly (`PIANO_FRONT_H`), so that the muzzle
-  // keeps 5 cm from the front edge of the open lid. The spine leans 27° forward, so that the paws
-  // reach the middle keys. With the palm 0.06 m in front of the keys, a palm stayed 0.41 mm short
-  // of its keys, and with 0.05 m, 0.3% of the notes stayed more than 1 mm short. With a lean of
-  // 28°, the belly folded over the thighs. The elbows point out, down, and back: with the poles
-  // (±1, -0.55, 0.5), the play folds rose from 14.5% to 29.7% of the samples, mostly on the right
-  // upper arm (`docs/research/2026-10-14-polar-fix.md`). The paws reach from A0 to B♭4 with the
-  // left paw and from C4 to C8 with the right paw (`pose/hands.test.ts`), so a melody changes
-  // paws between them. The wrists go up and a little forward over the case between the lap and
-  // the keys (`restArc`): with no arc forward, the claws went 1.6 cm into the belly when the paws
-  // lowered. With the paws in the lap, an arc of 0.5 H out stood the upper arms 61° out from the
-  // trunk in the lift. With no arc out, they stand out at most as far as in a play.
+  // The polar bear mesh has a round belly in front of short arms (arm factor 1.25 of
+  // `tools/mesh-rigs/polar-bear.json`). The keys stand in front of the belly (`PIANO_FRONT_H`),
+  // and the spine leans 28° forward, so that the paws reach each key of the demos. With 26°, the
+  // left paw missed the far keys by up to 13 mm. The palm is 0.12 m in front of the front edge of
+  // the keys and 0.09 m above them, and the curled claws lie on the keys (`pianoKeyFront()`).
+  // The elbows point out and a little up: with the poles of the studio polar bear (out, down, and
+  // back), the inner elbows went up to 16 cm into the sides of the belly. A real pianist holds
+  // the elbows a little out from the body and a little in front of it
+  // (`docs/research/2026-10-22-mesh-polar-bear.md`). The paws reach from A0 to B♭4 with the
+  // left paw and from C4 to C8 with the right paw, so a melody changes paws between them. The
+  // wrists go up and a little forward over the case between the lap and the keys (`restArc`).
   piano: {
     action: 'strike',
     keyPoint: pianoKeyFront,
-    palmL: [0, 0.065, 0.07],
-    palmR: [0, 0.065, 0.07],
+    palmL: [0, 0.09, 0.12],
+    palmR: [0, 0.09, 0.12],
     faceL: [0, -1, 0],
     faceR: [0, -1, 0],
     aimL: null,
     aimR: null,
-    lean: 27 * MathUtils.DEG2RAD,
+    lean: 28 * MathUtils.DEG2RAD,
     restLean: 8 * MathUtils.DEG2RAD,
     restHeadLift: 8 * MathUtils.DEG2RAD,
     reach: { leftHighest: 70, rightLowest: 60 },
@@ -144,8 +140,8 @@ export const HANDS_HOLDS = {
     // (`docs/research/2026-10-21-pirates-clip.md`). At 25 and more, the right paw turned more
     // than 15° further from its accepted grip than on `main` (`pnpm arm-check pianist`).
     apart: 24,
-    poleL: [-1, -0.5, 0.5],
-    poleR: [1, -0.5, 0.5],
+    poleL: [-1, -0.2, 0],
+    poleR: [1, -0.2, 0],
     curl: 30 * MathUtils.DEG2RAD,
     curlClosed: 30 * MathUtils.DEG2RAD,
     restArc: [0, 0.4, 0.1],
@@ -164,14 +160,14 @@ export const HANDS_HOLDS = {
     // its knees, and the paws hung beside them (user report of 2026-10-13).
     restL: {
       kind: 'lap',
-      lap: { along: 1, offset: [0.03, 0.14, -0.5] },
+      lap: { along: 1, offset: [0.03, 0.14, -0.7] },
       palm: [0.06, -0.57, 0.79],
       fingers: [1.18, -0.09, -0.92],
       pole: [-1, -1, 0.77],
     },
     restR: {
       kind: 'lap',
-      lap: { along: 1, offset: [-0.03, 0.14, -0.5] },
+      lap: { along: 1, offset: [-0.03, 0.14, -0.7] },
       palm: [-0.06, -0.57, 0.79],
       fingers: [-1.18, -0.09, -0.92],
       pole: [1, -1, 0.77],
