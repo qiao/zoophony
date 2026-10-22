@@ -453,8 +453,25 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       baton down. Try a rest with the arms nearer to the belly and the baton tip down (5.2).
 - [ ] Bear neck: the head turns of the cues fold up to 3 faces at the side of the neck of the mesh
       bear in 3% of the play samples (`fold-probe.txt` of `docs/research/2026-10-22-mesh-bear/`).
-- [ ] Polar bear mesh: the user gave the same mesh for the polar bear pianist on 2026-10-22. It is
-      the next round, with the shared lists of the bear round.
+- [x] Polar bear mesh: the user gave a polar bear mesh for the pianist on 2026-10-22. It sits at
+      the piano at the skull top of the studio polar bear, with arms 1.25 times the mesh
+      (`2026-10-22-mesh-polar-bear.md`).
+- [ ] Polar bear arms: the arms of the mesh reach the keys in front of its round belly only with
+      a lean of 35°, so the rig makes them 1.25 times as long. Ask the user if the polar bear keeps
+      these arms, or takes a larger size (`2026-10-22-mesh-polar-bear.md`).
+- [ ] Polar bear folds: faces of the head, the neck, the right forearm, and the cut of the
+      shoulders fold in 52% of the play samples (9.6% on the studio polar bear). The arm gate
+      passes. Fit the head line and a shape of the right forearm (`fold.txt` of
+      `docs/research/2026-10-22-mesh-polar-bear/`).
+- [ ] Polar bear upper arms: the thick upper arms press up to 10 cm into the sides of the round
+      belly near the elbows in a play (`PIANIST_SWEEP`). Try a rounder inner side of the upper
+      arm in a copy of the mesh, as for the rabbit (`2026-10-22-rabbit-elbow.md`).
+- [ ] Polar bear rest: in the rest pose, the paws of the mesh polar bear rest on the upper belly,
+      higher than a pianist before a performance. Lower lap places fold 9 faces at rest
+      (`scans/rest-lap.txt` of `docs/research/2026-10-22-mesh-polar-bear/`).
+- [ ] Polar bear tail: from behind, the short tail of the seated mesh polar bear shows a light
+      jagged facet on its lower side in the play strip (`strip-az180.webp` of
+      `docs/research/2026-10-22-mesh-polar-bear/`). Round it in a copy of the mesh.
 
 Done when: the gallery shows each species with its instrument, the budget test passes, and the
 scene of each demo has its seats and stage size with no overlap.
