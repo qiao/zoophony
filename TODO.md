@@ -974,6 +974,13 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
 - [ ] `pnpm close-views --camera-at <bone>`: crop pairs from four directions around a bone, after
       the arm form round merges (`cams.ts` and `sheet.py` of
       `docs/research/2026-10-21-hippo-bass-arms/`).
+- [ ] Tools of a mesh round (retro of the bear mesh round, 2026-10-22):
+      - Let `pnpm close-views` use the build again when the tree hash is the same, and take more
+        than one `--glb` in one run, each variant into its own folder. The bear round made about
+        20 renders, and each one built the site first (60 s to 90 s): about 25 minutes.
+      - Let `--at` of `pnpm close-views play` and `--views` of `pnpm arm-check` take the
+        conductor (`--at conductor` aims at the podium). The bear round wrote a JSON camera and
+        its own crop and strip scripts, and lost a set of 8 strips: about 20 minutes.
 - [ ] Tools of a mesh edit (retro of the arm form rounds 3 and 4, 2026-10-21):
       - Add `pnpm arm-variants <animal> --edit <script> --opts <json>...`. For each option set,
         it makes the copy, rigs it with `rig-mesh --check --keep`, runs `pnpm studio-body`, and
