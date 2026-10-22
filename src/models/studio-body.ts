@@ -285,29 +285,59 @@ export interface SmoothNormals {
 }
 
 /**
- * Calculates the smooth normals of a studio body, and their changes for each corrective shape.
- * A shape moves the skin of a shoulder by a few centimeters, and turns the normals of some
- * corners by more than 20°, so the GPU adds the changes as morph normals.
+ * The smooth normals of the body corners of each studio rig, made on their first use: the players
+ * of one species share a rig, so each rig calculates its normals one time.
+ */
+const rigNormals = new WeakMap<StudioRig, SmoothNormals>();
+
+/**
+ * Calculates the smooth normals of the body corners of a studio rig, and their changes for each
+ * corrective shape, one time for each rig.
  *
  * @param rig The studio rig.
- * @param crease The crease angle in degrees.
+ * @returns The normals. Each array holds the body corners only. The callers do not change it.
+ */
+function rigSmoothNormals(rig: StudioRig): SmoothNormals {
+  let normals = rigNormals.get(rig);
+  if (!normals) {
+    const { positions, correctives } = rig.mesh;
+    const { caps, rim, crease } = rig.body;
+    const corners = studioNormals(rig.mesh, crease, caps, rim);
+    const moves = correctives.map((corrective) => {
+      const moved = positions.map((p, i) => p + (corrective[i] ?? 0));
+      const after = studioNormals({ ...rig.mesh, positions: moved }, crease, caps, rim);
+      const move = new Float32Array(corners.length);
+      for (let i = 0; i < corners.length; i++) {
+        move[i] = (after[i] ?? 0) - (corners[i] ?? 0);
+      }
+      return move;
+    });
+    normals = { corners, moves };
+    rigNormals.set(rig, normals);
+  }
+  return normals;
+}
+
+/**
+ * Gives the smooth normals of a studio body with its crease angle (`StudioBody.crease`), and their
+ * changes for each corrective shape. A shape moves the skin of a shoulder by a few centimeters,
+ * and turns the normals of some corners by more than 20°, so the GPU adds the changes as morph
+ * normals.
+ *
+ * @param rig The studio rig.
  * @param total The number of corners of the mesh of the player, with the instrument.
  * @returns The normals.
  */
-function smoothNormals(rig: StudioRig, crease: number, total: number): SmoothNormals {
-  const { positions, correctives } = rig.mesh;
-  const { caps, rim } = rig.body;
-  const corners = studioNormals(rig.mesh, crease, caps, rim);
-  const moves = correctives.map((corrective) => {
-    const moved = positions.map((p, i) => p + (corrective[i] ?? 0));
-    const after = studioNormals({ ...rig.mesh, positions: moved }, crease, caps, rim);
-    const move = new Float32Array(total * 3);
-    for (let i = 0; i < corners.length; i++) {
-      move[i] = (after[i] ?? 0) - (corners[i] ?? 0);
-    }
-    return move;
-  });
-  return { corners, moves };
+function smoothNormals(rig: StudioRig, total: number): SmoothNormals {
+  const { corners, moves } = rigSmoothNormals(rig);
+  return {
+    corners,
+    moves: moves.map((body) => {
+      const move = new Float32Array(total * 3);
+      move.set(body);
+      return move;
+    }),
+  };
 }
 
 /**
@@ -374,6 +404,6 @@ export function studioRenderMesh(rig: StudioRig, mesh: MeshData): StudioRenderMe
     joints: cornerJoints,
     weights: cornerWeights,
     correctives: moves,
-    normals: smoothNormals(rig, rig.body.crease, total),
+    normals: smoothNormals(rig, total),
   };
 }
