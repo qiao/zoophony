@@ -25,6 +25,7 @@ GitHub Actions runs these checks:
 | Playwright in Chromium | paused since 2026-10-16 (9.3) |
 | Playwright in WebKit and Firefox | paused since 2026-10-16 (9.3) |
 | Keyboard check (`pnpm keyboard`) | not in CI |
+| Frame target (`pnpm frame`, 9.7) | not in CI |
 | Paused Vitest tests (`pnpm test:paused`, 9.3) | not in CI |
 
 Headless WebKit and Firefox on Linux have weak support for WebGL2 and for audio output, so their
@@ -40,6 +41,8 @@ remove each `if: false`
 - The Linux runners have no GPU, so Chromium uses ANGLE on SwiftShader (9.3).
 - The keyboard check stays a local check of the reviews (9.8). It reads the state of a control
   directly after a key, and the slow frames of SwiftShader make it fail.
+- The frame target stays a local check of each change of the scene (9.7). It needs the GPU and
+  the Metal System Trace of the development Mac.
 
 A push to `main` builds with pnpm and deploys to GitHub Pages under the base path `/zoophony/`.
 
@@ -256,9 +259,10 @@ machine. The measures of each target are in the research reports of its step, su
   make the measure valid: a quiet CPU, the highest GPU state, and a self-check of the frames
   against the writes of the canvas
   ([`2026-10-13-frame-tools.md`](../decisions/2026-10-13-frame-tools.md)).
-- The user paused the frame rule on 2026-10-14 until a sweep of the performance work
-  ([`2026-10-14-test-pause.md`](../decisions/2026-10-14-test-pause.md)). The target and
-  `pnpm frame` stay.
+- Each change of `src/scene/`, of a shader, or of the post effects runs `pnpm frame` before its
+  report, with the table in the report or in the commit message (`AGENTS.md`). CI has no GPU
+  (9.2), so this check is local
+  ([`2026-10-21-frame-performance.md`](../decisions/2026-10-21-frame-performance.md)).
 - The frame target leaves a margin of about 4 times for an integrated GPU of the Intel Iris Xe
   class. The manual release test (9.4) checks that a real phone plays the default demo at 30 fps
   or more at the low tier.
