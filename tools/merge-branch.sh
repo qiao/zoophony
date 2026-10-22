@@ -38,7 +38,8 @@
 #
 # Exit codes: 1 bad use or bad state, 2 rebase conflict, 3 a commit or the full
 # unit suite failed a check, 4 the commit hashes changed, 5 build or size failed,
-# 6 the Chromium end-to-end tests failed two times, 7 a value of the arm gate failed.
+# 6 the Chromium end-to-end tests failed two times, 7 a value of the arm gate failed,
+# 8 main moved during the checks.
 set -euo pipefail
 
 CHECK_ONLY=0
@@ -267,6 +268,12 @@ if [ "$CHECK_ONLY" = 1 ]; then
 fi
 
 cd "$REPO"
+# Another session can commit on main while the checks run. Then main is no longer an
+# ancestor of the branch, and the fast-forward is not possible.
+if ! git merge-base --is-ancestor main "$BRANCH"; then
+  echo "main moved during the checks, so main and $BRANCH stay as they are. Run the script again."
+  exit 8
+fi
 git merge --ff-only "$BRANCH"
 git log --oneline -1
 git worktree remove --force "$WORKTREE"
