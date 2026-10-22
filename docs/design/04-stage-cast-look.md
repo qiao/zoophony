@@ -494,7 +494,9 @@ twist bone (`docs/decisions/2026-10-19-arm-skin.md`).
     cut closes the inner side of each upper arm of the rabbit with a flat cap, whose arm run sets
     the width of the arm, so each arm moves its arm run too. A vertex of a run that the move lifts
     above the top of the cut keeps its place: else the cut keeps a face between the arm and the
-    trunk, and the corrective shapes fold the caps of the body. `pnpm arm-look` measures the
+    trunk, and the corrective shapes fold the caps of the body. A vertex at the top of a run whose
+    move turns the cap at the top of the cut down under the raised arm keeps its place too, because
+    that face shows as a dark band. `pnpm arm-look` measures the
     crease of the arm skin against the source and the section of the upper arm, with limits from the red fox
     (`docs/decisions/2026-10-21-arm-form.md`).
   - Face. Face rules recolor faces of the face after a choice of the user, with no move of a
