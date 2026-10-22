@@ -26,6 +26,13 @@ The methods:
 - `smooth`: `rounds` times, each vertex of `vertices` moves by the share `share` toward the mean
   of its neighbors. With `outward`, a vertex moves only out along its normal, so that a notch
   fills and no bump shrinks.
+- `hull`: each vertex of `vertices` moves out toward the convex hull of the fixed vertices within
+  `ring` units of it (not in `vertices` and not in `exclude`, the arm beside the notch), by the
+  share `share` of its depth and at most `cap` units. With `axis`, it moves along that axis.
+  This fills a notch of the source between the lips of the trunk.
+- `push`: each vertex of `moves` (index: units) moves out along its normal. A vertex that the
+  turns of the arm sink below the surface around it, as a shoulder ball with half of its weight
+  on the upper arm, moves out by about its sunk depth.
 - `split`: each edge of `edges` splits at its middle. The new vertex lies on the curve between
   the two ends whose tangents lie in the planes of their normals, so that it continues the round
   form. The new corners take the mean UV of the two ends in each face. A new vertex takes no
@@ -139,7 +146,7 @@ def neighbors(bm, index):
 
 def fair(bm, edit, points, frame, rate):
     """Moves the vertices of the edit out to a quadratic surface fitted to the vertices of `fit`
-    along `axis` (the left side; the right side mirrors x)."""
+    along `axis` (given for the left side, mirrored in x for the right side)."""
     lines = []
     for side, (moved, fit) in sides_of(edit, points, [edit['vertices'], edit['fit']]):
         sign = 1.0 if side == 'L' else -1.0
@@ -239,7 +246,14 @@ def hull(bm, edit, points, frame, rate):
             if gaps[facet] >= 0:
                 continue
             depth = -float(gaps[facet])
-            steps[k] = min(depth * edit.get('share', 1.0), edit.get('cap', np.inf)) * normals[facet]
+            direction = normals[facet]
+            if 'axis' in edit:
+                # Along a fixed axis (given for the left side, mirrored in x for the right
+                # side), the point reaches the plane of the nearest face of the hull.
+                direction = np.asarray(edit['axis'], float) * [1.0 if side == 'L' else -1.0, 1.0, 1.0]
+                direction /= np.linalg.norm(direction)
+                depth /= max(float(normals[facet] @ direction), 0.2)
+            steps[k] = min(depth * edit.get('share', 1.0), edit.get('cap', np.inf)) * direction
         for k, step in steps.items():
             points[k] = start[k] + step
             bm.verts[k].co = to_blender(points[k], frame)
