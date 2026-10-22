@@ -524,10 +524,21 @@ A round that changes the motion updates the items.
   left knee [69, 70], but the knee of the hippo lies under its belly, so the contrabass stands in
   front of the belly. Both shoulders of the hippo turn forward (`BowedHold.reach`,
   `BowedHold.reachL`), so that the short arms reach the strings 0.28 m in front of the belly.
-- **The left hand over the neck.** The thick left paw of the hippo tilts 55° over the neck, as the
-  paw of the dog (section 3.3), so that the left arm keeps off the body. In the high positions, its
-  thick forearm crosses the upper bout. No source gives the left arm of a player with such a round
-  body.
+- **The left hand over the neck** (section 2.8). The thick left paw of the hippo tilts 55° over
+  the neck, as the paw of the dog (section 3.3), so that the left arm keeps off the body. A real
+  bassist touches the back of the neck with the thumb alone [71]. The app differs: the paw of the
+  hippo is 5.9 cm long from the wrist to the middle of the fingers, and its wrist is about 8 cm
+  thick in radius, so the wrist skin goes 1.5 cm to 2.0 cm into the neck while the fingers stop the
+  strings.
+- **The high positions** (section 2.8). A real bassist raises the elbow so that the wrist comes
+  over the shoulder of the bass [71]. The left shoulder of the hippo lies behind the upper bout,
+  and its short arm does not reach over it. So the left paw stops the strings only up to 0.7 of
+  the fingerboard (`BowedHold.stopEnd`), and the high notes take places lower on the neck.
+- **Pizzicato** (section 2.8). The right paw of the hippo comes up from the side and plucks 0.18 m
+  right of the strings (`BowedHold.pluckSide`), as a real bassist rests the thumb on the edge of
+  the fingerboard [72]. The right elbow points out to the right, so that the straight arm passes
+  outside the rim of the upper bout. The app differs: the paw lies further right than a real hand,
+  because the right shoulder is 0.16 m behind the back of the contrabass.
 - **The part of the bow.** The short bow arm reaches the frog only straight, and then it crosses
   the rim of the upper bout. So the hippo plays no hair within 0.25 m of the frog
   (`BowedHold.frogHair`), as the dog on the cello (section 3.3). No source gives the bow of a

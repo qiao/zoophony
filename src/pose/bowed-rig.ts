@@ -806,7 +806,7 @@ const DOG_HOLD = {
  * into the contrabass. The bow plays no hair within 0.25 m of the frog (`frogHair`): the short bow
  * arm reaches the frog only straight, and then the right upper arm went 5.2 cm into the right rim
  * of the upper bout. The right elbow points forward,
- * out, and a little down, also in pizzicato, and further down at the tip: with the elbow of the
+ * out, and a little down, and further down at the tip: with the elbow of the
  * frog, the skin of the bow arm went flat at the tip (0.54 of its round shape in the arm gate,
  * limit 0.55). The left elbow points out
  * to the left, a little down, and forward. The user chose lower elbows with the twist bone of the
@@ -816,7 +816,22 @@ const DOG_HOLD = {
  * elbow turns up 2° for each lower string, as on the cello of the dog: with 10°, the thick left
  * upper arm went 7.0 cm into the contrabass (6.4 cm with 2°). The left paw tilts 55° over the neck,
  * as the paw of the dog: with the 30° of the floor hold, the left arm went 6.9 cm into the body
- * (5.6 cm with 55°). In the high positions, the thick left forearm still crosses the upper bout.
+ * (5.6 cm with 55°).
+ *
+ * In pizzicato, the right paw comes up from the side, 0.18 m right of the strings (`pluckSide`),
+ * as a real bassist rests the thumb on the edge of the fingerboard
+ * (`docs/reference/string-technique.md`, section 2.8). The right shoulder lies 0.16 m behind the
+ * back of the contrabass, so the arm reaches the strings nearly straight: with the palm above the
+ * strings, the arm went through the right rim of the upper bout, 7.7 cm deep. The elbow points out
+ * to the right, a little up, and forward, and the bow tip points up, left, and forward: with the
+ * elbow out and level, the forearm went 1.7 cm into the rim in 3% of the samples of
+ * `boulanger-matin`, and with the elbow of the bow, the paw twisted 153° in the lowering after a
+ * pizzicato (110° before, the arm gate).
+ *
+ * The left paw stops the strings only up to 0.7 of the fingerboard from the nut (`stopEnd`): the
+ * left shoulder lies behind the upper bout, so a paw over the bout put the thick left forearm
+ * 7.0 cm into it, and with 0.73 already 2.4 cm. A real bassist raises the elbow so that the wrist
+ * comes over the shoulder of the instrument, but the short arm of the hippo does not reach so far.
  *
  * The right elbow lies near the backward line of the stick, and on the E and the A strings it lies
  * near the far side of the stick for the roll of the hand. With the far side at 180°, a change of
@@ -850,7 +865,10 @@ const HIPPO_HOLD = {
   elbowPerString: 2 * MathUtils.DEG2RAD,
   poleR: [1.5, -0.5, -2],
   poleTipR: [1.5, -0.8, -2],
-  polePizzicato: [1.5, -0.5, -2],
+  polePizzicato: [3, 0.3, -1],
+  pizzicatoTip: [-1, 1, -1],
+  pluckSide: 0.18,
+  stopEnd: 0.7,
   farSideR: 30 * MathUtils.DEG2RAD,
   restPoleR: [1, -1, 0],
   restPoleL: [-1, -0.3, 0],
