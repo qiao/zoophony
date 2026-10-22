@@ -216,6 +216,10 @@ mesh with no skeleton into route 3" of `docs/agents/model-work.md`).
     --camera default --camera violins --base main
   ```
 
+- **The seams.** Read the arm lines of `pnpm rig-mesh <animal> --check` at intake: an arm that
+  joins or touches the trunk needs an A-pose mesh, or a cut and a remodel. Before the report, run
+  `pnpm close-views audit <dir> --roles <roles> --base main`, and look at each sheet for flaps,
+  shards, and dents at the seam (user, 2026-10-22). No measure finds them yet.
 - **The end of the round.** Give the line of `pnpm size --base main` in the commit that adds the
   body.
 - **The GLB file.** A plain `--preview` of `pnpm rig-mesh` writes the GLB file. Only the last rig
