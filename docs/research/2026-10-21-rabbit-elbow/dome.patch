@@ -1,0 +1,151 @@
+diff --git a/tools/blender/rig_mesh.py b/tools/blender/rig_mesh.py
+index 65dc2222..5787da75 100644
+--- a/tools/blender/rig_mesh.py
++++ b/tools/blender/rig_mesh.py
+@@ -1067,6 +1067,53 @@ def cut_loop(tris, removed):
+     return loop
+ 
+ 
++def dome_cap(verts, faces, arm, heads, side, rule):
++    """Gives the cap of the arm of a cut a round inner side (`dome` of the cut). The flat cap
++    closes the inner side of the arm from the armpit across the elbow, and the bent elbow shows it
++    as a flat sheet with a straight edge (`docs/research/2026-10-21-rabbit-elbow.md`). Each edge
++    between two faces of the cap splits at its middle. The new vertex moves along the normal of
++    the cap, away from the free arm, by the share `share` of half the width of the edge across the
++    bone: the share 1 gives a half circle over the edge. Gives the new points, the two vertices of
++    the edge of each point, and the faces of the cap."""
++    s, e, w = (np.asarray(heads[f'{bone}_{side}'], float)
++               for bone in ('upper_arm', 'forearm', 'hand'))
++    upper = unit(e - s)
++    fore = unit(w - e)
++    middle = verts[arm].mean(axis=0)
++    count = {}
++    for f in faces:
++        for i in range(3):
++            key = (min(f[i], f[(i + 1) % 3]), max(f[i], f[(i + 1) % 3]))
++            count[key] = count.get(key, 0) + 1
++    faces = [list(f) for f in faces]
++    points, parents = [], []
++    for a, b in sorted(k for k, n in count.items() if n == 2):
++        m = 0.5 * (verts[a] + verts[b])
++        axis = fore if (m - e) @ (upper + fore) > 0 else upper
++        span = verts[b] - verts[a]
++        half = 0.5 * np.linalg.norm(span - (span @ axis) * axis)
++        both = [f for f in faces if a in f and b in f]
++        every = np.vstack([verts] + points) if points else verts
++        normal = sum(np.cross(every[f[1]] - every[f[0]], every[f[2]] - every[f[0]]) for f in both)
++        if np.linalg.norm(normal) < 1e-12:
++            continue
++        normal = unit(normal)
++        # The normal points away from the free arm: the cap closes its inner side.
++        near = verts[arm][np.abs((verts[arm] - m) @ axis) < rule['slab']]
++        inside = near.mean(axis=0) if len(near) else middle
++        if normal @ (m - inside) < 0:
++            normal = -normal
++        k = len(verts) + len(points)
++        points.append(m + rule['share'] * half * normal)
++        parents.append((a, b))
++        for f in both:
++            i = next(i for i in range(3) if {f[i], f[(i + 1) % 3]} == {a, b})
++            x, y, z = f[i], f[(i + 1) % 3], f[(i + 2) % 3]
++            faces.remove(f)
++            faces += [[x, k, z], [k, y, z]]
++    return points, parents, faces
++
++
+ def cut_seam(verts, tris, uvs, rules, heads, ends, rule):
+     """Cuts the mesh where each hanging forearm touches the belly (`cut` of the config). Each face
+     below the height `top` with a corner in the free arm (`free_arm()`) and a corner outside it
+@@ -1074,10 +1121,14 @@ def cut_seam(verts, tris, uvs, rules, heads, ends, rule):
+     (`clip_polygon()`, `flip_caps()`), and a quad joins the ends of the two runs at the top, where
+     the arm and the body stay joined. Thus the forearm and the belly share no vertex below the
+     top, and no vertex moves. Each new face takes the UVs of the nearest kept face of its own part.
+-    The user permitted the cut for the panda on 2026-10-18. Gives the triangles, the UVs, and for
+-    each side the removed faces, the new faces, the run of the arm, and the run of the body."""
++    The user permitted the cut for the panda on 2026-10-18. With `dome`, the cap of the arm of
++    each side of `dome.sides` gets a round inner side with new vertices (`dome_cap()`). Gives the
++    vertices, the triangles, the UVs, and for each side the removed faces, the new faces, the run
++    of the arm, the run of the body, and each new vertex of the dome with the two vertices of its
++    edge."""
+     keep = np.ones(len(tris), bool)
+     added, added_uvs, report = [], [], []
++    dome = rule.get('dome')
+     for side, sign in (('L', 1.0), ('R', -1.0)):
+         arm = free_arm(verts, tris, rules, heads, ends, sign)
+         mixed = [k for k, t in enumerate(tris)
+@@ -1095,8 +1146,15 @@ def cut_seam(verts, tris, uvs, rules, heads, ends, rule):
+             bridge = [[ak, b1, bm], [ak, bm, a1]]
+         else:
+             bridge = [[ak, b1, a1], [b1, bm, a1]]
+-        faces = (flip_caps(verts, clip_polygon(verts, arm_run))
+-                 + flip_caps(verts, clip_polygon(verts, body_run)) + bridge)
++        arm_caps = flip_caps(verts, clip_polygon(verts, arm_run))
++        domed = []
++        if dome and side in dome['sides']:
++            points, parents, arm_caps = dome_cap(verts, arm_caps, arm, heads, side, dome)
++            domed = [(len(verts) + j, a, b) for j, (a, b) in enumerate(parents)]
++            if points:
++                verts = np.vstack([verts, points])
++                arm = np.concatenate([arm, np.ones(len(points), bool)])
++        faces = arm_caps + flip_caps(verts, clip_polygon(verts, body_run)) + bridge
+         keep[mixed] = False
+         # Each new face takes the UVs of the kept face across its loop edge, so that the cap
+         # continues the fur at its edge. A new face with no loop edge takes the UVs of the nearest
+@@ -1116,8 +1174,8 @@ def cut_seam(verts, tris, uvs, rules, heads, ends, rule):
+                 source[j] = source[min(same, key=lambda m: np.linalg.norm(mids[m] - mids[j]))]
+             added_uvs.append(uvs[source[j]])
+         added += faces
+-        report.append((side, mixed, faces, arm_run, body_run))
+-    return (np.concatenate([tris[keep], np.array(added, tris.dtype)]),
++        report.append((side, mixed, faces, arm_run, body_run, domed))
++    return (verts, np.concatenate([tris[keep], np.array(added, tris.dtype)]),
+             np.concatenate([uvs[keep], np.array(added_uvs)]), report)
+ 
+ 
+@@ -3653,19 +3711,32 @@ def main():
+     heads, ends, rolls, children = joints_of(config)
+     if 'cut' in config:
+         before = len(source_tris)
+-        source_tris, uvs, seam_cut = cut_seam(verts, source_tris, uvs, rules, heads, ends,
+-                                              config['cut'])
+-        for side, removed, faces, arm_run, body_run in seam_cut:
++        verts, source_tris, uvs, seam_cut = cut_seam(verts, source_tris, uvs, rules, heads, ends,
++                                                     config['cut'])
++        for side, removed, faces, arm_run, body_run, domed in seam_cut:
+             angles = min_angles(verts, np.array(faces))
+             log(f'cut {side}: {len(removed)} faces go, {len(faces)} new faces close the hole '
+                 f'(smallest angle {angles.min():.1f} degrees, median {np.median(angles):.1f}), '
+                 f'the arm run {arm_run}, the body run {body_run}')
++            if domed:
++                lift = max(np.linalg.norm(verts[k] - 0.5 * (verts[a] + verts[b]))
++                           for k, a, b in domed)
++                log(f'dome {side}: {len(domed)} new vertices round the cap of the arm, the '
++                    f'largest move {lift:.4f} u from the middle of its edge')
+         log(f'cut: {before} triangles before, {len(source_tris)} after')
+     weights = apply_rules(verts, source_tris, bone_heat(verts, source_tris, heads, ends, rolls),
+                           rules, heads, ends)
+     weights = straight_slivers(verts, source_tris,
+                                rigid_slivers(verts, source_tris, weights, rules), rules)
+     weights = limit(rigid_faces(verts, source_tris, weights, rules))
++    if 'cut' in config:
++        # Each new vertex of a dome takes the mean weights of the two vertices of its edge, so
++        # that it moves with the arm. Bone heat gives the trunk a part of a vertex near the trunk.
++        domed = [d for c in seam_cut for d in c[5]]
++        for k, a, b in domed:
++            weights[k] = 0.5 * (weights[a] + weights[b])
++        if domed:
++            weights = limit(weights)
+ 
+     # The long arms, the long legs, the large head, and the short trunk. The scale of the app comes
+     # from the shoulder joints after the rise of the legs and the drop of the trunk.
+@@ -3762,8 +3833,8 @@ def main():
+         mids = long_verts[tris].mean(axis=1)
+         kept = np.nonzero(light & (np.arange(len(tris)) < start))[0]
+         k = start
+-        for side, removed, faces, arm_run, body_run in seam_cut:
+-            arm_side = set(arm_run)
++        for side, removed, faces, arm_run, body_run, domed in seam_cut:
++            arm_side = set(arm_run) | {k for k, _, _ in domed}
+             for f in faces:
+                 chosen[k] = side in sides
+                 if not all(v in arm_side for v in f):
