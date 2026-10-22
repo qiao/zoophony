@@ -1,5 +1,6 @@
 {
-  "source": "assets/models/pig/pig.glb",
+  "source": "assets/models/pig/pig-arms.glb",
+  "sourceNote": "A copy of the mesh of the user (assets/models/pig/pig.glb) with new upper arms (assets/models/pig/README.md). The user said on 2026-10-21: \"the rabbit and pig's arms are still very deformed\", and chose a remodel in Blender. The mesh has no upper arm of its own: above the elbow, the arm is a bulge of the trunk wall, and each turn of the arm crumpled that wall. docs/research/2026-10-21-arm-form/pig_arms.py cuts each arm at a plane just below the elbow, removes the faces of the bulge, fills the wall again, and builds a round tube of two rings of 10 edges up to a closed dome around the shoulder joint (docs/research/2026-10-21-arm-form.md).",
   "output": "assets/models/pig/pig.rig.glb",
   "name": "Pig",
   "weld": 1e-05,
@@ -12,6 +13,10 @@
   "armFactorNote": "The factor of the upper arm and the forearm. The arms of the mesh are short: 0.263 m from the shoulder joint to the middle of the palm with no factor, 0.58 of the trunk from the hips joint to the shoulder joints. The user chose the factor 1.5 from the mid-report (pnpm mesh-options pig, docs/decisions/2026-10-19-mesh-pig.md): the reach is 0.385 m, and the arm is 0.84 of the trunk. The long snout puts the mouthpiece of the horn far in front of the body, so the pig plays the horn of the app with a hold of its own that turns the horn back toward the body (SPECIES_WIND_HOLDS.pig of src/pose/winds.ts).",
   "legFactor": 1,
   "legFactorNote": "The legs keep the length of the mesh (user rule: do not stretch the legs, change the chair).",
+  "upperTwist": {
+    "share": 0.4,
+    "note": "The twist bone of each upper arm keeps 0.4 of the roll of the upper arm from the chest (StudioBody.upperTwist), the share of the hippo and the rhino. The user chose it with the new upper arms on 2026-10-21: the twist p95 of the arm gate falls from 48 to 39 degrees on the left and to 35 on the right (docs/research/2026-10-21-arm-form.md)."
+  },
   "joints": {
     "root": {
       "head": [
@@ -279,7 +284,13 @@
     "note": "The studio has no pig. legTurns gives the world turn of each left leg bone from the seated bind pose to the source, and the right side mirrors it. The posture is the seated posture of design 5.2: the thigh slopes 25 degrees down from the hip to the knee, the thighs turn 15 degrees out, so that the horn has room at the right knee, and the shin is vertical (docs/research/2026-10-16-hip-open/leg_turns.py <config> 25 15 0). The foot and the toes keep the turn of the source, so that the soles stand flat on the floor. The source shin slants 7.6 degrees back. The trunk shares and the bind arms are the values of the cat, the dog, the panda, the hippo, and the mouse."
   },
   "weights": {
-    "armSplit": 0.17,
+    "armSplit": 0.14,
+    "armFree": {
+      "turn": 0,
+      "radius": 0.075,
+      "floor": 0.3,
+      "note": "The tube of each upper arm and the forearm have no face that joins them to the trunk. A vertex of the free arm lies beyond the plane, within 0.075 u of the chain of the arm joints, and above y 0.3, so that the wall under the arm and the belly beside the paw follow the trunk (docs/research/2026-10-21-arm-form.md)."
+    },
     "stretchRamp": 0,
     "headFrom": 0.68,
     "earBase": [
@@ -325,15 +336,7 @@
       ],
       "note": "The part of the thigh weight that goes to the hips grows from 0 at the lower height to 1 at the upper height, so that the round haunch stays on the hips. It starts below the crotch and ends 0.03 u above the thigh joint."
     },
-    "rigid": [
-      [
-        0.2407,
-        0.5223,
-        0.0462
-      ]
-    ],
-    "rigidNote": "The corners of the thin face across the left elbow take the mean of their weights (rigid_faces() of tools/blender/rig_mesh.py). The point is the middle of face 1888 in the units of the source (pnpm fold-probe hornist --faces). Its corners had the upper arm weights 0.89, 0.53, and 0.39, and it folded in each play sample, also with the shape of the left arm.",
-    "note": "Beyond the plane |x| = armSplit, only the free arm follows the arm bones: the cuts show the arm apart from the body from x 0.17 out (94 vertices of the free left arm, free-arm.txt). The round belly is wider than that plane below the arm, so the free arm is the part beyond the plane that holds the tip of the hoof. Above headFrom, each vertex follows the head only: the chin starts at y 0.67. The ears join the head from y 0.87, below the skull top (0.9476), so the height rule of earBase would also take the top of the head, and earBase lies above the head: the ears follow the head, as for the panda, the hippo, and the mouse. The small curled tail is a ball on one bone (tailBall): the vertices within radius of the center and behind the plane z = behind follow the tail. clavicleFrom, armTop, and shoulderHead are the rules of the hippo, moved with the shoulder joint (y 0.56) and the wide neck of the pig (x 0.14)."
+    "note": "Beyond the plane |x| = armSplit, only the free arm follows the arm bones (armFree): the new tube of the upper arm and the forearm. The plane lies inside the tube at the shoulder joint (x 0.16, tube radius 0.058 u), so that the whole tube is in the free arm. Above headFrom, each vertex follows the head only: the chin starts at y 0.67. The ears join the head from y 0.87, below the skull top (0.9476), so the height rule of earBase would also take the top of the head, and earBase lies above the head: the ears follow the head, as for the panda, the hippo, and the mouse. The small curled tail is a ball on one bone (tailBall): the vertices within radius of the center and behind the plane z = behind follow the tail. clavicleFrom, armTop, and shoulderHead are the rules of the hippo, moved with the shoulder joint (y 0.56) and the wide neck of the pig (x 0.14)."
   },
   "refine": {
     "rings": [],
