@@ -1,4 +1,4 @@
-import { Bone, BufferAttribute, Matrix4, Mesh, Skeleton, SkinnedMesh, Vector3 } from 'three';
+import { Bone, BufferAttribute, Group, Matrix4, Mesh, Skeleton, SkinnedMesh, Vector3 } from 'three';
 import type { BufferGeometry, MeshStandardMaterial } from 'three';
 
 import type { Vec3 } from '../models/tuples.ts';
@@ -159,6 +159,23 @@ export function releaseSkeletons(meshes: readonly SkinnedMesh[]): void {
   }
 }
 
+/**
+ * Creates the hidden group that holds the bones of a player mesh. three.js visits each child of a
+ * visible object in each render and in each shadow map, and stops at a hidden object. A bone draws
+ * nothing, so the group hides the bones: a player with a studio body has 74 bones, and the 55
+ * players of `perf-60.mid` gave about 4,000 visits in each pass. The group stays at the origin of
+ * the mesh, and a product with the identity matrix is exact, so the world matrices of the bones do
+ * not change.
+ *
+ * @returns The group.
+ */
+function createBoneGroup(): Group {
+  const group = new Group();
+  group.visible = false;
+  group.matrixAutoUpdate = false;
+  return group;
+}
+
 /** The player meshes with a studio body. */
 const studioPlayers = new WeakMap<SkinnedMesh, StudioPlayer>();
 
@@ -229,7 +246,7 @@ export function createPlayerMesh(
   const mesh = new SkinnedMesh(geometry, [...materials]);
   const root = bones[0];
   if (root) {
-    mesh.add(root);
+    mesh.add(createBoneGroup().add(root));
   }
   mesh.updateMatrixWorld(true);
   mesh.bind(new FrameSkeleton(bones));
@@ -267,10 +284,12 @@ function createStudioMesh(
   materials: readonly MeshStandardMaterial[],
 ): SkinnedMesh {
   const mesh = new SkinnedMesh(geometry, [...materials]);
+  const group = createBoneGroup();
+  mesh.add(group);
   const bones = Array.from({ length: STUDIO_POSE_BONES }, () => {
     const bone = new Bone();
     bone.matrixAutoUpdate = false;
-    mesh.add(bone);
+    group.add(bone);
     return bone;
   });
   mesh.updateMatrixWorld(true);
