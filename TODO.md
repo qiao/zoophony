@@ -401,10 +401,12 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       A tip on the plane moves the jaw of the rig 3.0 cm up (`2026-10-19-mesh-retro.md`).
 - [ ] Brief template: `docs/briefs/studio-body.md` has 2,625 words, above its limit of about
       2,500 (2,611 before the mesh retro). Cut it in a prose pass.
-- [ ] Top plate in the sweep: the pair "instrument in body" gives the deepest corner of the
+- [x] Top plate in the sweep: the pair "instrument in body" gives the deepest corner of the
       instrument, for the hippo the back of the upper bout (14.7 cm) against 1.5 cm of the top
       plate. Offer a part of the visible top plate of the bowed instruments, as `top-plate.ts` of
       the chest round measures it (`2026-10-19-hippo-retro.md`).
+      Answer: the user saw the whole contrabass clip. The sweep limits the whole instrument to
+      2 cm, and the contrabass of the hippo goes 1.9 cm in (`2026-10-21-hippo-bass.md`).
 - [x] Bear eyes: the user wrote "the bear's eyes are too far from the head". A bent oval reads
       as a bean on the twisted face of the bear (`2026-10-20-pea-eyes.md`).
       Answer: the user chose flat ovals halfway to the surface normal, with the rim 0.027 H out
@@ -622,6 +624,30 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       shoulder for the bowed holds, as `WindHold.reachL`, and count the samples with
       `left-forearm.ts` of `docs/research/2026-10-19-hippo-chest/arms/`
       (`2026-10-19-hippo-chest.md`).
+- [x] Hippo bassist: the user wrote "the hippo is clipping with the contrabass". The back of the
+      contrabass went 14.8 cm into the belly. Done: the contrabass stands in front of the belly
+      (1.9 cm at the most), with a left shoulder turn, string planes 6° apart, and no hair within
+      0.25 m of the frog (`2026-10-21-hippo-bass.md`).
+- [ ] Hippo bassist: the bow plays only 0.25 m to 0.415 m of the hair (0.045 m before), so the
+      strokes are shorter. Show the user the close views, and offer longer arms or a smaller
+      contrabass for longer strokes (`2026-10-21-hippo-bass.md`).
+- [ ] Hippo bassist: in pizzicato (`boulanger-matin`, `brahms-2`), the straight bow arm crosses
+      the right rim of the upper bout, 7.7 cm deep, in 66% of the play samples of
+      `boulanger-matin`. Pole and pluck place change nothing. Try a pluck place on the right of
+      the strings, or a forward turn of the trunk (`inbass.ts` of
+      `docs/research/2026-10-21-hippo-bass/`).
+- [ ] Hippo bassist: the left wrist on the neck goes 1.5 cm to 1.8 cm into the contrabass in
+      15% to 34% of the play samples, so the gate "arms in the contrabass at 1.5 cm or less in
+      1% of the samples" fails. Accept it as the contact of a grip, or fit the left paw
+      (`2026-10-21-hippo-bass.md`).
+- [ ] Held instruments over the new limit of 2 cm in the body (`roles/summary.txt` of
+      `docs/research/2026-10-21-hippo-bass/`): the pig hornist 4.5 cm in the lift, the rest, and
+      the lowering, the rhino tubist 2.9 cm in the play, the red fox and rabbit violinists 2.9 cm
+      and 2.8 cm in the lift and the lowering, and the cat violist 2.4 cm in the play. Fit each
+      hold, or give the pair an accepted depth with its reason.
+- [ ] The merge gate runs no clearance sweep, so a new instrument in the body shows only in
+      `pnpm pose-depth` and the paused tests. Add the pair "instrument in body" of each held role
+      to the gate, or end the test pause for it (`2026-10-21-hippo-bass.md`).
 - [ ] Hippo bassist: the top edge of the upper bout touches the chest under the chin, and a few
       teeth of the skin show over it in a close view from the front (`chest-compare.webp` of
       `docs/research/2026-10-19-hippo-chest/`, `2026-10-19-hippo-chest.md`).
