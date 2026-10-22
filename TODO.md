@@ -470,17 +470,24 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
 - [x] Polar bear seat (user, 2026-10-22: "also the polar bear's pose is very wrong now"): the mesh
       polar bear sits on near level thighs with its knees at 95°, the hip joints in the haunch,
       and the haunch on a bench under the thighs (`2026-10-22-polar-seat.md`).
-- [ ] Polar bear legs: with the legs of the mesh, the bench is 0.153 m high, and the round belly
-      hides the short thighs from the side, so the bear sits low and still reads in part as a
-      squat. Ask the user for longer legs (`legFactor`). With a leg factor, the landmark of the
-      standing shoulders shrinks the whole body, so keep the size first
-      (`docs/research/2026-10-22-polar-seat.md`).
+- [x] Polar bear legs (user, 2026-10-22: "Longer legs, keep size"): the thighs and the shins of
+      the mesh polar bear are 1.6 times as long, at the scale of `main`, so the bench is 0.269 m
+      high and the knees show in front of the belly (`2026-10-22-polar-legs.md`).
+- [ ] Polar bear arm gate: on the longer legs, no piano hold passes the whole arm gate. The hold
+      of lean 28° fails the move twist (53°, base 42°, margin 3°) and folds 52% of the play
+      samples (36.5% on `main`). The variant g4 folds 28% but fails the move twist by 1° to 2°
+      and the lowering limit by 0.4 cm. Choose a hold or a new base
+      (`docs/research/2026-10-22-polar-legs.md`).
+- [ ] Polar bear head top: the seated head top is 7.4% higher than on `main` (1.857 m), because
+      the longer legs raise the haunch, and the head keeps 5.1 cm from the case (12 cm on `main`)
+      (`docs/research/2026-10-22-polar-legs.md`).
 - [ ] Polar bear balance: the center of mass of the seated polar bear is 6 cm (rest) to 16 cm
       (play) in front of the front edge of the bench, between the bench and the soles. The calves
       stop the bench front (`seat-round.txt` of `docs/research/2026-10-22-polar-seat/`).
-- [ ] Polar bear rest: in the rest pose, the paws of the mesh polar bear rest on the upper belly,
-      higher than a pianist before a performance. Lower lap places fold 9 faces at rest
-      (`scans/rest-lap.txt` of `docs/research/2026-10-22-mesh-polar-bear/`).
+- [ ] Polar bear rest: in the rest pose, the paws of the mesh polar bear rest at chest height,
+      higher than a pianist before a performance. On the longer legs, the lap point takes the top
+      of the belly over the thigh, and lower places put the upper arms up to 11 cm into the belly
+      (`logs/fit-rest3.txt` of `docs/research/2026-10-22-polar-legs/`).
 - [ ] Polar bear tail: from behind, the short tail of the seated mesh polar bear shows a light
       jagged facet on its lower side in the play strip (`strip-az180.webp` of
       `docs/research/2026-10-22-mesh-polar-bear/`). Round it in a copy of the mesh.
