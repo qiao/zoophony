@@ -42,10 +42,15 @@ export const PIANO = {
  */
 export const PIANO_FRONT_H = 1.5;
 
-/** The piano bench: a seat of 0.75 × 0.35 m at the height of a chair seat (design 4.5). */
+/**
+ * The piano bench: a seat of 0.95 × 0.39 m at the height of a chair seat (design 4.5). The width
+ * and the depth fit the haunch of the polar bear pianist, about as its seat of the rig does: 0.25
+ * units to each side and 0.2 units deep, at 1.929 m for each unit (`chair` of
+ * `tools/mesh-rigs/polar-bear.json`). A studio body takes the seat height of its legs.
+ */
 export const PIANO_BENCH = {
-  width: 0.75,
-  depth: 0.35,
+  width: 0.95,
+  depth: 0.39,
   seatHeight: 0.45,
 } as const;
 
