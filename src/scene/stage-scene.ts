@@ -48,6 +48,7 @@ import { freeShotLight, shotRig } from '../shots/shot-light.ts';
 import { createRenderer, probeTargetFormat } from './renderer.ts';
 import { aimGap, easeAim, easeShare, soloAim } from './solo-light.ts';
 import { STAGE_SHADOW, createStage, noBakeUniforms } from './stage.ts';
+import { VariantMaterials } from './variants.ts';
 import type { StageBakeUniforms } from './stage.ts';
 import { bakeStage } from './stage-bake.ts';
 
@@ -257,6 +258,8 @@ export class StageScene {
   /** The light of a close shot (design 4.5, 5.6), which the shared material reads. */
   readonly #shot = createShotUniforms();
   readonly #materials = createMaterials(this.#pool, this.#shot);
+  /** The copies of the shared material for each program variant of the players. */
+  readonly #variants = new VariantMaterials(this.#materials);
   #view: LayoutView | null = null;
   #width = 1;
   #height = 1;
@@ -328,6 +331,7 @@ export class StageScene {
     const props = createStaticMesh(buildSceneProps(layout), materials);
     scene.add(props);
     const players = createPlayers(playerSpots(layout), materials, models);
+    this.#variants.assign(players);
     const playerGroup = new Group().add(...players);
     scene.add(playerGroup);
     const camera = new StageCamera(
@@ -727,6 +731,7 @@ export class StageScene {
     for (const material of this.#materials) {
       material.dispose();
     }
+    this.#variants.dispose();
     this.#post?.dispose();
     this.#beamDepth.dispose();
     this.#environment.dispose();
@@ -774,7 +779,7 @@ export class StageScene {
     }
     this.#view.bake?.target.dispose();
     this.#view.capture?.target.dispose();
-    disposeTree(this.#view.scene, new Set(this.#materials));
+    disposeTree(this.#view.scene, new Set([...this.#materials, ...this.#variants.copies]));
     this.#view.camera.dispose();
     this.#view = null;
   }

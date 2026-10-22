@@ -726,11 +726,14 @@ open case (`PIANO_INSIDE` of `models/instruments/piano.ts`).
 
 **Materials**
 
-All meshes share one `MeshStandardMaterial` with vertex colors and crease normals
-(`models/shading.ts`), so each player has one material and one draw call. A corner gets the mean
-normal of the faces at its vertex within the crease angle of its finish. Each triangle has a
-finish (`Finish` and `FINISHES` of `models/mesh.ts`), and the `uv` of a vertex points at the texel
-of its finish in the roughness map and the metalness map of the material.
+All meshes share the values of one `MeshStandardMaterial` with vertex colors and crease normals
+(`models/shading.ts`), so each player has one material and one draw call. three.js keeps one current
+program for each material, and a skinned mesh or another count of morph targets needs another
+program. So the stage gives each program variant of the players its own copy of the material, and a
+depth material of its own for the shadow maps (`scene/variants.ts`). A corner gets the mean normal
+of the faces at its vertex within the crease angle of its finish. Each triangle has a finish
+(`Finish` and `FINISHES` of `models/mesh.ts`), and the `uv` of a vertex points at the texel of its
+finish in the roughness map and the metalness map of the material.
 
 | Finish    | Parts                                                          | Intent                                                                                                 |
 | --------- | -------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
