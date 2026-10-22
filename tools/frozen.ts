@@ -5,12 +5,12 @@
  * that must keep the look runs `pnpm frozen --base main` (`docs/agents/commands.md`).
  *
  * The tool serves the working tree with the Vite dev server, opens each shot in Google Chrome at
- * 1440 × 900 and the device scale 2, and writes `<out>/tree/<shot>.png`. With `--base`, it extracts
- * the commit into a temporary folder, serves it in the same way, writes `<out>/base/<shot>.png`,
- * and prints for each shot the mean difference of the channels (0 to 255), the largest
- * difference, the count of changed pixels, and the part of the pixels with a difference above 16.
- * It exits with 1 when a pixel changed. It is a copy of the probes `frozen.ts` and `pixel-diff.py`
- * of `docs/research/2026-10-21-frame-performance/` as a tool.
+ * 1440 × 900 and the device scale 2, and writes `<out>/tree/<shot>.png`. With `--base`, it
+ * extracts the commit into a temporary folder, serves it in the same way, writes
+ * `<out>/base/<shot>.png`, and prints for each shot the mean difference of the channels (0 to
+ * 255), the largest difference, the count of changed pixels, and the part of the pixels with a
+ * difference above 16. It exits with 1 when a pixel changed. It is a copy of the probes
+ * `frozen.ts` and `pixel-diff.py` of `docs/research/2026-10-21-frame-performance/` as a tool.
  */
 import { existsSync, symlinkSync } from 'node:fs';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
