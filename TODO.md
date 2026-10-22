@@ -1031,8 +1031,23 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       - [ ] Panda arm gate: the flat p5 of the lift falls from 0.80 / 0.84 to 0.69 / 0.71, and
             `pnpm arm-check trombonist --base c5fae22c` gives `FAIL` (limit 0.55). Accept it as
             a decision row, or revert `2ae168dc`.
-      - [ ] Panda front notch: a small gray dent below each arm from the left side. Try a fair
-            surface in a copy of the mesh (`fair.py` of `docs/research/2026-10-21-rabbit-notch/`).
+      - [x] Bear dent (user, 2026-10-22: "the bear is not fixed. there's still visible dent there
+            in the arms"): the rig reads a copy with raised shoulder balls (round `arm-roots`,
+            `docs/research/2026-10-22-arm-roots.md`). The V at the right root is gone.
+      - [ ] Bear left root and back pocket: from az-150, a softer dark crease stays at the left
+            root, most at rest (the left shoulder ball 2.49 cm deep at rest). From az150, a small
+            dark pocket stays where the raised right arm meets the back at `between`. Try a push
+            of vertices 438 and 442, and a second split on the left (`tools/arm-roots/bear.json`).
+      - [ ] Panda front notch: a small gray dent below each arm from the left side. Round
+            `arm-roots`: a `hull` fill of the 7 front lips (`tools/arm-roots/panda.json`) at half
+            makes the V smaller, a full fill puts the lips in the free arm with gray streaks, and a
+            fill along +z changes nothing. Next: move the body run of the cut (787, 793, 800).
+      - [ ] Deer shards: faces from the trunk (x 0.08 u) to the arm (x 0.11 u) at the back of each
+            arm root turn down when the arms reach the harp. A `smooth` of the web makes the left
+            shard smaller, but it moves 3.4 cm (`deer-d1-d2-back.webp` of the arm roots round).
+            Next: a cut of the seam with a free arm, as the bear, or a round patch.
+      - [ ] Dog shards at both shoulders from the back: no variant yet. The arm skin joins the
+            trunk to 0.81 of the upper arm, as on the deer.
       - [ ] Rhino flat forearm: the flat cap of the cut over the whole inner side of the arm. A
             round patch in a copy (`arm_patch.py` of `docs/research/2026-10-22-panda-armpit/`,
             step 0.03, `weights.armIslands`, `cut.low` 0.17) lifts the left section from 0.39 to
