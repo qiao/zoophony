@@ -11,6 +11,7 @@ import {
   writeVarint,
   zigzag,
 } from './packed-bytes.ts';
+import type { ByteReader } from './packed-bytes.ts';
 import type { Quat, Vec3 } from './tuples.ts';
 
 /**
@@ -537,29 +538,138 @@ export function packStudioPalette(
 }
 
 /**
- * Packs a studio mesh as base64 text.
+ * The number of recent vertices that the packed triangles name by their place in the list
+ * ({@link packCorners}).
+ */
+const RECENT_CORNERS = 8;
+
+/**
+ * The largest number in a stream of two byte planes ({@link writePlanes}).
+ */
+const PLANE_LIMIT = 0x10000;
+
+/**
+ * Adds numbers as two byte planes: the low byte of each number, then the high byte of each number.
+ * Gzip finds more repeats in the planes than in LEB128 numbers, also in base64 text.
  *
- * The packed bytes, each count and number a LEB128 number:
+ * @param out The bytes.
+ * @param values The numbers, each an integer from 0 to 65535.
+ * @throws Error if a number is out of this range.
+ */
+function writePlanes(out: number[], values: readonly number[]): void {
+  for (const value of values) {
+    if (!Number.isInteger(value) || value < 0 || value >= PLANE_LIMIT) {
+      throw new Error(`The number ${value} does not fit in two bytes.`);
+    }
+    out.push(value & 0xff);
+  }
+  for (const value of values) {
+    out.push(value >> 8);
+  }
+}
+
+/**
+ * Reads numbers of {@link writePlanes}.
+ *
+ * @param reader The cursor. The read moves it.
+ * @param count The count of the numbers.
+ * @returns The numbers.
+ * @throws Error if the bytes end.
+ */
+function readPlanes(reader: ByteReader, count: number): Uint16Array {
+  const values = new Uint16Array(count);
+  for (let i = 0; i < count; i++) {
+    values[i] = readByte(reader);
+  }
+  for (let i = 0; i < count; i++) {
+    values[i] = (values[i] ?? 0) | (readByte(reader) << 8);
+  }
+  return values;
+}
+
+/**
+ * The state of the code of the corners of the triangles, the same in the pack and the read: the
+ * recent vertices, the most recent first, the highest vertex so far, and the vertex before.
+ */
+interface CornerState {
+  /** The recent vertices, the most recent first, at most {@link RECENT_CORNERS}. */
+  readonly recent: number[];
+  /** The highest vertex so far, or -1. */
+  high: number;
+  /** The vertex of the corner before, or 0. */
+  previous: number;
+}
+
+/**
+ * Records a corner in the state of the corner code.
+ *
+ * @param state The state. The call changes it.
+ * @param corner The vertex of the corner.
+ * @param place The place of the vertex in the recent vertices, or -1.
+ */
+function noteCorner(state: CornerState, corner: number, place: number): void {
+  if (place >= 0) {
+    state.recent.splice(place, 1);
+  }
+  state.recent.unshift(corner);
+  if (state.recent.length > RECENT_CORNERS) {
+    state.recent.pop();
+  }
+  state.high = Math.max(state.high, corner);
+  state.previous = corner;
+}
+
+/**
+ * Gives the code of each corner of the triangles: the place of the vertex in the recent vertices,
+ * or {@link RECENT_CORNERS} for the vertex after the highest vertex so far, or else
+ * {@link RECENT_CORNERS} + 1 + the zigzag number of the difference from the vertex before.
+ *
+ * @param corners The vertex of each corner, in order.
+ * @returns The code of each corner.
+ */
+function packCorners(corners: readonly number[]): number[] {
+  const state: CornerState = { recent: [], high: -1, previous: 0 };
+  return corners.map((corner) => {
+    const place = state.recent.indexOf(corner);
+    let code: number;
+    if (place >= 0) {
+      code = place;
+    } else if (corner === state.high + 1) {
+      code = RECENT_CORNERS;
+    } else {
+      code = RECENT_CORNERS + 1 + zigzag(corner - state.previous);
+    }
+    noteCorner(state, corner, place);
+    return code;
+  });
+}
+
+/**
+ * Packs a studio mesh as base64 text. Each stream holds one kind of number, so that gzip finds
+ * the repeats.
+ *
+ * The packed bytes, each count and each number of the LEB128 kind unless the list says else:
  *
  * 1. The vertex count, the triangle count, the color count, and the count of corrective shapes.
- * 2. The place of each vertex: for each axis, the difference from the vertex before, in steps of
- *    `PACKED_STEP`, as a zigzag number.
- * 3. The skin of each vertex: the bone count, then each bone and its weight in steps of
- *    {@link STUDIO_WEIGHT_STEPS}, one byte each. The steps add up to the whole.
- * 4. The three vertices of each triangle, as differences from the corner before, as zigzag
- *    numbers.
- * 5. The colors: r, g, b in steps of {@link COLOR_STEPS} and the finish index.
+ * 2. The place of each vertex, one axis after the other: the difference from the vertex before,
+ *    in steps of `PACKED_STEP`, as a zigzag number in two byte planes ({@link writePlanes}).
+ * 3. The skin: the bone count of each vertex as one byte, then each bone of each vertex as one
+ *    byte, then each weight of each vertex except its last weight, in steps of
+ *    {@link STUDIO_WEIGHT_STEPS}, as one byte. The steps of a vertex add up to the whole, so the
+ *    read gives the last weight from the others.
+ * 4. The code of each corner of the triangles ({@link packCorners}).
+ * 5. The colors: r, g, b in steps of {@link COLOR_STEPS} and the finish index as one byte.
  * 6. The color of each triangle, as an index in the colors.
- * 7. Each corrective shape: the count of the vertices that it moves, then for each one the
- *    difference of its index from the one before, and its move on each axis in steps of
- *    {@link CORRECTIVE_STEP} as zigzag numbers.
+ * 7. The corrective shapes: the count of the vertices that each shape moves, then the difference
+ *    of each vertex from the vertex before in its shape in two byte planes, then the moves on x
+ *    of all shapes, on y, and on z, in steps of {@link CORRECTIVE_STEP} as zigzag numbers.
  *
  * @param vertices The vertices.
  * @param triangles The triangles.
  * @param correctives The move of each vertex for each corrective shape.
  * @returns The packed mesh as base64.
- * @throws Error if a vertex has more than {@link STUDIO_INFLUENCES} bones, or a triangle names a
- *   vertex that does not exist.
+ * @throws Error if a vertex has more than {@link STUDIO_INFLUENCES} bones, a triangle names a
+ *   vertex that does not exist, or a difference does not fit in two bytes.
  */
 export function packStudioMesh(
   vertices: readonly StudioVertex[],
@@ -573,36 +683,40 @@ export function packStudioMesh(
   writeVarint(out, triangles.length);
   writeVarint(out, colors.length);
   writeVarint(out, correctives.length);
-  const last = [0, 0, 0];
-  for (const vertex of vertices) {
-    for (let axis = 0; axis < 3; axis++) {
-      const steps = packCoordinate(vertex.position[axis] ?? 0);
-      writeVarint(out, zigzag(steps - (last[axis] ?? 0)));
-      last[axis] = steps;
-    }
+  for (let axis = 0; axis < 3; axis++) {
+    let last = 0;
+    writePlanes(
+      out,
+      vertices.map((vertex) => {
+        const steps = packCoordinate(vertex.position[axis] ?? 0);
+        const delta = zigzag(steps - last);
+        last = steps;
+        return delta;
+      }),
+    );
   }
+  const bones: number[] = [];
+  const steps: number[] = [];
   for (const [v, vertex] of vertices.entries()) {
     if (vertex.skin.length === 0 || vertex.skin.length > STUDIO_INFLUENCES) {
       throw new Error(`The vertex ${v} has ${vertex.skin.length} bones.`);
     }
-    const steps = weightSteps(vertex.skin.map(([, w]) => w));
     out.push(vertex.skin.length);
-    for (const [k, [bone]] of vertex.skin.entries()) {
-      out.push(bone, steps[k] ?? 0);
+    bones.push(...vertex.skin.map(([bone]) => bone));
+    steps.push(...weightSteps(vertex.skin.map(([, w]) => w)).slice(0, -1));
+  }
+  out.push(...bones, ...steps);
+  const corners = triangles.flatMap((triangle) => [...triangle.corners]);
+  for (const corner of corners) {
+    if (!vertices[corner]) {
+      throw new Error(`A triangle names the vertex ${corner}, which does not exist.`);
     }
   }
-  let previous = 0;
-  for (const triangle of triangles) {
-    for (const corner of triangle.corners) {
-      if (!vertices[corner]) {
-        throw new Error(`A triangle names the vertex ${corner}, which does not exist.`);
-      }
-      writeVarint(out, zigzag(corner - previous));
-      previous = corner;
-    }
+  for (const code of packCorners(corners)) {
+    writeVarint(out, code);
   }
-  for (const [steps, finish] of colors) {
-    for (const step of steps) {
+  for (const [colorSteps, finish] of colors) {
+    for (const step of colorSteps) {
       writeVarint(out, step);
     }
     out.push(FINISH_ORDER.indexOf(finish));
@@ -610,17 +724,22 @@ export function packStudioMesh(
   for (const index of triangleColors) {
     writeVarint(out, index);
   }
-  for (const corrective of correctives) {
-    const moved = corrective.flatMap((move, v) =>
+  const moved = correctives.map((corrective) =>
+    corrective.flatMap((move, v) =>
       move.some((d) => Math.round(d / CORRECTIVE_STEP) !== 0) ? [v] : [],
-    );
-    writeVarint(out, moved.length);
-    let lastVertex = 0;
-    for (const v of moved) {
-      writeVarint(out, v - lastVertex);
-      lastVertex = v;
-      for (const d of corrective[v] ?? [0, 0, 0]) {
-        writeVarint(out, zigzag(Math.round(d / CORRECTIVE_STEP)));
+    ),
+  );
+  for (const list of moved) {
+    writeVarint(out, list.length);
+  }
+  writePlanes(
+    out,
+    moved.flatMap((list) => list.map((v, k) => v - (list[k - 1] ?? 0))),
+  );
+  for (let axis = 0; axis < 3; axis++) {
+    for (const [s, list] of moved.entries()) {
+      for (const v of list) {
+        writeVarint(out, zigzag(Math.round((correctives[s]?.[v]?.[axis] ?? 0) / CORRECTIVE_STEP)));
       }
     }
   }
@@ -645,32 +764,50 @@ export function unpackStudioMesh(packed: string, palette?: string): StudioMesh {
   const correctiveCount = readVarint(reader);
 
   const positions = new Float32Array(vertexCount * 3);
-  const last = [0, 0, 0];
-  for (let v = 0; v < vertexCount; v++) {
-    for (let axis = 0; axis < 3; axis++) {
-      last[axis] = (last[axis] ?? 0) + unzigzag(readVarint(reader));
-      positions[v * 3 + axis] = (last[axis] ?? 0) * PACKED_STEP;
+  for (let axis = 0; axis < 3; axis++) {
+    const deltas = readPlanes(reader, vertexCount);
+    let last = 0;
+    for (let v = 0; v < vertexCount; v++) {
+      last += unzigzag(deltas[v] ?? 0);
+      positions[v * 3 + axis] = last * PACKED_STEP;
     }
   }
 
   const joints = new Uint8Array(vertexCount * STUDIO_INFLUENCES);
   const weights = new Float32Array(vertexCount * STUDIO_INFLUENCES);
-  for (let v = 0; v < vertexCount; v++) {
-    const count = readByte(reader);
+  const counts = Array.from({ length: vertexCount }, () => readByte(reader));
+  for (const [v, count] of counts.entries()) {
     for (let k = 0; k < count; k++) {
       joints[v * STUDIO_INFLUENCES + k] = readByte(reader);
-      weights[v * STUDIO_INFLUENCES + k] = readByte(reader) / STUDIO_WEIGHT_STEPS;
+    }
+  }
+  for (const [v, count] of counts.entries()) {
+    let rest = STUDIO_WEIGHT_STEPS;
+    for (let k = 0; k < count; k++) {
+      const step = k < count - 1 ? readByte(reader) : rest;
+      rest -= step;
+      weights[v * STUDIO_INFLUENCES + k] = step / STUDIO_WEIGHT_STEPS;
     }
   }
 
   const corners = new Uint32Array(triangleCount * 3);
-  let previous = 0;
+  const state: CornerState = { recent: [], high: -1, previous: 0 };
   for (let c = 0; c < corners.length; c++) {
-    previous += unzigzag(readVarint(reader));
-    if (previous < 0 || previous >= vertexCount) {
-      throw new Error(`The corner ${c} names the vertex ${previous}, which does not exist.`);
+    const code = readVarint(reader);
+    const place = code < RECENT_CORNERS ? code : -1;
+    let corner: number;
+    if (place >= 0) {
+      corner = state.recent[place] ?? -1;
+    } else if (code === RECENT_CORNERS) {
+      corner = state.high + 1;
+    } else {
+      corner = state.previous + unzigzag(code - RECENT_CORNERS - 1);
     }
-    corners[c] = previous;
+    if (corner < 0 || corner >= vertexCount) {
+      throw new Error(`The corner ${c} names the vertex ${corner}, which does not exist.`);
+    }
+    corners[c] = corner;
+    noteCorner(state, corner, place);
   }
 
   const entries = Array.from({ length: colorCount }, () => {
@@ -695,17 +832,33 @@ export function unpackStudioMesh(packed: string, palette?: string): StudioMesh {
     finishes[t] = entry?.finish ?? 0;
   }
 
-  const correctives = Array.from({ length: correctiveCount }, () => {
-    const corrective = new Float32Array(vertexCount * 3);
-    const moved = readVarint(reader);
+  const moved = Array.from({ length: correctiveCount }, () => readVarint(reader));
+  const steps = readPlanes(
+    reader,
+    moved.reduce((sum, count) => sum + count, 0),
+  );
+  let at = 0;
+  const lists = moved.map((count) => {
+    const list = new Uint32Array(count);
     let v = 0;
-    for (let k = 0; k < moved; k++) {
-      v += readVarint(reader);
-      for (let axis = 0; axis < 3; axis++) {
-        corrective[v * 3 + axis] = unzigzag(readVarint(reader)) * CORRECTIVE_STEP;
+    for (let k = 0; k < count; k++) {
+      v += steps[at] ?? 0;
+      at += 1;
+      list[k] = v;
+    }
+    return list;
+  });
+  const correctives = lists.map(() => new Float32Array(vertexCount * 3));
+  for (let axis = 0; axis < 3; axis++) {
+    for (const [s, list] of lists.entries()) {
+      const corrective = correctives[s];
+      for (const v of list) {
+        const move = unzigzag(readVarint(reader)) * CORRECTIVE_STEP;
+        if (corrective) {
+          corrective[v * 3 + axis] = move;
+        }
       }
     }
-    return corrective;
-  });
+  }
   return { positions, joints, weights, corners, colors, finishes, correctives };
 }
