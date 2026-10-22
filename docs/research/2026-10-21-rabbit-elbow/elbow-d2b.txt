@@ -1,0 +1,16 @@
+bind L sections: above 0.71, mid 0.85, below 0.72, bend 62, outer 0.90, above girth / upper arm 0.33, upper arm 23.0 cm, mid girth 9.5 cm
+bind L: elbow faces 50, ring above 26, below 30, mid 32, flat share 0.18 (63.1 cm2), faces 1764,1760,1759,1758
+bind R sections: above 0.69, mid 0.71, below 0.76, bend 62, outer 0.82, above girth / upper arm 0.41, upper arm 23.0 cm, mid girth 10.4 cm
+bind R: elbow faces 51, ring above 26, below 30, mid 31, flat share 0.08 (31.6 cm2), faces 92,86,87
+| Set | Side | n | bend p50 | outer p50 / p5 | above p50 / p5 | below p50 / p5 | mid p50 / p5 | collapse p50 / p5 | flat p50 / p95 | flat cm2 p50 / p95 |
+|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| rest | L | 14 | 111.36 | 0.87 / 0.87 | 0.52 / 0.52 | 0.69 / 0.69 | 0.84 / 0.84 | 0.95 / 0.95 | 0.12 / 0.12 | 39.89 / 39.89 |
+| rest | R | 14 | 47.92 | 0.98 / 0.98 | 0.83 / 0.83 | 0.76 / 0.76 | 0.73 / 0.73 | 1.10 / 1.10 | 0.10 / 0.10 | 43.80 / 43.80 |
+| play | L | 4454 | 66.21 | 0.95 / 0.94 | 0.75 / 0.67 | 0.71 / 0.71 | 0.88 / 0.88 | 1.02 / 1.02 | 0.17 / 0.17 | 60.64 / 61.50 |
+| play | R | 4454 | 108.00 | 0.72 / 0.69 | 0.67 / 0.64 | 0.78 / 0.77 | 0.70 / 0.68 | 0.94 / 0.92 | 0.09 / 0.10 | 34.92 / 39.18 |
+| lift | L | 434 | 65.88 | 0.95 / 0.87 | 0.75 / 0.52 | 0.71 / 0.69 | 0.88 / 0.84 | 1.02 / 0.94 | 0.17 / 0.17 | 60.54 / 61.03 |
+| lift | R | 434 | 104.78 | 0.71 / 0.69 | 0.66 / 0.64 | 0.77 / 0.76 | 0.68 / 0.68 | 0.93 / 0.92 | 0.09 / 0.10 | 32.29 / 44.47 |
+flat patch faces L: 1764:3881 1760:3881 1759:3833 1758:3758 1640:334 1639:334 935:334 1757:239 1763:123 1225:47
+worst mid L: beethoven-9.mid 118.09 s mid 0.88 bend 73; mozart-k315.mid 42.90 s mid 0.88 bend 63; beethoven-8-4.mid 336.09 s mid 0.88 bend 63
+flat patch faces R: 253:4453 116:1 115:1 121:1 111:1 114:1 113:1
+worst mid R: bach-bwv1047.mid 211.90 s mid 0.67 bend 110; mozart-k315.mid 232.90 s mid 0.67 bend 109; beethoven-8-4.mid 539.09 s mid 0.67 bend 109

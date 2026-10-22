@@ -1,0 +1,12 @@
+rig_mesh: cut L: 19 faces go, 19 new faces close the hole (smallest angle 8.4 degrees, median 26.8), the arm run [955, 912, 907, 903, 889, 890, 904, 909, 918], the body run [932, 934, 905, 938, 891, 939, 941, 902, 961, 958, 956, 953]
+rig_mesh: cut R: 15 faces go, 15 new faces close the hole (smallest angle 5.3 degrees, median 19.9), the arm run [975, 981, 1073, 1019, 1068, 1006, 1007, 1015, 1003], the body run [1020, 1025, 1008, 1012, 1011, 1018, 984, 982]
+rig_mesh: cut: 3065 triangles before, 3065 after
+rig_mesh: triangles: 3146 (36 gloss)
+rig_mesh: cut L: 19 faces go, 27 new faces close the hole (smallest angle 8.4 degrees, median 29.8), the arm run [955, 912, 907, 903, 889, 890, 904, 909, 918], the body run [932, 934, 905, 938, 891, 939, 941, 902, 961, 958, 956, 953]
+rig_mesh: dome L: 4 new vertices [1536, 1537, 1538, 1539] round the cap of the arm, at most 0.0368 u from the arm run
+rig_mesh: cut R: 15 faces go, 17 new faces close the hole (smallest angle 5.7 degrees, median 19.9), the arm run [975, 981, 1073, 1019, 1068, 1006, 1007, 1015, 1003], the body run [1020, 1025, 1008, 1012, 1011, 1018, 984, 982]
+rig_mesh: dome R: 1 new vertices [1540] round the cap of the arm, at most 0.0332 u from the arm run
+rig_mesh: cut: 3065 triangles before, 3075 after
+rig_mesh: triangles: 3150 (36 gloss)
+| base | 3125 | 19014 | 1.4678 | 0.227 | 0.227 | 0.285 | 0.506 | 0.506 | 0.312 | 0.0% | 5.8% | 0.0% | forearm_twist_L 25, hand_L 5 | arm_raise_R: none / arm_raise_R2: none |
+| cut.dome={"sides":"LR","share":1,"slab":0.02} | 3129 | 19295 | 1.4678 | 0.227 | 0.227 | 0.285 | 0.506 | 0.506 | 0.329 | 94.7% | 80.9% | 0.0% | upper_arm_R 14114, forearm_R 11900, spine1 6067 | arm_raise_R: none / arm_raise_R2: 96 FAIL |

@@ -1,0 +1,18 @@
+source L sections: above 0.63, mid 0.64, below 0.89, bend 10
+bind L sections: above 0.63, mid 0.77, below 0.72, bend 62, outer 0.75, above girth / upper arm 0.33, upper arm 23.0 cm, mid girth 8.8 cm
+bind L: elbow faces 46, ring above 25, below 29, mid 28, flat share 0.15 (43.8 cm2), faces 1022,1052,1023,1053
+source R sections: above 0.52, mid 0.62, below 0.69, bend 10
+bind R sections: above 0.58, mid 0.68, below 0.70, bend 62, outer 0.30, above girth / upper arm 0.40, upper arm 23.0 cm, mid girth 9.5 cm
+bind R: elbow faces 14, ring above 17, below 22, mid 17, flat share 0.27 (63.5 cm2), faces 86,253
+| Set | Side | n | bend p50 | outer p50 / p5 | above p50 / p5 | below p50 / p5 | mid p50 / p5 | collapse p50 / p5 | flat p50 / p95 | flat cm2 p50 / p95 |
+|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| rest | L | 14 | 111.36 | 0.70 / 0.70 | 0.47 / 0.47 | 0.72 / 0.72 | 0.78 / 0.78 | 0.96 / 0.96 | 0.23 / 0.23 | 62.38 / 62.38 |
+| rest | R | 14 | 47.92 | 0.42 / 0.42 | 0.67 / 0.67 | 0.67 / 0.67 | 0.74 / 0.74 | 0.98 / 0.98 | 0.24 / 0.24 | 62.84 / 62.84 |
+| play | L | 4454 | 66.21 | 0.82 / 0.81 | 0.65 / 0.59 | 0.71 / 0.71 | 0.79 / 0.79 | 1.03 / 1.02 | 0.14 / 0.15 | 42.63 / 46.25 |
+| play | R | 4454 | 108.00 | NaN / NaN | 0.53 / 0.45 | 0.73 / 0.40 | 0.61 / 0.31 | 0.52 / 0.30 | 0.23 / 0.29 | 14.30 / 40.94 |
+| lift | L | 434 | 65.88 | 0.82 / 0.70 | 0.65 / 0.47 | 0.71 / 0.71 | 0.79 / 0.77 | 1.03 / 0.96 | 0.14 / 0.23 | 42.56 / 62.39 |
+| lift | R | 434 | 104.78 | NaN / NaN | 0.53 / 0.51 | 0.73 / 0.67 | 0.65 / 0.63 | 0.84 / 0.71 | 0.23 / 0.25 | 40.45 / 63.81 |
+flat patch faces L: 1022:4453 1052:4453 1023:4453 1053:4453 1024:136 1787:136 1027:10 1025:1 1020:1 1021:1
+worst mid L: mozart-k315.mid 42.90 s mid 0.79 bend 63; beethoven-8-4.mid 336.09 s mid 0.79 bend 63; bach-bwv1050.mid 199.30 s mid 0.79 bend 63
+flat patch faces R: 253:2366 255:1294 435:1294 259:785 260:785 258:771 254:467 252:85 251:85 257:16 86:10 256:6
+worst mid R: mozart-k417.mid 17.20 s mid 0.29 bend 112; mozart-k191.mid 218.30 s mid 0.29 bend 112; boulanger-matin.mid 257.38 s mid 0.29 bend 112
