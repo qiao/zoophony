@@ -355,6 +355,9 @@ package in `dependencies` is not in the list, and when a package of the list is 
   VSCO 2 CE readme asks for, and they say that the SoundFont holds changed samples.
 - The site does not ship the dev dependency `wasm-media-encoders` (MIT), which only encodes the
   samples of `tools/build-soundfont.ts`. Thus the file does not list it.
+- The FLAC file of the hall impulse response comes from soundfile (BSD-3-Clause) and libsndfile
+  (LGPL-2.1-or-later), which run only in `tools/hall-flac.py` through `uv`. The site ships no code
+  of them, so the file does not list them.
 
 The file also holds the hall impulse response of 6.2. `hallEntry()` of `tools/licenses.ts`
 makes its entry: the title "Hall impulse response, St Paul's Hall (360° BRIR and FOA

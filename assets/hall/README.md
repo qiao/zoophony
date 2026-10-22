@@ -1,6 +1,8 @@
 # Hall impulse response
 
 `st-pauls-hall-c8m.wav` is the impulse response of the hall reverb of the `Player` (design 6.8).
+`st-pauls-hall-c8m.flac` holds the same samples in a lossless file of about a quarter of the size.
+The `Player` fetches the FLAC file, and the WAV file only when `decodeAudioData()` refuses it.
 It comes from the measurement at position C8m in St Paul's Hall, the concert hall of the
 University of Huddersfield. The Applied Psychoacoustics Lab measured it for the 360° BRIR and FOA
 database.
@@ -9,6 +11,8 @@ database.
 |---|---|
 | File | `st-pauls-hall-c8m.wav`, 480,044 bytes, 249 KB after gzip |
 | SHA-256 | `aada37ea596e18073a2c0be8db4c2e2e5aef7c4076e4b35b277f813b748e43ac` |
+| FLAC file | `st-pauls-hall-c8m.flac`, 127,980 bytes, the 16-bit samples of the WAV file |
+| FLAC SHA-256 | `4694f4f067375d369ee90a08c4d3ff05ea522b5bd9b21813cff1f6a91622a1c9` |
 | Format | WAV, 16-bit PCM, 2 channels, 48 kHz, 2.5 s (120,000 frames) |
 | Source | Bacila, B. I., and Lee, H. (2019). 360° Binaural Room Impulse Response (BRIR) Database for 6DOF Spatial Perception Research. AES Convention 146, e-Brief 513 |
 | Source record | <https://doi.org/10.5281/zenodo.2641166> (version 1, 2019-03-03) |
@@ -50,12 +54,22 @@ and 2 for its A/B test.
 4. Keep the first 2.5 s, and fade out over the last 0.5 s (raised cosine). After about 2 s, the
    decay reaches the noise floor of the measurement, about 45 dB below the start.
 5. Scale the peak to -1 dBFS, and write 16-bit PCM.
+6. Write the FLAC file from the WAV file with libsndfile 1.2.2 (through soundfile 0.14.0), at the
+   compression level 1.0. The script reads the file back and stops if one sample differs:
+
+   ```bash
+   uv run --no-project --with soundfile==0.14.0 --with numpy==2.5.4 python -I tools/hall-flac.py
+   ```
 
 The L/R correlation of the result is 0.14. The report measured a T30 of 2.06 s broadband,
 2.47 s at 500 Hz, 2.27 s at 1 kHz, and 1.89 s at 2 kHz for the source position.
 
-To check the file:
+The FLAC file is a change of the format only. Section 2(a)(4) of CC BY 4.0 (`LICENSE.txt`) permits
+the Licensed Material "in all media and formats" with the "technical modifications necessary to
+do so", and such a change "never produces Adapted Material". Thus the credit line stays.
+
+To check the files:
 
 ```bash
-shasum -a 256 assets/hall/st-pauls-hall-c8m.wav
+shasum -a 256 assets/hall/st-pauls-hall-c8m.wav assets/hall/st-pauls-hall-c8m.flac
 ```
