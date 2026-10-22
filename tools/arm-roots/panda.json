@@ -1,0 +1,8 @@
+{
+  "source": "assets/models/panda/panda.glb",
+  "output": "assets/models/panda/panda-roots.glb",
+  "weld": 1e-05,
+  "metersPerUnit": 1.5154,
+  "note": "The start of the panda edit. Round arm-roots: a hull fill of the 7 front lips of the left notch (454, 450, 452, 787, 460, 451, 458, with the arm vertices in exclude) did not give a clean root (docs/research/2026-10-22-arm-roots.md). No edit is chosen, and the rig reads panda.glb.",
+  "edits": []
+}

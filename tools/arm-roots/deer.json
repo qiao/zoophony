@@ -1,0 +1,8 @@
+{
+  "source": "assets/models/deer/deer.glb",
+  "output": "assets/models/deer/deer-roots.glb",
+  "weld": 1e-05,
+  "metersPerUnit": 1.6769,
+  "note": "The start of the deer edit. Round arm-roots: a smooth of the web at the back of each arm root (docs/research/2026-10-22-arm-roots/edits/d1.json) made the left shard smaller with moves of 3.4 cm, above the limit of about 2 cm. No edit is chosen, and the rig reads deer.glb.",
+  "edits": []
+}
