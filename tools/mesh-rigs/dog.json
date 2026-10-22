@@ -1,5 +1,6 @@
 {
-  "source": "assets/models/dog/dog.glb",
+  "source": "assets/models/dog/dog-arms.glb",
+  "sourceNote": "The mesh of the user with one local edit (assets/models/dog/README.md). The user said on 2026-10-22: \"note that many animals are having this issue now\". Each arm of the source joins the side of the trunk from the shoulder down to 0.80 (left) and 0.81 (right) of the upper arm, and the raised cello arms stretched the faces of the seam at the back of each shoulder into flat shards. The faces that join each arm to the trunk below the cut top go (22 on the left, 19 on the right), and a round patch of 13 and 9 new vertices closes the inner side of each arm (dog-arms.glb, SHA-256 8a2b4cad31d94ce4372b02c36af2e1a6d9a1d6ccc592f60ec3dec8696fd8de2d, docs/research/2026-10-22-deer-dog-seams/arm_patch.py with the options {\"step\":0.02,\"freeR\":false,\"fade\":[0.05,0.35],\"scale\":1.0}). The push to the round target starts near the top of the patch, so that the inner arm fills the dark pocket between the arm and the trunk at rest (docs/research/2026-10-22-dog-seams.md).",
   "output": "assets/models/dog/dog.rig.glb",
   "name": "Dog",
   "weld": 1e-5,
@@ -144,6 +145,14 @@
   },
   "weights": {
     "armSplit": 0.11,
+    "armIslands": true,
+    "armIslandsNote": "The round inner side of each arm of dog-arms.glb lies in part inside the plane armSplit, and only free arm vertices surround it. It follows the arm as the free arm beyond the plane (arm_islands() of tools/blender/rig_mesh.py).",
+    "armRoot": {
+      "share": 0.25,
+      "along": [0.3, 0.7],
+      "inner": [0, 0.6],
+      "note": "After the cut, bone heat gives the free arm only arm weights, and the front of the right upper arm went 5.5 cm into the chest in the play (2.0 cm on the rig of 2026-10-17, whose seam gave these vertices the chest weight 0.21). The inner root gives at most 0.25 of its arm weight to the chest. With 0.4, the cellist folded in 99.5% of the play samples (docs/research/2026-10-22-dog-seams.md)."
+    },
     "stretchRamp": 0,
     "headFrom": 0.785,
     "earBase": [1.1, 1.2],
@@ -183,9 +192,16 @@
     },
     "note": "Beyond the plane |x| = armSplit, only the free arm follows the arm bones: the cuts of sections.py x show the arm apart from the body from x 0.105 out. Above headFrom, each vertex except the ear flaps follows the head only: the chin starts at y 0.785. clavicleFrom, armTop, and shoulderHead are the rules of the cat, moved with the shoulder joint (y 0.603) and the neck (x ±0.086) of the dog. The tail has two bones (tail): the vertices within radius of the line from the root over the bend to the tip, and behind the plane z = behind, follow the tail bones. The tail is thick at its root (y 0.23 to 0.41 at z -0.1), and 22 vertices of its top and its bottom lie 0.06 to 0.08 units from the line (tail_gap.py). With the radius 0.06, they followed the hips, the root of the seated tail lay on the seat behind the haunch, and the chair of the app grew to 0.535 m at the scale of the red fox. With 0.085, the chair is 0.307 m. The rule takes 91 vertices, and 177 vertices have a tail weight after the smooth rounds."
   },
+  "cut": {
+    "top": 0.64,
+    "fins": true,
+    "skinNormals": true,
+    "bodyNormals": "LR",
+    "note": "The user said on 2026-10-22: \"note that many animals are having this issue now\". The audit found flat shards at the back of both shoulders of the cellist: faces of the seam between the arm and the trunk, which the raised cello arms stretched. The cut ends above the shoulder joint (y 0.603). At 0.62 and 0.63, the cut leaves a vertex with two loop edges, at 0.61 the rest folds in each sample, and at 0.66 the play folds in 67.1% of the samples (docs/research/2026-10-22-deer-dog-seams.md). The copy of the mesh closed each arm with a round patch, so the cut closes only the hole of the trunk, with the caps of the body and the quad at the top (open_loop() of tools/blender/rig_mesh.py)."
+  },
   "raise": [
     {"side": "R", "bone": "forearm", "turns": {"clavicle": [0, 0.2588, 0, 0.9659], "upper_arm": [0.599, -0.0115, -0.0438, 0.7994], "forearm": [-0.2301, 0.1301, -0.2995, 0.9167]}, "fade": [5, 10], "below": 0.3, "note": "The shape of the bent right elbow of the cellist (round dog-folds, docs/decisions/2026-10-17-dog-folds.md). With the cello leaned back 25 degrees, face 316 across the right elbow folded in 3.6% of the play samples at a step of 1 s, and the turn of the forearm from the upper arm stayed within 5 degrees of one turn in 143 of these 159 samples (keys-316.txt of docs/research/2026-10-17-dog-folds/). The rule takes the mean turns of the upper arm and of the forearm of these samples, with the clavicle turn of the play, 30 degrees around y. In its pose, face 316 turns over and relaxes in 2 rounds. The shape of a raised right arm of 2026-10-17-mesh-dog had the weight 0 in each sample of the leaned cello, and a rule at the right shoulder (faces 171 and 172) did not relax in 60 rounds and folded face 235 of the forearm (rules.txt)."},
-    {"side": "L", "turns": {"clavicle": [0, 0, 0, 1], "upper_arm": [0.5862, -0.0023, 0.2781, 0.7609], "forearm": [-0.1896, -0.1072, 0.2468, 0.9443]}, "fade": [10, 20], "below": 0.0, "note": "The shape of the raised left arm of the play. Faces 1733, 1169, and 949 of the left upper arm folded in 136 play samples, each within 10 degrees of the mean turn of the upper arm of face 1733 (keys-left.txt). With below 0.3, the relaxing did not end in 60 rounds and moved the forearm vertices up to 45 mm, so that face 1800 of the paw folded in 5.1% of the play samples. With below 0, it ends in 1 round."},
+    {"side": "R", "turns": {"clavicle": [0, 0.2586, 0, 0.966], "upper_arm": [0.1786, 0.6843, -0.4283, 0.5625], "forearm": [0.2143, -0.1211, 0.2789, 0.9282]}, "fade": [10, 20], "below": 0, "note": "The shape of the raised right arm of the lift and the play (pnpm raise-fit cellist --faces 342,172 --side R --sets lift,play on the rig of the cut). Faces 342 and 172 at the top of the right shoulder folded in 141 of 4888 samples, and the upper arm turns 111.5 degrees from the bind in their mean. It takes the place of the shape of the raised left arm of the play (faces 1733, 1169, and 949), which moved no vertex after the cut (docs/research/2026-10-22-dog-seams.md)."},
     {"side": "L", "turns": {"clavicle": [0, 0, 0, 1], "upper_arm": [0.4224, -0.1464, -0.1849, 0.8752], "forearm": [-0.1757, -0.0993, 0.2287, 0.9524], "hand": [-0.246, 0.5862, 0.4413, -0.6333]}, "fade": [15, 30], "below": 0.0, "grow": 1, "note": "The shape of the left arm of the rest pose, with the turns of the rest of 11 of the 14 demos. Faces 1757 and 1803 folded in each rest sample and in the first 0.6 s of the lift. Face 1803 runs from the elbow to the paw, and it turns over only with the turn of the paw (turns.hand). With no ring of neighbors (grow), the relaxing did not end in 60 rounds and folded 3 faces of the paw."},
     {"side": "L", "turns": {"clavicle": [0, 0, 0, 1], "upper_arm": [0.3967, 0.1445, 0.0748, 0.9034], "forearm": [-0.2582, -0.1459, 0.336, 0.8939], "hand": [-0.0418, 0.7851, 0.5207, -0.3328]}, "fade": [15, 30], "below": 0.0, "grow": 1, "note": "The shape of the left arm in the lift: the mean turns of the lift samples in which faces 1803, 1800, or 1756 fold after the shape of the rest. The keys of the lift and of the play lie near each other, so the shape also has its weight in most play samples. It lowered the lift folds from 30.9% to 28.1% and the play folds from 7.1% to 7.0%."}
   ],
