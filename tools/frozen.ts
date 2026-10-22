@@ -1,8 +1,9 @@
 /**
  * Renders the frozen shots of the stage and compares the pixels of two trees (design 9.7):
- * `pnpm frozen [--base <ref>] [--shots <list>] [--out <dir>]`. A frozen shot holds the song time
- * and the wall time, so that two runs of one tree give the same pixels. A cut of the frame time
- * that must keep the look runs `pnpm frozen --base main` (`docs/agents/commands.md`).
+ * `pnpm frozen [--base <ref>] [--shots <list>] [--out <dir>] [--tree <dir>]`. A frozen shot holds
+ * the song time and the wall time, so that two runs of one tree give the same pixels. A cut of the
+ * frame time that must keep the look runs `pnpm frozen --base main` (`docs/agents/commands.md`).
+ * `--tree` renders another folder in place of the working tree.
  *
  * The tool serves the working tree with the Vite dev server, opens each shot in Google Chrome at
  * 1440 × 900 and the device scale 2, and writes `<out>/tree/<shot>.png`. With `--base`, it
@@ -40,7 +41,7 @@ export const FROZEN_SHOTS = {
 export type FrozenShot = keyof typeof FROZEN_SHOTS;
 
 /** The names of the frozen shots in their order. */
-const SHOT_NAMES: readonly FrozenShot[] = ['play', 'conductor', 'perf-wide', 'perf-section'];
+export const SHOT_NAMES: readonly FrozenShot[] = ['play', 'conductor', 'perf-wide', 'perf-section'];
 
 /**
  * The scripts that write the files of the dev server that git does not hold: the presets of the
@@ -81,6 +82,11 @@ export interface FrozenArgs {
   readonly shots: readonly FrozenShot[];
   /** The output folder. */
   readonly out: string;
+  /**
+   * The root of another tree to render in place of the working tree, with its `node_modules`, or
+   * `null`. `pnpm frame-compare` renders its temporary trees with it.
+   */
+  readonly tree: string | null;
 }
 
 /**
@@ -104,8 +110,11 @@ export function frozenArgs(args: readonly string[]): FrozenArgs {
   const base = optionValue(args, '--base');
   const shots = optionValue(args, '--shots');
   const out = optionValue(args, '--out');
-  if (base === undefined || shots === undefined || out === undefined) {
-    throw new Error('Usage: pnpm frozen [--base <ref>] [--shots <list>] [--out <dir>]');
+  const tree = optionValue(args, '--tree');
+  if (base === undefined || shots === undefined || out === undefined || tree === undefined) {
+    throw new Error(
+      'Usage: pnpm frozen [--base <ref>] [--shots <list>] [--out <dir>] [--tree <dir>]',
+    );
   }
   const names = shots === null ? [...SHOT_NAMES] : shots.split(',');
   const unknown = names.filter((name) => !isShot(name));
@@ -116,6 +125,7 @@ export function frozenArgs(args: readonly string[]): FrozenArgs {
     base,
     shots: names.filter((name) => isShot(name)),
     out: resolve(out ?? join(ROOT, 'scratch', 'frozen')),
+    tree: tree === null ? null : resolve(tree),
   };
 }
 
@@ -228,7 +238,7 @@ export interface PixelDiff {
  * @returns The difference of the pixels.
  * @throws Error if the images have different sizes.
  */
-async function comparePngs(browser: Browser, a: Buffer, b: Buffer): Promise<PixelDiff> {
+export async function comparePngs(browser: Browser, a: Buffer, b: Buffer): Promise<PixelDiff> {
   const page = await browser.newPage();
   try {
     return await page.evaluate(
@@ -315,7 +325,11 @@ async function main(): Promise<void> {
   const browser = await chromium.launch({ channel: 'chrome', args: chromiumArgs('darwin') });
   try {
     const tree = join(args.out, 'tree');
-    await renderShots(browser, ROOT, tree, args.shots);
+    if (args.tree === null) {
+      await renderShots(browser, ROOT, tree, args.shots);
+    } else {
+      await renderShots(browser, args.tree, tree, args.shots, join(args.tree, '.vite-cache'));
+    }
     if (args.base === null) {
       return;
     }
