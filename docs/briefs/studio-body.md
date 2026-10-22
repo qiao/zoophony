@@ -190,8 +190,8 @@ mesh with no skeleton into route 3" of `docs/agents/model-work.md`).
   2. the arm gate with no `FAIL` (`pnpm arm-check <role> --base main`);
   3. the range of the instrument (`pnpm hold-reach <species>`);
   4. the look of the hold.
-- **The checks before the docs.** Run `pnpm rig-mesh <animal> --check`, each check of the app, and
-  the close views before the first docs commit.
+- **The checks before the docs.** Run `pnpm rig-mesh <animal> --check`, each check of the app,
+  `pnpm arm-look <role>`, and the close views before the first docs commit.
 - **A moved instrument.** Read the hold anchors of `pnpm rig-mesh --check` against `main`, because
   a moved instrument can break a user rule.
 - **The demos of a fit.** Fit each step on the default demos of `pnpm hold-fit`: `FIT_DEMOS`, or

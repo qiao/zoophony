@@ -208,6 +208,16 @@ group of your work before you plan it. A probe that a trap names is in its resea
 
 ## Form, seat, and tail
 
+- An arm that frees from the trunk only at the elbow has no upper arm: each turn crumples the
+  trunk wall into flaps, and no weight rule, cut, ring, shape, or arm factor fixes it. Model a
+  round tube of the upper arm in a copy of the mesh, with no face that joins the trunk
+  (`pig_arms.py` of `docs/research/2026-10-21-arm-form/`). Its dome inside the shoulder gives
+  `pnpm pose-depth` about 4 cm of upper arm in the body in each set.
+- A flat upper arm reads as a plank when its broad side faces the camera. Round it in a copy of
+  the mesh, and keep the arm run of a cut in place, else the quad at the top of the cut folds
+  (`rabbit_arms.py`). Then point the elbow so that the arm reads across the body.
+- The fold probe and the arm gate do not see a crumpled or a flat upper arm. Run `pnpm arm-look`
+  against the limits of the red fox, and read its 2x crops.
 - A closed beak with no mouth line cannot open by weights. Split a copy of the source with a
   script, and move the two parts apart by more than the weld of `rig-mesh`, else the weld joins
   them (`beak_split.py` of `docs/research/2026-10-21-penguin-beak/`).
@@ -276,6 +286,9 @@ group of your work before you plan it. A probe that a trap names is in its resea
 
 ## Probe tools
 
+- In the live Blender of MCP (port 9876), `bpy.ops.wm.read_factory_settings` stops the MCP
+  server. Delete the objects in place of a reset. A script of the edit stays in the research
+  folder, so that a batch run of Blender gives the same file.
 - To probe a GLB file of `pnpm rig-mesh --check --keep`, such as another arm factor, give it to
   `--glb` of `pnpm pose-depth`, `pnpm hold-fit`, or `pnpm arm-check`. Do not copy it over the
   rig in `assets/`, because a stop or a failure then leaves the wrong body.

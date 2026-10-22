@@ -17,7 +17,7 @@ fox together.
 |---|---|---|---|
 | bear | the studio bear (route 3) | `2026-10-12-studio-bear.md` | `conductor` |
 | polar-bear | the studio polar bear (route 3) | `2026-10-12-studio-polar-bear.md` | `pianist` |
-| rabbit | the mesh `assets/models/rabbit/rabbit-4.glb`, rigged by `pnpm rig-mesh rabbit` | `2026-10-13-mesh-rabbit.md` | `violinist` |
+| rabbit | the mesh `assets/models/rabbit/rabbit-4.glb`, rigged by `pnpm rig-mesh rabbit` from a copy with a shallower notch under the right arm and rounder upper arms (`rabbit-4-arms.glb`) | `2026-10-13-mesh-rabbit.md` | `violinist` |
 | fox-red | the mesh `assets/models/fox/fox.glb`, rigged by `pnpm rig-mesh fox`, with a tail of two bones | `2026-10-14-mesh-fox.md` | `fox-violinist` |
 | fox-tan | the rig of the red fox with a tan palette | `2026-10-14-fox-flute.md` | `flutist` |
 | cat | the mesh `assets/models/cat/cat.glb`, rigged by `pnpm rig-mesh cat` | `2026-10-16-mesh-cat.md` | `violist` |
@@ -27,7 +27,7 @@ fox together.
 | mouse | the mesh `assets/models/mouse/mouse.glb`, rigged by `pnpm rig-mesh mouse` at the size of the parametric mouse, with a long tail of two bones on the floor, a smaller oboe, and no chair (`noChair`) | `2026-10-19-mesh-mouse.md` | `oboist` |
 | elephant | the mesh `assets/models/elephant/elephant.glb`, rigged by `pnpm rig-mesh elephant`, standing at the timpani, with the trunk on the head | `2026-10-19-mesh-elephant.md` | `timpanist` |
 | beaver | the mesh `assets/models/beaver/beaver.glb`, rigged by `pnpm rig-mesh beaver` at the size of the parametric beaver, with a broad tail of two bones on the floor, a smaller bassoon, and no chair (`noChair`) | `2026-10-19-mesh-beaver.md` | `bassoonist` |
-| pig | the mesh `assets/models/pig/pig.glb`, rigged by `pnpm rig-mesh pig` at the size of the parametric pig, with a horn hold turned back toward the body | `2026-10-19-mesh-pig.md` | `hornist` |
+| pig | the mesh `assets/models/pig/pig.glb`, rigged by `pnpm rig-mesh pig` from a copy with round upper arms free of the trunk (`pig-arms.glb`), at the size of the parametric pig, with a twist bone of each upper arm and a horn hold turned back toward the body | `2026-10-19-mesh-pig.md` | `hornist` |
 | wolf | the mesh `assets/models/wolf/wolf.glb`, rigged by `pnpm rig-mesh wolf` 0.9 times as high and 1.2 times as wide as the mesh, with the head at the size of the red fox and the body 0.9422 times as large (`proportions`), with a bushy tail of two bones that hangs behind the seat, and a clarinet hold at 45° with the mouthpiece under the muzzle | `2026-10-20-mesh-wolf.md` | `clarinetist` |
 | badger | the mesh `assets/models/badger/badger.glb`, rigged by `pnpm rig-mesh badger` at the size of the parametric badger, standing at each percussion instrument, with its own arms, a tail ball, and a suspended cymbal (`cymbalForm`) | `2026-10-20-mesh-badger.md` | `bass-drummer`, `snare-drummer`, `cymbalist`, `percussionist`, `xylophonist` |
 | monkey | the mesh `assets/models/monkey/monkey.glb`, rigged by `pnpm rig-mesh monkey` at 1.1 times the size of the parametric monkey, with arms 1.5, a long tail of two bones with its curl on the floor, a smaller trumpet, and no chair (`noChair`), standing with its feet under its hips and its trunk leaned forward (`2026-10-21-monkey-stand.md`) | `2026-10-20-mesh-monkey.md` | `trumpeter` |
