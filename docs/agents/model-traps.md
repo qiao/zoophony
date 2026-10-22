@@ -162,6 +162,10 @@ group of your work before you plan it. A probe that a trap names is in its resea
 - A narrow fade of a weight rule under a far bone turn moves the fold to the faces of the fade. Let
   the fade span several rings of faces (`clavicleMiddle`, `armTop` of the hippo). A small change of
   a fade can make the relax of a shape fail (lines `raise` of the rig log).
+- The flat cap of a cut over a long arm run shows as a sheet with a straight end at a bent
+  elbow, and a dome of one row of vertices shows facets. Close the arm with a round patch in a
+  copy of the mesh (`rabbit_elbows.py` of `docs/research/2026-10-22-rabbit-elbow/`), and give
+  the patch inside the split plane to the free arm (`weights.armIslands`).
 - A thick arm can join the side of the trunk down to the paw, with a notch at its front and its
   back. Turn the plane of the free arm through both notches (`weights.armFree`, `arm_free.py` of
   `docs/research/2026-10-21-mesh-rhino/`), then cut the seam, else the seam stretches into spikes.
