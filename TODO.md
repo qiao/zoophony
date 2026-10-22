@@ -350,6 +350,24 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       the penguins of the reference images (`ANIMALS` of `tools/studio-body.ts`).
 - [ ] Red fox and rabbit: string planes of 9° and 10°, under the real 17°, because larger angles
       fold the right shoulder. A rig round on the right shoulder (`2026-10-17-bow-arm.md`).
+- [x] Pig and rabbit: the upper arms of the pig crumpled into flaps, and the bow upper arm of the
+      rabbit read as a flat plank. The pig takes round upper arms in a copy of its mesh, and the
+      rabbit rounder upper arms and the bow elbow of the red fox (`2026-10-21-arm-form.md`).
+- [ ] Oboe mouse: the arm skin creases against the mesh in 19.6% and 21.4% of the edges in the
+      play, above the limit 14.6% of `pnpm arm-look` (`arm-look-all-main.txt` of the research
+      folder of `2026-10-21-arm-form.md`).
+- [ ] Elephant: the narrow axis of the middle of each upper arm is 0.32 and 0.35 of the wide axis
+      in the play, below the limit 0.44 of `pnpm arm-look`.
+- [ ] Beaver: the narrow axis of the middle of each upper arm is 0.40 and 0.35 of the wide axis in
+      the play, below the limit 0.44 of `pnpm arm-look`.
+- [ ] Rhino: the left arm skin creases in 16.7% of the edges in the play, and the narrow axis of
+      the middle of each upper arm is 0.39 and 0.41 of the wide axis, past both limits of
+      `pnpm arm-look`.
+- [ ] Pig: the dome of each new upper arm lies inside the shoulder, so `pnpm pose-depth hornist`
+      gives the upper arms 4.2 cm in the body in each set (0.5 cm before). Give the sweep an
+      accepted depth after the test pause. Small dark facets show at the top of the shoulders.
+- [ ] Rabbit: the dark wedge on the chest under the bow arm is the shadow of the arm (4.5), and
+      the left upper arm keeps a section of 0.47, near the limit 0.44 of `pnpm arm-look`.
 - [x] Remove the unused code of the face pattern `cap` (`2026-10-17-mesh-dog.md`).
 - [x] Remove the unused code of the face pattern `eye-patches`: no species has it since the panda
       mesh (`2026-10-18-mesh-panda.md`).
