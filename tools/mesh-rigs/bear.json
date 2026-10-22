@@ -334,10 +334,12 @@
     "note": "Beyond the plane of armSplit (armFree), only the free arm follows the arm bones. Above headFrom, the narrowest cut of the neck at the sides (y 0.79), each vertex follows the head only. With headFrom 0.73 under the chin, the side of the neck had a hard seam between the neck and the head, and the head turns of the cues folded its faces in 3,182 samples. With 0.79, bone heat blends the neck into the head, and 814 samples fold (check-head.log). Each round ear follows its ear bone above earBase, from its root at y 0.935. The short tail is a ball on one bone (tailBall): the vertices within radius of the center and behind the plane z = behind follow the tail. With the radius 0.028 and the plane at -0.2, a face of the root had a corner on the hips, and the sway of the tail folded it in 4,868 samples. The plane at -0.185 takes the whole root (check-head.log). clavicleFrom, armTop, and shoulderHead are the rules of the rhino, moved with the shoulder joint (y 0.585) and the neck of the bear."
   },
   "cut": {
-    "top": 0.57,
+    "top": 0.6,
     "skinNormals": true,
     "skinNormalsNote": "The caps of the arm take the normals of the skin around them in the app, as for the hippo and the rhino (docs/research/2026-10-19-cut-caps.md).",
-    "note": "The arm joins the side of the trunk with a notch at its front and its back from y 0.5 to 0.58 (arm-cuts.webp). Below the height top, 0.015 u below the shoulder joint, the faces with a corner in the free arm (armFree) and a corner in the body go, and new faces close the arm and the trunk, as for the rhino (model-traps.md: an arm that joins the trunk needs a cut)."
+    "bodyNormals": "LR",
+    "bodyNormalsNote": "The side of the trunk curls in where it joins the arm, so the caps of the body lie in a notch, as on the rabbit. In the rest pose, the arm hangs out around the belly, and with their own normals the caps and their rim showed as black wedges at the back of each armpit in the views from the side and from behind. With the normals of the skin, the wedges go (cut-views.webp).",
+    "note": "The arm joins the side of the trunk with a notch at its front and its back from y 0.5 to 0.58 (arm-cuts.webp). Below the height top, 0.015 u above the shoulder joint, the faces with a corner in the free arm (armFree) and a corner in the body go, and new faces close the arm and the trunk, as for the rhino (model-traps.md: an arm that joins the trunk needs a cut). With the top at 0.57, 0.5, or 0.53, a face at the top of the cut showed as a black triangle on the back under each arm in the rest pose (cut-views.webp)."
   },
   "refine": {
     "rings": [],
