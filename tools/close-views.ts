@@ -1038,6 +1038,11 @@ export interface RoleLineup {
   readonly crop: number;
   /** The box of the crops of `--box`, as shares of the cell ({@link cropOf}). */
   readonly box: CropBox;
+  /**
+   * The path of one sheet of the crops of all moments, with no extension (the mode `audit`), or
+   * `null` for none. The sheet needs a crop factor above 1.
+   */
+  readonly sheet?: string | null;
 }
 
 /** The views of the lineup with no `--views`: the front, the back, and each side (user, 2026-10-21). */
@@ -1839,6 +1844,12 @@ async function writeLineups(
   prefix: string,
 ): Promise<void> {
   const columns = role.views.length;
+  const sheetCells: Buffer[] = [];
+  const sheetLabels: string[] = [];
+  const cropSize = {
+    width: Math.round(lineup.box.width * size.width),
+    height: Math.round(lineup.box.height * size.height),
+  };
   for (const [m, moment] of role.moments.entries()) {
     const cells = rows.flatMap((row) => row.cells.slice(m * columns, (m + 1) * columns));
     const labels = rows.flatMap((row) =>
@@ -1853,17 +1864,20 @@ async function writeLineups(
     console.log(`${prefix}-${moment.name}.png`);
     if (lineup.crop > 1) {
       const crops = await cropCells(browser, cells, lineup.box);
-      const cropSize = {
-        width: Math.round(lineup.box.width * size.width),
-        height: Math.round(lineup.box.height * size.height),
-      };
       const cropLabels = labels.map((text) => `${text}, ${lineup.crop}x`);
       const cropSheet = await grid(browser, crops, cropLabels, columns, cropSize);
       const file = `${prefix}-${moment.name}-crop${lineup.crop}`;
       await writeFile(`${file}.png`, cropSheet);
       await writeFile(`${file}.webp`, await toWebp(browser, cropSheet));
       console.log(`${file}.png`);
+      sheetCells.push(...crops);
+      sheetLabels.push(...cropLabels);
     }
+  }
+  if (lineup.sheet && sheetCells.length > 0) {
+    const sheet = await grid(browser, sheetCells, sheetLabels, columns, cropSize);
+    await writeFile(`${lineup.sheet}.png`, sheet);
+    console.log(`${lineup.sheet}.png`);
   }
 }
 
@@ -4569,6 +4583,87 @@ export function batchArgs(args: readonly string[]): BatchArgs | null {
   return { parts, out, url, base };
 }
 
+/** The views of the mode `audit`: the back and 30° to each side of it first, then the four sides. */
+export const AUDIT_VIEWS: readonly string[] = ['back', '150', '-150', 'front', 'left', 'right'];
+
+/**
+ * The camera heights of the mode `audit`, in degrees above the floor: a dent at the root of the
+ * arm shows best from above (user, 2026-10-22).
+ */
+export const AUDIT_ELEVATIONS: readonly number[] = [20, 40];
+
+/** The box of the crops of the mode `audit`: the arms, the shoulders, and the upper trunk. */
+export const AUDIT_BOX = '0.05,0.2,0.9,0.55';
+
+/** The crop factor of the mode `audit`. */
+export const AUDIT_CROP = 2;
+
+/**
+ * Reads the command line of the mode `audit`: `audit <dir> [--roles <role,...>] [--url <url>]
+ * [--base <ref>]`. It is a batch of the lineups of the roles (all roles with no `--roles`): each
+ * moment of each role, from each view of {@link AUDIT_VIEWS}, at each height of
+ * {@link AUDIT_ELEVATIONS}, as crops of {@link AUDIT_BOX} at {@link AUDIT_CROP} times, the commit
+ * of `--base` above the working tree. Each role and height writes its cells into
+ * `<dir>/<role>/e<height>/` and one sheet of all its moments as `<dir>/<role>-e<height>.png`.
+ * Both trees build one time for all roles.
+ *
+ * @param args The arguments after the script.
+ * @returns The batch, or `null` when the first argument is not `audit`.
+ * @throws Error that lists the roles, for an unknown role, and an error for a wrong option or a
+ *   missing word.
+ */
+export function auditArgs(args: readonly string[]): BatchArgs | null {
+  if (args[0] !== 'audit') {
+    return null;
+  }
+  const line = modeLine(args.slice(1), ['--roles', '--url', '--base']);
+  const [out, ...extra] = line.words;
+  if (!out || extra.length > 0) {
+    throw new Error(
+      'The mode audit takes one output directory, such as: audit scratch/audit --roles conductor,harpist --base main',
+    );
+  }
+  const one = (name: string): string | null => line.options.get(name)?.[0] ?? null;
+  const url = one('--url');
+  const base = one('--base');
+  const shared = [
+    ...(url === null ? [] : ['--url', url]),
+    ...(base === null ? [] : ['--base', base]),
+  ];
+  const roleItems = CLOSE_ROLES.map((name) => ({ name }));
+  const roles = onceEach(one('--roles')?.split(',') ?? CLOSE_ROLES, 'role').map(
+    (name) => namedItem(name, roleItems, 'role').name,
+  );
+
+  const parts = roles.flatMap((role) =>
+    AUDIT_ELEVATIONS.map((height): SingleMode => {
+      const moments = ROLE_VIEWS[role].moments.map((moment) => moment.name).join(',');
+      const mode = partMode([
+        role,
+        join(out, role, `e${height}`),
+        '--lineup',
+        '--moments',
+        moments,
+        '--views',
+        AUDIT_VIEWS.join(','),
+        '--elevation',
+        String(height),
+        '--crop',
+        String(AUDIT_CROP),
+        '--box',
+        AUDIT_BOX,
+        ...shared,
+      ]);
+      if (mode.kind !== 'role' || !mode.args.lineup) {
+        throw new Error(`The audit part of ${role} is no lineup.`);
+      }
+      const lineup = { ...mode.args.lineup, sheet: join(out, `${role}-e${height}`) };
+      return { kind: 'role', args: { ...mode.args, lineup } };
+    }),
+  );
+  return { parts, out, url, base };
+}
+
 /**
  * Reads the command line of one mode of the tool, or of a batch of modes.
  *
@@ -4578,7 +4673,7 @@ export function batchArgs(args: readonly string[]): BatchArgs | null {
  *   `batch`.
  */
 export function closeModeArgs(args: readonly string[]): CloseMode | null {
-  const batch = batchArgs(args);
+  const batch = batchArgs(args) ?? auditArgs(args);
   if (batch) {
     return { kind: 'batch', args: batch };
   }
@@ -4741,6 +4836,7 @@ const USAGE = [
   `       pnpm close-views species <species,...> <output directory> [--views <${SPECIES_VIEWS.map((view) => view.name).join('|')},...>] [--moment <play|rest|lift<p>|lower<p>>] [--zoom <n>] [--elevation <deg>] [--url <url>] [--base <ref>]`,
   `       pnpm close-views play <output directory> [--demo <id> | --midi <path>] [--time <s>]... [--strip <from>:<step>:<count>] [--camera <${PLAY_CAMERAS.map((camera) => camera.name).join('|')}|<dx>,<dy>,<wheel>|<JSON>>]... [--cinematic] [--shot <seat|species>] [--at <seat|species> [--azimuth <deg>]... [--zoom <z>] [--elevation <deg>]] [--url <url>] [--base <ref>] [--set <changes>]... [--size <w>x<h>]`,
   '       pnpm close-views batch <output directory> [--species <species,...> [--moments <play|rest|lift<p>|lower<p>,...>] [--views <view,...>] [--zoom <n>]... [--elevation <deg>] [--lineup]] [--role <role>]... [--camera <camera>]... [--demo <id>] [--time <s>] [--url <url>] [--base <ref>]',
+  '       pnpm close-views audit <output directory> [--roles <role,...>] [--url <url>] [--base <ref>]',
 ].join('\n');
 
 /**
