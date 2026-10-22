@@ -1,0 +1,12 @@
+
+Paused tests on 7c1747ed (7c1747ed) and on the working tree, at the same time:
+7c1747ed (7c1747ed): 5 failed tests and errors. The working tree: 5 failed tests and errors. 13.7 s.
+No test fails and no error comes on the working tree alone.
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 5 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  |paused| src/shots/camera-keys.test.ts > writeKeyPosition > gives the default view for the azimuth 0° and the elevation 33° (design 4.5)
+ FAIL  |paused| src/shots/prepare.test.ts > the choice of the shots of prepareShots() (design 5.6) > films the high shots of the demos from the front, high in the hall (scene.png 09)
+ FAIL  |paused| src/shots/prepare.test.ts > the choice of the shots of prepareShots() (design 5.6) > starts the section and solo cameras of the front rows low (scene.png 06 to 08)
+ FAIL  |paused| src/shots/view.test.ts > defaultView > puts the camera in front of the stage on the audience axis (design 4.5, scene.png 01)
+ FAIL  |paused| src/shots/view.test.ts > defaultView > gives a lower and nearer camera in portrait (design 4.5, SC8)
+      Tests  5 failed | 306 passed (311)

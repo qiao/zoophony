@@ -1,0 +1,7 @@
+> zoophony@0.0.0 arm-look /Users/xueqiaoxu/proj/zoophony/.claude/worktrees/mesh-bear
+> node tools/arm-look.ts conductor
+Arm look of 1 roles, play step 1 s. Limits: crease share 14.6% (twice the worst arm of the red fox (7.3%)), section 0.44 (0.6 of the worst arm of the red fox (0.74)).
+| Role | Arm | Play samples | Crease share p50 | Section p50 |
+|---|---|---:|---:|---:|
+| conductor | L | 4495 | 2.1% | 0.77 |
+| conductor | R | 4495 | 4.5% | 0.63 |
