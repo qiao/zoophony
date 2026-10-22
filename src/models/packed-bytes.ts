@@ -13,7 +13,14 @@ export interface ByteReader {
  * @returns The reader at the first byte.
  */
 export function byteReader(packed: string): ByteReader {
-  return { bytes: Uint8Array.from(atob(packed), (c) => c.charCodeAt(0)), at: 0 };
+  // A plain loop over the text of atob() is several times faster than Uint8Array.from() with a
+  // map function, which reads the text with an iterator.
+  const text = atob(packed);
+  const bytes = new Uint8Array(text.length);
+  for (let i = 0; i < text.length; i++) {
+    bytes[i] = text.charCodeAt(i);
+  }
+  return { bytes, at: 0 };
 }
 
 /**
