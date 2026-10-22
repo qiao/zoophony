@@ -473,13 +473,15 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
 - [x] Polar bear legs (user, 2026-10-22: "Longer legs, keep size"): the thighs and the shins of
       the mesh polar bear are 1.6 times as long, at the scale of `main`, so the bench is 0.269 m
       high and the knees show in front of the belly (`2026-10-22-polar-legs.md`).
-- [ ] Polar bear arm gate: on the longer legs, no piano hold passes the whole arm gate. The hold
-      of lean 28° fails the move twist (53°, base 42°, margin 3°) and folds 52% of the play
-      samples (36.5% on `main`). The variant g4 folds 28% but fails the move twist by 1° to 2°
-      and the lowering limit by 0.4 cm. Choose a hold or a new base
+- [x] Polar bear arm gate: on the longer legs, no piano hold passes the whole arm gate. The
+      manager chose the hold g4 and accepted its move twist, lift folds, lowering depth, and note
+      targets as the new base of the pianist (`2026-10-22-polar-legs.md`).
+- [ ] Polar bear forearms and lift: with the hold g4, the forearms slope down 15° to the paws
+      (a real pianist keeps them about level), the lift folds 73% of its samples (57% on `main`),
+      and the left paw misses 7 of 3,931 notes by up to 10.4 mm
       (`docs/research/2026-10-22-polar-legs.md`).
 - [ ] Polar bear head top: the seated head top is 7.4% higher than on `main` (1.857 m), because
-      the longer legs raise the haunch, and the head keeps 5.1 cm from the case (12 cm on `main`)
+      the longer legs raise the haunch, and the head keeps 6.3 cm from the case (12 cm on `main`)
       (`docs/research/2026-10-22-polar-legs.md`).
 - [ ] Polar bear balance: the center of mass of the seated polar bear is 6 cm (rest) to 16 cm
       (play) in front of the front edge of the bench, between the bench and the soles. The calves
