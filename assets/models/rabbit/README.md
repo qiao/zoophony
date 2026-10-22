@@ -1,6 +1,7 @@
 # Rabbit models
 
-This folder holds two models of the rabbit that the user gave. The app does not serve them.
+This folder holds two models of the rabbit that the user gave, and three local copies of the
+second one. The app does not serve them.
 
 ## rabbit.glb
 
@@ -69,9 +70,9 @@ These facts of the mesh were measured on 2026-10-13:
 ## rabbit-4-armpit.glb
 
 `rabbit-4-armpit.glb` is `rabbit-4.glb` with one local edit in Blender, which the user asked for
-on 2026-10-21 ("fix the rabbit's armpit deformation. it looks like it's missing a piece"). The
-rig of the rabbit (`source` of `tools/mesh-rigs/rabbit.json`) reads this file. `rabbit-4.glb`
-stays the file of the user, byte for byte.
+on 2026-10-21 ("fix the rabbit's armpit deformation. it looks like it's missing a piece").
+`rabbit-4-arms.glb` starts from this file. `rabbit-4.glb` stays the file of the user, byte for
+byte.
 
 | Item | Value |
 |---|---|
@@ -92,9 +93,9 @@ the moves.
 ## rabbit-4-arms.glb
 
 `rabbit-4-arms.glb` is `rabbit-4-armpit.glb` with a second local edit in Blender (MCP), which the
-user chose on 2026-10-21 ("the rabbit and pig's arms are still very deformed"). The rig of the
-rabbit (`source` of `tools/mesh-rigs/rabbit.json`) reads this file. `rabbit-4.glb` stays the
-file of the user, byte for byte.
+user chose on 2026-10-21 ("the rabbit and pig's arms are still very deformed").
+`rabbit-4-elbows.glb` starts from this file. `rabbit-4.glb` stays the file of the user, byte for
+byte.
 
 | Item | Value |
 |---|---|
@@ -112,3 +113,28 @@ the back lifted it above the top of the cut, and the corrective shapes then fold
 body of the right cut. The move of vertex 975 at the front turned a cap face at the top of the cut
 down under the raised bow arm, where it showed as a dark band. No other vertex, face, UV, or texture changes. `rabbit_arms.py` of `docs/research/2026-10-21-arm-form/`
 gives the moves.
+
+## rabbit-4-elbows.glb
+
+`rabbit-4-elbows.glb` is `rabbit-4-arms.glb` with a third local edit in Blender (batch). The user
+said on 2026-10-21: "the rabbit's arm is deformed. Compare that with the original mesh". The rig
+of the rabbit (`source` of `tools/mesh-rigs/rabbit.json`) reads this file. `rabbit-4.glb` stays
+the file of the user, byte for byte.
+
+| Item | Value |
+|---|---|
+| File | `rabbit-4-elbows.glb`, 12,225,924 bytes |
+| SHA-256 | `a5a58659273c721c31ab3b3f476808a17f5d6849f9dce3c71300a5d8e90bb5a8` |
+| Writer | Khronos glTF Blender I/O of Blender 5.2.2, from an import of `rabbit-4-arms.glb` |
+| License | As `rabbit-4.glb` |
+
+The edit: the inner side of each hanging arm joins the side of the trunk from the middle of the
+upper arm to past the elbow. The cut of the rig closed the arm there with one flat polygon, which
+showed as a flat sheet at the bent elbow. For each side, the edit removes the 15 (right) and 19
+(left) faces that join the arm to the trunk, with the rule of the cut. It closes the arm with a
+round patch of 14 new vertices and 35 faces over the arm run of the hole. The right arm also moves
+7 vertices of its arm run, at most 0.028 units of the studio axes (4.1 cm in the app). The two
+vertices at the top of the run (1003 and 975) keep their places. The hole of the trunk stays open,
+and the cut of the rig closes it. The new faces take the UV of the nearest face of the arm. No
+other vertex, face, UV, or texture changes. `rabbit_elbows.py` of
+`docs/research/2026-10-22-rabbit-elbow/` gives the edit, and a run of it gives the same bytes.
