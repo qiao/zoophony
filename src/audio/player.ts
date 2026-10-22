@@ -120,6 +120,19 @@ interface Engine {
   loads: number;
 }
 
+/**
+ * The start of an engine (design 6.3). The Worker and the preset index are ready before the
+ * worklet and the hall impulse response, so that the presets load and decode while these load.
+ */
+interface EngineStart {
+  /** The decode Worker. It gets requests before its script runs, and keeps them in order. */
+  readonly worker: Worker;
+  /** The entries of `sf/index.json`. */
+  readonly index: Promise<readonly PresetFileEntry[]>;
+  /** The whole engine, after the worklet module and the hall impulse response load. */
+  readonly engine: Promise<Engine>;
+}
+
 /** The resolve and reject functions of a pending promise. */
 interface Pending<T> {
   readonly resolve: (value: T) => void;
@@ -134,7 +147,7 @@ export class WorkletPlayer implements Player {
   /** The nodes after the synth: the gain of the piece, the hall reverb, and the limiter. */
   readonly #output: OutputChain;
   /** The start of the engine, while it runs or after it succeeds. */
-  #engine: Promise<Engine> | undefined;
+  #engine: EngineStart | undefined;
   /** The engine that gets the commands, after its start. */
   #live: Engine | undefined;
   #anchors: readonly ClockAnchor[] = [];
@@ -217,9 +230,10 @@ export class WorkletPlayer implements Player {
     replaced: Promise<never>,
   ): Promise<void> {
     const replace = this.#replaceLoad;
-    const engine = await Promise.race([this.#startEngine(), replaced]);
+    const start = this.#startEngine();
+    const index = await Promise.race([start.index, replaced]);
     // The synth keeps each bank for the session, so the Worker decodes only the new presets.
-    const files = resolvePresetFiles(engine.index, score.presets)
+    const files = resolvePresetFiles(index, score.presets)
       .map((file) => ({ url: new URL(file.file, this.#baseUrl).href, size: file.size }))
       .filter((file) => !this.#loadedBanks.has(file.url));
     const urls = files.map((file) => file.url);
@@ -231,8 +245,9 @@ export class WorkletPlayer implements Player {
       }
     };
     report(0, 0);
-    const decoding = this.#decode(engine.worker, urls, report);
-    const banks = await Promise.race([decoding, replaced]);
+    // The decode runs while the worklet module and the hall impulse response load (design 6.3).
+    const decoding = this.#decode(start.worker, urls, report);
+    const [engine, banks] = await Promise.race([Promise.all([start.engine, decoding]), replaced]);
     const table = packSynthEvents(mixSynthEvents(score.synthEvents, score.mix));
     this.#durationSec = score.durationSec;
     // An anchor of the old score can still arrive. Its load number tells it apart (6.7).
@@ -330,13 +345,13 @@ export class WorkletPlayer implements Player {
     node.port.postMessage(command, transfer);
   }
 
-  #startEngine(): Promise<Engine> {
+  #startEngine(): EngineStart {
     if (!this.#engine) {
-      const engine = this.#makeEngine();
-      this.#engine = engine;
+      const start = this.#makeEngine();
+      this.#engine = start;
       // A failed start does not stay: the next load starts the engine again.
-      void engine.catch(() => {
-        if (this.#engine === engine) {
+      void start.engine.catch(() => {
+        if (this.#engine === start) {
           this.#engine = undefined;
         }
       });
@@ -344,15 +359,74 @@ export class WorkletPlayer implements Player {
     return this.#engine;
   }
 
-  async #makeEngine(): Promise<Engine> {
-    const indexUrl = new URL(INDEX_FILE, this.#baseUrl);
-    const [index] = await Promise.all([
-      fetchOk(indexUrl).then(async (response): Promise<PresetFileEntry[]> => {
+  /**
+   * Starts an engine: the Worker, the fetch of `sf/index.json`, the worklet module, and the hall
+   * impulse response all start at once (design 6.3). A failure of the Worker before the engine
+   * is live fails the start, and a failed start ends its Worker.
+   *
+   * @returns The start of the engine.
+   */
+  #makeEngine(): EngineStart {
+    const worker = new Worker(new URL('./decode-worker.ts', import.meta.url), { type: 'module' });
+    let failStart: (error: Error) => void = () => undefined;
+    const failed = new Promise<never>((...[, reject]) => {
+      failStart = reject;
+    });
+    const failWorker = (error: Error): void => {
+      if (this.#live?.worker === worker) {
+        this.#fail(this.#live, error);
+      } else {
+        failStart(error);
+      }
+    };
+    worker.addEventListener('message', (event: MessageEvent<DecodeReply>) => {
+      this.#receiveDecode(event.data);
+    });
+    // A Worker script that does not load (for example a 404) gives an error event.
+    worker.addEventListener('error', (event: ErrorEvent) => {
+      const detail = event.message ? `: ${event.message}` : '.';
+      failWorker(new Error(`The decode Worker failed${detail}`));
+    });
+    worker.addEventListener('messageerror', () => {
+      failWorker(new Error('The decode Worker sent a message that cannot be read.'));
+    });
+    const index = fetchOk(new URL(INDEX_FILE, this.#baseUrl)).then(
+      async (response): Promise<readonly PresetFileEntry[]> => {
         // SAFETY: tools/split-soundfont.ts writes this file as an array of PresetFileEntry.
         return (await response.json()) as PresetFileEntry[];
-      }),
-      this.#context.audioWorklet.addModule(processorUrl),
-      this.#loadHall(),
+      },
+    );
+    const engine = this.#makeNode(worker, index, failed);
+    void engine.catch((error: Error) => {
+      worker.terminate();
+      // The decodes of the failed start get no reply from the ended Worker.
+      const rejects = [...this.#decodes.values()].map((pending) => pending.reject);
+      this.#decodes.clear();
+      this.#progress.clear();
+      for (const reject of rejects) {
+        reject(error);
+      }
+    });
+    return { worker, index, engine };
+  }
+
+  /**
+   * Makes the worklet node of an engine after the preset index, the worklet module, and the hall
+   * impulse response load, and makes the engine live.
+   *
+   * @param worker The decode Worker of the engine.
+   * @param index The entries of `sf/index.json`.
+   * @param failed A promise that rejects when the Worker fails before the engine is live.
+   * @returns The engine.
+   */
+  async #makeNode(
+    worker: Worker,
+    index: Promise<readonly PresetFileEntry[]>,
+    failed: Promise<never>,
+  ): Promise<Engine> {
+    const [entries] = await Promise.race([
+      Promise.all([index, this.#context.audioWorklet.addModule(processorUrl), this.#loadHall()]),
+      failed,
     ]);
     const node = new AudioWorkletNode(this.#context, PROCESSOR_NAME, {
       numberOfInputs: 0,
@@ -360,25 +434,13 @@ export class WorkletPlayer implements Player {
       outputChannelCount: [2],
     });
     node.connect(this.#output.input);
-    const worker = new Worker(new URL('./decode-worker.ts', import.meta.url), { type: 'module' });
-    const engine: Engine = { node, worker, index, loads: 0 };
+    const engine: Engine = { node, worker, index: entries, loads: 0 };
     node.port.addEventListener('message', (event: MessageEvent<ProcessorReply>) => {
       this.#receive(engine, event.data);
     });
     node.port.start();
     node.addEventListener('processorerror', () => {
       this.#fail(engine, new Error('The audio processor stopped.'));
-    });
-    worker.addEventListener('message', (event: MessageEvent<DecodeReply>) => {
-      this.#receiveDecode(event.data);
-    });
-    // A Worker script that does not load (for example a 404) gives an error event.
-    worker.addEventListener('error', (event: ErrorEvent) => {
-      const detail = event.message ? `: ${event.message}` : '.';
-      this.#fail(engine, new Error(`The decode Worker failed${detail}`));
-    });
-    worker.addEventListener('messageerror', () => {
-      this.#fail(engine, new Error('The decode Worker sent a message that cannot be read.'));
     });
     this.#live = engine;
     return engine;
