@@ -3587,7 +3587,10 @@ def write_glb(path, config, bind, tris, colors, materials, weights, shapes, bind
         return back @ (heads[name] - heads[parent]), back @ frames[name]
 
     first = 2
-    nodes = [{'name': 'chair', 'mesh': 0}]
+    # The seat prop is a chair, or the piano bench of a pianist (`chair.prop`). `pnpm studio-body`
+    # puts the front edge of the prop at the front edge of the seat of the app with that name.
+    prop = config['chair'].get('prop', 'chair')
+    nodes = [{'name': prop, 'mesh': 0}]
     nodes.append({'name': config['name'], 'mesh': 1, 'skin': 0})
     joint_index = {name: first + k for k, name in enumerate(BONES)}
     inverse = []
@@ -3628,7 +3631,7 @@ def write_glb(path, config, bind, tris, colors, materials, weights, shapes, bind
         'animations': [{'name': 'reference', 'channels': channels, 'samplers': samplers}],
         'materials': mats,
         'meshes': [
-            {'name': 'chair', 'primitives': [chair_prim]},
+            {'name': prop, 'primitives': [chair_prim]},
             {'name': config['name'], 'primitives': primitives,
              'weights': [0.0] * len(shape_names), 'extras': {'targetNames': shape_names}},
         ],
