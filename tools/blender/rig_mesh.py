@@ -1230,7 +1230,11 @@ def arm_side(verts, rules, heads, ends, sign):
     arm joints, from the shoulder to the finger tip, and above the height `floor`, so that the
     side of the trunk and the thigh beside the arm are not a part of it. With `shift`, the chain
     moves by that vector of the left side before the distance, for an arm whose section is not
-    round around its joints, such as the bear arm, whose root reaches farther back than forward."""
+    round around its joints, such as the bear arm, whose root reaches farther back than forward.
+    With `root`, a vertex between the plane of `armSplit` and the plane `root.split` lies in the
+    free arm only between the heights `root.heights`: the lips of the notches where the arm root
+    joins the trunk, and not the side of the trunk beside the forearm or the top of the shoulder,
+    as on the panda."""
     left = verts * [sign, 1.0, 1.0]
     rule = rules.get('armFree')
     if rule is None:
@@ -1244,7 +1248,15 @@ def arm_side(verts, rules, heads, ends, sign):
         ab = b - a
         share = np.clip(((left - a) @ ab) / (ab @ ab), 0.0, 1.0)
         gap = np.minimum(gap, np.linalg.norm(left - (a + share[:, None] * ab), axis=1))
-    return (across > rules['armSplit']) & (gap < rule['radius']) & (left[:, 1] > rule['floor'])
+    side = (across > rules['armSplit']) & (gap < rule['radius']) & (left[:, 1] > rule['floor'])
+    root = rule.get('root')
+    if root is not None:
+        low, high = root['heights']
+        back, front = root.get('depths', [-math.inf, math.inf])
+        band = ((left[:, 1] > low) & (left[:, 1] < high) & (left[:, 2] > back)
+                & (left[:, 2] < front))
+        side &= (across > root['split']) | band
+    return side
 
 
 def free_arm(verts, tris, rules, heads, ends, sign):
