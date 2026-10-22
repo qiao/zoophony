@@ -181,6 +181,10 @@ group of your work before you plan it. A probe that a trap names is in its resea
   on the back when the rest arm swings out around a belly. End the cut above the shoulder joint,
   and give the caps of the body the skin normals (`cut-views.webp` of
   `docs/research/2026-10-22-mesh-bear/`).
+- A free arm by a radius around the joints can leave the back strip of a thick arm root on the
+  trunk. The hanging arm hides it, and a raised arm pulls it out as a dark flap. Draw the posed
+  faces with their indices (`faces.py`), and move the chain back (`armFree.shift`), because a
+  larger radius also takes the front edge (`docs/research/2026-10-22-bear-armpit.md`).
 - A limb far from the bind arm of the studio, as a flipper that hangs out and down, turns the faces
   of its root over in the bind, and they fold in each sample. Bind the upper arm nearer to the
   source limb (`studio.bindArms`), and count the folds of each bind with `rig-mesh --check --set`.
