@@ -282,6 +282,10 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
   config), and the chair of the app fits the legs (`seatHeights()` and `buildChair()` of
   `models/props.ts`, 4.4, `docs/decisions/2026-10-17-fox-form.md`). The rabbit sits further
   forward on a deeper seat (`backRoom` of `ANIMALS`, `docs/decisions/2026-10-17-rabbit-pose.md`).
+  The polar bear pianist sits on the front of its bench with the thighs near level, the knees
+  near 90°, and the soles on the floor, as a real pianist sits "on the front half of the bench,
+  with your feet firmly on the floor" (merriammusic.com, "5 Keys to Piano Posture";
+  `docs/decisions/2026-10-22-polar-seat.md`).
 - **Seated lean.** The polar bear pianist sits tall in the rest pose with a small lean to the piano and the
   head up, as a real pianist before a performance (`restLean` and `restHeadLift` of
   `HANDS_HOLDS`). The lift brings the hands from the lap to the keys. The harp deer sits up, with

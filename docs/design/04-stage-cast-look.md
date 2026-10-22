@@ -590,7 +590,10 @@ twist bone (`docs/decisions/2026-10-19-arm-skin.md`).
 - **Seat.** A seated role binds its mesh seated, and the export puts its soles on the floor and its
   seat at the front edge of the seat of the app. A body with a `seat` of `ANIMALS` then rises to
   that seat height. The polar bear sits on a piano bench that fits its short legs, so that its
-  feet touch the floor: its rig names its seat prop `bench` (`chair.prop`). The rabbits, the foxes, the cats, the dogs, the pandas, the pigs, and the
+  feet touch the floor: its rig names its seat prop `bench` (`chair.prop`). Its hip joints lie
+  in the haunch and its knees at the bottom of the round body, so that the short thick thighs
+  turn forward to near level, and the bench reaches under them and holds the whole haunch
+  (`PIANO_BENCH`, `docs/decisions/2026-10-22-polar-seat.md`). The rabbits, the foxes, the cats, the dogs, the pandas, the pigs, and the
   wolves have chairs that fit their legs, so that their feet touch the floor (user, 2026-10-16). The
   deer sits on the stool of the harp, which fits its legs too, with its whole haunch on the seat
   (user, 2026-10-21): the sit of its rig puts the underside of the haunch on the seat top, and
