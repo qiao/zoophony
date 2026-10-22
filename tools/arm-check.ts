@@ -308,7 +308,8 @@ export const ACCEPTED_GRIPS: ReadonlyMap<string, Readonly<Record<Side, number>>>
   string,
   Readonly<Record<Side, number>>
 >([
-  ['conductor', { L: -54, R: -54 }],
+  // The mesh bear with the baton along the index finger (docs/decisions/2026-10-22-mesh-bear.md).
+  ['conductor', { L: -32, R: 31 }],
   ['pianist', { L: 47, R: 59 }],
   ['harpist', { L: -55, R: -101 }],
   ['violinist', { L: 133, R: -86 }],
