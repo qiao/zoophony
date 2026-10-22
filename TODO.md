@@ -370,11 +370,12 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
 - [x] Rabbit: the left upper arm kept a section of 0.47. It moves its inner side and the arm run of
       its cut, and its section is 0.82 (`2026-10-21-arm-form.md`, round `arm-form-2`).
 - [x] Rabbit: the right upper arm kept a section of 0.60 (0.93 on the red fox). Its arm run moves
-      except vertex 1003, and its section is 0.78 (`2026-10-21-rabbit-right-arm.md`).
-- [ ] Rabbit: from the right side at the frog, a dark band shows under the rounder right upper arm
-      (`rabbit-armpit-frog-3x.webp` of `2026-10-21-arm-form/round3/`).
-- [ ] Rabbit: face 224 at the back of the right armpit folds at the start of the lift in 14
-      samples, each of which also folds at the left wrist (`2026-10-21-rabbit-right-arm.md`).
+      except two vertices, and its section is 0.74 (`2026-10-21-rabbit-right-arm.md`).
+- [x] Rabbit: from the right side at the frog, a dark band showed under the rounder right upper
+      arm. A cap face at the top of the cut turned down. Vertex 975 keeps its place, and the
+      lift fold of face 224 is gone too (`2026-10-21-rabbit-right-arm.md`, section 4).
+- [ ] Rabbit: a small dark sliver stays under the right elbow from the right side at the frog
+      (2,625 band pixels with no shadows, 740 on `main`, `band-measures.txt` of `round4/`).
 - [x] Pig: a thin dark line and dark spikes showed at the top of each shoulder. The wall around
       each tube is smooth, and the right dome is higher (round `arm-form-2`).
 - [x] `pnpm arm-check --views` stopped when the worst sample lay at the end of a demo. A frame past
