@@ -189,6 +189,11 @@ group of your work before you plan it. A probe that a trap names is in its resea
   hid: its faces keep their bind area and normal in the pose, so no measure of the skin, the
   folds, or the arm gate sees it. Read `rig-mesh --check` for an arm that joins or touches the
   trunk, and look at the sheets of `pnpm close-views audit` (`docs/research/2026-10-22-seam-gate.md`).
+- A shoulder ball with half of its weight on the upper arm lies on the hull of its neighbors in
+  the source, but the arm turns sink it 2 to 3 cm, as a sharp V at the top back of the arm root.
+  A flip or a weight ramp moves the fold. Move the ball and its ring out in a copy, and split the
+  long edge across the joint (`push`, `split` of `tools/blender/arm_root.py`,
+  `docs/research/2026-10-22-arm-roots.md`).
 - A limb far from the bind arm of the studio, as a flipper that hangs out and down, turns the faces
   of its root over in the bind, and they fold in each sample. Bind the upper arm nearer to the
   source limb (`studio.bindArms`), and count the folds of each bind with `rig-mesh --check --set`.
