@@ -1384,9 +1384,12 @@ def tail_weights(verts, tris, w, rule, heads, ends):
         neighbors[a].update((b, c))
         neighbors[b].update((a, c))
         neighbors[c].update((a, b))
-    neighbors = [np.array(sorted(n)) for n in neighbors]
+    neighbors = [np.array(sorted(n), dtype=int) for n in neighbors]
+    # A vertex with no face, such as the corner of a fin that the cut removes (`cut_fins()`),
+    # keeps its share.
     for _ in range(rule['smooth']):
-        share = np.array([share[n].mean() for n in neighbors])
+        share = np.array([share[n].mean() if len(n) else share[k]
+                          for k, n in enumerate(neighbors)])
     first = float(np.linalg.norm(bend - root))
     tip_share = smoothstep(place, first - rule['bend'], first + rule['bend'])
     out = w.copy()
