@@ -8,6 +8,7 @@ import { runTool, takeGlb, withGlbBody } from './glb-swap.ts';
 import type { DemoFile } from './patch-demos.ts';
 import { absoluteMidi, midiPath, probeDemos, userDemoFile } from './probe-demos.ts';
 import { setHolds } from './hold-sets.ts';
+import { whereLines } from './part-where.ts';
 import {
   PROBE_NO_CACHE,
   probeBeside,
@@ -107,6 +108,18 @@ export interface Options {
   readonly perBone: boolean;
   /** The step of the play samples of `--every`: each n-th sample of the play. 1 takes all. */
   readonly every: number;
+  /** The bone, the demo, and the song time of `--where`, or `null` for a sweep. */
+  readonly where: WhereRequest | null;
+}
+
+/** The request of `--where <bone> <demo>:<time>`: the corners of one bone at one play sample. */
+export interface WhereRequest {
+  /** The bone. */
+  readonly bone: BoneName;
+  /** The demo, with no `.mid`. */
+  readonly demo: string;
+  /** The song time of the play sample, in seconds. */
+  readonly song: number;
 }
 
 /**
@@ -117,7 +130,7 @@ export interface Options {
 export const ROW_LIMIT = 5;
 
 /** The text of the usage. */
-const USAGE = `Usage: pnpm pose-depth <${Object.keys(SWEEP_ROLES).join(' | ')}> [--demo <id>]... [--midi <path>]... [--soloist <species>] [--set <path>=<value>[;<path>=<value>]...]... [--bones <list>] [--into <list>] [--times <list>] [--gaps] [--targets] [--goal <cm>] [--per-bone] [--every <n>] [--base <ref>] [--json <file>] [--long] [--glb <file>]`;
+const USAGE = `Usage: pnpm pose-depth <${Object.keys(SWEEP_ROLES).join(' | ')}> [--demo <id>]... [--midi <path>]... [--soloist <species>] [--set <path>=<value>[;<path>=<value>]...]... [--bones <list>] [--into <list>] [--times <list>] [--gaps] [--targets] [--goal <cm>] [--per-bone] [--every <n>] [--base <ref>] [--json <file>] [--long] [--glb <file>], or pnpm pose-depth <role> --where <bone> <demo>:<time> [--set <changes>]`;
 
 /** The options of the command with no value. */
 const FLAGS: ReadonlySet<string> = new Set(['--gaps', '--targets', '--long', '--per-bone']);
@@ -165,6 +178,42 @@ function isBone(name: string): name is BoneName {
   return BONE_NAMES.some((bone) => bone === name);
 }
 
+/** The arguments with the option `--where` taken out ({@link takeWhere}). */
+interface WhereArgs {
+  /** The request of `--where`, or `null` with no `--where`. */
+  readonly where: WhereRequest | null;
+  /** The other arguments. */
+  readonly rest: string[];
+}
+
+/**
+ * Takes the option `--where <bone> <demo>:<time>` out of the arguments.
+ *
+ * @param args The arguments after the role.
+ * @returns The request, or `null` with no `--where`, and the other arguments.
+ * @throws Error if the bone is not known, or the place is not `<demo>:<time>`.
+ */
+function takeWhere(args: readonly string[]): WhereArgs {
+  const at = args.indexOf('--where');
+  if (at < 0) {
+    return { where: null, rest: [...args] };
+  }
+  const bone = args[at + 1] ?? '';
+  const place = args[at + 2] ?? '';
+  const colon = place.lastIndexOf(':');
+  const song = Number(place.slice(colon + 1));
+  if (!isBone(bone)) {
+    throw new Error(
+      `The option --where takes a bone first, and "${bone}" is not a bone.\n${USAGE}`,
+    );
+  }
+  if (colon < 1 || place.slice(colon + 1).trim() === '' || !Number.isFinite(song)) {
+    throw new Error(`The option --where takes <demo>:<time> after the bone, and not "${place}".`);
+  }
+  const demo = place.slice(0, colon).replace(/\.mid$/, '');
+  return { where: { bone, demo, song }, rest: [...args.slice(0, at), ...args.slice(at + 3)] };
+}
+
 /**
  * Reads the options from the arguments of the command.
  *
@@ -173,11 +222,12 @@ function isBone(name: string): name is BoneName {
  * @throws Error if an option is not known, or a value does not fit.
  */
 export function parseOptions(args: readonly string[]): Options {
-  const [name, ...rest] = args;
+  const [name, ...given] = args;
   const role = Object.entries(SWEEP_ROLES).find(([key]) => key === name)?.[1];
   if (!role) {
     throw new Error(USAGE);
   }
+  const { where, rest } = takeWhere(given);
   const demos: string[] = [];
   const midi: string[] = [];
   const variants = [''];
@@ -293,6 +343,10 @@ export function parseOptions(args: readonly string[]): Options {
   if (base !== null && (perBone || every > 1)) {
     throw new Error(`The option --base goes with neither --per-bone nor --every.\n${USAGE}`);
   }
+  const sweepOptions = [demos.length > 0, gaps, targets, json, base, soloist, times, goal, long];
+  if (where && (variants.length > 2 || sweepOptions.some((o) => o !== false && o !== null))) {
+    throw new Error(`The option --where goes only with one --set.\n${USAGE}`);
+  }
   return {
     role,
     demos,
@@ -309,6 +363,7 @@ export function parseOptions(args: readonly string[]): Options {
     goal,
     perBone,
     every,
+    where,
   };
 }
 
@@ -1655,6 +1710,21 @@ async function main(): Promise<void> {
   const options = parseOptions(rest);
   if (glb) {
     process.exitCode = await sweepGlb(options, glb, rest);
+    return;
+  }
+  if (options.where) {
+    const undo = setHolds(options.variants[1] ?? '').undo;
+    try {
+      console.log(
+        whereLines(
+          options.role,
+          options.where,
+          await roleDemos([options.where.demo], [], options.role),
+        ).join('\n'),
+      );
+    } finally {
+      undo();
+    }
     return;
   }
   const role = roleOf(options);
