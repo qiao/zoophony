@@ -1010,9 +1010,11 @@ export class App {
       if (this.#seatLevels.length !== piece.score.seats.length) {
         this.#seatLevels = new Float32Array(piece.score.seats.length);
       }
+      // The song time stops at the last note-off, so the last notes can not fade. The dots go off
+      // at the end of the piece.
       ui.seatList.showLevels(
         seatLevels(piece.glow, songSec, piece.audible, this.#seatLevels),
-        started,
+        started && songSec < piece.score.durationSec,
       );
     }
     this.#message = followMessage(this.#message, wallTime, ui.message.held);

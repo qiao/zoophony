@@ -137,14 +137,15 @@ export class SeatList {
   /**
    * Shows the dot of each seat that plays (design 2.8). The level sets the opacity, the size, and
    * the glow of the dot through `--glow`, and the class `playing` turns the dot on with reduced
-   * motion. The dot shows only after the piece starts, as the meter of the demo row.
+   * motion. The dot shows only after the piece starts, as the meter of the demo row, and before
+   * the piece ends.
    *
    * @param levels The level of each seat, from 0 to 1, from `seatLevels()`.
-   * @param started True while the piece plays, or after it has left its start.
+   * @param inPiece True after the piece has left its start and before it gets to its end.
    */
-  showLevels(levels: Float32Array, started: boolean): void {
+  showLevels(levels: Float32Array, inPiece: boolean): void {
     for (const [i, row] of this.#rows.entries()) {
-      const level = started ? (levels[i] ?? 0) : 0;
+      const level = inPiece ? (levels[i] ?? 0) : 0;
       const shown = this.#shown[i] ?? -1;
       if (Math.abs(level - shown) < GLOW_STEP && (level > 0 || shown === 0)) {
         continue;

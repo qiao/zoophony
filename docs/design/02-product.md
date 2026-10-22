@@ -250,7 +250,8 @@ is instant with reduced motion. Each text keeps the contrast 4.5:1 of WCAG AA ov
     its full size, and it gets a soft glow in its color. The dot comes on at a note-on and fades
     out in 0.3 s after the last note, so short notes do not make it flicker. The song time alone
     gives its level (`seatLevels()` in `app/meter.ts`), so it follows a seek and a pause. A
-    silent seat shows no dot, and the dot shows only after the piece starts, as the meter does. A
+    silent seat shows no dot. The dot shows only after the piece starts, as the meter does, and
+    it goes off at the end, where the song time stops at the last note-off. A
     dark fur gets a lighter glow that keeps 3:1 on the row (`ringColor()` in `app/seat-text.ts`).
     The dot keeps its layout space when it does not show. With reduced motion, it is on or off
     with no fade.
