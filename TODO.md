@@ -800,6 +800,11 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       gives a false stretch. The elephant left arm gives 0.22 (base 0.09, limit 0.35), and less
       than the base against the bind. Count the stretch from the bind, or from the rest only when
       the rest keeps the wrist straight (`docs/research/2026-10-19-elephant-grip.md` 5).
+- [ ] Seam gate: no measure of the skin separates the flaps, the shards, and the dents at the arm
+      seam from the good roles, so `pnpm arm-check` does not see them
+      (`docs/research/2026-10-22-seam-gate.md`). Each mesh round looks at the sheets of
+      `pnpm close-views audit`. Next idea: a render measure on the audit cells, or a form
+      measure of the trunk under the source arm.
 - [ ] Elephant timpanist: the third shape of `raise` (the bent right wrist with the mallet up)
       has no pose near its rule since the new grip. Remove it, or fit it to another fold
       (`tools/mesh-rigs/elephant.json`).
