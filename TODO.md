@@ -1074,18 +1074,12 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
             folds in 5.3% of the lift (16.1% to 17.5%), and the upper arms go 5.5 cm into the
             body. Next: a `raise` shape of the lift for face 342 (`pnpm raise-fit cellist --faces
             342 --side R --sets lift --glb <rig>`), then the audit.
-      - [x] Rhino flat forearm: the flat cap of the cut over the whole inner side of the arm. The
-            rig reads a copy with a round patch of each inner arm (`rhino-arms.glb`), and the
-            flat dark sheet under the left forearm is gone (`2026-10-22-rhino-arm.md`).
-      - [ ] Rhino trunk holes: the cut closes each hole of the trunk of `rhino-arms.glb` with a
-            fan of 26 faces. Its long faces face down under the arm, and the down area of
-            `flap.ts` grows from 114 and 211 cm² to 298 and 428 cm². A dark vertical slit stays
-            on the side of the trunk below each arm. Try `cut.bodyNormals`, or a round patch of
-            the trunk hole with a coarser patch of the upper arms (3 triangles are left).
-      - [ ] Rhino right forearm: from az150, its underside stays a dark facet with a straight
-            lower edge, as on the base (`pairs-*-e20.webp` of `2026-10-22-rhino-arm/`).
-      - [ ] Rhino face 188: a face of the right trunk beside the forearm folds at rest. The
-            hanging arm covers it in the crops. Count its pixels in a probe build.
+      - [ ] Rhino left arm (user, 2026-10-22: "the panda and rhino's arms also got deformed",
+            then, after the round `rhino-arm`, "the rhino's left arm is now completed deformed").
+            The round patch of each inner arm (`rhino-arms.glb`, `2026-10-22-rhino-arm.md`) is
+            reverted (`fee18ae8`), so the flat cap of the cut is back. Fix it in a new round with
+            a finer patch: the user said "do not worry about triangle budget, you have plenty
+            budget". Check the left arm at full size from the stage camera and from each view.
       - [ ] Body probe of the panda round: 18 pose sets of other players change at the start of
             brahms-2 and beethoven-9. Find the shared input that the panda rig moves.
 - [ ] Tools of a mesh round (retro of the bear mesh round, 2026-10-22):
