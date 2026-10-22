@@ -731,10 +731,12 @@ All meshes share the values of one `MeshStandardMaterial` with vertex colors and
 program for each material, and a skinned mesh or another count of morph targets needs another
 program. So the stage gives each program variant of the players its own copy of the material, and a
 depth material of its own for the shadow maps and for the depth passes of the beam and of the depth
-of field (`scene/variants.ts`). A corner gets the mean normal of the faces at its vertex within the
-crease angle of its finish. Each triangle has a finish (`Finish` and `FINISHES` of
-`models/mesh.ts`), and the `uv` of a vertex points at the texel of its finish in the roughness map
-and the metalness map of the material.
+of field (`scene/variants.ts`). A pass draws a player only when its view or its shadow camera sees
+the sphere of the pose of the frame: the stage fits the sphere from the bone matrices, with a radius
+for each bone that holds its vertices and their morph moves (`scene/bounds.ts`). A corner gets the
+mean normal of the faces at its vertex within the crease angle of its finish. Each triangle has a
+finish (`Finish` and `FINISHES` of `models/mesh.ts`), and the `uv` of a vertex points at the texel
+of its finish in the roughness map and the metalness map of the material.
 
 | Finish    | Parts                                                          | Intent                                                                                                 |
 | --------- | -------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |

@@ -1,5 +1,6 @@
-import { Group, Mesh, Points, Scene, Vector2, Vector3 } from 'three';
+import { Group, Mesh, Points, Scene, Sphere, Vector2, Vector3 } from 'three';
 import type {
+  BufferGeometry,
   Material,
   Object3D,
   SkinnedMesh,
@@ -28,6 +29,8 @@ import type { Focus, FocusSpot } from './focus.ts';
 import { createMaterials } from './geometry.ts';
 import { createHall, setHallCamera } from './hall.ts';
 import { BeamDepth, setBeamFrame } from './beam.ts';
+import { boneSpheres, fitPoseSphere } from './bounds.ts';
+import type { BoneSpheres } from './bounds.ts';
 import { aimKeyLight, createLights, keyLightPosition, setLightsTier } from './lights.ts';
 import { createPoolUniforms, defaultAim, setPoolAim } from './light-pool.ts';
 import type { LightAim } from './light-pool.ts';
@@ -121,6 +124,32 @@ function focusSpots(layout: SceneLayout, models: ModelCache): FocusSpot[] {
   });
 }
 
+/**
+ * Lets three.js cull the player meshes in each pass (design 4.5): each player whose geometry has
+ * bone spheres (`boneSpheres()`) gets a bounding sphere, which the stage fits to the pose of each
+ * frame (`fitPoseSphere()`). The players of one model share the spheres of their geometry.
+ *
+ * @param players The player meshes.
+ * @returns The bone spheres of each culled mesh.
+ */
+function cullPlayers(players: readonly SkinnedMesh[]): Map<SkinnedMesh, BoneSpheres> {
+  const byGeometry = new Map<BufferGeometry, BoneSpheres | null>();
+  const culled = new Map<SkinnedMesh, BoneSpheres>();
+  for (const mesh of players) {
+    let spheres = byGeometry.get(mesh.geometry);
+    if (spheres === undefined) {
+      spheres = boneSpheres(mesh.geometry, mesh.skeleton.bones.length);
+      byGeometry.set(mesh.geometry, spheres);
+    }
+    if (spheres) {
+      mesh.boundingSphere = new Sphere();
+      mesh.frustumCulled = true;
+      culled.set(mesh, spheres);
+    }
+  }
+  return culled;
+}
+
 /** The flags of a seat that the solo light reads (design 2.4): `SeatFlags` of the app. */
 interface SoloFlag {
   /** True if the user soloed the seat. */
@@ -144,6 +173,8 @@ interface LayoutView {
   readonly lights: Group;
   /** The meshes of the players in the order of `ScenePose.players`, then the conductor, if any. */
   readonly players: readonly SkinnedMesh[];
+  /** The bone spheres of each player mesh that a fitted sphere can cull, by mesh. */
+  readonly culled: ReadonlyMap<SkinnedMesh, BoneSpheres>;
   /** The hall around the stage. Its cutaway follows the camera. */
   readonly hall: Group;
   /** The light effects that write no depth, such as the visible beam (scene/post.ts). */
@@ -338,6 +369,7 @@ export class StageScene {
     scene.add(props);
     const players = createPlayers(playerSpots(layout), materials, models);
     this.#variants.assign(players);
+    const culled = cullPlayers(players);
     const playerGroup = new Group().add(...players);
     scene.add(playerGroup);
     const camera = new StageCamera(
@@ -376,6 +408,7 @@ export class StageScene {
       camera,
       lights,
       players,
+      culled,
       hall,
       effects: lightEffects(scene),
       bake,
@@ -634,6 +667,11 @@ export class StageScene {
     view.scene.updateMatrixWorld();
     view.scene.matrixWorldAutoUpdate = false;
     holdSkeletons(view.players);
+    for (const [mesh, spheres] of view.culled) {
+      if (mesh.boundingSphere) {
+        fitPoseSphere(mesh, spheres, mesh.boundingSphere);
+      }
+    }
   }
 
   /**

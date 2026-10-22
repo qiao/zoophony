@@ -243,7 +243,8 @@ export function createPlayerMesh(
   }
   mesh.castShadow = true;
   mesh.receiveShadow = true;
-  // The bounding sphere of the bind pose does not follow the pose.
+  // The bounding sphere of the bind pose does not follow the pose. The stage fits a sphere to the
+  // pose of each frame and turns the culling on (`fitPoseSphere()` of `scene/bounds.ts`).
   mesh.frustumCulled = false;
   return mesh;
 }
