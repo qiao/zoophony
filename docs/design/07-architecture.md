@@ -350,6 +350,8 @@ credits dialog links to it, and also lists the source of each demo (8.1).
 `dist/third-party-licenses.txt` from the license file of each installed package of this list,
 and from `assets/soundfont/LICENSE.txt` and `assets/soundfont/CC0-1.0.txt`. It fails when a
 package in `dependencies` is not in the list, and when a package of the list is not installed.
+The dev server has no `dist/`, so the plugin `DEV_LICENSES` of `vite.config.ts` makes the same
+text at the same path, with `licenseEntries()` of the script.
 
 - CC0 1.0 has no condition. The entries of VSCO 2 CE and VCSL still give the credit that the
   VSCO 2 CE readme asks for, and they say that the SoundFont holds changed samples.

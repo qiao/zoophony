@@ -1,5 +1,7 @@
 import type { Plugin } from 'vite';
+import { LICENSES_FILE } from './src/app/credits.ts';
 import { DEFAULT_DEMO, demoUrl } from './src/app/demos.ts';
+import { licenseDocument, licenseEntries } from './tools/licenses.ts';
 import { configDefaults, defineConfig } from 'vitest/config';
 
 /** The speed tests: each one compares the time of a work with a reference work (design 9.3). */
@@ -88,9 +90,33 @@ const DEFAULT_DEMO_URL: Plugin = {
   },
 };
 
+/**
+ * The plugin that serves the third-party license file in the dev server (design 7.3). The build
+ * writes the file into `dist/` after Vite (`tools/licenses.ts`), so the dev server has no file at
+ * its path, and its HTML fallback sent the app for the link "Third-party licenses" of the credits.
+ * The plugin makes the same text for each request.
+ */
+const DEV_LICENSES: Plugin = {
+  name: 'zoophony:dev-licenses',
+  apply: 'serve',
+  configureServer(server) {
+    const path = `${server.config.base}${LICENSES_FILE}`;
+    server.middlewares.use((request, response, next) => {
+      if (request.url?.split('?')[0] !== path) {
+        next();
+        return;
+      }
+      licenseEntries(server.config.root).then((entries) => {
+        response.setHeader('Content-Type', 'text/plain; charset=utf-8');
+        response.end(licenseDocument(entries));
+      }, next);
+    });
+  },
+};
+
 export default defineConfig({
   base: BASE,
-  plugins: [DEV_LOOK_OVERRIDE, DEFAULT_DEMO_URL],
+  plugins: [DEV_LOOK_OVERRIDE, DEFAULT_DEMO_URL, DEV_LICENSES],
   build: {
     // tools/size.ts reads the manifest to find the static imports of the entry chunk.
     manifest: true,
