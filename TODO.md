@@ -382,6 +382,9 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
 - [ ] Rabbit: the section of the right upper arm of `pnpm arm-look` fell from 0.74 to 0.60 with the
       round elbow patch (limit 0.44). Find the cause of the drop of the median, and keep the
       round elbow (`2026-10-22-rabbit-elbow.md`, section 5).
+- [ ] Rabbit: "upper arms in body" of `pnpm pose-depth violinist` grows from 0 to 2.5 cm at rest
+      and 5.9 cm in the lowering with the round elbow patch (3.3 cm on the red fox). Keep the
+      patch out of the trunk when the arm hangs (`2026-10-22-rabbit-elbow.md`, section 5).
 - [ ] Rabbit: a dark lower face of the bow elbow shows from azimuth 150 at `lower50` and
       `lift50`, and a thin dark line under the forearm near the elbow from the front at the frog
       (`pairs-*.webp` of `2026-10-22-rabbit-elbow/`).
