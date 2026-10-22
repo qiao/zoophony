@@ -282,9 +282,14 @@
     "armSplit": 0.19,
     "armFree": {
       "turn": 0,
-      "radius": 0.085,
+      "radius": 0.09,
       "floor": 0.27,
-      "note": "The round arm touches the side of the trunk from y 0.46 to 0.5, and the belly bulges out to x 0.257 at y 0.25, beside the paw (sections-y.txt). A vertex of the free arm lies beyond the plane |x| = armSplit, within radius of the chain of the arm joints, and above the floor, so that the belly beside the arm and the paw is not a part of it (arm-free.txt)."
+      "shift": [
+        0,
+        0,
+        -0.01
+      ],
+      "note": "The round arm touches the side of the trunk from y 0.46 to 0.5, and the belly bulges out to x 0.257 at y 0.25, beside the paw (sections-y.txt). A vertex of the free arm lies beyond the plane |x| = armSplit, within radius of the chain of the arm joints, and above the floor, so that the belly beside the arm and the paw is not a part of it (arm-free.txt). The root of the arm reaches farther back than forward: its back edge lies at z -0.12 to -0.127, 0.087 to 0.089 u from the chain, and its front edge at z 0.041, 0.085 u from it. With the radius 0.085 and no shift, the back strip of each arm root stayed on the trunk, and a raised arm showed it as a dark flap under the arm (docs/research/2026-10-22-bear-armpit.md). With the radius 0.095, the front edge joined the arm too, and the upper arms went 4.3 cm into the body in the sweep. The chain 0.01 u back (shift) with the radius 0.09 takes the back strip (gaps 0.079 to 0.08 u) and leaves the front edge (0.095 u)."
     },
     "stretchRamp": 0,
     "headFrom": 0.79,
@@ -335,6 +340,8 @@
   },
   "cut": {
     "top": 0.6,
+    "fins": true,
+    "finsNote": "With the back strip of the arm root in the free arm, a face of the trunk at the back of the left notch (source corners near x 0.18, y 0.55, z -0.12) sticks into the hole with two edges, and the cap repeats it with the opposite winding. The rule removes it and one such face on the right (docs/research/2026-10-22-bear-armpit.md).",
     "skinNormals": true,
     "skinNormalsNote": "The caps of the arm take the normals of the skin around them in the app, as for the hippo and the rhino (docs/research/2026-10-19-cut-caps.md).",
     "bodyNormals": "LR",
