@@ -517,7 +517,12 @@ twist bone (`docs/decisions/2026-10-19-arm-skin.md`).
     hole of the trunk, with its caps and its quad. The run moves with the patch, except the two
     vertices at the top of the right run: a move of the back one lifted it above the top of the
     cut, and the corrective shapes folded the caps of the body. A move of the front one turned
-    the cap at the top of the cut down under the raised arm, as a dark band. `pnpm arm-look` measures the
+    the cap at the top of the cut down under the raised arm, as a dark band. Each arm of the deer
+    joins the trunk from the shoulder down to near the elbow, and the arms that reach the harp
+    stretched the seam at the back of each root into dark shards. Its rig reads a copy with the
+    round patches of the rabbit (`deer-arms.glb`), and its cut ends above the shoulder joint and
+    above the top of the back notch, so that the long seam faces from the notch go. A cut with no
+    patch showed the flat arm cap as a dark sheet behind the raised arm. `pnpm arm-look` measures the
     crease of the arm skin against the source and the section of the upper arm, with limits from the red fox
     (`docs/decisions/2026-10-21-arm-form.md`).
   - Face. Face rules recolor faces of the face after a choice of the user, with no move of a
