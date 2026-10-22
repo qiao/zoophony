@@ -623,13 +623,18 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       4.7 cm into the contrabass in the lowering (2.3 cm before the chest fix). A shoulder turn
       above 50° folds the chest under the chin. Fit the hold further, or accept the depths as
       limits of the sweep (`2026-10-18-mesh-hippo.md`, `2026-10-19-hippo-chest.md`).
-- [ ] Hippo bassist: in the high positions, the thick left forearm crosses the upper bout of the
+- [x] Hippo bassist: in the high positions, the thick left forearm crosses the upper bout of the
       contrabass, 7.4 cm deep (5.2 cm before the chest fix). Try a forward turn of the left
       shoulder for the bowed holds, as `WindHold.reachL`, and count the samples with
       `left-forearm.ts` of `docs/research/2026-10-19-hippo-chest/arms/`
       (`2026-10-19-hippo-chest.md`).
       Tried: a left shoulder turn of 25° with the contrabass in front of the belly keeps it at
       7.0 cm in `bach-bwv1050` (`2026-10-21-hippo-bass.md`).
+      Done: the left paw stops the strings only up to 0.7 of the fingerboard, over the neck
+      (`stopEnd`, `2026-10-21-hippo-bass-arms.md`).
+- [ ] Hippo bassist: the high notes take lower places on the neck, because the left paw stops
+      only up to 0.7 of the fingerboard. Show the user the left hand in a high passage of
+      `bach-bwv1050` (`2026-10-21-hippo-bass-arms.md`).
 - [x] Hippo bassist: the user wrote "the hippo is clipping with the contrabass". The back of the
       contrabass went 14.8 cm into the belly. Done: the contrabass stands in front of the belly
       (1.9 cm at the most), with a left shoulder turn, string planes 6° apart, and no hair within
@@ -637,15 +642,24 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
 - [ ] Hippo bassist: the bow plays only 0.25 m to 0.415 m of the hair (0.045 m before), so the
       strokes are shorter. Show the user the close views, and offer longer arms or a smaller
       contrabass for longer strokes (`2026-10-21-hippo-bass.md`).
-- [ ] Hippo bassist: in pizzicato (`boulanger-matin`, `brahms-2`), the straight bow arm crosses
+- [x] Hippo bassist: in pizzicato (`boulanger-matin`, `brahms-2`), the straight bow arm crosses
       the right rim of the upper bout, 7.7 cm deep, in 66% of the play samples of
       `boulanger-matin`. Pole and pluck place change nothing. Try a pluck place on the right of
       the strings, or a forward turn of the trunk (`inbass.ts` of
       `docs/research/2026-10-21-hippo-bass/`).
+      Done: the paw plucks 0.18 m right of the strings, from the side, with the elbow out
+      (`pluckSide`, `2026-10-21-hippo-bass-arms.md`).
+- [ ] Hippo bassist: in the change from the bow to pizzicato at 248.13 s of `boulanger-matin`,
+      the right forearm goes 4.2 cm into the right rim of the upper bout for a moment (0.0% of
+      the samples). Try a path of the change around the rim (`2026-10-21-hippo-bass-arms.md`).
 - [ ] Hippo bassist: the left wrist on the neck goes 1.5 cm to 1.8 cm into the contrabass in
       15% to 34% of the play samples, so the gate "arms in the contrabass at 1.5 cm or less in
       1% of the samples" fails. Accept it as the contact of a grip, or fit the left paw
       (`2026-10-21-hippo-bass.md`).
+      Tried: it is a clip, because a real bassist touches the neck with the thumb only. The paw
+      of the mesh is 5.9 cm long and the wrist 8.3 cm thick in radius, so no tilt, elbow, or
+      stop keeps the wrist off the neck. Ask the user for a longer paw or a thinner wrist of the
+      mesh (`2026-10-21-hippo-bass-arms.md`).
 - [ ] Held instruments over the new limit of 2 cm in the body (`roles/summary.txt` of
       `docs/research/2026-10-21-hippo-bass/`): the pig hornist 4.5 cm in the lift, the rest, and
       the lowering, the rhino tubist 2.9 cm in the play, the red fox and rabbit violinists 2.9 cm
