@@ -222,8 +222,8 @@ export function gapLines(animal: string, gaps: readonly ArmGap[]): string[] {
 }
 
 if (import.meta.main) {
-  const { parseConfig, rigSettings } = await import('./rig-mesh.ts');
-  const { studioBody } = await import('./studio-body.ts');
+  // The tool reads the config and the settings itself, because `tools/rig-mesh.ts` imports it.
+  const { ANIMALS, studioBody } = await import('./studio-body.ts');
   const root = joinPath(import.meta.dirname, '..');
   const given = process.argv.slice(2);
   const animals =
@@ -233,10 +233,14 @@ if (import.meta.main) {
           .filter((file) => file.endsWith('.json'))
           .map((file) => file.replace(/\.json$/, ''));
   for (const animal of animals) {
-    const config = parseConfig(
-      readFileSync(joinPath(root, 'tools', 'mesh-rigs', `${animal}.json`), 'utf8'),
-    );
-    const { settings } = rigSettings(animal, config);
+    const text = readFileSync(joinPath(root, 'tools', 'mesh-rigs', `${animal}.json`), 'utf8');
+    // SAFETY: each config of tools/mesh-rigs/ names its rig in `output` (`MeshRigConfig`).
+    const config = JSON.parse(text) as { readonly output: string };
+    const settings = ANIMALS.get(animal);
+    if (!settings) {
+      console.log(`${animal}: ANIMALS has no settings, so the tool skips it.`);
+      continue;
+    }
     const bytes = new Uint8Array(readFileSync(joinPath(root, config.output)));
     // A role that only sits gets the standing pose of the export, as the standing check does.
     const { body } = studioBody(bytes, config.output, { ...settings, seated: true, soloist: true });
