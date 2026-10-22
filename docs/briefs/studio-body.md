@@ -273,8 +273,8 @@ A new hold:
 |---|---|---|---|
 | `docs/design/05-animation.md` | "Pose index" | the support, source, play, rest, code, and docs of the role | |
 | `docs/design/05-animation.md` | "5.2 Rest pose" | the rest of the instrument and of the bow | |
-| `docs/design/05-animation.md` | "5.3 Instrument motion", "Bowed strings in detail" | the hold, the rest bow, and the standing bow of each species with a bow | `fox-tan`, `panda`, `mouse`, `elephant`, `beaver`, `pig`, `wolf`, `badger`, `monkey`, `rhino`, `deer`, `penguin`, `bear` |
-| `docs/design/05-animation.md` | "5.3 Instrument motion", "Woodwinds and brass in detail" | the hold of each species with a wind instrument | `rabbit`, `fox-red`, `cat`, `dog`, `hippo`, `elephant`, `badger`, `deer`, `penguin`, `bear` |
+| `docs/design/05-animation.md` | "5.3 Instrument motion", "Bowed strings in detail" | the hold, the rest bow, and the standing bow of each species with a bow | `fox-tan`, `panda`, `mouse`, `elephant`, `beaver`, `pig`, `wolf`, `badger`, `monkey`, `rhino`, `deer`, `penguin`, `bear`, `polar-bear` |
+| `docs/design/05-animation.md` | "5.3 Instrument motion", "Woodwinds and brass in detail" | the hold of each species with a wind instrument | `rabbit`, `fox-red`, `cat`, `dog`, `hippo`, `elephant`, `badger`, `deer`, `penguin`, `bear`, `polar-bear` |
 | `docs/design/04-stage-cast-look.md` | "4.6 Model inventory", "The instruments follow the reference image", first paragraph | the reach of the nut, or of the grip of a wind instrument | |
 | `docs/decisions/<date>-<topic>.md` | the whole file | the decision file of the hold | |
 | `docs/design.md` | "10. Decisions to confirm" | the line of the decision file | |

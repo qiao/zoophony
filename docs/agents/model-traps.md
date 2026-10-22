@@ -89,6 +89,11 @@ group of your work before you plan it. A probe that a trap names is in its resea
   move the harp (`harpScale`, `HARP_PLACE`), and scan the place with `pnpm pose-depth harpist
   --targets --set` first: a tilt back puts the upper strings into the chest
   (`docs/research/2026-10-21-mesh-deer.md`).
+- A round belly in front of the short arms of a seated pianist, as on the polar bear mesh, puts
+  the keys in front of the belly, and the far keys then need a lean that brings the muzzle to the
+  lid. A higher bench lowers the keys against the shoulders and loses reach. Scan the arm factor
+  with the front of the keys, the lean, and the gap of the head to the lid (`scan2.sh` of
+  `docs/research/2026-10-22-mesh-polar-bear/`), and point the elbows out and level.
 - Read the spare reach of each grip after each move of a rest place of a wind hold. `pnpm hold-fit`
   gives it, also with `--scan`, and a grip below 0 is a missed goal.
 - A bow that rests upright and plays across the strings turns its tip from up to the left. A direct
