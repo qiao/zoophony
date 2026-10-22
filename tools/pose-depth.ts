@@ -46,6 +46,7 @@ import type {
   PairGap,
   RoleSweep,
   SampleSet,
+  SweepPart,
   SweepPlayer,
   SweepVisit,
   TargetError,
@@ -99,6 +100,13 @@ export interface Options {
    * counts the samples with a depth over it.
    */
   readonly goal: number | null;
+  /**
+   * True for one part for each arm bone in place of each group of arm bones of the role, with the
+   * limits of the group (`--per-bone`, {@link perBoneRole}).
+   */
+  readonly perBone: boolean;
+  /** The step of the play samples of `--every`: each n-th sample of the play. 1 takes all. */
+  readonly every: number;
 }
 
 /**
@@ -109,10 +117,10 @@ export interface Options {
 export const ROW_LIMIT = 5;
 
 /** The text of the usage. */
-const USAGE = `Usage: pnpm pose-depth <${Object.keys(SWEEP_ROLES).join(' | ')}> [--demo <id>]... [--midi <path>]... [--soloist <species>] [--set <path>=<value>[;<path>=<value>]...]... [--bones <list>] [--into <list>] [--times <list>] [--gaps] [--targets] [--goal <cm>] [--base <ref>] [--json <file>] [--long] [--glb <file>]`;
+const USAGE = `Usage: pnpm pose-depth <${Object.keys(SWEEP_ROLES).join(' | ')}> [--demo <id>]... [--midi <path>]... [--soloist <species>] [--set <path>=<value>[;<path>=<value>]...]... [--bones <list>] [--into <list>] [--times <list>] [--gaps] [--targets] [--goal <cm>] [--per-bone] [--every <n>] [--base <ref>] [--json <file>] [--long] [--glb <file>]`;
 
 /** The options of the command with no value. */
-const FLAGS: ReadonlySet<string> = new Set(['--gaps', '--targets', '--long']);
+const FLAGS: ReadonlySet<string> = new Set(['--gaps', '--targets', '--long', '--per-bone']);
 
 /**
  * Tells if a role name is a bowed role with a soloist ({@link SOLOIST_ROLES}).
@@ -180,10 +188,12 @@ export function parseOptions(args: readonly string[]): Options {
   let base: string | null = null;
   let soloist: SpeciesId | null = null;
   let goal: number | null = null;
-  // The flags --gaps, --targets, and --long have no value. Each other option has one.
+  let every = 1;
+  // The flags --gaps, --targets, --long, and --per-bone have no value. Each other option has one.
   const gaps = rest.includes('--gaps');
   const targets = rest.includes('--targets');
   const long = rest.includes('--long');
+  const perBone = rest.includes('--per-bone');
   const valued = rest.filter((arg) => !FLAGS.has(arg));
   for (let i = 0; i < valued.length; i += 2) {
     const value = valued[i + 1];
@@ -237,6 +247,14 @@ export function parseOptions(args: readonly string[]): Options {
           throw new Error(`The times "${value}" are not numbers.`);
         }
         break;
+      case '--every':
+        every = Number(value);
+        if (!Number.isInteger(every) || every < 1) {
+          throw new Error(
+            `The option --every takes a whole number of 1 or more, and not "${value}".`,
+          );
+        }
+        break;
       case '--goal':
         goal = Number(value) / 100;
         if (value.trim() === '' || !Number.isFinite(goal) || goal < 0) {
@@ -268,6 +286,13 @@ export function parseOptions(args: readonly string[]): Options {
       `The option --targets goes with none of --times, --gaps, and --base.\n${USAGE}`,
     );
   }
+  if (perBone && bones !== null) {
+    throw new Error(`The options --per-bone and --bones do not go together.\n${USAGE}`);
+  }
+  // An older commit of --base does not know --per-bone and --every.
+  if (base !== null && (perBone || every > 1)) {
+    throw new Error(`The option --base goes with neither --per-bone nor --every.\n${USAGE}`);
+  }
   return {
     role,
     demos,
@@ -282,6 +307,8 @@ export function parseOptions(args: readonly string[]): Options {
     base,
     soloist,
     goal,
+    perBone,
+    every,
   };
 }
 
@@ -562,6 +589,8 @@ export type SweepOptions = Pick<Options, 'demos' | 'times' | 'gaps'> & {
    * `pnpm hold-fit --technique`, or `null` or none for all.
    */
   readonly keep?: PlayFilter | null;
+  /** The step of the play samples: each n-th sample of the play (`--every`). 1 or none takes all. */
+  readonly every?: number;
 };
 
 /**
@@ -607,6 +636,24 @@ function keptPlay(
 }
 
 /**
+ * Keeps each n-th play sample (`--every`). The other sets stay as they are.
+ *
+ * @param sets The sample sets of a player.
+ * @param every The step: 1 keeps all samples.
+ * @returns The sample sets.
+ */
+function everyPlay(sets: readonly SampleSet[], every: number): readonly SampleSet[] {
+  if (every <= 1) {
+    return sets;
+  }
+  return sets.map((set) =>
+    set.name === 'play'
+      ? { name: set.name, samples: [...set.samples].filter((...[, i]) => i % every === 0) }
+      : set,
+  );
+}
+
+/**
  * Sweeps the players of the role in one scene. Each player gets the sample sets of the role. With
  * the bow points, the bow of the role (the part {@link BOW_PART}) takes a point at each 1 cm along
  * each edge in place of its corners (`bowSweep()` of `tools/bow-sweep.ts`): its depth in each
@@ -638,7 +685,8 @@ function sweepScene(
       : times
         ? [{ name: 'play', samples: times.map((song) => playSample(scene, song)) }]
         : role.sampleSets(scene);
-    const sets = options.keep ? keptPlay(given, scene, player.name, options.keep) : given;
+    const kept = options.keep ? keptPlay(given, scene, player.name, options.keep) : given;
+    const sets = everyPlay(kept, options.every ?? 1);
     const species = speciesOf(scene, player.model);
     const plan = planOf(scene, player.name);
     const measured = times ? null : measureTargets(player);
@@ -716,7 +764,7 @@ function demoId(demo: DemoFile): string {
  * @param role The role.
  * @returns The demos, in the order of `probeDemos()`.
  */
-async function roleDemos(
+export async function roleDemos(
   asked: readonly string[],
   midi: readonly string[],
   role: RoleSweep,
@@ -756,6 +804,8 @@ function timeKey(options: Options): string {
     ...(options.targets ? ['--targets'] : []),
     ...(options.times ? ['--times'] : []),
     ...(options.gaps ? ['--gaps'] : []),
+    ...(options.perBone ? ['--per-bone'] : []),
+    ...(options.every > 1 ? [`--every ${options.every}`] : []),
   ].join(' ');
 }
 
@@ -1111,6 +1161,44 @@ function printOverTable(rows: readonly SweepRow[]): void {
   }
 }
 
+/** The bones of the arms of each side, whose groups `--per-bone` splits ({@link perBoneRole}). */
+const ARM_BONES: ReadonlySet<BoneName> = new Set([
+  'upperArmL',
+  'upperArmR',
+  'forearmL',
+  'forearmR',
+  'handL',
+  'handR',
+  'fingersL',
+  'fingersR',
+]);
+
+/**
+ * Gives the role with one part for each arm bone in place of each part of the role that holds
+ * only arm bones, such as `forearms` (`--per-bone`). Each new part keeps the obstacles and the
+ * limit of its group, and the accepted depths of the group. The other parts, such as the
+ * instrument and the bow, stay.
+ *
+ * @param role The role.
+ * @returns The role.
+ */
+export function perBoneRole(role: RoleSweep): RoleSweep {
+  const split = (part: SweepPart): boolean =>
+    part.bones.length > 1 && part.bones.every((bone) => ARM_BONES.has(bone));
+  const parts = role.parts.flatMap((part): SweepPart[] =>
+    split(part)
+      ? part.bones.map((bone) => Object.assign({}, part, { name: bone, bones: [bone] }))
+      : [part],
+  );
+  const accepted = role.accepted.flatMap((entry): AcceptedDepth[] => {
+    const group = role.parts.find((part) => part.name === entry.part);
+    return group && split(group)
+      ? group.bones.map((bone) => Object.assign({}, entry, { part: bone }))
+      : [entry];
+  });
+  return { ...role, parts, accepted };
+}
+
 /**
  * Gives the role of the options: one part for each bone of `--bones`, with the accepted depths of
  * the part of the role that holds the bone, and the obstacles of `--into`.
@@ -1121,6 +1209,9 @@ function printOverTable(rows: readonly SweepRow[]): void {
 function roleOf(options: Options): RoleSweep {
   const { role, bones, into } = options;
   const obstacles = role.obstacles.filter((o) => !into || into.includes(o.name));
+  if (options.perBone) {
+    return { ...perBoneRole(role), obstacles };
+  }
   if (!bones) {
     return { ...role, obstacles };
   }
