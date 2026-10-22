@@ -328,6 +328,7 @@ export class StageScene {
     // (design 2.6, review of step 8, L1).
     const look = probeTargetFormat() === 'none' ? 'stage' : 'post';
     this.#renderer = createRenderer(canvas, options.tier, options.devicePixelRatio, look);
+    this.#renderer.setOpaqueSort(this.#variants.opaqueSort);
     this.#exposure = this.#renderer.toneMappingExposure;
     this.#environment = createEnvironment(this.#renderer);
     // The renderer listens first, and makes its state again. The PMREM of the environment is

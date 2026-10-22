@@ -1,5 +1,15 @@
 import { Mesh, MeshBasicMaterial, MeshDepthMaterial, SkinnedMesh } from 'three';
-import type { Material, MeshStandardMaterial, Object3D } from 'three';
+import type { Material, MaterialEventMap, MeshStandardMaterial, Object3D, RenderItem } from 'three';
+
+declare module 'three' {
+  interface Material<TEventMap extends MaterialEventMap = MaterialEventMap> {
+    /**
+     * The serial number of the material in the order of creation. three.js sets it, and its render
+     * list sorts the draws by it, but the types of three.js do not declare it.
+     */
+    readonly id: number;
+  }
+}
 
 /**
  * Gives the program variant of a mesh (design 4.5): the parts of a mesh that select the shader
@@ -69,6 +79,8 @@ export class VariantMaterials {
   readonly #shared: readonly MeshStandardMaterial[];
   /** The copies of the shared material, by variant. */
   readonly #copies = new Map<string, MeshStandardMaterial[]>();
+  /** The id of the shared material of each copy, for the order of the draws. */
+  readonly #sharedIds = new WeakMap<Material, number>();
   /** The depth materials of the shadow maps, by variant. */
   readonly #shadows = new Map<string, MeshDepthMaterial>();
   /** The depth materials of the depth passes, by variant. */
@@ -86,6 +98,38 @@ export class VariantMaterials {
   constructor(shared: readonly MeshStandardMaterial[]) {
     this.#shared = shared;
   }
+
+  /**
+   * Sorts the opaque draws of a render as `painterSortStable()` of three.js does, with the id of
+   * the shared material in place of the id of a copy. Thus the players keep the order of their
+   * draws with the shared material: by the distance from the camera, after the props. With the
+   * order of the ids of the copies, two draws at one depth of a sample of the scene target came in
+   * the other order, and 1 or 2 pixels of a frozen frame changed by up to 14 of 255.
+   *
+   * @param a A draw.
+   * @param b Another draw.
+   * @returns A negative number when `a` draws first.
+   */
+  readonly opaqueSort = (a: RenderItem, b: RenderItem): number => {
+    if (a.groupOrder !== b.groupOrder) {
+      return a.groupOrder - b.groupOrder;
+    }
+    if (a.renderOrder !== b.renderOrder) {
+      return a.renderOrder - b.renderOrder;
+    }
+    const idA = this.#sharedIds.get(a.material) ?? a.material.id;
+    const idB = this.#sharedIds.get(b.material) ?? b.material.id;
+    if (idA !== idB) {
+      return idA - idB;
+    }
+    if (a.materialVariant !== b.materialVariant) {
+      return a.materialVariant - b.materialVariant;
+    }
+    if (a.z !== b.z) {
+      return a.z - b.z;
+    }
+    return a.id - b.id;
+  };
 
   /** Each copy of the shared material, which the next scene can reuse. */
   get copies(): MeshStandardMaterial[] {
@@ -112,6 +156,7 @@ export class VariantMaterials {
           // of the shared material, and it takes the compiled program of the shared material.
           // oxlint-disable-next-line typescript/unbound-method -- see the comment above.
           copy.onBeforeCompile = material.onBeforeCompile;
+          this.#sharedIds.set(copy, material.id);
           return copy;
         });
         this.#copies.set(variant, copies);
