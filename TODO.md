@@ -974,6 +974,13 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
 - [ ] `pnpm close-views --camera-at <bone>`: crop pairs from four directions around a bone, after
       the arm form round merges (`cams.ts` and `sheet.py` of
       `docs/research/2026-10-21-hippo-bass-arms/`).
+- [ ] Armpit flaps from the back (user, 2026-10-22: "the bear has deformed meshes under the arm",
+      then "the panda and rhino's arms also got deformed"). A flat flap or shard sticks out under
+      the arm from the back or az150 on the bear at the beat (round `bear-armpit`), the panda
+      (`first`, `rest`), the rhino (flat left forearm from az-150), the deer (`chord`), and the
+      dog (shoulders at `frog`). The other roles are clean from the back at their play moment
+      (`pnpm close-views <role> <dir> --lineup --views back,150,-150,front,left,right --crop 2`).
+      Fix the panda, rhino, deer, and dog in one round after the cause of the bear is known.
 - [ ] Tools of a mesh round (retro of the bear mesh round, 2026-10-22):
       - Let `pnpm close-views` use the build again when the tree hash is the same, and take more
         than one `--glb` in one run, each variant into its own folder. The bear round made about
