@@ -1,51 +1,74 @@
 import {
   AUTHOR_LINK,
   AUTHOR_TEXT,
-  DEMO_SOURCES_LABEL,
+  COPYRIGHT_TEXT,
   HALL_REVERB_CREDIT,
   LICENSES_TEXT,
+  NOW_PLAYING_LABEL,
+  OTHER_PIECES_LABEL,
+  SOUNDS_LABEL,
   SOUND_CREDITS,
   creditTexts,
 } from '../app/credits.ts';
-import type { LinkedCredit } from '../app/credits.ts';
+import type { PieceCredit, SoundCredit } from '../app/credits.ts';
 import type { DemoId } from '../app/demos.ts';
-import { createElement, setText } from './dom.ts';
+import { createElement } from './dom.ts';
+import { createIcon } from './icons.ts';
 
 /**
- * The content of the credits dialog (design 2.8, 7.3, 8.1): the author line, the credit line of
- * the current demo, the SoundFont credit, the credit of the hall reverb, the link "Third-party
- * licenses", and the sources of the other demos.
+ * The content of the credits dialog (design 2.8, 7.3, 8.1), in the layout of the end credits of a
+ * film: the title card with the author, the group "Now playing" with the current demo, the group
+ * "Sounds" with the SoundFont credits and the hall reverb credit, the group "Other pieces" with
+ * the sources of the other demos, and the end card with the copyright line and the link
+ * "Third-party licenses".
  */
 export class Credits {
   /** The element that holds the credits. */
   readonly element: HTMLElement;
-  /** The credit line of the current demo. */
+  /** The group "Now playing", which a file of the user hides. */
+  readonly #nowPlaying: HTMLElement;
+  /** The credit block of the current demo, in the group "Now playing". */
   readonly #current: HTMLElement;
-  /** The list of the sources of the other demos. */
-  readonly #sources: HTMLUListElement;
+  /** The list of the credit blocks of the other demos. */
+  readonly #otherPieces: HTMLUListElement;
 
   /**
-   * Creates the section with no current demo.
+   * Creates the credits with no current demo.
    *
    * @param licensesHref The URL of the third-party license file.
    */
   constructor(licensesHref: string) {
     this.element = createElement('div', 'credits');
-    const author = createElement('p', 'author', `${AUTHOR_TEXT} `);
-    author.append(newTabLink(AUTHOR_LINK.text, AUTHOR_LINK.href));
-    this.#current = createElement('p');
-    const licenses = createElement('p', 'licenses');
+
+    const card = createElement('div', 'credits-card');
+    const name = createElement('p', 'credits-author');
+    name.append(newTabLink(AUTHOR_LINK.text, AUTHOR_LINK.href));
+    card.append(
+      createElement('p', 'credits-app', 'Zoophony'),
+      createElement('p', 'credits-role', AUTHOR_TEXT),
+      name,
+    );
+
+    this.#current = createElement('div', 'piece now');
+    this.#nowPlaying = creditGroup(NOW_PLAYING_LABEL, this.#current);
+
+    const sounds = createElement('dl', 'credit-rows');
+    sounds.append(...[...SOUND_CREDITS, HALL_REVERB_CREDIT].map(soundRow));
+
+    this.#otherPieces = createElement('ul', 'pieces');
+    this.#otherPieces.setAttribute('aria-label', OTHER_PIECES_LABEL);
+
+    const end = createElement('div', 'credits-end');
+    const licenses = createElement('p');
     licenses.append(newTabLink(LICENSES_TEXT, licensesHref));
-    this.#sources = createElement('ul', 'list sources');
-    this.#sources.setAttribute('aria-label', DEMO_SOURCES_LABEL);
+    end.append(createIcon('paw'), createElement('p', '', COPYRIGHT_TEXT), licenses);
+
     this.element.append(
-      author,
-      this.#current,
-      ...SOUND_CREDITS.map(linkedLine),
-      linkedLine(HALL_REVERB_CREDIT),
-      licenses,
-      createElement('span', 'setting-label', DEMO_SOURCES_LABEL),
-      this.#sources,
+      card,
+      this.#nowPlaying,
+      creditGroup(SOUNDS_LABEL, sounds),
+      creditGroup(OTHER_PIECES_LABEL, this.#otherPieces),
+      end,
     );
     this.show(null);
   }
@@ -57,31 +80,61 @@ export class Credits {
    */
   show(current: DemoId | null): void {
     const texts = creditTexts(current);
-    setText(this.#current, texts.current ?? '');
-    this.#current.hidden = texts.current === null;
-    this.#sources.replaceChildren(
-      ...texts.otherDemos.map((source) => {
-        const item = createElement('li', '', source.title);
-        item.append(createElement('small', '', source.credit));
-        return item;
-      }),
+    this.#nowPlaying.hidden = texts.current === null;
+    if (texts.current) {
+      fillPiece(this.#current, texts.current);
+    }
+    this.#otherPieces.replaceChildren(
+      ...texts.otherDemos.map((piece) => fillPiece(createElement('li', 'piece'), piece)),
     );
   }
 }
 
 /**
- * Makes a paragraph with a credit line and its links, such as "… Source, CC BY 4.0."
+ * Makes a group of the credits: a centered heading between two lines, and its content.
  *
- * @param credit The credit line and its links.
- * @returns The paragraph.
+ * @param label The text of the heading.
+ * @param content The content of the group.
+ * @returns The group.
  */
-function linkedLine(credit: LinkedCredit): HTMLParagraphElement {
-  const line = createElement('p', '', `${credit.text} `);
+function creditGroup(label: string, content: HTMLElement): HTMLElement {
+  const group = createElement('section', 'credits-group');
+  group.append(createElement('h3', '', label), content);
+  return group;
+}
+
+/**
+ * Writes the credit block of a piece into an element: the title, the composer, and the source.
+ *
+ * @param element The element of the block.
+ * @param piece The texts of the block.
+ * @returns The element.
+ */
+function fillPiece<T extends HTMLElement>(element: T, piece: PieceCredit): T {
+  element.replaceChildren(
+    createElement('span', 'piece-title', piece.title),
+    createElement('span', 'piece-composer', piece.composer),
+    createElement('small', '', piece.credit),
+  );
+  return element;
+}
+
+/**
+ * Makes a row of the group "Sounds": the name of the source in the left column, and its credit
+ * line with its links, such as "… Source, CC BY 4.0.", in the right column.
+ *
+ * @param credit The row.
+ * @returns The row.
+ */
+function soundRow(credit: SoundCredit): HTMLDivElement {
+  const row = createElement('div', 'credit-row');
+  const line = createElement('dd', '', `${credit.credit} `);
   credit.links.forEach((link, index) => {
     line.append(index > 0 ? ', ' : '', newTabLink(link.text, link.href));
   });
   line.append('.');
-  return line;
+  row.append(createElement('dt', '', credit.title), line);
+  return row;
 }
 
 /**

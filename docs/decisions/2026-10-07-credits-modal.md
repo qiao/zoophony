@@ -22,7 +22,6 @@ row.
 | The dialog and its backdrop fade in for 150 ms, and the dialog rises 8 px. The close has no animation. With reduced motion, no animation runs | 2.8 |
 | The dialog is up to 560 px wide and 720 px high. On a phone, it is 16 px narrower than the screen and at most 32 px lower than it | 2.8 |
 | The backdrop uses `var(--bg-overlay)` with the same color as the fallback, because an older browser does not give the tokens of the page to `::backdrop` | 2.8 |
-| On a touch screen, the paragraph "Third-party licenses" stands a full control size below the hall credit. In the wider dialog, the box of "CC BY 4.0" overlapped it, and 25 of 44 rows of that box hit the wrong link | 2.8 |
 | `docs/prototype/ui.html` keeps its credits section. The prototype is a record of the tokens and the layout, and the design gives the dialog | 2.8 |
 | The link to GitHub is the GitHub mark after the name "Zoophony", in the logo line. At 1440 × 900, the open drawer covers the top right, where the mockup has its icons. The drawer of a phone starts closed, so a link in its footer hides by default. Only the logo line shows the link with the drawer open, with the drawer closed, and on a phone | 2.8 |
 | The mark is the neutral gray `--github-mark` (#c8c8c8), and white on a hover. The manager asked for the gold of the logo, but the logo rules of GitHub (<https://github.com/logos>) permit the mark only in white, black, or gray, with no change of color. The size, the place, and the box follow the logo, so the mark still reads as a part of the same line | 2.8 |

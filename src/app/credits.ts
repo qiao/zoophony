@@ -17,21 +17,40 @@ export const LICENSES_FILE = 'third-party-licenses.txt';
 
 /** A link of the credits dialog. */
 interface CreditLink {
+  /** The text of the link. */
   readonly text: string;
+  /** The URL. */
   readonly href: string;
 }
 
-/** A credit line with its links. */
-export interface LinkedCredit {
-  readonly text: string;
+/**
+ * A row of the group "Sounds": the name of a sound source in the left column, and its credit
+ * line with its links in the right column.
+ */
+export interface SoundCredit {
+  /** The name of the sound source, such as "GeneralUser GS 2.0.3" or "Hall reverb". */
+  readonly title: string;
+  /** The authors, the license, and the changes. */
+  readonly credit: string;
+  /** The links after the credit line. */
   readonly links: readonly CreditLink[];
 }
 
-/** The text before the name of the author, on the first line of the credits dialog. */
-export const AUTHOR_TEXT = 'Made by';
+/** The credit block of one demo: its title, its composer, and the source of its score. */
+export interface PieceCredit {
+  /** The title of the demo. */
+  readonly title: string;
+  /** The composer of the demo. */
+  readonly composer: string;
+  /** The credit line of the score and of the MIDI file. */
+  readonly credit: string;
+}
+
+/** The small line above the name of the author, on the title card of the credits dialog. */
+export const AUTHOR_TEXT = 'Created by';
 
 /**
- * The author of Zoophony, on the first line of the credits dialog (design 2.8). The name is the
+ * The author of Zoophony, on the title card of the credits dialog (design 2.8). The name is the
  * name of `LICENSE`, and the link goes to the owner of `REPOSITORY_URL`.
  */
 export const AUTHOR_LINK: CreditLink = {
@@ -39,13 +58,26 @@ export const AUTHOR_LINK: CreditLink = {
   href: 'https://github.com/qiao',
 };
 
+/** The copyright line at the end of the credits dialog, as the copyright line of `LICENSE`. */
+export const COPYRIGHT_TEXT = `© 2026 ${AUTHOR_LINK.text}`;
+
+/** The heading of the group of the current demo (design 2.8, 8.2). */
+export const NOW_PLAYING_LABEL = 'Now playing';
+
+/** The heading of the group of the SoundFont credits and the hall reverb credit (design 2.8). */
+export const SOUNDS_LABEL = 'Sounds';
+
+/** The heading of the group of the demos that do not play (design 8.1). */
+export const OTHER_PIECES_LABEL = 'Other pieces';
+
 /**
- * The credit of the hall reverb (design 2.8, 6.8): the line of `HALL_CREDIT`, and links to its
- * source and to its license. CC BY 4.0 asks for the credit, a link to the license, and a note of
- * the changes.
+ * The credit of the hall reverb (design 2.8, 6.8): the part of `HALL_CREDIT` after its name, and
+ * links to its source and to its license. CC BY 4.0 asks for the credit, a link to the license,
+ * and a note of the changes.
  */
-export const HALL_REVERB_CREDIT: LinkedCredit = {
-  text: HALL_CREDIT.text,
+export const HALL_REVERB_CREDIT: SoundCredit = {
+  title: 'Hall reverb',
+  credit: HALL_CREDIT.attribution,
   links: [
     { text: 'Source', href: HALL_CREDIT.sourceUrl },
     { text: HALL_CREDIT.license, href: HALL_CREDIT.licenseUrl },
@@ -53,47 +85,47 @@ export const HALL_REVERB_CREDIT: LinkedCredit = {
 };
 
 /**
- * The credits of the SoundFont (design 2.8, 6.2, 7.3): one line for each source of
+ * The credits of the SoundFont (design 2.8, 6.2, 7.3): one row for each source of
  * `SOUNDFONT_CREDITS`, with a link to its web page.
  */
-export const SOUND_CREDITS: readonly LinkedCredit[] = SOUNDFONT_CREDITS.map((credit) => ({
-  text: `Sounds: ${credit.name} by ${credit.author} (${credit.license}).`,
+export const SOUND_CREDITS: readonly SoundCredit[] = SOUNDFONT_CREDITS.map((credit) => ({
+  title: credit.name,
+  credit: `${credit.author}, ${credit.license}.`,
   links: [{ text: 'Source', href: credit.url }],
 }));
 
-/** The label above the sources of the demos that do not play (design 8.1). */
-export const DEMO_SOURCES_LABEL = 'Demo sources';
-
-/** The source of one demo in the credits dialog: the title of the list and the credit line. */
-interface DemoSource {
-  readonly title: string;
-  readonly credit: string;
-}
-
 /** The texts of the credits dialog for the current piece (design 2.8, 7.3, 8.1). */
 interface CreditTexts {
-  /** The credit line of the current demo, or `null` for a file of the user (8.2). */
-  readonly current: string | null;
-  /** The sources of the other demos, in the order of the demo list. */
-  readonly otherDemos: readonly DemoSource[];
+  /** The credit block of the current demo, or `null` for a file of the user (8.2). */
+  readonly current: PieceCredit | null;
+  /** The credit blocks of the other demos, in the order of the demo list. */
+  readonly otherDemos: readonly PieceCredit[];
 }
 
 /**
  * Gives the texts of the credits dialog (design 2.8, 7.3, 8.1). The dialog shows the credit
- * line of the current demo first. A file of the user has no credit line. The credits list the
- * source of each demo, so the sources of the other demos follow.
+ * block of the current demo first. A file of the user has no credit block. The credits list the
+ * source of each demo, so the blocks of the other demos follow.
  *
  * @param current The current demo, or `null` for a file of the user.
  * @returns The texts.
  */
 export function creditTexts(current: DemoId | null): CreditTexts {
   return {
-    current: current ? DEMOS[current].credit : null,
-    otherDemos: DEMO_IDS.filter((id) => id !== current).map((id) => ({
-      title: DEMOS[id].title,
-      credit: DEMOS[id].credit,
-    })),
+    current: current ? pieceCredit(current) : null,
+    otherDemos: DEMO_IDS.filter((id) => id !== current).map(pieceCredit),
   };
+}
+
+/**
+ * Gives the credit block of a demo.
+ *
+ * @param id The demo.
+ * @returns The title, the composer, and the credit line of the demo.
+ */
+function pieceCredit(id: DemoId): PieceCredit {
+  const demo = DEMOS[id];
+  return { title: demo.title, composer: demo.composer, credit: demo.credit };
 }
 
 /**

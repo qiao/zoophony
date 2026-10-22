@@ -38,7 +38,7 @@ test.describe('the credits dialog (design 2.8)', () => {
 
     // A click on the text of the dialog puts the focus on no control. Space and M then must not
     // play or mute the music behind the dialog.
-    await dialog.getByText('Demo sources').click();
+    await dialog.getByText('Other pieces').click();
     await page.keyboard.press('Space');
     await page.keyboard.press('m');
     await page.waitForTimeout(300);
@@ -65,7 +65,7 @@ test.describe('the credits dialog (design 2.8)', () => {
     await openCredits(page);
     await expect(dialog).toBeVisible();
     // A click in the dialog does not close it.
-    await dialog.getByText('Demo sources').click();
+    await dialog.getByText('Other pieces').click();
     await expect(dialog).toBeVisible();
     await page.mouse.click(40, 450);
     await expect(dialog).toBeHidden();

@@ -259,12 +259,15 @@ is instant with reduced motion. Each text keeps the contrast 4.5:1 of WCAG AA ov
     only the player counts, so the music, the song time, and the flags stay.
   - Credits: the link "Credits" at the end of the tab "Settings" (user, 2026-10-07: "hide credits
     behind a link, which when clicked would popup a modal"; user, 2026-10-20: "move credit to
-    settings") opens a native `<dialog>` with `showModal()` (`ui/modal-dialog.ts`). It
-    starts with the author line "Made by Xueqiao Xu" (user, 2026-10-21: "add myself to the top").
-    Then it holds the credit of the current demo (8.2), the SoundFont credits (6.2), the hall reverb credit
-    (6.8), the link "Third-party licenses", and the credit of each other demo (7.3, 8.1)
-    (`creditTexts()` in `app/credits.ts`). Each link opens in a new tab, so that the music does
-    not stop.
+    settings") opens a native `<dialog>` with `showModal()` (`ui/modal-dialog.ts`). The dialog
+    has the layout of the end credits of a film (user, 2026-10-21: "make the credit modal have a
+    layout like a movie credit screen"), with all text on the center axis. A title card shows the
+    name of the author (user, 2026-10-21: "add myself to the top"). The groups "Now playing" (the
+    current demo, 8.2), "Sounds" (the SoundFont credits, 6.2, and the hall reverb credit, 6.8),
+    and "Other pieces" (7.3, 8.1) follow. Each row of "Sounds" has the source left of the axis and
+    its credit right of it, and a phone puts the two parts on the axis. An end card holds the
+    copyright line and the link "Third-party licenses" (`ui/credits.ts`, `creditTexts()` in
+    `app/credits.ts`). Each link opens in a new tab, so that the music does not stop.
 - Phone, narrower than 700 px: the drawer is a sheet above the bar with a drag handle
   (`sheetCloses()` in `app/phone-layout.ts`), and a selection closes the sheet. The speed, the
   volume, "Reset view", and full screen move into the "Playback" group of the settings
