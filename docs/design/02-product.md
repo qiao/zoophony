@@ -246,15 +246,16 @@ is instant with reduced motion. Each text keeps the contrast 4.5:1 of WCAG AA ov
   - Seats: a row for each seat with a dot in the fur color of the species, the seat name, the
     animal line, and the toggle buttons "M" and "S" with the labels "Mute {name}" and "Solo
     {name}". Only a screen reader reads the source line of each row.
-  - The dot shows only while its seat plays (user, 2026-10-22). It grows from 0.4 of its size to
-    its full size, and it gets a soft glow in its color. The dot comes on at a note-on and fades
-    out in 0.3 s after the last note, so short notes do not make it flicker. The song time alone
-    gives its level (`seatLevels()` in `app/meter.ts`), so it follows a seek and a pause. A
-    silent seat shows no dot. The dot shows only after the piece starts, as the meter does, and
-    it goes off at the end, where the song time stops at the last note-off. A
-    dark fur gets a lighter glow that keeps 3:1 on the row (`ringColor()` in `app/seat-text.ts`).
-    The dot keeps its layout space when it does not show. With reduced motion, it is on or off
-    with no fade.
+  - The dot is very small and faint while its seat does not play: 0.3 of its size, with the
+    opacity 0.3 (user, 2026-10-22). While the seat plays, it grows to its full size and full
+    opacity, and it gets a soft glow in its color. The dot grows at a note-on and shrinks in
+    0.3 s after the last note, so short notes do not make it flicker. The song time alone gives
+    its level (`seatLevels()` in `app/meter.ts`), so it follows a seek and a pause. A silent seat
+    keeps the small dot. The dot grows only while the song time is more than 0 and less than the
+    song length. Thus the first notes do not flash in the frame before the count-in, and the last
+    notes do not stay where the song time stops at the last note-off. A dark fur gets a lighter
+    glow that keeps 3:1 on the row (`ringColor()` in `app/seat-text.ts`). The dot keeps its
+    layout space at all sizes. With reduced motion, it is small or full with no fade.
   - Settings: "Section size" (Auto, One per part, Full) and "Quality" (Auto, High, Medium, Low).
     The button "Auto" names its current value, such as "Auto (Full)". `SETTING_HELP` of
     `app/settings.ts` gives the help line of each control. A change of the section size changes
