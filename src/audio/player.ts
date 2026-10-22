@@ -12,7 +12,13 @@ import type { ClockAnchor } from './clock.ts';
 import type { DecodeReply, DecodeRequest } from './decode-messages.ts';
 import type { EngineBank } from './engine.ts';
 import { fetchOk } from './fetch-ok.ts';
-import { HALL_IMPULSE_URL, createOutputChain, gainOfDb, setOutputVolume } from './output-chain.ts';
+import {
+  HALL_IMPULSE_URL,
+  HALL_WAV_URL,
+  createOutputChain,
+  gainOfDb,
+  setOutputVolume,
+} from './output-chain.ts';
 import type { OutputChain } from './output-chain.ts';
 import { INDEX_FILE, resolvePresetFiles } from './preset-index.ts';
 import type { PresetFileEntry } from './preset-index.ts';
@@ -497,8 +503,9 @@ export class WorkletPlayer implements Player {
   }
 
   /**
-   * Fetches and decodes the hall impulse response, one time for the player (design 6.8). A
-   * failure is a failed start of the engine, so the next load tries again.
+   * Fetches and decodes the hall impulse response, one time for the player (design 6.8). When
+   * `decodeAudioData()` refuses the FLAC file, the player decodes the WAV file with the same
+   * samples. A failure is a failed start of the engine, so the next load tries again.
    */
   async #loadHall(): Promise<void> {
     const convolver = this.#output.convolver;
@@ -506,7 +513,16 @@ export class WorkletPlayer implements Player {
       return;
     }
     const response = await fetchOk(new URL(HALL_IMPULSE_URL, this.#baseUrl));
-    convolver.buffer = await this.#context.decodeAudioData(await response.arrayBuffer());
+    const flac = await response.arrayBuffer();
+    let buffer: AudioBuffer;
+    try {
+      buffer = await this.#context.decodeAudioData(flac);
+    } catch {
+      // A browser that cannot decode FLAC gets the same samples from the WAV file (design 6.8).
+      const wav = await fetchOk(new URL(HALL_WAV_URL, this.#baseUrl));
+      buffer = await this.#context.decodeAudioData(await wav.arrayBuffer());
+    }
+    convolver.buffer = buffer;
   }
 
   /**

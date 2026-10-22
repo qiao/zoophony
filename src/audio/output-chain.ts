@@ -1,11 +1,18 @@
-import hallImpulseUrl from '../../assets/hall/st-pauls-hall-c8m.wav?url';
+import hallImpulseUrl from '../../assets/hall/st-pauls-hall-c8m.flac?url';
+import hallWavUrl from '../../assets/hall/st-pauls-hall-c8m.wav?url';
 
 /**
- * The URL of the hall impulse response, `assets/hall/st-pauls-hall-c8m.wav` (design 6.8). The
- * build copies the file into `dist/assets/`. The `Player` fetches it with the presets, after the
- * first frame.
+ * The URL of the hall impulse response, `assets/hall/st-pauls-hall-c8m.flac` (design 6.8): the
+ * samples of the WAV file in a lossless file of about a quarter of its size. The build copies the
+ * file into `dist/assets/`. The `Player` fetches it with the presets, after the first frame.
  */
 export const HALL_IMPULSE_URL: string = hallImpulseUrl;
+
+/**
+ * The URL of the same samples as WAV, `assets/hall/st-pauls-hall-c8m.wav`, for a browser whose
+ * `decodeAudioData()` refuses the FLAC file of {@link HALL_IMPULSE_URL} (design 6.8).
+ */
+export const HALL_WAV_URL: string = hallWavUrl;
 
 /** The gain of the dry path (design 6.8). */
 export const DRY_GAIN = 1;

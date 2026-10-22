@@ -150,15 +150,16 @@ async function renderSynth(demo: DemoId): Promise<SynthRender> {
 }
 
 /**
- * Gives the JavaScript of `src/audio/output-chain.ts` for the page: the types removed, and the
+ * Gives the JavaScript of `src/audio/output-chain.ts` for the page: the types removed, and each
  * URL import of Vite replaced by the route of the impulse response.
  *
  * @returns The module text.
  */
 function chainModule(): string {
-  const source = readFileSync(join(ROOT, 'src/audio/output-chain.ts'), 'utf8').replace(
-    /^import hallImpulseUrl from .*$/m,
-    `const hallImpulseUrl = '/ir.wav';`,
+  // Each URL of the hall impulse response gets the WAV file: the FLAC file holds the same samples.
+  const source = readFileSync(join(ROOT, 'src/audio/output-chain.ts'), 'utf8').replaceAll(
+    /^import (hall\w*Url) from .*$/gm,
+    `const $1 = '/ir.wav';`,
   );
   return stripTypeScriptTypes(source);
 }
