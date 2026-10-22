@@ -181,6 +181,12 @@ export interface BowedHold {
    */
   readonly pluckSide: number;
   /**
+   * The end of the part of the fingerboard that the left hand stops, from 0 at the nut to 1 at
+   * the end (`stopRangeOf()`). A thick arm that comes from behind the upper bout cannot reach the
+   * fingerboard over the bout without going through it. 1 keeps the whole fingerboard.
+   */
+  readonly stopEnd: number;
+  /**
    * The rest pose of the instrument: its axis, the side of its top plate, and the place of its
    * bone (the tail end) on the left thigh. `null` keeps the instrument in its playing place, with
    * {@link BowedHold.playShift} and {@link BowedHold.playTurn}, as the cello and the contrabass
@@ -312,6 +318,7 @@ const CHIN_HOLD = {
   restPlace: 0.4,
   pluckPlace: 0.9,
   pluckSide: 0,
+  stopEnd: 1,
   rest: {
     axis: [-0.17, 0.95, -0.26],
     top: [0, 0, -1],
@@ -376,6 +383,7 @@ const FLOOR_HOLD = {
   restPlace: 0.4,
   pluckPlace: 0.3,
   pluckSide: 0,
+  stopEnd: 1,
   rest: null,
   liftReach: [0, 0, 0],
   restAtSide: false,
@@ -1109,8 +1117,9 @@ export function bowRangeOf(rig: RigPoints): BowRange {
 const STOP_STEP = 0.01;
 
 /**
- * Finds the part of the fingerboard that the left arm reaches in the playing pose. The neck of a
- * contrabass goes high above the shoulder, so a small player cannot reach the nut.
+ * Finds the part of the fingerboard that the left arm reaches in the playing pose, up to the end of
+ * the hold (`BowedHold.stopEnd`). The neck of a contrabass goes high above the shoulder, so a small
+ * player cannot reach the nut.
  *
  * @param rig The points of the player.
  * @returns The longest reached part, from 0 at the nut to 1 at the end. If the arm reaches no
@@ -1132,7 +1141,7 @@ export function stopRangeOf(rig: RigPoints): readonly [low: number, high: number
   let start = -1;
   let nearest = 0;
   let nearestDistance = Infinity;
-  const steps = Math.round(1 / STOP_STEP);
+  const steps = Math.round(rig.hold.stopEnd / STOP_STEP);
   for (let k = 0; k <= steps; k++) {
     const stop = k * STOP_STEP;
     const distance = stopHandAt(
