@@ -250,6 +250,9 @@ group of your work before you plan it. A probe that a trap names is in its resea
 - A closed beak with no mouth line cannot open by weights. Split a copy of the source with a
   script, and move the two parts apart by more than the weld of `rig-mesh`, else the weld joins
   them (`beak_split.py` of `docs/research/2026-10-21-penguin-beak/`).
+- Short thick legs under a round body, as on the polar bear mesh, make a thigh from a hip joint
+  at the crotch shorter than it is thick, so the seated legs read as straight. Put the hip joints
+  in the haunch and the knees at the bottom of the body (`docs/research/2026-10-22-polar-seat.md`).
 - A long thigh needs a seat of its own (`studio.legTurns`, `weights.haunch`). A large tail needs two
   bones (`tail_tip`).
 - Short thighs under a round belly, or thighs that slope down to a level seat, set the seat top
