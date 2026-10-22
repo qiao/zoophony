@@ -52,3 +52,30 @@ side of the animal), with the probes of `docs/research/2026-10-21-mesh-rhino/`:
   light claws and toenails.
 - The tall ears stand on the top of the head, from y 0.92 to 1.0.
 - The thin tail hangs from the back of the haunch at y 0.29 down to a dark tuft at y 0.11.
+
+## rhino-arms.glb
+
+`rhino-arms.glb` is a copy of `rhino.glb` with one local edit, made on 2026-10-22. The rig config
+reads it in place of the file of the user, which stays byte for byte.
+
+On 2026-10-22, the user said: "the panda and rhino's arms also got deformed". Each thick arm joins
+the trunk from the paw up to the shoulder, so the cut of the rig closed the inner side of each arm
+with one flat cap. The cap showed as a flat dark sheet when the forearm turned to the tuba. The
+copy removes the 48 (left) and 49 (right) faces that join each arm to the trunk below the cut
+height, and closes each arm with a round patch of 20 and 19 new vertices. The hole of the trunk
+stays open, and the cut of the rig closes it (`docs/research/2026-10-22-rhino-arm.md`).
+
+| Item | Value |
+|---|---|
+| File | `rhino-arms.glb`, 15,481,924 bytes |
+| SHA-256 | `113b9ec65055a87b466d296fc53c5343bd7c130d7101c37dbc787a2b11b94a9d` |
+| Contents | 1,596 vertices and 3,145 triangles after the weld, 64 open edges (the two holes of the trunk and the tail) |
+| Script | `docs/research/2026-10-22-rhino-arm/rhino_arms.py`. A run gives the same bytes |
+
+To make the file again:
+
+```bash
+blender -b --factory-startup --python docs/research/2026-10-22-rhino-arm/rhino_arms.py -- \
+  tools/mesh-rigs/rhino.json assets/models/rhino/rhino.glb assets/models/rhino/rhino-arms.glb
+shasum -a 256 assets/models/rhino/rhino-arms.glb
+```
