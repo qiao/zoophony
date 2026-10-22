@@ -486,7 +486,11 @@ twist bone (`docs/decisions/2026-10-19-arm-skin.md`).
     out as a dark flap. The chain of the joints moves back before the distance
     (`weights.armFree.shift`), so that the free arm takes the back strip and leaves the front edge
     on the trunk. A kept face that sticks into the hole of the cut with two edges goes too
-    (`cut.fins`), because the cap repeats it with the opposite winding. Each flipper of the penguin is an arm of the rig, free of the body
+    (`cut.fins`), because the cap repeats it with the opposite winding. The panda arm root joins
+    the trunk with lips that curl into the notches at its front and its back. Bone heat gives
+    the lips a part of the arm weight, and a raised arm pulls them out as flaps. A band between
+    two planes takes only the back lips into the free arm (`weights.armFree.root`), because the
+    front lips are white belly fur that the black arm would show as a white tag. Each flipper of the penguin is an arm of the rig, free of the body
     below its root, so the plane frees it with no cut. The upper arm of its bind points far down
     (`studio.bindArms`), because the large turn from the hanging flipper to the bind arm of the
     other meshes turned the faces at the root of the flipper over.
