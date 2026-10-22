@@ -212,12 +212,15 @@ group of your work before you plan it. A probe that a trap names is in its resea
   trunk wall into flaps, and no weight rule, cut, ring, shape, or arm factor fixes it. Model a
   round tube of the upper arm in a copy of the mesh, with no face that joins the trunk
   (`pig_arms.py` of `docs/research/2026-10-21-arm-form/`). Its dome inside the shoulder gives
-  `pnpm pose-depth` about 4 cm of upper arm in the body in each set.
+  `pnpm pose-depth` about 4 cm of upper arm in the body in each set. Smooth the fill of the wall
+  and two rings around its rim, else the saw rim and the fan show as dark spikes.
 - A flat upper arm reads as a plank when its broad side faces the camera. Round it in a copy of
-  the mesh, and keep the arm run of a cut in place, else the quad at the top of the cut folds
-  (`rabbit_arms.py`). Then point the elbow so that the arm reads across the body.
+  the mesh (`rabbit_arms.py`), then point the elbow so that the arm reads across the body. The
+  arm run of a cut sets the width of the arm, so move it too, except where the caps of the body
+  lie in a notch: there, its move folds the caps.
 - The fold probe and the arm gate do not see a crumpled or a flat upper arm. Run `pnpm arm-look`
-  against the limits of the red fox, and read its 2x crops.
+  against the limits of the red fox, and read the 2x crops from the front, the back, and each
+  side: a defect can show from one side only (user, 2026-10-21).
 - A closed beak with no mouth line cannot open by weights. Split a copy of the source with a
   script, and move the two parts apart by more than the weld of `rig-mesh`, else the weld joins
   them (`beak_split.py` of `docs/research/2026-10-21-penguin-beak/`).

@@ -205,7 +205,8 @@ mesh with no skeleton into route 3" of `docs/agents/model-work.md`).
   final seat top of `pnpm rig-mesh --check`, not the seat top of the first rig. Else the flat
   underside of the haunch stays about 1 cm above the seat, and a pale rim shows under it.
 - **The images.** Make the images of the round with one batch. A brief names a grid by its folder,
-  such as `<dir>/species-rest/species-base-views.webp`.
+  such as `<dir>/species-rest/species-base-views.webp`. Each lineup and crop set of a mesh shows
+  the front, the back, and each side, at a note and at rest (user, 2026-10-21).
 
   ```bash
   pnpm close-views batch <dir> --species <species,...> --role <role> --lineup \
