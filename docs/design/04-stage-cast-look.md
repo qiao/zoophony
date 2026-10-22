@@ -492,9 +492,10 @@ twist bone (`docs/decisions/2026-10-19-arm-skin.md`).
     reads as a plank when its broad side faces the front, so the copy of the rabbit also makes its
     upper arms rounder (`rabbit-4-arms.glb`), and its bow elbow points out and forward (5.3). The
     cut closes the inner side of each upper arm of the rabbit with a flat cap, whose arm run sets
-    the width of the arm, so the left arm moves its arm run too. The right arm keeps its arm run,
-    because the caps of the body of the right cut lie in a notch and folded. `pnpm arm-look` measures the crease of the arm skin
-    against the source and the section of the upper arm, with limits from the red fox
+    the width of the arm, so each arm moves its arm run too. A vertex of a run that the move lifts
+    above the top of the cut keeps its place: else the cut keeps a face between the arm and the
+    trunk, and the corrective shapes fold the caps of the body. `pnpm arm-look` measures the
+    crease of the arm skin against the source and the section of the upper arm, with limits from the red fox
     (`docs/decisions/2026-10-21-arm-form.md`).
   - Face. Face rules recolor faces of the face after a choice of the user, with no move of a
     vertex. `colors.patch` makes each eye patch round, because a sharp inner point reads as
