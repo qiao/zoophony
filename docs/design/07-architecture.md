@@ -297,6 +297,15 @@ The check does not count the audio chunk, the Worker, the worklet, the SF3 files
 and its chunks, and the other demo files. The app loads the other demos when the user selects
 them.
 
+The packed meshes of the studio bodies are most of the first download, and the default demo
+casts 17 of the 18 bodies, so all bodies stay in the first download. `packStudioMesh()` writes one
+stream for each kind of number, so that gzip finds the repeats, also in base64 text
+(`models/studio-format.ts`). `index.html` preloads the file of the default demo with a low
+priority when the hash names no demo, so that the score build does not wait for a fetch after the
+scripts. A plugin writes the URL from `DEFAULT_DEMO` (`DEFAULT_DEMO_URL` of `vite.config.ts`).
+The report [`2026-10-21-load-performance.md`](../research/2026-10-21-load-performance.md) gives
+the measures of the load.
+
 - The limit is 1 MB (1,000,000 bytes). CI fails above the limit and prints the size on each run.
 - `pnpm size` runs `tools/size.ts` after the build. The script finds the static imports of the
   entry chunk in the Vite manifest, and gzips each file with the default level of Node zlib.
