@@ -21,8 +21,12 @@ from mathutils import Quaternion, Vector
 from mathutils.geometry import intersect_point_line
 
 #: The default options: the place of the cut along the free arm axis, the radius and the inner
-#: limit of the upper arm faces that go, the number of rings, the radius of the tube at the
-#: shoulder as a factor of the radius at the cut, and the height of the dome above the shoulder.
+#: limit of the upper arm faces that go, the number of rings and of sides of the tube, the radius
+#: of the tube at the shoulder as a factor of the radius at the cut, the height of the dome above
+#: the shoulder, the halved loop of the cut, the move of the middle of the wall fan, the rounds of
+#: smoothing of the wall and the rings of the trunk around its rim that move with it, and a factor
+#: of the radius of the last ring. With no smoothing, the saw rim of the hole and the fan from its
+#: middle showed as a star of dark spikes at the top of each shoulder (round `arm-form-2`).
 OPTIONS = {
     'cut': -0.07,
     'radius': 0.07,
@@ -33,6 +37,9 @@ OPTIONS = {
     'dome': 0.6,
     'halve': True,
     'bulge': 0.0,
+    'smooth': 12,
+    'top': 1.0,
+    'rim': 2,
 }
 
 #: The joints of the left side in rig units (`tools/mesh-rigs/pig.json`), and the free arm axis of
@@ -192,6 +199,21 @@ def remodel_side(bm, frame, sign, opts):
         mean = sum(((R(w.co) - R(c.co)).length for w in ring), 0.0) / len(ring)
         c.co = B(R(c.co) + Vector((sign, 0.0, 0.0)) * opts['bulge'] * mean)
     set_uvs(bm, wall_faces, wall_uv)
+    # The rim of the hole is a saw of the faces that went, and the fan from its middle shows as
+    # a star of spikes. The middle of the fan and the rim, and `rim` rings of the trunk around the
+    # rim, move toward the mean of their neighbors in `smooth` rounds of half steps, so that the
+    # wall is one smooth surface. The rings beyond them keep their places.
+    moving = set(poked['verts']) | {v for e in hole if e.is_valid for v in e.verts}
+    for _ in range(opts['rim']):
+        moving |= {e.other_vert(v) for v in moving for e in v.link_edges
+                   if R(e.other_vert(v).co).x * sign > 0.05}
+    # The loop of the cut and the forearm below the plane keep their places.
+    moving = [v for v in moving if v.is_valid and v not in Lset and side_of(R(v.co)) < 0]
+    for _ in range(opts['smooth']):
+        means = {v: sum((e.other_vert(v).co for e in v.link_edges), Vector()) / len(v.link_edges)
+                 for v in moving}
+        for v, m in means.items():
+            v.co = v.co.lerp(m, 0.5)
 
     # 4. The loop of the cut keeps every second vertex: the edges between the vertices of each
     # pair collapse, so that the tube and the top of the forearm take fewer faces.
@@ -242,6 +264,8 @@ def remodel_side(bm, frame, sign, opts):
         part = Quaternion().slerp(turn, t)
         middle = cen + (S - cen) * t
         grow = 1.0 + (opts['grow'] - 1.0) * t
+        if k == count:
+            grow *= opts['top']
         ring = []
         for off, src in base:
             v = bm.verts.new(B(middle + part @ (off * grow)))
