@@ -1,0 +1,916 @@
+// Measures the load of the default demo (design 9.7, docs/agents/workflow.md, "Performance
+// rounds"). Run it after `pnpm build`:
+//
+//   pnpm load-probe [--phone] [--repeat] [--base <ref>] [--profile] [--runs <n>] [--port <p>]
+//     [--out <file.json>]
+//
+// The tool serves `dist/` as GitHub Pages does: HTTP/2, gzip for the text types, ETag, and
+// `Cache-Control: max-age=600`. It opens the page in headless Chrome with the GPU of the Mac, and
+// gives the median of the runs (3 by default): FCP, LCP, the empty stage (the first draw call), the
+// first frame of the orchestra, the time until the demo is ready to play, the blocking time to
+// ready, and the bytes. Each run uses a new browser context.
+//
+// - `--phone` shapes the network in the server, so that the fetches of the Workers also get it:
+//   Fast 4G of DevTools (165 ms for each request, 8.1 Mbit/s for all requests together). It also
+//   sets a 4x CPU throttle on the main thread of the page, which does not slow the Workers.
+// - `--repeat` loads the page two times in one context, and gives the second load. Chrome trusts
+//   the key of the certificate of the server, so it keeps an HTTP cache.
+// - `--base <ref>` builds the commit in a temporary folder (`withRefBuild()`), and measures it
+//   first. The table gives the change.
+// - `--profile` measures builds with no minify, so that the CPU profile of the first run names each
+//   function, and prints the functions with the most time. Its times are of these builds.
+// - `--out` writes each run, the bytes of each path, and the time of each response as JSON.
+//
+// The builds run outside the lock. The timed runs of each site run in a child process through
+// `tools/measure-lock.sh run --owner load-probe`.
+import { execFileSync, spawnSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
+import {
+  cpSync,
+  existsSync,
+  mkdirSync,
+  readFileSync,
+  rmSync,
+  statSync,
+  writeFileSync,
+} from 'node:fs';
+import type { IncomingHttpHeaders, OutgoingHttpHeaders } from 'node:http';
+import { createSecureServer } from 'node:http2';
+import type { Http2ServerRequest, Http2ServerResponse } from 'node:http2';
+import { tmpdir } from 'node:os';
+import { extname, join, normalize, resolve } from 'node:path';
+import { gzipSync } from 'node:zlib';
+
+import { chromium } from '@playwright/test';
+
+import { chromiumArgs } from './chromium-args.ts';
+import { optionValue, runChild, shortHash, withRefBuild } from './ref-tree.ts';
+
+/** The root of the repository. */
+const ROOT = resolve(import.meta.dirname, '..');
+
+/** The usage text of the tool. */
+const USAGE =
+  'Usage: pnpm load-probe [--phone] [--repeat] [--base <ref>] [--profile] [--runs <n>] [--port <p>] [--out <file.json>]';
+
+/** The marks that the init script of the page writes into `window.zoophonyLoad`. */
+interface LoadMarks {
+  /** The first contentful paint, in ms from the navigation, or `null`. */
+  readonly fcp: number | null;
+  /** The last largest contentful paint, in ms, or `null`. */
+  readonly lcp: number | null;
+  /** Each long task: its start and its length, in ms. */
+  readonly longTasks: readonly (readonly [number, number])[];
+  /** The first draw call on the canvas of the stage, with no players yet, in ms. */
+  readonly emptyDraw: number | null;
+  /** The first draw call after the stage shows the default demo, in ms. */
+  readonly firstDraw: number | null;
+  /** The frame after {@link LoadMarks.firstDraw}, in ms. */
+  readonly firstFrame: number | null;
+  /** The time when the load ring hides: the demo is ready to play, in ms. */
+  readonly ready: number | null;
+}
+
+declare global {
+  /** The page of the app with the init script of the probe. */
+  interface Window {
+    /** The marks of the load ({@link LoadMarks}). */
+    zoophonyLoad?: LoadMarks;
+  }
+}
+
+/** The result of one load of the page. */
+interface RunResult extends LoadMarks {
+  /** The sum of each long task above 50 ms, less 50 ms, from the navigation to ready. */
+  readonly blocking: number;
+  /** The bytes that the server sent for each path. */
+  readonly bytes: Readonly<Record<string, number>>;
+  /** The sum of the bytes. */
+  readonly totalBytes: number;
+  /** Each response: the path, its start and its end in ms from the request of the page, the bytes. */
+  readonly timeline: readonly (readonly [string, number, number, number])[];
+}
+
+/** The medians of the runs of one site, in ms and in bytes. */
+interface Medians {
+  /** The first contentful paint. */
+  readonly fcp: number;
+  /** The largest contentful paint: a text, because a canvas is no candidate. */
+  readonly lcp: number;
+  /** The first draw call on the stage, with no players. */
+  readonly emptyStage: number;
+  /** The first frame of the orchestra of the default demo. */
+  readonly firstFrame: number;
+  /** The time when the demo is ready to play. */
+  readonly ready: number;
+  /** The blocking time from the navigation to ready ({@link RunResult.blocking}). */
+  readonly blocking: number;
+  /** The bytes that the server sent. */
+  readonly totalBytes: number;
+}
+
+/** The options of a measure. */
+export interface ProbeOptions {
+  /** Fast 4G of DevTools and a 4x CPU throttle of the main thread. */
+  readonly phone: boolean;
+  /** The second load of the page in one browser context, inside the 600 s of `max-age`. */
+  readonly repeat: boolean;
+  /** A CPU profile of the main thread of the first run. */
+  readonly profile: boolean;
+  /** The number of runs. */
+  readonly runs: number;
+  /** The port of the server. */
+  readonly port: number;
+}
+
+/** The text types that the server sends with gzip, as GitHub Pages does. */
+const GZIP_TYPES = new Set(['.html', '.js', '.css', '.json', '.svg', '.txt']);
+
+/** The content type of each file type of the site. */
+const CONTENT_TYPES = new Map([
+  ['.html', 'text/html'],
+  ['.js', 'text/javascript'],
+  ['.css', 'text/css'],
+  ['.json', 'application/json'],
+  ['.svg', 'image/svg+xml'],
+  ['.txt', 'text/plain'],
+  ['.wav', 'audio/wav'],
+  ['.flac', 'audio/flac'],
+  ['.mid', 'audio/midi'],
+  ['.png', 'image/png'],
+  ['.webp', 'image/webp'],
+]);
+
+/** Fast 4G of DevTools: 60 ms of round trip x 2.75 for each request. */
+const PHONE_LATENCY_MS = 165;
+
+/** Fast 4G of DevTools: 9 Mbit/s x 0.9 down, for all requests together, in bytes per second. */
+const PHONE_BYTES_PER_S = (9e6 / 8) * 0.9;
+
+/** The CPU throttle of the phone run: a factor on the main thread of the page. */
+const PHONE_CPU_RATE = 4;
+
+/** The bytes that each body of the shaper gets in its turn. */
+const LINK_TURN_BYTES = 4096;
+
+/**
+ * The init script of the page: it writes the marks of {@link LoadMarks} into
+ * `window.zoophonyLoad`. A draw call of the WebGL2 context of the stage gives the empty stage, and
+ * the first one after `data-demo` of the canvas gives the first frame. The load ring hides when the
+ * demo is ready.
+ */
+const INIT = `(() => {
+  const load = { fcp: null, lcp: null, longTasks: [], emptyDraw: null, firstDraw: null, firstFrame: null, ready: null };
+  window.zoophonyLoad = load;
+  new PerformanceObserver((list) => {
+    for (const e of list.getEntries()) if (e.name === 'first-contentful-paint') load.fcp = e.startTime;
+  }).observe({ type: 'paint', buffered: true });
+  new PerformanceObserver((list) => {
+    for (const e of list.getEntries()) load.lcp = e.startTime;
+  }).observe({ type: 'largest-contentful-paint', buffered: true });
+  new PerformanceObserver((list) => {
+    for (const e of list.getEntries()) load.longTasks.push([Math.round(e.startTime), Math.round(e.duration)]);
+  }).observe({ type: 'longtask', buffered: true });
+  const getContext = HTMLCanvasElement.prototype.getContext;
+  HTMLCanvasElement.prototype.getContext = function (kind, options) {
+    const gl = getContext.call(this, kind, options);
+    if (gl && kind === 'webgl2' && this.id === 'stage' && !gl.zoophonyWrapped) {
+      gl.zoophonyWrapped = true;
+      for (const name of ['drawElements', 'drawArrays', 'drawElementsInstanced', 'drawArraysInstanced']) {
+        const draw = gl[name].bind(gl);
+        gl[name] = function (...a) {
+          if (load.emptyDraw === null) load.emptyDraw = performance.now();
+          if (load.firstDraw === null && this.canvas.dataset.demo) {
+            load.firstDraw = performance.now();
+            requestAnimationFrame(() => { load.firstFrame = performance.now(); });
+          }
+          return draw(...a);
+        };
+      }
+    }
+    return gl;
+  };
+  const check = () => {
+    if (load.ready !== null) return;
+    const canvas = document.querySelector('#stage');
+    const ring = document.querySelector('.first-screen:not(.boot) .ring');
+    if (canvas && canvas.dataset.demo && ring && ring.style.visibility === 'hidden') {
+      load.ready = performance.now();
+    }
+  };
+  new MutationObserver(check).observe(document, { subtree: true, attributes: true, childList: true, characterData: true });
+})();`;
+
+/** A body that the shaper sends: the bytes that are left, and the functions of the response. */
+interface LinkBody {
+  /** The bytes that the shaper did not send yet. */
+  rest: Buffer;
+  /** Writes bytes into the response. */
+  readonly write: (chunk: Buffer) => void;
+  /** Ends the response. */
+  readonly end: () => void;
+}
+
+/** A file of the site with its gzip bytes and its ETag. */
+interface SiteFile {
+  /** The bytes of the file. */
+  readonly body: Buffer;
+  /** The gzip bytes of a text type, or `null`. */
+  readonly gzip: Buffer | null;
+  /** The ETag: a part of the SHA-1 of the bytes. */
+  readonly etag: string;
+}
+
+/**
+ * The server of a site as GitHub Pages serves it: HTTP/2 with TLS (or HTTP/1.1), gzip for the text
+ * types, `Cache-Control: max-age=600`, and ETag. The phone run shapes the network in the server, so
+ * that the fetches of the Workers also get the shape: each body gets a turn of
+ * {@link LINK_TURN_BYTES} bytes, so that each body keeps the order of its own bytes.
+ */
+class PagesServer {
+  /** The folder of the site. */
+  readonly #root: string;
+  /** The latency of each request, in ms. */
+  readonly #latencyMs: number;
+  /** The rate of the link, in bytes per second, `Infinity` with no shape. */
+  readonly #bytesPerSecond: number;
+  /** The files that the server read, by path. */
+  readonly #files = new Map<string, SiteFile>();
+  /** The open bodies of the shaper. */
+  readonly #bodies: LinkBody[] = [];
+  /** The bytes that the link can send now. */
+  #budget = 0;
+  /** The time of the last tick of the shaper, in ms. */
+  #last = performance.now();
+  /** The time of the last request of the page, in ms. */
+  #pageAt = 0;
+  /** The bytes that the server sent for each path since the last {@link PagesServer.reset}. */
+  sent = new Map<string, number>();
+  /** Each response since the last reset: the path, its start, its end, and its bytes. */
+  timeline: [string, number, number, number][] = [];
+
+  /**
+   * Creates the server of a folder.
+   *
+   * @param root The folder of the site, such as `dist/`.
+   * @param phone True for the shape of Fast 4G.
+   */
+  constructor(root: string, phone: boolean) {
+    this.#root = root;
+    this.#latencyMs = phone ? PHONE_LATENCY_MS : 0;
+    this.#bytesPerSecond = phone ? PHONE_BYTES_PER_S : Infinity;
+  }
+
+  /** Clears the bytes and the timeline for the next load. */
+  reset(): void {
+    this.sent = new Map();
+    this.timeline = [];
+  }
+
+  /**
+   * Gives each open body its share of the link (5 ms ticks).
+   */
+  tick(): void {
+    const now = performance.now();
+    this.#budget = Math.min(
+      this.#budget + ((now - this.#last) / 1000) * this.#bytesPerSecond,
+      this.#bytesPerSecond * 0.02,
+    );
+    this.#last = now;
+    while (this.#bodies.length > 0 && this.#budget >= 1) {
+      for (let i = 0; i < this.#bodies.length && this.#budget >= 1;) {
+        const body = this.#bodies[i];
+        if (!body) {
+          break;
+        }
+        const take = Math.min(body.rest.length, LINK_TURN_BYTES, Math.floor(this.#budget));
+        body.write(body.rest.subarray(0, take));
+        body.rest = body.rest.subarray(take);
+        this.#budget -= take;
+        if (body.rest.length === 0) {
+          this.#bodies.splice(i, 1);
+          body.end();
+        } else {
+          i++;
+        }
+      }
+    }
+  }
+
+  /**
+   * Reads a file of the site, with its gzip bytes and its ETag, one time.
+   *
+   * @param path The path of the URL.
+   * @returns The file, or `null` when the site has no such file.
+   */
+  #file(path: string): SiteFile | null {
+    let file = join(this.#root, normalize(decodeURIComponent(path)));
+    if (!file.startsWith(this.#root)) {
+      return null;
+    }
+    if (existsSync(file) && statSync(file).isDirectory()) {
+      file = join(file, 'index.html');
+    }
+    if (!existsSync(file)) {
+      return null;
+    }
+
+    let entry = this.#files.get(file);
+    if (!entry) {
+      const body = readFileSync(file);
+      entry = {
+        body,
+        gzip: GZIP_TYPES.has(extname(file)) ? gzipSync(body) : null,
+        etag: `"${createHash('sha1').update(body).digest('hex').slice(0, 16)}"`,
+      };
+      this.#files.set(file, entry);
+    }
+    return entry;
+  }
+
+  /**
+   * Answers a request after the latency of the shape.
+   *
+   * @param request The request.
+   * @param response The response.
+   */
+  serve(request: Http2ServerRequest, response: Http2ServerResponse): void {
+    const path = new URL(request.url ?? '/', 'https://localhost').pathname;
+    const reply = (): void => {
+      this.#reply(path, request.headers, response);
+    };
+    if (this.#latencyMs > 0) {
+      setTimeout(reply, this.#latencyMs);
+    } else {
+      reply();
+    }
+  }
+
+  /**
+   * Sends a file, a 304 answer for a known ETag, or a 404 answer.
+   *
+   * @param path The path of the URL.
+   * @param headers The headers of the request.
+   * @param response The response.
+   */
+  #reply(path: string, headers: IncomingHttpHeaders, response: Http2ServerResponse): void {
+    const entry = this.#file(path);
+    if (!entry) {
+      response.writeHead(404);
+      response.end();
+      return;
+    }
+
+    if (path === '/') {
+      this.#pageAt = performance.now();
+    }
+    const filePath = path.endsWith('/') ? `${path}index.html` : path;
+    const replyHeaders: OutgoingHttpHeaders = {
+      'content-type': CONTENT_TYPES.get(extname(filePath)) ?? 'application/octet-stream',
+      'cache-control': 'max-age=600',
+      etag: entry.etag,
+    };
+    if (headers['if-none-match'] === entry.etag) {
+      response.writeHead(304, replyHeaders);
+      response.end();
+      return;
+    }
+
+    const gzip = entry.gzip !== null && String(headers['accept-encoding']).includes('gzip');
+    const body = gzip && entry.gzip ? entry.gzip : entry.body;
+    if (gzip) {
+      replyHeaders['content-encoding'] = 'gzip';
+    }
+    replyHeaders['content-length'] = String(body.length);
+    response.writeHead(200, replyHeaders);
+    this.sent.set(path, (this.sent.get(path) ?? 0) + body.length);
+    const row: [string, number, number, number] = [
+      path,
+      Math.round(performance.now() - this.#pageAt),
+      -1,
+      body.length,
+    ];
+    this.timeline.push(row);
+    response.on('finish', () => {
+      row[2] = Math.round(performance.now() - this.#pageAt);
+    });
+    if (this.#bytesPerSecond === Infinity) {
+      response.end(body);
+      return;
+    }
+
+    this.#bodies.push({
+      rest: body,
+      write: (chunk) => {
+        response.write(chunk);
+      },
+      end: () => {
+        response.end();
+      },
+    });
+  }
+}
+
+/** The certificate of the server. */
+interface Certificate {
+  /** The private key, as PEM. */
+  readonly key: Buffer;
+  /** The certificate for `localhost`, as PEM. */
+  readonly cert: Buffer;
+  /** The base64 SHA-256 of the public key, for `--ignore-certificate-errors-spki-list`. */
+  readonly spki: string;
+}
+
+/**
+ * Gives the certificate of the server, and the SPKI hash of its key. Chrome trusts the key, so it
+ * keeps an HTTP cache: with a certificate error, it keeps none, and a repeat visit loads each file
+ * again.
+ *
+ * @returns The key, the certificate, and the hash.
+ */
+function certificate(): Certificate {
+  const dir = join(ROOT, 'scratch', 'load-probe-cert');
+  const keyFile = join(dir, 'key.pem');
+  const certFile = join(dir, 'cert.pem');
+  if (!existsSync(certFile)) {
+    mkdirSync(dir, { recursive: true });
+    execFileSync('openssl', [
+      'req',
+      '-x509',
+      '-newkey',
+      'rsa:2048',
+      '-nodes',
+      '-subj',
+      '/CN=localhost',
+      '-days',
+      '365',
+      '-keyout',
+      keyFile,
+      '-out',
+      certFile,
+    ]);
+  }
+
+  const spki = execFileSync('sh', [
+    '-c',
+    `openssl x509 -in '${certFile}' -pubkey -noout | openssl pkey -pubin -outform der | openssl dgst -sha256 -binary | base64`,
+  ])
+    .toString()
+    .trim();
+  return { key: readFileSync(keyFile), cert: readFileSync(certFile), spki };
+}
+
+/**
+ * Gives the median of numbers.
+ *
+ * @param values The numbers.
+ * @returns The median, the upper one of an even count.
+ */
+function median(values: readonly number[]): number {
+  const sorted = values.toSorted((a, b) => a - b);
+  return sorted[Math.floor(sorted.length / 2)] ?? Number.NaN;
+}
+
+/**
+ * Gives the medians of the runs.
+ *
+ * @param results The runs.
+ * @returns The medians, rounded to whole ms and bytes.
+ */
+export function medians(results: readonly RunResult[]): Medians {
+  const of = (pick: (run: RunResult) => number | null): number =>
+    Math.round(median(results.map((run) => pick(run) ?? Number.NaN)));
+  return {
+    fcp: of((run) => run.fcp),
+    lcp: of((run) => run.lcp),
+    emptyStage: of((run) => run.emptyDraw),
+    firstFrame: of((run) => run.firstFrame),
+    ready: of((run) => run.ready),
+    blocking: of((run) => run.blocking),
+    totalBytes: of((run) => run.totalBytes),
+  };
+}
+
+/** The function of a node of a CPU profile. */
+interface CallFrame {
+  /** The name of the function, or an empty text. */
+  readonly functionName: string;
+  /** The URL of the script. */
+  readonly url: string;
+  /** The line of the function, from 0. */
+  readonly lineNumber: number;
+}
+
+/** A node of a CPU profile of the DevTools protocol. */
+interface ProfileNode {
+  /** The id of the node. */
+  readonly id: number;
+  /** The function of the node. */
+  readonly callFrame: CallFrame;
+  /** The ids of the nodes that the function calls. */
+  readonly children?: readonly number[];
+}
+
+/** A CPU profile of the DevTools protocol. */
+interface CpuProfile {
+  /** The nodes of the call tree. */
+  readonly nodes: readonly ProfileNode[];
+  /** The node of each sample. */
+  readonly samples: readonly number[];
+  /** The time from the sample before, in µs, for each sample. */
+  readonly timeDeltas: readonly number[];
+}
+
+/**
+ * Gives the functions with the most time in a CPU profile: the time of the function with its
+ * calls, and its own time, in ms.
+ *
+ * @param profile The profile.
+ * @param count The number of lines.
+ * @returns One line for each function, the most time first.
+ */
+export function profileTop(profile: CpuProfile, count: number): string[] {
+  const parent = new Map<number, number>();
+  const byId = new Map<number, ProfileNode>();
+  for (const node of profile.nodes) {
+    byId.set(node.id, node);
+    for (const child of node.children ?? []) {
+      parent.set(child, node.id);
+    }
+  }
+
+  const keyOf = (node: ProfileNode): string => {
+    const file = node.callFrame.url.split('/').pop() ?? '';
+    return `${node.callFrame.functionName || '(anonymous)'} ${file}:${node.callFrame.lineNumber + 1}`;
+  };
+  const total = new Map<string, number>();
+  const own = new Map<string, number>();
+  for (const [i, sample] of profile.samples.entries()) {
+    const ms = (profile.timeDeltas[i + 1] ?? 0) / 1000;
+    const seen = new Set<string>();
+    let id: number | undefined = sample;
+    let first = true;
+    while (id !== undefined) {
+      const node = byId.get(id);
+      if (!node) {
+        break;
+      }
+      const key = keyOf(node);
+      if (first) {
+        own.set(key, (own.get(key) ?? 0) + ms);
+        first = false;
+      }
+      if (!seen.has(key)) {
+        seen.add(key);
+        total.set(key, (total.get(key) ?? 0) + ms);
+      }
+      id = parent.get(id);
+    }
+  }
+
+  return [...total.entries()]
+    .toSorted((a, b) => b[1] - a[1])
+    .slice(0, count)
+    .map(
+      ([key, ms]) =>
+        `${ms.toFixed(0).padStart(7)} ${(own.get(key) ?? 0).toFixed(0).padStart(7)}  ${key}`,
+    );
+}
+
+/**
+ * Measures the load of a site: the runs of the options, each one in a new browser context. The
+ * caller holds the measure lock.
+ *
+ * @param root The folder of the built site.
+ * @param options The options.
+ * @param profileFile The file of the CPU profile of the first run, with `--profile`.
+ * @returns Each run.
+ */
+async function measureSite(
+  root: string,
+  options: ProbeOptions,
+  profileFile: string,
+): Promise<RunResult[]> {
+  const server = new PagesServer(root, options.phone);
+  const linkTimer = setInterval(() => {
+    server.tick();
+  }, 5);
+  const { key, cert, spki } = certificate();
+  const listener = createSecureServer({ key, cert, allowHTTP1: true }, (request, response) => {
+    server.serve(request, response);
+  });
+  await new Promise<void>((done) => listener.listen(options.port, done));
+  const browser = await chromium.launch({
+    channel: 'chrome',
+    headless: true,
+    args: [...chromiumArgs('darwin'), `--ignore-certificate-errors-spki-list=${spki}`],
+  });
+  const results: RunResult[] = [];
+  try {
+    for (let run = 0; run < options.runs; run++) {
+      const context = await browser.newContext(
+        options.phone
+          ? {
+              viewport: { width: 412, height: 823 },
+              deviceScaleFactor: 1.75,
+              isMobile: true,
+              hasTouch: true,
+            }
+          : { viewport: { width: 1350, height: 940 }, deviceScaleFactor: 1 },
+      );
+      await context.addInitScript(INIT);
+      let result: RunResult | null = null;
+      for (let visit = 0; visit < (options.repeat ? 2 : 1); visit++) {
+        const page = await context.newPage();
+        const cdp = await context.newCDPSession(page);
+        await cdp.send('Emulation.setCPUThrottlingRate', {
+          rate: options.phone ? PHONE_CPU_RATE : 1,
+        });
+        server.reset();
+        const profiling = options.profile && run === 0 && visit === (options.repeat ? 1 : 0);
+        if (profiling) {
+          await cdp.send('Profiler.enable');
+          await cdp.send('Profiler.setSamplingInterval', { interval: 200 });
+          await cdp.send('Profiler.start');
+        }
+        await page.goto(`https://localhost:${options.port}/`, {
+          waitUntil: 'load',
+          timeout: 120_000,
+        });
+        await page.waitForFunction(() => (window.zoophonyLoad?.ready ?? null) !== null, null, {
+          timeout: 180_000,
+          polling: 500,
+        });
+        const marks = await page.evaluate(() => window.zoophonyLoad ?? null);
+        if (!marks) {
+          throw new Error('The page has no marks of the load.');
+        }
+        if (profiling) {
+          const { profile } = await cdp.send('Profiler.stop');
+          writeFileSync(profileFile, JSON.stringify(profile));
+        }
+        const ready = marks.ready ?? Infinity;
+        result = {
+          ...marks,
+          blocking: marks.longTasks
+            .filter(([start]) => start <= ready)
+            .reduce((sum, [, length]) => sum + Math.max(0, length - 50), 0),
+          bytes: Object.fromEntries([...server.sent.entries()].toSorted((a, b) => b[1] - a[1])),
+          totalBytes: [...server.sent.values()].reduce((sum, bytes) => sum + bytes, 0),
+          timeline: server.timeline.toSorted((a, b) => a[1] - b[1]),
+        };
+        await page.close();
+      }
+      if (result) {
+        results.push(result);
+        console.log(
+          `run ${run + 1}: fcp ${Math.round(result.fcp ?? -1)}, first frame ${Math.round(result.firstFrame ?? -1)}, ready ${Math.round(result.ready ?? -1)}, blocking ${result.blocking}, bytes ${result.totalBytes}`,
+        );
+      }
+      await context.close();
+    }
+  } finally {
+    await browser.close();
+    clearInterval(linkTimer);
+    listener.close();
+  }
+  return results;
+}
+
+/**
+ * Gives the options of the command line.
+ *
+ * @param args The arguments.
+ * @returns The options, or `null` for a bad use.
+ */
+function probeOptions(args: readonly string[]): ProbeOptions | null {
+  const runs = optionValue(args, '--runs');
+  const port = optionValue(args, '--port');
+  if (runs === undefined || port === undefined) {
+    return null;
+  }
+
+  const options: ProbeOptions = {
+    phone: args.includes('--phone'),
+    repeat: args.includes('--repeat'),
+    profile: args.includes('--profile'),
+    runs: Number(runs ?? '3'),
+    port: Number(port ?? '4321'),
+  };
+  if (!Number.isInteger(options.runs) || options.runs < 1 || !Number.isInteger(options.port)) {
+    return null;
+  }
+  return options;
+}
+
+/**
+ * Builds the site of a folder with no minify, for the names of the CPU profile, and copies the
+ * SoundFont files of its `dist/`.
+ *
+ * @param dir The folder of the tree.
+ * @param out The output folder.
+ */
+async function plainBuild(dir: string, out: string): Promise<void> {
+  await runChild('pnpm', ['exec', 'vite', 'build', '--minify', 'false', '--outDir', out], dir);
+  cpSync(join(dir, 'dist', 'sf'), join(out, 'sf'), { recursive: true });
+}
+
+/** The result of the measure of one site, as the child under the lock writes it. */
+interface SiteResult {
+  /** The name of the site: the working tree or the base. */
+  readonly label: string;
+  /** The medians of the runs. */
+  readonly medians: Medians;
+  /** Each run. */
+  readonly runs: readonly RunResult[];
+  /** The lines of the CPU profile, with `--profile`. */
+  readonly profile: readonly string[];
+}
+
+/**
+ * Measures one site through `tools/measure-lock.sh`: the child process holds the lock for the
+ * timed runs only, and writes its result into a file.
+ *
+ * @param label The name of the site.
+ * @param root The folder of the built site.
+ * @param args The options of the command line.
+ * @returns The result.
+ * @throws Error if the measure fails.
+ */
+function measureLocked(label: string, root: string, args: readonly string[]): SiteResult {
+  const out = join(tmpdir(), `load-probe-${process.pid}-${label.replaceAll(/\W/gu, '-')}.json`);
+  const child = spawnSync(
+    join(ROOT, 'tools', 'measure-lock.sh'),
+    [
+      'run',
+      '--owner',
+      'load-probe',
+      '--',
+      process.execPath,
+      join(ROOT, 'tools', 'load-probe.ts'),
+      '--measure',
+      root,
+      '--result',
+      out,
+      '--label',
+      label,
+      ...args,
+    ],
+    { cwd: ROOT, stdio: 'inherit' },
+  );
+  if (child.status !== 0) {
+    throw new Error(`The measure of ${label} failed with the status ${String(child.status)}.`);
+  }
+  // SAFETY: the child of this tool writes the file as a SiteResult.
+  return JSON.parse(readFileSync(out, 'utf8')) as SiteResult;
+}
+
+/**
+ * Formats the medians of the sites as a table, with the change from the first site.
+ *
+ * @param sites The results, the base first.
+ * @param options The options of the measure.
+ * @returns The lines.
+ */
+function tableLines(sites: readonly SiteResult[], options: ProbeOptions): string[] {
+  const mode = `${options.phone ? 'phone (Fast 4G, 4x CPU)' : 'desktop'}, ${options.repeat ? 'repeat visit' : 'first visit'}, median of ${options.runs}`;
+  const rows: [string, keyof Medians, string][] = [
+    ['FCP', 'fcp', 'ms'],
+    ['LCP', 'lcp', 'ms'],
+    ['empty stage', 'emptyStage', 'ms'],
+    ['first frame of the orchestra', 'firstFrame', 'ms'],
+    ['ready to play', 'ready', 'ms'],
+    ['blocking time to ready', 'blocking', 'ms'],
+    ['bytes', 'totalBytes', 'B'],
+  ];
+  const first = sites[0];
+  const lines = [`Load of the default demo: ${mode}`];
+  lines.push(
+    [
+      'measure'.padEnd(30),
+      ...sites.map((site) => site.label.padStart(18)),
+      'change'.padStart(12),
+    ].join(''),
+  );
+  for (const [name, key, unit] of rows) {
+    const values = sites.map((site) => site.medians[key]);
+    const last = values.at(-1) ?? 0;
+    const change = sites.length > 1 && first ? last - first.medians[key] : null;
+    lines.push(
+      [
+        name.padEnd(30),
+        ...values.map((value) => `${value.toLocaleString('en-US')} ${unit}`.padStart(18)),
+        change === null
+          ? ''
+          : `${change > 0 ? '+' : ''}${change.toLocaleString('en-US')}`.padStart(12),
+      ].join(''),
+    );
+  }
+  return lines;
+}
+
+/**
+ * Runs the timed part under the lock: `--measure <root> --result <file> --label <name>`.
+ *
+ * @param args The arguments.
+ * @param options The options.
+ */
+async function measureMain(args: readonly string[], options: ProbeOptions): Promise<void> {
+  const root = optionValue(args, '--measure');
+  const out = optionValue(args, '--result');
+  const label = optionValue(args, '--label') ?? 'site';
+  if (!root || !out) {
+    throw new Error('The child mode needs --measure <root> and --result <file>.');
+  }
+
+  const profileFile = out.replace(/\.json$/u, '-profile.json');
+  const runs = await measureSite(resolve(root), options, profileFile);
+  let profile: string[] = [];
+  if (options.profile) {
+    // SAFETY: Profiler.stop of the DevTools protocol gives a CpuProfile.
+    profile = profileTop(JSON.parse(readFileSync(profileFile, 'utf8')) as CpuProfile, 40);
+  }
+  const result: SiteResult = { label, medians: medians(runs), runs, profile };
+  writeFileSync(out, JSON.stringify(result));
+}
+
+/**
+ * Measures the load of the default demo: `pnpm load-probe` after `pnpm build` (design 9.7,
+ * `docs/agents/workflow.md`). With `--base <ref>`, it builds the commit in a temporary folder and
+ * measures it first. Each timed measure runs through `tools/measure-lock.sh`.
+ */
+async function main(): Promise<void> {
+  const args = process.argv.slice(2);
+  const options = probeOptions(args);
+  const base = optionValue(args, '--base');
+  const outFile = optionValue(args, '--out');
+  if (!options || base === undefined || outFile === undefined) {
+    console.error(USAGE);
+    process.exitCode = 1;
+    return;
+  }
+
+  if (args.includes('--measure')) {
+    await measureMain(args, options);
+    return;
+  }
+
+  const dist = join(ROOT, 'dist');
+  if (!existsSync(join(dist, 'index.html')) || !existsSync(join(dist, 'sf'))) {
+    console.error('The probe reads dist/. Run pnpm build first.');
+    process.exitCode = 1;
+    return;
+  }
+
+  const childArgs = [
+    ...(options.phone ? ['--phone'] : []),
+    ...(options.repeat ? ['--repeat'] : []),
+    ...(options.profile ? ['--profile'] : []),
+    '--runs',
+    String(options.runs),
+    '--port',
+    String(options.port),
+  ];
+  const sites: SiteResult[] = [];
+  const temp = join(tmpdir(), `load-probe-${process.pid}`);
+  if (base !== null) {
+    const label = `${base} (${shortHash(base)})`;
+    sites.push(
+      await withRefBuild(base, async (dir) => {
+        let root = join(dir, 'dist');
+        if (options.profile) {
+          root = join(dir, 'dist-plain');
+          await plainBuild(dir, root);
+        }
+        return measureLocked(label, root, childArgs);
+      }),
+    );
+  }
+  let root = dist;
+  if (options.profile) {
+    root = `${temp}-plain`;
+    await plainBuild(ROOT, root);
+  }
+  try {
+    sites.push(measureLocked('working tree', root, childArgs));
+  } finally {
+    if (options.profile) {
+      rmSync(root, { recursive: true, force: true });
+    }
+  }
+
+  console.log(tableLines(sites, options).join('\n'));
+  for (const site of sites) {
+    if (site.profile.length > 0) {
+      console.log(`\nCPU profile of ${site.label} (ms with the calls, own ms, function):`);
+      console.log(site.profile.join('\n'));
+    }
+  }
+  if (outFile !== null) {
+    writeFileSync(outFile, `${JSON.stringify({ options, sites }, null, 2)}\n`);
+  }
+}
+
+if (import.meta.main) {
+  await main();
+}
