@@ -1,4 +1,5 @@
 import type { Plugin } from 'vite';
+import { DEFAULT_DEMO, demoUrl } from './src/app/demos.ts';
 import { configDefaults, defineConfig } from 'vitest/config';
 
 /** The speed tests: each one compares the time of a work with a reference work (design 9.3). */
@@ -76,9 +77,20 @@ const DEV_LOOK_OVERRIDE: Plugin = {
   },
 };
 
+/**
+ * The plugin that writes the URL of the default demo into the preload script of `index.html`
+ * (design 7.2), from `DEFAULT_DEMO` of `src/app/demos.ts`, so that the two cannot differ.
+ */
+const DEFAULT_DEMO_URL: Plugin = {
+  name: 'zoophony:default-demo-url',
+  transformIndexHtml(html) {
+    return html.replace('%DEFAULT_DEMO_URL%', demoUrl(DEFAULT_DEMO, BASE));
+  },
+};
+
 export default defineConfig({
   base: BASE,
-  plugins: [DEV_LOOK_OVERRIDE],
+  plugins: [DEV_LOOK_OVERRIDE, DEFAULT_DEMO_URL],
   build: {
     // tools/size.ts reads the manifest to find the static imports of the entry chunk.
     manifest: true,
