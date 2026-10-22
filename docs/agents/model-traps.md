@@ -185,6 +185,10 @@ group of your work before you plan it. A probe that a trap names is in its resea
   trunk. The hanging arm hides it, and a raised arm pulls it out as a dark flap. Draw the posed
   faces with their indices (`faces.py`), and move the chain back (`armFree.shift`), because a
   larger radius also takes the front edge (`docs/research/2026-10-22-bear-armpit.md`).
+- A flap, a shard, or a dent at the arm seam is often the form of the source that the hanging arm
+  hid: its faces keep their bind area and normal in the pose, so no measure of the skin, the
+  folds, or the arm gate sees it. Read `rig-mesh --check` for an arm that joins or touches the
+  trunk, and look at the sheets of `pnpm close-views audit` (`docs/research/2026-10-22-seam-gate.md`).
 - A limb far from the bind arm of the studio, as a flipper that hangs out and down, turns the faces
   of its root over in the bind, and they fold in each sample. Bind the upper arm nearer to the
   source limb (`studio.bindArms`), and count the folds of each bind with `rig-mesh --check --set`.
