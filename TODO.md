@@ -470,7 +470,7 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
 - [x] Polar bear seat (user, 2026-10-22: "also the polar bear's pose is very wrong now"): the mesh
       polar bear sits on near level thighs with its knees at 95°, the hip joints in the haunch,
       and the haunch on a bench under the thighs (`2026-10-22-polar-seat.md`).
-- [ ] Polar bear legs: with the legs of the mesh, the bench is 0.142 m high, and the round belly
+- [ ] Polar bear legs: with the legs of the mesh, the bench is 0.153 m high, and the round belly
       hides the short thighs from the side, so the bear sits low and still reads in part as a
       squat. Ask the user for longer legs (`legFactor`). With a leg factor, the landmark of the
       standing shoulders shrinks the whole body, so keep the size first

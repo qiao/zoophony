@@ -1,0 +1,11 @@
+Folded faces of the studio body of the pianist (3123 faces), play step 0.25 s.
+Demos: bach-bwv1047.mid, bach-bwv1048.mid, bach-bwv1050.mid, boulanger-matin.mid
+
+| Set | Samples | With a fold | Share | Most faces (by the side of the main bone) | Worst sample |
+|---|---:|---:|---:|---:|---|
+| rest | 4 | 3 | 75.0% | 1 (L 1 / R 0 / other 0) | bach-bwv1048.mid rest |
+| play | 4812 | 1757 | 36.5% | 10 (L 1 / R 0 / other 9) | bach-bwv1050.mid 20.05 s |
+| lift | 124 | 71 | 57.3% | 7 (L 0 / R 0 / other 7) | bach-bwv1047.mid wall 1.7 s |
+| all | 4940 | 1831 | 37.1% | 10 (L 1 / R 0 / other 9) | bach-bwv1050.mid 20.05 s |
+
+Folded faces of all samples by the main studio bone: head 1412,  1095, upper_arm_L 830, chest 538, neck 464
