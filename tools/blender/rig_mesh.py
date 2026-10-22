@@ -1072,11 +1072,12 @@ def cut_loop(tris, removed):
     return loop
 
 
-def open_loop(verts, tris, sign, top):
-    """Gives the loop of the open edges of one side below the height `top`, in the order of
-    `cut_loop()`: each loop edge runs against its face. An open edge has one face. A flap face
-    with an edge of three faces, as face 612 of the rabbit source beside the hole, has two open
-    edges of its own, and these are no part of the loop."""
+def open_loop(verts, tris, sign, top, low=-math.inf):
+    """Gives the loop of the open edges of one side between the heights `low` and `top`, in the
+    order of `cut_loop()`: each loop edge runs against its face. An open edge has one face. A flap
+    face with an edge of three faces, as face 612 of the rabbit source beside the hole, has two
+    open edges of its own, and these are no part of the loop. The height `low` keeps the open
+    edges of other parts out of the loop, such as the open edges of the rhino tail."""
     faces = {}
     for k, t in enumerate(tris):
         for i in range(3):
@@ -1094,7 +1095,8 @@ def open_loop(verts, tris, sign, top):
             continue
         a, b, _ = edge[0]
         if (verts[a, 0] * sign > 0 and verts[b, 0] * sign > 0
-                and max(verts[a, 1], verts[b, 1]) < top):
+                and max(verts[a, 1], verts[b, 1]) < top
+                and min(verts[a, 1], verts[b, 1]) > low):
             if b in after:
                 raise SystemExit('The open loop of the cut has a vertex with two loop edges.')
             after[b] = a
@@ -1169,7 +1171,10 @@ def cut_seam(verts, tris, uvs, rules, heads, ends, rule):
             log(f'cut {side}: {len(fins)} fins go {fins}')
         # A copy of the mesh that removed these faces itself and closed the arm, as the remodel
         # of the rabbit elbows, leaves only the hole of the trunk open (`open_loop()`).
-        loop = cut_loop(tris, mixed) if mixed else open_loop(verts, tris, sign, rule['top'])
+        # The height `low` of the cut keeps the open edges of other parts below the hole out of
+        # the loop.
+        loop = (cut_loop(tris, mixed) if mixed
+                else open_loop(verts, tris, sign, rule['top'], rule.get('low', -math.inf)))
         start = next(k for k in range(len(loop)) if arm[loop[k]] and not arm[loop[k - 1]])
         loop = loop[start:] + loop[:start]
         count = int(arm[loop].sum())
