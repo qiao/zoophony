@@ -42,3 +42,35 @@ start of the lift in 42 samples. The rest shape now fades from 20° to 40° and 
 
 From the right side at the frog, a dark band shows under the right upper arm
 (`rabbit-armpit-frog-3x.webp`). The rest views do not change much.
+
+## 4. Round arm-form-4: the dark band
+
+The manager found the dark band under the right upper arm at the frog, from the right side, a
+fail of the four views. The outputs are in
+[`2026-10-21-arm-form/round4/`](2026-10-21-arm-form/round4/), and `band-measures.txt` gives the
+tables.
+
+**Cause.** The band is no cast shadow. With no shadows on the players, the band pixels are 740 on
+`main` and 5,839 in round 3 (`no-shadows-frog-right.webp`). The fades of `main` give 5,826, so the
+weight of the rest shape in the play is not the cause. The cap normals and the smooth normals are
+not the cause: with `cut.skinNormals` false the count stays 5,826. The cause is one face of the
+cap at the top of the right cut, between vertices 1003, 1020, and 975. The move of vertex 975 at
+the front top of the arm run turns that face down under the raised arm. In the play, the area
+near the right arm that faces the right side with a shading normal down is 15.0% (9.9% on `main`,
+8.7% on the red fox), and that face alone is 53 cm² of it (`shade-probe.ts`).
+
+**Fix.** Vertex 975 keeps its place too, and the factor of the right arm is 0.3, so the section is
+0.74. The rest shape then relaxed the cap at the elbow, and `pnpm arm-check` gave a stretch p95 of
+0.24 (0.06 on `main`). It now relaxes the faces below the cosine 0.3 (0.5 before), which gives
+0.07. The band pixels are 2,625 with no shadows and 7,428 with shadows (8,246 on `main`), and the
+area that faces down is 11.4%.
+
+| Measure (play p50, R) | fox | `main` | round 3 | round 4 |
+|---|---:|---:|---:|---:|
+| Section | 0.93 | 0.60 | 0.78 | 0.74 |
+| Crease share | 7.3% | 6.5% | 7.4% | 6.3% |
+| Folds, rest / play / lift | 100% / 5.0% / 21.0% | 0% / 0% / 5.8% | 0% / 0% / 5.8% | 0% / 0% / 5.8% |
+
+The lift fold of face 224 is gone: only the two faces of the left wrist fold in the lift.
+`pnpm arm-check --all --base 78f2df0d` gives no `FAIL`, and `pnpm body-probe --base 78f2df0d`
+changes only the rabbit bodies and the rabbit violinist.
