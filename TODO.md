@@ -456,9 +456,9 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
 - [x] Polar bear mesh: the user gave a polar bear mesh for the pianist on 2026-10-22. It sits at
       the piano at the skull top of the studio polar bear, with arms 1.25 times the mesh
       (`2026-10-22-mesh-polar-bear.md`).
-- [ ] Polar bear arms: the arms of the mesh reach the keys in front of its round belly only with
-      a lean of 35°, so the rig makes them 1.25 times as long. Ask the user if the polar bear keeps
-      these arms, or takes a larger size (`2026-10-22-mesh-polar-bear.md`).
+- [x] Polar bear arms: the arms of the mesh reach the keys in front of its round belly only with
+      a lean of 35°, so the rig makes them 1.25 times as long. The user chose to keep these arms
+      (`2026-10-22-mesh-polar-bear.md`).
 - [ ] Polar bear folds: faces of the head, the neck, the right forearm, and the cut of the
       shoulders fold in 52% of the play samples (9.6% on the studio polar bear). The arm gate
       passes. Fit the head line and a shape of the right forearm (`fold.txt` of
@@ -474,10 +474,11 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       `docs/research/2026-10-22-mesh-polar-bear/`). Round it in a copy of the mesh.
 - [x] Bear armpit: the user wrote "the bear has deformed meshes under the arm". The free arm
       takes the back strip of each arm root (`2026-10-22-bear-armpit.md`).
-- [ ] Bear arm gate: with the back strip on the arm, the rest arm hangs 2.2 cm to 2.5 cm further
+- [x] Bear arm gate: with the back strip on the arm, the rest arm hangs 2.2 cm to 2.5 cm further
       out (`radiusOf()` of `pose/hang.ts`), and the move twist max of the right paw grows from 73°
       to 79° (limit 176°, margin 3°), a `FAIL` of `pnpm arm-check conductor --base 5593e92b`.
-      Accept the new base, or let the hang read the upper arm below its root.
+      The manager accepted the new base; the round of the bear rest pose reworks the hang
+      (`2026-10-22-mesh-bear.md`).
 - [ ] Bear notch: trunk faces of the notch below the caps of the cut still face down under each
       raised arm, 19 cm² and 23 cm² against 5 cm² on the red fox (`flap-round.txt` of
       `docs/research/2026-10-22-bear-armpit/`). No view shows them.
