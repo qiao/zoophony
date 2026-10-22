@@ -1,0 +1,31 @@
+
+> zoophony@0.0.0 pose-depth /Users/xueqiaoxu/proj/zoophony/.claude/worktrees/polar-legs
+> node tools/pose-depth.ts pianist --targets --json scratch/out/targets.json
+
+Sweep of the pianist: 4 demos with the role (bach-bwv1047, bach-bwv1048, bach-bwv1050, boulanger-matin), 1 row to sweep.
+Estimated time: about 4 s: 1 row of 3.8 s, from the last rows of this sweep, with a time for 4 of 4 demos.
+base (3.0 s):
+  bach-bwv1047 pianist 18 (polar-bear)
+    target L: 0.00 mm at song 179.02 s
+    target R: 0.00 mm at song 0.52 s
+    targets: 100.0% of 625 within 5 mm, worst 0.00 mm
+  bach-bwv1048 pianist 20 (polar-bear)
+    target L: 0.00 mm at song 33.31 s
+    target R: 0.00 mm at song 33.31 s
+    targets: 100.0% of 1023 within 5 mm, worst 0.00 mm
+  bach-bwv1050 pianist 16 (polar-bear)
+    target L: 10.42 mm at song 273.27 s
+    target R: 0.00 mm at song 291.02 s
+    targets: 99.8% of 2086 within 5 mm, worst 10.42 mm
+  boulanger-matin pianist 17 (polar-bear)
+    target L: 9.94 mm at song 106.49 s
+    target R: 0.00 mm at song 0.03 s
+    targets: 99.0% of 197 within 5 mm, worst 9.94 mm
+| variant | target L mm | targets within 5 mm % |
+|---|---|---|
+| base | 10.4 | 99.8 |
+
+The demo and the time of the sample of each value of the table:
+| variant | target L mm |
+|---|---|
+| base | bach-bwv1050 273.27 s |

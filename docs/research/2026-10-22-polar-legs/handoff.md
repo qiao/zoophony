@@ -6,9 +6,9 @@ with the size kept. Start commit `2da5c8ec`. Worktree `.claude/worktrees/polar-l
 
 ## State
 
-- Last finished step: the rig of 1.6, the hold of lean 28°, the gates, the images, the docs, and
-  the report. No hold passes the whole arm gate, so the round stops by the rule of the brief.
-- Next step: the choice of the manager (`TODO.md`, "Polar bear arm gate").
+- Last finished step: the hold g4 of the manager, its accepted limits, the gates, the full image
+  set, and the report.
+- Next step: the review of the manager.
 
 ## Facts
 
