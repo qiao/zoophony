@@ -93,7 +93,7 @@ the file loads (the default demo: right after the first frame)
 main thread: parse the file -> Score -> list of presets
    │ fetch each preset file that the synth does not have: sf/<bank>/<program>.sf3
    v
-Web Worker: spessasynth_core converts each SF3 file to a PCM SF2 (no cache)
+Web Workers (1 to 4): spessasynth_core converts each SF3 file to a PCM SF2 (no cache)
    │ transfer the PCM buffers (transferable objects, no copy)
    v
 AudioWorklet: add the new banks (each add resets the synth) ── kept for the session
@@ -102,18 +102,26 @@ AudioWorklet: add the new banks (each add resets the synth) ── kept for the 
 play is enabled
 ```
 
-- The Worker works while the `AudioContext` is still suspended, so the default demo is ready
+- The Workers work while the `AudioContext` is still suspended, so the default demo is ready
   before the first click.
-- The synth keeps each bank for the session, and the Worker keeps no copy. The `Player` asks the
-  Worker only for the presets that the synth does not have, so each preset is in memory one time.
+- The synth keeps each bank for the session, and the Workers keep no copy. The `Player` asks the
+  Workers only for the presets that the synth does not have, so each preset is in memory one time.
   After a failure, the new engine loads all presets of the next score again (6.8).
 - A load that a later load replaces sends no banks to the synth. The shared presets then decode
   two times. The result is correct, and only the load time increases.
 - The synth removes no bank during a session. The memory target of 9.7 is for each demo.
 - Each bank add resets the synth, so all banks load before play starts (2.4).
-- The first load also fetches the hall impulse response and decodes it on the main thread, with
-  `sf/index.json` and the worklet module (6.8).
-- Cost: core loads two times (in the Worker and in the worklet), after the first frame. The PCM
+- The first load starts the decode Workers, the fetch of `sf/index.json`, the worklet module, and
+  the hall impulse response at the same time. The Workers get the preset files when the index
+  arrives, so the decode does not wait for the worklet and the hall. The banks go to the synth
+  when the worklet and the hall are ready (`#makeEngine()` of `audio/player.ts`). The hall decodes
+  on the main thread (6.8).
+- The engine has one decode Worker for each logical processor after the first, at most four
+  (`decodeWorkerCount()`). `splitDecodes()` gives each preset file, the largest first, to the
+  Worker with the fewest bytes, and the synth gets the banks in the order of the files. A single
+  Worker made the decode of the default demo set its ready time on a fast link
+  ([`2026-10-21-load-performance.md`](../research/2026-10-21-load-performance.md)).
+- Cost: core loads in each decode Worker and in the worklet, after the first frame. The PCM
   data uses 6 to 7 times more memory than the SF3 data.
 
 ## 6.4 Block scheduler
@@ -331,9 +339,10 @@ interface ClockAnchor {
   command before this task acts on the old score, and a command after it acts on the new score,
   also before `load()` resolves. The app plays only after the load resolves.
 - These failures end the engine: a failed start (the fetch of `sf/index.json` or `addModule()`),
-  an `error` or `messageerror` event of the Worker, a `processorerror` event, and an `error`
-  message of the processor (6.4). The `Player` disconnects the node, ends the Worker, and stops
-  the clock at its song time. Commands do nothing until the next load.
+  an `error` or `messageerror` event of a Worker, a `processorerror` event, and an `error`
+  message of the processor (6.4). The `Player` disconnects the node, ends the Workers, and stops
+  the clock at its song time. Commands do nothing until the next load. A Worker that fails before
+  the engine is live fails the start.
 - The next `load()` after a failure starts a new engine, so the "Try again" button of 2.8 can
   succeed. A pending load rejects with the error. If no load is pending, the `WorkletPlayer`
   gives the error to the `onError` function of its constructor:
@@ -344,8 +353,9 @@ interface ClockAnchor {
   (2.2). The earlier promise rejects at once with a `LoadReplacedError`, which the app ignores,
   and the earlier load sends nothing more.
 - The progress of a load (`LoadProgress` in `audio/player.ts`) counts the preset files that are
-  ready and the bytes that arrived, for the presets that the synth does not have. The decode
-  Worker reads each file in chunks (`readWithProgress()` in `audio/read-progress.ts`).
+  ready and the bytes that arrived, for the presets that the synth does not have, on all decode
+  Workers. Each Worker reads each file in chunks (`readWithProgress()` in
+  `audio/read-progress.ts`).
 - The processor answers each `banks` message with one `ready` message, in order. Thus a load
   resolves only after its own banks are in the synth.
 
