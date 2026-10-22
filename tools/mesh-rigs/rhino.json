@@ -1,5 +1,6 @@
 {
-  "source": "assets/models/rhino/rhino.glb",
+  "source": "assets/models/rhino/rhino-arms.glb",
+  "sourceNote": "The mesh of the user with one local edit (assets/models/rhino/README.md, SHA-256 113b9ec65055a87b466d296fc53c5343bd7c130d7101c37dbc787a2b11b94a9d). The user said on 2026-10-22: \"the panda and rhino's arms also got deformed\". Each thick arm joins the trunk from the paw up to the shoulder, so the cut closed the inner side of each arm with one flat cap of 22 and 23 faces, which showed as a flat dark sheet when the forearm turned to the tuba. The copy removes the 48 and 49 faces that join each arm to the trunk below cut.top, and closes each arm with a round patch of 20 and 19 new vertices (docs/research/2026-10-22-rhino-arm/rhino_arms.py, docs/research/2026-10-22-rhino-arm.md). The hole of the trunk stays open, and the cut closes it.",
   "output": "assets/models/rhino/rhino.rig.glb",
   "name": "Rhino",
   "weld": 1e-05,
@@ -284,6 +285,54 @@
   },
   "weights": {
     "armSplit": 0.143,
+    "armIslands": true,
+    "armIslandsNote": "The round patch of the inner side of each arm of rhino-arms.glb lies inside the turned plane of armFree, and only free arm vertices surround it. It follows the arm as the free arm does (arm_islands() of tools/blender/rig_mesh.py), as for the rabbit.",
+    "armBelow": [
+      0.4,
+      0.5
+    ],
+    "armBelowNote": "Inside the plane of the split, the share of the arm weight that a vertex of the trunk keeps grows from 0 at the lower height to 1 at the upper height (source units). The cut frees the arm below 0.56, but bone heat gave the side of the trunk beside the forearm 0.14 to 0.21 of upper arm weight, and the arm forward at the tuba dragged it into dark slits. With the rule, the left crease share of pnpm arm-look falls from 15.7% to 13.9%. The ranges [0.45, 0.55] and [0.5, 0.56] gave 16.2% and 16.4% (docs/research/2026-10-22-rhino-arm.md).",
+    "rigid": [
+      [
+        [
+          0.1841,
+          0.3618,
+          -0.0486
+        ]
+      ],
+      [
+        [
+          -0.1839,
+          0.3575,
+          -0.0433
+        ],
+        [
+          -0.1716,
+          0.3473,
+          -0.0207
+        ],
+        [
+          -0.1712,
+          0.3371,
+          -0.0179
+        ]
+      ],
+      [
+        [
+          -0.1966,
+          0.5521,
+          -0.1253
+        ]
+      ],
+      [
+        [
+          0.1965,
+          0.5517,
+          -0.1254
+        ]
+      ]
+    ],
+    "rigidNote": "Each item takes the faces nearest to its points, and their corners take the mean of their weights (rigid_faces() of tools/blender/rig_mesh.py). The first two items are thin faces of the inner forearm near the wrist, where the forearm, its twist bone, and the hand share the weight: the left face turned over in each sample and showed as a black facet under the forearm at az-150, and the right wrist folded three faces. The last two items are the long thin faces at the back of each arm root above the cut, which turned over in each sample (faces 38 and 2413 of the base). The middles come from pnpm fold-probe tubist --faces (docs/research/2026-10-22-rhino-arm.md).",
     "armFree": {
       "turn": 17,
       "radius": 0.085,
@@ -339,6 +388,8 @@
   },
   "cut": {
     "top": 0.56,
+    "low": 0.18,
+    "lowNote": "The copy rhino-arms.glb closes the arms, so the cut closes only the open hole of the trunk on each side (open_loop()). The hole reaches down to y 0.189, and the open edges of the tail lie below y 0.18, so the height low keeps them out of the loop.",
     "skinNormals": true,
     "skinNormalsNote": "The caps of the arm take the normals of the skin around them in the app, as for the hippo (docs/research/2026-10-19-cut-caps.md).",
     "note": "The thick arm joins the side of the trunk along a seam from the paw up to the shoulder. Below the height top, 0.015 u below the shoulder joint, the faces with a corner in the free arm (armFree) and a corner in the body go, and new faces close the arm and the trunk, as for the hippo (docs/research/2026-10-18-panda-cut.md). With no cut, the seam faces stretched into dark spikes beside the belly when the arms moved forward to the tuba (lineup0.webp)."
