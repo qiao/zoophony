@@ -171,6 +171,12 @@ export interface AnimalSettings {
    * eye sits at the old eye.
    */
   readonly eyeShift?: readonly [out: number, up: number];
+  /**
+   * The factor of the size of each pea eye. A pea eye is a share of the head height that shows
+   * (`EYE` of `models/eyes.ts`), so a large head, such as the head of the elephant with its ears,
+   * gets large eyes. With no value, the factor is 1.
+   */
+  readonly eyeSize?: number;
 }
 
 /**
@@ -2424,6 +2430,7 @@ export function studioBody(bytes: Uint8Array, source: string, settings: AnimalSe
   // (`eyeBend()`), so that the rim lies at the fur. Then it moves out along its direction until
   // its front face shows (`eyePush()`).
   const eyeHeight = (shown.max.y - shown.min.y) * scale;
+  const eyeSize = eyeHeight * (settings.eyeSize ?? 1);
   const middle = toBind(shown.getCenter(new Vector3()));
   const eyeAt = (side: Side) => {
     const old = eyeCenter(side);
@@ -2465,8 +2472,8 @@ export function studioBody(bytes: Uint8Array, source: string, settings: AnimalSe
     // A bent eye has its middle on the head surface, so that its rim lies at the fur and the
     // facets of the head between the corners of the oval cover little of its front.
     const eye = { point: model(point), normal: facing };
-    const bend = eyeBend(near, model(point), facing, eyeHeight);
-    const push = eyePush(near, eye, eyeHeight, bend);
+    const bend = eyeBend(near, model(point), facing, eyeSize);
+    const push = eyePush(near, eye, eyeSize, bend);
     const moved = new Vector3(...eye.point).addScaledVector(new Vector3(...facing), push);
     const shift = moved.distanceTo(new Vector3(...model(old))) / eyeHeight;
     const head: Vec3 = [round(moved.x), round(moved.y), round(moved.z)];
@@ -2477,7 +2484,7 @@ export function studioBody(bytes: Uint8Array, source: string, settings: AnimalSe
   heads['eye_L'] = eyeL.head;
   heads['eye_R'] = eyeR.head;
   const peaEyes: StudioEyes = {
-    headHeight: round(eyeHeight),
+    headHeight: round(eyeSize),
     directions: { L: eyeL.facing, R: eyeR.facing },
     bends: { L: eyeL.bend, R: eyeR.bend },
   };
