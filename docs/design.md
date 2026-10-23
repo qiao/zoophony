@@ -297,3 +297,4 @@ The decision files:
 - [`2026-10-22-dq-bind.md`](decisions/2026-10-22-dq-bind.md): the dual quaternion bind of the arm roots (`bind.blend`), which does not shrink the rabbit dent and ships on no species.
 - [`2026-10-22-elephant-crease.md`](decisions/2026-10-22-elephant-crease.md): the elephant elbows near the body at the timpani.
 - [`2026-10-23-elephant-apose.md`](decisions/2026-10-23-elephant-apose.md): the elephant mesh in an A-pose with its own faces and no cut or split, its size, the line rule, the shapes of the raised arms, the open shards of the long arm faces, and the smaller eyes.
+- [`2026-10-23-rhino-apose.md`](decisions/2026-10-23-rhino-apose.md): the rhino mesh in an A-pose with its own faces and no copy, cut, or split, its size and arms, the line rule, the new accepted grip of the tubist, and its depths.

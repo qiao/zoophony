@@ -546,19 +546,10 @@ twist bone (`docs/decisions/2026-10-19-arm-skin.md`).
     the inner arm fills the dark pocket between the arm and the trunk at rest. Bone heat gives a
     free arm of a cut only arm weights, so the inner root of the bow arm swings into the chest.
     The inner root gives a share of its weight to the chest (`weights.armRoot`).
-    The thick arm of the rhino
-    joins the trunk from the paw up to the shoulder, and its outer side bent at the elbow on a few
-    long faces, so the elbows read as flat slabs with sharp corners at full size from the stage.
-    Its rig reads a copy that keeps each paw and replaces the rest of the arm with a round tube
-    that starts at a ball around the shoulder joint (`rhino-shoulders.glb`). A turn of the upper
-    arm turns the ball around its middle, so the shoulder stays in its place in each pose. The
-    copy refills the trunk around each shoulder with a fine fair surface that blends into the ball
-    and slopes from it to the side of the trunk, so that no gap shows where the arm swings away.
-    The new faces take the smooth colors of the fur around them, because single copied UVs gave
-    patches. No face joins an arm to the trunk, so the rig has no cut.
-    Bone heat gave the inner side of each tube a part of the trunk weight, which pinned it to the
-    trunk, so each vertex of the tube keeps only its arm weights (`weights.armOwn`), and the trunk
-    keeps no upper arm weight up to the shoulder joint (`weights.armBelow`).
+    The rhino has a mesh in an A-pose since 2026-10-23, with the arms apart from the trunk below
+    the shoulders, so its rig keeps each face of the mesh with no copy, cut, or split (user:
+    "don't split the arm"). The copy with round tube arms of 2026-10-22 stays in its folder as a
+    record.
     `pnpm arm-look` measures the
     crease of the arm skin against the source and the section of the upper arm, with limits from the red fox
     (`docs/decisions/2026-10-21-arm-form.md`).
