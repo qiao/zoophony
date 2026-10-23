@@ -14,17 +14,18 @@ doc = "Sits on a bench at a grand piano, plays a melody and chords, strikes a bi
 
 # The bind pose: the legs bent for the seat, the arms forward between the keys (about 62 degrees)
 # and the rest on the knees (about 22 degrees). The mesh is built and bound in this pose, so the
-# seated clips stay near it. The thighs slope down 20 degrees: a short
-# leg with a low trunk needs it to put the feet on the floor and the trunk on a seat above it
-# (studio/props.py scene_layout). The clips lean the trunk forward 12 degrees, so the angle
-# between the trunk and the thighs is about 90 degrees. The knees turn out 14 degrees: with the
-# thighs side by side, the field leaves a slit between them, which the remesh gate stops.
+# seated clips stay near it. The thighs slope down 2 degrees and the shins stand near upright, as
+# a real pianist sits. With thighs 20 degrees down, the short thighs of the polar bear hid under
+# its round belly, and the bear read as almost standing at the piano in the app (user,
+# 2026-10-22, docs/decisions/2026-10-22-studio-bears.md of the repository). The knees turn out
+# 14 degrees: with the thighs side by side, the field leaves a slit between them, which the
+# remesh gate stops.
 [bind]
 shoulder_flex = 42.0
 shoulder_abduct = 8.0
 elbow_flex = 40.0
-hip_flex = 70.0
-knee_flex = 70.0
+hip_flex = 88.0
+knee_flex = 88.0
 hip_abduct = 14.0
 correctives = ["arm_down", "legs_straight"]
 
