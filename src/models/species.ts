@@ -352,7 +352,7 @@ export const SPECIES = {
   },
   /**
    * Elephant, the timpani: a gray elephant with large ears, a long trunk, and cream tusks. It has
-   * the studio body of the mesh of the user, `assets/models/elephant/elephant.glb`, which
+   * the studio body of the mesh of the user, `assets/models/elephant/elephant-apose.glb`, which
    * `pnpm rig-mesh elephant` rigs (design 4.4), with the size of the reference images and the arms
    * of the mesh (2026-10-19-mesh-elephant decisions). It stands at its timpani, as the elephant of
    * `orchestra-latest.png`. The trunk, the tusks, and the ears follow the head. Its head height is

@@ -307,7 +307,7 @@
     "line": {
       "angle": 170,
       "head": true,
-      "note": "The line rule of the fox, the cat, the dog, and the panda with the angle 150 gave the middle corner of each long thin face of the arms the mix of its far corners. The arm faces of this mesh run up to 0.22 u, from the shoulder to the paw, so 16 vertices took clavicle weight and paw weight together, and a few faces folded in each sample. The angle 170 takes only the corners on the line, and no vertex mixes them."
+      "note": "The line rule of the fox, the cat, the dog, and the panda with the angle 150 gave the middle corner of each long thin face of the arms the mix of its far corners. The arm faces of this mesh run up to 0.22 u, from the shoulder to the paw, so 5 vertices of the left arm took trunk weight and forearm or paw weight together, and a few faces folded in each sample. The angle 170 takes only the corners on the line, and no vertex mixes them."
     },
     "clavicleFrom": [
       0.565,
