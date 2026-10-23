@@ -18,6 +18,6 @@ and remove its row.
 | The bear keeps seed 2. The arm skin of seed 5 stretched 0.49 and of seed 6 0.42 in the arm gate (limit 0.35), seed 2 0.15. | 4.4 |
 | The bear fur takes the crease angle 70° (`crease` of `ANIMALS`). At 15°, 45°, 60°, and 70°, 70° shows no facet from the stage and in the close views. | 4.5 |
 | The fur colors of the bear blend at each vertex when they differ by at most 0.12 in each sRGB channel (`colorBlend`, `studioCornerColors()`). The muzzle, the brows, and the claws stay sharp. | 4.5 |
-| The baton lies along the index finger (`BATON_ALONG`). Its point and pivot keep the direction of the mesh bear hold at 0.93 of its meters (`CONDUCTOR_HOLD`): the hold in `H` turned the right paw 3,735° per second. | 4.6, 5.4 |
+| The baton lies along the index finger (`BATON_ALONG`). Its point and pivot keep the direction of the mesh bear hold at 0.93 of its meters, 0.3 H further out (`CONDUCTOR_HOLD`). The hold in `H` turned the right paw 3,735° per second, and with no move out, the claws went 7 cm into the turned muzzle. | 4.6, 5.4 |
 | The bow at the song end bends 32° again (`END_BOW`). | 5.4 |
-| The accepted grip of the conductor is the median of the new grip: -54° and -18° (`ACCEPTED_GRIPS`). | 9.3 |
+| The accepted grip of the conductor is the median of the new grip: -54° and -5° (`ACCEPTED_GRIPS`). | 9.3 |
