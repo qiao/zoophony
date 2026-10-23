@@ -277,8 +277,7 @@ is instant with reduced motion. Each text keeps the contrast 4.5:1 of WCAG AA ov
 - Messages: at the bottom center above the bar, with a bar in `--danger`. A message closes after
   6 s, with "Close the message", or with Escape, and it stays while it has the pointer or the
   focus (`followMessage()` in `app/messages.ts`). A new message replaces the old one. On the first
-  screen, a message stays clear of "Select a piece", the way out of a failure. A note has a bar in
-  `--accent` and a time of 3 s, and it never replaces a failure with "Try again" (`addNote()`).
+  screen, a message stays clear of "Select a piece", the way out of a failure.
 - Build cover: a new piece or a new section size stops the frames for a build, so the canvas fades
   out before it and in after the first render (`Ui.coverStage()`, `Ui.uncoverStage()`).
 - Page title: "{title}, {composer} · Zoophony" for a demo, and "{title} · Zoophony" for a file of

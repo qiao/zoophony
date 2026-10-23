@@ -1476,11 +1476,6 @@ body:has(.first-screen:not([hidden])):has(.drawer:not([hidden])) .messages {
   border-radius: var(--radius-panel);
 }
 
-/* A note, for example after a drag turns off the automatic camera, has an accent bar. */
-.message.is-note {
-  border-left-color: var(--accent);
-}
-
 /* The text wraps, and the buttons keep their width. */
 .message button {
   flex-shrink: 0;

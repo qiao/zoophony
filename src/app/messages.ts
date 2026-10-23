@@ -40,18 +40,8 @@ const FAILURE_TEXTS = {
   play: PLAY_FAILURE_TEXT,
 } as const satisfies Readonly<Record<Failure, string>>;
 
-/** The time for which a note shows, in seconds (design 2.8). */
-const NOTE_SEC = 3;
-
-/**
- * The kind of a message: `error` for a failure or a refused file, with a bar in `--danger`, and
- * `note` for a short information, with a bar in `--accent` (design 2.8).
- */
-type MessageKind = 'error' | 'note';
-
 /** A message at the bottom center of the page (design 2.8). */
 export interface Message {
-  readonly kind: MessageKind;
   readonly text: string;
   /** True if the message has the "Try again" button. */
   readonly retry: boolean;
@@ -68,7 +58,6 @@ export interface Message {
  */
 export function failureMessage(failure: Failure, nowSec: number): Message {
   return {
-    kind: 'error',
     text: FAILURE_TEXTS[failure],
     retry: true,
     closesAtSec: nowSec + MESSAGE_SEC,
@@ -83,31 +72,7 @@ export function failureMessage(failure: Failure, nowSec: number): Message {
  * @returns The message.
  */
 export function textMessage(text: string, nowSec: number): Message {
-  return { kind: 'error', text, retry: false, closesAtSec: nowSec + MESSAGE_SEC };
-}
-
-/**
- * Makes a note: a short information with no button, which closes after {@link NOTE_SEC} (design
- * 2.8, audit 2026-10-05-ux-design, CT2).
- *
- * @param text The text of the note.
- * @param nowSec The wall time, in seconds.
- * @returns The note.
- */
-export function noteMessage(text: string, nowSec: number): Message {
-  return { kind: 'note', text, retry: false, closesAtSec: nowSec + NOTE_SEC };
-}
-
-/**
- * Gives the message after a new note. A note replaces a note or a refused file, but it does not
- * replace a failure with "Try again", so that the user can still retry.
- *
- * @param current The message that shows, or `null`.
- * @param note The new note.
- * @returns The message to show.
- */
-export function addNote(current: Message | null, note: Message): Message {
-  return current?.retry ? current : note;
+  return { text, retry: false, closesAtSec: nowSec + MESSAGE_SEC };
 }
 
 /**
@@ -129,8 +94,7 @@ export function followMessage(
     return null;
   }
   if (held) {
-    const holdSec = message.kind === 'note' ? NOTE_SEC : MESSAGE_SEC;
-    const closesAtSec = Math.max(message.closesAtSec, nowSec + holdSec);
+    const closesAtSec = Math.max(message.closesAtSec, nowSec + MESSAGE_SEC);
     return closesAtSec === message.closesAtSec ? message : { ...message, closesAtSec };
   }
   return nowSec >= message.closesAtSec ? null : message;

@@ -25,19 +25,16 @@ describe('the message texts (design 2.8)', () => {
 describe('failureMessage (design 2.8, 6.8)', () => {
   it('gives each failure its text and the retry button', () => {
     expect(failureMessage('file', 10)).toEqual({
-      kind: 'error',
       text: FILE_FAILURE_TEXT,
       retry: true,
       closesAtSec: 16,
     });
     expect(failureMessage('load', 10)).toEqual({
-      kind: 'error',
       text: LOAD_FAILURE_TEXT,
       retry: true,
       closesAtSec: 16,
     });
     expect(failureMessage('play', 10)).toEqual({
-      kind: 'error',
       text: PLAY_FAILURE_TEXT,
       retry: true,
       closesAtSec: 16,
