@@ -39,17 +39,17 @@ rig_mesh: eye R: the 35 faces of the old eye take the color of 48% of the area o
 rig_mesh: corrective: the smallest determinant of the skin is 0.6657 at the vertex 891
 rig_mesh: corrective: the clip gives the source back within 3.55e-16 u (0.0000 mm)
 rig_mesh: raise arm_raise_R: the arm-down shape has the weight 0.809 in the pose, 2 faces turn over before and 0 after 12 rounds of relaxing, 10 vertices move (faces of the module before [325, 354], after [])
-rig_mesh: raise arm_raise_R2: the arm-down shape has the weight 0.602 in the pose, 3 faces turn over before and 0 after 2 rounds of relaxing, 6 vertices move (faces of the module before [172, 342, 349], after [])
-rig_mesh: raise arm_raise_L: the arm-down shape has the weight 1.000 in the pose, 3 faces turn over before and 0 after 4 rounds of relaxing, 10 vertices move (faces of the module before [1583, 1584, 1586], after [])
-rig_mesh: raise arm_raise_L2: the arm-down shape has the weight 0.443 in the pose, 1 faces turn over before and 0 after 3 rounds of relaxing, 7 vertices move (faces of the module before [1583], after [])
+rig_mesh: raise arm_raise_L: the arm-down shape has the weight 0.170 in the pose, 0 faces turn over before and 0 after 0 rounds of relaxing, 0 vertices move (faces of the module before [], after [])
+rig_mesh: raise arm_raise_L2: the arm-down shape has the weight 1.000 in the pose, 3 faces turn over before and 0 after 4 rounds of relaxing, 10 vertices move (faces of the module before [1583, 1584, 1586], after [])
+rig_mesh: raise arm_raise_L3: the arm-down shape has the weight 0.443 in the pose, 1 faces turn over before and 0 after 3 rounds of relaxing, 7 vertices move (faces of the module before [1583], after [])
 rig_mesh: shape arm_down_L: 135 vertices, largest move 0.0248 u
 rig_mesh: shape arm_down_R: 121 vertices, largest move 0.0109 u
 rig_mesh: shape legs_straight_L: 240 vertices, largest move 0.1699 u
 rig_mesh: shape legs_straight_R: 242 vertices, largest move 0.1704 u
 rig_mesh: shape arm_raise_R: 10 vertices, largest move 0.0453 u
-rig_mesh: shape arm_raise_R2: 6 vertices, largest move 0.0532 u
-rig_mesh: shape arm_raise_L: 10 vertices, largest move 0.0370 u
-rig_mesh: shape arm_raise_L2: 7 vertices, largest move 0.0287 u
+rig_mesh: shape arm_raise_L: 0 vertices, largest move 0.0000 u
+rig_mesh: shape arm_raise_L2: 10 vertices, largest move 0.0370 u
+rig_mesh: shape arm_raise_L3: 7 vertices, largest move 0.0287 u
 rig_mesh: chair: the tail goes 0.0827 u over the seat top at its lowest point over the seat
 rig_mesh: chair: front edge at z 0.06 u, the shins and the feet from z 0.1042 u
 rig_mesh: chair: seat top 0.2654 u, lowest point of the body 0.0810 u
@@ -57,5 +57,5 @@ rig_mesh: tail: the lowest point 0.1014 u above the soles, the farthest point ba
 rig_mesh: triangles: 3201 (78 gloss)
 rig_mesh: caps: 21 caps of the cut take the normals of the skin in the app
 rig_mesh: rim: 59 skin faces around the caps of the body take the normals of the skin in the app
-rig_mesh: wrote /Users/xueqiaoxu/proj/zoophony/.claude/worktrees/dog-seams/assets/models/dog/dog.rig.glb: 706836 bytes
-Wrote assets/models/dog/dog.rig.glb: 706836 B, sha256 5fb5055175cb4b2a6d83b7ad207e91ee0b7a2b3d370ec934d9fd56c8887018cb.
+rig_mesh: wrote /Users/xueqiaoxu/proj/zoophony/.claude/worktrees/dog-seams/assets/models/dog/dog.rig.glb: 706748 bytes
+Wrote assets/models/dog/dog.rig.glb: 706748 B, sha256 fe07da6514ab3a1322d7fb1a9f8f896299414e93547a6f751e26c4e1c081fc9d.
