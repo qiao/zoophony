@@ -18,7 +18,7 @@ export const TARGET_LOUDNESS = -16;
  */
 export const DEMO_LOUDNESS = {
   'boulanger-matin': -18.6,
-  'beethoven-9': -11.5,
+  'beethoven-9': -10.8,
   'mozart-k525': -29.1,
   'bach-bwv1048': -19.3,
   'beethoven-8': -21.3,
