@@ -174,6 +174,12 @@ group of your work before you plan it. A probe that a trap names is in its resea
   elbow, and a dome of one row of vertices shows facets. Close the arm with a round patch in a
   copy of the mesh (`rabbit_elbows.py` of `docs/research/2026-10-22-rabbit-elbow/`), and give
   the patch inside the split plane to the free arm (`weights.armIslands`).
+- After a cut, bone heat gives the free arm no trunk weight, so the inner root of a bow arm swings
+  into the chest, and `pnpm pose-depth` grows. Give the inner root a chest share
+  (`weights.armRoot`, at most about 0.25 on the dog). A shape of `raise` at the shoulder top that
+  moves vertices several cm can show as a pointed sheet, which no crop of `ROLE_VIEWS` shows. Look
+  at the zoomed strips of `close-views play --at` from each side
+  (`docs/research/2026-10-22-dog-seams.md`).
 - A thick arm can join the side of the trunk down to the paw, with a notch at its front and its
   back. Turn the plane of the free arm through both notches (`weights.armFree`, `arm_free.py` of
   `docs/research/2026-10-21-mesh-rhino/`), then cut the seam, else the seam stretches into spikes.
