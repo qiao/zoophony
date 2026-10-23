@@ -480,8 +480,8 @@ twist bone (`docs/decisions/2026-10-19-arm-skin.md`).
     trunk from the shoulder down to the paw, with a notch at its front and its back. A plane
     |x| = `armSplit` then cuts through the arm or the trunk, so the plane turns around the
     vertical through both notches, and the free arm keeps within a radius of the arm joints and
-    above a floor (`weights.armFree`). The cut of the seam then opens the arm from the trunk up to
-    just below the shoulder. The root of the bear arm reaches farther back than forward, so a
+    above a floor (`weights.armFree`). The rig then reads a copy in which a round tube replaces
+    the arm (upper arm form, below). The root of the bear arm reaches farther back than forward, so a
     radius around the joints left its back strip on the trunk, and a raised arm pulled that strip
     out as a dark flap. The chain of the joints moves back before the distance
     (`weights.armFree.shift`), so that the free arm takes the back strip and leaves the front edge
@@ -526,7 +526,16 @@ twist bone (`docs/decisions/2026-10-19-arm-skin.md`).
     copy and cut (`dog-arms.glb`). Its patch pushes to the round form from near its top, so that
     the inner arm fills the dark pocket between the arm and the trunk at rest. Bone heat gives a
     free arm of a cut only arm weights, so the inner root of the bow arm swings into the chest.
-    The inner root gives a share of its weight to the chest (`weights.armRoot`). `pnpm arm-look` measures the
+    The inner root gives a share of its weight to the chest (`weights.armRoot`).
+    The thick arm of the rhino
+    joins the trunk from the paw up to the shoulder, and its outer side bent at the elbow on a few
+    long faces, so the elbows read as flat slabs with sharp corners at full size from the stage.
+    Its rig reads a copy that keeps each paw, replaces the rest of the arm with a round tube of
+    rings up to a dome inside the shoulder, as for the pig, and fills the side of the trunk with a
+    fair surface (`rhino-tubes.glb`). No face joins a tube to the trunk, so the rig has no cut.
+    Bone heat gave the inner side of each tube a part of the trunk weight, which pinned it to the
+    trunk, so each vertex of the tube keeps only its arm weights (`weights.armOwn`).
+    `pnpm arm-look` measures the
     crease of the arm skin against the source and the section of the upper arm, with limits from the red fox
     (`docs/decisions/2026-10-21-arm-form.md`).
   - Face. Face rules recolor faces of the face after a choice of the user, with no move of a

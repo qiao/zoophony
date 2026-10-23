@@ -1,5 +1,6 @@
 {
-  "source": "assets/models/rhino/rhino.glb",
+  "source": "assets/models/rhino/rhino-tubes.glb",
+  "sourceNote": "The mesh of the user with a new arm on each side (assets/models/rhino/README.md, SHA-256 e9ef822cd6d1a3253f4cb17a2fb8da8dfd62094d6b6d74e5ee9b50e63eef3059). The user said on 2026-10-22: \"the rhino's left arm is now completed deformed\" and \"do not worry about triangle budget\". Each thick arm of the source joins the trunk from the paw up to the shoulder, and at full size from the stage the elbows read as flat slabs with sharp corners. The copy keeps the paw, replaces the rest of the arm with a round tube of 23 rings up to a dome inside the shoulder, and fills the side of the trunk (docs/research/2026-10-22-rhino-arm-2/rhino_tubes.py, docs/research/2026-10-22-rhino-arm-2.md). No face joins the arm to the trunk, so the rig has no cut.",
   "output": "assets/models/rhino/rhino.rig.glb",
   "name": "Rhino",
   "weld": 1e-05,
@@ -284,6 +285,15 @@
   },
   "weights": {
     "armSplit": 0.143,
+    "armIslands": true,
+    "armIslandsNote": "The inner side of each tube of rhino-tubes.glb and its dome lie inside the turned plane of armFree, and no face joins them to the trunk. They follow the arm as the free arm does (arm_islands() of tools/blender/rig_mesh.py).",
+    "armOwn": true,
+    "armOwnNote": "Bone heat gave the inner side of each tube and its dome up to 0.97 of trunk weight, which pinned them to the trunk while the arm turned. Each vertex of the free arm keeps only its arm weights. The folded faces of the worst sample of the tubist fall from 24 to 20, and the crease share of pnpm arm-look from 6.4% and 5.4% to 4.9% and 5.2% (docs/research/2026-10-22-rhino-arm-2.md).",
+    "armBelow": [
+      0.4,
+      0.5
+    ],
+    "armBelowNote": "Inside the plane of the split, the share of the arm weight that a vertex of the trunk keeps grows from 0 at the lower height to 1 at the upper height (source units). Without it, bone heat gives the belly beside the paw a part of the upper arm weight, and the standing body is 18.2 mm from the long-armed source (limit 1 mm). With it, 0.6 mm.",
     "armFree": {
       "turn": 17,
       "radius": 0.085,
@@ -336,12 +346,6 @@
       "note": "The part of the thigh weight that goes to the hips grows from 0 at the lower height to 1 at the upper height, so that the round haunch stays on the hips. It starts at the knee and ends at the thigh joint, as for the hippo."
     },
     "note": "Beyond the turned plane of armSplit (armFree), only the free arm follows the arm bones: the part that holds the finger tip has 154 vertices from y 0.249 to 0.619 (arm-free.txt). Above headFrom, each vertex follows the head only: the chin starts at y 0.69. Each tall ear follows its ear bone above earBase, from its root at y 0.92. The thin tail is a ball on one bone (tailBall): the vertices within radius of the center and behind the plane z = behind follow the tail. clavicleFrom, armTop, and shoulderHead are the rules of the hippo, moved with the shoulder joint (y 0.575) and the neck of the rhino."
-  },
-  "cut": {
-    "top": 0.56,
-    "skinNormals": true,
-    "skinNormalsNote": "The caps of the arm take the normals of the skin around them in the app, as for the hippo (docs/research/2026-10-19-cut-caps.md).",
-    "note": "The thick arm joins the side of the trunk along a seam from the paw up to the shoulder. Below the height top, 0.015 u below the shoulder joint, the faces with a corner in the free arm (armFree) and a corner in the body go, and new faces close the arm and the trunk, as for the hippo (docs/research/2026-10-18-panda-cut.md). With no cut, the seam faces stretched into dark spikes beside the belly when the arms moved forward to the tuba (lineup0.webp)."
   },
   "refine": {
     "rings": [],
