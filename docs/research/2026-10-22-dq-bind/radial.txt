@@ -1,0 +1,4 @@
+94: radius 11.91 -> 12.28 cm, move 0.50 cm
+73: radius 13.96 -> 14.66 cm, move 0.79 cm
+93: radius 12.04 -> 12.36 cm, move 0.39 cm
+77: radius 12.41 -> 12.82 cm, move 0.58 cm

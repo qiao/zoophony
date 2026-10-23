@@ -1,0 +1,29 @@
+Arm gate of 1 roles against d3046531 in 67 s. A cell gives the value, the base in parentheses, and the verdict of a value that does not pass.
+| Role | Arm | folds p95 (8) | twist p95 (55) | forearm twist p95 (80) | flat p5 (0.55) | paw twist p95 (170) | paw swing p95 (70) | paw jumps (0.5%) | stretch p95 (0.35) | grip turn p50 (45) | move twist max (176) | move turn max (3000) | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| violinist | L | 1 (1) | 12 (11) | 78 (78) | 0.63 (0.63) | 167 (167) | 35 (35) | 0.0% (0.0%) | 0.15 (0.15) | 4 (4) | 180 (180) OPEN | 17957 (17957) OPEN | OPEN |
+| violinist | R | 0 (0) | 30 (29) | 50 (50) | 0.57 (0.55) | 129 (129) | 51 (51) | 0.0% (0.0%) | 0.09 (0.09) | 16 (16) | 157 (157) | 198 (198) | PASS |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| violinist | L | folds p95 | lift | 434 | 0 | 1 | 5.8% | 2 at bach-bwv1047.mid wall 0.6 s | 1 | 8 | 1 | PASS |
+| violinist | L | twist p95 | rest | 14 | 12 | 12 | 100.0% | 12 at bach-bwv1047.mid rest | 12 | 55 | 11 | PASS |
+| violinist | L | forearm twist p95 | lift | 434 | 55 | 78 | 100.0% | 83 at beethoven-9.mid wall 0.6 s | 78 | 80 | 78 | PASS |
+| violinist | L | flat p5 | lift | 434 | 0.77 | 0.63 | 100.0% | 0.59 at beethoven-9.mid wall 0.6 s | 0.63 | 0.55 | 0.63 | PASS |
+| violinist | L | paw twist p95 | lift | 434 | 133 | 167 | 100.0% | 177 at bach-bwv1048.mid wall 0.6 s | 167 | 170 | 167 | PASS |
+| violinist | L | paw swing p95 | rest | 14 | 35 | 35 | 100.0% | 35 at bach-bwv1047.mid rest | 35 | 70 | 35 | PASS |
+| violinist | L | paw jumps | rest | 14 | 0 | 0 | 0.0% | 0 at bach-bwv1047.mid rest | 0.0% | 0.5% | 0.0% | PASS |
+| violinist | L | stretch p95 | play | 17788 | 0.15 | 0.15 | 100.0% | 0.15 at brahms-2.mid 608.63 s | 0.15 | 0.35 | 0.15 | PASS |
+| violinist | L | grip turn p50 | play | 17788 | 4 | 10 | 100.0% | 21 at brahms-2.mid 608.88 s | 4 | 45 | 4 | PASS |
+| violinist | L | move twist max | move | 16254 | 135 | 174 | 100.0% | 180 at mozart-k417.mid lower 67.73 s, wall 1.01 s | 180 | 176 | 180 | OPEN |
+| violinist | L | move turn max | move | 16254 | 20 | 137 | 87.3% | 17957 at bach-bwv1048.mid lower 327.30 s, wall 0.98 s | 17957 | 3000 | 17957 | OPEN |
+| violinist | R | folds p95 | rest | 14 | 0 | 0 | 0.0% | 0 at bach-bwv1047.mid rest | 0 | 8 | 0 | PASS |
+| violinist | R | twist p95 | play | 17788 | 23 | 30 | 100.0% | 35 at bach-bwv1050.mid 129.80 s | 30 | 55 | 29 | PASS |
+| violinist | R | forearm twist p95 | play | 17788 | 39 | 50 | 100.0% | 64 at boulanger-matin.mid 280.63 s | 50 | 80 | 50 | PASS |
+| violinist | R | flat p5 | lift | 434 | 0.72 | 0.57 | 100.0% | 0.56 at mozart-k191.mid wall 0.5 s | 0.57 | 0.55 | 0.55 | PASS |
+| violinist | R | paw twist p95 | play | 17788 | 101 | 129 | 100.0% | 157 at boulanger-matin.mid 280.63 s | 129 | 170 | 129 | PASS |
+| violinist | R | paw swing p95 | lift | 434 | 46 | 51 | 100.0% | 52 at mozart-k417.mid wall 2.9 s | 51 | 70 | 51 | PASS |
+| violinist | R | paw jumps | play | 17788 | 0 | 0 | 0.0% | 100 at boulanger-matin.mid 226.13 s | 0.0% | 0.5% | 0.0% | PASS |
+| violinist | R | stretch p95 | lift | 434 | 0.08 | 0.09 | 96.8% | 0.09 at mozart-k191.mid wall 2.4 s | 0.09 | 0.35 | 0.09 | PASS |
+| violinist | R | grip turn p50 | play | 17788 | 16 | 43 | 100.0% | 71 at boulanger-matin.mid 280.63 s | 16 | 45 | 16 | PASS |
+| violinist | R | move twist max | move | 16254 | 91 | 117 | 100.0% | 157 at boulanger-matin.mid lower 280.67 s, wall 0.17 s | 157 | 176 | 157 | PASS |
+| violinist | R | move turn max | move | 16254 | 11 | 67 | 88.9% | 198 at bach-bwv1047.mid lift 0.00 s, wall 0.80 s | 198 | 3000 | 198 | PASS |

@@ -1,0 +1,21 @@
+# pnpm rig-mesh rabbit --check --set <variant> --keep <dir> (rows of the rig table, raise lines, standing line)
+# v1: bind_skin() with dual_skin() on all vertices (code before 89b7c72b, scratch log rabbit-dq-rig.txt)
+| Variant | Triangles | Mesh gzip B | Scale m/u | Seat m | Leg seat m | Chair m | Reach L m | Reach R m | Standing mm | violinist play | violinist lift | violinist rest | violinist bones | Shapes: faces left turned |
+| base | 3165 | 19238 | 1.4678 | 0.227 | 0.227 | 0.285 | 0.506 | 0.506 | 0.312 | 0.0% | 5.8% | 0.0% | forearm_twist_L 25, hand_L 5 | arm_raise_R: none / arm_raise_R2: none |
+| bind={"blend":"dq"} | 3165 | 19200 | 1.4678 | 0.197 | 0.197 | 0.285 | 0.506 | 0.506 | 2.247 | 62.0% | 11.3% | 0.0% | spine1 50823, forearm_twist_L 28, forearm_L 8 | arm_raise_R: none / arm_raise_R2: 114, 115, 116, 281, 342, 346 FAIL |
+| Variant | Player | Seat m | Visible head m | Standing head top m | Seated head top m | Footprint m |
+# v2: dual_skin() on each vertex with an arm or clavicle weight
+| bind={"blend":"dq"} | 3165 | 19243 | 1.4678 | 0.227 | 0.227 | 0.285 | 0.506 | 0.506 | 2.304 | 62.2% | 11.3% | 0.0% | spine1 50963, forearm_twist_L 28, forearm_L 8 | arm_raise_R: none / arm_raise_R2: 114, 115, 116, 281, 342, 346 FAIL |
+Worst standing vertex: 301, 2.304 mm, bones spine1 0.650, clavicle_L 0.089, upper_arm_L 0.037.
+# v2 with raise.1.below 0.3 / 0.1 / 0
+| bind={"blend":"dq"};raise.1.below=0.3 | 3165 | 19180 | 1.4678 | 0.227 | 0.227 | 0.285 | 0.506 | 0.506 | 2.304 | 0.0% | 8.3% | 0.0% | forearm_twist_L 28, forearm_L 8 | arm_raise_R: none / arm_raise_R2: none |
+| bind={"blend":"dq"};raise.1.below=0.1 | 3165 | 19180 | 1.4678 | 0.227 | 0.227 | 0.285 | 0.506 | 0.506 | 2.304 | 0.0% | 8.3% | 0.0% | forearm_twist_L 28, forearm_L 8 | arm_raise_R: none / arm_raise_R2: none |
+| bind={"blend":"dq"};raise.1.below=0 | 3165 | 19180 | 1.4678 | 0.227 | 0.227 | 0.285 | 0.506 | 0.506 | 2.304 | 0.0% | 8.3% | 0.0% | forearm_twist_L 28, forearm_L 8 | arm_raise_R: none / arm_raise_R2: none |
+# v3 (89b7c72b): dual_skin() at the arm roots only (no lower arm weight), raise.1.below=0.3; v4 with ramp [0.05,0.2]; v5 with ramp [0.1,0.3]
+| bind={"blend":"dq"};raise.1.below=0.3 | 3165 | 19227 | 1.4678 | 0.227 | 0.227 | 0.285 | 0.506 | 0.506 | 2.304 | 0.0% | 5.8% | 0.0% | forearm_twist_L 25, hand_L 5 | arm_raise_R: none / arm_raise_R2: none |
+| bind={"blend":"dq","ramp":[0.05,0.2]};raise.1.below=0.3 | 3165 | 19281 | 1.4678 | 0.227 | 0.227 | 0.285 | 0.506 | 0.506 | 2.304 | 0.0% | 25.1% | 100.0% | spine1 562, forearm_twist_L 25, hand_L 5 | arm_raise_R: 114, 115, 116, 281, 342, 346 FAIL / arm_raise_R2: none |
+| bind={"blend":"dq","ramp":[0.1,0.3]};raise.1.below=0.3 | 3165 | 19234 | 1.4678 | 0.227 | 0.227 | 0.285 | 0.506 | 0.506 | 0.312 | 0.0% | 5.8% | 0.0% | forearm_twist_L 25, hand_L 5 | arm_raise_R: none / arm_raise_R2: none |
+Standing body against the long-armed source: 0.312 mm at most (limit 1.000 mm), 0.312 mm back, 1597 vertices, 0 eye vertices left out.
+Standing body against the long-armed source: 2.304 mm at most (limit 1.000 mm), 2.304 mm back, 1597 vertices, 0 eye vertices left out. ABOVE THE LIMIT.
+Standing body against the long-armed source: 2.304 mm at most (limit 1.000 mm), 2.304 mm back, 1597 vertices, 0 eye vertices left out. ABOVE THE LIMIT.
+Standing body against the long-armed source: 0.312 mm at most (limit 1.000 mm), 0.312 mm back, 1597 vertices, 0 eye vertices left out.
