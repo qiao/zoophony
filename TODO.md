@@ -1129,14 +1129,24 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
             rhino's arm is still deeformed"). At full size from the stage, the elbows read as flat
             slabs with sharp corners. The rig reads a copy with a round tube for each arm and a
             fair fill of the trunk (`rhino-tubes.glb`, `2026-10-22-rhino-arm-2.md`).
-      - [ ] Rhino right arm: a thin dark line shows where the tube meets the trunk from az150 at
-            e20 (`arm-right-3x-e20.webp` of `2026-10-22-rhino-arm-2/`).
-      - [ ] Rhino tubes: the dome and the inner side of each tube lie inside the trunk, so the
-            sweep gives the upper arms of the tubist 12.6 cm in the body. Give the sweep an
-            accepted depth after the test pause.
-      - [ ] Rhino trunk fill: the fill under each shoulder faces down, and `flap.ts` gives a down
-            area of 582 and 654 cm² (114 and 211 on `afff590f`). The dragged down area of the left
-            side grows from 67 to 167 cm². No view shows a flap. Check it with the user.
+      - [x] Rhino shoulders (user, 2026-10-22: "the rhino's arm is deformed again"). Dark gashes
+            beside each arm root, no shoulder, and color patches on the trunk fill. Each arm
+            starts at a ball around the shoulder joint, in a fine fill of the trunk with smooth
+            colors (`rhino-shoulders.glb`, `2026-10-22-rhino-arm-3.md`).
+      - [x] Rhino right arm: a thin dark line shows where the tube meets the trunk from az150 at
+            e20. The round shoulder of `rhino-arm-3` removes it (`root3x-az150-e20.webp`).
+      - [ ] Rhino arms: the ball and the inner side of each tube lie inside the trunk, so the
+            sweep gives the upper arms of the tubist 16.5 cm in the body at rest. Give the sweep
+            an accepted depth after the test pause.
+      - [ ] Rhino trunk fill: `rhino-arm-3` replaced the fill under each shoulder, and no probe
+            measured its down area again (`flap.ts` of `2026-10-22-rhino-arm-2/`: 582 and 654 cm²
+            on the old fill). No view shows a flap.
+      - [ ] Rhino right shoulder: from az90 it shows only as a soft bulge above the arm, because
+            the source trunk rises 4.3 cm above the ball (`root3x-az90-e20.webp` of
+            `2026-10-22-rhino-arm-3/`). A larger ball widens the footprint.
+      - [ ] Rhino footprint: the shoulders widen it 2.1 cm, and the conductor pose of
+            boulanger-matin changes from 257.38 s (`body-probe.txt` of `2026-10-22-rhino-arm-3/`).
+            Check that the cue of the conductor still aims at the tuba.
       - [ ] Rhino tubes: `pnpm frame` gives a GPU p50 of 6.45 ms (5.75 ms on the tip of
             2026-10-21). Compare with the base (`pnpm frame-compare afff590f <tip>`).
       - [ ] Body probe of the panda round: 18 pose sets of other players change at the start of
