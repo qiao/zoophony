@@ -9,10 +9,10 @@ describe('startTier', () => {
     expect(startTier(false, 600, 600)).toBe('high');
   });
 
-  it('starts a coarse pointer or a small screen at the low tier (design 2.6)', () => {
-    expect(startTier(true, 1440, 900)).toBe('low');
-    expect(startTier(false, 390, 844)).toBe('low');
-    expect(startTier(false, 1440, 599)).toBe('low');
+  it('starts a coarse pointer or a small screen at the medium tier (design 2.6)', () => {
+    expect(startTier(true, 1440, 900)).toBe('medium');
+    expect(startTier(false, 390, 844)).toBe('medium');
+    expect(startTier(false, 1440, 599)).toBe('medium');
   });
 });
 
@@ -32,10 +32,10 @@ describe('startTierOf', () => {
     expect(startTierOf(device(laptop, 1440, 900))).toBe('high');
   });
 
-  it('starts a tablet or a phone at the low tier (design 2.6)', () => {
+  it('starts a tablet or a phone at the medium tier (design 2.6)', () => {
     const touch = ['(pointer: coarse)', '(any-pointer: coarse)'];
-    expect(startTierOf(device(touch, 1024, 1366))).toBe('low');
-    expect(startTierOf(device(touch, 390, 844))).toBe('low');
+    expect(startTierOf(device(touch, 1024, 1366))).toBe('medium');
+    expect(startTierOf(device(touch, 390, 844))).toBe('medium');
   });
 });
 

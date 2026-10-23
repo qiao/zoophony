@@ -78,7 +78,7 @@ const SMALL_SCREEN_SIDE = 600;
  * @param coarsePointer True if the primary pointer is a finger, as on a phone or a tablet.
  * @param viewportWidth The width of the viewport, in CSS pixels.
  * @param viewportHeight The height of the viewport, in CSS pixels.
- * @returns `low` for a coarse pointer or a small screen, else `high`.
+ * @returns `medium` for a coarse pointer or a small screen, else `high`.
  */
 export function startTier(
   coarsePointer: boolean,
@@ -86,7 +86,7 @@ export function startTier(
   viewportHeight: number,
 ): QualityTier {
   if (coarsePointer || Math.min(viewportWidth, viewportHeight) < SMALL_SCREEN_SIDE) {
-    return 'low';
+    return 'medium';
   }
   return 'high';
 }

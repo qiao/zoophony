@@ -139,8 +139,9 @@ motes of each tier. The low tier has no bloom, no depth of field, no dust motes,
 the side lights (4.5). Each tier keeps MSAA, because the hard edges of the low-poly parts show
 steps, and the final pass of the post effects (4.5).
 
-- At start, a touch screen (`(pointer: coarse)`) or a small screen gives the low tier, and all
-  other devices start at the high tier.
+- At start, a touch screen (`(pointer: coarse)`) or a small screen gives the medium tier, and all
+  other devices start at the high tier. A new phone renders the medium tier with no problem, and
+  the automatic tier drops a slow phone to the low tier.
 - The app drops one tier if the frames take more than 18 ms for 2 s. The automatic tier only goes
   down, so the quality does not go down and up many times. The app measures only while the music
   plays, the tab is visible, and the setting is "Auto", with a trimmed mean that ignores a few slow
