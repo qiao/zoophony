@@ -55,8 +55,9 @@ side of the animal), with the probes of `docs/research/2026-10-21-mesh-rhino/`:
 
 ## rhino-arms.glb
 
-`rhino-arms.glb` is a copy of `rhino.glb` with one local edit, made on 2026-10-22. The rig config
-reads it in place of the file of the user, which stays byte for byte.
+`rhino-arms.glb` is a copy of `rhino.glb` with one local edit, made on 2026-10-22. No rig reads
+it since the revert `fee18ae8`: the user found the left arm of its rig "completely deformed". The
+rig reads `rhino-tubes.glb` (below).
 
 On 2026-10-22, the user said: "the panda and rhino's arms also got deformed". Each thick arm joins
 the trunk from the paw up to the shoulder, so the cut of the rig closed the inner side of each arm
@@ -78,4 +79,32 @@ To make the file again:
 blender -b --factory-startup --python docs/research/2026-10-22-rhino-arm/rhino_arms.py -- \
   tools/mesh-rigs/rhino.json assets/models/rhino/rhino.glb assets/models/rhino/rhino-arms.glb
 shasum -a 256 assets/models/rhino/rhino-arms.glb
+```
+
+## rhino-tubes.glb
+
+`rhino-tubes.glb` is a copy of `rhino.glb` with a new arm on each side, made on 2026-10-22. The
+rig config reads it in place of the file of the user, which stays byte for byte.
+
+On 2026-10-22, after the copy `rhino-arms.glb`, the user said: "the rhino's left arm is now
+completed deformed", then "the rhino's arm is still deeformed", and "do not worry about triangle
+budget, you have plenty budget". At full size from the stage, the elbows of the source arms read
+as flat slabs with sharp corners. The copy keeps the paw of each arm, removes the rest of the arm
+and each face that joins it to the trunk, fills the side of the trunk with a fair surface, and
+builds a round tube of 23 rings from the wrist up to a dome inside the shoulder
+(`docs/research/2026-10-22-rhino-arm-2.md`).
+
+| Item | Value |
+|---|---|
+| File | `rhino-tubes.glb`, 15,627,140 bytes |
+| SHA-256 | `e9ef822cd6d1a3253f4cb17a2fb8da8dfd62094d6b6d74e5ee9b50e63eef3059` |
+| Contents | 2,234 vertices and 4,457 triangles after the weld, 8 open edges and 7 edges of three faces (all at the tail, as in the source) |
+| Script | `docs/research/2026-10-22-rhino-arm-2/rhino_tubes.py`, which reads the joints and the free arm rules of `tools/mesh-rigs/rhino.json`. A run gives the same bytes |
+
+To make the file again:
+
+```bash
+blender -b --factory-startup --python docs/research/2026-10-22-rhino-arm-2/rhino_tubes.py -- \
+  tools/mesh-rigs/rhino.json assets/models/rhino/rhino.glb assets/models/rhino/rhino-tubes.glb
+shasum -a 256 assets/models/rhino/rhino-tubes.glb
 ```
