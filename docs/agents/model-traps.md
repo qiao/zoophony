@@ -214,7 +214,7 @@ group of your work before you plan it. A probe that a trap names is in its resea
   of its root over in the bind, and they fold in each sample. Bind the upper arm nearer to the
   source limb (`studio.bindArms`), and count the folds of each bind with `rig-mesh --check --set`.
 - A long thin face across an arm joint folds, and weight rules make it worse. A ring of new vertices
-  at the joint (`refine.rings`) fixes it, within 4,600 triangles. Put a ring only where `pnpm
+  at the joint (`refine.rings`) fixes it, within 5,600 triangles. Put a ring only where `pnpm
   fold-probe` finds folds, and run `pnpm pose-depth <role>`, because a ring can pull the inner elbow
   into the trunk. Longer arms take a larger ring radius (`outward_stretch()`).
 
