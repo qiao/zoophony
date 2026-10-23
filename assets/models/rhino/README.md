@@ -83,8 +83,8 @@ shasum -a 256 assets/models/rhino/rhino-arms.glb
 
 ## rhino-tubes.glb
 
-`rhino-tubes.glb` is a copy of `rhino.glb` with a new arm on each side, made on 2026-10-22. The
-rig config reads it in place of the file of the user, which stays byte for byte.
+`rhino-tubes.glb` is a copy of `rhino.glb` with a new arm on each side, made on 2026-10-22. No
+rig reads it since the copy `rhino-shoulders.glb` (below).
 
 On 2026-10-22, after the copy `rhino-arms.glb`, the user said: "the rhino's left arm is now
 completed deformed", then "the rhino's arm is still deeformed", and "do not worry about triangle
@@ -107,4 +107,34 @@ To make the file again:
 blender -b --factory-startup --python docs/research/2026-10-22-rhino-arm-2/rhino_tubes.py -- \
   tools/mesh-rigs/rhino.json assets/models/rhino/rhino.glb assets/models/rhino/rhino-tubes.glb
 shasum -a 256 assets/models/rhino/rhino-tubes.glb
+```
+
+## rhino-shoulders.glb
+
+`rhino-shoulders.glb` is a copy of `rhino.glb` with a new shoulder and a new arm on each side,
+made on 2026-10-22. The rig config reads it in place of the file of the user, which stays byte
+for byte.
+
+On 2026-10-22, after the copy `rhino-tubes.glb`, the user said: "the rhino's arm is deformed
+again", then "you take screenshot for the rhino". At full size from the stage, each tube left the
+side of the chest at mid height with no shoulder, the rim of the trunk fill showed dark gashes,
+and the fill showed patches of dark and light color. The copy keeps the paw of each arm, removes
+the rest of the arm and the trunk within 0.16 units of the shoulder joint, fills the side of the
+trunk with a fine fair surface that slopes from the shoulder to the side, and builds a ball at the
+shoulder joint with a round tube of 30 rings down to the paw. The new faces take smooth colors
+of the fur (`docs/research/2026-10-22-rhino-arm-3.md`).
+
+| Item | Value |
+|---|---|
+| File | `rhino-shoulders.glb`, 15,770,588 bytes |
+| SHA-256 | `cb6fc04d647ee1760eefabd8a41a26f76f7f050512689692bb127a431d838a96` |
+| Contents | 2,766 vertices and 5,521 triangles after the weld, 8 open edges and 7 edges of three faces (all at the tail, as in the source) |
+| Script | `docs/research/2026-10-22-rhino-arm-3/rhino_shoulders.py`, which reads the joints, the free arm rules, and the color rules of `tools/mesh-rigs/rhino.json`. A run gives the same bytes |
+
+To make the file again:
+
+```bash
+blender -b --factory-startup --python docs/research/2026-10-22-rhino-arm-3/rhino_shoulders.py -- \
+  tools/mesh-rigs/rhino.json assets/models/rhino/rhino.glb assets/models/rhino/rhino-shoulders.glb
+shasum -a 256 assets/models/rhino/rhino-shoulders.glb
 ```
