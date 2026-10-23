@@ -1,6 +1,6 @@
 # Rabbit models
 
-This folder holds two models of the rabbit that the user gave, and three local copies of the
+This folder holds two models of the rabbit that the user gave, and four local copies of the
 second one. The app does not serve them.
 
 ## rabbit.glb
@@ -117,9 +117,9 @@ gives the moves.
 ## rabbit-4-elbows.glb
 
 `rabbit-4-elbows.glb` is `rabbit-4-arms.glb` with a third local edit in Blender (batch). The user
-said on 2026-10-21: "the rabbit's arm is deformed. Compare that with the original mesh". The rig
-of the rabbit (`source` of `tools/mesh-rigs/rabbit.json`) reads this file. `rabbit-4.glb` stays
-the file of the user, byte for byte.
+said on 2026-10-21: "the rabbit's arm is deformed. Compare that with the original mesh".
+`rabbit-4-roots.glb` starts from this file. `rabbit-4.glb` stays the file of the user, byte for
+byte.
 
 | Item | Value |
 |---|---|
@@ -138,3 +138,30 @@ vertices at the top of the run (1003 and 975) keep their places. The hole of the
 and the cut of the rig closes it. The new faces take the UV of the nearest face of the arm. No
 other vertex, face, UV, or texture changes. `rabbit_elbows.py` of
 `docs/research/2026-10-22-rabbit-elbow/` gives the edit, and a run of it gives the same bytes.
+
+## rabbit-4-roots.glb
+
+`rabbit-4-roots.glb` is `rabbit-4-elbows.glb` with a fourth local edit in Blender (batch). The
+user said on 2026-10-22: "I mean there's a dent near the armpit of the rabbit". The rig of the
+rabbit (`source` of `tools/mesh-rigs/rabbit.json`) reads this file. `rabbit-4.glb` stays the file
+of the user, byte for byte.
+
+| Item | Value |
+|---|---|
+| File | `rabbit-4-roots.glb`, 12,225,924 bytes |
+| SHA-256 | `114f0966cdc65af4833f1c90e6e133de82267a507bf7cab9270ad07b8a36d52d` |
+| Writer | Khronos glTF Blender I/O of Blender 5.2.2, from an import of `rabbit-4-elbows.glb` |
+| License | As `rabbit-4.glb` |
+
+The edit: at the front of the right arm root, the trunk curls in toward the hanging arm, and the
+caps of the cut lie in a notch. The `hull` edit of `tools/blender/arm_root.py` moves 5 trunk
+vertices of the notch (985, 987, 988, 990, and 991 of the welded source) out toward the convex
+hull of the fixed trunk vertices within 0.06 units, by 0.7 of the gap. The largest move is
+0.0042 units of the studio axes (0.62 cm in the app). The arm vertices beside the notch and the
+body run of the cut keep their places. No other vertex, face, UV, or texture changes.
+`tools/arm-roots/rabbit.json` gives the edit, and a run of the script gives the same bytes:
+
+```bash
+blender -b --factory-startup --python tools/blender/arm_root.py -- tools/arm-roots/rabbit.json
+shasum -a 256 assets/models/rabbit/rabbit-4-roots.glb
+```

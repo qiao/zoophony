@@ -1,0 +1,18 @@
+{
+  "source": "assets/models/rabbit/rabbit-4-elbows.glb",
+  "output": "assets/models/rabbit/rabbit-4-roots.glb",
+  "weld": 1e-05,
+  "metersPerUnit": 1.467789,
+  "note": "The user said on 2026-10-22: \"I mean there's a dent near the armpit of the rabbit\". At the front of the right arm root, the trunk of the source curls in toward the hanging arm, so the caps of the cut lie in a notch (vertices 982, 988, 990, 991). With the arm down (rest, lift, lowering), the notch showed as a dark pocket under the arm from the right front. The hull fill moves 5 trunk vertices of the notch out toward the convex hull of the fixed trunk vertices within 0.06 u, by 0.7 of the gap and at most 0.62 cm in the app. The arm vertices beside the notch stay. A push of the front of the root along the normals (up to 1.47 cm) softened the V in the play, but with the hull fill each such push made the corrective shapes of the right arm fail (docs/research/2026-10-22-rabbit-armpit.md).",
+  "edits": [
+    {
+      "method": "hull",
+      "side": "R",
+      "vertices": [982, 990, 988, 991, 985, 987, 989],
+      "exclude": [975, 980, 979, 976, 977, 981, 1003, 1069, 1022, 1056],
+      "ring": 0.06,
+      "share": 0.7,
+      "cap": 0.012
+    }
+  ]
+}
