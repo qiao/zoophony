@@ -60,8 +60,9 @@ reads it (route 3 of `docs/agents/model-work.md`). The steps:
 6. Pose the skeleton in the seated bind pose: the legs turn by the seat of the config, the arms
    go to the bind arms of the studio, and the bones of a tail of two bones go to the bind
    directions of the config, back through the open back of the chair. The skin of the
-   long-armed source in this pose is the bind mesh. Where the pose turns faces over, as at the
-   haunch, their vertices relax toward their neighbors. The log then gives the gap from the
+   long-armed source in this pose is the bind mesh: a linear blend, or with `bind.blend` of
+   the config a dual quaternion blend at the arm roots (`bind_skin()`). Where the pose turns
+   faces over, as at the haunch, their vertices relax toward their neighbors. The log then gives the gap from the
    lowest point of the haunch behind the hips joint to the seat top, and above 5 cm a warning
    with a front edge of the chair that puts the seat under the haunch (`haunch_gap()`). With
    `sit` of the config, the underside of the haunch behind the hip joints goes down onto the seat
@@ -2070,14 +2071,15 @@ def split_triangle(t, mids, points):
     return [[u, p, q], [p, v, q], [v, w, q]]
 
 
-def refine(verts, tris, uvs, weights, heads, ends, matrices, rule):
-    """Changes the faces of the arms so that they bend at the joints (design 4.4): first a ring
-    of new vertices at each joint of `rings` (`ring_cuts()`, `split_faces()`), on the sides of its
-    `sides` or on both sides, then the flips of the long edges of the faces that are thin in the
-    seated bind pose (`flip_edges()`). The cuts keep the surface, and each new vertex keeps four
-    bones. Gives the new vertices, triangles, corner UVs, and weights, the number of flips, the
+def refine(verts, tris, uvs, weights, heads, ends, matrices, config):
+    """Changes the faces of the arms so that they bend at the joints (design 4.4), by the rule
+    `refine` of the config: first a ring of new vertices at each joint of `rings` (`ring_cuts()`,
+    `split_faces()`), on the sides of its `sides` or on both sides, then the flips of the long
+    edges of the faces that are thin in the seated bind pose of `bind_skin()` (`flip_edges()`).
+    The cuts keep the surface, and each new vertex keeps four bones. Gives the new vertices, triangles, corner UVs, and weights, the number of flips, the
     largest move of a flip, the number of cut edges, and the index of the face before the refine
     of each face. A flip keeps the index of each of its two faces."""
+    rule = config['refine']
     cuts = {}
     for ring in rule['rings']:
         for side in ring.get('sides', 'LR'):
@@ -2085,8 +2087,8 @@ def refine(verts, tris, uvs, weights, heads, ends, matrices, rule):
     verts, tris, uvs, weights, origin = split_faces(verts, tris, uvs, weights, cuts)
     if cuts:
         weights = limit(weights)
-    tris, uvs, flips, largest = flip_edges(verts, skin(weights, matrices, verts), tris, uvs,
-                                           weights, rule['flip'])
+    tris, uvs, flips, largest = flip_edges(verts, bind_skin(config, weights, matrices, verts),
+                                           tris, uvs, weights, rule['flip'])
     return verts, tris, uvs, weights, flips, largest, len(cuts), origin
 
 
@@ -2249,6 +2251,65 @@ def skin(weights, matrices, points):
         if not w.any():
             continue
         out += w[:, None] * (points @ m[:, :3].T + m[:, 3])
+    return out
+
+
+def quat_product(a, b):
+    """Gives the products of the quaternions (x, y, z, w) of two arrays (n × 4), row by row."""
+    av, aw, bv, bw = a[:, :3], a[:, 3:], b[:, :3], b[:, 3:]
+    return np.concatenate([aw * bv + bw * av + np.cross(av, bv),
+                           aw * bw - np.sum(av * bv, axis=1, keepdims=True)], axis=1)
+
+
+def dual_skin(weights, matrices, points):
+    """Moves points with dual quaternion skinning: each (3 × 4) matrix becomes a unit dual
+    quaternion, each vertex takes the sum of the dual quaternions of its bones by its weights,
+    with the sign of each real part on the side of the real part of its largest weight, and the
+    sum, made a unit, gives a turn and a move. A vertex between two bones thus turns by a part
+    of the turn between them around the joint, and does not sink toward it as with
+    `skin()`."""
+    real = np.array([matrix_quat(m[:, :3]) for m in matrices])
+    moves = np.array([[*m[:, 3], 0.0] for m in matrices])
+    dual = 0.5 * quat_product(moves, real)
+    pivot = real[np.argmax(weights, axis=1)]
+    signed = weights * np.sign(pivot @ real.T + 1e-12)
+    r = signed @ real
+    d = signed @ dual
+    size = np.linalg.norm(r, axis=1, keepdims=True)
+    r, d = r / size, d / size
+    v, w = r[:, :3], r[:, 3:]
+    vd, wd = d[:, :3], d[:, 3:]
+    shift = 2.0 * (w * vd - wd * v + np.cross(v, vd))
+    turned = points + 2.0 * w * np.cross(v, points) + 2.0 * np.cross(v, np.cross(v, points))
+    return turned + shift
+
+
+def bind_skin(config, weights, matrices, points):
+    """Moves the points of the long-armed source to the upright seated bind pose with the blend
+    of `bind.blend` of the config. With no rule or with `linear`, each vertex takes `skin()`
+    (linear blend skinning). With `dq`, each vertex of an arm root (a weight on an upper arm and
+    none on a lower bone of an arm) takes `dual_skin()`, and the other vertices keep `skin()`.
+    With `ramp` (two upper arm weights), the share of `dual_skin()` grows from 0 to 1 over the
+    ramp, by the upper arm weight. The linear blend moves a vertex between two bones that turn
+    by the angle a toward the joint, to about cos(a / 2) of its radius, and the dual quaternion
+    blend keeps the radius. The app moves the bind mesh with linear blend skinning in each pose,
+    and the corrective shapes give the source back in the clip `reference`
+    (`docs/research/2026-10-22-dq-bind.md`)."""
+    blend = config.get('bind', {}).get('blend', 'linear')
+    if blend == 'linear':
+        return skin(weights, matrices, points)
+    if blend != 'dq':
+        raise SystemExit(f'bind.blend must be "linear" or "dq", not "{blend}".')
+    out = skin(weights, matrices, points)
+    upper = [BONES.index(f'upper_arm_{side}') for side in 'LR']
+    lower = [BONES.index(f'{bone}_{side}') for bone in ARM[1:] for side in 'LR']
+    low, high = config['bind'].get('ramp', [0.0, 0.0])
+    share = (np.ones(len(points)) if high <= 0 else
+             smoothstep(weights[:, upper].sum(axis=1), low, high))
+    near = ((weights[:, upper].sum(axis=1) > 0) & (weights[:, lower].sum(axis=1) == 0)
+            & (share > 0))
+    dual = dual_skin(weights[near], matrices, points[near])
+    out[near] += share[near, None] * (dual - out[near])
     return out
 
 
@@ -3943,8 +4004,7 @@ def main():
     # legs keep their faces, their vertices, and their weights. The arms of the upright bind give
     # the thin faces, so that a recline does not change the faces.
     long_verts, tris, uvs, weights, flips, largest, cuts, origin = refine(
-        long_verts, source_tris, uvs, weights, long_heads, long_ends, upright_matrices,
-        config['refine'])
+        long_verts, source_tris, uvs, weights, long_heads, long_ends, upright_matrices, config)
     log(f'refine: {flips} flips, the largest move {largest * meters * 1000:.3f} mm, {cuts} cut '
         f'edges, {len(tris) - len(source_tris)} new faces')
     thin_rule = config['check']['thin'] if check else None
@@ -4022,7 +4082,7 @@ def main():
 
     # The upright seated bind: the trunk of the source on the seat. The sit lowers its haunch onto
     # the seat. A reclined trunk then turns from it (`studio.trunk`).
-    bind = skin(weights, upright_matrices, long_verts)
+    bind = bind_skin(config, weights, upright_matrices, long_verts)
     if 'tailCurl' in config['studio']:
         bind, count = tail_curl(long_verts, bind, weights, long_heads, long_ends,
                                 upright_heads['tail'], config['studio']['tailCurl'])
