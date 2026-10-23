@@ -141,6 +141,10 @@ group of your work before you plan it. A probe that a trap names is in its resea
 - When an arm hangs near the trunk, bone heat gives a part of its weight to the trunk side. The
   raised bind arms then drag the trunk and fold the shoulder. Keep the arm weights on the free arm
   (`armSplit`).
+- When the hanging upper arm is one solid with the trunk, a plane of the split out of the crease
+  where they meet frees only the outer shell, and the cut makes a thin plate with no armpit.
+  Slice the source, and free the arm at its crease (`weights.armCrease`,
+  `docs/research/2026-10-22-elephant-crease.md`).
 - Bone heat gives the top of a narrow shoulder next to a thin neck to the upper arm, as on the cat.
   Fade the upper arm weight over the shoulder top toward the clavicle (`shoulderRamp`).
 - Bone heat can give one corner of a small face a bone that the bow arm turns far, such as the right
