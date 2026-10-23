@@ -522,7 +522,11 @@ twist bone (`docs/decisions/2026-10-19-arm-skin.md`).
     stretched the seam at the back of each root into dark shards. Its rig reads a copy with the
     round patches of the rabbit (`deer-arms.glb`), and its cut ends above the shoulder joint and
     above the top of the back notch, so that the long seam faces from the notch go. A cut with no
-    patch showed the flat arm cap as a dark sheet behind the raised arm. `pnpm arm-look` measures the
+    patch showed the flat arm cap as a dark sheet behind the raised arm. The dog takes the same
+    copy and cut (`dog-arms.glb`). Its patch pushes to the round form from near its top, so that
+    the inner arm fills the dark pocket between the arm and the trunk at rest. Bone heat gives a
+    free arm of a cut only arm weights, so the inner root of the bow arm swings into the chest.
+    The inner root gives a share of its weight to the chest (`weights.armRoot`). `pnpm arm-look` measures the
     crease of the arm skin against the source and the section of the upper arm, with limits from the red fox
     (`docs/decisions/2026-10-21-arm-form.md`).
   - Face. Face rules recolor faces of the face after a choice of the user, with no move of a

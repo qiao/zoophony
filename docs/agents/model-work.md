@@ -21,7 +21,7 @@ fox together.
 | fox-red | the mesh `assets/models/fox/fox.glb`, rigged by `pnpm rig-mesh fox`, with a tail of two bones | `2026-10-14-mesh-fox.md` | `fox-violinist` |
 | fox-tan | the rig of the red fox with a tan palette | `2026-10-14-fox-flute.md` | `flutist` |
 | cat | the mesh `assets/models/cat/cat.glb`, rigged by `pnpm rig-mesh cat` | `2026-10-16-mesh-cat.md` | `violist` |
-| dog | the mesh `assets/models/dog/dog.glb`, rigged by `pnpm rig-mesh dog` | `2026-10-17-mesh-dog.md` | `cellist` |
+| dog | the mesh `assets/models/dog/dog.glb`, rigged by `pnpm rig-mesh dog` from a copy with a round inner side of each arm (`dog-arms.glb`), with a cut of each arm seam and a chest share of the inner arm root (`weights.armRoot`) | `2026-10-17-mesh-dog.md` | `cellist` |
 | panda | the mesh `assets/models/panda/panda.glb`, rigged by `pnpm rig-mesh panda` | `2026-10-18-mesh-panda.md` | `trombonist` |
 | hippo | the mesh `assets/models/hippo/hippo.glb`, rigged by `pnpm rig-mesh hippo`, standing at the contrabass | `2026-10-18-mesh-hippo.md` | `bassist` |
 | mouse | the mesh `assets/models/mouse/mouse.glb`, rigged by `pnpm rig-mesh mouse` at the size of the parametric mouse, with a long tail of two bones on the floor, a smaller oboe, and no chair (`noChair`) | `2026-10-19-mesh-mouse.md` | `oboist` |
