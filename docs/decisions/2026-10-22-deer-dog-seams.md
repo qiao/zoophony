@@ -17,6 +17,5 @@ user can reverse each decision. Then update its section, and remove its row.
 | The deer patch sliver at the front top of the right arm root takes the mean weights of its corners (`weights.rigid`). It folded in each sample. | 4.4 |
 | The `FAIL` of the right twist of the harpist (p95 55°, base 40°) stays open with crops. The free root turns with the bone, so the step from the chest grows, and the twist along the upper arm falls from 17° to 6° (`tools/arm-shape.ts`). | 4.4 |
 | The deer upper arms go 4.9 cm into the body in the play (base 3.2 cm), because the body caps close the notches. No crop shows it, so the round keeps it as an open item. | 4.4 |
-| The dog keeps its rig. Six variants gave no clean root with the folds of the base: the best (patch, cut 0.64) raises the lift folds from 16.1% to 17.5%. | 4.4 |
 | `tail_weights()` keeps the share of a vertex with no face, which the fins of a cut can leave (`tools/blender/rig_mesh.py`). | 4.4 |
 | Manager: the gate accepts the twist p95 of 55° of the right arm of the harpist (40° before). The cut shoulder ring turns with the bone, so the first step from the chest grows, and the twist along the upper arm falls from 17° to 6°. The crops at the worst sample show no twisted skin. | 9.3 |
