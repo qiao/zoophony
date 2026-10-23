@@ -385,7 +385,9 @@ twist bone (`docs/decisions/2026-10-19-arm-skin.md`).
   leave out a long nose below the chin, as the trunk of the elephant (`headFloor` of `ANIMALS`),
   because the holds in `H` start at the head. Each pea eye faces out from the middle of the head
   that shows. A large head box behind the eyes turns them up, and such eyes look up, so a body
-  can turn its eyes level (`eyeLevel` of `ANIMALS`, the wolf). A flat oval on a curved cheek, or
+  can turn its eyes level (`eyeLevel` of `ANIMALS`, the wolf). A pea eye is a share of the head
+  height that shows, so a large head gets large eyes, and a body can scale its eyes (`eyeSize` of
+  `ANIMALS`, the elephant, user, 2026-10-23: "eyes too big"). A flat oval on a curved cheek, or
   on a face that slopes against the direction of the eye, stood out of the fur at one edge. So
   each oval bends along its direction to a fit of the head surface under it, and its middle lies
   on the surface (`eyeBend()`, `StudioEyes.bends`). Its rim then lies at the fur in each view, and
@@ -459,7 +461,7 @@ twist bone (`docs/decisions/2026-10-19-arm-skin.md`).
     No weight rule, corrective shape, or vertex move fixes both. `cut` removes the faces that join
     the forearm to the belly below a height and closes both holes with new faces, with no move of
     a vertex. The user chose it for the panda, and the caps of the belly take its white. The
-    beaver, the hippo, the elephant, and the rabbit take the same cut under each armpit, where
+    beaver, the hippo, and the rabbit take the same cut under each armpit, where
     thin faces join the upper arm to the chest and turn over in each pose, or a corner of the
     trunk with a part of the arm weight makes a ridge of long faces when the arm rises. A shape of
     `raise` can also relax the faces that turn far short of a fold (`below`), with one ring of
@@ -507,11 +509,16 @@ twist bone (`docs/decisions/2026-10-19-arm-skin.md`).
     front lips are white belly fur that the black arm would show as a white tag. Each flipper of the penguin is an arm of the rig, free of the body
     below its root, so the plane frees it with no cut. The upper arm of its bind points far down
     (`studio.bindArms`), because the large turn from the hanging flipper to the bind arm of the
-    other meshes turned the faces at the root of the flipper over. The hanging upper arm of the elephant is one solid with the
-    trunk, and the plane of the split lay out of the crease where they meet, so the free arm was
-    only the outer shell of the arm, closed by a flat cap: a thin plate with no armpit. The rig
-    fits a plane through the concave edges of that crease and frees the whole arm out of it
-    (`weights.armCrease`).
+    other meshes turned the faces at the root of the flipper over. A hanging upper arm that is one solid with the
+    trunk has a plane of the split out of the crease where they meet, so the free arm is only the
+    outer shell of the arm, closed by a flat cap: a thin plate with no armpit. The rig can fit a
+    plane through the concave edges of that crease and free the whole arm out of it
+    (`weights.armCrease`). The elephant has a mesh in an A-pose since 2026-10-23, with the arms
+    apart from the trunk, and the user said: "do not cut its arm or create a dent in the arm", then
+    chose to keep the faces of the mesh with no split. So its rig has no cut, no crease rule, and
+    no split, and the line rule takes only the corners on the line (`weights.line.angle` 170),
+    because the long arm faces of the mesh, up to the whole arm, mixed the clavicle and paw
+    weights at the middle corners.
   - Upper arm form. A mesh whose arm is free of the trunk only from the elbow down has no upper
     arm of its own: the upper arm is a bulge of the trunk wall, and each turn of the arm crumples
     the wall into flaps. No weight rule, cut, ring, or shape fixes it. The rig of the pig reads a
