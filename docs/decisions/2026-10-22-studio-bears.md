@@ -1,0 +1,23 @@
+# Decisions of the smooth studio bears
+
+The Section column names a section of the design. [`design.md`](../design.md) gives the file of
+each section.
+
+On 2026-10-22, the user said: "for bear and polar bear, i want you to revert to previous
+studio-generated bears, but add more triangle to them to make them more smooth". The user slept,
+so the agent of the round `studio-bears` chose the rows with no quote of the user by the measures
+and the user rules. The report [`2026-10-22-studio-bears.md`](../research/2026-10-22-studio-bears.md)
+gives the measures and the images. The user can reverse each decision. Then update its section,
+and remove its row.
+
+| Decision | Section |
+|---|---|
+| The user: "revert to previous studio-generated bears, but add more triangle to them to make them more smooth". The bear conductor and the polar bear pianist get the studio bodies of `lowpoly-studio/` again. The mesh files of the user stay in `assets/models/`. | 4.3, 4.4 |
+| The user: "do not exceed 3000 meshes". Each bear GLB keeps at most 3,000 faces (fur and gloss). The smoothness comes from the crease angle, the color blend, and an even spread of the facets. | 4.5 |
+| The bear facets spread evenly: no warp of the belly and the soles, no squeeze, no jitter (`animals/bear/animal.toml`). The GLB has 1,744 fur and 1,080 gloss faces (2,824), against 1,688 and 1,080 before. The app body has 2,448 triangles. | 4.5 |
+| The bear keeps seed 2. The arm skin of seed 5 stretched 0.49 and of seed 6 0.42 in the arm gate (limit 0.35), seed 2 0.15. | 4.4 |
+| The bear fur takes the crease angle 70° (`crease` of `ANIMALS`). At 15°, 45°, 60°, and 70°, 70° shows no facet from the stage and in the close views. | 4.5 |
+| The fur colors of the bear blend at each vertex when they differ by at most 0.12 in each sRGB channel (`colorBlend`, `studioCornerColors()`). The muzzle, the brows, and the claws stay sharp. | 4.5 |
+| The baton lies along the index finger (`BATON_ALONG`). Its point and pivot keep the direction of the mesh bear hold at 0.93 of its meters (`CONDUCTOR_HOLD`): the hold in `H` turned the right paw 3,735° per second. | 4.6, 5.4 |
+| The bow at the song end bends 32° again (`END_BOW`). | 5.4 |
+| The accepted grip of the conductor is the median of the new grip: -54° and -18° (`ACCEPTED_GRIPS`). | 9.3 |

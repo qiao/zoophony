@@ -7,14 +7,16 @@ On 2026-10-12, the user decided: "use the studio bear in the app". The agent of 
 `app-studio-bear` decided the other rows. The report
 [`2026-10-12-studio-bear.md`](../research/2026-10-12-studio-bear.md) gives the comparison of the
 two routes, the measures, and the images. The mesh bear of the user replaced the studio bear on
-2026-10-22 (`2026-10-22-mesh-bear.md`), so the rows of its body, scale, and hold went. The
-rows of the route stay for each studio body. The user can reverse each decision. Then update the
-section that holds it, and remove its row.
+2026-10-22 (`2026-10-22-mesh-bear.md`), and the same day the studio bear came back, smooth
+(`2026-10-22-studio-bears.md`). The rows of the route stay for each studio body. The user can
+reverse each decision. Then update the section that holds it, and remove its row.
 
 | Decision | Section |
 |---|---|
+| The user: the bear conductor has the studio bear of `lowpoly-studio/animals/bear/out/bear.glb`, with its mesh, its face colors, its eyes, its ears, its claws, its tail, its skin, and its corrective shapes. The app keeps its own conductor motion and its own baton | 4.3, 4.4 |
 | The route: the app drives the 30 body bones of the studio with a retarget of the pose of the player on each frame, with four bones for each vertex, the twist bones, and the corrective shapes. The route of the rigged bodies of 2026-10-10 (two bones of the player for each vertex, from the bind pose of the player) had at most 38 folded faces in the conductor poses of all demos, and the retarget at most 9 | 4.4, 4.7 |
 | `pnpm studio-body <animal>` writes the module of a studio body from its GLB file with no Blender. It drops the baton and the clips of the studio. Since `2026-10-15-pea-eyes.md`, it also drops the gloss shells of the head out of the middle plane (the eyes of the mesh), and the pea eyes of the app take their places on eye bones of their own, so that the eyes blink | 4.4, 7.1 |
+| The scale of the studio bear puts its shoulder joints 1.0 m above the floor, as the shoulder joints of the parametric bear, because the conductor stand and the beat fit the shoulders | 4.4, 4.5 |
 | The skeleton of the player for a studio body has the joints of the studio, and each arm hangs straight down from the shoulder joint of the studio with the lengths of its arm | 4.4, 4.7 |
 | The retarget turns each paw in the plane of its palm toward the forearm, by up to 70°, curls the fingers of the studio around their own axis, gives the forearm twist bone half of the twist of the paw, and weights the corrective shapes with the driver of the studio | 4.4 |
 | A studio body keeps the colors of the faces of its GLB file, with the occlusion of the studio, and the scene adds no occlusion | 4.4, 4.5 |
