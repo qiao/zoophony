@@ -1,0 +1,44 @@
+
+> zoophony@0.0.0 rig-mesh /Users/xueqiaoxu/proj/zoophony/.claude/worktrees/rhino-arm-3
+> node tools/rig-mesh.ts rhino
+
+Arm factor 1: reach 0.4310 m in the app.
+rig_mesh: source: 2766 vertices, 5521 triangles, scale 0.525647
+rig_mesh: bone heat: 0 vertices with no weight took the nearest bone
+rig_mesh: arm below L: 200 vertices of the trunk give arm weight to the trunk
+rig_mesh: arm own L: 564 vertices of the free arm give 122.6 of other weight to the arm, the most 0.98
+rig_mesh: arm below R: 199 vertices of the trunk give arm weight to the trunk
+rig_mesh: arm own R: 563 vertices of the free arm give 121.4 of other weight to the arm, the most 0.98
+rig_mesh: slivers: 89 faces below 10°, 15 groups of 87 vertices, the largest 22
+rig_mesh: lines: 86 middle corners of faces with a corner angle above 150°
+rig_mesh: arm L: reach 0.4310 m before, 0.4310 m after the factor 1 (target 0.431 m)
+rig_mesh: arm R: reach 0.4310 m before, 0.4310 m after the factor 1 (target 0.431 m)
+rig_mesh: trunk: the pelvis turns 1.22 degrees back, so that the hip angle opens 1 degrees, from 115.8 to 116.8 degrees. The shares of the turn: {'hips': 1, 'spine': 1, 'spine1': 0.75, 'chest': 0.5, 'neck': 0.25, 'head': 0}. The head turns 0.00 degrees
+rig_mesh: refine: 7 flips, the largest move 2.121 mm, 0 cut edges, 0 new faces
+rig_mesh: eyes: 9 faces left, 8 faces right, nose: 0 faces
+rig_mesh: arm: 564 vertices in the free left arm beyond |x| = 0.143
+rig_mesh: bind: 25 faces turn over from the source, on the bones ['hips', 'shin_L', 'shin_R', 'thigh_L', 'thigh_R', 'upper_arm_L', 'upper_arm_R']
+rig_mesh: bind: after 60 rounds of relaxing, 1 faces turn over, on the bones hips 1
+rig_mesh: seat: before the sit, the lowest point of the haunch behind the hips joint is 0.00 cm above the seat top 0.1297 u
+rig_mesh: sit: 236 vertices of the haunch move down, at most 0.0300 u (4.66 cm). The side view of the underside behind the hip joints is at most 18.07 cm above the seat before and 13.93 cm after. 8 faces turn over, on the bones hips 4, tail 4
+rig_mesh: trunk: 163 vertices of the haunch and the tail rise toward the seat top 0.1297 u of the upright body, at most 0.0252 u (3.91 cm). The lowest point over the seat is 0.1275 u. After 2 rounds of relaxing, 0 faces turn over
+rig_mesh: crease: 22 seam vertices, 151 vertices move, at most 0.0350 u (5.43 cm). 0 faces turn over
+rig_mesh: seat: the side view of the underside of the final bind behind the hip joints is at most 13.62 cm above the seat top
+rig_mesh: eye L: 9 dark faces, an edge of 7 points, a fan of 7 faces, 0.0034 u over the eye, 20 faces of the old eye
+rig_mesh: eye R: 8 dark faces, an edge of 8 points, a fan of 8 faces, 0.0023 u over the eye, 25 faces of the old eye
+rig_mesh: palette: 48 colors, the Oklab distance of a face from its color 0.0042 on the mean, 0.0166 at most
+rig_mesh: eye L: the 20 faces of the old eye take the color of 33% of the area of the faces around it
+rig_mesh: eye R: the 25 faces of the old eye take the color of 44% of the area of the faces around it
+rig_mesh: corrective: the smallest determinant of the skin is 0.5724 at the vertex 2303
+rig_mesh: corrective: the clip gives the source back within 3.58e-16 u (0.0000 mm)
+rig_mesh: shape arm_down_L: 453 vertices, largest move 0.0188 u
+rig_mesh: shape arm_down_R: 458 vertices, largest move 0.0189 u
+rig_mesh: shape legs_straight_L: 408 vertices, largest move 0.0581 u
+rig_mesh: shape legs_straight_R: 409 vertices, largest move 0.0654 u
+rig_mesh: chair: the tail goes -0.0003 u over the seat top at its lowest point over the seat
+rig_mesh: chair: front edge at z -0.11 u, the shins and the feet from z -0.1037 u
+rig_mesh: chair: seat top 0.1275 u, lowest point of the body 0.0275 u
+rig_mesh: triangles: 5536 (15 gloss)
+rig_mesh: upper twist: the twist bone of each upper arm takes 0.4 of its roll
+rig_mesh: wrote /Users/xueqiaoxu/proj/zoophony/.claude/worktrees/rhino-arm-3/assets/models/rhino/rhino.rig.glb: 711168 bytes
+Wrote assets/models/rhino/rhino.rig.glb: 711168 B, sha256 caec6c6381e0add1ade7ae8895f4efb1c4b88105f8f22aa8792e4a119344325b.

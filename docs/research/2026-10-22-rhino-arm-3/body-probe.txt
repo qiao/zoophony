@@ -1,0 +1,16 @@
+
+> zoophony@0.0.0 body-probe /Users/xueqiaoxu/proj/zoophony/.claude/worktrees/rhino-arm-3
+> node tools/body-probe.ts --base 502f7a75
+
+base 502f7a75, new: the working tree
+bodies equal: 90 of 95
+players equal: 22 of 23
+pose sets equal: 1491 of 1492
+body rhino chair: mesh differs (positions, colors, bones, blendBones, blendWeights, finishes, correctives, normals), joints differ
+body rhino stool: mesh differs (positions, colors, bones, blendBones, blendWeights, finishes, correctives, normals), joints differ
+body rhino high-stool: mesh differs (positions, colors, bones, blendBones, blendWeights, finishes, correctives, normals), joints differ
+body rhino bench: mesh differs (positions, colors, bones, blendBones, blendWeights, finishes, correctives, normals), joints differ
+body rhino stand: mesh differs (positions, colors, bones, blendBones, blendWeights, finishes, correctives, normals), joints same
+player tuba/rhino/tuba: mesh differs (positions, colors, bones, blendBones, blendWeights, finishes, correctives, normals), moved bones: none
+pose boulanger-matin conductor/bear/baton: play from sample 519 of 565 (song 257.38 s, wall 269.00 s)
+ ELIFECYCLE  Command failed with exit code 1.
