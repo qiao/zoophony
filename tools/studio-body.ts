@@ -196,11 +196,12 @@ export const ANIMALS: ReadonlyMap<string, AnimalSettings> = new Map([
       seated: false,
       soloist: false,
       constant: 'STUDIO_BEAR',
-      // The user asked for a smooth bear (2026-10-22). At 70°, the stage view and the close views
-      // show no facet of the fur. The blend fades the steps of the belly paint and of the baked
-      // occlusion, and keeps the edge of the muzzle (docs/research/2026-10-22-studio-bears.md).
-      crease: 70,
-      colorBlend: 0.12,
+      // The user asked for a smooth bear, then for "slightly faceted" bears, and chose the crease
+      // 40° with the blend 0.05 from a lineup of 70°, 50°, 40°, and 30° (2026-10-22). The blend
+      // fades the steps of the belly paint and of the baked occlusion, and keeps the edge of the
+      // muzzle (docs/research/2026-10-22-studio-bears.md).
+      crease: 40,
+      colorBlend: 0.05,
       eyeNormal: 0.5,
       // The face under the old eyes folds along a diagonal edge of the muzzle, and a bent oval
       // there reads as a bean. Out and a little down, the fold is about half as strong, and the
@@ -221,8 +222,8 @@ export const ANIMALS: ReadonlyMap<string, AnimalSettings> = new Map([
       soloist: false,
       seat: 0.25,
       constant: 'STUDIO_POLAR_BEAR',
-      crease: 70,
-      colorBlend: 0.12,
+      crease: 40,
+      colorBlend: 0.05,
     },
   ],
   // The violinist rabbit: decisions/2026-10-14-fox-rabbit-form.md, 2026-10-14-neck-violin.md,
