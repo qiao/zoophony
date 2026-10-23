@@ -157,13 +157,6 @@ const RHINO_BODY_LOOPS = 4;
  */
 const DEER_BODY_LOOPS = 3;
 
-/**
- * The open loops of {@link BODY_BONES} of the polar bear mesh: the cuts to the two upper arms at
- * the shoulders, above the cut of the seam where each arm joins the trunk, and one open edge pair
- * of 4 cm on the back of the chest (`loops-probe.txt` of `docs/research/2026-10-22-mesh-polar-bear/`).
- */
-const POLAR_BEAR_BODY_LOOPS = 3;
-
 /** The parts of the two arms that move in the sweep of a role. */
 const ARM_PARTS: readonly SweepPart[] = [
   { name: 'paws', bones: ['handL', 'handR'] },
@@ -201,11 +194,8 @@ export const INSTRUMENT_PART: SweepPart = {
  */
 const CONTACT = 0.015;
 
-/** The decision file of the polar bear mesh. */
-const POLAR_BEAR_DECISIONS = 'docs/decisions/2026-10-22-mesh-polar-bear.md';
-
-/** The decision file of the longer legs of the polar bear pianist. */
-const POLAR_LEGS_DECISIONS = 'docs/decisions/2026-10-22-polar-legs.md';
+/** The decision file of the studio polar bear. */
+const POLAR_BEAR_DECISIONS = 'docs/decisions/2026-10-12-studio-polar-bear.md';
 
 /** The decision file of the lap pose of the pianist. */
 const LAP_DECISIONS = 'docs/decisions/2026-10-13-pianist-lap.md';
@@ -273,17 +263,6 @@ function* playSamples(scene: TestScene): Generator<SweepSample> {
  */
 function bodySurface(posed: PosedSkeleton): ClosedSurface {
   return closedPart(posed, BODY_BONES, BODY_LOOPS);
-}
-
-/**
- * The closed surface of the body of the polar bear mesh: {@link BODY_BONES} with a cap on each
- * open loop ({@link POLAR_BEAR_BODY_LOOPS}).
- *
- * @param posed The posed skeleton.
- * @returns The surface.
- */
-function polarBearBodySurface(posed: PosedSkeleton): ClosedSurface {
-  return closedPart(posed, BODY_BONES, POLAR_BEAR_BODY_LOOPS);
 }
 
 /**
@@ -634,7 +613,7 @@ export const PIANIST_SWEEP: RoleSweep = {
   role: 'pianist',
   parts: ARM_PARTS,
   obstacles: [
-    { name: 'body', surface: polarBearBodySurface },
+    { name: 'body', surface: bodySurface },
     { name: 'case', surface: (posed) => pianoCase(posed).surface },
   ],
   contact: CONTACT,
@@ -646,34 +625,18 @@ export const PIANIST_SWEEP: RoleSweep = {
       samples,
       depth: 0.09,
       reason:
-        'The forearms of the round polar bear pass the sides of its belly to the keys. No cheap change of the hold removes it.',
+        'The forearms of the round polar bear go into its trunk under the shoulders. No cheap change of the hold removes it.',
       decision: `${POLAR_BEAR_DECISIONS}, row "Accepted limits", and ${SWEEP_DECISIONS}`,
     })),
-    ...(
-      [
-        ['play', 0.1, `${POLAR_BEAR_DECISIONS}, row "Accepted limits"`],
-        // The longer legs put the shoulders higher above the keys, and the lowering of the hold
-        // of the manager goes 12.4 cm into the belly.
-        ['lower', 0.125, `${POLAR_LEGS_DECISIONS}, row "Manager"`],
-      ] as const
-    ).map(([samples, depth, decision]) => ({
+    ...(['play', 'lower'] as const).map((samples) => ({
       part: 'upper arms',
       into: 'body',
       samples,
-      depth,
+      depth: 0.04,
       reason:
-        'The thick upper arms of the polar bear mesh press into the sides of its round belly near the elbows, and the keys stand in front of the belly.',
-      decision,
+        'The skin of the upper arm of the round polar bear runs inside the side of its belly to the elbow.',
+      decision: SWEEP_DECISIONS,
     })),
-    {
-      part: 'paws',
-      into: 'body',
-      samples: 'lower',
-      depth: 0.03,
-      reason:
-        'The left paw of the polar bear mesh passes the front of its round belly when it lowers from a key in the middle of the keyboard to the lap.',
-      decision: `${POLAR_BEAR_DECISIONS}, row "Accepted limits"`,
-    },
     // The paws rest in the lap, and the round belly covers the thighs. The forearms lie on the
     // belly, and the upper arms hang by its sides.
     ...(['rest', 'lift'] as const).flatMap((samples) =>
@@ -688,9 +651,7 @@ export const PIANIST_SWEEP: RoleSweep = {
       })),
     ),
   ],
-  // The hold of the manager on the longer legs misses the far keys of the demos by up to
-  // 10.4 mm (`docs/decisions/2026-10-22-polar-legs.md`, row "Manager").
-  targetError: 0.011,
+  targetError: 1e-4,
   hasRole: (score) => score.seats.some((seat) => seat.section === 'piano'),
   players: (scene) =>
     scene.layout.players.flatMap((place, index) => {
