@@ -118,10 +118,9 @@ camera positions with automatic panning / zooming." Thus the camera has two mode
 - **Free** is the orbit camera. It starts from the last frame of Cinematic, so the view does not
   jump, and then it turns around the stage. The camera cannot go below the stage, and a zoom stops
   outside the box of the stage and the players (4.5).
-- A drag, a pinch, or a wheel on the stage changes to Free at once and shows a note (2.8), so that
-  the user knows how to get the film back (`turnsOffQuietly()`). The toggle, the key C, and "Reset
-  view" show no note. While the first screen shows, the zoom is off (`movesCamera()`), because a
-  wheel there is often an attempt to scroll the page.
+- A drag, a pinch, or a wheel on the stage changes to Free at once, with no note (user,
+  2026-10-22). While the first screen shows, the zoom is off (`movesCamera()`), because a wheel
+  there is often an attempt to scroll the page.
 - "Reset view" shows the default view in Free mode, so the full stage with no cuts is one click.
 - With reduced motion, the default mode is Free with no inertia, each Cinematic shot holds its
   first camera, each transition is a hard cut, and the light effects stand still (4.5).
@@ -356,8 +355,6 @@ is instant with reduced motion. Each text keeps the contrast 4.5:1 of WCAG AA ov
 | Load progress after 10 s of load, when the sizes are known (megabytes of 1,000,000 bytes, one decimal) | Loading instruments: {done} of {total} ({arrived} of {sum} MB) |
 | Second line of the load text while the piece waits for its samples | The music starts after the load. |
 | Drop overlay | Drop the MIDI file to play it. |
-| Note after a drag, a pinch, or a wheel turns off the automatic camera (with a keyboard) | The automatic camera is off. Press C to turn it on. |
-| The same note on a touch screen (`(pointer: coarse)`) | The automatic camera is off. Tap the camera button to turn it on. |
 | First screen, until the first play of the session | Zoophony: an orchestra of animals plays your MIDI file. |
 | First screen, the button that opens the demo list | Select a piece |
 

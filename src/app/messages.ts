@@ -44,15 +44,6 @@ const FAILURE_TEXTS = {
 const NOTE_SEC = 3;
 
 /**
- * The note after a drag, a wheel, or a pinch turns off the automatic camera (design 2.5, 2.8).
- * The first text is for a keyboard, the second one for a touch screen.
- */
-export const CAMERA_OFF_TEXTS = {
-  keyboard: 'The automatic camera is off. Press C to turn it on.',
-  touch: 'The automatic camera is off. Tap the camera button to turn it on.',
-} as const;
-
-/**
  * The kind of a message: `error` for a failure or a refused file, with a bar in `--danger`, and
  * `note` for a short information, with a bar in `--accent` (design 2.8).
  */

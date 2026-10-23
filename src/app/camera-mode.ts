@@ -50,11 +50,11 @@ export function nextMode(mode: CameraMode, event: CameraEvent): CameraMode {
 
 /**
  * Tells if an event of the stage moves the camera (design 2.5). While the first screen shows,
- * the zoom is off: a wheel or a pinch does not move the camera, so it keeps the mode and shows no
- * note. The frame of the first screen shrinks with the camera, so that the stage stays clear of
- * the play button (design 2.8). A zoom moved the camera into the stage, the frame shrank to 0.18
- * of the window, and the view looked steeply down at a corner of the stage (bug report of
- * 2026-10-07). A drag still turns the view.
+ * the zoom is off: a wheel or a pinch does not move the camera, so it keeps the mode. The frame
+ * of the first screen shrinks with the camera, so that the stage stays clear of the play button
+ * (design 2.8). A zoom moved the camera into the stage, the frame shrank to 0.18 of the window,
+ * and the view looked steeply down at a corner of the stage (bug report of 2026-10-07). A drag
+ * still turns the view.
  *
  * @param event The event.
  * @param firstScreen True while the first screen shows: before the first play of the piece.
@@ -82,17 +82,4 @@ export function motionEvent(
     return null;
   }
   return pointers >= 2 ? 'pinch' : 'drag';
-}
-
-/**
- * Tells if an event turns off the automatic camera with no click on its toggle: a drag, a wheel,
- * or a pinch in Cinematic mode. The page then shows a note, so that the user knows how to turn it
- * on again (design 2.5, audit 2026-10-05-ux-design, CT2).
- *
- * @param mode The mode before the event.
- * @param event The event.
- * @returns True if the page shows the note.
- */
-export function turnsOffQuietly(mode: CameraMode, event: CameraEvent): boolean {
-  return mode === 'cinematic' && (event === 'drag' || event === 'wheel' || event === 'pinch');
 }

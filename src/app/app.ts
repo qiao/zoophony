@@ -23,7 +23,7 @@ import { Ui } from '../ui/ui.ts';
 import { playWithSilentSwitch } from './audio-session.ts';
 import { BackdropProbe } from './backdrop-probe.ts';
 import { DEFAULT_SPEED, DEFAULT_VOLUME, barShows, volumeGain } from './bar-rules.ts';
-import { motionEvent, movesCamera, nextMode, startMode, turnsOffQuietly } from './camera-mode.ts';
+import { motionEvent, movesCamera, nextMode, startMode } from './camera-mode.ts';
 import type { CameraEvent, CameraMode } from './camera-mode.ts';
 import type { Speed } from './bar-rules.ts';
 import { DEMOS, PERF_60, demoHash, demoUrl, isDemoId } from './demos.ts';
@@ -32,14 +32,7 @@ import { FILE_ERROR_TEXTS, fileTitle, readScoreFile } from './file-rules.ts';
 import { keyAction, keySeekPoint } from './keys.ts';
 import { METER_BARS, meterLevels, meterTrack, seatLevels, seatSpans } from './meter.ts';
 import type { MeterTrack, SeatSpans } from './meter.ts';
-import {
-  CAMERA_OFF_TEXTS,
-  addNote,
-  failureMessage,
-  followMessage,
-  noteMessage,
-  textMessage,
-} from './messages.ts';
+import { failureMessage, followMessage, textMessage } from './messages.ts';
 import type { Failure, Message } from './messages.ts';
 import type { TitleLines } from './file-rules.ts';
 import { pageTitle } from './page-title.ts';
@@ -558,24 +551,15 @@ export class App {
   }
 
   /**
-   * Changes the camera mode after an event (design 2.5). A drag, a wheel, or a pinch that turns
-   * off the automatic camera shows a note (design 2.8). A wheel or a pinch on the first screen
+   * Changes the camera mode after an event (design 2.5). A wheel or a pinch on the first screen
    * does not move the camera, so it changes nothing.
    *
    * @param event The event.
    */
   #changeCamera(event: CameraEvent): void {
-    if (!movesCamera(event, this.#onFirstScreen)) {
-      return;
+    if (movesCamera(event, this.#onFirstScreen)) {
+      this.#cameraMode = nextMode(this.#cameraMode, event);
     }
-
-    if (turnsOffQuietly(this.#cameraMode, event)) {
-      // A drag turns off the film with no click on its toggle, so a note tells how to get it back.
-      const touch = window.matchMedia('(pointer: coarse)').matches;
-      const text = touch ? CAMERA_OFF_TEXTS.touch : CAMERA_OFF_TEXTS.keyboard;
-      this.#message = addNote(this.#message, noteMessage(text, performance.now() / 1000));
-    }
-    this.#cameraMode = nextMode(this.#cameraMode, event);
   }
 
   /** True while the first screen shows: before the first play of the current piece (2.8). */
