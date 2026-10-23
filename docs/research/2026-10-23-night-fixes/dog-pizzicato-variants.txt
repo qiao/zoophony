@@ -1,0 +1,68 @@
+
+> zoophony@0.0.0 hold-fit /Users/xueqiaoxu/proj/zoophony
+> node tools/hold-fit.ts cellist --technique pizzicato --demo boulanger-matin --set cello\@dog.pluckPlace\=0 --set cello\@dog.pluckPlace\=0\;cello\@dog.pluckSide\=0.1 --set cello\@dog.pluckPlace\=0\;cello\@dog.pluckSide\=0.1\;cello\@dog.polePizzicato\=\[1\,-1\,0\] --set cello\@dog.pluckPlace\=0.2\;cello\@dog.pluckSide\=0.15\;cello\@dog.polePizzicato\=\[1\,-1\,-0.3\] --set cello\@dog.pluckPlace\=-0.1\;cello\@dog.pluckSide\=0.1\;cello\@dog.polePizzicato\=\[1\,-1\,-0.3\]
+
+Hold fit of the cellist: play folds at a step of 1 s, the sweep of the cellist with the bodies of the role.
+Demos: boulanger-matin
+Play samples: only the samples of the pizzicato notes of the seat of each player.
+base (6.9 s):
+  faces that fold most: 172 78.4%, 342 78.4%, 349 41.0%, 1583 7.9%, 1629 7.9%
+  play: upper arms in body: 5.2 cm at song 265.88 s, wall 277.50 s (upperArmR 0.35), boulanger-matin cellist 11 (dog, chair)
+  lift: upper arms in body: 4.7 cm at song 0.00 s, wall 11.70 s (upperArmR 0.36), boulanger-matin cellist 11 (dog, chair)
+  rest: upper arms in body: 2.7 cm at song -1.62 s, wall 10.00 s (upperArmR 0.37), boulanger-matin cellist 11 (dog, chair)
+  lower: upper arms in body: 5.2 cm at song 280.67 s, wall 11.00 s (upperArmR 0.35), boulanger-matin cellist 11 (dog, chair)
+  play: instrument in body: 1.0 cm at song 35.88 s, wall 47.50 s (instrument), boulanger-matin cellist 11 (dog, chair)
+cello@dog.pluckPlace=0 (6.3 s):
+  faces that fold most: 172 80.6%, 342 80.6%, 349 77.7%, 1583 7.9%, 1629 7.9%
+  play: upper arms in body: 5.5 cm at song 79.13 s, wall 90.75 s (upperArmR 0.35), boulanger-matin cellist 11 (dog, chair)
+  lift: upper arms in body: 5.5 cm at song -0.42 s, wall 11.20 s (upperArmR 0.35), boulanger-matin cellist 11 (dog, chair)
+  rest: upper arms in body: 2.7 cm at song -1.62 s, wall 10.00 s (upperArmR 0.37), boulanger-matin cellist 11 (dog, chair)
+  lower: upper arms in body: 5.5 cm at song 280.67 s, wall 11.00 s (upperArmR 0.35), boulanger-matin cellist 11 (dog, chair)
+  play: instrument in body: 1.0 cm at song 35.88 s, wall 47.50 s (instrument), boulanger-matin cellist 11 (dog, chair)
+cello@dog.pluckPlace=0;cello@dog.pluckSide=0.1 (6.1 s):
+  faces that fold most: 342 42.4%, 172 38.1%, 1583 7.9%, 1629 7.9%, 1586 0.7%
+  play: upper arms in body: 2.9 cm at song 257.63 s, wall 269.25 s (upperArmR 0.35), boulanger-matin cellist 11 (dog, chair)
+  lift: upper arms in body: 2.7 cm at song -1.62 s, wall 10.00 s (upperArmR 0.37), boulanger-matin cellist 11 (dog, chair)
+  rest: upper arms in body: 2.7 cm at song -1.62 s, wall 10.00 s (upperArmR 0.37), boulanger-matin cellist 11 (dog, chair)
+  lower: upper arms in body: 2.7 cm at song 280.67 s, wall 15.30 s (upperArmR 0.37), boulanger-matin cellist 11 (dog, chair)
+  play: instrument in body: 1.0 cm at song 35.88 s, wall 47.50 s (instrument), boulanger-matin cellist 11 (dog, chair)
+cello@dog.pluckPlace=0;cello@dog.pluckSide=0.1;cello@dog.polePizzicato=[1,-1,0] (6.3 s):
+  faces that fold most: 1583 7.9%, 1629 7.9%, 1586 0.7%, 2296 0.7%
+  play: upper arms in body: 2.7 cm at song 118.38 s, wall 130.00 s (upperArmR 0.40), boulanger-matin cellist 11 (dog, chair)
+  lift: upper arms in body: 2.7 cm at song -1.62 s, wall 10.00 s (upperArmR 0.37), boulanger-matin cellist 11 (dog, chair)
+  rest: upper arms in body: 2.7 cm at song -1.62 s, wall 10.00 s (upperArmR 0.37), boulanger-matin cellist 11 (dog, chair)
+  lower: upper arms in body: 2.7 cm at song 280.67 s, wall 15.30 s (upperArmR 0.37), boulanger-matin cellist 11 (dog, chair)
+  play: instrument in body: 1.0 cm at song 35.88 s, wall 47.50 s (instrument), boulanger-matin cellist 11 (dog, chair)
+cello@dog.pluckPlace=0.2;cello@dog.pluckSide=0.15;cello@dog.polePizzicato=[1,-1,-0.3] (6.1 s):
+  faces that fold most: 1583 7.9%, 1629 7.9%, 1586 0.7%, 2296 0.7%
+  play: upper arms in body: 2.2 cm at song 131.88 s, wall 143.50 s (upperArmR 0.41), boulanger-matin cellist 11 (dog, chair)
+  lift: upper arms in body: 2.7 cm at song -1.62 s, wall 10.00 s (upperArmR 0.37), boulanger-matin cellist 11 (dog, chair)
+  rest: upper arms in body: 2.7 cm at song -1.62 s, wall 10.00 s (upperArmR 0.37), boulanger-matin cellist 11 (dog, chair)
+  lower: upper arms in body: 2.7 cm at song 280.67 s, wall 15.30 s (upperArmR 0.37), boulanger-matin cellist 11 (dog, chair)
+  play: instrument in body: 1.0 cm at song 35.88 s, wall 47.50 s (instrument), boulanger-matin cellist 11 (dog, chair)
+cello@dog.pluckPlace=-0.1;cello@dog.pluckSide=0.1;cello@dog.polePizzicato=[1,-1,-0.3] (6.2 s):
+  faces that fold most: 1583 7.9%, 1629 7.9%, 1586 0.7%, 2296 0.7%
+  play: upper arms in body: 2.4 cm at song 118.38 s, wall 130.00 s (upperArmR 0.40), boulanger-matin cellist 11 (dog, chair)
+  lift: upper arms in body: 2.7 cm at song -1.62 s, wall 10.00 s (upperArmR 0.37), boulanger-matin cellist 11 (dog, chair)
+  rest: upper arms in body: 2.7 cm at song -1.62 s, wall 10.00 s (upperArmR 0.37), boulanger-matin cellist 11 (dog, chair)
+  lower: upper arms in body: 2.7 cm at song 280.67 s, wall 15.30 s (upperArmR 0.37), boulanger-matin cellist 11 (dog, chair)
+  play: instrument in body: 1.0 cm at song 35.88 s, wall 47.50 s (instrument), boulanger-matin cellist 11 (dog, chair)
+
+| Variant | Play folds | Lift folds | Rest faces (by side) | play depth cm (limit) | lift depth cm (limit) | rest depth cm (limit) | lower depth cm (limit) | Note targets: worst mm (within 5 mm) | play turns: upper arm, paw (twist, swing) L / R | Instrument in body cm |
+|---|---|---|---|---|---|---|---|---|---|---|
+| base | 86.9% (93/107) OVER | 80.6% (25/31) | 0 (L 0 / R 0 / other 0) | 5.2 upper arms>body (1.5) OVER | 4.7 upper arms>body (1.5) OVER | 2.7 upper arms>body (1.5) OVER | 5.2 upper arms>body (1.5) OVER | 93.9 (99.2%) | 58°, 142° (-140°, 36°) / 101°, 48° (20°, 44°) | 1.0 play |
+| cello@dog.pluckPlace=0 | 88.8% (95/107) OVER | 83.9% (26/31) | 0 (L 0 / R 0 / other 0) | 5.5 upper arms>body (1.5) OVER | 5.5 upper arms>body (1.5) OVER | 2.7 upper arms>body (1.5) OVER | 5.5 upper arms>body (1.5) OVER | 87.5 (99.2%) | 58°, 142° (-140°, 36°) / 105°, 50° (21°, 46°) | 1.0 play |
+| cello@dog.pluckPlace=0;cello@dog.pluckSide=0.1 | 63.6% (68/107) OVER | 6.5% (2/31) | 0 (L 0 / R 0 / other 0) | 2.9 upper arms>body (1.5) OVER | 2.7 upper arms>body (1.5) OVER | 2.7 upper arms>body (1.5) OVER | 2.7 upper arms>body (1.5) OVER | 70.4 (99.2%) | 58°, 142° (-140°, 36°) / 91°, 51° (3°, 51°) | 1.0 play |
+| cello@dog.pluckPlace=0;cello@dog.pluckSide=0.1;cello@dog.polePizzicato=[1,-1,0] | 19.6% (21/107) OVER | 6.5% (2/31) | 0 (L 0 / R 0 / other 0) | 2.7 upper arms>body (1.5) OVER | 2.7 upper arms>body (1.5) OVER | 2.7 upper arms>body (1.5) OVER | 2.7 upper arms>body (1.5) OVER | 69.0 (99.2%) | 58°, 142° (-140°, 36°) / 81°, 36° (-10°, 34°) | 1.0 play |
+| cello@dog.pluckPlace=0.2;cello@dog.pluckSide=0.15;cello@dog.polePizzicato=[1,-1,-0.3] | 19.6% (21/107) OVER | 6.5% (2/31) | 0 (L 0 / R 0 / other 0) | 2.2 upper arms>body (1.5) OVER | 2.7 upper arms>body (1.5) OVER | 2.7 upper arms>body (1.5) OVER | 2.7 upper arms>body (1.5) OVER | 61.3 (99.2%) | 58°, 142° (-140°, 36°) / 79°, 33° (-1°, 33°) | 1.0 play |
+| cello@dog.pluckPlace=-0.1;cello@dog.pluckSide=0.1;cello@dog.polePizzicato=[1,-1,-0.3] | 19.6% (21/107) OVER | 6.5% (2/31) | 0 (L 0 / R 0 / other 0) | 2.4 upper arms>body (1.5) OVER | 2.7 upper arms>body (1.5) OVER | 2.7 upper arms>body (1.5) OVER | 2.7 upper arms>body (1.5) OVER | 72.8 (99.2%) | 58°, 142° (-140°, 36°) / 82°, 39° (-10°, 38°) | 1.0 play |
+
+The demo and the time of each deepest point of the table:
+| Variant | play deepest at | lift deepest at | rest deepest at | lower deepest at | Instrument in body at |
+|---|---|---|---|---|---|
+| base | boulanger-matin 265.88 s | boulanger-matin wall 11.70 s | boulanger-matin wall 10.00 s | boulanger-matin wall 11.00 s | boulanger-matin 35.88 s |
+| cello@dog.pluckPlace=0 | boulanger-matin 79.13 s | boulanger-matin wall 11.20 s | boulanger-matin wall 10.00 s | boulanger-matin wall 11.00 s | boulanger-matin 35.88 s |
+| cello@dog.pluckPlace=0;cello@dog.pluckSide=0.1 | boulanger-matin 257.63 s | boulanger-matin wall 10.00 s | boulanger-matin wall 10.00 s | boulanger-matin wall 15.30 s | boulanger-matin 35.88 s |
+| cello@dog.pluckPlace=0;cello@dog.pluckSide=0.1;cello@dog.polePizzicato=[1,-1,0] | boulanger-matin 118.38 s | boulanger-matin wall 10.00 s | boulanger-matin wall 10.00 s | boulanger-matin wall 15.30 s | boulanger-matin 35.88 s |
+| cello@dog.pluckPlace=0.2;cello@dog.pluckSide=0.15;cello@dog.polePizzicato=[1,-1,-0.3] | boulanger-matin 131.88 s | boulanger-matin wall 10.00 s | boulanger-matin wall 10.00 s | boulanger-matin wall 15.30 s | boulanger-matin 35.88 s |
+| cello@dog.pluckPlace=-0.1;cello@dog.pluckSide=0.1;cello@dog.polePizzicato=[1,-1,-0.3] | boulanger-matin 118.38 s | boulanger-matin wall 10.00 s | boulanger-matin wall 10.00 s | boulanger-matin wall 15.30 s | boulanger-matin 35.88 s |
