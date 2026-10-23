@@ -856,6 +856,15 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
 - [ ] Rabbit right armpit after the fair move: a shallow hollow with a small sharp tip stays
       under the raised bow arm at the camera of the user. The full move made facets and a pit, so
       a smoother hollow needs more vertices in the notch (`2026-10-21-rabbit-armpit.md`).
+- [x] Rabbit right armpit front: with the arm down, the notch at the front of the right arm root
+      showed as a dark pocket from the right front. A copy fills the notch toward the hull of the
+      trunk (`rabbit-4-roots.glb`, `2026-10-22-rabbit-armpit.md`).
+- [ ] Rabbit right armpit front in the play: a V crease stays at the front of the arm root from
+      az60 at the frog, the tip, and the crossing. 84% of its depth comes from the bend of the
+      bind arm, 16% from the twist. A push of the root front softens it (p5), but each push on top
+      of the fill makes the shapes of the right arm fail (`2026-10-22-rabbit-armpit.md`).
+- [ ] Rabbit: commit `b1e270f0` of the paused round `rabbit-depth` (the via of the bow grip in the
+      lift and the lowering) still waits for its gates (`2026-10-22-rabbit-armpit.md`).
 - [x] Rabbit left armpit: a thin dark line stays at the top of the cut under the violin arm. The
       normals of the skin put a light sliver there, and the half move of the right side a light
       streak, so the left side keeps its face normals and vertices (`2026-10-21-rabbit-armpit.md`).
