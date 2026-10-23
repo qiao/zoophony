@@ -122,7 +122,8 @@ export interface AnimalSettings {
   /**
    * The lowest height of the head measures in the bind pose of the GLB file, in its units, for a
    * long nose that follows the head below the chin, as the trunk of the elephant (`noseFront` of
-   * the rig config). The head height, the head center, the box of the pea eyes, and the tip of
+   * the rig config), or for a throat that bone heat gives to the head, as on the rhino. The head
+   * height, the head center, the box of the pea eyes, and the tip of
    * the nose then leave out the vertices below it. With no value, each vertex of the head counts.
    */
   readonly headFloor?: number;
@@ -396,7 +397,8 @@ export const ANIMALS: ReadonlyMap<string, AnimalSettings> = new Map([
   ],
   // The tuba rhino: decisions/2026-10-21-mesh-rhino.md. It stands to play the tuba, so the export
   // keeps the standing pose of the rig. The tip of its nose is the front of the muzzle under the
-  // horn.
+  // horn. The head measures start at the chin: bone heat gives the throat under the chin of the
+  // copy with the arm tubes a head weight just above 0.5 (docs/research/2026-10-22-rhino-arm-2.md).
   [
     'rhino',
     {
@@ -408,6 +410,7 @@ export const ANIMALS: ReadonlyMap<string, AnimalSettings> = new Map([
       crease: 35,
       glb: 'assets/models/rhino/rhino.rig.glb',
       noseTop: 0.76,
+      headFloor: 0.668,
     },
   ],
   // The harp deer: decisions/2026-10-21-mesh-deer.md. It sits on the stool of the harp, and the
