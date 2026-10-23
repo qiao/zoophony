@@ -102,8 +102,8 @@ export interface AnimalSettings {
   readonly constant: string;
   /**
    * The crease angle of the smooth normals of the fur, in degrees (design 4.4, 4.5). Each body has
-   * its own angle. The angle of a bear is the angle whose facet contrast is nearest to its
-   * reference images. The reference rabbits have more facet contrast than each render of the app
+   * its own angle. The bears take a large angle, so that their fur looks smooth and round (user,
+   * 2026-10-22, `docs/decisions/2026-10-22-studio-bears.md`). The reference rabbits have more facet contrast than each render of the app
    * rabbit, so the manager chose its angle from the play frames
    * (`docs/research/2026-10-14-rabbit-smooth.md`).
    */
@@ -196,7 +196,11 @@ export const ANIMALS: ReadonlyMap<string, AnimalSettings> = new Map([
       seated: false,
       soloist: false,
       constant: 'STUDIO_BEAR',
-      crease: 15,
+      // The user asked for a smooth bear (2026-10-22). At 70°, the stage view and the close views
+      // show no facet of the fur. The blend fades the steps of the belly paint and of the baked
+      // occlusion, and keeps the edge of the muzzle (docs/research/2026-10-22-studio-bears.md).
+      crease: 70,
+      colorBlend: 0.12,
       eyeNormal: 0.5,
       // The face under the old eyes folds along a diagonal edge of the muzzle, and a bent oval
       // there reads as a bean. Out and a little down, the fold is about half as strong, and the
