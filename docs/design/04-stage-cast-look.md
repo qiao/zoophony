@@ -656,8 +656,8 @@ twist bone (`docs/decisions/2026-10-19-arm-skin.md`).
   weight from the pose alone (`raiseWeight()`), so the rule of stateless poses holds.
 - **Render.** The scene draws the body with four bones for each vertex and the shapes as morph
   targets. The colors hold the baked occlusion of the studio. The fur gets smooth normals within
-  the crease angle of the body (`crease` of `ANIMALS`, `studioNormals()`). The bear takes a large
-  angle, so that its fur looks smooth and round, as the user asked. Its fur colors also blend at
+  the crease angle of the body (`crease` of `ANIMALS`, `studioNormals()`). The bear takes a larger
+  angle than the other bodies, so that its fur looks round with soft facets, as the user asked. Its fur colors also blend at
   each vertex where two faces differ by a small step (`colorBlend`, `studioCornerColors()`), so
   that the steps of the paint and of the baked occlusion fade, and the edges of the muzzle, the
   brows, and the claws stay sharp (`docs/decisions/2026-10-22-studio-bears.md`). The red fox, the cat, the dog, the panda, the hippo,

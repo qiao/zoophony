@@ -16,13 +16,13 @@ and remove its row.
 | The user: "do not exceed 3000 meshes". Each bear GLB keeps at most 3,000 faces (fur and gloss). The smoothness comes from the crease angle, the color blend, and an even spread of the facets. | 4.5 |
 | The bear facets spread evenly: no warp of the belly and the soles, no squeeze, no jitter (`animals/bear/animal.toml`). The GLB has 1,744 fur and 1,080 gloss faces (2,824), against 1,688 and 1,080 before. The app body has 2,448 triangles. | 4.5 |
 | The bear keeps seed 2. The arm skin of seed 5 stretched 0.49 and of seed 6 0.42 in the arm gate (limit 0.35), seed 2 0.15. | 4.4 |
-| The bear fur takes the crease angle 70° (`crease` of `ANIMALS`). At 15°, 45°, 60°, and 70°, 70° shows no facet from the stage and in the close views. | 4.5 |
-| The fur colors of the bear blend at each vertex when they differ by at most 0.12 in each sRGB channel (`colorBlend`, `studioCornerColors()`). The muzzle, the brows, and the claws stay sharp. | 4.5 |
+| The user then said "the bear and polar bear are too smooth. make them slightly faceted", and chose "B: crease 40°" from a lineup of 70°, 50°, 40°, and 30°. The bear fur takes the crease angle 40° (`crease` of `ANIMALS`). | 4.5 |
+| The fur colors of the bear blend at each vertex when they differ by at most 0.05 in each sRGB channel (`colorBlend`, `studioCornerColors()`). The muzzle, the brows, and the claws stay sharp. | 4.5 |
 | The baton lies along the index finger (`BATON_ALONG`). Its point and pivot keep the direction of the mesh bear hold at 0.93 of its meters, 0.3 H further out (`CONDUCTOR_HOLD`). The hold in `H` turned the right paw 3,735° per second, and with no move out, the claws went 7 cm into the turned muzzle. | 4.6, 5.4 |
 | The bow at the song end bends 32° again (`END_BOW`). | 5.4 |
 | The accepted grip of the conductor is the median of the new grip: -54° and -5° (`ACCEPTED_GRIPS`). | 9.3 |
 | The polar bear facets spread evenly as for the bear, with 960 quads (780 before): 1,624 fur and 1,080 gloss faces (2,704). Seed 3 passes each gate. The app body has 2,328 triangles. | 4.5 |
-| The polar bear fur takes the crease angle 70° and the blend 0.12, as the bear. | 4.5 |
+| The polar bear fur takes the crease angle 40° and the blend 0.05, as the bear. | 4.5 |
 | The brief: the studio polar bear read as almost standing. The pianist of the studio binds with the hips and the knees bent 88° (70° before), so the thighs are near level and the shins near upright (`roles/pianist/role.toml`). A lower knee in the field failed the gates on most seeds (report). | 4.4, 5.2 |
 | The polar bear keeps its size, 1.805 m for each unit: the landmark of the keys is `PIANO.keyTop + 0.0539` (0.13 before), because the level thighs seat the body lower. `H` is 0.368 m (0.361 m before). | 4.4 |
 | The pianist leans 28° (27° before): with 27°, a left paw stayed 10.2 mm short of its key. With 28°, the worst note target is 3.8 mm (`HANDS_HOLDS.piano.lean`). | 5.3 |
