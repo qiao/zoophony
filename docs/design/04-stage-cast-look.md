@@ -205,7 +205,7 @@ trunk (`docs/research/2026-10-11-short-legs.md`):
   pig, the wolf, the monkey, the badger, the rhino, the deer, and the penguin, which
   `models/species.ts` reads from their studio bodies. The hippo stands at its contrabass, the
   elephant at its timpani, the badger at each percussion instrument, the rhino at its tuba, and
-  the penguin on its riser.
+  the penguin on its riser. The bear reads only its head height `H`.
 
 A height map moves the torso of the parametric body with the joints of the table, and the head
 keeps its form:
