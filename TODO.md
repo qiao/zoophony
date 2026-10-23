@@ -518,6 +518,10 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
 - [ ] Polar bear lap: on the near level thighs, the knees show in front of the belly, but the
       thighs stay short, and the lap is small. A lower knee in the field of the studio failed the
       gates on most seeds. Try a longer thigh with a new bind of the role and its seeds.
+- [ ] Polar bear upper arms: the upper arms of the studio polar bear go up to 7.2 cm into the
+      belly in a play and 7.5 cm in the lowering (accepted 4 cm). Elbows at (±1, -0.3, 0.3) give
+      5.8 cm and 6.0 cm. Check the arm gate and the folds of that hold
+      (`docs/research/2026-10-22-studio-bears.md`).
 - [ ] Bear head facets: at the crease angle 70° and the blend 0.12, the cheeks and the brow of
       the bear show a few facets in the head crops. Try a larger blend on the head only.
 - [x] Bear arm gate: with the back strip on the arm, the rest arm hangs 2.2 cm to 2.5 cm further
