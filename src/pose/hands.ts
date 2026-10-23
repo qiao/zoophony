@@ -114,10 +114,12 @@ export const HANDS_HOLDS = {
   // of the front edge of the keys and 0.065 m above them, and the curled claws lie on the keys
   // (`pianoKeyFront()`). Further back, the claws went into the fallboard, and lower, into the
   // key bed. The keys stand far in front of the round belly (`PIANO_FRONT_H`), so that the muzzle
-  // keeps 5 cm from the front edge of the open lid. The spine leans 27° forward, so that the paws
-  // reach the middle keys. With the palm 0.06 m in front of the keys, a palm stayed 0.41 mm short
-  // of its keys, and with 0.05 m, 0.3% of the notes stayed more than 1 mm short. With a lean of
-  // 28°, the belly folded over the thighs. The elbows point out, down, and back: with the poles
+  // keeps 5 cm from the front edge of the open lid. The spine leans 28° forward, so that the paws
+  // reach the middle keys. On the level thighs of 2026-10-22, a lean of 27° left a left paw
+  // 10.2 mm short of its key (`boulanger-matin.mid`, 107.95 s), and 28° 3.8 mm
+  // (`docs/research/2026-10-22-studio-bears.md`). With the palm 0.06 m in front of the keys, a
+  // palm stayed 0.41 mm short of its keys, and with 0.05 m, 0.3% of the notes stayed more than
+  // 1 mm short. The elbows point out, down, and back: with the poles
   // (±1, -0.55, 0.5), the play folds rose from 14.5% to 29.7% of the samples, mostly on the right
   // upper arm (`docs/research/2026-10-14-polar-fix.md`). The paws reach from A0 to B♭4 with the
   // left paw and from C4 to C8 with the right paw (`pose/hands.test.ts`), so a melody changes
@@ -134,7 +136,7 @@ export const HANDS_HOLDS = {
     faceR: [0, -1, 0],
     aimL: null,
     aimR: null,
-    lean: 27 * MathUtils.DEG2RAD,
+    lean: 28 * MathUtils.DEG2RAD,
     restLean: 8 * MathUtils.DEG2RAD,
     restHeadLift: 8 * MathUtils.DEG2RAD,
     reach: { leftHighest: 70, rightLowest: 60 },
