@@ -290,10 +290,10 @@
     "armOwn": true,
     "armOwnNote": "Bone heat gave the inner side of each tube and its dome up to 0.97 of trunk weight, which pinned them to the trunk while the arm turned. Each vertex of the free arm keeps only its arm weights. The folded faces of the worst sample of the tubist fall from 24 to 20, and the crease share of pnpm arm-look from 6.4% and 5.4% to 4.9% and 5.2% (docs/research/2026-10-22-rhino-arm-2.md).",
     "armBelow": [
-      0.4,
-      0.5
+      0.6,
+      0.7
     ],
-    "armBelowNote": "Inside the plane of the split, the share of the arm weight that a vertex of the trunk keeps grows from 0 at the lower height to 1 at the upper height (source units). Without it, bone heat gives the belly beside the paw a part of the upper arm weight, and the standing body is 18.2 mm from the long-armed source (limit 1 mm). With it, 0.6 mm.",
+    "armBelowNote": "Inside the plane of the split, the share of the arm weight that a vertex of the trunk keeps grows from 0 at the lower height to 1 at the upper height (source units). The tube of each arm joins no face of the trunk, so the trunk keeps no upper arm weight up to the shoulder joint (y 0.575). With [0.4, 0.5], bone heat left the trunk behind the shoulder up to 0.69 of upper arm weight, and the arm at the tuba folded 12 of its faces in each sample; with none, the belly beside the paw kept upper arm weight, and the standing body was 18 mm from the long-armed source. With [0.6, 0.7], the worst sample of the tubist folds 8 faces, as on main, and the standing body is 0.3 mm from the source (docs/research/2026-10-22-rhino-arm-2.md).",
     "armFree": {
       "turn": 17,
       "radius": 0.085,

@@ -534,7 +534,8 @@ twist bone (`docs/decisions/2026-10-19-arm-skin.md`).
     rings up to a dome inside the shoulder, as for the pig, and fills the side of the trunk with a
     fair surface (`rhino-tubes.glb`). No face joins a tube to the trunk, so the rig has no cut.
     Bone heat gave the inner side of each tube a part of the trunk weight, which pinned it to the
-    trunk, so each vertex of the tube keeps only its arm weights (`weights.armOwn`).
+    trunk, so each vertex of the tube keeps only its arm weights (`weights.armOwn`), and the trunk
+    keeps no upper arm weight up to the shoulder joint (`weights.armBelow`).
     `pnpm arm-look` measures the
     crease of the arm skin against the source and the section of the upper arm, with limits from the red fox
     (`docs/decisions/2026-10-21-arm-form.md`).

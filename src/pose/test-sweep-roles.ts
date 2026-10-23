@@ -144,12 +144,11 @@ const BADGER_BODY_LOOPS = 2;
 const MONKEY_BODY_LOOPS = 5;
 
 /**
- * The open loops of {@link BODY_BONES} of the rhino mesh: on each side, two patches of the
- * shoulder in front of and behind the tube of the arm, whose faces follow the upper arm most, and
- * four small loops of the tail ball on the haunch (`loops-probe.txt` of
- * `docs/research/2026-10-22-rhino-arm-2/`). The tube of each arm joins no face of the trunk.
+ * The open loops of {@link BODY_BONES} of the rhino mesh: four small loops of the tail ball on the
+ * haunch (`loops-probe.txt` of `docs/research/2026-10-22-rhino-arm-2/`). The tube of each arm
+ * joins no face of the trunk, and no face of the trunk follows the upper arm most.
  */
-const RHINO_BODY_LOOPS = 8;
+const RHINO_BODY_LOOPS = 4;
 
 /**
  * The open loops of {@link BODY_BONES} of the deer mesh: the cuts to the two upper arms, and one
