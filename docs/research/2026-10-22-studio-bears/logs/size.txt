@@ -1,0 +1,26 @@
+
+> zoophony@0.0.0 size /Users/xueqiaoxu/proj/zoophony/.claude/worktrees/studio-bears
+> node tools/size.ts --base d7f4e76e
+
+First download after gzip (design 7.2):
+     1,567 B  dist/index.html
+    48,780 B  dist/assets/index-Bi4_9xrJ.js
+     5,548 B  dist/assets/index-C5EAp3Cl.css
+       392 B  dist/assets/modulepreload-polyfill-P2Xu9kJm.js
+       978 B  dist/assets/preload-helper-Ba9bsDxq.js
+       136 B  dist/assets/fetch-ok-CaAbW7On.js
+   618,087 B  dist/assets/renderer-DFv0lhJv.js
+       250 B  dist/assets/drum-map--rjToQku.js
+     6,109 B  dist/assets/layout-scene-Dhb_KYds.js
+     7,143 B  dist/assets/score-CkWITP8q.js
+       258 B  dist/assets/synth-C2pyjh8y.js
+       817 B  dist/assets/soundfont-info-CYIG9x6g.js
+     1,220 B  dist/assets/demos-K8bpQi2S.js
+     4,416 B  dist/assets/OrbitControls-C1evbcNE.js
+    30,097 B  dist/demos/boulanger-matin.mid
+   725,798 B  total
+ 1,000,000 B  limit: pass
+Base d7f4e76e (d7f4e76e), built in a temporary folder:
+   740,137 B  total of the base
+   725,798 B  total of the working tree
+   -14,339 B  difference

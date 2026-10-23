@@ -41,6 +41,8 @@ Three levers make a body smooth within 3,000 faces:
 | Pianist folds rest / play / lift (`fold-pianist.txt`) | 100% / 28.1% / 73.4% | 0% / 33.9% / 60.5% |
 | Pianist note targets within 5 mm, worst (`targets-pianist.txt`) | 3,924 of 3,931, 10.4 mm | 100%, 3.8 mm |
 | Arm gate of all roles (`arm-check-all.txt`) | | FAIL only in the conductor and the pianist |
+| First download (`size.txt`) | 740,137 B | 725,798 B |
+| `pnpm frame`, main thread p95 / GPU p50 (`frame.txt`) | | 4.53 ms / 5.67 ms (target 4 ms: fail) |
 
 The `FAIL` cells of the conductor and the pianist come from the margin against the mesh bears of
 the base. Each value is below its limit: the conductor forearm twist 33 (limit 80), the paw swing
@@ -73,7 +75,9 @@ Both bears are the studio bodies with even facets, the crease angle 70°, and th
 the stage (`stage-pair-default.webp`, `play-30.webp`, `play-75.webp`), the fur shows no facet, and
 the polar bear sits with bent knees. The muzzle, the brows, the eyes, the nose, and the claws stay
 sharp (`bear-head.webp`, `polar-head.webp`). The dark patches on the chest of the bear at beat 1
-are cast shadows of the raised paws: with `--probe noshadow`, they go (`bear-noshadow.webp`).
+are cast shadows of the raised paws: with `--probe noshadow`, they go (`bear-noshadow.webp`). The audit sheets (`audit-*.webp`, `d7f4e76e` above the round) show no flap, dent, or wedge at
+the arm roots from the back, az150, az-150, the front, and each side, at 20° and 40°. The dark
+areas on the trunk side under the raised arms at 20° are the cast shadows of the arms.
 
 Open items:
 
