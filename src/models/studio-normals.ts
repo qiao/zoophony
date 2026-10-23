@@ -34,16 +34,93 @@ export function studioNormals(
   caps: readonly number[] = [],
   rim: readonly number[] = [],
 ): Float32Array {
-  const { positions: p, corners, finishes } = mesh;
+  const { corners, finishes } = mesh;
   const cornerCount = corners.length;
-  const isCap = new Uint8Array(cornerCount / 3);
-  for (const t of caps) {
-    isCap[t] = 1;
+  const isCap = faceFlags(cornerCount / 3, caps);
+  const isRim = faceFlags(cornerCount / 3, rim);
+  const { faces, angles, start, around } = meshFrame(mesh);
+
+  const limit = Math.cos((crease * Math.PI) / 180) - 1e-6;
+  const out = new Float32Array(cornerCount * 3);
+  for (let c = 0; c < cornerCount; c++) {
+    const own = Math.floor(c / 3);
+    const ox = faces[own * 3] ?? 0;
+    const oy = faces[own * 3 + 1] ?? 0;
+    const oz = faces[own * 3 + 2] ?? 0;
+    let sx = ox;
+    let sy = oy;
+    let sz = oz;
+    if (finishes[own] === MATTE) {
+      sx = 0;
+      sy = 0;
+      sz = 0;
+      // A cap and a rim face take the skin at the vertex with no crease angle.
+      const whole = isCap[own] === 1 || isRim[own] === 1;
+      const v = corners[c] ?? 0;
+      for (let i = start[v] ?? 0; i < (start[v + 1] ?? 0); i++) {
+        const other = around[i] ?? 0;
+        const face = Math.floor(other / 3);
+        const fx = faces[face * 3] ?? 0;
+        const fy = faces[face * 3 + 1] ?? 0;
+        const fz = faces[face * 3 + 2] ?? 0;
+        const skin = finishes[face] === MATTE && isCap[face] !== 1;
+        if (whole ? skin : other === c || (skin && ox * fx + oy * fy + oz * fz >= limit)) {
+          const weight = angles[other] ?? 0;
+          sx += fx * weight;
+          sy += fy * weight;
+          sz += fz * weight;
+        }
+      }
+    }
+    let length = Math.hypot(sx, sy, sz);
+    if (length === 0) {
+      // A face with no area, or a cap with no skin at its vertex: it takes its own normal, or up.
+      [sx, sy, sz] = ox !== 0 || oy !== 0 || oz !== 0 ? [ox, oy, oz] : [0, 1, 0];
+      length = 1;
+    }
+    out[c * 3] = sx / length;
+    out[c * 3 + 1] = sy / length;
+    out[c * 3 + 2] = sz / length;
   }
-  const isRim = new Uint8Array(cornerCount / 3);
-  for (const t of rim) {
-    isRim[t] = 1;
+  return out;
+}
+
+/**
+ * Marks a list of triangles.
+ *
+ * @param count The number of triangles.
+ * @param list The indices of the marked triangles.
+ * @returns 1 for each marked triangle, else 0.
+ */
+function faceFlags(count: number, list: readonly number[]): Uint8Array {
+  const flags = new Uint8Array(count);
+  for (const t of list) {
+    flags[t] = 1;
   }
+  return flags;
+}
+
+/** The face normals, the corner angles, and the corners around each vertex of a mesh. */
+interface MeshFrame {
+  /** The unit normal of each triangle: x, y, z, or 0 for a triangle with no area. */
+  readonly faces: Float32Array;
+  /** The angle of each corner, between the edges to the two other corners of its triangle. */
+  readonly angles: Float32Array;
+  /** The first place of the corners of each vertex in {@link MeshFrame.around}, and the end. */
+  readonly start: Uint32Array;
+  /** The corners of each vertex, one vertex after the other. */
+  readonly around: Uint32Array;
+}
+
+/**
+ * Calculates the face normals, the corner angles, and the corners around each vertex of a mesh.
+ *
+ * @param mesh The places of the welded vertices and the corners of the mesh.
+ * @returns The frame of the mesh.
+ */
+function meshFrame(mesh: Pick<StudioMesh, 'positions' | 'corners'>): MeshFrame {
+  const { positions: p, corners } = mesh;
+  const cornerCount = corners.length;
   const faces = new Float32Array(cornerCount);
   const angles = new Float32Array(cornerCount);
   for (let t = 0; t < cornerCount / 3; t++) {
@@ -102,47 +179,5 @@ export function studioNormals(
     fill[v] = (fill[v] ?? 0) + 1;
   }
 
-  const limit = Math.cos((crease * Math.PI) / 180) - 1e-6;
-  const out = new Float32Array(cornerCount * 3);
-  for (let c = 0; c < cornerCount; c++) {
-    const own = Math.floor(c / 3);
-    const ox = faces[own * 3] ?? 0;
-    const oy = faces[own * 3 + 1] ?? 0;
-    const oz = faces[own * 3 + 2] ?? 0;
-    let sx = ox;
-    let sy = oy;
-    let sz = oz;
-    if (finishes[own] === MATTE) {
-      sx = 0;
-      sy = 0;
-      sz = 0;
-      // A cap and a rim face take the skin at the vertex with no crease angle.
-      const whole = isCap[own] === 1 || isRim[own] === 1;
-      const v = corners[c] ?? 0;
-      for (let i = start[v] ?? 0; i < (start[v + 1] ?? 0); i++) {
-        const other = around[i] ?? 0;
-        const face = Math.floor(other / 3);
-        const fx = faces[face * 3] ?? 0;
-        const fy = faces[face * 3 + 1] ?? 0;
-        const fz = faces[face * 3 + 2] ?? 0;
-        const skin = finishes[face] === MATTE && isCap[face] !== 1;
-        if (whole ? skin : other === c || (skin && ox * fx + oy * fy + oz * fz >= limit)) {
-          const weight = angles[other] ?? 0;
-          sx += fx * weight;
-          sy += fy * weight;
-          sz += fz * weight;
-        }
-      }
-    }
-    let length = Math.hypot(sx, sy, sz);
-    if (length === 0) {
-      // A face with no area, or a cap with no skin at its vertex: it takes its own normal, or up.
-      [sx, sy, sz] = ox !== 0 || oy !== 0 || oz !== 0 ? [ox, oy, oz] : [0, 1, 0];
-      length = 1;
-    }
-    out[c * 3] = sx / length;
-    out[c * 3 + 1] = sy / length;
-    out[c * 3 + 2] = sz / length;
-  }
-  return out;
+  return { faces, angles, start, around };
 }
