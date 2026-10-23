@@ -45,7 +45,7 @@ import { OfflineHarness, TEST_SAMPLE_RATE, testBanks } from '../src/audio/test-b
 import { layoutScene } from '../src/models/layout-scene.ts';
 import { ModelCache } from '../src/models/model-cache.ts';
 import { buildScore } from '../src/score/score.ts';
-import { mixSynthEvents, stageMix } from '../src/score/stage-mix.ts';
+import { channelGainsDb, mixSynthEvents, stageMix } from '../src/score/stage-mix.ts';
 import {
   METER_RATE,
   QUIET_LUFS,
@@ -122,14 +122,12 @@ async function renderSynth(demo: DemoId): Promise<SynthRender> {
     throw new Error(result.error);
   }
   const score = result.score;
-  const events = mixSynthEvents(
-    score.synthEvents,
-    stageMix(score, layoutScene(score, new ModelCache())),
-  );
+  const mix = stageMix(score, layoutScene(score, new ModelCache()));
   const run = new OfflineHarness(
-    packSynthEvents(events),
+    packSynthEvents(mixSynthEvents(score.synthEvents, mix)),
     score.durationSec,
     await testBanks(score.presets),
+    channelGainsDb(mix),
   );
   run.engine.enqueue({ type: 'play', countInSec: 0 });
 

@@ -34,6 +34,11 @@ one, and chose the room and the mix of [`research/sound-quality.md`](../research
   back rows sound farther away (`NEAR_REVERB_SEND`, `FAR_REVERB_SEND`).
 - A channel that several seats share gets the mean of all their players (3.7). A channel with no
   player (the sound-only seat) gets the center pan and a middle send.
+- **Choir gain.** A channel that feeds a choir seat gets `CHOIR_GAIN_DB` (+6 dB), because one
+  channel sings for a full choir. With no gain, the choir was about 9 dB below the orchestra in a
+  tutti, and with it about 3 dB below. The seat of the vocal soloists gets no gain. The `Player`
+  sends the gains with the score (`channelGainsDb()`), and the engine sets the gain of each synth
+  channel again after each reset of the synth.
 - `mixSynthEvents()` drops each pan (CC 10) and reverb send (CC 91) of the file, and puts the
   values of the mix at song time 0. Thus the file cannot change them, and the chase of a seek
   restores them (6.5). The rule is in `score/`, because it is a MIDI rule (7.1).
@@ -388,7 +393,7 @@ context.destination
 
 ```typescript
 interface PlayerScore extends Pick<Score, 'durationSec' | 'synthEvents' | 'presets'> {
-  /** The pan and the reverb send of each synth channel, from `stageMix()` (6.1). */
+  /** The pan, the reverb send, and the gain of each synth channel, from `stageMix()` (6.1). */
   readonly mix: readonly ChannelMix[];
   /** The gain of the piece in dB, from `pieceGainDb()`. */
   readonly gainDb: number;

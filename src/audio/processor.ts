@@ -94,7 +94,7 @@ class SynthProcessor extends AudioWorkletProcessor {
     try {
       switch (command.type) {
         case 'score':
-          this.#engine.loadScore(command.table, command.durationSec);
+          this.#engine.loadScore(command.table, command.durationSec, command.channelGainsDb);
           break;
         case 'banks':
           this.#engine.addBanks(command.banks);

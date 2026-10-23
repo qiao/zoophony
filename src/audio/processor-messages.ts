@@ -12,6 +12,8 @@ export type ProcessorCommand =
       readonly type: 'score';
       readonly table: SynthEventTable;
       readonly durationSec: number;
+      /** The gain of each synth channel in dB, from `channelGainsDb()` (design 6.1). */
+      readonly channelGainsDb: readonly number[];
     }
   | { readonly type: 'banks'; readonly banks: readonly EngineBank[] }
   /**

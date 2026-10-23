@@ -101,10 +101,16 @@ export class OfflineHarness {
    * @param table The synth events.
    * @param durationSec The song length.
    * @param banks The banks. The engine gets copies.
+   * @param channelGainsDb The gain of each synth channel in dB, as `loadScore()` gets it.
    */
-  constructor(table: SynthEventTable, durationSec: number, banks: readonly EngineBank[]) {
+  constructor(
+    table: SynthEventTable,
+    durationSec: number,
+    banks: readonly EngineBank[],
+    channelGainsDb: readonly number[] = [],
+  ) {
     this.engine = new SynthEngine(TEST_SAMPLE_RATE, (anchor) => this.anchors.push(anchor));
-    this.engine.loadScore(table, durationSec);
+    this.engine.loadScore(table, durationSec, channelGainsDb);
     this.engine.addBanks(copyBanks(banks));
   }
 

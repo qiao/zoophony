@@ -148,6 +148,8 @@ export class SynthEngine {
   /** The seats that have notes on each channel. */
   #seatsOfChannels: readonly Int16Array[] = [];
   #lastAnchorTime = -Infinity;
+  /** The linear gain of each synth channel, which each reset of the synth gets again. */
+  #channelGains: readonly number[] = [];
   /** The number of the score: 1 after the first `loadScore()` (design 6.7). */
   #loads = 0;
   /** True until the first block after `loadScore()` posts its anchor. */
@@ -196,14 +198,21 @@ export class SynthEngine {
    *
    * @param table The synth events.
    * @param durationSec The song length.
+   * @param channelGainsDb The gain of each synth channel in dB (design 6.1). A channel with no
+   *   entry gets 0.
    */
-  loadScore(table: SynthEventTable, durationSec: number): void {
+  loadScore(
+    table: SynthEventTable,
+    durationSec: number,
+    channelGainsDb: readonly number[] = [],
+  ): void {
     this.#channelCount = synthChannelCount(table);
     while (this.synth.midiChannels.length < this.#channelCount) {
       this.synth.createMIDIChannel();
     }
+    this.#channelGains = channelGainsDb.map((db) => 10 ** (db / 20));
     this.synth.stopAllChannels(true);
-    this.synth.reset();
+    this.#reset();
     this.#table = table;
     this.#durationSec = durationSec;
     this.#state = { ...INITIAL_TRANSPORT, rate: this.#state.rate };
@@ -360,16 +369,27 @@ export class SynthEngine {
     this.synth.stopAllChannels(false);
     this.#renderScratch(WARM_UP_RELEASE_BLOCKS);
     this.synth.stopAllChannels(true);
-    this.synth.reset();
+    this.#reset();
     this.#state = { ...state, playing: true };
     for (let i = 0; i < WARM_UP_START_BLOCKS && this.#state.playing; i++) {
       this.#advance(this.#scratchLeft, this.#scratchRight);
     }
     this.synth.stopAllChannels(true);
-    this.synth.reset();
+    this.#reset();
     this.#sounding.fill(0);
     this.#state = state;
     this.synth.setSystemParameter('gain', gain);
+  }
+
+  /**
+   * Resets the synth, then sets the gain of each channel again. A reset of spessasynth_core can
+   * reset the channels, so each reset of the engine runs here.
+   */
+  #reset(): void {
+    this.synth.reset();
+    this.synth.midiChannels.forEach((channel, index) => {
+      channel.setSystemParameter('gain', this.#channelGains[index] ?? 1);
+    });
   }
 
   /** Renders blocks into the scratch buffers. */
@@ -396,7 +416,7 @@ export class SynthEngine {
       this.#releaseAll();
     }
     if (result.actions.chase) {
-      this.synth.reset();
+      this.#reset();
       for (const index of chaseEvents(this.#table, cursor)) {
         this.#send(index);
       }

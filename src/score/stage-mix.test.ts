@@ -129,6 +129,7 @@ describe('stageMix (design 6.1)', () => {
       channel: 2,
       pan: 64,
       reverbSend: (NEAR_REVERB_SEND + FAR_REVERB_SEND) / 2,
+      gainDb: 0,
     });
   });
 });
@@ -144,7 +145,7 @@ describe('mixSynthEvents (design 6.1)', () => {
         ),
       ],
     });
-    const mix: ChannelMix[] = [{ channel: 0, pan: 30, reverbSend: 70 }];
+    const mix: ChannelMix[] = [{ channel: 0, pan: 30, reverbSend: 70, gainDb: 0 }];
     const events = mixSynthEvents(score.synthEvents, mix);
     const controls = events.filter((event) => event.kind === 0xb0);
     expect(controls.map((event) => [event.timeSec, event.data1, event.data2])).toEqual([

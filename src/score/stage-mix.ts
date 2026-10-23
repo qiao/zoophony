@@ -34,7 +34,18 @@ export const NEAR_REVERB_SEND = 40;
 /** The reverb send (CC 91) of a player at {@link FAR_DEPTH} or farther. */
 export const FAR_REVERB_SEND = 80;
 
-/** The pan and the reverb send of one synth channel, from the stage places of its players. */
+/**
+ * The gain of a choir channel in dB (design 6.1). One synth channel sings for a full choir, so
+ * with no gain the choir is only as loud as the two oboes, about 9 dB below the orchestra in the
+ * tutti of the Beethoven 9 demo. With this gain, it is about 3 dB below the orchestra. The vocal
+ * soloists get no gain.
+ */
+export const CHOIR_GAIN_DB = 6;
+
+/**
+ * The pan, the reverb send, and the gain of one synth channel, from the stage places and the
+ * section of its players.
+ */
 export interface ChannelMix {
   /** `port * 16 + channel` (design 3.4). */
   readonly channel: number;
@@ -42,6 +53,8 @@ export interface ChannelMix {
   readonly pan: number;
   /** The value of CC 91, from {@link NEAR_REVERB_SEND} to {@link FAR_REVERB_SEND}. */
   readonly reverbSend: number;
+  /** The gain of the channel in dB: {@link CHOIR_GAIN_DB} for a choir channel, else 0. */
+  readonly gainDb: number;
 }
 
 /**
@@ -69,17 +82,26 @@ interface MixLayout {
  *
  * A channel feeds each seat whose sources hold it, and a merged seat has more than one channel
  * (design 3.7). All players of these seats count. A channel with no player (the sound-only seat)
- * gets the center pan and the send of the middle depth.
+ * gets the center pan and the send of the middle depth. A channel that feeds a choir seat, other
+ * than the seat of the vocal soloists, gets {@link CHOIR_GAIN_DB}.
  *
  * @param score The score.
  * @param layout The layout of the score, from `layoutScene()`.
  * @returns One entry for each channel of the seats, in channel order.
  */
-export function stageMix(score: Pick<Score, 'seats'>, layout: MixLayout): ChannelMix[] {
+export function stageMix(
+  score: Pick<Score, 'seats' | 'vocalSoloists'>,
+  layout: MixLayout,
+): ChannelMix[] {
   const sums = new Map<number, { x: number; depth: number; players: number }>();
-  score.seats.forEach((seat) => {
+  const choirs = new Set<number>();
+  score.seats.forEach((seat, index) => {
     for (const source of seat.sources) {
-      sums.set(source.port * 16 + source.channel, { x: 0, depth: 0, players: 0 });
+      const channel = source.port * 16 + source.channel;
+      sums.set(channel, { x: 0, depth: 0, players: 0 });
+      if (seat.section === 'choir' && index !== score.vocalSoloists) {
+        choirs.add(channel);
+      }
     }
   });
   const rightX = Math.cos(LISTENER_AZIMUTH);
@@ -101,16 +123,35 @@ export function stageMix(score: Pick<Score, 'seats'>, layout: MixLayout): Channe
   return [...sums.entries()]
     .toSorted(([a], [b]) => a - b)
     .map(([channel, sum]) => {
+      const gainDb = choirs.has(channel) ? CHOIR_GAIN_DB : 0;
       if (sum.players === 0) {
-        return { channel, pan: 64, reverbSend: sendAt((NEAR_DEPTH + FAR_DEPTH) / 2) };
+        return { channel, pan: 64, reverbSend: sendAt((NEAR_DEPTH + FAR_DEPTH) / 2), gainDb };
       }
       const side = clamp((sum.x / sum.players / half) * PAN_WIDTH, -1, 1);
       return {
         channel,
         pan: Math.round(64 + 63 * side),
         reverbSend: sendAt(sum.depth / sum.players),
+        gainDb,
       };
     });
+}
+
+/**
+ * Gives the gain of each synth channel of a mix, for the engine (design 6.1).
+ *
+ * @param mix The mix of each channel, from {@link stageMix}.
+ * @returns The gain in dB, by channel index. A channel with no entry gets 0.
+ */
+export function channelGainsDb(mix: readonly ChannelMix[]): number[] {
+  const gains: number[] = [];
+  for (const entry of mix) {
+    while (gains.length <= entry.channel) {
+      gains.push(0);
+    }
+    gains[entry.channel] = entry.gainDb;
+  }
+  return gains;
 }
 
 /**

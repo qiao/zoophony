@@ -769,7 +769,7 @@ describe('WorkletPlayer output chain (design 6.8)', () => {
     const player = new WorkletPlayer(BASE_URL, () => undefined);
     await loadFully(player, {
       ...score,
-      mix: [{ channel: 0, pan: 100, reverbSend: 70 }],
+      mix: [{ channel: 0, pan: 100, reverbSend: 70, gainDb: 0 }],
       gainDb: 0,
     });
     const sent = last(nodes).port.commands.find((command) => command.type === 'score');

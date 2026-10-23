@@ -1,4 +1,4 @@
-import { mixSynthEvents } from '../score/stage-mix.ts';
+import { channelGainsDb, mixSynthEvents } from '../score/stage-mix.ts';
 import type { ChannelMix } from '../score/stage-mix.ts';
 import type { Score } from '../score/types.ts';
 import {
@@ -31,8 +31,8 @@ import { SOUNDFONT_HEADROOM_DB } from './soundfont-info.ts';
 /** The fields of the `Score` that the audio needs, and the mix of the piece (design 3.2, 6.8). */
 export interface PlayerScore extends Pick<Score, 'durationSec' | 'synthEvents' | 'presets'> {
   /**
-   * The pan and the reverb send of each synth channel, from `stageMix()` with the layout of the
-   * score (design 6.1). They replace the pan and the reverb send of the file.
+   * The pan, the reverb send, and the gain of each synth channel, from `stageMix()` with the
+   * layout of the score (design 6.1). They replace the pan and the reverb send of the file.
    */
   readonly mix: readonly ChannelMix[];
   /**
@@ -307,7 +307,12 @@ export class WorkletPlayer implements Player {
     this.#output.input.gain.value = gainOfDb(SOUNDFONT_HEADROOM_DB + score.gainDb);
     this.#send(
       engine.node,
-      { type: 'score', table, durationSec: score.durationSec },
+      {
+        type: 'score',
+        table,
+        durationSec: score.durationSec,
+        channelGainsDb: channelGainsDb(score.mix),
+      },
       tableBuffers(table),
     );
     // The score resets the transport and keeps the rate of the synth, so the rate comes after it.
