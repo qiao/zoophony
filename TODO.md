@@ -448,28 +448,33 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
 - [x] Bear mesh: the user gave a bear mesh for the conductor on 2026-10-22. It stands on the
       podium near the size of the studio bear, with the baton along the index finger
       (`2026-10-22-mesh-bear.md`).
-- [ ] Bear size: the skull top of the mesh bear is 9% higher than the skull top of the studio
+- [x] Bear size: the skull top of the mesh bear is 9% higher than the skull top of the studio
       bear, and its shoulder joints 3.5% lower, because the mesh has low shoulders under a large
       head. Ask the user if the bear keeps this size (`2026-10-22-mesh-bear.md`).
-- [ ] Bear rest: in the rest pose, the arms of the mesh bear hang about 45° out around its belly,
+      Closed: the app uses the studio body again (`2026-10-22-studio-bears.md`).
+- [x] Bear rest: in the rest pose, the arms of the mesh bear hang about 45° out around its belly,
       and the baton points forward at the height of the waist. A conductor at rest holds the
       baton down. Try a rest with the arms nearer to the belly and the baton tip down (5.2).
-- [ ] Bear neck: the head turns of the cues fold up to 3 faces at the side of the neck of the mesh
+      Closed: the app uses the studio body again (`2026-10-22-studio-bears.md`).
+- [x] Bear neck: the head turns of the cues fold up to 3 faces at the side of the neck of the mesh
       bear in 3% of the play samples (`fold-probe.txt` of `docs/research/2026-10-22-mesh-bear/`).
+      Closed: the app uses the studio body again (`2026-10-22-studio-bears.md`).
 - [x] Polar bear mesh: the user gave a polar bear mesh for the pianist on 2026-10-22. It sits at
       the piano at the skull top of the studio polar bear, with arms 1.25 times the mesh
       (`2026-10-22-mesh-polar-bear.md`).
 - [x] Polar bear arms: the arms of the mesh reach the keys in front of its round belly only with
       a lean of 35°, so the rig makes them 1.25 times as long. The user chose to keep these arms
       (`2026-10-22-mesh-polar-bear.md`).
-- [ ] Polar bear folds: faces of the head, the neck, the right forearm, and the cut of the
+- [x] Polar bear folds: faces of the head, the neck, the right forearm, and the cut of the
       shoulders fold in 37% of the play samples since the seat of `2026-10-22-polar-seat.md`
       (52% before, 9.6% on the studio polar bear). The arm gate
       passes. Fit the head line and a shape of the right forearm (`fold.txt` of
       `docs/research/2026-10-22-mesh-polar-bear/`).
-- [ ] Polar bear upper arms: the thick upper arms press up to 10 cm into the sides of the round
+      Closed: the app uses the studio body again (`2026-10-22-studio-bears.md`).
+- [x] Polar bear upper arms: the thick upper arms press up to 10 cm into the sides of the round
       belly near the elbows in a play (`PIANIST_SWEEP`). Try a rounder inner side of the upper
       arm in a copy of the mesh, as for the rabbit (`2026-10-22-rabbit-elbow.md`).
+      Closed: the app uses the studio body again (`2026-10-22-studio-bears.md`).
 - [x] Polar bear seat (user, 2026-10-22: "also the polar bear's pose is very wrong now"): the mesh
       polar bear sits on near level thighs with its knees at 95°, the hip joints in the haunch,
       and the haunch on a bench under the thighs (`2026-10-22-polar-seat.md`).
@@ -479,25 +484,42 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
 - [x] Polar bear arm gate: on the longer legs, no piano hold passes the whole arm gate. The
       manager chose the hold g4 and accepted its move twist, lift folds, lowering depth, and note
       targets as the new base of the pianist (`2026-10-22-polar-legs.md`).
-- [ ] Polar bear forearms and lift: with the hold g4, the forearms slope down 15° to the paws
+- [x] Polar bear forearms and lift: with the hold g4, the forearms slope down 15° to the paws
       (a real pianist keeps them about level), the lift folds 73% of its samples (57% on `main`),
       and the left paw misses 7 of 3,931 notes by up to 10.4 mm
       (`docs/research/2026-10-22-polar-legs.md`).
-- [ ] Polar bear head top: the seated head top is 7.4% higher than on `main` (1.857 m), because
+      Closed: the app uses the studio body again (`2026-10-22-studio-bears.md`).
+- [x] Polar bear head top: the seated head top is 7.4% higher than on `main` (1.857 m), because
       the longer legs raise the haunch, and the head keeps 6.3 cm from the case (12 cm on `main`)
       (`docs/research/2026-10-22-polar-legs.md`).
-- [ ] Polar bear balance: the center of mass of the seated polar bear is 6 cm (rest) to 16 cm
+      Closed: the app uses the studio body again (`2026-10-22-studio-bears.md`).
+- [x] Polar bear balance: the center of mass of the seated polar bear is 6 cm (rest) to 16 cm
       (play) in front of the front edge of the bench, between the bench and the soles. The calves
       stop the bench front (`seat-round.txt` of `docs/research/2026-10-22-polar-seat/`).
-- [ ] Polar bear rest: in the rest pose, the paws of the mesh polar bear rest at chest height,
+      Closed: the app uses the studio body again (`2026-10-22-studio-bears.md`).
+- [x] Polar bear rest: in the rest pose, the paws of the mesh polar bear rest at chest height,
       higher than a pianist before a performance. On the longer legs, the lap point takes the top
       of the belly over the thigh, and lower places put the upper arms up to 11 cm into the belly
       (`logs/fit-rest3.txt` of `docs/research/2026-10-22-polar-legs/`).
-- [ ] Polar bear tail: from behind, the short tail of the seated mesh polar bear shows a light
+      Closed: the app uses the studio body again (`2026-10-22-studio-bears.md`).
+- [x] Polar bear tail: from behind, the short tail of the seated mesh polar bear shows a light
       jagged facet on its lower side in the play strip (`strip-az180.webp` of
       `docs/research/2026-10-22-mesh-polar-bear/`). Round it in a copy of the mesh.
+      Closed: the app uses the studio body again (`2026-10-22-studio-bears.md`).
 - [x] Bear armpit: the user wrote "the bear has deformed meshes under the arm". The free arm
       takes the back strip of each arm root (`2026-10-22-bear-armpit.md`).
+- [x] Studio bears (user, 2026-10-22: "revert to previous studio-generated bears, but add more
+      triangle to them to make them more smooth", "do not exceed 3000 meshes"): both bears have
+      their studio bodies again, with even facets within 3,000 faces, a crease angle of 70°, and
+      the color blend of the fur (`2026-10-22-studio-bears.md`).
+- [ ] Bear left upper arm: in Mozart K. 315 at 125.15 s, the left upper arm of the studio bear of
+      seed 2 goes 2.4 cm into the body (limit 1.5 cm, 2.3% of the samples). Seed 3 had 0 cm. An
+      elbow pole further out changed nothing (`docs/research/2026-10-22-studio-bears.md`).
+- [ ] Polar bear lap: on the near level thighs, the knees show in front of the belly, but the
+      thighs stay short, and the lap is small. A lower knee in the field of the studio failed the
+      gates on most seeds. Try a longer thigh with a new bind of the role and its seeds.
+- [ ] Bear head facets: at the crease angle 70° and the blend 0.12, the cheeks and the brow of
+      the bear show a few facets in the head crops. Try a larger blend on the head only.
 - [x] Bear arm gate: with the back strip on the arm, the rest arm hangs 2.2 cm to 2.5 cm further
       out (`radiusOf()` of `pose/hang.ts`), and the move twist max of the right paw grows from 73°
       to 79° (limit 176°, margin 3°), a `FAIL` of `pnpm arm-check conductor --base 5593e92b`.
