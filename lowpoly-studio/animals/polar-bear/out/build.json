@@ -1,44 +1,24 @@
 {
-  "run": "20261014-223406-78692",
+  "run": "20261022-184052-99788",
   "command": "build polar-bear",
-  "started": "2026-10-14T22:34:06-0700",
-  "seed": 6,
+  "started": "2026-10-22T18:40:52-0700",
+  "seed": 3,
   "shots": true,
   "until": null,
-  "glb": "35a2457f7bb4a1f206694bffaa6bcd0cdbadf0ceed6ee636f84c185fa16ec133",
+  "glb": "905563d9849c5e6275fb50ee9e4f3d200b371115adaa0c98dc0511ea029a4df5",
   "model": {
-    "seed": 8,
-    "log": "animals/polar-bear/out/model/stages/blender-seed8.log",
+    "seed": 1,
+    "log": "animals/polar-bear/out/model/stages/blender-seed1.log",
     "tried": [
       {
-        "seed": 6,
-        "why": "the remesh gate fails (open_edges 4, slit_faces 2)"
-      },
-      {
         "seed": 3,
-        "why": "the remesh gate fails (slivers 0.0108, open_edges 4)"
+        "why": "the remesh gate fails (open_edges 6)"
       },
       {
-        "seed": 1,
-        "why": "the remesh gate fails (open_edges 4, slit_faces 6)"
-      },
-      {
-        "seed": 5,
-        "why": "the remesh gate fails (slivers 0.0107, open_edges 4)"
-      },
-      {
-        "seed": 2,
-        "why": "the remesh gate fails (open_edges 4)"
-      },
-      {
-        "seed": 4,
-        "why": "the remesh gate fails (open_edges 4)"
-      },
-      {
-        "seed": 7,
-        "why": "the remesh gate fails (open_edges 4)"
+        "seed": 6,
+        "why": "the remesh gate fails (slit_faces 2)"
       }
     ],
-    "glb": "9352abccdb24853983297d8cc1a3dbd497f7466dddc1a64585eb22e10be91a1f"
+    "glb": "8b88192b0f7ecc000ea8f4a18a009bbe753757d0a7426dd51977c29c5f3a07c2"
   }
 }

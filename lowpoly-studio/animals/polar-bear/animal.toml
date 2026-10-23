@@ -173,20 +173,25 @@ sole_blend = 0.006
 blend = 0.012
 box_pad = 0.06
 
-# The low-poly facets: the remesh and the organic pass.
+# The low-poly facets: the remesh and the organic pass. The user asked on 2026-10-22 for smooth
+# and round bears in the app, within 3,000 faces ("do not exceed 3000 meshes"). So the belly and
+# the soles take no warp, the trunk takes no squeeze, and the facets take no jitter, as for the
+# bear (docs/decisions/2026-10-22-studio-bears.md of the repository). With the level thighs of
+# the pianist role of that day, seed 3 passes each gate. The quads rise from 780 to 960 for a
+# rounder body: 1,624 fur and 1,080 gloss faces.
 [facets]
-quads = 780
+quads = 960
 # Seed 6 comes first since the longer shins of 2026-10-14: in the poses of the app pianist, a
 # face of seed 6 folds in 9.4% of the play samples (the head and the neck), seed 3 has a corner of
 # the right upper arm with forearm and hand weights that folds in each pose, and seed 4 folds the
 # belly at the lean (`docs/research/2026-10-14-polar-fix.md`).
-seeds = [6, 3, 1, 5, 2, 4, 7, 8]
+seeds = [3, 6, 1, 5, 2, 4, 7, 8]
 offset = 0.004
-squeeze = { factor = 0.78, center = [0.0, 0.502, 0.02], radii = [0.32, 0.26, 0.32] }
+squeeze = { factor = 1.0, center = [0.0, 0.502, 0.02], radii = [0.32, 0.26, 0.32] }
 collapse_share = 0.3
 flip_share = 0.8
 relax = 0.12
-jitter = 0.005
+jitter = 0.0
 
 # python3 studio calibrate polar-bear --quads (2026-10-12): at the target 780, QuadriFlow gives
 # 760 to 850 quads on the seated field of the pianist and 792 to 940 on the standing field of
@@ -198,7 +203,7 @@ quads = 0.3
 [[facets.warps]]
 center = [0.0, 0.492, 0.02]
 radius = 0.24
-factor = 0.72
+factor = 1.0
 
 [[facets.warps]]
 center = [0.0, 0.952, 0.12]
@@ -213,7 +218,7 @@ factor = 2.6
 [[facets.warps]]
 center = [0.142, 0.035, 0.07]
 radius = 0.07
-factor = 1.8
+factor = 1.0
 mirror = true
 
 [[facets.warps]]

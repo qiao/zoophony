@@ -1,47 +1,31 @@
 {
   "animal": "polar-bear",
   "role": "pianist",
-  "run": "20261014-222730-505",
-  "made": "2026-10-14T22:29:10-0700",
-  "role_key": "1d655560531e640e",
+  "run": "20261022-183657-84287",
+  "made": "2026-10-22T18:37:20-0700",
+  "role_key": "fd2592fb0e584797",
   "reason": "a role check: the role pack, the template, or the clips changed since the last seed report",
   "require": "kept",
-  "kept": 7,
+  "kept": 3,
   "robust": false,
   "rule_pass": true,
-  "meshes": 4,
-  "robust_seeds": 1,
+  "meshes": 6,
+  "robust_seeds": 4,
   "seeds": [
     {
       "seed": 3,
-      "status": "gate",
-      "pass": false,
-      "remesh_gate": false,
-      "remesh_failed": [
-        "slivers 0.0148",
-        "slit_faces 2"
-      ],
-      "clips": {}
-    },
-    {
-      "seed": 1,
-      "status": "gate",
-      "pass": false,
-      "remesh_gate": false,
-      "remesh_failed": [
-        "slit_faces 2"
-      ],
-      "clips": {}
-    },
-    {
-      "seed": 5,
-      "status": "gate",
-      "pass": false,
-      "remesh_gate": false,
-      "remesh_failed": [
-        "slivers 0.0115"
-      ],
-      "clips": {}
+      "status": "pass",
+      "pass": true,
+      "remesh_gate": true,
+      "remesh_failed": [],
+      "clips": {
+        "reference": [],
+        "ready": [],
+        "play": [],
+        "chord": [],
+        "rest": [],
+        "performance": []
+      }
     },
     {
       "seed": 6,
@@ -49,9 +33,46 @@
       "pass": false,
       "remesh_gate": false,
       "remesh_failed": [
-        "slit_faces 2"
+        "slivers 0.0138",
+        "slit_faces 6"
       ],
       "clips": {}
+    },
+    {
+      "seed": 1,
+      "status": "contacts",
+      "pass": false,
+      "remesh_gate": true,
+      "remesh_failed": [],
+      "clips": {
+        "reference": [
+          "folds 1"
+        ],
+        "ready": [],
+        "play": [],
+        "chord": [],
+        "rest": [
+          "folds 1"
+        ],
+        "performance": [
+          "folds 1"
+        ]
+      }
+    },
+    {
+      "seed": 5,
+      "status": "pass",
+      "pass": true,
+      "remesh_gate": true,
+      "remesh_failed": [],
+      "clips": {
+        "reference": [],
+        "ready": [],
+        "play": [],
+        "chord": [],
+        "rest": [],
+        "performance": []
+      }
     },
     {
       "seed": 2,
@@ -63,7 +84,9 @@
         "reference": [],
         "ready": [],
         "play": [],
-        "chord": [],
+        "chord": [
+          "folds 1"
+        ],
         "rest": [
           "folds 2"
         ],
@@ -74,29 +97,17 @@
     },
     {
       "seed": 4,
-      "status": "contacts",
-      "pass": false,
+      "status": "pass",
+      "pass": true,
       "remesh_gate": true,
       "remesh_failed": [],
       "clips": {
-        "reference": [
-          "folds 1"
-        ],
-        "ready": [
-          "folds 2"
-        ],
-        "play": [
-          "folds 2"
-        ],
-        "chord": [
-          "folds 2"
-        ],
-        "rest": [
-          "folds 2"
-        ],
-        "performance": [
-          "folds 2"
-        ]
+        "reference": [],
+        "ready": [],
+        "play": [],
+        "chord": [],
+        "rest": [],
+        "performance": []
       }
     },
     {
@@ -116,28 +127,13 @@
     },
     {
       "seed": 8,
-      "status": "contacts",
+      "status": "gate",
       "pass": false,
-      "remesh_gate": true,
-      "remesh_failed": [],
-      "clips": {
-        "reference": [],
-        "ready": [
-          "folds 1"
-        ],
-        "play": [
-          "folds 1"
-        ],
-        "chord": [
-          "folds 1"
-        ],
-        "rest": [
-          "folds 1"
-        ],
-        "performance": [
-          "folds 1"
-        ]
-      }
+      "remesh_gate": false,
+      "remesh_failed": [
+        "slit_faces 4"
+      ],
+      "clips": {}
     }
   ]
 }
