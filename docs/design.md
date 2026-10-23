@@ -292,3 +292,4 @@ The decision files:
 - [`2026-10-22-dog-seams.md`](decisions/2026-10-22-dog-seams.md): the dog copy with round inner arms, a cut of each arm seam, a chest share of the inner arm root, and the open depth and gate items of the cellist.
 - [`2026-10-22-deer-dog-seams.md`](decisions/2026-10-22-deer-dog-seams.md): the deer copy with round inner arms and a cut of each arm seam above the back notch, and the dog rig that stays after six variants.
 - [`2026-10-22-rhino-arm-2.md`](decisions/2026-10-22-rhino-arm-2.md): the rhino copy with a round tube for each arm and a fair fill of the trunk, the triangle budget of 4,600, the arm weights of the tubes, and the head floor of the rhino.
+- [`2026-10-22-rabbit-armpit.md`](decisions/2026-10-22-rabbit-armpit.md): the rabbit copy with the front notch of the right arm root filled, the cause of the dent (the bend of the bind arm and the twist), and the open V crease in the play.
