@@ -6,7 +6,7 @@ each section.
 On 2026-10-22, the user said: "also the polar bear's pose is very wrong now", with a screenshot of
 the pianist from the side and above. The user slept, so the agent of the round `polar-seat`
 chose the rows by the measures, the brief of the manager, and the user rules. The report
-[`2026-10-22-polar-seat.md`](../research/2026-10-22-polar-seat.md) gives the measures. The user
+[`2026-10-22-polar-seat.md`](../research/2026-10-22-polar-seat.md) gives the measures. Later the same day the user asked for the studio polar bear again ([`2026-10-22-studio-bears.md`](2026-10-22-studio-bears.md)), so the rows of the app went. The rows below hold for the rig config `tools/mesh-rigs/polar-bear.json`, which the app does not read now. The user
 can reverse each decision. Then update its section, and remove its row.
 
 | Decision | Section |
