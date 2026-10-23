@@ -410,7 +410,11 @@ twist bone (`docs/decisions/2026-10-19-arm-skin.md`).
     (`proportions.head`). The joints and the rules of the config are then in the units of the
     scaled source.
   - Seat. The rig poses the seated bind of 5.2 (`studio.legTurns`), lowers the haunch onto the
-    seat (`sit`), and can turn the trunk upright or forward (`studio.trunk`). A body that stands
+    seat (`sit`), and can turn the trunk upright or forward (`studio.trunk`). The bind mesh is the
+    linear blend of the source in that pose. A dual quaternion blend of the arm roots
+    (`bind.blend`) keeps the radius of a vertex between the trunk and the arm, but no body uses
+    it: the dent at an arm root is the form of the bend from the hanging arm to the bind arm,
+    and the blend does not shrink it (`docs/research/2026-10-22-dq-bind.md`). A body that stands
     with no chair has no `sit`, so its haunch keeps its form. `pnpm rig-mesh --check` gives
     the gaps of the tail to the floor and to the chair over one sway period (`tools/tail-gap.ts`).
   - Weights and shapes. Bone heat gives the weights, and rules and rings of new vertices at the
