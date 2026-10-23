@@ -180,18 +180,21 @@ const FOX_TEXTURE_COLORS: SpeciesColors = {
 
 /** The animals of the studio that the app shows, by their ids in `lowpoly-studio/animals/`. */
 export const ANIMALS: ReadonlyMap<string, AnimalSettings> = new Map([
-  // The bear conductor: decisions/2026-10-22-mesh-bear.md. It stands on its podium, so the export
-  // keeps the standing pose of the rig.
+  // The bear conductor: decisions/2026-10-12-studio-bear.md and 2026-10-22-studio-bears.md.
   [
     'bear',
     {
       landmark: 'shoulders',
-      height: 0.96525,
-      seated: true,
-      soloist: true,
+      height: 1.0,
+      seated: false,
+      soloist: false,
       constant: 'STUDIO_BEAR',
       crease: 15,
-      glb: 'assets/models/bear/bear-mesh.rig.glb',
+      eyeNormal: 0.5,
+      // The face under the old eyes folds along a diagonal edge of the muzzle, and a bent oval
+      // there reads as a bean. Out and a little down, the fold is about half as strong, and the
+      // eyes sit further apart, as on the sheet (docs/decisions/2026-10-20-bear-eyes.md).
+      eyeShift: [0.1, -0.02],
     },
   ],
   // The polar bear pianist: decisions/2026-10-22-mesh-polar-bear.md. It sits on the piano bench,
