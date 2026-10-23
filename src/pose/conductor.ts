@@ -32,7 +32,10 @@ export const CONDUCTOR_HOLD = {
    * The point of the tip of the baton at beat 1 of each pattern, from the right shoulder joint.
    * With the pivot, it puts the wrist of a soft beat 1 about 0.35 H up, 0.7 H forward, and 0.35 H
    * out: a little below the chin, in front of the shoulder, and beside the head from behind, as in
-   * `mockup.png`. The tip is in front of the shoulder, so that the baton points in. With the
+   * `mockup.png`. The tip is in front of the shoulder, so that the baton points in. On the
+   * studio bear, the hold of the mesh bear at 0.93 of its meters puts the tip 0.3 H further out,
+   * because with that tip the claws went 7 cm into the muzzle when the head turned to a section on
+   * the right (`pnpm pose-depth conductor`, Mozart K. 525). With the
    * point of the studio bear of the baton across the fist (0.39, 1.48, -2.0), the baton along the
    * index finger pointed up 55°, and the arm stood out to the side. The values of the mesh bear
    * in `H` put the wrist at the chest, and the paw turned 3,735° per second in a lowering of the
@@ -42,7 +45,7 @@ export const CONDUCTOR_HOLD = {
    * Before the studio bear: the first point, 0.9 H up and 1.2 H forward, kept the hand next to
    * the head (UX audit 2026-10-05, AM1).
    */
-  beatPoint: [-0.02, 1.235, -2.177],
+  beatPoint: [0.28, 1.235, -2.177],
   /**
    * The baton points from this place to its tip, from the right shoulder joint: forward, up 30°,
    * and 20° inward at beat 1, as a conductor points it at the players. The pivot is 0.96 m from
@@ -51,7 +54,7 @@ export const CONDUCTOR_HOLD = {
    * baton up 22°, a fast turn of the paw (4,249° per second) jumped in the lowering of the arms,
    * and the arm gate failed.
    */
-  batonPivot: [0.887, -0.298, 0.318],
+  batonPivot: [1.187, -0.298, 0.318],
   /**
    * The beat plane turns this part of the turn of the upper body to a cued section on the left.
    * Thus the arm opens to the right in a turn to the left, and the hand stays beside the head from
