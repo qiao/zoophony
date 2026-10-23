@@ -362,8 +362,9 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
 - [x] Elephant: the narrow axis of the middle of each upper arm is 0.32 and 0.35 of the wide axis
       in the play, below the limit 0.44 of `pnpm arm-look`. Done: the rig frees each arm at its
       crease with the trunk, 0.55 and 0.47 (`2026-10-22-elephant-crease.md`).
-- [ ] Rabbit, rhino, panda: try `weights.armCrease` on each arm that is one solid with the trunk
-      (`2026-10-22-elephant-crease.md`).
+- [ ] Panda: try `weights.armCrease` on each arm that is one solid with the trunk
+      (`2026-10-22-elephant-crease.md`). The rabbit and the rhino have A-pose meshes since
+      2026-10-23.
 - [ ] Beaver: the narrow axis of the middle of each upper arm is 0.40 and 0.35 of the wide axis in
       the play, below the limit 0.44 of `pnpm arm-look`.
 - [ ] Elephant (A-pose mesh): the long arm faces show dark shards on the bent arms from the front
@@ -1142,19 +1143,20 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
             colors (`rhino-shoulders.glb`, `2026-10-22-rhino-arm-3.md`).
       - [x] Rhino right arm: a thin dark line shows where the tube meets the trunk from az150 at
             e20. The round shoulder of `rhino-arm-3` removes it (`root3x-az150-e20.webp`).
-      - [ ] Rhino arms: the ball and the inner side of each tube lie inside the trunk, so the
+      - [x] Rhino arms: the ball and the inner side of each tube lie inside the trunk, so the
             sweep gives the upper arms of the tubist 16.5 cm in the body at rest. Give the sweep
             an accepted depth after the test pause.
-      - [ ] Rhino trunk fill: `rhino-arm-3` replaced the fill under each shoulder, and no probe
+      - [x] Rhino trunk fill: `rhino-arm-3` replaced the fill under each shoulder, and no probe
             measured its down area again (`flap.ts` of `2026-10-22-rhino-arm-2/`: 582 and 654 cm²
-            on the old fill). No view shows a flap.
-      - [ ] Rhino right shoulder: from az90 it shows only as a soft bulge above the arm, because
+            on the old fill). No view shows a flap. Done: the A-pose mesh replaces the copy
+            (`2026-10-23-rhino-apose.md`), and so for each item of the tubes and the ball here.
+      - [x] Rhino right shoulder: from az90 it shows only as a soft bulge above the arm, because
             the source trunk rises 4.3 cm above the ball (`root3x-az90-e20.webp` of
             `2026-10-22-rhino-arm-3/`). A larger ball widens the footprint.
       - [ ] Rhino footprint: the shoulders widen it 2.1 cm, and the conductor pose of
             boulanger-matin changes from 257.38 s (`body-probe.txt` of `2026-10-22-rhino-arm-3/`).
             Check that the cue of the conductor still aims at the tuba.
-      - [ ] Rhino tubes: `pnpm frame` gives a GPU p50 of 6.45 ms (5.75 ms on the tip of
+      - [x] Rhino tubes: `pnpm frame` gives a GPU p50 of 6.45 ms (5.75 ms on the tip of
             2026-10-21). Compare with the base (`pnpm frame-compare afff590f <tip>`).
       - [ ] Body probe of the panda round: 18 pose sets of other players change at the start of
             brahms-2 and beethoven-9. Find the shared input that the panda rig moves.
