@@ -187,6 +187,11 @@ group of your work before you plan it. A probe that a trap names is in its resea
   Replace the arm with a round tube in a copy (`rhino_tubes.py` of
   `docs/research/2026-10-22-rhino-arm-2/`), give the tube only arm weights (`weights.armOwn`), and
   keep the upper arm weight off the trunk up to the shoulder joint (`weights.armBelow`).
+- A tube that ends in a dome inside the trunk shows no shoulder, the lips of the old notches stay
+  as dark gashes, and a fill with UVs copied from single faces shows color patches. Start the arm
+  at a ball around the shoulder joint, refill the trunk around it with a fine fair fill, and give
+  each new face one texel of a harmonic color (`rhino_shoulders.py` of
+  `docs/research/2026-10-22-rhino-arm-3/`).
 - A cut that ends below the root of the arm leaves a face at its top that shows as a black triangle
   on the back when the rest arm swings out around a belly. End the cut above the shoulder joint,
   and give the caps of the body the skin normals (`cut-views.webp` of
