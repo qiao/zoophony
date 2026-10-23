@@ -359,8 +359,11 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
 - [ ] Oboe mouse: the arm skin creases against the mesh in 19.6% and 21.4% of the edges in the
       play, above the limit 14.6% of `pnpm arm-look` (`arm-look-all-main.txt` of the research
       folder of `2026-10-21-arm-form.md`).
-- [ ] Elephant: the narrow axis of the middle of each upper arm is 0.32 and 0.35 of the wide axis
-      in the play, below the limit 0.44 of `pnpm arm-look`.
+- [x] Elephant: the narrow axis of the middle of each upper arm is 0.32 and 0.35 of the wide axis
+      in the play, below the limit 0.44 of `pnpm arm-look`. Done: the rig frees each arm at its
+      crease with the trunk, 0.55 and 0.47 (`2026-10-22-elephant-crease.md`).
+- [ ] Rabbit, rhino, panda: try `weights.armCrease` on each arm that is one solid with the trunk
+      (`2026-10-22-elephant-crease.md`).
 - [ ] Beaver: the narrow axis of the middle of each upper arm is 0.40 and 0.35 of the wide axis in
       the play, below the limit 0.44 of `pnpm arm-look`.
 - [x] Rhino: the left arm skin creased in 16.7% of the edges in the play, and the narrow axis of
