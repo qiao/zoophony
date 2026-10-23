@@ -305,12 +305,12 @@ export class MeshBuilder {
   }
 
   /**
-   * Adds triangles that each have their own color and finish, and corners that each have their
-   * own skin, such as the faces of a studio body (design 4.4).
+   * Adds triangles that each have their own finish, and corners that each have their own color
+   * and skin, such as the faces of a studio body (design 4.4).
    *
    * @param positions x, y, z of each corner, 9 numbers for each triangle, counterclockwise from
    *   outside.
-   * @param colors Linear r, g, b of each triangle.
+   * @param colors Linear r, g, b of each corner, 9 numbers for each triangle.
    * @param finishes The finish of each triangle, as an index in {@link FINISH_ORDER}.
    * @param skin Gives the skin of a corner from its index.
    * @throws Error if the skin of a corner has a weight that is not from 0 to 0.5.
@@ -328,7 +328,7 @@ export class MeshBuilder {
         positions[c * 3 + 1] ?? 0,
         positions[c * 3 + 2] ?? 0,
       );
-      this.#colors.push(colors[t * 3] ?? 0, colors[t * 3 + 1] ?? 0, colors[t * 3 + 2] ?? 0);
+      this.#colors.push(colors[c * 3] ?? 0, colors[c * 3 + 1] ?? 0, colors[c * 3 + 2] ?? 0);
       this.#pushSkin(skin(c));
       if (c % 3 === 2) {
         this.#finishes.push(finishes[t] ?? 0);

@@ -109,6 +109,13 @@ export interface AnimalSettings {
    */
   readonly crease: number;
   /**
+   * The largest difference of two face colors of the fur that blend at a vertex, in each sRGB
+   * channel from 0 to 1 (`StudioBody.colorBlend`, design 4.5). The bears take it, so that the
+   * steps of the paint and of the baked occlusion fade across the smooth fur (user, 2026-10-22).
+   * With no value, each face keeps its color.
+   */
+  readonly colorBlend?: number;
+  /**
    * The GLB file of the body, relative to the repository, when the studio does not build it, such
    * as a mesh of the user that `pnpm rig-mesh` rigs (route 3 of `docs/agents/model-work.md`). With
    * no file, the body comes from `lowpoly-studio/animals/<animal>/out/<animal>.glb`.
@@ -2506,6 +2513,9 @@ export function studioBody(bytes: Uint8Array, source: string, settings: AnimalSe
   };
   if (raises.length > 0) {
     body = { ...body, raises: raises.map((raise) => raise.pose) };
+  }
+  if (settings.colorBlend !== undefined) {
+    body = { ...body, colorBlend: settings.colorBlend };
   }
   const caps = withoutEyes.faces.flatMap((face, t) => (face.cap === true ? [t] : []));
   if (caps.length > 0) {

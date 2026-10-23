@@ -86,6 +86,101 @@ export function studioNormals(
 }
 
 /**
+ * Calculates the color of each corner of a studio mesh with a blend of the colors of the fur
+ * (design 4.5). A corner of a `matte` face gets the mean of the colors of the `matte` faces at its
+ * vertex whose normals turn from the normal of its own face by at most the crease angle, and
+ * whose colors differ from the color of its own face by at most `blend` in each sRGB channel.
+ * Each face counts with the angle of its corner at the vertex. Thus the small steps of the paint
+ * and of the baked occlusion fade across the fur, and a large step, such as the edge of a muzzle
+ * or of a brow, stays sharp. A corner of another finish, such as a claw, and a corner of a cap
+ * keep the color of their face.
+ *
+ * @param mesh The places of the welded vertices, the corners, and the finishes of the mesh.
+ * @param colors Linear r, g, b of each triangle.
+ * @param crease The crease angle in degrees.
+ * @param blend The largest difference of two face colors that blend, in each sRGB channel from
+ *   0 to 1. With 0, each corner keeps the color of its face.
+ * @param caps The `matte` triangles of the caps of the arms (`StudioBody.caps`).
+ * @returns Linear r, g, b of each corner, in the order of `mesh.corners`.
+ */
+export function studioCornerColors(
+  mesh: Pick<StudioMesh, 'positions' | 'corners' | 'finishes'>,
+  colors: ArrayLike<number>,
+  crease: number,
+  blend: number,
+  caps: readonly number[] = [],
+): Float32Array {
+  const { corners, finishes } = mesh;
+  const cornerCount = corners.length;
+  const out = new Float32Array(cornerCount * 3);
+  for (let c = 0; c < cornerCount; c++) {
+    const t = Math.floor(c / 3);
+    out[c * 3] = colors[t * 3] ?? 0;
+    out[c * 3 + 1] = colors[t * 3 + 1] ?? 0;
+    out[c * 3 + 2] = colors[t * 3 + 2] ?? 0;
+  }
+  if (blend <= 0) {
+    return out;
+  }
+  const isCap = faceFlags(cornerCount / 3, caps);
+  const { faces, angles, start, around } = meshFrame(mesh);
+  const srgb = Float32Array.from({ length: colors.length }, (_, i) => toSrgb(colors[i] ?? 0));
+  const limit = Math.cos((crease * Math.PI) / 180) - 1e-6;
+  for (let c = 0; c < cornerCount; c++) {
+    const own = Math.floor(c / 3);
+    if (finishes[own] !== MATTE || isCap[own] === 1) {
+      continue;
+    }
+    const ox = faces[own * 3] ?? 0;
+    const oy = faces[own * 3 + 1] ?? 0;
+    const oz = faces[own * 3 + 2] ?? 0;
+    let r = 0;
+    let g = 0;
+    let b = 0;
+    let total = 0;
+    const v = corners[c] ?? 0;
+    for (let i = start[v] ?? 0; i < (start[v + 1] ?? 0); i++) {
+      const other = around[i] ?? 0;
+      const face = Math.floor(other / 3);
+      if (finishes[face] !== MATTE || isCap[face] === 1) {
+        continue;
+      }
+      const turn =
+        ox * (faces[face * 3] ?? 0) +
+        oy * (faces[face * 3 + 1] ?? 0) +
+        oz * (faces[face * 3 + 2] ?? 0);
+      let step = 0;
+      for (let k = 0; k < 3; k++) {
+        step = Math.max(step, Math.abs((srgb[face * 3 + k] ?? 0) - (srgb[own * 3 + k] ?? 0)));
+      }
+      if (other === c || (turn >= limit && step <= blend)) {
+        const weight = angles[other] ?? 0;
+        r += (colors[face * 3] ?? 0) * weight;
+        g += (colors[face * 3 + 1] ?? 0) * weight;
+        b += (colors[face * 3 + 2] ?? 0) * weight;
+        total += weight;
+      }
+    }
+    if (total > 0) {
+      out[c * 3] = r / total;
+      out[c * 3 + 1] = g / total;
+      out[c * 3 + 2] = b / total;
+    }
+  }
+  return out;
+}
+
+/**
+ * Converts a linear color channel to sRGB.
+ *
+ * @param value The linear value from 0 to 1.
+ * @returns The sRGB value from 0 to 1.
+ */
+function toSrgb(value: number): number {
+  return value <= 0.0031308 ? 12.92 * value : 1.055 * value ** (1 / 2.4) - 0.055;
+}
+
+/**
  * Marks a list of triangles.
  *
  * @param count The number of triangles.

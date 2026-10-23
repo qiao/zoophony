@@ -9,7 +9,7 @@ import { BONE_NAMES, boneIndex } from './rig.ts';
 import { makeSkeleton } from './rig.ts';
 import { STUDIO_BONES, STUDIO_INFLUENCES, unpackStudioMesh } from './studio-format.ts';
 import type { StudioBody, StudioPalette } from './studio-format.ts';
-import { studioNormals } from './studio-normals.ts';
+import { studioCornerColors, studioNormals } from './studio-normals.ts';
 import {
   NO_OFFSETS,
   createStudioPose,
@@ -198,7 +198,13 @@ export function buildStudioBody(
   );
 
   const { corners, finishes } = rig.mesh;
-  const colors = palette ? colorsWith(name, palette) : rig.mesh.colors;
+  const colors = studioCornerColors(
+    rig.mesh,
+    palette ? colorsWith(name, palette) : rig.mesh.colors,
+    body.crease,
+    body.colorBlend ?? 0,
+    body.caps,
+  );
   const skins = playerSkins(rig);
   const places = new Float32Array(corners.length * 3);
   for (const [c, v] of corners.entries()) {
