@@ -94,7 +94,7 @@ percussion badgers, the tuba rhinos, and the harp deer have bodies of their own 
 uses the parametric biped body since 2026-10-21.
 Each species has one `SpeciesParams` in `SPECIES` of `models/species.ts`, and changes only its parameters. A
 species can have a body of its own in place of the biped (`body`, 4.4, bodies of their own and
-studio bodies). The bear has a studio body (`lowpoly-studio/`). The polar bear, the rabbit,
+studio bodies). The bear and the polar bear have studio bodies (`lowpoly-studio/`). The rabbit,
 the two foxes, the cat, the dog, the panda, the hippo, the mouse, the elephant, the beaver, the
 pig, the wolf, the monkey, the badger, the rhino, the deer, and the penguin have meshes of the user
 that `pnpm rig-mesh` rigs. The two foxes share one rig, and the tan fox takes
@@ -270,9 +270,9 @@ parts of 4.5 (body proportions) on the skeleton of 4.3, and a species with a `bo
 its own from `buildBiped()` in its place.
 
 The user chose each body of its own, and the table "Bodies and roles" of
-`docs/agents/model-work.md` lists them with their decision files. The bear conductor has the
-studio body of `lowpoly-studio/` (user, 2026-10-12), smooth since 2026-10-22. The polar bear
-pianist, the rabbit violinist,
+`docs/agents/model-work.md` lists them with their decision files. The bear conductor and the polar
+bear pianist have the studio bodies of `lowpoly-studio/` (user, 2026-10-12), smooth since
+2026-10-22. The rabbit violinist,
 the red violin fox, the viola cat, the cello dog, the trombone panda, the contrabass hippo, the
 oboe mouse, the timpani elephant, the bassoon beaver, the horn pig, the clarinet wolf, the trumpet
 monkey, the percussion badger, the tuba rhino, the harp deer, and the choir penguin have meshes of
@@ -280,7 +280,7 @@ the user that the app rigs itself (studio bodies, below). The tan flute fox has 
 fox with a tan palette. The mesh of the penguin replaces its egg body of 2026-10-11, by the newest
 decision of the user (`docs/decisions/2026-10-21-mesh-penguin.md`). The meshes of the rhino and the deer replace their parametric bodies
 (`docs/decisions/2026-10-21-mesh-rhino.md`, `docs/decisions/2026-10-21-mesh-deer.md`). The user
-asked for the studio bear again after its mesh, with more smooth fur
+asked for the studio bear and the studio polar bear again after their meshes, with more smooth fur
 (`docs/decisions/2026-10-22-studio-bears.md`).
 
 Each body follows these rules:
@@ -313,7 +313,7 @@ A studio body is the GLB file of an animal of `lowpoly-studio/`, or of a mesh of
 biped template with twist bones of the forearms, a skin of up to four bones for each vertex, and
 corrective shapes. The studio bodies are the bear conductor
 (`docs/decisions/2026-10-12-studio-bear.md`), the polar bear pianist
-(`docs/decisions/2026-10-22-mesh-polar-bear.md`), the rabbit violinist
+(`docs/decisions/2026-10-12-studio-polar-bear.md`), the rabbit violinist
 (`docs/decisions/2026-10-13-mesh-rabbit.md`), the red violin fox
 (`docs/decisions/2026-10-14-mesh-fox.md`), the tan flute fox
 (`docs/decisions/2026-10-14-fox-flute.md`), the viola cat (`docs/decisions/2026-10-16-mesh-cat.md`),
@@ -589,8 +589,9 @@ twist bone (`docs/decisions/2026-10-19-arm-skin.md`).
     the eye, and no dark face near the old eye takes the color of the fur (`eyeShell.darkReach`),
     so that the patches stay black around the pea eyes.
 - **Scale.** The scale keeps a landmark that the scene depends on (`ANIMALS` in
-  `tools/studio-body.ts`). The landmark is the shoulders of the bear for the conductor stand. For a
-  mesh body, it is the shoulders, the ear
+  `tools/studio-body.ts`). The landmark is the shoulders of the bear for the conductor stand, and
+  the keys of the studio piano of the polar bear, at the height that keeps its size. For a mesh
+  body, it is the shoulders, the ear
   tips, or the head top at the size that the user chose. A longer leg raises the landmark by the same height, so
   the trunk, the head, and the arms keep their meters. The user chose the head height of the red
   fox for the cat, the dog, the panda, and the hippo, and the head top of the parametric mouse
@@ -613,22 +614,14 @@ twist bone (`docs/decisions/2026-10-19-arm-skin.md`).
   the parametric rhino (`docs/decisions/2026-10-21-mesh-rhino.md`). No reference image shows a
   deer, so the skull top of the deer between its antlers took the skull top of the parametric deer,
   and then the user made the deer 1.2 times as large (`docs/decisions/2026-10-21-mesh-deer.md`). The crown of the penguin takes the head top of its egg
-  body (`docs/decisions/2026-10-21-mesh-penguin.md`). The bear and the polar bear keep the size
-  of their studio bodies: the polar bear keeps the meters for each unit at which the skull top of
-  its mesh stands as high as the skull top of its studio body
-  (`docs/decisions/2026-10-22-mesh-polar-bear.md`). A leg factor raises the standing shoulder
-  joints of a rig, so the landmark of the polar bear rises with them, and its longer legs do not
-  make its trunk, head, and arms smaller (`docs/decisions/2026-10-22-polar-legs.md`).
+  body (`docs/decisions/2026-10-21-mesh-penguin.md`). A leg factor of a rig raises its standing
+  shoulder joints, so the landmark rises with them, and the longer legs do not make the trunk, the
+  head, and the arms smaller (`docs/decisions/2026-10-22-polar-legs.md`).
 - **Seat.** A seated role binds its mesh seated, and the export puts its soles on the floor and its
-  seat at the front edge of the seat of the app. A body with a `seat` of `ANIMALS` then rises to
-  that seat height. The polar bear sits on a piano bench that fits its legs, so that its
-  feet touch the floor: its rig names its seat prop `bench` (`chair.prop`). Its hip joints lie
-  in the haunch and its knees at the bottom of the round body, so that the thick thighs turn
-  forward to near level, and the bench holds the whole haunch
-  (`PIANO_BENCH`, `docs/decisions/2026-10-22-polar-seat.md`). The short legs of the mesh gave a
-  low bench, and the round belly hid the lap, so the bear read almost as standing. Its thighs
-  and shins are longer than on the mesh, so that the knees stand out in front of the belly and
-  the bench is higher (`legFactor`, `docs/decisions/2026-10-22-polar-legs.md`). The rabbits, the foxes, the cats, the dogs, the pandas, the pigs, and the
+  seat at the front edge of the seat of the app. The polar bear then rises to its seat height
+  (`seat` of `ANIMALS`). The pianist of the studio binds with near level thighs and near upright
+  shins, as a real pianist sits, because thighs that slope down hid under the round belly, and
+  the bear read almost as standing (`docs/decisions/2026-10-22-studio-bears.md`). The rabbits, the foxes, the cats, the dogs, the pandas, the pigs, and the
   wolves have chairs that fit their legs, so that their feet touch the floor (user, 2026-10-16). The
   deer sits on the stool of the harp, which fits its legs too, with its whole haunch on the seat
   (user, 2026-10-21): the sit of its rig puts the underside of the haunch on the seat top, and
@@ -1237,10 +1230,9 @@ xylophone of the app, so the xylophone stays open for a choice of the user
 The studio bear keeps its arms (reach 0.54 m) and the baton of the app (0.51 m). The baton lies
 along its index finger, and the tip of beat 1 stands in front of the right shoulder, so that the
 wrist stays near the chin (5.4, `docs/decisions/2026-10-22-studio-bears.md`).
-The polar bear plays the piano of the app with arms 1.25 times the arms of its mesh (reach
-0.68 m), the choice of the agent while the user slept. Its round belly stands in front of its
-short arms, so the keys stand in front of the belly, and each paw reaches the key of each note
-(5.3, `docs/decisions/2026-10-22-mesh-polar-bear.md`).
+The round belly of the polar bear stands in front of its short arms, so the keys stand in front
+of the belly, and each paw reaches the key of each note (5.3,
+`docs/decisions/2026-10-14-polar-fix.md`).
 The chairs, the stands,
 and the podium keep their sizes in meters.
 
@@ -1258,7 +1250,7 @@ of each instrument (`models/instruments/`) holds its sizes and the offsets of it
 | Contrabass                       | The cello at 1.6 scale.                                                                                                 | At the left side, in front of the seat.                                                                                                                                                                                     |
 | Harp                             | 24 strings that show the 47 strings of a concert harp.                                                                  | On the floor in front of the chest, upright, turned so that the column goes to the front left (`HARP_PLACE`).                                                                                                               |
 | Piano                            | A case with an open lid, keys, and a desk. The lid opens less than in `mockup.png`, so that it hides no head behind it. | The keys stand in front of the floor point of the pianist (`PIANO_FRONT_H`), clear of the belly and the muzzle of the polar bear (5.3).                                                                                     |
-| Piano bench                      | A seat of `PIANO_BENCH`, at the seat of the legs of the polar bear (4.4, seat).                                         | A static prop under the pianist.                                                                                                                                                                                            |
+| Piano bench                      | A seat of `PIANO_BENCH`, or at `seat` of `ANIMALS` under the polar bear (4.4, seat).                                    | A static prop under the pianist.                                                                                                                                                                                            |
 | Choir folder                     | Two open covers with pages.                                                                                             | In both flippers, in front of the chest, with the pages to the eyes.                                                                                                                                                        |
 | Flute                            | A silver tube.                                                                                                          | The lip plate at the mouth. The flute points to the right.                                                                                                                                                                  |
 | Oboe                             | A thin dark tube with a bell.                                                                                           | The reed at the mouth, 30° from the vertical.                                                                                                                                                                               |
@@ -1355,7 +1347,7 @@ of three.js always blends four bones, so the second bone adds no shader work.
   writes their matrices from the pose of the player. So the pose code drives a studio body as
   each other body. A pose also holds the matrices of the twist bones of the upper arms
   (`UPPER_TWIST_BONES`), after the bones of the player. Only a body with `upperTwist` (4.4), the
-  hippo, the elephant, the rhino, and the polar bear, puts weight on them: each one turns with its upper arm, less the rest of the roll from the chest.
+  hippo, the elephant, and the rhino, puts weight on them: each one turns with its upper arm, less the rest of the roll from the chest.
 - The `jaw` bone of a studio body is a child of `head` at the hinge of the beak, and it follows
   the `jaw` of the player, whose bind place is then the hinge. The choir pose opens it (5.3). A
   body with no jaw keeps the `jaw` of the player at the tip of the nose, with no vertex on it.
