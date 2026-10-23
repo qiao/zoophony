@@ -1068,12 +1068,24 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
             the free root turns with the bone and the measure starts at the chest. The twist along
             the upper arm falls from 17° to 6°. Accept it as a decision row, or let the twist of
             `tools/arm-shape.ts` start at the shoulder ring for a cut arm.
-      - [ ] Dog shards at both shoulders from the back: six variants of round `deer-dog-seams`
-            gave no clean root with the folds of the base. The best, a cut at 0.64 with a round
-            patch (step 0.02), softens the wedge, but face 342 at the top of the right shoulder
-            folds in 5.3% of the lift (16.1% to 17.5%), and the upper arms go 5.5 cm into the
-            body. Next: a `raise` shape of the lift for face 342 (`pnpm raise-fit cellist --faces
-            342 --side R --sets lift --glb <rig>`), then the audit.
+      - [x] Dog shards at both shoulders from the back: the rig reads a copy with a round patch
+            on each inner arm, cuts the seam at 0.64, and gives the inner root a chest share
+            (round `dog-seams`, `docs/research/2026-10-22-dog-seams.md`).
+      - [ ] Dog upper arms in the body: 5.2 cm in the play and the lowering (goal 3.5 cm, base
+            2.0 cm), 4.7 cm in the lift. The front of the bow arm crosses the chest at 248 s of
+            boulanger-matin. Try a larger `weights.armRoot.along`, or a bow hold that keeps the
+            upper arm off the chest.
+      - [ ] Dog lift folds: 17.1% (base 16.1%), faces 342 and 172 at the right shoulder top. A
+            `raise` shape for them pushed a pointed sheet out of the shoulder
+            (`shape-spike-247.webp`). Try a shape fitted on the lift alone with the fade 5° to
+            10°, and check the zoomed strip from the right.
+      - [ ] Dog marks after the cut: a soft star dent on the chest below the right arm root from
+            the right side (`strip-dog-az90-shoulder.webp`), where the caps of the body meet in a
+            fan, and a thin dark line at the right root from az150 at rest. Try a fair of the
+            body caps (`fair.py` of `docs/research/2026-10-21-rabbit-notch.md`).
+      - [x] Dog arm gate: twist p95 L 46° (base 31°), R 59° (46°), flat p5 R 0.62 (0.68), all
+            `FAIL`. The cut root turns with the bone, as on the deer. Accept it as a decision
+            row, or let the twist of `tools/arm-shape.ts` start at the shoulder ring.
       - [ ] Rhino left arm (user, 2026-10-22: "the panda and rhino's arms also got deformed",
             then, after the round `rhino-arm`, "the rhino's left arm is now completed deformed").
             The round patch of each inner arm (`rhino-arms.glb`, `2026-10-22-rhino-arm.md`) is
