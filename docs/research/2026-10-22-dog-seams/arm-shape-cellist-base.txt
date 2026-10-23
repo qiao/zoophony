@@ -1,0 +1,25 @@
+
+> zoophony@0.0.0 arm-shape /Users/xueqiaoxu/proj/zoophony/.claude/worktrees/dog-seams
+> node tools/arm-shape.ts cellist --rings --glb /private/tmp/claude-501/-Users-xueqiaoxu-proj-zoophony/a3b47bb4-448c-4118-8795-27eff295afc3/scratchpad/ds/rigs/pa/base.glb
+
+Arm skin of cellist over 14 demos: twist and roll in degrees, collapse and flat as shares of the bind, spikes of the shoulder and the armpit (edge growth > 1.8).
+
+| Set | Side | Samples | Bone roll | Twist p50 / p95 | Collapse p50 / p5 | Flat p50 / p5 | Spikes mean / max | Folds |
+|---|---|---|---|---|---|---|---|---|
+| rest | L | 14 | 33 | 16 / 16 | 0.96 / 0.96 | 0.78 / 0.78 | 2.0 / 2 | 0.0% |
+| rest | R | 14 | -64 | 44 / 44 | 0.75 / 0.75 | 0.71 / 0.71 | 1.0 / 1 | 0.0% |
+| play | L | 17788 | 42 | 21 / 31 | 0.70 / 0.69 | 0.78 / 0.75 | 0.0 / 0 | 7.1% |
+| play | R | 17788 | -66 | 41 / 46 | 0.99 / 0.94 | 0.83 / 0.79 | 1.0 / 2 | 7.1% |
+| lift | L | 434 | 42 | 21 / 27 | 0.71 / 0.68 | 0.79 / 0.76 | 0.4 / 2 | 16.1% |
+| lift | R | 434 | -64 | 40 / 44 | 0.99 / 0.75 | 0.81 / 0.68 | 0.9 / 1 | 16.1% |
+
+Median of each ring (roll / collapse / flat): shoulder, upper, elbow, forearm.
+
+| Set | Side | shoulder | upper | elbow | forearm |
+|---|---|---|---|---|---|
+| rest | L | 16 / 0.96 / 0.78 | 27 / 1.00 / 0.98 | 25 / 1.11 / 0.98 | -24 / 0.97 / 0.93 |
+| rest | R | -44 / 0.75 / 0.71 | -56 / 0.93 / 0.90 | -64 / 1.06 / 1.09 | 24 / 0.92 / 0.89 |
+| play | L | 21 / 0.92 / 0.90 | 36 / 0.97 / 0.97 | 35 / 1.01 / 0.94 | -37 / 0.70 / 0.79 |
+| play | R | -41 / 1.02 / 0.83 | -58 / 0.99 / 0.95 | -64 / 1.05 / 1.05 | -3 / 1.00 / 1.02 |
+| lift | L | 21 / 0.92 / 0.89 | 36 / 0.97 / 0.97 | 35 / 1.01 / 0.95 | -37 / 0.71 / 0.80 |
+| lift | R | -40 / 1.03 / 0.81 | -57 / 0.99 / 0.95 | -64 / 1.06 / 1.07 | -3 / 1.03 / 1.03 |

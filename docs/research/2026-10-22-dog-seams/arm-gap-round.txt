@@ -1,0 +1,2 @@
+dog:
+  Arms and trunk in the stance of the source (place along the arm: 1 the elbow, 2 the wrist; join limit 0.79, touch below 0.5 cm): L join 0.43 to 0.43, gap 11.6 cm at 0.53; R join 0.38 to 0.38, gap 7.8 cm at 0.49.
