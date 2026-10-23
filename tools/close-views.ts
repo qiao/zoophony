@@ -36,6 +36,7 @@ import { SHOT_SEED, prepareShots } from '../src/shots/prepare.ts';
 import type { CameraPose, Shot } from '../src/shots/types.ts';
 import { FIELD_OF_VIEW } from '../src/shots/view.ts';
 import { chromiumArgs } from './chromium-args.ts';
+import { startCinematic } from './cinematic-mode.ts';
 import { glbModule, speciesAnimal } from './glb-swap.ts';
 import { setHolds } from './hold-sets.ts';
 import { patchedDemo } from './patch-demos.ts';
@@ -3847,7 +3848,9 @@ async function openMidi(page: Page, midi: string, frame: string): Promise<void> 
  * Opens the page of a play frame of a site, and sets its camera: it plays the demo, and closes the
  * drawer. With `--midi`, it then opens the file ({@link openMidi}). Out of Cinematic mode, it
  * moves the camera to the default view with "Reset view", and drags and turns the wheel of the
- * camera. In Cinematic mode, it does not touch the camera, so the shot plan of the app moves it.
+ * camera. In Cinematic mode, it turns on the automatic camera before the play
+ * ({@link startCinematic}), and then it does not touch the camera, so the shot plan of the app
+ * moves it.
  * Then it moves the pointer onto the stage, so that the bar hides {@link BAR_HIDE_SEC} later.
  *
  * @param browser The browser.
@@ -3883,6 +3886,9 @@ async function openPlay(
     ready: SAMPLES_READY,
   });
   try {
+    if (args.cinematic) {
+      await startCinematic(page);
+    }
     await page.click(FIRST_PLAY);
     await page.waitForTimeout(1500);
     // The open drawer keeps the bar and covers the right side of the stage (design 2.8).

@@ -15,6 +15,7 @@ import { ModelCache } from '../src/models/model-cache.ts';
 import { buildScore } from '../src/score/score.ts';
 import { SHOT_SEED, prepareShots } from '../src/shots/prepare.ts';
 import type { ShotKind, ShotPlan } from '../src/shots/types.ts';
+import { startCinematic } from './cinematic-mode.ts';
 import { patchedDemos } from './patch-demos.ts';
 
 /** One screenshot of the review of a step (design 9.8). */
@@ -225,8 +226,8 @@ function demoShotPlan(bytes: Uint8Array): ShotPlan {
 }
 
 /**
- * Takes the screenshot of a camera shot: it plays the demo, seeks to the shot during play, and
- * waits 1.5 s. The bar hides 3 s after the click on play, so the screenshot shows the scene only.
+ * Takes the screenshot of a camera shot: it turns on the automatic camera, plays the demo, seeks
+ * to the shot during play, and waits 1.5 s. The bar hides 3 s after the click on play, so the screenshot shows the scene only.
  *
  * @param browser The browser.
  * @param base The URL of the site.
@@ -236,6 +237,7 @@ function demoShotPlan(bytes: Uint8Array): ShotPlan {
 async function cameraScreenshot(browser: Browser, base: string, shot: CameraShot): Promise<Buffer> {
   const page = await openShot(browser, base + shot.path.slice(1), shot);
   try {
+    await startCinematic(page);
     await page.click(FIRST_PLAY);
     const clicked = Date.now();
     await page.waitForTimeout(1500);

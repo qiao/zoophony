@@ -24,6 +24,7 @@ import type { InlineConfig } from 'vite';
 
 import { FIRST_PLAY, SAMPLES_READY } from '../src/app/dev-hook.ts';
 import { chromiumArgs } from './chromium-args.ts';
+import { startCinematic } from './cinematic-mode.ts';
 import { ROOT, optionValue, runChild, shortHash, withRefTree } from './ref-tree.ts';
 
 /**
@@ -171,6 +172,9 @@ async function renderShots(
         await page.addInitScript(FREEZE);
         await page.goto(`${base}#demo=${shot.demo}`);
         await page.waitForSelector(SAMPLES_READY, { timeout: 120_000 });
+        if (!shot.free) {
+          await startCinematic(page);
+        }
         await page.click(FIRST_PLAY);
         await page.waitForTimeout(1500);
         await page.click('.close-drawer', { timeout: 2000 }).catch(() => undefined);

@@ -6,6 +6,7 @@ import { createServer } from 'vite';
 
 import { FIRST_PLAY, SAMPLES_READY } from '../src/app/dev-hook.ts';
 import { chromiumArgs } from './chromium-args.ts';
+import { startCinematic } from './cinematic-mode.ts';
 import { firstPaintFailures, readFirstPaint } from './first-paint.ts';
 import type { FirstPaint } from './first-paint.ts';
 
@@ -334,6 +335,8 @@ async function runSmoke(
   await page.waitForSelector(SAMPLES_READY, { timeout: 60_000 });
   const violin = await page.evaluate(() => window.zoophony?.instruments.indexOf('violin') ?? -1);
   const modeAtLoad = await modeOf(page);
+  // The play is in Cinematic mode, so that the camera check sees the shots move the camera.
+  await startCinematic(page);
   const before = await readSample(page, violin, Date.now());
   const songTimeBefore = before.songTime;
   await page.click(FIRST_PLAY);

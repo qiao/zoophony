@@ -12,6 +12,7 @@ import { createServer } from 'vite';
 
 import { FIRST_PLAY, SAMPLES_READY } from '../src/app/dev-hook.ts';
 import { chromiumArgs } from './chromium-args.ts';
+import { startCinematic } from './cinematic-mode.ts';
 import {
   busyMs,
   canvasWriteFrames,
@@ -662,7 +663,7 @@ async function launchChrome(options: FrameOptions, uncapped: boolean): Promise<B
 
 /**
  * Opens the demo in a new page with the frame probe, waits until its samples are ready, and
- * starts the play.
+ * starts the play. Without `--free`, the play is in Cinematic mode.
  *
  * @param browser The browser.
  * @param base The URL of the dev server.
@@ -688,6 +689,10 @@ async function playDemo(browser: Browser, base: string, options: FrameOptions): 
   await page.goto(`${base}#demo=${options.demo}`);
   await page.waitForSelector(`canvas[data-demo="${options.demo}"]`, { timeout: 60_000 });
   await page.waitForSelector(SAMPLES_READY, { timeout: 120_000 });
+  if (!options.free) {
+    // The frame target also holds in Cinematic mode (design 9.7).
+    await startCinematic(page);
+  }
   await page.click(FIRST_PLAY);
   await page.waitForTimeout(WARM_SEC * 1000);
   return page;
