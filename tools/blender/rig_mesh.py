@@ -1267,6 +1267,74 @@ def arm_side(verts, rules, heads, ends, sign):
     return side
 
 
+#: The plane of the crease of each side (`crease_side()`), by the sign of the side.
+CREASE_PLANES = {}
+
+
+def crease_side(verts, tris, rule, heads, ends, sign):
+    """Finds the vertices of one side beyond the crease where a joined upper arm meets the trunk
+    (`armCrease` of the rules). In a mesh whose hanging arm is one solid with the trunk, the
+    surface turns in at a concave crease along the front and the back of the upper arm. The plane
+    of `armSplit` lies out of these creases, so the free arm was only the outer shell of the arm,
+    and the cut closed it with a flat face: a thin plate in each raised pose, with no armpit. The
+    rule finds each concave edge sharper than `angle` degrees between the heights `heights`,
+    farther than `inner` from the middle plane and within `radius` of the arm chain, and fits a
+    plane x = a + b y + c z through their middles, with no edge farther than `fit` from it. A
+    vertex below the height `below` and farther than `margin` out of that plane lies on the side
+    of the arm. Gives a mask of the vertices."""
+    left = verts * [sign, 1.0, 1.0]
+    low, high = rule['heights']
+    chain = np.asarray([heads[f'{bone}_L'] for bone in ARM if bone != 'forearm_twist']
+                       + [ends['fingers_L']], float)
+    gap = np.full(len(verts), np.inf)
+    for a, b in zip(chain[:-1], chain[1:]):
+        ab = b - a
+        share = np.clip(((left - a) @ ab) / (ab @ ab), 0.0, 1.0)
+        gap = np.minimum(gap, np.linalg.norm(left - (a + share[:, None] * ab), axis=1))
+    near = ((left[:, 0] > rule['inner']) & (left[:, 1] > low) & (left[:, 1] < high)
+            & (gap < rule['radius']))
+    faces = {}
+    for k, t in enumerate(tris):
+        for i in range(3):
+            a, b = int(t[i]), int(t[(i + 1) % 3])
+            faces.setdefault((min(a, b), max(a, b)), []).append(k)
+    normals = np.cross(verts[tris[:, 1]] - verts[tris[:, 0]], verts[tris[:, 2]] - verts[tris[:, 0]])
+    normals /= np.linalg.norm(normals, axis=1)[:, None]
+    middles = []
+    for (a, b), pair in faces.items():
+        if len(pair) != 2 or not (near[a] and near[b]):
+            continue
+        far = next(int(v) for v in tris[pair[1]] if v not in (a, b))
+        middle = (verts[a] + verts[b]) / 2
+        bend = math.degrees(math.acos(np.clip(normals[pair[0]] @ normals[pair[1]], -1.0, 1.0)))
+        if (verts[far] - middle) @ normals[pair[0]] > 0 and bend > rule['angle']:
+            middles.append(middle * [sign, 1.0, 1.0])
+    plane = CREASE_PLANES.get(sign)
+    if plane is None:
+        # The first call sees the source. The cut removes the faces of the crease, so each later
+        # call takes the plane of the first call.
+        if len(middles) < 3:
+            raise SystemExit(f'armCrease finds {len(middles)} crease edges on the side '
+                             f'{sign:+.0f}.')
+        middles = np.array(middles)
+        rows = np.c_[np.ones(len(middles)), middles[:, 1], middles[:, 2]]
+        keep = np.ones(len(middles), bool)
+        # A crease of the trunk near the arm lies far from the plane of the arm crease. Each
+        # round drops the edge farthest from the plane while it is farther than `fit`.
+        while True:
+            plane, *_ = np.linalg.lstsq(rows[keep], middles[keep, 0], rcond=None)
+            far = np.where(keep, np.abs(rows @ plane - middles[:, 0]), -1.0)
+            if far.max() <= rule['fit'] or keep.sum() <= 3:
+                break
+            keep[int(np.argmax(far))] = False
+        CREASE_PLANES[sign] = plane
+        log(f'arm crease {sign:+.0f}: {int(keep.sum())} of {len(middles)} edges, x = '
+            f'{plane[0]:.4f} + {plane[1]:.4f} y + {plane[2]:.4f} z, largest distance '
+            f'{far.max():.4f} u')
+    out = left[:, 0] > plane[0] + plane[1] * left[:, 1] + plane[2] * left[:, 2] + rule['margin']
+    return out & (left[:, 1] < rule['below'])
+
+
 def free_arm(verts, tris, rules, heads, ends, sign):
     """Finds the vertices of the free arm of one side: the part of the mesh beyond the plane of the
     arm split (`arm_side()`) that holds the vertex nearest to the finger tip. The haunch beside the
@@ -1275,7 +1343,10 @@ def free_arm(verts, tris, rules, heads, ends, sign):
     free arm surround (`arm_islands()`), such as the new inner side of a remodeled arm that lies
     inside the plane."""
     tip = np.asarray(ends['fingers_L'], float) * [sign, 1.0, 1.0]
-    free = connected_part(verts, tris, arm_side(verts, rules, heads, ends, sign), tip)
+    side = arm_side(verts, rules, heads, ends, sign)
+    if rules.get('armCrease'):
+        side |= crease_side(verts, tris, rules['armCrease'], heads, ends, sign)
+    free = connected_part(verts, tris, side, tip)
     if rules.get('armIslands'):
         free |= arm_islands(verts, tris, free, sign)
     return free
