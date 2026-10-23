@@ -318,13 +318,15 @@ export const ACCEPTED_GRIPS: ReadonlyMap<string, Readonly<Record<Side, number>>>
   ['violist', { L: 156, R: -93 }],
   ['cellist', { L: -146, R: 12 }],
   ['bassist', { L: -164, R: 22 }],
-  ['flutist', { L: -120, R: -122 }],
   ['trombonist', { L: -104, R: -40 }],
-  ['oboist', { L: -120, R: -97 }],
   ['timpanist', { L: -2, R: -6 }],
   ['bassoonist', { L: -118, R: -70 }],
   ['hornist', { L: -153, R: -54 }],
-  ['clarinetist', { L: -86, R: -67 }],
+  // The palms of the woodwinds of the wolf, the mouse, and the tan fox face their tubes
+  // (palmToTube of pose/winds.ts, docs/decisions/2026-10-23-night-fixes.md).
+  ['clarinetist', { L: 16, R: 11 }],
+  ['oboist', { L: -8, R: -9 }],
+  ['flutist', { L: -120, R: -30 }],
   ['trumpeter', { L: -99, R: -98 }],
   // The rhino of the A-pose mesh (docs/decisions/2026-10-23-rhino-apose.md).
   ['tubist', { L: -129, R: -148 }],

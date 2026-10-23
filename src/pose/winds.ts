@@ -372,6 +372,7 @@ const FOX_FLUTE = {
     fingers: [0, -1, -0.3],
     arc: [0.57, 0.04, 0.31],
   },
+  palmToTube: true,
 } as const satisfies WindHold;
 
 /**
@@ -455,6 +456,7 @@ const MOUSE_OBOE = {
   play: holdTurn(MOUSE_OBOE_FORWARD, 0),
   poleL: [-0.5, -1, -0.5],
   poleR: [0.5, -1, -0.5],
+  palmToTube: true,
 } as const satisfies WindHold;
 
 /** The forward turns of the shoulder bones of the bassoon beaver while it plays, in degrees. */
@@ -599,6 +601,7 @@ const WOLF_CLARINET = {
   poleR: [0.3, -1, 0],
   restPoleL: [-0.3, -1, 0],
   restPoleR: [0.3, -1, 0],
+  palmToTube: true,
 } as const satisfies WindHold;
 
 /**
