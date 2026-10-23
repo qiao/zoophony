@@ -9,9 +9,10 @@ Brief: `brief-studio-bears.md` of the manager scratchpad. Worktree
 
 - Both bears are done and committed: studio bodies with even facets, crease 70, color blend
   0.12, the baton hold of the studio bear, the level thighs of the pianist, the lean of 28°, the
-  docs, the report, and the open items in `TODO.md`.
+  docs, the report, the audit sheets, the size, the frame, and the open items in `TODO.md`.
 
 ## Next step
 
-- Read the audit sheets of `close-views audit --roles conductor,pianist --base d7f4e76e`, run
-  `pnpm size --base d7f4e76e` and `pnpm frame`, then `tools/check-commits.sh --tip d7f4e76e`.
+- The round is done. `tools/check-commits.sh --tip d7f4e76e` runs last. The open items are in
+  `TODO.md` (the left upper arm of the bear, the upper arms and the lap of the polar bear, the
+  head facets of the bear).
