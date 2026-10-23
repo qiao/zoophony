@@ -334,7 +334,8 @@ export const ANIMALS: ReadonlyMap<string, AnimalSettings> = new Map([
     },
   ],
   // The timpani elephant: decisions/2026-10-19-mesh-elephant.md. It stands at its timpani, so the
-  // export keeps the standing pose of the rig. Its trunk follows the head below the chin.
+  // export keeps the standing pose of the rig. Its trunk follows the head below the chin. Its eyes
+  // are 0.6 of the pea eyes of its head, because the large head with its ears made them large.
   [
     'elephant',
     {
@@ -346,6 +347,7 @@ export const ANIMALS: ReadonlyMap<string, AnimalSettings> = new Map([
       crease: 35,
       glb: 'assets/models/elephant/elephant.rig.glb',
       headFloor: 0.69,
+      eyeSize: 0.6,
     },
   ],
   // The bassoon beaver: decisions/2026-10-19-mesh-beaver.md. A bassoon soloist keeps its seat,
