@@ -298,4 +298,5 @@ The decision files:
 - [`2026-10-22-elephant-crease.md`](decisions/2026-10-22-elephant-crease.md): the elephant elbows near the body at the timpani.
 - [`2026-10-23-elephant-apose.md`](decisions/2026-10-23-elephant-apose.md): the elephant mesh in an A-pose with its own faces and no cut or split, its size, the line rule, the shapes of the raised arms, the open shards of the long arm faces, and the smaller eyes.
 - [`2026-10-23-rhino-apose.md`](decisions/2026-10-23-rhino-apose.md): the rhino mesh in an A-pose with its own faces and no copy, cut, or split, its size and arms, the line rule, the new accepted grip of the tubist, and its depths.
-- [`2026-10-23-night-fixes.md`](decisions/2026-10-23-night-fixes.md): the pizzicato of the dog from the side, the rest viola of the cat and the rest elbow of the beaver with no twist through 180°, the palms of the woodwinds toward the tube, and the smaller eyes of the polar bear.
+- [`2026-10-23-night-fixes.md`](decisions/2026-10-23-night-fixes.md): the pizzicato of the dog from the side, the rest viola of the cat and the rest elbow of the beaver with no twist through 180°, and the palms of the woodwinds toward the tube.
+- [`2026-10-23-bear-eye-size.md`](decisions/2026-10-23-bear-eye-size.md): the slightly larger eyes of the bear and the polar bear.

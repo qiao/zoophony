@@ -18,4 +18,3 @@ images. The user can reverse each decision. Then update its section, and remove 
 | Beaver: the left rest elbow takes the play direction (`BEAVER_BASSOON.restPoleL`). The rest paw turned 178°, and the lowering crossed 180°. | 5.2 |
 | Wolf, mouse, tan fox: each paw on its grip rolls until its palm faces the tube (`palmToTube`). The left paw of the tan fox leaves its grip at rest and keeps its roll, because the mix from its rest paw flipped. | 5.3 |
 | The accepted grips of the clarinetist, the oboist, and the flutist take the new play medians. | 9.8 |
-| Polar bear: the eyes take 0.7 of the pea eye size. At 0.6 the eye left a gap in the painted lids of the studio face. The elephant row is in `2026-10-23-elephant-apose.md`. | 4.4 |

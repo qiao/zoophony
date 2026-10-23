@@ -387,10 +387,11 @@ twist bone (`docs/decisions/2026-10-19-arm-skin.md`).
   that shows. A large head box behind the eyes turns them up, and such eyes look up, so a body
   can turn its eyes level (`eyeLevel` of `ANIMALS`, the wolf). A pea eye is a share of the head
   height that shows, so a large head gets large eyes, and a body can scale its eyes (`eyeSize` of
-  `ANIMALS`, the elephant and the polar bear, user, 2026-10-23: "eyes too big"). A flat oval on a curved cheek, or
-  on a face that slopes against the direction of the eye, stood out of the fur at one edge. So
-  each oval bends along its direction to a fit of the head surface under it, and its middle lies
-  on the surface (`eyeBend()`, `StudioEyes.bends`). Its rim then lies at the fur in each view, and
+  `ANIMALS`: smaller on the elephant and the polar bear, larger on the bear, user,
+  2026-10-23). A flat oval on a curved cheek, or on a face that slopes against the direction of the
+  eye, stood out of the fur at one edge. So each oval bends along its direction to a fit of the
+  head surface under it, and its middle lies on the surface (`eyeBend()`, `StudioEyes.bends`).
+  Its rim then lies at the fur in each view, and
   its front stands out of the fur, as an eye on a flat face of a parametric head does. The light
   of a bent eye is a thin disc that lies flat on the front of the oval, so that it stands only
   0.004 H out of the oval in each view (user, 2026-10-20). An old eye of a mesh can lie on an
