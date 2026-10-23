@@ -1,0 +1,123 @@
+
+> zoophony@0.0.0 rig-mesh ~/proj/zoophony/.claude/worktrees/rhino-arm-2
+> node tools/rig-mesh.ts rhino --check --roles tubist --keep scratch/kmain
+
+Shoulder joint at 0.575 u, 1.5529 m for each unit. Reach L: 0.4310 m with no factor, 0.4310 m with 1, and the factor 1.0001 gives 0.431 m. Reach R: 0.4310 m with no factor, 0.4310 m with 1, and the factor 1.0001 gives 0.431 m.
+rig_mesh: source: 1557 vertices, 3119 triangles, scale 0.525647
+rig_mesh: cut L: 48 faces go, 48 new faces close the hole (smallest angle 7.2 degrees, median 20.8), the arm run [586, 876, 877, 880, 878, 763, 767, 865, 861, 866, 843, 830, 838, 834, 839, 818, 726, 735, 738, 734, 736, 526, 529, 527], the body run [525, 522, 524, 733, 731, 724, 718, 723, 729, 721, 720, 728, 840, 841, 844, 867, 900, 896, 897, 885, 886, 881, 875, 874, 873, 587]
+rig_mesh: cut R: 49 faces go, 49 new faces close the hole (smallest angle 5.4 degrees, median 23.5), the arm run [638, 642, 1189, 1197, 1198, 1196, 1158, 1156, 1157, 1153, 1154, 1268, 1308, 1316, 1315, 1217, 1215, 1213, 1219, 1223, 1225, 1224, 1333, 1329, 640], the body run [1335, 1334, 1332, 1330, 1220, 1214, 1343, 1216, 1314, 1311, 1313, 1309, 1266, 1164, 1152, 1163, 1155, 1167, 1159, 1160, 1161, 1162, 1199, 647, 648, 644]
+rig_mesh: cut: 3119 triangles before, 3119 after
+rig_mesh: bone heat: 0 vertices with no weight took the nearest bone
+rig_mesh: slivers: 39 faces below 10°, 11 groups of 37 vertices, the largest 7
+rig_mesh: lines: 84 middle corners of faces with a corner angle above 150°
+rig_mesh: arm L: reach 0.4310 m before, 0.4310 m after the factor 1 (target 0.431 m)
+rig_mesh: arm R: reach 0.4310 m before, 0.4310 m after the factor 1 (target 0.431 m)
+rig_mesh: trunk: the pelvis turns 1.22 degrees back, so that the hip angle opens 1 degrees, from 115.8 to 116.8 degrees. The shares of the turn: {'hips': 1, 'spine': 1, 'spine1': 0.75, 'chest': 0.5, 'neck': 0.25, 'head': 0}. The head turns 0.00 degrees
+rig_mesh: refine: 11 flips, the largest move 2.065 mm, 0 cut edges, 0 new faces
+rig_mesh: eyes: 9 faces left, 8 faces right, nose: 0 faces
+rig_mesh: colors: 150 of 3119 faces (4.8%) are dark outside the eye and nose boxes, with the dark limit 0.05
+rig_mesh: arm: 154 vertices in the free left arm beyond |x| = 0.143
+rig_mesh: bind: 22 faces turn over from the source, on the bones ['hips', 'shin_L', 'shin_R', 'thigh_L', 'thigh_R']
+rig_mesh: bind: after 60 rounds of relaxing, 5 faces turn over, on the bones chest 3, hips 1, spine 1
+rig_mesh: seat: before the sit, the lowest point of the haunch behind the hips joint is 0.00 cm above the seat top 0.1297 u
+rig_mesh: sit: 202 vertices of the haunch move down, at most 0.0300 u (4.66 cm). The side view of the underside behind the hip joints is at most 18.07 cm above the seat before and 13.93 cm after. 13 faces turn over, on the bones chest 3, hips 5, spine 1, tail 4
+rig_mesh: trunk: 163 vertices of the haunch and the tail rise toward the seat top 0.1297 u of the upright body, at most 0.0249 u (3.87 cm). The lowest point over the seat is 0.1275 u. After 60 rounds of relaxing, 4 faces turn over, on the bones chest 3, spine 1
+rig_mesh: crease: 21 seam vertices, 136 vertices move, at most 0.0420 u (6.52 cm). 4 faces turn over, on the bones chest 3, spine 1
+rig_mesh: seat: the side view of the underside of the final bind behind the hip joints is at most 13.63 cm above the seat top
+rig_mesh: eye L: 9 dark faces, an edge of 7 points, a fan of 7 faces, 0.0034 u over the eye, 20 faces of the old eye
+rig_mesh: eye R: 8 dark faces, an edge of 8 points, a fan of 8 faces, 0.0023 u over the eye, 25 faces of the old eye
+rig_mesh: palette: 48 colors, the Oklab distance of a face from its color 0.0045 on the mean, 0.0151 at most
+rig_mesh: eye L: the 20 faces of the old eye take the color of 43% of the area of the faces around it
+rig_mesh: eye R: the 25 faces of the old eye take the color of 52% of the area of the faces around it
+rig_mesh: corners: the source corners of 3134 faces of the module in /var/folders/54/0kcjqfln35d4bzyptzpj1nlm0000gn/T/rig-mesh-check-qVPt8a/corners.json
+rig_mesh: stretch: 0 faces turn more than 45° or keep less than 0.5 of the shortest edge from the source to the long-armed source
+rig_mesh: uncut: 3 long thin faces across an arm joint with no ring (corner below 10°, longest edge from 0.08 u, the plane of the joint within 0.1 u)
+rig_mesh:   shoulder L: face 1546 (upper_arm_L), 6.7°, 0.081 u, 0.097 u from the joint
+rig_mesh:   shoulder R: face 233 (upper_arm_R), 8.7°, 0.082 u, 0.097 u from the joint
+rig_mesh:   elbow L: face 768 (spine), 8.2°, 0.088 u, 0.075 u from the joint
+rig_mesh: corrective: the smallest determinant of the skin is 0.5724 at the vertex 1456
+rig_mesh: corrective: the clip gives the source back within 3.93e-16 u (0.0000 mm)
+rig_mesh: shape arm_down_L: 191 vertices, largest move 0.0389 u
+rig_mesh: shape arm_down_R: 220 vertices, largest move 0.0426 u
+rig_mesh: shape legs_straight_L: 334 vertices, largest move 0.0611 u
+rig_mesh: shape legs_straight_R: 301 vertices, largest move 0.0619 u
+rig_mesh: chair: the tail goes -0.0003 u over the seat top at its lowest point over the seat
+rig_mesh: chair: front edge at z -0.11 u, the shins and the feet from z -0.1037 u
+rig_mesh: chair: seat top 0.1275 u, lowest point of the body 0.0275 u
+rig_mesh: triangles: 3134 (15 gloss)
+rig_mesh: caps: 45 caps of the cut take the normals of the skin in the app
+rig_mesh: upper twist: the twist bone of each upper arm takes 0.4 of its roll
+rig_mesh: wrote /var/folders/54/0kcjqfln35d4bzyptzpj1nlm0000gn/T/rig-mesh-check-qVPt8a/rhino.rig.glb: 511788 bytes
+Rig: 511788 B, sha256 744ceba5d76b0edc2200b5dd69c4d421d720914d96f9be56897fc5e8db72cf5e.
+Kept the rig as scratch/kmain/base.glb, with its corners for pnpm arm-look.
+Triangles: 3119 of the budget of 5000 of a studio body.
+Finished in 1ms on 1 files using 10 threads.
+Module: 52,032 B, 24,379 B after gzip. Packed mesh: 22,680 B after gzip, budget 32,000 B (src/models/studio-size.test.ts).
+Scale 1.552901 m for each unit. Head height H 0.420 m. Seat height 0.155 m, 0.155 m with no seat of ANIMALS (the seat of the legs). Chair depth 0.351 m.
+Arm from the shoulder joint to the middle of the palm: L 0.431 m, R 0.431 m.
+Lowest point above the floor, seated bind (seat height 0.155 m): leg L 0.001 m, leg R 0.000 m, tail 0.114 m. Standing body: leg L 0.000 m, leg R 0.000 m, tail 0.160 m.
+Standing body against the long-armed source: 0.913 mm at most (limit 1.000 mm), 0.913 mm back, 1557 vertices, 0 eye vertices left out.
+Worst standing vertex: 279, 0.913 mm, bones hips 0.561, spine 0.342, spine1 0.056.
+Tip of the nose: 0.001, 1.103, -0.747 m, 0.1 cm from the middle plane.
+Thin faces near the joints of the limbs (corner below 10°, longest edge from 0.08 u, joint within 0.1 u), candidates for a ring:
+  shoulder L: 1546 (6.5°, 0.190 m, 0.123 m from the joint), 2413 (6.0°, 0.167 m, 0.126 m from the joint)
+  shoulder R: 38 (5.2°, 0.176 m, 0.124 m from the joint), 233 (9.1°, 0.155 m, 0.123 m from the joint)
+  elbow L: 1958 (5.6°, 0.156 m, 0.103 m from the joint)
+  elbow R: 88 (4.0°, 0.169 m, 0.096 m from the joint)
+  ankle L: 2513 (3.4°, 0.173 m, 0.136 m from the joint), 2552 (6.1°, 0.177 m, 0.129 m from the joint), 2957 (4.7°, 0.149 m, 0.138 m from the joint)
+Arms and trunk in the stance of the source (place along the arm: 1 the elbow, 2 the wrist; join limit 0.79, touch below 0.5 cm): L join 0.53 to 0.53, gap 12.6 cm at 0.65; R join 0.42 to 0.51, gap 12.1 cm at 0.65.
+
+fold-probe tubist with the body of the rig:
+Folded faces of the studio body of the tubist (3119 faces), play step 0.25 s.
+Demos: boulanger-matin.mid, brahms-2.mid
+
+| Set | Samples | With a fold | Share | Most faces (by the side of the main bone) | Worst sample |
+|---|---:|---:|---:|---:|---|
+| rest | 2 | 2 | 100.0% | 8 (L 1 / R 4 / other 3) | boulanger-matin.mid rest |
+| play | 4147 | 4147 | 100.0% | 8 (L 2 / R 4 / other 2) | boulanger-matin.mid -1.62 s |
+| lift | 62 | 62 | 100.0% | 9 (L 2 / R 4 / other 3) | boulanger-matin.mid wall 0.6 s |
+| all | 4211 | 4211 | 100.0% | 9 (L 2 / R 4 / other 3) | boulanger-matin.mid wall 0.6 s |
+
+Folded faces of all samples by the main studio bone: hand_R 12633,  8438, clavicle_R 4211, clavicle_L 4211, forearm_twist_L 4197
+
+tail-gap tubist with the body of the rig:
+Tail of the tubist (rhino, standing) in the rest of boulanger-matin.mid over one sway period of 5.5 s, at steps of 0.25 s. A negative gap is a depth inside the part.
+  floor: 16.0 cm (rest, wall 10.00 s)
+
+| Variant | Triangles | Mesh gzip B | Scale m/u | Seat m | Leg seat m | Chair m | Reach L m | Reach R m | Standing mm | tubist play | tubist lift | tubist rest | tubist bones |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| base | 3119 | 22680 | 1.5529 | 0.155 | 0.155 | 0.351 | 0.431 | 0.431 | 0.913 | 100.0% | 100.0% | 100.0% | hand_R 12633,  8438, clavicle_L 4211 |
+
+Form of the players against main (each value with its difference from main):
+
+| Variant | Player | Seat m | Visible head m | Standing head top m | Seated head top m | Footprint m |
+|---|---|---|---|---|---|---|
+| main | rhino tuba | 0.000 | 0.477 | 1.462 | 1.462 | 0.802 by 1.061 |
+| base | rhino tuba | 0.000 (+0.000) | 0.477 (+0.000) | 1.462 (+0.000) | 1.462 (+0.000) | 0.802 (+0.000) by 1.061 (+0.000) |
+
+Hold anchors of the seated players against main (each move from main in mm, MOVED above 1 mm):
+
+| Variant | Player | Head center m | Head height m | Nose m | Instrument box m |
+|---|---|---|---|---|---|
+| main | rhino tuba | (0.000, 1.252, -0.105) | 0.420 | (0.001, 1.145, -0.438) | (-0.422, 0.392, -0.591) to (0.013, 1.342, -0.185) |
+| base | rhino tuba | (0.000, 1.252, -0.105) (0.0 mm) | 0.420 (+0.0 mm) | (0.001, 1.145, -0.438) (0.0 mm) | (-0.422, 0.392, -0.591) to (0.013, 1.342, -0.185) (0.0 mm) |
+
+Stage side of each demo against main:
+
+| Demo | main m | base |
+|---|---|---|
+| bach-bwv1047.mid | 10.540 | 10.540 (+0.0%) |
+| bach-bwv1048.mid | 10.505 | 10.505 (+0.0%) |
+| bach-bwv1050.mid | 8.982 | 8.982 (+0.0%) |
+| beethoven-1.mid | 9.932 | 9.932 (+0.0%) |
+| beethoven-8-4.mid | 10.353 | 10.353 (+0.0%) |
+| beethoven-8.mid | 9.809 | 9.809 (+0.0%) |
+| beethoven-9.mid | 12.549 | 12.549 (+0.0%) |
+| boulanger-matin.mid | 11.353 | 11.353 (+0.0%) |
+| brahms-2.mid | 11.201 | 11.201 (+0.0%) |
+| mendelssohn-op61.mid | 9.949 | 9.949 (+0.0%) |
+| mozart-k191.mid | 8.517 | 8.517 (+0.0%) |
+| mozart-k315.mid | 8.975 | 8.975 (+0.0%) |
+| mozart-k417.mid | 8.353 | 8.353 (+0.0%) |
+| mozart-k525.mid | 6.787 | 6.787 (+0.0%) |
+| Largest change | | none |

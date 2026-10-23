@@ -1,0 +1,8 @@
+side L: the paw keeps 136 faces with 1 open loops of [28] vertices; 207 faces go
+side L: a hole of the trunk of 33 rim vertices, from y 0.190 to 0.676, takes 81 new vertices and 193 faces
+side L: the tube has 23 rings of 14 vertices from the dome to u 2.062, 672 faces, 2 rings or vertices moved inside the source, the half axes 0.0678, 0.0798 / 0.0652, 0.0767 / 0.0565, 0.0658 u at the shoulder / elbow / wrist
+side R: the paw keeps 135 faces with 1 open loops of [27] vertices; 200 faces go
+side R: a hole of the trunk of 33 rim vertices, from y 0.189 to 0.676, takes 89 new vertices and 209 faces
+side R: the tube has 23 rings of 14 vertices from the dome to u 2.073, 671 faces, 2 rings or vertices moved inside the source, the half axes 0.0674, 0.0793 / 0.0652, 0.0767 / 0.0567, 0.0660 u at the shoulder / elbow / wrist
+source: 1557 vertices, 3119 triangles
+copy: 2234 vertices, 4457 triangles, 8 open edges, 7 edges of three faces

@@ -1,0 +1,10 @@
+
+> zoophony@0.0.0 arm-look ~/proj/zoophony/.claude/worktrees/rhino-arm-2
+> node tools/arm-look.ts tubist
+
+Arm look of 1 roles, play step 1 s. Limits: crease share 14.6% (twice the worst arm of the red fox (7.3%)), section 0.44 (0.6 of the worst arm of the red fox (0.74)).
+
+| Role | Arm | Play samples | Crease share p50 | Section p50 |
+|---|---|---:|---:|---:|
+| tubist | L | 1038 | 3.0% | 0.88 |
+| tubist | R | 1038 | 3.1% | 0.87 |

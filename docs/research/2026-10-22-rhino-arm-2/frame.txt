@@ -1,0 +1,37 @@
+measure-lock: rhino-arm-2 holds the lock.
+
+> zoophony@0.0.0 frame /Users/xueqiaoxu/proj/zoophony/.claude/worktrees/rhino-arm-2
+> node tools/split-soundfont.ts && node tools/patch-demos.ts && node tools/write-perf-60.ts && node tools/measure-frame.ts
+
+Wrote 274 preset files (53,834,004 B) and sf/index.json.
+Wrote 14 demo files to public/demos/.
+perf/perf-60.mid: 34193 B
+Frame measure of perf-60 (60 players), cinematic, 1440 × 900 at the device scale 2
+Chrome 155.0.8059.85, headless, ANGLE (Apple, ANGLE Metal Renderer: Apple M1 Max, Unspecified Version)
+Drawing buffer of the stage: 2880 × 1800 pixels.
+CPU use over 5 s before the main-thread phase: 25% of all cores. Limit 40%.
+Load average (1 min, for information): main-thread phase 2.7, GPU phase 3.2, end 5.6.
+The Chrome trace started at the song time 33.0 s and ended at 43.0 s, after a seek to 32 s.
+Frame rate: 60.0 fps with the cap, 129.2 fps with no cap.
+Disjoint timer results (dropped): 0.
+GPU performance states in the Metal trace: Minimum 3 ms, Maximum 3399 ms (99.9% "Maximum"). The "Maximum" rows cover 91.6% of the span of the GPU intervals.
+Other processes used the GPU in 1% of the Metal trace.
+The messages of xctrace at the start and at the end of the record came at the song times 19.3 s and 23.6 s, after a seek to 16 s. These times bracket the Metal trace.
+Self-check of the GPU row: 502 WebGL frames in 3.700 s of the Metal trace, against 502 from the 1005 canvas writes of the trace, with 1 at its ends (0.0%). Merged frames: 0.
+The page drew 142.7 fps in the middle of the record: 528 frames (-4.9%), for information.
+Dropped by the filter in each frame: canvas buffers 0.000 ms (0 buffers), other buffers 0.109 ms (288 buffers).
+Guard of the GPU phase (at least 90% "Maximum", "Maximum" rows over at least 60% of the span, at most 10% other GPU work), 1 record(s): valid.
+Console warnings and errors of the pages: none.
+
+| Measure | Frames | p50 (ms) | p95 (ms) | Max (ms) | Within 4 ms | Target |
+|---|---|---|---|---|---|---|
+| Main thread: tasks of each frame (Chrome trace, 60 fps) | 599 | 3.59 | 4.59 | 5.44 | 85.0% | fail |
+| GPU: WebGL frames in the Metal trace (no frame cap) | 502 | 6.45 | 6.68 | 8.36 | 0.0% | fail |
+| GPU: timer query (no frame cap) | 1293 | 14.32 | 17.80 | 18.73 | 0.0% | information |
+| GPU: timer query (60 fps, clock of the GPU) | 600 | 19.58 | 24.37 | 33.09 | 0.0% | information |
+| Frame callback (performance.now, 60 fps) | 600 | 3.30 | 4.20 | 11.70 | 91.8% | information |
+
+Run time: 179 s.
+The frame target of design 9.7 fails.
+ ELIFECYCLE  Command failed with exit code 1.
+measure-lock: rhino-arm-2 frees the lock (exit code 1).

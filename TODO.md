@@ -300,9 +300,9 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       and `lineup-base-views.webp` (`2026-10-21-mesh-rhino.md`).
 - [x] Rhino: faces 38 and 2413, thin faces at the shoulders above the cut of the seam, fold in
       each sample of the tubist. They move rigidly (`weights.rigid`, `2026-10-22-rhino-arm.md`).
-- [ ] Rhino: face 773 at the middle of the chest (727 before) folds in each sample of the tubist,
-      and face 448 (396 before) at rest. Count their pixels in a probe build, or try rigid weights
-      (`docs/research/2026-10-22-rhino-arm/fold-probe.txt`).
+- [x] Rhino: face 773 at the middle of the chest (727 before) folds in each sample of the tubist,
+      and face 448 (396 before) at rest. The rig of the arm tubes folds no face of the trunk in the
+      worst sample (`fold-probe.txt` of `docs/research/2026-10-22-rhino-arm-2/`).
 - [ ] Rhino: with an assumed tuba of 10 kg, the center of mass is 2.7 cm to 3.4 cm in front of the
       middle of the soles, at 59% to 61% of the support depth, at the top of the stable range of
       30% to 60%. A small lean of the trunk back is an option (`balance.txt`).
@@ -1086,12 +1086,20 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       - [x] Dog arm gate: twist p95 L 46° (base 31°), R 59° (46°), flat p5 R 0.62 (0.68), all
             `FAIL`. The cut root turns with the bone, as on the deer. Accept it as a decision
             row, or let the twist of `tools/arm-shape.ts` start at the shoulder ring.
-      - [ ] Rhino left arm (user, 2026-10-22: "the panda and rhino's arms also got deformed",
-            then, after the round `rhino-arm`, "the rhino's left arm is now completed deformed").
-            The round patch of each inner arm (`rhino-arms.glb`, `2026-10-22-rhino-arm.md`) is
-            reverted (`fee18ae8`), so the flat cap of the cut is back. Fix it in a new round with
-            a finer patch: the user said "do not worry about triangle budget, you have plenty
-            budget". Check the left arm at full size from the stage camera and from each view.
+      - [x] Rhino arms (user, 2026-10-22: "the rhino's left arm is now completed deformed", "the
+            rhino's arm is still deeformed"). At full size from the stage, the elbows read as flat
+            slabs with sharp corners. The rig reads a copy with a round tube for each arm and a
+            fair fill of the trunk (`rhino-tubes.glb`, `2026-10-22-rhino-arm-2.md`).
+      - [ ] Rhino right arm: a thin dark line shows where the tube meets the trunk from az150 at
+            e20 (`arm-right-3x-e20.webp` of `2026-10-22-rhino-arm-2/`).
+      - [ ] Rhino tubes: the dome and the inner side of each tube lie inside the trunk, so the
+            sweep gives the upper arms of the tubist 12.6 cm in the body. Give the sweep an
+            accepted depth after the test pause.
+      - [ ] Rhino trunk fill: the fill under each shoulder faces down, and `flap.ts` gives a down
+            area of 582 and 654 cm² (114 and 211 on `afff590f`). The dragged down area of the left
+            side grows from 67 to 167 cm². No view shows a flap. Check it with the user.
+      - [ ] Rhino tubes: `pnpm frame` gives a GPU p50 of 6.45 ms (5.75 ms on the tip of
+            2026-10-21). Compare with the base (`pnpm frame-compare afff590f <tip>`).
       - [ ] Body probe of the panda round: 18 pose sets of other players change at the start of
             brahms-2 and beethoven-9. Find the shared input that the panda rig moves.
 - [ ] Tools of a mesh round (retro of the bear mesh round, 2026-10-22):
