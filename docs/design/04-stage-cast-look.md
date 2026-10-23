@@ -284,7 +284,7 @@ of the user (`docs/decisions/2026-10-22-mesh-bear.md`).
 
 Each body follows these rules:
 
-- A body has at most 2,600 triangles, and a studio body at most 3,200 (4.5, facets and triangle
+- A body has at most 2,600 triangles, and a studio body at most 4,600 (4.5, facets and triangle
   budgets).
 - The animal faces -z, with its left side at -x, and the mouth is near the middle plane, below
   the eyes (`models/species.test.ts`).
@@ -981,7 +981,8 @@ back (`chairForward()`). Each species moves toward the anatomy of its reference 
 - The parametric body shows small triangle facets. The target is the large, flat, and clean facets
   of the reference images (design 1, `lowpoly-animals.png`).
 - A body has at most 2,600 triangles. A studio body keeps the faces of its GLB file, and its GLB
-  file has a budget of 3,200 faces. The rabbit and the red fox play in the violin sections, the
+  file has a budget of 4,600 faces, so that a thick arm can take a round tube of its own (the
+  user, 2026-10-22: "do not worry about triangle budget"). The rabbit and the red fox play in the violin sections, the
   cat in the violas, the dog in the cellos, the tan fox in the flutes, the mouse in the oboes, the
   beaver in the bassoons, the wolf in the clarinets, the monkey in the trumpets, the panda in the
   trombones, the pig in the horns, the hippo in the contrabasses, the elephant at the timpani, the
