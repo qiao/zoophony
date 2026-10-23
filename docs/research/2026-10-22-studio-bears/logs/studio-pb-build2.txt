@@ -1,0 +1,101 @@
+[intake] masks and row profiles of the sheet views
+  from the cache (the run took 2.8 s)
+  sheet check: 2 of 7 agree, warnings: figure_height, ground_line, ear_height, arm_gap, head_turn.three_quarter
+    WARN figure_height: 0.044 (limit 0.01; front 559, side 578, back 553, three_quarter 568)
+         can fail: every IoU and feature check: each view is scaled to its own height, so a view of another scale moves each measure of that view
+    WARN ground_line: 4.0 (limit 2.0; front 794.5, side 797.5, back 795.5, three_quarter 798.5)
+         can fail: the feet and the heights of each view
+    WARN ear_height: 0.334 (limit 0.15; front.left_in_image 0.0787, front.right_in_image 0.0787, back.left_in_image 0.0524, back.right_in_image 0.0524)
+         can fail: ear_height.*, ear_width.*: the front and the back view show the ears in other places
+    WARN arm_gap: 0.048 (limit 0.8; front 0.143, back 0.048)
+         can fail: iou.front, iou.back: where the arms touch the trunk, the trunk width is a guess (field.trunk.width_points)
+    WARN head_turn.three_quarter: 6.3 (limit 4.0; eye_spacing_front 0.077, eye_spacing_three_quarter 0.0625, head_azimuth 35.7, view_azimuth 42.0) about +-2 deg for 1 px of eye spacing
+         can fail: iou.three_quarter, eye_*.three_quarter: the 3/4 view turns the head (positive: toward the camera); compare.head_turn can fit it
+[model] the model build (role "model", seed 3) runs beside the role build in animals/polar-bear/out/model/
+[seeds] 8 seeds [3, 6, 1, 5, 2, 4, 7, 8], 4 at a time, until the first seed that passes
+  seed 3: pass, 3.9 s
+  seed 6: pass, 5.0 s
+  seed 1: pass, 6.3 s
+  seed 5: the contact and fold check fails in rest, performance, 7.7 s
+[seeds] 3 of 4 seeds pass in 9.2 s (out/seeds/summary.json)
+  seed   3: pass         3.9 s, 7 stages from the cache
+  seed   6: pass         5.0 s, 7 stages from the cache
+  seed   1: pass         6.3 s, 7 stages from the cache
+  seed   5: contacts     7.7 s, 7 stages from the cache
+  kept seed 3
+  model build: seed 3: the remesh gate fails (open_edges 6); it tries seed 6
+  model build: seed 6: the remesh gate fails (slit_faces 2); it tries seed 1
+  model build: seed 1, after seeds 3, 6, 62.9 s, 1 of 12 stages from the cache
+[shots] compare (the model build), frames, viewer
+[shots] vite server: 0.0 s
+[shots] browser: 0.1 s
+front          IoU 0.9077  x shift   4 px  mean RGB ref 200,185,164 model 202,189,168  luma p10/50/90 ref 147,193,224 model 165,198,213
+               fur median ref H 36 S 0.164 V 0.839 (lit quarter H 36.7 S 0.155)  model H 36 S 0.168 V 0.827 (lit quarter H 36.7 S 0.16)
+side           IoU 0.8955  x shift   7 px  mean RGB ref 207,192,171 model 209,195,174  luma p10/50/90 ref 163,196,229 model 174,202,217
+               fur median ref H 36 S 0.167 V 0.824 (lit quarter H 37.1 S 0.151)  model H 36.4 S 0.167 V 0.831 (lit quarter H 36.7 S 0.159)
+back           IoU 0.9134  x shift   0 px  mean RGB ref 203,189,169 model 207,193,172  luma p10/50/90 ref 150,197,226 model 170,202,214
+               fur median ref H 36 S 0.161 V 0.824 (lit quarter H 36.4 S 0.153)  model H 36 S 0.167 V 0.835 (lit quarter H 36.7 S 0.161)
+three_quarter  IoU 0.9282  x shift  -9 px  mean RGB ref 200,185,164 model 203,189,169  luma p10/50/90 ref 144,193,226 model 164,200,215
+               head turn 4 deg (IoU 0.9260 with no turn)
+               fur median ref H 35.7 S 0.167 V 0.847 (lit quarter H 36.7 S 0.153)  model H 36 S 0.166 V 0.839 (lit quarter H 36.7 S 0.159)
+wrote /Users/xueqiaoxu/proj/zoophony/.claude/worktrees/studio-bears/lowpoly-studio/animals/polar-bear/out/compare/compare.png
+[shots] compare: 1.6 s
+wrote /Users/xueqiaoxu/proj/zoophony/.claude/worktrees/studio-bears/lowpoly-studio/animals/polar-bear/out/frames/ready.png
+wrote /Users/xueqiaoxu/proj/zoophony/.claude/worktrees/studio-bears/lowpoly-studio/animals/polar-bear/out/frames/play.png
+wrote /Users/xueqiaoxu/proj/zoophony/.claude/worktrees/studio-bears/lowpoly-studio/animals/polar-bear/out/frames/hands.png
+wrote /Users/xueqiaoxu/proj/zoophony/.claude/worktrees/studio-bears/lowpoly-studio/animals/polar-bear/out/frames/chord.png
+wrote /Users/xueqiaoxu/proj/zoophony/.claude/worktrees/studio-bears/lowpoly-studio/animals/polar-bear/out/frames/rest.png
+wrote /Users/xueqiaoxu/proj/zoophony/.claude/worktrees/studio-bears/lowpoly-studio/animals/polar-bear/out/frames/deform.png
+[shots] frames: 0.3 s
+wrote /Users/xueqiaoxu/proj/zoophony/.claude/worktrees/studio-bears/lowpoly-studio/animals/polar-bear/out/frames/viewer.png
+[shots] viewer: 6.3 s
+[measures] features (eyes, ears, nose, belly, claws), shading, mesh facets
+checks: 66 of 84 pass, 2 near the limit, gates pass
+  the sheet check warns: figure_height, ground_line, ear_height, arm_gap, head_turn.three_quarter (out/sheet-check.json)
+  FAIL iou.front: 0.9077 >= 0.94 [sheet: arm_gap]
+      at view=front crop=report/views/front.jpg
+  FAIL iou.side: 0.8955 >= 0.94
+      at view=side crop=report/views/side.jpg
+  FAIL iou.back: 0.9134 >= 0.94 [sheet: arm_gap]
+      at view=back crop=report/views/back.jpg
+  FAIL eye_outline.three_quarter.0: [0.0158, 0.0194] rel<= 0.08 [sheet: head_turn.three_quarter]
+      at region=eye view=three_quarter crop=report/features/eyes_three_quarter_eye.png
+  FAIL eye_outline.three_quarter.1: [0.0106, 0.007] rel<= 0.08 [sheet: head_turn.three_quarter]
+      at region=eye view=three_quarter crop=report/features/eyes_three_quarter_eye.png
+  FAIL ear_width.front.left_in_image: [0.0376, 0.0447] rel<= 0.1 [sheet: ear_height]
+      at region=left_in_image view=front crop=report/features/ears_front_left_in_image.png
+  FAIL ear_width.front.right_in_image: [0.0376, 0.0447] rel<= 0.1 [sheet: ear_height]
+      at region=right_in_image view=front crop=report/features/ears_front_right_in_image.png
+  FAIL ear_width.side.ear: [0.0242, 0.0969] rel<= 0.1 [sheet: ear_height]
+      at region=ear view=side crop=report/features/ears_side_ear.png
+  FAIL ear_height.side.ear: [0.0242, 0.0346] rel<= 0.1 [sheet: ear_height]
+      at region=ear view=side crop=report/features/ears_side_ear.png
+  FAIL ear_height.back.left_in_image: [0.0796, 0.0524] rel<= 0.1 [sheet: ear_height]
+      at region=left_in_image view=back crop=report/features/ears_back_left_in_image.png
+  FAIL ear_width.back.right_in_image: [0.0398, 0.0488] rel<= 0.1 [sheet: ear_height]
+      at region=right_in_image view=back crop=report/features/ears_back_right_in_image.png
+  FAIL ear_height.back.right_in_image: [0.0796, 0.0524] rel<= 0.1 [sheet: ear_height]
+      at region=right_in_image view=back crop=report/features/ears_back_right_in_image.png
+  FAIL nose_y.front.0: [0.8792, 0.8667] abs<= 0.01
+      at region=nose view=front crop=report/features/nose_front_nose.png
+  FAIL nose_height.front.0: [0.0411, 0.0519] rel<= 0.15
+      at region=nose view=front crop=report/features/nose_front_nose.png
+  FAIL nose_y.side.0: [0.8702, 0.8547] abs<= 0.01
+      at region=nose view=side crop=report/features/nose_side_nose.png
+  FAIL nose_width.side.0: [0.045, 0.0346] rel<= 0.15
+      at region=nose view=side crop=report/features/nose_side_nose.png
+  FAIL belly_y.front.belly: [0.5639, 0.5206] abs<= 0.03
+      at region=belly view=front crop=report/features/belly_front_belly.png
+  FAIL facet_contrast: [2.9, 2.48] rel<= 0.15
+  the look checks come from the model build (seed 1, out/model/); the role checks come from the role build (seed 3)
+look report: /Users/xueqiaoxu/proj/zoophony/.claude/worktrees/studio-bears/lowpoly-studio/animals/polar-bear/out/report/index.html
+time:
+  step                     seconds  source
+  intake                      0.01  cache
+  seed pool                   9.18
+  model build                53.74
+    beside the role build    62.90  seed 1 (2 seeds before it fail the remesh gate), 1 of 12 stages from the cache
+  shots                       8.69
+  measures                    1.86
+  checks                      2.25
+  total                      75.77

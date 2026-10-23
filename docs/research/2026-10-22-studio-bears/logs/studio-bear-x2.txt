@@ -1,0 +1,48 @@
+[intake] masks and row profiles of the sheet views
+  from the cache (the run took 2.8 s)
+  sheet check: 4 of 7 agree, warnings: figure_height, ground_line, arm_gap
+    WARN figure_height: 0.0205 (limit 0.01; front 528, side 539, back 530, three_quarter 536)
+         can fail: every IoU and feature check: each view is scaled to its own height, so a view of another scale moves each measure of that view
+    WARN ground_line: 5.0 (limit 2.0; front 761.5, side 766.5, back 764.5, three_quarter 765.5)
+         can fail: the feet and the heights of each view
+    WARN arm_gap: 0.048 (limit 0.8; front 0.095, back 0.048)
+         can fail: iou.front, iou.back: where the arms touch the trunk, the trunk width is a guess (field.trunk.width_points)
+[seeds] 8 seeds [3, 1, 5, 6, 2, 4, 7, 8], 4 at a time, all seeds (a role check: no seed report yet)
+  seed 3: the remesh gate fails after organic: slit_faces 1 (limit 0), 1.1 s
+  seed 1: the remesh gate fails after organic: slit_faces 1 (limit 0), 17.4 s
+  seed 6: pass, 48.9 s
+  seed 2: pass, 48.9 s
+  seed 5: pass, 50.8 s
+  seed 4: pass (report checks that fail: unpaired_vertices), 47.7 s
+  seed 7: pass, 46.1 s
+  seed 8: pass, 47.5 s
+[seeds] 6 of 8 seeds pass in 98.9 s (out/seeds/summary.json)
+  seed   3: gate         1.1 s, 3 stages from the cache
+  seed   1: gate        17.4 s, 1 stages from the cache
+  seed   5: pass        50.8 s, 1 stages from the cache
+  seed   6: pass        48.9 s, 1 stages from the cache
+  seed   2: pass        48.9 s, 1 stages from the cache
+  seed   4: pass        47.7 s, 1 stages from the cache
+  seed   7: pass        46.1 s, 1 stages from the cache
+  seed   8: pass        47.5 s, 1 stages from the cache
+[seeds] the seed report (animals/bear-x/out/seed-report.json): 6 of 6 seeds that pass the remesh gate pass every clip; seeds.require = "kept": pass
+  seed  remesh gate        reference  ready  beat_4_4  cue_left  crescendo  hush  cutoff  nod_turn  sway_dip  bow   performance
+  3     FAIL slit_faces 1
+  1     FAIL slit_faces 1
+  5     pass               pass       pass   pass      pass      pass       pass  pass    pass      pass      pass  pass
+  6     pass               pass       pass   pass      pass      pass       pass  pass    pass      pass      pass  pass
+  2     pass               pass       pass   pass      pass      pass       pass  pass    pass      pass      pass  pass
+  4     pass               pass       pass   pass      pass      pass       pass  pass    pass      pass      pass  pass
+  7     pass               pass       pass   pass      pass      pass       pass  pass    pass      pass      pass  pass
+  8     pass               pass       pass   pass      pass      pass       pass  pass    pass      pass      pass  pass
+  kept seed 5
+checks: 31 of 31 pass, 3 near the limit, gates pass
+  the sheet check warns: figure_height, ground_line, arm_gap (out/sheet-check.json)
+look report: /Users/xueqiaoxu/proj/zoophony/.claude/worktrees/studio-bears/lowpoly-studio/animals/bear-x/out/report/index.html
+time:
+  step       seconds  source
+  intake        0.01  cache
+  seed pool    98.88
+  checks        0.99
+  total        99.91
+cache: deleted 60 old entries (limit 2 GB)

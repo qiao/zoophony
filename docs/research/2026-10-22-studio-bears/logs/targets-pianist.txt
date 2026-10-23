@@ -1,0 +1,31 @@
+
+> zoophony@0.0.0 pose-depth /Users/xueqiaoxu/proj/zoophony/.claude/worktrees/studio-bears
+> node tools/pose-depth.ts pianist --targets
+
+Sweep of the pianist: 4 demos with the role (bach-bwv1047, bach-bwv1048, bach-bwv1050, boulanger-matin), 1 row to sweep.
+Estimated time: about 4 s: 1 row of 3.8 s, from the last rows of this sweep, with a time for 4 of 4 demos.
+base (2.9 s):
+  bach-bwv1047 pianist 18 (polar-bear)
+    target L: 0.00 mm at song 42.52 s
+    target R: 0.00 mm at song 1.02 s
+    targets: 100.0% of 625 within 5 mm, worst 0.00 mm
+  bach-bwv1048 pianist 20 (polar-bear)
+    target L: 0.00 mm at song 147.01 s
+    target R: 0.00 mm at song 30.01 s
+    targets: 100.0% of 1023 within 5 mm, worst 0.00 mm
+  bach-bwv1050 pianist 16 (polar-bear)
+    target L: 0.00 mm at song 124.02 s
+    target R: 0.00 mm at song 256.52 s
+    targets: 100.0% of 2086 within 5 mm, worst 0.00 mm
+  boulanger-matin pianist 17 (polar-bear)
+    target L: 3.81 mm at song 107.95 s
+    target R: 0.00 mm at song 118.42 s
+    targets: 100.0% of 197 within 5 mm, worst 3.81 mm
+| variant | target L mm | targets within 5 mm % |
+|---|---|---|
+| base | 3.8 | 100.0 |
+
+The demo and the time of the sample of each value of the table:
+| variant | target L mm |
+|---|---|
+| base | boulanger-matin 107.95 s |

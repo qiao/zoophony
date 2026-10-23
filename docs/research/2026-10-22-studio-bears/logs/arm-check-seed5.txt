@@ -1,0 +1,38 @@
+
+> zoophony@0.0.0 arm-check /Users/xueqiaoxu/proj/zoophony/.claude/worktrees/studio-bears
+> node tools/arm-check.ts conductor
+
+Arm gate of 1 roles in 61 s. A cell gives the value and the verdict of a value that does not pass.
+
+| Role | Arm | folds p95 (8) | twist p95 (55) | forearm twist p95 (80) | flat p5 (0.55) | paw twist p95 (170) | paw swing p95 (70) | paw jumps (0.5%) | stretch p95 (0.35) | grip turn p50 (45) | move twist max (176) | move turn max (3000) | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| conductor | L | 4 | 18 | 36 | 0.75 | 59 | 44 | 0.0% | 0.49 FAIL | - | 60 | 512 | FAIL |
+| conductor | R | 0 | 17 | 37 | 0.73 | 40 | 32 | 0.0% | 0.27 | - | 72 | 2313 | PASS |
+
+The roles below have no entry in ACCEPTED_GRIPS. A ready entry from the median paw twist of each arm in the play:
+
+  ['conductor', { L: -54, R: -18 }],
+
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| conductor | L | folds p95 | play | 17949 | 3 | 4 | 60.9% | 7 at mozart-k315.mid 34.65 s | 4 | 8 | - | PASS |
+| conductor | L | twist p95 | lift | 465 | 16 | 18 | 100.0% | 19 at bach-bwv1050.mid wall 1.9 s | 18 | 55 | - | PASS |
+| conductor | L | forearm twist p95 | play | 17949 | 29 | 36 | 100.0% | 50 at mozart-k315.mid 109.40 s | 36 | 80 | - | PASS |
+| conductor | L | flat p5 | play | 17949 | 0.78 | 0.75 | 100.0% | 0.64 at boulanger-matin.mid 59.13 s | 0.75 | 0.55 | - | PASS |
+| conductor | L | paw twist p95 | play | 17949 | 54 | 59 | 100.0% | 68 at brahms-2.mid 625.88 s | 59 | 170 | - | PASS |
+| conductor | L | paw swing p95 | play | 17949 | 38 | 44 | 100.0% | 77 at mozart-k315.mid 125.15 s | 44 | 70 | - | PASS |
+| conductor | L | paw jumps | rest | 15 | 0 | 0 | 0.0% | 0 at bach-bwv1047.mid rest | 0.0% | 0.5% | - | PASS |
+| conductor | L | stretch p95 | play | 17949 | 0.35 | 0.49 | 100.0% | 0.63 at boulanger-matin.mid 59.13 s | 0.49 | 0.35 | - | FAIL |
+| conductor | L | move twist max | move | 17415 | 30 | 56 | 100.0% | 60 at percussion-test.mid lift 25.59 s, wall 1.55 s | 60 | 176 | - | PASS |
+| conductor | L | move turn max | move | 17415 | 2 | 103 | 83.5% | 512 at percussion-test.mid lift 12.80 s, wall 0.18 s | 512 | 3000 | - | PASS |
+| conductor | R | folds p95 | rest | 15 | 0 | 0 | 0.0% | 0 at bach-bwv1047.mid rest | 0 | 8 | - | PASS |
+| conductor | R | twist p95 | play | 17949 | 15 | 17 | 100.0% | 22 at boulanger-matin.mid 59.13 s | 17 | 55 | - | PASS |
+| conductor | R | forearm twist p95 | lift | 465 | 28 | 37 | 100.0% | 42 at bach-bwv1050.mid wall 1.6 s | 37 | 80 | - | PASS |
+| conductor | R | flat p5 | rest | 15 | 0.73 | 0.73 | 100.0% | 0.73 at bach-bwv1047.mid rest | 0.73 | 0.55 | - | PASS |
+| conductor | R | paw twist p95 | lift | 465 | 27 | 40 | 100.0% | 62 at beethoven-1.mid wall 0.1 s | 40 | 170 | - | PASS |
+| conductor | R | paw swing p95 | lift | 465 | 25 | 32 | 100.0% | 55 at beethoven-1.mid wall 0.2 s | 32 | 70 | - | PASS |
+| conductor | R | paw jumps | rest | 15 | 0 | 0 | 0.0% | 0 at bach-bwv1047.mid rest | 0.0% | 0.5% | - | PASS |
+| conductor | R | stretch p95 | play | 17949 | 0.20 | 0.27 | 100.0% | 0.43 at boulanger-matin.mid 279.63 s | 0.27 | 0.35 | - | PASS |
+| conductor | R | move twist max | move | 17415 | 23 | 61 | 100.0% | 72 at beethoven-9.mid lift 105.53 s, wall 0.14 s | 72 | 176 | - | PASS |
+| conductor | R | move turn max | move | 17415 | 3 | 440 | 87.0% | 2313 at brahms-2.mid lower 501.64 s, wall 0.09 s | 2313 | 3000 | - | PASS |
+ ELIFECYCLE  Command failed with exit code 1.

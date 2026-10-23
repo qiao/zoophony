@@ -1,0 +1,11 @@
+
+> zoophony@0.0.0 fold-probe /Users/xueqiaoxu/proj/zoophony/.claude/worktrees/studio-bears
+> node tools/fold-probe.ts conductor --base d7f4e76e
+
+Folded faces of the studio body of the conductor on d7f4e76e (d7f4e76e) and on the working tree: 65.4 s.
+
+| Set | d7f4e76e (d7f4e76e) | Working tree |
+|---|---:|---:|
+| rest | 0.0% (0/15), most 0 (L 0 / R 0 / other 0) | 0.0% (0/15), most 0 (L 0 / R 0 / other 0) |
+| play | 2.7% (479/17949), most 5 (L 2 / R 0 / other 3) | 0.8% (145/17949), most 3 (L 1 / R 0 / other 2) |
+| lift | 7.5% (35/465), most 3 (L 3 / R 0 / other 0) | 2.2% (10/465), most 2 (L 0 / R 2 / other 0) |

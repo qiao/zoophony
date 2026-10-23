@@ -1,0 +1,56 @@
+
+> zoophony@0.0.0 pose-depth /Users/xueqiaoxu/proj/zoophony/.claude/worktrees/studio-bears
+> node tools/pose-depth.ts pianist --targets --demo boulanger-matin --demo bach-bwv1047 --set piano.lean\=28deg --set piano.lean\=29deg --set piano.palmL\=\[0\,0.065\,0.06\]\;piano.palmR\=\[0\,0.065\,0.06\]
+
+Sweep of the pianist: 2 demos with the role (bach-bwv1047, boulanger-matin), 4 rows to sweep.
+Estimated time: about 5 s: 4 rows of 1.3 s, from the last rows of this sweep, with a time for 2 of 2 demos.
+base (1.3 s):
+  bach-bwv1047 pianist 18 (polar-bear)
+    target L: 0.00 mm at song 158.77 s
+    target R: 0.00 mm at song 2.02 s
+    targets: 100.0% of 625 within 5 mm, worst 0.00 mm
+  boulanger-matin pianist 17 (polar-bear)
+    target L: 10.16 mm at song 107.95 s
+    target R: 0.00 mm at song 165.46 s
+    targets: 99.5% of 197 within 5 mm, worst 10.16 mm
+piano.lean=28deg (1.4 s):
+  bach-bwv1047 pianist 18 (polar-bear)
+    target L: 0.00 mm at song 42.52 s
+    target R: 0.00 mm at song 1.02 s
+    targets: 100.0% of 625 within 5 mm, worst 0.00 mm
+  boulanger-matin pianist 17 (polar-bear)
+    target L: 3.81 mm at song 107.95 s
+    target R: 0.00 mm at song 118.42 s
+    targets: 100.0% of 197 within 5 mm, worst 3.81 mm
+piano.lean=29deg (1.3 s):
+  bach-bwv1047 pianist 18 (polar-bear)
+    target L: 0.00 mm at song 6.02 s
+    target R: 0.00 mm at song 0.52 s
+    targets: 100.0% of 625 within 5 mm, worst 0.00 mm
+  boulanger-matin pianist 17 (polar-bear)
+    target L: 0.00 mm at song 106.98 s
+    target R: 0.00 mm at song 158.24 s
+    targets: 100.0% of 197 within 5 mm, worst 0.00 mm
+piano.palmL=[0,0.065,0.06];piano.palmR=[0,0.065,0.06] (1.3 s):
+  bach-bwv1047 pianist 18 (polar-bear)
+    target L: 0.00 mm at song 179.02 s
+    target R: 0.00 mm at song 2.02 s
+    targets: 100.0% of 625 within 5 mm, worst 0.00 mm
+  boulanger-matin pianist 17 (polar-bear)
+    target L: 16.33 mm at song 107.95 s
+    target R: 0.00 mm at song 157.75 s
+    targets: 98.5% of 197 within 5 mm, worst 16.33 mm
+| variant | target L mm | targets within 5 mm % |
+|---|---|---|
+| base | 10.2 | 99.9 |
+| piano.lean=28deg | 3.8 | 100.0 |
+| piano.lean=29deg | 0.0 | 100.0 |
+| piano.palmL=[0,0.065,0.06];piano.palmR=[0,0.065,0.06] | 16.3 | 99.6 |
+
+The demo and the time of the sample of each value of the table:
+| variant | target L mm |
+|---|---|
+| base | boulanger-matin 107.95 s |
+| piano.lean=28deg | boulanger-matin 107.95 s |
+| piano.lean=29deg | bach-bwv1047 6.02 s |
+| piano.palmL=[0,0.065,0.06];piano.palmR=[0,0.065,0.06] | boulanger-matin 107.95 s |

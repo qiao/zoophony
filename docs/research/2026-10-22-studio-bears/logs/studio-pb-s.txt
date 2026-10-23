@@ -1,0 +1,52 @@
+[intake] masks and row profiles of the sheet views
+  from the cache (the run took 2.8 s)
+  sheet check: 2 of 7 agree, warnings: figure_height, ground_line, ear_height, arm_gap, head_turn.three_quarter
+    WARN figure_height: 0.044 (limit 0.01; front 559, side 578, back 553, three_quarter 568)
+         can fail: every IoU and feature check: each view is scaled to its own height, so a view of another scale moves each measure of that view
+    WARN ground_line: 4.0 (limit 2.0; front 794.5, side 797.5, back 795.5, three_quarter 798.5)
+         can fail: the feet and the heights of each view
+    WARN ear_height: 0.334 (limit 0.15; front.left_in_image 0.0787, front.right_in_image 0.0787, back.left_in_image 0.0524, back.right_in_image 0.0524)
+         can fail: ear_height.*, ear_width.*: the front and the back view show the ears in other places
+    WARN arm_gap: 0.048 (limit 0.8; front 0.143, back 0.048)
+         can fail: iou.front, iou.back: where the arms touch the trunk, the trunk width is a guess (field.trunk.width_points)
+    WARN head_turn.three_quarter: 6.3 (limit 4.0; eye_spacing_front 0.077, eye_spacing_three_quarter 0.0625, head_azimuth 35.7, view_azimuth 42.0) about +-2 deg for 1 px of eye spacing
+         can fail: iou.three_quarter, eye_*.three_quarter: the 3/4 view turns the head (positive: toward the camera); compare.head_turn can fit it
+[seeds] 8 seeds [6, 3, 1, 5, 2, 4, 7, 8], 2 at a time, all seeds (a role check: no seed report yet)
+  seed 6: pass, 42.1 s
+  seed 3: pass, 48.3 s
+  seed 1: pass, 49.5 s
+  seed 5: pass, 62.0 s
+  seed 2: pass, 53.5 s
+  seed 7: the remesh gate fails after organic: slit_faces 2 (limit 0), 28.1 s
+  seed 4: the contact and fold check fails in chord, rest, performance, 90.7 s
+  seed 8: pass, 54.0 s
+[seeds] 6 of 8 seeds pass in 231.5 s (out/seeds/summary.json)
+  seed   6: pass        42.1 s, 1 stages from the cache
+  seed   3: pass        48.3 s, 1 stages from the cache
+  seed   1: pass        49.5 s, 1 stages from the cache
+  seed   5: pass        62.0 s, 1 stages from the cache
+  seed   2: pass        53.5 s, 1 stages from the cache
+  seed   4: contacts    90.7 s, 1 stages from the cache
+  seed   7: gate        28.1 s, 1 stages from the cache
+  seed   8: pass        54.0 s, 1 stages from the cache
+[seeds] the seed report (animals/pb-s/out/seed-report.json): 6 of 7 seeds that pass the remesh gate pass every clip; seeds.require = "kept": pass
+  seed  remesh gate        reference  ready  play  chord    rest     performance
+  6     pass               pass       pass   pass  pass     pass     pass
+  3     pass               pass       pass   pass  pass     pass     pass
+  1     pass               pass       pass   pass  pass     pass     pass
+  5     pass               pass       pass   pass  pass     pass     pass
+  2     pass               pass       pass   pass  pass     pass     pass
+  4     pass               pass       pass   pass  folds 1  folds 4  folds 4
+  7     FAIL slit_faces 2
+  8     pass               pass       pass   pass  pass     pass     pass
+  kept seed 6
+checks: 33 of 33 pass, 3 near the limit, gates pass
+  the sheet check warns: figure_height, ground_line, ear_height, arm_gap, head_turn.three_quarter (out/sheet-check.json)
+look report: /Users/xueqiaoxu/proj/zoophony/.claude/worktrees/studio-bears/lowpoly-studio/animals/pb-s/out/report/index.html
+time:
+  step       seconds  source
+  intake        0.01  cache
+  seed pool   231.49
+  checks        1.34
+  total       232.86
+cache: deleted 49 old entries (limit 2 GB)
