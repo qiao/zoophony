@@ -1,0 +1,20 @@
+vertex 94 (source 991): 16 neighbors, source 0.39 cm, bind 2.12 cm (LBS check 0.00 mm)
+  rest full  1.00  1.00 | bend  1.51  1.51 | twist  2.63  2.63 | clav  2.44  2.44
+  play full  2.14  2.75 | bend  2.36  2.57 | twist  2.23  2.71 | clav  2.61  2.81
+  lift full  2.62  2.76 | bend  2.32  2.56 | twist  2.64  2.72 | clav  2.60  2.77
+vertex 73 (source 980): 11 neighbors, source 0.00 cm, bind 0.87 cm (LBS check 0.00 mm)
+  rest full  0.00  0.00 | bend  0.00  0.00 | twist  0.36  0.36 | clav  0.34  0.34
+  play full  1.66  2.24 | bend  0.53  1.51 | twist  1.92  1.95 | clav  0.99  1.17
+  lift full  2.20  2.25 | bend  1.10  1.32 | twist  1.91  1.95 | clav  0.95  1.24
+vertex 93 (source 990): 20 neighbors, source 0.71 cm, bind 1.94 cm (LBS check 0.00 mm)
+  rest full  0.93  0.93 | bend  1.16  1.16 | twist  2.24  2.24 | clav  2.08  2.08
+  play full  2.24  2.79 | bend  2.23  2.45 | twist  2.34  2.67 | clav  2.42  2.57
+  lift full  2.71  2.78 | bend  2.31  2.49 | twist  2.61  2.68 | clav  2.40  2.82
+vertex 77 (source 985): 11 neighbors, source 0.24 cm, bind 1.61 cm (LBS check 0.00 mm)
+  rest full  0.62  0.62 | bend  0.23  0.23 | twist  0.74  0.74 | clav  0.45  0.45
+  play full  1.50  1.64 | bend  1.50  1.64 | twist  1.78  1.96 | clav  1.44  1.54
+  lift full  1.60  1.65 | bend  1.38  1.41 | twist  1.66  1.77 | clav  1.36  1.60
+vertex 246 (source 471): 10 neighbors, source 0.00 cm, bind 0.40 cm (LBS check 0.00 mm)
+  rest full  0.31  0.31 | bend  0.21  0.21 | twist  0.18  0.18 | clav  0.50  0.50
+  play full  0.14  0.24 | bend  0.25  0.33 | twist  0.05  0.07 | clav  0.20  0.23
+  lift full  0.08  0.37 | bend  0.19  0.26 | twist  0.06  0.18 | clav  0.19  0.50

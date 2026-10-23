@@ -1,0 +1,10 @@
+
+> zoophony@0.0.0 arm-look /Users/xueqiaoxu/proj/zoophony/.claude/worktrees/rabbit-armpit
+> node tools/arm-look.ts violinist
+
+Arm look of 1 roles, play step 1 s. Limits: crease share 14.6% (twice the worst arm of the red fox (7.3%)), section 0.44 (0.6 of the worst arm of the red fox (0.74)).
+
+| Role | Arm | Play samples | Crease share p50 | Section p50 |
+|---|---|---:|---:|---:|
+| violinist | L | 4454 | 1.8% | 0.81 |
+| violinist | R | 4454 | 5.0% | 0.58 |

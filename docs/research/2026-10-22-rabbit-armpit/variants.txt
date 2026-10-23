@@ -1,0 +1,82 @@
+== p1
+arm_root: push R: 7 vertices, largest 1.47 cm
+arm_root: copy: 1564 vertices, 3101 triangles, 28 open edges
+ source=scratch/glb/p1.glb | 0.0% | 5.8% | 0.0% |
+== p2
+arm_root: push R: 8 vertices, largest 1.91 cm
+arm_root: split R: edge 986-994 (10.9 cm) at a new vertex 0.39 cm off the chord
+arm_root: split R: edge 979-986 (9.1 cm) at a new vertex 0.43 cm off the chord
+arm_root: split R: edge 985-994 (7.4 cm) at a new vertex 0.49 cm off the chord
+arm_root: copy: 1567 vertices, 3107 triangles, 28 open edges
+ source=scratch/glb/p2.glb | 62.7% | 9.4% | 0.0% |
+== p3
+arm_root: push R: 8 vertices, largest 1.91 cm
+arm_root: copy: 1564 vertices, 3101 triangles, 28 open edges
+ source=scratch/glb/p3.glb | 62.5% | 9.4% | 0.0% |
+== p4
+arm_root: push R: 7 vertices, largest 1.91 cm
+arm_root: copy: 1564 vertices, 3101 triangles, 28 open edges
+ source=scratch/glb/p4.glb | 62.5% | 28.8% | 100.0% |
+== p5
+arm_root: push R: 7 vertices, largest 1.47 cm
+arm_root: split R: edge 986-994 (10.7 cm) at a new vertex 0.35 cm off the chord
+arm_root: split R: edge 979-986 (9.1 cm) at a new vertex 0.33 cm off the chord
+arm_root: split R: edge 985-994 (7.4 cm) at a new vertex 0.46 cm off the chord
+arm_root: copy: 1567 vertices, 3107 triangles, 28 open edges
+ source=scratch/glb/p5.glb | 0.0% | 5.8% | 0.0% |
+== h1
+arm_root: hull R: 5 of 7 vertices move, largest 0.62 cm
+arm_root: copy: 1564 vertices, 3101 triangles, 28 open edges
+ source=scratch/glb/h1.glb | 0.0% | 5.8% | 0.0% |
+== c1
+arm_root: hull R: 5 of 7 vertices move, largest 0.62 cm
+arm_root: push R: 7 vertices, largest 1.47 cm
+arm_root: copy: 1564 vertices, 3101 triangles, 28 open edges
+ source=scratch/glb/c1.glb | 62.4% | 12.7% | 0.0% |
+== c2
+arm_root: hull R: 5 of 6 vertices move, largest 0.62 cm
+arm_root: push R: 6 vertices, largest 1.47 cm
+arm_root: copy: 1564 vertices, 3101 triangles, 28 open edges
+ source=scratch/glb/c2.glb | 62.6% | 9.4% | 0.0% |
+== c3
+arm_root: hull R: 5 of 7 vertices move, largest 0.62 cm
+arm_root: push R: 3 vertices, largest 1.17 cm
+arm_root: copy: 1564 vertices, 3101 triangles, 28 open edges
+ source=scratch/glb/c3.glb | 62.3% | 28.8% | 100.0% |
+== c4
+arm_root: hull R: 5 of 7 vertices move, largest 0.62 cm
+arm_root: push R: 4 vertices, largest 0.88 cm
+arm_root: copy: 1564 vertices, 3101 triangles, 28 open edges
+ source=scratch/glb/c4.glb | 68.2% | 29.0% | 100.0% |
+== c5
+arm_root: hull R: 5 of 7 vertices move, largest 0.62 cm
+arm_root: push R: 2 vertices, largest 0.88 cm
+arm_root: copy: 1564 vertices, 3101 triangles, 28 open edges
+ source=scratch/glb/c5.glb | 62.3% | 28.8% | 100.0% |
+== c6
+arm_root: hull R: 5 of 7 vertices move, largest 0.62 cm
+arm_root: split R: edge 986-994 (10.6 cm) at a new vertex 0.23 cm off the chord
+arm_root: split R: edge 979-986 (8.9 cm) at a new vertex 0.20 cm off the chord
+arm_root: split R: edge 985-994 (7.5 cm) at a new vertex 0.48 cm off the chord
+arm_root: copy: 1567 vertices, 3107 triangles, 28 open edges
+ source=scratch/glb/c6.glb | 0.0% | 5.8% | 0.0% |
+== c1 with raise rules
+ source=scratch/glb/c1.glb;raise.0.below=0.1;raise.1.below=0.3 | 62.5% | 12.7% | 0.0% |
+ source=scratch/glb/c1.glb;raise.0.grow=2;raise.1.grow=2 | 62.4% | 12.7% | 0.0% |
+
+Edits of each variant (`probes/var.sh <name> '<edits JSON>'`). H is the hull fill of the round
+(tools/arm-roots/rabbit.json). Columns above: play / lift / rest folds, and the faces that each
+shape of the right arm leaves turned (FAIL: the relax failed).
+p1: push {991: 0.010, 990: 0.009, 980: 0.008, 985: 0.007, 982: 0.005, 986: 0.004, 988: 0.004}
+p2: push {991: 0.013, 990: 0.011, 980: 0.012, 985: 0.009, 986: 0.007, 988: 0.005, 982: 0.004, 979: 0.004} and split [986,994], [979,986], [985,994]
+p3: the push of p2 with no split
+p4: push {991: 0.013, 990: 0.011, 980: 0.010, 985: 0.009, 982: 0.005, 986: 0.005, 988: 0.005}
+p5: the push of p1 and the splits of p2
+h1: H = hull of [982, 990, 988, 991, 985, 987, 989], exclude [975, 980, 979, 976, 977, 981, 1003, 1069, 1022, 1056], ring 0.06, share 0.7, cap 0.012 (the round)
+c1: H, then the push of p1
+c2: H with no 982 (982 and 984 excluded), then the push of p1 with no 982
+c3: H, then push {980: 0.008, 985: 0.006, 986: 0.004}
+c4: H, then push {991: 0.006, 990: 0.005, 980: 0.006, 985: 0.005}
+c5: H, then push {980: 0.006, 986: 0.004}
+c6: H, then the splits of p2
+c1 with raise rules: c1 with raise.0.below 0.1 and raise.1.below 0.3, and c1 with grow 2 on both shapes
