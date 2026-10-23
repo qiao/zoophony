@@ -888,7 +888,11 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
 - [ ] Rabbit right armpit front in the play: a V crease stays at the front of the arm root from
       az60 at the frog, the tip, and the crossing. 84% of its depth comes from the bend of the
       bind arm, 16% from the twist. A push of the root front softens it (p5), but each push on top
-      of the fill makes the shapes of the right arm fail (`2026-10-22-rabbit-armpit.md`).
+      of the fill makes the shapes of the right arm fail (`2026-10-22-rabbit-armpit.md`). A dual
+      quaternion bind does not shrink it (`2026-10-22-dq-bind.md`).
+- [ ] Arm root dents of the mesh rigs: the bend from the hanging source arm to the bind arm makes
+      them, and no blend of the bind removes them (`2026-10-22-dq-bind.md`). Next: a bind arm
+      nearer to the source arm (`studio.bindArms`), measured with `split.py` of the report.
 - [ ] Rabbit: commit `b1e270f0` of the paused round `rabbit-depth` (the via of the bow grip in the
       lift and the lowering) still waits for its gates (`2026-10-22-rabbit-armpit.md`).
 - [x] Rabbit left armpit: a thin dark line stays at the top of the cut under the violin arm. The
