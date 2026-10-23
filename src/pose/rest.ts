@@ -302,11 +302,8 @@ export const END_BOW = {
   /** The upper body bends forward in this time, holds, and comes up in the same time. */
   downSec: 0.7,
   holdSec: 0.6,
-  /**
-   * The bend of the spine, in radians. With 32°, the large head of the mesh bear came 0.4 cm
-   * near the desk of its stand (`docs/research/2026-10-22-mesh-bear.md`).
-   */
-  angle: (28 * Math.PI) / 180,
+  /** The bend of the spine, in radians. */
+  angle: (32 * Math.PI) / 180,
   /** The head bends this part of the bend more. */
   head: 0.5,
 } as const;
