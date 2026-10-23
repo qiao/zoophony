@@ -1,0 +1,49 @@
+
+> zoophony@0.0.0 arm-check /Users/xueqiaoxu/proj/zoophony
+> node tools/arm-check.ts tubist --base a655e122 --views /private/tmp/claude-501/-Users-xueqiaoxu-proj-zoophony/03882d02-62cb-451a-9d76-ae6c0d3d5d62/scratchpad/rac1
+
+Arm gate of 1 roles against a655e122 in 39 s. A cell gives the value, the base in parentheses, and the verdict of a value that does not pass.
+
+| Role | Arm | folds p95 (8) | twist p95 (55) | forearm twist p95 (80) | flat p5 (0.55) | paw twist p95 (170) | paw swing p95 (70) | paw jumps (0.5%) | stretch p95 (0.35) | grip turn p50 (45) | move twist max (176) | move turn max (3000) | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| tubist | L | 3 (3) | 43 (43) | 48 (30) FAIL | 0.77 (0.85) FAIL | 129 (110) | 26 (36) | 0.0% (0.0%) | 0.20 (0.02) FAIL | 19 (0) FAIL | 129 (110) FAIL | 30 (23) | FAIL |
+| tubist | R | 4 (1) FAIL | 26 (28) | 62 (36) FAIL | 0.63 (0.78) FAIL | 149 (134) | 30 (42) | 0.0% (0.0%) | 0.26 (0.03) FAIL | 16 (0) FAIL | 149 (134) FAIL | 43 (25) | FAIL |
+
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| tubist | L | folds p95 | rest | 2 | 3 | 3 | 100.0% | 3 at boulanger-matin.mid rest | 3 | 8 | 3 | PASS |
+| tubist | L | twist p95 | play | 4147 | 43 | 43 | 100.0% | 43 at boulanger-matin.mid 194.13 s | 43 | 55 | 43 | PASS |
+| tubist | L | forearm twist p95 | play | 4147 | 48 | 48 | 100.0% | 48 at brahms-2.mid 310.13 s | 48 | 80 | 30 | FAIL |
+| tubist | L | flat p5 | play | 4147 | 0.77 | 0.77 | 100.0% | 0.77 at boulanger-matin.mid 42.13 s | 0.77 | 0.55 | 0.85 | FAIL |
+| tubist | L | paw twist p95 | play | 4147 | 129 | 129 | 100.0% | 129 at brahms-2.mid 499.13 s | 129 | 170 | 110 | PASS |
+| tubist | L | paw swing p95 | play | 4147 | 26 | 26 | 100.0% | 26 at brahms-2.mid 738.88 s | 26 | 70 | 36 | PASS |
+| tubist | L | paw jumps | rest | 2 | 0 | 0 | 0.0% | 0 at boulanger-matin.mid rest | 0.0% | 0.5% | 0.0% | PASS |
+| tubist | L | stretch p95 | play | 4147 | 0.20 | 0.20 | 100.0% | 0.20 at brahms-2.mid 127.63 s | 0.20 | 0.35 | 0.02 | FAIL |
+| tubist | L | grip turn p50 | play | 4147 | 19 | 19 | 100.0% | 19 at brahms-2.mid 499.13 s | 19 | 45 | 0 | FAIL |
+| tubist | L | move twist max | move | 2322 | 124 | 129 | 100.0% | 129 at brahms-2.mid lift 0.00 s, wall 1.55 s | 129 | 176 | 110 | FAIL |
+| tubist | L | move turn max | move | 2322 | 9 | 24 | 88.5% | 30 at brahms-2.mid lift 0.00 s, wall 0.38 s | 30 | 3000 | 23 | PASS |
+| tubist | R | folds p95 | rest | 2 | 4 | 4 | 100.0% | 4 at boulanger-matin.mid rest | 4 | 8 | 1 | FAIL |
+| tubist | R | twist p95 | lift | 62 | 26 | 26 | 100.0% | 26 at brahms-2.mid wall 1.5 s | 26 | 55 | 28 | PASS |
+| tubist | R | forearm twist p95 | lift | 62 | 61 | 62 | 100.0% | 62 at brahms-2.mid wall 0.3 s | 62 | 80 | 36 | FAIL |
+| tubist | R | flat p5 | rest | 2 | 0.63 | 0.63 | 100.0% | 0.63 at brahms-2.mid rest | 0.63 | 0.55 | 0.78 | FAIL |
+| tubist | R | paw twist p95 | lift | 62 | 148 | 149 | 100.0% | 149 at boulanger-matin.mid wall 0.5 s | 149 | 170 | 134 | PASS |
+| tubist | R | paw swing p95 | play | 4147 | 30 | 30 | 100.0% | 30 at brahms-2.mid 25.63 s | 30 | 70 | 42 | PASS |
+| tubist | R | paw jumps | rest | 2 | 0 | 0 | 0.0% | 0 at boulanger-matin.mid rest | 0.0% | 0.5% | 0.0% | PASS |
+| tubist | R | stretch p95 | play | 4147 | 0.26 | 0.26 | 100.0% | 0.26 at brahms-2.mid 109.38 s | 0.26 | 0.35 | 0.03 | FAIL |
+| tubist | R | grip turn p50 | play | 4147 | 16 | 16 | 100.0% | 16 at brahms-2.mid 20.88 s | 16 | 45 | 0 | FAIL |
+| tubist | R | move twist max | move | 2322 | 148 | 149 | 100.0% | 149 at brahms-2.mid lower 250.82 s, wall 0.93 s | 149 | 176 | 134 | FAIL |
+| tubist | R | move turn max | move | 2322 | 10 | 40 | 89.8% | 43 at brahms-2.mid lift 0.00 s, wall 0.25 s | 43 | 3000 | 25 | PASS |
+A stand or another player hides an arm at the azimuths 0, 35, -35, 90, 60, 20, -20.
+tubist: worst L stretch p95 at brahms-2 127.63 s into /private/tmp/claude-501/-Users-xueqiaoxu-proj-zoophony/03882d02-62cb-451a-9d76-ae6c0d3d5d62/scratchpad/rac1/tubist-brahms-2/time-127.63
+A stand or another player hides an arm at the azimuths 0, 35, -35, 90, 60, 20, -20.
+tubist: worst R stretch p95 at brahms-2 109.38 s into /private/tmp/claude-501/-Users-xueqiaoxu-proj-zoophony/03882d02-62cb-451a-9d76-ae6c0d3d5d62/scratchpad/rac1/tubist-brahms-2/time-109.38
+A stand or another player hides an arm at the azimuths 0, 35, -35, 90, 60, 20, -20.
+tubist: strike at brahms-2 339.58 s into /private/tmp/claude-501/-Users-xueqiaoxu-proj-zoophony/03882d02-62cb-451a-9d76-ae6c0d3d5d62/scratchpad/rac1/tubist-brahms-2/time-339.58
+A stand or another player hides an arm at the azimuths 0, 35, -35, 90, 60, 20, -20.
+tubist: rest at brahms-2 526.41 s into /private/tmp/claude-501/-Users-xueqiaoxu-proj-zoophony/03882d02-62cb-451a-9d76-ae6c0d3d5d62/scratchpad/rac1/tubist-brahms-2/time-526.41
+brahms-2: 4 frames from one build of each tree into /private/tmp/claude-501/-Users-xueqiaoxu-proj-zoophony/03882d02-62cb-451a-9d76-ae6c0d3d5d62/scratchpad/rac1/tubist-brahms-2
+/private/tmp/claude-501/-Users-xueqiaoxu-proj-zoophony/03882d02-62cb-451a-9d76-ae6c0d3d5d62/scratchpad/rac1/tubist-brahms-2-127.63-arms.webp: 8 pairs, the base on the left of each pair
+/private/tmp/claude-501/-Users-xueqiaoxu-proj-zoophony/03882d02-62cb-451a-9d76-ae6c0d3d5d62/scratchpad/rac1/tubist-brahms-2-109.38-arms.webp: 8 pairs, the base on the left of each pair
+/private/tmp/claude-501/-Users-xueqiaoxu-proj-zoophony/03882d02-62cb-451a-9d76-ae6c0d3d5d62/scratchpad/rac1/tubist-brahms-2-339.58-arms.webp: 8 pairs, the base on the left of each pair
+/private/tmp/claude-501/-Users-xueqiaoxu-proj-zoophony/03882d02-62cb-451a-9d76-ae6c0d3d5d62/scratchpad/rac1/tubist-brahms-2-526.41-arms.webp: 8 pairs, the base on the left of each pair
+ ELIFECYCLE  Command failed with exit code 1.

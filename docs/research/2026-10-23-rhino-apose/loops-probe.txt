@@ -1,0 +1,13 @@
+rhino: 12 open loops
+  26 edges, length 1.880 m, middle 0.247, 0.893, 0.083, bones shoulderR 12, neck 4, spine 4, chest 6
+  27 edges, length 2.050 m, middle -0.229, 0.892, 0.060, bones spine 2, shoulderL 13, chest 9, neck 3
+  3 edges, length 0.135 m, middle 0.194, 0.418, -0.045, bones hips 3
+  2 edges, length 0.090 m, middle -0.082, 0.313, 0.027, bones hips 2
+  1 edges, length 0.014 m, middle -0.099, 1.396, -0.050, bones head 1
+  4 edges, length 0.089 m, middle 0.110, 1.398, -0.050, bones head 4
+  2 edges, length 0.087 m, middle 0.289, 0.520, 0.111, bones spine 2
+  2 edges, length 0.036 m, middle -0.016, 0.239, 0.421, bones tail1 2
+  1 edges, length 0.024 m, middle -0.114, 1.407, -0.055, bones head 1
+  1 edges, length 0.024 m, middle -0.107, 1.398, -0.060, bones head 1
+  2 edges, length 0.038 m, middle -0.102, 1.400, -0.029, bones head 2
+  3 edges, length 0.035 m, middle -0.093, 1.126, -0.252, bones head 3
