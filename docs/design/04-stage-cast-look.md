@@ -507,7 +507,11 @@ twist bone (`docs/decisions/2026-10-19-arm-skin.md`).
     front lips are white belly fur that the black arm would show as a white tag. Each flipper of the penguin is an arm of the rig, free of the body
     below its root, so the plane frees it with no cut. The upper arm of its bind points far down
     (`studio.bindArms`), because the large turn from the hanging flipper to the bind arm of the
-    other meshes turned the faces at the root of the flipper over.
+    other meshes turned the faces at the root of the flipper over. The hanging upper arm of the elephant is one solid with the
+    trunk, and the plane of the split lay out of the crease where they meet, so the free arm was
+    only the outer shell of the arm, closed by a flat cap: a thin plate with no armpit. The rig
+    fits a plane through the concave edges of that crease and frees the whole arm out of it
+    (`weights.armCrease`).
   - Upper arm form. A mesh whose arm is free of the trunk only from the elbow down has no upper
     arm of its own: the upper arm is a bulge of the trunk wall, and each turn of the arm crumples
     the wall into flaps. No weight rule, cut, ring, or shape fixes it. The rig of the pig reads a
