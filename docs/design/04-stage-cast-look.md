@@ -94,7 +94,7 @@ percussion badgers, the tuba rhinos, and the harp deer have bodies of their own 
 uses the parametric biped body since 2026-10-21.
 Each species has one `SpeciesParams` in `SPECIES` of `models/species.ts`, and changes only its parameters. A
 species can have a body of its own in place of the biped (`body`, 4.4, bodies of their own and
-studio bodies). The bear, the polar bear, the rabbit,
+studio bodies). The bear has a studio body (`lowpoly-studio/`). The polar bear, the rabbit,
 the two foxes, the cat, the dog, the panda, the hippo, the mouse, the elephant, the beaver, the
 pig, the wolf, the monkey, the badger, the rhino, the deer, and the penguin have meshes of the user
 that `pnpm rig-mesh` rigs. The two foxes share one rig, and the tan fox takes
@@ -204,8 +204,8 @@ trunk (`docs/research/2026-10-11-short-legs.md`):
   the foxes, the cat, the dog, the panda, the hippo, the mouse, the elephant, the beaver, the
   pig, the wolf, the monkey, the badger, the rhino, the deer, and the penguin, which
   `models/species.ts` reads from their studio bodies. The hippo stands at its contrabass, the
-  elephant at its timpani, the badger at each percussion instrument, the rhino at its tuba, the
-  penguin on its riser, and the bear on its podium. The bear reads only its head height `H`.
+  elephant at its timpani, the badger at each percussion instrument, the rhino at its tuba, and
+  the penguin on its riser.
 
 A height map moves the torso of the parametric body with the joints of the table, and the head
 keeps its form:
@@ -270,17 +270,18 @@ parts of 4.5 (body proportions) on the skeleton of 4.3, and a species with a `bo
 its own from `buildBiped()` in its place.
 
 The user chose each body of its own, and the table "Bodies and roles" of
-`docs/agents/model-work.md` lists them with their decision files. The bear conductor, the polar
-bear pianist, the rabbit violinist,
+`docs/agents/model-work.md` lists them with their decision files. The bear conductor has the
+studio body of `lowpoly-studio/` (user, 2026-10-12), smooth since 2026-10-22. The polar bear
+pianist, the rabbit violinist,
 the red violin fox, the viola cat, the cello dog, the trombone panda, the contrabass hippo, the
 oboe mouse, the timpani elephant, the bassoon beaver, the horn pig, the clarinet wolf, the trumpet
 monkey, the percussion badger, the tuba rhino, the harp deer, and the choir penguin have meshes of
 the user that the app rigs itself (studio bodies, below). The tan flute fox has the rig of the red
 fox with a tan palette. The mesh of the penguin replaces its egg body of 2026-10-11, by the newest
 decision of the user (`docs/decisions/2026-10-21-mesh-penguin.md`). The meshes of the rhino and the deer replace their parametric bodies
-(`docs/decisions/2026-10-21-mesh-rhino.md`, `docs/decisions/2026-10-21-mesh-deer.md`). The mesh of
-the bear and of the polar bear replace their studio bodies of `lowpoly-studio/` near the same size, by the newest decision
-of the user (`docs/decisions/2026-10-22-mesh-bear.md`).
+(`docs/decisions/2026-10-21-mesh-rhino.md`, `docs/decisions/2026-10-21-mesh-deer.md`). The user
+asked for the studio bear again after its mesh, with more smooth fur
+(`docs/decisions/2026-10-22-studio-bears.md`).
 
 Each body follows these rules:
 
@@ -311,7 +312,7 @@ A studio body is the GLB file of an animal of `lowpoly-studio/`, or of a mesh of
 `pnpm rig-mesh` rigs into the same format: one mesh of faces with one color each, a skeleton of the
 biped template with twist bones of the forearms, a skin of up to four bones for each vertex, and
 corrective shapes. The studio bodies are the bear conductor
-(`docs/decisions/2026-10-22-mesh-bear.md`), the polar bear pianist
+(`docs/decisions/2026-10-12-studio-bear.md`), the polar bear pianist
 (`docs/decisions/2026-10-22-mesh-polar-bear.md`), the rabbit violinist
 (`docs/decisions/2026-10-13-mesh-rabbit.md`), the red violin fox
 (`docs/decisions/2026-10-14-mesh-fox.md`), the tan flute fox
@@ -393,9 +394,9 @@ twist bone (`docs/decisions/2026-10-19-arm-skin.md`).
   0.004 H out of the oval in each view (user, 2026-10-20). An old eye of a mesh can lie on an
   edge of the face that runs across the diagonal of the oval. A bent oval there folds along that
   diagonal and reads as a bean, and a flat oval stands out as a bead. So a body can move its eye
-  places to a part of the face with less fold (`eyeShift` of `ANIMALS`), and turn its eyes toward
-  the normal of the face (`eyeNormal`, `docs/research/2026-10-20-bear-eyes.md`). No body takes
-  them now.
+  places to a part of the face with less fold (`eyeShift` of `ANIMALS`, the bear). The eyes of
+  the bear also turn halfway from their direction toward the normal of the face (`eyeNormal`,
+  user, 2026-10-20, `docs/decisions/2026-10-20-bear-eyes.md`).
 - **Mesh rig.** `pnpm rig-mesh <animal>` rigs a mesh of the user with no skeleton into the format
   of a studio body with Blender. The config `tools/mesh-rigs/<animal>.json` gives the joints,
   measured on cuts of the mesh, and the rules below, each with a note. The decision files of the
@@ -662,8 +663,11 @@ twist bone (`docs/decisions/2026-10-19-arm-skin.md`).
   weight from the pose alone (`raiseWeight()`), so the rule of stateless poses holds.
 - **Render.** The scene draws the body with four bones for each vertex and the shapes as morph
   targets. The colors hold the baked occlusion of the studio. The fur gets smooth normals within
-  the crease angle of the body (`crease` of `ANIMALS`, `studioNormals()`). The angle of a bear has
-  the facet contrast of its reference images, and the mesh bear keeps it. The red fox, the cat, the dog, the panda, the hippo,
+  the crease angle of the body (`crease` of `ANIMALS`, `studioNormals()`). The bear takes a large
+  angle, so that its fur looks smooth and round, as the user asked. Its fur colors also blend at
+  each vertex where two faces differ by a small step (`colorBlend`, `studioCornerColors()`), so
+  that the steps of the paint and of the baked occlusion fade, and the edges of the muzzle, the
+  brows, and the claws stay sharp (`docs/decisions/2026-10-22-studio-bears.md`). The red fox, the cat, the dog, the panda, the hippo,
   the mouse, the elephant, the beaver, the pig, the wolf, the monkey, the badger, the rhino, the
   deer, and the penguin take the angle of the rabbit, which the manager chose from the play frames,
   because the sixteen are meshes of image models (`docs/research/2026-10-14-rabbit-smooth.md`).
@@ -1001,7 +1005,8 @@ back (`chairForward()`). Each species moves toward the anatomy of its reference 
   trombones, the pig in the horns, the hippo in the contrabasses, the elephant at the timpani, the
   badger in the percussion, the rhino at the tuba, the deer at the harp, the penguin in the
   choir, the polar bear at the piano, and the bear on the podium, so many
-  studio bodies share the scene. The pea eyes add their triangles to a studio body
+  studio bodies share the scene. The GLB file of each bear has at most 3,000 faces (the user,
+  2026-10-22: "do not exceed 3000 meshes"), with its facets spread evenly over the round body. The pea eyes add their triangles to a studio body
   (`docs/decisions/2026-10-15-pea-eyes.md`).
 - An instrument has at most 800 triangles, except the timpani (1,200) and the piano (2,000). A
   chair or the piano bench has at most 120, and a stand at most 80. The full scene with 60
@@ -1229,9 +1234,9 @@ part "with mallet" (`SpeciesParams.cymbalForm`, `SUSPENDED_CYMBAL`,
 xylophone of the app, so the xylophone stays open for a choice of the user
 (`docs/decisions/2026-10-20-mesh-badger.md`). A species can also play smaller hand cymbals
 (`SpeciesParams.cymbalScale`).
-The bear keeps the arms of its mesh (reach 0.47 m) and the baton of the app (0.51 m). The baton
-lies along its index finger, and the tip of beat 1 stands in front of the right shoulder, so that
-the wrist stays below the chin (5.4, `docs/decisions/2026-10-22-mesh-bear.md`).
+The studio bear keeps its arms (reach 0.54 m) and the baton of the app (0.51 m). The baton lies
+along its index finger, and the tip of beat 1 stands in front of the right shoulder, so that the
+wrist stays near the chin (5.4, `docs/decisions/2026-10-22-studio-bears.md`).
 The polar bear plays the piano of the app with arms 1.25 times the arms of its mesh (reach
 0.68 m), the choice of the agent while the user slept. Its round belly stands in front of its
 short arms, so the keys stand in front of the belly, and each paw reaches the key of each note

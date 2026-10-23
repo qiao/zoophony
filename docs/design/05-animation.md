@@ -26,7 +26,7 @@ Each new role and each new hold adds its row to this table in the same commit.
 
 | Role | Support | Source | Play | Rest | Code | Docs | View |
 |---|---|---|---|---|---|---|---|
-| Conductor, bear | Stands on the podium | none | Beats the patterns of 5.4 with the baton, cues each entry, and shows the dynamics with the left paw | The arms hang a little out to the sides | `CONDUCTOR_HOLD`, `pose/conductor.ts` | 5.2, 5.4, `2026-10-22-mesh-bear.md` | `pnpm close-views conductor <dir>` |
+| Conductor, bear | Stands on the podium | none | Beats the patterns of 5.4 with the baton, cues each entry, and shows the dynamics with the left paw | The arms hang a little out to the sides | `CONDUCTOR_HOLD`, `pose/conductor.ts` | 5.2, 5.4, `2026-10-22-studio-bears.md` | `pnpm close-views conductor <dir>` |
 | Piano, polar bear | Bench that fits its legs (4.4, seat) | Play: Prodigies and "Fundamentals of Piano Practice" (`2026-10-14-polar-bench.md`), the elbows a little out and in front of the trunk (`docs/research/2026-10-22-mesh-polar-bear.md`). Rest: a Suzuki checklist (`docs/research/2026-10-13-pianist-lap.md`) | Leans toward the keys, with the palms down at the front of the keys | Sits tall with the head up, with the paws on the low belly over the thighs | `HANDS_HOLDS.piano`, `pose/hands.ts` | 5.2, 5.3 piano and harp, `2026-10-22-mesh-polar-bear.md` | `pnpm close-views pianist <dir>` |
 | Harp, deer | Stool that fits its legs, with the whole haunch on the seat (4.4, seat) | Play: musicmark.org.uk, "A Common Approach", harp, area B (`docs/research/2026-10-21-mesh-deer.md`) | Leans forward, with the forearms about level, and each palm plucks the string of its note on a smaller harp in front of the chest | Sits up, with each hand on a string, a little away from it | `HANDS_HOLDS.harp`, `HARP_PLACE`, `pose/hands.ts` | 5.2, 5.3 piano and harp, `2026-10-21-mesh-deer.md` | `pnpm close-views harpist <dir>` |
 | Violin, rabbit | Chair, stands as a soloist | Play: violinonline.com and Simon Fischer (`docs/research/2026-10-14-fox-rabbit-form.md`). Rest: the image of the user (`docs/research/2026-10-16-bow-rest.md`). Hands and bow: `docs/reference/string-technique.md` | Holds the violin on the left shoulder under the jaw, with the bow nearly square and the stick through the closed right paw | The violin upright on the left thigh, and the bow upright at the right side with the frog at the outer side of the right knee. A soloist hangs the bow with the tip down | `SHOULDER_HOLD`, `UPRIGHT_BOW`, `HANGING_BOW`, `STANDING_REST`, `pose/bowed-rig.ts` | 5.2, 5.3 bowed strings, `2026-10-17-rabbit-pose.md`, `2026-10-17-grip-all.md` | `pnpm close-views violinist <dir>` |
@@ -715,7 +715,7 @@ The code constants of each family hold the times, the angles, and the lengths of
     where the first note sounds (6.5).
   - **Hold of the baton.** The places of the hands are in head heights `H` of the bear (4.4), in
     `CONDUCTOR_HOLD` and `LEFT_HAND_PLACES` of `pose/conductor.ts`
-    (`docs/research/2026-10-22-mesh-bear.md`). The baton lies along the index finger with its
+    (`docs/research/2026-10-22-studio-bears.md`). The baton lies along the index finger with its
     grip in the palm, as a conductor holds it (4.6), and the palm faces the floor. The baton
     points forward, a little up, and in, and turns around `batonPivot` behind the wrist, so the
     arm beats with the baton. At beat 1, the wrist is a little below the chin and out beside the
