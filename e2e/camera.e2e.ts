@@ -36,9 +36,6 @@ for (const [width, height] of [
     expect(Math.abs(after.x - before.x)).toBeLessThanOrEqual(1);
     expect(Math.abs(after.y - before.y)).toBeLessThanOrEqual(1);
     expect(Math.abs(after.scale - before.scale)).toBeLessThanOrEqual(0.005);
-    // The automatic camera stays on, so the click on Play shows the film.
-    await expect(page.locator('.bar .camera')).toHaveAttribute('aria-pressed', 'true');
-    await expect(page.locator('.message')).toBeHidden();
   });
 }
 

@@ -15,16 +15,6 @@ export type CameraMode = 'cinematic' | 'free';
 export type CameraEvent = 'drag' | 'wheel' | 'pinch' | 'click' | 'toggle' | 'reset' | 'new-piece';
 
 /**
- * Gives the camera mode at the page load (design 2.5).
- *
- * @param reducedMotion True if the user prefers reduced motion.
- * @returns `free` with reduced motion, else `cinematic`.
- */
-export function startMode(reducedMotion: boolean): CameraMode {
-  return reducedMotion ? 'free' : 'cinematic';
-}
-
-/**
  * Gives the camera mode after an event (design 2.5). A drag, a wheel, or a pinch changes to Free
  * from the current camera. A click keeps the mode. The toggle switches the mode. "Reset view"
  * changes to Free at the default view. A new piece keeps the mode.

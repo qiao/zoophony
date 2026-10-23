@@ -806,7 +806,7 @@ interface PageInfo {
  */
 async function pageInfo(browser: Browser, page: Page, options: FrameOptions): Promise<PageInfo> {
   const players = await page.evaluate(() => window.zoophony?.instruments.length ?? 0);
-  // The frame target holds in both camera modes (design 9.7). Cinematic is the default.
+  // The frame target holds in both camera modes (design 9.7).
   const camera = await page.evaluate(() => window.zoophony?.cameraMode ?? '');
   const mode = options.headed ? 'headed' : 'headless';
   return { browser: `Chrome ${browser.version()}, ${mode}`, players, camera };

@@ -23,7 +23,7 @@ import { Ui } from '../ui/ui.ts';
 import { playWithSilentSwitch } from './audio-session.ts';
 import { BackdropProbe } from './backdrop-probe.ts';
 import { DEFAULT_SPEED, DEFAULT_VOLUME, barShows, volumeGain } from './bar-rules.ts';
-import { motionEvent, movesCamera, nextMode, startMode } from './camera-mode.ts';
+import { motionEvent, movesCamera, nextMode } from './camera-mode.ts';
 import type { CameraEvent, CameraMode } from './camera-mode.ts';
 import type { Speed } from './bar-rules.ts';
 import { DEMOS, PERF_60, demoHash, demoUrl, isDemoId } from './demos.ts';
@@ -293,8 +293,8 @@ export class App {
   #activeAt = 0;
   /** The message at the bottom center, or `null` (design 2.8). */
   #message: Message | null = null;
-  /** Cinematic or Free (design 2.5). */
-  #cameraMode: CameraMode;
+  /** Cinematic or Free (design 2.5). The page starts in Free mode. */
+  #cameraMode: CameraMode = 'free';
   /** The camera of the shot of the last frame, which `cameraAt()` writes. */
   readonly #shotCamera = createCameraPose();
   /** The phone layout of design 2.8, which moves the frame above the sheet. */
@@ -320,7 +320,6 @@ export class App {
     // The renderer made the context of the canvas first, so the canvas gives the same context.
     this.#backdrop = new BackdropProbe(canvas, canvas.getContext('webgl2'));
     this.#tierWatch = watchTier(scene.tier);
-    this.#cameraMode = startMode(scene.reducedMotion);
     this.#ui = new Ui(
       document.body,
       {

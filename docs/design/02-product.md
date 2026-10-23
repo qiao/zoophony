@@ -85,45 +85,48 @@ The UI has the style of a video player. The theme is dark only, because the scen
 
 ## 2.5 Camera
 
-The user asked on 2026-10-05: "Add a feature where the user can toggle the camera position. By
-default, we use a cinematic camera orchestration that automatically switches between different
-camera positions with automatic panning / zooming." Thus the camera has two modes.
+The user asked on 2026-10-05: "Add a feature where the user can toggle the camera position." The
+user also asked for a cinematic camera that switches between camera positions, with automatic pans
+and zooms. Thus the camera has two modes. On 2026-10-22, the user asked: "By default, do not use
+the cinematic camera." Thus the page starts in Free mode.
 [`research/cinematic-camera.md`](../research/cinematic-camera.md) holds the plan, and
 `app/camera-mode.ts` holds the rules of the mode.
 
 ```text
-             page load
-                 │
-    prefers-reduced-motion? ──yes──────────────┐
-                 │ no                          v
-                 v                      +-------------+
-          +-------------+   drag > 4 px,|    FREE     |
-          |  CINEMATIC  |   wheel, pinch| orbit       |
-          | cameraAt()  |──────────────>| from the    |
-          |             |               | current     |
-          |             |<──────────────| camera      |
-          +-------------+  "Automatic   +-------------+
-                 │          camera", C         ^
-                 │                             │
-                 └──── "Reset view" ───────────┘ (Free, default view)
+                page load
+                    │
+                    v
+             +-------------+
+             |    FREE     |  orbit from the current camera
+             +-------------+
+                │       ^
+   "Automatic   │       │  drag > 4 px, wheel, pinch,
+    camera", C  │       │  "Automatic camera", C, or
+                │       │  "Reset view" (Free, default view)
+                v       │
+             +-------------+
+             |  CINEMATIC  |  cameraAt()
+             +-------------+
 ```
 
 - The default view has the angle of view of `orchestra-latest.png` (1). It frames the used seats,
   with the podium at the bottom middle and the back row at the top, in the free area beside the
   open drawer. A portrait viewport gets a lower and nearer view (4.5, camera).
-- **Cinematic** is the default mode. Each frame takes the camera from `cameraAt()`: the shots of
-  5.6 cut between the conductor, the sides of the stage, the sections, the soloists, and wide
-  views. When a section or a soloist enters after a rest, the next cut goes to it (user,
-  2026-10-07). The first shot starts from the default view, so the click on play makes no cut.
-- **Free** is the orbit camera. It starts from the last frame of Cinematic, so the view does not
-  jump, and then it turns around the stage. The camera cannot go below the stage, and a zoom stops
-  outside the box of the stage and the players (4.5).
-- A drag, a pinch, or a wheel on the stage changes to Free at once, with no note (user,
-  2026-10-22). While the first screen shows, the zoom is off (`movesCamera()`), because a wheel
-  there is often an attempt to scroll the page.
+- **Free** is the default mode (user, 2026-10-22). It is the orbit camera. At the page load, it
+  shows the default view. After Cinematic, it starts from the last frame of Cinematic, so the view
+  does not jump. A drag turns it around the stage. The camera cannot go below the stage, and a
+  zoom stops outside the box of the stage and the players (4.5).
+- **Cinematic** starts with the "Automatic camera" toggle or the key C. Each frame takes the
+  camera from `cameraAt()`: the shots of 5.6 cut between the conductor, the sides of the stage, the
+  sections, the soloists, and wide views. When a section or a soloist enters after a rest, the next
+  cut goes to it (user, 2026-10-07). The first shot starts from the default view, so a click on
+  play in Cinematic mode makes no cut.
+- In Cinematic mode, a drag, a pinch, or a wheel on the stage changes to Free at once, with no note
+  (user, 2026-10-22). While the first screen shows, the zoom is off (`movesCamera()`), because a
+  wheel there is often an attempt to scroll the page.
 - "Reset view" shows the default view in Free mode, so the full stage with no cuts is one click.
-- With reduced motion, the default mode is Free with no inertia, each Cinematic shot holds its
-  first camera, each transition is a hard cut, and the light effects stand still (4.5).
+- With reduced motion, Free mode has no inertia, each Cinematic shot holds its first camera, each
+  transition is a hard cut, and the light effects stand still (4.5).
 - A new piece and a new section size keep the mode and make new shots. The automatic camera does
   not follow a soloed seat in version 1, because the shots come one time from the score. No
   setting stores the mode.

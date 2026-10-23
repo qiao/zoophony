@@ -1,13 +1,8 @@
 import { describe, expect, it } from 'vitest';
 
-import { motionEvent, movesCamera, nextMode, startMode } from './camera-mode.ts';
+import { motionEvent, movesCamera, nextMode } from './camera-mode.ts';
 
 describe('the camera mode (design 2.5)', () => {
-  it('starts in Cinematic mode, and in Free mode with reduced motion', () => {
-    expect(startMode(false)).toBe('cinematic');
-    expect(startMode(true)).toBe('free');
-  });
-
   it('changes to Free mode on a drag, a wheel, or a pinch', () => {
     for (const event of ['drag', 'wheel', 'pinch'] as const) {
       expect(nextMode('cinematic', event)).toBe('free');

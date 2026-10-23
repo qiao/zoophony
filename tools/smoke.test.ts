@@ -35,7 +35,7 @@ const PASS: SmokeRun = {
   canvasDrawn: true,
   errors: [],
   camera: {
-    modeAtLoad: 'cinematic',
+    modeAtLoad: 'free',
     modeReduced: 'free',
     dragMove: 0.2,
     modeAfterDrag: 'free',
@@ -124,7 +124,7 @@ describe('smokeFailures for the camera (design 2.5, 5.6)', () => {
       modeAfterDrag: 'free',
     };
     expect(smokeFailures({ ...PASS, camera })).toEqual([
-      'The camera mode at the load was cinematic, and cinematic with reduced motion.',
+      'The camera mode at the load was free, and cinematic with reduced motion.',
       'A drag gave the mode free, and moved the camera by 12.000 m.',
     ]);
   });

@@ -207,7 +207,7 @@ export function smokeFailures(run: SmokeRun): string[] {
     failures.push(`The bow arm of the first violin turned by ${turn.toFixed(3)} rad only.`);
   }
   const camera = run.camera;
-  if (camera.modeAtLoad !== 'cinematic' || camera.modeReduced !== 'free') {
+  if (camera.modeAtLoad !== 'free' || camera.modeReduced !== 'free') {
     failures.push(
       `The camera mode at the load was ${camera.modeAtLoad}, and ${camera.modeReduced} with reduced motion.`,
     );
