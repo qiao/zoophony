@@ -173,6 +173,10 @@ motion updates the items.
   (`PercussionHold.across`, sections 2 and 3). A wider V of the German grip turns the paw of the
   elephant further on its forearm (`docs/research/2026-10-19-elephant-grip.md`). At a strike,
   each mallet points forward and 20° to 23° down (section 3).
+- **The elbows.** Each upper arm hangs near the side of the body, and the elbow points down
+  (`PercussionHold.poleL` and `poleR`), as section 3 gives. With the elbows farther out, the
+  user saw "an unnatural gap between the arm and the body" from the back
+  (`docs/decisions/2026-10-22-elephant-crease.md`).
 - **The stroke.** The head lifts before the note, comes down at its full speed at the note
   start, and rebounds (`STRIKE_MOTION` of `src/pose/strikes.ts`), as section 4 gives.
 - **The playing spot.** The app differs. Each mallet strikes 0.25 m in from the near rim

@@ -148,8 +148,9 @@ export const PERCUSSION_HOLDS = {
   // points forward and in. The homes stand out from the shoulders, so that the mallets point
   // forward at a strike. Between strikes, the wrist lifts the head a little above the level, with
   // little twist of the paw on the forearm (across, 2026-10-19-elephant-grip decisions). The
-  // elbows point down and near the body, so that the upper arms roll less and the skin does not
-  // twist at the shoulder (2026-10-19-arm-skin decisions). The mallets stay over the kettles in
+  // elbows point down and near the body, so that the upper arms roll less, the skin does not
+  // twist at the shoulder (2026-10-19-arm-skin decisions), and no gap shows between each upper
+  // arm and the trunk from the back (2026-10-22-elephant-crease decisions). The mallets stay over the kettles in
   // the rest pose, because the hanging paws reach into the large kettles (ready,
   // 2026-10-19-elephant-pose decisions).
   timpani: {
@@ -157,8 +158,8 @@ export const PERCUSSION_HOLDS = {
     sizes: { lift: 0.1, rest: 0.2 },
     offsetL: [0, 0, 0],
     offsetR: [-0.05, 0, 0],
-    poleL: [-0.7, -1, 0.2],
-    poleR: [0.7, -1, 0.2],
+    poleL: [-0.45, -1, 0.2],
+    poleR: [0.45, -1, 0.2],
     rim: 0.25,
     home: [0.1, -0.37, -0.2],
     top: 'shoulder',
