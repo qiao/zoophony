@@ -754,7 +754,15 @@ const CAT_HOLD = {
  * so that the shoulders come nearer to the strings, and the right elbow points out and down, near
  * the body. The bow plays no hair within 0.12 m of the frog (`frogHair`), and the string planes
  * are 6° apart, because the paw at the frog and on the C string went into the right rim of the
- * cello. Pizzicato plucks over the fingerboard (`pluckPlace` -0.3), nearer to the shoulder.
+ * cello. In pizzicato, the right paw comes up from the side, as a real player plucks with the hand
+ * hanging from the wrist and the thumb near the edge of the fingerboard
+ * (`docs/reference/string-technique.md`, section 2.8): it plucks 0.2 of the way from the end of the
+ * fingerboard to the bow contact, 0.15 m right of the strings (`pluckSide`), with the elbow out and
+ * down (`polePizzicato`). Over the fingerboard (`pluckPlace` -0.3), the paw lay flat across the
+ * strings, the right upper arm turned 101° and went 5.2 cm into the body, and the front of the
+ * right shoulder folded in 87% of the pizzicato samples. Now it turns 79° and goes 2.2 cm in, and
+ * 20% fold (user, 2026-10-23: "the dog's right arm and palm during pizzicato is weird",
+ * 2026-10-23-night-fixes decisions).
  *
  * In the rest pose, the right paw holds the bow over the right knee, 0.25 H out and 0.5 H above
  * the top of the thigh at 0.9 of the way to the knee, with the tip up and leaned out and forward,
@@ -777,8 +785,9 @@ const DOG_HOLD = {
   elbowPerString: 2 * MathUtils.DEG2RAD,
   poleR: [1, -1.2, -0.3],
   poleTipR: [1, -0.5, -0.5],
-  pluckPlace: -0.3,
-  polePizzicato: [1, -0.5, -1],
+  pluckPlace: 0.2,
+  pluckSide: 0.15,
+  polePizzicato: [1, -1, -0.3],
   restPlace: 0.6,
   restPoleL: [-0.5, -1, 0],
   restPoleR: [0.6, -1, 0.75],

@@ -508,6 +508,10 @@ A round that changes the motion updates the items.
   the fingerboard, and the right paw holds the bow over the right knee with the tip up, as the
   first lesson of the source. The short arm of the dog does not reach the knee, so the grip is
   above the thigh and the tip leans out and forward. The source gives no rest of an orchestral cellist.
+- **Pizzicato** (section 2.8). The right paw of the dog comes up from the side and plucks 0.15 m
+  right of the strings, near the end of the fingerboard (`BowedHold.pluckSide` and `pluckPlace`),
+  with the elbow out and down, as the bassist of the source. The source is for the double bass,
+  and no source of this file gives the cello pizzicato.
 
 ### 3.4 The standing contrabass player and the rest
 
