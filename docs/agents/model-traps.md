@@ -204,6 +204,10 @@ group of your work before you plan it. A probe that a trap names is in its resea
   A flip or a weight ramp moves the fold. Move the ball and its ring out in a copy, and split the
   long edge across the joint (`push`, `split` of `tools/blender/arm_root.py`,
   `docs/research/2026-10-22-arm-roots.md`).
+- A dent at a notch of the arm root can come from the bind: the rig turns the hanging source arm
+  onto the bind arm by a bend in linear blend skinning, and the mixed weights of the notch sink
+  there (84% on the rabbit, `decomp2.py` of `docs/research/2026-10-22-rabbit-armpit/`). A fill
+  of the notch (`hull`) and a push of the root front do not combine: the shapes of `raise` fail.
 - A limb far from the bind arm of the studio, as a flipper that hangs out and down, turns the faces
   of its root over in the bind, and they fold in each sample. Bind the upper arm nearer to the
   source limb (`studio.bindArms`), and count the folds of each bind with `rig-mesh --check --set`.
