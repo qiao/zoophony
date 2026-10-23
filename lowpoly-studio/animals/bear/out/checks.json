@@ -1,41 +1,34 @@
 {
   "animal": "bear",
   "role": "conductor",
-  "seed": 5,
+  "seed": 2,
   "gate_pass": true,
   "pass": false,
   "failed": [
+    "fur_saturation.back",
     "fur_value.back",
-    "eye_outline.front.1",
-    "eye_rim.front.0",
-    "eye_rim.front.1",
-    "eye_outline.three_quarter.0",
     "eye_outline.three_quarter.1",
     "eye_rim.three_quarter.0",
+    "eye_rim.three_quarter.1",
     "ear_width.side.ear",
     "nose_y.front.0",
     "nose_x.side.0",
     "nose_width.side.0",
-    "nose_height.side.0",
     "muzzle_y.front.muzzle",
     "muzzle_height.front.muzzle",
-    "muzzle_y.side.muzzle",
-    "belly_width.front.belly",
     "claw_count.front.left_in_image",
     "claw_count.front.right_in_image"
   ],
   "near": [
-    "folds.reference",
-    "folds.bow",
-    "folds.performance",
     "iou.front",
     "iou.back",
-    "fur_saturation.back",
     "iou.three_quarter",
     "eye_outline.front.0",
+    "eye_outline.front.1",
+    "eye_outline.three_quarter.0",
     "ear_width.back.left_in_image",
     "nose_width.front.0",
-    "muzzle_height.side.muzzle"
+    "muzzle_y.side.muzzle"
   ],
   "checks": [
     {
@@ -53,49 +46,8 @@
       "op": "<=",
       "limit": 0,
       "pass": true,
-      "near": true,
-      "gate": true,
-      "where": {
-        "clip": "reference",
-        "frame": 0,
-        "time_s": 0.0,
-        "face": 198,
-        "faces": [
-          198,
-          836
-        ],
-        "bone": "upper_arm_R",
-        "side": "R",
-        "region": "upper arm, under, right",
-        "position": [
-          -0.2158,
-          0.5025,
-          -0.0259
-        ],
-        "rest_position": [
-          -0.2331,
-          0.5099,
-          0.0568
-        ],
-        "angle_deg": 104.9,
-        "weights": [
-          [
-            "upper_arm_R",
-            0.495
-          ],
-          [
-            "forearm_R",
-            0.189
-          ],
-          [
-            "spine",
-            0.183
-          ]
-        ],
-        "smallest_angle_deg": 33.7,
-        "rest_dot": 0.943,
-        "crop": "diag/fold-198-reference.png"
-      }
+      "near": false,
+      "gate": true
     },
     {
       "name": "contact.ready",
@@ -171,7 +123,7 @@
     },
     {
       "name": "contact.hush",
-      "value": 0.0,
+      "value": 0.0038,
       "op": "<=",
       "limit": 0.01,
       "pass": true,
@@ -256,56 +208,12 @@
       "op": "<=",
       "limit": 0,
       "pass": true,
-      "near": true,
-      "gate": true,
-      "where": {
-        "clip": "bow",
-        "frame": 105,
-        "time_s": 3.5,
-        "face": 198,
-        "faces": [
-          198,
-          636,
-          195,
-          179,
-          118
-        ],
-        "bone": "upper_arm_R",
-        "side": "R",
-        "region": "upper arm, under, right",
-        "position": [
-          -0.2225,
-          0.5076,
-          -0.0307
-        ],
-        "rest_position": [
-          -0.2331,
-          0.5099,
-          0.0568
-        ],
-        "angle_deg": 113.6,
-        "weights": [
-          [
-            "upper_arm_R",
-            0.495
-          ],
-          [
-            "forearm_R",
-            0.189
-          ],
-          [
-            "spine",
-            0.183
-          ]
-        ],
-        "smallest_angle_deg": 33.7,
-        "rest_dot": 0.943,
-        "crop": "diag/fold-198-bow.png"
-      }
+      "near": false,
+      "gate": true
     },
     {
       "name": "contact.performance",
-      "value": 0.0,
+      "value": 0.0038,
       "op": "<=",
       "limit": 0.01,
       "pass": true,
@@ -318,52 +226,8 @@
       "op": "<=",
       "limit": 0,
       "pass": true,
-      "near": true,
-      "gate": true,
-      "where": {
-        "clip": "performance",
-        "frame": 867,
-        "time_s": 28.9,
-        "face": 198,
-        "faces": [
-          198,
-          636,
-          195,
-          179,
-          118
-        ],
-        "bone": "upper_arm_R",
-        "side": "R",
-        "region": "upper arm, under, right",
-        "position": [
-          -0.2225,
-          0.5076,
-          -0.0307
-        ],
-        "rest_position": [
-          -0.2331,
-          0.5099,
-          0.0568
-        ],
-        "angle_deg": 113.6,
-        "weights": [
-          [
-            "upper_arm_R",
-            0.495
-          ],
-          [
-            "forearm_R",
-            0.189
-          ],
-          [
-            "spine",
-            0.183
-          ]
-        ],
-        "smallest_angle_deg": 33.7,
-        "rest_dot": 0.943,
-        "crop": "diag/fold-198-performance.png"
-      }
+      "near": false,
+      "gate": true
     },
     {
       "name": "rest_inward_faces",
@@ -376,7 +240,7 @@
     },
     {
       "name": "body_triangles",
-      "value": 1276,
+      "value": 1256,
       "op": "in",
       "limit": [
         900.0,
@@ -388,7 +252,7 @@
     },
     {
       "name": "slivers",
-      "value": 0.0031,
+      "value": 0.0,
       "op": "<=",
       "limit": 0.01,
       "pass": true,
@@ -406,7 +270,7 @@
     },
     {
       "name": "remesh_gate.quads",
-      "value": 890,
+      "value": 874,
       "op": "in",
       "limit": [
         765,
@@ -427,7 +291,7 @@
     },
     {
       "name": "remesh_gate.slivers",
-      "value": 0.0031,
+      "value": 0.0,
       "op": "<=",
       "limit": 0.01,
       "pass": true,
@@ -454,7 +318,7 @@
     },
     {
       "name": "iou.front",
-      "value": 0.944,
+      "value": 0.9471,
       "op": ">=",
       "limit": 0.94,
       "pass": true,
@@ -485,7 +349,7 @@
     {
       "name": "fur_saturation.front",
       "value": [
-        0.607,
+        0.61,
         0.603
       ],
       "op": "abs<=",
@@ -498,7 +362,7 @@
     {
       "name": "fur_value.front",
       "value": [
-        0.51,
+        0.502,
         0.494
       ],
       "op": "abs<=",
@@ -510,7 +374,7 @@
     },
     {
       "name": "iou.side",
-      "value": 0.9584,
+      "value": 0.9606,
       "op": ">=",
       "limit": 0.94,
       "pass": true,
@@ -534,7 +398,7 @@
     {
       "name": "fur_saturation.side",
       "value": [
-        0.61,
+        0.608,
         0.602
       ],
       "op": "abs<=",
@@ -547,7 +411,7 @@
     {
       "name": "fur_value.side",
       "value": [
-        0.49,
+        0.494,
         0.486
       ],
       "op": "abs<=",
@@ -559,7 +423,7 @@
     },
     {
       "name": "iou.back",
-      "value": 0.9457,
+      "value": 0.9518,
       "op": ">=",
       "limit": 0.94,
       "pass": true,
@@ -577,7 +441,7 @@
     {
       "name": "fur_hue.back",
       "value": [
-        22.8,
+        22.7,
         22.3
       ],
       "op": "abs<=",
@@ -590,13 +454,13 @@
     {
       "name": "fur_saturation.back",
       "value": [
-        0.599,
+        0.592,
         0.615
       ],
       "op": "abs<=",
       "limit": 0.02,
-      "pass": true,
-      "near": true,
+      "pass": false,
+      "near": false,
       "gate": false,
       "where": {
         "view": "back",
@@ -607,7 +471,7 @@
     {
       "name": "fur_value.back",
       "value": [
-        0.506,
+        0.518,
         0.463
       ],
       "op": "abs<=",
@@ -623,7 +487,7 @@
     },
     {
       "name": "iou.three_quarter",
-      "value": 0.9154,
+      "value": 0.9151,
       "op": ">=",
       "limit": 0.9,
       "pass": true,
@@ -638,7 +502,7 @@
     {
       "name": "fur_hue.three_quarter",
       "value": [
-        22.8,
+        22.9,
         22.8
       ],
       "op": "abs<=",
@@ -651,7 +515,7 @@
     {
       "name": "fur_saturation.three_quarter",
       "value": [
-        0.594,
+        0.6,
         0.607
       ],
       "op": "abs<=",
@@ -664,7 +528,7 @@
     {
       "name": "fur_value.three_quarter",
       "value": [
-        0.525,
+        0.514,
         0.529
       ],
       "op": "abs<=",
@@ -677,7 +541,7 @@
     {
       "name": "eye_outline.front.0",
       "value": [
-        0.0284,
+        0.0246,
         0.0265
       ],
       "op": "rel<=",
@@ -698,13 +562,13 @@
     {
       "name": "eye_outline.front.1",
       "value": [
-        0.0076,
+        0.0227,
         0.0246
       ],
       "op": "rel<=",
       "limit": 0.08,
-      "pass": false,
-      "near": false,
+      "pass": true,
+      "near": true,
       "gate": false,
       "floor": 0.00199,
       "where": {
@@ -719,53 +583,39 @@
     {
       "name": "eye_rim.front.0",
       "value": [
-        0.0005,
+        0.0009,
         0.0008
       ],
       "op": "abs<=",
       "limit": 0.0003,
-      "pass": false,
+      "pass": true,
       "near": false,
       "gate": false,
-      "where": {
-        "feature": "eyes",
-        "view": "front",
-        "region": "eye",
-        "item": 0,
-        "crop": "report/features/eyes_front_eye.png"
-      },
       "look": true
     },
     {
       "name": "eye_rim.front.1",
       "value": [
-        0.0015,
+        0.0008,
         0.0009
       ],
       "op": "abs<=",
       "limit": 0.0003,
-      "pass": false,
+      "pass": true,
       "near": false,
       "gate": false,
-      "where": {
-        "feature": "eyes",
-        "view": "front",
-        "region": "eye",
-        "item": 1,
-        "crop": "report/features/eyes_front_eye.png"
-      },
       "look": true
     },
     {
       "name": "eye_outline.three_quarter.0",
       "value": [
-        0.0205,
+        0.0243,
         0.0261
       ],
       "op": "rel<=",
       "limit": 0.08,
-      "pass": false,
-      "near": false,
+      "pass": true,
+      "near": true,
       "gate": false,
       "floor": 0.00197,
       "where": {
@@ -780,7 +630,7 @@
     {
       "name": "eye_outline.three_quarter.1",
       "value": [
-        0.0205,
+        null,
         0.0112
       ],
       "op": "rel<=",
@@ -801,7 +651,7 @@
     {
       "name": "eye_rim.three_quarter.0",
       "value": [
-        0.0017,
+        0.0015,
         0.0006
       ],
       "op": "abs<=",
@@ -821,20 +671,27 @@
     {
       "name": "eye_rim.three_quarter.1",
       "value": [
-        0.0003,
+        null,
         0.0005
       ],
       "op": "abs<=",
       "limit": 0.0003,
-      "pass": true,
+      "pass": false,
       "near": false,
       "gate": false,
+      "where": {
+        "feature": "eyes",
+        "view": "three_quarter",
+        "region": "eye",
+        "item": 1,
+        "crop": "report/features/eyes_three_quarter_eye.png"
+      },
       "look": true
     },
     {
       "name": "ear_width.front.left_in_image",
       "value": [
-        0.0682,
+        0.0663,
         0.0663
       ],
       "op": "rel<=",
@@ -848,7 +705,7 @@
     {
       "name": "ear_height.front.left_in_image",
       "value": [
-        0.0758,
+        0.0777,
         0.0758
       ],
       "op": "rel<=",
@@ -862,7 +719,7 @@
     {
       "name": "ear_dark.front.left_in_image",
       "value": [
-        0.333,
+        0.335,
         0.38
       ],
       "op": "abs<=",
@@ -875,7 +732,7 @@
     {
       "name": "ear_width.front.right_in_image",
       "value": [
-        0.0682,
+        0.0663,
         0.0663
       ],
       "op": "rel<=",
@@ -889,7 +746,7 @@
     {
       "name": "ear_height.front.right_in_image",
       "value": [
-        0.0758,
+        0.0777,
         0.0758
       ],
       "op": "rel<=",
@@ -903,7 +760,7 @@
     {
       "name": "ear_dark.front.right_in_image",
       "value": [
-        0.337,
+        0.356,
         0.363
       ],
       "op": "abs<=",
@@ -937,7 +794,7 @@
     {
       "name": "ear_height.side.ear",
       "value": [
-        0.0779,
+        0.0798,
         0.0798
       ],
       "op": "rel<=",
@@ -1084,7 +941,7 @@
     {
       "name": "nose_x.side.0",
       "value": [
-        0.282,
+        0.2801,
         0.2644
       ],
       "op": "abs<=",
@@ -1140,28 +997,21 @@
     {
       "name": "nose_height.side.0",
       "value": [
-        0.0519,
+        0.0482,
         0.0445
       ],
       "op": "rel<=",
       "limit": 0.15,
-      "pass": false,
+      "pass": true,
       "near": false,
       "gate": false,
       "floor": 0.00196,
-      "where": {
-        "feature": "nose",
-        "view": "side",
-        "region": "nose",
-        "item": 0,
-        "crop": "report/features/nose_side_nose.png"
-      },
       "look": true
     },
     {
       "name": "muzzle_y.front.muzzle",
       "value": [
-        0.8517,
+        0.8498,
         0.8196
       ],
       "op": "abs<=",
@@ -1182,7 +1032,7 @@
     {
       "name": "muzzle_width.front.muzzle",
       "value": [
-        0.1212,
+        0.1193,
         0.1193
       ],
       "op": "rel<=",
@@ -1217,46 +1067,11 @@
     {
       "name": "muzzle_y.side.muzzle",
       "value": [
-        0.8415,
+        0.84,
         0.8313
       ],
       "op": "abs<=",
       "limit": 0.01,
-      "pass": false,
-      "near": false,
-      "gate": false,
-      "floor": 0.00196,
-      "where": {
-        "feature": "muzzle",
-        "view": "side",
-        "region": "muzzle",
-        "item": 0,
-        "crop": "report/features/muzzle_side_muzzle.png"
-      },
-      "look": true
-    },
-    {
-      "name": "muzzle_width.side.muzzle",
-      "value": [
-        0.0761,
-        0.0742
-      ],
-      "op": "rel<=",
-      "limit": 0.15,
-      "pass": true,
-      "near": false,
-      "gate": false,
-      "floor": 0.00196,
-      "look": true
-    },
-    {
-      "name": "muzzle_height.side.muzzle",
-      "value": [
-        0.0872,
-        0.1002
-      ],
-      "op": "rel<=",
-      "limit": 0.15,
       "pass": true,
       "near": true,
       "gate": false,
@@ -1271,9 +1086,37 @@
       "look": true
     },
     {
+      "name": "muzzle_width.side.muzzle",
+      "value": [
+        0.0779,
+        0.0742
+      ],
+      "op": "rel<=",
+      "limit": 0.15,
+      "pass": true,
+      "near": false,
+      "gate": false,
+      "floor": 0.00196,
+      "look": true
+    },
+    {
+      "name": "muzzle_height.side.muzzle",
+      "value": [
+        0.0909,
+        0.1002
+      ],
+      "op": "rel<=",
+      "limit": 0.15,
+      "pass": true,
+      "near": false,
+      "gate": false,
+      "floor": 0.00196,
+      "look": true
+    },
+    {
       "name": "belly_y.front.belly",
       "value": [
-        0.5221,
+        0.5056,
         0.5034
       ],
       "op": "abs<=",
@@ -1287,28 +1130,21 @@
     {
       "name": "belly_width.front.belly",
       "value": [
-        0.1837,
+        0.2102,
         0.2386
       ],
       "op": "rel<=",
       "limit": 0.2,
-      "pass": false,
+      "pass": true,
       "near": false,
       "gate": false,
       "floor": 0.00199,
-      "where": {
-        "feature": "belly",
-        "view": "front",
-        "region": "belly",
-        "item": 0,
-        "crop": "report/features/belly_front_belly.png"
-      },
       "look": true
     },
     {
       "name": "belly_height.front.belly",
       "value": [
-        0.1742,
+        0.2121,
         0.1951
       ],
       "op": "rel<=",
@@ -1360,7 +1196,7 @@
     {
       "name": "facet_contrast",
       "value": [
-        3.36,
+        3.65,
         3.6
       ],
       "op": "rel<=",
@@ -1375,11 +1211,11 @@
   "look": {
     "current": true,
     "reason": null,
-    "run": "20261022-180348-23366",
-    "look_run": "20261022-180348-23366",
-    "made": "2026-10-22T18:04:05-0700",
+    "run": "20261022-181745-90570",
+    "look_run": "20261022-181745-90570",
+    "made": "2026-10-22T18:18:02-0700",
     "compare": "model",
-    "model_seed": 5
+    "model_seed": 2
   },
   "sheet": {
     "warnings": [
@@ -1391,7 +1227,7 @@
   "diagnostics": {
     "folds": "diag/folds.json",
     "contacts": "diag/contacts.json",
-    "faces": 11,
-    "contacts_found": 0
+    "faces": 4,
+    "contacts_found": 2
   }
 }

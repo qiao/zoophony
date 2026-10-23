@@ -174,10 +174,12 @@ box_pad = 0.06
 # the soles take no warp, the trunk takes no squeeze, and the facets take no jitter: the quads
 # of the large belly facets and of the soles spread evenly over the round body. The fur and the
 # gloss keep below 3,000 faces (docs/decisions/2026-10-22-studio-bears.md of the repository).
-# Seeds 3 and 1 leave one face in a slit at the crotch, so seed 5 comes first.
+# Seeds 3 and 1 leave one face in a slit at the crotch. Seed 2 comes first: in the arm gate of
+# the app, the skin of seed 5 and seed 6 stretches 0.42 to 0.49 in the play (limit 0.35), and
+# seed 2 0.15.
 [facets]
 quads = 900
-seeds = [5, 3, 1, 6, 2, 4, 7, 8]
+seeds = [2, 5, 3, 1, 6, 4, 7, 8]
 offset = 0.004
 squeeze = { factor = 1.0, center = [0.0, 0.43, 0.02], radii = [0.32, 0.26, 0.32] }
 collapse_share = 0.3
