@@ -1,0 +1,7 @@
+| Variant | Triangles | Mesh gzip B | Scale m/u | Seat m | Leg seat m | Chair m | Reach L m | Reach R m | Standing mm | violinist play | violinist lift | violinist rest | violinist bones | Shapes: faces left turned |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| base | 3118 | 20382 | 1.4831 | 0.254 | 0.254 | 0.265 | 0.506 | 0.506 | 0.397 | 100.0% | 100.0% | 100.0% | upper_arm_R 67880, forearm_twist_R 40875, forearm_L 38863 | none |
+| raise=@rr-set-a.json | 3118 | 20767 | 1.4831 | 0.254 | 0.254 | 0.265 | 0.506 | 0.506 | 0.397 | 100.0% | 100.0% | 100.0% | upper_arm_R 75869, hand_L 51620, forearm_twist_L 38281 | arm_raise_R: 357 FAIL / arm_raise_R2: none / arm_raise_L: none / arm_raise_R3: none |
+| raise=@rr-set-b.json | 3118 | 20707 | 1.4831 | 0.254 | 0.254 | 0.265 | 0.506 | 0.506 | 0.397 | 100.0% | 100.0% | 100.0% | upper_arm_R 75869, forearm_twist_L 35715,  27768 | arm_raise_R: 357 FAIL / arm_raise_R2: none / arm_raise_L: 628 FAIL / arm_raise_R3: none |
+| raise=@rr-set-c.json | 3118 | 20667 | 1.4831 | 0.254 | 0.254 | 0.265 | 0.506 | 0.506 | 0.397 | 100.0% | 100.0% | 100.0% | upper_arm_R 77817, hand_L 51620, forearm_twist_L 38281 | arm_raise_R: 357 FAIL / arm_raise_R2: none / arm_raise_L: none |
+| raise=@rr-set-d.json | 3118 | 20592 | 1.4831 | 0.254 | 0.254 | 0.265 | 0.506 | 0.506 | 0.397 | 100.0% | 100.0% | 100.0% | upper_arm_R 89651, hand_L 51620, forearm_twist_L 38281 | arm_raise_R: 357 FAIL / arm_raise_L: none |
