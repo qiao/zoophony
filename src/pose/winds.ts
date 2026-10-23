@@ -473,7 +473,11 @@ const BEAVER_SHOULDER_TURN = {
  * ({@link BEAVER_SHOULDER_TURN}), as the shoulder blade of a real player slides forward when the
  * arm reaches forward: with square shoulders, the right paw reached its grip with 3 cm to spare
  * only on a bassoon of 0.75. Both elbows point down, out, and forward, which gave the smallest arm
- * turns of 3 elbow directions.
+ * turns of 3 elbow directions. The left elbow keeps that direction in the rest pose: with the
+ * elbow of the shared bassoon rest straight out to the side, the left paw turned 178° on its
+ * forearm at rest, so the lift and the lowering turned it through 180° and the twist bone of the
+ * forearm jumped (user, 2026-10-23: "the cat's and beaver's arm is very twisted when transitioned
+ * from rest to play"). With it, the paw turns at most 118° (2026-10-23-night-fixes decisions).
  */
 const BEAVER_BASSOON = {
   ...WIND_HOLDS.bassoon,
@@ -482,6 +486,7 @@ const BEAVER_BASSOON = {
   lipShift: [0, -0.33, 0.25],
   poleL: [-0.5, -1, -0.5],
   poleR: [0.5, -1, -0.5],
+  restPoleL: [-0.5, -1, -0.5],
 } as const satisfies WindHold;
 
 /** The turns of the horn of the pig around the mouthpiece, relative to the chest (design 5.3). */
