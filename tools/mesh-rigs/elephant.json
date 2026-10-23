@@ -283,6 +283,16 @@
     "note": "The studio has no elephant. legTurns gives the world turn of each left leg bone from the seated bind pose to the source, and the right side mirrors it: the values of the hippo, the seated posture of design 5.2. The elephant stands in the app (the standing pose of the rig, soloist of ANIMALS), so no player sits in this bind. The trunk shares and the bind arms are the values of the cat, the dog, the panda, and the hippo."
   },
   "weights": {
+    "armCrease": {
+      "angle": 25,
+      "heights": [0.44, 0.62],
+      "inner": 0.1,
+      "radius": 0.13,
+      "margin": 0.005,
+      "fit": 0.01,
+      "below": 0.64,
+      "note": "The hanging upper arm of the mesh is one solid with the trunk. The plane armSplit lies out of the creases where the arm meets the trunk, so the free arm was only the outer shell of the arm, and the cut closed it with a flat face: a thin plate in each raised pose with no armpit (the user: \"elephant.glb is good but elephant.rig.glb is problematic. it's armpit is missing\"). The rule fits a plane through the concave crease edges of each side and puts the whole arm out of it in the free arm, below the top of the cut."
+    },
     "armSplit": 0.18,
     "stretchRamp": 0,
     "headFrom": 0.69,
