@@ -106,13 +106,11 @@ const HIPPO_BODY_LOOPS = 3;
 const MOUSE_BODY_LOOPS = 14;
 
 /**
- * The open loops of {@link BODY_BONES} of the elephant mesh: the cuts to the two upper arms, and
- * two open edge pairs of 7 cm and 8 cm at the ears (`loops-probe.txt` of
- * `docs/research/2026-10-19-elephant-arms/`). The ring of the right shoulder (`refine.rings` of
- * `tools/mesh-rigs/elephant.json`) closes the loop of three edges at the front of the right
- * armpit, where the arm cut of the rig left one corner of the shoulder on the chest.
+ * The open loops of {@link BODY_BONES} of the elephant mesh in an A-pose: the roots of the two
+ * upper arms, and one open edge pair of 2.7 cm at the left side of the head, which the source mesh
+ * has (`loops-probe.txt` of `docs/research/2026-10-22-elephant-apose/`).
  */
-const ELEPHANT_BODY_LOOPS = 4;
+const ELEPHANT_BODY_LOOPS = 3;
 
 /**
  * The open loops of {@link BODY_BONES} of the beaver mesh: the cuts to the two upper arms, and 7

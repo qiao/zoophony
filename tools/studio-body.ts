@@ -339,7 +339,7 @@ export const ANIMALS: ReadonlyMap<string, AnimalSettings> = new Map([
     'elephant',
     {
       landmark: 'shoulders',
-      height: 1.157,
+      height: 1.1616,
       seated: true,
       soloist: true,
       constant: 'STUDIO_ELEPHANT',
