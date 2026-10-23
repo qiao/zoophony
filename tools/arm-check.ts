@@ -326,7 +326,8 @@ export const ACCEPTED_GRIPS: ReadonlyMap<string, Readonly<Record<Side, number>>>
   ['hornist', { L: -153, R: -54 }],
   ['clarinetist', { L: -86, R: -67 }],
   ['trumpeter', { L: -99, R: -98 }],
-  ['tubist', { L: -110, R: -132 }],
+  // The rhino of the A-pose mesh (docs/decisions/2026-10-23-rhino-apose.md).
+  ['tubist', { L: -129, R: -148 }],
   ['singer', { L: -79, R: -79 }],
   ['bass-drummer', { L: -102, R: 20 }],
   ['snare-drummer', { L: -32, R: -29 }],
