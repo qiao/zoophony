@@ -29,7 +29,8 @@ reads it (route 3 of `docs/agents/model-work.md`). The steps:
    optional bone `tail_tip` for a tail of two bones and the optional bone `jaw` for a beak that
    opens, and give the weights with bone heat. Then the rules of the config: the free arm (beyond a plane, which `armFree` turns around the vertical
    for a thick arm that joins the trunk, with each island inside the plane that only the free arm
-   surrounds with `armIslands`), the chest share of the inner root of a cut arm (`armRoot`),
+   surrounds with `armIslands`, and only the arm bones on a free arm that is a tube of its own
+   with `armOwn`), the chest share of the inner root of a cut arm (`armRoot`),
    the clavicles below the shoulders and the arms up the neck,
    the clavicles over the top of the shoulders (`shoulderRamp`), the paw, the head and the
    shoulders, the ears, the lower beak on the jaw (`jaw`), a long nose in front of the chest
@@ -1593,6 +1594,25 @@ def apply_rules(verts, tris, weights, rules, heads, ends):
             w[:, col['chest']] += taken.sum(axis=1)
             log(f'arm root {side}: {int((share > 0).sum())} vertices of the free arm give '
                 f'arm weight to the chest, at most {share.max():.2f}')
+
+        # A free arm that is a tube of its own (`armOwn`), with no face that joins the trunk:
+        # bone heat gives the inner side of the tube and its dome inside the shoulder a part of
+        # the trunk weight, which pins them to the trunk while the arm turns. Each vertex of the
+        # free arm keeps only its arm weights, and the upper arm takes the weight of a vertex
+        # with none.
+        if rules.get('armOwn'):
+            own = list(arm)
+            rest = [k for k in range(w.shape[1]) if k not in own]
+            share = w[free][:, rest].sum(axis=1)
+            kept = w[free][:, own].sum(axis=1)
+            rows = np.nonzero(free)[0]
+            w[rows[:, None], rest] = 0.0
+            none = rows[kept <= 0]
+            w[none, col[f'upper_arm_{side}']] = 1.0
+            some = rows[kept > 0]
+            w[some[:, None], own] /= w[some][:, own].sum(axis=1)[:, None]
+            log(f'arm own {side}: {len(rows)} vertices of the free arm give {share.sum():.1f} of '
+                f'other weight to the arm, the most {share.max():.2f}')
 
     # The chest below the clavicles: the clavicle weight fades out downward, so that the turn of
     # a shoulder does not shear the faces of the chest.
