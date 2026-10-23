@@ -584,7 +584,8 @@ The code constants of each family hold the times, the angles, and the lengths of
     smallest turn of the paw. The elbows of the timpani point down and
     near the body, as a real timpanist holds them (`poleL`, `poleR`). Elbows out at the height
     of the shoulders roll the upper arms far, and the skin twists at the shoulder (4.4). The
-    upper arms touch the side of the body, as the user rule of 2026-10-10 asks. The kettles leave a
+    upper arms touch the side of the body, as the user rule of 2026-10-10 asks, so that no gap
+    shows between each upper arm and the trunk from the back. The kettles leave a
     gap at the front of the player for the trunk (`TIMPANI.front`, 4.6). The other holds keep the
     top of each grip up (`PercussionHold.top`).
   - The badger mesh has short arms (0.27 m from the shoulder joint to the palm) and a round belly,
