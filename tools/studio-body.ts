@@ -218,7 +218,8 @@ export const ANIMALS: ReadonlyMap<string, AnimalSettings> = new Map([
   // The polar bear pianist: decisions/2026-10-14-polar-bench.md, 2026-10-14-polar-fix.md, and
   // 2026-10-22-studio-bears.md. The level thighs of the pianist of 2026-10-22 seat the body
   // lower, so the keys of the studio piano stand at 0.4176 units. At this landmark, the bear keeps
-  // its size of 1.805 m for each unit. The crease angle and the blend are those of the bear.
+  // its size of 1.805 m for each unit. The crease angle and the blend are those of the bear. Its
+  // eyes are 0.7 of the pea eyes of its head, so that they fill the painted lids under the brows.
   [
     'polar-bear',
     {
@@ -230,6 +231,7 @@ export const ANIMALS: ReadonlyMap<string, AnimalSettings> = new Map([
       constant: 'STUDIO_POLAR_BEAR',
       crease: 40,
       colorBlend: 0.05,
+      eyeSize: 0.7,
     },
   ],
   // The violinist rabbit: decisions/2026-10-14-fox-rabbit-form.md, 2026-10-14-neck-violin.md,
