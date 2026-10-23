@@ -11,7 +11,7 @@ import type { SpeciesColors } from '../src/models/colors.ts';
 import { EYE, addEye } from '../src/models/eyes.ts';
 import type { EyeBend } from '../src/models/eyes.ts';
 import type { SurfacePoint } from '../src/models/head.ts';
-import { PIANO_BENCH } from '../src/models/instruments/piano.ts';
+import { PIANO, PIANO_BENCH } from '../src/models/instruments/piano.ts';
 import { MeshBuilder } from '../src/models/mesh.ts';
 import type { Finish } from '../src/models/mesh.ts';
 import { CHAIR_BACK_CLEARANCE } from '../src/models/player.ts';
@@ -208,20 +208,18 @@ export const ANIMALS: ReadonlyMap<string, AnimalSettings> = new Map([
       eyeShift: [0.1, -0.02],
     },
   ],
-  // The polar bear pianist: decisions/2026-10-22-mesh-polar-bear.md. It sits on the piano bench,
-  // which fits its legs. The leg factor 1.6 raises the standing shoulder joints from 0.6 to 0.729
-  // units, and the landmark rises with them, so that the bear keeps 1.929 m for each unit
-  // (decisions/2026-10-22-polar-legs.md).
+  // The polar bear pianist: decisions/2026-10-14-polar-bench.md, 2026-10-14-polar-fix.md, and
+  // 2026-10-22-studio-bears.md.
   [
     'polar-bear',
     {
-      landmark: 'shoulders',
-      height: 1.406241,
+      landmark: 'keys',
+      height: PIANO.keyTop + 0.13,
       seated: true,
       soloist: false,
+      seat: 0.25,
       constant: 'STUDIO_POLAR_BEAR',
       crease: 15,
-      glb: 'assets/models/polar-bear/polar-bear.rig.glb',
     },
   ],
   // The violinist rabbit: decisions/2026-10-14-fox-rabbit-form.md, 2026-10-14-neck-violin.md,
