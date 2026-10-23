@@ -538,9 +538,13 @@ twist bone (`docs/decisions/2026-10-19-arm-skin.md`).
     The thick arm of the rhino
     joins the trunk from the paw up to the shoulder, and its outer side bent at the elbow on a few
     long faces, so the elbows read as flat slabs with sharp corners at full size from the stage.
-    Its rig reads a copy that keeps each paw, replaces the rest of the arm with a round tube of
-    rings up to a dome inside the shoulder, as for the pig, and fills the side of the trunk with a
-    fair surface (`rhino-tubes.glb`). No face joins a tube to the trunk, so the rig has no cut.
+    Its rig reads a copy that keeps each paw and replaces the rest of the arm with a round tube
+    that starts at a ball around the shoulder joint (`rhino-shoulders.glb`). A turn of the upper
+    arm turns the ball around its middle, so the shoulder stays in its place in each pose. The
+    copy refills the trunk around each shoulder with a fine fair surface that blends into the ball
+    and slopes from it to the side of the trunk, so that no gap shows where the arm swings away.
+    The new faces take the smooth colors of the fur around them, because single copied UVs gave
+    patches. No face joins an arm to the trunk, so the rig has no cut.
     Bone heat gave the inner side of each tube a part of the trunk weight, which pinned it to the
     trunk, so each vertex of the tube keeps only its arm weights (`weights.armOwn`), and the trunk
     keeps no upper arm weight up to the shoulder joint (`weights.armBelow`).
