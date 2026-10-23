@@ -1,56 +1,36 @@
 {
   "animal": "bear",
   "role": "conductor",
-  "run": "20261012-203730-29457",
-  "made": "2026-10-12T20:37:46-0700",
-  "role_key": "6a64ee199e40a199",
+  "run": "20261022-180256-19086",
+  "made": "2026-10-22T18:03:03-0700",
+  "role_key": "5f6e81d149f36d70",
   "reason": "a role check: the role pack, the template, or the clips changed since the last seed report",
   "require": "kept",
-  "kept": 3,
+  "kept": 5,
   "robust": true,
   "rule_pass": true,
-  "meshes": 5,
-  "robust_seeds": 5,
+  "meshes": 6,
+  "robust_seeds": 6,
   "seeds": [
     {
       "seed": 3,
-      "status": "pass",
-      "pass": true,
-      "remesh_gate": true,
-      "remesh_failed": [],
-      "clips": {
-        "reference": [],
-        "ready": [],
-        "beat_4_4": [],
-        "cue_left": [],
-        "crescendo": [],
-        "hush": [],
-        "cutoff": [],
-        "nod_turn": [],
-        "sway_dip": [],
-        "bow": [],
-        "performance": []
-      }
+      "status": "gate",
+      "pass": false,
+      "remesh_gate": false,
+      "remesh_failed": [
+        "slit_faces 1"
+      ],
+      "clips": {}
     },
     {
       "seed": 1,
-      "status": "pass",
-      "pass": true,
-      "remesh_gate": true,
-      "remesh_failed": [],
-      "clips": {
-        "reference": [],
-        "ready": [],
-        "beat_4_4": [],
-        "cue_left": [],
-        "crescendo": [],
-        "hush": [],
-        "cutoff": [],
-        "nod_turn": [],
-        "sway_dip": [],
-        "bow": [],
-        "performance": []
-      }
+      "status": "gate",
+      "pass": false,
+      "remesh_gate": false,
+      "remesh_failed": [
+        "slit_faces 1"
+      ],
+      "clips": {}
     },
     {
       "seed": 5,
@@ -94,23 +74,43 @@
     },
     {
       "seed": 2,
-      "status": "gate",
-      "pass": false,
-      "remesh_gate": false,
-      "remesh_failed": [
-        "quads 1036"
-      ],
-      "clips": {}
+      "status": "pass",
+      "pass": true,
+      "remesh_gate": true,
+      "remesh_failed": [],
+      "clips": {
+        "reference": [],
+        "ready": [],
+        "beat_4_4": [],
+        "cue_left": [],
+        "crescendo": [],
+        "hush": [],
+        "cutoff": [],
+        "nod_turn": [],
+        "sway_dip": [],
+        "bow": [],
+        "performance": []
+      }
     },
     {
       "seed": 4,
-      "status": "gate",
-      "pass": false,
-      "remesh_gate": false,
-      "remesh_failed": [
-        "slit_faces 1"
-      ],
-      "clips": {}
+      "status": "pass",
+      "pass": true,
+      "remesh_gate": true,
+      "remesh_failed": [],
+      "clips": {
+        "reference": [],
+        "ready": [],
+        "beat_4_4": [],
+        "cue_left": [],
+        "crescendo": [],
+        "hush": [],
+        "cutoff": [],
+        "nod_turn": [],
+        "sway_dip": [],
+        "bow": [],
+        "performance": []
+      }
     },
     {
       "seed": 7,
@@ -134,13 +134,23 @@
     },
     {
       "seed": 8,
-      "status": "gate",
-      "pass": false,
-      "remesh_gate": false,
-      "remesh_failed": [
-        "slit_faces 4"
-      ],
-      "clips": {}
+      "status": "pass",
+      "pass": true,
+      "remesh_gate": true,
+      "remesh_failed": [],
+      "clips": {
+        "reference": [],
+        "ready": [],
+        "beat_4_4": [],
+        "cue_left": [],
+        "crescendo": [],
+        "hush": [],
+        "cutoff": [],
+        "nod_turn": [],
+        "sway_dip": [],
+        "bow": [],
+        "performance": []
+      }
     }
   ]
 }

@@ -1,13 +1,13 @@
 {
-  "seed": 3,
+  "seed": 5,
   "quads": 900,
-  "body_triangles": 1200,
-  "median_edge_px": 28.1,
+  "body_triangles": 1276,
+  "median_edge_px": 27.6,
   "edge_quartiles_px": [
-    20.7,
-    37.6
+    22.0,
+    35.2
   ],
-  "sliver_share": 0.0017,
+  "sliver_share": 0.0031,
   "folded_faces": 0,
   "bones": 31,
   "clips": [
@@ -24,11 +24,11 @@
     "performance"
   ],
   "corrective": {
-    "region_vertices": 365,
+    "region_vertices": 379,
     "inverted_before": 0,
-    "inverted_after": 0,
-    "inward_after": 12,
-    "max_delta": 0.0217
+    "inverted_after": 2,
+    "inward_after": 15,
+    "max_delta": 0.0339
   },
   "fold_repairs": [
     1
@@ -41,7 +41,7 @@
         "side": "-",
         "part": "-",
         "time_s": 0.0,
-        "turned_faces": 0,
+        "turned_faces": 2,
         "folded_faces": 0,
         "pass": true
       },
@@ -95,7 +95,7 @@
         "side": "-",
         "part": "-",
         "time_s": 0.0,
-        "turned_faces": 1,
+        "turned_faces": 0,
         "folded_faces": 0,
         "pass": true
       },
@@ -122,7 +122,7 @@
         "side": "-",
         "part": "-",
         "time_s": 0.0,
-        "turned_faces": 1,
+        "turned_faces": 5,
         "folded_faces": 0,
         "pass": true
       },
@@ -131,11 +131,11 @@
         "side": "-",
         "part": "-",
         "time_s": 0.0,
-        "turned_faces": 1,
+        "turned_faces": 5,
         "folded_faces": 0,
         "pass": true
       }
     }
   },
-  "total_triangles": 2834
+  "total_triangles": 2910
 }

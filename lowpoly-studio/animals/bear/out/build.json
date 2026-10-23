@@ -1,15 +1,15 @@
 {
-  "run": "20261012-203730-29457",
+  "run": "20261022-180348-23366",
   "command": "build bear",
-  "started": "2026-10-12T20:37:30-0700",
-  "seed": 3,
+  "started": "2026-10-22T18:03:48-0700",
+  "seed": 5,
   "shots": true,
   "until": null,
-  "glb": "5eecaa19adb92360b4d263e827c571987d2754d9f63cce3952e981ef4875107a",
+  "glb": "1560a8888075617b65735b339fd43525409c7e169a4cb7f2f9fc0a74349d1614",
   "model": {
-    "seed": 3,
-    "log": "animals/bear/out/model/stages/blender-seed3.log",
+    "seed": 5,
+    "log": "animals/bear/out/model/stages/blender-seed5.log",
     "tried": [],
-    "glb": "785130e1b18c9a715d13887c57894600598af6c83f0cfa6d0dc794a997a4bc00"
+    "glb": "7d1bf388fbeb972112836609b68e1053271bdff38708e5a5dde82aac27380098"
   }
 }

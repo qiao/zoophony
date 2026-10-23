@@ -168,21 +168,27 @@ sole_blend = 0.006
 blend = 0.012
 box_pad = 0.06
 
-# The low-poly facets: the remesh and the organic pass.
+# The low-poly facets: the remesh and the organic pass. The user asked on 2026-10-22 for a
+# smooth and round bear in the app ("revert to previous studio-generated bears, but add more
+# triangle to them to make them more smooth", "do not exceed 3000 meshes"). So the belly and
+# the soles take no warp, the trunk takes no squeeze, and the facets take no jitter: the quads
+# of the large belly facets and of the soles spread evenly over the round body. The fur and the
+# gloss keep below 3,000 faces (docs/decisions/2026-10-22-studio-bears.md of the repository).
+# Seeds 3 and 1 leave one face in a slit at the crotch, so seed 5 comes first.
 [facets]
 quads = 900
-seeds = [3, 1, 5, 6, 2, 4, 7, 8]
+seeds = [5, 3, 1, 6, 2, 4, 7, 8]
 offset = 0.004
-squeeze = { factor = 0.78, center = [0.0, 0.43, 0.02], radii = [0.32, 0.26, 0.32] }
+squeeze = { factor = 1.0, center = [0.0, 0.43, 0.02], radii = [0.32, 0.26, 0.32] }
 collapse_share = 0.3
 flip_share = 0.8
 relax = 0.12
-jitter = 0.005
+jitter = 0.0
 
 [[facets.warps]]
 center = [0.0, 0.42, 0.02]
 radius = 0.24
-factor = 0.72
+factor = 1.0
 
 [[facets.warps]]
 center = [0.0, 0.86, 0.12]
@@ -197,7 +203,7 @@ factor = 2.6
 [[facets.warps]]
 center = [0.142, 0.035, 0.07]
 radius = 0.07
-factor = 1.8
+factor = 1.0
 mirror = true
 
 [[facets.warps]]
