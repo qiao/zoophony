@@ -87,6 +87,13 @@ export interface WindHold {
    * also in the rest pose.
    */
   readonly restFreeL: FreePaw | null;
+  /**
+   * True when each paw rolls around the line from its shoulder to its grip until its palm faces
+   * the tube ({@link palmToTube}). With false, the paw keeps the roll of its shoulder, and a
+   * small paw can hang beside the tube with its palm to the side (user, 2026-10-23: "wolf, mouse,
+   * and tan fox not holding the instrument properly").
+   */
+  readonly palmToTube: boolean;
 }
 
 /** The left paw of a wind hold that leaves its grip in the rest pose (`WindHold.restFreeL`). */
@@ -124,6 +131,7 @@ const WOODWIND = {
   headTurn: 0,
   lipShift: [0, 0, 0],
   restFreeL: null,
+  palmToTube: false,
 } as const satisfies WindHold;
 
 const X_AXIS = new Vector3(1, 0, 0);
@@ -933,6 +941,42 @@ const restHand = new Quaternion();
 const arcMove = new Vector3();
 const ORIGIN = [0, 0, 0] as const;
 
+const tubeSide = new Vector3();
+const handAxis = new Vector3();
+const palmNow = new Vector3();
+const palmGoal = new Vector3();
+const palmRoll = new Quaternion();
+const NO_ROLL = new Quaternion();
+
+/**
+ * Rolls a hand around its own long axis, the line from its shoulder to its grip, until the normal
+ * of its palm faces the tube. The grip of a woodwind lies below the tube, on the side away from
+ * the keys, so the tube lies along the up direction of the instrument from the grip. The x axis
+ * of the hand of the player is the normal of its palm, out of the back on the left hand and out of
+ * the palm on the right hand: with the other signs, the left palm cupped up, away from the tube.
+ *
+ * The roll grows with the weight of the playing pose, so that the rest pose keeps the paw of the
+ * shoulder, and the lift and the lowering do not turn the paw through the far side of its forearm.
+ *
+ * @param out The world rotation of the hand, which the function changes.
+ * @param toTube The unit direction from the grip to the tube.
+ * @param side The side of the hand.
+ * @param weight The eased weight of the playing pose: 0 is the rest pose.
+ */
+function palmToTube(out: Quaternion, toTube: Vector3, side: 'L' | 'R', weight: number): void {
+  handAxis.set(0, 1, 0).applyQuaternion(out);
+  palmNow
+    .set(side === 'L' ? -1 : 1, 0, 0)
+    .applyQuaternion(out)
+    .projectOnPlane(handAxis);
+  palmGoal.copy(toTube).projectOnPlane(handAxis);
+  if (palmNow.lengthSq() < 1e-8 || palmGoal.lengthSq() < 1e-8) {
+    return;
+  }
+  palmRoll.setFromUnitVectors(palmNow.normalize(), palmGoal.normalize());
+  out.premultiply(palmRoll.slerp(NO_ROLL, 1 - weight));
+}
+
 /**
  * Writes one arm and its fingers on the grip of the instrument. A paw that is free in the rest pose
  * moves from its rest place to its grip by the weight of the playing pose.
@@ -966,6 +1010,11 @@ function poseSide(
   grip.sub(pivotBind.fromArray(rig.pivot)).applyQuaternion(rotation).add(pivot);
   poseShoulder(side.arm, chest, rig.chestBind, turn, shoulder);
   handToward(shoulder, grip, hand);
+  // A paw that leaves its grip at rest keeps the roll of its shoulder: with the roll, the mix from
+  // its rest paw flipped to the other side of its forearm in the middle of the move.
+  if (rig.hold.palmToTube && !free) {
+    palmToTube(hand, tubeSide.set(0, 1, 0).applyQuaternion(rotation), side.arm.side, weight);
+  }
   const wrist = grip.sub(palm.fromArray(side.arm.palm).applyQuaternion(hand));
 
   // In the playing pose, the paw is on its grip with no mix, so that the pose is the pose of the
