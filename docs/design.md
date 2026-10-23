@@ -295,3 +295,4 @@ The decision files:
 - [`2026-10-22-rabbit-armpit.md`](decisions/2026-10-22-rabbit-armpit.md): the rabbit copy with the front notch of the right arm root filled, the cause of the dent (the bend of the bind arm and the twist), and the open V crease in the play.
 - [`2026-10-22-studio-bears.md`](decisions/2026-10-22-studio-bears.md): the studio bear and the studio polar bear back in the app, smooth: an even spread of the facets within 3,000 faces, a large crease angle, the color blend of the fur, the baton hold of the studio bear, and the seat of the polar bear.
 - [`2026-10-22-dq-bind.md`](decisions/2026-10-22-dq-bind.md): the dual quaternion bind of the arm roots (`bind.blend`), which does not shrink the rabbit dent and ships on no species.
+- [`2026-10-22-elephant-crease.md`](decisions/2026-10-22-elephant-crease.md): the rig rule that frees the elephant arms at the crease where they meet the trunk, the limits of its crease search, and its height.
