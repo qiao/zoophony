@@ -705,6 +705,13 @@ export const BOWED_HOLDS = {
  * 30°), and the wrist bends 30° from the line of the forearm (15° with 30°). With 40°, the wrist
  * kept a crease, and with 50°, the wrist bent 34°. In the fifth position, the paw tilts 65° with
  * `highTilt` (2026-10-20-cat-left-arm decisions).
+ *
+ * In the rest pose, the top plate of the viola faces back and to the left, toward the body, so
+ * that the left paw on the neck turns about 90° on its forearm, on the same side as its 148° in the
+ * play. With the top to the front, the paw turned -94° at rest, and the lift and the lowering
+ * turned it through 180°: the twist bone of the forearm jumped by 180° and wrung the forearm
+ * (user, 2026-10-23: "the cat's ... arm is very twisted when transitioned from rest to play",
+ * 2026-10-23-night-fixes decisions).
  */
 const CAT_HOLD = {
   ...BOWED_HOLDS.viola,
@@ -718,7 +725,7 @@ const CAT_HOLD = {
   restPoleR: [0.3, -1, 1],
   restPoleL: [-0.6, -1, 0.3],
   restPlace: 0.5,
-  rest: { ...LAP_VIOLIN, lap: { along: 0.7, offset: [0, 0, 0] } },
+  rest: { axis: LAP_VIOLIN.axis, top: [-0.7, 0, 0.7], lap: { along: 0.7, offset: [0, 0, 0] } },
   liftReach: [0.2, 0, -0.3],
   restBow: {
     lap: { along: 0.5, offset: [0.6, -0.3, 0.1] },
