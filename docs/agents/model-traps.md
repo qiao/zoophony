@@ -183,6 +183,10 @@ group of your work before you plan it. A probe that a trap names is in its resea
 - A thick arm can join the side of the trunk down to the paw, with a notch at its front and its
   back. Turn the plane of the free arm through both notches (`weights.armFree`, `arm_free.py` of
   `docs/research/2026-10-21-mesh-rhino/`), then cut the seam, else the seam stretches into spikes.
+  A cut or a patch of the whole inner side still showed the elbows as flat slabs at full size.
+  Replace the arm with a round tube in a copy (`rhino_tubes.py` of
+  `docs/research/2026-10-22-rhino-arm-2/`), give the tube only arm weights (`weights.armOwn`), and
+  keep the upper arm weight off the trunk up to the shoulder joint (`weights.armBelow`).
 - A cut that ends below the root of the arm leaves a face at its top that shows as a black triangle
   on the back when the rest arm swings out around a belly. End the cut above the shoulder joint,
   and give the caps of the body the skin normals (`cut-views.webp` of
