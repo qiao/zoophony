@@ -1,15 +1,16 @@
 # Polar bear models
 
-This folder holds the two polar bear meshes that the user gave. The app does not serve them.
+This folder holds the two polar bear meshes that the user gave, and the copy with the new arms
+that the rig reads. The app does not serve them.
 
 ## polar-bear-tpose.glb
 
 `polar-bear-tpose.glb` is a mesh with no skeleton, with the arms in a T-pose: out to the sides and
 level, free of the trunk. The user gave it on 2026-10-24 and said: "mesh for polar bear: [...] use
-the same eye size as the bear". The file is the file of the user, byte for byte. The rig of this
-project makes the studio body of the polar bear pianist from it with its own faces
-(`tools/mesh-rigs/polar-bear.json`): `pnpm rig-mesh polar-bear` writes the rigged file
-`polar-bear-tpose.rig.glb`, and `pnpm studio-body polar-bear` writes the module
+the same eye size as the bear". The file is the file of the user, byte for byte. Since
+2026-10-24 the rig of this project reads its copy with new arm faces (`polar-bear-arms.glb`,
+below), and `tools/mesh-rigs/polar-bear.json` names it: `pnpm rig-mesh polar-bear` writes the
+rigged file `polar-bear-tpose.rig.glb`, and `pnpm studio-body polar-bear` writes the module
 `src/models/studio/polar-bear.ts` from it.
 
 | Item | Value |
@@ -29,6 +30,28 @@ With a weld at 1e-5, in the units of the studio, the mesh has 1,574 vertices in 
 edge, and 251 faces with a corner angle below 10° (`docs/research/2026-10-24-polar-bear-tpose/`).
 The box is x -0.5 to 0.5, y 0 to 1, and z -0.177 to 0.177. Each arm is free of the trunk beyond
 x 0.145, from y 0.65 to 0.79.
+
+## polar-bear-arms.glb and polar-bear-weights.json
+
+`polar-bear-arms.glb` is `polar-bear-tpose.glb` with new quad faces on each arm from the shoulder
+line to the wrist. On 2026-10-24 the user saw the rebuilt arms of the Rigify rabbit and said: "now
+apply similar techniques to the polars bear". `tools/blender/polar_bear_arms.py` replays the
+Blender session that made both files, byte for byte. The faces of the paws, the trunk, the legs,
+and the head are the faces of the user. The new arm surface lies on the old one, with the arm
+length of the user.
+
+| Item | Value |
+|---|---|
+| `polar-bear-arms.glb` | 1,229,968 bytes, SHA-256 `b55c9fa91746797fe10b1901e97ff4c44e09575c4052a1aca5288165a09bf88c` |
+| Mesh | 2,073 vertices after a weld at 1e-5, 4,142 triangles (3,144 in the source): on each arm a tube of 15 rings of 16 vertices, joined to the trunk and the paw with Bridge Edge Loops |
+| Material | One material with one base color JPEG of 4096 × 5120 pixels: the atlas of the source, and a strip of 1024 pixels on top with the fur color of the source arms, baked onto the new faces. No metallic-roughness texture |
+| `polar-bear-weights.json` | 461,707 bytes, SHA-256 `d70e0fac14002e1856bcbd9b75e33181f1bbc7abbfecdcad713fbf1f12ed7262` |
+| Weights | The automatic weights of Blender with the Weight Paint fixes of the session, on the studio bones and the arm segments and helpers (`armSegments` of the config), for `paintedWeights` of the config |
+| License | Derived from the mesh of the user, who holds its rights |
+
+```bash
+shasum -a 256 assets/models/polar-bear/polar-bear-arms.glb assets/models/polar-bear/polar-bear-weights.json
+```
 
 ## polar-bear-mesh.glb
 
