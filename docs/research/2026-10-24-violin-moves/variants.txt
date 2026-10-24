@@ -1,0 +1,32 @@
+Variants of the lift and the lowering (node docs/research/2026-10-24-violin-moves/search.ts <species> <file>, beethoven-8 for the rabbit, mozart-k525 or DEMO=mozart-k191 for the cat). Each line: the elbow ranges in the moves, the largest left upper arm angle from the vertical, the largest paw swing, the largest twist step of 0.02 of a move (999 is a pass through 180°), the twist range of the left paw, and the deepest instrument in the body, arms in the instrument, and arms in the body, in cm.
+
+Paths that the manager named (main holds with one change each):
+main :: elbL 109..180 elbR 79..172 upL 107 | swing L 75 R 74 | jump L 13 R 11 | twistL -85..145 | inst 1.4 arms 2.0 body 0.3 | rest L twist -77 swing 32 elbow 123
+left :: elbL 96..180 elbR 69..157 upL 106 | swing L 62 R 80 | jump L 12 R 12 | twistL -85..145 | inst 1.6 arms 2.0 body 0.9 | rest L twist -77 swing 32 elbow 123
+leftfar :: elbL 88..180 elbR 62..150 upL 110 | swing L 55 R 83 | jump L 11 R 13 | twistL -86..144 | inst 1.6 arms 2.0 body 1.2 | rest L twist -77 swing 32 elbow 123
+raisein :: elbL 80..163 elbR 57..149 upL 103 | swing L 67 R 79 | jump L 12 R 12 | twistL -86..145 | inst 4.7 arms 2.0 body 0.6 | rest L twist -77 swing 32 elbow 123
+edge :: elbL 72..169 elbR 114..180 upL 103 | swing L 48 R 24 | jump L 999 R 2 | twistL -179..174 | inst 2.5 arms 2.0 body 0.1 | rest L twist -77 swing 32 elbow 123
+edgeleft :: elbL 64..151 elbR 108..180 upL 96 | swing L 53 R 24 | jump L 999 R 5 | twistL -176..178 | inst 3.1 arms 2.1 body 0.0 | rest L twist -77 swing 32 elbow 123
+pole :: elbL 109..180 elbR 79..172 upL 107 | swing L 75 R 74 | jump L 14 R 11 | twistL -81..145 | inst 1.4 arms 2.0 body 0.3 | rest L twist -77 swing 32 elbow 123
+final :: elbL 100..137 elbR 90..133 upL 73 | swing L 62 R 85 | jump L 11 R 15 | twistL -78..145 | inst 1.8 arms 2.1 body 0.5 | rest L twist -77 swing 32 elbow 123
+main :: elbL 94..180 elbR 70..103 upL 106 | swing L 89 R 62 | jump L 9 R 7 | twistL -7..147 | inst 1.6 arms 2.9 body 1.4 | rest L twist -8 swing 89 elbow 94
+left :: elbL 93..180 elbR 64..103 upL 108 | swing L 89 R 63 | jump L 9 R 7 | twistL -7..146 | inst 1.6 arms 2.9 body 1.4 | rest L twist -8 swing 89 elbow 94
+raisein :: elbL 88..180 elbR 58..103 upL 112 | swing L 89 R 64 | jump L 8 R 8 | twistL -7..147 | inst 2.4 arms 2.9 body 1.4 | rest L twist -8 swing 89 elbow 94
+edge :: elbL 91..152 elbR 77..109 upL 96 | swing L 94 R 61 | jump L 10 R 4 | twistL -6..152 | inst 2.1 arms 2.7 body 1.5 | rest L twist -8 swing 89 elbow 94
+pole :: elbL 94..180 elbR 70..103 upL 106 | swing L 89 R 62 | jump L 7 R 7 | twistL -7..147 | inst 1.6 arms 2.8 body 1.7 | rest L twist -8 swing 89 elbow 94
+final :: elbL 91..142 elbR 75..103 upL 76 | swing L 89 R 62 | jump L 9 R 6 | twistL -17..146 | inst 1.6 arms 2.7 body 1.5 | rest L twist -8 swing 89 elbow 94
+
+Each value of the branch hold taken away (ablation):
+final :: elbL 100..137 elbR 89..134 upL 73 | swing L 62 R 84 | jump L 11 R 15 | twistL -78..145 | inst 1.8 arms 2.1 body 0.1 | rest L twist -77 swing 32 elbow 123
+nopole :: elbL 100..137 elbR 89..134 upL 75 | swing L 75 R 84 | jump L 12 R 15 | twistL -85..144 | inst 1.8 arms 2.0 body 0.1 | rest L twist -77 swing 32 elbow 123
+notilt :: elbL 103..151 elbR 89..134 upL 70 | swing L 86 R 84 | jump L 15 R 15 | twistL -80..145 | inst 1.8 arms 2.0 body 0.1 | rest L twist -77 swing 32 elbow 123
+neither :: elbL 103..151 elbR 89..134 upL 72 | swing L 94 R 84 | jump L 14 R 15 | twistL -85..145 | inst 1.8 arms 2.1 body 0.1 | rest L twist -77 swing 32 elbow 123
+noplace :: elbL 89..180 elbR 67..136 upL 104 | swing L 69 R 85 | jump L 12 R 15 | twistL -80..145 | inst 4.6 arms 2.1 body 0.2 | rest L twist -77 swing 32 elbow 123
+noreach :: elbL 97..127 elbR 88..134 upL 67 | swing L 60 R 84 | jump L 11 R 15 | twistL -77..145 | inst 2.0 arms 2.0 body 0.2 | rest L twist -77 swing 32 elbow 123
+noviaup :: elbL 100..137 elbR 102..163 upL 73 | swing L 62 R 73 | jump L 11 R 11 | twistL -78..145 | inst 1.8 arms 2.1 body 0.4 | rest L twist -77 swing 32 elbow 123
+main :: elbL 109..180 elbR 79..172 upL 107 | swing L 75 R 74 | jump L 13 R 11 | twistL -85..145 | inst 1.4 arms 2.0 body 0.3 | rest L twist -77 swing 32 elbow 123
+final :: elbL 88..141 elbR 74..122 upL 76 | swing L 87 R 63 | jump L 12 R 5 | twistL -18..144 | inst 1.9 arms 2.6 body 1.5 | rest L twist -8 swing 89 elbow 94
+notilt :: elbL 94..133 elbR 74..122 upL 70 | swing L 89 R 63 | jump L 7 R 5 | twistL -6..145 | inst 1.9 arms 2.9 body 1.5 | rest L twist -8 swing 89 elbow 94
+noplace :: elbL 89..180 elbR 76..134 upL 112 | swing L 87 R 63 | jump L 9 R 5 | twistL -14..144 | inst 1.9 arms 2.9 body 1.4 | rest L twist -8 swing 89 elbow 94
+oldturn :: elbL 86..140 elbR 74..123 upL 76 | swing L 88 R 63 | jump L 13 R 6 | twistL -31..144 | inst 1.9 arms 2.9 body 1.4 | rest L twist -8 swing 89 elbow 94
+main :: elbL 94..180 elbR 70..130 upL 107 | swing L 88 R 63 | jump L 8 R 6 | twistL -6..145 | inst 1.9 arms 2.9 body 1.4 | rest L twist -8 swing 89 elbow 94

@@ -1,0 +1,8 @@
+pnpm body-probe --base main (main 6cd51b6e, the tree of the commit "fix(pose): let the cat carry the viola by the neck in the moves").
+base main, new: the working tree
+bodies equal: 95 of 95
+players equal: 23 of 23
+pose sets equal: 1284 of 1492
+pose sets that differ, by the instrument, the species, and the role:
+41 viola/cat/viola:
+63 violin/rabbit/violin:
