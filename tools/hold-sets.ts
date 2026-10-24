@@ -122,6 +122,8 @@ const NULL_FIELDS: ReadonlyMap<string, HoldValue> = new Map<string, HoldValue>([
     } satisfies NonNullable<BowedHold['rest']>,
   ],
   ['liftTurn', { axis: [0, 0, 0], top: [0, 0, 0] } satisfies NonNullable<BowedHold['liftTurn']>],
+  ['liftPoleL', [0, 0, 0] satisfies NonNullable<BowedHold['liftPoleL']>],
+  ['liftPlace', 0 satisfies NonNullable<BowedHold['liftPlace']>],
   ['restBow.via', { tip: [0, 0, 0], hair: [0, 0, 0], reach: [0, 0, 0] } satisfies BowVia],
   [
     'standBow',
@@ -390,7 +392,8 @@ function parseTurn(text: string, path: string): Quat | null {
  * `[-0.5,-1,-0.5]`. A turn of 4 numbers also takes `holdTurn(<x>,<z>)` in degrees
  * ({@link parseTurn}). A text takes a member of the union of its field ({@link TEXT_FIELDS}),
  * such as `timpani.hands=sides`. A value that is `null`, an object, or another list takes JSON
- * text, which fits the old value ({@link fitJson}).
+ * text, which fits the old value ({@link fitJson}). A field of {@link NULL_FIELDS} also takes
+ * `null`, such as `violin@rabbit.liftPlace=null`.
  *
  * @param old The old value.
  * @param text The text, such as `16deg`, `0,1,0`, `[0,1,0]`, `holdTurn(20,20)`, or
@@ -401,6 +404,9 @@ function parseTurn(text: string, path: string): Quat | null {
  * @throws Error if the text does not fit the old value.
  */
 function parseValue(old: HoldValue, text: string, path: string, field: string): HoldValue {
+  if (text.trim() === 'null' && NULL_FIELDS.has(field)) {
+    return null;
+  }
   const turn = parseTurn(text, path);
   if (turn) {
     if (!isHoldList(old) || old.length !== 4 || !old.every((item) => isNumber(item))) {
