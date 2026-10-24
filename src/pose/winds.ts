@@ -445,7 +445,7 @@ const FOX_FLUTE = {
   palmToTube: true,
   aimAcross: 1,
   gripShiftR: [0.05, 0.05, 0],
-  restGripShiftR: [0.1, 0.1, -0.06],
+  restGripShiftR: [0.1, 0.1, -0.03],
 } as const satisfies WindHold;
 
 /**
