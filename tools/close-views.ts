@@ -222,9 +222,9 @@ const CLOSE_ROLES: readonly CloseRole[] = [
  *   shows (design 2.5), at the four beats of the first bar of the default test notes (4/4 at 120
  *   BPM), between two beats, and in the rest pose. The conductor keeps its fixed line.
  * - The pianist: the front, both sides, the back, and the left paw on the keys. The moments are
- *   a chord of three keys in each hand, a time between two chords, and the rest pose. The camera
- *   turns around the body. It looks down 35°, over the case of the piano in the front view. The view of the
- *   keys is low from the left, 15° to the front.
+ *   a chord of three keys in each hand, a time between two chords, the lowest keys, the highest
+ *   keys, and the rest pose. The camera turns around the body. It looks down 35°, over the case
+ *   of the piano in the front view. The view of the keys is low from the left, 15° to the front.
  * - The deer harpist on its stool: the front, both sides, the back, and the left hand at the
  *   strings from the front left. The moments are a chord of two strings in each hand just before
  *   the pluck, the time after the pluck, the rest pose, and halfway through the lift and the
@@ -319,11 +319,14 @@ export const ROLE_VIEWS: Readonly<Record<CloseRole, RoleViews>> = {
     moments: [
       { name: 'chord', time: 0.6, rest: false },
       { name: 'between', time: 1.45, rest: false },
+      { name: 'far-left', time: 2.6, rest: false },
+      { name: 'far-right', time: 3.6, rest: false },
       { name: 'rest', time: 0, rest: true },
     ],
     camera: { kind: 'body', zoom: 1, elevation: 35 },
     // A wide chord splits into C3 E3 G3 for the left paw and C5 E5 G5 for the right paw, then
-    // A2 C3 E3 and A4 C5 E5 (design 5.3).
+    // A2 C3 E3 and A4 C5 E5 (design 5.3). Then the left paw plays the lowest keys, A0 C1 E1, and
+    // the right paw the highest keys, E7 G7 C8, while the left paw plays C3 E3.
     notes: [
       '0.5 0.8 C3',
       '0.5 0.8 E3',
@@ -337,6 +340,14 @@ export const ROLE_VIEWS: Readonly<Record<CloseRole, RoleViews>> = {
       '1.5 0.8 A4',
       '1.5 0.8 C5',
       '1.5 0.8 E5',
+      '2.5 0.8 A0',
+      '2.5 0.8 C1',
+      '2.5 0.8 E1',
+      '3.5 0.8 C3',
+      '3.5 0.8 E3',
+      '3.5 0.8 E7',
+      '3.5 0.8 G7',
+      '3.5 0.8 C8',
     ].join('\n'),
   },
   harpist: {
