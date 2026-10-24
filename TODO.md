@@ -367,10 +367,13 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       2026-10-23.
 - [ ] Beaver: the narrow axis of the middle of each upper arm is 0.40 and 0.35 of the wide axis in
       the play, below the limit 0.44 of `pnpm arm-look`.
-- [ ] Rabbit (A-pose mesh, `2026-10-23-rabbit-apose.md`): with its own faces and the arm factor
+- [x] Rabbit (A-pose mesh, `2026-10-23-rabbit-apose.md`): with its own faces and the arm factor
       1.6225 of the violin reach, the arms fold past the gate limit (10 and 11 faces against 8).
-      Ask the user: a smaller violin with shorter arms, a nearer hold, or a split of the arm
-      faces. The rabbit of `main` stays until then.
+      The user asked for a little stretch: the factor 1.3 and a violin of 0.83 pass each limit
+      (`2026-10-23-rabbit-arms.md`).
+- [ ] Rabbit (A-pose mesh): the long arm faces show dark shards on the bent arms at rest, at the
+      frog, and at the tip (`arm-crops.webp` of `2026-10-23-rabbit-arms/`). A crease of 60° or 80°
+      does not remove them. Only a split of the faces removes them, which needs the user.
 - [ ] Elephant (A-pose mesh): the long arm faces show dark shards on the bent arms from the front
       and a slit under the left forearm from the back, and one to three thin faces fold in each
       sample. Only a split of the faces removes them, and the user chose no split
