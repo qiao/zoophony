@@ -463,9 +463,15 @@ const MOUSE_OBOE_FORWARD = 0;
  * across the back of the tube and its fingers wrap the front, as on the wolf. The small mouse plays
  * a smaller oboe (`SpeciesParams.oboeScale`).
  * With the reed 0.14 H back, the right paw reached its grip with 3 cm to spare only on an oboe
- * of 0.52, and 0.09 H further back, on an oboe of 0.62. In the rest, the oboe is 0.04 H lower and
- * 0.02 H further forward than in the rest of {@link WIND_HOLDS}, so that the right paw keeps 3 cm
- * to spare and the lift folds less.
+ * of 0.52, and 0.09 H further back, on an oboe of 0.62.
+ *
+ * In the rest, the oboe stands nearly upright in front of the body, a little to the right, with
+ * the bell 15° forward, and both paws keep their grips. A real oboist holds the oboe vertical on
+ * the right leg in a short rest, but the round belly of the mouse covers its short thighs. Before,
+ * the oboe hung across the front of the body, 27° to the side (2026-10-24-wind-holds decisions).
+ * The oboe stands 0.3 H in front of the mouth of the bind pose, so the arms reach forward: nearer
+ * to the body, the left upper arm went flat (flat p5 below 0.55) and the right arm folded in the
+ * rest or the lift (`pnpm arm-check oboist`).
  *
  * The big head puts the mouth about 0.13 m above the shoulder joints, so the grips are at the
  * height of the shoulders, and the arms reach forward. While the mouse plays, both elbows point
@@ -473,12 +479,15 @@ const MOUSE_OBOE_FORWARD = 0;
  * sides. With the elbow of the right arm of {@link WIND_HOLDS} out and level, the right upper arm
  * turned 83° from its bind direction and the paw 160° from the forearm, and the upper arms showed
  * as flat twisted bands. With the elbows down, they turn 63° and 100°, and the left arm 58° and
- * 123°. The shoulder turns and the rest turn are those of {@link WIND_HOLDS}.
+ * 123°. The shoulder turns are those of {@link WIND_HOLDS}.
  */
 const MOUSE_OBOE = {
   ...WIND_HOLDS.oboe,
   lipShift: [0, -0.04, 0.23],
-  restShift: [-0.13, -0.04, -0.04],
+  rest: holdTurn(-15, 0),
+  restShift: [0.1, -0.35, -0.3],
+  restPoleL: [-1, -1, -0.5],
+  restPoleR: [0.5, -1, 0],
   play: holdTurn(MOUSE_OBOE_FORWARD, 0),
   poleL: [-0.5, -1, -0.5],
   poleR: [0.5, -1, -0.5],
