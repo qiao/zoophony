@@ -9,8 +9,9 @@ export interface AnimalPose {
   readonly rootOffset: readonly [number, number, number];
   /**
    * The move of the `slide` bone from its bind place, in meters, in the axes of its parent bone
-   * `instrument`. The trombone slide moves along its axis (4.6). It is (0, 0, 0) for each other
-   * instrument. The scene adds it to the bind position of the bone.
+   * `instrument`. The trombone slide moves along its axis, and the damper pedal of the piano goes
+   * down under the foot of the pianist (4.6, 5.3). It is (0, 0, 0) for each other instrument. The
+   * scene adds it to the bind position of the bone.
    */
   readonly slideOffset: readonly [number, number, number];
   /**
