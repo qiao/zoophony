@@ -375,9 +375,12 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       the body around the wide belly, where the studio bear held its paws at the hips. Some long
       sharp facets show on the bent upper arms (`arm-crops.webp` of `2026-10-23-bear-tpose/`). The
       upper arms go 3.5 cm into the body while the arms move (1.4 cm before).
-- [ ] Rabbit (A-pose mesh): the long arm faces show dark shards on the bent arms at rest, at the
-      frog, and at the tip (`arm-crops.webp` of `2026-10-23-rabbit-arms/`). A crease of 60° or 80°
-      does not remove them. Only a split of the faces removes them, which needs the user.
+- [x] Rabbit (A-pose mesh): the long arm faces show dark shards on the bent arms at rest, at the
+      frog, and at the tip (`arm-crops.webp` of `2026-10-23-rabbit-arms/`). The user allowed one
+      ring at each elbow (`2026-10-24-rabbit-hold.md`).
+- [ ] Rabbit: the right wrist stretches 0.37 at rest (limit 0.35), and the left upper arm keeps
+      0.54 of its round shape in the lift (limit 0.55). No hold variant moved them
+      (`2026-10-24-rabbit-hold.md`).
 - [ ] Elephant (A-pose mesh): the long arm faces show dark shards on the bent arms from the front
       and a slit under the left forearm from the back, and one to three thin faces fold in each
       sample. Only a split of the faces removes them, and the user chose no split
