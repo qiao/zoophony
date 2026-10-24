@@ -93,8 +93,8 @@ interface AnimalPose {
   rootOffset: readonly [number, number, number];
   /**
    * The move of the `slide` bone from its bind place, in the axes of the `instrument` bone. It is
-   * (0, 0, 0) for each instrument except the trombone (4.6). The scene adds it to the bind
-   * position of the bone.
+   * (0, 0, 0) for each instrument except the trombone and the damper pedal of the piano (4.6,
+   * 5.3). The scene adds it to the bind position of the bone.
    */
   slideOffset: readonly [number, number, number];
   /**
@@ -285,6 +285,7 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
   The polar bear pianist sits with the thighs near level, the knees near 90°, and the soles on
   the floor, as a real pianist sits "on the front half of the bench, with your feet firmly on the
   floor" (merriammusic.com, "5 Keys to Piano Posture"; `docs/decisions/2026-10-22-studio-bears.md`).
+  In the play, its right foot moves onto the damper pedal (5.3).
 - **Seated lean.** The polar bear pianist sits tall in the rest pose with a small lean to the piano and the
   head up, as a real pianist before a performance (`restLean` and `restHeadLift` of
   `HANDS_HOLDS`). The lift brings the hands from the lap to the keys. The harp deer sits up, with
@@ -657,6 +658,17 @@ The code constants of each family hold the times, the angles, and the lengths of
     `docs/decisions/2026-10-24-pianist-pose.md`).
   - The piano palm faces down in front of the keys (`pianoKeyFront()`), because the paw of the
     polar bear is longer than a white key. The curled claws lie on the key tops at each strike.
+  - In the play, the right heel of the pianist stays on the floor, and the ball of the foot lies
+    on the damper pedal, as a pianist pedals (`docs/reference/piano-technique.md`). The foot turns
+    up around the heel, and a two-bone solve of the thigh and the shin brings the ankle there
+    (`posePedalFoot()` of `pose/pedal.ts`). A wide paw keeps its inner edge right of the sostenuto
+    pedal. The left foot stays flat on the floor near the soft pedal. In the lift, the foot first
+    turns up in place, then moves onto the pedal, so that the sole does not go through its edge.
+  - The sustain pedal of the score (CC 64, `sustainPedals()` of `score/pedal.ts`) presses the
+    damper pedal, and the ball of the foot follows it. The synth reads the same events, so the
+    sound and the foot agree. Each change ramps the pedal in a short time from the level that it
+    finds, so the level is a pure function of the score and the song time (`pedalLevelAt()`). A
+    score with no pedal data keeps the pedal up, with the foot resting on it.
   - The harp palm faces the strings at the string of its note and pulls away to pluck. The left
     palm lies above the middle of the bass strings and its fingers point up along the strings
     (`aimL` of `HANDS_HOLDS`), so that the short left arm of the deer reaches the far strings with
