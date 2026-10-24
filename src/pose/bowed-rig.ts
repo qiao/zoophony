@@ -688,12 +688,14 @@ export const BOWED_HOLDS = {
  *
  * The rest pose is the upright rest of the rabbit and the red fox, as the seated violinist of the
  * image of the user (2026-10-17-cat-bow and 2026-10-17-cat-look decisions): the viola stands
- * upright on the front of the left knee, 0.95 of the way from the hip and 0.3 H forward (at 0.7 of
- * the way, of 2026-10-17, it stood beside the hip and went 7.4 cm into the belly, and the user
+ * upright on the front of the left knee, 0.95 of the way from the hip and 0.25 H forward (at 0.7
+ * of the way, of 2026-10-17, it stood beside the hip and went 7.4 cm into the belly, and the user
  * asked for the rest of the fox, 2026-10-24-violin-rest decisions), and the bow stands upright at
- * the right side, with the frog in the right paw. Both elbows hang near the sides. The left paw holds the
- * viola at the top of the upper bout, at 0.5 of the fingerboard from the nut (`restPlace`), and the
- * left elbow points down, a little out, and a little back: the elbow is 6.5 cm out from the side
+ * the right side, with the frog in the right paw. Both elbows hang near the sides. The left paw
+ * holds the viola at the top of the upper bout, at 0.4 of the fingerboard from the nut
+ * (`restPlace`): with 0.3 H forward and 0.5, the paw swung 98° on the wrist, and now 91°, with 8
+ * folded faces of the left arm (7 before, limit 8, 2026-10-24-violin-poses decisions). The left
+ * elbow points down, a little out, and a little back: the elbow is 6.5 cm out from the side
  * (11.6 cm with the elbow (-1, -1, 0.5) of 2026-10-16). With the elbow further in, (-0.5, -1, 0.3),
  * it was 5.0 cm out, and the left upper arm went 1.9 cm into the body. A place further down the
  * upper bout put the left forearm 2.4 cm to 2.8 cm into the viola. The grip of the bow is 0.6 H
@@ -771,8 +773,8 @@ const CAT_HOLD = {
   poleR: [1.1, -1, -1],
   restPoleR: [0.3, -1, 1],
   restPoleL: [-0.6, -1, 0.3],
-  restPlace: 0.5,
-  rest: { axis: LAP_VIOLIN.axis, top: [-0.7, 0, 0.7], lap: { along: 0.95, offset: [0, 0, -0.3] } },
+  restPlace: 0.4,
+  rest: { axis: LAP_VIOLIN.axis, top: [-0.7, 0, 0.7], lap: { along: 0.95, offset: [0, 0, -0.25] } },
   liftReach: [0, 0.2, -0.1],
   liftTurn: { axis: [-0.8, 1, -0.5], top: [0.2, 0, 1] },
   restBow: {
