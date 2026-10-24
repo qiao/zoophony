@@ -382,6 +382,7 @@ const FOX_FLUTE = {
     arc: [0.57, 0.04, 0.31],
   },
   palmToTube: true,
+  aimAcross: 1,
 } as const satisfies WindHold;
 
 /**
