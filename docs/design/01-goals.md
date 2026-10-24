@@ -6,7 +6,7 @@
 - The first download is less than 1 MB after gzip. Section 7.2 defines what the check counts.
 - The app loads the instrument samples after the first frame. It loads only the presets that the
   file uses.
-- The code license is MIT.
+- The code license is Apache-2.0.
 
 The reference image [`reference/orchestra.webp`](../reference/orchestra.webp) shows the target scene.
 The user owns the rights to it. Look at it before any visual work. Section 4.5 gives the rules

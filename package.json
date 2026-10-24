@@ -2,7 +2,7 @@
   "name": "zoophony",
   "version": "0.0.0",
   "private": true,
-  "license": "MIT",
+  "license": "Apache-2.0",
   "type": "module",
   "scripts": {
     "dev": "node tools/split-soundfont.ts && node tools/patch-demos.ts && node tools/write-perf-60.ts && vite",

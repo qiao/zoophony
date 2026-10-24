@@ -14,7 +14,7 @@ The research rejected these options ([`research/audio-engines.md`](../research/a
 
 | Option | Reason for rejection |
 |---|---|
-| WebAudioFont | GPL-3.0, which conflicts with an MIT app. |
+| WebAudioFont | GPL-3.0, which conflicts with an Apache-2.0 app. |
 | gleitz sound sets | No loop points (each note is 3.1 s long), and the licenses conflict. |
 | Tone.js Sampler | No loop point for each sample. |
 | js-synthesizer | LGPL, 904 KB for SF3 support, and no mute API. |
