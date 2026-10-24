@@ -65,4 +65,14 @@ pnpm build
 
 ## License
 
-The code is licensed under the [Apache License 2.0](LICENSE).
+- **Code:** the [Apache License 2.0](LICENSE).
+- **Animal models:** the files in `assets/models/` and `src/models/studio/` are under
+  [CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/). You can use, change, and share
+  them, but not for commercial purposes.
+- **Your output:** you own the videos, images, and audio that you make with Zoophony. You can use
+  them for any purpose, including commercial use. This grant covers the animals as they appear in
+  your output. It does not cover the model files.
+- **Name and logo:** the licenses do not cover the name "Zoophony" or the paw logo. Give a fork a
+  different name. It can say that it is "based on Zoophony".
+- **Third-party files:** the demo files, the SoundFont, and the hall reverb keep their own
+  licenses. The credits dialog of the app and the README file of each folder list them.

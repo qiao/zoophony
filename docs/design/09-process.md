@@ -6,7 +6,8 @@
 - `.gitattributes` merges `docs/design.md` with the union driver of git, so two rounds that each
   add the line of a decision file do not conflict. A line that both sides change stays two times,
   so the agent of such a round reads the merged file.
-- The code license is Apache-2.0.
+- The code license is Apache-2.0. The animal models are under CC BY-NC 4.0 (the license
+  section of `README.md`).
 - The user creates the GitHub repository `zoophony` before the first deploy. Until then, all
   commits stay local.
 
