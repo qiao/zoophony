@@ -27,7 +27,7 @@ Each new role and each new hold adds its row to this table in the same commit.
 | Role | Support | Source | Play | Rest | Code | Docs | View |
 |---|---|---|---|---|---|---|---|
 | Conductor, bear | Stands on the podium | none | Beats the patterns of 5.4 with the baton, cues each entry, and shows the dynamics with the left paw | The arms hang a little out to the sides | `CONDUCTOR_HOLD`, `pose/conductor.ts` | 5.2, 5.4, `2026-10-22-studio-bears.md` | `pnpm close-views conductor <dir>` |
-| Piano, polar bear | Bench | Play: Prodigies and "Fundamentals of Piano Practice" (`2026-10-14-polar-bench.md`). Rest: a Suzuki checklist (`docs/research/2026-10-13-pianist-lap.md`) | Leans toward the keys, with the palms down at the front of the keys | Sits tall with the head up, with the paws on the thighs and the elbows bent | `HANDS_HOLDS.piano`, `pose/hands.ts` | 5.2, 5.3 piano and harp, `2026-10-14-polar-fix.md`, `2026-10-22-studio-bears.md`, `2026-10-24-polar-bear-seat.md` | `pnpm close-views pianist <dir>` |
+| Piano, polar bear | Bench | Play: `docs/reference/piano-technique.md`. Rest: a Suzuki checklist (`docs/research/2026-10-13-pianist-lap.md`) | Sits upright with level forearms and low shoulders, the claws on the key tops, and a lean toward the far keys | Sits tall with the head up, with the paws on the thighs and the elbows bent | `HANDS_HOLDS.piano`, `pose/hands.ts` | 5.2, 5.3 piano and harp, `2026-10-14-polar-fix.md`, `2026-10-22-studio-bears.md`, `2026-10-24-polar-bear-seat.md`, `2026-10-24-pianist-pose.md` | `pnpm close-views pianist <dir>` |
 | Harp, deer | Stool that fits its legs, with the whole haunch on the seat (4.4, seat) | Play: musicmark.org.uk, "A Common Approach", harp, area B (`docs/research/2026-10-21-mesh-deer.md`) | Leans forward, with the forearms about level, and each palm plucks the string of its note on a smaller harp in front of the chest | Sits up, with each hand on a string, a little away from it | `HANDS_HOLDS.harp`, `HARP_PLACE`, `pose/hands.ts` | 5.2, 5.3 piano and harp, `2026-10-21-mesh-deer.md` | `pnpm close-views harpist <dir>` |
 | Violin, rabbit | Chair, stands as a soloist | Play: violinonline.com and Simon Fischer (`docs/research/2026-10-14-fox-rabbit-form.md`). Rest: the image of the user (`docs/research/2026-10-16-bow-rest.md`). Hands and bow: `docs/reference/string-technique.md` | Holds a violin of 0.83 on the left shoulder under the jaw, with the bow nearly square and the stick through the closed right paw | The violin upright on the top of the left knee, held at the upper neck with the left elbow bent, upright in front of the chest in the middle of the lift, and the bow upright at the right side with the frog above the outer side of the right knee and the right elbow bent. A soloist hangs the bow with the tip down | `SHOULDER_HOLD`, `UPRIGHT_BOW`, `HANGING_BOW`, `STANDING_REST`, `pose/bowed-rig.ts` | 5.2, 5.3 bowed strings, `2026-10-17-rabbit-pose.md`, `2026-10-17-grip-all.md`, `2026-10-23-rabbit-arms.md`, `2026-10-24-rabbit-hold.md`, `2026-10-24-violin-rest.md`, `2026-10-24-violin-poses.md` | `pnpm close-views violinist <dir>` |
 | Violin, red fox | Chair, stands as a soloist | The sources of the rabbit | The hold of the rabbit, with the tail end under the long jaw. In pizzicato, the bow tip points up and back | The rest of the rabbit, with the frog at the outer side of the right thigh | `FOX_HOLD`, `UPRIGHT_BOW`, `HANGING_BOW`, `STANDING_REST`, `pose/bowed-rig.ts` | 5.2, 5.3 bowed strings, `2026-10-17-fox-form.md`, `2026-10-17-grip-all.md` | `pnpm close-views fox-violinist <dir>` |
@@ -648,10 +648,15 @@ The code constants of each family hold the times, the angles, and the lengths of
     wider than one octave splits only when its two parts are that far apart, and else one paw
     plays it. When a paw plays nearer to the other paw, the other paw moves out of its way with no
     sound, and both moves take the same time (`splitHands()`). Nearer paws went into each other.
+  - The pianist sits as a professional pianist (`docs/reference/piano-technique.md`): the trunk
+    upright with a small lean, the forearms about level with the keys, the elbows bent a little
+    more than a right angle, and the shoulders low. The long trunk of the polar bear sits on short legs, so the piano is
+    larger than a real piano (`PIANO_SCALE`), and the keys reach its forearms. The keys stand as
+    near as the forearms allow over the round belly (`PIANO_FRONT_H`). The trunk leans to the side
+    toward the keys of the two paws, as a pianist leans toward the far keys (`sideLeanOf()`,
+    `docs/decisions/2026-10-24-pianist-pose.md`).
   - The piano palm faces down in front of the keys (`pianoKeyFront()`), because the paw of the
-    polar bear is longer than a white key. The pianist leans forward to reach the keys in front of
-    its round belly. The polar bear sits higher than a real pianist, as the user asked, so its
-    forearms slope down to the keys (`docs/decisions/2026-10-14-polar-bench.md`).
+    polar bear is longer than a white key. The curled claws lie on the key tops at each strike.
   - The harp palm faces the strings at the string of its note and pulls away to pluck. The left
     palm lies above the middle of the bass strings and its fingers point up along the strings
     (`aimL` of `HANDS_HOLDS`), so that the short left arm of the deer reaches the far strings with
