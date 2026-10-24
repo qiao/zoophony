@@ -126,22 +126,24 @@ export const HANDS_HOLDS = {
   // The paw of the studio polar bear is longer than a white key, so the palm is 0.07 m in front
   // of the front edge of the keys and 0.065 m above them, and the curled claws lie on the keys
   // (`pianoKeyFront()`). Further back, the claws went into the fallboard, and lower, into the
-  // key bed. The keys stand in front of the round belly, as near as the forearms allow
-  // (`PIANO_FRONT_H`). The spine leans 28° forward, so that the paws reach the middle keys: with
-  // the keys at 1.45 H on the T-pose polar bear at 0.85 of its size, a lean of 22° left a paw
-  // 19.9 mm short of its key. On the level thighs of 2026-10-22, a lean of 27° left a left paw
-  // 10.2 mm short of its key (`boulanger-matin.mid`, 107.95 s), and 28° 3.8 mm
-  // (`docs/research/2026-10-22-studio-bears.md`). With the palm 0.06 m in front of the keys, a
-  // palm stayed 0.41 mm short of its keys, and with 0.05 m, 0.3% of the notes stayed more than
-  // 1 mm short. The elbows point out, down, and back: with the poles
-  // (±1, -0.55, 0.5), the play folds rose from 14.5% to 29.7% of the samples, mostly on the right
-  // upper arm (`docs/research/2026-10-14-polar-fix.md`). The paws reach from A0 to B♭4 with the
-  // left paw and from C4 to C8 with the right paw (`pose/hands.test.ts`), so a melody changes
-  // paws between them. The wrists go up and forward over the case between the lap and the keys
-  // (`restArc`): with the paws on the thighs, the arc 0.1 H forward put the paws of the T-pose
-  // polar bear 2.6 cm into its body when they lowered, and 0.25 H 0.8 cm or less. With the paws in
-  // the lap, an arc of 0.5 H out stood the upper arms 61° out from the trunk in the lift. With no
-  // arc out, they stand out at most as far as in a play.
+  // key bed. With the palm 0.06 m in front of the keys, a palm stayed 0.41 mm short of its keys,
+  // and with 0.05 m, 0.3% of the notes stayed more than 1 mm short. The pose follows a
+  // professional pianist (`docs/reference/piano-technique.md`): the trunk sits upright with a
+  // small lean from the hips, the forearms are level with the keys, the elbows bend about 100°,
+  // and the shoulders stay low (`shoulderDrop`). The larger piano (`PIANO_SCALE`) and the nearer
+  // keys (`PIANO_FRONT_H`) make this pose fit the long trunk and the short arms. The lean of 28°
+  // of before reached the keys with the head over the music desk
+  // (`docs/research/2026-10-24-pianist-pose.md`). The trunk leans toward the keys of the two paws
+  // (`sideLean`), as a pianist leans toward the far keys. A lean up to 16° raised the far right
+  // forearm 12° to the paw. The elbows point out, a little down, and back: elbows that point down
+  // put the upper arms up to 11 cm into the round trunk (`pnpm pose-depth pianist`). The paws
+  // reach from A0 to B♭4 with the left paw and from C4 to C8 with the right paw
+  // (`pose/hands.test.ts`), so a melody changes paws between them. The wrists go up and forward
+  // over the case between the lap and the keys (`restArc`): with the paws on the thighs, the arc
+  // 0.1 H forward put the paws of the T-pose polar bear 2.6 cm into its body when they lowered,
+  // and 0.25 H 0.8 cm or less. With the paws in the lap, an arc of 0.5 H out stood the upper arms
+  // 61° out from the trunk in the lift. With no arc out, they stand out at most as far as in a
+  // play.
   piano: {
     action: 'strike',
     keyPoint: pianoKeyFront,
@@ -151,7 +153,7 @@ export const HANDS_HOLDS = {
     faceR: [0, -1, 0],
     aimL: null,
     aimR: null,
-    lean: 28 * MathUtils.DEG2RAD,
+    lean: 14 * MathUtils.DEG2RAD,
     restLean: 8 * MathUtils.DEG2RAD,
     restHeadLift: 8 * MathUtils.DEG2RAD,
     sideLean: 60 * MathUtils.DEG2RAD,
@@ -164,8 +166,8 @@ export const HANDS_HOLDS = {
     // (`docs/research/2026-10-21-pirates-clip.md`). At 25 and more, the right paw turned more
     // than 15° further from its accepted grip than on `main` (`pnpm arm-check pianist`).
     apart: 24,
-    poleL: [-1, -0.5, 0.5],
-    poleR: [1, -0.5, 0.5],
+    poleL: [-1, -0.8, 0.4],
+    poleR: [1, -0.8, 0.4],
     curl: 30 * MathUtils.DEG2RAD,
     curlClosed: 30 * MathUtils.DEG2RAD,
     restArc: [0, 0.4, 0.25],

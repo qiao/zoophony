@@ -35,18 +35,22 @@ export const PIANO = {
 } as const;
 
 /**
- * The scale of the whole piano around the origin of the piano axes. The keys, the grips, and the
- * key targets scale with it.
+ * The scale of the whole piano around the origin of the piano axes. The polar bear pianist has a
+ * long trunk on short legs, so its hanging upper arms put its elbows far above keys of the real
+ * height. A larger piano brings the keys up to the forearms, as a real pianist sits with the
+ * forearms level with the keys (`docs/reference/piano-technique.md`). At 1.12, the forearms
+ * sloped 8° down to the keys, and at 1.16 they are level
+ * (`docs/research/2026-10-24-pianist-pose.md`).
  */
-export const PIANO_SCALE = 1;
+export const PIANO_SCALE = 1.16;
 
 /**
  * The distance of the front of the keys in front of the floor point of the body of the pianist,
  * in head heights `H`, before a further 0.05 m (design 4.6). The keys stand as near as the
- * forearms of the polar bear pianist allow over its belly, so that its elbows bend
- * (`docs/decisions/2026-10-24-polar-bear-seat.md`).
+ * forearms of the polar bear pianist allow over its belly, so that its elbows bend about 100° with
+ * an upright trunk (`docs/decisions/2026-10-24-pianist-pose.md`).
  */
-export const PIANO_FRONT_H = 1.55;
+export const PIANO_FRONT_H = 1.28;
 
 /** The piano bench: a seat of 0.75 × 0.35 m at the height of a chair seat (design 4.5). */
 export const PIANO_BENCH = {
@@ -395,15 +399,11 @@ export function buildPiano(): InstrumentModel {
   piece.add(box(0.2, 0.03, 0.12), dark, transform([0, 0.035, -0.42]));
 
   // The round belly of the studio polar bear reaches 0.45 m in front of the floor point, so the
-  // keys of 2026-10-11 (0.55 H + 0.05 m, 0.26 m) went 15 cm into it. The keys of 2026-10-12
-  // (0.60 m) kept the paws out of the belly (`pose/test-pianist-clearance.ts`), and the muzzle
-  // came 2.2 cm near the front edge of the open lid. At 1.68 H + 0.05 m (0.66 m with the head of
-  // the longer shins of 2026-10-14), the muzzle keeps 5.7 cm from it in a play
-  // (`docs/research/2026-10-14-polar-fix.md`). On the T-pose polar bear at 0.85 of its size, the
-  // arms reached straight to the keys at 1.68 H. At 1.55 H (0.56 m), the mean elbow is 104° to
-  // 108°, the forearms go 4.3 cm into the belly (3.1 cm at 1.68 H), and the head keeps 14.6 cm
-  // from the case. At 1.45 H, the elbows are 96° to 100°, and the forearms go 6.6 cm into it
-  // (`docs/research/2026-10-24-polar-bear-seat.md`).
+  // keys of 2026-10-11 (0.55 H + 0.05 m, 0.26 m) went 15 cm into it. On the T-pose polar bear with
+  // an upright trunk, the keys at 1.37 H stretched the elbows to 117° with the upper arms 28°
+  // forward. At 1.28 H (0.48 m), the elbows bend about 100°, and the forearms go at most 7.3 cm
+  // into the belly, as at 1.55 H with the lean of 28°
+  // (`docs/research/2026-10-24-pianist-pose.md`).
   const instrument = piece.build(
     'instrument',
     hold('floor', [0, 0, -PIANO_FRONT_H], undefined, [0, 0, -0.05]),
