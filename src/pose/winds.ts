@@ -133,6 +133,15 @@ export interface WindHold {
   readonly restGripShiftL: Vec3 | null;
   /** The move of the grip of the right palm in the rest pose, as {@link WindHold.restGripShiftL}. */
   readonly restGripShiftR: Vec3 | null;
+  /**
+   * The share, from 0 to 1, of the roll of the palm to the tube and of the aim across it
+   * ({@link WindHold.palmToTube}, {@link WindHold.aimAcross}, {@link WindHold.aimSide}) that a paw on
+   * its grip keeps in the rest pose. With 0, the rest paw keeps the roll and the aim of its
+   * shoulder, and the lift and the lowering turn it to the grip of the play. With 1, the paw holds
+   * the tube at rest as it does in the play, so its fingers close around the tube, and the lift and
+   * the lowering do not turn it around the tube.
+   */
+  readonly restAim: number;
 }
 
 /** The left paw of a wind hold that leaves its grip in the rest pose (`WindHold.restFreeL`). */
@@ -177,6 +186,7 @@ const WOODWIND = {
   gripShiftR: [0, 0, 0],
   restGripShiftL: null,
   restGripShiftR: null,
+  restAim: 0,
 } as const satisfies WindHold;
 
 const X_AXIS = new Vector3(1, 0, 0);
@@ -1112,13 +1122,15 @@ const NO_ROLL = new Quaternion();
  * hand and out of the palm on the right hand: with the other signs, the left palm cupped up, away
  * from the tube.
  *
- * The roll grows with the weight of the playing pose, so that the rest pose keeps the paw of the
- * shoulder, and the lift and the lowering do not turn the paw through the far side of its forearm.
+ * The roll grows with the given share, the weight of the playing pose by default
+ * ({@link WindHold.restAim}), so that the rest pose can keep the paw of the shoulder, and the lift
+ * and the lowering do not turn the paw through the far side of its forearm.
  *
  * @param out The world rotation of the hand, which the function changes.
  * @param toTube The unit direction from the grip to the axis of the tube.
  * @param side The side of the hand.
- * @param weight The eased weight of the playing pose: 0 is the rest pose.
+ * @param weight The share of the roll: the eased weight of the playing pose, or more with
+ *   {@link WindHold.restAim}.
  */
 function palmToTube(out: Quaternion, toTube: Vector3, side: 'L' | 'R', weight: number): void {
   handAxis.set(0, 1, 0).applyQuaternion(out);
@@ -1227,12 +1239,14 @@ function poseSide(
     // The up axis of the bone is no such direction: the oboe and the clarinet hang with their
     // keys toward the body, so with it, the palms faced up.
     tubeSide.subVectors(pivot, grip).projectOnPlane(tubeAxis).normalize();
-    aimAcross(shoulder, grip, tubeAxis, rig.hold.aimAcross * weight, aimPoint);
+    // The share of the aim and the roll of the play: a hold can keep them in the rest pose.
+    const aim = rig.hold.restAim + (1 - rig.hold.restAim) * weight;
+    aimAcross(shoulder, grip, tubeAxis, rig.hold.aimAcross * aim, aimPoint);
     if (rig.hold.aimSide > 0) {
-      aimSide(shoulder, tubeAxis, tubeSide, rig.hold.aimSide * weight, aimPoint);
+      aimSide(shoulder, tubeAxis, tubeSide, rig.hold.aimSide * aim, aimPoint);
     }
     handToward(shoulder, aimPoint, hand);
-    palmToTube(hand, tubeSide, side.arm.side, weight);
+    palmToTube(hand, tubeSide, side.arm.side, aim);
   } else {
     handToward(shoulder, grip, hand);
   }
