@@ -562,5 +562,9 @@
       0.98
     ],
     "note": "The values of the panda, the hippo, the mouse, and the pig, with root of the dog: the tail share of a vertex of the root of the tail counts as the haunch only by its smoothstep from 0.8 to 0.98. The user, 2026-10-20: \"the wolf's hip is not touching the chair\". After the smaller body of round wolf-face, the underside of the haunch behind the hip joints stayed up to 12.9 cm above the seat with most 0.03. most 0.09 (16.2 cm) leaves 3.9 cm at the back of the round haunch, with no fold. 0.05 folded 27% of the play, and 0.11 and 0.13 folded the tail in 31% and 64%. The user then said: \"the wolf tails are looking weird\": the root of the tail moved down with the haunch and the rest of the tail did not, so the tail became a flat wedge under the seat. With carryTail, each tail vertex moves down by the mean drop of the root (0.028 u, 5.2 cm), by its share on the tail bones, so the tail keeps its form (docs/research/2026-10-20-wolf-brows.md)."
+  },
+  "upperTwist": {
+    "share": 0.5,
+    "note": "The twist bone of each upper arm takes half of the roll of the upper arm from the chest (StudioBody.upperTwist), the share of the elephant and the rabbit. With the bell of the clarinet on the seat between the knees at rest, the skin of the right upper arm rolled 69 degrees at its largest step (twist p95 of the arm gate, limit 55). With 0.5, it rolls 43 degrees, and the left 26 degrees (pnpm arm-check clarinetist, docs/research/2026-10-24-wind-grips.md)."
   }
 }
