@@ -419,10 +419,17 @@ export const SPECIES = {
    * `orchestra-latest.png`. Its legs are so short that it stands about as high as it sits on a
    * chair that fits them. Its head height is the head of the studio body, and the seat height is
    * the seat of the studio body, in H.
+   *
+   * The stick of the bow passes through the middle of the closed right paw, 23° from square toward
+   * the wrist, along the line nearest to the middles of the turned paw (user, 2026-10-24: "also how
+   * the hippo is holding the bow", `docs/research/2026-10-24-hippo-bow/stick-line.ts`). The paw
+   * keeps the stick within 0.72 cm in the play, the lift, and the lowering. With the grip of
+   * `BOW_GRIP`, the stick passed under the paw, and the claws pointed down past it.
    */
   hippo: {
     body: 'studio-hippo',
     bassScale: 0.8,
+    bowGrip: { at: [0.0072, 0.0004, -0.0415], turn: 23 * (Math.PI / 180) },
     size: 1,
     colors: SPECIES_COLORS.hippo,
     accentParts: ['inner-ears', 'nose'],
