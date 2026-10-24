@@ -22,4 +22,4 @@ images. The user can reverse each decision. Then update its section, and remove 
 | The trunk leans to the side toward the keys of the two paws, 60° for each meter of the mean side offset, up to 10° (`sideLeanOf()`). Up to 16°, the far right forearm rose 12° to the paw. | 5.3 |
 | The larger piano moves the other players of the demos with a piano by up to 0.39 m. Their bodies and pose code stay. | 4.2 |
 | Conflict: design 1 measures the bear against keys of 0.70 m in `polar-bear-views.png`. The newest words of the user win, so the keys of the app stand at 0.81 m. | 1, 4.6 |
-| Open: from the front, the larger lid hides the bear. At the far keys, the outer upper arm stands up to 47° out. No foot moves to the damper pedal. | 5.3, 9.3 |
+| Open: from the front, the larger lid hides the bear. At the far keys, the outer upper arm stands up to 47° out. | 5.3, 9.3 |
