@@ -193,7 +193,8 @@ const FOX_TEXTURE_COLORS: SpeciesColors = {
 
 /** The animals of the studio that the app shows, by their ids in `lowpoly-studio/animals/`. */
 export const ANIMALS: ReadonlyMap<string, AnimalSettings> = new Map([
-  // The bear conductor: decisions/2026-10-12-studio-bear.md and 2026-10-22-studio-bears.md.
+  // The bear conductor: the T-pose mesh of the user (decisions/2026-10-23-bear-tpose.md), with the
+  // size of the studio bear of decisions/2026-10-22-studio-bears.md.
   [
     'bear',
     {
@@ -204,15 +205,12 @@ export const ANIMALS: ReadonlyMap<string, AnimalSettings> = new Map([
       constant: 'STUDIO_BEAR',
       // The user asked for a smooth bear, then for "slightly faceted" bears, and chose the crease
       // 40° with the blend 0.05 from a lineup of 70°, 50°, 40°, and 30° (2026-10-22). The blend
-      // fades the steps of the belly paint and of the baked occlusion, and keeps the edge of the
-      // muzzle (docs/research/2026-10-22-studio-bears.md).
+      // fades the steps of the fur colors, and keeps the edge of the muzzle
+      // (docs/research/2026-10-22-studio-bears.md). The T-pose mesh keeps both.
       crease: 40,
       colorBlend: 0.05,
       eyeNormal: 0.5,
-      // The face under the old eyes folds along a diagonal edge of the muzzle, and a bent oval
-      // there reads as a bean. Out and a little down, the fold is about half as strong, and the
-      // eyes sit further apart, as on the sheet (docs/decisions/2026-10-20-bear-eyes.md).
-      eyeShift: [0.1, -0.02],
+      glb: 'assets/models/bear/bear-tpose.rig.glb',
       // The user asked for slightly larger eyes (docs/decisions/2026-10-23-bear-eye-size.md).
       eyeSize: 1.15,
     },

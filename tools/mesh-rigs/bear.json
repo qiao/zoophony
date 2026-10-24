@@ -1,18 +1,17 @@
 {
-  "source": "assets/models/bear/bear-mesh-roots.glb",
-  "sourceNote": "A copy of the mesh of the user (assets/models/bear/bear-mesh.glb, SHA-256 5196b757...) with the shoulder ball of each arm root moved out and the longest edge across each shoulder joint split (assets/models/bear/README.md, SHA-256 0b3c74ea...). The user said on 2026-10-22: \"the bear is not fixed. there's still visible dent there in the arms\". The turns of the arm sank the shoulder ball 2 to 3 cm below the surface around it, as a sharp V at the top back of the arm root (docs/research/2026-10-22-arm-roots.md). tools/blender/arm_root.py with tools/arm-roots/bear.json writes the copy.",
-  "output": "assets/models/bear/bear-mesh.rig.glb",
+  "source": "assets/models/bear/bear-tpose.glb",
+  "output": "assets/models/bear/bear-tpose.rig.glb",
   "name": "Bear",
   "weld": 1e-05,
   "app": {
-    "shoulders": 0.96525,
-    "reach": 0.4701,
-    "note": "The size is near the size of the studio bear of main (user rule of 2026-10-21: a new body has the size of the body that it replaces). The studio bear stands with its shoulder joints at 1.0 m, its skull top at 1.483 m, and its ear tips at 1.509 m (docs/research/2026-10-22-mesh-bear/landmark-base.txt). The mesh has low shoulders under a large head: with the shoulder joints at 1.0 m, the skull top is at 1.675 m (+13%), and with the skull top at 1.483 m, the shoulder joints are at 0.885 m (-11.5%). The scale 1.65 m for each unit keeps both within 10%: the shoulder joints at 0.585 u (0.96525 m, -3.5%) and the skull top at 0.9797 u (1.617 m, +9%), so that the conductor stand and the beat still fit the shoulders (options.md). The reach is the reach of the arm factor below at that scale."
+    "shoulders": 1.0,
+    "reach": 0.396,
+    "note": "The bear keeps the size of the studio bear of main: the shoulder joints at 1.0 m (ANIMALS of tools/studio-body.ts). The skull top of the mesh is at 0.955 u, so at 1.5221 m for each unit it is at 1.454 m, 2% below the studio bear (1.483 m). The reach is the reach of the arm factor below at that scale."
   },
   "armFactor": 1,
-  "armFactorNote": "The factor of the upper arm and the forearm. The arms keep the length of the mesh (user rule of 2026-10-10: keep the limbs of a mesh of the user, and fit the props): 0.299 u from the shoulder joint to the middle of the paw (paw.txt).",
+  "armFactorNote": "The arms keep the length of the mesh (user rule: keep the limbs of a mesh of the user, and fit the props). The conductor holds no instrument.",
   "legFactor": 1,
-  "legFactorNote": "The legs keep the length of the mesh (user rule: do not stretch the legs). The bear stands on its podium, so no seat asks for longer legs.",
+  "legFactorNote": "The legs keep the length of the mesh. The bear stands on its podium, so no seat asks for longer legs.",
   "joints": {
     "root": {
       "head": [
@@ -34,8 +33,8 @@
     "hips": {
       "head": [
         0,
-        0.19,
-        -0.04
+        0.2,
+        -0.03
       ],
       "tail": "spine"
     },
@@ -43,7 +42,7 @@
       "head": [
         0,
         0.32,
-        -0.035
+        -0.015
       ],
       "tail": "spine1"
     },
@@ -51,128 +50,128 @@
       "head": [
         0,
         0.44,
-        -0.03
+        -0.005
       ],
       "tail": "chest"
     },
     "chest": {
       "head": [
         0,
-        0.55,
-        -0.03
+        0.56,
+        -0.01
       ],
       "tail": "neck"
     },
     "neck": {
       "head": [
         0,
-        0.68,
-        -0.03
+        0.7,
+        -0.025
       ],
       "tail": "head"
     },
     "head": {
       "head": [
         0,
-        0.75,
+        0.77,
         -0.01
       ],
       "tail": [
         0,
-        0.98,
+        0.97,
         0.02
       ]
     },
     "ear_L": {
       "head": [
-        0.088,
-        0.935,
-        0.015
+        0.093,
+        0.945,
+        0.03
       ],
       "tail": [
-        0.08,
-        0.995,
-        0.023
+        0.094,
+        1.0,
+        0.04
       ]
     },
     "clavicle_L": {
       "head": [
         0.04,
-        0.59,
-        -0.035
+        0.64,
+        -0.02
       ],
       "tail": "upper_arm_L"
     },
     "upper_arm_L": {
       "head": [
-        0.225,
-        0.585,
-        -0.045
+        0.17,
+        0.657,
+        -0.01
       ],
       "tail": "forearm_L",
       "roll": "palm"
     },
     "forearm_L": {
       "head": [
-        0.293,
-        0.455,
-        -0.025
+        0.31,
+        0.643,
+        0.004
       ],
       "tail": "forearm_twist_L",
       "roll": "palm"
     },
     "forearm_twist_L": {
       "head": [
-        0.3155,
-        0.4075,
-        -0.0075
+        0.355,
+        0.637,
+        0.014
       ],
       "tail": "hand_L",
       "roll": "palm"
     },
     "hand_L": {
       "head": [
-        0.338,
-        0.36,
-        0.01
+        0.4,
+        0.631,
+        0.024
       ],
       "tail": "fingers_L",
       "roll": "palm"
     },
     "fingers_L": {
       "head": [
-        0.346,
-        0.315,
+        0.45,
+        0.627,
         0.035
       ],
       "tail": [
-        0.357,
-        0.285,
-        0.038
+        0.495,
+        0.612,
+        0.04
       ],
       "roll": "palm"
     },
     "thigh_L": {
       "head": [
-        0.125,
-        0.165,
-        -0.05
+        0.13,
+        0.19,
+        -0.02
       ],
       "tail": "shin_L"
     },
     "shin_L": {
       "head": [
-        0.135,
-        0.105,
-        -0.045
+        0.13,
+        0.125,
+        -0.02
       ],
       "tail": "foot_L"
     },
     "foot_L": {
       "head": [
-        0.14,
-        0.055,
-        -0.055
+        0.128,
+        0.065,
+        -0.03
       ],
       "tail": "toes_L",
       "roll": [
@@ -183,14 +182,14 @@
     },
     "toes_L": {
       "head": [
-        0.15,
+        0.14,
         0.02,
-        0.02
+        0.05
       ],
       "tail": [
-        0.15,
+        0.14,
         0.005,
-        0.075
+        0.1
       ],
       "roll": [
         0,
@@ -201,13 +200,13 @@
     "tail": {
       "head": [
         0,
-        0.24,
-        -0.19
+        0.25,
+        -0.175
       ],
       "tail": [
         0,
-        0.235,
-        -0.23
+        0.245,
+        -0.22
       ],
       "roll": [
         0,
@@ -217,11 +216,11 @@
     }
   },
   "palm": [
-    -0.8,
     0,
-    0.6
+    -0.5,
+    0.85
   ],
-  "jointsNote": "The places are in the units and the axes of the studio in the pose of the source: 1 unit from the soles to the tips of the ears, the soles at y = 0, +z forward, +x the left side. The right side mirrors the left side. The probes are in docs/research/2026-10-22-mesh-bear/: sections.py gives the cuts at each height and across (sections-y.txt, sections-x.txt, sections-z.txt), and arm_cuts.py the cuts of the left arm (arm-cuts.webp). The bear stands upright on short thick legs, apart below the crotch at y 0.145, with the middle of each leg cut at x 0.135 and z -0.04 to -0.055. The thigh joint lies a little above the crotch, the ankle at the narrowest leg cut, the knee halfway between them, and the toes at the ball of the foot (toe tips at z 0.078). The trunk joints lie about 0.015 behind the middle of the body cut. The neck is narrowest at y 0.77 (x 0.15), the chin starts at y 0.72, and the skull top is at y 0.98. The round arm is free of the trunk below the armpit at y 0.49, touches the side of the trunk from y 0.46 to 0.5, and joins it with a notch at its front and its back from y 0.5 to 0.58 (arm-cuts.webp). The middle of the arm cut gives its middle line: x 0.274 at y 0.49, 0.304 at y 0.43, and 0.341 at y 0.37. The shoulder joint lies on that line at the root of the arm, the elbow at y 0.455, the wrist at the narrowest cut above the paw, and the forearm twist halfway between them (upper arm 0.149 u, forearm 0.111 u, paw.txt). The finger joint lies at the root of the claws, and its tail at the tip of the claws. The ear joint lies at the root of the round ear, and its tail at the ear tip. The short tail sticks out back at y 0.214 to 0.264. Each roll is the hint of the z axis of the bone, forward by default. The row of the claws runs from side to side, and the claws curl forward (paw-views.webp), so the palm faces forward and inward. Of the palms of the scan (palm.txt), the palm 37 degrees inward from the front gives the least paw twist in the arm gate: 49 and 51 degrees against 122 and 123 for a palm inward and back.",
+  "jointsNote": "The places are in the units and the axes of the studio in the pose of the source: 1 unit from the soles to the tips of the ears, the soles at y = 0, +z forward, +x the left side. The right side mirrors the left side. The probes are in docs/research/2026-10-23-bear-tpose/. The bear stands upright on short thick legs, apart below the crotch at y 0.18, with the middle of each leg cut at x 0.13. The thigh joint lies at the crotch, the ankle at the narrowest leg cut (y 0.07), the knee halfway between them, and the toes at the ball of the foot (toe tips at z 0.10). The trunk joints lie about 0.015 behind the middle of the body cut. The head starts at y 0.77, and the skull top is at 0.955. The arms are in a T-pose: each arm goes out and a little down, free of the trunk beyond x 0.18 from y 0.58 to 0.75 (sections-x.txt). The cuts across the arm axis give its middle line (arm-axis.txt). The shoulder joint lies inside the root of the arm, the elbow at x 0.31, past the end of the long faces under the upper arm, the wrist where the paw starts (x 0.40), and the forearm twist halfway between the elbow and the wrist. The finger joint lies at the root of the claws, and its tail at the tip of the claws. The ear joint lies at the root of the round ear. The short tail is a ball at y 0.25 behind the back. Each roll is the hint of the z axis of the bone, forward by default. In the T-pose, the palm faces down and forward. Of the palms and the elbows of the scan (gate-variants.txt), this pair gives the least paw twist and stretch in the arm gate: with the elbow halfway to the wrist (x 0.29), three long faces under the upper arm crossed the elbow and stretched 0.51 (limit 0.35), and with the palm straight down, the paws twisted 113 and 105 degrees.",
   "studio": {
     "legTurns": {
       "thigh": [
@@ -277,53 +276,48 @@
         0.731461
       ]
     },
-    "note": "The studio has no mesh bear. legTurns gives the world turn of each left leg bone from the seated bind pose to the source, and the right side mirrors it. The bear stands on its podium in the app (the standing pose of the rig), so the seated bind keeps the legs of the source, as for the penguin: each turn is the identity. The trunk does not recline (open 0). The bind arms are the values of the fox, the cat, the dog, the panda, the hippo, the mouse, the pig, the wolf, the monkey, the rhino, and the penguin."
+    "note": "The bear stands on its podium in the app, so the seated bind keeps the legs of the source: each turn is the identity. The trunk does not recline (open 0). The bind arms are the values of the other meshes of the user."
   },
   "weights": {
-    "armSplit": 0.19,
+    "armSplit": 0.18,
     "armFree": {
       "turn": 0,
-      "radius": 0.09,
-      "floor": 0.27,
-      "shift": [
-        0,
-        0,
-        -0.01
-      ],
-      "note": "The round arm touches the side of the trunk from y 0.46 to 0.5, and the belly bulges out to x 0.257 at y 0.25, beside the paw (sections-y.txt). A vertex of the free arm lies beyond the plane |x| = armSplit, within radius of the chain of the arm joints, and above the floor, so that the belly beside the arm and the paw is not a part of it (arm-free.txt). The root of the arm reaches farther back than forward: its back edge lies at z -0.12 to -0.127, 0.087 to 0.089 u from the chain, and its front edge at z 0.041, 0.085 u from it. With the radius 0.085 and no shift, the back strip of each arm root stayed on the trunk, and a raised arm showed it as a dark flap under the arm (docs/research/2026-10-22-bear-armpit.md). With the radius 0.095, the front edge joined the arm too, and the upper arms went 4.3 cm into the body in the sweep. The chain 0.01 u back (shift) with the radius 0.09 takes the back strip (gaps 0.079 to 0.08 u) and leaves the front edge (0.095 u)."
+      "radius": 0.1,
+      "floor": 0.555,
+      "note": "The arm is free of the trunk beyond x 0.18 and above y 0.575, and the belly bulges out to x 0.239 below y 0.54 (sections-x.txt). A vertex of the free arm lies beyond the plane |x| = armSplit, within radius of the chain of the arm joints, and above the floor, so that the belly is not a part of it."
     },
     "stretchRamp": 0,
     "headFrom": 0.79,
     "earBase": [
-      0.93,
-      0.95
+      0.94,
+      0.96
     ],
     "tailBall": {
       "center": [
         0,
-        0.24,
-        -0.21
+        0.25,
+        -0.2
       ],
-      "radius": 0.035,
+      "radius": 0.04,
       "behind": -0.185
     },
     "sliver": {
       "angle": 10,
       "longest": 0.03,
-      "note": "The values of the fox, the cat, the dog, the panda, the hippo, the mouse, the pig, the wolf, the monkey, the rhino, and the penguin."
+      "note": "The values of the other meshes of the user."
     },
     "line": {
-      "angle": 150,
+      "angle": 170,
       "head": true,
-      "note": "The values of the fox, the cat, the dog, the panda, the hippo, the mouse, the pig, the wolf, the monkey, the rhino, and the penguin."
+      "note": "The angle of the elephant, the rhino, and the rabbit: a lower angle mixes the weights of long arm faces."
     },
     "clavicleFrom": [
-      0.55,
-      0.59
+      0.6,
+      0.64
     ],
     "armTop": [
-      0.65,
-      0.72
+      0.77,
+      0.82
     ],
     "shoulderHead": [
       0.12,
@@ -332,22 +326,12 @@
     "fingers": 0.5,
     "haunch": {
       "height": [
-        0.105,
-        0.165
+        0.12,
+        0.18
       ],
-      "note": "The part of the thigh weight that goes to the hips grows from 0 at the knee to 1 at the thigh joint, so that the round haunch stays on the hips, as for the hippo and the rhino."
+      "note": "The part of the thigh weight that goes to the hips grows from 0 at the knee to 1 at the thigh joint, so that the round haunch stays on the hips."
     },
-    "note": "Beyond the plane of armSplit (armFree), only the free arm follows the arm bones. Above headFrom, the narrowest cut of the neck at the sides (y 0.79), each vertex follows the head only. With headFrom 0.73 under the chin, the side of the neck had a hard seam between the neck and the head, and the head turns of the cues folded its faces in 3,182 samples. With 0.79, bone heat blends the neck into the head, and 814 samples fold (check-head.log). Each round ear follows its ear bone above earBase, from its root at y 0.935. The short tail is a ball on one bone (tailBall): the vertices within radius of the center and behind the plane z = behind follow the tail. With the radius 0.028 and the plane at -0.2, a face of the root had a corner on the hips, and the sway of the tail folded it in 4,868 samples. The plane at -0.185 takes the whole root (check-head.log). clavicleFrom, armTop, and shoulderHead are the rules of the rhino, moved with the shoulder joint (y 0.585) and the neck of the bear."
-  },
-  "cut": {
-    "top": 0.6,
-    "fins": true,
-    "finsNote": "With the back strip of the arm root in the free arm, a face of the trunk at the back of the left notch (source corners near x 0.18, y 0.55, z -0.12) sticks into the hole with two edges, and the cap repeats it with the opposite winding. The rule removes it and one such face on the right (docs/research/2026-10-22-bear-armpit.md).",
-    "skinNormals": true,
-    "skinNormalsNote": "The caps of the arm take the normals of the skin around them in the app, as for the hippo and the rhino (docs/research/2026-10-19-cut-caps.md).",
-    "bodyNormals": "LR",
-    "bodyNormalsNote": "The side of the trunk curls in where it joins the arm, so the caps of the body lie in a notch, as on the rabbit. In the rest pose, the arm hangs out around the belly, and with their own normals the caps and their rim showed as black wedges at the back of each armpit in the views from the side and from behind. With the normals of the skin, the wedges go (cut-views.webp).",
-    "note": "The arm joins the side of the trunk with a notch at its front and its back from y 0.5 to 0.58 (arm-cuts.webp). Below the height top, 0.015 u above the shoulder joint, the faces with a corner in the free arm (armFree) and a corner in the body go, and new faces close the arm and the trunk, as for the rhino (model-traps.md: an arm that joins the trunk needs a cut). With the top at 0.57, 0.5, or 0.53, a face at the top of the cut showed as a black triangle on the back under each arm in the rest pose (cut-views.webp)."
+    "note": "Beyond the plane of armSplit (armFree), only the free arm follows the arm bones. Above headFrom, each vertex follows the head only. Each round ear follows its ear bone above earBase. The short tail is a ball on one bone (tailBall). clavicleFrom, armTop, and shoulderHead are the rules of the bear mesh of 2026-10-22, moved with the shoulder joint. The rig has no cut, no ring, and no split: the arms of the T-pose are free of the trunk, and the faces of the user stay (user, 2026-10-23)."
   },
   "refine": {
     "rings": [],
@@ -356,9 +340,8 @@
       "normals": 60,
       "move": 0.0016,
       "rounds": 4,
-      "note": "The values of the fox, the cat, the dog, the panda, the hippo, the mouse, the pig, the wolf, the monkey, the rhino, and the penguin."
-    },
-    "ringsNote": "The first config has no rings. pnpm rig-mesh bear --check lists the thin faces near the joints as candidates for a ring (check.thin). The fold probe of the role chooses the rings."
+      "note": "The values of the other meshes of the user."
+    }
   },
   "check": {
     "thin": {
@@ -366,7 +349,7 @@
       "length": 0.08,
       "near": 0.1
     },
-    "note": "The values of the fox, the cat, the dog, the panda, the hippo, the mouse, the pig, the wolf, the monkey, the rhino, and the penguin."
+    "note": "The values of the other meshes of the user."
   },
   "colors": {
     "samples": 6,
@@ -375,14 +358,14 @@
     "eyeShare": 0.34,
     "eyeBox": [
       [
-        0.028,
-        0.88,
-        0.12
+        0.025,
+        0.882,
+        0.13
       ],
       [
-        0.058,
-        0.912,
-        0.15
+        0.06,
+        0.915,
+        0.155
       ]
     ],
     "tone": {
@@ -421,18 +404,18 @@
           -0.0224
         ]
       ],
-      "note": "The brown fur of the mesh is lighter than the bear of orchestra-latest.png: in the play frame of the default camera (Boulanger at 30 s), the back of the bear has the Oklab lightness 0.482 against 0.330 in the reference image and 0.427 for the studio bear of main (tone.txt). As the panda rule asks, the fur takes the brown of the reference: a row is [L, dL, da, db] in Oklab, so that each fur face from the lightness 0.45 takes 0.72 of its lightness and 0.7 of its chroma at its hue (56 degrees). A face below 0.3 (the eyes and the nose) does not move, the tan muzzle (0.78 and more) keeps its color, and the claws and the toes keep theirs. The back then has the lightness 0.363, the hue 45 degrees, and the chroma 0.075 in the play frame (tone.txt)."
+      "note": "The tone of the bear mesh of 2026-10-22: the brown fur takes the darker brown of orchestra-latest.png."
     },
     "noseBox": [
       [
-        -0.042,
-        0.825,
-        0.195
+        -0.032,
+        0.832,
+        0.192
       ],
       [
-        0.042,
-        0.88,
-        0.235
+        0.032,
+        0.872,
+        0.225
       ]
     ],
     "nose": [
@@ -440,49 +423,21 @@
       0.11,
       0.1
     ],
-    "smile": {
-      "bands": [
-        {
-          "x": [
-            0,
-            0.05
-          ],
-          "y": [
-            0.796,
-            0.805
-          ],
-          "rise": 0,
-          "front": 0.165,
-          "normalY": [
-            0.3,
-            1
-          ],
-          "facing": 0.3,
-          "outward": 0.6
-        }
-      ],
-      "color": [
-        0.107,
-        0.033,
-        0.012
-      ],
-      "note": "The user asks for happy faces (user, 2026-10-20). The texture has a thin smile line on the muzzle (y 0.80 to 0.806, source-head-front.webp), but each face takes the mean of its samples, so the line goes away, and the shade under the lower lip reads as a frown (smile-zoom.webp, left). The band takes the 16 faces on the top of the lower lip along the crease between the lips (normal up), as for the panda, in a dark brown of the fur (sRGB 0.36, 0.2, 0.11). The corners of the crease rise a little, so the line reads as a smile (smile-zoom.webp, middle). A rise of 0.006 u took 11 faces and a shorter line (right). outward 0.6 keeps the faces that turn to the side out of the line (the trap of the panda)."
-    },
-    "note": "The values of samples, palette, and eyeShare are the values of the other meshes. The brown fur of the bear is dark, so a face is dark only below the dark limit 0.0121 that rig-mesh --check gives: 4.1% of the faces outside the eye and nose boxes, most of them the black claws (check-first.log). A dark face in the eye box is a face of an eye: about 8 faces on each side at |x| 0.035 to 0.049, y 0.889 to 0.902, and z 0.13 to 0.139 (colors.txt). The nose is a patch of dark faces at x 0.035 or less, y 0.83 to 0.875, and z 0.2 to 0.229, at the front of the muzzle. A face in the nose box whose color is nearer to the nose color than to white is a face of the nose and takes the gloss. The nose color is the mean of the dark faces of the nose."
+    "note": "The values of samples, palette, eyeShare, and dark are the values of the bear mesh of 2026-10-22."
   },
   "eyeShell": {
     "lift": 0.002,
     "points": 12,
     "reach": 1,
     "darkReach": 2,
-    "note": "The values of the fox, the cat, the dog, the panda, the hippo, the mouse, the pig, the wolf, the monkey, the rhino, and the penguin."
+    "note": "The values of the other meshes of the user."
   },
   "chair": {
     "halfWidth": 0.24,
-    "front": -0.145,
+    "front": -0.13,
     "back": -0.19,
     "backHeight": 0.15,
-    "note": "The chair of the rig sets the seat top of the seated bind. The bear stands in the app (the standing pose of the rig, soloist of ANIMALS), so no player sits on this seat. The front edge lies behind the heels (z -0.139), and the back edge in front of the tail. The half width and the height of the back are the values of the rhino and the penguin."
+    "note": "The chair of the rig sets the seat top of the seated bind. The bear stands in the app, so no player sits on this seat."
   },
   "crease": {
     "rings": 2,
@@ -490,6 +445,6 @@
     "share": 0.5,
     "back": 0.1,
     "below": 0.03,
-    "note": "The values of the fox, the cat, the dog, the panda, the hippo, the mouse, the pig, the wolf, the monkey, the rhino, and the penguin."
+    "note": "The values of the other meshes of the user."
   }
 }

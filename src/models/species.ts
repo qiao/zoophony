@@ -371,9 +371,10 @@ export const SPECIES = {
     },
   },
   /**
-   * Bear, the conductor (reference image). It has the studio body of `lowpoly-studio/` (design
-   * 4.4), with the mesh and the colors of the studio (2026-10-22-studio-bears decisions). Its head
-   * height is the head of the studio.
+   * Bear, the conductor (reference image). It has the studio body of the T-pose mesh of the user,
+   * `assets/models/bear/bear-tpose.glb`, which `pnpm rig-mesh bear` rigs with its own faces
+   * (design 4.4, 2026-10-23-bear-tpose decisions), with the size of the studio bear before it. Its
+   * head height is the head of the studio body.
    */
   bear: {
     body: 'studio-bear',
