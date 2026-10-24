@@ -34,6 +34,11 @@ group of your work before you plan it. A probe that a trap names is in its resea
   the plane of the palm. When a big head puts the grips above the shoulders, put the grips low on
   the instrument, else a long paw rises past it
   (`grips.sh` of `docs/research/2026-10-20-mesh-monkey/`).
+- The arm gate and the depths pass while a paw misses its instrument. `PAW_TURN` removes each side
+  bend of the wrist up to 70°, so a paw can wrap a tube only when the forearm is near square to
+  the tube, and the palm point of the IK is the middle of the paw. Measure each hold with
+  `pnpm wind-grip`, and move the grip around the tube (`WindHold.gripShiftL`,
+  `docs/research/2026-10-24-wind-grips.md`).
 
 ## Reach and rest of the instrument
 
