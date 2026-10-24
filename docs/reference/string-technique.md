@@ -451,7 +451,9 @@ A round that changes the motion updates the items.
   the rabbit and the viola of the cat stand upright on the left knee at rest, and turn upright in
   front of the chest in the middle of the move, with both arms bent near the body
   (`BowedHold.liftTurn`, `BowedHold.liftReach`, the via of the rest bow), as a player brings the
-  instrument up close to the body (`docs/decisions/2026-10-24-violin-rest.md`).
+  instrument up close to the body (`docs/decisions/2026-10-24-violin-rest.md`). At rest, the
+  rabbit holds the upper neck with the left elbow bent
+  (`docs/decisions/2026-10-24-violin-poses.md`).
 - **The string crossing leads the note** (section 2.3). `bowStateAt()` of `pose/strokes.ts` turns
   the bow to the string of the next note in at most 0.08 s, and in at most 0.3 of the time from
   the note start to the next note (`BOW_MOTION.crossSec` and `crossShare`). The turn ends 0.01 s

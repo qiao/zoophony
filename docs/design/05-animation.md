@@ -29,7 +29,7 @@ Each new role and each new hold adds its row to this table in the same commit.
 | Conductor, bear | Stands on the podium | none | Beats the patterns of 5.4 with the baton, cues each entry, and shows the dynamics with the left paw | The arms hang a little out to the sides | `CONDUCTOR_HOLD`, `pose/conductor.ts` | 5.2, 5.4, `2026-10-22-studio-bears.md` | `pnpm close-views conductor <dir>` |
 | Piano, polar bear | Bench | Play: Prodigies and "Fundamentals of Piano Practice" (`2026-10-14-polar-bench.md`). Rest: a Suzuki checklist (`docs/research/2026-10-13-pianist-lap.md`) | Leans toward the keys, with the palms down at the front of the keys | Sits tall with the head up, with the paws on the thighs and the elbows bent | `HANDS_HOLDS.piano`, `pose/hands.ts` | 5.2, 5.3 piano and harp, `2026-10-14-polar-fix.md`, `2026-10-22-studio-bears.md`, `2026-10-24-polar-bear-seat.md` | `pnpm close-views pianist <dir>` |
 | Harp, deer | Stool that fits its legs, with the whole haunch on the seat (4.4, seat) | Play: musicmark.org.uk, "A Common Approach", harp, area B (`docs/research/2026-10-21-mesh-deer.md`) | Leans forward, with the forearms about level, and each palm plucks the string of its note on a smaller harp in front of the chest | Sits up, with each hand on a string, a little away from it | `HANDS_HOLDS.harp`, `HARP_PLACE`, `pose/hands.ts` | 5.2, 5.3 piano and harp, `2026-10-21-mesh-deer.md` | `pnpm close-views harpist <dir>` |
-| Violin, rabbit | Chair, stands as a soloist | Play: violinonline.com and Simon Fischer (`docs/research/2026-10-14-fox-rabbit-form.md`). Rest: the image of the user (`docs/research/2026-10-16-bow-rest.md`). Hands and bow: `docs/reference/string-technique.md` | Holds a violin of 0.83 on the left shoulder under the jaw, with the bow nearly square and the stick through the closed right paw | The violin upright on the top of the left knee, upright in front of the chest in the middle of the lift, and the bow upright at the right side with the frog at the outer side of the right knee. A soloist hangs the bow with the tip down | `SHOULDER_HOLD`, `UPRIGHT_BOW`, `HANGING_BOW`, `STANDING_REST`, `pose/bowed-rig.ts` | 5.2, 5.3 bowed strings, `2026-10-17-rabbit-pose.md`, `2026-10-17-grip-all.md`, `2026-10-23-rabbit-arms.md`, `2026-10-24-rabbit-hold.md`, `2026-10-24-violin-rest.md` | `pnpm close-views violinist <dir>` |
+| Violin, rabbit | Chair, stands as a soloist | Play: violinonline.com and Simon Fischer (`docs/research/2026-10-14-fox-rabbit-form.md`). Rest: the image of the user (`docs/research/2026-10-16-bow-rest.md`). Hands and bow: `docs/reference/string-technique.md` | Holds a violin of 0.83 on the left shoulder under the jaw, with the bow nearly square and the stick through the closed right paw | The violin upright on the top of the left knee, held at the upper neck with the left elbow bent, upright in front of the chest in the middle of the lift, and the bow upright at the right side with the frog at the outer side of the right knee. A soloist hangs the bow with the tip down | `SHOULDER_HOLD`, `UPRIGHT_BOW`, `HANGING_BOW`, `STANDING_REST`, `pose/bowed-rig.ts` | 5.2, 5.3 bowed strings, `2026-10-17-rabbit-pose.md`, `2026-10-17-grip-all.md`, `2026-10-23-rabbit-arms.md`, `2026-10-24-rabbit-hold.md`, `2026-10-24-violin-rest.md`, `2026-10-24-violin-poses.md` | `pnpm close-views violinist <dir>` |
 | Violin, red fox | Chair, stands as a soloist | The sources of the rabbit | The hold of the rabbit, with the tail end under the long jaw. In pizzicato, the bow tip points up and back | The rest of the rabbit, with the frog at the outer side of the right thigh | `FOX_HOLD`, `UPRIGHT_BOW`, `HANGING_BOW`, `STANDING_REST`, `pose/bowed-rig.ts` | 5.2, 5.3 bowed strings, `2026-10-17-fox-form.md`, `2026-10-17-grip-all.md` | `pnpm close-views fox-violinist <dir>` |
 | Viola, cat | Chair, stands as a soloist | Rest: the image of the user (`docs/research/2026-10-16-bow-rest.md`). Hands and bow: `docs/reference/string-technique.md` | Holds the viola under the chin, back toward the neck. The left paw curls around the neck, and in the high positions it tilts further over the upper bout | The viola upright on the front of the left knee, with the top plate turned back and to the left, upright in front of the chest in the middle of the lift, and the right paw over the outer side of the right thigh | `CAT_HOLD`, `LAP_VIOLIN`, `UPRIGHT_BOW`, `HANGING_BOW`, `STANDING_REST`, `pose/bowed-rig.ts` | 5.2, 5.3 bowed strings, `2026-10-17-cat-bow.md`, `2026-10-17-cat-hand.md`, `2026-10-17-cat-look.md`, `2026-10-20-cat-left-arm.md`, `2026-10-24-violin-rest.md` | `pnpm close-views violist <dir>` |
 | Cello, dog | Chair | The cellists of `docs/reference/string-technique.md`, section 2.7 | The cello leans back in front of the knees, with its neck at the left of the head. The bow plays no hair near the frog. In pizzicato, the right paw comes up from the side near the end of the fingerboard | The cello stays between the knees, and the bow stands over the right knee with the tip up | `DOG_HOLD`, `UPRIGHT_BOW`, `pose/bowed-rig.ts` | 5.2, 5.3 bowed strings, `2026-10-17-dog-arms.md`, `2026-10-17-dog-rest.md` | `pnpm close-views cellist <dir>` |
@@ -293,16 +293,17 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
   the lower upper arm can touch the body, as in the reference images, up to `ARM_CONTACT_DEPTH`
   of `pose/test-arm-clearance.ts`.
 - **Upright bow.** The seated rabbits, red foxes, and cats rest as a seated violinist: the
-  violin or the viola upright on the left knee or thigh with the left arm hanging to the neck, and
-  the bow upright at the right side with the frog in the right paw (5.3,
+  violin or the viola upright on the left knee or thigh with the left arm to the neck, and the
+  bow upright at the right side with the frog in the right paw (5.3,
   `docs/decisions/2026-10-16-bow-rest.md`, `docs/decisions/2026-10-24-violin-rest.md`). A real
-  violist rests as a violinist. The round belly keeps the right paw at the outer side of the thigh
-  (red fox) or of the knee (rabbit), and above the thigh (cat), because a paw on the thigh put the
-  forearm into the deep belly. In the lift and the lowering, the bow tip turns through the front
-  (`BowVia` of `pose/bowed-rig.ts`). The violin of the rabbit and the viola of the cat turn upright
-  in front of the chest in the middle of the move (`BowedHold.liftTurn`) and move up
-  (`BowedHold.liftReach`), as the violin of the red fox, so that they pass in front of the belly
-  while the arms stay bent near the body.
+  violist rests as a violinist. The short left arm of the rabbit holds the upper neck with the
+  elbow bent (`docs/decisions/2026-10-24-violin-poses.md`). The round belly keeps the right paw at
+  the outer side of the thigh (red fox) or of the knee (rabbit), and above the thigh (cat),
+  because a paw on the thigh put the forearm into the deep belly. In the lift and the lowering,
+  the bow tip turns through the front (`BowVia` of `pose/bowed-rig.ts`). The violin of the rabbit
+  and the viola of the cat turn upright in front of the chest in the middle of the move
+  (`BowedHold.liftTurn`) and move up (`BowedHold.liftReach`), as the violin of the red fox, so
+  that they pass in front of the belly while the arms stay bent near the body.
 - **Cello between the knees.** The seated dog keeps the cello at its playing place, as a seated
   cellist does (`BowedHold.rest` null), and holds the bow over the right knee with the tip up and
   leaned out and forward, as a cellist stands the frog on the knee
@@ -458,7 +459,7 @@ The code constants of each family hold the times, the angles, and the lengths of
     reference images, but do not cross it (`pose/rest-clearance.test.ts`). The seated rabbits, red
     foxes, and cats rest as the seated violinist of the image of the user
     (`docs/research/2026-10-16-bow-rest.md`): the instrument upright on the left thigh, held at
-    the bottom of its neck, and the bow upright at the right side (`UPRIGHT_BOW`, 5.2). In the
+    its neck, and the bow upright at the right side (`UPRIGHT_BOW`, 5.2). In the
     lift and the lowering, the tip turns through the front (`BowVia`), because a direct mix turned
     it through the head. The dog keeps the cello between its knees with the bow over the right knee
     (5.2). The contrabass stays on the floor with the bow on the outer side of the right knee. A

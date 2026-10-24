@@ -505,11 +505,13 @@ const HANGING_BOW = {
  *
  * The rest pose and the lift are those of the red fox (user, 2026-10-24: "the violinists like
  * rabbit and cat should use similar poses and motion as the fox"): the violin stands upright on
- * the top of the left knee, 1.1 of the way from the hip, 0.1 H out and 0.05 H down, with the top
- * plate to the front, and the left arm hangs to the neck. On the belly at 0.85 of the way, of
- * 2026-10-24, the scroll came up to the chin, the paw held the neck at the mouth, and the violin
- * went 4.8 cm into the belly. The left elbow points down, a little out, and a little back,
- * (-0.6, -1, 0.3) (2026-10-17-rabbit-pose decisions).
+ * the top of the left knee, at the knee joint, 0.1 H out and 0.05 H down, with the top plate to
+ * the front. On the belly at 0.85 of the way, of 2026-10-24, the scroll came up to the chin, the
+ * paw held the neck at the mouth, and the violin went 4.8 cm into the belly. The left paw holds
+ * the upper neck, at 0.1 of the fingerboard from the nut (`restPlace`), so that the elbow bends to
+ * about 120°: at 0.4, the short arm hung straight to the violin (2026-10-24-violin-poses
+ * decisions). The left elbow points down, a little out, and a little back, (-0.6, -1, 0.3)
+ * (2026-10-17-rabbit-pose decisions).
  *
  * In the middle of the lift and of the lowering, the violin turns upright in front of the chest,
  * with the scroll up, a little forward, and a little to the left, and the top plate to the body
@@ -548,7 +550,8 @@ const SHOULDER_HOLD = {
   stringTurn: 10 * MathUtils.DEG2RAD,
   restPoleL: [-0.6, -1, 0.3],
   restPoleR: [0.3, -1, 1],
-  rest: { ...LAP_VIOLIN, lap: { along: 1.1, offset: [-0.1, -0.05, 0] } },
+  restPlace: 0.1,
+  rest: { ...LAP_VIOLIN, lap: { along: 1, offset: [-0.1, -0.05, 0] } },
   liftReach: [-0.1, 0.2, -0.2],
   liftTurn: { axis: [-0.3, 1, -0.6], top: [0, 0, 1] },
   restBow: {
@@ -591,10 +594,12 @@ const SHOULDER_HOLD = {
  * The rest pose is the upright rest of the rabbit (2026-10-16-bow-rest decisions): the violin
  * stands on the left thigh at 0.8 of the way to the knee, 0.18 H down and 0.2 H forward. With the
  * thighs 25° down of 2026-10-17, the place of 2026-10-16 (0.65 of the way, 0.24 H down, and 0.3 H
- * forward) put the lower end 13.8 cm above the thigh (2026-10-17-fox-form decisions). The long
- * right arm of the fox reaches the right thigh only nearly straight, and its line from the
- * shoulder to a paw on the top of the thigh passes through the side of the belly: with the grip
- * 0.15 H out at 0.65 of the way, the right upper arm went 6.2 cm into the body. So the grip is at
+ * forward) put the lower end 13.8 cm above the thigh (2026-10-17-fox-form decisions). The left
+ * paw holds the violin at 0.4 of the fingerboard (`restPlace` of the chin hold), with the elbow
+ * bent to about 110°. The long right arm of the fox reaches the right thigh only nearly straight,
+ * and its line from the shoulder to a paw on the top of the thigh passes through the side of the
+ * belly: with the grip 0.15 H out at 0.65 of the way, the right upper arm went 6.2 cm into the
+ * body. So the grip is at
  * the outer side of the thigh at 0.55 of the way, 0.15 H forward. The stick through the paw of
  * 2026-10-17 moves the hand about 4 cm on the bow, and with the grip 0.3 H out, the right upper arm
  * went 3.9 cm into the body at rest and 5.0 cm while the arms lowered (3.4 cm and 3.7 cm before).
@@ -629,6 +634,7 @@ const FOX_HOLD = {
   pizzicatoTip: [0.3, 0.5, 1],
   restPoleL: [-0.3, -1, 0.3],
   restPoleR: [0.3, -1, 0.3],
+  restPlace: CHIN_HOLD.restPlace,
   rest: { ...LAP_VIOLIN, lap: { along: 0.8, offset: [0, -0.18, -0.2] } },
   liftReach: [0, 0, 0],
   liftTurn: null,

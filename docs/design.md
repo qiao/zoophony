@@ -307,6 +307,7 @@ The decision files:
 - [`2026-10-24-polar-bear-seat.md`](decisions/2026-10-24-polar-bear-seat.md): the smaller polar bear pianist from the keys of its sheet.
 - [`2026-10-24-rabbit-hold.md`](decisions/2026-10-24-rabbit-hold.md): the shorter rabbit arms with rings at the elbows, the true palm, and the violin under the chin at 60° to the left.
 - [`2026-10-24-violin-rest.md`](decisions/2026-10-24-violin-rest.md): the rabbit violin and the cat viola upright on the left knee at rest, and upright in front of the chest in the middle of the lift, as the red fox.
+- [`2026-10-24-violin-poses.md`](decisions/2026-10-24-violin-poses.md): the bent rest arms of the rabbit, the scroll of the cat viola toward the left shoulder in the middle of the lift, and the nearer rest viola of the cat.
 - [`2026-10-24-bow-holds.md`](decisions/2026-10-24-bow-holds.md): the hippo bow through the middle of the closed paw, and the cat arms bent near the body in the lift and the lowering.
 - [`2026-10-24-wind-paws.md`](decisions/2026-10-24-wind-paws.md): the wind paws across the tube.
 - [`2026-10-24-wind-holds.md`](decisions/2026-10-24-wind-holds.md): the wolf clarinet at 20° with the paws across the back of the tube and upright in front of the knees at rest, the oboe of the mouse at 30° and nearly upright at rest.
