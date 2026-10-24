@@ -11,5 +11,5 @@ user can reverse each decision. Then update its section, and remove its row.
 
 | Decision | Section |
 |---|---|
-| Bear: the eyes take 1.15 of the pea eye size (1 before). At 1.25, the eyes cover the edge of the muzzle. | 4.4 |
+| Bear: the eyes take 1.15 of the pea eye size (1 before). At 1.25, the eyes cover the edge of the muzzle. With the T-pose mesh, the user said: "make the bear's eye 0.7x the size", so the bear takes 0.805 (`bear-eyes-tpose.webp`, 1.15 in the top row). | 4.4 |
 | Polar bear: the eyes take 0.85 of the pea eye size (0.7 before). They fill the painted lids. At 0.9, they come near the size 1 that the user called too big. This row replaces the polar bear row of `2026-10-23-night-fixes.md`. | 4.4 |
