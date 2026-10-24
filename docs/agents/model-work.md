@@ -189,7 +189,8 @@ code.
 
 `pnpm rig-mesh <animal>` rigs a textured mesh of the user with no skeleton into the GLB format of a
 studio body. Name the rigged file in `glb` of the entry of the animal in `ANIMALS`. Then the steps
-of route 3 follow.
+of route 3 follow. When the arms twist or fold, rebuild them in Blender with
+[`rig-blender.md`](rig-blender.md): quad arm faces, Blender weights, and arm segments.
 
 ```text
  assets/models/<s>/<file>.glb + tools/mesh-rigs/<animal>.json
