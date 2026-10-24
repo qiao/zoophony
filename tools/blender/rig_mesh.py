@@ -920,7 +920,7 @@ def frame(head, tail, roll):
 
 
 # The bones of the lower body: with `paintedLower` set to `rules`, the vertices on them keep the
-# weights of the rules (`main()`).
+# weights of the rules (`main()`). A list of bone names in `paintedLower` replaces them.
 LOWER_BONES = ('root', 'hips', 'thigh_L', 'shin_L', 'foot_L', 'toes_L', 'thigh_R', 'shin_R',
                'foot_R', 'toes_R', 'tail', 'tail_tip')
 
@@ -931,8 +931,8 @@ def painted_weights(verts, path):
     vertex in the units of the studio, and its weights. Each source vertex takes the weights of
     the painted vertex at its place.
 
-    The Rigify trial of 2026-10-24 paints the weights of the polar bear with the tools of Blender
-    (`docs/decisions/2026-10-24-polar-bear-blender.md`).
+    The arm rebuild of 2026-10-24 paints the weights of the polar bear with the tools of Blender
+    (`tools/blender/polar_bear_arms.py`, `docs/decisions/2026-10-24-polar-bear-arms.md`).
     """
     with open(path) as f:
         data = json.load(f)
@@ -948,6 +948,123 @@ def painted_weights(verts, path):
                              f'(nearest {gaps[k]:.6f} u).')
         weights[v, columns] = painted[k]
     return weights
+
+
+#: The number of deform segments of each upper arm and each forearm with `armSegments` of the
+#: config (`ARM_SEGMENTS` of `src/models/studio-rig.ts`).
+ARM_SEGMENTS = 4
+
+
+def segment_bones():
+    """Gives the names of the arm segments and of the elbow and wrist helpers, the left side first
+    (`ARM_SEGMENT_BONES` of `src/models/studio-format.ts`). Each segment of a part is a deform bone
+    along the part, and each helper starts at its joint."""
+    out = []
+    for side in 'LR':
+        out += [f'upper_arm_seg{k}_{side}' for k in range(ARM_SEGMENTS)]
+        out += [f'forearm_seg{k}_{side}' for k in range(ARM_SEGMENTS)]
+        out += [f'elbow_{side}', f'wrist_{side}']
+    return tuple(out)
+
+
+def segment_parents():
+    """Gives the parent of each arm segment and helper: the upper arm, the forearm, or, for the
+    wrist helper, the forearm twist bone (`STUDIO_PARENTS` of `src/models/studio-format.ts`)."""
+    out = {}
+    for side in 'LR':
+        for k in range(ARM_SEGMENTS):
+            out[f'upper_arm_seg{k}_{side}'] = f'upper_arm_{side}'
+            out[f'forearm_seg{k}_{side}'] = f'forearm_{side}'
+        out[f'elbow_{side}'] = f'upper_arm_{side}'
+        out[f'wrist_{side}'] = f'forearm_twist_{side}'
+    return out
+
+
+def segment_share(k):
+    """Gives the share of the twist that the segment k of an arm part takes: the middle of the
+    segment, from 0 at the start of the part to 1 at its end."""
+    return (k + 0.5) / ARM_SEGMENTS
+
+
+def segment_joints(heads, ends, rolls, children, rule):
+    """Adds the heads, the tails, the roll hints, and the children of the arm segments and of the
+    helpers (`armSegments` of the config). The segments split the upper arm and the forearm into
+    equal parts. Each helper starts at its joint and points along the bone after the joint, with
+    the length `rule['helper']` in units."""
+    for side in 'LR':
+        s, e, w = (heads[f'{b}_{side}'] for b in ('upper_arm', 'forearm', 'hand'))
+        for part, a, b in (('upper_arm', s, e), ('forearm', e, w)):
+            for k in range(ARM_SEGMENTS):
+                name = f'{part}_seg{k}_{side}'
+                heads[name] = a + (b - a) * k / ARM_SEGMENTS
+                ends[name] = a + (b - a) * (k + 1) / ARM_SEGMENTS
+                rolls[name] = rolls[f'{part}_{side}']
+                children[name] = None
+        for name, joint, toward, roll in ((f'elbow_{side}', e, w, f'forearm_{side}'),
+                                          (f'wrist_{side}', w, ends[f'hand_{side}'],
+                                           f'hand_{side}')):
+            heads[name] = joint.copy()
+            ends[name] = joint + unit(toward - joint) * rule['helper']
+            rolls[name] = rolls[roll]
+            children[name] = None
+
+
+def twist_of(m, axis):
+    """Gives the angle of the twist of a rotation matrix around a unit axis (the swing and twist
+    split), from -pi to pi, as `twistAngle()` of `src/models/studio-rig.ts`."""
+    x, y, z, w = matrix_quat(m)
+    angle = 2 * np.arctan2(np.array([x, y, z]) @ axis, w)
+    return float((angle + np.pi) % (2 * np.pi) - np.pi)
+
+
+def axis_turn(axis, angle):
+    """Gives the rotation matrix of a turn by `angle` radians around a unit axis."""
+    half = angle / 2
+    return quat_matrix([*(np.sin(half) * np.asarray(axis)), np.cos(half)])
+
+
+def half_turn(a, b):
+    """Gives the rotation halfway from the rotation matrix `a` to `b` (a slerp at 0.5)."""
+    qa, qb = np.asarray(matrix_quat(a)), np.asarray(matrix_quat(b))
+    if qa @ qb < 0:
+        qb = -qb
+    return quat_matrix(qa + qb)
+
+
+def driven_turns(turns, heads):
+    """Gives the world turns of the arm segments and of the helpers from the world turns of the
+    body bones, as `poseArm()` of `src/models/studio-rig.ts` drives them. `heads` holds the joints
+    of the pose from which the turns start. Each upper arm segment takes its share of the roll of
+    the upper arm from the chest, and each forearm segment its share of the twist from the forearm
+    to the paw (`segment_share()`). The elbow helper turns halfway from the upper arm to the
+    forearm, and the wrist helper halfway from the forearm with all of the twist to the paw."""
+    out = {}
+    chest = turns['chest']
+    for side in 'LR':
+        upper, fore, hand = (turns[f'{b}_{side}'] for b in ('upper_arm', 'forearm', 'hand'))
+        rest = unit(heads[f'forearm_{side}'] - heads[f'upper_arm_{side}'])
+        roll = twist_of((swing(chest @ rest, upper @ rest) @ chest).T @ upper, rest)
+        along = unit(heads[f'hand_{side}'] - heads[f'forearm_{side}'])
+        twist = twist_of(fore.T @ hand, along)
+        for k in range(ARM_SEGMENTS):
+            share = segment_share(k)
+            out[f'upper_arm_seg{k}_{side}'] = upper @ axis_turn(rest, (share - 1) * roll)
+            out[f'forearm_seg{k}_{side}'] = fore @ axis_turn(along, share * twist)
+        out[f'elbow_{side}'] = half_turn(upper, fore)
+        out[f'wrist_{side}'] = half_turn(fore @ axis_turn(along, twist), hand)
+    return out
+
+
+def arm_bones(side):
+    """Gives the arm bones of one side that move the arm vertices: the bones of `ARM`, and the arm
+    segments and helpers of a rig with `armSegments`."""
+    return [f'{b}_{side}' for b in ARM] + [b for b in BONES
+                                           if b.endswith('_' + side) and b in SEGMENT_PARENTS]
+
+
+#: The parent of each arm segment and helper.
+SEGMENT_PARENTS = segment_parents()
+PARENTS.update(SEGMENT_PARENTS)
 
 
 def bone_heat(verts, tris, heads, ends, rolls):
@@ -1997,8 +2114,8 @@ def arm_mask(weights):
     """Tells for each vertex if an arm bone of a side moves it."""
     arm = np.zeros(len(weights), bool)
     for side in 'LR':
-        for bone in ARM:
-            arm |= weights[:, BONES.index(f'{bone}_{side}')] > 0
+        for name in arm_bones(side):
+            arm |= weights[:, BONES.index(name)] > 0
     return arm
 
 
@@ -2100,8 +2217,8 @@ def ring_cuts(verts, tris, weights, heads, ends, ring, side):
     point, normal = joint_plane(heads, ends, joint)
     near = np.linalg.norm(verts - point, axis=1) <= ring_radius(ring, heads, side)
     arm = np.zeros(len(verts), bool)
-    for bone in ARM:
-        arm |= weights[:, BONES.index(f'{bone}_{side}')] > 0
+    for name in arm_bones(side):
+        arm |= weights[:, BONES.index(name)] > 0
     height = (verts - point) @ normal
     cuts = {}
     for a, b in edge_faces(tris):
@@ -2812,6 +2929,9 @@ def bind_turns(config, heads, ends, rolls, turn=0.0):
             flat = unit(np.array([now[0], 0.0, now[2]]))
             target = flat * np.sqrt(1.0 - rise * rise) + np.array([0.0, rise, 0.0])
             turns[TAIL_TIP] = swing(now, target) @ turns[TAIL_TIP]
+    if 'armSegments' in config:
+        # The arm segments and the helpers turn by the rules of the app.
+        turns.update(driven_turns(turns, heads))
     return turns
 
 
@@ -2850,7 +2970,7 @@ def seat_lift(points, tris, weights, chair, rule, top, hip):
     step, band = rule['step'], rule['band']
     hw, back = chair['halfWidth'], chair['back']
     lower = [BONES.index(f'{b}_{s}') for b in ('shin', 'foot', 'toes') for s in 'LR']
-    arms = [BONES.index(f'{b}_{s}') for b in ARM for s in 'LR']
+    arms = [BONES.index(n) for s in 'LR' for n in arm_bones(s)]
     fixed = np.clip(weights[:, lower + arms].sum(axis=1), 0.0, 1.0)
     low = points[:, 1] <= top + 2 * band
     body = tris[((fixed[tris] <= 0.5) & low[tris]).all(axis=1)]
@@ -2917,6 +3037,8 @@ def default_moving(weights):
     for side in 'LR':
         for bone in ('upper_arm', 'forearm', 'forearm_twist', 'thigh', 'shin'):
             moving |= weights[:, BONES.index(f'{bone}_{side}')] > 0
+        for name in arm_bones(side)[len(ARM):]:
+            moving |= weights[:, BONES.index(name)] > 0
     if TAIL_TIP in BONES:
         moving |= tail_mask(weights)
     return moving
@@ -2959,7 +3081,8 @@ def crease_relax(bind, tris, weights, hip, rule):
                     ring[j] = k
                     grown.append(j)
         front = grown
-    fixed = [BONES.index(f'{b}_{s}') for b in ('shin', 'foot', 'toes') + ARM for s in 'LR']
+    fixed = [BONES.index(f'{b}_{s}') for b in ('shin', 'foot', 'toes') for s in 'LR']
+    fixed += [BONES.index(n) for s in 'LR' for n in arm_bones(s)]
     fixed += [BONES.index(b) for b in ('tail', TAIL_TIP) if b in BONES]
     free = 1.0 - np.clip(weights[:, fixed].sum(axis=1), 0.0, 1.0)
     ids = np.nonzero(ring >= 0)[0]
@@ -3065,7 +3188,7 @@ def seat_masks(points, weights, chair, root=None):
     hw, front, back = chair['halfWidth'], chair['front'], chair['back']
     lower = [BONES.index(f'{b}_{s}') for b in ('shin', 'foot', 'toes') for s in 'LR']
     tails = [BONES.index(b) for b in ('tail', TAIL_TIP) if b in BONES]
-    arms = [BONES.index(f'{b}_{s}') for b in ARM for s in 'LR']
+    arms = [BONES.index(n) for s in 'LR' for n in arm_bones(s)]
     hanging = weights[:, lower].sum(axis=1)
     tail = weights[:, tails].sum(axis=1)
     if root:
@@ -3459,7 +3582,8 @@ def add_eye_shells(verts, bind, tris, colors, dark, eyes, rule):
 def correctives(src, bind, weights, turns, src_heads, bind_heads, upper_share=None):
     """Finds the move of each vertex in the bind pose that the skin of the clip `reference` takes
     to its source place: d = A⁻¹ (source − b) − bind, with the skin A p + b of the clip. Gives the
-    moves, the smallest determinant of A, and the vertex of it. With a share `upper_share`,
+    moves, the smallest determinant of A, and the vertex of it. `turns` holds the world turn of
+    each bone from the bind pose to the source (`clip_turns()`). With a share `upper_share`,
     `weights` holds the twist bones of the upper arms after the bones (`upper_twist()`), and they
     turn as in the app (`twist_matrices()`)."""
     a = np.zeros((len(src), 3, 3))
@@ -3468,12 +3592,11 @@ def correctives(src, bind, weights, turns, src_heads, bind_heads, upper_share=No
         w = weights[:, k]
         if not w.any():
             continue
-        back = turns[name].T
+        back = turns[name]
         a += w[:, None, None] * back
         b += w[:, None] * (src_heads[name] - back @ bind_heads[name])
     if upper_share is not None:
-        clip = {name: turns[name].T for name in BONES}
-        for k, m in enumerate(twist_matrices(clip, bind_heads, src_heads, upper_share)):
+        for k, m in enumerate(twist_matrices(turns, bind_heads, src_heads, upper_share)):
             w = weights[:, len(BONES) + k]
             a += w[:, None, None] * m[:, :3]
             b += w[:, None] * m[:, 3]
@@ -3483,14 +3606,24 @@ def correctives(src, bind, weights, turns, src_heads, bind_heads, upper_share=No
     return moves, float(det[worst]), worst
 
 
+def clip_turns(turns, bind_heads):
+    """Gives the world turn of each bone from the seated bind pose to the source (the clip
+    `reference`): the inverse of each bind turn. The arm segments and the helpers turn from the
+    turns of the body bones by the rules of the app (`driven_turns()`)."""
+    out = {name: turns[name].T for name in BONES}
+    if any(name in SEGMENT_PARENTS for name in BONES):
+        out.update(driven_turns(out, bind_heads))
+    return out
+
+
 def split_shapes(moves, weights, bind):
     """Splits the corrective moves into the four shapes: the vertices with an arm weight give the
     arm shapes, and the others give the leg shapes. Each kind splits by side with a smooth ramp
     across the middle plane, as the studio does."""
     arm = np.zeros(len(moves), bool)
     for side in 'LR':
-        for bone in ARM:
-            arm |= weights[:, BONES.index(f'{bone}_{side}')] > 0
+        for name in arm_bones(side):
+            arm |= weights[:, BONES.index(name)] > 0
     side = smoothstep(bind[:, 0], -0.02, 0.02)
     out = {}
     for kind, mask in (('arm_down', arm), ('legs_straight', ~arm)):
@@ -4031,11 +4164,11 @@ def main():
                 f'the arm run {arm_run}, the body run {body_run}')
         log(f'cut: {before} triangles before, {len(source_tris)} after')
     if 'paintedWeights' in config:
-        weights = painted_weights(verts, config['paintedWeights'])
-        if config.get('paintedLower') == 'rules':
+        rule_weights = None
+        if config.get('paintedLower'):
             # The lower body keeps the weights of the rules: the seated bind of the app (the sit
-            # of the haunch onto the seat and the tail ball) depends on them. Each vertex mixes the
-            # painted weights and the rule weights by its painted share on the lower bones.
+            # of the haunch onto the seat and the tail ball) depends on them. The rules see the
+            # body bones only, before the arm segments join the bones.
             rule_weights = apply_rules(verts, source_tris,
                                        bone_heat(verts, source_tris, heads, ends, rolls), rules,
                                        heads, ends)
@@ -4043,7 +4176,26 @@ def main():
                                             rigid_slivers(verts, source_tris, rule_weights, rules),
                                             rules)
             rule_weights = rigid_faces(verts, source_tris, rule_weights, rules)
-            lower = [BONES.index(b) for b in BONES if b in LOWER_BONES]
+        if 'armSegments' in config:
+            # The arm segments and the helpers join the bones after the body bones
+            # (`segment_bones()`), as the optional bones of `STUDIO_BONES` do.
+            for key in ('upperTwist', 'raise'):
+                if key in config:
+                    raise SystemExit(f'armSegments replaces {key}: remove it from the config.')
+            if config['armFactor'] != 1 or config.get('bind', {}).get('blend', 'linear') != 'linear':
+                raise SystemExit('armSegments needs the arm factor 1 and the linear bind.')
+            BONES = BONES + segment_bones()
+            segment_joints(heads, ends, rolls, children, config['armSegments'])
+            if rule_weights is not None:
+                rule_weights = np.concatenate(
+                    [rule_weights, np.zeros((len(verts), len(segment_bones())))], axis=1)
+        weights = painted_weights(verts, config['paintedWeights'])
+        if rule_weights is not None:
+            # Each vertex mixes the painted weights and the rule weights by its painted share on
+            # the lower bones.
+            names = (LOWER_BONES if config['paintedLower'] == 'rules'
+                     else tuple(config['paintedLower']))
+            lower = [BONES.index(b) for b in BONES if b in names]
             share = np.clip(weights[:, lower].sum(axis=1), 0.0, 1.0)[:, None]
             weights = (1.0 - share) * weights + share * rule_weights
             log(f'weights: painted in Blender, the rules on the lower body '
@@ -4374,12 +4526,13 @@ def main():
     upper_share = config.get('upperTwist', {}).get('share')
     twist_weights = (weights_all if upper_share is None else
                      upper_twist(weights_all, bind_all, bind_heads))
-    moves, det, worst = correctives(src_all, bind_all, twist_weights, turns, long_heads,
+    back_turns = clip_turns(turns, bind_heads)
+    moves, det, worst = correctives(src_all, bind_all, twist_weights, back_turns, long_heads,
                                     bind_heads, upper_share)
     log(f'corrective: the smallest determinant of the skin is {det:.4f} at the vertex {worst}')
-    clip = [move(turns[n].T, bind_heads[n], long_heads[n]) for n in BONES]
+    clip = [move(back_turns[n], bind_heads[n], long_heads[n]) for n in BONES]
     if upper_share is not None:
-        clip += twist_matrices({n: turns[n].T for n in BONES}, bind_heads, long_heads, upper_share)
+        clip += twist_matrices(back_turns, bind_heads, long_heads, upper_share)
     back = skin(twist_weights, clip, bind_all + moves)
     error = np.linalg.norm(back - src_all, axis=1).max()
     log(f'corrective: the clip gives the source back within {error:.2e} u '
