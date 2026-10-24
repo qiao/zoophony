@@ -375,9 +375,14 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       at the shoulders in the play, and 9 to 14 folded arm faces (limit 8). The pig of `main`
       stays. Ask the user: a ring at each shoulder, or another mesh.
 - [ ] Polar bear (T-pose mesh, `2026-10-24-polar-bear-tpose.md`): at rest, slivers show along the
-      hanging upper arms, and the right arm folds 12 faces at rest (limit 8). Long thin faces cross
-      each shoulder. A ring at each shoulder needs the user. The left upper arm keeps 0.49 of its
-      round shape in the play (limit 0.55).
+      upper arms, smaller since the bent rest arms of `2026-10-24-polar-bear-seat.md`, and a dark
+      notch shows under the right upper arm from the right side (`rest-pairs.webp` of
+      `2026-10-24-polar-bear-seat/`). Long thin faces cross each shoulder. A ring at each shoulder
+      needs the user.
+- [ ] Polar bear (`2026-10-24-polar-bear-seat.md`): with the nearer keys, the play forearms go
+      4.3 cm into the belly (3.1 cm before, accepted limit 9 cm), and the left upper arm keeps
+      0.55 of its round shape, at its limit. The rest paws hover 2 cm above the thighs. From the
+      front, the open lid now hides the head in the play.
 - [ ] Bear (T-pose mesh, `2026-10-23-bear-tpose.md`): at rest, the arms stand out about 35° from
       the body around the wide belly, where the studio bear held its paws at the hips. Some long
       sharp facets show on the bent upper arms (`arm-crops.webp` of `2026-10-23-bear-tpose/`). The
