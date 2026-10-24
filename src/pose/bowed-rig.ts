@@ -556,9 +556,11 @@ const HANGING_BOW = {
  * decisions). With a direct turn, the paw twist on the forearm went through 180° and the twist bone
  * jumped, as on the red fox, and with the top of the rest of 2026-10-24, the wrist bent past 90°
  * from the knee. The bow tip turns through the front, with the hair to the back, and the grip moves
- * 0.05 H out and 0.3 H to the front: with the via of `UPRIGHT_BOW`, the right paw turned 5,188°/s
- * in a lowering (2026-10-24-violin-rest decisions), and with 0.2 H to the front, the right forearm
- * went 2.2 cm into the body in a lowering (2026-10-24-violin-poses decisions).
+ * 0.2 H up and 0.3 H to the front: with the via of `UPRIGHT_BOW`, the right paw turned 5,188°/s in
+ * a lowering (2026-10-24-violin-rest decisions). With 0.2 H to the front, the right forearm went
+ * 2.2 cm into the body in a lowering, with no move up, the right elbow opened to 163° (133° now),
+ * and with 0.05 H out, the right paw twisted 145° on its forearm in a lowering (142° on `main`,
+ * 2026-10-24-violin-poses decisions).
  *
  * The right elbow hangs near the side, as the elbows of the violinist (2026-10-16-rabbit-arm
  * decisions). The belly is widest below the elbow, so the right arm hangs out around it, and the
@@ -598,7 +600,7 @@ const SHOULDER_HOLD = {
     lap: { along: 1, offset: [0.4, 0.8, -0.2] },
     tip: UPRIGHT_BOW.tip,
     hair: UPRIGHT_BOW.hair,
-    via: { tip: [-0.3, 0.3, -1], hair: [0, 0, 1], reach: [0.05, 0, -0.3] },
+    via: { tip: [-0.3, 0.3, -1], hair: [0, 0, 1], reach: [0, 0.2, -0.3] },
   },
   standBow: HANGING_BOW,
 } as const satisfies BowedHold;
