@@ -12,10 +12,8 @@ and remove its row.
 
 | Decision | Section |
 |---|---|
-| The user: "revert to previous studio-generated bears, but add more triangle to them to make them more smooth". The bear conductor and the polar bear pianist get the studio bodies of `lowpoly-studio/` again. The mesh files of the user stay in `assets/models/`. | 4.3, 4.4 |
-| The user: "do not exceed 3000 meshes". Each bear GLB keeps at most 3,000 faces (fur and gloss). The smoothness comes from the crease angle, the color blend, and an even spread of the facets. | 4.5 |
-| The bear facets spread evenly: no warp of the belly and the soles, no squeeze, no jitter (`animals/bear/animal.toml`). The GLB has 1,744 fur and 1,080 gloss faces (2,824), against 1,688 and 1,080 before. The app body has 2,448 triangles. | 4.5 |
-| The bear keeps seed 2. The arm skin of seed 5 stretched 0.49 and of seed 6 0.42 in the arm gate (limit 0.35), seed 2 0.15. | 4.4 |
+| The user: "revert to previous studio-generated bears, but add more triangle to them to make them more smooth". The bear conductor and the polar bear pianist get the studio bodies of `lowpoly-studio/` again. The mesh files of the user stay in `assets/models/`. The bear part is replaced by [`2026-10-23-bear-tpose.md`](2026-10-23-bear-tpose.md). | 4.3, 4.4 |
+| The user: "do not exceed 3000 meshes". Each bear GLB keeps at most 3,000 faces (fur and gloss). The smoothness comes from the crease angle, the color blend, and an even spread of the facets. The bear mesh of the user of 2026-10-23 keeps its 3,142 triangles ([`2026-10-23-bear-tpose.md`](2026-10-23-bear-tpose.md)). | 4.5 |
 | The user then said "the bear and polar bear are too smooth. make them slightly faceted", and chose "B: crease 40°" from a lineup of 70°, 50°, 40°, and 30°. The bear fur takes the crease angle 40° (`crease` of `ANIMALS`). | 4.5 |
 | The fur colors of the bear blend at each vertex when they differ by at most 0.05 in each sRGB channel (`colorBlend`, `studioCornerColors()`). The muzzle, the brows, and the claws stay sharp. | 4.5 |
 | The baton lies along the index finger (`BATON_ALONG`). Its point and pivot keep the direction of the mesh bear hold at 0.93 of its meters, 0.3 H further out (`CONDUCTOR_HOLD`). The hold in `H` turned the right paw 3,735° per second, and with no move out, the claws went 7 cm into the turned muzzle. | 4.6, 5.4 |

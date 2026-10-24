@@ -94,7 +94,7 @@ percussion badgers, the tuba rhinos, and the harp deer have bodies of their own 
 uses the parametric biped body since 2026-10-21.
 Each species has one `SpeciesParams` in `SPECIES` of `models/species.ts`, and changes only its parameters. A
 species can have a body of its own in place of the biped (`body`, 4.4, bodies of their own and
-studio bodies). The bear and the polar bear have studio bodies (`lowpoly-studio/`). The rabbit,
+studio bodies). The polar bear has a studio body (`lowpoly-studio/`). The bear, the rabbit,
 the two foxes, the cat, the dog, the panda, the hippo, the mouse, the elephant, the beaver, the
 pig, the wolf, the monkey, the badger, the rhino, the deer, and the penguin have meshes of the user
 that `pnpm rig-mesh` rigs. The two foxes share one rig, and the tan fox takes
@@ -270,9 +270,9 @@ parts of 4.5 (body proportions) on the skeleton of 4.3, and a species with a `bo
 its own from `buildBiped()` in its place.
 
 The user chose each body of its own, and the table "Bodies and roles" of
-`docs/agents/model-work.md` lists them with their decision files. The bear conductor and the polar
-bear pianist have the studio bodies of `lowpoly-studio/` (user, 2026-10-12), smooth since
-2026-10-22. The rabbit violinist,
+`docs/agents/model-work.md` lists them with their decision files. The polar bear pianist has the
+studio body of `lowpoly-studio/` (user, 2026-10-12), smooth since 2026-10-22. The bear conductor,
+the rabbit violinist,
 the red violin fox, the viola cat, the cello dog, the trombone panda, the contrabass hippo, the
 oboe mouse, the timpani elephant, the bassoon beaver, the horn pig, the clarinet wolf, the trumpet
 monkey, the percussion badger, the tuba rhino, the harp deer, and the choir penguin have meshes of
@@ -281,7 +281,8 @@ fox with a tan palette. The mesh of the penguin replaces its egg body of 2026-10
 decision of the user (`docs/decisions/2026-10-21-mesh-penguin.md`). The meshes of the rhino and the deer replace their parametric bodies
 (`docs/decisions/2026-10-21-mesh-rhino.md`, `docs/decisions/2026-10-21-mesh-deer.md`). The user
 asked for the studio bear and the studio polar bear again after their meshes, with more smooth fur
-(`docs/decisions/2026-10-22-studio-bears.md`).
+(`docs/decisions/2026-10-22-studio-bears.md`). The bear then got a new mesh in a T-pose
+(`docs/decisions/2026-10-23-bear-tpose.md`).
 
 Each body follows these rules:
 
@@ -312,7 +313,7 @@ A studio body is the GLB file of an animal of `lowpoly-studio/`, or of a mesh of
 `pnpm rig-mesh` rigs into the same format: one mesh of faces with one color each, a skeleton of the
 biped template with twist bones of the forearms, a skin of up to four bones for each vertex, and
 corrective shapes. The studio bodies are the bear conductor
-(`docs/decisions/2026-10-12-studio-bear.md`), the polar bear pianist
+(`docs/decisions/2026-10-23-bear-tpose.md`), the polar bear pianist
 (`docs/decisions/2026-10-12-studio-polar-bear.md`), the rabbit violinist
 (`docs/decisions/2026-10-13-mesh-rabbit.md`), the red violin fox
 (`docs/decisions/2026-10-14-mesh-fox.md`), the tan flute fox
@@ -397,7 +398,7 @@ twist bone (`docs/decisions/2026-10-19-arm-skin.md`).
   0.004 H out of the oval in each view (user, 2026-10-20). An old eye of a mesh can lie on an
   edge of the face that runs across the diagonal of the oval. A bent oval there folds along that
   diagonal and reads as a bean, and a flat oval stands out as a bead. So a body can move its eye
-  places to a part of the face with less fold (`eyeShift` of `ANIMALS`, the bear). The eyes of
+  places to a part of the face with less fold (`eyeShift` of `ANIMALS`). The eyes of
   the bear also turn halfway from their direction toward the normal of the face (`eyeNormal`,
   user, 2026-10-20, `docs/decisions/2026-10-20-bear-eyes.md`).
 - **Mesh rig.** `pnpm rig-mesh <animal>` rigs a mesh of the user with no skeleton into the format
@@ -485,18 +486,20 @@ twist bone (`docs/decisions/2026-10-19-arm-skin.md`).
     |x| = `armSplit` then cuts through the arm or the trunk, so the plane turns around the
     vertical through both notches, and the free arm keeps within a radius of the arm joints and
     above a floor (`weights.armFree`). The rig then reads a copy in which a round tube replaces
-    the arm (upper arm form, below). The root of the bear arm reaches farther back than forward, so a
+    the arm (upper arm form, below). The root of the arm of the bear mesh of 2026-10-22 reaches
+    farther back than forward, so a
     radius around the joints left its back strip on the trunk, and a raised arm pulled that strip
     out as a dark flap. The chain of the joints moves back before the distance
     (`weights.armFree.shift`), so that the free arm takes the back strip and leaves the front edge
     on the trunk. A kept face that sticks into the hole of the cut with two edges goes too
-    (`cut.fins`), because the cap repeats it with the opposite winding. The ball of each bear
-    shoulder has half of its weight on the upper arm, and the turns of the arm sink it below the
-    surface around it, as a sharp V at the top back of the arm root. The rig of the bear reads a
+    (`cut.fins`), because the cap repeats it with the opposite winding. The ball of each shoulder
+    of that mesh has half of its weight on the upper arm, and the turns of the arm sink it below the
+    surface around it, as a sharp V at the top back of the arm root. Its rig read a
     copy of the mesh in which each shoulder ball and its ring move out by about the sunk depth,
     and the longest edge across the shoulder joint splits, so that the skin bends over two faces
     (`bear-mesh-roots.glb`). `tools/blender/arm_root.py` writes each such local edit of an arm
-    root from one edit file of `tools/arm-roots/`. The panda arm root joins
+    root from one edit file of `tools/arm-roots/`. The T-pose bear of 2026-10-23 has its arms
+    free of the trunk, and its rig keeps each face with no cut or copy. The panda arm root joins
     the trunk with lips that curl into the notches at its front and its back. Bone heat gives
     the lips a part of the arm weight, and a raised arm pulls them out as flaps. A band between
     two planes takes only the back lips into the free arm (`weights.armFree.root`), because the
@@ -999,8 +1002,9 @@ back (`chairForward()`). Each species moves toward the anatomy of its reference 
   trombones, the pig in the horns, the hippo in the contrabasses, the elephant at the timpani, the
   badger in the percussion, the rhino at the tuba, the deer at the harp, the penguin in the
   choir, the polar bear at the piano, and the bear on the podium, so many
-  studio bodies share the scene. The GLB file of each bear has at most 3,000 faces (the user,
-  2026-10-22: "do not exceed 3000 meshes"), with its facets spread evenly over the round body. The pea eyes add their triangles to a studio body
+  studio bodies share the scene. The GLB file of the studio polar bear has at most 3,000 faces
+  (the user, 2026-10-22: "do not exceed 3000 meshes"), with its facets spread evenly over the
+  round body. The bear mesh of the user keeps its 3,142 triangles. The pea eyes add their triangles to a studio body
   (`docs/decisions/2026-10-15-pea-eyes.md`).
 - An instrument has at most 800 triangles, except the timpani (1,200) and the piano (2,000). A
   chair or the piano bench has at most 120, and a stand at most 80. The full scene with 60
@@ -1230,7 +1234,7 @@ part "with mallet" (`SpeciesParams.cymbalForm`, `SUSPENDED_CYMBAL`,
 xylophone of the app, so the xylophone stays open for a choice of the user
 (`docs/decisions/2026-10-20-mesh-badger.md`). A species can also play smaller hand cymbals
 (`SpeciesParams.cymbalScale`).
-The studio bear keeps its arms (reach 0.54 m) and the baton of the app (0.51 m). The baton lies
+The bear keeps the arms of its mesh (reach 0.40 m) and the baton of the app (0.51 m). The baton lies
 along its index finger, and the tip of beat 1 stands in front of the right shoulder, so that the
 wrist stays near the chin (5.4, `docs/decisions/2026-10-22-studio-bears.md`).
 The round belly of the polar bear stands in front of its short arms, so the keys stand in front
