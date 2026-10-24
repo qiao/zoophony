@@ -385,6 +385,11 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       4.3 cm into the belly (3.1 cm before, accepted limit 9 cm), and the left upper arm keeps
       0.55 of its round shape, at its limit. The rest paws hover 2 cm above the thighs. From the
       front, the open lid now hides the head in the play.
+- [ ] Polar bear (`2026-10-24-pianist-pose.md`): from the front, the larger lid hides the bear
+      and its paws. At the far keys, the outer upper arm stands 42° to 47° out, and the upper arms
+      stand about 36° out and 28° forward around the round trunk (a pianist: 0° to 20° forward).
+      The wrist touches the front edge of the keys up to 1.1 cm (limit 1.5 cm). No foot moves to
+      the damper pedal.
 - [ ] Bear (T-pose mesh, `2026-10-23-bear-tpose.md`): at rest, the arms stand out about 35° from
       the body around the wide belly, where the studio bear held its paws at the hips. Some long
       sharp facets show on the bent upper arms (`arm-crops.webp` of `2026-10-23-bear-tpose/`). The
