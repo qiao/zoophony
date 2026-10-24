@@ -123,6 +123,16 @@ export interface WindHold {
   readonly gripShiftL: Vec3;
   /** The move of the grip of the right palm, as {@link WindHold.gripShiftL}. */
   readonly gripShiftR: Vec3;
+  /**
+   * The move of the grip of the left palm in the rest pose, as {@link WindHold.gripShiftL}, or
+   * `null` for the move of the playing pose. The lift and the lowering slide the paw along the
+   * tube between the two grips, by the weight of the playing pose, so that a paw can hold the
+   * upper end of an instrument that rests low, such as the barrel of a clarinet with its bell on
+   * the seat.
+   */
+  readonly restGripShiftL: Vec3 | null;
+  /** The move of the grip of the right palm in the rest pose, as {@link WindHold.restGripShiftL}. */
+  readonly restGripShiftR: Vec3 | null;
 }
 
 /** The left paw of a wind hold that leaves its grip in the rest pose (`WindHold.restFreeL`). */
@@ -165,6 +175,8 @@ const WOODWIND = {
   aimSide: 0,
   gripShiftL: [0, 0, 0],
   gripShiftR: [0, 0, 0],
+  restGripShiftL: null,
+  restGripShiftR: null,
 } as const satisfies WindHold;
 
 const X_AXIS = new Vector3(1, 0, 0);
@@ -808,8 +820,10 @@ type FreeRest = (
 /** One side of the body of a wind player in the bind pose. */
 interface WindSide {
   readonly arm: ArmRig;
-  /** The grip of the palm on the instrument, in the bind pose. */
+  /** The grip of the palm on the instrument in the playing pose, in the bind pose. */
   readonly grip: Vec3;
+  /** The grip of the palm on the instrument in the rest pose, in the bind pose. */
+  readonly restGrip: Vec3;
   /** Whether the grip is on the trombone slide. */
   readonly onSlide: boolean;
 }
@@ -1002,12 +1016,16 @@ export function windRig(
   const raw = { L: gripPoint(model, grips.L), R: gripPoint(model, grips.R) };
   const side = (s: 'L' | 'R'): WindSide => {
     const arm = armRig(model, s);
-    const shift = s === 'L' ? hold.gripShiftL : hold.gripShiftR;
+    const shifted = (shift: Vec3): Vec3 =>
+      shift.some((v) => v !== 0)
+        ? shiftGrip(raw, s, at(BONES.instrument), arm, shift, model.body.headHeight)
+        : raw[s];
+    const play = s === 'L' ? hold.gripShiftL : hold.gripShiftR;
+    const rest = (s === 'L' ? hold.restGripShiftL : hold.restGripShiftR) ?? play;
     return {
       arm,
-      grip: shift.some((v) => v !== 0)
-        ? shiftGrip(raw, s, at(BONES.instrument), arm, shift, model.body.headHeight)
-        : raw[s],
+      grip: shifted(play),
+      restGrip: shifted(rest),
       onSlide: grips[s]?.bone === 'slide',
     };
   };
@@ -1068,6 +1086,8 @@ const rightTurn = new Quaternion();
 const leftTurn = new Quaternion();
 const shoulder = createFrame();
 const grip = new Vector3();
+const restGrip = new Vector3();
+const playGrip = new Vector3();
 const hand = new Quaternion();
 const palm = new Vector3();
 const restWrist = new Vector3();
@@ -1193,7 +1213,7 @@ function poseSide(
   rotations: Float32Array,
 ): void {
   const { chest, root } = frames;
-  grip.fromArray(side.grip);
+  grip.lerpVectors(restGrip.fromArray(side.restGrip), playGrip.fromArray(side.grip), weight);
   if (side.onSlide) {
     grip.add(slide);
   }
@@ -1326,7 +1346,9 @@ interface WindGrip {
 /**
  * Gives the posed grips of a wind player and the shoulder joints that reach them, with the chest
  * in its bind pose (design 4.6, 5.3). The arm reaches a grip when the distance from the joint to
- * the grip is at most the length of the arm. `pnpm hold-reach --instrument flute` reads it.
+ * the grip is at most the length of the arm. The grip of each palm mixes its rest grip and its grip
+ * of the play by the weight ({@link WindHold.restGripShiftL}). `pnpm hold-reach --instrument flute`
+ * reads it.
  *
  * @param rig The points of the player.
  * @param weight The weight of the playing pose: 0 is the rest pose, 1 the playing pose.
@@ -1336,7 +1358,8 @@ export function windGrips(rig: WindRig, weight: number): Readonly<Record<'L' | '
   const chest = { rotation: new Quaternion(), position: new Vector3(...rig.chestBind) };
   placeWind(rig, chest, weight);
   const side = (s: WindSide, turn: Quaternion): WindGrip => {
-    const at = new Vector3(...s.grip)
+    const at = new Vector3()
+      .lerpVectors(new Vector3(...s.restGrip), new Vector3(...s.grip), weight)
       .sub(new Vector3(...rig.pivot))
       .applyQuaternion(rotation)
       .add(pivot);
