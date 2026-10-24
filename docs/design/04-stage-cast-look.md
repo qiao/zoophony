@@ -1240,7 +1240,9 @@ along its index finger, and the tip of beat 1 stands in front of the right shoul
 wrist stays near the chin (5.4, `docs/decisions/2026-10-22-studio-bears.md`).
 The round belly of the polar bear stands in front of its short arms, so the keys stand in front
 of the belly, and each paw reaches the key of each note (5.3,
-`docs/decisions/2026-10-14-polar-fix.md`).
+`docs/decisions/2026-10-14-polar-fix.md`). The keys stand as near as the forearms allow over the
+belly, so that the elbows bend, as a pianist sits near the keys
+(`docs/decisions/2026-10-24-polar-bear-seat.md`).
 The chairs, the stands,
 and the podium keep their sizes in meters.
 

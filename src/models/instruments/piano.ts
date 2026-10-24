@@ -36,10 +36,11 @@ export const PIANO = {
 
 /**
  * The distance of the front of the keys in front of the floor point of the body of the pianist,
- * in head heights `H`, before a further 0.05 m (design 4.6). The head of the polar bear pianist
- * keeps 5 cm from the open lid (`docs/decisions/2026-10-14-polar-fix.md`).
+ * in head heights `H`, before a further 0.05 m (design 4.6). The keys stand as near as the
+ * forearms of the polar bear pianist allow over its belly, so that its elbows bend
+ * (`docs/decisions/2026-10-24-polar-bear-seat.md`).
  */
-export const PIANO_FRONT_H = 1.68;
+export const PIANO_FRONT_H = 1.55;
 
 /** The piano bench: a seat of 0.75 × 0.35 m at the height of a chair seat (design 4.5). */
 export const PIANO_BENCH = {
@@ -380,7 +381,11 @@ export function buildPiano(): InstrumentModel {
   // (0.60 m) kept the paws out of the belly (`pose/test-pianist-clearance.ts`), and the muzzle
   // came 2.2 cm near the front edge of the open lid. At 1.68 H + 0.05 m (0.66 m with the head of
   // the longer shins of 2026-10-14), the muzzle keeps 5.7 cm from it in a play
-  // (`docs/research/2026-10-14-polar-fix.md`).
+  // (`docs/research/2026-10-14-polar-fix.md`). On the T-pose polar bear at 0.85 of its size, the
+  // arms reached straight to the keys at 1.68 H. At 1.55 H (0.56 m), the mean elbow is 104° to
+  // 108°, the forearms go 4.3 cm into the belly (3.1 cm at 1.68 H), and the head keeps 14.6 cm
+  // from the case. At 1.45 H, the elbows are 96° to 100°, and the forearms go 6.6 cm into it
+  // (`docs/research/2026-10-24-polar-bear-seat.md`).
   const instrument = piece.build(
     'instrument',
     hold('floor', [0, 0, -PIANO_FRONT_H], undefined, [0, 0, -0.05]),

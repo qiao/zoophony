@@ -113,9 +113,10 @@ export const HANDS_HOLDS = {
   // The paw of the studio polar bear is longer than a white key, so the palm is 0.07 m in front
   // of the front edge of the keys and 0.065 m above them, and the curled claws lie on the keys
   // (`pianoKeyFront()`). Further back, the claws went into the fallboard, and lower, into the
-  // key bed. The keys stand far in front of the round belly (`PIANO_FRONT_H`), so that the muzzle
-  // keeps 5 cm from the front edge of the open lid. The spine leans 28° forward, so that the paws
-  // reach the middle keys. On the level thighs of 2026-10-22, a lean of 27° left a left paw
+  // key bed. The keys stand in front of the round belly, as near as the forearms allow
+  // (`PIANO_FRONT_H`). The spine leans 28° forward, so that the paws reach the middle keys: with
+  // the keys at 1.45 H on the T-pose polar bear at 0.85 of its size, a lean of 22° left a paw
+  // 19.9 mm short of its key. On the level thighs of 2026-10-22, a lean of 27° left a left paw
   // 10.2 mm short of its key (`boulanger-matin.mid`, 107.95 s), and 28° 3.8 mm
   // (`docs/research/2026-10-22-studio-bears.md`). With the palm 0.06 m in front of the keys, a
   // palm stayed 0.41 mm short of its keys, and with 0.05 m, 0.3% of the notes stayed more than
