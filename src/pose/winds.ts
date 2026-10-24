@@ -570,13 +570,18 @@ const PIG_HORN = {
 } as const satisfies WindHold;
 
 /** The turn of the lower end of the clarinet of the wolf forward while it plays, in degrees. */
-const WOLF_CLARINET_FORWARD = 20;
+const WOLF_CLARINET_FORWARD = 5;
 
 /**
  * The clarinet hold of the wolf (design 5.3), the hold of a real clarinetist (decisions
  * `2026-10-20-mesh-wolf.md`, `docs/reference/wind-technique.md` 3): the clarinet at the middle of
- * the body, at about 45° from the body. The clarinet turns its lower end
- * {@link WOLF_CLARINET_FORWARD}° further forward than {@link WIND_HOLDS}, to 45° from the vertical.
+ * the body, from the mouth to between the knees. The clarinet turns its lower end
+ * {@link WOLF_CLARINET_FORWARD}° further forward than {@link WIND_HOLDS}, to 30° from the vertical.
+ * The long muzzle already puts the mouthpiece far in front of the chest: at 45° from the vertical,
+ * the bell was far in front of the knees, and the paws held the clarinet at arm's length with level
+ * forearms (user, 2026-10-24: "fix how the wolf is holding the instrument",
+ * `2026-10-24-wind-paws` decisions). Each paw also aims across the tube (`aimAcross`), so that its
+ * fingers wrap the tube.
  *
  * The long muzzle puts the tip of the nose far in front of the mouth, and at 45° the grips moved
  * further forward: the left paw missed its grip by 2.4 cm and the right paw by 6.1 cm. So in round
@@ -611,6 +616,7 @@ const WOLF_CLARINET = {
   restPoleL: [-0.3, -1, 0],
   restPoleR: [0.3, -1, 0],
   palmToTube: true,
+  aimAcross: 1,
 } as const satisfies WindHold;
 
 /**
