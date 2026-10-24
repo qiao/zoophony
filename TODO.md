@@ -371,6 +371,10 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       1.6225 of the violin reach, the arms fold past the gate limit (10 and 11 faces against 8).
       The user asked for a little stretch: the factor 1.3 and a violin of 0.83 pass each limit
       (`2026-10-23-rabbit-arms.md`).
+- [ ] Polar bear (T-pose mesh, `2026-10-24-polar-bear-tpose.md`): at rest, slivers show along the
+      hanging upper arms, and the right arm folds 12 faces at rest (limit 8). Long thin faces cross
+      each shoulder. A ring at each shoulder needs the user. The left upper arm keeps 0.49 of its
+      round shape in the play (limit 0.55).
 - [ ] Bear (T-pose mesh, `2026-10-23-bear-tpose.md`): at rest, the arms stand out about 35° from
       the body around the wide belly, where the studio bear held its paws at the hips. Some long
       sharp facets show on the bent upper arms (`arm-crops.webp` of `2026-10-23-bear-tpose/`). The
