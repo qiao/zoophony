@@ -5,9 +5,9 @@
   "name": "Polar Bear",
   "weld": 1e-05,
   "app": {
-    "shoulders": 1.642242,
-    "reach": 0.6194,
-    "note": "The size of the studio polar bear before the meshes: the skull top at 1.923 m. The skull top of the mesh is at 1.0 u, so the scale is 1.923 m for each unit. The leg factor raises the standing shoulder joints from 0.725 u, and the landmark rises with them, so that the trunk, the head, and the arms keep their meters. The reach is the reach of the arm factor below."
+    "shoulders": 1.395906,
+    "reach": 0.52649,
+    "note": "0.85 of the size of the studio polar bear before the meshes (the skull top at 1.923 m), because the user said that the bear was too tall (docs/decisions/2026-10-24-polar-bear-seat.md). The skull top of the mesh is at 1.0 u, so the scale is 1.63455 m for each unit. The leg factor raises the standing shoulder joints from 0.725 u, and the landmark rises with them, so that the trunk, the head, and the arms keep their meters. The reach is the reach of the arm factor below."
   },
   "armFactor": 1,
   "armFactorNote": "The arms keep the length of the mesh (user rule: keep the limbs of a mesh of the user, and fit the props).",

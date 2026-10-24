@@ -619,7 +619,10 @@ twist bone (`docs/decisions/2026-10-19-arm-skin.md`).
   and then the user made the deer 1.2 times as large (`docs/decisions/2026-10-21-mesh-deer.md`). The crown of the penguin takes the head top of its egg
   body (`docs/decisions/2026-10-21-mesh-penguin.md`). A leg factor of a rig raises its standing
   shoulder joints, so the landmark rises with them, and the longer legs do not make the trunk, the
-  head, and the arms smaller (`docs/decisions/2026-10-22-polar-legs.md`).
+  head, and the arms smaller (`docs/decisions/2026-10-22-polar-legs.md`). The user said that the
+  polar bear pianist at the size of the studio polar bear was too tall, so it takes the seated
+  head top of the side view of `polar-bear-views.png`, measured against the keys
+  (`docs/decisions/2026-10-24-polar-bear-seat.md`).
 - **Seat.** A seated role binds its mesh seated, and the export puts its soles on the floor and its
   seat at the front edge of the seat of the app. The polar bear sits on the bench of its rig
   (`chair.prop`) with near level thighs and near upright shins, as a real pianist sits, because

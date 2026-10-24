@@ -184,8 +184,10 @@ with close views of the head, a paw on the keys, and a foot pad. The user added 
 2026-10-07 for the polar bear and the piano. It wins for both.
 
 - The bear is large and heavy: a small round head with small round ears, small black eyes, a
-  black nose on a long muzzle, a thick neck, and a round back. The seated bear is about 1.8 m
-  high.
+  black nose on a long muzzle, a thick neck, and a round back. Against the keys of the app
+  (0.70 m), the side view puts the head top of the seated bear at 1.40 m and the shoulder joints
+  at about 1.0 m. The label "180 cm" of the image ends above the head top, so it does not give
+  the size (`docs/decisions/2026-10-24-polar-bear-seat.md`).
 - The paws are wide, with black claws that rest on the keys. The foot pads are black.
 - The grand piano is black and glossy, with gold accents, a lid raised high on its prop, and a
   padded black bench.
