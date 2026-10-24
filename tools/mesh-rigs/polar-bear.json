@@ -1,6 +1,28 @@
 {
-  "source": "assets/models/polar-bear/polar-bear-tpose.glb",
-  "sourceNote": "The T-pose polar bear mesh of the user, of 2026-10-24, with no edit (assets/models/polar-bear/README.md). The user said: \"mesh for polar bear: [...] use the same eye size as the bear\". The arms of the T-pose are free of the trunk, so the rig keeps each face of the mesh: no cut, no copy, no ring, and no split.",
+  "source": "assets/models/polar-bear/polar-bear-arms.glb",
+  "sourceNote": "The T-pose polar bear mesh of the user, of 2026-10-24 (assets/models/polar-bear/README.md), with new quad faces on each arm from the shoulder line to the wrist. The user said: \"now apply similar techniques to the polars bear\", after the quad arms of the Rigify rabbit. tools/blender/polar_bear_arms.py replays the Blender session that made it. The faces of the paws, the trunk, the legs, and the head are the faces of the user.",
+  "paintedWeights": "assets/models/polar-bear/polar-bear-weights.json",
+  "paintedLower": [
+    "root",
+    "hips",
+    "spine",
+    "spine1",
+    "chest",
+    "thigh_L",
+    "shin_L",
+    "foot_L",
+    "toes_L",
+    "thigh_R",
+    "shin_R",
+    "foot_R",
+    "toes_R",
+    "tail"
+  ],
+  "paintedNote": "The weights of the trunk, the head, and the arms are the automatic weights of Blender with the Weight Paint fixes of tools/blender/polar_bear_arms.py. The vertices on the bones of paintedLower (the hips, the trunk up to the chest, the legs, and the tail) keep the rule weights. Blender weights on the legs sank the tail into the haunch and folded faces on the bench (branch rigify-polar-bear). Blender weights on spine and spine1 folded a V of faces on the lower back over the bench, and on the chest they cut a slit into the side of the trunk under each arm in the play.",
+  "armSegments": {
+    "helper": 0.03,
+    "note": "Each upper arm and each forearm has 4 deform segments, and each elbow and wrist a helper bone of this length in units, which spans the three rings of its joint in the bind. The app turns them from the joints of the pose (poseArm() of src/models/studio-rig.ts). They replace upperTwist."
+  },
   "output": "assets/models/polar-bear/polar-bear-tpose.rig.glb",
   "name": "Polar Bear",
   "weld": 1e-05,
@@ -434,9 +456,5 @@
     "end": 0.0055,
     "most": 0.25,
     "note": "The values of the dog and the deer."
-  },
-  "upperTwist": {
-    "share": 0.55,
-    "note": "The twist bone of each upper arm keeps 0.55 of the roll of the upper arm from the chest (StudioBody.upperTwist). With 0.4 and the elbows out and level, the left arm folded 4 faces at p95 of the play, 2 more than the margin of the arm gate over the old body (scans/gate-*.txt)."
   }
 }
