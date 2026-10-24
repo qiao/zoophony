@@ -70,11 +70,11 @@ const BODY_LOOPS = 2;
 const MESH_BODY_LOOPS = 4;
 
 /**
- * The open loops of {@link BODY_BONES} of the rabbit mesh: the cuts to the two upper arms, two open
- * edges at the whiskers, and one open edge pair of 3.1 cm on the trunk under the right armpit,
- * which the cut of the arm seam leaves (`loops-probe.txt` of `docs/research/2026-10-20-armpits/`).
+ * The open loops of {@link BODY_BONES} of the rabbit mesh in an A-pose: the roots of the two upper
+ * arms, and six small open edges at the whiskers, which the source mesh has
+ * (`docs/research/2026-10-23-rabbit-arms.md`).
  */
-const RABBIT_BODY_LOOPS = 5;
+const RABBIT_BODY_LOOPS = 8;
 
 /**
  * The open loops of {@link BODY_BONES} of the cat mesh: the cuts to the two upper arms, and one

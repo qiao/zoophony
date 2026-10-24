@@ -253,13 +253,14 @@ export function instrumentScale(params: SpeciesParams, instrument: InstrumentId)
 /** The parameters of each species (design 4.3, 4.5). */
 export const SPECIES = {
   /**
-   * Rabbit, the first violins (reference image). It has the studio body of the mesh of the user,
-   * `assets/models/rabbit/rabbit-4.glb`, which `pnpm rig-mesh rabbit` rigs (design 4.4), seated
-   * with the bind pose of the studio rabbit, and standing as a soloist. Its head height is the
-   * head of the studio body, and its chair fits its legs: the seat height is the seat of the
-   * studio body, in H. Its violin is almost the violin of the app, the size that the user chose:
-   * the user made its arms longer for a full violin, and then shorter with the same violin
-   * (2026-10-14-arms-rest decisions).
+   * Rabbit, the first violins (reference image). It has the studio body of the A-pose mesh of the
+   * user, `assets/models/rabbit/rabbit-apose.glb`, which `pnpm rig-mesh rabbit` rigs with no
+   * split (design 4.4), seated with the bind pose of the studio rabbit, and standing as a
+   * soloist. Its head height is the head of the studio body, and its chair fits its legs: the seat
+   * height is the seat of the studio body, in H. The user asked for a little stretch of the arms
+   * of the mesh (2026-10-23-rabbit-arms decisions), so the arms reach 0.41 m, and the violin is
+   * 0.83 of the violin of the app, so that the left paw reaches the nut. With the full violin of
+   * 0.958, the arms had to stretch 1.62 times, and their long faces folded.
    *
    * The stick of the bow passes through the middle of the closed right paw (2026-10-17-grip-all
    * decisions), as for the cat. The stick lies 40° from square toward the wrist, near the line of
@@ -274,7 +275,7 @@ export const SPECIES = {
     size: 1,
     colors: SPECIES_COLORS.rabbit,
     accentParts: ['inner-ears', 'nose'],
-    violinScale: 0.958,
+    violinScale: 0.83,
     bowGrip: { at: [-0.0084, -0.04, 0.0553], turn: 40 * (Math.PI / 180) },
     proportions: {
       headHeight: STUDIO_RABBIT.headHeight,

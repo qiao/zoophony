@@ -249,7 +249,7 @@ export const ANIMALS: ReadonlyMap<string, AnimalSettings> = new Map([
       backRoom: 0.04,
       constant: 'STUDIO_RABBIT',
       crease: 35,
-      glb: 'assets/models/rabbit/rabbit-4.rig.glb',
+      glb: 'assets/models/rabbit/rabbit-apose.rig.glb',
     },
   ],
   // The red and the tan foxes: decisions/2026-10-14-fox-flute.md and the files that it names,
