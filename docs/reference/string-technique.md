@@ -452,8 +452,9 @@ A round that changes the motion updates the items.
   front of the chest in the middle of the move, with both arms bent near the body
   (`BowedHold.liftTurn`, `BowedHold.liftReach`, the via of the rest bow), as a player brings the
   instrument up close to the body (`docs/decisions/2026-10-24-violin-rest.md`). At rest, both
-  elbows bend: the rabbit holds the upper neck and the frog above the right knee
-  (`docs/decisions/2026-10-24-violin-poses.md`).
+  elbows bend: the rabbit holds the upper neck and the frog above the right knee. In the middle
+  of the move, the scroll of the viola turns toward the left shoulder, and the left paw stays
+  below the top of the head (`docs/decisions/2026-10-24-violin-poses.md`).
 - **The string crossing leads the note** (section 2.3). `bowStateAt()` of `pose/strokes.ts` turns
   the bow to the string of the next note in at most 0.08 s, and in at most 0.3 of the time from
   the note start to the next note (`BOW_MOTION.crossSec` and `crossShare`). The turn ends 0.01 s
