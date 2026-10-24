@@ -1025,16 +1025,16 @@ const NO_ROLL = new Quaternion();
 
 /**
  * Rolls a hand around its own long axis, the line from its shoulder to its grip, until the normal
- * of its palm faces the tube. The grip of a woodwind lies below the tube, on the side away from
- * the keys, so the tube lies along the up direction of the instrument from the grip. The x axis
- * of the hand of the player is the normal of its palm, out of the back on the left hand and out of
- * the palm on the right hand: with the other signs, the left palm cupped up, away from the tube.
+ * of its palm faces the tube: the direction from the grip to the axis of the tube, square to the
+ * tube. The x axis of the hand of the player is the normal of its palm, out of the back on the left
+ * hand and out of the palm on the right hand: with the other signs, the left palm cupped up, away
+ * from the tube.
  *
  * The roll grows with the weight of the playing pose, so that the rest pose keeps the paw of the
  * shoulder, and the lift and the lowering do not turn the paw through the far side of its forearm.
  *
  * @param out The world rotation of the hand, which the function changes.
- * @param toTube The unit direction from the grip to the tube.
+ * @param toTube The unit direction from the grip to the axis of the tube.
  * @param side The side of the hand.
  * @param weight The eased weight of the playing pose: 0 is the rest pose.
  */
@@ -1145,7 +1145,10 @@ function poseSide(
       .sub(aimFrom.fromArray(rig.left.grip))
       .applyQuaternion(rotation)
       .normalize();
-    tubeSide.set(0, 1, 0).applyQuaternion(rotation);
+    // The palm faces from its grip to the axis of the tube, which passes through the mouthpiece.
+    // The up axis of the bone is no such direction: the oboe and the clarinet hang with their
+    // keys toward the body, so with it, the palms faced up.
+    tubeSide.subVectors(pivot, grip).projectOnPlane(tubeAxis).normalize();
     aimAcross(shoulder, grip, tubeAxis, rig.hold.aimAcross * weight, aimPoint);
     if (rig.hold.aimSide > 0) {
       aimSide(shoulder, tubeAxis, tubeSide, rig.hold.aimSide * weight, aimPoint);
