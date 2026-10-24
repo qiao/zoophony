@@ -102,6 +102,16 @@ export interface WindHold {
    * tube ({@link WindHold.palmToTube}) takes it.
    */
   readonly aimAcross: number;
+  /**
+   * The share, from 0 to 1, of the side direction across the tube in the aim of each paw on its
+   * grip in the playing pose ({@link aimSide}). With 0, the paw points from its shoulder to the
+   * tube. A tube far in front of the body then makes the paw point forward, and the fingers stick
+   * out in front of the tube. With a share, the paw turns toward the other side of the body, so
+   * that it lies across the back of the tube and its curled fingers wrap the front, as the fingers
+   * of a real clarinetist come around the tube from the side. Only a paw that rolls its palm to the
+   * tube ({@link WindHold.palmToTube}) takes it.
+   */
+  readonly aimSide: number;
 }
 
 /** The left paw of a wind hold that leaves its grip in the rest pose (`WindHold.restFreeL`). */
@@ -141,6 +151,7 @@ const WOODWIND = {
   restFreeL: null,
   palmToTube: false,
   aimAcross: 0,
+  aimSide: 0,
 } as const satisfies WindHold;
 
 const X_AXIS = new Vector3(1, 0, 0);
@@ -1029,6 +1040,32 @@ function aimAcross(
     .add(target);
 }
 
+const sideAim = new Vector3();
+const sideAcross = new Vector3();
+
+/**
+ * Turns the aim point of a paw on its grip ({@link aimAcross}) toward the side direction across
+ * the tube: the direction square to the tube and to its front, away from the side of the paw. The
+ * paw then lies across the back of the tube, and its curled fingers wrap the front.
+ *
+ * @param from The posed `shoulder` bone.
+ * @param axis The unit direction of the tube.
+ * @param front The unit direction from the grip to the tube.
+ * @param share The share of the side direction in the aim, from 0 to 1.
+ * @param out The aim point, which the function moves.
+ * @returns `out`.
+ */
+function aimSide(from: Frame, axis: Vector3, front: Vector3, share: number, out: Vector3): Vector3 {
+  sideAim.subVectors(out, from.position).normalize();
+  sideAcross.crossVectors(axis, front).normalize();
+  // The side direction continues the way of the paw from its shoulder across the body.
+  if (sideAcross.dot(sideAim) < 0) {
+    sideAcross.negate();
+  }
+  sideAim.multiplyScalar(1 - share).addScaledVector(sideAcross, share);
+  return out.copy(from.position).add(sideAim);
+}
+
 /**
  * Writes one arm and its fingers on the grip of the instrument. A paw that is free in the rest pose
  * moves from its rest place to its grip by the weight of the playing pose.
@@ -1069,12 +1106,13 @@ function poseSide(
       .sub(aimFrom.fromArray(rig.left.grip))
       .applyQuaternion(rotation)
       .normalize();
-    handToward(
-      shoulder,
-      aimAcross(shoulder, grip, tubeAxis, rig.hold.aimAcross * weight, aimPoint),
-      hand,
-    );
-    palmToTube(hand, tubeSide.set(0, 1, 0).applyQuaternion(rotation), side.arm.side, weight);
+    tubeSide.set(0, 1, 0).applyQuaternion(rotation);
+    aimAcross(shoulder, grip, tubeAxis, rig.hold.aimAcross * weight, aimPoint);
+    if (rig.hold.aimSide > 0) {
+      aimSide(shoulder, tubeAxis, tubeSide, rig.hold.aimSide * weight, aimPoint);
+    }
+    handToward(shoulder, aimPoint, hand);
+    palmToTube(hand, tubeSide, side.arm.side, weight);
   } else {
     handToward(shoulder, grip, hand);
   }
