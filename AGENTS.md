@@ -121,4 +121,5 @@ Open these files for these kinds of work:
 | [`docs/agents/model-work.md`](docs/agents/model-work.md) | the bodies and their roles, and the three routes that give a species a body of its own | before work on a body, a role, or a hold |
 | [`docs/agents/look-work.md`](docs/agents/look-work.md) | the loop of a round of the light, the colors, or the grade, the look override of the dev server, and the traps of the look measures | before a round of the light, the colors, or the grade |
 | [`docs/agents/model-traps.md`](docs/agents/model-traps.md) | the traps of route 3, in groups | before you plan a rig, a hold, a seat, or a fix of a fold |
+| [`docs/agents/rig-blender.md`](docs/agents/rig-blender.md) | the rebuild of the arms in the live Blender: quad faces, Blender weights, arm segments, helpers, and their traps | before you fix a twisted or folded arm of a mesh rig |
 | [`docs/briefs/studio-body.md`](docs/briefs/studio-body.md) | the brief template of a round of route 3, and the docs checklist of a new body, role, or hold | when you brief or run such a round |
