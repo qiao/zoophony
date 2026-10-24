@@ -684,8 +684,10 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       (`2026-10-17-cat-look.md`).
 - [ ] Red fox: the bow grip is 2.2 cm from the middle of the paw for the standing soloist
       (`2026-10-17-grip-all.md`).
-- [ ] Tan fox: the flute end is 4.3 cm above the leg, and the left inner elbow goes 1.9 cm into the
-      trunk at rest (`2026-10-17-tan-rest.md`).
+- [ ] Tan fox: the flute end is 2.6 cm above the leg near the knee, and the flute leans about 25°
+      out. The source gives an upright flute. An upright flute on the thigh put the right upper arm over
+      the arm gate or up to 5 cm into the body. The left inner elbow goes 1.9 cm into the trunk at
+      rest (`2026-10-17-tan-rest.md`, `2026-10-24-wind-holds.md`).
 - [ ] Standing soloists: the left arm goes 1.8 cm to 2.8 cm into the instrument in the lift and the
       lowering (`2026-10-17-cat-bow.md`).
 - [ ] The change to pizzicato takes the bow hair 28.5 mm off the strings at one stroke of
@@ -828,8 +830,17 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       user the close views, and offer a bowed head while the mouse plays
       (`2026-10-19-mesh-mouse.md`).
 - [ ] Mouse oboe rest: a real oboist rests the oboe on the legs, but the round belly covers the
-      short thighs, so the oboe stays in both paws in front of the body at rest
-      (`docs/reference/wind-technique.md` 4.2, `2026-10-19-mesh-mouse.md`).
+      short thighs, so the oboe stands nearly upright in both paws in front of the body at rest,
+      with the arms reached forward. Nearer places flattened the left upper arm or folded the
+      right arm (`docs/reference/wind-technique.md` 4.2, `2026-10-24-wind-holds.md`).
+- [ ] Wolf clarinet rest: the bell stands about 0.2 m in front of the knees at the height of the
+      seat, and the forearms reach forward. The source puts the bell on the knee or the seat, but
+      nearer places bent the forearms into the belly or failed the arm gate
+      (`2026-10-24-wind-holds.md`).
+- [ ] Wind holds of 2026-10-24: `pnpm arm-check --base main` fails 7 values of the wolf and 1 of
+      the mouse against their margins over the base, all within their limits. The left grip
+      turn of the wolf (28° against 7°) needs an entry of `ACCEPTED_GRIPS` after the manager
+      accepts the 2x paw crops (`docs/research/2026-10-24-wind-holds/`).
 - [ ] Mouse tail: the loop of the long tail lies on the floor behind the mouse, and the footprint
       is 0.764 m deep. The stages of the demos with oboes are 2.1% to 6.3% smaller
       than with the large mouse, about the stages of the parametric mouse. Check the tail between
