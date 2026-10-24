@@ -390,9 +390,14 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
 - [x] Rabbit (A-pose mesh): the long arm faces show dark shards on the bent arms at rest, at the
       frog, and at the tip (`arm-crops.webp` of `2026-10-23-rabbit-arms/`). The user allowed one
       ring at each elbow (`2026-10-24-rabbit-hold.md`).
-- [ ] Rabbit: the right wrist stretches 0.37 at rest (limit 0.35), and the left upper arm keeps
-      0.54 of its round shape in the lift (limit 0.55). No hold variant moved them
-      (`2026-10-24-rabbit-hold.md`).
+- [ ] Rabbit: the right wrist stretches 0.37 in the play (limit 0.35). No hold variant moved it
+      (`2026-10-24-rabbit-hold.md`). The lift from the knee turns the paws at 1,256°/s and
+      1,274°/s (147°/s and 167°/s from the belly, limit 3,000) (`2026-10-24-violin-rest.md`).
+- [ ] Cat: the left paw swings 98° at rest on the knee (87° beside the hip, limit 70)
+      (`2026-10-24-violin-rest.md`).
+- [ ] Red fox: the left paw twist passes 180° once in the lift and in the lowering, so the twist
+      bone of the forearm jumps (`OPEN` in the gate). The middle turn of the rabbit
+      (`BowedHold.liftTurn`) can remove it (`2026-10-24-violin-rest.md`).
 - [ ] Elephant (A-pose mesh): the long arm faces show dark shards on the bent arms from the front
       and a slit under the left forearm from the back, and one to three thin faces fold in each
       sample. Only a split of the faces removes them, and the user chose no split
