@@ -28,7 +28,7 @@ import {
 } from './layout-scene.ts';
 import type { Vec3 } from './tuples.ts';
 import { ModelCache } from './model-cache.ts';
-import { PIANO_FRONT_H } from './instruments/piano.ts';
+import { PIANO_FRONT_H, PIANO_SCALE } from './instruments/piano.ts';
 import { buildPlayer } from './player.ts';
 import { boneIndex } from './rig.ts';
 import { PODIUM_SIZE, STAGE_CORNER_CUT } from './stage.ts';
@@ -544,11 +544,12 @@ describe('layoutScene', () => {
       PIANO_FRONT_H * model.body.headHeight + 0.05 - model.body.floor[2],
       9,
     );
-    // The case is 2.0 m long from the key front, so its middle is 1.0 m to the right of it.
-    expect(keyFront + 1.0 - layout.podium[0]).toBeCloseTo(-2.0, 1);
-    // The front edge keeps 0.3 m in front of the piano case, which is 1.40 m wide.
+    // The case is 2.0 m long from the key front before the scale of the piano, so its middle is
+    // half of that to the right of it.
+    expect(keyFront + PIANO_SCALE - layout.podium[0]).toBeCloseTo(-2.0, 1);
+    // The front edge keeps 0.3 m in front of the piano case, which is 1.40 m wide before the scale.
     const front = layout.stageSide / 2 - layout.podium[2];
-    expect(front).toBeGreaterThan(0.8 + 0.7 + 0.3 - 0.05);
+    expect(front).toBeGreaterThan(0.8 + 0.7 * PIANO_SCALE + 0.3 - 0.05);
   });
 
   it('seats a keyboard of the orchestra at the left of the harp, along its row (audit 2, N1)', () => {

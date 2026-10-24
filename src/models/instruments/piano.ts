@@ -10,9 +10,9 @@ import { PieceBuilder, hold, pieceSize, placeCorners } from './piece.ts';
 import type { InstrumentModel } from './types.ts';
 
 /**
- * The sizes of the grand piano, in meters (design 4.6). In the piano axes, the origin is on the
- * floor below the middle of the front edge of the keys. The player sits at +z, the case runs to
- * -z, and the keys run along x with the lowest key at -x.
+ * The sizes of the grand piano, in meters, before {@link PIANO_SCALE} (design 4.6). In the piano
+ * axes, the origin is on the floor below the middle of the front edge of the keys. The player sits
+ * at +z, the case runs to -z, and the keys run along x with the lowest key at -x.
  */
 export const PIANO = {
   /** The width of the 52 white keys together. */
@@ -33,6 +33,12 @@ export const PIANO = {
   /** The angle of the open lid. */
   lidAngle: 35 * MathUtils.DEG2RAD,
 } as const;
+
+/**
+ * The scale of the whole piano around the origin of the piano axes. The keys, the grips, and the
+ * key targets scale with it.
+ */
+export const PIANO_SCALE = 1;
 
 /**
  * The distance of the front of the keys in front of the floor point of the body of the pianist,
@@ -135,6 +141,18 @@ function whiteKeysBelow(key: number): number {
  *   black key.
  */
 export function pianoKeyPosition(key: number): Vec3 {
+  const [x, y, z] = unscaledKeyPosition(key);
+  return [x * PIANO_SCALE, y * PIANO_SCALE, z * PIANO_SCALE];
+}
+
+/**
+ * Calculates the place on a piano key where a finger plays it, in the piano axes before
+ * {@link PIANO_SCALE}.
+ *
+ * @param key The MIDI key. A key outside the piano plays the nearest key.
+ * @returns The point.
+ */
+function unscaledKeyPosition(key: number): Vec3 {
   const p = PIANO;
   const k = Math.min(Math.max(Math.round(key), p.keys[0]), p.keys[1]);
   const width = p.keyboardWidth / 52;
@@ -263,7 +281,7 @@ function addInside(piece: PieceBuilder, boardY: number): void {
  */
 export function pianoKeyFront(key: number): Vec3 {
   const [x] = pianoKeyPosition(key);
-  return [x, PIANO.keyTop, 0];
+  return [x, PIANO.keyTop * PIANO_SCALE, 0];
 }
 
 /**
@@ -275,7 +293,7 @@ export function pianoKeyFront(key: number): Vec3 {
 export function buildPiano(): InstrumentModel {
   const p = PIANO;
   const dark = INSTRUMENT_COLORS.pianoCase;
-  const piece = new PieceBuilder();
+  const piece = new PieceBuilder(PIANO_SCALE);
   const half = p.keyboardWidth / 2;
   const front = -0.17;
 
@@ -352,7 +370,7 @@ export function buildPiano(): InstrumentModel {
   // The black keys.
   for (let k = p.keys[0]; k <= p.keys[1]; k++) {
     if (isBlack(k)) {
-      const [x] = pianoKeyPosition(k);
+      const [x] = unscaledKeyPosition(k);
       piece.add(
         box(0.012, 0.012, p.blackKeyLength),
         INSTRUMENT_COLORS.blackKeys,
@@ -392,13 +410,14 @@ export function buildPiano(): InstrumentModel {
   );
   const lowHand = pianoKeyPosition(48);
   const highHand = pianoKeyPosition(72);
+  const s = PIANO_SCALE;
   return {
     id: 'piano',
     parent: 'root',
     pieces: [instrument],
     grips: {
-      palmL: { bone: 'instrument', at: [lowHand[0], p.keyTop + 0.04, -0.06] },
-      palmR: { bone: 'instrument', at: [highHand[0], p.keyTop + 0.04, -0.06] },
+      palmL: { bone: 'instrument', at: [lowHand[0], (p.keyTop + 0.04) * s, -0.06 * s] },
+      palmR: { bone: 'instrument', at: [highHand[0], (p.keyTop + 0.04) * s, -0.06 * s] },
       mouth: null,
       chin: null,
     },
