@@ -458,8 +458,12 @@ const HANGING_BOW = {
  * collarbone against the left side of the neck, under the jaw, the jaw on the violin, the violin
  * about 38° to the left of the front, and the scroll a little up, so that the strings are about
  * level. The violin is 0.83 of the app violin, so that the arms of the A-pose mesh stretch only a
- * little (`violinScale`, 2026-10-23-rabbit-arms decisions). It sits 0.045 H lower than the
- * smaller violin of 2026-10-14, so that it keeps off the jaw (2026-10-14-neck-violin decisions). With the shorter arms
+ * little (`violinScale`, 2026-10-23-rabbit-arms decisions). The short arms of 2026-10-24 reach it
+ * nearly straight, as the user asked: the scroll points 60° to the left of the front, so that it
+ * comes nearer to the left shoulder, and the left paw reaches the fingerboard from 0.06 of its
+ * length (0.24 at 45°). The violin sits 0.2 H below the tail end of the chin hold and 0.15 H
+ * forward, so that the jaw lies on it and the bow passes under the chin: 0.15 H higher, it sat at
+ * the mouth (2026-10-24-rabbit-hold decisions). With the shorter arms
  * of 2026-10-14, it sits 0.039 H further back, so that the left paw reaches the nut: at the old
  * place, the paw reached the fingerboard from 0.06 of its length. A turn of the scroll further to
  * the left also reached the nut, but folded the skin of the left arm in 76% to 100% of the play
@@ -490,7 +494,10 @@ const HANGING_BOW = {
  *
  * The rest pose is the rest of the seated violinist of the image of the user (2026-10-16-bow-rest
  * decisions): the violin stands upright on the left thigh, held at the bottom of its neck, and the
- * bow stands upright at the right side, with the frog in the right paw. The round belly of the
+ * bow stands upright at the right side, with the frog in the right paw. The top plate has the turn
+ * (0.7, 0, 0.7) (`rest.top`), so that the left paw turns on the same side as in the play: with
+ * the top of the chin hold, the paw turned through 180° in the lift and the lowering
+ * (2026-10-24-rabbit-hold decisions). The round belly of the
  * rabbit covers the top of its thighs, so the violin stands 0.85 of the way to the knee, 0.15 H in,
  * 0.05 H up, and 0.1 H forward, where the top of the lap is in front of the belly: at 0.65 of the
  * way, the end was 17 cm above it. With the thighs 25° down of 2026-10-17, the place of 2026-10-16
@@ -518,8 +525,8 @@ const HANGING_BOW = {
 const SHOULDER_HOLD = {
   ...CHIN_HOLD,
   poleL: [-1, -1.4, -0.3],
-  playShift: [-0.054, -0.05, 0.19],
-  playTurn: violinTurn(-25, 5),
+  playShift: [-0.054, -0.2, 0.15],
+  playTurn: violinTurn(-10, 5),
   poleR: [1.8, -0.3, -1],
   freeHair: 0.06,
   poleTipR: CHIN_HOLD.poleR,
@@ -528,7 +535,7 @@ const SHOULDER_HOLD = {
   stringTurn: 10 * MathUtils.DEG2RAD,
   restPoleL: [-0.6, -1, 0.3],
   restPoleR: [0.3, -1, 1],
-  rest: { ...LAP_VIOLIN, lap: { along: 0.85, offset: [0.15, 0.05, -0.1] } },
+  rest: { ...LAP_VIOLIN, top: [0.7, 0, 0.7], lap: { along: 0.85, offset: [0.15, 0.05, -0.1] } },
   restBow: {
     lap: { along: 1, offset: [0.65, 0.45, -0.3] },
     tip: UPRIGHT_BOW.tip,
