@@ -62,6 +62,14 @@ interface HandsHold {
    * pose mixes it with no lift by the weight of the playing pose.
    */
   readonly restHeadLift: number;
+  /**
+   * The side lean of the spine toward the keys of the hands in the playing pose, in radians for
+   * each meter of the mean side offset of the two palms from the middle of the body, or 0 for
+   * none. A real pianist leans toward the far keys.
+   */
+  readonly sideLean: number;
+  /** The largest side lean, in radians. */
+  readonly sideLeanMax: number;
   /** The keys that each hand reaches on the side of the other hand. */
   readonly reach: HandReach;
   /**
@@ -141,6 +149,8 @@ export const HANDS_HOLDS = {
     lean: 28 * MathUtils.DEG2RAD,
     restLean: 8 * MathUtils.DEG2RAD,
     restHeadLift: 8 * MathUtils.DEG2RAD,
+    sideLean: 60 * MathUtils.DEG2RAD,
+    sideLeanMax: 10 * MathUtils.DEG2RAD,
     reach: { leftHighest: 70, rightLowest: 60 },
     // The wide paws of the polar bear point in along the forearms, so they went up to 4.7 cm into
     // each other when the palms were nearer than 33 cm, 24 semitones in the middle of the keys.
@@ -205,6 +215,8 @@ export const HANDS_HOLDS = {
     lean: 8 * MathUtils.DEG2RAD,
     restLean: 0,
     restHeadLift: 0,
+    sideLean: 0,
+    sideLeanMax: 0,
     reach: NO_REACH_LIMIT,
     apart: 0,
     poleL: [-0.3, -1, 0],
@@ -399,6 +411,21 @@ export function handTracks(
 export interface HandsState {
   readonly left: HandState;
   readonly right: HandState;
+}
+
+/**
+ * Calculates the side lean of the spine toward the keys of the two hands (design 5.3): the mean
+ * side offset of the two palms from the middle of the body, times the side lean of the hold, up to
+ * its largest lean. A positive lean goes to the left of the player (-x).
+ *
+ * @param rig The points of the player.
+ * @param state The motion of the hands.
+ * @returns The lean around the z axis, in radians.
+ */
+export function sideLeanOf(rig: HandsRig, state: HandsState): number {
+  const { sideLean, sideLeanMax } = rig.hold;
+  const middle = (state.left.point[0] + state.right.point[0]) / 2;
+  return MathUtils.clamp(-sideLean * middle, -sideLeanMax, sideLeanMax);
 }
 
 /** The rotation that changes nothing. Nothing writes it. */
