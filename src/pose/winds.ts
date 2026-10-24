@@ -661,8 +661,15 @@ const WOLF_CLARINET_FORWARD = -5;
  * the instrument", `2026-10-24-wind-holds` decisions). At 20°, with the mouthpiece 0.18 H below
  * the mouth, the grips are 0.34 m and 0.36 m from the shoulder joints, and the mouthpiece no
  * longer goes into the jaw. Each paw aims across the tube (`aimAcross`) and half toward the side
- * across it (`aimSide`), so that it lies across the back of the tube and its fingers wrap the
- * front: with no side share, the lower paw stuck out in front of the tube when seen from the side.
+ * across it (`aimSide`), and its grip moves around the tube (`gripShiftL`, `gripShiftR`), so that
+ * the tube goes through the closed paw. On the grips of the instrument, 2.5 cm in front of the
+ * tube, the paws lay in front of it and pointed away from it, with the finger tips 7.6 cm and 8.3
+ * cm from the tube (user, 2026-10-24: "they are not even holding the instrument"). The left grip
+ * moves 0.2 H down the tube, because 8.5 cm above the shoulder joint, the forearm rose steeply and
+ * the retarget turned the paw up along the tube (`PAW_TURN` of `models/studio-rig.ts`). Both grips
+ * move 0.12 H toward and past the axis, and the right grip 0.02 H toward its own side, so that the
+ * middle of each paw is 0.7 cm from the axis in the play (`pnpm wind-grip clarinetist`,
+ * `2026-10-24-wind-grips` decisions).
  *
  * The long muzzle puts the tip of the nose far in front of the mouth, and at 45° the grips moved
  * further forward: the left paw missed its grip by 2.4 cm and the right paw by 6.1 cm. So in round
@@ -681,15 +688,18 @@ const WOLF_CLARINET_FORWARD = -5;
  * on the forearms: with the elbows of {@link WIND_HOLDS}, the right paw turned 141° and the left
  * paw 123°, and with these elbows 71° and 89° (`docs/research/2026-10-20-wolf-mesh.md`).
  *
- * At rest, the clarinet stands upright in front of the knees, with the bell at the height of the
- * seat, about 0.2 m in front of the knees, and both paws keep their grips with the elbows down at the sides. A
- * seated clarinetist puts the bell on the knee or on the seat between the legs in a rest
- * (`docs/reference/wind-technique.md` 3). Before, the clarinet hung across the front of the body
- * at about 30° to the side, with the paws at arm's length (2026-10-24-wind-holds decisions). With
- * the bell nearer to the body, the elbows that point down bent the forearms into the belly, and
- * the elbows that point out twisted the right upper arm past the limit of the arm gate. With the
- * rest place of {@link WIND_HOLDS} in front of the chest, the right elbow bent about 140°, and six
- * faces of the right arm folded in each rest sample.
+ * At rest, the bell stands on the front of the seat between the knees, and the clarinet leans
+ * 20° forward from it, as a seated clarinetist puts the bell on the seat between the legs
+ * (`docs/reference/wind-technique.md` 3). Both paws close on its upper half: the left paw at the
+ * barrel and the right paw on the upper joint (`restGripShiftL`, `restGripShiftR`), and they keep
+ * the aim and the roll of the play (`restAim`), so that the fingers close around the tube at rest
+ * too. Before, the clarinet stood about 0.2 m in front of the knees and touched nothing. With the
+ * paws on their grips of the play, which are low on the clarinet at rest, the forearms went 3.2 cm
+ * into the belly, and 4.3 cm with the bell 7 cm further back. With the bell on the right knee, the
+ * upper arms went 5.6 cm into the body. Each rest of the bell on the seat twists
+ * the right upper arm past the limit of the arm gate (twist p95 69°, limit 55°) until the wolf gets
+ * a twist bone of the upper arm: with one of half of the roll, the twist is 44°
+ * (`docs/research/2026-10-24-wind-grips.md`).
  */
 const WOLF_CLARINET = {
   ...WIND_HOLDS.clarinet,
@@ -697,8 +707,8 @@ const WOLF_CLARINET = {
   reachL: 20 * MathUtils.DEG2RAD,
   lipShift: [0, -0.18, 0.4],
   play: holdTurn(WOLF_CLARINET_FORWARD, 0),
-  rest: holdTurn(-25, 0),
-  restShift: [0, -0.55, -0.3],
+  rest: holdTurn(-45, 0),
+  restShift: [0, -0.77, -0.35],
   poleL: [-0.3, -1, 0],
   poleR: [0.3, -1, 0],
   restPoleL: [-0.3, -1, 0],
@@ -706,6 +716,11 @@ const WOLF_CLARINET = {
   palmToTube: true,
   aimAcross: 1,
   aimSide: 0.5,
+  gripShiftL: [0.2, 0.12, 0],
+  gripShiftR: [0.05, 0.12, -0.02],
+  restGripShiftL: [-0.22, 0.1, 0],
+  restGripShiftR: [-0.33, 0.12, -0.02],
+  restAim: 1,
 } as const satisfies WindHold;
 
 /**
