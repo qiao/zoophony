@@ -518,24 +518,24 @@ const HANGING_BOW = {
  * (`liftTurn`), and it moves 0.1 H in, 0.2 H up, and 0.2 H to the front (`liftReach`). With a
  * direct turn, the paw twist on the forearm went through 180° and the twist bone jumped, as on the
  * red fox, and with the top of the rest of 2026-10-24, the wrist bent past 90° from the knee. The
- * bow tip turns through the front, with the hair to the back, and the grip moves 0.2 H to the
- * front: with the via of `UPRIGHT_BOW`, the right paw turned 5,188°/s in a lowering
- * (2026-10-24-violin-rest decisions).
+ * bow tip turns through the front, with the hair to the back, and the grip moves 0.05 H out and
+ * 0.3 H to the front: with the via of `UPRIGHT_BOW`, the right paw turned 5,188°/s in a lowering
+ * (2026-10-24-violin-rest decisions), and with 0.2 H to the front, the right forearm went 2.2 cm
+ * into the body in a lowering (2026-10-24-violin-poses decisions).
  *
  * The right elbow hangs near the side, as the elbows of the violinist (2026-10-16-rabbit-arm
  * decisions). The belly is widest below the elbow, so the right arm hangs out around it, and the
- * paw does not reach the top of the right thigh. The grip is at the outer side of the right knee,
- * 0.65 H out from the top of the knee, 0.45 H above it, and 0.3 H forward, and the right elbow
- * points down and back. With the shorter arms of the A-pose mesh, the grip 0.3 H above the knee
- * bent the right wrist so far that its edges in the rest were 0.36 shorter than in the play
- * (stretch, limit 0.35 of the arm gate), and 0.45 H above it gives 0.35
- * (2026-10-23-rabbit-arms decisions). The frog end hangs about 6 cm above the top of the knee. With the stick
- * through the middle of the paw of 2026-10-17, the grip 0.55 H out turned face 372 of the right
- * upper arm over in each rest sample, and 0.65 H out turns no face over (2026-10-17-grip-all
- * decisions). With the grip on the belly over the right thigh, the paw was 25 cm from the
- * shoulder joint, so the bent arm put the elbow 19 cm out from the side, the upper arm turned 81°
- * from the vertical, and 20 faces of the right arm turned over. Each grip nearer to the thigh put
- * the forearm into the belly or turned more faces over.
+ * paw does not reach the top of the right thigh. The grip is above the outer side of the right
+ * knee, 0.4 H out from the top of the knee, 0.8 H above it, and 0.2 H forward, so that the right
+ * elbow bends to about 130° beside the body, and the elbow points down and back. With the grip
+ * 0.65 H out and 0.45 H above the knee, of 2026-10-23, the right arm hung straight down the side
+ * to the paw, and 2 faces of the right arm folded at rest (7 now, limit 8 of the arm gate,
+ * 2026-10-24-violin-poses decisions). With the stick through the middle of the paw of
+ * 2026-10-17, the grip 0.55 H out and 0.45 H above the knee turned face 372 of the right upper arm
+ * over in each rest sample (2026-10-17-grip-all decisions). With the grip on the belly over the
+ * right thigh, the paw was 25 cm from the shoulder joint, so the bent arm put the elbow 19 cm out
+ * from the side, the upper arm turned 81° from the vertical, and 20 faces of the right arm turned
+ * over. Each grip nearer to the thigh put the forearm into the belly or turned more faces over.
  */
 const SHOULDER_HOLD = {
   ...CHIN_HOLD,
@@ -555,10 +555,10 @@ const SHOULDER_HOLD = {
   liftReach: [-0.1, 0.2, -0.2],
   liftTurn: { axis: [-0.3, 1, -0.6], top: [0, 0, 1] },
   restBow: {
-    lap: { along: 1, offset: [0.65, 0.45, -0.3] },
+    lap: { along: 1, offset: [0.4, 0.8, -0.2] },
     tip: UPRIGHT_BOW.tip,
     hair: UPRIGHT_BOW.hair,
-    via: { tip: [-0.3, 0.3, -1], hair: [0, 0, 1], reach: [0, 0, -0.2] },
+    via: { tip: [-0.3, 0.3, -1], hair: [0, 0, 1], reach: [0.05, 0, -0.3] },
   },
   standBow: HANGING_BOW,
 } as const satisfies BowedHold;
