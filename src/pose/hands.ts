@@ -19,6 +19,8 @@ import { armRig, limitReach, poseShoulder, writeArm, writeCurl } from './ik.ts';
 import { lapHand } from './lap.ts';
 import type { LapHand } from './lap.ts';
 import type { ArmRig } from './ik.ts';
+import { pedalFoot } from './pedal.ts';
+import type { PedalFoot } from './pedal.ts';
 
 /** The instruments that the two hands play on keys or strings: the piano and the harp. */
 export type HandsInstrument = InstrumentOf<'keyboard' | 'harp'>;
@@ -324,6 +326,8 @@ export interface HandsRig {
   readonly pieces: readonly PlacedPiece[];
   readonly left: HandSide;
   readonly right: HandSide;
+  /** The right foot on the damper pedal of the piano, or `null` for the harp. */
+  readonly foot: PedalFoot | null;
 }
 
 /**
@@ -363,6 +367,7 @@ export function handsRig(model: PlayerModel, instrument: HandsInstrument, scale 
     pieces: model.pieces,
     left: side('L', hold.faceL, hold.aimL, hold.restL),
     right: side('R', hold.faceR, hold.aimR, hold.restR),
+    foot: instrument === 'piano' ? pedalFoot(model) : null,
   };
 }
 

@@ -22,6 +22,7 @@ import { poseHands, sideLeanOf } from './hands.ts';
 import type { HandsState } from './hands.ts';
 import { gestureSize } from './loudness.ts';
 import { activityAt } from './passages.ts';
+import { posePedalFoot } from './pedal.ts';
 import { posePercussion } from './percussion.ts';
 import type { PercussionState } from './percussion.ts';
 import type { IdleState } from './idle.ts';
@@ -183,7 +184,8 @@ const FLOOR_INSTRUMENTS: ReadonlySet<InstrumentId> = new Set<InstrumentId>(['cel
 
 /**
  * Writes the body layer of one animal: the breath and the sway of the spine, the look at the
- * conductor, the ears, the tail, and the blink (design 5.1). The legs keep the bind pose (4.7).
+ * conductor, the ears, the tail, and the blink (design 5.1). The legs keep the bind pose (4.7),
+ * except the right leg of a pianist on the damper pedal (5.3).
  * Then it calculates the frames of the torso, from which the note layer hangs the arms.
  *
  * @param pose The pose to write.
@@ -355,6 +357,10 @@ function poseAnimal(
       body.sway += sideLeanOf(note.rig, hands) * weight;
       writeBody(pose, player, scratch);
       poseHands(note.rig, scratch.torso, hands, weight, pose.rotations);
+      // The right foot of a pianist rests on the damper pedal.
+      if (note.rig.foot) {
+        posePedalFoot(note.rig.foot, 0, weight, pose.rotations);
+      }
       break;
     }
     case 'choir': {
