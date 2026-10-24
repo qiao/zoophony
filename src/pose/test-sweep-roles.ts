@@ -1113,8 +1113,9 @@ export const VIOLINIST_SWEEP: RoleSweep = {
 };
 
 /**
- * Gives the note targets of the palms of a flutist or an oboist: each palm is on its grip at the
- * start of each phrase (design 5.3), in a play that started at the count-in.
+ * Gives the note targets of the palms of a woodwind player: each palm is on the grip of its rig,
+ * with the move of the hold around the tube, at the start of each phrase (design 5.3), in a play
+ * that started at the count-in.
  *
  * @param scene The scene.
  * @param index The index of the flutist.
@@ -1128,17 +1129,15 @@ function flutistTargets(scene: TestScene, index: number, model: PlayerModel): No
   }
   const { note: layer, timeOffset } = plan;
   return (['L', 'R'] as const).flatMap((side) => {
-    const grip = side === 'L' ? model.instrument.grips.palmL : model.instrument.grips.palmR;
+    // The grip of the rig, with the move of the hold around the tube (`WindHold.gripShiftL`).
+    const grip = side === 'L' ? layer.rig.left.grip : layer.rig.right.grip;
     const palm = side === 'L' ? model.body.palmL : model.body.palmR;
-    if (!grip) {
-      return [];
-    }
     return Array.from(layer.track.phraseStarts, (start: number): NoteTarget => ({
       side,
       sample: playSample(scene, start + timeOffset + 0.1),
       error: (posed) =>
         new Vector3(...posedPoint(posed, `hand${side}`, palm)).distanceTo(
-          new Vector3(...posedPiecePoint(posed, grip)),
+          new Vector3(...posedPoint(posed, 'instrument', grip)),
         ),
     }));
   });
