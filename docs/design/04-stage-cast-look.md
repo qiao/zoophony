@@ -797,7 +797,8 @@ images. The bowed strings are varnished wood with a lighter arched top. Their st
 strip, so that they show no light bar. The clarinet is black lacquer with silver keys, the flutes
 are silver, and the brass is gold with open bells that show the lit inside of the flare. The
 timpani are copper. The piano is black lacquer with a dark well and a dark gold plate inside its
-open case (`PIANO_INSIDE` of `models/instruments/piano.ts`).
+open case (`PIANO_INSIDE` of `models/instruments/piano.ts`). Its three pedals are brass, as the
+pedals of a real grand piano.
 
 **Materials**
 
@@ -1273,7 +1274,7 @@ of each instrument (`models/instruments/`) holds its sizes and the offsets of it
 | Cello                            | A body with an end pin, and a bow.                                                                                      | The end pin in front of the seat. The cello leans back to the chest, with the neck left of the head, as in `animals.webp`.                                                                                                  |
 | Contrabass                       | The cello at 1.6 scale.                                                                                                 | At the left side, in front of the seat.                                                                                                                                                                                     |
 | Harp                             | 24 strings that show the 47 strings of a concert harp.                                                                  | On the floor in front of the chest, upright, turned so that the column goes to the front left (`HARP_PLACE`).                                                                                                               |
-| Piano                            | A case with an open lid, keys, and a desk, larger than a real piano (`PIANO_SCALE`), so that the keys reach the forearms of the polar bear (5.3). The lid opens less than in `mockup.png`. | The keys stand in front of the floor point of the pianist (`PIANO_FRONT_H`), clear of the belly and the muzzle of the polar bear (5.3). |
+| Piano                            | A case with an open lid, keys, and a desk, larger than a real piano (`PIANO_SCALE`), so that the keys reach the forearms of the polar bear (5.3). The lid opens less than in `mockup.png`. A lyre comes down from the case under the keys to a box just above the floor, and three pedals come out of the box toward the player: the soft pedal, the sostenuto, and the damper pedal, in the sizes of a real grand piano (`PIANO_PEDALS`). | The keys stand in front of the floor point of the pianist (`PIANO_FRONT_H`), clear of the belly and the muzzle of the polar bear (5.3). |
 | Piano bench                      | A seat of `PIANO_BENCH`, or at `seat` of `ANIMALS` under the polar bear (4.4, seat).                                    | A static prop under the pianist.                                                                                                                                                                                            |
 | Choir folder                     | Two open covers with pages.                                                                                             | In both flippers, in front of the chest, with the pages to the eyes.                                                                                                                                                        |
 | Flute                            | A silver tube.                                                                                                          | The lip plate at the mouth. The flute points to the right.                                                                                                                                                                  |
@@ -1347,7 +1348,8 @@ interface InstrumentPiece {
   and `harpStringPosition(key, scale)` give the point of each key, because a pitch is not linear
   along the evenly spaced white keys, bars, and strings.
 - The trombone slide moves along its axis, which a bone rotation cannot do, so the pose has a move
-  of the `slide` bone, `AnimalPose.slideOffset` (5.1).
+  of the `slide` bone, `AnimalPose.slideOffset` (5.1). The damper pedal of the piano is a second
+  piece on the `slide` bone too, and goes down under the right foot of the pianist (5.3).
 
 ## 4.7 Rig
 
