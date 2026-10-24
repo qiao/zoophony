@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: CC-BY-NC-4.0
+
 import type { StudioBody } from '../studio-format.ts';
 
 /**

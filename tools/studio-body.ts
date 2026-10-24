@@ -3057,6 +3057,8 @@ export function studioModule(animal: string, constant: string, body: StudioBody)
     '[$1, $2, $3]',
   );
   return [
+    '// SPDX-License-Identifier: CC-BY-NC-4.0',
+    '',
     `import type { StudioBody } from '../studio-format.ts';`,
     '',
     '/**',
