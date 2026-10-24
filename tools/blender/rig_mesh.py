@@ -919,6 +919,37 @@ def frame(head, tail, roll):
     return np.stack([np.cross(y, z), y, z], axis=1)
 
 
+# The bones of the lower body: with `paintedLower` set to `rules`, the vertices on them keep the
+# weights of the rules (`main()`).
+LOWER_BONES = ('root', 'hips', 'thigh_L', 'shin_L', 'foot_L', 'toes_L', 'thigh_R', 'shin_R',
+               'foot_R', 'toes_R', 'tail', 'tail_tip')
+
+
+def painted_weights(verts, path):
+    """Reads the weights that a rigger painted in Blender (`paintedWeights` of the config), for
+    each welded vertex of the source. The file holds the bone names, the place of each painted
+    vertex in the units of the studio, and its weights. Each source vertex takes the weights of
+    the painted vertex at its place.
+
+    The Rigify trial of 2026-10-24 paints the weights of the polar bear with the tools of Blender
+    (`docs/decisions/2026-10-24-polar-bear-blender.md`).
+    """
+    with open(path) as f:
+        data = json.load(f)
+    points = np.asarray(data['points'], float)
+    painted = np.asarray(data['weights'], float)
+    columns = [BONES.index(name) for name in data['bones']]
+    weights = np.zeros((len(verts), len(BONES)))
+    for v, point in enumerate(verts):
+        gaps = np.linalg.norm(points - point, axis=1)
+        k = int(np.argmin(gaps))
+        if gaps[k] > 1e-4:
+            raise SystemExit(f'{path}: no painted vertex at the source vertex {v} '
+                             f'(nearest {gaps[k]:.6f} u).')
+        weights[v, columns] = painted[k]
+    return weights
+
+
 def bone_heat(verts, tris, heads, ends, rolls):
     """Gives the weights of each vertex on the body bones with the bone heat of Blender. The root
     does not deform. A vertex that bone heat leaves with no weight takes the nearest bone."""
@@ -3999,11 +4030,33 @@ def main():
                 f'(smallest angle {angles.min():.1f} degrees, median {np.median(angles):.1f}), '
                 f'the arm run {arm_run}, the body run {body_run}')
         log(f'cut: {before} triangles before, {len(source_tris)} after')
-    weights = apply_rules(verts, source_tris, bone_heat(verts, source_tris, heads, ends, rolls),
-                          rules, heads, ends)
-    weights = straight_slivers(verts, source_tris,
-                               rigid_slivers(verts, source_tris, weights, rules), rules)
-    weights = limit(rigid_faces(verts, source_tris, weights, rules))
+    if 'paintedWeights' in config:
+        weights = painted_weights(verts, config['paintedWeights'])
+        if config.get('paintedLower') == 'rules':
+            # The lower body keeps the weights of the rules: the seated bind of the app (the sit
+            # of the haunch onto the seat and the tail ball) depends on them. Each vertex mixes the
+            # painted weights and the rule weights by its painted share on the lower bones.
+            rule_weights = apply_rules(verts, source_tris,
+                                       bone_heat(verts, source_tris, heads, ends, rolls), rules,
+                                       heads, ends)
+            rule_weights = straight_slivers(verts, source_tris,
+                                            rigid_slivers(verts, source_tris, rule_weights, rules),
+                                            rules)
+            rule_weights = rigid_faces(verts, source_tris, rule_weights, rules)
+            lower = [BONES.index(b) for b in BONES if b in LOWER_BONES]
+            share = np.clip(weights[:, lower].sum(axis=1), 0.0, 1.0)[:, None]
+            weights = (1.0 - share) * weights + share * rule_weights
+            log(f'weights: painted in Blender, the rules on the lower body '
+                f'({int((share[:, 0] > 0.5).sum())} vertices mostly on the rules)')
+        else:
+            log(f"weights: painted in Blender ({config['paintedWeights']}), no rules")
+        weights = limit(weights)
+    else:
+        weights = apply_rules(verts, source_tris,
+                              bone_heat(verts, source_tris, heads, ends, rolls), rules, heads, ends)
+        weights = straight_slivers(verts, source_tris,
+                                   rigid_slivers(verts, source_tris, weights, rules), rules)
+        weights = limit(rigid_faces(verts, source_tris, weights, rules))
 
     # The long arms, the long legs, the large head, and the short trunk. The scale of the app comes
     # from the shoulder joints after the rise of the legs and the drop of the trunk.
