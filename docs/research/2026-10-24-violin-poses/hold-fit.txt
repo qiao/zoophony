@@ -1,0 +1,46 @@
+pnpm hold-fit violinist --sets lift,rest,lower --base main and pnpm hold-fit violist --sets lift,rest,lower --base main (tree 9b59deea). The row base is the tree.
+
+| Variant | Play folds | Lift folds | Rest faces (by side) | lift depth cm (limit) | rest depth cm (limit) | lower depth cm (limit) | Note targets: worst mm (within 5 mm) | rest turns: upper arm, paw (twist, swing) L / R | Instrument in body cm | Rest end gap cm (in body) | Rest violin in body cm | Rest violin tilt ° | Rest paw L place | Rest bow tilt ° | Rest frog gap cm (in body) | Rest bow in body cm | Rest bow in arms cm | Rest elbow R rise cm | Rest elbow R back cm | Rest elbow R out cm | Rest upper arm R ° | Rule scale | Violin m | stopRange | bowRange |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| main (ba88b31c) | - | 100.0% (124/124) | 4 (L 2 / R 2 / other 0) | 1.8 forearms>violin (1.5) OVER | 0.8 paws>violin (1.5) | 2.0 forearms>violin (1.5) OVER | 0.0 (100.0%) | 71°, 69° (-61°, 35°) / 52°, 103° (102°, 18°) | 1.9 lower | 0.0 (0.0) | 0.3 | 9 | 0.70 | 5 | Infinity OVER (0.0) | 0.0 | 0.3 | -13.0 | -21.7 | 6.7 | 40 OVER | 0.719 | 0.421 | 0.09 to 1.00 | 0.060 to 0.320 m of 0.421 m |
+| base | - | 100.0% (124/124) | 8 (L 1 / R 7 / other 0) | 1.7 forearms>violin (1.5) OVER | 0.6 paws>violin (1.5) | 2.1 forearms>violin (1.5) OVER | 0.0 (100.0%) | 75°, 82° (-77°, 32°) / 68°, 90° (87°, 24°) | 1.9 lower | 0.4 (0.0) | 0.1 | 9 | 0.80 OVER | 5 | Infinity OVER (0.0) | 0.0 | 0.1 | -15.4 | -17.0 | 5.3 | 25 | 0.719 | 0.421 | 0.09 to 1.00 | 0.060 to 0.320 m of 0.421 m |
+| Variant | lift deepest at | rest deepest at | lower deepest at | Instrument in body at |
+|---|---|---|---|---|
+| main (ba88b31c) | mozart-k525 wall 10.70 s | bach-bwv1050 wall 10.00 s | bach-bwv1050 wall 13.70 s | boulanger-matin wall 12.50 s |
+| base | bach-bwv1050 wall 10.80 s | bach-bwv1050 wall 10.00 s | bach-bwv1050 wall 13.60 s | boulanger-matin wall 12.50 s |
+| Species | Set | Pair | main (ba88b31c) cm | main (ba88b31c) H | tree cm | tree H | Mark | tree at |
+|---|---|---|---:|---:|---:|---:|---|---|
+| rabbit | lift | paws in violin | 0.9 | 0.032 | 0.9 | 0.032 |  | boulanger-matin wall 11.60 s |
+| rabbit | lift | forearms in violin | 1.8 | 0.061 | 1.7 | 0.057 |  | bach-bwv1050 wall 10.80 s |
+| rabbit | lift | upper arms in violin | 1.6 | 0.055 | 1.5 | 0.052 |  | boulanger-matin wall 10.80 s |
+| rabbit | rest | paws in violin | 0.8 | 0.026 | 0.6 | 0.021 |  | bach-bwv1050 wall 10.00 s |
+| rabbit | lower | paws in violin | 1.0 | 0.034 | 1.0 | 0.035 |  | beethoven-8 wall 13.40 s |
+| rabbit | lower | forearms in body | 0.0 | 0.000 | 0.3 | 0.011 | GROWS | bach-bwv1050 wall 14.20 s |
+| rabbit | lower | forearms in violin | 2.0 | 0.068 | 2.1 | 0.070 |  | bach-bwv1050 wall 13.60 s |
+| rabbit | lower | upper arms in body | 0.0 | 0.000 | 0.5 | 0.017 | GROWS | beethoven-8 wall 14.20 s |
+| rabbit | lower | upper arms in violin | 1.6 | 0.053 | 1.7 | 0.058 | GROWS | bach-bwv1050 wall 13.60 s |
+| rabbit | lower | bow in violin | 0.8 | 0.026 | 0.9 | 0.030 | GROWS | beethoven-8 wall 13.90 s |
+
+| Variant | Play folds | Lift folds | Rest faces (by side) | lift depth cm (limit) | rest depth cm (limit) | lower depth cm (limit) | Note targets: worst mm (within 5 mm) | rest turns: upper arm, paw (twist, swing) L / R | Instrument in body cm | Rest end gap cm (in body) | Rest violin in body cm | Rest violin tilt ° | Rest paw L place | Rest bow tilt ° | Rest frog gap cm (in body) | Rest bow in body cm | Rest bow in arms cm | Rest elbow R rise cm | Rest elbow R back cm | Rest elbow R out cm | Rest upper arm R ° | Rule scale | Violin m | stopRange | bowRange |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| main (ba88b31c) | - | 49.2% (61/124) | 16 (L 7 / R 6 / other 3) | 2.8 forearms>viola (1.5) OVER | 2.0 upper arms>body (1.5) OVER | 2.8 forearms>viola (1.5) OVER | 22.6 (99.8%) | 64°, 93° (-13°, 93°) / 88°, 90° (87°, 25°) | 2.6 lower OVER | 0.8 (0.0) | 0.0 | 10 | 0.63 | 7 | Infinity OVER (0.0) | 0.0 | 0.0 | -20.9 | 2.4 | 2.7 | 34 | 0.927 | 0.583 | 0.00 to 1.00 | 0.030 to 0.475 m of 0.507 m |
+| base | - | 50.0% (62/124) | 18 (L 9 / R 6 / other 3) | 2.9 forearms>viola (1.5) OVER | 1.6 upper arms>body (1.5) OVER | 2.8 forearms>viola (1.5) OVER | 22.6 (99.8%) | 64°, 89° (-8°, 89°) / 88°, 90° (87°, 25°) | 2.4 lower OVER | 0.0 (1.1 OVER) | 1.1 OVER | 10 | 0.67 | 7 | Infinity OVER (0.0) | 0.0 | 0.0 | -20.9 | 2.4 | 2.7 | 34 | 0.927 | 0.583 | 0.00 to 1.00 | 0.030 to 0.475 m of 0.507 m |
+| Variant | lift deepest at | rest deepest at | lower deepest at | Instrument in body at |
+|---|---|---|---|---|
+| main (ba88b31c) | bach-bwv1050 wall 10.70 s | bach-bwv1050 wall 10.00 s | bach-bwv1050 wall 13.50 s | mozart-k525 wall 14.10 s |
+| base | boulanger-matin wall 10.70 s | bach-bwv1050 wall 10.00 s | mozart-k525 wall 13.50 s | mozart-k525 wall 10.50 s |
+| Species | Set | Pair | main (ba88b31c) cm | main (ba88b31c) H | tree cm | tree H | Mark | tree at |
+|---|---|---|---:|---:|---:|---:|---|---|
+| cat | lift | paws in viola | 1.4 | 0.042 | 1.5 | 0.043 |  | bach-bwv1050 wall 10.70 s |
+| cat | lift | forearms in body | 1.3 | 0.039 | 1.2 | 0.034 |  | mozart-k525 wall 10.10 s |
+| cat | lift | forearms in viola | 2.8 | 0.084 | 2.9 | 0.084 |  | boulanger-matin wall 10.70 s |
+| cat | lift | upper arms in body | 2.0 | 0.058 | 1.6 | 0.048 |  | mozart-k525 wall 10.10 s |
+| cat | lift | upper arms in viola | 2.8 | 0.082 | 1.7 | 0.051 |  | bach-bwv1050 wall 10.70 s |
+| cat | rest | paws in viola | 1.3 | 0.039 | 1.3 | 0.040 |  | mozart-k525 wall 10.00 s |
+| cat | rest | forearms in body | 1.3 | 0.039 | 1.2 | 0.034 |  | bach-bwv1050 wall 10.00 s |
+| cat | rest | upper arms in body | 2.0 | 0.058 | 1.6 | 0.048 |  | bach-bwv1050 wall 10.00 s |
+| cat | lower | paws in viola | 1.4 | 0.042 | 1.4 | 0.042 |  | bach-bwv1050 wall 13.50 s |
+| cat | lower | forearms in body | 2.1 | 0.062 | 2.0 | 0.058 |  | mozart-k525 wall 15.00 s |
+| cat | lower | forearms in viola | 2.8 | 0.083 | 2.8 | 0.083 |  | mozart-k525 wall 13.50 s |
+| cat | lower | upper arms in body | 2.0 | 0.058 | 1.6 | 0.049 |  | bach-bwv1050 wall 14.40 s |
+| cat | lower | upper arms in viola | 2.7 | 0.078 | 1.7 | 0.050 |  | mozart-k525 wall 13.60 s |
