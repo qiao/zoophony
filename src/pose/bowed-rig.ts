@@ -544,15 +544,21 @@ const HANGING_BOW = {
  * decisions). The left elbow points down, a little out, and a little back, (-0.6, -1, 0.3)
  * (2026-10-17-rabbit-pose decisions).
  *
- * In the middle of the lift and of the lowering, the violin turns upright in front of the chest,
- * with the scroll up, a little forward, and a little to the left, and the top plate to the body
- * (`liftTurn`), and it moves 0.1 H in, 0.2 H up, and 0.2 H to the front (`liftReach`). With a
- * direct turn, the paw twist on the forearm went through 180° and the twist bone jumped, as on the
- * red fox, and with the top of the rest of 2026-10-24, the wrist bent past 90° from the knee. The
- * bow tip turns through the front, with the hair to the back, and the grip moves 0.05 H out and
- * 0.3 H to the front: with the via of `UPRIGHT_BOW`, the right paw turned 5,188°/s in a lowering
- * (2026-10-24-violin-rest decisions), and with 0.2 H to the front, the right forearm went 2.2 cm
- * into the body in a lowering (2026-10-24-violin-poses decisions).
+ * In the lift and the lowering, the left paw carries the violin at the end of the fingerboard
+ * (`liftPlace`): the paw moves on a line from its rest place to its playing place, and 0.1 H in,
+ * 0.1 H up, and 0.08 H to the front in the middle (`liftReach`). The violin hangs from the paw and
+ * turns upright in the middle, with the scroll up, a little forward, and a little to the left, and
+ * the top plate to the body (`liftTurn`). Thus the left elbow bends to 137° at most: with the tail
+ * end on the path, the paw went 1.09 H to the front, and the elbow straightened to 180°. With no
+ * move to the front, the violin went 3.2 cm into the belly in a lowering. The paw rolls 45° further
+ * over the neck (`liftTiltL`), and the elbow points down and to the front (`liftPoleL`): with
+ * neither, the paw swung 94° from the line of the forearm (62° now, 2026-10-24-violin-poses
+ * decisions). With a direct turn, the paw twist on the forearm went through 180° and the twist bone
+ * jumped, as on the red fox, and with the top of the rest of 2026-10-24, the wrist bent past 90°
+ * from the knee. The bow tip turns through the front, with the hair to the back, and the grip moves
+ * 0.05 H out and 0.3 H to the front: with the via of `UPRIGHT_BOW`, the right paw turned 5,188°/s
+ * in a lowering (2026-10-24-violin-rest decisions), and with 0.2 H to the front, the right forearm
+ * went 2.2 cm into the body in a lowering (2026-10-24-violin-poses decisions).
  *
  * The right elbow hangs near the side, as the elbows of the violinist (2026-10-16-rabbit-arm
  * decisions). The belly is widest below the elbow, so the right arm hangs out around it, and the
@@ -583,8 +589,11 @@ const SHOULDER_HOLD = {
   restPoleR: [0.3, -1, 1],
   restPlace: 0.1,
   rest: { ...LAP_VIOLIN, lap: { along: 1, offset: [-0.1, -0.05, 0] } },
-  liftReach: [-0.1, 0.2, -0.2],
+  liftReach: [-0.1, 0.1, -0.08],
   liftTurn: { axis: [-0.3, 1, -0.6], top: [0, 0, 1] },
+  liftPlace: 1,
+  liftTiltL: 45 * MathUtils.DEG2RAD,
+  liftPoleL: [0, -1, -0.5],
   restBow: {
     lap: { along: 1, offset: [0.4, 0.8, -0.2] },
     tip: UPRIGHT_BOW.tip,
@@ -638,7 +647,9 @@ const SHOULDER_HOLD = {
  * 0.2 H up, and 0.4 H to the front (the via of `UPRIGHT_BOW` with its own reach): the upper arm
  * goes 3.3 cm into the body in each set (`pnpm hold-fit fox-violinist --base main --sets
  * lift,rest,lower`, 2026-10-17-grip-all decisions). The right elbow points down and a little out
- * and back, and the left elbow down and a little back.
+ * and back, and the left elbow down and a little back. In the lift and the lowering, the tail end
+ * of the violin moves on its path (`liftPlace` null): the long left arm of the fox reaches the neck
+ * there with the elbow bent to 99° to 127° (2026-10-24-violin-poses decisions).
  *
  * The left elbow turns toward the body by 2° for each lower string of the finger: with the 5° of
  * the chin hold, the left forearm went 2.4 cm into the violin in the middle of the lift and of the
@@ -669,6 +680,9 @@ const FOX_HOLD = {
   rest: { ...LAP_VIOLIN, lap: { along: 0.8, offset: [0, -0.18, -0.2] } },
   liftReach: [0, 0, 0],
   liftTurn: null,
+  liftPlace: null,
+  liftTiltL: 0,
+  liftPoleL: null,
   restBow: {
     lap: { along: 0.55, offset: [0.5, -0.1, -0.15] },
     tip: UPRIGHT_BOW.tip,
