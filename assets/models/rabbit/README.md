@@ -1,19 +1,18 @@
 # Rabbit models
 
-This folder holds three models of the rabbit that the user gave, and four local copies of the
-second one. The app does not serve them.
+This folder holds three models of the rabbit that the user gave, a copy of the newest one with
+rebuilt arms, and four local copies of the second one. The app does not serve them.
 
 ## rabbit-apose.glb
 
 `rabbit-apose.glb` is a mesh with no skeleton, with the arms in an A-pose: out, down, and a little
 forward, apart from the trunk below the shoulders. The user gave it on 2026-10-23 and said:
 "replace the model for rhino and rabbit and also don't split the arm". The file is the file of the
-user, byte for byte. The rig of this project makes the studio body of the rabbit from it with
-its own faces (`tools/mesh-rigs/rabbit.json`): `pnpm rig-mesh rabbit` writes the rigged file
-`rabbit-apose.rig.glb`, and `pnpm studio-body rabbit` writes the module
-`src/models/studio/rabbit.ts` from it. Then the user said: "use the new rabbit model and stretch
-the arm a little bit" (`docs/research/2026-10-23-rabbit-arms.md`). The copies of `rabbit-4.glb`
-below stay as a record, and no rig reads them.
+user, byte for byte. The rig of this project made the studio body of the rabbit from it with its
+own faces up to 2026-10-24, and the user said: "use the new rabbit model and stretch the arm a
+little bit" (`docs/research/2026-10-23-rabbit-arms.md`). Since 2026-10-24, the rig reads the copy
+with rebuilt arms (`rabbit-arms.glb`, below). The copies of `rabbit-4.glb` below stay as a record,
+and no rig reads them.
 
 | Item | Value |
 |---|---|
@@ -25,6 +24,33 @@ below stay as a record, and no rig reads them.
 
 ```bash
 shasum -a 256 assets/models/rabbit/rabbit-apose.glb
+```
+
+## rabbit-arms.glb and rabbit-weights.json
+
+`rabbit-arms.glb` is `rabbit-apose.glb` with new quad faces on each arm from the shoulder line to
+the wrist, and with arms 1.15 times longer. On 2026-10-24 the user said: "note that there's
+significant twisting happening for the arms and wrists. add loop edges and retopology and
+additional bones if needed to address them". `tools/blender/violin_arms.py rabbit` replays the
+Blender session that made both files, byte for byte. The faces of the paws, the trunk, the legs,
+and the head are the faces of the user. The new arm surface lies on the old one. The arms are 1.15
+times longer from the shoulder line, as the rig made them before (the user, 2026-10-23: "stretch
+the arm a little bit"), because a rig with arm segments does not stretch the arms. The rig of this
+project makes the studio body of the rabbit from it (`tools/mesh-rigs/rabbit.json`):
+`pnpm rig-mesh rabbit` writes `rabbit-apose.rig.glb`, and `pnpm studio-body rabbit` writes
+`src/models/studio/rabbit.ts`.
+
+| Item | Value |
+|---|---|
+| `rabbit-arms.glb` | 1,066,300 bytes, SHA-256 `9e4766ee2f878c4c3faf46c6de6b7708a4275635777ec5e5fe2ac72382ddea50` |
+| Mesh | 2,084 vertices after a weld at 1e-5, 4,154 triangles (3,118 in the source): on each arm a tube of 15 rings of 16 vertices, joined to the trunk and the paw with Bridge Edge Loops |
+| Material | One material with one base color JPEG of 4096 × 4608 pixels: the atlas of the source, and a strip of 512 pixels on top with the fur color of the source arms, baked onto the new faces. No metallic-roughness texture |
+| `rabbit-weights.json` | 460,545 bytes, SHA-256 `5ae60b20db489e2e7914d4faf22ef98348152478cfa8f6c537b7d0d51f58b9fd` |
+| Weights | The automatic weights of Blender with the Weight Paint fixes of the session, on the studio bones and the arm segments and helpers (`armSegments` of the config), for `paintedWeights` of the config |
+| License | Derived from the mesh of the user, who holds its rights |
+
+```bash
+shasum -a 256 assets/models/rabbit/rabbit-arms.glb assets/models/rabbit/rabbit-weights.json
 ```
 
 ## rabbit.glb

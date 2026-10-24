@@ -353,7 +353,8 @@ twist bone, and `pnpm studio-body` writes the share into the body. A body with n
 twist bone (`docs/decisions/2026-10-19-arm-skin.md`).
 
 A mesh rig can instead give each arm the bones of a rigger, as on the Rigify rabbit of `ode.html`
-(`armSegments` of the config, `docs/decisions/2026-10-24-polar-bear-arms.md`): 4 deform segments
+(`armSegments` of the config, `docs/decisions/2026-10-24-polar-bear-arms.md`), as the polar bear
+and the rabbit do (`docs/decisions/2026-10-24-violin-arms.md`): 4 deform segments
 on the upper arm and on the forearm, and a helper bone at the elbow and at the wrist. The skin of
 the arm hangs on them, and the upper arm, the forearm, and the forearm twist bone only drive them.
 The app turns them from the joints of the pose, so each song keeps the live pose (`poseArm()`).
@@ -553,11 +554,12 @@ mesh are quad tubes (rings at a right angle to the bones), and the weights come 
     The rhino has a mesh in an A-pose since 2026-10-23, with the arms apart from the trunk below
     the shoulders, so its rig keeps each face of the mesh with no copy, cut, or split (user:
     "don't split the arm"). The copy with round tube arms of 2026-10-22 stays in its folder as a
-    record. The rabbit also has a mesh in an A-pose since 2026-10-23, and its rig keeps each face
-    of the mesh with no copy or cut. Its long arm faces fold when they stretch, so its arms
-    stretch only 1.15 times, and its violin is smaller (4.6). Long faces of the mesh cross each
-    elbow, and a bent elbow fanned them out as spikes, so one ring at each elbow splits them
-    (`refine.rings`, user, 2026-10-24: "Yes, rings at the elbows").
+    record. The rabbit also has a mesh in an A-pose since 2026-10-23. Its arms stretch only 1.15
+    times, and its violin is smaller (4.6). Long faces of the mesh crossed each elbow and twisted
+    along the forearm, so its arms have new quad faces from the shoulder line to the wrist and
+    arm segments (user, 2026-10-24: "add loop edges and retopology and additional bones if needed",
+    `docs/decisions/2026-10-24-violin-arms.md`). A rig with arm segments does not stretch the
+    arms, so the copy of the mesh gets the arm length in Blender (`tools/blender/violin_arms.py`).
     `pnpm arm-look` measures the
     crease of the arm skin against the source and the section of the upper arm, with limits from the red fox
     (`docs/decisions/2026-10-21-arm-form.md`).

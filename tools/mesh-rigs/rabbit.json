@@ -1,6 +1,32 @@
 {
-  "source": "assets/models/rabbit/rabbit-apose.glb",
-  "sourceNote": "The A-pose mesh of the user of 2026-10-23, with no edit (assets/models/rabbit/README.md). The user said: \"replace the model for rhino and rabbit and also don't split the arm\", and then \"use the new rabbit model and stretch the arm a little bit\". The rig keeps each face of the mesh: no cut, no copy, no ring, and no split.",
+  "source": "assets/models/rabbit/rabbit-arms.glb",
+  "sourceNote": "The A-pose mesh of the user of 2026-10-23 (assets/models/rabbit/README.md), with new quad faces on each arm from the shoulder line to the wrist. The user said on 2026-10-24: \"note that there's significant twisting happening for the arms and wrists. add loop edges and retopology and additional bones if needed to address them\". tools/blender/violin_arms.py replays the Blender session that made it. The faces of the paws, the trunk, the legs, and the head are the faces of the user. The file of the user, rabbit-apose.glb, stays unchanged.",
+  "paintedWeights": "assets/models/rabbit/rabbit-weights.json",
+  "paintedLower": [
+    "root",
+    "hips",
+    "spine",
+    "spine1",
+    "chest",
+    "neck",
+    "head",
+    "ear_L",
+    "ear_R",
+    "thigh_L",
+    "shin_L",
+    "foot_L",
+    "toes_L",
+    "thigh_R",
+    "shin_R",
+    "foot_R",
+    "toes_R",
+    "tail"
+  ],
+  "paintedNote": "The weights of the clavicles and the arms are the automatic weights of Blender with the Weight Paint fixes of tools/blender/violin_arms.py. The vertices on the bones of paintedLower (the hips, the trunk up to the chest, the neck, the head, the ears, the legs, and the tail) keep the rule weights: the seated bind of the app depends on them, as on the polar bear (branch polar-bear-arms), and with Blender weights on the head, the chin of the seated rabbit went 7.6 cm lower on the neck.",
+  "armSegments": {
+    "helper": 0.017,
+    "note": "Each upper arm and each forearm has 4 deform segments, and each elbow and wrist a helper bone of this length in units, which spans the three rings of its joint in the bind. The app turns them from the joints of the pose (poseArm() of src/models/studio-rig.ts). They replace upperTwist and the ring at each elbow."
+  },
   "output": "assets/models/rabbit/rabbit-apose.rig.glb",
   "name": "Rabbit",
   "weld": 1e-05,
@@ -9,8 +35,8 @@
     "reach": 0.3647,
     "note": "The app puts the standing shoulder joints 0.8513179 m above the floor (ANIMALS of tools/studio-body.ts), the size of the rabbit that the user chose on 2026-10-14 (docs/research/2026-10-14-animal-size.md). The shoulder joints of the mesh are at 0.574 u after the leg factor, so the scale is 1.4831 m for each unit. The user asked on 2026-10-23 to stretch the arms of the new mesh a little, and on 2026-10-24 for shorter arms with the same violin, which bend less to play. The reach is 0.3647 m (0.320 m with no stretch), and the violin is 0.83 of the violin of the app. The violin points further to the left, so that the left paw reaches the fingerboard from 0.06 of its length (docs/research/2026-10-24-rabbit-hold.md)."
   },
-  "armFactor": 1.15,
-  "armFactorNote": "The factor of the upper arm and the forearm that gives the reach of app.reach from the joints below at the scale of app.shoulders. pnpm rig-mesh prints the reach and stops when it is more than 1% from app.reach. The user asked for a little stretch on 2026-10-23 (1.3), and then said: \"the rabbit arm is too long\", and \"keep the violin same, but reduce the length of the arm. the arm can bend less to play the violin\" (2026-10-24). The factor is 1.15.",
+  "armFactor": 1,
+  "armFactorNote": "The factor of the upper arm and the forearm in the rig: 1, because the rig with arm segments does not stretch the arms (armSegments of tools/blender/rig_mesh.py). The arms of rabbit-arms.glb are already 1.15 times longer than the arms of the user mesh (step_shape() of tools/blender/violin_arms.py), and the arm joints below are the joints of the longer arms, so the reach stays app.reach. The user asked for a little stretch on 2026-10-23 (1.3), and then said: \"the rabbit arm is too long\", and \"keep the violin same, but reduce the length of the arm. the arm can bend less to play the violin\" (2026-10-24). The factor is 1.15.",
   "legFactor": 1.75,
   "legFactorNote": "The factor of the thigh and the shin. Each one stretches only between its joints, the foot keeps its size, and the body rises 0.105 units, so that the soles stay at y 0. The user asked for longer legs and a higher seat on 2026-10-14, and then said that the legs of the factor 2.5 were too long. The legs gave a seat of 0.215 m, 0.67 H (0.123 m before). Since 2026-10-16, the chair of the app fits the legs (no seat of ANIMALS), so the soles stand on the floor. Since 2026-10-17, the thighs 25 degrees down and the vertical shins give a seat of 0.227 m (0.179 m with the thighs 15 degrees down and the slanted shins of 2026-10-16, docs/research/2026-10-17-fox-form.md). The factor 2.75 gave the seat of the reference rabbit (1.03 H against 1.07 H), with standing animals that were too tall (docs/research/2026-10-14-fox-rabbit-form.md).",
   "joints": {
@@ -114,41 +140,41 @@
     },
     "forearm_L": {
       "head": [
-        0.163,
-        0.426,
-        0.06
+        0.1738,
+        0.4173,
+        0.0654
       ],
       "tail": "forearm_twist_L",
       "roll": "palm"
     },
     "forearm_twist_L": {
       "head": [
-        0.2,
-        0.397,
-        0.08
+        0.21635,
+        0.38395,
+        0.0884
       ],
       "tail": "hand_L",
       "roll": "palm"
     },
     "hand_L": {
       "head": [
-        0.236,
-        0.368,
-        0.101
+        0.25775,
+        0.3506,
+        0.11255
       ],
       "tail": "fingers_L",
       "roll": "palm"
     },
     "fingers_L": {
       "head": [
-        0.252,
-        0.346,
-        0.112
+        0.27375,
+        0.3286,
+        0.12355
       ],
       "tail": [
-        0.268,
-        0.326,
-        0.12
+        0.28975,
+        0.3086,
+        0.13155
       ],
       "roll": "palm"
     },
@@ -321,20 +347,8 @@
     },
     "note": "Beyond the plane |x| = armSplit, only the free arm follows the arm bones: the cuts of sections.py x show the arm apart from the body from x 0.095 out. Inside that plane, the shoulder follows the upper arm and no lower bone of the arm. Above headFrom, each vertex except the ears follows the head only: the eyes, the nose, and the whiskers. Each ear vertex goes to its ear bone with a ramp over the heights of earBase. The tail ball follows the tail only: the vertices near its middle and behind the plane z = behind, where the cuts of sections.py z show the ball apart from the body (z -0.145)."
   },
-  "upperTwist": {
-    "share": 0.5,
-    "note": "The twist bone of each upper arm takes half of the roll of the upper arm from the chest (StudioBody.upperTwist), the share of the elephant. The user said on 2026-10-21: \"the arm for the rabbit is still problematic\". With no twist bone, the skin of the right upper arm rolled 49 degrees at its largest step in the play (p95, limit 55 of the arm gate), and 0.2% of the play samples folded. With 0.5, it rolls 28 degrees, and no play sample folds. The share 0.4 gave the same roll with a flatter right ring in the lift (pnpm arm-shape violinist, docs/research/2026-10-21-rabbit-arm.md)."
-  },
   "refine": {
-    "rings": [
-      {
-        "joint": "forearm",
-        "radius": 0.13,
-        "minEdge": 0.06,
-        "ends": 0.2,
-        "sides": "LR"
-      }
-    ],
+    "rings": [],
     "flip": {
       "angle": 150,
       "normals": 60,
@@ -342,7 +356,7 @@
       "rounds": 4,
       "note": "The long edge of a face of the arms with a corner angle above angle (degrees) in the seated bind mesh flips to the corner of the face on its other side. The two faces must lie almost on one plane in the source and in the bind mesh (normals within normals, in degrees), and the flip must move the surface by at most move (units) in both. The flips run in rounds until no edge flips. The angle 180 turns the flips off. The move of 0.0016 units is 2 mm in the app."
     },
-    "ringsNote": "One ring at each elbow: the user allowed it for the rabbit on 2026-10-24 (\"Yes, rings at the elbows\"), as an exception to the rule of no split. Eight to 13 long thin faces of the source cross each elbow, up to the length of the forearm, and a bent elbow fanned them out as sharp spikes. The ring cuts the edges near the elbow with the plane through the joint: joint (the arm bone that starts at the joint), radius (units from the joint), minEdge (the shortest edge that it cuts, in units), ends (the smallest part of the edge from each corner), and sides. Each new vertex takes the place, the UV, and the weights of its place on the edge."
+    "ringsNote": "No ring: the quad tube of each arm of rabbit-arms.glb has 3 rings at each elbow and at each wrist. The ring at each elbow that the user allowed on 2026-10-24 (\"Yes, rings at the elbows\") cut the long thin faces of the source, which the tube replaces."
   },
   "check": {
     "thin": {
