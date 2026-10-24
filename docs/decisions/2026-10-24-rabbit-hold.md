@@ -20,5 +20,4 @@ the images. The user can reverse each decision. Then update its section, and rem
 | The palm hint is the true palm of the source, as the palm of the fox. A hint turned 200° lowered the twist numbers, but the left palm faced up, away from the neck. | 4.4 |
 | The scroll points 60° to the left of the front (45° before), so that the short left arm reaches the fingerboard from 0.06 of its length nearly straight. | 5.3 |
 | The violin sits 0.15 H lower and 0.04 H further back, under the jaw. Before, it sat at the mouth, and the bow crossed in front of the face. | 5.3 |
-| The top plate of the rest violin turns (`rest.top` (0.7, 0, 0.7)), so that the left paw no longer turns through 180° in the lift and the lowering. | 5.3 |
 | Accepted: the right wrist stretches 0.37 at rest (limit 0.35), and the left upper arm keeps 0.54 of its round shape in the lift (limit 0.55). No hold variant moved them, and neither shows in the views. | 9.3 |

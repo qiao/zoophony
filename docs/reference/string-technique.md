@@ -446,10 +446,12 @@ A round that changes the motion updates the items.
   rabbit, the red fox, the cat, and the hippo (`SpeciesParams.bowGrip`), as the fingers of a real
   player close around it. With the grip of the bind bow, the stick of the hippo passed under the
   paw (`docs/decisions/2026-10-24-bow-holds.md`).
-- **The lift and the lowering of the cat.** No source of this file gives the path of the viola
-  from the lap to the chin. The viola of the cat rises over its round belly with both arms bent
-  near the body (`BowedHold.liftReach`, the via of the rest bow), as a player brings the
-  instrument up close to the body (`docs/decisions/2026-10-24-bow-holds.md`).
+- **The lift and the lowering of the rabbit and the cat.** No source of this file gives the path
+  of the violin or the viola from the lap to the chin. As the violin of the red fox, the violin of
+  the rabbit and the viola of the cat stand upright on the left knee at rest, and turn upright in
+  front of the chest in the middle of the move, with both arms bent near the body
+  (`BowedHold.liftTurn`, `BowedHold.liftReach`, the via of the rest bow), as a player brings the
+  instrument up close to the body (`docs/decisions/2026-10-24-violin-rest.md`).
 - **The string crossing leads the note** (section 2.3). `bowStateAt()` of `pose/strokes.ts` turns
   the bow to the string of the next note in at most 0.08 s, and in at most 0.3 of the time from
   the note start to the next note (`BOW_MOTION.crossSec` and `crossShare`). The turn ends 0.01 s

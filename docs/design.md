@@ -301,9 +301,10 @@ The decision files:
 - [`2026-10-23-night-fixes.md`](decisions/2026-10-23-night-fixes.md): the pizzicato of the dog from the side, the rest viola of the cat and the rest elbow of the beaver with no twist through 180°, and the palms of the woodwinds toward the tube.
 - [`2026-10-23-bear-eye-size.md`](decisions/2026-10-23-bear-eye-size.md): the slightly larger eyes of the bear and the polar bear.
 - [`2026-10-23-bear-tpose.md`](decisions/2026-10-23-bear-tpose.md): the T-pose bear mesh with its own faces and no cut or split, its size, its elbow and palm, and its open rest arms.
-- [`2026-10-24-bow-holds.md`](decisions/2026-10-24-bow-holds.md): the hippo bow through the middle of the closed paw, and the cat arms bent near the body in the lift and the lowering.
+- [`2026-10-24-bow-holds.md`](decisions/2026-10-24-bow-holds.md): the hippo bow through the middle of the closed paw.
 - [`2026-10-24-wind-paws.md`](decisions/2026-10-24-wind-paws.md): the wind paws across the tube, and the clarinet of the wolf and the oboe of the mouse nearer the body.
 - [`2026-10-24-polar-bear-tpose.md`](decisions/2026-10-24-polar-bear-tpose.md): the T-pose polar bear mesh with its own faces, its legs and seat, the eye size of the bear, and its open rest slivers.
 - [`2026-10-24-polar-bear-seat.md`](decisions/2026-10-24-polar-bear-seat.md): the smaller polar bear pianist from the keys of its sheet.
-- [`2026-10-24-rabbit-hold.md`](decisions/2026-10-24-rabbit-hold.md): the shorter rabbit arms with rings at the elbows, the true palm, the violin under the chin at 60° to the left, and the turned rest violin.
+- [`2026-10-24-rabbit-hold.md`](decisions/2026-10-24-rabbit-hold.md): the shorter rabbit arms with rings at the elbows, the true palm, and the violin under the chin at 60° to the left.
+- [`2026-10-24-violin-rest.md`](decisions/2026-10-24-violin-rest.md): the rabbit violin and the cat viola upright on the left knee at rest, and upright in front of the chest in the middle of the lift, as the red fox.
 - [`2026-10-23-rabbit-arms.md`](decisions/2026-10-23-rabbit-arms.md): the A-pose rabbit mesh with its own faces, a short arm stretch, a violin of 0.83, its elbows and rest grip, and the open shards of its arms.
