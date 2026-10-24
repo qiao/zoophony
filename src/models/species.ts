@@ -422,7 +422,7 @@ export const SPECIES = {
    *
    * The stick of the bow passes through the middle of the closed right paw, 23° from square toward
    * the wrist, along the line nearest to the middles of the turned paw (user, 2026-10-24: "also how
-   * the hippo is holding the bow", `docs/research/2026-10-24-hippo-bow/stick-line.ts`). The paw
+   * the hippo is holding the bow", `docs/research/2026-10-24-bow-holds/stick-line.ts`). The paw
    * keeps the stick within 0.72 cm in the play, the lift, and the lowering. With the grip of
    * `BOW_GRIP`, the stick passed under the paw, and the claws pointed down past it.
    */
