@@ -348,13 +348,14 @@ credits dialog links to it, and also lists the source of each demo (8.1).
 
 `pnpm build` runs `tools/licenses.ts` after the Vite build. The script writes
 `dist/third-party-licenses.txt` from the license file of each installed package of this list,
-and from `assets/soundfont/LICENSE.txt` and `assets/soundfont/CC0-1.0.txt`. It fails when a
+and from `assets/soundfont/LICENSE.txt`. It fails when a
 package in `dependencies` is not in the list, and when a package of the list is not installed.
 The dev server has no `dist/`, so the plugin `DEV_LICENSES` of `vite.config.ts` makes the same
 text at the same path, with `licenseEntries()` of the script.
 
 - CC0 1.0 has no condition. The entries of VSCO 2 CE and VCSL still give the credit that the
-  VSCO 2 CE readme asks for, and they say that the SoundFont holds changed samples.
+  VSCO 2 CE readme asks for, and they say that the SoundFont holds changed samples. They link to
+  the legal code of CC0 1.0 and hold no copy of it.
 - The site does not ship the dev dependency `wasm-media-encoders` (MIT), which only encodes the
   samples of `tools/build-soundfont.ts`. Thus the file does not list it.
 - The FLAC file of the hall impulse response comes from soundfile (BSD-3-Clause) and libsndfile

@@ -8,6 +8,9 @@ import { HALL_CREDIT } from '../src/audio/hall-credit.ts';
 /** npm packages that the site bundles, and whose license texts it ships (design 7.3). */
 const BUNDLED_PACKAGES: readonly string[] = ['three', 'spessasynth_core', 'stb-vorbis'];
 
+/** Link to the legal code of CC0 1.0, which has no condition, so the file holds no copy of it. */
+const CC0_LINK = 'CC0 1.0 Universal: https://creativecommons.org/publicdomain/zero/1.0/legalcode';
+
 /** One part of the third-party license file. */
 export interface LicenseEntry {
   /** Name and version, such as `three 0.180.0`. */
@@ -158,7 +161,6 @@ export async function githubMarkEntry(root: string): Promise<LicenseEntry> {
  */
 export async function soundFontEntries(root: string): Promise<LicenseEntry[]> {
   const folder = join(root, 'assets', 'soundfont');
-  const cc0 = await readFile(join(folder, 'CC0-1.0.txt'), 'utf8');
   return [
     {
       title: 'GeneralUser GS 2.0.3, by S. Christian Collins',
@@ -171,13 +173,13 @@ export async function soundFontEntries(root: string): Promise<LicenseEntry[]> {
         'VS Chamber Orchestra 2: Community Edition 1.1.0, by Versilian Studios (Sam Gossner) and Ivy Audio (Simon Dalzell)',
       license: 'CC0 1.0',
       source: 'https://github.com/sgossner/VSCO-2-CE',
-      text: `Zoophony.sf3 holds changed samples of this library: cut, mixed to mono, looped, and encoded as Ogg Vorbis.\n\n${cc0}`,
+      text: `Zoophony.sf3 holds changed samples of this library: cut, mixed to mono, looped, and encoded as Ogg Vorbis.\n\n${CC0_LINK}`,
     },
     {
       title: 'Versilian Community Sample Library, by Versilian Studios',
       license: 'CC0 1.0',
       source: 'https://github.com/sgossner/VCSL',
-      text: `Zoophony.sf3 holds changed samples of this library: cut, mixed to mono, looped, and encoded as Ogg Vorbis.\n\n${cc0}`,
+      text: `Zoophony.sf3 holds changed samples of this library: cut, mixed to mono, looped, and encoded as Ogg Vorbis.\n\n${CC0_LINK}`,
     },
   ];
 }

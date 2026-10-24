@@ -29,8 +29,8 @@ shasum -a 256 assets/soundfont/Zoophony.sf3
 | Source | Version | License | License text |
 |---|---|---|---|
 | GeneralUser GS | 2.0.3, the SF3 copy of SpessaSynth at commit `6f7505087eba09bdbf345c97f5cf573fc547412e` (8,423,728 bytes, SHA-256 `e2ed326ff44d15f78f2fdc72403b6fa6b77ee7266d3aad0d2198bc95797bc66c`) | GeneralUser GS License v2.0 | `LICENSE.txt` in this folder, from <https://github.com/mrbumpy409/GeneralUser-GS/blob/97049183643d5fc5a9322a69c5b09efb667c6c3a/documentation/LICENSE.txt> |
-| VSCO 2 CE | 1.1.0, branch `SFZ` of <https://github.com/sgossner/VSCO-2-CE> at commit `6dd651d55dde97fd4028699be9d4481f26917891` | CC0 1.0 | `LICENSE` of the repository at that commit. `CC0-1.0.txt` in this folder holds the legal code |
-| VCSL | branch `sfz` of <https://github.com/sgossner/VCSL> at commit `dfcf4a4918771eee884b96ad4493de82ef84daf6` | CC0 1.0 | `README.md` of that commit. `LICENSE` of commit `c1ea7bcc3c7309650ab0da9d15c9cd1fbc4a4c7e` (branch `master`) is `CC0-1.0.txt` in this folder |
+| VSCO 2 CE | 1.1.0, branch `SFZ` of <https://github.com/sgossner/VSCO-2-CE> at commit `6dd651d55dde97fd4028699be9d4481f26917891` | CC0 1.0 | `LICENSE` of the repository at that commit. The legal code is at <https://creativecommons.org/publicdomain/zero/1.0/legalcode> |
+| VCSL | branch `sfz` of <https://github.com/sgossner/VCSL> at commit `dfcf4a4918771eee884b96ad4493de82ef84daf6` | CC0 1.0 | `README.md` of that commit, and `LICENSE` of commit `c1ea7bcc3c7309650ab0da9d15c9cd1fbc4a4c7e` (branch `master`) |
 
 - The GeneralUser GS license permits use in software projects and changes to the bank or its
   packaging. It asks websites to link to the author's website, or to serve their own copy. This
