@@ -348,11 +348,23 @@ export const FOX_FLUTE_BACK = 9;
  * below the mouth, under the long muzzle: at the mouth, the jaw touched the flute. The shoulders
  * stay square and low, with no forward turn of the right shoulder. The left elbow points down and
  * out, and the right elbow out to the side, in line with the shoulder. In the rest pose, the flute
- * stands upright on the right leg with the foot joint down, and the right paw holds it at the
- * right-hand keys, as a real flutist rests it (decisions `2026-10-15-flute-rest.md`). The foot
- * joint stands at the outer side of the right knee, and the top leans about 10° out and forward.
- * The left paw leaves its grip ({@link WindHold.restFreeL}), and both arms hang down along the
- * sides. On the thighs of 2026-10-16, which slope down to the knees, the paw at 0.66 of the way to
+ * stands on the right leg with the foot joint down, and the right paw holds it at the right-hand
+ * keys, as a real flutist rests it (decisions `2026-10-15-flute-rest.md`). The foot joint stands
+ * near the top of the right knee, and the flute leans about 25° out and forward, so that the head
+ * joint stands outside the right arm and in front of it (2026-10-24-wind-holds decisions). The
+ * left paw leaves its grip ({@link WindHold.restFreeL}), and the left arm hangs down along the
+ * side.
+ *
+ * Before, the flute stood upright at the outer side of the right thigh, with the head joint behind
+ * the right arm, and the paw seemed to hold only its lower end (user, 2026-10-24). The paw on the
+ * right-hand keys is 0.23 m above the foot joint. An upright flute on the thigh puts the paw higher
+ * or nearer to the round chest, and each such place failed the arm gate on the right upper arm
+ * (folds, twist, or flat), or put it up to 5 cm into the body (`pnpm arm-check flutist`,
+ * `pnpm hold-fit flutist --sets lift,rest,lower`). So the paw stays near its place of 2026-10-17,
+ * out by the side, and the flute turns around it until the foot joint comes near the knee: 2.6 cm
+ * above the leg (4.3 cm before). The right elbow points down, out, and back.
+ *
+ * On the thighs of 2026-10-16, which slope down to the knees, the paw at 0.66 of the way to
  * the knee did not reach its place, and the left forearm went 2.8 cm into the body. On the top of
  * the knee, 4° from vertical, the right upper arm went 1.6 cm into the body (limit 1.5 cm). With
  * the elbows out to the side, the upper arms folded more faces of the skin than the rest of
@@ -360,11 +372,9 @@ export const FOX_FLUTE_BACK = 9;
  *
  * With the thighs 25° down and the vertical shins of 2026-10-17, the knees are lower, and the rest
  * of 2026-10-16 put the left upper arm 3.6 cm into the body and the foot joint 5.4 cm above the
- * right leg (2026-10-17-fox-form decisions). The flute now moves 0.06 H further out and 0.13 H
- * back toward the body, and the right elbow points out and down with no turn back. The right palm
- * keeps 1.2 cm of reach to its grip (`pnpm hold-reach fox-tan --instrument flute`): with the flute
- * 0.06 H lower, it missed the grip by 1.7 cm. A flute nearer to the leg put the right upper arm
- * into the body: with the foot joint 2.0 cm above the leg, it went 3.7 cm into the body.
+ * right leg (2026-10-17-fox-form decisions). The right palm keeps 1.0 cm of reach to its grip
+ * (`pnpm hold-reach fox-tan --instrument flute`). An upright flute nearer to the leg put the right
+ * upper arm into the body: with the foot joint 2.0 cm above the leg, it went 3.7 cm into the body.
  *
  * The top of the left thigh is out of reach of the left arm: the nearest place of the palm on it
  * is 0.582 m from the shoulder joint, and the arm is 0.545 m (2026-10-17-tan-rest decisions). So
@@ -382,10 +392,10 @@ const FOX_FLUTE = {
   play: fluteTurn(FOX_HEAD_TURN - FOX_FLUTE_BACK, 8),
   poleL: [-1, -1, -0.3],
   poleR: [1, -0.8, 0],
-  rest: fluteTurn(-136, 80, [-0.545, 0, 0.839]),
-  restShift: [0.95, -0.8, 0.45],
+  rest: fluteTurn(-161, 65, [0.7, 0, 0.7]),
+  restShift: [1.326, -0.926, 0.445],
   restPoleL: [-0.15, -1, 0.38],
-  restPoleR: [0.69, -1, -0.01],
+  restPoleR: [0.5, -1, 0.5],
   restFreeL: {
     lap: { along: 0.45, offset: [-0.45, -0.55, -0.12] },
     palm: [0.85, -0.37, 0.38],
