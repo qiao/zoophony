@@ -388,7 +388,12 @@ export const FOX_FLUTE_BACK = 9;
  * near the top of the right knee, and the flute leans about 25° out and forward, so that the head
  * joint stands outside the right arm and in front of it (2026-10-24-wind-holds decisions). The
  * left paw leaves its grip ({@link WindHold.restFreeL}), and the left arm hangs down along the
- * side.
+ * side. The right grip moves around the tube (`gripShiftR`, `restGripShiftR`), so that the flute
+ * goes through the closed right paw in the play and at rest. On the grip of the instrument, the
+ * right paw lay flat under the flute with its fingers forward past it, and at rest the flute lay
+ * 3.8 cm from the middle of the paw (`pnpm wind-grip flutist`, `2026-10-24-wind-grips` decisions).
+ * An upright flute on the right knee folded and twisted the right arm past the arm gate in each
+ * elbow direction, and both paws on it also flattened the left upper arm.
  *
  * Before, the flute stood upright at the outer side of the right thigh, with the head joint behind
  * the right arm, and the paw seemed to hold only its lower end (user, 2026-10-24). The paw on the
@@ -439,6 +444,8 @@ const FOX_FLUTE = {
   },
   palmToTube: true,
   aimAcross: 1,
+  gripShiftR: [0.05, 0.05, 0],
+  restGripShiftR: [0.1, 0.1, -0.06],
 } as const satisfies WindHold;
 
 /**
