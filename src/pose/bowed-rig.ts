@@ -229,6 +229,19 @@ export interface BowedHold {
    */
   readonly liftPlace: number | null;
   /**
+   * The further tilt of the left hand over the neck in the middle of the lift and of the lowering,
+   * in radians (design 5.2): the hand rolls around the neck toward the side of the elbow, by `4 ×
+   * weight × (1 - weight)` times this angle, so that the wrist bends less. 0 keeps the tilt of the
+   * hold.
+   */
+  readonly liftTiltL: number;
+  /**
+   * The direction to which the left elbow points in the middle of the lift and of the lowering, in
+   * the axes of the chest (design 5.2). The elbow turns from the rest pole to this pole, then to
+   * the playing pole. `null` mixes the rest pole and the playing pole directly.
+   */
+  readonly liftPoleL: Vec3 | null;
+  /**
    * True when the left paw holds the instrument at the left side in the rest pose and the bow
    * hangs from the right paw, also on a seat, as for a soloist who stands (design 5.2). A body with
    * no lap, such as the rabbit, whose round belly covers its short thighs, rests so.
@@ -348,6 +361,8 @@ const CHIN_HOLD = {
   liftReach: [0, 0, 0],
   liftTurn: null,
   liftPlace: null,
+  liftTiltL: 0,
+  liftPoleL: null,
   restAtSide: false,
   restBow: {
     lap: { along: 1, offset: [0.18, 0.08, 0] },
@@ -411,6 +426,8 @@ const FLOOR_HOLD = {
   liftReach: [0, 0, 0],
   liftTurn: null,
   liftPlace: null,
+  liftTiltL: 0,
+  liftPoleL: null,
   restAtSide: false,
   restBow: {
     lap: { along: 1, offset: [0.2, 0.08, 0] },

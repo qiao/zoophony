@@ -976,6 +976,32 @@ function leftElbow(hold: BowedHold, state: BowState, out: Vector3): Vector3 {
   return out.applyAxisAngle(turnAxis.multiplyScalar(1 / length), angle);
 }
 
+/** The left elbow in the middle of the move, for {@link leftPole}. */
+const liftPole = new Vector3();
+
+/**
+ * Gives the direction of the left elbow at a weight of the playing pose (design 5.2): the rest
+ * pole at the rest, the playing pole at the play, and a mix between them. With a pole of the
+ * middle of the move (`BowedHold.liftPoleL`), the elbow turns from the rest pole to it, then to
+ * the playing pole.
+ *
+ * @param rig The points of the player.
+ * @param weight The eased weight of the playing pose: 0 is the rest pose.
+ * @param play The playing pole, in the axes of the chest. The function writes the result into it.
+ * @returns `play`, with the pole in the axes of the chest.
+ */
+function leftPole(rig: RigPoints, weight: number, play: Vector3): Vector3 {
+  holdPole.fromArray(rig.restPoleL);
+  const midPole = rig.hold.liftPoleL;
+  if (!midPole || weight <= 0 || weight >= 1) {
+    return mixDirection(holdPole, play, weight, play);
+  }
+  liftPole.fromArray(midPole);
+  return weight < 0.5
+    ? mixDirection(holdPole, liftPole, 2 * weight, play)
+    : mixDirection(liftPole, play, 2 * weight - 1, play);
+}
+
 /**
  * Writes the arms and the instrument of a bowed string player (design 5.3, 4.7). The bow plays
  * on the strings at the place of the bow state, on the string of the stroke, and lifts in a rest.
@@ -1177,7 +1203,8 @@ export function poseBowed(
   // it does not move the hand.
   finger.reach = state.reach * weight;
   finger.stopString = MIDDLE_FINGER.stopString + (state.stopString - 1.5) * weight;
-  const handTilt = leftTilt(rig.hold, state.fingerboard) * weight;
+  const handTilt =
+    leftTilt(rig.hold, state.fingerboard) * weight + rig.hold.liftTiltL * 4 * weight * (1 - weight);
   stopHandAt(rig, place, strings, stop, h.curlL * weight, handTilt, finger, handL);
   leftElbow(rig.hold, state, poleL);
   shoulderTurnL(rig, turnL);
@@ -1187,9 +1214,7 @@ export function poseBowed(
       shoulder: poseShoulder(rig.armL, chest, rig.chestBind, turnL, shoulderL),
       wrist: handL.wrist,
       hand: handL.rotation,
-      pole: mixDirection(holdPole.fromArray(rig.restPoleL), poleL, weight, poleL).toArray(
-        poleTuple,
-      ),
+      pole: leftPole(rig, weight, poleL).toArray(poleTuple),
     },
     chest.rotation,
     rotations,
