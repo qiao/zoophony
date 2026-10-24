@@ -4189,7 +4189,8 @@ def main():
             if rule_weights is not None:
                 rule_weights = np.concatenate(
                     [rule_weights, np.zeros((len(verts), len(segment_bones())))], axis=1)
-        weights = painted_weights(verts, config['paintedWeights'])
+        # The painted file holds the places of the source, before the smooth of a box.
+        weights = painted_weights(unsmoothed, config['paintedWeights'])
         if rule_weights is not None:
             # Each vertex mixes the painted weights and the rule weights by its painted share on
             # the lower bones.
