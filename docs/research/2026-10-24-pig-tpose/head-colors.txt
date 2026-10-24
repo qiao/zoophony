@@ -1,0 +1,10 @@
+rig_mesh: source: 1566 vertices, 3135 triangles, scale 0.525703
+dark faces of the head: 11
+  patch of 6: x -0.082..-0.063 y 0.818..0.847 z 0.118..0.134 mean sRGB [0.053 0.033 0.021]
+  patch of 5: x +0.060..+0.075 y 0.823..0.849 z 0.123..0.134 mean sRGB [0.047 0.031 0.02 ]
+rig_mesh: eyes: 5 faces left, 6 faces right, nose: 0 faces
+eye L: 5 faces, x +0.060..+0.075 y 0.823..0.849 z 0.123..0.134
+eye R: 6 faces, x -0.082..-0.063 y 0.818..0.847 z 0.118..0.134
+faces of the eye region (y 0.82..0.92, |x| 0.02..0.13, z > 0.08): 144
+  face 2081: mid [0.066 0.823 0.134] sRGB [0.019 0.02  0.02 ] L 0.115 dark True
+  face 2116: mid [0.075 0.827 0.129] sRGB [0.03  0.024 0.021] L 0.125 dark True

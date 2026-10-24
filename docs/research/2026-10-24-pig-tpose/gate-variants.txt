@@ -1,0 +1,21 @@
+The arm gate of the trial pig hornist. The first rig (palm down) ran with --base main (the pig of main in parentheses), and the palm variants with --glb <variant> and no base.
+
+Palm (0, -1, 0):
+| hornist | L | 14 (2) FAIL | 31 (37) | 80 (55) FAIL | 0.53 (0.63) FAIL | 170 (153) FAIL | 47 (49) | 0.0% (0.0%) | 0.06 (0.11) | 17 (0) FAIL | 170 (153) FAIL | 31 (34) | FAIL |
+| hornist | R | 10 (3) FAIL | 40 (37) | 49 (37) | 0.54 (0.82) FAIL | 121 (107) | 35 (37) | 0.0% (0.0%) | 0.20 (0.09) FAIL | 4 (9) | 121 (107) FAIL | 139 (118) | FAIL |
+
+Palm (0, -0.7, 0.7), chosen:
+| hornist | L | 12 FAIL | 31 | 50 | 0.54 FAIL | 128 | 62 | 0.0% | 0.07 | 25 | 128 | 35 | FAIL |
+| hornist | R | 9 FAIL | 38 | 27 | 0.71 | 78 | 47 | 0.0% | 0.27 | 37 | 78 | 140 | FAIL |
+
+Palm (0, -0.7, -0.7):
+| hornist | L | 13 FAIL | 37 | 79 | 0.53 FAIL | 162 | 30 | 0.0% | 0.02 | 58 FAIL | 162 | 32 | FAIL |
+| hornist | R | 12 FAIL | 41 | 82 FAIL | 0.39 FAIL | 163 | 28 | 0.0% | 0.15 | 50 FAIL | 163 | 141 | FAIL |
+
+Palm (0, -0.9, 0.44):
+| hornist | L | 14 FAIL | 31 | 61 | 0.53 FAIL | 146 | 56 | 0.0% | 0.07 | 7 | 146 | 31 | FAIL |
+| hornist | R | 9 FAIL | 39 | 36 | 0.64 | 97 | 43 | 0.0% | 0.24 | 20 | 97 | 139 | FAIL |
+
+Palm (0, -0.9, -0.44):
+| hornist | L | 14 FAIL | 36 | 101 FAIL | 0.45 FAIL | 180 FAIL | 37 | 0.0% | 0.02 | 41 | 180 FAIL | 32 | FAIL |
+| hornist | R | 12 FAIL | 41 | 66 | 0.44 FAIL | 145 | 27 | 0.0% | 0.17 | 30 | 145 | 140 | FAIL |
