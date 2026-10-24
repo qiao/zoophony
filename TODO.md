@@ -848,18 +848,24 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       oboist, because the big head puts the reed about 0.13 m above the shoulder joints. Show the
       user the close views, and offer a bowed head while the mouse plays
       (`2026-10-19-mesh-mouse.md`).
-- [ ] Mouse oboe rest: a real oboist rests the oboe on the legs, but the round belly covers the
-      short thighs, so the oboe stands nearly upright in both paws in front of the body at rest,
-      with the arms reached forward. Nearer places flattened the left upper arm or folded the
-      right arm (`docs/reference/wind-technique.md` 4.2, `2026-10-24-wind-holds.md`).
-- [ ] Wolf clarinet rest: the bell stands about 0.2 m in front of the knees at the height of the
-      seat, and the forearms reach forward. The source puts the bell on the knee or the seat, but
-      nearer places bent the forearms into the belly or failed the arm gate
-      (`2026-10-24-wind-holds.md`).
-- [ ] Wind holds of 2026-10-24: `pnpm arm-check --base main` fails 7 values of the wolf and 1 of
-      the mouse against their margins over the base, all within their limits. The left grip
-      turn of the wolf (28° against 7°) needs an entry of `ACCEPTED_GRIPS` after the manager
-      accepts the 2x paw crops (`docs/research/2026-10-24-wind-holds/`).
+- [ ] Mouse oboe rest: the oboe stands upright about 10 cm in front of the right side of the
+      belly, and the right paw only touches it near the bell. On the belly, the right arm folded 11
+      to 15 faces, and a right grip that closes at rest folded 9 to 12 (limit 8). Try again after
+      the twist bones and loop edges of the arms (`2026-10-24-wind-grips.md`).
+- [ ] Wolf clarinet rest: the right upper arm twists 69° at rest (twist p95, limit 55°) with the
+      bell on the seat between the knees. A twist bone of the upper arm with half of the roll
+      gave 44°. Add it with the shared rig work of the arms, then run
+      `pnpm arm-check clarinetist` (`2026-10-24-wind-grips.md`).
+- [ ] Wind grips of 2026-10-24: the grip turns of the wolf (105°, 82°) and the mouse (91°, 68°)
+      change on purpose. Update `ACCEPTED_GRIPS` of `tools/arm-check.ts` after the manager accepts
+      the 2x paw crops of `docs/research/2026-10-24-wind-grips/`.
+- [ ] Tan fox flute rest: the left paw hangs free, as the source has it, and the flute leans
+      out. An upright flute on the right knee, with one or both paws, folded and twisted the right
+      arm past the arm gate. Try again after the twist bones and loop edges of the arms
+      (`2026-10-24-wind-grips.md`).
+- [ ] The mittens of the wind players close as one block, so no finger lies on a key, and the
+      finger tips of the right paw of the wolf stay about 5 cm from the tube. The red fox on the
+      violin neck has its tips on the neck (`pnpm wind-grip`).
 - [ ] Mouse tail: the loop of the long tail lies on the floor behind the mouse, and the footprint
       is 0.764 m deep. The stages of the demos with oboes are 2.1% to 6.3% smaller
       than with the large mouse, about the stages of the parametric mouse. Check the tail between
