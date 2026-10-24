@@ -123,32 +123,32 @@ type RestingHand =
 
 /** The holds of the piano and the harp. */
 export const HANDS_HOLDS = {
-  // The paw of the studio polar bear is longer than a white key, so the palm is 0.07 m in front
-  // of the front edge of the keys and 0.065 m above them, and the curled claws lie on the keys
-  // (`pianoKeyFront()`). Further back, the claws went into the fallboard, and lower, into the
-  // key bed. With the palm 0.06 m in front of the keys, a palm stayed 0.41 mm short of its keys,
-  // and with 0.05 m, 0.3% of the notes stayed more than 1 mm short. The pose follows a
-  // professional pianist (`docs/reference/piano-technique.md`): the trunk sits upright with a
-  // small lean from the hips, the forearms are level with the keys, the elbows bend about 100°,
-  // and the shoulders stay low (`shoulderDrop`). The larger piano (`PIANO_SCALE`) and the nearer
-  // keys (`PIANO_FRONT_H`) make this pose fit the long trunk and the short arms. The lean of 28°
-  // of before reached the keys with the head over the music desk
+  // The paw of the studio polar bear is longer than a white key, so the palm is 0.03 m in front
+  // of the front edge of the keys (`pianoKeyFront()`), and the curled claws lie on the key tops.
+  // The left palm is 0.044 m above the keys and the right palm 0.0505 m, because the two paws of
+  // the mesh differ. With the palm 0.065 m above the keys and 0.07 m in front of them, the claws
+  // stopped about 2 cm above the keys at their front edge, and with 0.04 m in front, the right
+  // claws stood up to 9 mm above the keys (`docs/research/2026-10-24-pianist-pose/key-gap.ts`).
+  // The pose follows a professional pianist (`docs/reference/piano-technique.md`): the trunk sits
+  // upright with a small lean from the hips, the forearms are level with the keys, the elbows bend
+  // about 100°, and the shoulders stay low (`shoulderDrop`). The larger piano (`PIANO_SCALE`) and
+  // the nearer keys (`PIANO_FRONT_H`) make this pose fit the long trunk and the short arms. The
+  // lean of 28° of before reached the keys with the head over the music desk
   // (`docs/research/2026-10-24-pianist-pose.md`). The trunk leans toward the keys of the two paws
   // (`sideLean`), as a pianist leans toward the far keys. A lean up to 16° raised the far right
   // forearm 12° to the paw. The elbows point out, a little down, and back: elbows that point down
-  // put the upper arms up to 11 cm into the round trunk (`pnpm pose-depth pianist`). The paws
-  // reach from A0 to B♭4 with the left paw and from C4 to C8 with the right paw
-  // (`pose/hands.test.ts`), so a melody changes paws between them. The wrists go up and forward
-  // over the case between the lap and the keys (`restArc`): with the paws on the thighs, the arc
-  // 0.1 H forward put the paws of the T-pose polar bear 2.6 cm into its body when they lowered,
-  // and 0.25 H 0.8 cm or less. With the paws in the lap, an arc of 0.5 H out stood the upper arms
-  // 61° out from the trunk in the lift. With no arc out, they stand out at most as far as in a
-  // play.
+  // put the upper arms up to 11 cm into the round trunk (`pnpm pose-depth pianist`). The paws reach
+  // from A0 to B♭4 with the left paw and from C4 to C8 with the right paw (`pose/hands.test.ts`),
+  // so a melody changes paws between them. The wrists go up and forward over the case between the
+  // lap and the keys (`restArc`): with the paws on the thighs, the arc 0.1 H forward put the paws
+  // of the T-pose polar bear 2.6 cm into its body when they lowered, and 0.25 H 0.8 cm or less.
+  // With the paws in the lap, an arc of 0.5 H out stood the upper arms 61° out from the trunk in
+  // the lift. With no arc out, they stand out at most as far as in a play.
   piano: {
     action: 'strike',
     keyPoint: pianoKeyFront,
-    palmL: [0, 0.065, 0.07],
-    palmR: [0, 0.065, 0.07],
+    palmL: [0, 0.044, 0.03],
+    palmR: [0, 0.0505, 0.03],
     faceL: [0, -1, 0],
     faceR: [0, -1, 0],
     aimL: null,
