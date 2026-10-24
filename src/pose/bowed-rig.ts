@@ -503,20 +503,22 @@ const HANGING_BOW = {
  * and the paw went 1.7 cm into the violin at 10° and 2.0 cm at 11° (1.4 cm on `main`,
  * 2026-10-17-bow-arm decisions).
  *
- * The rest pose is the rest of the seated violinist of the image of the user (2026-10-16-bow-rest
- * decisions): the violin stands upright on the left thigh, held at the bottom of its neck, and the
- * bow stands upright at the right side, with the frog in the right paw. The top plate has the turn
- * (0.7, 0, 0.7) (`rest.top`), so that the left paw turns on the same side as in the play: with
- * the top of the chin hold, the paw turned through 180° in the lift and the lowering
- * (2026-10-24-rabbit-hold decisions). The round belly of the
- * rabbit covers the top of its thighs, so the violin stands 0.85 of the way to the knee, 0.15 H in,
- * 0.05 H up, and 0.1 H forward, where the top of the lap is in front of the belly: at 0.65 of the
- * way, the end was 17 cm above it. With the thighs 25° down of 2026-10-17, the place of 2026-10-16
- * (0.8 of the way and 0.1 H down) put the violin 2.5 cm into the body (2026-10-17-fox-form
- * decisions). The left elbow points down, a little out, and a little back, (-0.6, -1, 0.3): with
- * the pole (-0.3, -1, 0.3), the left upper arm went 0.8 cm into the violin in the rest, the lift,
- * and the lowering, and with this pole it touches the violin 0.0 cm deep (2026-10-17-rabbit-pose
- * decisions).
+ * The rest pose and the lift are those of the red fox (user, 2026-10-24: "the violinists like
+ * rabbit and cat should use similar poses and motion as the fox"): the violin stands upright on
+ * the top of the left knee, 1.1 of the way from the hip, 0.1 H out and 0.05 H down, with the top
+ * plate to the front, and the left arm hangs to the neck. On the belly at 0.85 of the way, of
+ * 2026-10-24, the scroll came up to the chin, the paw held the neck at the mouth, and the violin
+ * went 4.8 cm into the belly. The left elbow points down, a little out, and a little back,
+ * (-0.6, -1, 0.3) (2026-10-17-rabbit-pose decisions).
+ *
+ * In the middle of the lift and of the lowering, the violin turns upright in front of the chest,
+ * with the scroll up, a little forward, and a little to the left, and the top plate to the body
+ * (`liftTurn`), and it moves 0.1 H in, 0.2 H up, and 0.2 H to the front (`liftReach`). With a
+ * direct turn, the paw twist on the forearm went through 180° and the twist bone jumped, as on the
+ * red fox, and with the top of the rest of 2026-10-24, the wrist bent past 90° from the knee. The
+ * bow tip turns through the front, with the hair to the back, and the grip moves 0.2 H to the
+ * front: with the via of `UPRIGHT_BOW`, the right paw turned 5,188°/s in a lowering
+ * (2026-10-24-violin-rest decisions).
  *
  * The right elbow hangs near the side, as the elbows of the violinist (2026-10-16-rabbit-arm
  * decisions). The belly is widest below the elbow, so the right arm hangs out around it, and the
@@ -546,12 +548,14 @@ const SHOULDER_HOLD = {
   stringTurn: 10 * MathUtils.DEG2RAD,
   restPoleL: [-0.6, -1, 0.3],
   restPoleR: [0.3, -1, 1],
-  rest: { ...LAP_VIOLIN, top: [0.7, 0, 0.7], lap: { along: 0.85, offset: [0.15, 0.05, -0.1] } },
+  rest: { ...LAP_VIOLIN, lap: { along: 1.1, offset: [-0.1, -0.05, 0] } },
+  liftReach: [-0.1, 0.2, -0.2],
+  liftTurn: { axis: [-0.3, 1, -0.6], top: [0, 0, 1] },
   restBow: {
     lap: { along: 1, offset: [0.65, 0.45, -0.3] },
     tip: UPRIGHT_BOW.tip,
     hair: UPRIGHT_BOW.hair,
-    via: UPRIGHT_BOW.via,
+    via: { tip: [-0.3, 0.3, -1], hair: [0, 0, 1], reach: [0, 0, -0.2] },
   },
   standBow: HANGING_BOW,
 } as const satisfies BowedHold;
@@ -626,6 +630,8 @@ const FOX_HOLD = {
   restPoleL: [-0.3, -1, 0.3],
   restPoleR: [0.3, -1, 0.3],
   rest: { ...LAP_VIOLIN, lap: { along: 0.8, offset: [0, -0.18, -0.2] } },
+  liftReach: [0, 0, 0],
+  liftTurn: null,
   restBow: {
     lap: { along: 0.55, offset: [0.5, -0.1, -0.15] },
     tip: UPRIGHT_BOW.tip,
