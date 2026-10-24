@@ -299,7 +299,8 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
   a real violist rests as a violinist, and the right paw of the cat stays above the thigh,
   because a paw on the thigh put the forearm into the deep belly. In the lift and the lowering,
   the bow tip turns through the front (`BowVia` of `pose/bowed-rig.ts`), and the viola of the cat
-  moves out and forward (`BowedHold.liftReach`), so that both pass in front of the belly.
+  moves up and a little out and forward (`BowedHold.liftReach`), so that both pass over and in
+  front of the belly while the arms stay bent near the body.
 - **Cello between the knees.** The seated dog keeps the cello at its playing place, as a seated
   cellist does (`BowedHold.rest` null), and holds the bow over the right knee with the tip up and
   leaned out and forward, as a cellist stands the frog on the knee
@@ -399,8 +400,8 @@ The code constants of each family hold the times, the angles, and the lengths of
     right shoulder turns forward, and the stick leans toward the fingerboard
     (`BowedHold.bowTilt`), as the reference gives, so the bow arm reaches the full hair on all
     strings with 97% of its length. The fingers curl around the stick, also at rest, and the stick
-    of the rabbit, the red fox, and the cat passes through the middle of the closed paw (`bowGrip`
-    of `models/species.ts`). The head keeps a gap from the neck of the cello and the contrabass,
+    of the rabbit, the red fox, the cat, and the hippo passes through the middle of the closed paw
+    (`bowGrip` of `models/species.ts`). The head keeps a gap from the neck of the cello and the contrabass,
     which passes the left of the head (4.6).
   - **Bow arm clearance.** The elbows point to the directions of the hold, so that the arms go no
     deeper into the body than the contact of the rest pose (5.2). Each hold of the bow (play,
