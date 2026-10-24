@@ -300,3 +300,4 @@ The decision files:
 - [`2026-10-23-rhino-apose.md`](decisions/2026-10-23-rhino-apose.md): the rhino mesh in an A-pose with its own faces and no copy, cut, or split, its size and arms, the line rule, the new accepted grip of the tubist, and its depths.
 - [`2026-10-23-night-fixes.md`](decisions/2026-10-23-night-fixes.md): the pizzicato of the dog from the side, the rest viola of the cat and the rest elbow of the beaver with no twist through 180°, and the palms of the woodwinds toward the tube.
 - [`2026-10-23-bear-eye-size.md`](decisions/2026-10-23-bear-eye-size.md): the slightly larger eyes of the bear and the polar bear.
+- [`2026-10-23-rabbit-arms.md`](decisions/2026-10-23-rabbit-arms.md): the A-pose rabbit mesh with its own faces, a short arm stretch, a violin of 0.83, its elbows and rest grip, and the open shards of its arms.

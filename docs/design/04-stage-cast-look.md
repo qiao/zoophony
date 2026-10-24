@@ -462,7 +462,7 @@ twist bone (`docs/decisions/2026-10-19-arm-skin.md`).
     No weight rule, corrective shape, or vertex move fixes both. `cut` removes the faces that join
     the forearm to the belly below a height and closes both holes with new faces, with no move of
     a vertex. The user chose it for the panda, and the caps of the belly take its white. The
-    beaver, the hippo, and the rabbit take the same cut under each armpit, where
+    beaver and the hippo take the same cut under each armpit, where
     thin faces join the upper arm to the chest and turn over in each pose, or a corner of the
     trunk with a part of the arm weight makes a ridge of long faces when the arm rises. A shape of
     `raise` can also relax the faces that turn far short of a fold (`below`), with one ring of
@@ -472,21 +472,14 @@ twist bone (`docs/decisions/2026-10-19-arm-skin.md`).
     each corner of a cap takes the mean normal of the skin at its vertex (`studioNormals()`). The
     caps of the body keep their own normals, because the normals of the skin turn the light caps
     of the belly into dark wedges. The black arm caps of the panda stay dark with each normal, so
-    the panda keeps the normals of its faces. On the rabbit, the side of the trunk curls in where
-    it joins the hanging arm, so the caps of the body lie in a notch. The raised bow arm stretches
-    the quad at the top of the cut into a sheet that faces down, and the skin faces of the rim of
-    the notch turn far from the skin around them. With their own normals, the notch shows as a
-    jagged dark gap, as if a piece of the body is missing. `cut.bodyNormals` names the sides that
-    give the caps of the body, the quads, and the rim (`StudioBody.rim`) the normals of the skin,
-    the rim with no crease angle. The notch also keeps a dark pocket, so the rig of the rabbit
-    reads a copy of the mesh in which the trunk vertices of the notch move out half of the way to
-    a surface that fits the trunk around it (`rabbit-4-armpit.glb`). A full move made facets and a
-    dark pit, and a fill toward the middle of the neighbors made a sharp tent under the arm. The
-    front of the right arm root has a second notch, which shows as a dark pocket with the arm
-    down. The copy `rabbit-4-roots.glb` moves its trunk vertices out toward the convex hull of
-    the trunk around them, and keeps the arm vertices and the body run of the cut. A
+    the panda keeps the normals of its faces. Where the side of the trunk curls in at a joined
+    arm, the caps of the body lie in a notch. A raised arm stretches the quad at the top of the
+    cut into a sheet that faces down, and the skin faces of the rim of the notch turn far from the
+    skin around them. With their own normals, the notch shows as a jagged dark gap, as if a piece
+    of the body is missing. `cut.bodyNormals` names the sides that give the caps of the body, the
+    quads, and the rim (`StudioBody.rim`) the normals of the skin, the rim with no crease angle. A
     raised arm also casts the hard shadow of its faces into the crease between the arm and the
-    trunk, and on the white fur of the rabbit the shadow shows as black wedges with steps of the
+    trunk, and on white fur the shadow shows as black wedges with steps of the
     shadow map along the seam. The rig cannot change these shadows, so the soft shadow edge of the high tier (4.5) decides them. The thick arm of the rhino joins the side of the
     trunk from the shoulder down to the paw, with a notch at its front and its back. A plane
     |x| = `armSplit` then cuts through the arm or the trunk, so the plane turns around the
@@ -526,21 +519,15 @@ twist bone (`docs/decisions/2026-10-19-arm-skin.md`).
     copy of the mesh in which each upper arm is a round tube with rings of edges, free of the
     trunk up to a dome around the shoulder joint (`pig-arms.glb`), so the free arm needs no cut
     (`weights.armFree`). The wall where the bulge was is smoothed, because the saw rim of the hole
-    and a fan from its middle showed as dark spikes at the top of the shoulder. A flat upper arm
-    reads as a plank when its broad side faces the front, so the copy of the rabbit also makes its
-    upper arms rounder (`rabbit-4-arms.glb`), and its bow elbow points out and forward (5.3). The
-    inner side of each hanging arm of the rabbit joins the trunk from the middle of the upper arm
-    to past the elbow. A flat cap of the cut there showed as a flat sheet at the bent elbow, so the
-    rig reads a further copy that removes the joining faces and closes each arm with a round patch
-    over its arm run (`rabbit-4-elbows.glb`). The patch lies inside the plane of the arm split,
-    and the free arm takes it as an island (`weights.armIslands`). The cut then closes only the
-    hole of the trunk, with its caps and its quad. The run moves with the patch, except the two
-    vertices at the top of the right run: a move of the back one lifted it above the top of the
-    cut, and the corrective shapes folded the caps of the body. A move of the front one turned
-    the cap at the top of the cut down under the raised arm, as a dark band. Each arm of the deer
+    and a fan from its middle showed as dark spikes at the top of the shoulder. Where the inner
+    side of a hanging arm joins the trunk from the middle of the upper arm to past the elbow, a
+    flat cap of the cut showed as a flat sheet at the bent elbow. So the rig reads a copy that
+    removes the joining faces and closes each arm with a round patch over its arm run. The patch
+    lies inside the plane of the arm split, and the free arm takes it as an island
+    (`weights.armIslands`). The cut then closes only the hole of the trunk. Each arm of the deer
     joins the trunk from the shoulder down to near the elbow, and the arms that reach the harp
     stretched the seam at the back of each root into dark shards. Its rig reads a copy with the
-    round patches of the rabbit (`deer-arms.glb`), and its cut ends above the shoulder joint and
+    round patches (`deer-arms.glb`), and its cut ends above the shoulder joint and
     above the top of the back notch, so that the long seam faces from the notch go. A cut with no
     patch showed the flat arm cap as a dark sheet behind the raised arm. The dog takes the same
     copy and cut (`dog-arms.glb`). Its patch pushes to the round form from near its top, so that
@@ -550,7 +537,10 @@ twist bone (`docs/decisions/2026-10-19-arm-skin.md`).
     The rhino has a mesh in an A-pose since 2026-10-23, with the arms apart from the trunk below
     the shoulders, so its rig keeps each face of the mesh with no copy, cut, or split (user:
     "don't split the arm"). The copy with round tube arms of 2026-10-22 stays in its folder as a
-    record.
+    record. The rabbit also has a mesh in an A-pose since 2026-10-23, and its rig keeps each face
+    of the mesh with no copy, cut, ring, or split. Its long arm faces fold when they stretch, so
+    its arms stretch only 1.3 times, and its violin is smaller (4.6, user: "stretch the arm a
+    little bit"). On the bent arms, these long faces show dark shards.
     `pnpm arm-look` measures the
     crease of the arm skin against the source and the section of the upper arm, with limits from the red fox
     (`docs/decisions/2026-10-21-arm-form.md`).
@@ -1182,8 +1172,10 @@ toward its base on the floor, with its distance in front of the player. A
 smaller cello has a longer end pin, and the contrabass keeps a short end pin at each size, because
 its hold moves it to the body (`endPinLength()`). A violin shop sizes a violin so that, with the left
 arm extended, the scroll lies in the middle of the palm (`pnpm hold-reach`). The user chose the
-instrument sizes and the arms of the mesh bodies, and the holds fit them. The rabbit and the red
-fox play almost the violin of the app, and the cat the viola of the app. Their arms are shorter
+instrument sizes and the arms of the mesh bodies, and the holds fit them. The rabbit plays a
+violin of 0.83, because the user asked for only a little stretch of the long arm faces of its mesh
+(`docs/decisions/2026-10-23-rabbit-arms.md`). The red fox plays almost the violin of the app, and
+the cat the viola of the app. Their arms are shorter
 than the rule needs, so their holds put the instrument nearer to the neck, and the left paw still
 reaches the nut (5.3, `docs/decisions/2026-10-16-mesh-cat.md`). The dog plays a 1/2 cello, and its
 left paw reaches the whole fingerboard (`docs/decisions/2026-10-17-dog-arms.md`). The hippo plays
