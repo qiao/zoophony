@@ -458,7 +458,10 @@ const MOUSE_OBOE_FORWARD = 0;
  * 30° from the vertical ({@link MOUSE_OBOE_FORWARD}° further forward), and each paw aims across the
  * tube (`aimAcross`): the long muzzle already puts the reed far in front of the chest, so at 40°
  * the paws held the oboe at arm's length with level forearms (user, 2026-10-24: "also how the mouse
- * is holding the instrument", `2026-10-24-wind-holds` decisions). The small mouse plays a smaller oboe (`SpeciesParams.oboeScale`).
+ * is holding the instrument", `2026-10-24-wind-holds` decisions). At 20°, the right arm folded in
+ * play. Each paw also turns half toward the side across the tube (`aimSide`), so that it lies
+ * across the back of the tube and its fingers wrap the front, as on the wolf. The small mouse plays
+ * a smaller oboe (`SpeciesParams.oboeScale`).
  * With the reed 0.14 H back, the right paw reached its grip with 3 cm to spare only on an oboe
  * of 0.52, and 0.09 H further back, on an oboe of 0.62. In the rest, the oboe is 0.04 H lower and
  * 0.02 H further forward than in the rest of {@link WIND_HOLDS}, so that the right paw keeps 3 cm
@@ -481,6 +484,7 @@ const MOUSE_OBOE = {
   poleR: [0.5, -1, -0.5],
   palmToTube: true,
   aimAcross: 1,
+  aimSide: 0.5,
 } as const satisfies WindHold;
 
 /** The forward turns of the shoulder bones of the bassoon beaver while it plays, in degrees. */
