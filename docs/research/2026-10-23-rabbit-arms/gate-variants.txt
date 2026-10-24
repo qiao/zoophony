@@ -1,0 +1,45 @@
+pnpm arm-check violinist --glb <variant> (no base): factor 1.4 with the violin 0.90 (A), factor 1.3 with the violin 0.83 (B).
+
+A:
+| violinist | L | 9 FAIL | 12 | 55 | 0.55 | 166 | 36 | 0.0% | 0.24 | 4 | 180 FAIL | 17955 FAIL | FAIL |
+| violinist | R | 11 FAIL | 30 | 46 | 0.79 | 140 | 56 | 0.0% | 0.36 FAIL | 24 | 164 | 255 | FAIL |
+
+B:
+| violinist | L | 5 | 11 | 55 | 0.55 FAIL | 164 | 34 | 0.0% | 0.21 | 4 | 180 FAIL | 17954 FAIL | FAIL |
+| violinist | R | 9 FAIL | 28 | 48 | 0.74 | 140 | 56 | 0.0% | 0.36 FAIL | 25 | 163 | 283 | FAIL |
+
+B with corrective shapes (raise-fit of the right upper arm, of the right forearm, and both):
+| violinist | L | 5 | 11 | 55 | 0.55 FAIL | 164 | 34 | 0.0% | 0.21 | 4 | 180 FAIL | 17954 FAIL | FAIL |
+| violinist | R | 12 FAIL | 33 | 49 | 0.70 | 140 | 56 | 0.0% | 0.36 FAIL | 25 | 163 | 283 | FAIL |
+| violinist | L | 5 | 11 | 55 | 0.55 FAIL | 164 | 34 | 0.0% | 0.21 | 4 | 180 FAIL | 17954 FAIL | FAIL |
+| violinist | R | 16 FAIL | 36 | 48 | 0.69 | 140 | 56 | 0.0% | 0.22 | 25 | 163 | 283 | FAIL |
+| violinist | L | 5 | 11 | 55 | 0.55 FAIL | 164 | 34 | 0.0% | 0.21 | 4 | 180 FAIL | 17954 FAIL | FAIL |
+| violinist | R | 15 FAIL | 35 | 45 | 0.68 | 140 | 56 | 0.0% | 0.23 | 25 | 163 | 283 | FAIL |
+
+B with weights.line.angle 155, 140, and weights.sliver.longest 0.05:
+| violinist | L | 5 | 11 | 54 | 0.55 FAIL | 164 | 34 | 0.0% | 0.18 | 4 | 180 FAIL | 17954 FAIL | FAIL |
+| violinist | R | 12 FAIL | 28 | 46 | 0.74 | 140 | 56 | 0.0% | 0.37 FAIL | 25 | 163 | 283 | FAIL |
+| violinist | L | 8 | 13 | 55 | 0.54 FAIL | 164 | 34 | 0.0% | 0.21 | 4 | 180 FAIL | 17954 FAIL | FAIL |
+| violinist | R | 14 FAIL | 29 | 47 | 0.74 | 140 | 56 | 0.0% | 0.36 FAIL | 25 | 163 | 283 | FAIL |
+| violinist | L | 5 | 11 | 55 | 0.55 FAIL | 164 | 34 | 0.0% | 0.21 | 4 | 180 FAIL | 17954 FAIL | FAIL |
+| violinist | R | 9 FAIL | 28 | 48 | 0.74 | 140 | 56 | 0.0% | 0.36 FAIL | 25 | 163 | 283 | FAIL |
+
+B with hold variants (pnpm arm-check violinist --variant ...):
+| base | violinist | L | 5 | 11 | 55 | 0.55 FAIL | 164 | 34 | 0.0% | 0.21 | 4 | 180 FAIL | 17954 FAIL | FAIL |
+| base | violinist | R | 9 FAIL | 28 | 48 | 0.74 | 140 | 56 | 0.0% | 0.36 FAIL | 25 | 163 | 283 | FAIL |
+| downR | violinist | L | 5 | 11 | 55 | 0.55 FAIL | 164 | 34 | 0.0% | 0.21 | 4 | 180 FAIL | 17954 FAIL | FAIL |
+| downR | violinist | R | 10 FAIL | 28 | 44 | 0.77 | 131 | 61 | 0.0% | 0.36 FAIL | 18 | 163 | 298 | FAIL |
+| outR | violinist | L | 5 | 11 | 55 | 0.55 FAIL | 164 | 34 | 0.0% | 0.21 | 4 | 180 FAIL | 17954 FAIL | FAIL |
+| outR | violinist | R | 9 FAIL | 28 | 50 | 0.72 | 143 | 53 | 0.0% | 0.35 FAIL | 27 | 163 | 279 | FAIL |
+| upR | violinist | L | 5 | 11 | 55 | 0.55 FAIL | 164 | 34 | 0.0% | 0.21 | 4 | 180 FAIL | 17954 FAIL | FAIL |
+| upR | violinist | R | 7 | 28 | 52 | 0.71 | 147 | 50 | 0.0% | 0.35 FAIL | 33 | 163 | 265 | FAIL |
+| downL | violinist | L | 5 | 10 | 56 | 0.55 | 163 | 34 | 0.0% | 0.22 | 5 | 180 FAIL | 17955 FAIL | FAIL |
+| downL | violinist | R | 9 FAIL | 28 | 48 | 0.74 | 140 | 56 | 0.0% | 0.36 FAIL | 25 | 163 | 283 | FAIL |
+| both | violinist | L | 5 | 10 | 56 | 0.55 | 163 | 34 | 0.0% | 0.22 | 5 | 180 FAIL | 17955 FAIL | FAIL |
+| both | violinist | R | 7 | 28 | 52 | 0.71 | 147 | 50 | 0.0% | 0.35 FAIL | 33 | 163 | 265 | FAIL |
+| high | violinist | L | 5 | 10 | 56 | 0.55 | 163 | 34 | 0.0% | 0.22 | 5 | 180 FAIL | 17955 FAIL | FAIL |
+| high | violinist | R | 7 | 28 | 52 | 0.71 | 147 | 50 | 0.0% | 0.35 | 33 | 163 | 249 | PASS |
+| near | violinist | L | 5 | 10 | 56 | 0.55 | 163 | 34 | 0.0% | 0.22 | 5 | 180 FAIL | 17955 FAIL | FAIL |
+| near | violinist | R | 7 | 28 | 52 | 0.71 | 147 | 50 | 0.0% | 0.36 FAIL | 33 | 163 | 263 | FAIL |
+| pole | violinist | L | 5 | 10 | 56 | 0.55 | 163 | 34 | 0.0% | 0.22 | 5 | 180 FAIL | 17955 FAIL | FAIL |
+| pole | violinist | R | 7 | 28 | 52 | 0.71 | 147 | 50 | 0.0% | 0.35 | 33 | 163 | 263 | PASS |

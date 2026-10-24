@@ -1,0 +1,25 @@
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| Species | Set | Pair | HEAD (8dabc0e2) cm | HEAD (8dabc0e2) H | tree cm | tree H | Mark | tree at |
+|---|---|---|---:|---:|---:|---:|---|---|
+| rabbit | play | paws in body | 0.0 | 0.000 | 0.4 | 0.013 | GROWS | boulanger-matin 280.63 s |
+| rabbit | play | paws in violin | 2.4 | 0.076 | 2.0 | 0.065 |  | boulanger-matin 165.63 s |
+| rabbit | play | forearms in body | 0.0 | 0.000 | 0.2 | 0.008 | GROWS | boulanger-matin 280.63 s |
+| rabbit | play | forearms in violin | 0.0 | 0.000 | 2.0 | 0.067 | GROWS | brahms-2 234.88 s |
+| rabbit | play | bow in body | 0.1 | 0.002 | 0.2 | 0.005 |  | beethoven-8 8.90 s |
+| rabbit | play | instrument in body | 1.5 | 0.048 | 1.6 | 0.054 | GROWS | brahms-2 171.88 s |
+| rabbit | lift | paws in violin | 2.3 | 0.073 | 1.8 | 0.060 |  | mozart-k525 wall 12.40 s |
+| rabbit | lift | forearms in violin | 1.4 | 0.043 | 1.1 | 0.037 |  | beethoven-9 wall 10.50 s |
+| rabbit | lift | upper arms in body | 2.6 | 0.080 | 0.0 | 0.000 |  | bach-bwv1047 wall 0.00 s |
+| rabbit | lift | instrument in body | 2.8 | 0.086 | 2.4 | 0.079 |  | bach-bwv1047 wall 10.60 s |
+| rabbit | rest | paws in violin | 1.0 | 0.032 | 0.9 | 0.030 |  | bach-bwv1047 wall 10.00 s |
+| rabbit | rest | forearms in violin | 1.4 | 0.043 | 0.8 | 0.028 |  | bach-bwv1047 wall 10.00 s |
+| rabbit | rest | upper arms in body | 2.5 | 0.077 | 0.0 | 0.000 |  | bach-bwv1047 wall 0.00 s |
+| rabbit | rest | instrument in body | 0.8 | 0.025 | 0.7 | 0.024 |  | bach-bwv1047 wall 10.00 s |
+| rabbit | lower | paws in body | 0.0 | 0.000 | 0.4 | 0.013 | GROWS | boulanger-matin wall 11.50 s |
+| rabbit | lower | paws in violin | 1.9 | 0.060 | 1.0 | 0.035 |  | beethoven-9 wall 13.70 s |
+| rabbit | lower | forearms in body | 2.3 | 0.071 | 0.2 | 0.008 |  | boulanger-matin wall 11.50 s |
+| rabbit | lower | forearms in violin | 2.0 | 0.063 | 2.0 | 0.066 |  | beethoven-8-4 wall 13.80 s |
+| rabbit | lower | upper arms in body | 5.9 | 0.183 | 0.0 | 0.000 |  | bach-bwv1047 wall 0.00 s |
+| rabbit | lower | instrument in body | 2.8 | 0.087 | 2.3 | 0.078 |  | boulanger-matin wall 13.90 s |
