@@ -1,0 +1,152 @@
+# Arm rigs in Blender
+
+This module of `AGENTS.md` gives the method that rebuilds the arms of a mesh rig in the live
+Blender, so that the arms bend and twist like real arms. The polar bear pianist uses it on `main`
+(`docs/research/2026-10-24-polar-bear-arms.md`). The Rigify rabbit of the branch `rigify-rabbit`
+tested it first (`docs/research/2026-10-24-rigify-rabbit.md` on that branch, sections 8 and 9).
+Use it when the arms of a route 3 body show a spiral crease, a sharp elbow, a collapsed inner
+elbow, slivers, or slits. Read route 3 of [`model-work.md`](model-work.md) and
+[`model-traps.md`](model-traps.md) first.
+
+## Why the old rigs twisted
+
+Three causes add up. Fix all three, because each fix alone leaves a fault.
+
+- **The faces.** A Meshy mesh has long thin triangles across the elbow and along the forearm.
+  When a bone turns, these faces cannot bend smoothly, and they fold into a spiral. A subdivision
+  of these faces gives dark slits and a pale flap. New quad faces fix it.
+- **The bones.** Linear skinning blends the bone matrices of each vertex. When one bone takes a
+  large twist, the skin collapses (a candy wrapper). Many short segments, each with a small share
+  of the twist, keep each step small. Aim for less than 25° between two neighbor arm bones.
+- **The hold.** The hold sets the total twist of the arm. The rig only spreads it. A real forearm
+  turns about 90°. When a hold asks for 160° or more, change the paw turn, the elbow direction, or
+  the instrument size first.
+
+## The user rules
+
+- Work in the live Blender through Blender MCP, with the plain Blender tools, one step at a time,
+  and look at an image after each step. Write no weight algorithm of your own. A replay script
+  records the session (user, 2026-10-24: "aren't you supposed to only use blender mcp?" and "I was
+  expecting you to just create the armature in blender, do the weight painting, etc").
+- Change only the faces of the arms, from the shoulder line to the wrist. Keep the faces of the
+  paws, the trunk, the legs, and the head. The new surface lies on the old arm. The user approved
+  this for the rabbit and the polar bear. Ask before you do it on a new species, because the rule
+  of no split of 2026-10-23 holds for the others (`docs/decisions/2026-10-23-rhino-apose.md`).
+- Keep the source file of the user. Write the new source next to it, such as
+  `assets/models/<s>/<s>-arms.glb`, with a README note.
+- Do not stretch the arms unless the user asks. Fit the instrument or the hold instead.
+- Check with images from the front, the back, the left, the right, and the stage camera (az 150
+  and az -150 at elevation 40), at each moment of the role.
+
+## The route
+
+```text
+ <s>-tpose.glb or <s>-apose.glb (user)
+   --> Merge by Distance --> Bisect at the shoulder line and the wrist --> Delete Faces
+   --> quad tube (15 rings x 16) --> Shrinkwrap --> Bridge Edge Loops
+   --> UV + bake of the fur color --> Data Transfer of the normals --> <s>-arms.glb
+   --> studio skeleton + arm segments + helpers --> automatic weights
+   --> Limit Total 4, Normalize All, Weight Paint fixes --> <s>-weights.json
+                                         (live Blender, MCP; tools/blender/<s>_arms.py replays it)
+   --> pnpm rig-mesh <s> (paintedWeights, paintedLower) --> pnpm studio-body <s>
+   --> poseStudioBones() turns the segments and the helpers on each frame
+```
+
+## Steps in Blender
+
+1. Start Blender with `/Applications/Blender.app/Contents/MacOS/Blender &`, and record its PID.
+   Load the MCP tools with ToolSearch:
+   `select:mcp__blender__get_addon_status,mcp__blender__get_scene_info,mcp__blender__execute_blender_code,mcp__blender__look`.
+   The first call after the start can drop, so repeat it. Never call `read_factory_settings`,
+   because it stops the addon. Stop only your PID at the end.
+2. Import the source, and run Merge by Distance. The glTF importer splits the vertices at the UV
+   seams, and automatic weights fail on such a mesh.
+3. Cut each arm: Bisect at the shoulder line, where the arm is free of the trunk, and at the
+   wrist. Delete the faces between the cuts.
+4. Build a quad tube of 15 rings of 16 vertices: 5 on the upper arm, 3 at the elbow, 8 on the
+   forearm, and 2 at the wrist. The cut loop of the paw is the third wrist ring. Each ring stands
+   at a right angle to its bone. The rings of a joint stand about 1.5 cm apart on a thin arm, and
+   about 3 cm on a thick arm.
+5. Shrinkwrap the tube onto a hidden copy of the old arm, then apply it. Join the tube to the
+   trunk and to the paw with Bridge Edge Loops.
+6. Give the new faces a UV layout, and bake the fur color of the old arm onto them (Cycles,
+   Selected to Active). A Data Transfer of the UVs crosses the island borders of a Meshy texture,
+   so use the bake. Put the arm image in a strip of the atlas, so that the mesh keeps one material
+   for `rig-mesh`. Transfer the custom normals of the old surface (Data Transfer), so that no seam
+   shows.
+7. Add the studio skeleton with the segments and the helpers (below), parent the mesh with
+   Automatic Weights, then run Limit Total 4 and Normalize All.
+8. Fix the weights with the Weight Paint tools: Remove From Group of the arm bones on the trunk
+   below the armpits, Smooth at the shoulder line, and Smooth on the arm vertices. Look at test
+   poses after each fix: the arm down, forward, an elbow at 100°, and a forearm turn of 90°.
+9. Write the weights file, and the replay script `tools/blender/<s>_arms.py`. A headless run of
+   the script must give the same mesh and weights, byte for byte.
+
+## The bones
+
+Each upper arm and each forearm has 4 deform segments, and each elbow and each wrist has a helper
+bone. The old upper arm, forearm, and forearm twist bones hold no skin. They only drive the new
+bones. `armSegments` of the config turns this on, and it replaces `upperTwist`.
+
+```text
+ chest --> clavicle --> upper_arm (drives) --+-- upper_arm_seg0..3 (roll 1/8 .. 7/8)
+                                             +-- elbow helper (half of upper -> fore)
+                        forearm (drives) ----+-- forearm_seg0..3 (twist 1/8 .. 7/8)
+                        forearm_twist -------+-- wrist helper (half of fore+twist -> paw)
+                        hand (skin) --> fingers (skin)
+```
+
+```typescript
+/** The arm segments and the helpers of one arm, as indices in `STUDIO_BONES`. */
+interface StudioArmSegments {
+  /** Segment k takes (k + 0.5) / 4 of the roll of the upper arm from the chest. */
+  readonly upper: readonly number[];
+  /** Segment k takes (k + 0.5) / 4 of the twist from the forearm to the paw. */
+  readonly fore: readonly number[];
+  /** Turns halfway from the upper arm to the forearm, around the elbow. */
+  readonly elbow: number;
+  /** Turns halfway from the forearm with all of the twist to the paw, around the wrist. */
+  readonly wrist: number;
+}
+```
+
+- **The app.** `poseSegments()` of `src/models/studio-rig.ts`, called from `poseArm()`, turns the
+  new bones from the joints that the pose code already sets. Thus they work for each song, and the
+  poses stay stateless.
+- **The rig tool.** `driven_turns()` of `tools/blender/rig_mesh.py` turns them with the same rule
+  in the seated bind and in the clip `reference`.
+- **The config** (`tools/mesh-rigs/polar-bear.json` is the example):
+  - `paintedWeights` names the weights file of the Blender session.
+  - `paintedLower` lists the bones whose vertices keep the rule weights of `rig-mesh`.
+  - `armSegments.helper` gives the length of a helper bone in units. `armSegments` needs the arm
+    factor 1 and the linear bind.
+
+## Traps
+
+- **The 180° jump.** `twistAngle()` gives a value from -180° to 180°. Each share of it, of the
+  old twist bone or of a segment, flips when the paw turn passes 180°. The polar bear stays near
+  76°. For a larger twist, lower the twist of the hold. Or measure the twist around a center of
+  the role, `wrap(raw - center) + center`, so that the jump falls outside the used range. Carry no
+  value from the last frame.
+- **The legs.** Blender weights on the hips, the spine, and the chest folded a V on the lower back
+  over the bench, and cut a slit under each arm. Keep the rule weights there with `paintedLower`.
+- **The preview.** glTF and three.js have no B-Bones and use linear skinning with 4 weights for
+  each vertex. In Blender, set `bbone_segments` to 1, turn off Preserve Volume, and run Limit
+  Total 4 before you judge the weights. Otherwise the preview looks better than the app.
+- **Rigify.** Bind right after Generate, before you set `bbone_segments` to 1, because the
+  automatic weights use the B-Bones of the fresh rig. Set IK Stretch to 0 on the arm IK bones:
+  the default 0.1 made the arms 2% to 3.4% shorter.
+- **Rejected fixes.** A second subdivision of the arm faces, weight rules of an agent, a Smooth on
+  the upper arm weights, and a move of the elbow alone all failed. The elbow move only shifts
+  twist between the upper arm and the forearm.
+- **The frame cost.** Each body with `armSegments` has 20 more bone matrices. Run `pnpm frame`
+  after a new body uses it.
+
+## Checks
+
+- Measure the twist steps between neighbor arm bones over all demos with
+  `node docs/research/2026-10-24-polar-bear-arms/twist-steps.ts 0.25`, as a diagnosis.
+- Run `pnpm rig-mesh <s>` and `pnpm studio-body <s>`, then `pnpm build` and `pnpm size`.
+- Make before and after images of each moment of the role, from the views of the user rules, and
+  2x crops of both arms. The round is not done while a spiral crease, a sharp elbow, a collapsed
+  inner elbow, a seam, or a flap shows in a view that the stage camera can show.
