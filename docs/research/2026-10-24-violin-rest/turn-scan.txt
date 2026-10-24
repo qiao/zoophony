@@ -1,0 +1,86 @@
+Arm gate of 2 roles in 5 variants: 10 children, at most 8 at the same time, in 323 s. A cell gives the value and the verdict of a value that does not pass.
+
+- a-0.3,1,-0.6 t0,0,1: violin@rabbit.rest.lap={"along":1.05,"offset":[-0.15,-0.1,-0.2]};violin@rabbit.rest.top=[0,0,-1];violin@rabbit.liftTurn={"axis":[-0.3,1,-0.6],"top":[0,0,1]}
+- a-0.6,1,-0.6 t0,0,1: violin@rabbit.rest.lap={"along":1.05,"offset":[-0.15,-0.1,-0.2]};violin@rabbit.rest.top=[0,0,-1];violin@rabbit.liftTurn={"axis":[-0.6,1,-0.6],"top":[0,0,1]}
+- a-0.6,1,-0.3 t0,0,1: violin@rabbit.rest.lap={"along":1.05,"offset":[-0.15,-0.1,-0.2]};violin@rabbit.rest.top=[0,0,-1];violin@rabbit.liftTurn={"axis":[-0.6,1,-0.3],"top":[0,0,1]}
+- a-0.3,1,-0.6 t-0.5,0,0.87: violin@rabbit.rest.lap={"along":1.05,"offset":[-0.15,-0.1,-0.2]};violin@rabbit.rest.top=[0,0,-1];violin@rabbit.liftTurn={"axis":[-0.3,1,-0.6],"top":[-0.5,0,0.87]}
+- cat: viola@cat.rest.lap={"along":0.95,"offset":[0,0,-0.3]};viola@cat.liftReach=[0.1,0.4,0];viola@cat.liftTurn={"axis":[-0.6,1,-0.6],"top":[0,0,1]}
+
+| Variant | Role | Arm | folds p95 (8) | twist p95 (55) | forearm twist p95 (80) | flat p5 (0.55) | paw twist p95 (170) | paw swing p95 (70) | paw jumps (0.5%) | stretch p95 (0.35) | grip turn p50 (45) | move twist max (176) | move turn max (3000) | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| a-0.3,1,-0.6 t0,0,1 | violinist | L | 5 | 17 | 51 | 0.58 | 155 | 70 | 0.0% | 0.23 | 11 | 162 | 911 | PASS |
+| a-0.3,1,-0.6 t0,0,1 | violinist | R | 6 | 32 | 41 | 0.75 | 125 | 64 | 0.0% | 0.37 FAIL | 17 | 144 | 5188 FAIL | FAIL |
+| a-0.3,1,-0.6 t0,0,1 | violist | L | 12 FAIL | 49 | 52 | 0.43 FAIL | 152 | 87 FAIL | 0.0% | 0.32 | 9 | 153 | 1034 | FAIL |
+| a-0.3,1,-0.6 t0,0,1 | violist | R | 4 | 53 | 45 | 0.14 FAIL | 116 | 65 | 0.0% | 0.33 | 12 | 138 | 492 | FAIL |
+| a-0.6,1,-0.6 t0,0,1 | violinist | L | 4 | 17 | 51 | 0.58 | 155 | 68 | 3.2% FAIL | 0.23 | 11 | 162 | 1001 | FAIL |
+| a-0.6,1,-0.6 t0,0,1 | violinist | R | 6 | 32 | 41 | 0.74 | 125 | 64 | 0.0% | 0.37 FAIL | 17 | 143 | 10826 FAIL | FAIL |
+| a-0.6,1,-0.6 t0,0,1 | violist | L | 12 FAIL | 49 | 52 | 0.43 FAIL | 152 | 87 FAIL | 0.0% | 0.32 | 9 | 153 | 1034 | FAIL |
+| a-0.6,1,-0.6 t0,0,1 | violist | R | 4 | 53 | 45 | 0.14 FAIL | 116 | 65 | 0.0% | 0.33 | 12 | 138 | 492 | FAIL |
+| a-0.6,1,-0.3 t0,0,1 | violinist | L | 4 | 17 | 51 | 0.58 | 155 | 66 | 3.2% FAIL | 0.23 | 11 | 162 | 1134 | FAIL |
+| a-0.6,1,-0.3 t0,0,1 | violinist | R | 6 | 32 | 41 | 0.73 | 125 | 66 | 0.0% | 0.37 FAIL | 17 | 149 | 10447 FAIL | FAIL |
+| a-0.6,1,-0.3 t0,0,1 | violist | L | 12 FAIL | 49 | 52 | 0.43 FAIL | 152 | 87 FAIL | 0.0% | 0.32 | 9 | 153 | 1034 | FAIL |
+| a-0.6,1,-0.3 t0,0,1 | violist | R | 4 | 53 | 45 | 0.14 FAIL | 116 | 65 | 0.0% | 0.33 | 12 | 138 | 492 | FAIL |
+| a-0.3,1,-0.6 t-0.5,0,0.87 | violinist | L | 4 | 17 | 51 | 0.58 | 155 | 69 | 0.0% | 0.23 | 11 | 162 | 1096 | PASS |
+| a-0.3,1,-0.6 t-0.5,0,0.87 | violinist | R | 6 | 32 | 41 | 0.74 | 125 | 69 | 0.0% | 0.37 FAIL | 17 | 145 | 15760 FAIL | FAIL |
+| a-0.3,1,-0.6 t-0.5,0,0.87 | violist | L | 12 FAIL | 49 | 52 | 0.43 FAIL | 152 | 87 FAIL | 0.0% | 0.32 | 9 | 153 | 1034 | FAIL |
+| a-0.3,1,-0.6 t-0.5,0,0.87 | violist | R | 4 | 53 | 45 | 0.14 FAIL | 116 | 65 | 0.0% | 0.33 | 12 | 138 | 492 | FAIL |
+| cat | violinist | L | 5 | 9 | 52 | 0.54 FAIL | 158 | 45 | 0.0% | 0.19 | 11 | 162 | 147 | FAIL |
+| cat | violinist | R | 6 | 32 | 41 | 0.81 | 125 | 31 | 0.0% | 0.37 FAIL | 17 | 140 | 167 | FAIL |
+| cat | violist | L | 7 | 31 | 52 | 0.51 FAIL | 152 | 98 FAIL | 0.0% | 0.24 | 9 | 153 | 973 | FAIL |
+| cat | violist | R | 4 | 53 | 45 | 0.14 FAIL | 116 | 65 | 0.0% | 0.33 | 12 | 134 | 494 | FAIL |
+
+Variant a-0.3,1,-0.6 t0,0,1:
+
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| violinist | R | stretch p95 | play | 17788 | 0.29 | 0.37 | 100.0% | 0.37 at mozart-k417.mid 162.70 s | 0.37 | 0.35 | - | FAIL |
+| violinist | R | move turn max | move | 16254 | 33 | 425 | 90.8% | 5188 at boulanger-matin.mid lower 280.67 s, wall 1.08 s | 5188 | 3000 | - | FAIL |
+| violist | L | folds p95 | rest | 14 | 11 | 12 | 100.0% | 12 at bach-bwv1047.mid rest | 12 | 8 | - | FAIL |
+| violist | L | flat p5 | rest | 14 | 0.45 | 0.43 | 100.0% | 0.43 at bach-bwv1047.mid rest | 0.43 | 0.55 | - | FAIL |
+| violist | L | paw swing p95 | rest | 14 | 85 | 87 | 100.0% | 87 at bach-bwv1047.mid rest | 87 | 70 | - | FAIL |
+| violist | R | flat p5 | play | 17788 | 0.45 | 0.14 | 100.0% | 0.09 at beethoven-8.mid 62.90 s | 0.14 | 0.55 | - | FAIL |
+
+Variant a-0.6,1,-0.6 t0,0,1:
+
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| violinist | L | paw jumps | lift | 434 | 0 | 0 | 3.2% | 98 at mozart-k191.mid wall 0.6 s | 3.2% | 0.5% | - | FAIL |
+| violinist | R | stretch p95 | play | 17788 | 0.29 | 0.37 | 100.0% | 0.37 at mozart-k417.mid 162.70 s | 0.37 | 0.35 | - | FAIL |
+| violinist | R | move turn max | move | 16254 | 40 | 410 | 90.9% | 10826 at boulanger-matin.mid lower 280.67 s, wall 1.03 s | 10826 | 3000 | - | FAIL |
+| violist | L | folds p95 | rest | 14 | 11 | 12 | 100.0% | 12 at bach-bwv1047.mid rest | 12 | 8 | - | FAIL |
+| violist | L | flat p5 | rest | 14 | 0.45 | 0.43 | 100.0% | 0.43 at bach-bwv1047.mid rest | 0.43 | 0.55 | - | FAIL |
+| violist | L | paw swing p95 | rest | 14 | 85 | 87 | 100.0% | 87 at bach-bwv1047.mid rest | 87 | 70 | - | FAIL |
+| violist | R | flat p5 | play | 17788 | 0.45 | 0.14 | 100.0% | 0.09 at beethoven-8.mid 62.90 s | 0.14 | 0.55 | - | FAIL |
+
+Variant a-0.6,1,-0.3 t0,0,1:
+
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| violinist | L | paw jumps | lift | 434 | 0 | 0 | 3.2% | 102 at mozart-k191.mid wall 0.6 s | 3.2% | 0.5% | - | FAIL |
+| violinist | R | stretch p95 | play | 17788 | 0.29 | 0.37 | 100.0% | 0.37 at mozart-k417.mid 162.70 s | 0.37 | 0.35 | - | FAIL |
+| violinist | R | move turn max | move | 16254 | 41 | 428 | 90.9% | 10447 at boulanger-matin.mid lower 280.67 s, wall 1.01 s | 10447 | 3000 | - | FAIL |
+| violist | L | folds p95 | rest | 14 | 11 | 12 | 100.0% | 12 at bach-bwv1047.mid rest | 12 | 8 | - | FAIL |
+| violist | L | flat p5 | rest | 14 | 0.45 | 0.43 | 100.0% | 0.43 at bach-bwv1047.mid rest | 0.43 | 0.55 | - | FAIL |
+| violist | L | paw swing p95 | rest | 14 | 85 | 87 | 100.0% | 87 at bach-bwv1047.mid rest | 87 | 70 | - | FAIL |
+| violist | R | flat p5 | play | 17788 | 0.45 | 0.14 | 100.0% | 0.09 at beethoven-8.mid 62.90 s | 0.14 | 0.55 | - | FAIL |
+
+Variant a-0.3,1,-0.6 t-0.5,0,0.87:
+
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| violinist | R | stretch p95 | play | 17788 | 0.29 | 0.37 | 100.0% | 0.37 at mozart-k417.mid 162.70 s | 0.37 | 0.35 | - | FAIL |
+| violinist | R | move turn max | move | 16254 | 45 | 452 | 90.9% | 15760 at boulanger-matin.mid lower 280.67 s, wall 0.95 s | 15760 | 3000 | - | FAIL |
+| violist | L | folds p95 | rest | 14 | 11 | 12 | 100.0% | 12 at bach-bwv1047.mid rest | 12 | 8 | - | FAIL |
+| violist | L | flat p5 | rest | 14 | 0.45 | 0.43 | 100.0% | 0.43 at bach-bwv1047.mid rest | 0.43 | 0.55 | - | FAIL |
+| violist | L | paw swing p95 | rest | 14 | 85 | 87 | 100.0% | 87 at bach-bwv1047.mid rest | 87 | 70 | - | FAIL |
+| violist | R | flat p5 | play | 17788 | 0.45 | 0.14 | 100.0% | 0.09 at beethoven-8.mid 62.90 s | 0.14 | 0.55 | - | FAIL |
+
+Variant cat:
+
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| violinist | L | flat p5 | rest | 14 | 0.54 | 0.54 | 100.0% | 0.54 at bach-bwv1047.mid rest | 0.54 | 0.55 | - | FAIL |
+| violinist | R | stretch p95 | play | 17788 | 0.29 | 0.37 | 100.0% | 0.37 at mozart-k417.mid 162.70 s | 0.37 | 0.35 | - | FAIL |
+| violist | L | flat p5 | rest | 14 | 0.53 | 0.51 | 100.0% | 0.51 at bach-bwv1047.mid rest | 0.51 | 0.55 | - | FAIL |
+| violist | L | paw swing p95 | rest | 14 | 93 | 98 | 100.0% | 98 at bach-bwv1047.mid rest | 98 | 70 | - | FAIL |
+| violist | R | flat p5 | play | 17788 | 0.45 | 0.14 | 100.0% | 0.09 at beethoven-8.mid 62.90 s | 0.14 | 0.55 | - | FAIL |
