@@ -623,9 +623,15 @@ const WOLF_CLARINET_FORWARD = -5;
  * on the forearms: with the elbows of {@link WIND_HOLDS}, the right paw turned 141° and the left
  * paw 123°, and with these elbows 71° and 89° (`docs/research/2026-10-20-wolf-mesh.md`).
  *
- * At rest, the clarinet comes off the mouth 0.3 H down and 0.3 H forward, over the lap, with both
- * paws on their grips. With the rest place of {@link WIND_HOLDS} in front of the chest, the right
- * elbow bent about 140°, and six faces of the right arm folded in each rest sample.
+ * At rest, the clarinet stands upright in front of the knees, with the bell at the height of the
+ * seat, about 0.2 m in front of the knees, and both paws keep their grips with the elbows down at the sides. A
+ * seated clarinetist puts the bell on the knee or on the seat between the legs in a rest
+ * (`docs/reference/wind-technique.md` 3). Before, the clarinet hung across the front of the body
+ * at about 30° to the side, with the paws at arm's length (2026-10-24-wind-holds decisions). With
+ * the bell nearer to the body, the elbows that point down bent the forearms into the belly, and
+ * the elbows that point out twisted the right upper arm past the limit of the arm gate. With the
+ * rest place of {@link WIND_HOLDS} in front of the chest, the right elbow bent about 140°, and six
+ * faces of the right arm folded in each rest sample.
  */
 const WOLF_CLARINET = {
   ...WIND_HOLDS.clarinet,
@@ -633,7 +639,8 @@ const WOLF_CLARINET = {
   reachL: 20 * MathUtils.DEG2RAD,
   lipShift: [0, -0.18, 0.4],
   play: holdTurn(WOLF_CLARINET_FORWARD, 0),
-  restShift: [-0.17, -0.3, -0.3],
+  rest: holdTurn(-25, 0),
+  restShift: [0, -0.55, -0.3],
   poleL: [-0.3, -1, 0],
   poleR: [0.3, -1, 0],
   restPoleL: [-0.3, -1, 0],

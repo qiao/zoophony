@@ -327,7 +327,10 @@ from the first position (derived).
 - **Clarinet.** The clarinet is at the middle of the body, at about 45° from the body [49] [50]. It
   goes "from the mouth to between the knees" [6]. The right thumb under the thumb rest carries the
   weight, and the head does not tilt toward the clarinet [49] [50]. In a deep breath, the chest
-  expands and the shoulders stay still [49]. No source of this file gives the rest.
+  expands and the shoulders stay still [49]. In a rest, a seated player takes the weight off the
+  right hand: "Put that right thumb on top of the thumbrest and the bell on your chair or knee",
+  or "on your seat between legs or on your knee" [60]. The same teacher does not put the clarinet
+  on the legs when he stands [60].
 - **Bassoon.** The bassoon lies diagonal in front of the player and hangs on a seat strap, a neck
   strap, or a harness [52]. Most American bassoonists sit on a seat strap, with the bassoon on the
   right thigh [51]. The left hand is above the right hand, and the right hand rests against the
@@ -391,7 +394,7 @@ the rows.
 | Clarinet angle (`hanging()`, `WOLF_CLARINET`) | 25° from the vertical. The wolf, the only clarinetist, turns the lower end 5° back, to 20° | About 45° from the body, from the mouth to between the knees (3) | Differs: 20°. The long muzzle puts the mouthpiece far in front of the chest, so at 45° the bell was far in front of the knees, and at 30° the arms still reached far forward. The wolf of `orchestra-latest.png` and `orchestra-side.png` holds it at about 25° to 30° in the image |
 | Clarinet mouthpiece and arms (`lipShift`, `reach`, `reachL`, `poleL`, `poleR` of `WOLF_CLARINET`) | The mouthpiece is in the mouth under the long muzzle, 0.4 H behind and 0.18 H below the mouth of the bind pose. The shoulders turn forward, and the elbows point down and a little out | The clarinet at the middle of the body, and the head does not tilt toward it (3) | Matches |
 | Woodwind palms (`palmToTube`, `aimAcross`, `aimSide` of `FOX_FLUTE`, `MOUSE_OBOE`, `WOLF_CLARINET`) | Each paw that stays on its grip rolls until its palm faces the tube, so the fingers lie over the keys. The paws also aim across the tube (`aimAcross`), so that the fingers wrap it. The paws of the wolf also turn half toward the side across the tube (`aimSide`), so that they lie across its back and the fingers wrap its front. The left paw of the tan fox leaves its grip at rest and keeps the roll of its shoulder | The fingers cover the tone holes and the keys, and the hands hold the tube (2.3, 2.4, 3) | Matches for the paws on their grips |
-| Clarinet rest (`restShift` of `WOLF_CLARINET`) | Off the mouth, down and forward over the lap, with both paws on their grips | No source of this file gives the rest (3) | No source |
+| Clarinet rest (`rest`, `restShift` of `WOLF_CLARINET`) | Upright in front of the knees, with the bell at the height of the seat, and both paws on their grips with the elbows down | The bell on the chair or the knee, or on the seat between the legs (3) | Differs: the bell stands about 0.2 m in front of the knees, at the height of the seat, and touches nothing. A bell nearer to the body bent the forearms into the belly, or twisted the right upper arm past the arm gate |
 | Bassoon (`BEAVER_BASSOON`, `bassoonParts()` of `models/instruments/woodwinds.ts`) | Diagonal in front of the body, with the lower end 20° forward and 20° to the right, the left paw above the right paw, and the end of the bocal 2.8° above the level at the reed. The beaver, the only bassoonist, has the reed under its front teeth (`lipShift`) | Diagonal in front of the player, on a strap, the left hand above the right hand, with the bocal nearly level (3) | Matches. The app has no strap |
 | Bassoon size (`bassoonScale` of `SPECIES.beaver`) | 0.82 of the bassoon of the app, because the beaver keeps the arms that the user chose | This file gives no size of a smaller bassoon (3) | No source |
 | Bassoon rest (`rest` of `WIND_HOLDS.bassoon`) | Off the mouth and tilted, with both paws on their grips | No source of this file gives the rest (3) | No source |
@@ -550,3 +553,5 @@ Each source opened on 2026-10-18, except where a fact has a mark of section "Sou
     https://www.thomann.co.uk/rudolf_schwarz_tuba_kaenguru_bb_tuba.htm
 59. Engadine Music, "Neotech Pad-It Tuba Harness", product text (opened 2026-10-21).
     https://engadinemusic.com.au/products/neotech-pad-it-tuba-harness
+60. C. Jones, "Clarinet Thumb Pain", Clarinet Now (opened 2026-10-24).
+    https://clarinet-now.com/clarinet-thumb-pain.html
