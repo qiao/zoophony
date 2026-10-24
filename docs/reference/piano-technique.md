@@ -155,19 +155,20 @@ differences. The research report
   are about 15 cm above keys at 0.70 m. Its bench fits the legs of the rig, and a lower bench
   puts the knees above the hips. Thus the piano is 1.16 times the size of a real piano, with the
   key top at 0.81 m. The forearms are level with the keys (section 1). The elbow joint is about
-  7 cm above the key top, because the paw is 6.5 cm thick.
+  7 cm above the key top, because the paw is thick.
 - **Trunk.** The spine leans 14° forward from the bind (section 3), and the head stays erect over
   the music desk.
-- **Distance.** The keys stand 1.28 H in front of the floor point. The elbows bend about 100°
-  (section 1), and the upper arms are about 29° forward of the vertical, more than the
+- **Distance.** The keys stand 1.16 H in front of the floor point. The elbows bend about 102°
+  (section 1), and the upper arms are about 28° forward of the vertical, more than the
   derived 0° to 20°, because the forearms must clear the round belly (section 4).
-- **Arms.** The elbows point out, a little down, and back, and stand about 38° out from the
+- **Arms.** The elbows point out, a little down, and back, and stand about 36° out from the
   trunk. Elbows that hang nearer went into the wide trunk. The shoulders turn down 6° in the
   play (section 3).
 - **Wrists and paws.** The palm faces down, in line with the level forearm (section 5). The
-  claws curl 30° onto the keys.
+  claws curl 30°, and their tips lie on the key tops at each strike, 3 to 5 cm past the front
+  edge of the keys (section 5).
 - **Motion.** The trunk leans to the side toward the keys of the two paws, up to 10° (section 7).
-  At the far keys of the demos, the outer upper arm still stands 43° to 48° out, as the arm of
+  At the far keys of the demos, the outer upper arm still stands 42° to 47° out, as the arm of
   a pianist that reaches the far end.
 - **Feet.** The feet stay flat on the floor in the bind of the rig. No foot moves to a pedal.
 - **Rest.** The paws rest on the thighs, and the trunk sits tall (section 8).
