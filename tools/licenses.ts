@@ -108,14 +108,13 @@ export async function packageEntries(
 
 /**
  * Makes the license entry of the hall impulse response (design 6.2, 7.3). CC BY 4.0 asks for the
- * credit, a link to the license, and a note of the changes, so the text starts with the credit
- * line of `HALL_CREDIT` and the two links, before the license text.
+ * credit, a link to the license, and a note of the changes, so the text is the credit line of
+ * `HALL_CREDIT` and the two links. Section 3(a)(1)(C) accepts the link in place of the license
+ * text.
  *
- * @param root The folder of the root package.json.
  * @returns The entry.
  */
-export async function hallEntry(root: string): Promise<LicenseEntry> {
-  const license = await readFile(join(root, 'assets', 'hall', 'LICENSE.txt'), 'utf8');
+export function hallEntry(): LicenseEntry {
   return {
     title: "Hall impulse response, St Paul's Hall (360° BRIR and FOA database)",
     license: HALL_CREDIT.license,
@@ -124,8 +123,6 @@ export async function hallEntry(root: string): Promise<LicenseEntry> {
       HALL_CREDIT.text,
       `Source: ${HALL_CREDIT.sourceUrl}`,
       `License: ${HALL_CREDIT.licenseUrl}`,
-      '',
-      license,
     ].join('\n'),
   };
 }
@@ -204,7 +201,7 @@ export async function licenseEntries(root: string): Promise<LicenseEntry[]> {
   }
   const entries = await packageEntries(root, BUNDLED_PACKAGES);
   entries.push(...(await soundFontEntries(root)));
-  entries.push(await hallEntry(root));
+  entries.push(hallEntry());
   entries.push(await githubMarkEntry(root));
   return entries;
 }

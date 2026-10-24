@@ -52,16 +52,13 @@ describe('packageEntries', () => {
 });
 
 describe('hallEntry (design 7.3)', () => {
-  const root = join(import.meta.dirname, '..');
-
-  it('gives the credit, the links, and the CC BY 4.0 text of the hall impulse response', async () => {
-    const entry = await hallEntry(root);
+  it('gives the credit and the links of the hall impulse response', () => {
+    const entry = hallEntry();
 
     expect(entry.license).toBe('CC BY 4.0');
     expect(entry.source).toBe('https://doi.org/10.5281/zenodo.2641166');
     expect(entry.text.startsWith(`${HALL_CREDIT.text}\n`)).toBe(true);
     expect(entry.text).toContain('License: https://creativecommons.org/licenses/by/4.0/');
-    expect(entry.text).toContain('Attribution 4.0 International');
   });
 });
 

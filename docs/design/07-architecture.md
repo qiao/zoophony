@@ -365,10 +365,10 @@ text at the same path, with `licenseEntries()` of the script.
 The file also holds the hall impulse response of 6.2. `hallEntry()` of `tools/licenses.ts`
 makes its entry: the title "Hall impulse response, St Paul's Hall (360° BRIR and FOA
 database)", the license "CC BY 4.0", the source <https://doi.org/10.5281/zenodo.2641166>, and a
-text that starts with the credit line `HALL_CREDIT.text` of `audio/hall-credit.ts` (with the
-note of the changes), the source link, and the license link, before the text of
-`assets/hall/LICENSE.txt`. CC BY 4.0 asks for the credit, a link to the license, and a note of
-the changes (section 3(a)).
+text of the credit line `HALL_CREDIT.text` of `audio/hall-credit.ts` (with the note of the
+changes), the source link, and the license link. CC BY 4.0 asks for the credit, a link to the
+license, and a note of the changes (section 3(a)). The link meets section 3(a)(1)(C), so the
+repository holds no copy of the license text.
 
 `githubMarkEntry()` adds the entry of the GitHub mark, with the MIT license of
 `assets/github-mark/LICENSE.txt`. The mark is also a trademark of GitHub, Inc., so its use

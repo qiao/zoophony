@@ -19,7 +19,7 @@ database.
 | Source archive | `360-BRIR-FOAIR-database.zip`, 6.6 GB, MD5 `3062197450b799b8d660c1bb1d2d6134` (from the Zenodo record) |
 | Source file | `360-BRIR-FOAIR-database/FOA/B Format (AmbiX)/C8m.wav`, 3,840,736 bytes, first-order Ambisonics (AmbiX: W, Y, Z, X), 32-bit float, 48 kHz, 5 s |
 | Source file SHA-256 | `824d2ddf643bd544c263185c159968151c028e7c7305edade60f226835c133a9` |
-| License | CC BY 4.0. `LICENSE.txt` in this folder is the `License.txt` of the database |
+| License | CC BY 4.0, <https://creativecommons.org/licenses/by/4.0/>. The `License.txt` of the database holds the full text |
 | License source | <https://github.com/APL-Huddersfield/360-BRIR-FOAIR-database/blob/3f0a8d77c211277d659bdaca4c473f9a91c5fd91/License.txt> |
 
 The Zenodo record and the README of the database give the license "Creative Commons Attribution
@@ -64,7 +64,7 @@ and 2 for its A/B test.
 The L/R correlation of the result is 0.14. The report measured a T30 of 2.06 s broadband,
 2.47 s at 500 Hz, 2.27 s at 1 kHz, and 1.89 s at 2 kHz for the source position.
 
-The FLAC file is a change of the format only. Section 2(a)(4) of CC BY 4.0 (`LICENSE.txt`) permits
+The FLAC file is a change of the format only. Section 2(a)(4) of CC BY 4.0 permits
 the Licensed Material "in all media and formats" with the "technical modifications necessary to
 do so", and such a change "never produces Adapted Material". Thus the credit line stays.
 
