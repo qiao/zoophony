@@ -541,9 +541,10 @@ twist bone (`docs/decisions/2026-10-19-arm-skin.md`).
     the shoulders, so its rig keeps each face of the mesh with no copy, cut, or split (user:
     "don't split the arm"). The copy with round tube arms of 2026-10-22 stays in its folder as a
     record. The rabbit also has a mesh in an A-pose since 2026-10-23, and its rig keeps each face
-    of the mesh with no copy, cut, ring, or split. Its long arm faces fold when they stretch, so
-    its arms stretch only 1.3 times, and its violin is smaller (4.6, user: "stretch the arm a
-    little bit"). On the bent arms, these long faces show dark shards.
+    of the mesh with no copy or cut. Its long arm faces fold when they stretch, so its arms
+    stretch only 1.15 times, and its violin is smaller (4.6). Long faces of the mesh cross each
+    elbow, and a bent elbow fanned them out as spikes, so one ring at each elbow splits them
+    (`refine.rings`, user, 2026-10-24: "Yes, rings at the elbows").
     `pnpm arm-look` measures the
     crease of the arm skin against the source and the section of the upper arm, with limits from the red fox
     (`docs/decisions/2026-10-21-arm-form.md`).
