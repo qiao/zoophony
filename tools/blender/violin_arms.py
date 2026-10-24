@@ -418,6 +418,28 @@ def loop_center(edges):
     return sum((p.co for p in verts), Vector()) / len(verts)
 
 
+#: The twist offsets of Bridge Edge Loops that `bridge_twist()` tries.
+TWISTS = range(-12, 13)
+
+
+def bridge_twist(bm, edges):
+    """Gives the twist offset of Bridge Edge Loops (the Twist field of the operator) that joins two
+    loops with the shortest new edges. On the wrists of the cat, the offsets 1 and 2 give shorter
+    edges than the default 0. The offset 0 wins a tie."""
+    bm.edges.ensure_lookup_table()
+    indices = [e.index for e in edges]
+    best, best_length = 0, None
+    for twist in sorted(TWISTS, key=abs):
+        tmp = bm.copy()
+        tmp.edges.ensure_lookup_table()
+        res = bmesh.ops.bridge_loops(tmp, edges=[tmp.edges[i] for i in indices], twist_offset=twist)
+        length = sum(e.calc_length() for f in res['faces'] for e in f.edges)
+        tmp.free()
+        if best_length is None or length < best_length - 1e-9:
+            best, best_length = twist, length
+    return best
+
+
 def step_bridge(s):
     """Joins each tube to the trunk and to the paw with Bridge Edge Loops.
 
@@ -441,7 +463,8 @@ def step_bridge(s):
             # The end ring of the tube nearest to this cut loop. The plane of the shoulder line
             # leans to the ring, so a distance from the center does not select the whole ring.
             ring = min(rings, key=lambda r: (loop_center(r) - center).length)
-            res = bmesh.ops.bridge_loops(bm, edges=loop + ring)
+            res = bmesh.ops.bridge_loops(bm, edges=loop + ring,
+                                         twist_offset=bridge_twist(bm, loop + ring))
             for f in res['faces']:
                 f.smooth = True
             made += len(res['faces'])
