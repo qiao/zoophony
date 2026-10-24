@@ -6,11 +6,11 @@
   "weld": 1e-05,
   "app": {
     "shoulders": 0.8513179,
-    "reach": 0.4094,
-    "note": "The app puts the standing shoulder joints 0.8513179 m above the floor (ANIMALS of tools/studio-body.ts), the size of the rabbit that the user chose on 2026-10-14 (docs/research/2026-10-14-animal-size.md). The shoulder joints of the mesh are at 0.574 u after the leg factor, so the scale is 1.4831 m for each unit. The user asked on 2026-10-23 to stretch the arms of the new mesh a little. The reach is 0.4094 m (0.5056 m before, 0.320 m with no stretch), and the violin is 0.83 of the violin of the app (0.958 before), so that the left paw reaches the nut (docs/research/2026-10-23-rabbit-arms.md)."
+    "reach": 0.3647,
+    "note": "The app puts the standing shoulder joints 0.8513179 m above the floor (ANIMALS of tools/studio-body.ts), the size of the rabbit that the user chose on 2026-10-14 (docs/research/2026-10-14-animal-size.md). The shoulder joints of the mesh are at 0.574 u after the leg factor, so the scale is 1.4831 m for each unit. The user asked on 2026-10-23 to stretch the arms of the new mesh a little, and on 2026-10-24 for shorter arms with the same violin, which bend less to play. The reach is 0.3647 m (0.320 m with no stretch), and the violin is 0.83 of the violin of the app. The violin points further to the left, so that the left paw reaches the fingerboard from 0.06 of its length (docs/research/2026-10-24-rabbit-hold.md)."
   },
-  "armFactor": 1.3,
-  "armFactorNote": "The factor of the upper arm and the forearm that gives the reach of app.reach from the joints below at the scale of app.shoulders. pnpm rig-mesh prints the reach and stops when it is more than 1% from app.reach. The user asked on 2026-10-23 for a little stretch. With the factor 1.6225 of the old reach, 10 and 11 arm faces folded in the arm gate (limit 8). With the factor 1.3 and the hold of 2026-10-23, 5 and 7 fold (docs/research/2026-10-23-rabbit-arms.md).",
+  "armFactor": 1.15,
+  "armFactorNote": "The factor of the upper arm and the forearm that gives the reach of app.reach from the joints below at the scale of app.shoulders. pnpm rig-mesh prints the reach and stops when it is more than 1% from app.reach. The user asked for a little stretch on 2026-10-23 (1.3), and then said: \"the rabbit arm is too long\", and \"keep the violin same, but reduce the length of the arm. the arm can bend less to play the violin\" (2026-10-24). The factor is 1.15.",
   "legFactor": 1.75,
   "legFactorNote": "The factor of the thigh and the shin. Each one stretches only between its joints, the foot keeps its size, and the body rises 0.105 units, so that the soles stay at y 0. The user asked for longer legs and a higher seat on 2026-10-14, and then said that the legs of the factor 2.5 were too long. The legs gave a seat of 0.215 m, 0.67 H (0.123 m before). Since 2026-10-16, the chair of the app fits the legs (no seat of ANIMALS), so the soles stand on the floor. Since 2026-10-17, the thighs 25 degrees down and the vertical shins give a seat of 0.227 m (0.179 m with the thighs 15 degrees down and the slanted shins of 2026-10-16, docs/research/2026-10-17-fox-form.md). The factor 2.75 gave the seat of the reference rabbit (1.03 H against 1.07 H), with standing animals that were too tall (docs/research/2026-10-14-fox-rabbit-form.md).",
   "joints": {
@@ -217,11 +217,11 @@
     }
   },
   "palm": [
-    0.435,
-    0.726,
-    0.533
+    -0.602,
+    -0.764,
+    -0.23
   ],
-  "jointsNote": "The places are in the units and the axes of the studio in the pose of the source: 1 unit from the soles to the ear tips, the soles at y = 0, +z forward, +x the left side. The right side mirrors the left side. The probes are in docs/research/2026-10-23-rabbit-apose/. sections.py gives the cuts at each height: the crotch at y 0.16, the narrow neck at 0.57, and the ear bases above 0.76. The trunk joints lie 0.01 to 0.03 behind the middle of the body cut. The leg joints lie on the middle of the leg cuts, the ankle at the narrow cut above the soles, and the toes at the ball of the foot. arm_axis.py gives the middle line of the free arm, out, down, and a little forward from the shoulder at (0.091, 0.484) to the paw tip at (0.268, 0.326). The shoulder joint lies on that line at the root of the arm, the elbow halfway to the wrist, the wrist where the paw starts, and the finger joint at the claws. The tail joint lies at the front of the tail ball. Each roll is the hint of the z axis of the bone, forward by default. The arm bones take the normal of the palm (palm). Of the palms around the arm axis, this palm, 200 degrees from the palm of the trial, gives the least paw twist and forearm twist in the arm gate with the stretch in its limit: with the palm of the trial (-0.602, -0.764, -0.23), the paws twisted 163 and 147 degrees on their forearms, and the forearm twist bones wrung the forearms into flat bands (user, 2026-10-23: \"there's significant twist / deformation for the rabbit's arms\"). Now 76 and 83 degrees (docs/research/2026-10-23-rabbit-twist.md).",
+  "jointsNote": "The places are in the units and the axes of the studio in the pose of the source: 1 unit from the soles to the ear tips, the soles at y = 0, +z forward, +x the left side. The right side mirrors the left side. The probes are in docs/research/2026-10-23-rabbit-apose/. sections.py gives the cuts at each height: the crotch at y 0.16, the narrow neck at 0.57, and the ear bases above 0.76. The trunk joints lie 0.01 to 0.03 behind the middle of the body cut. The leg joints lie on the middle of the leg cuts, the ankle at the narrow cut above the soles, and the toes at the ball of the foot. arm_axis.py gives the middle line of the free arm, out, down, and a little forward from the shoulder at (0.091, 0.484) to the paw tip at (0.268, 0.326). The shoulder joint lies on that line at the root of the arm, the elbow halfway to the wrist, the wrist where the paw starts, and the finger joint at the claws. The tail joint lies at the front of the tail ball. Each roll is the hint of the z axis of the bone, forward by default. The arm bones take the normal of the palm (palm). The palm is the true palm of the source, in, down, and a little back, as the palm of the fox. The holds turn this palm toward the violin neck and the bow: with a palm hint turned 200 degrees, the paw twist numbers fell, but the left palm faced up, away from the neck (user, 2026-10-24: \"the rabbit's left hand is reversed\", docs/decisions/2026-10-24-rabbit-hold.md).",
   "studio": {
     "legTurns": {
       "thigh": [
@@ -326,14 +326,23 @@
     "note": "The twist bone of each upper arm takes half of the roll of the upper arm from the chest (StudioBody.upperTwist), the share of the elephant. The user said on 2026-10-21: \"the arm for the rabbit is still problematic\". With no twist bone, the skin of the right upper arm rolled 49 degrees at its largest step in the play (p95, limit 55 of the arm gate), and 0.2% of the play samples folded. With 0.5, it rolls 28 degrees, and no play sample folds. The share 0.4 gave the same roll with a flatter right ring in the lift (pnpm arm-shape violinist, docs/research/2026-10-21-rabbit-arm.md)."
   },
   "refine": {
-    "rings": [],
+    "rings": [
+      {
+        "joint": "forearm",
+        "radius": 0.13,
+        "minEdge": 0.06,
+        "ends": 0.2,
+        "sides": "LR"
+      }
+    ],
     "flip": {
       "angle": 150,
       "normals": 60,
       "move": 0.0016,
       "rounds": 4,
       "note": "The long edge of a face of the arms with a corner angle above angle (degrees) in the seated bind mesh flips to the corner of the face on its other side. The two faces must lie almost on one plane in the source and in the bind mesh (normals within normals, in degrees), and the flip must move the surface by at most move (units) in both. The flips run in rounds until no edge flips. The angle 180 turns the flips off. The move of 0.0016 units is 2 mm in the app."
-    }
+    },
+    "ringsNote": "One ring at each elbow: the user allowed it for the rabbit on 2026-10-24 (\"Yes, rings at the elbows\"), as an exception to the rule of no split. Eight to 13 long thin faces of the source cross each elbow, up to the length of the forearm, and a bent elbow fanned them out as sharp spikes. The ring cuts the edges near the elbow with the plane through the joint: joint (the arm bone that starts at the joint), radius (units from the joint), minEdge (the shortest edge that it cuts, in units), ends (the smallest part of the edge from each corner), and sides. Each new vertex takes the place, the UV, and the weights of its place on the edge."
   },
   "check": {
     "thin": {

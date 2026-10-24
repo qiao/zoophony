@@ -257,10 +257,10 @@ export const SPECIES = {
    * user, `assets/models/rabbit/rabbit-apose.glb`, which `pnpm rig-mesh rabbit` rigs with no
    * split (design 4.4), seated with the bind pose of the studio rabbit, and standing as a
    * soloist. Its head height is the head of the studio body, and its chair fits its legs: the seat
-   * height is the seat of the studio body, in H. The user asked for a little stretch of the arms
-   * of the mesh (2026-10-23-rabbit-arms decisions), so the arms reach 0.41 m, and the violin is
-   * 0.83 of the violin of the app, so that the left paw reaches the nut. With the full violin of
-   * 0.958, the arms had to stretch 1.62 times, and their long faces folded.
+   * height is the seat of the studio body, in H. The user asked for short arms that bend less to
+   * play (2026-10-24-rabbit-hold decisions), so the arms reach 0.36 m, and the violin is 0.83 of
+   * the violin of the app. With the full violin of 0.958, the arms had to stretch 1.62 times, and
+   * their long faces folded.
    *
    * The stick of the bow passes through the middle of the closed right paw (2026-10-17-grip-all
    * decisions), as for the cat. The stick lies 40° from square toward the wrist, near the line of
