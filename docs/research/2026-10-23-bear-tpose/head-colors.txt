@@ -1,0 +1,20 @@
+rig_mesh: source: 1573 vertices, 3142 triangles, scale 0.527763
+dark faces of the head: 34
+  patch of 6: x -0.046..-0.034 y 0.891..0.904 z 0.140..0.142 mean sRGB [0.05  0.033 0.029]
+  patch of 19: x -0.024..+0.018 y 0.838..0.864 z 0.198..0.208 mean sRGB [0.084 0.078 0.074]
+  patch of 9: x +0.033..+0.050 y 0.891..0.907 z 0.139..0.143 mean sRGB [0.067 0.04  0.033]
+rig_mesh: eyes: 9 faces left, 6 faces right, nose: 49 faces
+eye L: 9 faces, x +0.033..+0.050 y 0.891..0.907 z 0.139..0.143
+eye R: 6 faces, x -0.046..-0.034 y 0.891..0.904 z 0.140..0.142
+nose: 49 faces, x -0.028..+0.029 y 0.838..0.871 z 0.194..0.215 mean sRGB [0.162 0.151 0.139]
+faces of the eye region (y 0.82..0.92, |x| 0.02..0.13, z > 0.08): 153
+  face 1303: mid [-0.044  0.897  0.142] sRGB [0.028 0.024 0.023] L 0.124 dark True
+  face 1780: mid [0.041 0.9   0.143] sRGB [0.028 0.024 0.024] L 0.125 dark True
+  face 1300: mid [-0.045  0.891  0.142] sRGB [0.043 0.032 0.026] L 0.138 dark True
+  face 1798: mid [0.046 0.899 0.141] sRGB [0.05  0.034 0.032] L 0.144 dark True
+  face 1295: mid [-0.046  0.904  0.14 ] sRGB [0.068 0.042 0.04 ] L 0.157 dark True
+  face 1811: mid [0.049 0.893 0.139] sRGB [0.076 0.046 0.037] L 0.162 dark True
+  face 1805: mid [0.05  0.903 0.139] sRGB [0.096 0.057 0.058] L 0.180 dark True
+  face 1831: mid [0.056 0.936 0.127] sRGB [0.391 0.256 0.141] L 0.409 dark False
+  face 1830: mid [0.05  0.938 0.128] sRGB [0.455 0.305 0.179] L 0.458 dark False
+  face 1317: mid [-0.042  0.883  0.143] sRGB [0.513 0.338 0.2  ] L 0.495 dark False

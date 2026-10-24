@@ -1,0 +1,9 @@
+|---|---|---|---|
+|---|---|---|---|
+| Species | Set | Pair | HEAD (8dabc0e2) cm | HEAD (8dabc0e2) H | tree cm | tree H | Mark | tree at |
+|---|---|---|---:|---:|---:|---:|---|---|
+| bear | play | paws in body | 0.7 | 0.023 | 0.0 | 0.000 |  | bach-bwv1047 0.00 s |
+| bear | play | claws in body | 1.2 | 0.038 | 0.0 | 0.000 |  | bach-bwv1047 0.00 s |
+| bear | play | upper arms in body | 2.4 | 0.078 | 1.2 | 0.033 |  | beethoven-8-4 25.34 s |
+| bear | arms | forearms in body | 2.2 | 0.071 | 1.8 | 0.049 |  | bach-bwv1047 wall 13.95 s |
+| bear | arms | upper arms in body | 1.4 | 0.046 | 3.5 | 0.097 | GROWS | bach-bwv1047 wall 13.60 s |
