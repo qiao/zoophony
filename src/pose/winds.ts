@@ -94,6 +94,14 @@ export interface WindHold {
    * and tan fox not holding the instrument properly").
    */
   readonly palmToTube: boolean;
+  /**
+   * The share, from 0 to 1, of the part along the tube that the aim of each paw on its grip loses
+   * in the playing pose ({@link aimAcross}). With 0, the paw points along the line from its
+   * shoulder to its grip. A tube far in front of the body then puts that line along the tube, and
+   * the fingers point past the tube in place of around it. Only a paw that rolls its palm to the
+   * tube ({@link WindHold.palmToTube}) takes it.
+   */
+  readonly aimAcross: number;
 }
 
 /** The left paw of a wind hold that leaves its grip in the rest pose (`WindHold.restFreeL`). */
@@ -132,6 +140,7 @@ const WOODWIND = {
   lipShift: [0, 0, 0],
   restFreeL: null,
   palmToTube: false,
+  aimAcross: 0,
 } as const satisfies WindHold;
 
 const X_AXIS = new Vector3(1, 0, 0);
@@ -945,6 +954,9 @@ const arcMove = new Vector3();
 const ORIGIN = [0, 0, 0] as const;
 
 const tubeSide = new Vector3();
+const tubeAxis = new Vector3();
+const aimFrom = new Vector3();
+const aimPoint = new Vector3();
 const handAxis = new Vector3();
 const palmNow = new Vector3();
 const palmGoal = new Vector3();
@@ -981,6 +993,33 @@ function palmToTube(out: Quaternion, toTube: Vector3, side: 'L' | 'R', weight: n
 }
 
 /**
+ * Gives the point at which a paw on its grip aims ({@link handToward}): the grip, moved along the
+ * tube toward the line across the tube through the shoulder by the share `across` of the playing
+ * pose. The paw then points across the tube, so that its fingers wrap the tube as a real hand
+ * does, and not along the tube past it.
+ *
+ * @param from The posed `shoulder` bone.
+ * @param target The posed grip of the palm.
+ * @param axis The unit direction of the tube.
+ * @param across The share of the part of the aim along the tube that goes.
+ * @param out The point to write.
+ * @returns `out`.
+ */
+function aimAcross(
+  from: Frame,
+  target: Vector3,
+  axis: Vector3,
+  across: number,
+  out: Vector3,
+): Vector3 {
+  aimFrom.subVectors(from.position, target);
+  return out
+    .copy(axis)
+    .multiplyScalar(aimFrom.dot(axis) * across)
+    .add(target);
+}
+
+/**
  * Writes one arm and its fingers on the grip of the instrument. A paw that is free in the rest pose
  * moves from its rest place to its grip by the weight of the playing pose.
  *
@@ -1012,11 +1051,22 @@ function poseSide(
   }
   grip.sub(pivotBind.fromArray(rig.pivot)).applyQuaternion(rotation).add(pivot);
   poseShoulder(side.arm, chest, rig.chestBind, turn, shoulder);
-  handToward(shoulder, grip, hand);
-  // A paw that leaves its grip at rest keeps the roll of its shoulder: with the roll, the mix from
-  // its rest paw flipped to the other side of its forearm in the middle of the move.
+  // A paw that leaves its grip at rest keeps the aim and the roll of its shoulder: with the roll,
+  // the mix from its rest paw flipped to the other side of its forearm in the middle of the move.
   if (rig.hold.palmToTube && !free) {
+    tubeAxis
+      .fromArray(rig.right.grip)
+      .sub(aimFrom.fromArray(rig.left.grip))
+      .applyQuaternion(rotation)
+      .normalize();
+    handToward(
+      shoulder,
+      aimAcross(shoulder, grip, tubeAxis, rig.hold.aimAcross * weight, aimPoint),
+      hand,
+    );
     palmToTube(hand, tubeSide.set(0, 1, 0).applyQuaternion(rotation), side.arm.side, weight);
+  } else {
+    handToward(shoulder, grip, hand);
   }
   const wrist = grip.sub(palm.fromArray(side.arm.palm).applyQuaternion(hand));
 
