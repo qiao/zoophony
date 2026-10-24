@@ -11,7 +11,7 @@ import type { Quat, Vec3 } from '../models/tuples.ts';
 import type { PlayerNote } from '../score/types.ts';
 import { mixDirection, mixRotation } from './blend.ts';
 import type { InstrumentOf } from './family.ts';
-import { createFrame, posePoint, setFromBasis } from './frames.ts';
+import { createFrame, posePoint, setBoneRotation, setFromBasis } from './frames.ts';
 import type { TorsoFrames } from './frames.ts';
 import { HAND_MOTION, NO_REACH_LIMIT, buildHandTrack, splitHands } from './hand-notes.ts';
 import type { HandAction, HandReach, HandState, HandTrack } from './hand-notes.ts';
@@ -70,6 +70,11 @@ interface HandsHold {
   readonly sideLean: number;
   /** The largest side lean, in radians. */
   readonly sideLeanMax: number;
+  /**
+   * The drop of each shoulder bone in the playing pose, in radians: the shoulders stay low, as
+   * the shoulders of a real pianist.
+   */
+  readonly shoulderDrop: number;
   /** The keys that each hand reaches on the side of the other hand. */
   readonly reach: HandReach;
   /**
@@ -151,6 +156,7 @@ export const HANDS_HOLDS = {
     restHeadLift: 8 * MathUtils.DEG2RAD,
     sideLean: 60 * MathUtils.DEG2RAD,
     sideLeanMax: 10 * MathUtils.DEG2RAD,
+    shoulderDrop: 6 * MathUtils.DEG2RAD,
     reach: { leftHighest: 70, rightLowest: 60 },
     // The wide paws of the polar bear point in along the forearms, so they went up to 4.7 cm into
     // each other when the palms were nearer than 33 cm, 24 semitones in the middle of the keys.
@@ -217,6 +223,7 @@ export const HANDS_HOLDS = {
     restHeadLift: 0,
     sideLean: 0,
     sideLeanMax: 0,
+    shoulderDrop: 0,
     reach: NO_REACH_LIMIT,
     apart: 0,
     poleL: [-0.3, -1, 0],
@@ -428,8 +435,7 @@ export function sideLeanOf(rig: HandsRig, state: HandsState): number {
   return MathUtils.clamp(-sideLean * middle, -sideLeanMax, sideLeanMax);
 }
 
-/** The rotation that changes nothing. Nothing writes it. */
-const NO_TURN = new Quaternion();
+const Z_AXIS = new Vector3(0, 0, 1);
 
 const shoulder = createFrame();
 const face = new Vector3();
@@ -437,6 +443,7 @@ const palm = new Vector3();
 const fingers = new Vector3();
 const palmSide = new Vector3();
 const turn = new Quaternion();
+const shoulderTurn = new Quaternion();
 const wrist = new Vector3();
 const restWrist = new Vector3();
 const restHand = new Quaternion();
@@ -469,7 +476,11 @@ function poseHand(
   const { hold } = rig;
   const { chest, root } = frames;
   const { arm } = side;
-  poseShoulder(arm, chest, rig.chestBind, NO_TURN, shoulder);
+  // The shoulder bone turns down around z: the left one toward -y from -x, the right one from +x.
+  const drop = hold.shoulderDrop * weight * (arm.side === 'L' ? 1 : -1);
+  shoulderTurn.setFromAxisAngle(Z_AXIS, drop);
+  poseShoulder(arm, chest, rig.chestBind, shoulderTurn, shoulder);
+  setBoneRotation(rotations, arm.bones.shoulder, shoulderTurn);
   face.fromArray(side.face);
   // The palm lifts against its face for a strike, and pulls back from it for a pluck.
   palm.fromArray(hand.point).addScaledVector(face, -(hand.lift + hand.pull));
