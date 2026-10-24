@@ -96,6 +96,7 @@ const Y_AXIS = new Vector3(0, 1, 0);
 
 const rest = new Quaternion();
 const playTurn = new Quaternion();
+const liftTurn = new Quaternion();
 const playShift = new Vector3();
 const ORIGIN = [0, 0, 0] as const;
 const restPivot = new Vector3();
@@ -124,12 +125,19 @@ export function instrumentAt(
   out: InstrumentPlace,
 ): InstrumentPlace {
   const parent = rig.parent === BONES.chest ? frames.chest : frames.root;
-  mixRotation(
-    rest.fromArray(rig.restRotation),
-    playTurn.fromArray(rig.hold.playTurn),
-    weight,
-    out.local,
-  );
+  rest.fromArray(rig.restRotation);
+  playTurn.fromArray(rig.hold.playTurn);
+  if (rig.liftRotation && weight > 0 && weight < 1) {
+    // The instrument turns from the rest to the turn of the middle, then to the playing turn.
+    liftTurn.fromArray(rig.liftRotation);
+    if (weight < 0.5) {
+      mixRotation(rest, liftTurn, 2 * weight, out.local);
+    } else {
+      mixRotation(liftTurn, playTurn, 2 * weight - 1, out.local);
+    }
+  } else {
+    mixRotation(rest, playTurn, weight, out.local);
+  }
   out.rotation.multiplyQuaternions(parent.rotation, out.local);
   posePoint(parent, rig.parentBind, rig.pivot, out.pivot);
   out.pivot.add(playShift.fromArray(rig.playShift).applyQuaternion(parent.rotation));
@@ -703,24 +711,48 @@ function liftVia(rig: RigPoints, frames: TorsoFrames, weight: number, bow: BowPl
 const toPlay = new Quaternion();
 
 /**
+ * Turns a quaternion to the short turn: the quaternion with w ≥ 0.
+ *
+ * @param q The quaternion. The function changes it in place.
+ * @returns `q`.
+ */
+function shortTurn(q: Quaternion): Quaternion {
+  return q.w < 0 ? q.set(-q.x, -q.y, -q.z, -q.w) : q;
+}
+
+/**
  * Writes {@link toPlay}: the turn that moves the instrument from its posed place in a lift or a
- * lowering to its place in the playing pose, in the model axes.
+ * lowering to its place in the playing pose, in the model axes. Each part of the path of the
+ * instrument turns by less than 180°, so the short turn of each part gives the turn. Before the
+ * turn of the middle (`BowedHold.liftTurn`), the turn goes through it: the whole rest of the path
+ * can pass 180°, and its short turn then jumped to the other side.
  *
  * @param rig The points of the player.
  * @param frames The posed frames of the torso.
  * @param place The posed place of the instrument.
+ * @param weight The eased weight of the playing pose: 0 is the rest pose.
  */
-function turnToPlay(rig: RigPoints, frames: TorsoFrames, place: InstrumentPlace): void {
+function turnToPlay(
+  rig: RigPoints,
+  frames: TorsoFrames,
+  place: InstrumentPlace,
+  weight: number,
+): void {
   const parent = rig.parent === BONES.chest ? frames.chest : frames.root;
-  toPlay
-    .copy(parent.rotation)
-    .multiply(playTurn.fromArray(rig.hold.playTurn))
-    .multiply(placeInverse.copy(place.rotation).invert());
-  // The instrument turns by less than 180°, so the quaternion with w ≥ 0 is the short turn.
-  if (toPlay.w < 0) {
-    toPlay.set(-toPlay.x, -toPlay.y, -toPlay.z, -toPlay.w);
+  placeInverse.copy(place.rotation).invert();
+  toPlay.copy(parent.rotation).multiply(playTurn.fromArray(rig.hold.playTurn));
+  if (!rig.liftRotation || weight >= 0.5) {
+    shortTurn(toPlay.multiply(placeInverse));
+    return;
   }
+  middle.copy(parent.rotation).multiply(liftTurn.fromArray(rig.liftRotation));
+  shortTurn(toPlay.multiply(middleInverse.copy(middle).invert()));
+  toPlay.multiply(shortTurn(middle.multiply(placeInverse)));
 }
+
+/** The turn of the middle of the move, and its inverse, for {@link turnToPlay}. */
+const middle = new Quaternion();
+const middleInverse = new Quaternion();
 
 /**
  * Mixes the rest bow and the playing bow, or the hands on them, by the weight of the playing pose
@@ -868,7 +900,7 @@ export function poseBowed(
   const chest = frames.chest;
   const { place, strings, bow, hand: heldHand } = places;
   instrumentAt(rig, frames, weight, place);
-  turnToPlay(rig, frames, place);
+  turnToPlay(rig, frames, place, weight);
   soundingPointAt(rig, state.loudness, stringsAt(rig, place, strings));
   // The hand holds the bow with no tilt, and the fingers turn the stick by the tilt.
   const tilt = heldBowAt(rig, strings, state.string, state.bow, state.lift, tilted, bow);

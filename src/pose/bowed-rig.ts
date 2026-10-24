@@ -208,6 +208,15 @@ export interface BowedHold {
    */
   readonly liftReach: Vec3;
   /**
+   * The turn of the instrument in the middle of the lift and of the lowering: the direction from
+   * the tail end to the scroll, and the side of the top plate, in the axes of the root, as
+   * {@link BowedHold.rest} (design 5.2). The instrument turns from the rest to this turn, then to
+   * the playing turn. Thus the left paw on the neck can turn on a path that keeps its twist on the
+   * forearm away from 180°, and the instrument can stay near the chest. `null` mixes the rest
+   * turn and the playing turn directly.
+   */
+  readonly liftTurn: { readonly axis: Vec3; readonly top: Vec3 } | null;
+  /**
    * True when the left paw holds the instrument at the left side in the rest pose and the bow
    * hangs from the right paw, also on a seat, as for a soloist who stands (design 5.2). A body with
    * no lap, such as the rabbit, whose round belly covers its short thighs, rests so.
@@ -325,6 +334,7 @@ const CHIN_HOLD = {
     lap: { along: 0.85, offset: [0, 0.06, 0] },
   },
   liftReach: [0, 0, 0],
+  liftTurn: null,
   restAtSide: false,
   restBow: {
     lap: { along: 1, offset: [0.18, 0.08, 0] },
@@ -386,6 +396,7 @@ const FLOOR_HOLD = {
   stopEnd: 1,
   rest: null,
   liftReach: [0, 0, 0],
+  liftTurn: null,
   restAtSide: false,
   restBow: {
     lap: { along: 1, offset: [0.2, 0.08, 0] },
@@ -1029,6 +1040,11 @@ export interface BowedRig {
    * axes of the root (`BowedHold.liftReach`).
    */
   readonly liftReach: Vec3;
+  /**
+   * The rotation of the `instrument` bone in the middle of the lift and of the lowering, relative
+   * to its parent (`BowedHold.liftTurn`), or `null` for a direct mix.
+   */
+  readonly liftRotation: Quat | null;
   /** The direction to which the right elbow points in the rest pose, in the axes of the root. */
   readonly restPoleR: Vec3;
   /** The direction to which the left elbow points in the rest pose, in the axes of the chest. */
@@ -1297,13 +1313,18 @@ export function bowedRig(
   const atSide = (model.support === 'stand' || hold.restAtSide) && hold.rest !== null;
   const lapRest = atSide ? STANDING_REST : hold.rest;
   const restRotation = new Quaternion();
+  const bindTurn = setFromBasis(new Quaternion(), axis, top).invert();
+  const turnTo = (
+    turn: { readonly axis: Vec3; readonly top: Vec3 },
+    out: Quaternion,
+  ): Quaternion => {
+    const toAxis = new Vector3(...turn.axis).normalize();
+    const toTop = new Vector3(...turn.top);
+    toTop.addScaledVector(toAxis, -toTop.dot(toAxis)).normalize();
+    return setFromBasis(out, toAxis, toTop).multiply(bindTurn);
+  };
   if (lapRest) {
-    const restAxis = new Vector3(...lapRest.axis).normalize();
-    const restTop = new Vector3(...lapRest.top);
-    restTop.addScaledVector(restAxis, -restTop.dot(restAxis)).normalize();
-    setFromBasis(restRotation, restAxis, restTop).multiply(
-      setFromBasis(new Quaternion(), axis, top).invert(),
-    );
+    turnTo(lapRest, restRotation);
   } else {
     // An instrument on the floor rests at its playing place.
     restRotation.fromArray(hold.playTurn);
@@ -1353,6 +1374,7 @@ export function bowedRig(
     playShift: toVec3(playShift),
     restPivot: restPivotOf(model, hold, atSide, pivot, playShift),
     liftReach: toVec3(new Vector3(...hold.liftReach).multiplyScalar(model.body.headHeight)),
+    liftRotation: hold.liftTurn ? toQuat(turnTo(hold.liftTurn, new Quaternion())) : null,
     restPoleR: hold.restPoleR,
     restPoleL: hold.restPoleL,
     restBow: {
