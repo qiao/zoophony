@@ -93,6 +93,8 @@ the text of the source.
 - The feet are flat on the floor "from heel to toe" [1].
 - When the pianist pedals, the heel stays on the floor [5][13]. The ball of the foot pushes the
   damper pedal [13].
+- With the pedal at rest, the foot stands at about a right angle to the shin [20]. The top of a
+  damper pedal stands 46 mm to 87 mm above the floor, and the pedal goes down 21 mm to 25 mm [20].
 
 ## 7. The motion
 
@@ -143,6 +145,7 @@ front of the trunk, and the trunk upright over the sit bones.
 | Trunk | upright, flexion less than 20° | [3][12] |
 | Trunk motion in fast music | 37° to 51° from side to side | [11] |
 | Wrist | in line with the hand and the forearm, or 15° of extension | [3][7][12] |
+| Damper pedal | heel on the floor, ball on the pedal; pedal top 46 to 87 mm, travel 21 to 25 mm | [5][13][20] |
 
 ## 9. Use in the app
 
@@ -170,7 +173,14 @@ differences. The research report
 - **Motion.** The trunk leans to the side toward the keys of the two paws, up to 10° (section 7).
   At the far keys of the demos, the outer upper arm still stands 42° to 47° out, as the arm of
   a pianist that reaches the far end.
-- **Feet.** The feet stay flat on the floor in the bind of the rig. No foot moves to a pedal.
+- **Feet.** In the play, the right heel stays on the floor, and the ball of the foot lies on the
+  front of the damper pedal (section 6, `posePedalFoot()` of `src/pose/pedal.ts`). The pedal top
+  stands 7 cm above the floor, so the foot turns up about 20° around the heel, and about 12° on
+  the pressed pedal. The paw is 24 cm wide, so the pedal lies under its inner edge, and the paw
+  stays right of the sostenuto pedal. The sustain pedal of the score (CC 64) presses the damper
+  pedal, and the foot follows it. The left foot stays flat on the floor, left of the soft pedal.
+  The report [`2026-10-24-piano-pedals.md`](../research/2026-10-24-piano-pedals.md) gives the
+  measures.
 - **Rest.** The paws rest on the thighs, and the trunk sits tall (section 8).
 
 ## 10. Sources
@@ -219,6 +229,8 @@ All sources opened on 2026-10-24.
     https://usa.yamaha.com/products/musical_instruments/pianos/accessories/no500/specs.html
 19. R. Sugimoto et al. (Yamaha Corporation). "Electronic keyboard instrument." US Patent
     7,456,349 B2, 2008. https://patents.google.com/patent/US7456349B2/en
+20. Piano Technicians Guild. "Sustain pedal height and travel." Discussion forum, measures by
+    F. Gadd on nine pianos. https://my.ptg.org/discussion/sustain-pedal-height-and-travel
 
 **Conflicts.** The sources put the elbow from a little below the keys [5][8] to about 2.5 cm
 above them [4][5]. Most sources put the pianist on the front half of the bench, and one on the
