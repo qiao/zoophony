@@ -17,7 +17,7 @@ fox together.
 |---|---|---|---|
 | bear | the studio bear of `lowpoly-studio/animals/bear/` with its facets spread evenly (seed 2), a crease angle of 70°, and the color blend of the fur, standing on the podium, with the baton along the index finger | `2026-10-12-studio-bear.md`, `2026-10-22-studio-bears.md` | `conductor` |
 | polar-bear | the studio polar bear of `lowpoly-studio/animals/polar-bear/` with its facets spread evenly (seed 3, 960 quads), near level thighs of the pianist role, a crease angle of 70°, and the color blend of the fur, on a bench of 0.25 m | `2026-10-12-studio-polar-bear.md`, `2026-10-22-studio-bears.md` | `pianist` |
-| rabbit | the mesh `assets/models/rabbit/rabbit-4.glb`, rigged by `pnpm rig-mesh rabbit` from a copy with a shallower notch under the right arm, rounder upper arms, and a round inner side of each arm (`rabbit-4-elbows.glb`) | `2026-10-13-mesh-rabbit.md` | `violinist` |
+| rabbit | the A-pose mesh `assets/models/rabbit/rabbit-apose.glb` with its own faces and no split, rigged by `pnpm rig-mesh rabbit` with the arm factor 1.3, and a violin of 0.83 | `2026-10-13-mesh-rabbit.md`, `2026-10-23-rabbit-arms.md` | `violinist` |
 | fox-red | the mesh `assets/models/fox/fox.glb`, rigged by `pnpm rig-mesh fox`, with a tail of two bones | `2026-10-14-mesh-fox.md` | `fox-violinist` |
 | fox-tan | the rig of the red fox with a tan palette | `2026-10-14-fox-flute.md` | `flutist` |
 | cat | the mesh `assets/models/cat/cat.glb`, rigged by `pnpm rig-mesh cat` | `2026-10-16-mesh-cat.md` | `violist` |
