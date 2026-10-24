@@ -683,11 +683,14 @@ export const BOWED_HOLDS = {
  * out at 0.55 of the way to the knee bent the elbow to 143° only, with the forearm out to the side.
  * The level bow of 2026-10-16 ran forward past the knees, and a real violist rests as a violinist.
  *
- * In the lift and the lowering, the viola moves 0.2 H out and 0.3 H to the front in the middle of
- * the move (`liftReach`): with a direct mix, it went 5.6 cm into the deep belly on its way from the
- * thigh to the chin. The bow turns through the front with the grip 0.4 H out and 0.9 H to the
- * front (the via of `UPRIGHT_BOW`): with the grip 0.6 H to the front, the right forearm went 3.0 cm
- * into the body while the arms lowered (`pnpm hold-fit violist --sets lower`).
+ * In the lift and the lowering, the viola moves 0.1 H out, 0.4 H up, and 0.2 H to the front in the
+ * middle of the move (`liftReach`): with a direct mix, it went 5.6 cm into the deep belly on its way
+ * from the thigh to the chin. The bow turns through the front with the grip 0.3 H out, 0.1 H up,
+ * and 0.5 H to the front (the via of `UPRIGHT_BOW`). With the viola 0.3 H and the grip 0.9 H to the
+ * front, the cat lifted both arms out straight in front of the chest, and the right paw turned
+ * 1,953°/s (user, 2026-10-24: "fix the arm transition for how the cat raises and lowers the
+ * violin"). Now both arms bend near the body, the paws turn 1,034°/s and 492°/s, and the viola
+ * goes as deep into the belly as before (7.7 cm, 2026-10-24-bow-holds decisions).
  *
  * A cat soloist who stands hangs the bow from the right paw with the tip down, a little forward and
  * out, and turns it through the front in the lift and the lowering (`HANGING_BOW`).
@@ -741,12 +744,12 @@ const CAT_HOLD = {
   restPoleL: [-0.6, -1, 0.3],
   restPlace: 0.5,
   rest: { axis: LAP_VIOLIN.axis, top: [-0.7, 0, 0.7], lap: { along: 0.7, offset: [0, 0, 0] } },
-  liftReach: [0.2, 0, -0.3],
+  liftReach: [0.1, 0.4, -0.2],
   restBow: {
     lap: { along: 0.5, offset: [0.6, -0.3, 0.1] },
     tip: UPRIGHT_BOW.tip,
     hair: UPRIGHT_BOW.hair,
-    via: { ...UPRIGHT_BOW.via, reach: [0.4, 0, -0.9] },
+    via: { ...UPRIGHT_BOW.via, reach: [0.3, 0.1, -0.5] },
   },
   standBow: HANGING_BOW,
 } as const satisfies BowedHold;
