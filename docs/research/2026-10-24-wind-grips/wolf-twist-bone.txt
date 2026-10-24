@@ -1,0 +1,40 @@
+
+> zoophony@0.0.0 arm-check /Users/xueqiaoxu/proj/zoophony/.claude/worktrees/agent-afb35e163d66b229a
+> node tools/arm-check.ts clarinetist --jobs 8 --variant w2 --set clarinet\@wolf.gripShiftR\=0.05\,0.12\,-0.02\;clarinet\@wolf.gripShiftL\=0.2\,0.12\,0\;clarinet\@wolf.restGripShiftL\=\[-0.22\,0.1\,0\]\;clarinet\@wolf.restGripShiftR\=\[-0.33\,0.12\,-0.02\]\;clarinet\@wolf.restShift\=0\,-0.77\,-0.35\;clarinet\@wolf.rest\=holdTurn\(-45\,0\) --variant v3 --set clarinet\@wolf.gripShiftR\=0.05\,0.12\,-0.02\;clarinet\@wolf.gripShiftL\=0.2\,0.12\,0\;clarinet\@wolf.restGripShiftL\=\[-0.22\,0.1\,0\]\;clarinet\@wolf.restGripShiftR\=\[-0.33\,0.12\,-0.02\]\;clarinet\@wolf.restShift\=0\,-0.77\,-0.15\;clarinet\@wolf.rest\=holdTurn\(-45\,0\) --variant w2b --set clarinet\@wolf.gripShiftR\=0.05\,0.12\,-0.02\;clarinet\@wolf.gripShiftL\=0.2\,0.12\,0\;clarinet\@wolf.restGripShiftL\=\[-0.22\,0.1\,0\]\;clarinet\@wolf.restGripShiftR\=\[-0.33\,0.12\,-0.02\]\;clarinet\@wolf.restShift\=0\,-0.77\,-0.3\;clarinet\@wolf.rest\=holdTurn\(-45\,0\)\;clarinet\@wolf.restPoleR\=0.5\,-1\,0
+
+Arm gate of 1 roles in 3 variants: 3 children, at most 8 at the same time, in 57 s. A cell gives the value and the verdict of a value that does not pass.
+
+- w2: clarinet@wolf.gripShiftR=0.05,0.12,-0.02;clarinet@wolf.gripShiftL=0.2,0.12,0;clarinet@wolf.restGripShiftL=[-0.22,0.1,0];clarinet@wolf.restGripShiftR=[-0.33,0.12,-0.02];clarinet@wolf.restShift=0,-0.77,-0.35;clarinet@wolf.rest=holdTurn(-45,0)
+- v3: clarinet@wolf.gripShiftR=0.05,0.12,-0.02;clarinet@wolf.gripShiftL=0.2,0.12,0;clarinet@wolf.restGripShiftL=[-0.22,0.1,0];clarinet@wolf.restGripShiftR=[-0.33,0.12,-0.02];clarinet@wolf.restShift=0,-0.77,-0.15;clarinet@wolf.rest=holdTurn(-45,0)
+- w2b: clarinet@wolf.gripShiftR=0.05,0.12,-0.02;clarinet@wolf.gripShiftL=0.2,0.12,0;clarinet@wolf.restGripShiftL=[-0.22,0.1,0];clarinet@wolf.restGripShiftR=[-0.33,0.12,-0.02];clarinet@wolf.restShift=0,-0.77,-0.3;clarinet@wolf.rest=holdTurn(-45,0);clarinet@wolf.restPoleR=0.5,-1,0
+
+| Variant | Role | Arm | folds p95 (8) | twist p95 (55) | forearm twist p95 (80) | flat p5 (0.55) | paw twist p95 (170) | paw swing p95 (70) | paw jumps (0.5%) | stretch p95 (0.35) | grip turn p50 (45) | move twist max (176) | move turn max (3000) | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| w2 | clarinetist | L | 3 | 27 | 28 | 0.84 | 99 | 36 | 0.0% | 0.12 | 105 FAIL | 100 | 130 | FAIL |
+| w2 | clarinetist | R | 0 | 44 | 33 | 0.94 | 88 | 50 | 0.0% | 0.10 | 82 FAIL | 88 | 134 | FAIL |
+| v3 | clarinetist | L | 3 | 33 | 28 | 0.84 | 100 | 36 | 0.0% | 0.14 | 105 FAIL | 100 | 143 | FAIL |
+| v3 | clarinetist | R | 1 | 52 | 36 | 0.90 | 96 | 50 | 0.0% | 0.12 | 82 FAIL | 96 | 142 | FAIL |
+| w2b | clarinetist | L | 3 | 28 | 28 | 0.84 | 100 | 36 | 0.0% | 0.13 | 105 FAIL | 100 | 133 | FAIL |
+| w2b | clarinetist | R | 0 | 46 | 36 | 0.93 | 96 | 50 | 0.0% | 0.11 | 82 FAIL | 96 | 149 | FAIL |
+
+Variant w2:
+
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| clarinetist | L | grip turn p50 | play | 10349 | 105 | 105 | 100.0% | 105 at beethoven-1.mid 52.65 s | 105 | 45 | - | FAIL |
+| clarinetist | R | grip turn p50 | play | 10349 | 82 | 82 | 100.0% | 82 at beethoven-8.mid 183.40 s | 82 | 45 | - | FAIL |
+
+Variant v3:
+
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| clarinetist | L | grip turn p50 | play | 10349 | 105 | 105 | 100.0% | 105 at beethoven-1.mid 52.65 s | 105 | 45 | - | FAIL |
+| clarinetist | R | grip turn p50 | play | 10349 | 82 | 82 | 100.0% | 82 at beethoven-8.mid 183.40 s | 82 | 45 | - | FAIL |
+
+Variant w2b:
+
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| clarinetist | L | grip turn p50 | play | 10349 | 105 | 105 | 100.0% | 105 at beethoven-1.mid 52.65 s | 105 | 45 | - | FAIL |
+| clarinetist | R | grip turn p50 | play | 10349 | 82 | 82 | 100.0% | 82 at beethoven-8.mid 183.40 s | 82 | 45 | - | FAIL |
+ ELIFECYCLE  Command failed with exit code 1.

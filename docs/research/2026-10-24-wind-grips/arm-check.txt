@@ -1,0 +1,56 @@
+
+> zoophony@0.0.0 arm-check /Users/xueqiaoxu/proj/zoophony/.claude/worktrees/agent-afb35e163d66b229a
+> node tools/arm-check.ts clarinetist oboist flutist --base main --jobs 8 --views scratch/val/gate-views
+
+Arm gate of 3 roles against main in 69 s. A cell gives the value, the base in parentheses, and the verdict of a value that does not pass.
+
+| Role | Arm | folds p95 (8) | twist p95 (55) | forearm twist p95 (80) | flat p5 (0.55) | paw twist p95 (170) | paw swing p95 (70) | paw jumps (0.5%) | stretch p95 (0.35) | grip turn p50 (45) | move twist max (176) | move turn max (3000) | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| clarinetist | L | 2 (1) | 42 (35) | 31 (27) | 0.79 (0.79) | 109 (93) | 36 (59) | 0.0% (0.0%) | 0.04 (0.17) | 105 (28) FAIL | 109 (93) FAIL | 43 (177) | FAIL |
+| clarinetist | R | 0 (0) | 69 (47) FAIL | 34 (28) | 0.84 (0.85) | 94 (82) | 50 (28) FAIL | 0.0% (0.0%) | 0.03 (0.12) | 82 (18) FAIL | 94 (82) FAIL | 47 (146) | FAIL |
+| oboist | L | 4 (2) | 35 (25) FAIL | 41 (54) | 0.57 (0.57) | 83 (144) | 31 (39) | 0.0% (0.0%) | 0.14 (0.09) | 91 (16) FAIL | 83 (144) | 77 (177) | FAIL |
+| oboist | R | 8 (6) | 30 (27) | 41 (38) | 0.79 (0.79) | 77 (88) | 50 (25) FAIL | 0.0% (0.0%) | 0.16 (0.19) | 68 (13) FAIL | 77 (88) | 432 (313) | FAIL |
+| flutist | L | 3 (3) | 28 (28) | 33 (33) | 0.65 (0.65) | 122 (122) | 40 (40) | 0.0% (0.0%) | 0.14 (0.14) | 0 (0) | 135 (135) | 285 (285) | PASS |
+| flutist | R | 6 (6) | 40 (40) | 23 (26) | 0.59 (0.61) | 82 (91) | 28 (29) | 0.0% (0.0%) | 0.14 (0.13) | 13 (4) | 82 (96) | 105 (172) | PASS |
+
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| clarinetist | L | grip turn p50 | play | 10349 | 105 | 105 | 100.0% | 105 at beethoven-1.mid 52.65 s | 105 | 45 | 28 | FAIL |
+| clarinetist | L | move twist max | move | 8127 | 96 | 109 | 100.0% | 109 at boulanger-matin.mid lower 93.56 s, wall 2.28 s | 109 | 176 | 93 | FAIL |
+| clarinetist | R | twist p95 | rest | 7 | 69 | 69 | 100.0% | 69 at boulanger-matin.mid rest | 69 | 55 | 47 | FAIL |
+| clarinetist | R | paw swing p95 | play | 10349 | 50 | 50 | 100.0% | 50 at beethoven-8-4.mid 548.34 s | 50 | 70 | 28 | FAIL |
+| clarinetist | R | grip turn p50 | play | 10349 | 82 | 82 | 100.0% | 82 at beethoven-8.mid 183.40 s | 82 | 45 | 18 | FAIL |
+| clarinetist | R | move twist max | move | 8127 | 78 | 94 | 100.0% | 94 at boulanger-matin.mid lower 93.56 s, wall 1.98 s | 94 | 176 | 82 | FAIL |
+| oboist | L | twist p95 | rest | 11 | 35 | 35 | 100.0% | 35 at mozart-k191.mid rest | 35 | 55 | 25 | FAIL |
+| oboist | L | grip turn p50 | play | 14223 | 91 | 91 | 100.0% | 91 at bach-bwv1047.mid 103.65 s | 91 | 45 | 16 | FAIL |
+| oboist | R | paw swing p95 | rest | 11 | 50 | 50 | 100.0% | 50 at boulanger-matin.mid rest | 50 | 70 | 25 | FAIL |
+| oboist | R | grip turn p50 | play | 14223 | 68 | 68 | 100.0% | 68 at mozart-k191.mid 64.30 s | 68 | 45 | 13 | FAIL |
+A stand or another player hides an arm at the azimuths 0, 35, -35, 90, -60, -90, -120, 20, -20, 180.
+clarinetist: worst L grip turn p50 at beethoven-1 52.65 s into scratch/val/gate-views/clarinetist-beethoven-1/time-52.65
+A stand or another player hides an arm at the azimuths 0, 35, -35, 60, -60, -90, -120, 20, -20, 180.
+clarinetist: worst R grip turn p50 at beethoven-8 183.4 s into scratch/val/gate-views/clarinetist-beethoven-8/time-183.40
+A stand or another player hides an arm at the azimuths 0, 35, -35, 90, -60, -90, -120, 20, -20, 180.
+clarinetist: strike at beethoven-1 147.4 s into scratch/val/gate-views/clarinetist-beethoven-1/time-147.40
+A stand or another player hides an arm at the azimuths 0, 35, -35, 90, -60, -90, -120, 20, -20, 180.
+clarinetist: rest at beethoven-1 166.83 s into scratch/val/gate-views/clarinetist-beethoven-1/time-166.83
+beethoven-1: 3 frames from one build of each tree into scratch/val/gate-views/clarinetist-beethoven-1
+beethoven-8: 1 frames from one build of each tree into scratch/val/gate-views/clarinetist-beethoven-8/time-183.40
+scratch/val/gate-views/clarinetist-beethoven-1-52.65-arms.webp: 4 pairs, the base on the left of each pair
+scratch/val/gate-views/clarinetist-beethoven-8-183.40-arms.webp: 4 pairs, the base on the left of each pair
+scratch/val/gate-views/clarinetist-beethoven-1-147.40-arms.webp: 4 pairs, the base on the left of each pair
+scratch/val/gate-views/clarinetist-beethoven-1-166.83-arms.webp: 4 pairs, the base on the left of each pair
+A stand or another player hides an arm at the azimuths 0, 35, -35, 60, 20, -20.
+oboist: worst L grip turn p50 at bach-bwv1047 103.65 s into scratch/val/gate-views/oboist-bach-bwv1047/time-103.65
+A stand or another player hides an arm at the azimuths 0, 35, -35, 120, 20, -20, 180.
+oboist: worst R grip turn p50 at mozart-k191 64.3 s into scratch/val/gate-views/oboist-mozart-k191/time-64.30
+A stand or another player hides an arm at the azimuths 0, 35, -35, 60, 20, -20.
+oboist: strike at bach-bwv1047 138.75 s into scratch/val/gate-views/oboist-bach-bwv1047/time-138.75
+A stand or another player hides an arm at the azimuths 0, 35, -35, 60, 20, -20.
+oboist: rest at bach-bwv1047 121 s into scratch/val/gate-views/oboist-bach-bwv1047/time-121.00
+bach-bwv1047: 3 frames from one build of each tree into scratch/val/gate-views/oboist-bach-bwv1047
+mozart-k191: 1 frames from one build of each tree into scratch/val/gate-views/oboist-mozart-k191/time-64.30
+scratch/val/gate-views/oboist-bach-bwv1047-103.65-arms.webp: 8 pairs, the base on the left of each pair
+scratch/val/gate-views/oboist-mozart-k191-64.30-arms.webp: 8 pairs, the base on the left of each pair
+scratch/val/gate-views/oboist-bach-bwv1047-138.75-arms.webp: 8 pairs, the base on the left of each pair
+scratch/val/gate-views/oboist-bach-bwv1047-121.00-arms.webp: 8 pairs, the base on the left of each pair
+ ELIFECYCLE  Command failed with exit code 1.

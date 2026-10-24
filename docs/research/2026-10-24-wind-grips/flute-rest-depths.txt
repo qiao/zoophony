@@ -1,0 +1,74 @@
+
+> zoophony@0.0.0 hold-fit /Users/xueqiaoxu/proj/zoophony/.claude/worktrees/agent-afb35e163d66b229a
+> node tools/hold-fit.ts flutist --sets lift\,rest\,lower --set flute\@fox-tan.restGripShiftR\=\[0.1\,0.1\,-0.03\] --set flute\@fox-tan.restGripShiftR\=\[0.05\,0.08\,-0.06\] --set flute\@fox-tan.restGripShiftR\=\[0.05\,0.05\,0\] --set flute\@fox-tan.restGripShiftR\=\[0.1\,0.06\,-0.06\]
+
+Hold fit of the flutist: play folds at a step of 1 s, the sweep of the flutist with the bodies of the role.
+Demos: bach-bwv1050, beethoven-8, boulanger-matin
+Sample sets: lift, rest, lower.
+base (5.8 s):
+  faces that fold most: 281 22.9%, 569 20.8%, 283 19.8%, 1290 19.8%, 1291 18.8%
+  lift: upper arms in body: 2.5 cm at song -1.90 s, wall 10.20 s (upperArmR 0.87), beethoven-8 flutist 16 (fox-tan, chair)
+  rest: upper arms in body: 2.5 cm at song -1.70 s, wall 10.00 s (upperArmR 0.87), bach-bwv1050 flutist 17 (fox-tan, chair)
+  lower: upper arms in body: 2.6 cm at song 280.67 s, wall 14.20 s (upperArmR 0.87), boulanger-matin flutist 18 (fox-tan, chair)
+  lift: instrument in body: 0.0 cm at song 0.00 s, wall 0.00 s, bach-bwv1050 flutist 17 (fox-tan, chair)
+  rest: paw L to body: 4.2 cm, boulanger-matin flutist 18 (fox-tan, chair)
+  rest: lower end to the skin: 2.6 cm, boulanger-matin player 18 (fox-tan, chair) wall 29.3 s
+  rest: lower end in the body: 0.0 cm, bach-bwv1050 player 17 (fox-tan, chair) wall 10 s
+  rest: instrument in the body: 0.0 cm, bach-bwv1050 player 17 (fox-tan, chair) wall 10 s
+flute@fox-tan.restGripShiftR=[0.1,0.1,-0.03] (2.9 s):
+  faces that fold most: 281 22.9%, 569 20.8%, 283 19.8%, 1290 19.8%, 1291 18.8%
+  lift: upper arms in body: 2.4 cm at song -1.90 s, wall 10.20 s (upperArmR 0.87), beethoven-8 flutist 16 (fox-tan, chair)
+  rest: upper arms in body: 1.9 cm at song -1.70 s, wall 10.00 s (upperArmL 0.84), bach-bwv1050 flutist 17 (fox-tan, chair)
+  lower: upper arms in body: 2.4 cm at song 280.67 s, wall 14.20 s (upperArmR 0.87), boulanger-matin flutist 18 (fox-tan, chair)
+  lift: instrument in body: 0.0 cm at song 0.00 s, wall 0.00 s, bach-bwv1050 flutist 17 (fox-tan, chair)
+  rest: paw L to body: 4.2 cm, boulanger-matin flutist 18 (fox-tan, chair)
+  rest: lower end to the skin: 2.6 cm, boulanger-matin player 18 (fox-tan, chair) wall 29.3 s
+  rest: lower end in the body: 0.0 cm, bach-bwv1050 player 17 (fox-tan, chair) wall 10 s
+  rest: instrument in the body: 0.0 cm, bach-bwv1050 player 17 (fox-tan, chair) wall 10 s
+flute@fox-tan.restGripShiftR=[0.05,0.08,-0.06] (2.9 s):
+  faces that fold most: 281 22.9%, 283 20.8%, 569 20.8%, 1290 19.8%, 1291 18.8%
+  lift: upper arms in body: 2.4 cm at song -1.42 s, wall 10.20 s (upperArmR 0.76), boulanger-matin flutist 18 (fox-tan, chair)
+  rest: upper arms in body: 2.3 cm at song -1.70 s, wall 10.00 s (upperArmR 0.87), bach-bwv1050 flutist 17 (fox-tan, chair)
+  lower: upper arms in body: 2.5 cm at song 280.67 s, wall 14.10 s (upperArmR 0.76), boulanger-matin flutist 18 (fox-tan, chair)
+  lift: instrument in body: 0.0 cm at song 0.00 s, wall 0.00 s, bach-bwv1050 flutist 17 (fox-tan, chair)
+  rest: paw L to body: 4.2 cm, boulanger-matin flutist 18 (fox-tan, chair)
+  rest: lower end to the skin: 2.6 cm, boulanger-matin player 18 (fox-tan, chair) wall 29.3 s
+  rest: lower end in the body: 0.0 cm, bach-bwv1050 player 17 (fox-tan, chair) wall 10 s
+  rest: instrument in the body: 0.0 cm, bach-bwv1050 player 17 (fox-tan, chair) wall 10 s
+flute@fox-tan.restGripShiftR=[0.05,0.05,0] (2.8 s):
+  faces that fold most: 281 22.9%, 569 20.8%, 283 19.8%, 1290 19.8%, 1291 18.8%
+  lift: upper arms in body: 2.1 cm at song -1.50 s, wall 10.20 s (upperArmR 0.87), bach-bwv1050 flutist 17 (fox-tan, chair)
+  rest: upper arms in body: 1.9 cm at song -1.70 s, wall 10.00 s (upperArmL 0.84), bach-bwv1050 flutist 17 (fox-tan, chair)
+  lower: upper arms in body: 2.1 cm at song 280.67 s, wall 14.20 s (upperArmR 0.87), boulanger-matin flutist 18 (fox-tan, chair)
+  lift: instrument in body: 0.0 cm at song 0.00 s, wall 0.00 s, bach-bwv1050 flutist 17 (fox-tan, chair)
+  rest: paw L to body: 4.2 cm, boulanger-matin flutist 18 (fox-tan, chair)
+  rest: lower end to the skin: 2.6 cm, boulanger-matin player 18 (fox-tan, chair) wall 29.3 s
+  rest: lower end in the body: 0.0 cm, bach-bwv1050 player 17 (fox-tan, chair) wall 10 s
+  rest: instrument in the body: 0.0 cm, bach-bwv1050 player 17 (fox-tan, chair) wall 10 s
+flute@fox-tan.restGripShiftR=[0.1,0.06,-0.06] (2.8 s):
+  faces that fold most: 281 22.9%, 283 20.8%, 569 20.8%, 1290 19.8%, 1291 18.8%
+  lift: upper arms in body: 2.7 cm at song -1.90 s, wall 10.20 s (upperArmR 0.87), beethoven-8 flutist 16 (fox-tan, chair)
+  rest: upper arms in body: 2.7 cm at song -1.70 s, wall 10.00 s (upperArmR 0.87), bach-bwv1050 flutist 17 (fox-tan, chair)
+  lower: upper arms in body: 2.8 cm at song 280.67 s, wall 14.20 s (upperArmR 0.87), boulanger-matin flutist 18 (fox-tan, chair)
+  lift: instrument in body: 0.0 cm at song 0.00 s, wall 0.00 s, bach-bwv1050 flutist 17 (fox-tan, chair)
+  rest: paw L to body: 4.2 cm, boulanger-matin flutist 18 (fox-tan, chair)
+  rest: lower end to the skin: 2.6 cm, boulanger-matin player 18 (fox-tan, chair) wall 29.3 s
+  rest: lower end in the body: 0.0 cm, bach-bwv1050 player 17 (fox-tan, chair) wall 10 s
+  rest: instrument in the body: 0.0 cm, bach-bwv1050 player 17 (fox-tan, chair) wall 10 s
+
+| Variant | Play folds | Lift folds | Rest faces (by side) | lift depth cm (limit) | rest depth cm (limit) | lower depth cm (limit) | Note targets: worst mm (within 5 mm) | rest turns: upper arm, paw (twist, swing) L / R | Instrument in body cm | Spare L cm play / rest | Spare R cm play / rest | Rest gap paw L cm | Rest reach L | Rest end gap cm (in body) |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| base | - | 21.5% (20/93) | 12 (L 3 / R 6 / other 3) | 2.5 upper arms>body (1.5) OVER | 2.5 upper arms>body (1.5) OVER | 2.6 upper arms>body (1.5) OVER | 0.0 (100.0%) | 67°, 38° (-26°, 28°) / 73°, 85° (82°, 25°) | 0.0 lift | 11.3 / free | 4.9 / 0.5 | 4.2 | 0.986 | 2.6 OVER (0.0) |
+| flute@fox-tan.restGripShiftR=[0.1,0.1,-0.03] | - | 21.5% (20/93) | 11 (L 3 / R 5 / other 3) | 2.4 upper arms>body (1.5) OVER | 1.9 upper arms>body (1.5) OVER | 2.4 upper arms>body (1.5) OVER | 0.0 (100.0%) | 67°, 38° (-26°, 28°) / 68°, 84° (81°, 25°) | 0.0 lift | 11.3 / free | 4.9 / -0.3 MISS | 4.2 | 0.986 | 2.6 OVER (0.0) |
+| flute@fox-tan.restGripShiftR=[0.05,0.08,-0.06] | - | 21.5% (20/93) | 12 (L 3 / R 6 / other 3) | 2.4 upper arms>body (1.5) OVER | 2.3 upper arms>body (1.5) OVER | 2.5 upper arms>body (1.5) OVER | 0.0 (100.0%) | 67°, 38° (-26°, 28°) / 75°, 84° (81°, 25°) | 0.0 lift | 11.3 / free | 4.9 / 1.5 | 4.2 | 0.986 | 2.6 OVER (0.0) |
+| flute@fox-tan.restGripShiftR=[0.05,0.05,0] | - | 21.5% (20/93) | 11 (L 3 / R 5 / other 3) | 2.1 upper arms>body (1.5) OVER | 1.9 upper arms>body (1.5) OVER | 2.1 upper arms>body (1.5) OVER | 0.0 (100.0%) | 67°, 38° (-26°, 28°) / 66°, 84° (81°, 25°) | 0.0 lift | 11.3 / free | 4.9 / 0.0 | 4.2 | 0.986 | 2.6 OVER (0.0) |
+| flute@fox-tan.restGripShiftR=[0.1,0.06,-0.06] | - | 21.5% (20/93) | 12 (L 3 / R 6 / other 3) | 2.7 upper arms>body (1.5) OVER | 2.7 upper arms>body (1.5) OVER | 2.8 upper arms>body (1.5) OVER | 0.0 (100.0%) | 67°, 38° (-26°, 28°) / 73°, 86° (83°, 25°) | 0.0 lift | 11.3 / free | 4.9 / 0.6 | 4.2 | 0.986 | 2.6 OVER (0.0) |
+
+The demo and the time of each deepest point of the table:
+| Variant | lift deepest at | rest deepest at | lower deepest at | Instrument in body at |
+|---|---|---|---|---|
+| base | beethoven-8 wall 10.20 s | bach-bwv1050 wall 10.00 s | boulanger-matin wall 14.20 s | bach-bwv1050 wall 0.00 s |
+| flute@fox-tan.restGripShiftR=[0.1,0.1,-0.03] | beethoven-8 wall 10.20 s | bach-bwv1050 wall 10.00 s | boulanger-matin wall 14.20 s | bach-bwv1050 wall 0.00 s |
+| flute@fox-tan.restGripShiftR=[0.05,0.08,-0.06] | boulanger-matin wall 10.20 s | bach-bwv1050 wall 10.00 s | boulanger-matin wall 14.10 s | bach-bwv1050 wall 0.00 s |
+| flute@fox-tan.restGripShiftR=[0.05,0.05,0] | bach-bwv1050 wall 10.20 s | bach-bwv1050 wall 10.00 s | boulanger-matin wall 14.20 s | bach-bwv1050 wall 0.00 s |
+| flute@fox-tan.restGripShiftR=[0.1,0.06,-0.06] | beethoven-8 wall 10.20 s | bach-bwv1050 wall 10.00 s | boulanger-matin wall 14.20 s | bach-bwv1050 wall 0.00 s |

@@ -1,0 +1,66 @@
+
+> zoophony@0.0.0 arm-check /Users/xueqiaoxu/proj/zoophony/.claude/worktrees/agent-afb35e163d66b229a
+> node tools/arm-check.ts oboist --jobs 8 --variant tree --variant grips --set oboe\@mouse.gripShiftL\=0.2\,0.05\,0\;oboe\@mouse.gripShiftR\=0.2\,0.08\,0 --variant grips-aim --set oboe\@mouse.gripShiftL\=0.2\,0.05\,0\;oboe\@mouse.gripShiftR\=0.2\,0.08\,0\;oboe\@mouse.restAim\=1 --variant restonly --set oboe\@mouse.restShift\=0.1\,-0.45\,0.1\;oboe\@mouse.rest\=holdTurn\(-25\,0\)
+
+Arm gate of 1 roles in 4 variants: 4 children, at most 8 at the same time, in 67 s. A cell gives the value and the verdict of a value that does not pass.
+
+- tree: no change
+- grips: oboe@mouse.gripShiftL=0.2,0.05,0;oboe@mouse.gripShiftR=0.2,0.08,0
+- grips-aim: oboe@mouse.gripShiftL=0.2,0.05,0;oboe@mouse.gripShiftR=0.2,0.08,0;oboe@mouse.restAim=1
+- restonly: oboe@mouse.restShift=0.1,-0.45,0.1;oboe@mouse.rest=holdTurn(-25,0)
+
+| Variant | Role | Arm | folds p95 (8) | twist p95 (55) | forearm twist p95 (80) | flat p5 (0.55) | paw twist p95 (170) | paw swing p95 (70) | paw jumps (0.5%) | stretch p95 (0.35) | grip turn p50 (45) | move twist max (176) | move turn max (3000) | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| tree | oboist | L | 4 | 29 | 62 | 0.59 | 165 | 30 | 0.0% | 0.09 | 81 FAIL | 180 FAIL | 17944 FAIL | FAIL |
+| tree | oboist | R | 9 FAIL | 18 | 81 FAIL | 0.66 | 148 | 32 | 0.0% | 0.19 | 98 FAIL | 180 FAIL | 17904 FAIL | FAIL |
+| grips | oboist | L | 4 | 34 | 66 | 0.46 FAIL | 163 | 31 | 0.0% | 0.13 | 91 FAIL | 180 FAIL | 17948 FAIL | FAIL |
+| grips | oboist | R | 6 | 17 | 42 | 0.75 | 91 | 28 | 0.0% | 0.16 | 68 FAIL | 91 | 274 | FAIL |
+| grips-aim | oboist | L | 4 | 35 | 41 | 0.44 FAIL | 83 | 33 | 0.0% | 0.19 | 91 FAIL | 83 | 202 | FAIL |
+| grips-aim | oboist | R | 7 | 17 | 41 | 0.76 | 77 | 46 | 0.0% | 0.16 | 68 FAIL | 77 | 441 | FAIL |
+| restonly | oboist | L | 6 | 32 | 80 FAIL | 0.61 | 165 | 48 | 0.0% | 0.12 | 81 FAIL | 180 FAIL | 17963 FAIL | FAIL |
+| restonly | oboist | R | 14 FAIL | 34 | 79 | 0.64 | 157 | 32 | 0.0% | 0.13 | 98 FAIL | 180 FAIL | 17917 FAIL | FAIL |
+
+Variant tree:
+
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| oboist | L | grip turn p50 | play | 14223 | 81 | 81 | 100.0% | 81 at bach-bwv1047.mid 273.40 s | 81 | 45 | - | FAIL |
+| oboist | L | move twist max | move | 12771 | 144 | 171 | 100.0% | 180 at boulanger-matin.mid lower 93.56 s, wall 1.27 s | 180 | 176 | - | FAIL |
+| oboist | L | move turn max | move | 12771 | 11 | 148 | 82.1% | 17944 at mozart-k191.mid lower 224.50 s, wall 1.07 s | 17944 | 3000 | - | FAIL |
+| oboist | R | folds p95 | lift | 341 | 8 | 9 | 100.0% | 10 at bach-bwv1047.mid wall 0.4 s | 9 | 8 | - | FAIL |
+| oboist | R | forearm twist p95 | lift | 341 | 55 | 81 | 100.0% | 103 at beethoven-1.mid wall 0.4 s | 81 | 80 | - | FAIL |
+| oboist | R | grip turn p50 | play | 14223 | 98 | 98 | 100.0% | 98 at beethoven-8.mid 85.15 s | 98 | 45 | - | FAIL |
+| oboist | R | move twist max | move | 12771 | 89 | 165 | 100.0% | 180 at mozart-k417.mid lower 67.73 s, wall 0.77 s | 180 | 176 | - | FAIL |
+| oboist | R | move turn max | move | 12771 | 13 | 199 | 87.7% | 17904 at mozart-k417.mid lower 67.73 s, wall 0.78 s | 17904 | 3000 | - | FAIL |
+
+Variant grips:
+
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| oboist | L | flat p5 | rest | 11 | 0.46 | 0.46 | 100.0% | 0.46 at boulanger-matin.mid rest | 0.46 | 0.55 | - | FAIL |
+| oboist | L | grip turn p50 | play | 14223 | 91 | 91 | 100.0% | 91 at bach-bwv1047.mid 103.65 s | 91 | 45 | - | FAIL |
+| oboist | L | move twist max | move | 12771 | 145 | 172 | 100.0% | 180 at mendelssohn-op61.mid lift 49.47 s, wall 0.27 s | 180 | 176 | - | FAIL |
+| oboist | L | move turn max | move | 12771 | 12 | 142 | 87.4% | 17948 at mozart-k191.mid lower 149.67 s, wall 1.03 s | 17948 | 3000 | - | FAIL |
+| oboist | R | grip turn p50 | play | 14223 | 68 | 68 | 100.0% | 68 at mozart-k191.mid 64.30 s | 68 | 45 | - | FAIL |
+
+Variant grips-aim:
+
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| oboist | L | flat p5 | rest | 11 | 0.44 | 0.44 | 100.0% | 0.44 at boulanger-matin.mid rest | 0.44 | 0.55 | - | FAIL |
+| oboist | L | grip turn p50 | play | 14223 | 91 | 91 | 100.0% | 91 at bach-bwv1047.mid 103.65 s | 91 | 45 | - | FAIL |
+| oboist | R | grip turn p50 | play | 14223 | 68 | 68 | 100.0% | 68 at mozart-k191.mid 64.30 s | 68 | 45 | - | FAIL |
+
+Variant restonly:
+
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| oboist | L | forearm twist p95 | lift | 341 | 36 | 80 | 100.0% | 93 at mozart-k191.mid wall 0.2 s | 80 | 80 | - | FAIL |
+| oboist | L | grip turn p50 | play | 14223 | 81 | 81 | 100.0% | 81 at bach-bwv1047.mid 273.40 s | 81 | 45 | - | FAIL |
+| oboist | L | move twist max | move | 12771 | 136 | 174 | 100.0% | 180 at beethoven-9.mid lift 105.53 s, wall 0.29 s | 180 | 176 | - | FAIL |
+| oboist | L | move turn max | move | 12771 | 11 | 156 | 86.0% | 17963 at mozart-k417.mid lower 203.20 s, wall 1.26 s | 17963 | 3000 | - | FAIL |
+| oboist | R | folds p95 | rest | 11 | 14 | 14 | 100.0% | 14 at bach-bwv1047.mid rest | 14 | 8 | - | FAIL |
+| oboist | R | grip turn p50 | play | 14223 | 98 | 98 | 100.0% | 98 at beethoven-8.mid 85.15 s | 98 | 45 | - | FAIL |
+| oboist | R | move twist max | move | 12771 | 100 | 167 | 100.0% | 180 at beethoven-8.mid lower 73.41 s, wall 0.76 s | 180 | 176 | - | FAIL |
+| oboist | R | move turn max | move | 12771 | 13 | 188 | 88.0% | 17917 at mozart-k191.mid lower 74.83 s, wall 0.81 s | 17917 | 3000 | - | FAIL |
+ ELIFECYCLE  Command failed with exit code 1.

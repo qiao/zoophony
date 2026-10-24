@@ -1,0 +1,108 @@
+z=-0.3 x=-40 r=[-0.33,0.12,-0.02] pole=0.3,-1,0 L twist 45 folds 3 flat 0.77 moveturn 125
+z=-0.3 x=-40 r=[-0.33,0.12,-0.02] pole=0.3,-1,0 R twist 70 FAIL folds 0 flat 0.82 moveturn 128
+z=-0.3 x=-40 r=[-0.33,0.12,-0.02] pole=0,-1,0.3 L twist 45 folds 3 flat 0.77 moveturn 125
+z=-0.3 x=-40 r=[-0.33,0.12,-0.02] pole=0,-1,0.3 R twist 62 FAIL folds 0 flat 0.86 moveturn 90
+z=-0.3 x=-40 r=[-0.2,0.12,-0.02] pole=0.3,-1,0 L twist 45 folds 3 flat 0.77 moveturn 125
+z=-0.3 x=-40 r=[-0.2,0.12,-0.02] pole=0.3,-1,0 R twist 73 FAIL folds 0 flat 0.80 moveturn 128
+z=-0.3 x=-40 r=[-0.2,0.12,-0.02] pole=0,-1,0.3 L twist 45 folds 3 flat 0.77 moveturn 125
+z=-0.3 x=-40 r=[-0.2,0.12,-0.02] pole=0,-1,0.3 R twist 62 FAIL folds 0 flat 0.86 moveturn 92
+z=-0.3 x=-40 r=[0,0.12,-0.02] pole=0.3,-1,0 L twist 45 folds 3 flat 0.77 moveturn 125
+z=-0.3 x=-40 r=[0,0.12,-0.02] pole=0.3,-1,0 R twist 73 FAIL folds 0 flat 0.77 moveturn 130
+z=-0.3 x=-40 r=[0,0.12,-0.02] pole=0,-1,0.3 L twist 45 folds 3 flat 0.77 moveturn 125
+z=-0.3 x=-40 r=[0,0.12,-0.02] pole=0,-1,0.3 R twist 59 FAIL folds 0 flat 0.86 moveturn 101
+z=-0.3 x=-45 r=[-0.33,0.12,-0.02] pole=0.3,-1,0 L twist 46 folds 3 flat 0.76 moveturn 133
+z=-0.3 x=-45 r=[-0.33,0.12,-0.02] pole=0.3,-1,0 R twist 75 FAIL folds 1 flat 0.80 moveturn 135
+z=-0.3 x=-45 r=[-0.33,0.12,-0.02] pole=0,-1,0.3 L twist 46 folds 3 flat 0.76 moveturn 133
+z=-0.3 x=-45 r=[-0.33,0.12,-0.02] pole=0,-1,0.3 R twist 66 FAIL folds 0 flat 0.85 moveturn 93
+z=-0.3 x=-45 r=[-0.2,0.12,-0.02] pole=0.3,-1,0 L twist 46 folds 3 flat 0.76 moveturn 133
+z=-0.3 x=-45 r=[-0.2,0.12,-0.02] pole=0.3,-1,0 R twist 78 FAIL folds 1 flat 0.78 moveturn 134
+z=-0.3 x=-45 r=[-0.2,0.12,-0.02] pole=0,-1,0.3 L twist 46 folds 3 flat 0.76 moveturn 133
+z=-0.3 x=-45 r=[-0.2,0.12,-0.02] pole=0,-1,0.3 R twist 67 FAIL folds 0 flat 0.84 moveturn 94
+z=-0.3 x=-45 r=[0,0.12,-0.02] pole=0.3,-1,0 L twist 46 folds 3 flat 0.76 moveturn 133
+z=-0.3 x=-45 r=[0,0.12,-0.02] pole=0.3,-1,0 R twist 81 FAIL folds 2 flat 0.75 moveturn 135
+z=-0.3 x=-45 r=[0,0.12,-0.02] pole=0,-1,0.3 L twist 46 folds 3 flat 0.76 moveturn 133
+z=-0.3 x=-45 r=[0,0.12,-0.02] pole=0,-1,0.3 R twist 66 FAIL folds 0 flat 0.85 moveturn 101
+z=-0.3 x=-50 r=[-0.33,0.12,-0.02] pole=0.3,-1,0 L twist 46 folds 3 flat 0.76 moveturn 141
+z=-0.3 x=-50 r=[-0.33,0.12,-0.02] pole=0.3,-1,0 R twist 79 FAIL folds 2 flat 0.79 moveturn 143
+z=-0.3 x=-50 r=[-0.33,0.12,-0.02] pole=0,-1,0.3 L twist 46 folds 3 flat 0.76 moveturn 141
+z=-0.3 x=-50 r=[-0.33,0.12,-0.02] pole=0,-1,0.3 R twist 72 FAIL folds 1 flat 0.83 moveturn 98
+z=-0.3 x=-50 r=[-0.2,0.12,-0.02] pole=0.3,-1,0 L twist 46 folds 3 flat 0.76 moveturn 141
+z=-0.3 x=-50 r=[-0.2,0.12,-0.02] pole=0.3,-1,0 R twist 83 FAIL folds 1 flat 0.76 moveturn 141
+z=-0.3 x=-50 r=[-0.2,0.12,-0.02] pole=0,-1,0.3 L twist 46 folds 3 flat 0.76 moveturn 141
+z=-0.3 x=-50 r=[-0.2,0.12,-0.02] pole=0,-1,0.3 R twist 75 FAIL folds 0 flat 0.83 moveturn 97
+z=-0.3 x=-50 r=[0,0.12,-0.02] pole=0.3,-1,0 L twist 46 folds 3 flat 0.76 moveturn 141
+z=-0.3 x=-50 r=[0,0.12,-0.02] pole=0.3,-1,0 R twist 88 FAIL folds 2 flat 0.72 moveturn 141
+z=-0.3 x=-50 r=[0,0.12,-0.02] pole=0,-1,0.3 L twist 46 folds 3 flat 0.76 moveturn 141
+z=-0.3 x=-50 r=[0,0.12,-0.02] pole=0,-1,0.3 R twist 75 FAIL folds 0 flat 0.82 moveturn 102
+z=-0.35 x=-40 r=[-0.33,0.12,-0.02] pole=0.3,-1,0 L twist 42 folds 2 flat 0.77 moveturn 121
+z=-0.35 x=-40 r=[-0.33,0.12,-0.02] pole=0.3,-1,0 R twist 67 FAIL folds 0 flat 0.83 moveturn 127
+z=-0.35 x=-40 r=[-0.33,0.12,-0.02] pole=0,-1,0.3 L twist 42 folds 2 flat 0.77 moveturn 121
+z=-0.35 x=-40 r=[-0.33,0.12,-0.02] pole=0,-1,0.3 R twist 58 FAIL folds 0 flat 0.87 moveturn 90
+z=-0.35 x=-40 r=[-0.2,0.12,-0.02] pole=0.3,-1,0 L twist 42 folds 2 flat 0.77 moveturn 121
+z=-0.35 x=-40 r=[-0.2,0.12,-0.02] pole=0.3,-1,0 R twist 69 FAIL folds 0 flat 0.81 moveturn 127
+z=-0.35 x=-40 r=[-0.2,0.12,-0.02] pole=0,-1,0.3 L twist 42 folds 2 flat 0.77 moveturn 121
+z=-0.35 x=-40 r=[-0.2,0.12,-0.02] pole=0,-1,0.3 R twist 58 FAIL folds 0 flat 0.87 moveturn 93
+z=-0.35 x=-40 r=[0,0.12,-0.02] pole=0.3,-1,0 L twist 42 folds 2 flat 0.77 moveturn 121
+z=-0.35 x=-40 r=[0,0.12,-0.02] pole=0.3,-1,0 R twist 69 FAIL folds 0 flat 0.78 moveturn 130
+z=-0.35 x=-40 r=[0,0.12,-0.02] pole=0,-1,0.3 L twist 42 folds 2 flat 0.77 moveturn 121
+z=-0.35 x=-40 r=[0,0.12,-0.02] pole=0,-1,0.3 R twist 56 FAIL folds 0 flat 0.87 moveturn 103
+z=-0.35 x=-45 r=[-0.33,0.12,-0.02] pole=0.3,-1,0 L twist 43 folds 3 flat 0.77 moveturn 130
+z=-0.35 x=-45 r=[-0.33,0.12,-0.02] pole=0.3,-1,0 R twist 71 FAIL folds 0 flat 0.82 moveturn 134
+z=-0.35 x=-45 r=[-0.33,0.12,-0.02] pole=0,-1,0.3 L twist 43 folds 3 flat 0.77 moveturn 130
+z=-0.35 x=-45 r=[-0.33,0.12,-0.02] pole=0,-1,0.3 R twist 63 FAIL folds 0 flat 0.86 moveturn 93
+z=-0.35 x=-45 r=[-0.2,0.12,-0.02] pole=0.3,-1,0 L twist 43 folds 3 flat 0.77 moveturn 130
+z=-0.35 x=-45 r=[-0.2,0.12,-0.02] pole=0.3,-1,0 R twist 74 FAIL folds 1 flat 0.80 moveturn 132
+z=-0.35 x=-45 r=[-0.2,0.12,-0.02] pole=0,-1,0.3 L twist 43 folds 3 flat 0.77 moveturn 130
+z=-0.35 x=-45 r=[-0.2,0.12,-0.02] pole=0,-1,0.3 R twist 64 FAIL folds 0 flat 0.86 moveturn 95
+z=-0.35 x=-45 r=[0,0.12,-0.02] pole=0.3,-1,0 L twist 43 folds 3 flat 0.77 moveturn 130
+z=-0.35 x=-45 r=[0,0.12,-0.02] pole=0.3,-1,0 R twist 77 FAIL folds 2 flat 0.76 moveturn 134
+z=-0.35 x=-45 r=[0,0.12,-0.02] pole=0,-1,0.3 L twist 43 folds 3 flat 0.77 moveturn 130
+z=-0.35 x=-45 r=[0,0.12,-0.02] pole=0,-1,0.3 R twist 63 FAIL folds 0 flat 0.86 moveturn 102
+z=-0.35 x=-50 r=[-0.33,0.12,-0.02] pole=0.3,-1,0 L twist 45 folds 3 flat 0.77 moveturn 138
+z=-0.35 x=-50 r=[-0.33,0.12,-0.02] pole=0.3,-1,0 R twist 75 FAIL folds 1 flat 0.81 moveturn 141
+z=-0.35 x=-50 r=[-0.33,0.12,-0.02] pole=0,-1,0.3 L twist 45 folds 3 flat 0.77 moveturn 138
+z=-0.35 x=-50 r=[-0.33,0.12,-0.02] pole=0,-1,0.3 R twist 67 FAIL folds 0 flat 0.85 moveturn 97
+z=-0.35 x=-50 r=[-0.2,0.12,-0.02] pole=0.3,-1,0 L twist 45 folds 3 flat 0.77 moveturn 138
+z=-0.35 x=-50 r=[-0.2,0.12,-0.02] pole=0.3,-1,0 R twist 79 FAIL folds 1 flat 0.78 moveturn 139
+z=-0.35 x=-50 r=[-0.2,0.12,-0.02] pole=0,-1,0.3 L twist 45 folds 3 flat 0.77 moveturn 138
+z=-0.35 x=-50 r=[-0.2,0.12,-0.02] pole=0,-1,0.3 R twist 70 FAIL folds 0 flat 0.84 moveturn 97
+z=-0.35 x=-50 r=[0,0.12,-0.02] pole=0.3,-1,0 L twist 45 folds 3 flat 0.77 moveturn 138
+z=-0.35 x=-50 r=[0,0.12,-0.02] pole=0.3,-1,0 R twist 84 FAIL folds 2 flat 0.74 moveturn 140
+z=-0.35 x=-50 r=[0,0.12,-0.02] pole=0,-1,0.3 L twist 45 folds 3 flat 0.77 moveturn 138
+z=-0.35 x=-50 r=[0,0.12,-0.02] pole=0,-1,0.3 R twist 70 FAIL folds 0 flat 0.84 moveturn 103
+z=-0.4 x=-40 r=[-0.33,0.12,-0.02] pole=0.3,-1,0 L twist 40 folds 2 flat 0.78 moveturn 118
+z=-0.4 x=-40 r=[-0.33,0.12,-0.02] pole=0.3,-1,0 R twist 63 FAIL folds 0 flat 0.84 moveturn 126
+z=-0.4 x=-40 r=[-0.33,0.12,-0.02] pole=0,-1,0.3 L twist 40 folds 2 flat 0.78 moveturn 118
+z=-0.4 x=-40 r=[-0.33,0.12,-0.02] pole=0,-1,0.3 R twist 55 folds 0 flat 0.88 moveturn 91
+z=-0.4 x=-40 r=[-0.2,0.12,-0.02] pole=0.3,-1,0 L twist 40 folds 2 flat 0.78 moveturn 118
+z=-0.4 x=-40 r=[-0.2,0.12,-0.02] pole=0.3,-1,0 R twist 65 FAIL folds 0 flat 0.82 moveturn 126
+z=-0.4 x=-40 r=[-0.2,0.12,-0.02] pole=0,-1,0.3 L twist 40 folds 2 flat 0.78 moveturn 118
+z=-0.4 x=-40 r=[-0.2,0.12,-0.02] pole=0,-1,0.3 R twist 55 folds 0 flat 0.88 moveturn 95
+z=-0.4 x=-40 r=[0,0.12,-0.02] pole=0.3,-1,0 L twist 40 folds 2 flat 0.78 moveturn 118
+z=-0.4 x=-40 r=[0,0.12,-0.02] pole=0.3,-1,0 R twist 65 FAIL folds 0 flat 0.79 moveturn 130
+z=-0.4 x=-40 r=[0,0.12,-0.02] pole=0,-1,0.3 L twist 40 folds 2 flat 0.78 moveturn 118
+z=-0.4 x=-40 r=[0,0.12,-0.02] pole=0,-1,0.3 R twist 54 folds 0 flat 0.88 moveturn 105
+z=-0.4 x=-45 r=[-0.33,0.12,-0.02] pole=0.3,-1,0 L twist 41 folds 2 flat 0.78 moveturn 126
+z=-0.4 x=-45 r=[-0.33,0.12,-0.02] pole=0.3,-1,0 R twist 67 FAIL folds 0 flat 0.83 moveturn 132
+z=-0.4 x=-45 r=[-0.33,0.12,-0.02] pole=0,-1,0.3 L twist 41 folds 2 flat 0.78 moveturn 126
+z=-0.4 x=-45 r=[-0.33,0.12,-0.02] pole=0,-1,0.3 R twist 59 FAIL folds 0 flat 0.87 moveturn 93
+z=-0.4 x=-45 r=[-0.2,0.12,-0.02] pole=0.3,-1,0 L twist 41 folds 2 flat 0.78 moveturn 126
+z=-0.4 x=-45 r=[-0.2,0.12,-0.02] pole=0.3,-1,0 R twist 70 FAIL folds 0 flat 0.81 moveturn 131
+z=-0.4 x=-45 r=[-0.2,0.12,-0.02] pole=0,-1,0.3 L twist 41 folds 2 flat 0.78 moveturn 126
+z=-0.4 x=-45 r=[-0.2,0.12,-0.02] pole=0,-1,0.3 R twist 60 FAIL folds 0 flat 0.86 moveturn 95
+z=-0.4 x=-45 r=[0,0.12,-0.02] pole=0.3,-1,0 L twist 41 folds 2 flat 0.78 moveturn 126
+z=-0.4 x=-45 r=[0,0.12,-0.02] pole=0.3,-1,0 R twist 73 FAIL folds 0 flat 0.78 moveturn 133
+z=-0.4 x=-45 r=[0,0.12,-0.02] pole=0,-1,0.3 L twist 41 folds 2 flat 0.78 moveturn 126
+z=-0.4 x=-45 r=[0,0.12,-0.02] pole=0,-1,0.3 R twist 59 FAIL folds 0 flat 0.87 moveturn 103
+z=-0.4 x=-50 r=[-0.33,0.12,-0.02] pole=0.3,-1,0 L twist 42 folds 2 flat 0.77 moveturn 135
+z=-0.4 x=-50 r=[-0.33,0.12,-0.02] pole=0.3,-1,0 R twist 71 FAIL folds 0 flat 0.82 moveturn 139
+z=-0.4 x=-50 r=[-0.33,0.12,-0.02] pole=0,-1,0.3 L twist 42 folds 2 flat 0.77 moveturn 135
+z=-0.4 x=-50 r=[-0.33,0.12,-0.02] pole=0,-1,0.3 R twist 64 FAIL folds 0 flat 0.86 moveturn 97
+z=-0.4 x=-50 r=[-0.2,0.12,-0.02] pole=0.3,-1,0 L twist 42 folds 2 flat 0.77 moveturn 135
+z=-0.4 x=-50 r=[-0.2,0.12,-0.02] pole=0.3,-1,0 R twist 75 FAIL folds 1 flat 0.80 moveturn 137
+z=-0.4 x=-50 r=[-0.2,0.12,-0.02] pole=0,-1,0.3 L twist 42 folds 2 flat 0.77 moveturn 135
+z=-0.4 x=-50 r=[-0.2,0.12,-0.02] pole=0,-1,0.3 R twist 65 FAIL folds 0 flat 0.85 moveturn 97
+z=-0.4 x=-50 r=[0,0.12,-0.02] pole=0.3,-1,0 L twist 42 folds 2 flat 0.77 moveturn 135
+z=-0.4 x=-50 r=[0,0.12,-0.02] pole=0.3,-1,0 R twist 80 FAIL folds 2 flat 0.76 moveturn 138
+z=-0.4 x=-50 r=[0,0.12,-0.02] pole=0,-1,0.3 L twist 42 folds 2 flat 0.77 moveturn 135
+z=-0.4 x=-50 r=[0,0.12,-0.02] pole=0,-1,0.3 R twist 66 FAIL folds 0 flat 0.85 moveturn 103
