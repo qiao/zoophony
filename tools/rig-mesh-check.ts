@@ -270,7 +270,9 @@ export function standingError(bytes: Uint8Array, body: StudioBody, obj: string):
     return new Quaternion(-q.x, q.y, -q.z, q.w);
   };
   const arm = (bone: string): boolean =>
-    /^(clavicle|upper_arm|forearm|forearm_twist|hand|fingers)_/.test(bone);
+    /^(clavicle|upper_arm|upper_arm_seg\d|forearm|forearm_twist|forearm_seg\d|elbow|wrist|hand|fingers)_/.test(
+      bone,
+    );
   // The arms of the standing body turn with a reclined chest (`StudioStanding.trunkTurns`), so the
   // turn to the clip starts after the turn of the chest.
   const chest = body.standing.trunkTurns?.chest;

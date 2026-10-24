@@ -113,6 +113,7 @@ import {
   withTempFolder,
 } from './ref-tree.ts';
 import { STUDIO_BONES } from '../src/models/studio-format.ts';
+import { sideSegmentBones } from './arm-segments.ts';
 import type { Side, StudioBone, StudioMesh } from '../src/models/studio-format.ts';
 import {
   createStudioPose,
@@ -424,9 +425,10 @@ export type ArmSample = Readonly<Record<Measure, number>> & {
 };
 
 /**
- * Gives the skin joints of one arm: the studio bones from the upper arm to the fingers, the
- * clavicle when asked, and each extra joint that follows the upper arm, such as the twist bone of
- * the upper arm (`StudioRig.follows`).
+ * Gives the skin joints of one arm: the studio bones from the upper arm to the fingers, the arm
+ * segments and the helpers of a body with them (`sideSegmentBones()`), the clavicle when asked,
+ * and each extra joint that follows the upper arm, such as the twist bone of the upper arm
+ * (`StudioRig.follows`).
  *
  * @param rig The studio rig.
  * @param side The side.
@@ -441,6 +443,7 @@ export function armJoints(rig: StudioRig, side: Side, clavicle: boolean): number
     `forearm_twist_${side}`,
     `hand_${side}`,
     `fingers_${side}`,
+    ...sideSegmentBones(side),
   ];
   const own = names.map((name) => STUDIO_BONES.indexOf(name));
   const upper = rig.follows[STUDIO_BONES.indexOf(`upper_arm_${side}`)];
@@ -669,9 +672,12 @@ function armBind(rig: StudioRig, side: Side): ArmBind {
   const cornersOf = (set: ReadonlySet<number>): Uint32Array =>
     Uint32Array.from([...set].flatMap((f) => [0, 1, 2].map((k) => mesh.corners[f * 3 + k] ?? 0)));
   const corners = cornersOf(faces);
-  const lowerJoints = (['forearm', 'forearm_twist', 'hand', 'fingers'] as const).map((bone) =>
-    STUDIO_BONES.indexOf(`${bone}_${side}`),
-  );
+  const lowerJoints = [
+    ...(['forearm', 'forearm_twist', 'hand', 'fingers'] as const).map(
+      (bone): StudioBone => `${bone}_${side}`,
+    ),
+    ...sideSegmentBones(side, 'fore'),
+  ].map((bone) => STUDIO_BONES.indexOf(bone));
   const lowerSet = armFaces(mesh, lowerJoints);
   const lower = cornersOf(lowerSet);
   return {

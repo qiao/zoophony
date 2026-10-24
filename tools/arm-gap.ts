@@ -28,6 +28,7 @@ import { join as joinPath } from 'node:path';
 import { Triangle, Vector3 } from 'three';
 
 import { STUDIO_BONES, unpackStudioMesh } from '../src/models/studio-format.ts';
+import { sideSegmentBones } from './arm-segments.ts';
 import type { Side, StudioBody, StudioMesh } from '../src/models/studio-format.ts';
 import { UPPER_TWIST_BONES, standingBody } from '../src/models/studio-rig.ts';
 
@@ -122,9 +123,12 @@ export function armGaps(body: StudioBody): ArmGap[] {
   const count = positions.length / 3;
 
   return (['L', 'R'] as const).map((side): ArmGap => {
-    const bones = (['upper_arm', 'forearm', 'forearm_twist', 'hand', 'fingers'] as const).map(
-      (bone) => STUDIO_BONES.indexOf(`${bone}_${side}`),
-    );
+    const bones = [
+      ...(['upper_arm', 'forearm', 'forearm_twist', 'hand', 'fingers'] as const).map((bone) =>
+        STUDIO_BONES.indexOf(`${bone}_${side}`),
+      ),
+      ...sideSegmentBones(side).map((bone) => STUDIO_BONES.indexOf(bone)),
+    ];
     const arm = new Set([...bones, UPPER_TWIST_BONES[side]]);
     const near = new Set([...arm, ...TRUNK_BONES]);
     const trunk = Array.from(

@@ -42,6 +42,7 @@ import type { SpeciesParams } from '../src/models/species.ts';
 import { STUDIO_BODIES } from '../src/models/studio-body.ts';
 import type { StudioBodyName } from '../src/models/studio-body.ts';
 import { STUDIO_BONES } from '../src/models/studio-format.ts';
+import { sideSegmentBones } from './arm-segments.ts';
 import type { Side, StudioBody, StudioBone, StudioMesh } from '../src/models/studio-format.ts';
 import { UPPER_TWIST_BONES, twistAngle } from '../src/models/studio-rig.ts';
 import type { StudioRig } from '../src/models/studio-rig.ts';
@@ -231,8 +232,9 @@ function armBind(rig: StudioRig, side: Side): ArmBind {
     fore: boneAt(`forearm_${side}`),
     hand: boneAt(`hand_${side}`),
   };
-  // The twist bone of the upper arm (`StudioBody.upperTwist`) holds a part of the upper arm
-  // weight, so the rings of a body with it take the same vertices as with no twist bone.
+  // The twist bone of the upper arm (`StudioBody.upperTwist`) and the arm segments and helpers
+  // (`sideSegmentBones()`) hold the arm weight of a body with them, so the rings of such a body
+  // take the same vertices as with no such bone.
   const armBones = [
     bones.upper,
     UPPER_TWIST_BONES[side],
@@ -240,6 +242,7 @@ function armBind(rig: StudioRig, side: Side): ArmBind {
     boneAt(`forearm_twist_${side}`),
     bones.hand,
     boneAt(`fingers_${side}`),
+    ...sideSegmentBones(side).map((bone) => boneAt(bone)),
   ];
   const edgeList = meshEdges(mesh.corners);
   const rings = ARM_RINGS.map((ring) =>
