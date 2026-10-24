@@ -6,10 +6,18 @@ import type { PlayerModel } from '../models/player.ts';
 import { boneIndex } from '../models/rig.ts';
 import { toVec3 } from '../models/tuples.ts';
 import type { Vec3 } from '../models/tuples.ts';
+import type { PedalTrack } from '../score/pedal.ts';
+import { lastAtOrBefore } from './blend.ts';
 import { setBoneRotation } from './frames.ts';
 import { createArmPose, solveArm } from './ik.ts';
 import type { ArmBind } from './ik.ts';
 import { smoothstep } from './rest.ts';
+
+/**
+ * The time of one press or one release of the damper pedal, in seconds. A pianist changes the
+ * pedal in a short move of the ankle (design 5.3).
+ */
+export const PEDAL_SEC = 0.1;
 
 /**
  * The share of the length of the sole from the heel to the ball of the foot. On the polar bear,
@@ -25,6 +33,54 @@ const SOSTENUTO_GAP = 0.01;
 
 /** The distance of the ball of the foot behind the tip of the pedal, in meters. */
 const TIP_INSET = 0.01;
+
+/** The sustain pedal of a pianist, with the level at each change for the stateless ramp. */
+export interface PedalMotion extends PedalTrack {
+  /** The level of the pedal at each change, where the ramp of the change starts. */
+  readonly from: Float32Array;
+}
+
+/**
+ * Makes the motion of the damper pedal from the sustain pedal of a seat. Each change ramps the
+ * pedal in {@link PEDAL_SEC} from the level that the change finds.
+ *
+ * @param track The changes of the sustain pedal of the seat.
+ * @returns The motion.
+ */
+export function pedalMotion(track: PedalTrack): PedalMotion {
+  const from = new Float32Array(track.times.length);
+  for (let i = 1; i < from.length; i++) {
+    from[i] = rampLevel(track, from, i - 1, track.times[i] ?? 0);
+  }
+  return { ...track, from };
+}
+
+/**
+ * Gives the level of the pedal in the ramp of one change.
+ *
+ * @param track The changes.
+ * @param from The level at each change.
+ * @param i The index of the change.
+ * @param time The song time, at or after the change.
+ * @returns The level, from 0 (up) to 1 (down).
+ */
+function rampLevel(track: PedalTrack, from: Float32Array, i: number, time: number): number {
+  const start = from[i] ?? 0;
+  const end = track.down[i] ?? 0;
+  return start + (end - start) * smoothstep((time - (track.times[i] ?? 0)) / PEDAL_SEC);
+}
+
+/**
+ * Gives the level of the damper pedal at a song time: a pure function of the motion and the time.
+ *
+ * @param motion The motion of the pedal.
+ * @param time The song time of the note layer, in seconds.
+ * @returns The level, from 0 (up) to 1 (down).
+ */
+export function pedalLevelAt(motion: PedalMotion, time: number): number {
+  const i = lastAtOrBefore(motion.times, time);
+  return i < 0 ? 0 : rampLevel(motion, motion.from, i, time);
+}
 
 /** The right leg of a pianist and the damper pedal in front of it, in the model axes. */
 export interface PedalFoot {

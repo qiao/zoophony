@@ -22,7 +22,7 @@ import { poseHands, sideLeanOf } from './hands.ts';
 import type { HandsState } from './hands.ts';
 import { gestureSize } from './loudness.ts';
 import { activityAt } from './passages.ts';
-import { posePedalFoot } from './pedal.ts';
+import { pedalLevelAt, posePedalFoot } from './pedal.ts';
 import { posePercussion } from './percussion.ts';
 import type { PercussionState } from './percussion.ts';
 import type { IdleState } from './idle.ts';
@@ -357,9 +357,11 @@ function poseAnimal(
       body.sway += sideLeanOf(note.rig, hands) * weight;
       writeBody(pose, player, scratch);
       poseHands(note.rig, scratch.torso, hands, weight, pose.rotations);
-      // The right foot of a pianist rests on the damper pedal.
+      // The damper pedal follows the `slide` bone down, under the right foot of a pianist.
+      pose.slideOffset.fill(0);
       if (note.rig.foot) {
-        posePedalFoot(note.rig.foot, 0, weight, pose.rotations);
+        const level = pedalLevelAt(note.pedal, noteTime);
+        pose.slideOffset[1] = -posePedalFoot(note.rig.foot, level, weight, pose.rotations);
       }
       break;
     }

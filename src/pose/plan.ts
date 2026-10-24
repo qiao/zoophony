@@ -9,6 +9,8 @@ import type { Skeleton } from '../models/rig.ts';
 import type { InstrumentId } from '../models/instruments/types.ts';
 import { toVec3 } from '../models/tuples.ts';
 import type { Vec3 } from '../models/tuples.ts';
+import { NO_PEDAL, sustainPedals } from '../score/pedal.ts';
+import type { PedalTrack } from '../score/pedal.ts';
 import type { Beat, PlayerNote, Score, SectionId } from '../score/types.ts';
 import { SPECIES, instrumentScale } from '../models/species.ts';
 import type { SpeciesId, SpeciesParams } from '../models/species.ts';
@@ -35,6 +37,8 @@ import type { IdleParams } from './idle.ts';
 import { noteLoudness } from './loudness.ts';
 import { buildPassages } from './passages.ts';
 import type { Passages } from './passages.ts';
+import { pedalMotion } from './pedal.ts';
+import type { PedalMotion } from './pedal.ts';
 import { percussionTracks } from './percussion.ts';
 import { percussionRig } from './percussion-rig.ts';
 import type { PercussionRig } from './percussion-rig.ts';
@@ -82,6 +86,8 @@ export interface HandsLayer {
   readonly rig: HandsRig;
   readonly left: HandTrack;
   readonly right: HandTrack;
+  /** The damper pedal under the right foot of a pianist. It stays up for a harp player. */
+  readonly pedal: PedalMotion;
 }
 
 /** The note layer of a singer: the jaw and the sway of the phrases (design 5.3). */
@@ -232,6 +238,8 @@ interface PlayerInputs {
    * it, for the delay of the seat and the ripple of the lift and the lowering (design 5.2).
    */
   readonly seatSeed: number;
+  /** The sustain pedal of the seat (`sustainPedals()`). The pedal stays up by default. */
+  readonly pedal?: PedalTrack;
 }
 
 /** The inputs of the plan of the conductor (design 5.4). */
@@ -342,6 +350,7 @@ function notesOfPlayers(score: Score, layout: SceneLayout, loudness: Float32Arra
  * @param amplitude The seeded amplitude of the player.
  * @param seed The seed of the player. The rate of the vibrato of a bowed string comes from it.
  * @param beats The times of the conducted beats, sorted. The slurs of a bowed string read them.
+ * @param pedal The sustain pedal of the seat, for the foot of a pianist.
  * @returns The note layer of the motion family of the instrument.
  */
 function noteLayerOf(
@@ -354,6 +363,7 @@ function noteLayerOf(
   amplitude: number,
   seed: number,
   beats: Float64Array,
+  pedal: PedalTrack,
 ): NoteLayer {
   if (isInFamily(instrument, ['bowed'])) {
     const rig = cached(rigs.bowedRigs, model, () =>
@@ -386,7 +396,13 @@ function noteLayerOf(
       handsRig(model, instrument, instrumentScale(SPECIES[species], instrument)),
     );
     const { left, right } = handTracks(rig, notes, loudness, amplitude);
-    return { family: MOTION_FAMILIES[instrument], rig, left, right };
+    return {
+      family: MOTION_FAMILIES[instrument],
+      rig,
+      left,
+      right,
+      pedal: pedalMotion(rig.foot ? pedal : NO_PEDAL),
+    };
   }
   if (isInFamily(instrument, ['choir'])) {
     const rig = cached(rigs.choirRigs, model, () => choirRig(model));
@@ -496,6 +512,7 @@ export function preparePlayer(
       amplitude,
       seed,
       beats,
+      inputs.pedal ?? NO_PEDAL,
     ),
   };
 }
@@ -734,6 +751,7 @@ export function preparePoses(
   }
   const loudness = noteLoudness(score);
   const notes = notesOfPlayers(score, layout, loudness);
+  const pedals = sustainPedals(score);
   const beats = Float64Array.from(score.beats, (b) => b.timeSec);
   const players = layout.players.map((place, index): PlayerPlan => {
     const kept = reuse && !reuse.players.has(index) ? reuse.plan.players[index] : undefined;
@@ -751,6 +769,7 @@ export function preparePoses(
         beats,
         lookTarget: looks[index] ?? layout.podium,
         seatSeed: seatSeedOf(seed, cast.seatIndex),
+        pedal: pedals[cast.seatIndex] ?? NO_PEDAL,
       },
       mixHash(seed, index),
       rigs,
