@@ -282,6 +282,8 @@ decision of the user (`docs/decisions/2026-10-21-mesh-penguin.md`). The meshes o
 asked for the studio bear and the studio polar bear again after their meshes, with more smooth fur
 (`docs/decisions/2026-10-22-studio-bears.md`). Both then got new meshes in a T-pose
 (`docs/decisions/2026-10-23-bear-tpose.md`, `docs/decisions/2026-10-24-polar-bear-tpose.md`).
+The arms of the polar bear then got quad faces and Blender weights
+(`docs/decisions/2026-10-24-polar-bear-arms.md`).
 
 Each body follows these rules:
 
@@ -349,6 +351,18 @@ the upper arm moves to it near the shoulder, so the roll spreads along the arm. 
 `upperTwist.share` of the config of the mesh rig. The rig solves its corrective shapes with the
 twist bone, and `pnpm studio-body` writes the share into the body. A body with no share has no
 twist bone (`docs/decisions/2026-10-19-arm-skin.md`).
+
+A mesh rig can instead give each arm the bones of a rigger, as on the Rigify rabbit of `ode.html`
+(`armSegments` of the config, `docs/decisions/2026-10-24-polar-bear-arms.md`): 4 deform segments
+on the upper arm and on the forearm, and a helper bone at the elbow and at the wrist. The skin of
+the arm hangs on them, and the upper arm, the forearm, and the forearm twist bone only drive them.
+The app turns them from the joints of the pose, so each song keeps the live pose (`poseArm()`).
+Each segment takes its share of the roll of the upper arm from the chest, or of the twist from the
+forearm to the paw, at its middle. Each helper turns halfway across its joint. The skin then turns
+in small steps along the arm, and the elbow and the wrist keep their volume. The arms of such a
+mesh are quad tubes (rings at a right angle to the bones), and the weights come from Blender
+(`paintedWeights`), with the rule weights on the bones of `paintedLower`. A segment rig replaces
+`upperTwist` and the shapes of `raise`.
 
 ```text
  lowpoly-studio/animals/polar-bear/out/polar-bear.glb
@@ -1004,8 +1018,8 @@ back (`chairForward()`). Each species moves toward the anatomy of its reference 
   trombones, the pig in the horns, the hippo in the contrabasses, the elephant at the timpani, the
   badger in the percussion, the rhino at the tuba, the deer at the harp, the penguin in the
   choir, the polar bear at the piano, and the bear on the podium, so many
-  studio bodies share the scene. The meshes of the bear and the polar bear keep their 3,142 and
-  3,144 triangles, as the user gave them. The pea eyes add their triangles to a studio body
+  studio bodies share the scene. The mesh of the bear keeps its 3,142 triangles, as the user gave
+  it. The polar bear has 4,142: the faces of the user, with quad tubes on the arms. The pea eyes add their triangles to a studio body
   (`docs/decisions/2026-10-15-pea-eyes.md`).
 - An instrument has at most 800 triangles, except the timpani (1,200) and the piano (2,000). A
   chair or the piano bench has at most 120, and a stand at most 80. The full scene with 60
@@ -1349,7 +1363,8 @@ of three.js always blends four bones, so the second bone adds no shader work.
 - A studio body (4.4) has a skeleton of its own: the 30 body bones of the biped template of the
   studio, two eye bones for the pea eyes, and the optional bones (`OPTIONAL_STUDIO_BONES`): the
   tip of a tail of two bones (`tail_tip`: the red fox, the tan fox, the cat, the dog, the mouse,
-  the beaver, the wolf, and the monkey), and the jaw of a beak that opens (`jaw`: the penguin).
+  the beaver, the wolf, and the monkey), the jaw of a beak that opens (`jaw`: the penguin), and
+  the arm segments and helpers (`ARM_SEGMENT_BONES`: the polar bear, 4.4).
   The optional bones come after the other bones, so that a new one keeps each other index. The rabbit, the panda,
   the hippo, the pig, the badger, the rhino, the deer, and the penguin have a tail
   ball on one tail bone, with no tip, and so do the bear and the polar bear. Each vertex follows up to four of them. The
@@ -1358,6 +1373,11 @@ of three.js always blends four bones, so the second bone adds no shader work.
   each other body. A pose also holds the matrices of the twist bones of the upper arms
   (`UPPER_TWIST_BONES`), after the bones of the player. Only a body with `upperTwist` (4.4), the
   hippo, the elephant, and the rhino, puts weight on them: each one turns with its upper arm, less the rest of the roll from the chest.
+- The arm segments of a body with them take the skin of the arms. `poseArm()` writes each segment
+  from the turns of its arm, around the joint at the start of its part: the shoulder for the upper
+  arm, the elbow for the forearm and the elbow helper, and the wrist for the wrist helper. The
+  readers of the bind mesh read the upper arm or the forearm of the player for them
+  (`STUDIO_FOLLOWS`).
 - The `jaw` bone of a studio body is a child of `head` at the hinge of the beak, and it follows
   the `jaw` of the player, whose bind place is then the hinge. The choir pose opens it (5.3). A
   body with no jaw keeps the `jaw` of the player at the tip of the nose, with no vertex on it.
