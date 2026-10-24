@@ -152,6 +152,20 @@ export function instrumentAt(
     );
   }
   out.pivot.lerpVectors(restPivot, out.pivot, weight);
+  return placeOffset(rig, frames, out);
+}
+
+/**
+ * Writes the instrument offset of a place from its pivot: the move of the `instrument` bone from
+ * its bind place, in the axes of its parent.
+ *
+ * @param rig The points of the player.
+ * @param frames The posed frames of the torso.
+ * @param out The place. The function writes its offset.
+ * @returns `out`.
+ */
+function placeOffset(rig: RigPoints, frames: TorsoFrames, out: InstrumentPlace): InstrumentPlace {
+  const parent = rig.parent === BONES.chest ? frames.chest : frames.root;
   out.offset
     .copy(out.pivot)
     .sub(parent.position)
@@ -159,6 +173,106 @@ export function instrumentAt(
     .add(pivotFromParent.fromArray(rig.parentBind))
     .sub(pivotBind.fromArray(rig.pivot));
   return out;
+}
+
+/**
+ * Gives the place of the left fingers on the target `fingerboard` at a weight of the playing pose
+ * (design 5.2): the place of the rest at the rest, the place of the note at the play, and a mix
+ * between them, through the place of the middle of the move (`BowedHold.liftPlace`).
+ *
+ * @param hold The hold of the instrument.
+ * @param note The place of the note.
+ * @param weight The eased weight of the playing pose: 0 is the rest pose.
+ * @returns The place, from 0 at the nut to 1 at the end of the fingerboard.
+ */
+function stopAt(hold: BowedHold, note: number, weight: number): number {
+  const middle = hold.liftPlace;
+  if (middle === null || weight <= 0 || weight >= 1) {
+    return hold.restPlace + (note - hold.restPlace) * weight;
+  }
+  return weight < 0.5
+    ? hold.restPlace + (middle - hold.restPlace) * 2 * weight
+    : middle + (note - middle) * (2 * weight - 1);
+}
+
+/** The instrument at the rest and at the play, for {@link carryByPaw}. */
+const carryRest = createPlace();
+const carryPlay = createPlace();
+const pawRest = new Vector3();
+const pawPlay = new Vector3();
+const pawLocal = new Vector3();
+const carryNeck = new Vector3();
+
+/**
+ * Makes an instrument place with no turn at the origin.
+ *
+ * @returns The place.
+ */
+function createPlace(): InstrumentPlace {
+  return {
+    local: new Quaternion(),
+    rotation: new Quaternion(),
+    pivot: new Vector3(),
+    offset: new Vector3(),
+  };
+}
+
+/**
+ * The weight of the playing pose from which the path of the tail end of the instrument takes over
+ * from the carry of the paw ({@link carryByPaw}), with a smooth change up to the play. With the
+ * carry up to the play, the tail end came to the chin from below and went 2.3 cm into the chest
+ * of the rabbit and 4.6 cm into the chest of the cat (`docs/research/2026-10-24-violin-moves.md`).
+ */
+const CARRY_FADE = 0.6;
+
+/**
+ * Moves the instrument of a lift or a lowering so that the left paw carries it
+ * (`BowedHold.liftPlace`, design 5.2): the stop point of the paw on the neck moves on a straight
+ * line from its place at the rest to its place at the play, plus `4 × weight × (1 - weight)` times
+ * the reach of the hold, and the instrument keeps the turn of the move around that point. From
+ * {@link CARRY_FADE}, the place changes smoothly to the place of {@link instrumentAt}.
+ *
+ * @param rig The points of the player.
+ * @param frames The posed frames of the torso.
+ * @param weight The eased weight of the playing pose: 0 is the rest pose.
+ * @param note The place of the stop at the play, on the target `fingerboard`.
+ * @param stop The place of the stop at this weight, on the target `fingerboard`.
+ * @param place The place of the instrument at this weight. The function moves its pivot.
+ */
+function carryByPaw(
+  rig: RigPoints,
+  frames: TorsoFrames,
+  weight: number,
+  note: number,
+  stop: number,
+  place: InstrumentPlace,
+): void {
+  if (rig.hold.liftPlace === null || weight <= 0 || weight >= 1) {
+    return;
+  }
+  instrumentAt(rig, frames, 0, carryRest);
+  instrumentAt(rig, frames, 1, carryPlay);
+  carryNeck.fromArray(rig.neck);
+  onInstrument(
+    rig,
+    carryRest,
+    pawRest.fromArray(rig.nut).addScaledVector(carryNeck, rig.hold.restPlace),
+  );
+  onInstrument(rig, carryPlay, pawPlay.fromArray(rig.nut).addScaledVector(carryNeck, note));
+  pawRest
+    .lerp(pawPlay, weight)
+    .addScaledVector(
+      liftReach.fromArray(rig.liftReach).applyQuaternion(frames.root.rotation),
+      4 * weight * (1 - weight),
+    );
+  pawLocal
+    .fromArray(rig.nut)
+    .addScaledVector(carryNeck, stop)
+    .sub(pivotBind.fromArray(rig.pivot))
+    .applyQuaternion(place.rotation);
+  const keep = 1 - smoothstep((weight - CARRY_FADE) / (1 - CARRY_FADE));
+  place.pivot.lerp(pawRest.sub(pawLocal), keep);
+  placeOffset(rig, frames, place);
 }
 
 /**
@@ -900,6 +1014,12 @@ export function poseBowed(
   const chest = frames.chest;
   const { place, strings, bow, hand: heldHand } = places;
   instrumentAt(rig, frames, weight, place);
+  // The place of the left hand on the fingerboard: the place of its hand frame at the play, in the
+  // part of the fingerboard that the arm reaches, with the vibrato, and the place of the rest.
+  const [low, high] = rig.stopRange;
+  const note = low + (state.fingerboard + state.vibrato) * (high - low);
+  const stop = stopAt(rig.hold, note, weight);
+  carryByPaw(rig, frames, weight, note, stop, place);
   turnToPlay(rig, frames, place, weight);
   soundingPointAt(rig, state.loudness, stringsAt(rig, place, strings));
   // The hand holds the bow with no tilt, and the fingers turn the stick by the tilt.
@@ -1055,9 +1175,6 @@ export function poseBowed(
   // the note and rolls to its string, and in a high position it tilts further over the neck. In
   // the rest pose, it keeps the place of the rest. The press of a note curls the fingers more, but
   // it does not move the hand.
-  const [low, high] = rig.stopRange;
-  const note = low + (state.fingerboard + state.vibrato) * (high - low);
-  const stop = rig.hold.restPlace + (note - rig.hold.restPlace) * weight;
   finger.reach = state.reach * weight;
   finger.stopString = MIDDLE_FINGER.stopString + (state.stopString - 1.5) * weight;
   const handTilt = leftTilt(rig.hold, state.fingerboard) * weight;

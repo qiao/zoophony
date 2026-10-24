@@ -203,8 +203,9 @@ export interface BowedHold {
   /**
    * The largest move of the instrument in the middle of the lift and of the lowering, in head
    * heights, in the axes of the root: a via of the instrument (design 5.2). It keeps a violin or a
-   * viola on its way between the lap and the chin off the belly. `[0, 0, 0]` mixes the rest place
-   * and the playing place directly.
+   * viola on its way between the lap and the chin off the belly. With {@link BowedHold.liftPlace},
+   * it moves the point of the left paw on the neck. `[0, 0, 0]` mixes the rest place and the
+   * playing place directly.
    */
   readonly liftReach: Vec3;
   /**
@@ -216,6 +217,17 @@ export interface BowedHold {
    * turn and the playing turn directly.
    */
   readonly liftTurn: { readonly axis: Vec3; readonly top: Vec3 } | null;
+  /**
+   * The place of the left fingers on the target `fingerboard` in the middle of the lift and of the
+   * lowering, where the left paw carries the instrument (design 5.2): from 0 at the nut to 1 at the
+   * end of the fingerboard. The paw slides from the place of the rest to this place, then to the
+   * place of the note. Its point on the neck moves on a straight line from its place at the rest to
+   * its place at the play, with the move of {@link BowedHold.liftReach}, and the instrument hangs
+   * from it with the turn of the move ({@link BowedHold.liftTurn}). Thus the left arm keeps its
+   * bend on the way, as the left hand of a player who brings the instrument up by its neck. `null`
+   * moves the tail end of the instrument on that path, and the paw slides directly.
+   */
+  readonly liftPlace: number | null;
   /**
    * True when the left paw holds the instrument at the left side in the rest pose and the bow
    * hangs from the right paw, also on a seat, as for a soloist who stands (design 5.2). A body with
@@ -335,6 +347,7 @@ const CHIN_HOLD = {
   },
   liftReach: [0, 0, 0],
   liftTurn: null,
+  liftPlace: null,
   restAtSide: false,
   restBow: {
     lap: { along: 1, offset: [0.18, 0.08, 0] },
@@ -397,6 +410,7 @@ const FLOOR_HOLD = {
   rest: null,
   liftReach: [0, 0, 0],
   liftTurn: null,
+  liftPlace: null,
   restAtSide: false,
   restBow: {
     lap: { along: 1, offset: [0.2, 0.08, 0] },
