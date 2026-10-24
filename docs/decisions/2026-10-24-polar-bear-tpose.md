@@ -18,4 +18,4 @@ and the images. The user can reverse each decision. Then update its section, and
 | armTop starts above the level arms of the T-pose (y 0.80). From y 0.68, it gave the top of each arm to the neck. | 4.4 |
 | The eyes take `eyeSize` 0.805, the size of the bear, as the user asked. | 4.4 |
 | The mesh keeps its 3,144 triangles, above the 3,000 faces of the studio polar bear. | 4.5 |
-| Open: at rest, slivers show along the hanging upper arms, and the right arm folds 12 faces at rest (limit 8). Long thin faces cross each shoulder, and the level arm of the T-pose turns about 75° down. Corrective shapes, weight rules, and forward rest paws did not change them. A ring at each shoulder needs the user. | 4.4, 9.3 |
+| Open: at rest, slivers show along the upper arms. Long thin faces cross each shoulder, and the level arm of the T-pose turns about 75° down. Corrective shapes and weight rules did not change them. The bent rest arms of `2026-10-24-polar-bear-seat.md` make them smaller. A ring at each shoulder needs the user. | 4.4, 9.3 |
