@@ -24,6 +24,7 @@
     "pose-depth": "node tools/pose-depth.ts",
     "hold-reach": "node tools/hold-reach.ts",
     "hold-fit": "node tools/hold-fit.ts",
+    "wind-grip": "node tools/wind-grip.ts",
     "hold-scan": "node tools/hold-scan.ts",
     "raise-fit": "node tools/raise-fit.ts",
     "choir-check": "pnpm build && node tools/choir-check.ts",
