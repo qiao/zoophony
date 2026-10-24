@@ -1,0 +1,39 @@
+# scan.sh "0.82 0.85 0.88" "1.68 1.45 1.25" "28 18": the size factor s (of the height 1.642242 of
+# 2026-10-24), PIANO_FRONT_H f, and the play lean in degrees, with the rest of main. The mean play
+# angles of pianist-size.ts on boulanger-matin (8 samples): elbow = inner angle in degrees, slope =
+# forearm slope (below 0 is down to the wrist), upper = upper arm from straight down, ahead = elbow
+# in front of the shoulder in m, top = head top in m. An elbow of 151.83 is the reach limit of the
+# IK: the arm is straight.
+#
+# main (s 1, f 1.68, lean 28): elbow 151.83 / 151.83, slope -41.76 / -40.63, shoulder joints 1.23 m,
+# head top 1.67 m in the play and 1.81 m at rest, rest elbow 180 (straight).
+# The studio polar bear of 931b5f32~1: elbow 106.33 / 104.78, slope -9.03 / -4.47, shoulder joints
+# 1.08 m, head top 1.56 m in the play and 1.745 m at rest, rest elbow 91.
+s 0.82 f 1.68 lean 28 | elbowL 113.23 slopeL -18.93 upperL 47.19 aheadL 0.10 elbowR 108.23 slopeR -13.55 upperR 40.26 aheadR 0.11 top 1.37
+s 0.82 f 1.68 lean 18 | elbowL 151.83 slopeL -26.82 upperL 49.75 aheadL 0.17 elbowR 151.83 slopeR -26.27 upperR 48.15 aheadR 0.18 top 1.43
+s 0.82 f 1.45 lean 28 | elbowL 93.22 slopeL -17.01 upperL 44.42 aheadL 0.04 elbowR 89.30 slopeR -10.63 upperR 35.60 aheadR 0.06 top 1.37
+s 0.82 f 1.45 lean 18 | elbowL 125.82 slopeL -23.64 upperL 43.58 aheadL 0.12 elbowR 122.74 slopeR -19.98 upperR 38.13 aheadR 0.13 top 1.43
+s 0.82 f 1.25 lean 28 | elbowL 80.98 slopeL -18.19 upperL 45.06 aheadL -0.01 elbowR 77.27 slopeR -10.60 upperR 35.14 aheadR 0.00 top 1.37
+s 0.82 f 1.25 lean 18 | elbowL 108.02 slopeL -22.25 upperL 41.13 aheadL 0.06 elbowR 103.50 slopeR -16.78 upperR 33.06 aheadR 0.07 top 1.43
+s 0.85 f 1.68 lean 28 | elbowL 119.31 slopeL -22.94 upperL 43.71 aheadL 0.11 elbowR 115.76 slopeR -18.49 upperR 37.42 aheadR 0.12 top 1.42
+s 0.85 f 1.68 lean 18 | elbowL 151.83 slopeL -29.11 upperL 46.99 aheadL 0.17 elbowR 151.83 slopeR -28.49 upperR 45.47 aheadR 0.18 top 1.48
+s 0.85 f 1.45 lean 28 | elbowL 99.82 slopeL -21.32 upperL 41.05 aheadL 0.05 elbowR 96.25 slopeR -15.53 upperR 32.44 aheadR 0.06 top 1.42
+s 0.85 f 1.45 lean 18 | elbowL 133.75 slopeL -28.46 upperL 40.76 aheadL 0.13 elbowR 132.66 slopeR -25.97 upperR 36.37 aheadR 0.13 top 1.48
+s 0.85 f 1.25 lean 28 | elbowL 87.50 slopeL -22.29 upperL 41.52 aheadL -0.01 elbowR 84.27 slopeR -15.61 upperR 32.15 aheadR 0.00 top 1.42
+s 0.85 f 1.25 lean 18 | elbowL 115.77 slopeL -27.19 upperL 38.15 aheadL 0.07 elbowR 111.66 slopeR -22.22 upperR 30.35 aheadR 0.08 top 1.48
+s 0.88 f 1.68 lean 28 | elbowL 126.00 slopeL -27.02 upperL 40.62 aheadL 0.12 elbowR 124.07 slopeR -23.62 upperR 35.20 aheadR 0.13 top 1.47
+s 0.88 f 1.68 lean 18 | elbowL 151.83 slopeL -31.09 upperL 44.57 aheadL 0.17 elbowR 151.83 slopeR -30.42 upperR 43.14 aheadR 0.18 top 1.54
+s 0.88 f 1.45 lean 28 | elbowL 106.94 slopeL -25.71 upperL 38.03 aheadL 0.05 elbowR 103.51 slopeR -20.38 upperR 29.58 aheadR 0.06 top 1.47
+s 0.88 f 1.45 lean 18 | elbowL 143.39 slopeL -33.66 upperL 38.63 aheadL 0.14 elbowR 143.79 slopeR -32.38 upperR 35.69 aheadR 0.15 top 1.54
+s 0.88 f 1.25 lean 28 | elbowL 94.29 slopeL -26.37 upperL 38.22 aheadL -0.00 elbowR 91.40 slopeR -20.41 upperR 29.19 aheadR 0.01 top 1.47
+s 0.88 f 1.25 lean 18 | elbowL 122.96 slopeL -31.58 upperL 34.96 aheadL 0.08 elbowR 120.50 slopeR -27.75 upperR 28.10 aheadR 0.09 top 1.54
+
+# pnpm pose-depth pianist --gaps at s 0.85, f 1.45 with the leans 28°, 22°, and 18° (--set
+# piano.lean=0.4887, 0.384, 0.314): the note targets within 5 mm are 100.0%, 99.4% (worst
+# 19.9 mm), and 89.8% (worst 49.6 mm).
+
+# The key distance (fscan.sh, see key-distance.txt), mean play angles at s 0.85, lean 28:
+f 1.45 | elbowL 99.82 slopeL -21.32 upperL 41.05 aheadL 0.05 elbowR 96.25 slopeR -15.53 upperR 32.44 aheadR 0.06 top 1.42
+f 1.5  | elbowL 103.64 slopeL -21.49 upperL 41.40 aheadL 0.06 elbowR 99.89 slopeR -15.90 upperR 33.16 aheadR 0.07 top 1.42
+f 1.55 | elbowL 107.82 slopeL -21.84 upperL 41.95 aheadL 0.07 elbowR 103.83 slopeR -16.42 upperR 34.09 aheadR 0.08 top 1.42
+f 1.6  | elbowL 112.47 slopeL -22.41 upperL 42.72 aheadL 0.09 elbowR 108.11 slopeR -17.09 upperR 35.23 aheadR 0.10 top 1.42

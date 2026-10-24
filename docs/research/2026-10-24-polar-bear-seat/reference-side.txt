@@ -1,0 +1,14 @@
+# The side view of docs/reference/polar-bear-views.png (an orthographic sheet), read in pixels of
+# the 1280 x 720 image on the grid of reference-side.webp (side_measure.py). The scale comes from
+# the keys of the app: the top of the white keys is 0.70 m (PIANO.keyTop).
+floor (the feet of the piano and the bench)   y 397
+top of the white keys                          y 251   -> 146 px = 0.70 m, so 209 px for each m
+head top of the bear (side_measure.py: 104 at the ear, 106 to 107 at the skull)  y 106 -> 1.40 m
+shoulder joints (the root of the upper arm, by eye)  y 190 to 200 -> about 1.0 m
+elbow (by eye)                                 at the height of the keys, the forearm level
+bench top                                      y 317   -> 0.38 m
+bench middle                                   x 468
+front edge of the keys                         x 567   -> 99 px = 0.475 m in front of the bench middle
+knees                                          x about 572, under the front of the keys
+# The label "HEIGHT 180 cm" spans y 65 to y 398, which ends above the head top (y 106). With it,
+# the scale is 185 px for each m, and the keys are 0.79 m high.

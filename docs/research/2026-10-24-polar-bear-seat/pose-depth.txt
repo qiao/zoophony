@@ -1,0 +1,24 @@
+| variant | play forearms>body cm | play upper arms>body cm | play head~case gap cm | play paw L~body gap cm | play paw R~body gap cm | lift upper arms>body cm | lift head~case gap cm | lift paw L~body gap cm | lift paw R~body gap cm | rest upper arms>body cm | rest head~case gap cm | rest paw L~body gap cm | rest paw R~body gap cm | lower forearms>body cm | lower upper arms>body cm | lower head~case gap cm | lower paw L~body gap cm | lower paw R~body gap cm | targets within 5 mm % |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| base | 4.3 | 6.4 | 14.6 | 0.0 | 1.8 | 0.2 | 16.1 | 2.0 | 1.9 | 0.2 | 35.4 | 2.0 | 1.9 | 4.9 | 6.8 | 14.7 | 0.0 | 1.9 | 100.0 |
+
+The demo and the time of the sample of each value of the table:
+| variant | play forearms>body cm | play upper arms>body cm | play head~case gap cm | play paw L~body gap cm | play paw R~body gap cm | lift upper arms>body cm | lift head~case gap cm | lift paw L~body gap cm | lift paw R~body gap cm | rest upper arms>body cm | rest head~case gap cm | rest paw L~body gap cm | rest paw R~body gap cm | lower forearms>body cm | lower upper arms>body cm | lower head~case gap cm | lower paw L~body gap cm | lower paw R~body gap cm |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| base | bach-bwv1050 218.55 s | boulanger-matin 106.63 s | bach-bwv1047 270.15 s | bach-bwv1047 7.90 s | bach-bwv1050 218.30 s | bach-bwv1047 wall 10.00 s | bach-bwv1048 wall 11.00 s | boulanger-matin wall 10.00 s | boulanger-matin wall 10.00 s | bach-bwv1047 wall 10.00 s | boulanger-matin wall 10.00 s | boulanger-matin wall 10.00 s | boulanger-matin wall 10.00 s | bach-bwv1050 wall 10.50 s | bach-bwv1050 wall 13.00 s | boulanger-matin wall 10.50 s | bach-bwv1047 wall 10.00 s | bach-bwv1048 wall 15.30 s |
+
+The share of the samples over the goal of each pair (the limit, or --goal):
+| variant | play upper arms>body % | lower upper arms>body % |
+|---|---|---|
+| base | 2.7 | 9.7 |
+
+The depths of main (90819873) and of the working tree with no change:
+H of each body, main (90819873) -> working tree: polar-bear 0.387 m -> 0.329 m
+| Species | Set | Pair | main (90819873) cm | main (90819873) H | tree cm | tree H | Mark | tree at |
+|---|---|---|---:|---:|---:|---:|---|---|
+| polar-bear | play | forearms in body | 3.1 | 0.081 | 4.3 | 0.130 | GROWS | bach-bwv1050 218.55 s |
+| polar-bear | play | upper arms in body | 7.6 | 0.197 | 6.4 | 0.196 |  | boulanger-matin 106.63 s |
+| polar-bear | lift | upper arms in body | 3.3 | 0.085 | 0.2 | 0.007 |  | bach-bwv1047 wall 10.00 s |
+| polar-bear | rest | upper arms in body | 3.3 | 0.085 | 0.2 | 0.007 |  | bach-bwv1047 wall 10.00 s |
+| polar-bear | lower | forearms in body | 3.9 | 0.100 | 4.9 | 0.149 | GROWS | bach-bwv1050 wall 10.50 s |
+| polar-bear | lower | upper arms in body | 7.6 | 0.197 | 6.8 | 0.208 | GROWS | bach-bwv1050 wall 13.00 s |

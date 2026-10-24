@@ -1,0 +1,19 @@
+# fscan.sh "1.45 1.5 1.55 1.6": the sweep of each PIANO_FRONT_H at size 0.85, with the rest
+# along 0.45, offset [±0.03, 0.3, -0.35], palm down, restArc [0, 0.4, 0.25], and the mean
+# play arm angles of pianist-size.ts (boulanger-matin, 8 samples).
+
+## PIANO_FRONT_H 1.45
+ play forearms>body cm | play upper arms>body cm | lift paws>body cm | lift paws>case cm | lift forearms>body cm | lift upper arms>body cm | rest paws>body cm | rest forearms>body cm | rest upper arms>body cm | lower paws>body cm | lower paws>case cm | lower forearms>body cm | lower upper arms>body cm | targets within 5 mm % |
+ 6.6 | 6.4 | 0.8 | 0.0 | 0.2 | 1.1 | 0.8 | 0.2 | 1.1 | 0.8 | 0.0 | 6.8 | 7.2 | 100.0 |
+
+## PIANO_FRONT_H 1.5
+ play forearms>body cm | play upper arms>body cm | lift paws>body cm | lift paws>case cm | lift forearms>body cm | lift upper arms>body cm | rest paws>body cm | rest forearms>body cm | rest upper arms>body cm | lower paws>body cm | lower paws>case cm | lower forearms>body cm | lower upper arms>body cm | targets within 5 mm % |
+ 5.5 | 6.4 | 0.8 | 0.0 | 0.2 | 1.1 | 0.8 | 0.2 | 1.1 | 0.8 | 0.0 | 5.6 | 7.1 | 100.0 |
+
+## PIANO_FRONT_H 1.55
+ play forearms>body cm | play upper arms>body cm | lift paws>body cm | lift paws>case cm | lift forearms>body cm | lift upper arms>body cm | rest paws>body cm | rest forearms>body cm | rest upper arms>body cm | lower paws>body cm | lower forearms>body cm | lower upper arms>body cm | targets within 5 mm % |
+ 4.3 | 6.4 | 0.8 | 0.0 | 0.2 | 1.1 | 0.8 | 0.2 | 1.1 | 0.8 | 4.9 | 6.8 | 100.0 |
+
+## PIANO_FRONT_H 1.6
+ play forearms>body cm | play upper arms>body cm | lift paws>body cm | lift forearms>body cm | lift upper arms>body cm | rest paws>body cm | rest forearms>body cm | rest upper arms>body cm | lower paws>body cm | lower forearms>body cm | lower upper arms>body cm | target L mm | targets within 5 mm % |
+ 3.7 | 6.5 | 0.8 | 0.2 | 1.1 | 0.8 | 0.2 | 1.1 | 0.8 | 3.8 | 6.8 | 4.1 | 100.0 |

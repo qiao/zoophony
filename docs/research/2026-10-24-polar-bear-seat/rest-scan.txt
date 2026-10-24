@@ -1,0 +1,32 @@
+# rest-scan.sh at size 0.85, keys 1.55 H: the rest arm of pianist-size.ts for each lap place of
+# the rest paws (along the thigh, up in H, z in H, below 0 is forward). The first block has the old
+# palm (down and back onto the belly), the second the palm down. Each line gives the left elbow
+# and wrist in m, the inner elbow angle, the forearm slope, and the upper arm from straight down.
+## Old palm [±0.06, -0.57, 0.79], pole [∓1, -1, 0.77]
+along 0.2 up 0.14 back -0.5 :: el [-0.34,0.87,-0.22] wr [-0.21,0.92,-0.41] elbow 62 fslope 11 upper 30
+along 0.2 up 0.14 back -0.2 :: el [-0.36,0.90,-0.12] wr [-0.21,0.92,-0.31] elbow 47 fslope 3 upper 42
+along 0.2 up 0.14 back 0 :: el [-0.37,0.95,-0.07] wr [-0.21,0.92,-0.24] elbow 42 fslope -9 upper 57
+along 0.5 up 0.14 back -0.5 :: el [-0.27,0.86,-0.32] wr [-0.24,0.72,-0.51] elbow 143 fslope -37 upper 26
+along 0.5 up 0.14 back -0.2 :: el [-0.31,0.85,-0.23] wr [-0.24,0.72,-0.41] elbow 115 fslope -35 upper 22
+along 0.5 up 0.4 back -0.2 :: el [-0.34,0.87,-0.20] wr [-0.24,0.80,-0.41] elbow 88 fslope -16 upper 29
+along 0.8 up 0.14 back -0.5 :: el [-0.23,0.87,-0.36] wr [-0.25,0.67,-0.48] elbow 180 fslope -59 upper 31
+along 0.8 up 0.4 back -0.2 :: el [-0.23,0.86,-0.34] wr [-0.25,0.65,-0.45] elbow 180 fslope -62 upper 28
+## Palm down [±0.15, -1, 0.1], fingers [±0.5, 0, -1], pole [∓1, -1, 0.77]
+along 0.45 up 0.25 back -0.2 :: el [-0.34,0.87,-0.18] wr [-0.22,0.81,-0.38] elbow 81 fslope -15 upper 30
+along 0.45 up 0.25 back -0.35 :: el [-0.33,0.86,-0.22] wr [-0.22,0.81,-0.43] elbow 89 fslope -12 upper 26
+along 0.45 up 0.35 back -0.2 :: el [-0.34,0.87,-0.17] wr [-0.22,0.84,-0.38] elbow 73 fslope -8 upper 32
+along 0.45 up 0.35 back -0.35 :: el [-0.34,0.86,-0.22] wr [-0.22,0.84,-0.43] elbow 81 fslope -5 upper 28
+## Palm down, up 0.3, back -0.5, the two poles that pass the arm gate (pd5.sh)
+pole [∓1,-0.3,0.77] :: L elbow 95 fslope -15 upper 37, R elbow 101 fslope -19 upper 34
+pole [∓1,-0.5,0.4]  :: L elbow 95 fslope -16 upper 38, R elbow 101 fslope -20 upper 36
+
+# The rest depths of pnpm pose-depth pianist --demo boulanger-matin (pd3.sh), palm down, cm:
+# rest paws in body / rest forearms in body / lower paws in body
+along 0.45 up 0.25 back -0.2  :: 4.0 / 2.2 / 5.0
+along 0.45 up 0.25 back -0.35 :: 1.1 / 0.6 / 2.5
+along 0.45 up 0.35 back -0.2  :: 3.3 / 1.4 / 4.7
+along 0.45 up 0.35 back -0.35 :: 0.5 / 0.0 / 2.7
+along 0.6  up 0.25 back -0.35 :: 2.6 / 4.2 / 3.1
+along 0.6  up 0.35 back -0.35 :: 1.8 / 3.7 / 2.2
+# restArc (pd4.sh, all demos, up 0.3 back -0.35): lower paws in body 2.6 cm at [0, 0.4, 0.1], and
+# 0.8 cm at [0, 0.4, 0.25], [0, 0.4, 0.4], [0, 0.25, 0.25], and [0.1, 0.4, 0.25].
