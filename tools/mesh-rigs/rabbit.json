@@ -217,11 +217,11 @@
     }
   },
   "palm": [
-    -0.602,
-    -0.764,
-    -0.23
+    0.435,
+    0.726,
+    0.533
   ],
-  "jointsNote": "The places are in the units and the axes of the studio in the pose of the source: 1 unit from the soles to the ear tips, the soles at y = 0, +z forward, +x the left side. The right side mirrors the left side. The probes are in docs/research/2026-10-23-rabbit-apose/. sections.py gives the cuts at each height: the crotch at y 0.16, the narrow neck at 0.57, and the ear bases above 0.76. The trunk joints lie 0.01 to 0.03 behind the middle of the body cut. The leg joints lie on the middle of the leg cuts, the ankle at the narrow cut above the soles, and the toes at the ball of the foot. arm_axis.py gives the middle line of the free arm, out, down, and a little forward from the shoulder at (0.091, 0.484) to the paw tip at (0.268, 0.326). The shoulder joint lies on that line at the root of the arm, the elbow halfway to the wrist, the wrist where the paw starts, and the finger joint at the claws. The tail joint lies at the front of the tail ball. Each roll is the hint of the z axis of the bone, forward by default. The arm bones take the normal of the palm (palm).",
+  "jointsNote": "The places are in the units and the axes of the studio in the pose of the source: 1 unit from the soles to the ear tips, the soles at y = 0, +z forward, +x the left side. The right side mirrors the left side. The probes are in docs/research/2026-10-23-rabbit-apose/. sections.py gives the cuts at each height: the crotch at y 0.16, the narrow neck at 0.57, and the ear bases above 0.76. The trunk joints lie 0.01 to 0.03 behind the middle of the body cut. The leg joints lie on the middle of the leg cuts, the ankle at the narrow cut above the soles, and the toes at the ball of the foot. arm_axis.py gives the middle line of the free arm, out, down, and a little forward from the shoulder at (0.091, 0.484) to the paw tip at (0.268, 0.326). The shoulder joint lies on that line at the root of the arm, the elbow halfway to the wrist, the wrist where the paw starts, and the finger joint at the claws. The tail joint lies at the front of the tail ball. Each roll is the hint of the z axis of the bone, forward by default. The arm bones take the normal of the palm (palm). Of the palms around the arm axis, this palm, 200 degrees from the palm of the trial, gives the least paw twist and forearm twist in the arm gate with the stretch in its limit: with the palm of the trial (-0.602, -0.764, -0.23), the paws twisted 163 and 147 degrees on their forearms, and the forearm twist bones wrung the forearms into flat bands (user, 2026-10-23: \"there's significant twist / deformation for the rabbit's arms\"). Now 76 and 83 degrees (docs/research/2026-10-23-rabbit-twist.md).",
   "studio": {
     "legTurns": {
       "thigh": [

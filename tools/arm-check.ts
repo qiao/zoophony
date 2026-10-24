@@ -313,7 +313,9 @@ export const ACCEPTED_GRIPS: ReadonlyMap<string, Readonly<Record<Side, number>>>
   ['conductor', { L: -54, R: -5 }],
   ['pianist', { L: 47, R: 59 }],
   ['harpist', { L: -55, R: -101 }],
-  ['violinist', { L: 133, R: -86 }],
+  // The A-pose rabbit with the palm that ends the twist of its forearms
+  // (docs/decisions/2026-10-23-rabbit-twist.md).
+  ['violinist', { L: -67, R: 42 }],
   ['fox-violinist', { L: 140, R: -102 }],
   ['violist', { L: 156, R: -93 }],
   ['cellist', { L: -146, R: 12 }],
