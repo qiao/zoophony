@@ -8,8 +8,12 @@ second one. The app does not serve them.
 `rabbit-apose.glb` is a mesh with no skeleton, with the arms in an A-pose: out, down, and a little
 forward, apart from the trunk below the shoulders. The user gave it on 2026-10-23 and said:
 "replace the model for rhino and rabbit and also don't split the arm". The file is the file of the
-user, byte for byte. No rig reads it yet: with its own faces and the long arms of the violin, the
-arms fold past the limit of the arm gate (`docs/research/2026-10-23-rabbit-apose.md`).
+user, byte for byte. The rig of this project makes the studio body of the rabbit from it with
+its own faces (`tools/mesh-rigs/rabbit.json`): `pnpm rig-mesh rabbit` writes the rigged file
+`rabbit-apose.rig.glb`, and `pnpm studio-body rabbit` writes the module
+`src/models/studio/rabbit.ts` from it. Then the user said: "use the new rabbit model and stretch
+the arm a little bit" (`docs/research/2026-10-23-rabbit-arms.md`). The copies of `rabbit-4.glb`
+below stay as a record, and no rig reads them.
 
 | Item | Value |
 |---|---|
