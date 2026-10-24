@@ -391,10 +391,19 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       frog, and at the tip (`arm-crops.webp` of `2026-10-23-rabbit-arms/`). The user allowed one
       ring at each elbow (`2026-10-24-rabbit-hold.md`).
 - [ ] Rabbit: the right wrist stretches 0.37 in the play (limit 0.35). No hold variant moved it
-      (`2026-10-24-rabbit-hold.md`). The lift from the knee turns the paws at 1,256°/s and
-      1,274°/s (147°/s and 167°/s from the belly, limit 3,000) (`2026-10-24-violin-rest.md`).
-- [ ] Cat: the left paw swings 98° at rest on the knee (87° beside the hip, limit 70)
-      (`2026-10-24-violin-rest.md`).
+      (`2026-10-24-rabbit-hold.md`). The lift from the knee turns the paws at 1,220°/s and
+      902°/s (limit 3,000) (`2026-10-24-violin-poses.md`).
+- [ ] Cat: the left paw swings 91° at rest on the knee (limit 70) (`2026-10-24-violin-poses.md`).
+- [ ] Rabbit and cat: the left elbow straightens for about 0.1 s in the middle of the lift and of
+      the lowering, because the short arm reaches the instrument in front of the round belly. A
+      move toward the body put the violin 5 cm to 6 cm into the belly
+      (`2026-10-24-violin-poses.md`).
+- [ ] Rabbit: 7 faces of the right arm fold at rest with the bent elbow (limit 8, 2 with the
+      straight arm), and no crop shows them. A corrective shape of the rest can remove them
+      (`2026-10-24-violin-poses.md`).
+- [ ] Rabbit and cat: the forearms and the upper arms go up to 2.1 cm (rabbit) and 2.9 cm (cat)
+      into the instrument in the lift and the lowering (limit 1.5), as on `main`
+      (`pnpm pose-depth violinist`, `2026-10-24-violin-poses.md`).
 - [ ] Red fox: the left paw twist passes 180° once in the lift and in the lowering, so the twist
       bone of the forearm jumps (`OPEN` in the gate). The middle turn of the rabbit
       (`BowedHold.liftTurn`) can remove it (`2026-10-24-violin-rest.md`).
