@@ -1,0 +1,26 @@
+| Link | Mean | Largest | Worst sample |
+|---|---:|---:|---|
+| L clavicle>u0 | 7.6 | 9.4 | rest boulanger-matin.mid rest |
+| L u0>u1 | 15.3 | 18.9 | rest boulanger-matin.mid rest |
+| L u1>u2 | 15.3 | 18.9 | rest boulanger-matin.mid rest |
+| L u2>u3 | 15.3 | 18.9 | rest boulanger-matin.mid rest |
+| L u3>elbow | 3.3 | 4.1 | rest bach-bwv1047.mid rest |
+| L elbow>f0 | 1.9 | 5.1 | play bach-bwv1047.mid 121.65 s |
+| L f0>f1 | 3.8 | 10.2 | play bach-bwv1047.mid 121.65 s |
+| L f1>f2 | 3.8 | 10.2 | play bach-bwv1047.mid 121.65 s |
+| L f2>f3 | 3.8 | 10.2 | play bach-bwv1047.mid 121.65 s |
+| L f3>wrist | 1.9 | 5.1 | play bach-bwv1047.mid 121.65 s |
+| L wrist>hand | 0.0 | 0.0 | play bach-bwv1050.mid 232.30 s |
+| R clavicle>u0 | 7.7 | 9.4 | rest boulanger-matin.mid rest |
+| R u0>u1 | 15.3 | 18.9 | rest boulanger-matin.mid rest |
+| R u1>u2 | 15.3 | 18.9 | rest boulanger-matin.mid rest |
+| R u2>u3 | 15.3 | 18.9 | rest boulanger-matin.mid rest |
+| R u3>elbow | 3.4 | 4.3 | rest bach-bwv1047.mid rest |
+| R elbow>f0 | 2.4 | 5.2 | play boulanger-matin.mid 108.63 s |
+| R f0>f1 | 4.8 | 10.4 | play boulanger-matin.mid 108.63 s |
+| R f1>f2 | 4.8 | 10.4 | play boulanger-matin.mid 108.63 s |
+| R f2>f3 | 4.8 | 10.4 | play boulanger-matin.mid 108.63 s |
+| R f3>wrist | 2.4 | 5.2 | play boulanger-matin.mid 108.63 s |
+| R wrist>hand | 0.0 | 0.0 | play bach-bwv1050.mid 292.55 s |
+L total twist: mean 72.0, largest 96.4
+R total twist: mean 76.1, largest 96.0
