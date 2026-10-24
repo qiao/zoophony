@@ -646,11 +646,12 @@ export const SPECIES = {
     },
   },
   /**
-   * Polar bear, the piano and the other keyboards. It has the studio body of `lowpoly-studio/`
-   * (design 4.4), seated as the pianist of the studio. Its head height is the head of the studio.
-   * It sits on a bench of 0.25 m (`seat` of its entry in `ANIMALS` of `tools/studio-body.ts`), and
-   * its soles touch the floor: the studio made its shins longer for the bench. The seat height is
-   * the seat of the studio body, in H.
+   * Polar bear, the piano and the other keyboards. It has the studio body of the T-pose mesh of the
+   * user, `assets/models/polar-bear/polar-bear-tpose.glb`, which `pnpm rig-mesh polar-bear` rigs
+   * with its own faces (design 4.4, 2026-10-24-polar-bear-tpose decisions), with the size of the
+   * studio polar bear before it and the longer legs that the user chose for a polar bear mesh. It
+   * sits on the bench of the rig, and its soles touch the floor. Its head height is the head of the
+   * studio body, and the seat height is the seat of the studio body, in H.
    */
   'polar-bear': {
     body: 'studio-polar-bear',

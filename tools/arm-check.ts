@@ -311,7 +311,8 @@ export const ACCEPTED_GRIPS: ReadonlyMap<string, Readonly<Record<Side, number>>>
   // The smooth studio bear with the baton along the index finger
   // (docs/decisions/2026-10-22-studio-bears.md).
   ['conductor', { L: -54, R: -5 }],
-  ['pianist', { L: 47, R: 59 }],
+  // The T-pose polar bear mesh (docs/decisions/2026-10-24-polar-bear-tpose.md).
+  ['pianist', { L: -23, R: -30 }],
   ['harpist', { L: -55, R: -101 }],
   ['violinist', { L: 133, R: -86 }],
   ['fox-violinist', { L: 140, R: -102 }],

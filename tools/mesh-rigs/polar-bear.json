@@ -1,17 +1,18 @@
 {
-  "source": "assets/models/polar-bear/polar-bear-mesh.glb",
-  "output": "assets/models/polar-bear/polar-bear.rig.glb",
+  "source": "assets/models/polar-bear/polar-bear-tpose.glb",
+  "sourceNote": "The T-pose polar bear mesh of the user, of 2026-10-24, with no edit (assets/models/polar-bear/README.md). The user said: \"mesh for polar bear: [...] use the same eye size as the bear\". The arms of the T-pose are free of the trunk, so the rig keeps each face of the mesh: no cut, no copy, no ring, and no split.",
+  "output": "assets/models/polar-bear/polar-bear-tpose.rig.glb",
   "name": "Polar Bear",
   "weld": 1e-05,
   "app": {
-    "shoulders": 1.406241,
-    "reach": 0.68,
-    "note": "The size of the old studio polar bear (user rule of 2026-10-21: the new body is similar in size to the body that it replaces). The standing skull top of the old body is 1.065 units of its studio file at 1.8053 m for each unit: 1.923 m. The skull top of the mesh is at 0.9967 u (measures.txt), so the scale is 1.929 m for each unit. The user chose longer legs with the size kept (docs/decisions/2026-10-22-polar-legs.md): the leg factor raises the standing shoulder joints from 0.6 u to 0.729 u, and the landmark rises with them to 1.406241 m (0.729 u at 1.929 m for each unit, the entry of the polar bear in ANIMALS), so that the trunk, the head, and the arms keep their meters. The reach is the reach of the arm factor below, from the shoulder joint to the middle of the palm. With no --check, pnpm rig-mesh stops until the arm factor gives this reach."
+    "shoulders": 1.642242,
+    "reach": 0.6194,
+    "note": "The size of the studio polar bear before the meshes: the skull top at 1.923 m. The skull top of the mesh is at 1.0 u, so the scale is 1.923 m for each unit. The leg factor raises the standing shoulder joints from 0.725 u, and the landmark rises with them, so that the trunk, the head, and the arms keep their meters. The reach is the reach of the arm factor below."
   },
-  "armFactor": 1.25,
-  "armFactorNote": "The factor of the upper arm and the forearm, a choice of the agent while the user slept (docs/decisions/2026-10-22-mesh-polar-bear.md). The arms of the mesh reach 0.552 m from the shoulder joint to the middle of the palm. The keys must stand in front of the round belly, and with the factor 1 the paws reach the far keys only with a lean of 35 degrees, with the muzzle on the lid. The factor 1.25 is the smallest factor that reaches each note of the demos with the muzzle about 5 cm from the lid, as on the old body: 0.680 m (docs/research/2026-10-22-mesh-polar-bear.md, scans/).",
+  "armFactor": 1,
+  "armFactorNote": "The arms keep the length of the mesh (user rule: keep the limbs of a mesh of the user, and fit the props).",
   "legFactor": 1.6,
-  "legFactorNote": "The factor of the thigh and the shin. The feet keep their size, and the body rises 0.129 units, so that the soles stay at y 0. The user chose longer legs with the size kept on 2026-10-22 (\"Longer legs, keep size\"), because with the legs of the mesh the bench was 0.153 m high and the round belly hid the lap, so the seated bear read almost as standing. The factor 1.4 gave a bench of 0.230 m with the knees 3 cm behind the belly, 1.6 a bench of 0.269 m with the knees in front of it, and 1.8 a bench of 0.307 m, but more folds and missed notes (docs/research/2026-10-22-polar-legs.md).",
+  "legFactorNote": "The user chose longer legs with the size kept for the polar bear mesh on 2026-10-22 (\"Longer legs, keep size\"), because with short legs the round belly hid the lap on the bench, and the seated bear read almost as standing (docs/research/2026-10-22-polar-legs.md). The T-pose mesh has short legs too, so it keeps the factor 1.6.",
   "joints": {
     "root": {
       "head": [
@@ -33,7 +34,7 @@
     "hips": {
       "head": [
         0,
-        0.2,
+        0.29,
         -0.01
       ],
       "tail": "spine"
@@ -41,24 +42,24 @@
     "spine": {
       "head": [
         0,
-        0.31,
-        -0.01
+        0.38,
+        -0.015
       ],
       "tail": "spine1"
     },
     "spine1": {
       "head": [
         0,
-        0.42,
-        -0.005
+        0.48,
+        -0.01
       ],
       "tail": "chest"
     },
     "chest": {
       "head": [
         0,
-        0.54,
-        -0.01
+        0.58,
+        -0.015
       ],
       "tail": "neck"
     },
@@ -66,46 +67,46 @@
       "head": [
         0,
         0.68,
-        -0.025
+        -0.03
       ],
       "tail": "head"
     },
     "head": {
       "head": [
         0,
-        0.76,
+        0.79,
         -0.02
       ],
       "tail": [
         0,
-        0.9967,
+        1.0,
         0.04
       ]
     },
     "ear_L": {
       "head": [
-        0.083,
-        0.95,
-        0.05
+        0.078,
+        0.96,
+        0.02
       ],
       "tail": [
-        0.085,
+        0.08,
         1.0,
-        0.055
+        0.02
       ]
     },
     "clavicle_L": {
       "head": [
         0.03,
-        0.6,
-        -0.03
+        0.7,
+        -0.035
       ],
       "tail": "upper_arm_L"
     },
     "upper_arm_L": {
       "head": [
-        0.19,
-        0.6,
+        0.13,
+        0.725,
         -0.035
       ],
       "tail": "forearm_L",
@@ -113,65 +114,65 @@
     },
     "forearm_L": {
       "head": [
-        0.268,
-        0.475,
-        0.005
+        0.29,
+        0.734,
+        -0.04
       ],
       "tail": "forearm_twist_L",
       "roll": "palm"
     },
     "forearm_twist_L": {
       "head": [
-        0.2885,
-        0.429,
-        0.0305
+        0.362,
+        0.734,
+        -0.03
       ],
       "tail": "hand_L",
       "roll": "palm"
     },
     "hand_L": {
       "head": [
-        0.309,
-        0.383,
-        0.056
+        0.435,
+        0.733,
+        -0.022
       ],
       "tail": "fingers_L",
       "roll": "palm"
     },
     "fingers_L": {
       "head": [
-        0.318,
-        0.345,
-        0.069
+        0.466,
+        0.729,
+        -0.02
       ],
       "tail": [
-        0.3261,
-        0.3129,
-        0.074
+        0.49,
+        0.72,
+        -0.02
       ],
       "roll": "palm"
     },
     "thigh_L": {
       "head": [
         0.11,
-        0.26,
-        -0.02
+        0.28,
+        -0.01
       ],
       "tail": "shin_L"
     },
     "shin_L": {
       "head": [
-        0.125,
-        0.145,
-        -0.01
+        0.115,
+        0.15,
+        -0.015
       ],
       "tail": "foot_L"
     },
     "foot_L": {
       "head": [
-        0.133,
-        0.045,
-        -0.02
+        0.113,
+        0.065,
+        -0.035
       ],
       "tail": "toes_L",
       "roll": [
@@ -182,14 +183,14 @@
     },
     "toes_L": {
       "head": [
-        0.135,
-        0.015,
-        0.06
+        0.12,
+        0.02,
+        0.05
       ],
       "tail": [
-        0.1246,
-        0.0007,
-        0.1261
+        0.12,
+        0.003,
+        0.11
       ],
       "roll": [
         0,
@@ -200,13 +201,13 @@
     "tail": {
       "head": [
         0,
-        0.33,
-        -0.2
+        0.29,
+        -0.14
       ],
       "tail": [
         0,
-        0.33,
-        -0.24
+        0.285,
+        -0.185
       ],
       "roll": [
         0,
@@ -216,36 +217,36 @@
     }
   },
   "palm": [
-    -0.8,
     0,
-    0.6
+    -1,
+    0
   ],
-  "jointsNote": "The places are in the units and the axes of the studio in the pose of the source: 1 unit from the soles to the tips of the ears, the soles at y = 0, +z forward, +x the left side. The right side mirrors the left side. The probes are in docs/research/2026-10-22-mesh-polar-bear/: sections.py gives the cuts at each height (sections-y.txt, sections-x.txt, sections-z.txt), and measures.py the parts (measures.txt). The polar bear stands upright on short thick legs: the feet below y 0.05 (the toes forward to z 0.126), the legs from 0.05 to the crotch at 0.165, the round body from 0.17 to 0.76 with the belly forward to z 0.216, the neck at 0.77 to 0.79 (x ±0.143), the head from the chin at about 0.78 with the muzzle to z 0.238, and the small round ears on the head top from 0.95 to 1. The trunk joints lie on the middle of the body cut. The thigh joint lies in the haunch at y 0.26, above the middle of the leg cut, and the knee at the bottom of the body (y 0.145), where the leg leaves it, as the joints of a bear lie inside the round body. Thus the thigh takes the lower side of the haunch, and it turns forward in the seat. With the thigh joint at the crotch (y 0.175) and the knee at y 0.1, the thigh was 0.075 units long and thinner than the leg, so the seated legs read as straight (docs/research/2026-10-22-polar-seat.md). The ankle lies where the foot starts (y 0.045), and the toes at the middle of the foot. The cuts across the free arm (arm-axis.txt) give its middle line, about (0.44, -0.81, 0.38) down the arm. The inner side of the upper arm joins the side of the trunk down to y 0.5. The shoulder joint lies on the line 0.08 above the highest free cut, the wrist where the paw starts (s -0.01), the elbow on the middle line at y 0.475, the forearm twist halfway between them, and the finger joint at the middle of the paw (paw.txt). The ear joint lies at the root of the ear on the head top, and its tail at the ear top. The short tail has one bone, from its root on the back of the haunch to its back. Each roll is the hint of the z axis of the bone, forward by default. The arm bones take the normal of the palm (palm): the smallest principal direction of the vertices of the left paw beyond the wrist, inward and down (paw.txt).",
+  "jointsNote": "The places are in the units and the axes of the studio in the pose of the source: 1 unit from the soles to the skull top, the soles at y = 0, +z forward, +x the left side. The right side mirrors the left side. The probes are in docs/research/2026-10-24-polar-bear-tpose/. The legs part below the crotch at y 0.20. The thigh joint lies inside the haunch at y 0.28, as on the polar bear mesh of 2026-10-22, the knee at y 0.15, and the ankle at the narrowest leg cut. With the thigh joint at the crotch, the thigh was too short to sit level, and the seat rule pulled the rump down 44 cm. The neck is narrowest at y 0.63, and the head starts at y 0.79. The arms are in a T-pose: each round arm goes out level at y 0.73, free of the trunk beyond x 0.145 (sections-x.txt). The cuts across the arm axis give its middle line (arm-axis.txt): the shoulder joint lies inside the root of the arm, the elbow at x 0.29, the wrist where the paw starts (x 0.435), and the forearm twist halfway between them. The finger joint lies at the root of the claws. The ears start at y 0.96, and a ball tail sits at y 0.26 to 0.33 behind the rump. In the T-pose, the palm faces down.",
   "studio": {
     "legTurns": {
       "thigh": [
-        0.608298,
-        0.065687,
-        -0.157043,
-        0.77524
+        0.662208,
+        0.032182,
+        -0.174523,
+        0.728002
       ],
       "shin": [
-        0.049696,
+        0.115266,
         0.0,
-        0.039757,
-        0.997973
+        -0.011527,
+        0.993268
       ],
       "foot": [
-        0,
-        0,
-        0,
-        1
+        0.0,
+        0.0,
+        0.0,
+        1.0
       ],
       "toes": [
-        0,
-        0,
-        0,
-        1
+        0.0,
+        0.0,
+        0.0,
+        1.0
       ]
     },
     "trunk": {
@@ -279,39 +280,44 @@
     "note": "legTurns gives the world turn of each left leg bone from the seated bind pose to the source, and the right side mirrors it: the thighs 5 degrees down and 15 degrees out, and the shins vertical, so that the knee angle from the side is 95 degrees, as a real pianist sits with the thighs level or a little down to the knees (leg_turns.py of docs/research/2026-10-16-hip-open/ 5 15 0). With the thighs 30 degrees out, the knees did not show more from the camera of the stage, and the rest folded more faces. The trunk shares and the bind arms are the values of the other meshes. A forward lean of the bind (open -12 or -18) folded both arms in each play sample, so the trunk keeps the seat of the source, and the play lean of the hold leans the spine (docs/research/2026-10-22-polar-seat.md)."
   },
   "weights": {
-    "armSplit": 0.19,
+    "armSplit": 0.145,
+    "armFree": {
+      "turn": 0,
+      "radius": 0.09,
+      "floor": 0.6,
+      "note": "The arm of the T-pose is free of the trunk beyond x 0.145, from y 0.65 to 0.79, and the trunk there ends below y 0.53 (sections-x.txt). A vertex of the free arm lies beyond the plane |x| = armSplit, within radius of the chain of the arm joints, and above the floor."
+    },
     "stretchRamp": 0,
-    "headFrom": 0.8,
+    "headFrom": 0.81,
     "earBase": [
-      0.975,
-      0.99
+      0.955,
+      0.975
     ],
     "tailBall": {
       "center": [
         0,
-        0.35,
-        -0.225
+        0.29,
+        -0.165
       ],
-      "radius": 0.07,
-      "behind": -0.19
+      "radius": 0.04,
+      "behind": -0.15
     },
     "sliver": {
       "angle": 10,
-      "longest": 0.03,
-      "note": "The values of the other meshes."
+      "longest": 0.03
     },
     "line": {
-      "angle": 150,
+      "angle": 170,
       "head": true,
-      "note": "The values of the other meshes."
+      "note": "The angle of the other meshes of 2026-10-23: a lower angle mixes the weights of long arm faces."
     },
     "clavicleFrom": [
       0.6,
       0.65
     ],
     "armTop": [
-      0.66,
-      0.72
+      0.8,
+      0.86
     ],
     "shoulderHead": [
       0.1,
@@ -320,34 +326,11 @@
     "fingers": 0.5,
     "haunch": {
       "height": [
-        0.16,
-        0.24
-      ],
-      "note": "The part of the thigh weight that goes to the hips grows from 0 at the lower height to 1 at the upper height, so that the buttocks stay on the hips: from 0.015 units above the knee to 0.02 units below the thigh joint. With the ramp of the deer (0.03 units above the knee to 0.03 units above the thigh joint, 0.175 to 0.29), the thighs took the root of the tail, and a light spike stood over the tail ball from behind (docs/research/2026-10-22-polar-seat.md)."
-    },
-    "note": "Beyond the plane of armSplit (armFree), only the free arm follows the arm bones. Above headFrom, each vertex follows the head only: with 0.77 at the neck, the head turns of the cues folded the faces of the neck in about 2,900 samples, and with 0.8 and shoulderHead from 0.1 to 0.16, in about 1,400. Each ear follows its ear bone above the heights of earBase. The tail ball holds the short tail (sections-z.txt: the tail from z -0.204 to -0.239, y 0.29 to 0.41). With the radius 0.06 and the plane at -0.2, the sit of the haunch pulled the faces of the tail root into a spike that pointed up in the side view. armTop is the rule of the deer, moved with the shoulder joint (y 0.6) of the polar bear.",
-    "armFree": {
-      "turn": 0,
-      "radius": 0.085,
-      "floor": 0.3,
-      "note": "The values of the bear. A vertex of the free arm lies beyond the plane |x| = armSplit, within radius of the chain of the arm joints, and above the floor, so that the belly beside the arm is not a part of it."
-    },
-    "rigid": [
-      [
-        [
-          0.1958,
-          0.5909,
-          0.0608
-        ],
-        [
-          0.2183,
-          0.5987,
-          0.0552
-        ]
+        0.17,
+        0.28
       ]
-    ],
-    "rigidNote": "Two faces at the front of the left shoulder, at the top of the cut, take one mean of their weights, so that they move as one. With them, the left arm folds 2 faces at p95 of the play in place of 4 (scans/gate-rg-gate-3.txt).",
-    "clavicleFromNote": "The clavicle weight fades out from y 0.65 down to 0.6, at the top of the cut. With the fade of the deer (0.56 to 0.6), the turn of the left arm in the lowering after a stop twisted the skin of the shoulder 60 degrees in one step, 4 more than the old body (scans/gate-clav-gate-1.txt)."
+    },
+    "note": "Beyond the plane of armSplit (armFree), only the free arm follows the arm bones. Above headFrom, each vertex follows the head only. armTop starts above the top of the level arms of the T-pose (y 0.79): from y 0.68, it gave the top of each arm to the neck, and those faces folded in each sample. Each ear follows its ear bone above earBase. The short tail is a ball on one bone (tailBall). The rig has no cut, no ring, and no split (user, 2026-10-23)."
   },
   "refine": {
     "rings": [],
@@ -357,8 +340,7 @@
       "move": 0.0016,
       "rounds": 4,
       "note": "The values of the other meshes."
-    },
-    "ringsNote": "The first config has no rings. pnpm rig-mesh polar-bear --check lists the thin faces near the joints as candidates for a ring (check.thin)."
+    }
   },
   "check": {
     "thin": {
@@ -371,30 +353,30 @@
   "colors": {
     "samples": 6,
     "palette": 48,
-    "dark": 0.0037,
+    "dark": 0.0074,
     "eyeShare": 0.34,
     "eyeBox": [
       [
-        0.025,
-        0.9,
-        0.14
+        0.028,
+        0.922,
+        0.088
       ],
       [
-        0.055,
-        0.935,
-        0.18
+        0.062,
+        0.958,
+        0.118
       ]
     ],
     "noseBox": [
       [
         -0.035,
-        0.83,
-        0.2
+        0.88,
+        0.145
       ],
       [
         0.035,
-        0.895,
-        0.245
+        0.935,
+        0.19
       ]
     ],
     "nose": [
@@ -402,7 +384,6 @@
       0.09,
       0.09
     ],
-    "note": "The values of samples, palette, and eyeShare are the values of the other meshes. The dark limit 0.0037 is the limit that pnpm rig-mesh --check gives: with 0.05, 20% of the faces outside the eye and nose boxes were dark. The eye box holds the dark faces of the left eye (x 0.034 to 0.044, y 0.913 to 0.924, z 0.155 to 0.162). The nose box holds the dark nose at the front of the muzzle (x ±0.029, y 0.839 to 0.888, z 0.209 to 0.238) (dark-faces.txt).",
     "shift": {
       "chroma": [
         0.01,
@@ -419,34 +400,7 @@
       "turn": 0,
       "note": "The fur of the mesh is cream: Oklab lightness 0.896 and b 0.042 (dark-faces.txt), against the white of polar-bear-views.png and SPECIES_COLORS of the polar bear (#efeae0). As the panda rule asks, each fur face with a chroma from 0.01 to 0.02 and up, and a lightness above 0.5 to 0.6, takes 1.045 of its lightness and 0.3 of its chroma. The black nose, eyes, and claws keep their colors."
     },
-    "smile": {
-      "bands": [
-        {
-          "x": [
-            0,
-            0.05
-          ],
-          "y": [
-            0.818,
-            0.83
-          ],
-          "rise": 0.008,
-          "front": 0.165,
-          "normalY": [
-            -0.2,
-            1
-          ],
-          "facing": 0.2,
-          "outward": 0.8
-        }
-      ],
-      "color": [
-        0.15,
-        0.13,
-        0.12
-      ],
-      "note": "The user asks for happy faces (user, 2026-10-20). The texture has no mouth line, so the muzzle under the nose read as plain. The band takes 9 faces on the top of the lower lip along the crease under the nose (smile-probe.txt), in a dark gray, and its ends rise a little, so the line reads as a small smile, as for the bear."
-    }
+    "note": "The color shift of the polar bear mesh of 2026-10-22 moves the cream fur toward the white of the reference. With the dark limit 0.0037 of that mesh, 12.1% of the faces outside the eye and nose boxes were dark, and with 0.0015 none."
   },
   "eyeShell": {
     "lift": 0.002,
@@ -458,7 +412,7 @@
   "chair": {
     "prop": "bench",
     "halfWidth": 0.25,
-    "front": 0.0,
+    "front": -0.017,
     "back": -0.2,
     "backHeight": 0.01,
     "note": "The seat is the piano bench of the pianist (prop): it is level, and its top is the lowest point of the seated body over the seat, with no shin, foot, or tail. The front edge lies 1 cm behind the backs of the shins, so that the bench reaches under the thighs, and the back edge at the back of the haunch. The half width holds the haunch (x ±0.23). PIANO_BENCH of src/models/instruments/piano.ts takes this width and depth in meters."
@@ -481,105 +435,8 @@
     "most": 0.25,
     "note": "The values of the dog and the deer."
   },
-  "cut": {
-    "top": 0.615,
-    "skinNormals": true,
-    "bodyNormals": "LR",
-    "note": "The thick arm joins the side of the trunk from the shoulder down to y 0.5 (sections-y.txt). Below the height top, 0.015 u above the shoulder joint, the faces with a corner in the free arm (armFree) and a corner in the body go, and new faces close the arm and the trunk, as for the bear (model-traps.md: an arm that joins the trunk needs a cut). The caps take the normals of the skin, as for the bear."
-  },
   "upperTwist": {
     "share": 0.55,
     "note": "The twist bone of each upper arm keeps 0.55 of the roll of the upper arm from the chest (StudioBody.upperTwist). With 0.4 and the elbows out and level, the left arm folded 4 faces at p95 of the play, 2 more than the margin of the arm gate over the old body (scans/gate-*.txt)."
-  },
-  "raise": [
-    {
-      "side": "L",
-      "turns": {
-        "clavicle": [
-          0,
-          0,
-          0,
-          1
-        ],
-        "upper_arm": [
-          0.2292,
-          -0.3644,
-          0.6215,
-          0.6545
-        ],
-        "forearm": [
-          -0.0545,
-          -0.0308,
-          0.071,
-          0.9955
-        ]
-      },
-      "fade": [
-        15,
-        25
-      ],
-      "below": 0,
-      "note": "The shape of the raised arm L of the pianist (pnpm raise-fit). Faces 2057, 2058, 2059 fold in 414 of 1204 samples of the sets play, and the key upper turns 98.2 degrees from the bind in their mean. (pnpm raise-fit, docs/decisions/2026-10-22-mesh-polar-bear.md)"
-    },
-    {
-      "side": "R",
-      "turns": {
-        "clavicle": [
-          0,
-          0,
-          0,
-          1
-        ],
-        "upper_arm": [
-          0.2655,
-          0.4284,
-          -0.422,
-          0.7536
-        ],
-        "forearm": [
-          -0.0815,
-          0.0461,
-          -0.1061,
-          0.9899
-        ]
-      },
-      "fade": [
-        10,
-        20
-      ],
-      "below": 0,
-      "note": "The shape of the raised arm R of the pianist (pnpm raise-fit). Faces 43, 44 fold in 348 of 1204 samples of the sets play, and the key upper turns 82.2 degrees from the bind in their mean. (pnpm raise-fit, docs/decisions/2026-10-22-mesh-polar-bear.md)"
-    },
-    {
-      "side": "R",
-      "bone": "forearm",
-      "turns": {
-        "clavicle": [
-          0,
-          0,
-          0,
-          1
-        ],
-        "upper_arm": [
-          0.3639,
-          0.256,
-          -0.3683,
-          0.8163
-        ],
-        "forearm": [
-          -0.1506,
-          0.0851,
-          -0.196,
-          0.9652
-        ]
-      },
-      "fade": [
-        10,
-        20
-      ],
-      "below": 0.3,
-      "note": "The shape of the bent elbow R of the pianist (pnpm raise-fit). Faces 173, 30 fold in 501 of 1208 samples of the sets rest, play, and the key elbow turns 30.3 degrees from the bind in their mean. (pnpm raise-fit, docs/decisions/2026-10-22-mesh-polar-bear.md)"
-    }
-  ],
-  "raiseNote": "Three shapes relax faces that fold at the top of the cut of each shoulder and at the right elbow, fitted with pnpm raise-fit on the play and the rest of the hold of 2026-10-22. The play samples with a fold went from 79.5% to 52.2%."
+  }
 }

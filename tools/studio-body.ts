@@ -11,7 +11,7 @@ import type { SpeciesColors } from '../src/models/colors.ts';
 import { EYE, addEye } from '../src/models/eyes.ts';
 import type { EyeBend } from '../src/models/eyes.ts';
 import type { SurfacePoint } from '../src/models/head.ts';
-import { PIANO, PIANO_BENCH } from '../src/models/instruments/piano.ts';
+import { PIANO_BENCH } from '../src/models/instruments/piano.ts';
 import { MeshBuilder } from '../src/models/mesh.ts';
 import type { Finish } from '../src/models/mesh.ts';
 import { CHAIR_BACK_CLEARANCE } from '../src/models/player.ts';
@@ -216,23 +216,22 @@ export const ANIMALS: ReadonlyMap<string, AnimalSettings> = new Map([
       eyeSize: 0.805,
     },
   ],
-  // The polar bear pianist: decisions/2026-10-14-polar-bench.md, 2026-10-14-polar-fix.md, and
-  // 2026-10-22-studio-bears.md. The level thighs of the pianist of 2026-10-22 seat the body
-  // lower, so the keys of the studio piano stand at 0.4176 units. At this landmark, the bear keeps
-  // its size of 1.805 m for each unit. The crease angle and the blend are those of the bear. Its
-  // eyes are 0.85 of the pea eyes of its head (decisions/2026-10-23-bear-eye-size.md).
+  // The polar bear pianist: the T-pose mesh of the user (decisions/2026-10-24-polar-bear-tpose.md).
+  // The landmark is its standing shoulder joints after the leg factor (0.854 u at 1.923 m for each
+  // unit, the size of the studio polar bear before it). The crease angle and the blend are those of
+  // the bear, and the user asked for the eye size of the bear.
   [
     'polar-bear',
     {
-      landmark: 'keys',
-      height: PIANO.keyTop + 0.0539,
+      landmark: 'shoulders',
+      height: 1.642242,
       seated: true,
       soloist: false,
-      seat: 0.25,
       constant: 'STUDIO_POLAR_BEAR',
       crease: 40,
       colorBlend: 0.05,
-      eyeSize: 0.85,
+      glb: 'assets/models/polar-bear/polar-bear-tpose.rig.glb',
+      eyeSize: 0.805,
     },
   ],
   // The violinist rabbit: decisions/2026-10-14-fox-rabbit-form.md, 2026-10-14-neck-violin.md,
