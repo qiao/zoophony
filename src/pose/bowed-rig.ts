@@ -457,23 +457,28 @@ const HANGING_BOW = {
  * Holding the violin", 2026-10-14-fox-rabbit-form decisions): the tail end on the left
  * collarbone against the left side of the neck, under the jaw, the jaw on the violin, the violin
  * about 38° to the left of the front, and the scroll a little up, so that the strings are about
- * level. The violin is 0.96 of the app violin, and it sits 0.045 H lower than the smaller violin
- * before, so that it keeps off the jaw (2026-10-14-neck-violin decisions). With the shorter arms
+ * level. The violin is 0.83 of the app violin, so that the arms of the A-pose mesh stretch only a
+ * little (`violinScale`, 2026-10-23-rabbit-arms decisions). It sits 0.045 H lower than the
+ * smaller violin of 2026-10-14, so that it keeps off the jaw (2026-10-14-neck-violin decisions). With the shorter arms
  * of 2026-10-14, it sits 0.039 H further back, so that the left paw reaches the nut: at the old
  * place, the paw reached the fingerboard from 0.06 of its length. A turn of the scroll further to
  * the left also reached the nut, but folded the skin of the left arm in 76% to 100% of the play
  * samples (2026-10-14-arms-rest decisions). The back stays straight. The bow lies nearly square
  * across the strings. The right arm has the shoulder turn of the chin hold. At the frog, the right
- * elbow points out, forward, and a little down, (1.8, -0.7, -1), as the bow elbow of the red fox,
- * and the bow keeps 0.06 m of free hair at each end. The user chose this elbow on 2026-10-21
+ * elbow points out and forward, and only a little down, (1.8, -0.3, -1), and the bow keeps 0.06 m
+ * of free hair at each end. The user chose the elbow (1.8, -0.7, -1) of the red fox on 2026-10-21
  * ("the rabbit and pig's arms are still very deformed"): with the elbow (1.5, -1.5, -1), the
  * broad side of the long upper arm faced the front as a flat plank, and with this elbow the upper
- * arm reads across the body. The bow paw goes 2.4 cm into the violin in the worst play sample
+ * arm reads across the body. With the A-pose mesh, 9 faces of the right arm folded at that elbow
+ * in the arm gate (limit 8), and 7 at this elbow (2026-10-23-rabbit-arms decisions). The bow paw goes 2.4 cm into the violin in the worst play sample
  * (2.1 cm before, `docs/research/2026-10-21-arm-form.md`). The right elbow points down at the tip too: up, as in the chin
  * hold, the skin of the studio rabbit folded at the right upper arm (`pnpm fold-probe violinist`).
- * The left elbow points out, down, and a little forward, (-1, -1, -0.5), further out than the pole
- * of the chin hold: with that pole, the left paw went 2.3 cm into the violin and the play folded in
- * 3.8% of the samples, and with this pole 2.0 cm and 0.3% (2026-10-14-fox-rabbit-fix decisions). A
+ * The left elbow points out, down, and a little forward, (-1, -1.4, -0.3), further out than the
+ * pole of the chin hold: with that pole, the left paw went 2.3 cm into the violin and the play
+ * folded in 3.8% of the samples, and with the pole (-1, -1, -0.5) 2.0 cm and 0.3%
+ * (2026-10-14-fox-rabbit-fix decisions). With the A-pose mesh, that pole flattened the left upper
+ * arm in the lift just below the limit 0.55 of the arm gate, and this lower pole keeps it at the
+ * limit (2026-10-23-rabbit-arms decisions). A
  * pole further in put the elbow under the violin, and turned over faces of the left upper arm of
  * the rabbit mesh in each play sample (2026-10-13-mesh-rabbit decisions).
  *
@@ -498,8 +503,11 @@ const HANGING_BOW = {
  * The right elbow hangs near the side, as the elbows of the violinist (2026-10-16-rabbit-arm
  * decisions). The belly is widest below the elbow, so the right arm hangs out around it, and the
  * paw does not reach the top of the right thigh. The grip is at the outer side of the right knee,
- * 0.65 H out from the top of the knee, 0.3 H above it, and 0.3 H forward, and the right elbow
- * points down and back. The frog end hangs about 6 cm above the top of the knee. With the stick
+ * 0.65 H out from the top of the knee, 0.45 H above it, and 0.3 H forward, and the right elbow
+ * points down and back. With the shorter arms of the A-pose mesh, the grip 0.3 H above the knee
+ * bent the right wrist so far that its edges in the rest were 0.36 shorter than in the play
+ * (stretch, limit 0.35 of the arm gate), and 0.45 H above it gives 0.35
+ * (2026-10-23-rabbit-arms decisions). The frog end hangs about 6 cm above the top of the knee. With the stick
  * through the middle of the paw of 2026-10-17, the grip 0.55 H out turned face 372 of the right
  * upper arm over in each rest sample, and 0.65 H out turns no face over (2026-10-17-grip-all
  * decisions). With the grip on the belly over the right thigh, the paw was 25 cm from the
@@ -509,10 +517,10 @@ const HANGING_BOW = {
  */
 const SHOULDER_HOLD = {
   ...CHIN_HOLD,
-  poleL: [-1, -1, -0.5],
+  poleL: [-1, -1.4, -0.3],
   playShift: [-0.054, -0.05, 0.19],
   playTurn: violinTurn(-25, 5),
-  poleR: [1.8, -0.7, -1],
+  poleR: [1.8, -0.3, -1],
   freeHair: 0.06,
   poleTipR: CHIN_HOLD.poleR,
   lean: 0,
@@ -522,7 +530,7 @@ const SHOULDER_HOLD = {
   restPoleR: [0.3, -1, 1],
   rest: { ...LAP_VIOLIN, lap: { along: 0.85, offset: [0.15, 0.05, -0.1] } },
   restBow: {
-    lap: { along: 1, offset: [0.65, 0.3, -0.3] },
+    lap: { along: 1, offset: [0.65, 0.45, -0.3] },
     tip: UPRIGHT_BOW.tip,
     hair: UPRIGHT_BOW.hair,
     via: UPRIGHT_BOW.via,
