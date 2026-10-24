@@ -211,8 +211,9 @@ export const ANIMALS: ReadonlyMap<string, AnimalSettings> = new Map([
       colorBlend: 0.05,
       eyeNormal: 0.5,
       glb: 'assets/models/bear/bear-tpose.rig.glb',
-      // The user asked for slightly larger eyes (docs/decisions/2026-10-23-bear-eye-size.md).
-      eyeSize: 1.15,
+      // The eyes of the T-pose mesh are 0.7 of the size 1.15 that the user chose for the studio bear
+      // (user, 2026-10-23, docs/decisions/2026-10-23-bear-eye-size.md).
+      eyeSize: 0.805,
     },
   ],
   // The polar bear pianist: decisions/2026-10-14-polar-bench.md, 2026-10-14-polar-fix.md, and
