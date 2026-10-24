@@ -2340,6 +2340,8 @@ export function namedItem<T extends { readonly name: string }>(
  * (`docs/research/2026-10-16-seat-rest/`). `front60` is the view of the check of the face of a
  * mesh of the user from the front and at 60° (`docs/agents/model-traps.md`). `above35` looks down
  * 35° from the front, as the default view of the stage looks down at the players that face it.
+ * `back150` and `back-150` look from behind and 30° to each side, as the camera of the stage
+ * looks at the players from behind and above (`docs/agents/workflow.md`, "Images of a mesh").
  */
 export const SPECIES_VIEWS: readonly CloseViewAngle[] = [
   { name: 'front', azimuth: 0, elevation: 10 },
@@ -2348,6 +2350,8 @@ export const SPECIES_VIEWS: readonly CloseViewAngle[] = [
   { name: 'left', azimuth: -90, elevation: 3 },
   { name: 'side', azimuth: 90, elevation: 3 },
   { name: 'back', azimuth: 180, elevation: 10 },
+  { name: 'back150', azimuth: 150, elevation: 10 },
+  { name: 'back-150', azimuth: -150, elevation: 10 },
   { name: 'above35', azimuth: 0, elevation: 35 },
 ];
 
