@@ -1206,8 +1206,8 @@ its body, so its hold turns the horn back toward the body, and the left paw reac
 and the right paw the bell in the play and in the rest (5.3, `docs/decisions/2026-10-19-mesh-pig.md`).
 The wolf plays the clarinet of the app with arms of the reach of the parametric wolf. Its long
 muzzle puts the tip of the nose far in front of the mouth, so the mouthpiece sits back under the
-muzzle and the shoulders turn forward, and each palm reaches its grip of the clarinet at 45° in
-the play and in the rest (5.3, `docs/decisions/2026-10-20-mesh-wolf.md`).
+muzzle and the shoulders turn forward, and each palm reaches its grip of the clarinet in the play
+and in the rest (5.3, `docs/decisions/2026-10-20-mesh-wolf.md`).
 The monkey plays a smaller trumpet (`trumpetScale`) with the longer arms, the size that the user
 chose. Its big head puts the mouthpiece far above the shoulders, so its palms hold the valve
 casings at their lower half, and each palm reaches its grip in the play and in the rest (5.3,

@@ -458,7 +458,7 @@ const MOUSE_OBOE_FORWARD = 0;
  * 30° from the vertical ({@link MOUSE_OBOE_FORWARD}° further forward), and each paw aims across the
  * tube (`aimAcross`): the long muzzle already puts the reed far in front of the chest, so at 40°
  * the paws held the oboe at arm's length with level forearms (user, 2026-10-24: "also how the mouse
- * is holding the instrument", `2026-10-24-wind-paws` decisions). The small mouse plays a smaller oboe (`SpeciesParams.oboeScale`).
+ * is holding the instrument", `2026-10-24-wind-holds` decisions). The small mouse plays a smaller oboe (`SpeciesParams.oboeScale`).
  * With the reed 0.14 H back, the right paw reached its grip with 3 cm to spare only on an oboe
  * of 0.52, and 0.09 H further back, on an oboe of 0.62. In the rest, the oboe is 0.04 H lower and
  * 0.02 H further forward than in the rest of {@link WIND_HOLDS}, so that the right paw keeps 3 cm
@@ -584,19 +584,27 @@ const PIG_HORN = {
   restPoleR: [1, -0.3, 0.3],
 } as const satisfies WindHold;
 
-/** The turn of the lower end of the clarinet of the wolf forward while it plays, in degrees. */
-const WOLF_CLARINET_FORWARD = 5;
+/**
+ * The turn of the lower end of the clarinet of the wolf forward while it plays, in degrees. The
+ * value below 0 turns the lower end back toward the body.
+ */
+const WOLF_CLARINET_FORWARD = -5;
 
 /**
  * The clarinet hold of the wolf (design 5.3), the hold of a real clarinetist (decisions
  * `2026-10-20-mesh-wolf.md`, `docs/reference/wind-technique.md` 3): the clarinet at the middle of
  * the body, from the mouth to between the knees. The clarinet turns its lower end
- * {@link WOLF_CLARINET_FORWARD}° further forward than {@link WIND_HOLDS}, to 30° from the vertical.
- * The long muzzle already puts the mouthpiece far in front of the chest: at 45° from the vertical,
- * the bell was far in front of the knees, and the paws held the clarinet at arm's length with level
- * forearms (user, 2026-10-24: "fix how the wolf is holding the instrument",
- * `2026-10-24-wind-paws` decisions). Each paw also aims across the tube (`aimAcross`), so that its
- * fingers wrap the tube.
+ * {@link WOLF_CLARINET_FORWARD}° forward from {@link WIND_HOLDS}, to 20° from the vertical, near
+ * the angle of the wolf in `orchestra-latest.png` and `orchestra-side.png`. The long muzzle already
+ * puts the mouthpiece far in front of the chest: at 45° from the vertical, the bell was far in
+ * front of the knees, and at 30° the paws still held the clarinet with the arms reached far
+ * forward, 0.38 m and 0.40 m from the shoulder joints on arms of 0.48 m (users, 2026-10-24: "fix
+ * how the wolf is holding the instrument" and "fix how the wolf, tan fox, and mouse are holding
+ * the instrument", `2026-10-24-wind-holds` decisions). At 20°, with the mouthpiece 0.18 H below
+ * the mouth, the grips are 0.34 m and 0.36 m from the shoulder joints, and the mouthpiece no
+ * longer goes into the jaw. Each paw aims across the tube (`aimAcross`) and half toward the side
+ * across it (`aimSide`), so that it lies across the back of the tube and its fingers wrap the
+ * front: with no side share, the lower paw stuck out in front of the tube when seen from the side.
  *
  * The long muzzle puts the tip of the nose far in front of the mouth, and at 45° the grips moved
  * further forward: the left paw missed its grip by 2.4 cm and the right paw by 6.1 cm. So in round
@@ -623,7 +631,7 @@ const WOLF_CLARINET = {
   ...WIND_HOLDS.clarinet,
   reach: 35 * MathUtils.DEG2RAD,
   reachL: 20 * MathUtils.DEG2RAD,
-  lipShift: [0, -0.12, 0.4],
+  lipShift: [0, -0.18, 0.4],
   play: holdTurn(WOLF_CLARINET_FORWARD, 0),
   restShift: [-0.17, -0.3, -0.3],
   poleL: [-0.3, -1, 0],
@@ -632,6 +640,7 @@ const WOLF_CLARINET = {
   restPoleR: [0.3, -1, 0],
   palmToTube: true,
   aimAcross: 1,
+  aimSide: 0.5,
 } as const satisfies WindHold;
 
 /**
