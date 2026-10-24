@@ -302,17 +302,14 @@ The decision files:
 - [`2026-10-23-bear-eye-size.md`](decisions/2026-10-23-bear-eye-size.md): the slightly larger eyes of the bear and the polar bear.
 - [`2026-10-23-bear-tpose.md`](decisions/2026-10-23-bear-tpose.md): the T-pose bear mesh with its own faces and no cut or split, its size, its elbow and palm, and its open rest arms.
 - [`2026-10-24-wind-paws.md`](decisions/2026-10-24-wind-paws.md): the wind paws across the tube, and the clarinet of the wolf and the oboe of the mouse nearer the body.
-- [`2026-10-24-polar-bear-tpose.md`](decisions/2026-10-24-polar-bear-tpose.md): the T-pose polar bear mesh, its legs and seat, and the eye size of the bear.
+- [`2026-10-24-polar-bear-tpose.md`](decisions/2026-10-24-polar-bear-tpose.md): the T-pose polar bear mesh, its size, legs, and seat, and the eye size of the bear.
 - [`2026-10-24-polar-bear-seat.md`](decisions/2026-10-24-polar-bear-seat.md): the smaller polar bear pianist from the keys of its sheet.
 - [`2026-10-24-rabbit-hold.md`](decisions/2026-10-24-rabbit-hold.md): the shorter rabbit arms with rings at the elbows, the true palm, and the violin under the chin at 60° to the left.
 - [`2026-10-24-violin-rest.md`](decisions/2026-10-24-violin-rest.md): the rabbit violin and the cat viola upright on the left knee at rest, and upright in front of the chest in the middle of the lift, as the red fox.
 - [`2026-10-24-violin-poses.md`](decisions/2026-10-24-violin-poses.md): the bent rest arms of the rabbit, the scroll of the cat viola toward the left shoulder in the middle of the lift, and the nearer rest viola of the cat.
 - [`2026-10-24-bow-holds.md`](decisions/2026-10-24-bow-holds.md): the hippo bow through the middle of the closed paw, and the cat arms bent near the body in the lift and the lowering.
 - [`2026-10-24-wind-holds.md`](decisions/2026-10-24-wind-holds.md): the wolf clarinet at 20° with the paws across the back of the tube and upright in front of the knees at rest, the oboe of the mouse at 30° and nearly upright at rest.
-- [`2026-10-24-polar-bear-tpose.md`](decisions/2026-10-24-polar-bear-tpose.md): the T-pose polar bear mesh with its own faces, its size, legs, and seat, the eye size of the bear, and its open rest slivers.
-- [`2026-10-24-polar-bear-tpose.md`](decisions/2026-10-24-polar-bear-tpose.md): the T-pose polar bear mesh, its size, legs, and seat, and the eye size of the bear.
 - [`2026-10-24-polar-bear-arms.md`](decisions/2026-10-24-polar-bear-arms.md): the quad arm faces of the polar bear, its Blender weights, and the arm segments and helpers that the pose code turns.
 - [`2026-10-24-pianist-pose.md`](decisions/2026-10-24-pianist-pose.md): the upright polar bear pianist after a professional pianist, the larger and nearer piano, the claws on the key tops, the low shoulders, and the side lean toward the far keys.
-- [`2026-10-24-rabbit-hold.md`](decisions/2026-10-24-rabbit-hold.md): the shorter rabbit arms with rings at the elbows, the true palm, the violin under the chin at 60° to the left, and the turned rest violin.
 - [`2026-10-24-piano-pedals.md`](decisions/2026-10-24-piano-pedals.md): the pedal lyre and the three brass pedals of the piano, and the right foot of the pianist on the damper pedal with the sustain pedal of the score.
 - [`2026-10-23-rabbit-arms.md`](decisions/2026-10-23-rabbit-arms.md): the A-pose rabbit mesh with its own faces, a short arm stretch, a violin of 0.83, its elbows and rest grip, and the open shards of its arms.
