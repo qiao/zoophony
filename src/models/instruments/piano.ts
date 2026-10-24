@@ -59,6 +59,40 @@ export const PIANO_BENCH = {
   seatHeight: 0.45,
 } as const;
 
+/** A pedal of the grand piano, from the left of the player. */
+export type PianoPedal = 'soft' | 'sostenuto' | 'damper';
+
+/**
+ * The pedal lyre and the three pedals of the grand piano, in meters before {@link PIANO_SCALE}
+ * (design 4.6). The sizes follow real grand pianos (`docs/research/2026-10-24-piano-pedals.md`).
+ * The lyre comes down from the case under the keys to a box just above the floor, and the pedals
+ * come out of the front of the box toward the player.
+ */
+export const PIANO_PEDALS = {
+  /** The x of the middle of each pedal: the soft pedal (una corda), the sostenuto, the damper. */
+  x: { soft: -0.072, sostenuto: 0, damper: 0.072 },
+  /** The z of the front tip of the pedals, behind the front edge of the keys. */
+  tipZ: -0.05,
+  /** The length of a pedal in front of the box. */
+  length: 0.12,
+  /** The foot plate at the front of a pedal: its width and its length. */
+  plateWidth: 0.045,
+  plateLength: 0.07,
+  /** The width of the shank of a pedal, between the plate and the box. */
+  shankWidth: 0.028,
+  /** The height of the top of a pedal at rest, and the thickness of a pedal. */
+  top: 0.06,
+  thickness: 0.012,
+  /** The drop of the damper pedal when the foot presses it down. */
+  travel: 0.023,
+  /** The box at the bottom of the lyre. */
+  box: { width: 0.216, depth: 0.079, bottom: 0.015, top: 0.105 },
+  /** The bar at the top of the lyre, under the case. */
+  bar: { width: 0.305, height: 0.05, depth: 0.06 },
+  /** The x of the middle of each post at the box and at the bar, and the radius of a post. */
+  post: { boxX: 0.08, barX: 0.12, radius: 0.017 },
+} as const;
+
 /** The pitch classes of the black keys. */
 const BLACK_KEYS: ReadonlySet<number> = new Set([1, 3, 6, 8, 10]);
 
@@ -273,6 +307,81 @@ function addInside(piece: PieceBuilder, boardY: number): void {
 }
 
 /**
+ * Adds the pedal lyre ({@link PIANO_PEDALS}): the bar under the case, two posts that spread a
+ * little toward the bar, and the box just above the floor.
+ *
+ * @param piece The piece of the piano.
+ */
+function addLyre(piece: PieceBuilder): void {
+  const { box: base, bar, post } = PIANO_PEDALS;
+  const dark = INSTRUMENT_COLORS.pianoCase;
+  const z = PIANO_PEDALS.tipZ - PIANO_PEDALS.length - base.depth / 2;
+  const barBottom = PIANO.caseBottom - bar.height;
+  piece.add(
+    box(base.width, base.top - base.bottom, base.depth),
+    dark,
+    transform([0, (base.top + base.bottom) / 2, z]),
+    'lacquer',
+  );
+  piece.add(
+    box(bar.width, bar.height, bar.depth),
+    dark,
+    transform([0, barBottom + bar.height / 2, z]),
+    'lacquer',
+  );
+  for (const side of [-1, 1]) {
+    piece.rod(
+      [side * post.boxX, base.top, z],
+      [side * post.barX, barBottom, z],
+      post.radius,
+      6,
+      dark,
+      'lacquer',
+    );
+  }
+}
+
+/**
+ * Adds one pedal ({@link PIANO_PEDALS}): the shank out of the box of the lyre, and the wider foot
+ * plate at the front, with the top at the height of a pedal at rest.
+ *
+ * @param piece The piece that carries the pedal.
+ * @param pedal The pedal.
+ */
+function addPedal(piece: PieceBuilder, pedal: PianoPedal): void {
+  const p = PIANO_PEDALS;
+  const x = p.x[pedal];
+  const y = p.top - p.thickness / 2;
+  const color = INSTRUMENT_COLORS.brass;
+  piece.add(
+    box(p.plateWidth, p.thickness, p.plateLength),
+    color,
+    transform([x, y, p.tipZ - p.plateLength / 2]),
+    'metal',
+  );
+  // The shank starts inside the box, so that no gap shows when the damper pedal goes down.
+  const shankFront = p.tipZ - p.plateLength;
+  const shankBack = p.tipZ - p.length - p.box.depth / 2;
+  piece.add(
+    box(p.shankWidth, p.thickness, shankFront - shankBack),
+    color,
+    transform([x, y, (shankFront + shankBack) / 2]),
+    'metal',
+  );
+}
+
+/**
+ * Calculates the middle of the front edge of the top of a pedal at rest, in the piano axes.
+ *
+ * @param pedal The pedal.
+ * @returns The point.
+ */
+export function pianoPedalTip(pedal: PianoPedal): Vec3 {
+  const p = PIANO_PEDALS;
+  return [p.x[pedal] * PIANO_SCALE, p.top * PIANO_SCALE, p.tipZ * PIANO_SCALE];
+}
+
+/**
  * Calculates the point in front of a piano key on the front edge of the white keys, at the height
  * of the top of the white keys, in the piano axes. For a white key, the point is at the middle of
  * its front edge. A black key is shorter and stands back from this edge, so its point is at the
@@ -391,12 +500,12 @@ export function buildPiano(): InstrumentModel {
   ] as const) {
     piece.add(cylinder(0.045, 0.035, p.caseBottom, 8), dark, transform([x, 0, z]), 'lacquer');
   }
-  piece.add(
-    box(0.16, p.caseBottom - 0.05, 0.04),
-    dark,
-    transform([0, 0.05 + (p.caseBottom - 0.05) / 2, -0.45]),
-  );
-  piece.add(box(0.2, 0.03, 0.12), dark, transform([0, 0.035, -0.42]));
+  addLyre(piece);
+  addPedal(piece, 'soft');
+  addPedal(piece, 'sostenuto');
+  // The damper pedal follows the `slide` bone, so that the foot of the pianist can press it.
+  const damper = new PieceBuilder(PIANO_SCALE);
+  addPedal(damper, 'damper');
 
   // The round belly of the studio polar bear reaches 0.45 m in front of the floor point, so the
   // keys of 2026-10-11 (0.55 H + 0.05 m, 0.26 m) went 15 cm into it. On the T-pose polar bear with
@@ -414,7 +523,7 @@ export function buildPiano(): InstrumentModel {
   return {
     id: 'piano',
     parent: 'root',
-    pieces: [instrument],
+    pieces: [instrument, damper.build('slide', hold('instrument'))],
     grips: {
       palmL: { bone: 'instrument', at: [lowHand[0], (p.keyTop + 0.04) * s, -0.06 * s] },
       palmR: { bone: 'instrument', at: [highHand[0], (p.keyTop + 0.04) * s, -0.06 * s] },
