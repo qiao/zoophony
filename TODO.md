@@ -371,6 +371,10 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       1.6225 of the violin reach, the arms fold past the gate limit (10 and 11 faces against 8).
       The user asked for a little stretch: the factor 1.3 and a violin of 0.83 pass each limit
       (`2026-10-23-rabbit-arms.md`).
+- [ ] Bear (T-pose mesh, `2026-10-23-bear-tpose.md`): at rest, the arms stand out about 35° from
+      the body around the wide belly, where the studio bear held its paws at the hips. Some long
+      sharp facets show on the bent upper arms (`arm-crops.webp` of `2026-10-23-bear-tpose/`). The
+      upper arms go 3.5 cm into the body while the arms move (1.4 cm before).
 - [ ] Rabbit (A-pose mesh): the long arm faces show dark shards on the bent arms at rest, at the
       frog, and at the tip (`arm-crops.webp` of `2026-10-23-rabbit-arms/`). A crease of 60° or 80°
       does not remove them. Only a split of the faces removes them, which needs the user.
