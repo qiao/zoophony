@@ -371,6 +371,9 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       1.6225 of the violin reach, the arms fold past the gate limit (10 and 11 faces against 8).
       The user asked for a little stretch: the factor 1.3 and a violin of 0.83 pass each limit
       (`2026-10-23-rabbit-arms.md`).
+- [ ] Pig (T-pose mesh, `2026-10-24-pig-tpose.md`): the trial rig shows a flat slab and a flap
+      at the shoulders in the play, and 9 to 14 folded arm faces (limit 8). The pig of `main`
+      stays. Ask the user: a ring at each shoulder, or another mesh.
 - [ ] Polar bear (T-pose mesh, `2026-10-24-polar-bear-tpose.md`): at rest, slivers show along the
       hanging upper arms, and the right arm folds 12 faces at rest (limit 8). Long thin faces cross
       each shoulder. A ring at each shoulder needs the user. The left upper arm keeps 0.49 of its
