@@ -435,16 +435,18 @@ const PANDA_TROMBONE = {
 } as const satisfies WindHold;
 
 /** The turn of the lower end of the oboe of the mouse forward while it plays, in degrees. */
-const MOUSE_OBOE_FORWARD = 10;
+const MOUSE_OBOE_FORWARD = 0;
 
 /**
  * The oboe hold of the mouse (design 5.3), the hold of a real oboist (decisions
  * `2026-10-19-mesh-mouse.md` and `2026-10-19-mouse-size.md`, `docs/reference/wind-technique.md`
  * 2.3). The long muzzle puts the tip of the nose far in front of the mouth, so the reed sits
  * 0.23 H further back and 0.04 H lower than the mouth of the bind pose, in the mouth under the
- * nose, with about half of the reed in the mouth. The oboe turns its lower end
- * {@link MOUSE_OBOE_FORWARD}° further forward than {@link WIND_HOLDS}, to 40° from the vertical,
- * the angle of a real oboist. The small mouse plays a smaller oboe (`SpeciesParams.oboeScale`).
+ * nose, with about half of the reed in the mouth. The oboe keeps the angle of {@link WIND_HOLDS},
+ * 30° from the vertical ({@link MOUSE_OBOE_FORWARD}° further forward), and each paw aims across the
+ * tube (`aimAcross`): the long muzzle already puts the reed far in front of the chest, so at 40°
+ * the paws held the oboe at arm's length with level forearms (user, 2026-10-24: "also how the mouse
+ * is holding the instrument", `2026-10-24-wind-paws` decisions). The small mouse plays a smaller oboe (`SpeciesParams.oboeScale`).
  * With the reed 0.14 H back, the right paw reached its grip with 3 cm to spare only on an oboe
  * of 0.52, and 0.09 H further back, on an oboe of 0.62. In the rest, the oboe is 0.04 H lower and
  * 0.02 H further forward than in the rest of {@link WIND_HOLDS}, so that the right paw keeps 3 cm
@@ -466,6 +468,7 @@ const MOUSE_OBOE = {
   poleL: [-0.5, -1, -0.5],
   poleR: [0.5, -1, -0.5],
   palmToTube: true,
+  aimAcross: 1,
 } as const satisfies WindHold;
 
 /** The forward turns of the shoulder bones of the bassoon beaver while it plays, in degrees. */
