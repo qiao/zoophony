@@ -4,6 +4,7 @@ import type { BodyBoneName } from './biped.ts';
 import { BONE_NAMES, boneIndex } from './rig.ts';
 import type { Skeleton } from './rig.ts';
 import {
+  ARM_SEGMENTS,
   STUDIO_ARM_BONES,
   STUDIO_BONES,
   STUDIO_LEG_BONES,
@@ -31,8 +32,9 @@ import type { Quat, Vec3 } from './tuples.ts';
  * follows `tail1`, the tip of a tail of two bones follows `tail2`, and the jaw of a beak follows
  * `jaw`, which the choir pose opens (design 5.3). The arm bones of the studio take the joints and
  * the hand of the player, with the bend of the elbow of the studio and the twist split of the
- * forearm ({@link poseStudioBones}). The readers of the bind mesh, such as the footprints, read
- * the bone of the player of the largest weight.
+ * forearm ({@link poseStudioBones}). The arm segments and the elbow helper follow the upper arm or
+ * the forearm of their part, and the wrist helper the forearm. The readers of the bind mesh, such
+ * as the footprints, read the bone of the player of the largest weight.
  */
 export const STUDIO_FOLLOWS = {
   root: 'root',
@@ -69,6 +71,26 @@ export const STUDIO_FOLLOWS = {
   eye_R: 'eyeR',
   tail_tip: 'tail2',
   jaw: 'jaw',
+  upper_arm_seg0_L: 'upperArmL',
+  upper_arm_seg1_L: 'upperArmL',
+  upper_arm_seg2_L: 'upperArmL',
+  upper_arm_seg3_L: 'upperArmL',
+  forearm_seg0_L: 'forearmL',
+  forearm_seg1_L: 'forearmL',
+  forearm_seg2_L: 'forearmL',
+  forearm_seg3_L: 'forearmL',
+  elbow_L: 'upperArmL',
+  wrist_L: 'forearmL',
+  upper_arm_seg0_R: 'upperArmR',
+  upper_arm_seg1_R: 'upperArmR',
+  upper_arm_seg2_R: 'upperArmR',
+  upper_arm_seg3_R: 'upperArmR',
+  forearm_seg0_R: 'forearmR',
+  forearm_seg1_R: 'forearmR',
+  forearm_seg2_R: 'forearmR',
+  forearm_seg3_R: 'forearmR',
+  elbow_R: 'upperArmR',
+  wrist_R: 'forearmR',
 } as const satisfies Readonly<Record<StudioBone, BodyBoneName>>;
 
 /**
@@ -136,6 +158,23 @@ interface StudioArm {
   readonly curl: Vec3;
   /** The direction of the upper arm in the axes of the chest in the pose of the sheet. */
   readonly sheet: Vec3;
+  /** The arm segments and the helpers of a body with them, or `null` (design 4.4, 4.7). */
+  readonly segments: StudioArmSegments | null;
+}
+
+/**
+ * The arm segments and the helpers of one arm, as indices in `STUDIO_BONES`
+ * (`ARM_SEGMENT_BONES` of `models/studio-format.ts`).
+ */
+interface StudioArmSegments {
+  /** The segments of the upper arm, from the shoulder out. */
+  readonly upper: readonly number[];
+  /** The segments of the forearm, from the elbow out. */
+  readonly fore: readonly number[];
+  /** The elbow helper. */
+  readonly elbow: number;
+  /** The wrist helper. */
+  readonly wrist: number;
 }
 
 /**
@@ -756,6 +795,14 @@ export function studioRig(seated: StudioBody, stands = false): StudioRig {
           .normalize(),
       ),
       sheet: body.sheetArms[side],
+      segments: h[`elbow_${side}`]
+        ? {
+            upper: segmentIndices('upper_arm', side),
+            fore: segmentIndices('forearm', side),
+            elbow: STUDIO_BONES.indexOf(`elbow_${side}`),
+            wrist: STUDIO_BONES.indexOf(`wrist_${side}`),
+          }
+        : null,
     };
   };
   return {
@@ -765,6 +812,33 @@ export function studioRig(seated: StudioBody, stands = false): StudioRig {
     follows: skinFollows(),
     arms: { L: arm('L'), R: arm('R') },
   };
+}
+
+/**
+ * Gives the indices of the segments of one arm part in `STUDIO_BONES`, from the joint at its start
+ * out.
+ *
+ * @param part The arm part.
+ * @param side The side of the arm.
+ * @returns The indices.
+ */
+function segmentIndices(part: 'upper_arm' | 'forearm', side: Side): number[] {
+  return Array.from({ length: ARM_SEGMENTS }, (_, k) => {
+    const name = `${part}_seg${String(k)}_${side}`;
+    return STUDIO_BONES.findIndex((bone) => bone === name);
+  });
+}
+
+/**
+ * Gives the share of the twist that the segment k of an arm part takes: the middle of the segment,
+ * from 0 at the joint at the start of the part to 1 at the joint at its end (`segment_share()` of
+ * `tools/blender/rig_mesh.py`).
+ *
+ * @param k The index of the segment from the start of the part.
+ * @returns The share, from 0 to 1.
+ */
+export function segmentShare(k: number): number {
+  return (k + 0.5) / ARM_SEGMENTS;
 }
 
 /**
@@ -866,6 +940,7 @@ const curlTurn = new Quaternion();
 const curlAxis = new Vector3();
 const X_AXIS = new Vector3(1, 0, 0);
 const twistTurn = new Quaternion();
+const segmentTurn = new Quaternion();
 const rollFrame = new Quaternion();
 const rollTurn = new Quaternion();
 const rollAxis = new Vector3();
@@ -920,11 +995,24 @@ export function upperTwistTurn(
   share: number,
   out: Quaternion,
 ): Quaternion {
+  const roll = upperRoll(armTurn, chestTurn, armBind);
+  return out.setFromAxisAngle(armBind, (share - 1) * roll).premultiply(armTurn);
+}
+
+/**
+ * Gives the roll of an upper arm from the chest: the twist of the turn of the upper arm around its
+ * bind axis, from the frame with no roll, which is the chest swung onto the upper arm.
+ *
+ * @param armTurn The world turn of the upper arm from the bind pose.
+ * @param chestTurn The world turn of the chest from the bind pose.
+ * @param armBind The unit direction of the upper arm in the bind pose.
+ * @returns The roll, in radians, from -π to π.
+ */
+function upperRoll(armTurn: Quaternion, chestTurn: Quaternion, armBind: Vector3): number {
   rollAxis.copy(armBind).applyQuaternion(chestTurn);
   rollFrame.setFromUnitVectors(rollAxis, rollEnd.copy(armBind).applyQuaternion(armTurn));
   rollFrame.multiply(chestTurn).invert().multiply(armTurn);
-  const roll = twistAngle(rollFrame, armBind);
-  return out.setFromAxisAngle(armBind, (share - 1) * roll).premultiply(armTurn);
+  return twistAngle(rollFrame, armBind);
 }
 
 /**
@@ -1113,8 +1201,8 @@ function poseArm(rig: StudioRig, arm: StudioArm, pose: Float32Array, out: Studio
   curlTurn.setFromAxisAngle(curlAxis.fromArray(arm.curl), curl);
   fingersTurn.copy(handTurn).multiply(curlTurn);
   relative.copy(foreTurn).invert().multiply(handTurn);
-  const twist = TWIST_SHARE * twistAngle(relative, foreBind);
-  twistTurn.setFromAxisAngle(foreBind, twist).premultiply(foreTurn);
+  const fullTwist = twistAngle(relative, foreBind);
+  twistTurn.setFromAxisAngle(foreBind, TWIST_SHARE * fullTwist).premultiply(foreTurn);
 
   const side = arm.side;
   writeMatrix(
@@ -1158,6 +1246,64 @@ function poseArm(rig: StudioRig, arm: StudioArm, pose: Float32Array, out: Studio
     bind.fromArray(h[`fingers_${side}`]),
     head,
   );
+  if (arm.segments) {
+    poseSegments(rig, arm.segments, side, fullTwist, out);
+  }
+}
+
+/**
+ * Writes the arm segments and the helpers of one arm (design 4.4, 4.7) from the turns of the arm
+ * that {@link poseArm} leaves in the module values. Each segment of the upper arm takes its share
+ * ({@link segmentShare}) of the roll of the upper arm from the chest, and each segment of the
+ * forearm its share of the twist from the forearm to the paw. The elbow helper turns halfway from
+ * the upper arm to the forearm, and the wrist helper halfway from the forearm with all of the
+ * twist to the paw, as the helpers of the Rigify rabbit (`driven_turns()` of
+ * `tools/blender/rig_mesh.py`). Each bone turns around the joint at its start.
+ *
+ * @param rig The studio rig.
+ * @param segments The bones of the arm.
+ * @param side The side of the arm.
+ * @param fullTwist The twist from the forearm to the paw around the bind axis of the forearm.
+ * @param out The pose to write.
+ */
+function poseSegments(
+  rig: StudioRig,
+  segments: StudioArmSegments,
+  side: Side,
+  fullTwist: number,
+  out: StudioPose,
+): void {
+  const h = rig.body.heads;
+  const roll = upperRoll(upperTurn, rotations[boneIndex('chest')] ?? local, upperBind);
+  for (let k = 0; k < ARM_SEGMENTS; k++) {
+    const share = segmentShare(k);
+    segmentTurn.setFromAxisAngle(upperBind, (share - 1) * roll).premultiply(upperTurn);
+    writeMatrix(
+      out.matrices,
+      segments.upper[k] ?? 0,
+      segmentTurn,
+      bind.fromArray(h[`upper_arm_${side}`]),
+      shoulder,
+    );
+    segmentTurn.setFromAxisAngle(foreBind, share * fullTwist).premultiply(foreTurn);
+    writeMatrix(
+      out.matrices,
+      segments.fore[k] ?? 0,
+      segmentTurn,
+      bind.fromArray(h[`forearm_${side}`]),
+      elbow,
+    );
+  }
+  segmentTurn.copy(upperTurn).slerp(foreTurn, 0.5);
+  writeMatrix(
+    out.matrices,
+    segments.elbow,
+    segmentTurn,
+    bind.fromArray(h[`forearm_${side}`]),
+    elbow,
+  );
+  segmentTurn.setFromAxisAngle(foreBind, fullTwist).premultiply(foreTurn).slerp(handTurn, 0.5);
+  writeMatrix(out.matrices, segments.wrist, segmentTurn, bind.fromArray(h[`hand_${side}`]), wrist);
 }
 
 /**

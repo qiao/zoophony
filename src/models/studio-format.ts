@@ -15,12 +15,53 @@ import type { ByteReader } from './packed-bytes.ts';
 import type { Quat, Vec3 } from './tuples.ts';
 
 /**
+ * The number of deform segments of each upper arm and of each forearm of a body with arm segments
+ * (`ARM_SEGMENTS` of `tools/blender/rig_mesh.py`).
+ */
+export const ARM_SEGMENTS = 4;
+
+/**
+ * The arm segments and the helpers of a mesh rig with `armSegments` (design 4.4, 4.7), the left
+ * side first: for each side, {@link ARM_SEGMENTS} segments of the upper arm and of the forearm
+ * from the shoulder out, then the elbow helper and the wrist helper. They hold the skin of the
+ * arms, and the pose code turns them from the joints of the arm (`poseArm()` of
+ * `models/studio-rig.ts`). The upper arm, the forearm, and the forearm twist bone of such a body
+ * hold no vertex.
+ */
+export const ARM_SEGMENT_BONES = [
+  'upper_arm_seg0_L',
+  'upper_arm_seg1_L',
+  'upper_arm_seg2_L',
+  'upper_arm_seg3_L',
+  'forearm_seg0_L',
+  'forearm_seg1_L',
+  'forearm_seg2_L',
+  'forearm_seg3_L',
+  'elbow_L',
+  'wrist_L',
+  'upper_arm_seg0_R',
+  'upper_arm_seg1_R',
+  'upper_arm_seg2_R',
+  'upper_arm_seg3_R',
+  'forearm_seg0_R',
+  'forearm_seg1_R',
+  'forearm_seg2_R',
+  'forearm_seg3_R',
+  'elbow_R',
+  'wrist_R',
+] as const;
+
+/** An arm segment or a helper of a studio body. */
+export type ArmSegmentBone = (typeof ARM_SEGMENT_BONES)[number];
+
+/**
  * The bones of a studio body (design 4.4, 4.7): the 30 body bones of the biped template of
  * `lowpoly-studio/`, in parent order, the two eye bones that `pnpm studio-body` adds, so that the
- * eyes blink (design 5.1), and the optional tip of a tail of two bones and jaw of a beak
- * ({@link OPTIONAL_STUDIO_BONES}). The optional bones come last, so that the index of each other
- * bone stays. The names keep the spelling of the studio. The packed skin
- * names each bone by its index in this list.
+ * eyes blink (design 5.1), and the optional bones ({@link OPTIONAL_STUDIO_BONES}): the tip of a
+ * tail of two bones, the jaw of a beak, and the arm segments and helpers
+ * ({@link ARM_SEGMENT_BONES}). The optional bones come last, so that the index of each other bone
+ * stays. The names keep the spelling of the studio. The packed skin names each bone by its index
+ * in this list.
  */
 export const STUDIO_BONES = [
   'root',
@@ -57,6 +98,7 @@ export const STUDIO_BONES = [
   'eye_R',
   'tail_tip',
   'jaw',
+  ...ARM_SEGMENT_BONES,
 ] as const;
 
 /** A bone of a studio body. */
@@ -64,12 +106,13 @@ export type StudioBone = (typeof STUDIO_BONES)[number];
 
 /**
  * The bones that a studio body can lack: the tip of a tail of two bones, as the rig of the fox
- * mesh has, and the jaw of a beak that opens, as the rig of the penguin mesh has (design 4.4,
- * 4.7). The `tail` bone then holds the root of the tail, and the `jaw` bone the lower part of the
- * beak, at the hinge of the beak. A body with no tip or no jaw, such as the bear or the rabbit, has
- * no vertex on it.
+ * mesh has, the jaw of a beak that opens, as the rig of the penguin mesh has, and the arm segments
+ * and helpers, as the rig of the polar bear mesh has (design 4.4, 4.7). The `tail` bone then holds
+ * the root of the tail, and the `jaw` bone the lower part of the beak, at the hinge of the beak. A
+ * body with no tip, no jaw, or no arm segments, such as the bear or the rabbit, has no vertex on
+ * them.
  */
-export const OPTIONAL_STUDIO_BONES = ['tail_tip', 'jaw'] as const;
+export const OPTIONAL_STUDIO_BONES = ['tail_tip', 'jaw', ...ARM_SEGMENT_BONES] as const;
 
 /** A bone that a studio body can lack. */
 type OptionalStudioBone = (typeof OPTIONAL_STUDIO_BONES)[number];
@@ -117,6 +160,26 @@ export const STUDIO_PARENTS = {
   eye_R: 'head',
   tail_tip: 'tail',
   jaw: 'head',
+  upper_arm_seg0_L: 'upper_arm_L',
+  upper_arm_seg1_L: 'upper_arm_L',
+  upper_arm_seg2_L: 'upper_arm_L',
+  upper_arm_seg3_L: 'upper_arm_L',
+  forearm_seg0_L: 'forearm_L',
+  forearm_seg1_L: 'forearm_L',
+  forearm_seg2_L: 'forearm_L',
+  forearm_seg3_L: 'forearm_L',
+  elbow_L: 'upper_arm_L',
+  wrist_L: 'forearm_twist_L',
+  upper_arm_seg0_R: 'upper_arm_R',
+  upper_arm_seg1_R: 'upper_arm_R',
+  upper_arm_seg2_R: 'upper_arm_R',
+  upper_arm_seg3_R: 'upper_arm_R',
+  forearm_seg0_R: 'forearm_R',
+  forearm_seg1_R: 'forearm_R',
+  forearm_seg2_R: 'forearm_R',
+  forearm_seg3_R: 'forearm_R',
+  elbow_R: 'upper_arm_R',
+  wrist_R: 'forearm_twist_R',
 } as const satisfies Readonly<Record<StudioBone, StudioBone | null>>;
 
 /** A side of the body: the left side of the animal is at -x (design 4.4). */
