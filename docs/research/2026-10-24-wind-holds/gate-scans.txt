@@ -1,0 +1,1105 @@
+## gate1.log
+
+> node tools/arm-check.ts clarinetist oboist flutist --jobs 8 --variant wolf --set clarinet\@wolf.play\=holdTurn\(-5\,0\)\;clarinet\@wolf.lipShift\=0\,-0.18\,0.4\;clarinet\@wolf.rest\=holdTurn\(-38\,0\)\;clarinet\@wolf.restShift\=0\,-0.596\,-0.062\;clarinet\@wolf.restPoleL\=-1\,-1\,0\;clarinet\@wolf.restPoleR\=1\,-1\,0\;clarinet\@wolf.aimSide\=0.5 --variant wolf0 --set clarinet\@wolf.play\=holdTurn\(-5\,0\)\;clarinet\@wolf.lipShift\=0\,-0.18\,0.4\;clarinet\@wolf.rest\=holdTurn\(-38\,0\)\;clarinet\@wolf.restShift\=0\,-0.596\,-0.062\;clarinet\@wolf.restPoleL\=-1\,-1\,0\;clarinet\@wolf.restPoleR\=1\,-1\,0 --variant mouse --set oboe\@mouse.rest\=holdTurn\(-35\,0\)\;oboe\@mouse.restShift\=0.1\,-0.485\,-0.12\;oboe\@mouse.aimSide\=0.5\;oboe\@mouse.play\=holdTurn\(-10\,0\) --variant mouse0 --set oboe\@mouse.rest\=holdTurn\(-35\,0\)\;oboe\@mouse.restShift\=0.1\,-0.485\,-0.12\;oboe\@mouse.play\=holdTurn\(-10\,0\) --variant fox --set flute\@fox-tan.rest\=0.16754\,-0.37163\,-0.63921\,0.65210\;flute\@fox-tan.restShift\=0.62\,-0.61\,0.71
+
+| Variant | Role | Arm | folds p95 (8) | twist p95 (55) | forearm twist p95 (80) | flat p5 (0.55) | paw twist p95 (170) | paw swing p95 (70) | paw jumps (0.5%) | stretch p95 (0.35) | grip turn p50 (45) | move twist max (176) | move turn max (3000) | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| wolf | clarinetist | L | 3 | 60 FAIL | 34 | 0.72 | 118 | 59 | 0.0% | 0.24 | 28 | 118 | 252 | FAIL |
+| wolf | clarinetist | R | 3 | 86 FAIL | 43 | 0.69 | 114 | 32 | 0.0% | 0.12 | 18 | 114 | 197 | FAIL |
+| wolf | oboist | L | 2 | 18 | 54 | 0.62 | 152 | 38 | 0.0% | 0.20 | 3 | 152 | 191 | PASS |
+| wolf | oboist | R | 5 | 28 | 31 | 0.85 | 86 | 26 | 0.0% | 0.23 | 5 | 86 | 117 | PASS |
+| wolf | flutist | L | 3 | 28 | 34 | 0.65 | 122 | 42 | 0.0% | 0.14 | 0 | 137 | 300 | PASS |
+| wolf | flutist | R | 8 | 48 | 33 | 0.58 | 115 | 31 | 0.0% | 0.16 | 4 | 131 | 432 | PASS |
+| wolf0 | clarinetist | L | 3 | 60 FAIL | 34 | 0.72 | 118 | 53 | 0.0% | 0.23 | 14 | 118 | 242 | FAIL |
+| wolf0 | clarinetist | R | 3 | 86 FAIL | 43 | 0.69 | 114 | 32 | 0.0% | 0.08 | 8 | 114 | 161 | FAIL |
+| wolf0 | oboist | L | 2 | 18 | 54 | 0.62 | 152 | 38 | 0.0% | 0.20 | 3 | 152 | 191 | PASS |
+| wolf0 | oboist | R | 5 | 28 | 31 | 0.85 | 86 | 26 | 0.0% | 0.23 | 5 | 86 | 117 | PASS |
+| wolf0 | flutist | L | 3 | 28 | 34 | 0.65 | 122 | 42 | 0.0% | 0.14 | 0 | 137 | 300 | PASS |
+| wolf0 | flutist | R | 8 | 48 | 33 | 0.58 | 115 | 31 | 0.0% | 0.16 | 4 | 131 | 432 | PASS |
+| mouse | clarinetist | L | 0 | 18 | 27 | 0.78 | 93 | 44 | 0.0% | 0.13 | 7 | 93 | 158 | PASS |
+| mouse | clarinetist | R | 0 | 29 | 22 | 0.91 | 62 | 29 | 0.0% | 0.04 | 7 | 62 | 106 | PASS |
+| mouse | oboist | L | 6 | 33 | 63 | 0.53 FAIL | 175 FAIL | 45 | 0.0% | 0.08 | 24 | 175 | 246 | FAIL |
+| mouse | oboist | R | 16 FAIL | 61 FAIL | 57 | 0.75 | 127 | 32 | 0.0% | 0.13 | 19 | 127 | 166 | FAIL |
+| mouse | flutist | L | 3 | 28 | 34 | 0.65 | 122 | 42 | 0.0% | 0.14 | 0 | 137 | 300 | PASS |
+| mouse | flutist | R | 8 | 48 | 33 | 0.58 | 115 | 31 | 0.0% | 0.16 | 4 | 131 | 432 | PASS |
+| mouse0 | clarinetist | L | 0 | 18 | 27 | 0.78 | 93 | 44 | 0.0% | 0.13 | 7 | 93 | 158 | PASS |
+| mouse0 | clarinetist | R | 0 | 29 | 22 | 0.91 | 62 | 29 | 0.0% | 0.04 | 7 | 62 | 106 | PASS |
+| mouse0 | oboist | L | 6 | 33 | 63 | 0.53 FAIL | 175 FAIL | 42 | 0.0% | 0.09 | 8 | 175 | 245 | FAIL |
+| mouse0 | oboist | R | 16 FAIL | 61 FAIL | 57 | 0.75 | 127 | 32 | 0.0% | 0.13 | 7 | 127 | 133 | FAIL |
+| mouse0 | flutist | L | 3 | 28 | 34 | 0.65 | 122 | 42 | 0.0% | 0.14 | 0 | 137 | 300 | PASS |
+| mouse0 | flutist | R | 8 | 48 | 33 | 0.58 | 115 | 31 | 0.0% | 0.16 | 4 | 131 | 432 | PASS |
+| fox | clarinetist | L | 0 | 18 | 27 | 0.78 | 93 | 44 | 0.0% | 0.13 | 7 | 93 | 158 | PASS |
+| fox | clarinetist | R | 0 | 29 | 22 | 0.91 | 62 | 29 | 0.0% | 0.04 | 7 | 62 | 106 | PASS |
+| fox | oboist | L | 2 | 18 | 54 | 0.62 | 152 | 38 | 0.0% | 0.20 | 3 | 152 | 191 | PASS |
+| fox | oboist | R | 5 | 28 | 31 | 0.85 | 86 | 26 | 0.0% | 0.23 | 5 | 86 | 117 | PASS |
+| fox | flutist | L | 3 | 28 | 33 | 0.65 | 121 | 44 | 0.0% | 0.14 | 0 | 132 | 316 | PASS |
+| fox | flutist | R | 12 FAIL | 63 FAIL | 34 | 0.52 FAIL | 120 | 36 | 0.0% | 0.06 | 4 | 121 | 229 | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| clarinetist | L | twist p95 | rest | 7 | 60 | 60 | 100.0% | 60 at beethoven-9.mid rest | 60 | 55 | - | FAIL |
+| clarinetist | R | twist p95 | rest | 7 | 86 | 86 | 100.0% | 86 at beethoven-9.mid rest | 86 | 55 | - | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| clarinetist | L | twist p95 | rest | 7 | 60 | 60 | 100.0% | 60 at beethoven-9.mid rest | 60 | 55 | - | FAIL |
+| clarinetist | R | twist p95 | rest | 7 | 86 | 86 | 100.0% | 86 at beethoven-9.mid rest | 86 | 55 | - | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| oboist | L | flat p5 | rest | 11 | 0.53 | 0.53 | 100.0% | 0.53 at boulanger-matin.mid rest | 0.53 | 0.55 | - | FAIL |
+| oboist | L | paw twist p95 | rest | 11 | 175 | 175 | 100.0% | 175 at mozart-k315.mid rest | 175 | 170 | - | FAIL |
+| oboist | R | folds p95 | rest | 11 | 16 | 16 | 100.0% | 16 at bach-bwv1047.mid rest | 16 | 8 | - | FAIL |
+| oboist | R | twist p95 | rest | 11 | 61 | 61 | 100.0% | 61 at boulanger-matin.mid rest | 61 | 55 | - | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| oboist | L | flat p5 | rest | 11 | 0.53 | 0.53 | 100.0% | 0.53 at boulanger-matin.mid rest | 0.53 | 0.55 | - | FAIL |
+| oboist | L | paw twist p95 | rest | 11 | 175 | 175 | 100.0% | 175 at mozart-k315.mid rest | 175 | 170 | - | FAIL |
+| oboist | R | folds p95 | rest | 11 | 16 | 16 | 100.0% | 16 at bach-bwv1047.mid rest | 16 | 8 | - | FAIL |
+| oboist | R | twist p95 | rest | 11 | 61 | 61 | 100.0% | 61 at boulanger-matin.mid rest | 61 | 55 | - | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| flutist | R | folds p95 | rest | 10 | 11 | 12 | 100.0% | 12 at bach-bwv1050.mid rest | 12 | 8 | - | FAIL |
+| flutist | R | twist p95 | rest | 10 | 63 | 63 | 100.0% | 63 at boulanger-matin.mid rest | 63 | 55 | - | FAIL |
+| flutist | R | flat p5 | rest | 10 | 0.52 | 0.52 | 100.0% | 0.52 at bach-bwv1050.mid rest | 0.52 | 0.55 | - | FAIL |
+
+## armv-wolfrest.log
+
+> node tools/arm-check.ts clarinetist --jobs 8 --variant s0\,-0.596\,-0.062p0.3\,-1\,0 --set clarinet\@wolf.play\=holdTurn\(-5\,0\)\;clarinet\@wolf.lipShift\=0\,-0.18\,0.4\;clarinet\@wolf.aimSide\=0.5\;clarinet\@wolf.rest\=holdTurn\(-38\,0\)\;clarinet\@wolf.restShift\=0\,-0.596\,-0.062\;clarinet\@wolf.restPoleL\=-0.3\,-1\,0\;clarinet\@wolf.restPoleR\=0.3\,-1\,0 --variant s0\,-0.596\,-0.062p0.6\,-1\,0 --set clarinet\@wolf.play\=holdTurn\(-5\,0\)\;clarinet\@wolf.lipShift\=0\,-0.18\,0.4\;clarinet\@wolf.aimSide\=0.5\;clarinet\@wolf.rest\=holdTurn\(-38\,0\)\;clarinet\@wolf.restShift\=0\,-0.596\,-0.062\;clarinet\@wolf.restPoleL\=-0.6\,-1\,0\;clarinet\@wolf.restPoleR\=0.6\,-1\,0 --variant s0\,-0.596\,-0.062p0.6\,-1\,-0.4 --set clarinet\@wolf.play\=holdTurn\(-5\,0\)\;clarinet\@wolf.lipShift\=0\,-0.18\,0.4\;clarinet\@wolf.aimSide\=0.5\;clarinet\@wolf.rest\=holdTurn\(-38\,0\)\;clarinet\@wolf.restShift\=0\,-0.596\,-0.062\;clarinet\@wolf.restPoleL\=-0.6\,-1\,-0.4\;clarinet\@wolf.restPoleR\=0.6\,-1\,-0.4 --variant s0\,-0.596\,-0.062p1\,-1\,-0.5 --set clarinet\@wolf.play\=holdTurn\(-5\,0\)\;clarinet\@wolf.lipShift\=0\,-0.18\,0.4\;clarinet\@wolf.aimSide\=0.5\;clarinet\@wolf.rest\=holdTurn\(-38\,0\)\;clarinet\@wolf.restShift\=0\,-0.596\,-0.062\;clarinet\@wolf.restPoleL\=-1\,-1\,-0.5\;clarinet\@wolf.restPoleR\=1\,-1\,-0.5 --variant s0\,-0.596\,-0.062p0.3\,-1\,-0.4 --set clarinet\@wolf.play\=holdTurn\(-5\,0\)\;clarinet\@wolf.lipShift\=0\,-0.18\,0.4\;clarinet\@wolf.aimSide\=0.5\;clarinet\@wolf.rest\=holdTurn\(-38\,0\)\;clarinet\@wolf.restShift\=0\,-0.596\,-0.062\;clarinet\@wolf.restPoleL\=-0.3\,-1\,-0.4\;clarinet\@wolf.restPoleR\=0.3\,-1\,-0.4 --variant s0\,-0.596\,-0.2p0.3\,-1\,0 --set clarinet\@wolf.play\=holdTurn\(-5\,0\)\;clarinet\@wolf.lipShift\=0\,-0.18\,0.4\;clarinet\@wolf.aimSide\=0.5\;clarinet\@wolf.rest\=holdTurn\(-38\,0\)\;clarinet\@wolf.restShift\=0\,-0.596\,-0.2\;clarinet\@wolf.restPoleL\=-0.3\,-1\,0\;clarinet\@wolf.restPoleR\=0.3\,-1\,0 --variant s0\,-0.596\,-0.2p0.6\,-1\,0 --set clarinet\@wolf.play\=holdTurn\(-5\,0\)\;clarinet\@wolf.lipShift\=0\,-0.18\,0.4\;clarinet\@wolf.aimSide\=0.5\;clarinet\@wolf.rest\=holdTurn\(-38\,0\)\;clarinet\@wolf.restShift\=0\,-0.596\,-0.2\;clarinet\@wolf.restPoleL\=-0.6\,-1\,0\;clarinet\@wolf.restPoleR\=0.6\,-1\,0 --variant s0\,-0.596\,-0.2p0.6\,-1\,-0.4 --set clarinet\@wolf.play\=holdTurn\(-5\,0\)\;clarinet\@wolf.lipShift\=0\,-0.18\,0.4\;clarinet\@wolf.aimSide\=0.5\;clarinet\@wolf.rest\=holdTurn\(-38\,0\)\;clarinet\@wolf.restShift\=0\,-0.596\,-0.2\;clarinet\@wolf.restPoleL\=-0.6\,-1\,-0.4\;clarinet\@wolf.restPoleR\=0.6\,-1\,-0.4 --variant s0\,-0.596\,-0.2p1\,-1\,-0.5 --set clarinet\@wolf.play\=holdTurn\(-5\,0\)\;clarinet\@wolf.lipShift\=0\,-0.18\,0.4\;clarinet\@wolf.aimSide\=0.5\;clarinet\@wolf.rest\=holdTurn\(-38\,0\)\;clarinet\@wolf.restShift\=0\,-0.596\,-0.2\;clarinet\@wolf.restPoleL\=-1\,-1\,-0.5\;clarinet\@wolf.restPoleR\=1\,-1\,-0.5 --variant s0\,-0.596\,-0.2p0.3\,-1\,-0.4 --set clarinet\@wolf.play\=holdTurn\(-5\,0\)\;clarinet\@wolf.lipShift\=0\,-0.18\,0.4\;clarinet\@wolf.aimSide\=0.5\;clarinet\@wolf.rest\=holdTurn\(-38\,0\)\;clarinet\@wolf.restShift\=0\,-0.596\,-0.2\;clarinet\@wolf.restPoleL\=-0.3\,-1\,-0.4\;clarinet\@wolf.restPoleR\=0.3\,-1\,-0.4 --variant s0\,-0.55\,-0.3p0.3\,-1\,0 --set clarinet\@wolf.play\=holdTurn\(-5\,0\)\;clarinet\@wolf.lipShift\=0\,-0.18\,0.4\;clarinet\@wolf.aimSide\=0.5\;clarinet\@wolf.rest\=holdTurn\(-38\,0\)\;clarinet\@wolf.restShift\=0\,-0.55\,-0.3\;clarinet\@wolf.restPoleL\=-0.3\,-1\,0\;clarinet\@wolf.restPoleR\=0.3\,-1\,0 --variant s0\,-0.55\,-0.3p0.6\,-1\,0 --set clarinet\@wolf.play\=holdTurn\(-5\,0\)\;clarinet\@wolf.lipShift\=0\,-0.18\,0.4\;clarinet\@wolf.aimSide\=0.5\;clarinet\@wolf.rest\=holdTurn\(-38\,0\)\;clarinet\@wolf.restShift\=0\,-0.55\,-0.3\;clarinet\@wolf.restPoleL\=-0.6\,-1\,0\;clarinet\@wolf.restPoleR\=0.6\,-1\,0 --variant s0\,-0.55\,-0.3p0.6\,-1\,-0.4 --set clarinet\@wolf.play\=holdTurn\(-5\,0\)\;clarinet\@wolf.lipShift\=0\,-0.18\,0.4\;clarinet\@wolf.aimSide\=0.5\;clarinet\@wolf.rest\=holdTurn\(-38\,0\)\;clarinet\@wolf.restShift\=0\,-0.55\,-0.3\;clarinet\@wolf.restPoleL\=-0.6\,-1\,-0.4\;clarinet\@wolf.restPoleR\=0.6\,-1\,-0.4 --variant s0\,-0.55\,-0.3p1\,-1\,-0.5 --set clarinet\@wolf.play\=holdTurn\(-5\,0\)\;clarinet\@wolf.lipShift\=0\,-0.18\,0.4\;clarinet\@wolf.aimSide\=0.5\;clarinet\@wolf.rest\=holdTurn\(-38\,0\)\;clarinet\@wolf.restShift\=0\,-0.55\,-0.3\;clarinet\@wolf.restPoleL\=-1\,-1\,-0.5\;clarinet\@wolf.restPoleR\=1\,-1\,-0.5 --variant s0\,-0.55\,-0.3p0.3\,-1\,-0.4 --set clarinet\@wolf.play\=holdTurn\(-5\,0\)\;clarinet\@wolf.lipShift\=0\,-0.18\,0.4\;clarinet\@wolf.aimSide\=0.5\;clarinet\@wolf.rest\=holdTurn\(-38\,0\)\;clarinet\@wolf.restShift\=0\,-0.55\,-0.3\;clarinet\@wolf.restPoleL\=-0.3\,-1\,-0.4\;clarinet\@wolf.restPoleR\=0.3\,-1\,-0.4
+
+| Variant | Role | Arm | folds p95 (8) | twist p95 (55) | forearm twist p95 (80) | flat p5 (0.55) | paw twist p95 (170) | paw swing p95 (70) | paw jumps (0.5%) | stretch p95 (0.35) | grip turn p50 (45) | move twist max (176) | move turn max (3000) | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| s0,-0.596,-0.062p0.3,-1,0 | clarinetist | L | 4 | 58 FAIL | 29 | 0.72 | 98 | 59 | 0.0% | 0.20 | 28 | 98 | 210 | FAIL |
+| s0,-0.596,-0.062p0.3,-1,0 | clarinetist | R | 2 | 83 FAIL | 37 | 0.75 | 100 | 30 | 0.0% | 0.10 | 18 | 100 | 180 | FAIL |
+| s0,-0.596,-0.062p0.6,-1,0 | clarinetist | L | 4 | 59 FAIL | 32 | 0.73 | 108 | 59 | 0.0% | 0.22 | 28 | 108 | 231 | FAIL |
+| s0,-0.596,-0.062p0.6,-1,0 | clarinetist | R | 3 | 85 FAIL | 40 | 0.72 | 108 | 30 | 0.0% | 0.11 | 18 | 108 | 189 | FAIL |
+| s0,-0.596,-0.062p0.6,-1,-0.4 | clarinetist | L | 4 | 61 FAIL | 36 | 0.72 | 124 | 59 | 0.0% | 0.25 | 28 | 124 | 257 | FAIL |
+| s0,-0.596,-0.062p0.6,-1,-0.4 | clarinetist | R | 5 | 90 FAIL | 51 | 0.62 | 133 | 37 | 0.0% | 0.13 | 18 | 133 | 214 | FAIL |
+| s0,-0.596,-0.062p1,-1,-0.5 | clarinetist | L | 5 | 61 FAIL | 40 | 0.71 | 137 | 59 | 0.0% | 0.26 | 28 | 137 | 278 | FAIL |
+| s0,-0.596,-0.062p1,-1,-0.5 | clarinetist | R | 5 | 91 FAIL | 53 | 0.60 | 137 | 38 | 0.0% | 0.14 | 18 | 137 | 216 | FAIL |
+| s0,-0.596,-0.062p0.3,-1,-0.4 | clarinetist | L | 3 | 60 FAIL | 34 | 0.72 | 116 | 59 | 0.0% | 0.23 | 28 | 116 | 240 | FAIL |
+| s0,-0.596,-0.062p0.3,-1,-0.4 | clarinetist | R | 5 | 90 FAIL | 51 | 0.61 | 133 | 37 | 0.0% | 0.13 | 18 | 133 | 224 | FAIL |
+| s0,-0.596,-0.2p0.3,-1,0 | clarinetist | L | 3 | 49 | 28 | 0.75 | 96 | 59 | 0.0% | 0.18 | 28 | 96 | 197 | PASS |
+| s0,-0.596,-0.2p0.3,-1,0 | clarinetist | R | 0 | 72 FAIL | 34 | 0.79 | 94 | 29 | 0.0% | 0.09 | 18 | 94 | 173 | FAIL |
+| s0,-0.596,-0.2p0.6,-1,0 | clarinetist | L | 2 | 51 | 31 | 0.76 | 106 | 59 | 0.0% | 0.20 | 28 | 106 | 218 | PASS |
+| s0,-0.596,-0.2p0.6,-1,0 | clarinetist | R | 1 | 76 FAIL | 38 | 0.75 | 103 | 28 | 0.0% | 0.10 | 18 | 103 | 183 | FAIL |
+| s0,-0.596,-0.2p0.6,-1,-0.4 | clarinetist | L | 3 | 54 | 35 | 0.75 | 121 | 59 | 0.0% | 0.23 | 28 | 121 | 240 | PASS |
+| s0,-0.596,-0.2p0.6,-1,-0.4 | clarinetist | R | 3 | 82 FAIL | 48 | 0.66 | 126 | 33 | 0.0% | 0.12 | 18 | 126 | 197 | FAIL |
+| s0,-0.596,-0.2p1,-1,-0.5 | clarinetist | L | 3 | 56 FAIL | 39 | 0.74 | 134 | 59 | 0.0% | 0.25 | 28 | 134 | 261 | FAIL |
+| s0,-0.596,-0.2p1,-1,-0.5 | clarinetist | R | 3 | 84 FAIL | 51 | 0.64 | 132 | 34 | 0.0% | 0.13 | 18 | 132 | 210 | FAIL |
+| s0,-0.596,-0.2p0.3,-1,-0.4 | clarinetist | L | 2 | 52 | 32 | 0.76 | 111 | 59 | 0.0% | 0.21 | 28 | 111 | 222 | PASS |
+| s0,-0.596,-0.2p0.3,-1,-0.4 | clarinetist | R | 2 | 81 FAIL | 46 | 0.68 | 123 | 32 | 0.0% | 0.12 | 18 | 123 | 190 | FAIL |
+| s0,-0.55,-0.3p0.3,-1,0 | clarinetist | L | 2 | 42 | 28 | 0.77 | 94 | 59 | 0.0% | 0.17 | 28 | 94 | 190 | PASS |
+| s0,-0.55,-0.3p0.3,-1,0 | clarinetist | R | 0 | 65 FAIL | 32 | 0.82 | 89 | 28 | 0.0% | 0.09 | 18 | 89 | 169 | FAIL |
+| s0,-0.55,-0.3p0.6,-1,0 | clarinetist | L | 2 | 45 | 31 | 0.78 | 105 | 59 | 0.0% | 0.19 | 28 | 105 | 212 | PASS |
+| s0,-0.55,-0.3p0.6,-1,0 | clarinetist | R | 0 | 69 FAIL | 37 | 0.78 | 100 | 28 | 0.0% | 0.10 | 18 | 100 | 179 | FAIL |
+| s0,-0.55,-0.3p0.6,-1,-0.4 | clarinetist | L | 2 | 48 | 35 | 0.77 | 118 | 59 | 0.0% | 0.22 | 28 | 118 | 230 | PASS |
+| s0,-0.55,-0.3p0.6,-1,-0.4 | clarinetist | R | 2 | 75 FAIL | 45 | 0.70 | 120 | 31 | 0.0% | 0.12 | 18 | 120 | 195 | FAIL |
+| s0,-0.55,-0.3p1,-1,-0.5 | clarinetist | L | 1 | 51 | 39 | 0.76 | 131 | 59 | 0.0% | 0.23 | 28 | 131 | 251 | PASS |
+| s0,-0.55,-0.3p1,-1,-0.5 | clarinetist | R | 3 | 78 FAIL | 49 | 0.67 | 128 | 33 | 0.0% | 0.12 | 18 | 128 | 205 | FAIL |
+| s0,-0.55,-0.3p0.3,-1,-0.4 | clarinetist | L | 2 | 46 | 32 | 0.78 | 107 | 59 | 0.0% | 0.20 | 28 | 107 | 211 | PASS |
+| s0,-0.55,-0.3p0.3,-1,-0.4 | clarinetist | R | 2 | 74 FAIL | 43 | 0.73 | 114 | 30 | 0.0% | 0.11 | 18 | 114 | 184 | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| clarinetist | L | twist p95 | rest | 7 | 58 | 58 | 100.0% | 58 at beethoven-9.mid rest | 58 | 55 | - | FAIL |
+| clarinetist | R | twist p95 | rest | 7 | 83 | 83 | 100.0% | 83 at beethoven-9.mid rest | 83 | 55 | - | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| clarinetist | L | twist p95 | rest | 7 | 59 | 59 | 100.0% | 59 at beethoven-9.mid rest | 59 | 55 | - | FAIL |
+| clarinetist | R | twist p95 | rest | 7 | 85 | 85 | 100.0% | 85 at beethoven-9.mid rest | 85 | 55 | - | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| clarinetist | L | twist p95 | rest | 7 | 61 | 61 | 100.0% | 61 at beethoven-9.mid rest | 61 | 55 | - | FAIL |
+| clarinetist | R | twist p95 | rest | 7 | 90 | 90 | 100.0% | 90 at beethoven-9.mid rest | 90 | 55 | - | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| clarinetist | L | twist p95 | rest | 7 | 61 | 61 | 100.0% | 61 at boulanger-matin.mid rest | 61 | 55 | - | FAIL |
+| clarinetist | R | twist p95 | rest | 7 | 91 | 91 | 100.0% | 91 at beethoven-9.mid rest | 91 | 55 | - | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| clarinetist | L | twist p95 | rest | 7 | 60 | 60 | 100.0% | 60 at beethoven-9.mid rest | 60 | 55 | - | FAIL |
+| clarinetist | R | twist p95 | rest | 7 | 90 | 90 | 100.0% | 90 at beethoven-9.mid rest | 90 | 55 | - | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| clarinetist | R | twist p95 | rest | 7 | 72 | 72 | 100.0% | 72 at beethoven-9.mid rest | 72 | 55 | - | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| clarinetist | R | twist p95 | rest | 7 | 76 | 76 | 100.0% | 76 at beethoven-9.mid rest | 76 | 55 | - | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| clarinetist | R | twist p95 | rest | 7 | 82 | 82 | 100.0% | 82 at beethoven-9.mid rest | 82 | 55 | - | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| clarinetist | L | twist p95 | rest | 7 | 56 | 56 | 100.0% | 56 at boulanger-matin.mid rest | 56 | 55 | - | FAIL |
+| clarinetist | R | twist p95 | rest | 7 | 84 | 84 | 100.0% | 84 at beethoven-9.mid rest | 84 | 55 | - | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| clarinetist | R | twist p95 | rest | 7 | 81 | 81 | 100.0% | 81 at beethoven-9.mid rest | 81 | 55 | - | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| clarinetist | R | twist p95 | rest | 7 | 65 | 65 | 100.0% | 65 at beethoven-1.mid rest | 65 | 55 | - | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| clarinetist | R | twist p95 | rest | 7 | 69 | 69 | 100.0% | 69 at beethoven-9.mid rest | 69 | 55 | - | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| clarinetist | R | twist p95 | rest | 7 | 75 | 75 | 100.0% | 75 at beethoven-9.mid rest | 75 | 55 | - | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| clarinetist | R | twist p95 | rest | 7 | 78 | 78 | 100.0% | 78 at beethoven-9.mid rest | 78 | 55 | - | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| clarinetist | R | twist p95 | rest | 7 | 74 | 74 | 100.0% | 74 at beethoven-9.mid rest | 74 | 55 | - | FAIL |
+
+## armv-wolfrest2.log
+
+> node tools/arm-check.ts clarinetist --jobs 8 --variant t-25s0\,-0.55\,-0.3p0.3\,-1\,0 --set clarinet\@wolf.play\=holdTurn\(-5\,0\)\;clarinet\@wolf.lipShift\=0\,-0.18\,0.4\;clarinet\@wolf.aimSide\=0.5\;clarinet\@wolf.rest\=holdTurn\(-25\,0\)\;clarinet\@wolf.restShift\=0\,-0.55\,-0.3\;clarinet\@wolf.restPoleL\=-0.3\,-1\,0\;clarinet\@wolf.restPoleR\=0.3\,-1\,0 --variant t-25s0\,-0.55\,-0.3p0.3\,-1\,0.4 --set clarinet\@wolf.play\=holdTurn\(-5\,0\)\;clarinet\@wolf.lipShift\=0\,-0.18\,0.4\;clarinet\@wolf.aimSide\=0.5\;clarinet\@wolf.rest\=holdTurn\(-25\,0\)\;clarinet\@wolf.restShift\=0\,-0.55\,-0.3\;clarinet\@wolf.restPoleL\=-0.3\,-1\,0.4\;clarinet\@wolf.restPoleR\=0.3\,-1\,0.4 --variant t-25s0\,-0.55\,-0.3p0.6\,-1\,0.4 --set clarinet\@wolf.play\=holdTurn\(-5\,0\)\;clarinet\@wolf.lipShift\=0\,-0.18\,0.4\;clarinet\@wolf.aimSide\=0.5\;clarinet\@wolf.rest\=holdTurn\(-25\,0\)\;clarinet\@wolf.restShift\=0\,-0.55\,-0.3\;clarinet\@wolf.restPoleL\=-0.6\,-1\,0.4\;clarinet\@wolf.restPoleR\=0.6\,-1\,0.4 --variant t-25s0\,-0.5\,-0.4p0.3\,-1\,0 --set clarinet\@wolf.play\=holdTurn\(-5\,0\)\;clarinet\@wolf.lipShift\=0\,-0.18\,0.4\;clarinet\@wolf.aimSide\=0.5\;clarinet\@wolf.rest\=holdTurn\(-25\,0\)\;clarinet\@wolf.restShift\=0\,-0.5\,-0.4\;clarinet\@wolf.restPoleL\=-0.3\,-1\,0\;clarinet\@wolf.restPoleR\=0.3\,-1\,0 --variant t-25s0\,-0.5\,-0.4p0.3\,-1\,0.4 --set clarinet\@wolf.play\=holdTurn\(-5\,0\)\;clarinet\@wolf.lipShift\=0\,-0.18\,0.4\;clarinet\@wolf.aimSide\=0.5\;clarinet\@wolf.rest\=holdTurn\(-25\,0\)\;clarinet\@wolf.restShift\=0\,-0.5\,-0.4\;clarinet\@wolf.restPoleL\=-0.3\,-1\,0.4\;clarinet\@wolf.restPoleR\=0.3\,-1\,0.4 --variant t-25s0\,-0.5\,-0.4p0.6\,-1\,0.4 --set clarinet\@wolf.play\=holdTurn\(-5\,0\)\;clarinet\@wolf.lipShift\=0\,-0.18\,0.4\;clarinet\@wolf.aimSide\=0.5\;clarinet\@wolf.rest\=holdTurn\(-25\,0\)\;clarinet\@wolf.restShift\=0\,-0.5\,-0.4\;clarinet\@wolf.restPoleL\=-0.6\,-1\,0.4\;clarinet\@wolf.restPoleR\=0.6\,-1\,0.4 --variant t-15s0\,-0.55\,-0.3p0.3\,-1\,0 --set clarinet\@wolf.play\=holdTurn\(-5\,0\)\;clarinet\@wolf.lipShift\=0\,-0.18\,0.4\;clarinet\@wolf.aimSide\=0.5\;clarinet\@wolf.rest\=holdTurn\(-15\,0\)\;clarinet\@wolf.restShift\=0\,-0.55\,-0.3\;clarinet\@wolf.restPoleL\=-0.3\,-1\,0\;clarinet\@wolf.restPoleR\=0.3\,-1\,0 --variant t-15s0\,-0.55\,-0.3p0.3\,-1\,0.4 --set clarinet\@wolf.play\=holdTurn\(-5\,0\)\;clarinet\@wolf.lipShift\=0\,-0.18\,0.4\;clarinet\@wolf.aimSide\=0.5\;clarinet\@wolf.rest\=holdTurn\(-15\,0\)\;clarinet\@wolf.restShift\=0\,-0.55\,-0.3\;clarinet\@wolf.restPoleL\=-0.3\,-1\,0.4\;clarinet\@wolf.restPoleR\=0.3\,-1\,0.4 --variant t-15s0\,-0.55\,-0.3p0.6\,-1\,0.4 --set clarinet\@wolf.play\=holdTurn\(-5\,0\)\;clarinet\@wolf.lipShift\=0\,-0.18\,0.4\;clarinet\@wolf.aimSide\=0.5\;clarinet\@wolf.rest\=holdTurn\(-15\,0\)\;clarinet\@wolf.restShift\=0\,-0.55\,-0.3\;clarinet\@wolf.restPoleL\=-0.6\,-1\,0.4\;clarinet\@wolf.restPoleR\=0.6\,-1\,0.4 --variant t-15s0\,-0.5\,-0.4p0.3\,-1\,0 --set clarinet\@wolf.play\=holdTurn\(-5\,0\)\;clarinet\@wolf.lipShift\=0\,-0.18\,0.4\;clarinet\@wolf.aimSide\=0.5\;clarinet\@wolf.rest\=holdTurn\(-15\,0\)\;clarinet\@wolf.restShift\=0\,-0.5\,-0.4\;clarinet\@wolf.restPoleL\=-0.3\,-1\,0\;clarinet\@wolf.restPoleR\=0.3\,-1\,0 --variant t-15s0\,-0.5\,-0.4p0.3\,-1\,0.4 --set clarinet\@wolf.play\=holdTurn\(-5\,0\)\;clarinet\@wolf.lipShift\=0\,-0.18\,0.4\;clarinet\@wolf.aimSide\=0.5\;clarinet\@wolf.rest\=holdTurn\(-15\,0\)\;clarinet\@wolf.restShift\=0\,-0.5\,-0.4\;clarinet\@wolf.restPoleL\=-0.3\,-1\,0.4\;clarinet\@wolf.restPoleR\=0.3\,-1\,0.4 --variant t-15s0\,-0.5\,-0.4p0.6\,-1\,0.4 --set clarinet\@wolf.play\=holdTurn\(-5\,0\)\;clarinet\@wolf.lipShift\=0\,-0.18\,0.4\;clarinet\@wolf.aimSide\=0.5\;clarinet\@wolf.rest\=holdTurn\(-15\,0\)\;clarinet\@wolf.restShift\=0\,-0.5\,-0.4\;clarinet\@wolf.restPoleL\=-0.6\,-1\,0.4\;clarinet\@wolf.restPoleR\=0.6\,-1\,0.4
+
+| Variant | Role | Arm | folds p95 (8) | twist p95 (55) | forearm twist p95 (80) | flat p5 (0.55) | paw twist p95 (170) | paw swing p95 (70) | paw jumps (0.5%) | stretch p95 (0.35) | grip turn p50 (45) | move twist max (176) | move turn max (3000) | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| t-25s0,-0.55,-0.3p0.3,-1,0 | clarinetist | L | 1 | 35 | 27 | 0.79 | 93 | 59 | 0.0% | 0.17 | 28 | 93 | 177 | PASS |
+| t-25s0,-0.55,-0.3p0.3,-1,0 | clarinetist | R | 0 | 47 | 28 | 0.85 | 82 | 28 | 0.0% | 0.12 | 18 | 82 | 146 | PASS |
+| t-25s0,-0.55,-0.3p0.3,-1,0.4 | clarinetist | L | 2 | 31 | 24 | 0.78 | 83 | 59 | 0.0% | 0.17 | 28 | 83 | 158 | PASS |
+| t-25s0,-0.55,-0.3p0.3,-1,0.4 | clarinetist | R | 0 | 43 | 23 | 0.88 | 68 | 31 | 0.0% | 0.12 | 18 | 68 | 135 | PASS |
+| t-25s0,-0.55,-0.3p0.6,-1,0.4 | clarinetist | L | 1 | 36 | 28 | 0.79 | 95 | 59 | 0.0% | 0.17 | 28 | 95 | 181 | PASS |
+| t-25s0,-0.55,-0.3p0.6,-1,0.4 | clarinetist | R | 0 | 47 | 28 | 0.85 | 81 | 28 | 0.0% | 0.12 | 18 | 81 | 145 | PASS |
+| t-25s0,-0.5,-0.4p0.3,-1,0 | clarinetist | L | 1 | 28 | 27 | 0.79 | 92 | 59 | 0.0% | 0.17 | 28 | 92 | 172 | PASS |
+| t-25s0,-0.5,-0.4p0.3,-1,0 | clarinetist | R | 0 | 42 | 26 | 0.86 | 79 | 28 | 0.0% | 0.20 | 18 | 79 | 138 | PASS |
+| t-25s0,-0.5,-0.4p0.3,-1,0.4 | clarinetist | L | 1 | 25 | 24 | 0.79 | 82 | 59 | 0.0% | 0.17 | 28 | 82 | 156 | PASS |
+| t-25s0,-0.5,-0.4p0.3,-1,0.4 | clarinetist | R | 0 | 39 | 22 | 0.89 | 67 | 30 | 0.0% | 0.20 | 18 | 67 | 127 | PASS |
+| t-25s0,-0.5,-0.4p0.6,-1,0.4 | clarinetist | L | 1 | 30 | 28 | 0.79 | 95 | 59 | 0.0% | 0.17 | 28 | 95 | 178 | PASS |
+| t-25s0,-0.5,-0.4p0.6,-1,0.4 | clarinetist | R | 0 | 43 | 26 | 0.85 | 79 | 28 | 0.0% | 0.20 | 18 | 79 | 138 | PASS |
+| t-15s0,-0.55,-0.3p0.3,-1,0 | clarinetist | L | 1 | 30 | 27 | 0.79 | 92 | 59 | 0.0% | 0.17 | 28 | 92 | 168 | PASS |
+| t-15s0,-0.55,-0.3p0.3,-1,0 | clarinetist | R | 2 | 39 | 25 | 0.86 | 77 | 27 | 0.0% | 0.24 | 18 | 77 | 544 | PASS |
+| t-15s0,-0.55,-0.3p0.3,-1,0.4 | clarinetist | L | 1 | 26 | 24 | 0.79 | 82 | 59 | 0.0% | 0.17 | 28 | 82 | 152 | PASS |
+| t-15s0,-0.55,-0.3p0.3,-1,0.4 | clarinetist | R | 1 | 38 | 21 | 0.89 | 66 | 28 | 0.0% | 0.24 | 18 | 66 | 549 | PASS |
+| t-15s0,-0.55,-0.3p0.6,-1,0.4 | clarinetist | L | 1 | 31 | 28 | 0.79 | 95 | 59 | 0.0% | 0.17 | 28 | 95 | 174 | PASS |
+| t-15s0,-0.55,-0.3p0.6,-1,0.4 | clarinetist | R | 2 | 40 | 26 | 0.85 | 79 | 27 | 0.0% | 0.24 | 18 | 79 | 544 | PASS |
+| t-15s0,-0.5,-0.4p0.3,-1,0 | clarinetist | L | 0 | 24 | 27 | 0.79 | 91 | 59 | 0.0% | 0.14 | 28 | 91 | 165 | PASS |
+| t-15s0,-0.5,-0.4p0.3,-1,0 | clarinetist | R | 1 | 37 | 24 | 0.87 | 75 | 26 | 0.0% | 0.24 | 18 | 75 | 597 | PASS |
+| t-15s0,-0.5,-0.4p0.3,-1,0.4 | clarinetist | L | 0 | 22 | 24 | 0.79 | 81 | 59 | 0.0% | 0.13 | 28 | 81 | 151 | PASS |
+| t-15s0,-0.5,-0.4p0.3,-1,0.4 | clarinetist | R | 1 | 37 | 21 | 0.89 | 65 | 26 | 0.0% | 0.24 | 18 | 65 | 601 | PASS |
+| t-15s0,-0.5,-0.4p0.6,-1,0.4 | clarinetist | L | 0 | 26 | 28 | 0.79 | 95 | 59 | 0.0% | 0.15 | 28 | 95 | 172 | PASS |
+| t-15s0,-0.5,-0.4p0.6,-1,0.4 | clarinetist | R | 1 | 38 | 25 | 0.86 | 78 | 25 | 0.0% | 0.24 | 18 | 78 | 596 | PASS |
+
+## armv-wolfrest3.log
+
+> node tools/arm-check.ts clarinetist --jobs 8 --variant t-25s0\,-0.6\,-0.05 --set clarinet\@wolf.play\=holdTurn\(-5\,0\)\;clarinet\@wolf.lipShift\=0\,-0.18\,0.4\;clarinet\@wolf.aimSide\=0.5\;clarinet\@wolf.restPoleL\=-0.3\,-1\,0.4\;clarinet\@wolf.restPoleR\=0.3\,-1\,0.4\;clarinet\@wolf.rest\=holdTurn\(-25\,0\)\;clarinet\@wolf.restShift\=0\,-0.6\,-0.05 --variant t-25s0\,-0.6\,-0.15 --set clarinet\@wolf.play\=holdTurn\(-5\,0\)\;clarinet\@wolf.lipShift\=0\,-0.18\,0.4\;clarinet\@wolf.aimSide\=0.5\;clarinet\@wolf.restPoleL\=-0.3\,-1\,0.4\;clarinet\@wolf.restPoleR\=0.3\,-1\,0.4\;clarinet\@wolf.rest\=holdTurn\(-25\,0\)\;clarinet\@wolf.restShift\=0\,-0.6\,-0.15 --variant t-25s0\,-0.6\,-0.22 --set clarinet\@wolf.play\=holdTurn\(-5\,0\)\;clarinet\@wolf.lipShift\=0\,-0.18\,0.4\;clarinet\@wolf.aimSide\=0.5\;clarinet\@wolf.restPoleL\=-0.3\,-1\,0.4\;clarinet\@wolf.restPoleR\=0.3\,-1\,0.4\;clarinet\@wolf.rest\=holdTurn\(-25\,0\)\;clarinet\@wolf.restShift\=0\,-0.6\,-0.22 --variant t-30s0\,-0.6\,-0.05 --set clarinet\@wolf.play\=holdTurn\(-5\,0\)\;clarinet\@wolf.lipShift\=0\,-0.18\,0.4\;clarinet\@wolf.aimSide\=0.5\;clarinet\@wolf.restPoleL\=-0.3\,-1\,0.4\;clarinet\@wolf.restPoleR\=0.3\,-1\,0.4\;clarinet\@wolf.rest\=holdTurn\(-30\,0\)\;clarinet\@wolf.restShift\=0\,-0.6\,-0.05 --variant t-30s0\,-0.6\,-0.15 --set clarinet\@wolf.play\=holdTurn\(-5\,0\)\;clarinet\@wolf.lipShift\=0\,-0.18\,0.4\;clarinet\@wolf.aimSide\=0.5\;clarinet\@wolf.restPoleL\=-0.3\,-1\,0.4\;clarinet\@wolf.restPoleR\=0.3\,-1\,0.4\;clarinet\@wolf.rest\=holdTurn\(-30\,0\)\;clarinet\@wolf.restShift\=0\,-0.6\,-0.15 --variant t-30s0\,-0.6\,-0.22 --set clarinet\@wolf.play\=holdTurn\(-5\,0\)\;clarinet\@wolf.lipShift\=0\,-0.18\,0.4\;clarinet\@wolf.aimSide\=0.5\;clarinet\@wolf.restPoleL\=-0.3\,-1\,0.4\;clarinet\@wolf.restPoleR\=0.3\,-1\,0.4\;clarinet\@wolf.rest\=holdTurn\(-30\,0\)\;clarinet\@wolf.restShift\=0\,-0.6\,-0.22
+
+| Variant | Role | Arm | folds p95 (8) | twist p95 (55) | forearm twist p95 (80) | flat p5 (0.55) | paw twist p95 (170) | paw swing p95 (70) | paw jumps (0.5%) | stretch p95 (0.35) | grip turn p50 (45) | move twist max (176) | move turn max (3000) | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| t-25s0,-0.6,-0.05 | clarinetist | L | 3 | 48 | 25 | 0.73 | 85 | 59 | 0.0% | 0.17 | 28 | 85 | 168 | PASS |
+| t-25s0,-0.6,-0.05 | clarinetist | R | 0 | 58 FAIL | 26 | 0.86 | 73 | 32 | 0.0% | 0.07 | 18 | 73 | 154 | FAIL |
+| t-25s0,-0.6,-0.15 | clarinetist | L | 3 | 41 | 25 | 0.75 | 84 | 59 | 0.0% | 0.17 | 28 | 84 | 163 | PASS |
+| t-25s0,-0.6,-0.15 | clarinetist | R | 0 | 51 | 25 | 0.87 | 71 | 31 | 0.0% | 0.09 | 18 | 71 | 146 | PASS |
+| t-25s0,-0.6,-0.22 | clarinetist | L | 2 | 36 | 24 | 0.77 | 83 | 59 | 0.0% | 0.17 | 28 | 83 | 160 | PASS |
+| t-25s0,-0.6,-0.22 | clarinetist | R | 0 | 46 | 24 | 0.88 | 70 | 31 | 0.0% | 0.11 | 18 | 70 | 139 | PASS |
+| t-30s0,-0.6,-0.05 | clarinetist | L | 3 | 51 | 25 | 0.72 | 85 | 59 | 0.0% | 0.17 | 28 | 85 | 173 | PASS |
+| t-30s0,-0.6,-0.05 | clarinetist | R | 0 | 65 FAIL | 27 | 0.84 | 76 | 31 | 0.0% | 0.07 | 18 | 76 | 159 | FAIL |
+| t-30s0,-0.6,-0.15 | clarinetist | L | 3 | 44 | 25 | 0.74 | 84 | 59 | 0.0% | 0.17 | 28 | 84 | 168 | PASS |
+| t-30s0,-0.6,-0.15 | clarinetist | R | 0 | 56 FAIL | 26 | 0.86 | 73 | 31 | 0.0% | 0.07 | 18 | 73 | 151 | FAIL |
+| t-30s0,-0.6,-0.22 | clarinetist | L | 2 | 39 | 25 | 0.76 | 84 | 59 | 0.0% | 0.17 | 28 | 84 | 164 | PASS |
+| t-30s0,-0.6,-0.22 | clarinetist | R | 0 | 51 | 25 | 0.87 | 72 | 31 | 0.0% | 0.09 | 18 | 72 | 147 | PASS |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| clarinetist | R | twist p95 | lift | 217 | 37 | 58 | 100.0% | 58 at boulanger-matin.mid wall 0.3 s | 58 | 55 | - | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| clarinetist | R | twist p95 | rest | 7 | 65 | 65 | 100.0% | 65 at boulanger-matin.mid rest | 65 | 55 | - | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| clarinetist | R | twist p95 | lift | 217 | 37 | 56 | 100.0% | 57 at beethoven-9.mid wall 0.2 s | 56 | 55 | - | FAIL |
+
+## armv-both-wolf4.log
+
+> node tools/arm-check.ts clarinetist --jobs 8 --variant t-25s0\,-0.6\,-0.2p0.3\,-1\,0 --set clarinet\@wolf.play\=holdTurn\(-5\,0\)\;clarinet\@wolf.lipShift\=0\,-0.18\,0.4\;clarinet\@wolf.aimSide\=0.5\;clarinet\@wolf.rest\=holdTurn\(-25\,0\)\;clarinet\@wolf.restShift\=0\,-0.6\,-0.2\;clarinet\@wolf.restPoleL\=-0.3\,-1\,0\;clarinet\@wolf.restPoleR\=0.3\,-1\,0 --variant t-25s0\,-0.6\,-0.2p0.6\,-1\,0 --set clarinet\@wolf.play\=holdTurn\(-5\,0\)\;clarinet\@wolf.lipShift\=0\,-0.18\,0.4\;clarinet\@wolf.aimSide\=0.5\;clarinet\@wolf.rest\=holdTurn\(-25\,0\)\;clarinet\@wolf.restShift\=0\,-0.6\,-0.2\;clarinet\@wolf.restPoleL\=-0.6\,-1\,0\;clarinet\@wolf.restPoleR\=0.6\,-1\,0 --variant t-25s0\,-0.6\,-0.2p0.6\,-1\,0.2 --set clarinet\@wolf.play\=holdTurn\(-5\,0\)\;clarinet\@wolf.lipShift\=0\,-0.18\,0.4\;clarinet\@wolf.aimSide\=0.5\;clarinet\@wolf.rest\=holdTurn\(-25\,0\)\;clarinet\@wolf.restShift\=0\,-0.6\,-0.2\;clarinet\@wolf.restPoleL\=-0.6\,-1\,0.2\;clarinet\@wolf.restPoleR\=0.6\,-1\,0.2 --variant t-25s0\,-0.6\,-0.2p1\,-1\,0 --set clarinet\@wolf.play\=holdTurn\(-5\,0\)\;clarinet\@wolf.lipShift\=0\,-0.18\,0.4\;clarinet\@wolf.aimSide\=0.5\;clarinet\@wolf.rest\=holdTurn\(-25\,0\)\;clarinet\@wolf.restShift\=0\,-0.6\,-0.2\;clarinet\@wolf.restPoleL\=-1\,-1\,0\;clarinet\@wolf.restPoleR\=1\,-1\,0 --variant t-25s0\,-0.55\,-0.3p0.3\,-1\,0 --set clarinet\@wolf.play\=holdTurn\(-5\,0\)\;clarinet\@wolf.lipShift\=0\,-0.18\,0.4\;clarinet\@wolf.aimSide\=0.5\;clarinet\@wolf.rest\=holdTurn\(-25\,0\)\;clarinet\@wolf.restShift\=0\,-0.55\,-0.3\;clarinet\@wolf.restPoleL\=-0.3\,-1\,0\;clarinet\@wolf.restPoleR\=0.3\,-1\,0 --variant t-25s0\,-0.55\,-0.3p0.6\,-1\,0 --set clarinet\@wolf.play\=holdTurn\(-5\,0\)\;clarinet\@wolf.lipShift\=0\,-0.18\,0.4\;clarinet\@wolf.aimSide\=0.5\;clarinet\@wolf.rest\=holdTurn\(-25\,0\)\;clarinet\@wolf.restShift\=0\,-0.55\,-0.3\;clarinet\@wolf.restPoleL\=-0.6\,-1\,0\;clarinet\@wolf.restPoleR\=0.6\,-1\,0 --variant t-25s0\,-0.55\,-0.3p0.6\,-1\,0.2 --set clarinet\@wolf.play\=holdTurn\(-5\,0\)\;clarinet\@wolf.lipShift\=0\,-0.18\,0.4\;clarinet\@wolf.aimSide\=0.5\;clarinet\@wolf.rest\=holdTurn\(-25\,0\)\;clarinet\@wolf.restShift\=0\,-0.55\,-0.3\;clarinet\@wolf.restPoleL\=-0.6\,-1\,0.2\;clarinet\@wolf.restPoleR\=0.6\,-1\,0.2 --variant t-25s0\,-0.55\,-0.3p1\,-1\,0 --set clarinet\@wolf.play\=holdTurn\(-5\,0\)\;clarinet\@wolf.lipShift\=0\,-0.18\,0.4\;clarinet\@wolf.aimSide\=0.5\;clarinet\@wolf.rest\=holdTurn\(-25\,0\)\;clarinet\@wolf.restShift\=0\,-0.55\,-0.3\;clarinet\@wolf.restPoleL\=-1\,-1\,0\;clarinet\@wolf.restPoleR\=1\,-1\,0 --variant t-30s0\,-0.6\,-0.2p0.3\,-1\,0 --set clarinet\@wolf.play\=holdTurn\(-5\,0\)\;clarinet\@wolf.lipShift\=0\,-0.18\,0.4\;clarinet\@wolf.aimSide\=0.5\;clarinet\@wolf.rest\=holdTurn\(-30\,0\)\;clarinet\@wolf.restShift\=0\,-0.6\,-0.2\;clarinet\@wolf.restPoleL\=-0.3\,-1\,0\;clarinet\@wolf.restPoleR\=0.3\,-1\,0 --variant t-30s0\,-0.6\,-0.2p0.6\,-1\,0 --set clarinet\@wolf.play\=holdTurn\(-5\,0\)\;clarinet\@wolf.lipShift\=0\,-0.18\,0.4\;clarinet\@wolf.aimSide\=0.5\;clarinet\@wolf.rest\=holdTurn\(-30\,0\)\;clarinet\@wolf.restShift\=0\,-0.6\,-0.2\;clarinet\@wolf.restPoleL\=-0.6\,-1\,0\;clarinet\@wolf.restPoleR\=0.6\,-1\,0 --variant t-30s0\,-0.6\,-0.2p0.6\,-1\,0.2 --set clarinet\@wolf.play\=holdTurn\(-5\,0\)\;clarinet\@wolf.lipShift\=0\,-0.18\,0.4\;clarinet\@wolf.aimSide\=0.5\;clarinet\@wolf.rest\=holdTurn\(-30\,0\)\;clarinet\@wolf.restShift\=0\,-0.6\,-0.2\;clarinet\@wolf.restPoleL\=-0.6\,-1\,0.2\;clarinet\@wolf.restPoleR\=0.6\,-1\,0.2 --variant t-30s0\,-0.6\,-0.2p1\,-1\,0 --set clarinet\@wolf.play\=holdTurn\(-5\,0\)\;clarinet\@wolf.lipShift\=0\,-0.18\,0.4\;clarinet\@wolf.aimSide\=0.5\;clarinet\@wolf.rest\=holdTurn\(-30\,0\)\;clarinet\@wolf.restShift\=0\,-0.6\,-0.2\;clarinet\@wolf.restPoleL\=-1\,-1\,0\;clarinet\@wolf.restPoleR\=1\,-1\,0 --variant t-30s0\,-0.55\,-0.3p0.3\,-1\,0 --set clarinet\@wolf.play\=holdTurn\(-5\,0\)\;clarinet\@wolf.lipShift\=0\,-0.18\,0.4\;clarinet\@wolf.aimSide\=0.5\;clarinet\@wolf.rest\=holdTurn\(-30\,0\)\;clarinet\@wolf.restShift\=0\,-0.55\,-0.3\;clarinet\@wolf.restPoleL\=-0.3\,-1\,0\;clarinet\@wolf.restPoleR\=0.3\,-1\,0 --variant t-30s0\,-0.55\,-0.3p0.6\,-1\,0 --set clarinet\@wolf.play\=holdTurn\(-5\,0\)\;clarinet\@wolf.lipShift\=0\,-0.18\,0.4\;clarinet\@wolf.aimSide\=0.5\;clarinet\@wolf.rest\=holdTurn\(-30\,0\)\;clarinet\@wolf.restShift\=0\,-0.55\,-0.3\;clarinet\@wolf.restPoleL\=-0.6\,-1\,0\;clarinet\@wolf.restPoleR\=0.6\,-1\,0 --variant t-30s0\,-0.55\,-0.3p0.6\,-1\,0.2 --set clarinet\@wolf.play\=holdTurn\(-5\,0\)\;clarinet\@wolf.lipShift\=0\,-0.18\,0.4\;clarinet\@wolf.aimSide\=0.5\;clarinet\@wolf.rest\=holdTurn\(-30\,0\)\;clarinet\@wolf.restShift\=0\,-0.55\,-0.3\;clarinet\@wolf.restPoleL\=-0.6\,-1\,0.2\;clarinet\@wolf.restPoleR\=0.6\,-1\,0.2 --variant t-30s0\,-0.55\,-0.3p1\,-1\,0 --set clarinet\@wolf.play\=holdTurn\(-5\,0\)\;clarinet\@wolf.lipShift\=0\,-0.18\,0.4\;clarinet\@wolf.aimSide\=0.5\;clarinet\@wolf.rest\=holdTurn\(-30\,0\)\;clarinet\@wolf.restShift\=0\,-0.55\,-0.3\;clarinet\@wolf.restPoleL\=-1\,-1\,0\;clarinet\@wolf.restPoleR\=1\,-1\,0
+
+| Variant | Role | Arm | folds p95 (8) | twist p95 (55) | forearm twist p95 (80) | flat p5 (0.55) | paw twist p95 (170) | paw swing p95 (70) | paw jumps (0.5%) | stretch p95 (0.35) | grip turn p50 (45) | move twist max (176) | move turn max (3000) | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| t-25s0,-0.6,-0.2p0.3,-1,0 | clarinetist | L | 2 | 42 | 28 | 0.77 | 94 | 59 | 0.0% | 0.17 | 28 | 94 | 182 | PASS |
+| t-25s0,-0.6,-0.2p0.3,-1,0 | clarinetist | R | 0 | 53 | 30 | 0.83 | 86 | 28 | 0.0% | 0.10 | 18 | 86 | 153 | PASS |
+| t-25s0,-0.6,-0.2p0.6,-1,0 | clarinetist | L | 2 | 46 | 31 | 0.77 | 106 | 59 | 0.0% | 0.19 | 28 | 106 | 204 | PASS |
+| t-25s0,-0.6,-0.2p0.6,-1,0 | clarinetist | R | 0 | 59 FAIL | 35 | 0.79 | 98 | 27 | 0.0% | 0.10 | 18 | 98 | 163 | FAIL |
+| t-25s0,-0.6,-0.2p0.6,-1,0.2 | clarinetist | L | 2 | 44 | 29 | 0.77 | 100 | 59 | 0.0% | 0.18 | 28 | 100 | 194 | PASS |
+| t-25s0,-0.6,-0.2p0.6,-1,0.2 | clarinetist | R | 0 | 55 | 31 | 0.82 | 90 | 27 | 0.0% | 0.10 | 18 | 90 | 157 | PASS |
+| t-25s0,-0.6,-0.2p1,-1,0 | clarinetist | L | 2 | 49 | 35 | 0.77 | 118 | 59 | 0.0% | 0.21 | 28 | 118 | 225 | PASS |
+| t-25s0,-0.6,-0.2p1,-1,0 | clarinetist | R | 2 | 63 FAIL | 39 | 0.76 | 107 | 25 | 0.0% | 0.10 | 18 | 107 | 173 | FAIL |
+| t-25s0,-0.55,-0.3p0.3,-1,0 | clarinetist | L | 1 | 35 | 27 | 0.79 | 93 | 59 | 0.0% | 0.17 | 28 | 93 | 177 | PASS |
+| t-25s0,-0.55,-0.3p0.3,-1,0 | clarinetist | R | 0 | 47 | 28 | 0.85 | 82 | 28 | 0.0% | 0.12 | 18 | 82 | 146 | PASS |
+| t-25s0,-0.55,-0.3p0.6,-1,0 | clarinetist | L | 1 | 40 | 31 | 0.79 | 105 | 59 | 0.0% | 0.18 | 28 | 105 | 198 | PASS |
+| t-25s0,-0.55,-0.3p0.6,-1,0 | clarinetist | R | 0 | 52 | 33 | 0.81 | 95 | 27 | 0.0% | 0.12 | 18 | 95 | 158 | PASS |
+| t-25s0,-0.55,-0.3p0.6,-1,0.2 | clarinetist | L | 1 | 38 | 29 | 0.79 | 100 | 59 | 0.0% | 0.17 | 28 | 100 | 190 | PASS |
+| t-25s0,-0.55,-0.3p0.6,-1,0.2 | clarinetist | R | 0 | 49 | 30 | 0.83 | 87 | 27 | 0.0% | 0.12 | 18 | 87 | 151 | PASS |
+| t-25s0,-0.55,-0.3p1,-1,0 | clarinetist | L | 1 | 44 | 35 | 0.78 | 117 | 59 | 0.0% | 0.20 | 28 | 117 | 219 | PASS |
+| t-25s0,-0.55,-0.3p1,-1,0 | clarinetist | R | 2 | 57 FAIL | 37 | 0.77 | 105 | 25 | 0.0% | 0.12 | 18 | 105 | 168 | FAIL |
+| t-30s0,-0.6,-0.2p0.3,-1,0 | clarinetist | L | 2 | 45 | 28 | 0.77 | 95 | 59 | 0.0% | 0.17 | 28 | 95 | 187 | PASS |
+| t-30s0,-0.6,-0.2p0.3,-1,0 | clarinetist | R | 0 | 60 FAIL | 32 | 0.82 | 89 | 28 | 0.0% | 0.09 | 18 | 89 | 161 | FAIL |
+| t-30s0,-0.6,-0.2p0.6,-1,0 | clarinetist | L | 2 | 48 | 31 | 0.77 | 106 | 59 | 0.0% | 0.20 | 28 | 106 | 209 | PASS |
+| t-30s0,-0.6,-0.2p0.6,-1,0 | clarinetist | R | 0 | 65 FAIL | 36 | 0.78 | 100 | 27 | 0.0% | 0.09 | 18 | 100 | 171 | FAIL |
+| t-30s0,-0.6,-0.2p0.6,-1,0.2 | clarinetist | L | 2 | 46 | 29 | 0.77 | 100 | 59 | 0.0% | 0.18 | 28 | 100 | 199 | PASS |
+| t-30s0,-0.6,-0.2p0.6,-1,0.2 | clarinetist | R | 0 | 62 FAIL | 33 | 0.81 | 91 | 27 | 0.0% | 0.09 | 18 | 91 | 163 | FAIL |
+| t-30s0,-0.6,-0.2p1,-1,0 | clarinetist | L | 2 | 51 | 35 | 0.76 | 118 | 59 | 0.0% | 0.22 | 28 | 118 | 230 | PASS |
+| t-30s0,-0.6,-0.2p1,-1,0 | clarinetist | R | 2 | 69 FAIL | 40 | 0.75 | 109 | 27 | 0.0% | 0.10 | 18 | 109 | 181 | FAIL |
+| t-30s0,-0.55,-0.3p0.3,-1,0 | clarinetist | L | 1 | 38 | 27 | 0.78 | 93 | 59 | 0.0% | 0.17 | 28 | 93 | 181 | PASS |
+| t-30s0,-0.55,-0.3p0.3,-1,0 | clarinetist | R | 0 | 53 | 30 | 0.84 | 85 | 28 | 0.0% | 0.09 | 18 | 85 | 156 | PASS |
+| t-30s0,-0.55,-0.3p0.6,-1,0 | clarinetist | L | 1 | 42 | 31 | 0.78 | 105 | 59 | 0.0% | 0.19 | 28 | 105 | 203 | PASS |
+| t-30s0,-0.55,-0.3p0.6,-1,0 | clarinetist | R | 0 | 59 FAIL | 35 | 0.80 | 97 | 26 | 0.0% | 0.09 | 18 | 97 | 166 | FAIL |
+| t-30s0,-0.55,-0.3p0.6,-1,0.2 | clarinetist | L | 1 | 40 | 29 | 0.78 | 100 | 59 | 0.0% | 0.17 | 28 | 100 | 194 | PASS |
+| t-30s0,-0.55,-0.3p0.6,-1,0.2 | clarinetist | R | 0 | 55 FAIL | 31 | 0.83 | 89 | 27 | 0.0% | 0.09 | 18 | 89 | 160 | FAIL |
+| t-30s0,-0.55,-0.3p1,-1,0 | clarinetist | L | 1 | 45 | 35 | 0.78 | 117 | 59 | 0.0% | 0.21 | 28 | 117 | 224 | PASS |
+| t-30s0,-0.55,-0.3p1,-1,0 | clarinetist | R | 2 | 63 FAIL | 39 | 0.77 | 107 | 26 | 0.0% | 0.10 | 18 | 107 | 176 | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| clarinetist | R | twist p95 | rest | 7 | 59 | 59 | 100.0% | 59 at beethoven-9.mid rest | 59 | 55 | - | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| clarinetist | R | twist p95 | rest | 7 | 63 | 63 | 100.0% | 63 at beethoven-9.mid rest | 63 | 55 | - | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| clarinetist | R | twist p95 | rest | 7 | 57 | 57 | 100.0% | 57 at beethoven-9.mid rest | 57 | 55 | - | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| clarinetist | R | twist p95 | rest | 7 | 60 | 60 | 100.0% | 60 at beethoven-9.mid rest | 60 | 55 | - | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| clarinetist | R | twist p95 | rest | 7 | 65 | 65 | 100.0% | 65 at beethoven-9.mid rest | 65 | 55 | - | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| clarinetist | R | twist p95 | rest | 7 | 62 | 62 | 100.0% | 62 at beethoven-9.mid rest | 62 | 55 | - | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| clarinetist | R | twist p95 | rest | 7 | 69 | 69 | 100.0% | 69 at beethoven-9.mid rest | 69 | 55 | - | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| clarinetist | R | twist p95 | rest | 7 | 59 | 59 | 100.0% | 59 at beethoven-9.mid rest | 59 | 55 | - | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| clarinetist | R | twist p95 | rest | 7 | 55 | 55 | 100.0% | 55 at beethoven-9.mid rest | 55 | 55 | - | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| clarinetist | R | twist p95 | rest | 7 | 63 | 63 | 100.0% | 63 at beethoven-9.mid rest | 63 | 55 | - | FAIL |
+
+## wolf-margin.log
+
+> node tools/arm-check.ts clarinetist --base 90819873 --jobs 8 --variant now --set clarinet\@wolf.aimSide\=0.5 --variant side3 --set clarinet\@wolf.aimSide\=0.3 --variant side0 --set clarinet\@wolf.aimSide\=0 --variant A --set clarinet\@wolf.rest\=holdTurn\(-25\,0\)\;clarinet\@wolf.restShift\=0\,-0.5\,-0.4\;clarinet\@wolf.restPoleL\=-0.3\,-1\,0.4\;clarinet\@wolf.restPoleR\=0.3\,-1\,0.4 --variant B --set clarinet\@wolf.rest\=holdTurn\(-25\,0\)\;clarinet\@wolf.restShift\=0\,-0.55\,-0.35\;clarinet\@wolf.restPoleL\=-0.3\,-1\,0.2\;clarinet\@wolf.restPoleR\=0.3\,-1\,0.2 --variant C --set clarinet\@wolf.rest\=holdTurn\(-20\,0\)\;clarinet\@wolf.restShift\=0\,-0.5\,-0.4\;clarinet\@wolf.restPoleL\=-0.3\,-1\,0.2\;clarinet\@wolf.restPoleR\=0.3\,-1\,0.2 --variant D --set clarinet\@wolf.rest\=holdTurn\(-25\,0\)\;clarinet\@wolf.restShift\=0\,-0.5\,-0.4\;clarinet\@wolf.restPoleL\=-0.3\,-1\,0\;clarinet\@wolf.restPoleR\=0.3\,-1\,0
+
+| Variant | Role | Arm | folds p95 (8) | twist p95 (55) | forearm twist p95 (80) | flat p5 (0.55) | paw twist p95 (170) | paw swing p95 (70) | paw jumps (0.5%) | stretch p95 (0.35) | grip turn p50 (45) | move twist max (176) | move turn max (3000) | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| now | clarinetist | L | 1 (0) | 35 (18) FAIL | 27 (27) | 0.79 (0.78) | 93 (93) | 59 (44) | 0.0% (0.0%) | 0.17 (0.13) | 28 (7) FAIL | 93 (93) | 177 (158) | FAIL |
+| now | clarinetist | R | 0 (0) | 47 (29) FAIL | 28 (22) | 0.85 (0.91) FAIL | 82 (62) | 28 (29) | 0.0% (0.0%) | 0.12 (0.04) FAIL | 18 (7) | 82 (62) FAIL | 146 (106) | FAIL |
+| side3 | clarinetist | L | 1 (0) | 35 (18) FAIL | 27 (27) | 0.79 (0.78) | 93 (93) | 56 (44) | 0.0% (0.0%) | 0.16 (0.13) | 24 (7) FAIL | 93 (93) | 167 (158) | FAIL |
+| side3 | clarinetist | R | 0 (0) | 47 (29) FAIL | 28 (22) | 0.85 (0.91) FAIL | 82 (62) | 27 (29) | 0.0% (0.0%) | 0.13 (0.04) FAIL | 15 (7) | 82 (62) FAIL | 117 (106) | FAIL |
+| side0 | clarinetist | L | 1 (0) | 35 (18) FAIL | 27 (27) | 0.78 (0.78) | 93 (93) | 53 (44) | 0.0% (0.0%) | 0.15 (0.13) | 14 (7) | 93 (93) | 165 (158) | FAIL |
+| side0 | clarinetist | R | 0 (0) | 47 (29) FAIL | 28 (22) | 0.85 (0.91) FAIL | 82 (62) | 27 (29) | 0.0% (0.0%) | 0.13 (0.04) FAIL | 8 (7) | 82 (62) FAIL | 102 (106) | FAIL |
+| A | clarinetist | L | 1 (0) | 25 (18) | 24 (27) | 0.79 (0.78) | 82 (93) | 59 (44) | 0.0% (0.0%) | 0.17 (0.13) | 28 (7) FAIL | 82 (93) | 156 (158) | FAIL |
+| A | clarinetist | R | 0 (0) | 39 (29) FAIL | 22 (22) | 0.89 (0.91) | 67 (62) | 30 (29) | 0.0% (0.0%) | 0.20 (0.04) FAIL | 18 (7) | 67 (62) FAIL | 127 (106) | FAIL |
+| B | clarinetist | L | 1 (0) | 30 (18) FAIL | 26 (27) | 0.79 (0.78) | 87 (93) | 59 (44) | 0.0% (0.0%) | 0.17 (0.13) | 28 (7) FAIL | 87 (93) | 165 (158) | FAIL |
+| B | clarinetist | R | 0 (0) | 43 (29) FAIL | 24 (22) | 0.87 (0.91) | 73 (62) | 29 (29) | 0.0% (0.0%) | 0.19 (0.04) FAIL | 18 (7) | 73 (62) FAIL | 133 (106) | FAIL |
+| C | clarinetist | L | 1 (0) | 25 (18) | 25 (27) | 0.79 (0.78) | 86 (93) | 59 (44) | 0.0% (0.0%) | 0.16 (0.13) | 28 (7) FAIL | 86 (93) | 160 (158) | FAIL |
+| C | clarinetist | R | 1 (0) | 38 (29) | 23 (22) | 0.88 (0.91) | 71 (62) | 28 (29) | 0.0% (0.0%) | 0.24 (0.04) FAIL | 18 (7) | 71 (62) FAIL | 506 (106) | FAIL |
+| D | clarinetist | L | 1 (0) | 28 (18) FAIL | 27 (27) | 0.79 (0.78) | 92 (93) | 59 (44) | 0.0% (0.0%) | 0.17 (0.13) | 28 (7) FAIL | 92 (93) | 172 (158) | FAIL |
+| D | clarinetist | R | 0 (0) | 42 (29) FAIL | 26 (22) | 0.86 (0.91) FAIL | 79 (62) | 28 (29) | 0.0% (0.0%) | 0.20 (0.04) FAIL | 18 (7) | 79 (62) FAIL | 138 (106) | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| clarinetist | L | twist p95 | rest | 7 | 35 | 35 | 100.0% | 35 at beethoven-9.mid rest | 35 | 55 | 18 | FAIL |
+| clarinetist | L | grip turn p50 | play | 10349 | 28 | 28 | 100.0% | 28 at beethoven-8-4.mid 84.59 s | 28 | 45 | 7 | FAIL |
+| clarinetist | R | twist p95 | lift | 217 | 37 | 47 | 100.0% | 47 at beethoven-9.mid wall 0.3 s | 47 | 55 | 29 | FAIL |
+| clarinetist | R | flat p5 | rest | 7 | 0.85 | 0.85 | 100.0% | 0.85 at beethoven-9.mid rest | 0.85 | 0.55 | 0.91 | FAIL |
+| clarinetist | R | stretch p95 | play | 10349 | 0.12 | 0.12 | 100.0% | 0.12 at beethoven-8-4.mid 60.34 s | 0.12 | 0.35 | 0.04 | FAIL |
+| clarinetist | R | move twist max | move | 8127 | 42 | 82 | 100.0% | 82 at boulanger-matin.mid lower 93.56 s, wall 1.98 s | 82 | 176 | 62 | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| clarinetist | L | twist p95 | rest | 7 | 35 | 35 | 100.0% | 35 at beethoven-9.mid rest | 35 | 55 | 18 | FAIL |
+| clarinetist | L | grip turn p50 | play | 10349 | 24 | 24 | 100.0% | 24 at beethoven-8-4.mid 358.59 s | 24 | 45 | 7 | FAIL |
+| clarinetist | R | twist p95 | lift | 217 | 38 | 47 | 100.0% | 48 at beethoven-9.mid wall 0.3 s | 47 | 55 | 29 | FAIL |
+| clarinetist | R | flat p5 | rest | 7 | 0.85 | 0.85 | 100.0% | 0.85 at beethoven-9.mid rest | 0.85 | 0.55 | 0.91 | FAIL |
+| clarinetist | R | stretch p95 | play | 10349 | 0.13 | 0.13 | 100.0% | 0.13 at beethoven-8-4.mid 608.09 s | 0.13 | 0.35 | 0.04 | FAIL |
+| clarinetist | R | move twist max | move | 8127 | 40 | 82 | 100.0% | 82 at boulanger-matin.mid lower 93.56 s, wall 1.98 s | 82 | 176 | 62 | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| clarinetist | L | twist p95 | rest | 7 | 35 | 35 | 100.0% | 35 at beethoven-9.mid rest | 35 | 55 | 18 | FAIL |
+| clarinetist | R | twist p95 | lift | 217 | 40 | 47 | 100.0% | 48 at beethoven-1.mid wall 0.3 s | 47 | 55 | 29 | FAIL |
+| clarinetist | R | flat p5 | rest | 7 | 0.85 | 0.85 | 100.0% | 0.85 at beethoven-9.mid rest | 0.85 | 0.55 | 0.91 | FAIL |
+| clarinetist | R | stretch p95 | play | 10349 | 0.13 | 0.13 | 100.0% | 0.13 at beethoven-1.mid 245.15 s | 0.13 | 0.35 | 0.04 | FAIL |
+| clarinetist | R | move twist max | move | 8127 | 37 | 82 | 100.0% | 82 at boulanger-matin.mid lower 93.56 s, wall 1.98 s | 82 | 176 | 62 | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| clarinetist | L | grip turn p50 | play | 10349 | 28 | 28 | 100.0% | 28 at beethoven-8-4.mid 84.59 s | 28 | 45 | 7 | FAIL |
+| clarinetist | R | twist p95 | lift | 217 | 37 | 39 | 100.0% | 40 at boulanger-matin.mid wall 0.6 s | 39 | 55 | 29 | FAIL |
+| clarinetist | R | stretch p95 | play | 10349 | 0.20 | 0.20 | 100.0% | 0.20 at beethoven-8-4.mid 60.34 s | 0.20 | 0.35 | 0.04 | FAIL |
+| clarinetist | R | move twist max | move | 8127 | 37 | 67 | 100.0% | 67 at beethoven-9.mid lift 0.00 s, wall 0.03 s | 67 | 176 | 62 | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| clarinetist | L | twist p95 | lift | 217 | 17 | 30 | 100.0% | 30 at beethoven-9.mid wall 0.2 s | 30 | 55 | 18 | FAIL |
+| clarinetist | L | grip turn p50 | play | 10349 | 28 | 28 | 100.0% | 28 at beethoven-8-4.mid 84.59 s | 28 | 45 | 7 | FAIL |
+| clarinetist | R | twist p95 | lift | 217 | 37 | 43 | 100.0% | 43 at beethoven-9.mid wall 0.4 s | 43 | 55 | 29 | FAIL |
+| clarinetist | R | stretch p95 | lift | 217 | 0.19 | 0.19 | 96.8% | 0.19 at beethoven-9.mid wall 1.2 s | 0.19 | 0.35 | 0.04 | FAIL |
+| clarinetist | R | move twist max | move | 8127 | 39 | 73 | 100.0% | 73 at boulanger-matin.mid lower 93.56 s, wall 2.17 s | 73 | 176 | 62 | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| clarinetist | L | grip turn p50 | play | 10349 | 28 | 28 | 100.0% | 28 at beethoven-8-4.mid 84.59 s | 28 | 45 | 7 | FAIL |
+| clarinetist | R | stretch p95 | play | 10349 | 0.24 | 0.24 | 100.0% | 0.24 at boulanger-matin.mid 69.38 s | 0.24 | 0.35 | 0.04 | FAIL |
+| clarinetist | R | move twist max | move | 8127 | 39 | 71 | 100.0% | 71 at boulanger-matin.mid lower 93.56 s, wall 1.90 s | 71 | 176 | 62 | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| clarinetist | L | twist p95 | lift | 217 | 17 | 28 | 100.0% | 29 at beethoven-9.mid wall 0.2 s | 28 | 55 | 18 | FAIL |
+| clarinetist | L | grip turn p50 | play | 10349 | 28 | 28 | 100.0% | 28 at beethoven-8-4.mid 84.59 s | 28 | 45 | 7 | FAIL |
+| clarinetist | R | twist p95 | lift | 217 | 37 | 42 | 100.0% | 43 at boulanger-matin.mid wall 0.5 s | 42 | 55 | 29 | FAIL |
+| clarinetist | R | flat p5 | rest | 7 | 0.86 | 0.86 | 100.0% | 0.86 at beethoven-9.mid rest | 0.86 | 0.55 | 0.91 | FAIL |
+| clarinetist | R | stretch p95 | play | 10349 | 0.20 | 0.20 | 100.0% | 0.20 at beethoven-8-4.mid 60.34 s | 0.20 | 0.35 | 0.04 | FAIL |
+| clarinetist | R | move twist max | move | 8127 | 42 | 79 | 100.0% | 79 at boulanger-matin.mid lower 93.56 s, wall 1.82 s | 79 | 176 | 62 | FAIL |
+
+## armv-msplit.log
+
+> node tools/arm-check.ts oboist --jobs 8 --variant base --set oboe\@mouse.aimSide\=0 --variant play --set oboe\@mouse.aimSide\=0.5\;oboe\@mouse.play\=holdTurn\(-10\,0\) --variant aim --set oboe\@mouse.aimSide\=0.5 --variant turn --set oboe\@mouse.rest\=holdTurn\(-25\,0\) --variant shift --set oboe\@mouse.restShift\=0.1\,-0.35\,-0.3
+
+| Variant | Role | Arm | folds p95 (8) | twist p95 (55) | forearm twist p95 (80) | flat p5 (0.55) | paw twist p95 (170) | paw swing p95 (70) | paw jumps (0.5%) | stretch p95 (0.35) | grip turn p50 (45) | move twist max (176) | move turn max (3000) | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| base | oboist | L | 2 | 18 | 54 | 0.62 | 152 | 38 | 0.0% | 0.20 | 3 | 152 | 191 | PASS |
+| base | oboist | R | 5 | 28 | 31 | 0.85 | 86 | 26 | 0.0% | 0.23 | 5 | 86 | 117 | PASS |
+| play | oboist | L | 3 | 18 | 54 | 0.61 | 152 | 45 | 0.0% | 0.22 | 24 | 152 | 219 | PASS |
+| play | oboist | R | 12 FAIL | 34 | 31 | 0.84 | 86 | 29 | 0.0% | 0.22 | 19 | 86 | 148 | FAIL |
+| aim | oboist | L | 1 | 18 | 54 | 0.65 | 152 | 39 | 0.0% | 0.19 | 16 | 152 | 211 | PASS |
+| aim | oboist | R | 5 | 26 | 31 | 0.85 | 86 | 29 | 0.0% | 0.18 | 13 | 86 | 179 | PASS |
+| turn | oboist | L | 5 | 20 | 46 | 0.62 | 142 | 48 | 0.0% | 0.24 | 3 | 142 | 212 | PASS |
+| turn | oboist | R | 13 FAIL | 46 | 55 | 0.75 | 118 | 36 | 0.0% | 0.17 | 5 | 118 | 142 | FAIL |
+| shift | oboist | L | 2 | 27 | 62 | 0.58 | 157 | 32 | 0.0% | 0.19 | 3 | 157 | 523 | PASS |
+| shift | oboist | R | 5 | 28 | 26 | 0.80 | 74 | 26 | 0.0% | 0.35 | 5 | 74 | 452 | PASS |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| oboist | R | folds p95 | play | 14223 | 11 | 12 | 100.0% | 12 at bach-bwv1047.mid -1.60 s | 12 | 8 | - | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| oboist | R | folds p95 | rest | 11 | 12 | 13 | 100.0% | 13 at bach-bwv1047.mid rest | 13 | 8 | - | FAIL |
+
+## armv-mouserest.log
+
+> node tools/arm-check.ts oboist --jobs 8 --variant t-35s0.1\,-0.485\,-0.12pA --set oboe\@mouse.aimSide\=0.5\;oboe\@mouse.play\=holdTurn\(-10\,0\)\;oboe\@mouse.rest\=holdTurn\(-35\,0\)\;oboe\@mouse.restShift\=0.1\,-0.485\,-0.12\;oboe\@mouse.restPoleL\=-1.5\,-1\,-1\;oboe\@mouse.restPoleR\=0.5\,-1\,-0.5 --variant t-35s0.1\,-0.485\,-0.12pB --set oboe\@mouse.aimSide\=0.5\;oboe\@mouse.play\=holdTurn\(-10\,0\)\;oboe\@mouse.rest\=holdTurn\(-35\,0\)\;oboe\@mouse.restShift\=0.1\,-0.485\,-0.12\;oboe\@mouse.restPoleL\=-0.3\,-1\,0.4\;oboe\@mouse.restPoleR\=0.3\,-1\,0.4 --variant t-35s0.1\,-0.485\,-0.12pC --set oboe\@mouse.aimSide\=0.5\;oboe\@mouse.play\=holdTurn\(-10\,0\)\;oboe\@mouse.rest\=holdTurn\(-35\,0\)\;oboe\@mouse.restShift\=0.1\,-0.485\,-0.12\;oboe\@mouse.restPoleL\=-0.5\,-1\,0\;oboe\@mouse.restPoleR\=0.5\,-1\,0 --variant t-35s0.1\,-0.45\,-0.3pA --set oboe\@mouse.aimSide\=0.5\;oboe\@mouse.play\=holdTurn\(-10\,0\)\;oboe\@mouse.rest\=holdTurn\(-35\,0\)\;oboe\@mouse.restShift\=0.1\,-0.45\,-0.3\;oboe\@mouse.restPoleL\=-1.5\,-1\,-1\;oboe\@mouse.restPoleR\=0.5\,-1\,-0.5 --variant t-35s0.1\,-0.45\,-0.3pB --set oboe\@mouse.aimSide\=0.5\;oboe\@mouse.play\=holdTurn\(-10\,0\)\;oboe\@mouse.rest\=holdTurn\(-35\,0\)\;oboe\@mouse.restShift\=0.1\,-0.45\,-0.3\;oboe\@mouse.restPoleL\=-0.3\,-1\,0.4\;oboe\@mouse.restPoleR\=0.3\,-1\,0.4 --variant t-35s0.1\,-0.45\,-0.3pC --set oboe\@mouse.aimSide\=0.5\;oboe\@mouse.play\=holdTurn\(-10\,0\)\;oboe\@mouse.rest\=holdTurn\(-35\,0\)\;oboe\@mouse.restShift\=0.1\,-0.45\,-0.3\;oboe\@mouse.restPoleL\=-0.5\,-1\,0\;oboe\@mouse.restPoleR\=0.5\,-1\,0 --variant t-25s0.1\,-0.485\,-0.12pA --set oboe\@mouse.aimSide\=0.5\;oboe\@mouse.play\=holdTurn\(-10\,0\)\;oboe\@mouse.rest\=holdTurn\(-25\,0\)\;oboe\@mouse.restShift\=0.1\,-0.485\,-0.12\;oboe\@mouse.restPoleL\=-1.5\,-1\,-1\;oboe\@mouse.restPoleR\=0.5\,-1\,-0.5 --variant t-25s0.1\,-0.485\,-0.12pB --set oboe\@mouse.aimSide\=0.5\;oboe\@mouse.play\=holdTurn\(-10\,0\)\;oboe\@mouse.rest\=holdTurn\(-25\,0\)\;oboe\@mouse.restShift\=0.1\,-0.485\,-0.12\;oboe\@mouse.restPoleL\=-0.3\,-1\,0.4\;oboe\@mouse.restPoleR\=0.3\,-1\,0.4 --variant t-25s0.1\,-0.485\,-0.12pC --set oboe\@mouse.aimSide\=0.5\;oboe\@mouse.play\=holdTurn\(-10\,0\)\;oboe\@mouse.rest\=holdTurn\(-25\,0\)\;oboe\@mouse.restShift\=0.1\,-0.485\,-0.12\;oboe\@mouse.restPoleL\=-0.5\,-1\,0\;oboe\@mouse.restPoleR\=0.5\,-1\,0 --variant t-25s0.1\,-0.45\,-0.3pA --set oboe\@mouse.aimSide\=0.5\;oboe\@mouse.play\=holdTurn\(-10\,0\)\;oboe\@mouse.rest\=holdTurn\(-25\,0\)\;oboe\@mouse.restShift\=0.1\,-0.45\,-0.3\;oboe\@mouse.restPoleL\=-1.5\,-1\,-1\;oboe\@mouse.restPoleR\=0.5\,-1\,-0.5 --variant t-25s0.1\,-0.45\,-0.3pB --set oboe\@mouse.aimSide\=0.5\;oboe\@mouse.play\=holdTurn\(-10\,0\)\;oboe\@mouse.rest\=holdTurn\(-25\,0\)\;oboe\@mouse.restShift\=0.1\,-0.45\,-0.3\;oboe\@mouse.restPoleL\=-0.3\,-1\,0.4\;oboe\@mouse.restPoleR\=0.3\,-1\,0.4 --variant t-25s0.1\,-0.45\,-0.3pC --set oboe\@mouse.aimSide\=0.5\;oboe\@mouse.play\=holdTurn\(-10\,0\)\;oboe\@mouse.rest\=holdTurn\(-25\,0\)\;oboe\@mouse.restShift\=0.1\,-0.45\,-0.3\;oboe\@mouse.restPoleL\=-0.5\,-1\,0\;oboe\@mouse.restPoleR\=0.5\,-1\,0
+
+| Variant | Role | Arm | folds p95 (8) | twist p95 (55) | forearm twist p95 (80) | flat p5 (0.55) | paw twist p95 (170) | paw swing p95 (70) | paw jumps (0.5%) | stretch p95 (0.35) | grip turn p50 (45) | move twist max (176) | move turn max (3000) | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| t-35s0.1,-0.485,-0.12pA | oboist | L | 6 | 33 | 63 | 0.53 FAIL | 175 FAIL | 45 | 0.0% | 0.08 | 24 | 175 | 246 | FAIL |
+| t-35s0.1,-0.485,-0.12pA | oboist | R | 16 FAIL | 61 FAIL | 57 | 0.75 | 127 | 32 | 0.0% | 0.13 | 19 | 127 | 166 | FAIL |
+| t-35s0.1,-0.485,-0.12pB | oboist | L | 7 | 20 | 35 | 0.26 FAIL | 101 | 45 | 0.0% | 0.11 | 24 | 101 | 146 | FAIL |
+| t-35s0.1,-0.485,-0.12pB | oboist | R | 15 FAIL | 44 | 39 | 0.65 | 77 | 28 | 0.0% | 0.09 | 19 | 77 | 140 | FAIL |
+| t-35s0.1,-0.485,-0.12pC | oboist | L | 6 | 24 | 43 | 0.33 FAIL | 122 | 45 | 0.0% | 0.12 | 24 | 122 | 179 | FAIL |
+| t-35s0.1,-0.485,-0.12pC | oboist | R | 14 FAIL | 53 | 48 | 0.72 | 99 | 26 | 0.0% | 0.11 | 19 | 99 | 150 | FAIL |
+| t-35s0.1,-0.45,-0.3pA | oboist | L | 4 | 30 | 62 | 0.55 | 166 | 45 | 0.0% | 0.09 | 24 | 166 | 222 | PASS |
+| t-35s0.1,-0.45,-0.3pA | oboist | R | 12 FAIL | 48 | 50 | 0.79 | 115 | 27 | 0.0% | 0.12 | 19 | 115 | 150 | FAIL |
+| t-35s0.1,-0.45,-0.3pB | oboist | L | 5 | 17 | 37 | 0.32 FAIL | 101 | 45 | 0.0% | 0.12 | 24 | 101 | 135 | FAIL |
+| t-35s0.1,-0.45,-0.3pB | oboist | R | 13 FAIL | 36 | 36 | 0.70 | 74 | 28 | 0.0% | 0.13 | 19 | 74 | 127 | FAIL |
+| t-35s0.1,-0.45,-0.3pC | oboist | L | 4 | 20 | 44 | 0.38 FAIL | 120 | 45 | 0.0% | 0.12 | 24 | 120 | 163 | FAIL |
+| t-35s0.1,-0.45,-0.3pC | oboist | R | 12 FAIL | 41 | 43 | 0.76 | 94 | 26 | 0.0% | 0.12 | 19 | 94 | 137 | FAIL |
+| t-25s0.1,-0.485,-0.12pA | oboist | L | 4 | 32 | 64 | 0.54 FAIL | 171 FAIL | 45 | 0.0% | 0.08 | 24 | 171 | 233 | FAIL |
+| t-25s0.1,-0.485,-0.12pA | oboist | R | 12 FAIL | 51 | 52 | 0.78 | 118 | 27 | 0.0% | 0.12 | 19 | 118 | 153 | FAIL |
+| t-25s0.1,-0.485,-0.12pB | oboist | L | 6 | 18 | 36 | 0.28 FAIL | 101 | 45 | 0.0% | 0.11 | 24 | 101 | 136 | FAIL |
+| t-25s0.1,-0.485,-0.12pB | oboist | R | 13 FAIL | 38 | 37 | 0.69 | 75 | 28 | 0.0% | 0.13 | 19 | 75 | 130 | FAIL |
+| t-25s0.1,-0.485,-0.12pC | oboist | L | 5 | 22 | 44 | 0.35 FAIL | 121 | 45 | 0.0% | 0.12 | 24 | 121 | 168 | FAIL |
+| t-25s0.1,-0.485,-0.12pC | oboist | R | 12 FAIL | 43 | 44 | 0.75 | 96 | 26 | 0.0% | 0.13 | 19 | 96 | 139 | FAIL |
+| t-25s0.1,-0.45,-0.3pA | oboist | L | 4 | 30 | 61 | 0.56 | 163 | 45 | 0.0% | 0.11 | 24 | 163 | 211 | PASS |
+| t-25s0.1,-0.45,-0.3pA | oboist | R | 12 FAIL | 39 | 49 | 0.76 | 108 | 25 | 0.0% | 0.20 | 19 | 108 | 195 | FAIL |
+| t-25s0.1,-0.45,-0.3pB | oboist | L | 4 | 16 | 37 | 0.34 FAIL | 100 | 45 | 0.0% | 0.12 | 24 | 100 | 127 | FAIL |
+| t-25s0.1,-0.45,-0.3pB | oboist | R | 12 FAIL | 34 | 36 | 0.75 | 73 | 27 | 0.0% | 0.21 | 19 | 73 | 108 | FAIL |
+| t-25s0.1,-0.45,-0.3pC | oboist | L | 4 | 19 | 45 | 0.40 FAIL | 119 | 45 | 0.0% | 0.12 | 24 | 119 | 154 | FAIL |
+| t-25s0.1,-0.45,-0.3pC | oboist | R | 12 FAIL | 36 | 42 | 0.79 | 91 | 26 | 0.0% | 0.20 | 19 | 91 | 118 | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| oboist | L | flat p5 | rest | 11 | 0.53 | 0.53 | 100.0% | 0.53 at boulanger-matin.mid rest | 0.53 | 0.55 | - | FAIL |
+| oboist | L | paw twist p95 | rest | 11 | 175 | 175 | 100.0% | 175 at mozart-k315.mid rest | 175 | 170 | - | FAIL |
+| oboist | R | folds p95 | rest | 11 | 16 | 16 | 100.0% | 16 at bach-bwv1047.mid rest | 16 | 8 | - | FAIL |
+| oboist | R | twist p95 | rest | 11 | 61 | 61 | 100.0% | 61 at boulanger-matin.mid rest | 61 | 55 | - | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| oboist | L | flat p5 | rest | 11 | 0.26 | 0.26 | 100.0% | 0.26 at mozart-k315.mid rest | 0.26 | 0.55 | - | FAIL |
+| oboist | R | folds p95 | rest | 11 | 15 | 15 | 100.0% | 15 at bach-bwv1047.mid rest | 15 | 8 | - | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| oboist | L | flat p5 | rest | 11 | 0.33 | 0.33 | 100.0% | 0.33 at boulanger-matin.mid rest | 0.33 | 0.55 | - | FAIL |
+| oboist | R | folds p95 | rest | 11 | 14 | 14 | 100.0% | 14 at bach-bwv1047.mid rest | 14 | 8 | - | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| oboist | R | folds p95 | play | 14223 | 11 | 12 | 100.0% | 12 at bach-bwv1047.mid -1.60 s | 12 | 8 | - | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| oboist | L | flat p5 | rest | 11 | 0.32 | 0.32 | 100.0% | 0.32 at boulanger-matin.mid rest | 0.32 | 0.55 | - | FAIL |
+| oboist | R | folds p95 | lift | 341 | 11 | 13 | 100.0% | 13 at bach-bwv1047.mid wall 0.1 s | 13 | 8 | - | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| oboist | L | flat p5 | rest | 11 | 0.38 | 0.38 | 100.0% | 0.38 at boulanger-matin.mid rest | 0.38 | 0.55 | - | FAIL |
+| oboist | R | folds p95 | play | 14223 | 11 | 12 | 100.0% | 12 at bach-bwv1047.mid -1.60 s | 12 | 8 | - | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| oboist | L | flat p5 | rest | 11 | 0.54 | 0.54 | 100.0% | 0.54 at boulanger-matin.mid rest | 0.54 | 0.55 | - | FAIL |
+| oboist | L | paw twist p95 | rest | 11 | 171 | 171 | 100.0% | 171 at mozart-k315.mid rest | 171 | 170 | - | FAIL |
+| oboist | R | folds p95 | play | 14223 | 11 | 12 | 100.0% | 12 at bach-bwv1047.mid -1.60 s | 12 | 8 | - | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| oboist | L | flat p5 | rest | 11 | 0.28 | 0.28 | 100.0% | 0.28 at mozart-k315.mid rest | 0.28 | 0.55 | - | FAIL |
+| oboist | R | folds p95 | rest | 11 | 13 | 13 | 100.0% | 13 at bach-bwv1047.mid rest | 13 | 8 | - | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| oboist | L | flat p5 | rest | 11 | 0.35 | 0.35 | 100.0% | 0.35 at boulanger-matin.mid rest | 0.35 | 0.55 | - | FAIL |
+| oboist | R | folds p95 | play | 14223 | 11 | 12 | 100.0% | 12 at bach-bwv1047.mid -1.60 s | 12 | 8 | - | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| oboist | R | folds p95 | play | 14223 | 11 | 12 | 100.0% | 12 at bach-bwv1047.mid -1.60 s | 12 | 8 | - | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| oboist | L | flat p5 | rest | 11 | 0.34 | 0.34 | 100.0% | 0.34 at boulanger-matin.mid rest | 0.34 | 0.55 | - | FAIL |
+| oboist | R | folds p95 | play | 14223 | 11 | 12 | 100.0% | 12 at bach-bwv1047.mid -1.60 s | 12 | 8 | - | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| oboist | L | flat p5 | rest | 11 | 0.40 | 0.40 | 100.0% | 0.40 at boulanger-matin.mid rest | 0.40 | 0.55 | - | FAIL |
+| oboist | R | folds p95 | play | 14223 | 11 | 12 | 100.0% | 12 at bach-bwv1047.mid -1.60 s | 12 | 8 | - | FAIL |
+
+## armv-mouserest2.log
+
+> node tools/arm-check.ts oboist --jobs 8 --variant s0.1\,-0.35\,-0.3pA --set oboe\@mouse.aimSide\=0.5\;oboe\@mouse.play\=holdTurn\(-10\,0\)\;oboe\@mouse.rest\=holdTurn\(-25\,0\)\;oboe\@mouse.restShift\=0.1\,-0.35\,-0.3\;oboe\@mouse.restPoleL\=-1.5\,-1\,-1\;oboe\@mouse.restPoleR\=0.5\,-1\,-0.5 --variant s0.1\,-0.35\,-0.3pD --set oboe\@mouse.aimSide\=0.5\;oboe\@mouse.play\=holdTurn\(-10\,0\)\;oboe\@mouse.rest\=holdTurn\(-25\,0\)\;oboe\@mouse.restShift\=0.1\,-0.35\,-0.3\;oboe\@mouse.restPoleL\=-1\,-1\,-0.5\;oboe\@mouse.restPoleR\=1\,-1\,-0.5 --variant s0.1\,-0.35\,-0.3pB --set oboe\@mouse.aimSide\=0.5\;oboe\@mouse.play\=holdTurn\(-10\,0\)\;oboe\@mouse.rest\=holdTurn\(-25\,0\)\;oboe\@mouse.restShift\=0.1\,-0.35\,-0.3\;oboe\@mouse.restPoleL\=-0.3\,-1\,0.4\;oboe\@mouse.restPoleR\=0.3\,-1\,0.4 --variant s0.1\,-0.25\,-0.3pA --set oboe\@mouse.aimSide\=0.5\;oboe\@mouse.play\=holdTurn\(-10\,0\)\;oboe\@mouse.rest\=holdTurn\(-25\,0\)\;oboe\@mouse.restShift\=0.1\,-0.25\,-0.3\;oboe\@mouse.restPoleL\=-1.5\,-1\,-1\;oboe\@mouse.restPoleR\=0.5\,-1\,-0.5 --variant s0.1\,-0.25\,-0.3pD --set oboe\@mouse.aimSide\=0.5\;oboe\@mouse.play\=holdTurn\(-10\,0\)\;oboe\@mouse.rest\=holdTurn\(-25\,0\)\;oboe\@mouse.restShift\=0.1\,-0.25\,-0.3\;oboe\@mouse.restPoleL\=-1\,-1\,-0.5\;oboe\@mouse.restPoleR\=1\,-1\,-0.5 --variant s0.1\,-0.25\,-0.3pB --set oboe\@mouse.aimSide\=0.5\;oboe\@mouse.play\=holdTurn\(-10\,0\)\;oboe\@mouse.rest\=holdTurn\(-25\,0\)\;oboe\@mouse.restShift\=0.1\,-0.25\,-0.3\;oboe\@mouse.restPoleL\=-0.3\,-1\,0.4\;oboe\@mouse.restPoleR\=0.3\,-1\,0.4 --variant s0.2\,-0.35\,-0.25pA --set oboe\@mouse.aimSide\=0.5\;oboe\@mouse.play\=holdTurn\(-10\,0\)\;oboe\@mouse.rest\=holdTurn\(-25\,0\)\;oboe\@mouse.restShift\=0.2\,-0.35\,-0.25\;oboe\@mouse.restPoleL\=-1.5\,-1\,-1\;oboe\@mouse.restPoleR\=0.5\,-1\,-0.5 --variant s0.2\,-0.35\,-0.25pD --set oboe\@mouse.aimSide\=0.5\;oboe\@mouse.play\=holdTurn\(-10\,0\)\;oboe\@mouse.rest\=holdTurn\(-25\,0\)\;oboe\@mouse.restShift\=0.2\,-0.35\,-0.25\;oboe\@mouse.restPoleL\=-1\,-1\,-0.5\;oboe\@mouse.restPoleR\=1\,-1\,-0.5 --variant s0.2\,-0.35\,-0.25pB --set oboe\@mouse.aimSide\=0.5\;oboe\@mouse.play\=holdTurn\(-10\,0\)\;oboe\@mouse.rest\=holdTurn\(-25\,0\)\;oboe\@mouse.restShift\=0.2\,-0.35\,-0.25\;oboe\@mouse.restPoleL\=-0.3\,-1\,0.4\;oboe\@mouse.restPoleR\=0.3\,-1\,0.4 --variant s0.1\,-0.35\,-0.4pA --set oboe\@mouse.aimSide\=0.5\;oboe\@mouse.play\=holdTurn\(-10\,0\)\;oboe\@mouse.rest\=holdTurn\(-25\,0\)\;oboe\@mouse.restShift\=0.1\,-0.35\,-0.4\;oboe\@mouse.restPoleL\=-1.5\,-1\,-1\;oboe\@mouse.restPoleR\=0.5\,-1\,-0.5 --variant s0.1\,-0.35\,-0.4pD --set oboe\@mouse.aimSide\=0.5\;oboe\@mouse.play\=holdTurn\(-10\,0\)\;oboe\@mouse.rest\=holdTurn\(-25\,0\)\;oboe\@mouse.restShift\=0.1\,-0.35\,-0.4\;oboe\@mouse.restPoleL\=-1\,-1\,-0.5\;oboe\@mouse.restPoleR\=1\,-1\,-0.5 --variant s0.1\,-0.35\,-0.4pB --set oboe\@mouse.aimSide\=0.5\;oboe\@mouse.play\=holdTurn\(-10\,0\)\;oboe\@mouse.rest\=holdTurn\(-25\,0\)\;oboe\@mouse.restShift\=0.1\,-0.35\,-0.4\;oboe\@mouse.restPoleL\=-0.3\,-1\,0.4\;oboe\@mouse.restPoleR\=0.3\,-1\,0.4
+
+| Variant | Role | Arm | folds p95 (8) | twist p95 (55) | forearm twist p95 (80) | flat p5 (0.55) | paw twist p95 (170) | paw swing p95 (70) | paw jumps (0.5%) | stretch p95 (0.35) | grip turn p50 (45) | move twist max (176) | move turn max (3000) | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| s0.1,-0.35,-0.3pA | oboist | L | 4 | 28 | 60 | 0.61 | 162 | 45 | 0.0% | 0.14 | 24 | 162 | 212 | PASS |
+| s0.1,-0.35,-0.3pA | oboist | R | 12 FAIL | 38 | 47 | 0.81 | 106 | 25 | 0.0% | 0.12 | 19 | 106 | 138 | FAIL |
+| s0.1,-0.35,-0.3pD | oboist | L | 4 | 25 | 54 | 0.55 FAIL | 146 | 45 | 0.0% | 0.07 | 24 | 146 | 193 | FAIL |
+| s0.1,-0.35,-0.3pD | oboist | R | 12 FAIL | 44 | 52 | 0.78 | 121 | 26 | 0.0% | 0.12 | 19 | 121 | 149 | FAIL |
+| s0.1,-0.35,-0.3pB | oboist | L | 5 | 16 | 37 | 0.35 FAIL | 100 | 45 | 0.0% | 0.12 | 24 | 100 | 132 | FAIL |
+| s0.1,-0.35,-0.3pB | oboist | R | 12 FAIL | 34 | 35 | 0.74 | 73 | 28 | 0.0% | 0.13 | 19 | 73 | 119 | FAIL |
+| s0.1,-0.25,-0.3pA | oboist | L | 4 | 26 | 59 | 0.61 | 160 | 45 | 0.0% | 0.16 | 24 | 160 | 214 | PASS |
+| s0.1,-0.25,-0.3pA | oboist | R | 12 FAIL | 36 | 47 | 0.82 | 102 | 26 | 0.0% | 0.13 | 19 | 102 | 145 | FAIL |
+| s0.1,-0.25,-0.3pD | oboist | L | 4 | 23 | 53 | 0.60 | 145 | 45 | 0.0% | 0.10 | 24 | 145 | 196 | PASS |
+| s0.1,-0.25,-0.3pD | oboist | R | 12 FAIL | 42 | 50 | 0.79 | 119 | 27 | 0.0% | 0.13 | 19 | 119 | 156 | FAIL |
+| s0.1,-0.25,-0.3pB | oboist | L | 4 | 16 | 37 | 0.36 FAIL | 100 | 45 | 0.0% | 0.12 | 24 | 100 | 138 | FAIL |
+| s0.1,-0.25,-0.3pB | oboist | R | 13 FAIL | 34 | 37 | 0.73 | 73 | 29 | 0.0% | 0.13 | 19 | 73 | 131 | FAIL |
+| s0.2,-0.35,-0.25pA | oboist | L | 4 | 30 | 63 | 0.57 | 168 | 45 | 0.0% | 0.12 | 24 | 168 | 221 | PASS |
+| s0.2,-0.35,-0.25pA | oboist | R | 12 FAIL | 39 | 46 | 0.82 | 100 | 25 | 0.0% | 0.13 | 19 | 100 | 145 | FAIL |
+| s0.2,-0.35,-0.25pD | oboist | L | 4 | 26 | 57 | 0.49 FAIL | 152 | 45 | 0.0% | 0.08 | 24 | 152 | 202 | FAIL |
+| s0.2,-0.35,-0.25pD | oboist | R | 12 FAIL | 46 | 51 | 0.78 | 118 | 27 | 0.0% | 0.13 | 19 | 118 | 156 | FAIL |
+| s0.2,-0.35,-0.25pB | oboist | L | 5 | 17 | 38 | 0.30 FAIL | 104 | 45 | 0.0% | 0.12 | 24 | 104 | 138 | FAIL |
+| s0.2,-0.35,-0.25pB | oboist | R | 13 FAIL | 34 | 35 | 0.73 | 70 | 29 | 0.0% | 0.13 | 19 | 70 | 129 | FAIL |
+| s0.1,-0.35,-0.4pA | oboist | L | 4 | 30 | 61 | 0.60 | 157 | 45 | 0.0% | 0.17 | 24 | 157 | 201 | PASS |
+| s0.1,-0.35,-0.4pA | oboist | R | 12 FAIL | 35 | 44 | 0.77 | 102 | 25 | 0.0% | 0.21 | 19 | 102 | 355 | FAIL |
+| s0.1,-0.35,-0.4pD | oboist | L | 4 | 26 | 55 | 0.56 | 143 | 45 | 0.0% | 0.13 | 24 | 143 | 183 | PASS |
+| s0.1,-0.35,-0.4pD | oboist | R | 12 FAIL | 38 | 50 | 0.75 | 118 | 25 | 0.0% | 0.21 | 19 | 118 | 398 | FAIL |
+| s0.1,-0.35,-0.4pB | oboist | L | 4 | 16 | 38 | 0.41 FAIL | 100 | 45 | 0.0% | 0.11 | 24 | 100 | 126 | FAIL |
+| s0.1,-0.35,-0.4pB | oboist | R | 12 FAIL | 34 | 33 | 0.77 | 72 | 27 | 0.0% | 0.21 | 19 | 72 | 320 | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| oboist | R | folds p95 | play | 14223 | 11 | 12 | 100.0% | 12 at bach-bwv1047.mid -1.60 s | 12 | 8 | - | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| oboist | L | flat p5 | rest | 11 | 0.55 | 0.55 | 100.0% | 0.55 at boulanger-matin.mid rest | 0.55 | 0.55 | - | FAIL |
+| oboist | R | folds p95 | play | 14223 | 11 | 12 | 100.0% | 12 at bach-bwv1047.mid -1.60 s | 12 | 8 | - | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| oboist | L | flat p5 | rest | 11 | 0.35 | 0.35 | 100.0% | 0.35 at boulanger-matin.mid rest | 0.35 | 0.55 | - | FAIL |
+| oboist | R | folds p95 | play | 14223 | 11 | 12 | 100.0% | 12 at bach-bwv1047.mid -1.60 s | 12 | 8 | - | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| oboist | R | folds p95 | play | 14223 | 11 | 12 | 100.0% | 12 at bach-bwv1047.mid -1.60 s | 12 | 8 | - | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| oboist | R | folds p95 | play | 14223 | 11 | 12 | 100.0% | 12 at bach-bwv1047.mid -1.60 s | 12 | 8 | - | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| oboist | L | flat p5 | rest | 11 | 0.36 | 0.36 | 100.0% | 0.36 at boulanger-matin.mid rest | 0.36 | 0.55 | - | FAIL |
+| oboist | R | folds p95 | rest | 11 | 13 | 13 | 100.0% | 13 at bach-bwv1047.mid rest | 13 | 8 | - | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| oboist | R | folds p95 | play | 14223 | 11 | 12 | 100.0% | 12 at bach-bwv1047.mid -1.60 s | 12 | 8 | - | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| oboist | L | flat p5 | rest | 11 | 0.49 | 0.49 | 100.0% | 0.49 at boulanger-matin.mid rest | 0.49 | 0.55 | - | FAIL |
+| oboist | R | folds p95 | play | 14223 | 11 | 12 | 100.0% | 12 at bach-bwv1047.mid -1.60 s | 12 | 8 | - | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| oboist | L | flat p5 | rest | 11 | 0.30 | 0.30 | 100.0% | 0.30 at mozart-k315.mid rest | 0.30 | 0.55 | - | FAIL |
+| oboist | R | folds p95 | lift | 341 | 11 | 13 | 100.0% | 13 at bach-bwv1047.mid wall 0.2 s | 13 | 8 | - | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| oboist | R | folds p95 | play | 14223 | 11 | 12 | 100.0% | 12 at bach-bwv1047.mid -1.60 s | 12 | 8 | - | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| oboist | R | folds p95 | play | 14223 | 11 | 12 | 100.0% | 12 at bach-bwv1047.mid -1.60 s | 12 | 8 | - | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| oboist | L | flat p5 | lift | 341 | 0.61 | 0.41 | 100.0% | 0.41 at beethoven-9.mid wall 0.3 s | 0.41 | 0.55 | - | FAIL |
+| oboist | R | folds p95 | play | 14223 | 11 | 12 | 100.0% | 12 at bach-bwv1047.mid -1.60 s | 12 | 8 | - | FAIL |
+
+## armv-mouserest3.log
+
+> node tools/arm-check.ts oboist --jobs 8 --variant y0t-25s0.1\,-0.35\,-0.3pA --set oboe\@mouse.aimSide\=0.5\;oboe\@mouse.play\=holdTurn\(0\,0\)\;oboe\@mouse.rest\=holdTurn\(-25\,0\)\;oboe\@mouse.restShift\=0.1\,-0.35\,-0.3\;oboe\@mouse.restPoleL\=-1.5\,-1\,-1\;oboe\@mouse.restPoleR\=0.5\,-1\,-0.5 --variant y0t-25s0.1\,-0.35\,-0.3pE --set oboe\@mouse.aimSide\=0.5\;oboe\@mouse.play\=holdTurn\(0\,0\)\;oboe\@mouse.rest\=holdTurn\(-25\,0\)\;oboe\@mouse.restShift\=0.1\,-0.35\,-0.3\;oboe\@mouse.restPoleL\=-1\,-1\,-0.5\;oboe\@mouse.restPoleR\=0.5\,-1\,0 --variant y0t-25s0.1\,-0.485\,-0.12pA --set oboe\@mouse.aimSide\=0.5\;oboe\@mouse.play\=holdTurn\(0\,0\)\;oboe\@mouse.rest\=holdTurn\(-25\,0\)\;oboe\@mouse.restShift\=0.1\,-0.485\,-0.12\;oboe\@mouse.restPoleL\=-1.5\,-1\,-1\;oboe\@mouse.restPoleR\=0.5\,-1\,-0.5 --variant y0t-25s0.1\,-0.485\,-0.12pE --set oboe\@mouse.aimSide\=0.5\;oboe\@mouse.play\=holdTurn\(0\,0\)\;oboe\@mouse.rest\=holdTurn\(-25\,0\)\;oboe\@mouse.restShift\=0.1\,-0.485\,-0.12\;oboe\@mouse.restPoleL\=-1\,-1\,-0.5\;oboe\@mouse.restPoleR\=0.5\,-1\,0 --variant y0t-15s0.1\,-0.35\,-0.3pA --set oboe\@mouse.aimSide\=0.5\;oboe\@mouse.play\=holdTurn\(0\,0\)\;oboe\@mouse.rest\=holdTurn\(-15\,0\)\;oboe\@mouse.restShift\=0.1\,-0.35\,-0.3\;oboe\@mouse.restPoleL\=-1.5\,-1\,-1\;oboe\@mouse.restPoleR\=0.5\,-1\,-0.5 --variant y0t-15s0.1\,-0.35\,-0.3pE --set oboe\@mouse.aimSide\=0.5\;oboe\@mouse.play\=holdTurn\(0\,0\)\;oboe\@mouse.rest\=holdTurn\(-15\,0\)\;oboe\@mouse.restShift\=0.1\,-0.35\,-0.3\;oboe\@mouse.restPoleL\=-1\,-1\,-0.5\;oboe\@mouse.restPoleR\=0.5\,-1\,0 --variant y0t-15s0.1\,-0.485\,-0.12pA --set oboe\@mouse.aimSide\=0.5\;oboe\@mouse.play\=holdTurn\(0\,0\)\;oboe\@mouse.rest\=holdTurn\(-15\,0\)\;oboe\@mouse.restShift\=0.1\,-0.485\,-0.12\;oboe\@mouse.restPoleL\=-1.5\,-1\,-1\;oboe\@mouse.restPoleR\=0.5\,-1\,-0.5 --variant y0t-15s0.1\,-0.485\,-0.12pE --set oboe\@mouse.aimSide\=0.5\;oboe\@mouse.play\=holdTurn\(0\,0\)\;oboe\@mouse.rest\=holdTurn\(-15\,0\)\;oboe\@mouse.restShift\=0.1\,-0.485\,-0.12\;oboe\@mouse.restPoleL\=-1\,-1\,-0.5\;oboe\@mouse.restPoleR\=0.5\,-1\,0 --variant y-5t-25s0.1\,-0.35\,-0.3pA --set oboe\@mouse.aimSide\=0.5\;oboe\@mouse.play\=holdTurn\(-5\,0\)\;oboe\@mouse.rest\=holdTurn\(-25\,0\)\;oboe\@mouse.restShift\=0.1\,-0.35\,-0.3\;oboe\@mouse.restPoleL\=-1.5\,-1\,-1\;oboe\@mouse.restPoleR\=0.5\,-1\,-0.5 --variant y-5t-25s0.1\,-0.35\,-0.3pE --set oboe\@mouse.aimSide\=0.5\;oboe\@mouse.play\=holdTurn\(-5\,0\)\;oboe\@mouse.rest\=holdTurn\(-25\,0\)\;oboe\@mouse.restShift\=0.1\,-0.35\,-0.3\;oboe\@mouse.restPoleL\=-1\,-1\,-0.5\;oboe\@mouse.restPoleR\=0.5\,-1\,0 --variant y-5t-25s0.1\,-0.485\,-0.12pA --set oboe\@mouse.aimSide\=0.5\;oboe\@mouse.play\=holdTurn\(-5\,0\)\;oboe\@mouse.rest\=holdTurn\(-25\,0\)\;oboe\@mouse.restShift\=0.1\,-0.485\,-0.12\;oboe\@mouse.restPoleL\=-1.5\,-1\,-1\;oboe\@mouse.restPoleR\=0.5\,-1\,-0.5 --variant y-5t-25s0.1\,-0.485\,-0.12pE --set oboe\@mouse.aimSide\=0.5\;oboe\@mouse.play\=holdTurn\(-5\,0\)\;oboe\@mouse.rest\=holdTurn\(-25\,0\)\;oboe\@mouse.restShift\=0.1\,-0.485\,-0.12\;oboe\@mouse.restPoleL\=-1\,-1\,-0.5\;oboe\@mouse.restPoleR\=0.5\,-1\,0 --variant y-5t-15s0.1\,-0.35\,-0.3pA --set oboe\@mouse.aimSide\=0.5\;oboe\@mouse.play\=holdTurn\(-5\,0\)\;oboe\@mouse.rest\=holdTurn\(-15\,0\)\;oboe\@mouse.restShift\=0.1\,-0.35\,-0.3\;oboe\@mouse.restPoleL\=-1.5\,-1\,-1\;oboe\@mouse.restPoleR\=0.5\,-1\,-0.5 --variant y-5t-15s0.1\,-0.35\,-0.3pE --set oboe\@mouse.aimSide\=0.5\;oboe\@mouse.play\=holdTurn\(-5\,0\)\;oboe\@mouse.rest\=holdTurn\(-15\,0\)\;oboe\@mouse.restShift\=0.1\,-0.35\,-0.3\;oboe\@mouse.restPoleL\=-1\,-1\,-0.5\;oboe\@mouse.restPoleR\=0.5\,-1\,0 --variant y-5t-15s0.1\,-0.485\,-0.12pA --set oboe\@mouse.aimSide\=0.5\;oboe\@mouse.play\=holdTurn\(-5\,0\)\;oboe\@mouse.rest\=holdTurn\(-15\,0\)\;oboe\@mouse.restShift\=0.1\,-0.485\,-0.12\;oboe\@mouse.restPoleL\=-1.5\,-1\,-1\;oboe\@mouse.restPoleR\=0.5\,-1\,-0.5 --variant y-5t-15s0.1\,-0.485\,-0.12pE --set oboe\@mouse.aimSide\=0.5\;oboe\@mouse.play\=holdTurn\(-5\,0\)\;oboe\@mouse.rest\=holdTurn\(-15\,0\)\;oboe\@mouse.restShift\=0.1\,-0.485\,-0.12\;oboe\@mouse.restPoleL\=-1\,-1\,-0.5\;oboe\@mouse.restPoleR\=0.5\,-1\,0
+
+| Variant | Role | Arm | folds p95 (8) | twist p95 (55) | forearm twist p95 (80) | flat p5 (0.55) | paw twist p95 (170) | paw swing p95 (70) | paw jumps (0.5%) | stretch p95 (0.35) | grip turn p50 (45) | move twist max (176) | move turn max (3000) | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| y0t-25s0.1,-0.35,-0.3pA | oboist | L | 1 | 28 | 60 | 0.61 | 162 | 39 | 0.0% | 0.08 | 16 | 162 | 207 | PASS |
+| y0t-25s0.1,-0.35,-0.3pA | oboist | R | 8 | 37 | 47 | 0.81 | 106 | 25 | 0.0% | 0.07 | 13 | 106 | 160 | PASS |
+| y0t-25s0.1,-0.35,-0.3pE | oboist | L | 3 | 25 | 54 | 0.55 FAIL | 146 | 39 | 0.0% | 0.08 | 16 | 146 | 189 | FAIL |
+| y0t-25s0.1,-0.35,-0.3pE | oboist | R | 10 FAIL | 31 | 41 | 0.79 | 91 | 25 | 0.0% | 0.07 | 13 | 91 | 153 | FAIL |
+| y0t-25s0.1,-0.485,-0.12pA | oboist | L | 4 | 32 | 64 | 0.54 FAIL | 171 FAIL | 39 | 0.0% | 0.08 | 16 | 171 | 230 | FAIL |
+| y0t-25s0.1,-0.485,-0.12pA | oboist | R | 11 FAIL | 51 | 52 | 0.78 | 118 | 27 | 0.0% | 0.07 | 13 | 118 | 178 | FAIL |
+| y0t-25s0.1,-0.485,-0.12pE | oboist | L | 4 | 28 | 56 | 0.46 FAIL | 153 | 39 | 0.0% | 0.13 | 16 | 153 | 208 | FAIL |
+| y0t-25s0.1,-0.485,-0.12pE | oboist | R | 12 FAIL | 43 | 44 | 0.75 | 96 | 25 | 0.0% | 0.08 | 13 | 96 | 168 | FAIL |
+| y0t-15s0.1,-0.35,-0.3pA | oboist | L | 1 | 28 | 60 | 0.62 | 159 | 39 | 0.0% | 0.11 | 16 | 159 | 195 | PASS |
+| y0t-15s0.1,-0.35,-0.3pA | oboist | R | 5 | 29 | 42 | 0.77 | 100 | 25 | 0.0% | 0.19 | 13 | 100 | 315 | PASS |
+| y0t-15s0.1,-0.35,-0.3pE | oboist | L | 2 | 25 | 54 | 0.57 | 144 | 39 | 0.0% | 0.09 | 16 | 144 | 177 | PASS |
+| y0t-15s0.1,-0.35,-0.3pE | oboist | R | 6 | 27 | 38 | 0.79 | 88 | 25 | 0.0% | 0.19 | 13 | 88 | 313 | PASS |
+| y0t-15s0.1,-0.485,-0.12pA | oboist | L | 3 | 31 | 62 | 0.55 | 168 | 39 | 0.0% | 0.08 | 16 | 168 | 217 | PASS |
+| y0t-15s0.1,-0.485,-0.12pA | oboist | R | 10 FAIL | 41 | 49 | 0.78 | 111 | 25 | 0.0% | 0.09 | 13 | 111 | 162 | FAIL |
+| y0t-15s0.1,-0.485,-0.12pE | oboist | L | 3 | 27 | 56 | 0.48 FAIL | 151 | 39 | 0.0% | 0.12 | 16 | 151 | 196 | FAIL |
+| y0t-15s0.1,-0.485,-0.12pE | oboist | R | 10 FAIL | 34 | 42 | 0.77 | 93 | 25 | 0.0% | 0.09 | 13 | 93 | 153 | FAIL |
+| y-5t-25s0.1,-0.35,-0.3pA | oboist | L | 2 | 28 | 60 | 0.61 | 162 | 42 | 0.0% | 0.11 | 19 | 162 | 210 | PASS |
+| y-5t-25s0.1,-0.35,-0.3pA | oboist | R | 11 FAIL | 37 | 47 | 0.81 | 106 | 25 | 0.0% | 0.10 | 16 | 106 | 148 | FAIL |
+| y-5t-25s0.1,-0.35,-0.3pE | oboist | L | 3 | 25 | 54 | 0.55 FAIL | 146 | 42 | 0.0% | 0.07 | 19 | 146 | 191 | FAIL |
+| y-5t-25s0.1,-0.35,-0.3pE | oboist | R | 11 FAIL | 33 | 41 | 0.79 | 91 | 25 | 0.0% | 0.11 | 16 | 91 | 140 | FAIL |
+| y-5t-25s0.1,-0.485,-0.12pA | oboist | L | 4 | 32 | 64 | 0.54 FAIL | 171 FAIL | 42 | 0.0% | 0.07 | 19 | 171 | 232 | FAIL |
+| y-5t-25s0.1,-0.485,-0.12pA | oboist | R | 11 FAIL | 51 | 52 | 0.78 | 118 | 27 | 0.0% | 0.10 | 16 | 118 | 166 | FAIL |
+| y-5t-25s0.1,-0.485,-0.12pE | oboist | L | 4 | 28 | 56 | 0.46 FAIL | 153 | 42 | 0.0% | 0.12 | 19 | 153 | 209 | FAIL |
+| y-5t-25s0.1,-0.485,-0.12pE | oboist | R | 12 FAIL | 43 | 44 | 0.75 | 96 | 26 | 0.0% | 0.11 | 16 | 96 | 154 | FAIL |
+| y-5t-15s0.1,-0.35,-0.3pA | oboist | L | 2 | 28 | 60 | 0.62 | 159 | 42 | 0.0% | 0.13 | 19 | 159 | 198 | PASS |
+| y-5t-15s0.1,-0.35,-0.3pA | oboist | R | 11 FAIL | 31 | 42 | 0.77 | 100 | 25 | 0.0% | 0.21 | 16 | 100 | 399 | FAIL |
+| y-5t-15s0.1,-0.35,-0.3pE | oboist | L | 2 | 25 | 54 | 0.57 | 144 | 42 | 0.0% | 0.08 | 19 | 144 | 180 | PASS |
+| y-5t-15s0.1,-0.35,-0.3pE | oboist | R | 11 FAIL | 30 | 38 | 0.79 | 88 | 25 | 0.0% | 0.21 | 16 | 88 | 398 | FAIL |
+| y-5t-15s0.1,-0.485,-0.12pA | oboist | L | 4 | 31 | 62 | 0.55 | 168 | 42 | 0.0% | 0.07 | 19 | 168 | 219 | PASS |
+| y-5t-15s0.1,-0.485,-0.12pA | oboist | R | 11 FAIL | 41 | 49 | 0.78 | 111 | 25 | 0.0% | 0.11 | 16 | 111 | 150 | FAIL |
+| y-5t-15s0.1,-0.485,-0.12pE | oboist | L | 4 | 27 | 56 | 0.48 FAIL | 151 | 42 | 0.0% | 0.11 | 19 | 151 | 197 | FAIL |
+| y-5t-15s0.1,-0.485,-0.12pE | oboist | R | 11 FAIL | 35 | 42 | 0.77 | 93 | 25 | 0.0% | 0.12 | 16 | 93 | 140 | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| oboist | L | flat p5 | rest | 11 | 0.55 | 0.55 | 100.0% | 0.55 at boulanger-matin.mid rest | 0.55 | 0.55 | - | FAIL |
+| oboist | R | folds p95 | lift | 341 | 5 | 10 | 100.0% | 10 at bach-bwv1047.mid wall 0.3 s | 10 | 8 | - | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| oboist | L | flat p5 | rest | 11 | 0.54 | 0.54 | 100.0% | 0.54 at boulanger-matin.mid rest | 0.54 | 0.55 | - | FAIL |
+| oboist | L | paw twist p95 | rest | 11 | 171 | 171 | 100.0% | 171 at mozart-k315.mid rest | 171 | 170 | - | FAIL |
+| oboist | R | folds p95 | rest | 11 | 11 | 11 | 100.0% | 11 at bach-bwv1047.mid rest | 11 | 8 | - | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| oboist | L | flat p5 | rest | 11 | 0.46 | 0.46 | 100.0% | 0.46 at boulanger-matin.mid rest | 0.46 | 0.55 | - | FAIL |
+| oboist | R | folds p95 | lift | 341 | 5 | 12 | 100.0% | 12 at bach-bwv1047.mid wall 0.2 s | 12 | 8 | - | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| oboist | R | folds p95 | lift | 341 | 5 | 10 | 100.0% | 10 at bach-bwv1047.mid wall 0.3 s | 10 | 8 | - | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| oboist | L | flat p5 | rest | 11 | 0.48 | 0.48 | 100.0% | 0.48 at boulanger-matin.mid rest | 0.48 | 0.55 | - | FAIL |
+| oboist | R | folds p95 | lift | 341 | 5 | 10 | 100.0% | 11 at bach-bwv1047.mid wall 0.4 s | 10 | 8 | - | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| oboist | R | folds p95 | play | 14223 | 11 | 11 | 100.0% | 11 at bach-bwv1047.mid -2.10 s | 11 | 8 | - | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| oboist | L | flat p5 | rest | 11 | 0.55 | 0.55 | 100.0% | 0.55 at boulanger-matin.mid rest | 0.55 | 0.55 | - | FAIL |
+| oboist | R | folds p95 | play | 14223 | 11 | 11 | 100.0% | 11 at bach-bwv1047.mid -2.10 s | 11 | 8 | - | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| oboist | L | flat p5 | rest | 11 | 0.54 | 0.54 | 100.0% | 0.54 at boulanger-matin.mid rest | 0.54 | 0.55 | - | FAIL |
+| oboist | L | paw twist p95 | rest | 11 | 171 | 171 | 100.0% | 171 at mozart-k315.mid rest | 171 | 170 | - | FAIL |
+| oboist | R | folds p95 | rest | 11 | 11 | 11 | 100.0% | 11 at bach-bwv1047.mid rest | 11 | 8 | - | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| oboist | L | flat p5 | rest | 11 | 0.46 | 0.46 | 100.0% | 0.46 at boulanger-matin.mid rest | 0.46 | 0.55 | - | FAIL |
+| oboist | R | folds p95 | lift | 341 | 11 | 12 | 100.0% | 12 at bach-bwv1047.mid wall 0.2 s | 12 | 8 | - | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| oboist | R | folds p95 | play | 14223 | 11 | 11 | 100.0% | 11 at bach-bwv1047.mid -2.10 s | 11 | 8 | - | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| oboist | R | folds p95 | play | 14223 | 11 | 11 | 100.0% | 11 at bach-bwv1047.mid -2.10 s | 11 | 8 | - | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| oboist | R | folds p95 | play | 14223 | 11 | 11 | 100.0% | 11 at bach-bwv1047.mid -2.10 s | 11 | 8 | - | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| oboist | L | flat p5 | rest | 11 | 0.48 | 0.48 | 100.0% | 0.48 at boulanger-matin.mid rest | 0.48 | 0.55 | - | FAIL |
+| oboist | R | folds p95 | play | 14223 | 11 | 11 | 100.0% | 11 at bach-bwv1047.mid -2.10 s | 11 | 8 | - | FAIL |
+
+## armv-mouselip.log
+
+> node tools/arm-check.ts oboist --jobs 8 --variant now --set oboe\@mouse.aimSide\=0.5\;oboe\@mouse.rest\=holdTurn\(-15\,0\)\;oboe\@mouse.restShift\=0.1\,-0.35\,-0.3\;oboe\@mouse.restPoleL\=-1\,-1\,-0.5\;oboe\@mouse.restPoleR\=0.5\,-1\,0 --variant lip0\,-0.04\,0.27 --set oboe\@mouse.aimSide\=0.5\;oboe\@mouse.rest\=holdTurn\(-15\,0\)\;oboe\@mouse.restShift\=0.1\,-0.35\,-0.3\;oboe\@mouse.restPoleL\=-1\,-1\,-0.5\;oboe\@mouse.restPoleR\=0.5\,-1\,0\;oboe\@mouse.lipShift\=0\,-0.04\,0.27 --variant lip0\,-0.1\,0.23 --set oboe\@mouse.aimSide\=0.5\;oboe\@mouse.rest\=holdTurn\(-15\,0\)\;oboe\@mouse.restShift\=0.1\,-0.35\,-0.3\;oboe\@mouse.restPoleL\=-1\,-1\,-0.5\;oboe\@mouse.restPoleR\=0.5\,-1\,0\;oboe\@mouse.lipShift\=0\,-0.1\,0.23 --variant lip0\,-0.1\,0.27 --set oboe\@mouse.aimSide\=0.5\;oboe\@mouse.rest\=holdTurn\(-15\,0\)\;oboe\@mouse.restShift\=0.1\,-0.35\,-0.3\;oboe\@mouse.restPoleL\=-1\,-1\,-0.5\;oboe\@mouse.restPoleR\=0.5\,-1\,0\;oboe\@mouse.lipShift\=0\,-0.1\,0.27 --variant lip0\,-0.15\,0.25 --set oboe\@mouse.aimSide\=0.5\;oboe\@mouse.rest\=holdTurn\(-15\,0\)\;oboe\@mouse.restShift\=0.1\,-0.35\,-0.3\;oboe\@mouse.restPoleL\=-1\,-1\,-0.5\;oboe\@mouse.restPoleR\=0.5\,-1\,0\;oboe\@mouse.lipShift\=0\,-0.15\,0.25
+
+| Variant | Role | Arm | folds p95 (8) | twist p95 (55) | forearm twist p95 (80) | flat p5 (0.55) | paw twist p95 (170) | paw swing p95 (70) | paw jumps (0.5%) | stretch p95 (0.35) | grip turn p50 (45) | move twist max (176) | move turn max (3000) | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| now | oboist | L | 2 | 25 | 54 | 0.57 | 144 | 39 | 0.0% | 0.09 | 16 | 144 | 177 | PASS |
+| now | oboist | R | 6 | 27 | 38 | 0.79 | 88 | 25 | 0.0% | 0.19 | 13 | 88 | 313 | PASS |
+| lip0,-0.04,0.27 | oboist | L | 3 | 24 | 54 | 0.56 | 145 | 41 | 0.0% | 0.06 | 17 | 145 | 185 | PASS |
+| lip0,-0.04,0.27 | oboist | R | 10 FAIL | 29 | 39 | 0.79 | 89 | 25 | 0.0% | 0.20 | 13 | 89 | 136 | FAIL |
+| lip0,-0.1,0.23 | oboist | L | 3 | 26 | 55 | 0.54 FAIL | 144 | 37 | 0.0% | 0.08 | 15 | 144 | 172 | FAIL |
+| lip0,-0.1,0.23 | oboist | R | 7 | 28 | 39 | 0.79 | 89 | 25 | 0.0% | 0.19 | 13 | 89 | 348 | PASS |
+| lip0,-0.1,0.27 | oboist | L | 4 | 25 | 55 | 0.53 FAIL | 146 | 38 | 0.0% | 0.08 | 16 | 146 | 179 | FAIL |
+| lip0,-0.1,0.27 | oboist | R | 10 FAIL | 31 | 40 | 0.79 | 89 | 25 | 0.0% | 0.20 | 13 | 89 | 360 | FAIL |
+| lip0,-0.15,0.25 | oboist | L | 4 | 26 | 55 | 0.51 FAIL | 145 | 35 | 0.0% | 0.09 | 15 | 145 | 170 | FAIL |
+| lip0,-0.15,0.25 | oboist | R | 10 FAIL | 31 | 40 | 0.79 | 90 | 25 | 0.0% | 0.19 | 13 | 90 | 409 | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| oboist | R | folds p95 | lift | 341 | 6 | 10 | 100.0% | 10 at bach-bwv1047.mid wall 0.3 s | 10 | 8 | - | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| oboist | L | flat p5 | rest | 11 | 0.54 | 0.54 | 100.0% | 0.54 at boulanger-matin.mid rest | 0.54 | 0.55 | - | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| oboist | L | flat p5 | rest | 11 | 0.53 | 0.53 | 100.0% | 0.53 at boulanger-matin.mid rest | 0.53 | 0.55 | - | FAIL |
+| oboist | R | folds p95 | lift | 341 | 9 | 10 | 100.0% | 11 at bach-bwv1047.mid wall 0.6 s | 10 | 8 | - | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| oboist | L | flat p5 | rest | 11 | 0.51 | 0.51 | 100.0% | 0.51 at boulanger-matin.mid rest | 0.51 | 0.55 | - | FAIL |
+| oboist | R | folds p95 | lift | 341 | 8 | 10 | 100.0% | 10 at bach-bwv1047.mid wall 0.4 s | 10 | 8 | - | FAIL |
+
+## armv-both-mouse5.log
+
+> node tools/arm-check.ts oboist --jobs 8 --variant t-15s0.1\,-0.4\,-0.2pE --set oboe\@mouse.rest\=holdTurn\(-15\,0\)\;oboe\@mouse.restShift\=0.1\,-0.4\,-0.2\;oboe\@mouse.restPoleL\=-1\,-1\,-0.5\;oboe\@mouse.restPoleR\=0.5\,-1\,0 --variant t-15s0.1\,-0.4\,-0.2pF --set oboe\@mouse.rest\=holdTurn\(-15\,0\)\;oboe\@mouse.restShift\=0.1\,-0.4\,-0.2\;oboe\@mouse.restPoleL\=-1\,-1\,0\;oboe\@mouse.restPoleR\=1\,-1\,0 --variant t-15s0.1\,-0.45\,-0.25pE --set oboe\@mouse.rest\=holdTurn\(-15\,0\)\;oboe\@mouse.restShift\=0.1\,-0.45\,-0.25\;oboe\@mouse.restPoleL\=-1\,-1\,-0.5\;oboe\@mouse.restPoleR\=0.5\,-1\,0 --variant t-15s0.1\,-0.45\,-0.25pF --set oboe\@mouse.rest\=holdTurn\(-15\,0\)\;oboe\@mouse.restShift\=0.1\,-0.45\,-0.25\;oboe\@mouse.restPoleL\=-1\,-1\,0\;oboe\@mouse.restPoleR\=1\,-1\,0 --variant t-15s0.15\,-0.45\,-0.2pE --set oboe\@mouse.rest\=holdTurn\(-15\,0\)\;oboe\@mouse.restShift\=0.15\,-0.45\,-0.2\;oboe\@mouse.restPoleL\=-1\,-1\,-0.5\;oboe\@mouse.restPoleR\=0.5\,-1\,0 --variant t-15s0.15\,-0.45\,-0.2pF --set oboe\@mouse.rest\=holdTurn\(-15\,0\)\;oboe\@mouse.restShift\=0.15\,-0.45\,-0.2\;oboe\@mouse.restPoleL\=-1\,-1\,0\;oboe\@mouse.restPoleR\=1\,-1\,0 --variant t-25s0.1\,-0.4\,-0.2pE --set oboe\@mouse.rest\=holdTurn\(-25\,0\)\;oboe\@mouse.restShift\=0.1\,-0.4\,-0.2\;oboe\@mouse.restPoleL\=-1\,-1\,-0.5\;oboe\@mouse.restPoleR\=0.5\,-1\,0 --variant t-25s0.1\,-0.4\,-0.2pF --set oboe\@mouse.rest\=holdTurn\(-25\,0\)\;oboe\@mouse.restShift\=0.1\,-0.4\,-0.2\;oboe\@mouse.restPoleL\=-1\,-1\,0\;oboe\@mouse.restPoleR\=1\,-1\,0 --variant t-25s0.1\,-0.45\,-0.25pE --set oboe\@mouse.rest\=holdTurn\(-25\,0\)\;oboe\@mouse.restShift\=0.1\,-0.45\,-0.25\;oboe\@mouse.restPoleL\=-1\,-1\,-0.5\;oboe\@mouse.restPoleR\=0.5\,-1\,0 --variant t-25s0.1\,-0.45\,-0.25pF --set oboe\@mouse.rest\=holdTurn\(-25\,0\)\;oboe\@mouse.restShift\=0.1\,-0.45\,-0.25\;oboe\@mouse.restPoleL\=-1\,-1\,0\;oboe\@mouse.restPoleR\=1\,-1\,0 --variant t-25s0.15\,-0.45\,-0.2pE --set oboe\@mouse.rest\=holdTurn\(-25\,0\)\;oboe\@mouse.restShift\=0.15\,-0.45\,-0.2\;oboe\@mouse.restPoleL\=-1\,-1\,-0.5\;oboe\@mouse.restPoleR\=0.5\,-1\,0 --variant t-25s0.15\,-0.45\,-0.2pF --set oboe\@mouse.rest\=holdTurn\(-25\,0\)\;oboe\@mouse.restShift\=0.15\,-0.45\,-0.2\;oboe\@mouse.restPoleL\=-1\,-1\,0\;oboe\@mouse.restPoleR\=1\,-1\,0
+
+| Variant | Role | Arm | folds p95 (8) | twist p95 (55) | forearm twist p95 (80) | flat p5 (0.55) | paw twist p95 (170) | paw swing p95 (70) | paw jumps (0.5%) | stretch p95 (0.35) | grip turn p50 (45) | move twist max (176) | move turn max (3000) | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| t-15s0.1,-0.4,-0.2pE | oboist | L | 3 | 25 | 55 | 0.53 FAIL | 147 | 39 | 0.0% | 0.09 | 16 | 147 | 188 | FAIL |
+| t-15s0.1,-0.4,-0.2pE | oboist | R | 10 FAIL | 30 | 41 | 0.79 | 91 | 25 | 0.0% | 0.11 | 13 | 91 | 146 | FAIL |
+| t-15s0.1,-0.4,-0.2pF | oboist | L | 3 | 23 | 51 | 0.48 FAIL | 137 | 39 | 0.0% | 0.11 | 16 | 137 | 176 | FAIL |
+| t-15s0.1,-0.4,-0.2pF | oboist | R | 7 | 36 | 48 | 0.79 | 109 | 25 | 0.0% | 0.11 | 13 | 109 | 155 | PASS |
+| t-15s0.1,-0.45,-0.25pE | oboist | L | 3 | 26 | 55 | 0.51 FAIL | 146 | 39 | 0.0% | 0.09 | 16 | 146 | 181 | FAIL |
+| t-15s0.1,-0.45,-0.25pE | oboist | R | 8 | 28 | 41 | 0.79 | 90 | 25 | 0.0% | 0.19 | 13 | 90 | 328 | PASS |
+| t-15s0.1,-0.45,-0.25pF | oboist | L | 3 | 23 | 51 | 0.47 FAIL | 136 | 39 | 0.0% | 0.11 | 16 | 136 | 168 | FAIL |
+| t-15s0.1,-0.45,-0.25pF | oboist | R | 5 | 33 | 47 | 0.77 | 108 | 25 | 0.0% | 0.19 | 13 | 108 | 334 | PASS |
+| t-15s0.15,-0.45,-0.2pE | oboist | L | 3 | 27 | 56 | 0.48 FAIL | 150 | 39 | 0.0% | 0.10 | 16 | 150 | 188 | FAIL |
+| t-15s0.15,-0.45,-0.2pE | oboist | R | 10 FAIL | 30 | 40 | 0.80 | 88 | 25 | 0.0% | 0.19 | 13 | 88 | 142 | FAIL |
+| t-15s0.15,-0.45,-0.2pF | oboist | L | 3 | 24 | 52 | 0.43 FAIL | 139 | 39 | 0.0% | 0.12 | 16 | 139 | 174 | FAIL |
+| t-15s0.15,-0.45,-0.2pF | oboist | R | 7 | 36 | 47 | 0.77 | 107 | 25 | 0.0% | 0.19 | 13 | 107 | 159 | PASS |
+| t-25s0.1,-0.4,-0.2pE | oboist | L | 3 | 26 | 55 | 0.51 FAIL | 149 | 39 | 0.0% | 0.11 | 16 | 149 | 201 | FAIL |
+| t-25s0.1,-0.4,-0.2pE | oboist | R | 11 FAIL | 37 | 43 | 0.76 | 93 | 25 | 0.0% | 0.08 | 13 | 93 | 164 | FAIL |
+| t-25s0.1,-0.4,-0.2pF | oboist | L | 3 | 24 | 51 | 0.45 FAIL | 138 | 39 | 0.0% | 0.13 | 16 | 138 | 187 | FAIL |
+| t-25s0.1,-0.4,-0.2pF | oboist | R | 10 FAIL | 45 | 49 | 0.80 | 111 | 26 | 0.0% | 0.07 | 13 | 111 | 172 | FAIL |
+| t-25s0.1,-0.45,-0.25pE | oboist | L | 3 | 26 | 56 | 0.49 FAIL | 148 | 39 | 0.0% | 0.10 | 16 | 148 | 192 | FAIL |
+| t-25s0.1,-0.45,-0.25pE | oboist | R | 10 FAIL | 34 | 42 | 0.77 | 93 | 25 | 0.0% | 0.09 | 13 | 93 | 151 | FAIL |
+| t-25s0.1,-0.45,-0.25pF | oboist | L | 3 | 24 | 51 | 0.44 FAIL | 137 | 39 | 0.0% | 0.13 | 16 | 137 | 178 | FAIL |
+| t-25s0.1,-0.45,-0.25pF | oboist | R | 9 FAIL | 41 | 48 | 0.78 | 111 | 25 | 0.0% | 0.09 | 13 | 111 | 160 | FAIL |
+| t-25s0.15,-0.45,-0.2pE | oboist | L | 3 | 27 | 57 | 0.46 FAIL | 152 | 39 | 0.0% | 0.11 | 16 | 152 | 200 | FAIL |
+| t-25s0.15,-0.45,-0.2pE | oboist | R | 11 FAIL | 37 | 42 | 0.77 | 91 | 25 | 0.0% | 0.07 | 13 | 91 | 160 | FAIL |
+| t-25s0.15,-0.45,-0.2pF | oboist | L | 3 | 25 | 52 | 0.42 FAIL | 140 | 39 | 0.0% | 0.13 | 16 | 140 | 185 | FAIL |
+| t-25s0.15,-0.45,-0.2pF | oboist | R | 10 FAIL | 45 | 48 | 0.80 | 110 | 26 | 0.0% | 0.06 | 13 | 110 | 169 | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| oboist | L | flat p5 | rest | 11 | 0.53 | 0.53 | 100.0% | 0.53 at boulanger-matin.mid rest | 0.53 | 0.55 | - | FAIL |
+| oboist | R | folds p95 | lift | 341 | 5 | 10 | 100.0% | 10 at bach-bwv1047.mid wall 0.3 s | 10 | 8 | - | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| oboist | L | flat p5 | rest | 11 | 0.48 | 0.48 | 100.0% | 0.48 at boulanger-matin.mid rest | 0.48 | 0.55 | - | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| oboist | L | flat p5 | rest | 11 | 0.51 | 0.51 | 100.0% | 0.51 at boulanger-matin.mid rest | 0.51 | 0.55 | - | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| oboist | L | flat p5 | rest | 11 | 0.47 | 0.47 | 100.0% | 0.47 at boulanger-matin.mid rest | 0.47 | 0.55 | - | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| oboist | L | flat p5 | rest | 11 | 0.48 | 0.48 | 100.0% | 0.48 at boulanger-matin.mid rest | 0.48 | 0.55 | - | FAIL |
+| oboist | R | folds p95 | lift | 341 | 5 | 10 | 100.0% | 10 at bach-bwv1047.mid wall 0.3 s | 10 | 8 | - | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| oboist | L | flat p5 | rest | 11 | 0.44 | 0.43 | 100.0% | 0.43 at boulanger-matin.mid rest | 0.43 | 0.55 | - | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| oboist | L | flat p5 | rest | 11 | 0.51 | 0.51 | 100.0% | 0.51 at boulanger-matin.mid rest | 0.51 | 0.55 | - | FAIL |
+| oboist | R | folds p95 | rest | 11 | 11 | 11 | 100.0% | 11 at bach-bwv1047.mid rest | 11 | 8 | - | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| oboist | L | flat p5 | rest | 11 | 0.45 | 0.45 | 100.0% | 0.45 at boulanger-matin.mid rest | 0.45 | 0.55 | - | FAIL |
+| oboist | R | folds p95 | rest | 11 | 10 | 10 | 100.0% | 10 at bach-bwv1047.mid rest | 10 | 8 | - | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| oboist | L | flat p5 | rest | 11 | 0.49 | 0.49 | 100.0% | 0.49 at boulanger-matin.mid rest | 0.49 | 0.55 | - | FAIL |
+| oboist | R | folds p95 | lift | 341 | 5 | 10 | 100.0% | 11 at bach-bwv1047.mid wall 0.4 s | 10 | 8 | - | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| oboist | L | flat p5 | rest | 11 | 0.44 | 0.44 | 100.0% | 0.44 at boulanger-matin.mid rest | 0.44 | 0.55 | - | FAIL |
+| oboist | R | folds p95 | lift | 341 | 5 | 9 | 100.0% | 9 at bach-bwv1047.mid wall 0.3 s | 9 | 8 | - | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| oboist | L | flat p5 | rest | 11 | 0.46 | 0.46 | 100.0% | 0.46 at boulanger-matin.mid rest | 0.46 | 0.55 | - | FAIL |
+| oboist | R | folds p95 | lift | 341 | 5 | 11 | 100.0% | 12 at bach-bwv1047.mid wall 0.2 s | 11 | 8 | - | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| oboist | L | flat p5 | rest | 11 | 0.42 | 0.42 | 100.0% | 0.42 at boulanger-matin.mid rest | 0.42 | 0.55 | - | FAIL |
+| oboist | R | folds p95 | lift | 341 | 5 | 10 | 100.0% | 11 at mozart-k191.mid wall 0.3 s | 10 | 8 | - | FAIL |
+
+## armv-foxrest.log
+
+> node tools/arm-check.ts flutist --jobs 8 --variant s0.62\,-0.61\,0.71p0.69\,-1\,-0.01 --set flute\@fox-tan.rest\=0.16754\,-0.37163\,-0.63921\,0.65210\;flute\@fox-tan.restShift\=0.62\,-0.61\,0.71\;flute\@fox-tan.restPoleR\=0.69\,-1\,-0.01 --variant s0.62\,-0.61\,0.71p1\,-1\,0.4 --set flute\@fox-tan.rest\=0.16754\,-0.37163\,-0.63921\,0.65210\;flute\@fox-tan.restShift\=0.62\,-0.61\,0.71\;flute\@fox-tan.restPoleR\=1\,-1\,0.4 --variant s0.62\,-0.61\,0.71p0.5\,-1\,0.5 --set flute\@fox-tan.rest\=0.16754\,-0.37163\,-0.63921\,0.65210\;flute\@fox-tan.restShift\=0.62\,-0.61\,0.71\;flute\@fox-tan.restPoleR\=0.5\,-1\,0.5 --variant s0.62\,-0.61\,0.71p1\,-0.5\,0 --set flute\@fox-tan.rest\=0.16754\,-0.37163\,-0.63921\,0.65210\;flute\@fox-tan.restShift\=0.62\,-0.61\,0.71\;flute\@fox-tan.restPoleR\=1\,-0.5\,0 --variant s0.62\,-0.61\,0.71p0.69\,-1\,-0.5 --set flute\@fox-tan.rest\=0.16754\,-0.37163\,-0.63921\,0.65210\;flute\@fox-tan.restShift\=0.62\,-0.61\,0.71\;flute\@fox-tan.restPoleR\=0.69\,-1\,-0.5 --variant s0.72\,-0.61\,0.71p0.69\,-1\,-0.01 --set flute\@fox-tan.rest\=0.16754\,-0.37163\,-0.63921\,0.65210\;flute\@fox-tan.restShift\=0.72\,-0.61\,0.71\;flute\@fox-tan.restPoleR\=0.69\,-1\,-0.01 --variant s0.72\,-0.61\,0.71p1\,-1\,0.4 --set flute\@fox-tan.rest\=0.16754\,-0.37163\,-0.63921\,0.65210\;flute\@fox-tan.restShift\=0.72\,-0.61\,0.71\;flute\@fox-tan.restPoleR\=1\,-1\,0.4 --variant s0.72\,-0.61\,0.71p0.5\,-1\,0.5 --set flute\@fox-tan.rest\=0.16754\,-0.37163\,-0.63921\,0.65210\;flute\@fox-tan.restShift\=0.72\,-0.61\,0.71\;flute\@fox-tan.restPoleR\=0.5\,-1\,0.5 --variant s0.72\,-0.61\,0.71p1\,-0.5\,0 --set flute\@fox-tan.rest\=0.16754\,-0.37163\,-0.63921\,0.65210\;flute\@fox-tan.restShift\=0.72\,-0.61\,0.71\;flute\@fox-tan.restPoleR\=1\,-0.5\,0 --variant s0.72\,-0.61\,0.71p0.69\,-1\,-0.5 --set flute\@fox-tan.rest\=0.16754\,-0.37163\,-0.63921\,0.65210\;flute\@fox-tan.restShift\=0.72\,-0.61\,0.71\;flute\@fox-tan.restPoleR\=0.69\,-1\,-0.5 --variant s0.62\,-0.61\,0.6p0.69\,-1\,-0.01 --set flute\@fox-tan.rest\=0.16754\,-0.37163\,-0.63921\,0.65210\;flute\@fox-tan.restShift\=0.62\,-0.61\,0.6\;flute\@fox-tan.restPoleR\=0.69\,-1\,-0.01 --variant s0.62\,-0.61\,0.6p1\,-1\,0.4 --set flute\@fox-tan.rest\=0.16754\,-0.37163\,-0.63921\,0.65210\;flute\@fox-tan.restShift\=0.62\,-0.61\,0.6\;flute\@fox-tan.restPoleR\=1\,-1\,0.4 --variant s0.62\,-0.61\,0.6p0.5\,-1\,0.5 --set flute\@fox-tan.rest\=0.16754\,-0.37163\,-0.63921\,0.65210\;flute\@fox-tan.restShift\=0.62\,-0.61\,0.6\;flute\@fox-tan.restPoleR\=0.5\,-1\,0.5 --variant s0.62\,-0.61\,0.6p1\,-0.5\,0 --set flute\@fox-tan.rest\=0.16754\,-0.37163\,-0.63921\,0.65210\;flute\@fox-tan.restShift\=0.62\,-0.61\,0.6\;flute\@fox-tan.restPoleR\=1\,-0.5\,0 --variant s0.62\,-0.61\,0.6p0.69\,-1\,-0.5 --set flute\@fox-tan.rest\=0.16754\,-0.37163\,-0.63921\,0.65210\;flute\@fox-tan.restShift\=0.62\,-0.61\,0.6\;flute\@fox-tan.restPoleR\=0.69\,-1\,-0.5
+
+| Variant | Role | Arm | folds p95 (8) | twist p95 (55) | forearm twist p95 (80) | flat p5 (0.55) | paw twist p95 (170) | paw swing p95 (70) | paw jumps (0.5%) | stretch p95 (0.35) | grip turn p50 (45) | move twist max (176) | move turn max (3000) | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| s0.62,-0.61,0.71p0.69,-1,-0.01 | flutist | L | 3 | 28 | 33 | 0.65 | 121 | 44 | 0.0% | 0.14 | 0 | 132 | 316 | PASS |
+| s0.62,-0.61,0.71p0.69,-1,-0.01 | flutist | R | 12 FAIL | 63 FAIL | 34 | 0.52 FAIL | 120 | 36 | 0.0% | 0.06 | 4 | 121 | 229 | FAIL |
+| s0.62,-0.61,0.71p1,-1,0.4 | flutist | L | 3 | 28 | 33 | 0.65 | 121 | 44 | 0.0% | 0.14 | 0 | 132 | 316 | PASS |
+| s0.62,-0.61,0.71p1,-1,0.4 | flutist | R | 12 FAIL | 62 FAIL | 33 | 0.51 FAIL | 117 | 36 | 0.0% | 0.06 | 4 | 118 | 218 | FAIL |
+| s0.62,-0.61,0.71p0.5,-1,0.5 | flutist | L | 3 | 28 | 33 | 0.65 | 121 | 44 | 0.0% | 0.14 | 0 | 132 | 316 | PASS |
+| s0.62,-0.61,0.71p0.5,-1,0.5 | flutist | R | 10 FAIL | 55 | 26 | 0.49 FAIL | 94 | 29 | 0.0% | 0.06 | 4 | 98 | 171 | FAIL |
+| s0.62,-0.61,0.71p1,-0.5,0 | flutist | L | 3 | 28 | 33 | 0.65 | 121 | 44 | 0.0% | 0.14 | 0 | 132 | 316 | PASS |
+| s0.62,-0.61,0.71p1,-0.5,0 | flutist | R | 14 FAIL | 70 FAIL | 43 | 0.56 | 148 | 42 | 0.0% | 0.06 | 4 | 149 | 281 | FAIL |
+| s0.62,-0.61,0.71p0.69,-1,-0.5 | flutist | L | 3 | 28 | 33 | 0.65 | 121 | 44 | 0.0% | 0.14 | 0 | 132 | 316 | PASS |
+| s0.62,-0.61,0.71p0.69,-1,-0.5 | flutist | R | 16 FAIL | 74 FAIL | 49 | 0.58 | 167 | 43 | 0.0% | 0.07 | 4 | 167 | 299 | FAIL |
+| s0.72,-0.61,0.71p0.69,-1,-0.01 | flutist | L | 3 | 28 | 33 | 0.65 | 121 | 44 | 0.0% | 0.14 | 0 | 133 | 312 | PASS |
+| s0.72,-0.61,0.71p0.69,-1,-0.01 | flutist | R | 12 FAIL | 61 FAIL | 32 | 0.52 FAIL | 114 | 35 | 0.0% | 0.06 | 4 | 117 | 220 | FAIL |
+| s0.72,-0.61,0.71p1,-1,0.4 | flutist | L | 3 | 28 | 33 | 0.65 | 121 | 44 | 0.0% | 0.14 | 0 | 133 | 312 | PASS |
+| s0.72,-0.61,0.71p1,-1,0.4 | flutist | R | 12 FAIL | 60 FAIL | 32 | 0.52 FAIL | 114 | 35 | 0.0% | 0.06 | 4 | 115 | 213 | FAIL |
+| s0.72,-0.61,0.71p0.5,-1,0.5 | flutist | L | 3 | 28 | 33 | 0.65 | 121 | 44 | 0.0% | 0.14 | 0 | 133 | 312 | PASS |
+| s0.72,-0.61,0.71p0.5,-1,0.5 | flutist | R | 10 FAIL | 51 | 25 | 0.50 FAIL | 91 | 29 | 0.0% | 0.06 | 4 | 96 | 165 | FAIL |
+| s0.72,-0.61,0.71p1,-0.5,0 | flutist | L | 3 | 28 | 33 | 0.65 | 121 | 44 | 0.0% | 0.14 | 0 | 133 | 312 | PASS |
+| s0.72,-0.61,0.71p1,-0.5,0 | flutist | R | 14 FAIL | 69 FAIL | 42 | 0.56 | 146 | 42 | 0.0% | 0.06 | 4 | 147 | 277 | FAIL |
+| s0.72,-0.61,0.71p0.69,-1,-0.5 | flutist | L | 3 | 28 | 33 | 0.65 | 121 | 44 | 0.0% | 0.14 | 0 | 133 | 312 | PASS |
+| s0.72,-0.61,0.71p0.69,-1,-0.5 | flutist | R | 16 FAIL | 74 FAIL | 48 | 0.58 | 165 | 42 | 0.0% | 0.06 | 4 | 165 | 288 | FAIL |
+| s0.62,-0.61,0.6p0.69,-1,-0.01 | flutist | L | 3 | 28 | 33 | 0.65 | 121 | 43 | 0.0% | 0.14 | 0 | 131 | 312 | PASS |
+| s0.62,-0.61,0.6p0.69,-1,-0.01 | flutist | R | 10 FAIL | 58 FAIL | 33 | 0.54 FAIL | 116 | 34 | 0.0% | 0.05 | 4 | 118 | 214 | FAIL |
+| s0.62,-0.61,0.6p1,-1,0.4 | flutist | L | 3 | 28 | 33 | 0.65 | 121 | 43 | 0.0% | 0.14 | 0 | 131 | 312 | PASS |
+| s0.62,-0.61,0.6p1,-1,0.4 | flutist | R | 10 FAIL | 57 FAIL | 32 | 0.54 FAIL | 116 | 34 | 0.0% | 0.05 | 4 | 117 | 208 | FAIL |
+| s0.62,-0.61,0.6p0.5,-1,0.5 | flutist | L | 3 | 28 | 33 | 0.65 | 121 | 43 | 0.0% | 0.14 | 0 | 131 | 312 | PASS |
+| s0.62,-0.61,0.6p0.5,-1,0.5 | flutist | R | 8 | 49 | 26 | 0.51 FAIL | 94 | 29 | 0.0% | 0.05 | 4 | 98 | 164 | FAIL |
+| s0.62,-0.61,0.6p1,-0.5,0 | flutist | L | 3 | 28 | 33 | 0.65 | 121 | 43 | 0.0% | 0.14 | 0 | 131 | 312 | PASS |
+| s0.62,-0.61,0.6p1,-0.5,0 | flutist | R | 14 FAIL | 65 FAIL | 42 | 0.59 | 146 | 40 | 0.0% | 0.06 | 4 | 147 | 267 | FAIL |
+| s0.62,-0.61,0.6p0.69,-1,-0.5 | flutist | L | 3 | 28 | 33 | 0.65 | 121 | 43 | 0.0% | 0.14 | 0 | 131 | 312 | PASS |
+| s0.62,-0.61,0.6p0.69,-1,-0.5 | flutist | R | 16 FAIL | 68 FAIL | 45 | 0.60 | 155 | 40 | 0.0% | 0.06 | 4 | 155 | 270 | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| flutist | R | folds p95 | rest | 10 | 11 | 12 | 100.0% | 12 at bach-bwv1050.mid rest | 12 | 8 | - | FAIL |
+| flutist | R | twist p95 | rest | 10 | 63 | 63 | 100.0% | 63 at boulanger-matin.mid rest | 63 | 55 | - | FAIL |
+| flutist | R | flat p5 | rest | 10 | 0.52 | 0.52 | 100.0% | 0.52 at bach-bwv1050.mid rest | 0.52 | 0.55 | - | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| flutist | R | folds p95 | rest | 10 | 12 | 12 | 100.0% | 12 at bach-bwv1047.mid rest | 12 | 8 | - | FAIL |
+| flutist | R | twist p95 | rest | 10 | 62 | 62 | 100.0% | 62 at boulanger-matin.mid rest | 62 | 55 | - | FAIL |
+| flutist | R | flat p5 | rest | 10 | 0.51 | 0.51 | 100.0% | 0.51 at bach-bwv1047.mid rest | 0.51 | 0.55 | - | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| flutist | R | folds p95 | rest | 10 | 10 | 10 | 100.0% | 10 at bach-bwv1047.mid rest | 10 | 8 | - | FAIL |
+| flutist | R | flat p5 | rest | 10 | 0.49 | 0.49 | 100.0% | 0.49 at boulanger-matin.mid rest | 0.49 | 0.55 | - | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| flutist | R | folds p95 | rest | 10 | 14 | 14 | 100.0% | 14 at bach-bwv1047.mid rest | 14 | 8 | - | FAIL |
+| flutist | R | twist p95 | rest | 10 | 70 | 70 | 100.0% | 70 at boulanger-matin.mid rest | 70 | 55 | - | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| flutist | R | folds p95 | rest | 10 | 16 | 16 | 100.0% | 16 at bach-bwv1047.mid rest | 16 | 8 | - | FAIL |
+| flutist | R | twist p95 | rest | 10 | 74 | 74 | 100.0% | 74 at boulanger-matin.mid rest | 74 | 55 | - | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| flutist | R | folds p95 | rest | 10 | 12 | 12 | 100.0% | 12 at bach-bwv1047.mid rest | 12 | 8 | - | FAIL |
+| flutist | R | twist p95 | rest | 10 | 61 | 61 | 100.0% | 61 at boulanger-matin.mid rest | 61 | 55 | - | FAIL |
+| flutist | R | flat p5 | rest | 10 | 0.52 | 0.52 | 100.0% | 0.52 at bach-bwv1050.mid rest | 0.52 | 0.55 | - | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| flutist | R | folds p95 | rest | 10 | 12 | 12 | 100.0% | 12 at bach-bwv1047.mid rest | 12 | 8 | - | FAIL |
+| flutist | R | twist p95 | rest | 10 | 60 | 60 | 100.0% | 60 at boulanger-matin.mid rest | 60 | 55 | - | FAIL |
+| flutist | R | flat p5 | rest | 10 | 0.52 | 0.52 | 100.0% | 0.52 at bach-bwv1050.mid rest | 0.52 | 0.55 | - | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| flutist | R | folds p95 | rest | 10 | 10 | 10 | 100.0% | 10 at bach-bwv1047.mid rest | 10 | 8 | - | FAIL |
+| flutist | R | flat p5 | rest | 10 | 0.50 | 0.50 | 100.0% | 0.50 at boulanger-matin.mid rest | 0.50 | 0.55 | - | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| flutist | R | folds p95 | rest | 10 | 14 | 14 | 100.0% | 14 at bach-bwv1047.mid rest | 14 | 8 | - | FAIL |
+| flutist | R | twist p95 | rest | 10 | 69 | 69 | 100.0% | 69 at boulanger-matin.mid rest | 69 | 55 | - | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| flutist | R | folds p95 | rest | 10 | 16 | 16 | 100.0% | 16 at bach-bwv1047.mid rest | 16 | 8 | - | FAIL |
+| flutist | R | twist p95 | rest | 10 | 74 | 74 | 100.0% | 74 at boulanger-matin.mid rest | 74 | 55 | - | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| flutist | R | folds p95 | rest | 10 | 10 | 10 | 100.0% | 10 at bach-bwv1047.mid rest | 10 | 8 | - | FAIL |
+| flutist | R | twist p95 | rest | 10 | 58 | 58 | 100.0% | 58 at boulanger-matin.mid rest | 58 | 55 | - | FAIL |
+| flutist | R | flat p5 | rest | 10 | 0.54 | 0.54 | 100.0% | 0.54 at bach-bwv1050.mid rest | 0.54 | 0.55 | - | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| flutist | R | folds p95 | rest | 10 | 10 | 10 | 100.0% | 10 at bach-bwv1047.mid rest | 10 | 8 | - | FAIL |
+| flutist | R | twist p95 | rest | 10 | 57 | 57 | 100.0% | 57 at boulanger-matin.mid rest | 57 | 55 | - | FAIL |
+| flutist | R | flat p5 | rest | 10 | 0.54 | 0.54 | 100.0% | 0.54 at bach-bwv1050.mid rest | 0.54 | 0.55 | - | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| flutist | R | flat p5 | rest | 10 | 0.51 | 0.51 | 100.0% | 0.51 at bach-bwv1050.mid rest | 0.51 | 0.55 | - | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| flutist | R | folds p95 | rest | 10 | 14 | 14 | 100.0% | 14 at bach-bwv1047.mid rest | 14 | 8 | - | FAIL |
+| flutist | R | twist p95 | rest | 10 | 65 | 65 | 100.0% | 65 at boulanger-matin.mid rest | 65 | 55 | - | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| flutist | R | folds p95 | rest | 10 | 16 | 16 | 100.0% | 16 at bach-bwv1047.mid rest | 16 | 8 | - | FAIL |
+| flutist | R | twist p95 | rest | 10 | 68 | 68 | 100.0% | 68 at boulanger-matin.mid rest | 68 | 55 | - | FAIL |
+
+## armv-foxrest2.log
+
+> node tools/arm-check.ts flutist --jobs 8 --variant s0.62\,-0.61\,0.6p0.5\,-1\,0.5 --set flute\@fox-tan.rest\=0.16754\,-0.37163\,-0.63921\,0.65210\;flute\@fox-tan.restShift\=0.62\,-0.61\,0.6\;flute\@fox-tan.restPoleR\=0.5\,-1\,0.5 --variant s0.62\,-0.61\,0.6p0.3\,-1\,0.8 --set flute\@fox-tan.rest\=0.16754\,-0.37163\,-0.63921\,0.65210\;flute\@fox-tan.restShift\=0.62\,-0.61\,0.6\;flute\@fox-tan.restPoleR\=0.3\,-1\,0.8 --variant s0.62\,-0.61\,0.6p0.6\,-1\,1 --set flute\@fox-tan.rest\=0.16754\,-0.37163\,-0.63921\,0.65210\;flute\@fox-tan.restShift\=0.62\,-0.61\,0.6\;flute\@fox-tan.restPoleR\=0.6\,-1\,1 --variant s0.62\,-0.61\,0.6p0.2\,-1\,0.5 --set flute\@fox-tan.rest\=0.16754\,-0.37163\,-0.63921\,0.65210\;flute\@fox-tan.restShift\=0.62\,-0.61\,0.6\;flute\@fox-tan.restPoleR\=0.2\,-1\,0.5 --variant s0.62\,-0.61\,0.5p0.5\,-1\,0.5 --set flute\@fox-tan.rest\=0.16754\,-0.37163\,-0.63921\,0.65210\;flute\@fox-tan.restShift\=0.62\,-0.61\,0.5\;flute\@fox-tan.restPoleR\=0.5\,-1\,0.5 --variant s0.62\,-0.61\,0.5p0.3\,-1\,0.8 --set flute\@fox-tan.rest\=0.16754\,-0.37163\,-0.63921\,0.65210\;flute\@fox-tan.restShift\=0.62\,-0.61\,0.5\;flute\@fox-tan.restPoleR\=0.3\,-1\,0.8 --variant s0.62\,-0.61\,0.5p0.6\,-1\,1 --set flute\@fox-tan.rest\=0.16754\,-0.37163\,-0.63921\,0.65210\;flute\@fox-tan.restShift\=0.62\,-0.61\,0.5\;flute\@fox-tan.restPoleR\=0.6\,-1\,1 --variant s0.62\,-0.61\,0.5p0.2\,-1\,0.5 --set flute\@fox-tan.rest\=0.16754\,-0.37163\,-0.63921\,0.65210\;flute\@fox-tan.restShift\=0.62\,-0.61\,0.5\;flute\@fox-tan.restPoleR\=0.2\,-1\,0.5 --variant s0.62\,-0.68\,0.6p0.5\,-1\,0.5 --set flute\@fox-tan.rest\=0.16754\,-0.37163\,-0.63921\,0.65210\;flute\@fox-tan.restShift\=0.62\,-0.68\,0.6\;flute\@fox-tan.restPoleR\=0.5\,-1\,0.5 --variant s0.62\,-0.68\,0.6p0.3\,-1\,0.8 --set flute\@fox-tan.rest\=0.16754\,-0.37163\,-0.63921\,0.65210\;flute\@fox-tan.restShift\=0.62\,-0.68\,0.6\;flute\@fox-tan.restPoleR\=0.3\,-1\,0.8 --variant s0.62\,-0.68\,0.6p0.6\,-1\,1 --set flute\@fox-tan.rest\=0.16754\,-0.37163\,-0.63921\,0.65210\;flute\@fox-tan.restShift\=0.62\,-0.68\,0.6\;flute\@fox-tan.restPoleR\=0.6\,-1\,1 --variant s0.62\,-0.68\,0.6p0.2\,-1\,0.5 --set flute\@fox-tan.rest\=0.16754\,-0.37163\,-0.63921\,0.65210\;flute\@fox-tan.restShift\=0.62\,-0.68\,0.6\;flute\@fox-tan.restPoleR\=0.2\,-1\,0.5 --variant s0.7\,-0.68\,0.5p0.5\,-1\,0.5 --set flute\@fox-tan.rest\=0.16754\,-0.37163\,-0.63921\,0.65210\;flute\@fox-tan.restShift\=0.7\,-0.68\,0.5\;flute\@fox-tan.restPoleR\=0.5\,-1\,0.5 --variant s0.7\,-0.68\,0.5p0.3\,-1\,0.8 --set flute\@fox-tan.rest\=0.16754\,-0.37163\,-0.63921\,0.65210\;flute\@fox-tan.restShift\=0.7\,-0.68\,0.5\;flute\@fox-tan.restPoleR\=0.3\,-1\,0.8 --variant s0.7\,-0.68\,0.5p0.6\,-1\,1 --set flute\@fox-tan.rest\=0.16754\,-0.37163\,-0.63921\,0.65210\;flute\@fox-tan.restShift\=0.7\,-0.68\,0.5\;flute\@fox-tan.restPoleR\=0.6\,-1\,1 --variant s0.7\,-0.68\,0.5p0.2\,-1\,0.5 --set flute\@fox-tan.rest\=0.16754\,-0.37163\,-0.63921\,0.65210\;flute\@fox-tan.restShift\=0.7\,-0.68\,0.5\;flute\@fox-tan.restPoleR\=0.2\,-1\,0.5
+
+| Variant | Role | Arm | folds p95 (8) | twist p95 (55) | forearm twist p95 (80) | flat p5 (0.55) | paw twist p95 (170) | paw swing p95 (70) | paw jumps (0.5%) | stretch p95 (0.35) | grip turn p50 (45) | move twist max (176) | move turn max (3000) | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| s0.62,-0.61,0.6p0.5,-1,0.5 | flutist | L | 3 | 28 | 33 | 0.65 | 121 | 43 | 0.0% | 0.14 | 0 | 131 | 312 | PASS |
+| s0.62,-0.61,0.6p0.5,-1,0.5 | flutist | R | 8 | 49 | 26 | 0.51 FAIL | 94 | 29 | 0.0% | 0.05 | 4 | 98 | 164 | FAIL |
+| s0.62,-0.61,0.6p0.3,-1,0.8 | flutist | L | 3 | 28 | 33 | 0.65 | 121 | 43 | 0.0% | 0.14 | 0 | 131 | 312 | PASS |
+| s0.62,-0.61,0.6p0.3,-1,0.8 | flutist | R | 10 FAIL | 44 | 23 | 0.50 FAIL | 84 | 29 | 0.0% | 0.05 | 4 | 89 | 138 | FAIL |
+| s0.62,-0.61,0.6p0.6,-1,1 | flutist | L | 3 | 28 | 33 | 0.65 | 121 | 43 | 0.0% | 0.14 | 0 | 131 | 312 | PASS |
+| s0.62,-0.61,0.6p0.6,-1,1 | flutist | R | 8 | 48 | 26 | 0.51 FAIL | 92 | 29 | 0.0% | 0.05 | 4 | 97 | 159 | FAIL |
+| s0.62,-0.61,0.6p0.2,-1,0.5 | flutist | L | 3 | 28 | 33 | 0.65 | 121 | 43 | 0.0% | 0.14 | 0 | 131 | 312 | PASS |
+| s0.62,-0.61,0.6p0.2,-1,0.5 | flutist | R | 9 FAIL | 42 | 23 | 0.50 FAIL | 81 | 29 | 0.0% | 0.05 | 4 | 86 | 132 | FAIL |
+| s0.62,-0.61,0.5p0.5,-1,0.5 | flutist | L | 3 | 28 | 33 | 0.65 | 120 | 43 | 0.0% | 0.14 | 0 | 131 | 308 | PASS |
+| s0.62,-0.61,0.5p0.5,-1,0.5 | flutist | R | 7 | 44 | 26 | 0.53 FAIL | 94 | 29 | 0.0% | 0.04 | 4 | 98 | 158 | FAIL |
+| s0.62,-0.61,0.5p0.3,-1,0.8 | flutist | L | 3 | 28 | 33 | 0.65 | 120 | 43 | 0.0% | 0.14 | 0 | 131 | 308 | PASS |
+| s0.62,-0.61,0.5p0.3,-1,0.8 | flutist | R | 7 | 39 | 23 | 0.52 FAIL | 84 | 29 | 0.0% | 0.04 | 4 | 89 | 134 | FAIL |
+| s0.62,-0.61,0.5p0.6,-1,1 | flutist | L | 3 | 28 | 33 | 0.65 | 120 | 43 | 0.0% | 0.14 | 0 | 131 | 308 | PASS |
+| s0.62,-0.61,0.5p0.6,-1,1 | flutist | R | 7 | 44 | 26 | 0.53 FAIL | 92 | 29 | 0.0% | 0.04 | 4 | 97 | 155 | FAIL |
+| s0.62,-0.61,0.5p0.2,-1,0.5 | flutist | L | 3 | 28 | 33 | 0.65 | 120 | 43 | 0.0% | 0.14 | 0 | 131 | 308 | PASS |
+| s0.62,-0.61,0.5p0.2,-1,0.5 | flutist | R | 7 | 37 | 23 | 0.51 FAIL | 81 | 29 | 0.0% | 0.04 | 4 | 86 | 128 | FAIL |
+| s0.62,-0.68,0.6p0.5,-1,0.5 | flutist | L | 3 | 28 | 33 | 0.65 | 121 | 43 | 0.0% | 0.14 | 0 | 131 | 312 | PASS |
+| s0.62,-0.68,0.6p0.5,-1,0.5 | flutist | R | 8 | 48 | 27 | 0.51 FAIL | 95 | 29 | 0.0% | 0.04 | 4 | 99 | 165 | FAIL |
+| s0.62,-0.68,0.6p0.3,-1,0.8 | flutist | L | 3 | 28 | 33 | 0.65 | 121 | 43 | 0.0% | 0.14 | 0 | 131 | 312 | PASS |
+| s0.62,-0.68,0.6p0.3,-1,0.8 | flutist | R | 8 | 43 | 24 | 0.50 FAIL | 85 | 29 | 0.0% | 0.04 | 4 | 90 | 138 | FAIL |
+| s0.62,-0.68,0.6p0.6,-1,1 | flutist | L | 3 | 28 | 33 | 0.65 | 121 | 43 | 0.0% | 0.14 | 0 | 131 | 312 | PASS |
+| s0.62,-0.68,0.6p0.6,-1,1 | flutist | R | 8 | 47 | 26 | 0.51 FAIL | 93 | 29 | 0.0% | 0.04 | 4 | 98 | 159 | FAIL |
+| s0.62,-0.68,0.6p0.2,-1,0.5 | flutist | L | 3 | 28 | 33 | 0.65 | 121 | 43 | 0.0% | 0.14 | 0 | 131 | 312 | PASS |
+| s0.62,-0.68,0.6p0.2,-1,0.5 | flutist | R | 9 FAIL | 41 | 23 | 0.50 FAIL | 82 | 29 | 0.0% | 0.04 | 4 | 87 | 133 | FAIL |
+| s0.7,-0.68,0.5p0.5,-1,0.5 | flutist | L | 3 | 28 | 33 | 0.65 | 121 | 42 | 0.0% | 0.14 | 0 | 131 | 305 | PASS |
+| s0.7,-0.68,0.5p0.5,-1,0.5 | flutist | R | 7 | 42 | 26 | 0.55 FAIL | 93 | 29 | 0.0% | 0.05 | 4 | 97 | 155 | FAIL |
+| s0.7,-0.68,0.5p0.3,-1,0.8 | flutist | L | 3 | 28 | 33 | 0.65 | 121 | 42 | 0.0% | 0.14 | 0 | 131 | 305 | PASS |
+| s0.7,-0.68,0.5p0.3,-1,0.8 | flutist | R | 7 | 36 | 23 | 0.54 FAIL | 84 | 29 | 0.0% | 0.04 | 4 | 88 | 132 | FAIL |
+| s0.7,-0.68,0.5p0.6,-1,1 | flutist | L | 3 | 28 | 33 | 0.65 | 121 | 42 | 0.0% | 0.14 | 0 | 131 | 305 | PASS |
+| s0.7,-0.68,0.5p0.6,-1,1 | flutist | R | 7 | 42 | 26 | 0.54 FAIL | 91 | 29 | 0.0% | 0.04 | 4 | 97 | 153 | FAIL |
+| s0.7,-0.68,0.5p0.2,-1,0.5 | flutist | L | 3 | 28 | 33 | 0.65 | 121 | 42 | 0.0% | 0.14 | 0 | 131 | 305 | PASS |
+| s0.7,-0.68,0.5p0.2,-1,0.5 | flutist | R | 6 | 35 | 23 | 0.53 FAIL | 81 | 29 | 0.0% | 0.04 | 4 | 85 | 125 | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| flutist | R | flat p5 | rest | 10 | 0.51 | 0.51 | 100.0% | 0.51 at bach-bwv1050.mid rest | 0.51 | 0.55 | - | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| flutist | R | folds p95 | rest | 10 | 10 | 10 | 100.0% | 10 at bach-bwv1047.mid rest | 10 | 8 | - | FAIL |
+| flutist | R | flat p5 | rest | 10 | 0.50 | 0.50 | 100.0% | 0.50 at boulanger-matin.mid rest | 0.50 | 0.55 | - | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| flutist | R | flat p5 | rest | 10 | 0.51 | 0.51 | 100.0% | 0.51 at boulanger-matin.mid rest | 0.51 | 0.55 | - | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| flutist | R | folds p95 | rest | 10 | 9 | 9 | 100.0% | 9 at bach-bwv1047.mid rest | 9 | 8 | - | FAIL |
+| flutist | R | flat p5 | rest | 10 | 0.50 | 0.50 | 100.0% | 0.50 at boulanger-matin.mid rest | 0.50 | 0.55 | - | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| flutist | R | flat p5 | rest | 10 | 0.53 | 0.53 | 100.0% | 0.53 at bach-bwv1050.mid rest | 0.53 | 0.55 | - | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| flutist | R | flat p5 | rest | 10 | 0.52 | 0.52 | 100.0% | 0.52 at bach-bwv1050.mid rest | 0.52 | 0.55 | - | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| flutist | R | flat p5 | rest | 10 | 0.53 | 0.53 | 100.0% | 0.53 at bach-bwv1050.mid rest | 0.53 | 0.55 | - | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| flutist | R | flat p5 | rest | 10 | 0.51 | 0.51 | 100.0% | 0.51 at bach-bwv1050.mid rest | 0.51 | 0.55 | - | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| flutist | R | flat p5 | rest | 10 | 0.51 | 0.51 | 100.0% | 0.51 at bach-bwv1050.mid rest | 0.51 | 0.55 | - | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| flutist | R | flat p5 | rest | 10 | 0.50 | 0.50 | 100.0% | 0.50 at boulanger-matin.mid rest | 0.50 | 0.55 | - | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| flutist | R | flat p5 | rest | 10 | 0.51 | 0.51 | 100.0% | 0.51 at bach-bwv1050.mid rest | 0.51 | 0.55 | - | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| flutist | R | folds p95 | rest | 10 | 9 | 9 | 100.0% | 9 at bach-bwv1050.mid rest | 9 | 8 | - | FAIL |
+| flutist | R | flat p5 | rest | 10 | 0.50 | 0.50 | 100.0% | 0.50 at boulanger-matin.mid rest | 0.50 | 0.55 | - | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| flutist | R | flat p5 | rest | 10 | 0.55 | 0.55 | 100.0% | 0.55 at bach-bwv1050.mid rest | 0.55 | 0.55 | - | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| flutist | R | flat p5 | rest | 10 | 0.54 | 0.54 | 100.0% | 0.54 at bach-bwv1050.mid rest | 0.54 | 0.55 | - | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| flutist | R | flat p5 | rest | 10 | 0.54 | 0.54 | 100.0% | 0.54 at bach-bwv1050.mid rest | 0.54 | 0.55 | - | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| flutist | R | flat p5 | rest | 10 | 0.53 | 0.53 | 100.0% | 0.53 at bach-bwv1050.mid rest | 0.53 | 0.55 | - | FAIL |
+
+## armv-foxrest3.log
+
+> node tools/arm-check.ts flutist --jobs 8 --variant t-143\,85s0.75\,-0.7\,0.45p0.5\,-1\,0.5 --set flute\@fox-tan.rest\=0.16754\,-0.37163\,-0.63921\,0.65210\;flute\@fox-tan.restShift\=0.75\,-0.7\,0.45\;flute\@fox-tan.restPoleR\=0.5\,-1\,0.5 --variant t-143\,85s0.75\,-0.7\,0.45p0.2\,-1\,0.5 --set flute\@fox-tan.rest\=0.16754\,-0.37163\,-0.63921\,0.65210\;flute\@fox-tan.restShift\=0.75\,-0.7\,0.45\;flute\@fox-tan.restPoleR\=0.2\,-1\,0.5 --variant t-143\,85s0.8\,-0.7\,0.4p0.5\,-1\,0.5 --set flute\@fox-tan.rest\=0.16754\,-0.37163\,-0.63921\,0.65210\;flute\@fox-tan.restShift\=0.8\,-0.7\,0.4\;flute\@fox-tan.restPoleR\=0.5\,-1\,0.5 --variant t-143\,85s0.8\,-0.7\,0.4p0.2\,-1\,0.5 --set flute\@fox-tan.rest\=0.16754\,-0.37163\,-0.63921\,0.65210\;flute\@fox-tan.restShift\=0.8\,-0.7\,0.4\;flute\@fox-tan.restPoleR\=0.2\,-1\,0.5 --variant t-143\,85s0.85\,-0.72\,0.35p0.5\,-1\,0.5 --set flute\@fox-tan.rest\=0.16754\,-0.37163\,-0.63921\,0.65210\;flute\@fox-tan.restShift\=0.85\,-0.72\,0.35\;flute\@fox-tan.restPoleR\=0.5\,-1\,0.5 --variant t-143\,85s0.85\,-0.72\,0.35p0.2\,-1\,0.5 --set flute\@fox-tan.rest\=0.16754\,-0.37163\,-0.63921\,0.65210\;flute\@fox-tan.restShift\=0.85\,-0.72\,0.35\;flute\@fox-tan.restPoleR\=0.2\,-1\,0.5 --variant t-150\,80s0.75\,-0.7\,0.45p0.5\,-1\,0.5 --set flute\@fox-tan.rest\=0.14217\,-0.39066\,-0.65818\,0.62768\;flute\@fox-tan.restShift\=0.75\,-0.7\,0.45\;flute\@fox-tan.restPoleR\=0.5\,-1\,0.5 --variant t-150\,80s0.75\,-0.7\,0.45p0.2\,-1\,0.5 --set flute\@fox-tan.rest\=0.14217\,-0.39066\,-0.65818\,0.62768\;flute\@fox-tan.restShift\=0.75\,-0.7\,0.45\;flute\@fox-tan.restPoleR\=0.2\,-1\,0.5 --variant t-150\,80s0.8\,-0.7\,0.4p0.5\,-1\,0.5 --set flute\@fox-tan.rest\=0.14217\,-0.39066\,-0.65818\,0.62768\;flute\@fox-tan.restShift\=0.8\,-0.7\,0.4\;flute\@fox-tan.restPoleR\=0.5\,-1\,0.5 --variant t-150\,80s0.8\,-0.7\,0.4p0.2\,-1\,0.5 --set flute\@fox-tan.rest\=0.14217\,-0.39066\,-0.65818\,0.62768\;flute\@fox-tan.restShift\=0.8\,-0.7\,0.4\;flute\@fox-tan.restPoleR\=0.2\,-1\,0.5 --variant t-150\,80s0.85\,-0.72\,0.35p0.5\,-1\,0.5 --set flute\@fox-tan.rest\=0.14217\,-0.39066\,-0.65818\,0.62768\;flute\@fox-tan.restShift\=0.85\,-0.72\,0.35\;flute\@fox-tan.restPoleR\=0.5\,-1\,0.5 --variant t-150\,80s0.85\,-0.72\,0.35p0.2\,-1\,0.5 --set flute\@fox-tan.rest\=0.14217\,-0.39066\,-0.65818\,0.62768\;flute\@fox-tan.restShift\=0.85\,-0.72\,0.35\;flute\@fox-tan.restPoleR\=0.2\,-1\,0.5 --variant t-150\,78s0.75\,-0.7\,0.45p0.5\,-1\,0.5 --set flute\@fox-tan.rest\=0.13125\,-0.39908\,-0.66393\,0.61863\;flute\@fox-tan.restShift\=0.75\,-0.7\,0.45\;flute\@fox-tan.restPoleR\=0.5\,-1\,0.5 --variant t-150\,78s0.75\,-0.7\,0.45p0.2\,-1\,0.5 --set flute\@fox-tan.rest\=0.13125\,-0.39908\,-0.66393\,0.61863\;flute\@fox-tan.restShift\=0.75\,-0.7\,0.45\;flute\@fox-tan.restPoleR\=0.2\,-1\,0.5 --variant t-150\,78s0.8\,-0.7\,0.4p0.5\,-1\,0.5 --set flute\@fox-tan.rest\=0.13125\,-0.39908\,-0.66393\,0.61863\;flute\@fox-tan.restShift\=0.8\,-0.7\,0.4\;flute\@fox-tan.restPoleR\=0.5\,-1\,0.5 --variant t-150\,78s0.8\,-0.7\,0.4p0.2\,-1\,0.5 --set flute\@fox-tan.rest\=0.13125\,-0.39908\,-0.66393\,0.61863\;flute\@fox-tan.restShift\=0.8\,-0.7\,0.4\;flute\@fox-tan.restPoleR\=0.2\,-1\,0.5 --variant t-150\,78s0.85\,-0.72\,0.35p0.5\,-1\,0.5 --set flute\@fox-tan.rest\=0.13125\,-0.39908\,-0.66393\,0.61863\;flute\@fox-tan.restShift\=0.85\,-0.72\,0.35\;flute\@fox-tan.restPoleR\=0.5\,-1\,0.5 --variant t-150\,78s0.85\,-0.72\,0.35p0.2\,-1\,0.5 --set flute\@fox-tan.rest\=0.13125\,-0.39908\,-0.66393\,0.61863\;flute\@fox-tan.restShift\=0.85\,-0.72\,0.35\;flute\@fox-tan.restPoleR\=0.2\,-1\,0.5
+
+| Variant | Role | Arm | folds p95 (8) | twist p95 (55) | forearm twist p95 (80) | flat p5 (0.55) | paw twist p95 (170) | paw swing p95 (70) | paw jumps (0.5%) | stretch p95 (0.35) | grip turn p50 (45) | move twist max (176) | move turn max (3000) | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| t-143,85s0.75,-0.7,0.45p0.5,-1,0.5 | flutist | L | 3 | 28 | 33 | 0.65 | 120 | 42 | 0.0% | 0.14 | 0 | 131 | 301 | PASS |
+| t-143,85s0.75,-0.7,0.45p0.5,-1,0.5 | flutist | R | 7 | 39 | 26 | 0.57 | 91 | 29 | 0.0% | 0.06 | 4 | 96 | 151 | PASS |
+| t-143,85s0.75,-0.7,0.45p0.2,-1,0.5 | flutist | L | 3 | 28 | 33 | 0.65 | 120 | 42 | 0.0% | 0.14 | 0 | 131 | 301 | PASS |
+| t-143,85s0.75,-0.7,0.45p0.2,-1,0.5 | flutist | R | 5 | 34 | 23 | 0.56 | 80 | 29 | 0.0% | 0.06 | 4 | 84 | 122 | PASS |
+| t-143,85s0.8,-0.7,0.4p0.5,-1,0.5 | flutist | L | 3 | 28 | 33 | 0.65 | 120 | 42 | 0.0% | 0.14 | 0 | 132 | 297 | PASS |
+| t-143,85s0.8,-0.7,0.4p0.5,-1,0.5 | flutist | R | 6 | 36 | 25 | 0.60 | 90 | 29 | 0.0% | 0.08 | 4 | 95 | 146 | PASS |
+| t-143,85s0.8,-0.7,0.4p0.2,-1,0.5 | flutist | L | 3 | 28 | 33 | 0.65 | 120 | 42 | 0.0% | 0.14 | 0 | 132 | 297 | PASS |
+| t-143,85s0.8,-0.7,0.4p0.2,-1,0.5 | flutist | R | 5 | 32 | 22 | 0.58 | 80 | 29 | 0.0% | 0.07 | 4 | 83 | 118 | PASS |
+| t-143,85s0.85,-0.72,0.35p0.5,-1,0.5 | flutist | L | 3 | 28 | 33 | 0.65 | 121 | 41 | 0.0% | 0.14 | 0 | 132 | 294 | PASS |
+| t-143,85s0.85,-0.72,0.35p0.5,-1,0.5 | flutist | R | 6 | 35 | 25 | 0.62 | 89 | 29 | 0.0% | 0.11 | 4 | 94 | 142 | PASS |
+| t-143,85s0.85,-0.72,0.35p0.2,-1,0.5 | flutist | L | 3 | 28 | 33 | 0.65 | 121 | 41 | 0.0% | 0.14 | 0 | 132 | 294 | PASS |
+| t-143,85s0.85,-0.72,0.35p0.2,-1,0.5 | flutist | R | 5 | 29 | 22 | 0.61 | 79 | 29 | 0.0% | 0.11 | 4 | 82 | 115 | PASS |
+| t-150,80s0.75,-0.7,0.45p0.5,-1,0.5 | flutist | L | 3 | 28 | 33 | 0.65 | 120 | 42 | 0.0% | 0.14 | 0 | 131 | 304 | PASS |
+| t-150,80s0.75,-0.7,0.45p0.5,-1,0.5 | flutist | R | 7 | 42 | 26 | 0.54 FAIL | 94 | 29 | 0.0% | 0.05 | 4 | 98 | 161 | FAIL |
+| t-150,80s0.75,-0.7,0.45p0.2,-1,0.5 | flutist | L | 3 | 28 | 33 | 0.65 | 120 | 42 | 0.0% | 0.14 | 0 | 131 | 304 | PASS |
+| t-150,80s0.75,-0.7,0.45p0.2,-1,0.5 | flutist | R | 7 | 36 | 23 | 0.53 FAIL | 82 | 29 | 0.0% | 0.04 | 4 | 86 | 131 | FAIL |
+| t-150,80s0.8,-0.7,0.4p0.5,-1,0.5 | flutist | L | 3 | 28 | 33 | 0.65 | 120 | 42 | 0.0% | 0.14 | 0 | 132 | 300 | PASS |
+| t-150,80s0.8,-0.7,0.4p0.5,-1,0.5 | flutist | R | 7 | 39 | 26 | 0.57 | 92 | 29 | 0.0% | 0.06 | 4 | 97 | 156 | PASS |
+| t-150,80s0.8,-0.7,0.4p0.2,-1,0.5 | flutist | L | 3 | 28 | 33 | 0.65 | 120 | 42 | 0.0% | 0.14 | 0 | 132 | 300 | PASS |
+| t-150,80s0.8,-0.7,0.4p0.2,-1,0.5 | flutist | R | 7 | 34 | 23 | 0.55 | 81 | 29 | 0.0% | 0.05 | 4 | 85 | 127 | PASS |
+| t-150,80s0.85,-0.72,0.35p0.5,-1,0.5 | flutist | L | 3 | 28 | 33 | 0.65 | 121 | 41 | 0.0% | 0.14 | 0 | 132 | 296 | PASS |
+| t-150,80s0.85,-0.72,0.35p0.5,-1,0.5 | flutist | R | 6 | 37 | 26 | 0.59 | 91 | 29 | 0.0% | 0.08 | 4 | 96 | 152 | PASS |
+| t-150,80s0.85,-0.72,0.35p0.2,-1,0.5 | flutist | L | 3 | 28 | 33 | 0.65 | 121 | 41 | 0.0% | 0.14 | 0 | 132 | 296 | PASS |
+| t-150,80s0.85,-0.72,0.35p0.2,-1,0.5 | flutist | R | 5 | 32 | 23 | 0.58 | 81 | 29 | 0.0% | 0.08 | 4 | 84 | 124 | PASS |
+| t-150,78s0.75,-0.7,0.45p0.5,-1,0.5 | flutist | L | 3 | 28 | 33 | 0.65 | 120 | 42 | 0.0% | 0.14 | 0 | 131 | 305 | PASS |
+| t-150,78s0.75,-0.7,0.45p0.5,-1,0.5 | flutist | R | 7 | 44 | 27 | 0.53 FAIL | 95 | 29 | 0.0% | 0.04 | 4 | 99 | 166 | FAIL |
+| t-150,78s0.75,-0.7,0.45p0.2,-1,0.5 | flutist | L | 3 | 28 | 33 | 0.65 | 120 | 42 | 0.0% | 0.14 | 0 | 131 | 305 | PASS |
+| t-150,78s0.75,-0.7,0.45p0.2,-1,0.5 | flutist | R | 7 | 37 | 23 | 0.52 FAIL | 82 | 29 | 0.0% | 0.04 | 4 | 87 | 135 | FAIL |
+| t-150,78s0.8,-0.7,0.4p0.5,-1,0.5 | flutist | L | 3 | 28 | 33 | 0.65 | 120 | 42 | 0.0% | 0.14 | 0 | 132 | 301 | PASS |
+| t-150,78s0.8,-0.7,0.4p0.5,-1,0.5 | flutist | R | 7 | 41 | 26 | 0.55 | 93 | 29 | 0.0% | 0.05 | 4 | 98 | 160 | PASS |
+| t-150,78s0.8,-0.7,0.4p0.2,-1,0.5 | flutist | L | 3 | 28 | 33 | 0.65 | 120 | 42 | 0.0% | 0.14 | 0 | 132 | 301 | PASS |
+| t-150,78s0.8,-0.7,0.4p0.2,-1,0.5 | flutist | R | 7 | 35 | 23 | 0.54 FAIL | 81 | 29 | 0.0% | 0.05 | 4 | 86 | 131 | FAIL |
+| t-150,78s0.85,-0.72,0.35p0.5,-1,0.5 | flutist | L | 3 | 28 | 33 | 0.65 | 121 | 41 | 0.0% | 0.14 | 0 | 132 | 297 | PASS |
+| t-150,78s0.85,-0.72,0.35p0.5,-1,0.5 | flutist | R | 7 | 37 | 26 | 0.58 | 92 | 29 | 0.0% | 0.07 | 4 | 97 | 156 | PASS |
+| t-150,78s0.85,-0.72,0.35p0.2,-1,0.5 | flutist | L | 3 | 28 | 33 | 0.65 | 121 | 41 | 0.0% | 0.14 | 0 | 132 | 297 | PASS |
+| t-150,78s0.85,-0.72,0.35p0.2,-1,0.5 | flutist | R | 6 | 34 | 23 | 0.57 | 81 | 29 | 0.0% | 0.07 | 4 | 85 | 127 | PASS |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| flutist | R | flat p5 | rest | 10 | 0.54 | 0.54 | 100.0% | 0.54 at bach-bwv1050.mid rest | 0.54 | 0.55 | - | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| flutist | R | flat p5 | rest | 10 | 0.53 | 0.53 | 100.0% | 0.53 at bach-bwv1050.mid rest | 0.53 | 0.55 | - | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| flutist | R | flat p5 | rest | 10 | 0.53 | 0.53 | 100.0% | 0.53 at bach-bwv1050.mid rest | 0.53 | 0.55 | - | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| flutist | R | flat p5 | rest | 10 | 0.52 | 0.52 | 100.0% | 0.52 at bach-bwv1050.mid rest | 0.52 | 0.55 | - | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| flutist | R | flat p5 | rest | 10 | 0.54 | 0.54 | 100.0% | 0.54 at bach-bwv1050.mid rest | 0.54 | 0.55 | - | FAIL |
+
+## armv-fb-a.log
+
+> node tools/arm-check.ts flutist --jobs 8 --variant s0.75\,-0.85\,0.45p0.5\,-1\,0.5 --set flute\@fox-tan.rest\=0.16754\,-0.37163\,-0.63921\,0.65210\;flute\@fox-tan.restShift\=0.75\,-0.85\,0.45\;flute\@fox-tan.restPoleR\=0.5\,-1\,0.5 --variant s0.7\,-0.8\,0.5p0.5\,-1\,0.5 --set flute\@fox-tan.rest\=0.16754\,-0.37163\,-0.63921\,0.65210\;flute\@fox-tan.restShift\=0.7\,-0.8\,0.5\;flute\@fox-tan.restPoleR\=0.5\,-1\,0.5 --variant s0.65\,-0.75\,0.55p0.5\,-1\,0.5 --set flute\@fox-tan.rest\=0.16754\,-0.37163\,-0.63921\,0.65210\;flute\@fox-tan.restShift\=0.65\,-0.75\,0.55\;flute\@fox-tan.restPoleR\=0.5\,-1\,0.5 --variant s0.7\,-0.8\,0.5p0.69\,-1\,-0.01 --set flute\@fox-tan.rest\=0.16754\,-0.37163\,-0.63921\,0.65210\;flute\@fox-tan.restShift\=0.7\,-0.8\,0.5\;flute\@fox-tan.restPoleR\=0.69\,-1\,-0.01 --variant s0.7\,-0.8\,0.5p1\,-1\,0.4 --set flute\@fox-tan.rest\=0.16754\,-0.37163\,-0.63921\,0.65210\;flute\@fox-tan.restShift\=0.7\,-0.8\,0.5\;flute\@fox-tan.restPoleR\=1\,-1\,0.4
+
+| Variant | Role | Arm | folds p95 (8) | twist p95 (55) | forearm twist p95 (80) | flat p5 (0.55) | paw twist p95 (170) | paw swing p95 (70) | paw jumps (0.5%) | stretch p95 (0.35) | grip turn p50 (45) | move twist max (176) | move turn max (3000) | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| s0.75,-0.85,0.45p0.5,-1,0.5 | flutist | L | 3 | 28 | 33 | 0.65 | 120 | 41 | 0.0% | 0.14 | 0 | 131 | 302 | PASS |
+| s0.75,-0.85,0.45p0.5,-1,0.5 | flutist | R | 7 | 38 | 27 | 0.59 | 93 | 29 | 0.0% | 0.14 | 4 | 98 | 152 | PASS |
+| s0.7,-0.8,0.5p0.5,-1,0.5 | flutist | L | 3 | 28 | 33 | 0.65 | 120 | 41 | 0.0% | 0.14 | 0 | 131 | 306 | PASS |
+| s0.7,-0.8,0.5p0.5,-1,0.5 | flutist | R | 7 | 40 | 27 | 0.56 | 94 | 29 | 0.0% | 0.08 | 4 | 99 | 156 | PASS |
+| s0.65,-0.75,0.55p0.5,-1,0.5 | flutist | L | 3 | 28 | 33 | 0.65 | 120 | 42 | 0.0% | 0.14 | 0 | 131 | 309 | PASS |
+| s0.65,-0.75,0.55p0.5,-1,0.5 | flutist | R | 7 | 44 | 27 | 0.53 FAIL | 95 | 29 | 0.0% | 0.05 | 4 | 99 | 161 | FAIL |
+| s0.7,-0.8,0.5p0.69,-1,-0.01 | flutist | L | 3 | 28 | 33 | 0.65 | 120 | 41 | 0.0% | 0.14 | 0 | 131 | 306 | PASS |
+| s0.7,-0.8,0.5p0.69,-1,-0.01 | flutist | R | 10 FAIL | 50 | 33 | 0.58 | 117 | 29 | 0.0% | 0.08 | 4 | 119 | 201 | FAIL |
+| s0.7,-0.8,0.5p1,-1,0.4 | flutist | L | 3 | 28 | 33 | 0.65 | 120 | 41 | 0.0% | 0.14 | 0 | 131 | 306 | PASS |
+| s0.7,-0.8,0.5p1,-1,0.4 | flutist | R | 10 FAIL | 50 | 33 | 0.58 | 117 | 29 | 0.0% | 0.08 | 4 | 118 | 198 | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| flutist | R | flat p5 | rest | 10 | 0.53 | 0.53 | 100.0% | 0.53 at bach-bwv1050.mid rest | 0.53 | 0.55 | - | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| flutist | R | folds p95 | rest | 10 | 10 | 10 | 100.0% | 10 at bach-bwv1047.mid rest | 10 | 8 | - | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| flutist | R | folds p95 | rest | 10 | 10 | 10 | 100.0% | 10 at bach-bwv1047.mid rest | 10 | 8 | - | FAIL |
+
+## armv-fb-knee.log
+
+> node tools/arm-check.ts flutist --jobs 8 --variant s0.59\,-0.73\,0.4p0.69\,-1\,-0.01 --set flute\@fox-tan.rest\=0.16754\,-0.37163\,-0.63921\,0.65210\;flute\@fox-tan.restShift\=0.59\,-0.73\,0.4\;flute\@fox-tan.restPoleR\=0.69\,-1\,-0.01 --variant s0.59\,-0.73\,0.4p1\,-0.6\,0.2 --set flute\@fox-tan.rest\=0.16754\,-0.37163\,-0.63921\,0.65210\;flute\@fox-tan.restShift\=0.59\,-0.73\,0.4\;flute\@fox-tan.restPoleR\=1\,-0.6\,0.2 --variant s0.59\,-0.73\,0.4p0.5\,-1\,0.5 --set flute\@fox-tan.rest\=0.16754\,-0.37163\,-0.63921\,0.65210\;flute\@fox-tan.restShift\=0.59\,-0.73\,0.4\;flute\@fox-tan.restPoleR\=0.5\,-1\,0.5 --variant s0.65\,-0.75\,0.4p0.69\,-1\,-0.01 --set flute\@fox-tan.rest\=0.16754\,-0.37163\,-0.63921\,0.65210\;flute\@fox-tan.restShift\=0.65\,-0.75\,0.4\;flute\@fox-tan.restPoleR\=0.69\,-1\,-0.01 --variant s0.65\,-0.75\,0.4p1\,-0.6\,0.2 --set flute\@fox-tan.rest\=0.16754\,-0.37163\,-0.63921\,0.65210\;flute\@fox-tan.restShift\=0.65\,-0.75\,0.4\;flute\@fox-tan.restPoleR\=1\,-0.6\,0.2 --variant s0.55\,-0.78\,0.3p0.69\,-1\,-0.01 --set flute\@fox-tan.rest\=0.16754\,-0.37163\,-0.63921\,0.65210\;flute\@fox-tan.restShift\=0.55\,-0.78\,0.3\;flute\@fox-tan.restPoleR\=0.69\,-1\,-0.01 --variant s0.55\,-0.78\,0.3p1\,-0.6\,0.2 --set flute\@fox-tan.rest\=0.16754\,-0.37163\,-0.63921\,0.65210\;flute\@fox-tan.restShift\=0.55\,-0.78\,0.3\;flute\@fox-tan.restPoleR\=1\,-0.6\,0.2
+
+| Variant | Role | Arm | folds p95 (8) | twist p95 (55) | forearm twist p95 (80) | flat p5 (0.55) | paw twist p95 (170) | paw swing p95 (70) | paw jumps (0.5%) | stretch p95 (0.35) | grip turn p50 (45) | move twist max (176) | move turn max (3000) | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| s0.59,-0.73,0.4p0.69,-1,-0.01 | flutist | L | 3 | 28 | 33 | 0.65 | 120 | 41 | 0.0% | 0.14 | 0 | 130 | 307 | PASS |
+| s0.59,-0.73,0.4p0.69,-1,-0.01 | flutist | R | 10 FAIL | 48 | 33 | 0.59 | 117 | 29 | 0.0% | 0.07 | 4 | 119 | 196 | FAIL |
+| s0.59,-0.73,0.4p1,-0.6,0.2 | flutist | L | 3 | 28 | 33 | 0.65 | 120 | 41 | 0.0% | 0.14 | 0 | 130 | 307 | PASS |
+| s0.59,-0.73,0.4p1,-0.6,0.2 | flutist | R | 11 FAIL | 54 | 38 | 0.62 | 132 | 31 | 0.0% | 0.07 | 4 | 134 | 225 | FAIL |
+| s0.59,-0.73,0.4p0.5,-1,0.5 | flutist | L | 3 | 28 | 33 | 0.65 | 120 | 41 | 0.0% | 0.14 | 0 | 130 | 307 | PASS |
+| s0.59,-0.73,0.4p0.5,-1,0.5 | flutist | R | 8 | 39 | 27 | 0.56 | 96 | 29 | 0.0% | 0.07 | 4 | 100 | 155 | PASS |
+| s0.65,-0.75,0.4p0.69,-1,-0.01 | flutist | L | 3 | 28 | 33 | 0.65 | 120 | 41 | 0.0% | 0.14 | 0 | 130 | 305 | PASS |
+| s0.65,-0.75,0.4p0.69,-1,-0.01 | flutist | R | 9 FAIL | 47 | 33 | 0.60 | 116 | 29 | 0.0% | 0.08 | 4 | 118 | 193 | FAIL |
+| s0.65,-0.75,0.4p1,-0.6,0.2 | flutist | L | 3 | 28 | 33 | 0.65 | 120 | 41 | 0.0% | 0.14 | 0 | 130 | 305 | PASS |
+| s0.65,-0.75,0.4p1,-0.6,0.2 | flutist | R | 11 FAIL | 54 | 38 | 0.62 | 131 | 30 | 0.0% | 0.08 | 4 | 133 | 223 | FAIL |
+| s0.55,-0.78,0.3p0.69,-1,-0.01 | flutist | L | 3 | 28 | 33 | 0.65 | 120 | 40 | 0.0% | 0.14 | 0 | 129 | 306 | PASS |
+| s0.55,-0.78,0.3p0.69,-1,-0.01 | flutist | R | 10 FAIL | 43 | 34 | 0.61 | 118 | 29 | 0.0% | 0.14 | 4 | 120 | 190 | FAIL |
+| s0.55,-0.78,0.3p1,-0.6,0.2 | flutist | L | 3 | 28 | 33 | 0.65 | 120 | 40 | 0.0% | 0.14 | 0 | 129 | 306 | PASS |
+| s0.55,-0.78,0.3p1,-0.6,0.2 | flutist | R | 11 FAIL | 50 | 38 | 0.61 | 132 | 29 | 0.0% | 0.13 | 4 | 134 | 217 | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| flutist | R | folds p95 | rest | 10 | 10 | 10 | 100.0% | 10 at bach-bwv1047.mid rest | 10 | 8 | - | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| flutist | R | folds p95 | rest | 10 | 11 | 11 | 100.0% | 11 at bach-bwv1047.mid rest | 11 | 8 | - | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| flutist | R | folds p95 | rest | 10 | 9 | 9 | 100.0% | 9 at bach-bwv1047.mid rest | 9 | 8 | - | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| flutist | R | folds p95 | rest | 10 | 11 | 11 | 100.0% | 11 at bach-bwv1047.mid rest | 11 | 8 | - | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| flutist | R | folds p95 | rest | 10 | 9 | 10 | 100.0% | 10 at bach-bwv1050.mid rest | 10 | 8 | - | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| flutist | R | folds p95 | rest | 10 | 11 | 11 | 100.0% | 11 at bach-bwv1047.mid rest | 11 | 8 | - | FAIL |
+
+## armv-fb-l1.log
+
+> node tools/arm-check.ts flutist --jobs 8 --variant s1.027\,-0.68\,0.715p0.69\,-1\,-0.01 --set flute\@fox-tan.rest\=0.14001\,-0.39102\,-0.69640\,0.58526\;flute\@fox-tan.restShift\=1.027\,-0.68\,0.715\;flute\@fox-tan.restPoleR\=0.69\,-1\,-0.01 --variant s1.027\,-0.68\,0.715p0.5\,-1\,0.5 --set flute\@fox-tan.rest\=0.14001\,-0.39102\,-0.69640\,0.58526\;flute\@fox-tan.restShift\=1.027\,-0.68\,0.715\;flute\@fox-tan.restPoleR\=0.5\,-1\,0.5 --variant s1.027\,-0.68\,0.715p1\,-0.6\,0.2 --set flute\@fox-tan.rest\=0.14001\,-0.39102\,-0.69640\,0.58526\;flute\@fox-tan.restShift\=1.027\,-0.68\,0.715\;flute\@fox-tan.restPoleR\=1\,-0.6\,0.2
+
+| Variant | Role | Arm | folds p95 (8) | twist p95 (55) | forearm twist p95 (80) | flat p5 (0.55) | paw twist p95 (170) | paw swing p95 (70) | paw jumps (0.5%) | stretch p95 (0.35) | grip turn p50 (45) | move twist max (176) | move turn max (3000) | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| s1.027,-0.68,0.715p0.69,-1,-0.01 | flutist | L | 3 | 28 | 33 | 0.65 | 122 | 43 | 0.0% | 0.15 | 0 | 135 | 302 | PASS |
+| s1.027,-0.68,0.715p0.69,-1,-0.01 | flutist | R | 9 FAIL | 58 FAIL | 32 | 0.53 FAIL | 113 | 33 | 0.0% | 0.05 | 4 | 115 | 232 | FAIL |
+| s1.027,-0.68,0.715p0.5,-1,0.5 | flutist | L | 3 | 28 | 33 | 0.65 | 122 | 43 | 0.0% | 0.15 | 0 | 135 | 302 | PASS |
+| s1.027,-0.68,0.715p0.5,-1,0.5 | flutist | R | 9 FAIL | 48 | 25 | 0.52 FAIL | 90 | 29 | 0.0% | 0.05 | 4 | 95 | 177 | FAIL |
+| s1.027,-0.68,0.715p1,-0.6,0.2 | flutist | L | 3 | 28 | 33 | 0.65 | 122 | 43 | 0.0% | 0.15 | 0 | 135 | 302 | PASS |
+| s1.027,-0.68,0.715p1,-0.6,0.2 | flutist | R | 11 FAIL | 64 FAIL | 37 | 0.55 FAIL | 131 | 38 | 0.0% | 0.05 | 4 | 133 | 264 | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| flutist | R | folds p95 | rest | 10 | 9 | 9 | 100.0% | 9 at bach-bwv1047.mid rest | 9 | 8 | - | FAIL |
+| flutist | R | twist p95 | rest | 10 | 58 | 58 | 100.0% | 58 at boulanger-matin.mid rest | 58 | 55 | - | FAIL |
+| flutist | R | flat p5 | rest | 10 | 0.53 | 0.53 | 100.0% | 0.53 at bach-bwv1050.mid rest | 0.53 | 0.55 | - | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| flutist | R | folds p95 | rest | 10 | 9 | 9 | 100.0% | 9 at bach-bwv1047.mid rest | 9 | 8 | - | FAIL |
+| flutist | R | flat p5 | rest | 10 | 0.52 | 0.52 | 100.0% | 0.52 at bach-bwv1050.mid rest | 0.52 | 0.55 | - | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| flutist | R | folds p95 | rest | 10 | 11 | 11 | 100.0% | 11 at bach-bwv1047.mid rest | 11 | 8 | - | FAIL |
+| flutist | R | twist p95 | rest | 10 | 64 | 64 | 100.0% | 64 at boulanger-matin.mid rest | 64 | 55 | - | FAIL |
+| flutist | R | flat p5 | rest | 10 | 0.55 | 0.55 | 100.0% | 0.55 at bach-bwv1050.mid rest | 0.55 | 0.55 | - | FAIL |
+
+## armv-fb-lean.log
+
+> node tools/arm-check.ts flutist --jobs 8 --variant s1.342\,-0.88\,0.429p0.69\,-1\,-0.01 --set flute\@fox-tan.rest\=0.08347\,-0.43904\,-0.71733\,0.53452\;flute\@fox-tan.restShift\=1.342\,-0.88\,0.429\;flute\@fox-tan.restPoleR\=0.69\,-1\,-0.01 --variant s1.342\,-0.88\,0.429p0.5\,-1\,0.5 --set flute\@fox-tan.rest\=0.08347\,-0.43904\,-0.71733\,0.53452\;flute\@fox-tan.restShift\=1.342\,-0.88\,0.429\;flute\@fox-tan.restPoleR\=0.5\,-1\,0.5 --variant s1.342\,-0.88\,0.429p1\,-0.6\,0.2 --set flute\@fox-tan.rest\=0.08347\,-0.43904\,-0.71733\,0.53452\;flute\@fox-tan.restShift\=1.342\,-0.88\,0.429\;flute\@fox-tan.restPoleR\=1\,-0.6\,0.2
+
+| Variant | Role | Arm | folds p95 (8) | twist p95 (55) | forearm twist p95 (80) | flat p5 (0.55) | paw twist p95 (170) | paw swing p95 (70) | paw jumps (0.5%) | stretch p95 (0.35) | grip turn p50 (45) | move twist max (176) | move turn max (3000) | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| s1.342,-0.88,0.429p0.69,-1,-0.01 | flutist | L | 3 | 28 | 33 | 0.65 | 122 | 40 | 0.0% | 0.14 | 0 | 135 | 283 | PASS |
+| s1.342,-0.88,0.429p0.69,-1,-0.01 | flutist | R | 8 | 45 | 31 | 0.61 | 107 | 29 | 0.0% | 0.10 | 4 | 113 | 214 | PASS |
+| s1.342,-0.88,0.429p0.5,-1,0.5 | flutist | L | 3 | 28 | 33 | 0.65 | 122 | 40 | 0.0% | 0.14 | 0 | 135 | 283 | PASS |
+| s1.342,-0.88,0.429p0.5,-1,0.5 | flutist | R | 6 | 39 | 25 | 0.61 | 90 | 29 | 0.0% | 0.10 | 4 | 95 | 170 | PASS |
+| s1.342,-0.88,0.429p1,-0.6,0.2 | flutist | L | 3 | 28 | 33 | 0.65 | 122 | 40 | 0.0% | 0.14 | 0 | 135 | 283 | PASS |
+| s1.342,-0.88,0.429p1,-0.6,0.2 | flutist | R | 10 FAIL | 55 FAIL | 37 | 0.62 | 129 | 30 | 0.0% | 0.10 | 4 | 131 | 249 | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| flutist | R | folds p95 | rest | 10 | 10 | 10 | 100.0% | 10 at bach-bwv1047.mid rest | 10 | 8 | - | FAIL |
+| flutist | R | twist p95 | lift | 310 | 20 | 55 | 100.0% | 56 at boulanger-matin.mid wall 0.2 s | 55 | 55 | - | FAIL |
+
+## armv-fb-lean2.log
+
+> node tools/arm-check.ts flutist --jobs 8 --variant s1.311\,-0.973\,0.46p0.5\,-1\,0.5 --set flute\@fox-tan.rest\=0.08347\,-0.43904\,-0.71733\,0.53452\;flute\@fox-tan.restShift\=1.311\,-0.973\,0.46\;flute\@fox-tan.restPoleR\=0.5\,-1\,0.5 --variant s1.28\,-1.003\,0.398p0.5\,-1\,0.5 --set flute\@fox-tan.rest\=0.08347\,-0.43904\,-0.71733\,0.53452\;flute\@fox-tan.restShift\=1.28\,-1.003\,0.398\;flute\@fox-tan.restPoleR\=0.5\,-1\,0.5 --variant s1.311\,-0.973\,0.46p0.69\,-1\,-0.01 --set flute\@fox-tan.rest\=0.08347\,-0.43904\,-0.71733\,0.53452\;flute\@fox-tan.restShift\=1.311\,-0.973\,0.46\;flute\@fox-tan.restPoleR\=0.69\,-1\,-0.01
+
+| Variant | Role | Arm | folds p95 (8) | twist p95 (55) | forearm twist p95 (80) | flat p5 (0.55) | paw twist p95 (170) | paw swing p95 (70) | paw jumps (0.5%) | stretch p95 (0.35) | grip turn p50 (45) | move twist max (176) | move turn max (3000) | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| s1.311,-0.973,0.46p0.5,-1,0.5 | flutist | L | 3 | 28 | 33 | 0.65 | 122 | 40 | 0.0% | 0.14 | 0 | 135 | 286 | PASS |
+| s1.311,-0.973,0.46p0.5,-1,0.5 | flutist | R | 6 | 40 | 26 | 0.61 | 92 | 29 | 0.0% | 0.19 | 4 | 98 | 174 | PASS |
+| s1.28,-1.003,0.398p0.5,-1,0.5 | flutist | L | 3 | 28 | 33 | 0.65 | 122 | 40 | 0.0% | 0.14 | 0 | 134 | 287 | PASS |
+| s1.28,-1.003,0.398p0.5,-1,0.5 | flutist | R | 6 | 38 | 26 | 0.62 | 93 | 29 | 0.0% | 0.20 | 4 | 99 | 285 | PASS |
+| s1.311,-0.973,0.46p0.69,-1,-0.01 | flutist | L | 3 | 28 | 33 | 0.65 | 122 | 40 | 0.0% | 0.14 | 0 | 135 | 286 | PASS |
+| s1.311,-0.973,0.46p0.69,-1,-0.01 | flutist | R | 9 FAIL | 46 | 32 | 0.61 | 112 | 29 | 0.0% | 0.18 | 4 | 118 | 222 | FAIL |
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| flutist | R | folds p95 | lift | 310 | 0 | 9 | 16.1% | 9 at bach-bwv1047.mid wall 0.2 s | 9 | 8 | - | FAIL |
+
+## armv-fb-lean3.log
+
+> node tools/arm-check.ts flutist --jobs 8 --variant s1.326\,-0.926\,0.445p0.5\,-1\,0.5 --set flute\@fox-tan.rest\=0.08347\,-0.43904\,-0.71733\,0.53452\;flute\@fox-tan.restShift\=1.326\,-0.926\,0.445\;flute\@fox-tan.restPoleR\=0.5\,-1\,0.5 --variant s1.336\,-0.904\,0.435p0.5\,-1\,0.5 --set flute\@fox-tan.rest\=0.08347\,-0.43904\,-0.71733\,0.53452\;flute\@fox-tan.restShift\=1.336\,-0.904\,0.435\;flute\@fox-tan.restPoleR\=0.5\,-1\,0.5 --variant s1.326\,-0.926\,0.445p0.4\,-1\,0.7 --set flute\@fox-tan.rest\=0.08347\,-0.43904\,-0.71733\,0.53452\;flute\@fox-tan.restShift\=1.326\,-0.926\,0.445\;flute\@fox-tan.restPoleR\=0.4\,-1\,0.7
+
+| Variant | Role | Arm | folds p95 (8) | twist p95 (55) | forearm twist p95 (80) | flat p5 (0.55) | paw twist p95 (170) | paw swing p95 (70) | paw jumps (0.5%) | stretch p95 (0.35) | grip turn p50 (45) | move twist max (176) | move turn max (3000) | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| s1.326,-0.926,0.445p0.5,-1,0.5 | flutist | L | 3 | 28 | 33 | 0.65 | 122 | 40 | 0.0% | 0.14 | 0 | 135 | 285 | PASS |
+| s1.326,-0.926,0.445p0.5,-1,0.5 | flutist | R | 6 | 40 | 26 | 0.61 | 91 | 29 | 0.0% | 0.13 | 4 | 96 | 172 | PASS |
+| s1.336,-0.904,0.435p0.5,-1,0.5 | flutist | L | 3 | 28 | 33 | 0.65 | 122 | 40 | 0.0% | 0.14 | 0 | 135 | 284 | PASS |
+| s1.336,-0.904,0.435p0.5,-1,0.5 | flutist | R | 6 | 39 | 25 | 0.61 | 91 | 29 | 0.0% | 0.11 | 4 | 96 | 171 | PASS |
+| s1.326,-0.926,0.445p0.4,-1,0.7 | flutist | L | 3 | 28 | 33 | 0.65 | 122 | 40 | 0.0% | 0.14 | 0 | 135 | 285 | PASS |
+| s1.326,-0.926,0.445p0.4,-1,0.7 | flutist | R | 5 | 37 | 25 | 0.61 | 88 | 29 | 0.0% | 0.13 | 4 | 92 | 158 | PASS |
