@@ -328,7 +328,7 @@ export const ACCEPTED_GRIPS: ReadonlyMap<string, Readonly<Record<Side, number>>>
   // docs/decisions/2026-10-24-wind-grips.md, and the review of the 2x crops by the manager on
   // 2026-10-24).
   ['clarinetist', { L: -89, R: -71 }],
-  ['oboist', { L: 69, R: 30 }],
+  ['oboist', { L: 83, R: -77 }],
   // The palms of the woodwinds of the tan fox face its tube (palmToTube of pose/winds.ts,
   // docs/decisions/2026-10-23-night-fixes.md).
   ['flutist', { L: -120, R: -30 }],
