@@ -101,6 +101,9 @@ front,left,right,back,35,-35 --zoom 1.4 --scale 3 --moments note,rest,lift50,low
 the paws of the oboist, the clarinetist, and the bassoonist at 3 times the size of a cell, from
 the front, ±35°, the left, the right, and the back (`crops.py`). `source-paws.webp` shows the left
 source paw of each wind species from six sides, with the hint as a red rod (`paw_views.py`).
+`<role>-audit-e20-play.webp` and `-e40-` are the play rows of `pnpm close-views audit <dir>
+--roles oboist,clarinetist,bassoonist --base main`, with main at 896ae293, whose wind holds are
+those of b2f59e6a. The audit shows no slit, flap, or dark band in any moment.
 
 In main, the camera sees the palms and the inner side of the curled fingers, and the thumbs point
 down. In the branch, each paw holds the tube from its own side, the backs of the curled fingers
