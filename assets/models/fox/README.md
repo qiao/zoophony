@@ -1,6 +1,7 @@
 # Fox model
 
-This folder holds the fox mesh that the user gave. The app does not serve it.
+This folder holds the fox mesh that the user gave, and a copy of it with rebuilt arms. The app
+does not serve them.
 
 ## fox.glb
 
@@ -45,3 +46,31 @@ These facts of the mesh were measured on 2026-10-14
   and ear backs. The nose is black. The eyes are brown and black faces of the head surface, with
   no shells.
 - The tail hangs down behind the legs from the lower back to 0.01 units above the soles.
+
+## fox-arms.glb and fox-weights.json
+
+`fox-arms.glb` is `fox.glb` with new quad faces on each arm, and with arms 1.21 times longer. On
+2026-10-24 the user allowed loop edges, retopology, and extra bones for the arm and wrist twist
+("add loop edges and retopology and additional bones if needed to address them").
+`tools/blender/fox_arms.py` replays the Blender session of 2026-10-25 that made both files, byte
+for byte. The inner side of the upper arm joins the trunk down to the armpit, so the session takes
+the route of the cat (`tools/blender/cat_arms.py`): a cut along the seam where the arm meets the
+trunk, a side wall of the trunk under the arm, and a tube with a flat inner side on the wall. The
+faces of the paws, the trunk, the legs, and the head are the faces of the user, except the thin
+faces at the cut loops, whose short edges collapse. The arms are 1.21 times longer from the socket,
+as the rig made them before (`armFactor` of the config), because a rig with arm segments does not
+stretch the arms. The red fox and the tan fox share the rig. `pnpm rig-mesh fox` writes
+`fox.rig.glb`, and `pnpm studio-body fox` writes `src/models/studio/fox.ts`.
+
+| Item | Value |
+|---|---|
+| `fox-arms.glb` | 1,173,608 bytes, SHA-256 `1369c42c10b9d36ac4c094966becacb2f4d7376613bfb4ede68c3c75ad84406d` |
+| Mesh | 2,046 vertices after a weld at 1e-5, 4,085 triangles (3,111 in the source): on each arm a tube of quad rings of 16 vertices, joined to the socket and the paw with Bridge Edge Loops, with Beautify Faces and Collapse Edges on the bridge triangles |
+| Material | One material with one base color JPEG: the atlas of the source, and a strip of 512 pixels on top with the fur color of the source arms, baked onto the new faces. The side walls and the flat inner sides take one fur color of the trunk. No metallic-roughness texture |
+| `fox-weights.json` | 459,612 bytes, SHA-256 `d8540d01e30d631db4eed58c40b17d77c9793ac040b88ad4fb041a80339bbebb` |
+| Weights | The automatic weights of Blender with the Weight Paint fixes of the session, on the studio bones and the arm segments and helpers (`armSegments` of the config), for `paintedWeights` of the config |
+| License | Derived from the mesh of the user, who holds its rights |
+
+```bash
+shasum -a 256 assets/models/fox/fox-arms.glb assets/models/fox/fox-weights.json
+```
