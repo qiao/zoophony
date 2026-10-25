@@ -551,10 +551,13 @@ The code constants of each family hold the times, the angles, and the lengths of
     the elbows bend near the body (`docs/decisions/2026-10-25-wind-angle.md`). The long muzzle puts the tip of the nose far in
     front of the mouth, so the reed sits back under the muzzle, in the mouth (`WindHold.lipShift`). The small
     mouse plays a smaller oboe (4.6), and about half of the reed goes into the mouth, so that the
-    right paw reaches its grip. The big head puts the reed high above the shoulders, so the elbows
-    point down, and the upper arms do not turn into twisted bands. The grips move down the oboe,
-    away from the reed, so that the forearms do not rise steeply and the paws close around the
-    tube.
+    right paw reaches its grip. As a real oboist, the mouse holds the upper joint near the reed
+    in the left paw and the lower joint above the bell in the right paw, with a clear gap between
+    the paws (`docs/decisions/2026-10-25-oboe-hands.md`). The big head puts the reed high above
+    the shoulders, so the right elbow points down, and the right upper arm does not turn into a
+    twisted band. The right grip moves down the oboe, away from the reed, so that the right
+    forearm does not rise steeply. The left elbow points out to the side, as at rest, so that the
+    left paw reaches its high grip and closes around the tube.
   - The beaver holds the bassoon as a real bassoonist (`BEAVER_BASSOON` of `SPECIES_WIND_HOLDS`,
     `docs/reference/wind-technique.md` 3): the bassoon crosses the body on a diagonal from the
     right hip up past the left shoulder, with the bell above the head, the left paw high on the
