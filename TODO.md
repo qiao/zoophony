@@ -863,26 +863,20 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       oboist, because the big head puts the reed about 0.13 m above the shoulder joints. Show the
       user the close views, and offer a bowed head while the mouse plays
       (`2026-10-19-mesh-mouse.md`).
-- [ ] Mouse oboe rest: the oboe stands upright about 10 cm in front of the right side of the
-      belly, the arms reach forward to it, and the right paw stays 0.4 cm off it. On the belly,
-      the right arm folded 15 to 17 faces (limit 8), also with the twist bones. Try again after
-      the loop edges of the arms (`2026-10-24-wind-grips.md`).
-- [ ] Mouse oboe play: at 30° the arms reach forward as straight planks, and from the left side
-      the left paw keeps its long fingers open. With the oboe at 10° and the right elbow out, the
-      right arm broke into slits (user: "the mouse's right arm is regressed"), and each right grip
-      that closes on the tube folded 9 to 10 faces (limit 8). Try again after the arm loop edges
-      (`2026-10-24-wind-grips.md`).
-- [ ] Tan fox flute rest: the flute stands nearly upright in the closed right paw, with the foot
-      joint in the air beside the right knee. On the knee, and across the lap with both paws, the
-      arms failed the arm gate. Try again after the loop edges of the arms
-      (`2026-10-24-wind-grips.md`).
+- [x] Mouse oboe rest: the oboe stands upright against the belly, with both paws closed on it,
+      after the rebuilt arms (`2026-10-25-wind-arms.md`).
+- [x] Mouse oboe play: the oboe hangs 15° from the vertical, the elbows bend near the body, and
+      both paws close on the tube with no slit on the rebuilt arms (`2026-10-25-wind-arms.md`).
+- [x] Tan fox flute rest: the foot joint stands on the top of the right thigh, in the closed
+      right paw at the right-hand keys (`2026-10-25-wind-arms.md`).
 - [ ] The mittens of the wind players close as one block, so no finger lies on a key, and the
       finger tips of the right paw of the wolf stay about 5 cm from the tube. The red fox on the
       violin neck has its tips on the neck (`pnpm wind-grip`).
-- [ ] Arm segments for the wolf, the mouse, and the tan fox: `armSegments` of `rig_mesh.py` needs
-      painted Blender weights and the arm factor 1, and the arms of these meshes have the factors
-      1.178, 1.4, and 1.21. The fox rig also serves the red fox violinist
-      (`2026-10-24-wind-grips.md`).
+- [x] Arm segments for the wolf and the mouse: copies of the meshes with the arm factors in
+      Blender, and Blender weights (`2026-10-25-wind-arms.md`).
+- [ ] Arm segments for the tan fox: its rig also serves the red fox violinist, so it keeps its
+      arms. The flute arms have 4 bones each, and their largest twist step is about 60° (target
+      25°, `2026-10-25-wind-arms.md`).
 - [ ] Mouse tail: the loop of the long tail lies on the floor behind the mouse, and the footprint
       is 0.764 m deep. The stages of the demos with oboes are 2.1% to 6.3% smaller
       than with the large mouse, about the stages of the parametric mouse. Check the tail between
