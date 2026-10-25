@@ -436,11 +436,11 @@ export function pawContact(
   const centered = out.length() < CENTERED;
   const square = out.clone().projectOnPlane(tube.axis);
 
-  // The x axis of the hand of the player is the normal of its palm: out of the back on the left
-  // hand, and out of the palm on the right hand (`palmToTube()` of `pose/winds.ts`). The retarget
+  // The palm faces +x of the hand of the player on the left hand and -x on the right hand, the
+  // side to which a curl moves the finger tips (`palmToTube()` of `pose/winds.ts`). The retarget
   // turns the paw of the studio only in the plane of its palm, so the normal is the same.
   const hand = posed.frames[boneIndex(`hand${side}`)]?.rotation ?? new Quaternion();
-  const normal = new Vector3(side === 'L' ? -1 : 1, 0, 0)
+  const normal = new Vector3(side === 'L' ? 1 : -1, 0, 0)
     .applyQuaternion(hand)
     .projectOnPlane(tube.axis);
   const palmAngle = centered ? null : angleOf(normal, square.clone().negate());
