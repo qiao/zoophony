@@ -322,4 +322,5 @@ The decision files:
 - [`2026-10-25-fox-arms.md`](decisions/2026-10-25-fox-arms.md): the quad arm tubes, the side walls, the Blender weights, and the arm segments of the two foxes, the palm grip and the rest of the flute, the grip around the tube, and the open twist steps and depths.
 - [`2026-10-25-elephant-hippo-creases.md`](decisions/2026-10-25-elephant-hippo-creases.md): the skin normals of the elephant elbows and of the hippo arm roots, and the timpani elbows a little out.
 - [`2026-10-25-open-grips.md`](decisions/2026-10-25-open-grips.md): the right panda paw on the slide brace and the slide travel, the wolf right paw, the rhino left paw, the trumpet angle, the flute in the moves, and the bassoon grip turns.
+- [`2026-10-25-thick-arm-depth.md`](decisions/2026-10-25-thick-arm-depth.md): the cause of the depth of the elephant and rhino upper arms in the body, the flatter inner upper arms of the elephant, and the right rhino elbow out.
 - [`2026-10-23-rabbit-arms.md`](decisions/2026-10-23-rabbit-arms.md): the A-pose rabbit mesh with its own faces, a short arm stretch, a violin of 0.83, its elbows and rest grip, and the open shards of its arms.
