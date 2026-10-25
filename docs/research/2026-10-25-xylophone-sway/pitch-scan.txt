@@ -1,0 +1,8 @@
+== SET=xylophone.across.pitch=null ~/Downloads/Disney_Themes_-_Pirates_Of_The_Caribbean.mid
+Disney_Themes_-_Pirates_Of_The_Caribbean.mid player 3: 1100 samples, head gap min -1.2 cm, p5 0.6 cm, median 6.5 cm, heads touch 18 (1.6%), mallets touch 88 (8.0%), head height p50 18.6 cm, p95 27.0 cm
+== SET=xylophone.across.pitch=0.5 ~/Downloads/Disney_Themes_-_Pirates_Of_The_Caribbean.mid
+Disney_Themes_-_Pirates_Of_The_Caribbean.mid player 3: 1100 samples, head gap min 2.5 cm, p5 2.8 cm, median 8.4 cm, heads touch 0 (0.0%), mallets touch 4 (0.4%), head height p50 13.5 cm, p95 15.6 cm
+== SET=xylophone.across.pitch=0.7 ~/Downloads/Disney_Themes_-_Pirates_Of_The_Caribbean.mid
+Disney_Themes_-_Pirates_Of_The_Caribbean.mid player 3: 1100 samples, head gap min 2.8 cm, p5 3.4 cm, median 9.2 cm, heads touch 0 (0.0%), mallets touch 3 (0.3%), head height p50 18.9 cm, p95 21.4 cm
+== SET=xylophone.across.pitch=0.9 ~/Downloads/Disney_Themes_-_Pirates_Of_The_Caribbean.mid
+Disney_Themes_-_Pirates_Of_The_Caribbean.mid player 3: 1100 samples, head gap min 3.6 cm, p5 4.2 cm, median 10.3 cm, heads touch 0 (0.0%), mallets touch 2 (0.2%), head height p50 23.9 cm, p95 27.0 cm

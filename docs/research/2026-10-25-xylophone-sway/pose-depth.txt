@@ -1,0 +1,136 @@
+
+> zoophony@0.0.0 pose-depth <tree>
+> node tools/pose-depth.ts xylophonist --base main
+
+Sweep of the xylophonist: 1 demo with the role (percussion-test), 1 row to sweep.
+Estimated time: about 8 s: 1 row of 8.1 s, from the last rows of this sweep, with a time for 1 of 1 demos.
+Sweeps of main (99ef10f1) and of the working tree: 9.2 s.
+base (7.9 s):
+  percussion-test xylophonist 0 (badger, stand)
+    play: paws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 161 samples over 1.5 cm (0.0%)
+    play: paws in instrument: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 161 samples over 1.5 cm (0.0%)
+    play: claws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 161 samples over 1.5 cm (0.0%)
+    play: claws in instrument: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 161 samples over 1.5 cm (0.0%)
+    play: forearms in body: 3.4 cm at song 26.45 s, wall 38.25 s (forearmL 0.16); next note in 0.23 s, lift 2.7 cm; limit 1.5 cm OVER; 26 of 161 samples over 1.5 cm (16.1%)
+    play: forearms in instrument: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 161 samples over 1.5 cm (0.0%)
+    play: upper arms in body: 3.8 cm at song 26.45 s, wall 38.25 s (upperArmL 0.90); next note in 0.23 s, lift 2.7 cm; limit 2.5 cm OVER; 23 of 161 samples over 2.5 cm (14.3%)
+    play: upper arms in instrument: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 161 samples over 1.5 cm (0.0%)
+    play: held in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 161 samples over 1.5 cm (0.0%)
+    play: held in instrument: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 161 samples over 1.5 cm (0.0%)
+    play: head in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 161 samples over 1.5 cm (0.0%)
+    play: head in instrument: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 161 samples over 1.5 cm (0.0%)
+    lift: paws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: paws in instrument: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: claws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: claws in instrument: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: forearms in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: forearms in instrument: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: upper arms in body: 1.7 cm at song -1.20 s, wall 10.60 s (upperArmL 0.15); next note in 1.18 s, lift 3.0 cm; limit 2.5 cm; 0 of 31 samples over 2.5 cm (0.0%)
+    lift: upper arms in instrument: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: held in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: held in instrument: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: head in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: head in instrument: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    rest: paws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: paws in instrument: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: claws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: claws in instrument: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: forearms in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: forearms in instrument: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: upper arms in body: 1.7 cm at song -1.80 s, wall 10.00 s (upperArmL 0.15); next note in 1.78 s, lift 3.0 cm; limit 2.5 cm; 0 of 1 samples over 2.5 cm (0.0%)
+    rest: upper arms in instrument: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: held in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: held in instrument: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: head in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: head in instrument: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    lower: paws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 30 samples over 1.5 cm (0.0%)
+    lower: paws in instrument: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 30 samples over 1.5 cm (0.0%)
+    lower: claws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 30 samples over 1.5 cm (0.0%)
+    lower: claws in instrument: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 30 samples over 1.5 cm (0.0%)
+    lower: forearms in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 30 samples over 1.5 cm (0.0%)
+    lower: forearms in instrument: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 30 samples over 1.5 cm (0.0%)
+    lower: upper arms in body: 1.7 cm at song 38.39 s, wall 13.80 s (upperArmL 0.15); after the last note, lift 3.0 cm; limit 2.5 cm; 0 of 30 samples over 2.5 cm (0.0%)
+    lower: upper arms in instrument: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 30 samples over 1.5 cm (0.0%)
+    lower: held in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 30 samples over 1.5 cm (0.0%)
+    lower: held in instrument: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 30 samples over 1.5 cm (0.0%)
+    lower: head in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 30 samples over 1.5 cm (0.0%)
+    lower: head in instrument: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 30 samples over 1.5 cm (0.0%)
+    target L: 152.03 mm at song 26.68 s
+    target R: 316.37 mm at song 17.68 s
+    targets: 35.2% of 128 within 5 mm, worst 316.37 mm
+  percussion-test xylophonist 1 (badger, stand)
+    play: paws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 161 samples over 1.5 cm (0.0%)
+    play: paws in instrument: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 161 samples over 1.5 cm (0.0%)
+    play: claws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 161 samples over 1.5 cm (0.0%)
+    play: claws in instrument: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 161 samples over 1.5 cm (0.0%)
+    play: forearms in body: 3.4 cm at song 26.45 s, wall 38.25 s (forearmL 0.16); next note in 0.24 s, lift 2.6 cm; limit 1.5 cm OVER; 26 of 161 samples over 1.5 cm (16.1%)
+    play: forearms in instrument: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 161 samples over 1.5 cm (0.0%)
+    play: upper arms in body: 3.8 cm at song 26.45 s, wall 38.25 s (upperArmL 0.90); next note in 0.24 s, lift 2.6 cm; limit 2.5 cm OVER; 24 of 161 samples over 2.5 cm (14.9%)
+    play: upper arms in instrument: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 161 samples over 1.5 cm (0.0%)
+    play: held in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 161 samples over 1.5 cm (0.0%)
+    play: held in instrument: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 161 samples over 1.5 cm (0.0%)
+    play: head in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 161 samples over 1.5 cm (0.0%)
+    play: head in instrument: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 161 samples over 1.5 cm (0.0%)
+    lift: paws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: paws in instrument: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: claws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: claws in instrument: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: forearms in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: forearms in instrument: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: upper arms in body: 1.7 cm at song -1.40 s, wall 10.40 s (upperArmL 0.15); next note in 1.39 s, lift 3.0 cm; limit 2.5 cm; 0 of 31 samples over 2.5 cm (0.0%)
+    lift: upper arms in instrument: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: held in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: held in instrument: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: head in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: head in instrument: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    rest: paws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: paws in instrument: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: claws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: claws in instrument: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: forearms in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: forearms in instrument: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: upper arms in body: 1.7 cm at song -1.80 s, wall 10.00 s (upperArmL 0.15); next note in 1.79 s, lift 3.0 cm; limit 2.5 cm; 0 of 1 samples over 2.5 cm (0.0%)
+    rest: upper arms in instrument: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: held in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: held in instrument: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: head in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: head in instrument: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    lower: paws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 30 samples over 1.5 cm (0.0%)
+    lower: paws in instrument: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 30 samples over 1.5 cm (0.0%)
+    lower: claws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 30 samples over 1.5 cm (0.0%)
+    lower: claws in instrument: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 30 samples over 1.5 cm (0.0%)
+    lower: forearms in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 30 samples over 1.5 cm (0.0%)
+    lower: forearms in instrument: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 30 samples over 1.5 cm (0.0%)
+    lower: upper arms in body: 1.7 cm at song 38.39 s, wall 13.70 s (upperArmL 0.15); after the last note, lift 3.0 cm; limit 2.5 cm; 0 of 30 samples over 2.5 cm (0.0%)
+    lower: upper arms in instrument: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 30 samples over 1.5 cm (0.0%)
+    lower: held in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 30 samples over 1.5 cm (0.0%)
+    lower: held in instrument: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 30 samples over 1.5 cm (0.0%)
+    lower: head in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 30 samples over 1.5 cm (0.0%)
+    lower: head in instrument: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 30 samples over 1.5 cm (0.0%)
+    target L: 151.59 mm at song 26.69 s
+    target R: 310.14 mm at song 17.69 s
+    targets: 35.2% of 128 within 5 mm, worst 310.14 mm
+| variant | play forearms>body cm | play upper arms>body cm | lift upper arms>body cm | rest upper arms>body cm | lower upper arms>body cm | target L mm | target R mm | targets within 5 mm % |
+|---|---|---|---|---|---|---|---|---|
+| base | 3.4 | 3.8 | 1.7 | 1.7 | 1.7 | 152.0 | 316.4 | 35.2 |
+
+The demo and the time of the sample of each value of the table:
+| variant | play forearms>body cm | play upper arms>body cm | lift upper arms>body cm | rest upper arms>body cm | lower upper arms>body cm | target L mm | target R mm |
+|---|---|---|---|---|---|---|---|
+| base | percussion-test 26.45 s | percussion-test 26.45 s | percussion-test wall 10.60 s | percussion-test wall 10.00 s | percussion-test wall 13.80 s | percussion-test 26.68 s | percussion-test 17.68 s |
+
+The share of the samples over the goal of each pair (the limit, or --goal):
+| variant | play forearms>body % | play upper arms>body % |
+|---|---|---|
+| base | 16.1 | 14.6 |
+
+The depths of main (99ef10f1) and of the working tree with no change:
+H of each body, main (99ef10f1) -> working tree: badger 0.244 m -> 0.244 m
+| Species | Set | Pair | main (99ef10f1) cm | main (99ef10f1) H | tree cm | tree H | Mark | tree at |
+|---|---|---|---:|---:|---:|---:|---|---|
+| badger | play | forearms in body | 5.0 | 0.204 | 3.4 | 0.141 |  | percussion-test 26.45 s |
+| badger | play | upper arms in body | 4.8 | 0.196 | 3.8 | 0.158 |  | percussion-test 26.45 s |
+| badger | lift | upper arms in body | 1.7 | 0.072 | 1.7 | 0.069 |  | percussion-test wall 10.60 s |
+| badger | rest | upper arms in body | 1.7 | 0.068 | 1.7 | 0.068 |  | percussion-test wall 10.00 s |
+| badger | lower | forearms in body | 1.5 | 0.060 | 0.0 | 0.000 |  | percussion-test wall 0.00 s |
+| badger | lower | upper arms in body | 2.1 | 0.086 | 1.7 | 0.070 |  | percussion-test wall 13.80 s |

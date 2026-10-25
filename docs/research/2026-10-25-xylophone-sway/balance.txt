@@ -1,0 +1,8 @@
+== SET=xylophone.side=null;xylophone.lean=0;xylophone.across.pitch=null ~/Downloads/Disney_Themes_-_Pirates_Of_The_Caribbean.mid
+Disney_Themes_-_Pirates_Of_The_Caribbean.mid player 3: 220 samples. COM side cm min -0.6 max 1.4; COM front cm p50 -3.1 max -2.7; inside the posed sole edge cm min 7.2 p50 7.9; inside the bind sole edge cm min 7.2 p50 7.9; lowest sole cm 0.0 to 0.0; ankle move max 0.0 mm
+== SET= ~/Downloads/Disney_Themes_-_Pirates_Of_The_Caribbean.mid
+Disney_Themes_-_Pirates_Of_The_Caribbean.mid player 3: 220 samples. COM side cm min 1.3 max 5.5; COM front cm p50 0.5 max 0.8; inside the posed sole edge cm min 0.3 p50 7.1; inside the bind sole edge cm min 9.6 p50 9.9; lowest sole cm -0.6 to -0.3; ankle move max 0.0 mm
+== SET=xylophone.side=null;xylophone.lean=0;xylophone.across.pitch=null percussion-test
+percussion-test player 0: 153 samples. COM side cm min -0.8 max 0.9; COM front cm p50 -3.2 max -2.7; inside the posed sole edge cm min 7.1 p50 7.8; inside the bind sole edge cm min 7.1 p50 7.8; lowest sole cm 0.0 to 0.0; ankle move max 0.0 mm
+== SET= percussion-test
+percussion-test player 0: 153 samples. COM side cm min -5.7 max 5.7; COM front cm p50 0.4 max 0.9; inside the posed sole edge cm min 0.3 p50 7.1; inside the bind sole edge cm min 9.6 p50 10.0; lowest sole cm -0.6 to 0.0; ankle move max 0.0 mm
