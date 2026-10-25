@@ -325,4 +325,5 @@ The decision files:
 - [`2026-10-25-thick-arm-depth.md`](decisions/2026-10-25-thick-arm-depth.md): the cause of the depth of the elephant and rhino upper arms in the body, the flatter inner upper arms of the elephant, and the right rhino elbow out.
 - [`2026-10-25-percussion-tips.md`](decisions/2026-10-25-percussion-tips.md): the cause of the tips that swung out over the rim between strikes, and the pitch of the snare sticks and the cymbal mallets from their strike direction.
 - [`2026-10-25-string-angle.md`](decisions/2026-10-25-string-angle.md): the violins of the red fox at 45° and of the rabbit at 50°, the 1/2 viola of the cat at 45°, the left shoulder forward in the play, and the upright red fox violin in the moves.
+- [`2026-10-25-bass-piano-gap.md`](decisions/2026-10-25-bass-piano-gap.md): the cause of the clip of the hippo contrabass and the harpsichord of `bach-bwv1050`, and the gap of 0.15 m between a piano case and the players behind it.
 - [`2026-10-23-rabbit-arms.md`](decisions/2026-10-23-rabbit-arms.md): the A-pose rabbit mesh with its own faces, a short arm stretch, a violin of 0.83, its elbows and rest grip, and the open shards of its arms.
