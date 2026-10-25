@@ -186,7 +186,8 @@ const FLOOR_INSTRUMENTS: ReadonlySet<InstrumentId> = new Set<InstrumentId>(['cel
  * Writes the body layer of one animal: the breath and the sway of the spine, the look at the
  * conductor, the ears, the tail, and the blink (design 5.1). The legs keep the bind pose (4.7),
  * except the right leg of a pianist on the damper pedal (5.3).
- * Then it calculates the frames of the torso, from which the note layer hangs the arms.
+ * Then it calculates the frames of the torso with the root offset of the pose, from which the
+ * note layer hangs the arms.
  *
  * @param pose The pose to write.
  * @param player The plan of the animal.
@@ -227,7 +228,7 @@ function writeBody(pose: WritablePose, player: PlayerPlan, scratch: FrameScratch
   setBoneRotation(r, BONES.tail1, turn.setFromAxisAngle(Y_AXIS, tail * m.tail1));
   setBoneRotation(r, BONES.tail2, turn.setFromAxisAngle(Y_AXIS, tail * m.tail2));
   pose.blink = idle.blink;
-  chainFrames(player.skeleton, r, scratch.chain);
+  chainFrames(player.skeleton, r, scratch.chain, pose.rootOffset);
 }
 
 /**
@@ -304,6 +305,7 @@ function poseAnimal(
   pose: WritablePose,
 ): void {
   pose.rotations.set(BIND_ROTATIONS);
+  pose.rootOffset.fill(0);
   pose.instrumentOffset.fill(0);
   const note = player.note;
   // The conductor does not sway with the beat (design 5.4).
