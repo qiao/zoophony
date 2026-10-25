@@ -16,3 +16,5 @@ reverse each decision. Then update its section, and remove its row.
 | The left grip moves 0.3 H down the oboe and 0.065 H toward its axis, with a left curl of 80°, so that the left paw grasps (`gripShiftL`, `gripCurl`). At 0.1 H, past the axis, the paw turned over. | 5.3 |
 | The right grip moves 0.15 H down the oboe in place of 0.2 H, so that the right paw holds the lower joint above the bell (`gripShiftR`). | 5.3 |
 | The rest grips keep their places of main on the oboe, 13.2 cm and 15.6 cm from the reed (`restGripShiftL`, `restGripShiftR`). With the rest grips before, the right arm folded 11 faces at rest. | 5.2, 5.3 |
+| The manager: the reference images win, so the clarinet goes to their angle. The wolf of the images shows the clarinet at 28° and 24°, and a render of the app from their camera shows 30° as 25°. The clarinet hangs 30° from the vertical (`WOLF_CLARINET_FORWARD`). | 5.3 |
+| The left clarinet grip moves 0.15 H down the tube in place of 0.2 H, with a left curl of 100°, so that the left paw grasps at 30° (`gripShiftL`, `gripCurl`). | 5.3 |

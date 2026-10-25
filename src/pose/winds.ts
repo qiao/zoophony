@@ -765,36 +765,36 @@ const PIG_HORN = {
 } as const satisfies WindHold;
 
 /**
- * The turn of the lower end of the clarinet of the wolf forward while it plays, in degrees. The
- * value below 0 turns the lower end back toward the body.
+ * The turn of the lower end of the clarinet of the wolf forward while it plays, in degrees, from
+ * the 25° of {@link WIND_HOLDS}. The value below 0 turns the lower end back toward the body.
  */
-const WOLF_CLARINET_FORWARD = -5;
+const WOLF_CLARINET_FORWARD = 5;
 
 /**
  * The clarinet hold of the wolf (design 5.3), the hold of a real clarinetist (decisions
  * `2026-10-20-mesh-wolf.md`, `docs/reference/wind-technique.md` 3): the clarinet at the middle of
  * the body, from the mouth to between the knees. The clarinet turns its lower end
- * {@link WOLF_CLARINET_FORWARD}° forward from {@link WIND_HOLDS}, to 20° from the vertical, near
- * the angle of the wolf in `orchestra-latest.png` and `orchestra-side.png`. The long muzzle already
- * puts the mouthpiece far in front of the chest: at 45° from the vertical, the bell was far in
- * front of the knees, and at 30° the paws still held the clarinet with the arms reached far
- * forward, 0.38 m and 0.40 m from the shoulder joints on arms of 0.48 m (users, 2026-10-24: "fix
- * how the wolf is holding the instrument" and "fix how the wolf, tan fox, and mouse are holding
- * the instrument", `2026-10-24-wind-holds` decisions). At 20°, with the mouthpiece 0.18 H below
- * the mouth, the grips are 0.34 m and 0.36 m from the shoulder joints, and the mouthpiece no
- * longer goes into the jaw. Each paw aims across the tube (`aimAcross`) and half toward the side
+ * {@link WOLF_CLARINET_FORWARD}° forward from {@link WIND_HOLDS}, to 30° from the vertical, the
+ * angle of the wolf in `orchestra-latest.png` and `orchestra-side.png`: a render of the app from
+ * the camera of the images shows the clarinet at 30° as 25° in the image, and the images show it
+ * at 24° and 28° (`2026-10-25-wind-angle` decisions). A real clarinetist holds it at about 45°,
+ * and the long muzzle already puts the mouthpiece far in front of the chest: at 45°, the bell was
+ * far in front of the knees. With the mouthpiece 0.18 H below the mouth, the mouthpiece does not
+ * go into the jaw. Each paw aims across the tube (`aimAcross`) and half toward the side
  * across it (`aimSide`), and its grip moves around the tube (`gripShiftL`, `gripShiftR`). Each
- * palm faces the tube (`faceTube`), and the fingers curl 80° (left) and 110° (right) over its front (`gripCurl`), so that
+ * palm faces the tube (`faceTube`), and the fingers curl 100° (left) and 110° (right) over its
+ * front (`gripCurl`), so that
  * the paws close around the clarinet from the side of the body, as a clarinetist curves the
  * fingers over the tube with the thumb behind it. With the back of each paw to the tube before
  * 2026-10-25, the paws showed as round fists on the tube. On the grips of the instrument, 2.5 cm
  * in front of the tube, the paws lay in front of it and pointed away from it, with the finger tips
  * 7.6 cm and 8.3 cm from the tube (user, 2026-10-24: "they are not even holding the
- * instrument"). The left grip moves 0.2 H down the tube, because 8.5 cm above the shoulder joint,
+ * instrument"). The left grip moves 0.15 H down the tube, because 8.5 cm above the shoulder joint,
  * the forearm rose steeply and the retarget turned the paw up along the tube (`PAW_TURN` of
  * `models/studio-rig.ts`). The left grip moves 0.12 H toward the axis, so that the middle of the
- * left paw is 2.1 cm from the axis in the play, with the palm on the tube (`pnpm wind-grip
- * clarinetist`, `2026-10-25-grips` decisions). The right grip moves 0.24 H toward the axis and
+ * left paw is 1.8 cm from the axis in the play, with the palm on the tube (`pnpm wind-grip
+ * clarinetist`, `2026-10-25-grips` decisions). At 30°, with the left grip 0.2 H down and a left
+ * curl of 80°, the left finger tips stood 1.3 cm off the clarinet. The right grip moves 0.24 H toward the axis and
  * past it, and 0.07 H toward its own side, at rest too, and the right fingers curl 110°, so that
  * the middle of the long right paw lies behind the lower joint at its right, and the finger tips
  * close over its front, as the fingers of a real clarinetist curve over the lower joint with the
@@ -850,12 +850,12 @@ const WOLF_CLARINET = {
   faceTube: ['palm', 'palm'],
   aimAcross: 1,
   aimSide: 0.5,
-  gripShiftL: [0.2, 0.12, 0],
+  gripShiftL: [0.15, 0.12, 0],
   gripShiftR: [0.05, 0.24, -0.07],
   restGripShiftL: [-0.22, 0.06, 0.03],
   restGripShiftR: [-0.33, 0.24, -0.07],
   restAim: 1,
-  gripCurl: curls(80, 110),
+  gripCurl: curls(100, 110),
 } as const satisfies WindHold;
 
 /**

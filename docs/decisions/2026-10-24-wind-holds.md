@@ -11,5 +11,5 @@ and remove its row.
 
 | Decision | Section |
 |---|---|
-| The wolf clarinet hangs 20° from the vertical (30° before, 45° in the source), with the mouthpiece 0.18 H below the mouth (0.12 H before). At 30°, the arms still reached far forward. | 4.6, 5.3 |
+| The wolf clarinet mouthpiece sits 0.18 H below the mouth (0.12 H before). | 4.6, 5.3 |
 | A wind paw on its grip can turn toward the side across the tube (`WindHold.aimSide`, 0 by default). The wolf and the mouse take 0.5: the lower paw of the wolf stuck out in front of the tube when seen from the side. | 5.3 |
