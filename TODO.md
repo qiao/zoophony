@@ -1152,25 +1152,45 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       keeps it, or gets longer arms for hand cymbals.
 - [ ] Suspended cymbal: the free paw does not muffle the plate after a note, and the moments of
       `ROLE_VIEWS.cymbalist` still have the names of a crash (`tools/close-views.ts`).
-- [ ] Badger xylophone: the short arms reach at most 85% of the xylophone strikes, because the
+- [x] Badger xylophone: the short arms reach at most 85% of the xylophone strikes, because the
       body does not move from side to side behind the notes. Ask the user for a smaller
       xylophone, longer arms, or a side step of the body (`2026-10-20-mesh-badger.md`).
-- [ ] Badger xylophone mallets: between strikes, each head swings in to the rest direction of the
+      Done: the wrists stopped at their full reach in front of the bars. The spine leans over
+      the bars, and the body moves from side to side behind the notes with the feet in place
+      (`2026-10-25-xylophone-sway.md`).
+- [ ] Badger xylophone back row: the sharp bars stay about 11 cm out of reach also with the lean
+      (`2026-10-25-xylophone-sway.md`). Ask the user for a smaller xylophone or longer arms.
+- [ ] Badger xylophone runs: a scale stays in one hand, because a hand does not cross the other
+      (`alternateHands()`), so on the percussion test score the right paw reaches across the
+      body to the lowest bars (median miss 9.5 cm). A real player alternates the hands in a
+      scale, with no cross of the mallets (`docs/reference/percussion-technique.md` 9).
+- [ ] Badger xylophone soles: the side move of the hips sinks the soles 3 to 6 mm into the floor,
+      because the foot skin follows the tilted shin (`2026-10-25-xylophone-sway.md`).
+- [x] Badger xylophone mallets: between strikes, each head swings in to the rest direction of the
       snare grip, so two heads on near bars can meet. The offsets and the repeat rule of
       `2026-10-21-pirates-clip.md` leave a touch in 1% of the samples of the steel drum part of the
       pirates file. A rest direction of 0 removes it, but turns the accepted grip by 36°: show the
       user the crops, and update `ACCEPTED_GRIPS` if the user accepts.
       The pitch from the strike direction of the snare and the cymbal (`MalletAcross.pitch`,
       `2026-10-25-percussion-tips.md`) can also keep the heads apart: try it here.
+      Done: the pitch 0.5 keeps the heads at least 2.5 cm apart on the steel drum part, and the
+      grip turns 7° and 4° from `ACCEPTED_GRIPS` (`2026-10-25-xylophone-sway.md`).
+- [ ] Badger xylophone grips: the lean and the pitch turn the play median of each paw by 7° (L) and
+      4° (R) from `ACCEPTED_GRIPS`. The manager reads the 2x paw crops of
+      `docs/research/2026-10-25-xylophone-sway/` and sets the new medians.
+- [ ] Badger xylophone shafts: on a chord of two near bars, the shafts of the two mallets touch
+      in 0.4% of the samples of the steel drum part (`2026-10-25-xylophone-sway.md`).
 - [x] Snare and cymbal grips: the pitch between strikes turns the play median of the paw by 13°
       to 23° from `ACCEPTED_GRIPS`. Done: the manager accepted the 2x paw crops of
       `docs/research/2026-10-25-percussion-tips/` and set the new medians in `ACCEPTED_GRIPS`.
 - [ ] Snare and cymbal rest: the arms hang, so the tips point forward beside the drum and the
       plate, 5 cm to 9 cm outside the rim (design 5.2). `ready` keeps the tips over the instrument
       also at rest, as for the bass drum, and removes the lift. Ask the user.
-- [ ] Badger xylophone reach: the left arm misses its bars by 38 mm (median) on the steel drum part
+- [x] Badger xylophone reach: the left arm misses its bars by 38 mm (median) on the steel drum part
       of the pirates file, and the forearms go 3.5 cm into the body in 11% of the play samples
       (`docs/research/2026-10-21-pirates-clip.md`). This waits for the xylophone task above.
+      Done: the median miss is 0 mm, 90% of the left strikes land within 5 mm, and the forearms
+      go 1.5 cm into the body in 0.4% of the samples (`2026-10-25-xylophone-sway.md`).
 - [ ] Polar bear pianist: the paws keep apart, but their claw tips almost touch when the paws play
       two octaves apart, because the paws point in along the forearms (`PAW_TURN`). A turn of the
       paws toward the fallboard would need a hold of its own and a new accepted grip
