@@ -121,10 +121,10 @@ interface RoleGrip {
    */
   readonly parts: Readonly<Record<Side, readonly BoneName[]>>;
   /**
-   * True when each paw holds a shaft, such as a mallet, a stick, or a beater, from its butt end to
-   * its head. The tool then measures the butt and the exit of the shaft ({@link ShaftContact}).
+   * The paws that hold a shaft, such as a mallet, a stick, or a beater, from its butt end to its
+   * head. The tool then measures the butt and the exit of the shaft ({@link ShaftContact}).
    */
-  readonly shaft: boolean;
+  readonly shafts: readonly Side[];
 }
 
 /** The mallet of each paw of a percussion player. */
@@ -158,7 +158,7 @@ const ROLES = {
     places: {},
     placeAxes: 'chest',
     parts: OWN_MALLETS,
-    shaft: false,
+    shafts: ['R'],
   },
   'bass-drummer': percussion('bass-drummer', 'badger', 'bass-drum', ['R']),
   'snare-drummer': percussion('snare-drummer', 'badger', 'snare-drum', ['L', 'R']),
@@ -174,7 +174,7 @@ const ROLES = {
     places: {},
     placeAxes: 'chest',
     parts: { L: ['instrument'], R: ['instrument'] },
-    shaft: false,
+    shafts: [],
   },
 } as const satisfies Readonly<Record<string, RoleGrip>>;
 
@@ -206,7 +206,7 @@ function wind(
     places,
     placeAxes,
     parts: { L: ['instrument', 'slide'], R: ['instrument', 'slide'] },
-    shaft: false,
+    shafts: [],
   };
 }
 
@@ -235,7 +235,7 @@ function percussion(
     places: {},
     placeAxes: 'chest',
     parts: OWN_MALLETS,
-    shaft: true,
+    shafts: paws,
   };
 }
 
@@ -797,7 +797,7 @@ function measureScene(grip: RoleGrip, scene: TestScene, every: number): SampleCo
         const wanted = grip.places[side];
         const toward = wanted ? placeDirection(posed, wanted, grip.placeAxes) : undefined;
         const part = posedPart(posed, grip.parts[side]);
-        paws[side] = pawContact(posed, own, side, part, grip.shaft, toward);
+        paws[side] = pawContact(posed, own, side, part, grip.shafts.includes(side), toward);
       }
       const between = partDistance(
         posedPart(posed, ['handL', 'fingersL']),
