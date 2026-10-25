@@ -408,7 +408,19 @@
         45
       ],
       "below": 0,
-      "note": "The shape of the bow arm in the play of the bassist with the low elbow of HIPPO_HOLD and the twist bone (pnpm raise-fit bassist --faces 602,486,460,517,897,516,265 --side R): the clavicle turns 50 degrees forward, as the reach of the hold, and the upper arm 88.9 degrees from the bind, the mean of all play samples. In the pose of the rule, faces 460, 517, and 602 at the front and the back of the shoulder top turn over and relax. It takes the place of the two shapes of the raised and the level elbow (docs/research/2026-10-19-arm-skin.md, section 6)."
+      "spread": {
+        "points": [
+          [
+            -0.1945,
+            0.6519,
+            -0.1272
+          ]
+        ],
+        "rings": 1,
+        "rounds": 4
+      },
+      "note": "The shape of the bow arm in the play of the bassist with the low elbow of HIPPO_HOLD and the twist bone (pnpm raise-fit bassist --faces 602,486,460,517,897,516,265 --side R): the clavicle turns 50 degrees forward, as the reach of the hold, and the upper arm 88.9 degrees from the bind, the mean of all play samples. In the pose of the rule, faces 460, 517, and 602 at the front and the back of the shoulder top turn over and relax. It takes the place of the two shapes of the raised and the level elbow (docs/research/2026-10-19-arm-skin.md, section 6).",
+      "spreadNote": "The relax of the rule moves vertex 177 of the module (723 of the rig, the point, at the back of the right shoulder top) 3.6 cm to turn back face 479, and the step to its neighbors showed as a crease line of 39 degrees between faces 288 and 289 over the top of the right shoulder in each play sample (the shape has the mean weight 0.68 in the play). With the move spread over one ring in 4 rounds, the crease is 5 degrees, and face 479 folds in 2.7% of the play samples (1.7%). With two rings in 6 rounds, the crease is 4 degrees, and the lift folds 12.2% (6.5%). With the whole shape spread, face 258 folds in each play sample (docs/research/2026-10-25-hippo-skin.md)."
     },
     {
       "side": "R",
