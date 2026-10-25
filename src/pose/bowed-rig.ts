@@ -769,14 +769,17 @@ export const BOWED_HOLDS = {
  * that the paw twist on the forearm goes from the rest through 0° to the play. Thus the left elbow
  * bends to 148° at most: with the tail end on the path, the paw went 1.28 H to the front, and the
  * elbow straightened to 180°. The paw rolls 45° further over the neck (`liftTiltL`): with no roll,
- * the left paw went 2.8 cm into the viola (1.4 cm now, 2026-10-24-violin-poses decisions). The bow
- * turns through the front with the grip 0.3 H out, 0.1 H up, and 0.4 H to the front (the via of
- * `UPRIGHT_BOW`). With a direct turn from the rest on the knee, the viola lay flat far in front,
- * and the cat held both arms out straight (user, 2026-10-24: "fix the arm transition for how the
- * cat raises and lowers the violin", 2026-10-24-violin-rest decisions). With a move of 0.4 H up,
- * the left paw rose to the top of the head (3.3 H above the root, 2.8 H now). With the grip 0.5 H
- * to the front, the right paw twisted 137° on its forearm in a lift (2026-10-24-violin-poses
- * decisions).
+ * the left paw went 2.8 cm into the viola (1.4 cm now, 2026-10-24-violin-poses decisions). In the
+ * middle, the bow points up, forward, and a little to the left, with the hair down, and the grip
+ * moves 0.45 H out, 0.4 H up, and 0.4 H to the front, so that the bow rises beside the viola: with
+ * the via of `UPRIGHT_BOW` (the tip forward, the grip 0.3 H out and 0.1 H up), the bow lay across
+ * the belly and went 1.3 cm into the viola and 2.7 cm into the arms (manager review of 2026-10-24,
+ * 2026-10-24-violin-review decisions). With a direct turn from the rest on the knee, the viola lay
+ * flat far in front, and the cat held both arms out straight (user, 2026-10-24: "fix the arm
+ * transition for how the cat raises and lowers the violin", 2026-10-24-violin-rest decisions). With
+ * a move of 0.4 H up, the left paw rose to the top of the head (3.3 H above the root, 2.8 H now).
+ * With the grip 0.5 H to the front, the right paw twisted 137° on its forearm in a lift
+ * (2026-10-24-violin-poses decisions).
  *
  * A cat soloist who stands hangs the bow from the right paw with the tip down, a little forward and
  * out, and turns it through the front in the lift and the lowering (`HANGING_BOW`).
@@ -848,7 +851,7 @@ const CAT_HOLD = {
     lap: { along: 0.5, offset: [0.6, -0.3, 0.1] },
     tip: UPRIGHT_BOW.tip,
     hair: UPRIGHT_BOW.hair,
-    via: { ...UPRIGHT_BOW.via, reach: [0.3, 0.1, -0.4] },
+    via: { tip: [-0.2, 1, -1], hair: [0, -1, 0], reach: [0.45, 0.4, -0.4] },
   },
   standBow: HANGING_BOW,
 } as const satisfies BowedHold;

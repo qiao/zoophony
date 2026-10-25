@@ -302,7 +302,9 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
   outer side of the knee (`docs/decisions/2026-10-24-violin-poses.md`). The round belly keeps the
   right paw at the outer side of the thigh (red fox) or of the knee (rabbit), and above the thigh
   (cat), because a paw on the thigh put the forearm into the deep belly. In the lift and the
-  lowering, the bow tip turns through the front (`BowVia` of `pose/bowed-rig.ts`). The left paw
+  lowering, the bow tip turns through the front (`BowVia` of `pose/bowed-rig.ts`). The cat
+  raises the bow up and forward beside the viola, because a bow across the belly went into the
+  viola (`docs/decisions/2026-10-24-violin-review.md`). The left paw
   of the rabbit and of the cat carries the instrument by the end of the fingerboard
   (`BowedHold.liftPlace`), as a player brings the violin up by its neck. The paw moves on a line
   from its rest place to its playing place, with a move off the line in the middle
