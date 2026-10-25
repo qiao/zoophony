@@ -97,10 +97,10 @@ group of your work before you plan it. A probe that a trap names is in its resea
   until the upper limbs keep off the body (`folder-scan.txt` of `docs/research/2026-10-21-mesh-penguin/`).
 - A paw that hangs beside the haunch puts the depth at the inner elbow and the armpit
   (`left-rest.ts` of `docs/research/2026-10-17-tan-rest/`).
-- The strings of the harp of the app run away from the body, out of reach of short arms. Scale and
-  move the harp (`harpScale`, `HARP_PLACE`), and scan the place with `pnpm pose-depth harpist
-  --targets --set` first: a tilt back puts the upper strings into the chest
-  (`docs/research/2026-10-21-mesh-deer.md`).
+- A harp leaned back from the middle of the chest puts its upper strings into the chest. Put the
+  top of the soundbox at the front of the right shoulder, raise a smaller harp on its box, point
+  the elbows out, and keep the spine lean small, else the muzzle meets the neck. Place it from the
+  contact point (`solve.ts` of `docs/research/2026-10-25-harp-lean/`).
 - A round belly in front of the short arms of a seated pianist, as on the polar bear mesh, puts
   the keys in front of the belly, and the far keys then need a lean that brings the muzzle to the
   lid. A higher bench lowers the keys against the shoulders and loses reach. Scan the arm factor
