@@ -4204,6 +4204,14 @@ def main():
             if rule_weights is not None:
                 rule_weights = np.concatenate(
                     [rule_weights, np.zeros((len(verts), len(segment_bones())))], axis=1)
+                if config['armSegments'].get('rootSegment'):
+                    # The rule weight of each upper arm goes to its first segment, so that the
+                    # skin around the socket takes the roll of the first ring of the tube.
+                    for side in 'LR':
+                        old, new = BONES.index(f'upper_arm_{side}'), BONES.index(
+                            f'upper_arm_seg0_{side}')
+                        rule_weights[:, new] += rule_weights[:, old]
+                        rule_weights[:, old] = 0.0
         # The painted file holds the places of the source, before the smooth of a box.
         weights = painted_weights(unsmoothed, config['paintedWeights'])
         if rule_weights is not None:
