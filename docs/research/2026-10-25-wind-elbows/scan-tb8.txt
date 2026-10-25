@@ -1,0 +1,12 @@
+trombone@panda.gripShiftR=0.15,0,0.08;trombone@panda.poleR=0,-1,0;trombone@panda.restPoleR=0,-1,0
+| trombonist | R | cut 0.6, 13 tris, off 0.46 | 11 | 5 | 2 | +5.67 | +4.62 | -0.17 | -0.04 | +2.16 | -0.21 | +1.00 |
+| trombonist | play | R | 24 | 7.9 | 17.5 | 9.5 | 3.6 | 24.9 |
+| trombonist | rest | R | 1 | 17.0 | 40.1 | 40.1 | -9.6 | 17.7 |
+trombone@panda.gripShiftR=0.15,0,0.08;trombone@panda.poleR=0,-1,-0.5;trombone@panda.restPoleR=0,-1,-0.5
+| trombonist | R | cut 0.6, 13 tris, off 0.46 | 11 | 4 | 1 | +5.65 | +4.66 | -0.17 | -0.04 | +2.27 | -0.21 | +1.00 |
+| trombonist | play | R | 24 | 7.9 | 17.5 | 9.4 | 2.6 | 25.0 |
+| trombonist | rest | R | 1 | 16.5 | 38.8 | 38.8 | -6.3 | 19.5 |
+trombone@panda.gripShiftR=0.15,0,0.08;trombone@panda.poleR=0.3,-1,-0.3;trombone@panda.restPoleR=0.3,-1,-0.3
+| trombonist | R | cut 0.6, 13 tris, off 0.46 | 12 | 11 | 7 | +5.79 | +4.39 | -0.17 | -0.06 | +1.58 | -0.21 | +1.00 |
+| trombonist | play | R | 24 | 7.6 | 16.6 | 9.0 | 7.0 | 24.3 |
+| trombonist | rest | R | 1 | 15.8 | 36.8 | 36.8 | -4.4 | 20.6 |

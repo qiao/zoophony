@@ -1,0 +1,33 @@
+tree: cached (trombonist, d79745a280be)
+Arm gate of 1 roles in 3 variants: 3 children, at most 3 at the same time, in 42 s. A cell gives the value and the verdict of a value that does not pass.
+
+- s1: trombone@panda.gripShiftR=0.15,0,0.08;trombone@panda.poleR=0.3,-1,-0.3;trombone@panda.restPoleR=0.3,-1,-0.3
+- s2: trombone@panda.gripShiftR=0.15,0,0.08;trombone@panda.poleR=0.3,-1,-0.3;trombone@panda.restPoleR=0.3,-1,-0.3;trombone@panda.reach=0.96
+- s3: trombone@panda.gripShiftR=0.15,0,0.08;trombone@panda.poleR=0.3,-1,-0.3;trombone@panda.restPoleR=0.3,-1,-0.3;trombone@panda.reach=1.05
+
+| Variant | Role | Arm | folds p95 (8) | twist p95 (55) | forearm twist p95 (80) | flat p5 (0.55) | paw twist p95 (170) | paw swing p95 (70) | paw jumps (0.5%) | stretch p95 (0.35) | grip turn p50 (45) | move twist max (176) | move turn max (3000) | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| s1 | trombonist | L | 3 | 9 | 30 | 0.63 | 102 | 34 | 0.0% | 0.08 | 2 | 102 | 74 | PASS |
+| s1 | trombonist | R | 6 | 25 | 45 | 0.66 | 141 | 44 | 0.0% | 0.14 | 45 FAIL | 141 | 119 | FAIL |
+| s2 | trombonist | L | 3 | 9 | 30 | 0.63 | 102 | 34 | 0.0% | 0.08 | 2 | 102 | 74 | PASS |
+| s2 | trombonist | R | 7 | 28 | 45 | 0.60 | 141 | 47 | 0.0% | 0.16 | 46 FAIL | 141 | 131 | FAIL |
+| s3 | trombonist | L | 3 | 9 | 30 | 0.63 | 102 | 34 | 0.0% | 0.08 | 2 | 102 | 74 | PASS |
+| s3 | trombonist | R | 8 | 30 | 44 | 0.58 | 141 | 48 | 0.0% | 0.17 | 47 FAIL | 141 | 137 | FAIL |
+
+Variant s1:
+
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| trombonist | R | grip turn p50 | play | 4788 | 45 | 47 | 100.0% | 47 at brahms-2.mid 654.88 s | 45 | 45 | - | FAIL |
+
+Variant s2:
+
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| trombonist | R | grip turn p50 | play | 4788 | 46 | 48 | 100.0% | 48 at brahms-2.mid 435.88 s | 46 | 45 | - | FAIL |
+
+Variant s3:
+
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| trombonist | R | grip turn p50 | play | 4788 | 47 | 49 | 100.0% | 49 at brahms-2.mid 429.13 s | 47 | 45 | - | FAIL |

@@ -1,0 +1,86 @@
+Arm gate of 1 roles in 9 variants: 9 children, at most 8 at the same time, in 136 s. A cell gives the value and the verdict of a value that does not pass.
+
+- r1: oboe@mouse.poleL=-0.5,-1,0;oboe@mouse.restPoleL=-1,-0.3,0
+- r2: oboe@mouse.poleL=-0.5,-1,0;oboe@mouse.restPoleL=-1,-1,-0.5
+- r3: oboe@mouse.poleL=-0.5,-1,0;oboe@mouse.restPoleL=-1,-0.5,-0.5
+- r4: oboe@mouse.poleL=-0.3,-1,0;oboe@mouse.restPoleL=-1,-0.3,0
+- r5: oboe@mouse.poleL=-0.3,-1,0;oboe@mouse.restPoleL=-1,-1,-0.5
+- r6: oboe@mouse.poleL=-0.3,-1,0;oboe@mouse.restPoleL=-1,-0.5,-0.5
+- r7: oboe@mouse.poleL=-0.5,-1,-0.5;oboe@mouse.restPoleL=-1,-0.3,0
+- r8: oboe@mouse.poleL=-0.5,-1,-0.5;oboe@mouse.restPoleL=-1,-1,-0.5
+- r9: oboe@mouse.poleL=-0.5,-1,-0.5;oboe@mouse.restPoleL=-1,-0.5,-0.5
+
+| Variant | Role | Arm | folds p95 (8) | twist p95 (55) | forearm twist p95 (80) | flat p5 (0.55) | paw twist p95 (170) | paw swing p95 (70) | paw jumps (0.5%) | stretch p95 (0.35) | grip turn p50 (45) | move twist max (176) | move turn max (3000) | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| r1 | oboist | L | 7 | 32 | 41 | 0.68 | 122 | 44 | 0.0% | 0.02 | 52 FAIL | 122 | 88 | FAIL |
+| r1 | oboist | R | 6 | 30 | 41 | 0.74 | 121 | 44 | 0.0% | 0.04 | 0 | 121 | 113 | PASS |
+| r2 | oboist | L | 8 | 31 | 39 | 0.68 | 115 | 41 | 0.0% | 0.02 | 52 FAIL | 115 | 77 | FAIL |
+| r2 | oboist | R | 6 | 30 | 41 | 0.74 | 121 | 44 | 0.0% | 0.04 | 0 | 121 | 113 | PASS |
+| r3 | oboist | L | 6 | 33 | 46 | 0.68 | 134 | 48 | 0.0% | 0.03 | 52 FAIL | 134 | 103 | FAIL |
+| r3 | oboist | R | 6 | 30 | 41 | 0.74 | 121 | 44 | 0.0% | 0.04 | 0 | 121 | 113 | PASS |
+| r4 | oboist | L | 7 | 32 | 41 | 0.61 | 122 | 44 | 0.0% | 0.03 | 61 FAIL | 122 | 106 | FAIL |
+| r4 | oboist | R | 6 | 30 | 41 | 0.74 | 121 | 44 | 0.0% | 0.04 | 0 | 121 | 113 | PASS |
+| r5 | oboist | L | 8 | 31 | 39 | 0.61 | 115 | 41 | 0.0% | 0.02 | 61 FAIL | 115 | 93 | FAIL |
+| r5 | oboist | R | 6 | 30 | 41 | 0.74 | 121 | 44 | 0.0% | 0.04 | 0 | 121 | 113 | PASS |
+| r6 | oboist | L | 7 | 33 | 46 | 0.61 | 134 | 48 | 0.0% | 0.03 | 61 FAIL | 134 | 122 | FAIL |
+| r6 | oboist | R | 6 | 30 | 41 | 0.74 | 121 | 44 | 0.0% | 0.04 | 0 | 121 | 113 | PASS |
+| r7 | oboist | L | 7 | 32 | 41 | 0.70 | 122 | 44 | 0.0% | 0.02 | 48 FAIL | 122 | 91 | FAIL |
+| r7 | oboist | R | 6 | 30 | 41 | 0.74 | 121 | 44 | 0.0% | 0.04 | 0 | 121 | 113 | PASS |
+| r8 | oboist | L | 8 | 31 | 39 | 0.70 | 115 | 41 | 0.0% | 0.02 | 48 FAIL | 115 | 67 | FAIL |
+| r8 | oboist | R | 6 | 30 | 41 | 0.74 | 121 | 44 | 0.0% | 0.04 | 0 | 121 | 113 | PASS |
+| r9 | oboist | L | 6 | 33 | 46 | 0.70 | 134 | 48 | 0.0% | 0.03 | 48 FAIL | 134 | 99 | FAIL |
+| r9 | oboist | R | 6 | 30 | 41 | 0.74 | 121 | 44 | 0.0% | 0.04 | 0 | 121 | 113 | PASS |
+
+Variant r1:
+
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| oboist | L | grip turn p50 | play | 14223 | 52 | 52 | 100.0% | 52 at bach-bwv1047.mid 95.15 s | 52 | 45 | - | FAIL |
+
+Variant r2:
+
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| oboist | L | grip turn p50 | play | 14223 | 52 | 52 | 100.0% | 52 at bach-bwv1047.mid 95.15 s | 52 | 45 | - | FAIL |
+
+Variant r3:
+
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| oboist | L | grip turn p50 | play | 14223 | 52 | 52 | 100.0% | 52 at bach-bwv1047.mid 95.15 s | 52 | 45 | - | FAIL |
+
+Variant r4:
+
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| oboist | L | grip turn p50 | play | 14223 | 61 | 61 | 100.0% | 61 at brahms-2.mid 405.88 s | 61 | 45 | - | FAIL |
+
+Variant r5:
+
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| oboist | L | grip turn p50 | play | 14223 | 61 | 61 | 100.0% | 61 at brahms-2.mid 405.88 s | 61 | 45 | - | FAIL |
+
+Variant r6:
+
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| oboist | L | grip turn p50 | play | 14223 | 61 | 61 | 100.0% | 61 at brahms-2.mid 405.88 s | 61 | 45 | - | FAIL |
+
+Variant r7:
+
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| oboist | L | grip turn p50 | play | 14223 | 48 | 48 | 100.0% | 48 at mozart-k417.mid 66.95 s | 48 | 45 | - | FAIL |
+
+Variant r8:
+
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| oboist | L | grip turn p50 | play | 14223 | 48 | 48 | 100.0% | 48 at mozart-k417.mid 66.95 s | 48 | 45 | - | FAIL |
+
+Variant r9:
+
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| oboist | L | grip turn p50 | play | 14223 | 48 | 48 | 100.0% | 48 at mozart-k417.mid 66.95 s | 48 | 45 | - | FAIL |

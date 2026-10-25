@@ -1,0 +1,70 @@
+Arm gate of 1 roles in 7 variants: 7 children, at most 7 at the same time, in 45 s. A cell gives the value and the verdict of a value that does not pass.
+
+- p1: trombone@panda.gripShiftR=0.15,-0.04,0.08;trombone@panda.poleR=0.5,-1,0;trombone@panda.restPoleR=0.5,-1,0
+- p2: trombone@panda.gripShiftR=0.15,-0.04,0.08;trombone@panda.poleR=0.3,-1,-0.3;trombone@panda.restPoleR=0.3,-1,-0.3
+- p3: trombone@panda.gripShiftR=0.15,-0.04,0.08;trombone@panda.poleR=1,-1,0;trombone@panda.restPoleR=1,-1,0
+- p4: trombone@panda.gripShiftR=0.15,-0.04,0.08;trombone@panda.poleR=0.5,-1,0.3;trombone@panda.restPoleR=0.5,-1,0.3
+- p5: trombone@panda.gripShiftR=0.15,-0.04,0.08;trombone@panda.poleR=1,0,0;trombone@panda.restPoleR=1,0,0
+- p6: trombone@panda.gripShiftR=0.15,-0.04,0.08;trombone@panda.poleR=1,-0.5,-0.5;trombone@panda.restPoleR=1,-0.5,-0.5
+- p7: trombone@panda.gripShiftR=0.15,-0.04,0.08;trombone@panda.poleR=1,-0.5,0.5;trombone@panda.restPoleR=1,-0.5,0.5
+
+| Variant | Role | Arm | folds p95 (8) | twist p95 (55) | forearm twist p95 (80) | flat p5 (0.55) | paw twist p95 (170) | paw swing p95 (70) | paw jumps (0.5%) | stretch p95 (0.35) | grip turn p50 (45) | move twist max (176) | move turn max (3000) | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| p1 | trombonist | L | 3 | 9 | 30 | 0.63 | 102 | 34 | 0.0% | 0.08 | 2 | 102 | 74 | PASS |
+| p1 | trombonist | R | 7 | 25 | 40 | 0.69 | 128 | 51 | 0.0% | 0.15 | 51 FAIL | 128 | 98 | FAIL |
+| p2 | trombonist | L | 3 | 9 | 30 | 0.63 | 102 | 34 | 0.0% | 0.08 | 2 | 102 | 74 | PASS |
+| p2 | trombonist | R | 6 | 25 | 39 | 0.66 | 127 | 51 | 0.0% | 0.14 | 37 | 127 | 120 | PASS |
+| p3 | trombonist | L | 3 | 9 | 30 | 0.63 | 102 | 34 | 0.0% | 0.08 | 2 | 102 | 74 | PASS |
+| p3 | trombonist | R | 3 | 28 | 48 | 0.61 | 151 | 52 | 0.0% | 0.14 | 69 FAIL | 151 | 85 | FAIL |
+| p4 | trombonist | L | 3 | 9 | 30 | 0.63 | 102 | 34 | 0.0% | 0.08 | 2 | 102 | 74 | PASS |
+| p4 | trombonist | R | 7 | 25 | 37 | 0.65 | 121 | 52 | 0.0% | 0.16 | 56 FAIL | 121 | 111 | FAIL |
+| p5 | trombonist | L | 3 | 9 | 30 | 0.63 | 102 | 34 | 0.0% | 0.08 | 2 | 102 | 74 | PASS |
+| p5 | trombonist | R | 5 | 43 | 59 | 0.54 FAIL | 173 FAIL | 43 | 0.0% | 0.18 | 115 FAIL | 180 FAIL | 17978 FAIL | FAIL |
+| p6 | trombonist | L | 3 | 9 | 30 | 0.63 | 102 | 34 | 0.0% | 0.08 | 2 | 102 | 74 | PASS |
+| p6 | trombonist | R | 6 | 35 | 61 | 0.50 FAIL | 177 FAIL | 49 | 0.0% | 0.18 | 78 FAIL | 180 FAIL | 17987 FAIL | FAIL |
+| p7 | trombonist | L | 3 | 9 | 30 | 0.63 | 102 | 34 | 0.0% | 0.08 | 2 | 102 | 74 | PASS |
+| p7 | trombonist | R | 1 | 31 | 54 | 0.57 | 165 | 52 | 0.0% | 0.12 | 96 FAIL | 165 | 69 | FAIL |
+
+Variant p1:
+
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| trombonist | R | grip turn p50 | play | 4788 | 51 | 51 | 100.0% | 51 at brahms-2.mid 648.63 s | 51 | 45 | - | FAIL |
+
+Variant p3:
+
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| trombonist | R | grip turn p50 | play | 4788 | 69 | 69 | 100.0% | 69 at brahms-2.mid 336.63 s | 69 | 45 | - | FAIL |
+
+Variant p4:
+
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| trombonist | R | grip turn p50 | play | 4788 | 56 | 56 | 100.0% | 56 at brahms-2.mid 153.38 s | 56 | 45 | - | FAIL |
+
+Variant p5:
+
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| trombonist | R | flat p5 | lift | 93 | 0.62 | 0.54 | 100.0% | 0.49 at brahms-2.mid wall 0.4 s | 0.54 | 0.55 | - | FAIL |
+| trombonist | R | paw twist p95 | lift | 93 | 155 | 173 | 100.0% | 179 at brahms-2.mid wall 0.4 s | 173 | 170 | - | FAIL |
+| trombonist | R | grip turn p50 | play | 4788 | 115 | 118 | 100.0% | 118 at beethoven-9.mid 143.59 s | 115 | 45 | - | FAIL |
+| trombonist | R | move twist max | move | 3483 | 156 | 177 | 100.0% | 180 at boulanger-matin.mid lower 280.67 s, wall 0.62 s | 180 | 176 | - | FAIL |
+| trombonist | R | move turn max | move | 3483 | 13 | 52 | 91.0% | 17978 at brahms-2.mid lower 752.46 s, wall 0.96 s | 17978 | 3000 | - | FAIL |
+
+Variant p6:
+
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| trombonist | R | flat p5 | rest | 3 | 0.50 | 0.50 | 100.0% | 0.50 at boulanger-matin.mid rest | 0.50 | 0.55 | - | FAIL |
+| trombonist | R | paw twist p95 | lift | 93 | 119 | 177 | 100.0% | 178 at beethoven-9.mid wall 0.2 s | 177 | 170 | - | FAIL |
+| trombonist | R | grip turn p50 | play | 4788 | 78 | 79 | 100.0% | 79 at brahms-2.mid 694.88 s | 78 | 45 | - | FAIL |
+| trombonist | R | move twist max | move | 3483 | 150 | 178 | 100.0% | 180 at beethoven-9.mid lower 105.53 s, wall 1.47 s | 180 | 176 | - | FAIL |
+| trombonist | R | move turn max | move | 3483 | 13 | 71 | 89.3% | 17987 at brahms-2.mid lower 752.46 s, wall 1.48 s | 17987 | 3000 | - | FAIL |
+
+Variant p7:
+
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| trombonist | R | grip turn p50 | play | 4788 | 96 | 98 | 100.0% | 98 at brahms-2.mid 435.88 s | 96 | 45 | - | FAIL |

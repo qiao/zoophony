@@ -1,0 +1,35 @@
+Medians over the samples of each set, in the axes of the chest.
+| Role | Set | Arm | Samples | Drop (cm) | Angle below the level (°) | Smallest angle (°) | Out (cm) | Forward (cm) |
+|---|---|---|---:|---:|---:|---:|---:|---:|
+| oboist | play | L | 24 | 7.8 | 32.5 | 32.5 | 1.7 | 12.1 |
+| oboist | play | R | 24 | 8.4 | 35.5 | 35.5 | 1.8 | 11.6 |
+| oboist | lift | L | 24 | 7.8 | 32.5 | 32.5 | 1.7 | 12.1 |
+| oboist | lift | R | 24 | 8.4 | 35.5 | 34.7 | 1.8 | 11.6 |
+| oboist | rest | L | 1 | 9.6 | 41.6 | 41.6 | 7.7 | 7.6 |
+| oboist | rest | R | 1 | 8.2 | 34.7 | 34.7 | 11.8 | 1.7 |
+| oboist | lower | L | 24 | 9.1 | 39.1 | 32.5 | 3.9 | 11.0 |
+| oboist | lower | R | 24 | 8.6 | 36.4 | 34.7 | 5.4 | 9.5 |
+| clarinetist | play | L | 24 | 15.2 | 42.9 | 42.9 | -2.9 | 16.1 |
+| clarinetist | play | R | 24 | 19.4 | 60.3 | 60.3 | 0.2 | 11.1 |
+| clarinetist | lift | L | 24 | 15.2 | 42.9 | 42.9 | -2.9 | 16.1 |
+| clarinetist | lift | R | 24 | 19.4 | 60.3 | 60.3 | 0.2 | 11.1 |
+| clarinetist | rest | L | 1 | 19.5 | 61.1 | 61.1 | 2.3 | 10.5 |
+| clarinetist | rest | R | 1 | 21.4 | 73.4 | 73.4 | 6.4 | 0.0 |
+| clarinetist | lower | L | 24 | 18.4 | 55.5 | 42.9 | -0.9 | 13.6 |
+| clarinetist | lower | R | 24 | 21.4 | 73.4 | 60.3 | 2.6 | 6.9 |
+| bassoonist | play | L | 24 | 13.2 | 43.7 | 43.7 | -0.6 | 13.7 |
+| bassoonist | play | R | 24 | 12.2 | 40.0 | 40.0 | -1.2 | 14.5 |
+| bassoonist | lift | L | 24 | 13.2 | 43.7 | 43.7 | -0.6 | 13.7 |
+| bassoonist | lift | R | 24 | 12.2 | 40.0 | 40.0 | -1.2 | 14.5 |
+| bassoonist | rest | L | 1 | 13.4 | 44.7 | 44.7 | -1.8 | 13.4 |
+| bassoonist | rest | R | 1 | 13.7 | 45.9 | 45.9 | 1.3 | 13.2 |
+| bassoonist | lower | L | 24 | 13.3 | 44.3 | 43.7 | -0.8 | 13.6 |
+| bassoonist | lower | R | 24 | 12.7 | 41.7 | 40.0 | -0.6 | 14.3 |
+| trombonist | play | L | 24 | -5.0 | -10.8 | -10.8 | -11.4 | 23.3 |
+| trombonist | play | R | 24 | 7.6 | 16.6 | 9.0 | 7.0 | 24.3 |
+| trombonist | lift | L | 24 | -5.0 | -10.8 | -10.8 | -11.4 | 23.3 |
+| trombonist | lift | R | 24 | 7.6 | 16.6 | 16.6 | 7.0 | 24.3 |
+| trombonist | rest | L | 1 | -2.4 | -5.3 | -5.3 | -4.3 | 25.9 |
+| trombonist | rest | R | 1 | 15.8 | 36.8 | 36.8 | -4.4 | 20.6 |
+| trombonist | lower | L | 24 | -2.7 | -5.9 | -10.8 | -8.8 | 24.7 |
+| trombonist | lower | R | 24 | 10.4 | 23.3 | 16.6 | 4.8 | 24.2 |

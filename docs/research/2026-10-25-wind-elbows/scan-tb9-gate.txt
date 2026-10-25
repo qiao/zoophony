@@ -1,0 +1,42 @@
+Arm gate of 1 roles in 4 variants: 4 children, at most 4 at the same time, in 37 s. A cell gives the value and the verdict of a value that does not pass.
+
+- k1: trombone@panda.gripShiftR=0.15,0,0.08;trombone@panda.poleR=0,-1,0
+- k2: trombone@panda.gripShiftR=0.15,0,0.08;trombone@panda.poleR=0,-1,-0.5
+- k3: trombone@panda.gripShiftR=0.15,0,0.08;trombone@panda.poleR=0.3,-1,-0.3
+- k4: trombone@panda.gripShiftR=0.15,0,0.08;trombone@panda.poleR=0,-1,0;trombone@panda.restPoleR=0.3,-1,-0.3
+
+| Variant | Role | Arm | folds p95 (8) | twist p95 (55) | forearm twist p95 (80) | flat p5 (0.55) | paw twist p95 (170) | paw swing p95 (70) | paw jumps (0.5%) | stretch p95 (0.35) | grip turn p50 (45) | move twist max (176) | move turn max (3000) | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| k1 | trombonist | L | 3 | 9 | 30 | 0.63 | 102 | 34 | 0.0% | 0.08 | 2 | 102 | 74 | PASS |
+| k1 | trombonist | R | 2 | 32 | 60 | 0.54 FAIL | 178 FAIL | 41 | 0.0% | 0.11 | 33 | 178 FAIL | 170 | FAIL |
+| k2 | trombonist | L | 3 | 9 | 30 | 0.63 | 102 | 34 | 0.0% | 0.08 | 2 | 102 | 74 | PASS |
+| k2 | trombonist | R | 2 | 32 | 60 | 0.54 FAIL | 178 FAIL | 41 | 0.0% | 0.11 | 28 | 178 FAIL | 171 | FAIL |
+| k3 | trombonist | L | 3 | 9 | 30 | 0.63 | 102 | 34 | 0.0% | 0.08 | 2 | 102 | 74 | PASS |
+| k3 | trombonist | R | 1 | 32 | 60 | 0.54 FAIL | 178 FAIL | 41 | 0.0% | 0.10 | 45 FAIL | 178 FAIL | 144 | FAIL |
+| k4 | trombonist | L | 3 | 9 | 30 | 0.63 | 102 | 34 | 0.0% | 0.08 | 2 | 102 | 74 | PASS |
+| k4 | trombonist | R | 6 | 25 | 45 | 0.60 | 141 | 44 | 0.0% | 0.13 | 33 | 141 | 141 | PASS |
+
+Variant k1:
+
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| trombonist | R | flat p5 | rest | 3 | 0.54 | 0.54 | 100.0% | 0.54 at beethoven-9.mid rest | 0.54 | 0.55 | - | FAIL |
+| trombonist | R | paw twist p95 | rest | 3 | 178 | 178 | 100.0% | 178 at boulanger-matin.mid rest | 178 | 170 | - | FAIL |
+| trombonist | R | move twist max | move | 3483 | 116 | 178 | 100.0% | 178 at beethoven-9.mid lower 52.77 s, wall 2.19 s | 178 | 176 | - | FAIL |
+
+Variant k2:
+
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| trombonist | R | flat p5 | rest | 3 | 0.54 | 0.54 | 100.0% | 0.54 at beethoven-9.mid rest | 0.54 | 0.55 | - | FAIL |
+| trombonist | R | paw twist p95 | rest | 3 | 178 | 178 | 100.0% | 178 at boulanger-matin.mid rest | 178 | 170 | - | FAIL |
+| trombonist | R | move twist max | move | 3483 | 120 | 178 | 100.0% | 178 at beethoven-9.mid lower 52.77 s, wall 2.19 s | 178 | 176 | - | FAIL |
+
+Variant k3:
+
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| trombonist | R | flat p5 | rest | 3 | 0.54 | 0.54 | 100.0% | 0.54 at beethoven-9.mid rest | 0.54 | 0.55 | - | FAIL |
+| trombonist | R | paw twist p95 | rest | 3 | 178 | 178 | 100.0% | 178 at boulanger-matin.mid rest | 178 | 170 | - | FAIL |
+| trombonist | R | grip turn p50 | play | 4788 | 45 | 47 | 100.0% | 47 at brahms-2.mid 654.88 s | 45 | 45 | - | FAIL |
+| trombonist | R | move twist max | move | 3483 | 126 | 178 | 100.0% | 178 at beethoven-9.mid lower 52.77 s, wall 2.19 s | 178 | 176 | - | FAIL |

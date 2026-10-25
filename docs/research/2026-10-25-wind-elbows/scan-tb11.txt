@@ -1,0 +1,14 @@
+
+trombonist: each cell gives the share of the samples that hold and that grasp, then the median axis distance, tip gap, and skin gap in cm, and the median palm angle in degrees
+| Variant | play L | play R | lift L | lift R | rest L | rest R | lower L | lower R | Paws gap min | Rest body, end gap |
+|---|---|---|---|---|---|---|---|---|---:|---|
+| tree | 100% 100% 2.6 0.2 0.0 27 | 100% 100% 7.3 0.5 0.0 16 | 81% 81% 2.6 0.2 0.0 27 | 100% 100% 7.3 0.5 0.0 16 | 0% 0% 2.2 0.7 0.0 19 | 100% 100% 7.3 0.4 0.0 13 | 43% 43% 2.2 0.7 0.0 19 | 100% 100% 7.3 0.5 0.0 15 | 0.0 | 25.2 29.9 |
+| trombone@panda.gripShiftR=0.15,0,0.08;trombone@panda.poleR=0.3,-1,-0.3;trombone@panda.restPoleR=0.3,-1,-0.3 | 100% 100% 2.6 0.2 0.0 27 | 100% 100% 6.3 0.0 0.0 22 | 81% 81% 2.6 0.2 0.0 27 | 100% 100% 6.3 0.0 0.0 22 | 0% 0% 2.2 0.7 0.0 19 | 100% 100% 6.2 0.0 0.0 28 | 43% 43% 2.2 0.7 0.0 19 | 100% 100% 6.3 0.0 0.0 26 | 8.5 | 25.2 29.9 |
+| trombone@panda.gripShiftR=0.15,0,0.08;trombone@panda.poleR=0.3,-1,-0.3;trombone@panda.restPoleR=0.3,-1,-0.3;trombone@panda.reach=0.96 | 100% 100% 2.6 0.2 0.0 27 | 100% 100% 6.4 0.0 0.0 24 | 81% 81% 2.6 0.2 0.0 27 | 100% 100% 6.4 0.0 0.0 24 | 0% 0% 2.2 0.7 0.0 19 | 100% 100% 6.3 0.2 0.0 30 | 43% 43% 2.2 0.7 0.0 19 | 100% 100% 6.4 0.1 0.0 29 | 8.5 | 25.2 29.9 |
+| trombone@panda.gripShiftR=0.15,0,0.08;trombone@panda.poleR=0.3,-1,-0.3;trombone@panda.restPoleR=0.3,-1,-0.3;trombone@panda.reach=1.05 | 100% 100% 2.6 0.2 0.0 27 | 100% 100% 6.4 0.0 0.0 25 | 81% 81% 2.6 0.2 0.0 27 | 100% 100% 6.4 0.0 0.0 25 | 0% 0% 2.2 0.7 0.0 19 | 100% 100% 6.4 0.2 0.0 31 | 43% 43% 2.2 0.7 0.0 19 | 100% 100% 6.4 0.0 0.0 30 | 8.4 | 25.2 29.9 |
+trombone@panda.gripShiftR=0.15,0,0.08;trombone@panda.poleR=0.3,-1,-0.3;trombone@panda.restPoleR=0.3,-1,-0.3
+  Slide: the right arm reaches 0.105 m of the travel of 0.550 m in the playing pose (slideReach)
+trombone@panda.gripShiftR=0.15,0,0.08;trombone@panda.poleR=0.3,-1,-0.3;trombone@panda.restPoleR=0.3,-1,-0.3;trombone@panda.reach=0.96
+  Slide: the right arm reaches 0.125 m of the travel of 0.550 m in the playing pose (slideReach)
+trombone@panda.gripShiftR=0.15,0,0.08;trombone@panda.poleR=0.3,-1,-0.3;trombone@panda.restPoleR=0.3,-1,-0.3;trombone@panda.reach=1.05
+  Slide: the right arm reaches 0.130 m of the travel of 0.550 m in the playing pose (slideReach)
