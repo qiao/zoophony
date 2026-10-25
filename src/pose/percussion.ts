@@ -169,8 +169,10 @@ const joints = { elbow: new Vector3(), wrist: new Vector3() };
  * the hand to the target, and the grip stays at that place. The paw at rest holds the mallet
  * across the forearm, at its angle in the frame of the elbow, with the top of the grip along the
  * forearm toward the elbow, and the wrist lifts the head by `MalletAcross.lift`. Between the
- * two, the paw turns around the grip by a share of the
- * smallest turn from the rest direction to the strike direction. The forearm comes from the
+ * two, the paw turns around the grip by a share of the smallest turn from the rest direction to
+ * the strike direction. With `MalletAcross.pitch`, the paw keeps the turn of the strike, and the
+ * wrist lifts the head by a share of the pitch around the level axis normal to the forearm, so
+ * that the tip stays over its spot. The forearm comes from the
  * two-bone solution to the wrist, two times, because the wrist follows the turn of the paw. The
  * function writes the module vectors `wrist` and `turn`, and it writes the head into `point`.
  *
@@ -222,9 +224,17 @@ function acrossHand(
       along.applyQuaternion(swing);
     }
     // The smallest turn from the rest direction to the strike direction, by the share left.
-    swing.setFromUnitVectors(along, strikeAlong).slerp(NO_TURN, share);
+    swing.setFromUnitVectors(along, strikeAlong).slerp(NO_TURN, across.pitch === null ? share : 0);
     turn.premultiply(swing);
     along.applyQuaternion(swing);
+    // With a pitch, the paw keeps the turn of the strike, and the wrist lifts the head over its
+    // spot by a share of the pitch.
+    level.crossVectors(forearm, UP);
+    if (across.pitch !== null && level.lengthSq() > 1e-8) {
+      swing.setFromAxisAngle(level.normalize(), across.pitch * share);
+      turn.premultiply(swing);
+      along.applyQuaternion(swing);
+    }
     point.copy(grip).addScaledVector(along, side.length);
     offset.fromArray(side.head).sub(wristBind.fromArray(arm.bind.wrist)).applyQuaternion(turn);
     wrist.copy(point).sub(offset);

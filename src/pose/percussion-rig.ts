@@ -68,6 +68,14 @@ export interface MalletAcross {
    * not twist.
    */
   readonly lift: number;
+  /**
+   * The turn of the mallet up from its strike direction at the rest height, in radians, or
+   * `null`. With a value, the paw keeps the turn of the strike between strikes, and the wrist
+   * lifts the head around the level axis normal to the forearm, with no twist. Thus the tip stays
+   * above its playing spot, as a real player's tip does. `rest` and `lift` then set only the paw
+   * at a strike. With `null`, the paw turns to the rest direction across the forearm.
+   */
+  readonly pitch: number | null;
 }
 
 /**
@@ -165,7 +173,7 @@ export const PERCUSSION_HOLDS = {
     rim: 0.25,
     home: [0.1, -0.37, -0.2],
     top: 'shoulder',
-    across: { rest: -1.2, lift: 0.65 },
+    across: { rest: -1.2, lift: 0.65, pitch: null },
     ready: true,
     pair: true,
     gap: 0,
@@ -185,7 +193,7 @@ export const PERCUSSION_HOLDS = {
     rim: 0,
     home: MALLET_HOME,
     top: 'up',
-    across: { rest: -1.4, lift: 0.6 },
+    across: { rest: -1.4, lift: 0.6, pitch: null },
     ready: true,
     pair: false,
     gap: 0,
@@ -204,7 +212,7 @@ export const PERCUSSION_HOLDS = {
     rim: 0,
     home: [0.5, -0.3, -0.5],
     top: 'up',
-    across: { rest: -0.6, lift: 0.3 },
+    across: { rest: -0.6, lift: 0.3, pitch: null },
     ready: false,
     pair: false,
     gap: 0,
@@ -242,7 +250,7 @@ export const PERCUSSION_HOLDS = {
     rim: 0,
     home: MALLET_HOME,
     top: 'up',
-    across: { rest: -0.6, lift: 0.3 },
+    across: { rest: -0.6, lift: 0.3, pitch: null },
     ready: true,
     pair: false,
     gap: 0,
@@ -265,7 +273,7 @@ export const PERCUSSION_HOLDS = {
     rim: 0,
     home: MALLET_HOME,
     top: 'up',
-    across: { rest: -0.6, lift: 0.3 },
+    across: { rest: -0.6, lift: 0.3, pitch: null },
     ready: false,
     pair: false,
     // A repeat on one bar stays in one hand, so that a mallet does not strike under the head of
@@ -294,7 +302,7 @@ export const SUSPENDED_CYMBAL_HOLD: PercussionHold = {
   rim: 0,
   home: [0.6, -0.3, -0.5],
   top: 'up',
-  across: { rest: -0.6, lift: 0.3 },
+  across: { rest: -0.6, lift: 0.3, pitch: null },
   ready: false,
   pair: false,
   gap: 0,
