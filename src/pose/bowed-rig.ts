@@ -449,7 +449,9 @@ const FLOOR_HOLD = {
 
 /**
  * Makes the play turn of a violin on the shoulder: first a turn around the vertical axis, then a
- * tilt of the scroll. The violin of the chin hold points 70° to the left of the front.
+ * tilt of the scroll. The violin of the chin hold points 70° to the left of the front, so a turn of
+ * -20° gives 50° and a turn of -25° gives 45°, the angle of a real player
+ * (`docs/reference/string-technique.md`, section 1.10).
  *
  * @param yawDeg The turn around the vertical axis, in degrees. A negative turn moves the scroll
  *   from the left toward the front.
@@ -509,37 +511,33 @@ const HANGING_BOW = {
  * collarbone against the left side of the neck, under the jaw, the jaw on the violin, the violin
  * about 38° to the left of the front, and the scroll a little up, so that the strings are about
  * level. The violin is 0.83 of the app violin, so that the arms of the A-pose mesh stretch only a
- * little (`violinScale`, 2026-10-23-rabbit-arms decisions). The short arms of 2026-10-24 reach it
- * nearly straight, as the user asked: the scroll points 60° to the left of the front, so that it
- * comes nearer to the left shoulder, and the left paw reaches the fingerboard from 0.06 of its
- * length (0.24 at 45°). The violin sits 0.12 H below the tail end of the chin hold, and the head
- * turns 12° down while the rabbit plays (`headDrop`), so that the jaw lies on the chin rest, as a
- * violinist rests the jaw on it (`docs/reference/string-technique.md`, section 1.10). With the
- * violin 0.08 H lower, 0.015 H further forward, and the head level, the jaw stayed 1.7 cm above the
- * violin (manager review of 2026-10-24, 2026-10-24-violin-review decisions), and with the violin
- * 0.15 H higher than then and the head level, it sat at the mouth (2026-10-24-rabbit-hold
- * decisions). With the shorter arms
- * of 2026-10-14, it sits 0.039 H further back, so that the left paw reaches the nut: at the old
- * place, the paw reached the fingerboard from 0.06 of its length. A turn of the scroll further to
- * the left also reached the nut, but folded the skin of the left arm in 76% to 100% of the play
- * samples (2026-10-14-arms-rest decisions). The back stays straight. The bow lies nearly square
+ * little (`violinScale`, 2026-10-23-rabbit-arms decisions). The middle line of the violin points
+ * 50° to the left of the front, near the 45° of a real player (`docs/reference/string-technique.md`,
+ * section 1.10, 2026-10-25-string-angle decisions). The left shoulder bone turns 15.5° forward in
+ * the play (`reachL`), so that the shoulder joint comes 2.9 cm forward, inside the forward move of
+ * the shoulder of real violinists, and the left paw reaches the fingerboard from 0.01 of its length
+ * (0.08 at the 60° of 2026-10-24 with no turn). At 45°, the bow paw at the frog went 1.9 cm into
+ * the jaw (1.2 cm now). The violin sits 0.09 H below the tail end of the chin hold, and the head
+ * turns 17° down while the rabbit plays (`headDrop`), so that the jaw lies on the chin rest, as a
+ * violinist rests the jaw on it: 0.03 H lower and 12° down, the violin went 2.6 cm into the chest
+ * (1.8 cm now). The back stays straight. The bow lies nearly square
  * across the strings. The right arm has the shoulder turn of the chin hold. At the frog, the right
  * elbow points out and forward, and only a little down, (1.8, -0.3, -1), and the bow keeps 0.06 m
  * of free hair at each end. The user chose the elbow (1.8, -0.7, -1) of the red fox on 2026-10-21
  * ("the rabbit and pig's arms are still very deformed"): with the elbow (1.5, -1.5, -1), the
  * broad side of the long upper arm faced the front as a flat plank, and with this elbow the upper
  * arm reads across the body. With the A-pose mesh, 9 faces of the right arm folded at that elbow
- * in the arm gate (limit 8), and 7 at this elbow (2026-10-23-rabbit-arms decisions). The bow paw goes 2.4 cm into the violin in the worst play sample
- * (2.1 cm before, `docs/research/2026-10-21-arm-form.md`). The right elbow points down at the tip too: up, as in the chin
- * hold, the skin of the studio rabbit folded at the right upper arm (`pnpm fold-probe violinist`).
- * The left elbow points out, down, and a little forward, (-1, -1.4, -0.3), further out than the
- * pole of the chin hold: with that pole, the left paw went 2.3 cm into the violin and the play
- * folded in 3.8% of the samples, and with the pole (-1, -1, -0.5) 2.0 cm and 0.3%
- * (2026-10-14-fox-rabbit-fix decisions). With the A-pose mesh, that pole flattened the left upper
- * arm in the lift just below the limit 0.55 of the arm gate, and this lower pole keeps it at the
- * limit (2026-10-23-rabbit-arms decisions). A
- * pole further in put the elbow under the violin, and turned over faces of the left upper arm of
- * the rabbit mesh in each play sample (2026-10-13-mesh-rabbit decisions).
+ * in the arm gate (limit 8), and 7 at this elbow (2026-10-23-rabbit-arms decisions). The bow
+ * plays no hair within 0.09 m of the frog (`frogHair`): with the violin turned to 50°, the frog
+ * brought the bow paw to the jaw. In pizzicato, the paw plucks over the end of the fingerboard
+ * (`pluckPlace` 0), with the bow tip up and back: with the pluck of the chin hold, near the bow,
+ * the right forearm went 3.5 cm into the body. The right elbow points down at the tip too: up,
+ * as in the chin hold, the skin of the studio rabbit folded at the right upper arm
+ * (`pnpm fold-probe violinist`). The left elbow points down, forward, and a little out,
+ * (-0.5, -1, -0.5), so that it comes toward the middle of the body under the violin, as the elbow
+ * of a real player (section 1.10): the upper arm turns 46° from the vertical to the side (57° with
+ * the pole (-1, -1.4, -0.3) of 2026-10-23). With the elbow further in, the left paw twisted 174°
+ * on its forearm (limit 170).
  *
  * The string planes of the rabbit are 10° apart, below the 17° of the chin hold. A larger turn
  * folds the skin of the right arm and puts the bow paw into the violin at the frog on the E string:
@@ -592,14 +590,18 @@ const HANGING_BOW = {
  */
 const SHOULDER_HOLD = {
   ...CHIN_HOLD,
-  poleL: [-1, -1.4, -0.3],
-  playShift: [-0.054, -0.12, 0.165],
-  playTurn: violinTurn(-10, 5),
+  poleL: [-0.5, -1, -0.5],
+  playShift: [-0.054, -0.09, 0.185],
+  playTurn: violinTurn(-20, 5),
+  reachL: 15.5 * MathUtils.DEG2RAD,
   poleR: [1.8, -0.3, -1],
   freeHair: 0.06,
+  frogHair: 0.09,
+  pluckPlace: 0,
+  pizzicatoTip: [0.3, 0.5, 1],
   poleTipR: CHIN_HOLD.poleR,
   lean: 0,
-  headDrop: 12 * MathUtils.DEG2RAD,
+  headDrop: 17 * MathUtils.DEG2RAD,
   slant: -5 * MathUtils.DEG2RAD,
   stringTurn: 10 * MathUtils.DEG2RAD,
   restPoleL: [-0.6, -1, 0.3],
@@ -633,10 +635,12 @@ const SHOULDER_HOLD = {
  * head stays level (`headDrop` 0), because the long jaw already lies on the violin. The
  * shorter neck of 2026-10-17 moves the head and the violin 1.7 cm down, and the violin went 2.4 cm
  * into the body in the play (1.7 cm before), so it sits 0.01 H higher again (2026-10-17-fox-form
- * decisions). The
- * left elbow keeps the pole of the chin hold. A turn of the scroll further
- * to the left also reached the nut, but folded the skin of the right shoulder in 25% to 64% of the
- * play samples (2026-10-14-arms-rest decisions). The bow slants 12° and the right shoulder turns
+ * decisions). The middle line of the violin points 45° to the left of the front, as a real player
+ * holds it (`docs/reference/string-technique.md`, section 1.10), and the left shoulder bone turns
+ * 8° forward in the play (`reachL`), so that the long left arm of the rebuilt fox reaches the nut
+ * with 1.5 cm to spare (2026-10-25-string-angle decisions). The left elbow keeps the pole of the
+ * chin hold: further in, under the violin, the left paw turned 9° to 15° further from its accepted
+ * grip. The bow slants 12° and the right shoulder turns
  * 15°, and the right elbow at the tip points less down: with the bow of the rabbit (5°, 30°), the
  * skin of the right shoulder of the fox mesh folded in 18% of the play samples
  * (`pnpm fold-probe fox-violinist`), and with the full violin, the turn of 15° folds fewer samples
@@ -684,6 +688,8 @@ const SHOULDER_HOLD = {
 const FOX_HOLD = {
   ...SHOULDER_HOLD,
   poleL: CHIN_HOLD.poleL,
+  playTurn: violinTurn(-25, 5),
+  reachL: 8 * MathUtils.DEG2RAD,
   elbowPerString: 2 * MathUtils.DEG2RAD,
   poleR: [1.8, -0.7, -1],
   playShift: [-0.07, 0.05, 0.25],

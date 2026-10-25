@@ -451,19 +451,26 @@ A round that changes the motion updates the items.
   with 30°, the skin of its wrist under the neck pinched into a twisted band. Its wrist then
   bends about 30° from the line of the forearm in the low positions, where a real player keeps it
   straight (decisions [`2026-10-20-cat-left-arm.md`](../decisions/2026-10-20-cat-left-arm.md)).
-- **The violin under the jaw** (section 1.10). The instrument lies about level: the strings rise
-  0° to 5° to the scroll on the rabbit, the cat, and the red fox. The scroll points 64° to the
-  left of the front of the chest on the rabbit and the red fox, and 74° on the cat, further than
-  the 45° of [78], because a turn to the front took the nut out of the reach of the short left
-  arms. With the rebuilt arms of 2026-10-25, a turn of 3° toward the front put the nut 0.07 of the
-  fingerboard out of the reach of the left paw of the cat, and a turn of 10° 0.16 to 0.32, with
-  each place of the viola that kept the head out of it. The jaw lies on the chin rest: the head
-  touches the instrument in each play sample of the probe of
-  `docs/research/2026-10-24-violin-arms.md`. The viola of the cat sits 0.04 H lower than the chin
-  hold, and the head goes 0.1 cm into it, as on the red fox (1.2 cm before,
-  `docs/decisions/2026-10-25-cat-arms.md`). The rabbit lowers its head 12° while it plays
-  (`BowedHold.headDrop`), and its violin sits 0.08 H higher than before, because the jaw of its
-  round head stayed 1.7 cm above the violin (`docs/decisions/2026-10-24-violin-review.md`).
+- **The violin under the jaw** (section 1.10). The instrument lies about level: the middle line of
+  the body falls 3° to the scroll on the rabbit and the red fox, and 8° on the cat. The middle line
+  points 50° to the left of the front of the chest on the rabbit and 45° on the red fox, as the
+  45° of [78] (60° before, 64° on the line between the farthest ends of the probe of
+  `docs/research/2026-10-24-violin-arms.md`). The left shoulder bone turns forward in the play
+  (`BowedHold.reachL`, `shoulderTurnL()` of `pose/bowed.ts`), as the left shoulder of a
+  violinist moves forward [80]: the shoulder joint moves 2.9 cm on the rabbit and 1.1 cm on the
+  red fox, so that the short left arms reach the nut. At 45°, the bow paw of the rabbit at the
+  frog went into its jaw. The viola of the cat points 70° to the left (74° on the line between
+  the farthest ends), because a turn of 3° toward the front put the nut 0.07 of the fingerboard
+  out of the reach of its left paw. The jaw lies on the chin rest: the head touches the
+  instrument in each play sample of `angle-probe.ts` of
+  `docs/research/2026-10-25-string-angle/`. The rabbit lowers its head 17° while it plays
+  (`BowedHold.headDrop`), so that its violin sits 0.03 H higher out of the chest
+  (`docs/decisions/2026-10-25-string-angle.md`).
+- **The left elbow under the instrument** (section 1.10). The left elbow points down and forward
+  under the instrument (`BowedHold.poleL`). The left upper arm turns 46° from the vertical to
+  the side on the rabbit and 29° on the red fox, where a violin student turns it 16° to 25°
+  toward the middle of the body [80]. With the elbow further in, the left paw twisted past the
+  limit of 170° on its forearm, and on the red fox it left its accepted grip.
 
 ### 3.2 The bow arm
 
@@ -479,11 +486,12 @@ A round that changes the motion updates the items.
   The cello of the dog turns 6°: with its short arms, a larger turn put the paw into the right rim
   of the cello on the C string. It also plays no hair within 0.12 m of the frog
   (`BowedHold.frogHair`), where its forearm crossed the rim. The contrabass of the hippo turns
-  12°: with 25°, the bow paw on the lowest string went 9.1 cm into the round belly. At the tip,
-  the bow of the rabbit slopes 60° from the frog up to the tip, and the bow of the red fox 40°:
-  the top plate rolls about 40° to the right, and the plane of a high string rolls further. The
-  violin points 64° to the left, so the level part of the bow points toward a front camera, and
-  the slope looks steeper there (`docs/research/2026-10-24-violin-arms.md`, section 4).
+  12°: with 25°, the bow paw on the lowest string went 9.1 cm into the round belly. The bow of
+  the rabbit plays no hair within 0.09 m of the frog (`BowedHold.frogHair`), because at the frog
+  the violin at 50° brought the bow paw to the jaw. The rabbit and the red fox pluck over the end
+  of the fingerboard (`BowedHold.pluckPlace` 0), because a pluck near the bow put the right
+  forearm into the body (`docs/decisions/2026-10-25-string-angle.md`). No source of this file
+  gives the place of a violin pizzicato.
   The app had 9° (7° on the contrabass) before. The arm levels come from the
   geometry: the bow plane of the string turns the hand, and the arm follows it, higher for the
   lower strings of the violin and the viola.

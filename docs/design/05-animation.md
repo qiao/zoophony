@@ -445,14 +445,18 @@ The code constants of each family hold the times, the angles, and the lengths of
       the bow nearly square, and the back straight. The head turns down while the rabbit plays
       (`BowedHold.headDrop`), so that the jaw lies on the chin rest
       (`docs/reference/string-technique.md`, section 1.10,
-      `docs/decisions/2026-10-24-violin-review.md`). The violin sits back toward the neck, so that
-      the left paw reaches the nut with the size that the user set (`SpeciesParams.violinScale`).
-      The bow keeps a free hair at each end (`BowedHold.freeHair`), so that the paw stays out of
-      the body at the frog. The bow elbow points out and forward as the elbow of the red fox
+      `docs/decisions/2026-10-24-violin-review.md`). The violin points about 45° to the left of
+      the front, as a real player holds it, and the left shoulder comes forward in the play, so
+      that the left paw reaches the nut with the size that the user set
+      (`SpeciesParams.violinScale`, `BowedHold.reachL`, `shoulderTurnL()` of `pose/bowed.ts`,
+      `docs/decisions/2026-10-25-string-angle.md`). The left elbow points down and forward under
+      the violin. The bow keeps a free hair at each end and near the frog (`BowedHold.freeHair`,
+      `BowedHold.frogHair`), so that the paw stays out of the body and the jaw at the frog. The bow elbow points out and forward as the elbow of the red fox
       (`BowedHold.poleR`), so that the flat upper arm reads across the body and does not turn its
       broad side to the front (`docs/decisions/2026-10-21-arm-form.md`).
     - The red foxes take the shoulder hold (`FOX_HOLD`) with the tail end under the long jaw and
-      their own bow arm, because the bow of the rabbit folded the skin of the fox mesh.
+      their own bow arm, because the bow of the rabbit folded the skin of the fox mesh. The long
+      rebuilt arm reaches the nut at 45° with a small forward turn of the left shoulder.
     - The cat holds the viola under the chin (`CAT_HOLD`), back toward the neck, so that the left
       paw reaches the nut (`docs/decisions/2026-10-16-mesh-cat.md`). Its left paw tilts further
       over the neck than in the chin hold (`BowedHold.tiltL`), so that the paw curls around the
