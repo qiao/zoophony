@@ -323,7 +323,11 @@ export const ACCEPTED_GRIPS: ReadonlyMap<string, Readonly<Record<Side, number>>>
   ['violist', { L: 147, R: -62 }],
   ['cellist', { L: -146, R: 12 }],
   ['bassist', { L: -164, R: 22 }],
-  ['trombonist', { L: -104, R: -40 }],
+  // The panda holds the low part of the slide brace from its right side, with the right palm to
+  // the left and the thumb up the brace (user, 2026-10-25: "their palm are facing outwards and
+  // thumbs downwards", docs/decisions/2026-10-25-wind-elbows.md, and the 3x crops of
+  // docs/research/2026-10-25-wind-elbows/).
+  ['trombonist', { L: -104, R: -85 }],
   ['timpanist', { L: -2, R: -6 }],
   ['bassoonist', { L: -118, R: -70 }],
   ['hornist', { L: -153, R: -54 }],
@@ -335,8 +339,10 @@ export const ACCEPTED_GRIPS: ReadonlyMap<string, Readonly<Record<Side, number>>>
   // The mouse holds the 40° oboe from the side of each paw, with the left paw on the upper joint
   // and the thumbs up the tube (user, 2026-10-25: "their palm are facing outwards and thumbs
   // downwards", docs/decisions/2026-10-25-wind-palms.md, and the review of the crops by the
-  // manager on 2026-10-25).
-  ['oboist', { L: -137, R: -90 }],
+  // manager on 2026-10-25). The left elbow points down, so that the left arm does not read as a
+  // raised wing (docs/decisions/2026-10-25-wind-elbows.md, and the pairs of
+  // docs/research/2026-10-25-wind-elbows/).
+  ['oboist', { L: -85, R: -90 }],
   // The paws of the woodwinds of the tan fox face its tube (faceTube of pose/winds.ts,
   // docs/decisions/2026-10-23-night-fixes.md).
   ['flutist', { L: -120, R: -30 }],
