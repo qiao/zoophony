@@ -901,11 +901,14 @@ const MONKEY_TRUMPET = {
  * strap (`docs/reference/wind-technique.md` 3): the tuba stands against the body, the bell at the
  * left of the head, the left paw on the main branch, and the right paw on the valves. The long
  * muzzle puts the mouthpiece 0.51 m in front of the shoulder joints, so the lead pipe of the tuba
- * is longer (`SpeciesParams.tubaPipe`), the right shoulder turns 30° forward, and the left
+ * is longer (`SpeciesParams.tubaPipe`), the right shoulder turns 45° forward, and the left
  * shoulder 40°, as the shoulder blades of a real player slide forward. The lower end of the tuba
  * turns 25° to the right, so that the bell stands at the left of the horn on the muzzle. The
- * elbows point out, down, and forward. At rest, the tuba moves off the mouth and its lower end
- * turns 5° forward (`docs/research/2026-10-21-mesh-rhino.md`).
+ * elbows point out, down, and forward, and the right elbow points more out than down, as the arms
+ * of a real player stay away from the rib cage (`docs/reference/wind-technique.md` 1.8). With
+ * the right shoulder at 30° and the right elbow down and out, the right upper arm went 1.8 cm to
+ * 2.0 cm into the body (`docs/decisions/2026-10-25-thick-arm-depth.md`). At rest, the tuba moves
+ * off the mouth and its lower end turns 5° forward (`docs/research/2026-10-21-mesh-rhino.md`).
  *
  * The right palm faces the valve tops, and the left palm faces the main branch (`faceTube`,
  * `InstrumentGrips.tubeL` of `models/instruments/brass.ts`), as the left hand of a real tubist
@@ -927,14 +930,14 @@ const MONKEY_TRUMPET = {
  */
 const RHINO_TUBA = {
   ...WIND_HOLDS.tuba,
-  reach: 30 * MathUtils.DEG2RAD,
+  reach: 45 * MathUtils.DEG2RAD,
   reachL: 40 * MathUtils.DEG2RAD,
   play: holdTurn(0, 25),
   poleL: [-1, -0.5, -0.5],
-  poleR: [1, -0.5, -0.5],
+  poleR: [1, -0.2, -0.25],
   rest: holdTurn(5, 20),
   restPoleL: [-1, -0.5, -0.5],
-  restPoleR: [1, -0.5, -0.5],
+  restPoleR: [1, -0.2, -0.25],
   faceTube: ['palm', 'palm'],
   gripShiftL: [0, 0.12, -0.1],
   gripShiftR: [-0.15, 0, -0.1],
