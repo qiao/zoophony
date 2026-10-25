@@ -909,6 +909,20 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
 - [ ] Badger triangle: the left paw stands with the fingers up and the clip leaves its heel. A
       real player holds the clip between the thumb and the fingers at eye level
       (`docs/reference/percussion-technique.md` 10).
+- [x] Beaver and rhino: black slots and wedges under both arms from each side. The arm roots take
+      the normals of the skin (`rootNormals`), and the slots shade as soft armpits
+      (`2026-10-25-beaver-rhino-arms.md`).
+- [ ] Beaver right arm root: a soft dark crease stays at its front from the right side at the
+      elevation 20 (`bassoonist-views.webp` of `docs/research/2026-10-25-beaver-rhino-arms/`).
+- [ ] Beaver rebuilt arms: the method of the cat folded 15 faces of each arm (limit 8) around the
+      socket of the seam cut. A new try needs a smaller socket, because the upper arm joins the
+      trunk down to 0.9 of its length (`2026-10-25-beaver-rhino-arms.md`).
+- [ ] Rhino rebuilt arms: the round tubes put the upper arms 3.5 cm into the belly, and the right
+      tuba paw grasped in 0% of the play samples of `pnpm wind-grip` (97% on `main`), because the
+      far claw corners stood 1.2 cm off the valves. A new try needs a flatter inner side of the
+      upper arm, or a choice of the user on its thickness (`2026-10-25-beaver-rhino-arms.md`).
+- [ ] Twist steps of the beaver and the rhino: 64.8° and 64.5° (target 25°), as on `main`. Only
+      rebuilt arms with segments lower them (`2026-10-25-beaver-rhino-arms.md`).
 - [x] Arm segments for the wolf and the mouse: copies of the meshes with the arm factors in
       Blender, and Blender weights (`2026-10-25-wind-arms.md`).
 - [ ] Arm segments for the tan fox: its rig also serves the red fox violinist, so it keeps its
