@@ -1,0 +1,17 @@
+
+> zoophony@0.0.0 wind-grip /Users/xueqiaoxu/proj/zoophony/.claude/worktrees/agent-ab9c0d2a0f1565495
+> node tools/wind-grip.ts oboist
+
+
+bach-bwv1047.mid
+oboist (mouse, oboe): the gaps and the distances in cm, the median of each set; "worst" names the sample with the largest axis distance
+| Set | Paw | Samples | Holds | Grasps | Gap | Axis | In | Tips | Palm ° | Place ° | Top | Drift | Along | Side (right, up, fwd) | Worst axis | Paws gap min | Body gap | End gap |
+|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|---|---:|---:|---:|
+| play | L | 140 | 100% | 100% | 0.0 | 0.4 | 0.3 | 0.3 | - | - | -11.7 | 0.8 | 17.4 | -0.1, -0.3, -0.3 | 0.4 at 151.90 s, wall 164.00 s | 0.2 | 11.3 | 23.0 |
+| play | R | 140 | 100% | 100% | 0.0 | 0.7 | 0.2 | 0.0 | - | - | -15.1 | 1.2 | 22.3 | 0.1, -0.4, -0.5 | 0.8 at 251.90 s, wall 264.00 s | 0.2 | 11.3 | 23.0 |
+| lift | L | 31 | 100% | 81% | 0.0 | 0.4 | 0.3 | 0.3 | - | - | -11.7 | 0.8 | 17.4 | -0.1, -0.3, -0.3 | 0.4 at -0.80 s, wall 11.30 s | 0.0 | 11.3 | 22.9 |
+| lift | R | 31 | 100% | 100% | 0.0 | 0.8 | 0.0 | 0.0 | - | - | -15.2 | 1.2 | 22.3 | 0.2, -0.5, -0.6 | 0.8 at 0.00 s, wall 12.90 s | 0.0 | 11.3 | 22.9 |
+| rest | L | 1 | 100% | 0% | 0.0 | 0.2 | 0.5 | 1.6 | - | - | -11.2 | 0.3 | 13.3 | 0.1, 0.0, 0.1 | 0.2 at -2.10 s, wall 10.00 s | 0.0 | 0.9 | 1.9 |
+| rest | R | 1 | 100% | 100% | 0.0 | 0.5 | 0.4 | 0.3 | - | - | -14.1 | 0.7 | 16.2 | -0.1, -0.0, -0.5 | 0.5 at -2.10 s, wall 10.00 s | 0.0 | 0.9 | 1.9 |
+| lower | L | 30 | 100% | 37% | 0.0 | 0.2 | 0.4 | 1.2 | - | - | -11.7 | 0.3 | 15.2 | 0.0, -0.0, -0.1 | 0.4 at 277.50 s, wall 12.50 s | 0.0 | 7.8 | 12.5 |
+| lower | R | 30 | 100% | 100% | 0.0 | 0.5 | 0.4 | 0.3 | - | - | -15.1 | 0.7 | 18.9 | -0.1, -0.2, -0.5 | 0.6 at 277.50 s, wall 13.10 s | 0.0 | 7.8 | 12.5 |

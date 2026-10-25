@@ -1,0 +1,19 @@
+Medians over play samples. Angles in degrees, thumb moves in cm.
+| Role | Paw | Thumb in the bind mesh | True palm to hint palm | True palm to tube | Hint palm to tube | Thumb tip along the tube (+ to the mouthpiece) | Thumb tip toward the player (+) | True palm to the front (+1 faces the audience) | Thumb tip behind the tube axis (+ toward the player) | Hint palm to the front | Chirality thumb along the tube (+1 to the mouthpiece) |
+|---|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| oboist | L | cut 0.3, 6 tris, off 0.45 | 23 | 39 | 37 | +2.53 | -1.52 | +0.02 | -1.16 | -0.23 | +1.00 |
+| oboist | R | no separate digit | - | - | 24 | - | - | - | - | -0.22 | +1.00 |
+| clarinetist | L | cut 0.45, 7 tris, off 0.33 | 7 | 45 | 39 | +5.59 | +0.22 | -0.23 | +1.90 | -0.18 | +1.00 |
+| clarinetist | R | cut 0.45, 9 tris, off 0.34 | 7 | 58 | 51 | +4.55 | -2.44 | -0.28 | +0.08 | -0.16 | +1.00 |
+| bassoonist | L | cut 0.6, 2 tris, off 0.48 | 22 | 14 | 11 | +3.69 | +0.21 | -0.11 | +0.32 | -0.06 | +1.00 |
+| bassoonist | R | cut 0.75, 3 tris, off 0.29 | 4 | 15 | 16 | +1.88 | -2.91 | -0.42 | -5.02 | -0.41 | +1.00 |
+| flutist | L | cut 0.6, 2 tris, off 0.45 | 15 | 65 | 32 | +1.39 | -0.65 | -0.11 | -0.80 | -0.05 | +0.22 |
+| flutist | R | cut 0.6, 3 tris, off 0.41 | 18 | 38 | 27 | +4.72 | +0.41 | +0.16 | +0.81 | +0.26 | +1.00 |
+| trumpeter | L | cut 0.45, 10 tris, off 0.30 | 26 | 17 | 43 | +0.14 | -2.22 | -0.30 | -1.77 | -0.46 | +0.10 |
+| trumpeter | R | cut 0.45, 12 tris, off 0.28 | 25 | 57 | 76 | +1.24 | -3.19 | -0.19 | -5.18 | -0.44 | +0.34 |
+| trombonist | L | cut 0.6, 14 tris, off 0.46 | 8 | 43 | 52 | +2.77 | -4.86 | -0.71 | -6.51 | -0.70 | +1.00 |
+| trombonist | R | cut 0.6, 13 tris, off 0.46 | 7 | 19 | 26 | -6.46 | -0.77 | +0.93 | +5.06 | +0.96 | -1.00 |
+| tubist | L | no separate digit | - | - | 17 | - | - | - | - | +0.43 | +0.71 |
+| tubist | R | no separate digit | - | - | 29 | - | - | - | - | -0.30 | -0.03 |
+| hornist | L | no separate digit | - | - | 27 | - | - | - | - | -0.65 | +0.73 |
+| hornist | R | no separate digit | - | - | 90 | - | - | - | - | +0.38 | +0.79 |
