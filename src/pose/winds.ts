@@ -422,11 +422,11 @@ export const FOX_FLUTE_BACK = 9;
  * The top of the left thigh is out of reach of the left arm: the nearest place of the palm on it
  * is 0.582 m from the shoulder joint, and the arm is 0.545 m (2026-10-17-tan-rest decisions). So
  * the left arm hangs near the side with a soft bend, as a seated flutist lets the free arm hang. The
- * paw hangs about 4 cm out from the outer side of the haunch, with the palm toward the body. The
- * lap place takes the top of the belly over the thigh at 0.45 of the way to the knee, and the paw
- * hangs 0.45 H out, 0.55 H down, and 0.12 H forward from it. Out at 0.5 H from the top of the
- * thigh, the straight arm stood out from the body. With the paw nearer to the haunch or the elbow
- * more bent, the inner elbow went further into the side of the trunk.
+ * paw hangs out from the outer side of the haunch, with the palm toward the body. The lap place
+ * takes the top of the belly over the thigh at 0.45 of the way to the knee, and the paw hangs
+ * 0.5 H out, 0.55 H down, and 0.12 H forward from it. At 0.45 H out, the left upper arm went 1.8 cm
+ * into the side of the body (limit 1.5 cm). With the paw nearer to the haunch or the elbow more
+ * bent, the inner elbow went further into the side of the trunk.
  */
 const FOX_FLUTE = {
   ...WOODWIND,
@@ -440,7 +440,7 @@ const FOX_FLUTE = {
   restPoleL: [-0.15, -1, 0.38],
   restPoleR: [0.3, -1, 0.6],
   restFreeL: {
-    lap: { along: 0.45, offset: [-0.45, -0.55, -0.12] },
+    lap: { along: 0.45, offset: [-0.5, -0.55, -0.12] },
     palm: [0.85, -0.37, 0.38],
     fingers: [0, -1, -0.3],
     arc: [0.57, 0.04, 0.31],
