@@ -556,5 +556,9 @@
       "grow": 2,
       "note": "The shape of the left arm on the oboe, with the mean turns of the play samples of the hold with the elbows down: the upper arm 58 degrees from the bind, the elbow 9 degrees, and the paw 122 degrees. Two thin faces of the left upper arm folded in each play sample. In the pose of the rule, they turn over and relax in 1 round. With the elbows down, the right arm folds in no sample, so it has no shape. With the right elbow out and level (the hold of WIND_HOLDS), seven faces of the right arm folded in each play sample, and a shape of the right arm relaxed them."
     }
-  ]
+  ],
+  "upperTwist": {
+    "share": 0.5,
+    "note": "The twist bone of each upper arm takes half of the roll of the upper arm from the chest (StudioBody.upperTwist), the share of the elephant, the rabbit, and the wolf. With the oboe 10 degrees from the vertical and the elbows near the body in the play, the left upper arm went flat (flat p5 0.49, limit 0.55) and the right one rolled 60 degrees at its largest step (limit 55). With 0.5, the flat share is 0.61 and the roll 40 degrees (pnpm arm-check oboist, docs/research/2026-10-24-wind-grips.md)."
+  }
 }
