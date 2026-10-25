@@ -1,6 +1,7 @@
 # Wolf model
 
-This folder holds the wolf mesh that the user gave. The app does not serve it.
+This folder holds the wolf mesh that the user gave, and a copy of it with rebuilt arms. The app does
+not serve them.
 
 ## wolf.glb
 
@@ -48,3 +49,31 @@ side of the animal), with the probes of `docs/research/2026-10-20-wolf-mesh/`:
   shells.
 - The pointed ears stand on the top of the head, apart from y 0.93 to their tips at y 1.0.
 - The bushy tail hangs from the back at y 0.40 down to its cream tip at y 0.081 and z -0.18.
+
+## wolf-arms.glb and wolf-weights.json
+
+`wolf-arms.glb` is `wolf.glb` with new quad faces on each arm from the shoulder line to the wrist,
+and with arms 1.178 times longer. On 2026-10-24 the user allowed loop edges, retopology, and extra
+bones for the arm and wrist twist ("add loop edges and retopology and additional bones if needed to
+address them"). `tools/blender/wind_arms.py wolf` replays the Blender session of 2026-10-25 that
+made both files, byte for byte. The faces of the paws, the trunk, the legs, and the head are the
+faces of the user, except the thin faces at the cut loops, whose short edges collapse. The new arm
+surface lies on the old one. The arms are 1.178 times longer from the shoulder line, as the rig made
+them before (`armFactor` of the config), because a rig with arm segments does not stretch the arms.
+The points of the weights file are in the units of the scaled source (`proportions` and `soften` of
+the config). The rig of this project makes the studio body of the wolf from it
+(`tools/mesh-rigs/wolf.json`): `pnpm rig-mesh wolf` writes `wolf.rig.glb`, and `pnpm studio-body
+wolf` writes `src/models/studio/wolf.ts`.
+
+| Item | Value |
+|---|---|
+| `wolf-arms.glb` | 1,324,948 bytes, SHA-256 `1745e2cecd3ab6b0bdfde6d7fb5c5c45bab5b8abc62933fb22c5a5472b6097d7` |
+| Mesh | 1,984 vertices after a weld at 1e-5, 3,961 triangles (3,119 in the source): on each arm a tube of quad rings of 16 vertices, joined to the trunk and the paw with Bridge Edge Loops, with Beautify Faces and Collapse Edges on the bridge triangles |
+| Material | One material with one base color JPEG: the atlas of the source, and a strip of 512 pixels on top with the fur color of the source arms, baked onto the new faces. No metallic-roughness texture |
+| `wolf-weights.json` | 447,401 bytes, SHA-256 `132b64a348e23d46101924a63bdedb03405ea9ef3b38c4555d4adcc8aba87f8e` |
+| Weights | The automatic weights of Blender with the Weight Paint fixes of the session, on the studio bones and the arm segments and helpers (`armSegments` of the config), for `paintedWeights` of the config |
+| License | Derived from the mesh of the user, who holds its rights |
+
+```bash
+shasum -a 256 assets/models/wolf/wolf-arms.glb assets/models/wolf/wolf-weights.json
+```

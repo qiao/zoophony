@@ -1,5 +1,33 @@
 {
-  "source": "assets/models/wolf/wolf.glb",
+  "source": "assets/models/wolf/wolf-arms.glb",
+  "sourceNote": "The mesh of the user (assets/models/wolf/wolf.glb, assets/models/wolf/README.md), with new quad faces on each arm from the shoulder line to the wrist. The user allowed loop edges, retopology, and extra bones for the arm and wrist twist on 2026-10-24 (\"add loop edges and retopology and additional bones if needed to address them\"). tools/blender/wind_arms.py replays the Blender session that made it. The faces of the paws, the trunk, the legs, and the head are the faces of the user. The file of the user, wolf.glb, stays unchanged.",
+  "paintedWeights": "assets/models/wolf/wolf-weights.json",
+  "paintedLower": [
+    "root",
+    "hips",
+    "spine",
+    "spine1",
+    "chest",
+    "neck",
+    "head",
+    "ear_L",
+    "ear_R",
+    "thigh_L",
+    "shin_L",
+    "foot_L",
+    "toes_L",
+    "thigh_R",
+    "shin_R",
+    "foot_R",
+    "toes_R",
+    "tail",
+    "tail_tip"
+  ],
+  "paintedNote": "The weights of the clavicles and the arms are the automatic weights of Blender with the Weight Paint fixes of tools/blender/wind_arms.py. The vertices on the bones of paintedLower (the trunk up to the chest, the neck, the head, the ears, the legs, and the tail) keep the rule weights, as on the rabbit and the polar bear: the seated bind of the app depends on them.",
+  "armSegments": {
+    "helper": 0.032,
+    "note": "Each upper arm and each forearm has 4 deform segments, and each elbow and wrist a helper bone of this length in units, which spans the three rings of its joint in the bind. The app turns them from the joints of the pose (poseArm() of src/models/studio-rig.ts). They replace upperTwist and the raise shapes. The helper of the wolf is 0.032 units, twice the gap of the rings of its elbow (gap of tools/blender/wind_arms.py): with the gap 0.0085 of the rabbit, the thin faces of the inner elbow folded 9 faces of the left arm in the play (limit 8), and with 0.016, 4. The wrist rings keep the gap 0.0085, and the Blender session gives the wrist helper that length: with the gap 0.016 at the wrist, the right paw lost the clarinet."
+  },
   "output": "assets/models/wolf/wolf.rig.glb",
   "name": "Wolf",
   "weld": 1e-05,
@@ -39,8 +67,8 @@
     "reach": 0.4787,
     "note": "The size of the reference images, then the proportions above. In round mesh-wolf, the seated wolf sat 1.10 times as high as the seated dog cellist of the app, the middle of the range 1.03 to 1.16 of orchestra-latest.png and orchestra-side.png (docs/research/2026-10-20-wolf-mesh/landmark-probe.txt): the seated skull top at 1.600 m, and the standing skull top (the highest vertex within 0.03 u of the middle plane, 0.9459 u) at 1.765 m. The proportions keep the meters for each unit, 1.8659 m. Round wolf-shape put the standing shoulder joints at 0.5535 u (1.032773 m), and the body factor 0.9422 of round wolf-face puts them at 0.521508 u (0.973079 m). The larger head keeps the standing skull top at 0.8684 u (1.620 m, docs/research/2026-10-20-wolf-face/head-probe.txt). The reach is the reach of round mesh-wolf (0.5081 m) times the body factor, because the arms keep the arm factor: 0.4787 m. With no --check, pnpm rig-mesh stops until the arm factor gives this reach."
   },
-  "armFactor": 1.178,
-  "armFactorNote": "The factor of the upper arm and the forearm. The parametric wolf of 3268680f plays the clarinet with a reach of 0.516 m, and round mesh-wolf took 0.508 m, the smallest stretch for that reach. On the scaled source, the arm with no factor reaches 0.439 m, and the factor 1.178 gives 0.508 m, below the limit 1.25 of a mesh of the user (pnpm rig-mesh wolf --check, docs/research/2026-10-20-wolf-shape/check-first.log). The body factor 0.9422 of round wolf-face scales the arms with the body, and the arm factor stays, so the reach is 0.4787 m (app.reach).",
+  "armFactor": 1,
+  "armFactorNote": "The factor of the upper arm and the forearm in the rig: 1, because the rig with arm segments does not stretch the arms (armSegments of tools/blender/rig_mesh.py). The arms of wolf-arms.glb are already 1.178 times longer than the arms of the user mesh (step_shape() of tools/blender/violin_arms.py, called by wind_arms.py), and the arm joints below are the joints of the longer arms, so the reach stays app.reach. The reasons for the factor 1.178 before: the parametric wolf of 3268680f plays the clarinet with a reach of 0.516 m, and round mesh-wolf took 0.508 m, the smallest stretch for that reach. On the scaled source, the arm with no factor reaches 0.439 m, and the factor 1.178 gives 0.508 m, below the limit 1.25 of a mesh of the user (pnpm rig-mesh wolf --check, docs/research/2026-10-20-wolf-shape/check-first.log). The body factor 0.9422 of round wolf-face scales the arms with the body, and the arm factor stays, so the reach is 0.4787 m (app.reach).",
   "legFactor": 1,
   "legFactorNote": "The legs keep the length of the mesh (user rule: do not stretch the legs, change the chair).",
   "joints": {
@@ -144,41 +172,41 @@
     },
     "forearm_L": {
       "head": [
-        0.163943,
-        0.451973,
-        0.062185
+        0.176018,
+        0.439596,
+        0.067384
       ],
       "tail": "forearm_twist_L",
       "roll": "palm"
     },
     "forearm_twist_L": {
       "head": [
-        0.191643,
-        0.41763,
-        0.080558
+        0.208649,
+        0.39914,
+        0.089027
       ],
       "tail": "hand_L",
       "roll": "palm"
     },
     "hand_L": {
       "head": [
-        0.219344,
-        0.383287,
-        0.098931
+        0.241281,
+        0.358684,
+        0.110671
       ],
       "tail": "fingers_L",
       "roll": "palm"
     },
     "fingers_L": {
       "head": [
-        0.230651,
-        0.339701,
-        0.117963
+        0.252588,
+        0.315098,
+        0.129703
       ],
       "tail": [
-        0.246819,
-        0.319604,
-        0.128705
+        0.268756,
+        0.295001,
+        0.140445
       ],
       "roll": "palm"
     },
@@ -264,7 +292,7 @@
     -0.662,
     -0.51
   ],
-  "jointsNote": "The places are in the units and the axes of the studio in the pose of the source: 1 unit from the soles to the tips of the ears, the soles at y = 0, +z forward, +x the left side. The right side mirrors the left side. The probes are in docs/research/2026-10-20-wolf-mesh/: sections.py gives the cuts at each height (sections-y.txt, sections-x.txt, sections-z.txt), and measures.py the parts (measures.txt). The wolf stands upright on long legs: the feet below y 0.05 (the toes forward to z 0.091), the thin shins from 0.05 to 0.18, the thighs from 0.18 to the crotch at 0.30, the body from 0.31 to 0.58, the shoulders from 0.59 to 0.70, the narrow neck at 0.74 to 0.77 (x \u00b10.067), the head from the chin at 0.78 with the muzzle to z 0.197, and the ears apart from 0.93. The trunk joints lie 0.01 to 0.02 behind the middle of the body cut. The thigh joint lies at the crotch on the middle of the leg cut, the knee where the thin shin meets the wider thigh (y 0.18), the ankle where the foot starts (y 0.055), and the toes at the ball of the foot. The cuts across the axis of the free arm (arm-axis.txt) give its middle line, (0.49, -0.71, 0.51) down the arm, which leaves the body at x 0.10. The shoulder joint lies on that line, 0.03 inside the root (x 0.085), the wrist at the narrowest cut, where the paw starts (s 0.02), the elbow on the middle line halfway to the wrist, the forearm twist halfway between them, and the finger joint 0.03 before the tip of the paw (paw.txt). The ear joint lies on the line of the middles of the ear cuts at 0.95 and 0.99, at the top of the head (0.92), and its tail at the ear tip. The bushy tail is a chain of two bones (measures.txt): the tail joint lies at its root on the back (y 0.40, z -0.075), the tail_tip joint on the middle line halfway down (y 0.24), and its tail at the lowest point of the cream tip (y 0.081). Each roll is the hint of the z axis of the bone, forward by default. The arm bones take the normal of the palm (palm): the smallest principal direction of the vertices of the left paw beyond the wrist, inward, down, and back (paw.txt).",
+  "jointsNote": "The places are in the units and the axes of the studio in the pose of the source: 1 unit from the soles to the tips of the ears, the soles at y = 0, +z forward, +x the left side. The right side mirrors the left side. The probes are in docs/research/2026-10-20-wolf-mesh/: sections.py gives the cuts at each height (sections-y.txt, sections-x.txt, sections-z.txt), and measures.py the parts (measures.txt). The wolf stands upright on long legs: the feet below y 0.05 (the toes forward to z 0.091), the thin shins from 0.05 to 0.18, the thighs from 0.18 to the crotch at 0.30, the body from 0.31 to 0.58, the shoulders from 0.59 to 0.70, the narrow neck at 0.74 to 0.77 (x \u00b10.067), the head from the chin at 0.78 with the muzzle to z 0.197, and the ears apart from 0.93. The trunk joints lie 0.01 to 0.02 behind the middle of the body cut. The thigh joint lies at the crotch on the middle of the leg cut, the knee where the thin shin meets the wider thigh (y 0.18), the ankle where the foot starts (y 0.055), and the toes at the ball of the foot. The cuts across the axis of the free arm (arm-axis.txt) give its middle line, (0.49, -0.71, 0.51) down the arm, which leaves the body at x 0.10. The shoulder joint lies on that line, 0.03 inside the root (x 0.085), the wrist at the narrowest cut, where the paw starts (s 0.02), the elbow on the middle line halfway to the wrist, the forearm twist halfway between them, and the finger joint 0.03 before the tip of the paw (paw.txt). The ear joint lies on the line of the middles of the ear cuts at 0.95 and 0.99, at the top of the head (0.92), and its tail at the ear tip. The bushy tail is a chain of two bones (measures.txt): the tail joint lies at its root on the back (y 0.40, z -0.075), the tail_tip joint on the middle line halfway down (y 0.24), and its tail at the lowest point of the cream tip (y 0.081). Each roll is the hint of the z axis of the bone, forward by default. The arm bones take the normal of the palm (palm): the smallest principal direction of the vertices of the left paw beyond the wrist, inward, down, and back (paw.txt). Since 2026-10-25, the joints of the elbow, the wrist, and the paw are the joints of the arms that are 1.178 times longer (wind_arms.py), and the joints of the source arms are in source_joints() of tools/blender/violin_arms.py.",
   "studio": {
     "legTurns": {
       "thigh": [
@@ -562,9 +590,5 @@
       0.98
     ],
     "note": "The values of the panda, the hippo, the mouse, and the pig, with root of the dog: the tail share of a vertex of the root of the tail counts as the haunch only by its smoothstep from 0.8 to 0.98. The user, 2026-10-20: \"the wolf's hip is not touching the chair\". After the smaller body of round wolf-face, the underside of the haunch behind the hip joints stayed up to 12.9 cm above the seat with most 0.03. most 0.09 (16.2 cm) leaves 3.9 cm at the back of the round haunch, with no fold. 0.05 folded 27% of the play, and 0.11 and 0.13 folded the tail in 31% and 64%. The user then said: \"the wolf tails are looking weird\": the root of the tail moved down with the haunch and the rest of the tail did not, so the tail became a flat wedge under the seat. With carryTail, each tail vertex moves down by the mean drop of the root (0.028 u, 5.2 cm), by its share on the tail bones, so the tail keeps its form (docs/research/2026-10-20-wolf-brows.md)."
-  },
-  "upperTwist": {
-    "share": 0.5,
-    "note": "The twist bone of each upper arm takes half of the roll of the upper arm from the chest (StudioBody.upperTwist), the share of the elephant and the rabbit. With the bell of the clarinet on the seat between the knees at rest, the skin of the right upper arm rolled 69 degrees at its largest step (twist p95 of the arm gate, limit 55). With 0.5, it rolls 43 degrees, and the left 26 degrees (pnpm arm-check clarinetist, docs/research/2026-10-24-wind-grips.md)."
   }
 }
