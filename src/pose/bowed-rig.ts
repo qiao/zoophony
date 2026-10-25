@@ -781,8 +781,10 @@ export const BOWED_HOLDS = {
  * The level bow of 2026-10-16 ran forward past the knees, and a real violist rests as a violinist.
  *
  * In the lift and the lowering, the left paw carries the viola at the end of the fingerboard
- * (`liftPlace`), as on the rabbit, and the paw moves 0.2 H up and 0.1 H to the front in the middle
- * (`liftReach`). In the middle, the viola turns upright, with the scroll up, a little forward, and
+ * (`liftPlace`), as on the rabbit, and the paw moves 0.25 H up and 0.2 H to the front in the
+ * middle (`liftReach`): with the rebuilt arms of 2026-10-25 and 0.2 H up and 0.1 H to the front,
+ * the left paw swung 71° on the wrist (limit 70), and with 0.2 H up, the left wrist turned
+ * 1,011°/s at most, 499°/s more than on `main` (2026-10-25-cat-arms decisions). In the middle, the viola turns upright, with the scroll up, a little forward, and
  * a little to the left, and the top plate to the body, as the violin of the rabbit (`liftTurn`), so
  * that the paw twist on the forearm goes from the rest through 0° to the play. Thus the left elbow
  * bends to 148° at most: with the tail end on the path, the paw went 1.28 H to the front, and the
@@ -861,7 +863,7 @@ const CAT_HOLD = {
     top: [-0.5, 0, -0.87],
     lap: { along: 0.95, offset: [0, 0, -0.15] },
   },
-  liftReach: [0, 0.2, -0.1],
+  liftReach: [0, 0.25, -0.2],
   liftTurn: { axis: [-0.3, 1, -0.6], top: [0, 0, 1] },
   liftPlace: 1,
   liftTiltL: 45 * MathUtils.DEG2RAD,
