@@ -9,7 +9,9 @@ the elephant (`ELEPHANT`):
 1. Import the mesh of the user and Merge by Distance.
 2. Replace the faces of each arm from the shoulder line to the wrist with a quad tube, wrap it onto
    the source arm, bridge it to the trunk and to the paw, beautify the bridge triangles, and
-   collapse the thin faces at the cut loops and under each armpit (`cleanPit`).
+   collapse the thin faces at the cut loops and under each armpit (`cleanPit`). Then make the
+   inner front of each upper arm a little flatter (`step_flatten()`), because the thick upper arm
+   went 2.9 cm into the round belly in the ready pose of the timpani.
 3. Give the new arm faces a UV layout, bake the fur color of the source arm, and transfer the
    custom normals of the source surface.
 4. Keep the length and the cross-section of the arms (`factor` 1, `slim` 1), put the arm image in
@@ -31,8 +33,12 @@ In the live Blender of MCP, `run_steps()` runs one step at a time.
 
 import importlib.util
 import json
+import math
 import os
 import sys
+
+import bpy
+from mathutils import Vector
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 
@@ -57,7 +63,11 @@ va = wa.va
 #: about 0.1 units thick, so a cut plane with a tilt crossed the first ring, and a wrist cut at 0.1
 #: or 0.2 of the paw turned bridge faces over: `tilt` is 0 and `wrist` 0.3. The elbow rings stand
 #: `gap` from the joint, and the elbow helper of the config spans twice that length. The root
-#: Smooth spans the top of the shoulder, because its long faces folded in each pose.
+#: Smooth spans the top of the shoulder, because its long faces folded in each pose. `flatten`
+#: moves the inner front of each upper arm 0.009 units toward its axis, along the mean direction
+#: of the corners that went into the belly. The move 0.008 left the right upper arm 1.5 cm in the
+#: belly at one sample, and 0.010 folded 7 faces of the left arm in the check of `rig-mesh` (4 with
+#: no flatten, `docs/research/2026-10-25-thick-arm-depth.md`).
 ELEPHANT = {
     'config': 'tools/mesh-rigs/elephant.json',
     'source': 'assets/models/elephant/elephant-apose.glb',
@@ -75,7 +85,57 @@ ELEPHANT = {
     'faces': 600,
     'paint': {'trunk': {'x': 0.14, 'y': (0.3, 0.55)}, 'root': {'x': (0.11, 0.24),
                                                                'y': (0.5, 0.75)}},
+    'flatten': {'along': (0.55, 0.8), 'dir': (-0.538, -0.368, 0.759), 'cone': 25.0,
+                'move': 0.009, 'size': 0.05},
 }
+
+
+def step_flatten(s):
+    """Makes the inner front of each upper arm a little flatter, where it meets the round belly in
+    the ready pose of the timpani (`flatten` of `ELEPHANT`).
+
+    The tube vertices of the upper arm from `along[0]` to `along[1]` of its length, whose direction
+    from the arm axis lies within `cone` degrees of `dir`, are selected. `dir` is in the axes of the
+    studio for the left arm, and the right arm mirrors it. Translate moves them `move` units toward
+    the arm axis, with Proportional Editing (Smooth falloff, Connected Only) of the size `size`, so
+    that the near rings follow a part of the move. The arm keeps a round outline with no dent.
+    Gives the number of the selected vertices.
+    """
+    spec = s.spec.get('flatten')
+    if not spec:
+        return 0
+    mesh = s.mesh
+    bpy.context.view_layer.objects.active = mesh
+    if mesh.mode != 'OBJECT':
+        bpy.ops.object.mode_set(mode='OBJECT')
+    cone = math.cos(math.radians(spec['cone']))
+    count = 0
+    for side, off in ((1, 0), (-1, 10)):
+        # The edit mode of the other side makes new mesh data, so read the codes again.
+        attr = mesh.data.attributes['arm_part'].data
+        a, e, _, _ = va.arm_line(s, side)
+        u = (e - a).normalized()
+        x, y, z = spec['dir']
+        inner = Vector((x * side, -z, y))
+        inner = (inner - u * inner.dot(u)).normalized()
+        for p in mesh.data.vertices:
+            rel = p.co - a
+            along = rel.dot(u) / (e - a).length
+            radial = rel - u * rel.dot(u)
+            p.select = (attr[p.index].value == va.PART['tube'] + off
+                        and spec['along'][0] <= along <= spec['along'][1]
+                        and radial.normalized().dot(inner) >= cone)
+            count += p.select
+        mesh.data.update()
+        bpy.ops.object.mode_set(mode='EDIT')
+        bpy.ops.transform.translate(value=tuple(-inner * s.units(spec['move'])),
+                                    orient_type='GLOBAL', use_proportional_edit=True,
+                                    proportional_edit_falloff='SMOOTH',
+                                    proportional_size=s.units(spec['size']),
+                                    use_proportional_connected=True)
+        bpy.ops.mesh.select_all(action='DESELECT')
+        bpy.ops.object.mode_set(mode='OBJECT')
+    return count
 
 
 def step_weights(s):
@@ -93,8 +153,12 @@ def step_weights(s):
     return count
 
 
-#: The steps of the session: the steps of `wind_arms.py`, with the weights file above.
-STEPS = tuple(step_weights if step is wa.step_weights else step for step in wa.STEPS)
+#: The steps of the session: the steps of `wind_arms.py`, with the flatter inner upper arms after
+#: the clean bridge, and the weights file above.
+STEPS = tuple(
+    out for step in wa.STEPS
+    for out in {wa.step_weights: (step_weights,),
+                wa.step_clean_bridge: (wa.step_clean_bridge, step_flatten)}.get(step, (step,)))
 
 
 def run_steps(s, first=0, last=len(STEPS)):

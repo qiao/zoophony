@@ -14,16 +14,19 @@ and wrist twist ("add loop edges and retopology and additional bones if needed t
 byte for byte. The faces of the paws, the trunk, the legs, and the head are the faces of the user,
 except the thin faces at the cut loops and under the armpits, whose short edges collapse. The new
 arm surface lies on the old one, and the arms keep their length and their cross-section: no cut
-into the arm surface and no dent. The rig of this project makes the studio body of the elephant
+into the arm surface and no dent. The inner front of each upper arm, where it meets the round
+belly in the ready pose of the timpani, is 0.009 units (1.7 cm) flatter, with a smooth falloff
+over the near rings (`step_flatten()`, 2026-10-25, `docs/research/2026-10-25-thick-arm-depth.md`).
+The arm keeps a round outline. The rig of this project makes the studio body of the elephant
 from it (`tools/mesh-rigs/elephant.json`): `pnpm rig-mesh elephant` writes `elephant.rig.glb`, and
 `pnpm studio-body elephant` writes `src/models/studio/elephant.ts`.
 
 | Item | Value |
 |---|---|
-| `elephant-arms.glb` | 1,195,432 bytes, SHA-256 `4a5132eca13d5f6382c1d7b3295e48aef791b798e3dc7542e2c9ae16c003e06f` |
+| `elephant-arms.glb` | 1,196,204 bytes, SHA-256 `a6106cda3998cde62d67821bd9124b819b7b598ddeb33740725cd5bc75331c6b` |
 | Mesh | 1,951 vertices after a weld at 1e-5, 3,896 triangles (3,113 in the source): on each arm a tube of 13 quad rings of 16 vertices from 0.4 of the upper arm to 0.3 of the paw, joined to the trunk and the paw with Bridge Edge Loops, with Beautify Faces and Collapse Edges on the bridge triangles |
 | Material | One material with one base color JPEG: the atlas of the source, and a strip of 512 pixels on top with the fur color of the source arms, baked onto the new faces. No metallic-roughness texture |
-| `elephant-weights.json` | 436,645 bytes, SHA-256 `c3afc44019772a9dc9b0a4411d6e2657c2a85abbc37744b8efbfa7aa7e3ec1d5` |
+| `elephant-weights.json` | 436,673 bytes, SHA-256 `c8b807d60432cafbd096aa1baa36ec0498052b67f740df5b8646fdfd6dc4cf78` |
 | Weights | The automatic weights of Blender with the Weight Paint fixes of the session, on the studio bones and the arm segments and helpers (`armSegments` of the config), for `paintedWeights` of the config |
 | License | Derived from the mesh of the user, who holds its rights |
 
