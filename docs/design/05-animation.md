@@ -343,9 +343,11 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
   forearm went into the belly. The round belly of
   the mouse covers its short thighs, so the oboe does not rest on a leg
   (`docs/decisions/2026-10-19-mouse-size.md`, `docs/decisions/2026-10-25-wind-arms.md`).
-- **Bassoon at rest.** The beaver keeps the diagonal of the play and moves the bassoon forward
-  off the mouth, and both paws keep their grips, so that the lift does not turn them
-  (`BEAVER_BASSOON`, `docs/decisions/2026-10-25-grips.md`). It does not rest on a leg, because the
+- **Bassoon at rest.** The beaver moves the bassoon forward off the mouth and turns its lower
+  end back toward the body, so that the boot joint stays in the reach of the right arm, and both
+  paws keep their grips, so that the lift does not turn them (`BEAVER_BASSOON`,
+  `docs/decisions/2026-10-25-grips.md`, `docs/decisions/2026-10-25-wind-elbows.md`). With the
+  diagonal of the play moved forward, the right paw did not reach the boot joint. It does not rest on a leg, because the
   round belly of the beaver covers its short thighs (`docs/decisions/2026-10-19-mesh-beaver.md`).
 - **Trumpet at rest.** The monkey takes the rest of the trumpet of `WIND_HOLDS`: the trumpet
   moves off the mouth and turns down in front of the chest, with the bell down, and both paws

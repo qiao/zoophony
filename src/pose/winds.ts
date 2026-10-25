@@ -679,6 +679,13 @@ const BEAVER_SHOULDER_TURN = {
 const BEAVER_PLAY = holdTurn(10, -5);
 
 /**
+ * The turn of the bassoon of the beaver at rest, relative to the chest: the bind pose of
+ * `woodwindRotation()`, the lower end 10° back toward the body and 5° to the right of
+ * {@link BEAVER_PLAY}.
+ */
+const BEAVER_REST = holdTurn(0, 0);
+
+/**
  * The bassoon hold of the beaver (design 5.3), the hold of a real bassoonist (decisions
  * `2026-10-19-mesh-beaver.md`, `docs/reference/wind-technique.md` 3): the bassoon lies diagonal
  * in front of the body, the left paw above the right paw, and the bocal brings the reed to the
@@ -686,14 +693,20 @@ const BEAVER_PLAY = holdTurn(10, -5);
  * shoulder, 30° from the vertical in the front view, with the bell above the head
  * ({@link BEAVER_PLAY}). With the play turn of {@link WIND_HOLDS}, it lay 54° from the vertical,
  * near level from the side, with its top at the shoulder (manager review of 2026-10-25). At rest,
- * it keeps that diagonal 0.2 H forward and 0.05 H lower, off the mouth, so that the paws keep
- * their grips and the lift does not turn them. With the rest 0.2 H lower, the right upper arm went
- * 2.7 cm into the body. The left paw holds the wing joint high, and the right grip moves 0.15 H
- * up the boot joint (`gripShiftR`): at its grip of the instrument, the right paw missed by
- * 1.4 cm. Each grip moves toward the axis and to the side of its own shoulder, the left grip 0.1 H
- * toward the axis and 0.1 H across it toward the left shoulder, and the right grip 0.2 H toward
- * the axis and 0.14 H across it toward the right shoulder. Each palm then faces the tube from its own side (`faceTube`), each paw aims a quarter
- * toward the side across the tube (`aimSide`), the fingers curl 100° over its front
+ * the bassoon moves 0.15 H forward and 0.05 H lower, off the mouth, and takes its bind turn
+ * ({@link BEAVER_REST}), so that the boot joint comes back toward the right thigh and both paws
+ * keep their grips. A real bassoonist carries the boot at the right thigh with the boot joint in
+ * the right palm, and no source gives the rest (`docs/reference/wind-technique.md` 3). With the
+ * diagonal of the play 0.2 H forward, the right grip was 5.2 cm out of the reach of the right arm,
+ * and the right paw stood about 10 cm from the boot joint
+ * (`docs/research/2026-10-25-wind-elbows.md`). With the rest 0.2 H lower, the right upper arm went
+ * 2.7 cm into the body. The left paw holds the wing joint high, and the right grip moves 0.15 H up
+ * the boot joint (`gripShiftR`): at its grip of the instrument, the right paw missed by 1.4 cm.
+ * Each grip moves toward the axis and to the side of its own shoulder, the left grip 0.1 H toward
+ * the axis and 0.1 H across it toward the left shoulder, and the right grip 0.2 H toward the axis
+ * and 0.14 H across it toward the right shoulder. Each palm then faces the tube from its own side
+ * (`faceTube`), each paw aims a quarter toward the side across the tube (`aimSide`), the fingers
+ * curl 100° over its front
  * (`gripCurl`), and the thumbs point up the bassoon, so that both paws grasp it
  * (`pnpm wind-grip bassoonist`, `docs/research/2026-10-25-wind-palms.md`). With the grips behind
  * the tube and a side aim of half, each paw lay behind the tube with its palm to the audience and
@@ -719,8 +732,8 @@ const BEAVER_BASSOON = {
   reachL: BEAVER_SHOULDER_TURN.left * MathUtils.DEG2RAD,
   lipShift: [0, -0.33, 0.25],
   play: BEAVER_PLAY,
-  rest: BEAVER_PLAY,
-  restShift: [0, -0.05, -0.2],
+  rest: BEAVER_REST,
+  restShift: [0, -0.05, -0.15],
   poleL: [-0.5, -1, -0.5],
   poleR: [0.5, -1, -0.5],
   restPoleL: [-0.5, -1, -0.5],
