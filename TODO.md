@@ -417,9 +417,9 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
 - [ ] Cat: the arms keep the faces of `main`, because the upper arm joins the trunk down to the
       elbow, and a cut at 0.8 of the upper arm folded 12 to 16 faces at each elbow. A new cut of
       the arm root in Blender is the next step (`2026-10-24-violin-arms.md`).
-- [ ] Cat: the right paw turns 32° from its accepted grip in the play (12° on `main`), because the
-      forearm rolls with the lower elbow at the tip. A new entry of `ACCEPTED_GRIPS` needs the
-      acceptance of the 2x paw crops (`2026-10-24-violin-review.md`).
+- [x] Cat: the right paw turned 32° from its accepted grip in the play, because the forearm rolls
+      with the lower elbow at the tip. The manager accepted the 2x paw crops, and the violist entry
+      of `ACCEPTED_GRIPS` takes the new medians (`2026-10-24-violin-review.md`).
 - [ ] Cat: the viola points 74° to the left (64° on the red fox), and the head goes 1.2 cm into
       it. Each place nearer to 64° put the viola into the chest, took the nut out of the reach of
       the left paw, or swung the paw past 70° (`2026-10-24-violin-review.md`).

@@ -317,7 +317,10 @@ export const ACCEPTED_GRIPS: ReadonlyMap<string, Readonly<Record<Side, number>>>
   ['harpist', { L: -55, R: -101 }],
   ['violinist', { L: 133, R: -86 }],
   ['fox-violinist', { L: 140, R: -102 }],
-  ['violist', { L: 156, R: -93 }],
+  // The cat violist with the right elbow down at the tip, which rolls the right forearm
+  // (docs/decisions/2026-10-24-violin-review.md), and the review of the 2x paw crops by the
+  // manager on 2026-10-24.
+  ['violist', { L: 147, R: -62 }],
   ['cellist', { L: -146, R: 12 }],
   ['bassist', { L: -164, R: 22 }],
   ['trombonist', { L: -104, R: -40 }],
