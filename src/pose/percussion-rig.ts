@@ -297,12 +297,12 @@ export const PERCUSSION_HOLDS = {
   xylophone: {
     hands: 'alternate',
     sizes: { lift: 0.08, rest: 0.03 },
-    // The left mallet strikes 3 cm nearer to the player than the middle of the bar, and the right
-    // mallet 3 cm farther, so that the heads keep apart on near bars. With the heads at the middle
-    // of the bar, the left paw reached 41% of its strikes of the steel drum part of a file of the
-    // user, and the heads touched in 7% of its samples (2026-10-25-xylophone-sway decisions).
-    offsetL: [0, 0, 0.03],
-    offsetR: [0, 0, -0.03],
+    // The left mallet strikes 2 cm nearer to the player than the middle of the bar, and the right
+    // mallet 2 cm farther, so that the heads keep apart on near bars (2026-10-25-xylophone-sway
+    // decisions). On the smaller bars, 3 cm bent the left wrist 53° at the lowest bars, and 2 cm
+    // 49° (2026-10-25-xylophone-reach decisions).
+    offsetL: [0, 0, 0.02],
+    offsetR: [0, 0, -0.02],
     poleL: [-0.8, -1, 0.3],
     poleR: [0.8, -1, 0.3],
     rim: 0,

@@ -71,27 +71,34 @@ export const TIMPANI = {
  * front row near the player, and the sharp bars in the back row, 0.02 m higher. The bars are
  * below the shoulders of the badger (0.55 m), so that the mallets slant down to them. At 0.72 m,
  * the mallets struck the bars from below. The bars went down from 0.48 m with the shoulders of
- * the short standing legs (2026-10-11).
+ * the short standing legs (2026-10-11). The bars are smaller than real bars, because the short
+ * arms of the badger reach the bars only in a band about 0.12 m deep: nearer bars put the paws
+ * into the belly, and the arms do not reach farther bars. With bars of a real size (0.30 m to
+ * 0.17 m long), the sharp bars stood about 11 cm out of reach (2026-10-25-xylophone-reach
+ * decisions).
  */
 export const XYLOPHONE = {
   keys: [72, 101],
   barHeight: 0.4,
   /** The width of a natural bar with its gap. */
-  pitch: 0.04,
+  pitch: 0.03,
   /** The lengths of the lowest and of the highest natural bar. */
-  longest: 0.3,
-  shortest: 0.17,
+  longest: 0.12,
+  shortest: 0.08,
   /**
-   * The distance of the front edge of the natural bars in front of the player. At 0.30 m, the
-   * mallets put the wrists of the badger into its belly.
+   * The distance of the front edge of the natural bars in front of the player. At 0.40 m, the
+   * left wrist of the badger bent 64° at the lowest bars, and the paws went 2.9 cm into the belly.
    */
-  front: 0.4,
+  front: 0.42,
   /** The gap between the far end of a natural bar and the near end of the sharp bar behind it. */
-  rowGap: 0.02,
-  /** The radius of the head of each mallet. */
-  head: 0.018,
-  /** A mallet strikes a sharp bar this far from its near end, so that the arms reach it. */
-  sharpStrike: 0.04,
+  rowGap: 0.005,
+  /** The radius of the head of each mallet: smaller than a real head, as the bars. */
+  head: 0.012,
+  /**
+   * A mallet strikes a sharp bar this far from its near end, at the edge near the player, as a
+   * real player strikes it (`docs/reference/percussion-technique.md` 9).
+   */
+  sharpStrike: 0.02,
   /**
    * The angle of each mallet below the level in the bind pose, toward the fingers of the hanging
    * paw, in radians, as `TIMPANI.malletTilt`. 0 holds it at 90° to the forearm. A real player

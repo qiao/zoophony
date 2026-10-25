@@ -231,14 +231,17 @@ shoulder joint to the palm (`docs/decisions/2026-10-20-mesh-badger.md`).
   so the spine takes most of the move. The neck and the head turn back by the side lean, so the
   eyes stay level and look at the bars. The app differs: the spine also leans 11° forward over the
   bars (`PercussionHold.lean`), because the short arms do not reach the bars from an upright
-  body. Section 9 gives no lean. The arms do not reach the sharp bars of the back row, about
-  11 cm short, and the hold is open. A part below or
+  body. Section 9 gives no lean. The app also differs in the size of the bars: they are 3 cm
+  wide and 12 cm to 8 cm long, and the near edge of the bars stands 0.42 m in front of the
+  badger (`XYLOPHONE`), because the short arms reach the bars only in a band about 0.12 m deep.
+  With bars of a real size, the sharp bars stood about 11 cm out of reach. A mallet strikes a
+  sharp bar 2 cm from its edge near the player, as section 9 gives. A part below or
   above the bars plays in the octave that puts its highest key in the highest octave of the
   bars (`xylophoneShift()` of `src/pose/percussion-rig.ts`), where the short arms reach best. No
   source of section 11 gives the octave that a player takes for such a part. The mallets make a V
   and do not cross, as section 9 gives, but the app differs in two rules: a repeat on one bar
-  stays in one hand, and the left mallet strikes 3 cm nearer to the player than the middle of a
-  bar, the right mallet 3 cm farther (`PERCUSSION_HOLDS.xylophone`). Between strikes, each mallet
+  stays in one hand, and the left mallet strikes 2 cm nearer to the player than the middle of a
+  bar, the right mallet 2 cm farther (`PERCUSSION_HOLDS.xylophone`). Between strikes, each mallet
   keeps its strike direction seen from above, and the wrist lifts the head about 13 cm above its
   bar (`MalletAcross.pitch`), so the two heads keep at least 2.5 cm apart. No source of section 11
   gives the height between strikes.
