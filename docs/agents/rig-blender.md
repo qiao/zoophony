@@ -120,6 +120,8 @@ interface StudioArmSegments {
   - `paintedLower` lists the bones whose vertices keep the rule weights of `rig-mesh`.
   - `armSegments.helper` gives the length of a helper bone in units. `armSegments` needs the arm
     factor 1 and the linear bind.
+  - `armSegments.rootSegment` gives the rule weight of each upper arm to its first segment, so
+    that the trunk around the socket takes the roll of the first ring (the fox).
 
 ## Traps
 
@@ -167,6 +169,12 @@ interface StudioArmSegments {
 - **The paw and the wrist helper.** On a short paw, automatic weights give about half of the paw
   to the wrist helper, which follows the forearm of the player. `pnpm wind-grip` then reads a
   smaller paw, and the paw turns only halfway.
+- **An arm joined part way.** When the upper arm joins the trunk only near the shoulder, as on the
+  fox, a square cut runs down the trunk wall, and its bridge turns over in the bind. Take the seam
+  cut of the cat, with no shoulder rings: rings packed at a short socket fold into a dark slit at
+  the back of the arm root. Collapse the thin bridge faces of the armpit line too, and give the
+  tube near the walls a chest share of 0.4 (`tools/blender/fox_arms.py`,
+  `docs/research/2026-10-25-fox-arms.md`).
 - **The frame cost.** Each body with `armSegments` has 20 more bone matrices. Run `pnpm frame`
   after a new body uses it.
 
