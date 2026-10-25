@@ -157,6 +157,16 @@ interface StudioArmSegments {
   meets it only at a high armpit line (`tools/blender/cat_arms.py`). Put the flat side a little
   inside the wall and round its edges, else dark slits open at the arm root. Keep the rule weights
   on the trunk and the first shoulder ring (`docs/research/2026-10-25-cat-arms.md`).
+- **A slot that is shading.** A black slot or a hard dark wedge under a raised arm can come from
+  the normals: the seated bind turns the hanging arm up, and the crease angle splits the normals
+  of the arm root. Render `--probe colors,normals` of `pnpm close-views` first. With no dark
+  color, give the arm roots `rootNormals` before a rebuild. On the beaver and the rhino, the
+  rebuilt arms kept the slots and failed the gate (`docs/research/2026-10-25-beaver-rhino-arms.md`).
+- **The clavicle of a thick arm.** Automatic weights give the clavicle most of the root of a
+  thick arm. Its faces then stay with the shoulder, and the root folds.
+- **The paw and the wrist helper.** On a short paw, automatic weights give about half of the paw
+  to the wrist helper, which follows the forearm of the player. `pnpm wind-grip` then reads a
+  smaller paw, and the paw turns only halfway.
 - **The frame cost.** Each body with `armSegments` has 20 more bone matrices. Run `pnpm frame`
   after a new body uses it.
 
