@@ -105,13 +105,14 @@ the value of `main`. The other 20 roles do not change.
 |---|---|---|---|---|---|---|---|---|---|
 | Rabbit L | 7 (5) | 17 (19) | 80 (51) | 0.85 (0.58) | 57 (66) | 0.10 (0.21) | 12 (11) | 162 (162) | FAIL |
 | Rabbit R | 3 (7) | 22 (32) | 50 (41) | 0.86 (0.80) | 48 (59) | 0.08 (0.37) | 19 (17) | 145 (142) | PASS |
-| Cat L | 2 (8) | 24 (32) | 52 (52) | 0.61 (0.51) | 67 (91) | 0.17 (0.23) | 9 (9) | 153 (153) | PASS |
-| Cat R | 4 (5) | 53 (53) | 33 (45) | 0.49 (0.14) | 69 (65) | 0.34 (0.33) | 32 (12) | 130 (133) | FAIL |
+| Cat L | 2 (8) | 24 (32) | 52 (52) | 0.61 (0.51) | 67 (91) | 0.17 (0.23) | 2 (2) | 153 (153) | PASS |
+| Cat R | 4 (5) | 53 (53) | 33 (45) | 0.49 (0.14) | 69 (65) | 0.34 (0.33) | 11 (31) | 130 (133) | OPEN |
 | Red fox L, R | no change | | | | | | | | as `main` |
 
-The FAIL of the rabbit is the forearm twist of the gate rings (section 2). The FAIL of the cat is
-its grip turn: the lower right elbow at the tip rolls the forearm, and the paw turns 32° from its
-accepted grip. A new entry of `ACCEPTED_GRIPS` needs the acceptance of the 2x paw crops.
+The FAIL of the rabbit is the forearm twist of the gate rings (section 2), which the manager
+accepted. The lower right elbow of the cat at the tip rolls the forearm. The manager accepted its
+2x paw crops, and the violist entry of `ACCEPTED_GRIPS` takes the new medians. The cat stays
+`OPEN` for the narrow right arm at rest (0.49, limit 0.55), which is wider than on `main`.
 
 `pnpm body-probe --base main`: only the 5 rabbit bodies, the rabbit player, and the pose sets of
 the rabbit violin and the cat viola change (`body-probe.txt`). `shares.txt` gives the depths at
@@ -147,5 +148,4 @@ elbow.
 - The forearm twist steps of the rabbit stay above the target (section 2).
 - The cat keeps the arms of `main` (section 2).
 - The cat viola points 74° to the left, and its head goes 1.2 cm into it (section 3).
-- The right paw of the cat turns 32° from its accepted grip with the elbow down at the tip.
 - The rabbit bow goes up to 2.5 cm into its arms near the grip in a lowering (`shares.txt`).
