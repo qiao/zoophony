@@ -34,7 +34,7 @@ Each new role and each new hold adds its row to this table in the same commit.
 | Viola, cat | Chair, stands as a soloist | Rest: the image of the user (`docs/research/2026-10-16-bow-rest.md`). Hands and bow: `docs/reference/string-technique.md` | Holds the viola under the chin, back toward the neck. The left paw curls around the neck, and in the high positions it tilts further over the upper bout | The viola upright on the front of the left knee, with the top plate to the front and 30° to the left, carried by the left paw and upright with the top plate to the body in the middle of the lift, and the right paw over the outer side of the right thigh | `CAT_HOLD`, `LAP_VIOLIN`, `UPRIGHT_BOW`, `HANGING_BOW`, `STANDING_REST`, `pose/bowed-rig.ts` | 5.2, 5.3 bowed strings, `2026-10-17-cat-bow.md`, `2026-10-17-cat-hand.md`, `2026-10-17-cat-look.md`, `2026-10-20-cat-left-arm.md`, `2026-10-24-violin-rest.md`, `2026-10-24-violin-poses.md`, `2026-10-25-cat-arms.md` | `pnpm close-views violist <dir>` |
 | Cello, dog | Chair | The cellists of `docs/reference/string-technique.md`, section 2.7 | The cello leans back in front of the knees, with its neck at the left of the head. The bow plays no hair near the frog. In pizzicato, the right paw comes up from the side near the end of the fingerboard | The cello stays between the knees, and the bow stands over the right knee with the tip up | `DOG_HOLD`, `UPRIGHT_BOW`, `pose/bowed-rig.ts` | 5.2, 5.3 bowed strings, `2026-10-17-dog-arms.md`, `2026-10-17-dog-rest.md` | `pnpm close-views cellist <dir>` |
 | Contrabass, hippo | Stands | Hands and bow: `docs/reference/string-technique.md` | The smaller contrabass leans to the left of the head on its short end pin, its back touches the front of the belly and does not go in, the player leans forward, and both shoulders turn forward | The contrabass stays at its playing place with the left paw on the neck, and the bow hangs from the right paw beside the belly | `HIPPO_HOLD`, `HANGING_BOW`, `pose/bowed-rig.ts` | 5.3 bowed strings, `2026-10-18-mesh-hippo.md`, `2026-10-19-hippo-chest.md`, `2026-10-19-hippo-arms.md`, `2026-10-19-arm-skin.md`, `2026-10-21-hippo-bass.md`, `2026-10-21-hippo-bass-arms.md` | `pnpm close-views bassist <dir>` |
-| Flute, tan fox | Chair, stands as a soloist | Play: Michel Debost, Flute Talk, May/June 1996 (`2026-10-14-fox-flute.md`). Rest: Patricia George, The Instrumentalist, December 2018 (`2026-10-15-flute-rest.md`). Technique: `docs/reference/wind-technique.md` | Turns the head to the left, with the flute about square to the face and the shoulders square and low. The flute goes through the closed right paw | The flute stands nearly upright with the foot joint on the top of the right thigh, leaned in from the closed right paw at the right-hand keys, and the left arm hangs near the side | `FOX_FLUTE`, `pose/winds.ts` | 5.2, 5.3 woodwinds and brass, `2026-10-17-fox-form.md`, `2026-10-17-tan-rest.md`, `2026-10-24-wind-grips.md`, `2026-10-25-wind-arms.md` | `pnpm close-views flutist <dir>` |
+| Flute, tan fox | Chair, stands as a soloist | Play: Michel Debost, Flute Talk, May/June 1996 (`2026-10-14-fox-flute.md`). Rest: Patricia George, The Instrumentalist, December 2018 (`2026-10-15-flute-rest.md`). Technique: `docs/reference/wind-technique.md` | Turns the head to the left, with the flute about square to the face and the shoulders square and low. Both palms face the flute, and the fingers curl over it | The flute stands nearly upright with the foot joint on the top of the right thigh, in the closed right paw on the upper body of the flute, and the left arm hangs near the side | `FOX_FLUTE`, `pose/winds.ts` | 5.2, 5.3 woodwinds and brass, `2026-10-17-fox-form.md`, `2026-10-17-tan-rest.md`, `2026-10-24-wind-grips.md`, `2026-10-25-wind-arms.md`, `2026-10-25-fox-arms.md` | `pnpm close-views flutist <dir>` |
 | Oboe, mouse | No chair, in the seated pose at the seat height of its legs (4.5, props), stands as a soloist | Technique: Cline, "Oboe for Starters", and `docs/reference/wind-technique.md` 2.3 (`docs/research/2026-10-19-mouse-mesh.md`) | Holds the oboe with the reed in the mouth under the long muzzle, 15° from the vertical, both paws closed on it from the front, and the elbows down near the body | The oboe stands upright in front of the belly, close to it, both paws closed on its middle, and the head lifts. The round belly covers the thighs, so the oboe does not rest on a leg | `MOUSE_OBOE`, `pose/winds.ts` | 5.2, 5.3 woodwinds and brass, `2026-10-19-mesh-mouse.md`, `2026-10-24-wind-grips.md`, `2026-10-25-wind-arms.md`, `2026-10-25-grips.md` | `pnpm close-views oboist <dir>` |
 | Clarinet, wolf | Chair that fits its legs, stands as a soloist | Technique: `docs/reference/wind-technique.md` 3 (`docs/research/2026-10-20-wolf-mesh.md`) | Holds the clarinet at the middle of the body, 20° from the vertical, with the mouthpiece in the mouth under the long muzzle, both paws closed around it from the side of the body with the fingers over its front, and the elbows down | The bell stands on the front of the seat between the knees, the clarinet leans forward, both paws close on its upper half, and the head lifts | `WOLF_CLARINET` of `SPECIES_WIND_HOLDS`, `pose/winds.ts` | 5.2, 5.3 woodwinds and brass, `2026-10-20-mesh-wolf.md`, `2026-10-24-wind-grips.md`, `2026-10-25-wind-arms.md`, `2026-10-25-grips.md` | `pnpm close-views clarinetist <dir>` |
 | Bassoon, beaver | No chair, in the seated pose at the seat height of its legs (4.5, props) | Technique: `docs/reference/wind-technique.md` 3 (`docs/research/2026-10-19-beaver-mesh.md`) | The smaller bassoon crosses the body from the right hip up past the left shoulder, with the bell above the head, the left paw high on the wing joint and the right paw low on the boot joint, the reed in the mouth under the front teeth, and the bocal nearly level | The bassoon keeps its diagonal and moves forward off the mouth, both paws keep their grips, the left elbow keeps its play direction, and the head lifts | `BEAVER_BASSOON` of `SPECIES_WIND_HOLDS`, `pose/winds.ts` | 5.2, 5.3 woodwinds and brass, `2026-10-19-mesh-beaver.md`, `2026-10-25-grips.md` | `pnpm close-views bassoonist <dir>` |
@@ -329,9 +329,9 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
   (`HANGING_BOW`), because its short knee is under the belly. In the lift and the lowering, the
   tip turns through the front (`BowVia`, `docs/decisions/2026-10-18-mesh-hippo.md`).
 - **Free arm of the flute.** The seated tan fox rests the flute nearly upright with the foot joint
-  on the top of the right thigh near the knee, in the closed right paw at the right-hand keys, as
-  a real flutist rests it on the right leg. The paw stays out at the side of the body, so the flute
-  leans in from it (`docs/decisions/2026-10-25-wind-arms.md`). Its free
+  on the top of the right thigh near the knee, as a real flutist rests it on the right leg. The
+  closed right paw holds it on its upper body, with the fingers on the tube
+  (`docs/decisions/2026-10-25-fox-arms.md`). Its free
   left arm hangs near the side with a soft bend, because the top of the left thigh is out of its
   reach (`docs/decisions/2026-10-17-tan-rest.md`).
 - **Oboe at rest.** The seated and the standing mouse hold the oboe upright in front of the
@@ -510,15 +510,18 @@ The code constants of each family hold the times, the angles, and the lengths of
     slide, else the line of a woodwind through its mouthpiece. A hold names the side of each paw
     that faces its tube (`WindHold.faceTube`): the palm, so that the fingers curl over the front of
     the tube with the thumb behind it, as a real player holds a woodwind
-    (`docs/reference/wind-technique.md` 2.3), the back, with the tube through the closed paw, as
-    the tan fox holds the flute, or none, when a palm on the tube twists the forearm too far. The
+    (`docs/reference/wind-technique.md` 2.3), the back, with the tube through the closed paw, or
+    none, when a palm on the tube twists the forearm too far. The
     fingers keep a grip curl at rest and in the play (`WindHold.gripCurl`), and close further for
     the closed keys or the pressed valves. A hold moves each grip around the tube
     (`WindHold.gripShiftL`, `gripShiftR`): the palm point of the IK is the middle of the paw, and
     the retarget turns each paw in the plane of its palm toward the forearm (4.4), so a paw on the
     grip of the instrument can lie beside the tube and point away from it. A hold can give the
     rest its own grips (`restGripShiftL`, `restGripShiftR`), and keep the aim and the roll of the
-    play at rest (`restAim`). `pnpm wind-grip` measures the contact of each paw in the play, the
+    play at rest (`restAim`). A hold can move each grip around its tube in the lift and the
+    lowering (`WindHold.gripAround`): a grip that slides on a straight line between two sides of
+    the tube crosses its axis, and a paw that faces the tube then turns over in one frame.
+    `pnpm wind-grip` measures the contact of each paw in the play, the
     lift, the rest, and the lowering, because the arm gate does not see a paw that misses the
     tube. A paw grasps when its finger tips are on the instrument, its palm faces the tube, and it
     is on the side of the tube that the technique names (`docs/decisions/2026-10-24-wind-grips.md`,
@@ -526,10 +529,11 @@ The code constants of each family hold the times, the angles, and the lengths of
   - The tan fox holds the flute as a real flutist (`FOX_FLUTE` of `SPECIES_WIND_HOLDS`, Debost,
     Flute Talk, May/June 1996): the head turns to the left, the flute lies about square to the
     face, and the shoulders stay square and low. The lip plate sits under the long muzzle
-    (`WindHold.lipShift`). At rest, the flute stands nearly upright with the foot joint on the
-    top of the right thigh, leaned in from the closed right paw at the right-hand keys, as a real
-    flutist rests it vertically on the right leg (George, The Instrumentalist, December 2018), and the left
-    paw hangs (5.2). The flute goes through the closed right paw in the play and at rest.
+    (`WindHold.lipShift`). Both palms face the flute, and the fingers curl over it: the left paw
+    near the lip plate with the palm toward the player, and the right paw out to the right. At
+    rest, the flute stands nearly upright with the foot joint on the top of the right thigh, in
+    the closed right paw on the upper body of the flute, as a real flutist rests it vertically on
+    the right leg (George, The Instrumentalist, December 2018), and the left paw hangs (5.2).
   - The mouse holds the oboe as a real oboist (`MOUSE_OBOE` of `SPECIES_WIND_HOLDS`, Cline): the
     oboe hangs from the mouth 15° from the vertical, and the arms stay a little away from the
     sides with the wrists down. The long muzzle puts the reed far in front of the chest, so at the
