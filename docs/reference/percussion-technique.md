@@ -228,7 +228,8 @@ shoulder joint to the palm (`docs/decisions/2026-10-20-mesh-badger.md`).
   in place, as section 9 gives with few steps: the hips move up to 2 cm, and the spine leans up
   to 10° toward the mean place of the notes, in the 0.6 s before each note
   (`PercussionHold.side`). The short legs of the badger tilt far with a small move of the hips,
-  so the spine takes most of the move. The app differs: the spine also leans 11° forward over the
+  so the spine takes most of the move. The neck and the head turn back by the side lean, so the
+  eyes stay level and look at the bars. The app differs: the spine also leans 11° forward over the
   bars (`PercussionHold.lean`), because the short arms do not reach the bars from an upright
   body. Section 9 gives no lean. The arms do not reach the sharp bars of the back row, about
   11 cm short, and the hold is open. A part below or

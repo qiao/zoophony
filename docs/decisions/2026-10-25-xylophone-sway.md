@@ -20,3 +20,4 @@ row.
 | Balance: the center of mass stays at least 9.6 cm inside the edge of the bind soles in each play sample (`main` 7.2 cm), because the forward lean moves it over the middle of the soles. | 5.3 |
 | Xylophone pitch 0.5 rad (`MalletAcross.pitch`): the heads keep at least 2.5 cm apart (`main` 0.9 cm), about 13 cm above the bars. The pitches 0.7 and 0.9 grew the paw swing p95 from 27° to 44° and 54°. | 5.3 |
 | The offsets of ±3 cm along the bar stay: with the heads at the middle of the bar, the left paw reached 41% of its strikes within 5 mm, and the heads touched in 7% of the samples (`offsets.txt`). | 5.3 |
+| Manager review: the side lean tilted the head up to 13°. The neck and the head turn back by the side lean, and the look turns around the world vertical over the leaned spine (`BodyAngles.roll`, `upright`). The eye line stays within 4.5° (`main` 4.9°). | 5.3 |

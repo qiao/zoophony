@@ -723,7 +723,9 @@ The code constants of each family hold the times, the angles, and the lengths of
       spine leans toward the notes. Each leg reaches its bind ankle, and the hips drop so that
       no leg is longer than in the bind pose, so the feet stay on the floor. The short legs tilt
       far with a small move of the hips, and the foot skin then follows the shin into the floor,
-      so the spine takes most of the move. The spine also leans forward over the bars while the
+      so the spine takes most of the move. The neck and the head turn back by the side lean, and
+      the look to the side turns the head around the vertical of the world over the leaned spine,
+      so that the eyes stay level, as a real player looks at the bars. The spine also leans forward over the bars while the
       badger plays (`PercussionHold.lean`), because the short arms do not reach the bars from an
       upright body. The center of mass stays over the soles. The sharp bars of the back row stay
       out of reach until the user chooses a smaller xylophone or longer arms (open).

@@ -131,6 +131,8 @@ const Y_AXIS = new Vector3(0, 1, 0);
 const Z_AXIS = new Vector3(0, 0, 1);
 const turn = new Quaternion();
 const second = new Quaternion();
+const yawAxis = new Vector3();
+const rollAxis = new Vector3();
 
 /** The angles that the motion family of an animal adds to its body layer (design 5.1, 5.3). */
 interface BodyAngles {
@@ -161,6 +163,19 @@ interface BodyAngles {
   nod: number;
   /** The upward turn of the head with the nod, on top of {@link BodyAngles.lift}. */
   nodHead: number;
+  /**
+   * The side turn of the neck and the head around z, in radians, on top of the side sway of the
+   * spine: a positive roll turns the head to the left, as a positive sway does. A side move behind
+   * the notes turns the head back by the side lean of the spine, so that the eyes stay level.
+   */
+  roll: number;
+  /**
+   * The forward lean of the spine, in radians, that the turns of the neck and the head undo in
+   * their axes: the look to the side turns the head around the vertical of the world, and the
+   * roll around the forward direction of the world. Thus a look to the side keeps the eyes level
+   * over a leaned spine. It is 0 for each family but the percussion.
+   */
+  upright: number;
 }
 
 /**
@@ -213,13 +228,16 @@ function writeBody(pose: WritablePose, player: PlayerPlan, scratch: FrameScratch
     BONES.chest,
     turn.multiply(second.setFromAxisAngle(X_AXIS, -idle.breath * m.breathChest)),
   );
+  yawAxis.set(0, Math.cos(body.upright), Math.sin(body.upright));
+  rollAxis.set(0, -Math.sin(body.upright), Math.cos(body.upright));
   const yaw = player.lookYaw * idle.look * body.look + body.headTurn;
   const pitch = player.lookPitch * idle.look * body.look + body.lift + body.nodHead;
   for (const [bone, part] of [
     [BONES.neck, m.lookNeck],
     [BONES.head, 1 - m.lookNeck],
   ] as const) {
-    turn.setFromAxisAngle(Y_AXIS, yaw * part);
+    turn.setFromAxisAngle(rollAxis, body.roll * part);
+    turn.multiply(second.setFromAxisAngle(yawAxis, yaw * part));
     setBoneRotation(r, bone, turn.multiply(second.setFromAxisAngle(X_AXIS, pitch * part)));
   }
   const ear = idle.ear * player.earTwitch * m.ear;
@@ -321,6 +339,8 @@ function poseAnimal(
   const floor = FLOOR_INSTRUMENTS.has(player.instrument);
   body.nod = floor ? 0 : scratch.leaderNod;
   body.nodHead = 0;
+  body.roll = 0;
+  body.upright = 0;
   if (floor) {
     body.nodHead = Math.max(0, -scratch.leaderNod);
   } else if (FREE_HEADS.has(note.family)) {
@@ -406,12 +426,15 @@ function poseAnimal(
       }
       // The spine leans over the instrument (`PercussionHold.lean`). The body moves to the side
       // behind the notes, and the instrument and the feet stay in place (`PercussionHold.side`).
-      // A positive sway leans to the left, and a positive share moves to the right.
+      // A positive sway leans to the left, and a positive share moves to the right. The neck and
+      // the head turn back by the side lean, so that the eyes stay level over the bars.
       const { legs } = note.rig;
       body.lean = note.rig.hold.lean * weight;
+      body.upright = body.lean;
       if (note.side && legs) {
         const share = sideMoveAt(note.side, noteTime) * weight;
         body.sway -= share * note.side.move.spine;
+        body.roll = share * note.side.move.spine;
         hipsOffset(legs, share * note.side.move.hips, pose.rootOffset);
         const [x, y, z] = pose.rootOffset;
         pose.instrumentOffset[0] = -x;
@@ -523,6 +546,8 @@ export function poseAt(
       headTurn: 0,
       nod: 0,
       nodHead: 0,
+      roll: 0,
+      upright: 0,
     },
     bow: createBowState(),
     wind: createWindState(),
