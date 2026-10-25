@@ -1,0 +1,33 @@
+Arm gate of 1 roles in 14 s. A cell gives the value and the verdict of a value that does not pass.
+
+| Role | Arm | folds p95 (8) | twist p95 (55) | forearm twist p95 (80) | flat p5 (0.55) | paw twist p95 (170) | paw swing p95 (70) | paw jumps (0.5%) | stretch p95 (0.35) | grip turn p50 (45) | move twist max (176) | move turn max (3000) | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| xylophonist | L | 7 | 34 | 30 | 0.69 | 102 | 35 | 0.0% | 0.20 | - | 102 | 108 | PASS |
+| xylophonist | R | 6 | 32 | 31 | 0.65 | 102 | 35 | 0.0% | 0.20 | - | 102 | 105 | PASS |
+
+The roles below have no entry in ACCEPTED_GRIPS. A ready entry from the median paw twist of each arm in the play:
+
+  ['xylophonist', { L: -28, R: -22 }],
+
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| xylophonist | L | folds p95 | play | 161 | 0 | 7 | 32.3% | 10 at percussion-test.mid 26.45 s | 7 | 8 | - | PASS |
+| xylophonist | L | twist p95 | rest | 1 | 34 | 34 | 100.0% | 34 at percussion-test.mid rest | 34 | 55 | - | PASS |
+| xylophonist | L | forearm twist p95 | rest | 1 | 30 | 30 | 100.0% | 30 at percussion-test.mid rest | 30 | 80 | - | PASS |
+| xylophonist | L | flat p5 | play | 161 | 0.81 | 0.69 | 100.0% | 0.65 at percussion-test.mid 26.45 s | 0.69 | 0.55 | - | PASS |
+| xylophonist | L | paw twist p95 | rest | 1 | 102 | 102 | 100.0% | 102 at percussion-test.mid rest | 102 | 170 | - | PASS |
+| xylophonist | L | paw swing p95 | play | 161 | 34 | 35 | 100.0% | 36 at percussion-test.mid 21.45 s | 35 | 70 | - | PASS |
+| xylophonist | L | paw jumps | rest | 1 | 0 | 0 | 0.0% | 0 at percussion-test.mid rest | 0.0% | 0.5% | - | PASS |
+| xylophonist | L | stretch p95 | play | 161 | 0.14 | 0.20 | 100.0% | 0.22 at percussion-test.mid 9.70 s | 0.20 | 0.35 | - | PASS |
+| xylophonist | L | move twist max | move | 1161 | 67 | 102 | 100.0% | 102 at percussion-test.mid lower 12.80 s, wall 1.96 s | 102 | 176 | - | PASS |
+| xylophonist | L | move turn max | move | 1161 | 16 | 94 | 87.9% | 108 at percussion-test.mid lift 0.00 s, wall 0.58 s | 108 | 3000 | - | PASS |
+| xylophonist | R | folds p95 | play | 161 | 0 | 6 | 47.8% | 7 at percussion-test.mid 0.45 s | 6 | 8 | - | PASS |
+| xylophonist | R | twist p95 | rest | 1 | 32 | 32 | 100.0% | 32 at percussion-test.mid rest | 32 | 55 | - | PASS |
+| xylophonist | R | forearm twist p95 | rest | 1 | 31 | 31 | 100.0% | 31 at percussion-test.mid rest | 31 | 80 | - | PASS |
+| xylophonist | R | flat p5 | play | 161 | 0.79 | 0.65 | 100.0% | 0.62 at percussion-test.mid 0.70 s | 0.65 | 0.55 | - | PASS |
+| xylophonist | R | paw twist p95 | rest | 1 | 102 | 102 | 100.0% | 102 at percussion-test.mid rest | 102 | 170 | - | PASS |
+| xylophonist | R | paw swing p95 | play | 161 | 33 | 35 | 100.0% | 36 at percussion-test.mid 13.45 s | 35 | 70 | - | PASS |
+| xylophonist | R | paw jumps | rest | 1 | 0 | 0 | 0.0% | 0 at percussion-test.mid rest | 0.0% | 0.5% | - | PASS |
+| xylophonist | R | stretch p95 | play | 161 | 0.19 | 0.20 | 100.0% | 0.20 at percussion-test.mid 17.95 s | 0.20 | 0.35 | - | PASS |
+| xylophonist | R | move twist max | move | 1161 | 67 | 102 | 100.0% | 102 at percussion-test.mid lower 12.80 s, wall 2.05 s | 102 | 176 | - | PASS |
+| xylophonist | R | move turn max | move | 1161 | 16 | 96 | 88.7% | 105 at percussion-test.mid lift 12.80 s, wall 0.58 s | 105 | 3000 | - | PASS |

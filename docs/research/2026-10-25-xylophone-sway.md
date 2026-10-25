@@ -3,7 +3,7 @@
 Date 2026-10-25. Round `xylophone-sway`. Decisions:
 [`2026-10-25-xylophone-sway.md`](../decisions/2026-10-25-xylophone-sway.md). The probes and their
 outputs are in [`2026-10-25-xylophone-sway/`](2026-10-25-xylophone-sway/). Each command runs from
-the root of the tree, and the base is `main` at `99ef10f1`. The file of the user is
+the root of the tree, and the base is `main` at `970cad3b`. The file of the user is
 `~/Downloads/Disney_Themes_-_Pirates_Of_The_Caribbean.mid`, as in
 [`2026-10-21-pirates-clip.md`](2026-10-21-pirates-clip.md). Its steel drum part plays on the
 xylophone of the badger.
@@ -82,10 +82,14 @@ in their bind places in each sample.
 
 `pnpm arm-check xylophonist --base main` (`arm-check-role.txt`) passes each value. The paw swing
 p95 grows from 27° to 35°, and the grip turn p50 is 7° (L) and 4° (R) from `ACCEPTED_GRIPS`.
-`pnpm clip-probe --base main --jobs 4` (`clip-demos.txt`) gives the values of `main` in each
-demo and in the test score, also with `--midi <file>` (`clip-pirates.txt`). `pnpm body-probe
+With no pitch, the lean and the side move alone give 4° and 1° (`arm-scan.txt`). With the
+entry of the xylophonist removed, the tool gives the ready entry
+`['xylophonist', { L: -28, R: -22 }]` (`grip-entry.txt`), against -24 and -24 on `main`.
+`pnpm clip-probe --base main --jobs 4` (`clip-demos.txt`) passes each demo and the test score
+with the values of `main`, also with `--midi <file>` (`clip-pirates.txt`). `pnpm body-probe
 --base main` (`body-probe.txt`) keeps all 1,492 pose sets, because no demo has a xylophone.
-`pnpm arm-check --all --base main` (`arm-check-all.txt`) gives the other roles.
+`pnpm arm-check --all --base main` (`arm-check-all.txt`) gives no `FAIL`, and each other role
+keeps each value of `main`.
 
 ## 5. The result
 

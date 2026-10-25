@@ -3,9 +3,9 @@
 > node tools/pose-depth.ts xylophonist --midi ~/Downloads/Disney_Themes_-_Pirates_Of_The_Caribbean.mid --base main
 
 Sweep of the xylophonist: 1 demo with the role (Disney_Themes_-_Pirates_Of_The_Caribbean), 1 row to sweep.
-Estimated time: about 6 s: 1 row of 5.7 s, from the last rows of this sweep, with a time for 1 of 1 demos.
-Sweeps of main (99ef10f1) and of the working tree: 9.8 s.
-base (8.4 s):
+Estimated time: about 8 s: 1 row of 7.6 s, from the last rows of this sweep, with a time for 1 of 1 demos.
+Sweeps of main (970cad3b) and of the working tree: 10.5 s.
+base (8.9 s):
   Disney_Themes_-_Pirates_Of_The_Caribbean xylophonist 3 (badger, stand)
     play: paws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 255 samples over 1.5 cm (0.0%)
     play: paws in instrument: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 255 samples over 1.5 cm (0.0%)
@@ -72,9 +72,9 @@ The share of the samples over the goal of each pair (the limit, or --goal):
 |---|---|
 | base | 0.4 |
 
-The depths of main (99ef10f1) and of the working tree with no change:
-H of each body, main (99ef10f1) -> working tree: badger 0.244 m -> 0.244 m
-| Species | Set | Pair | main (99ef10f1) cm | main (99ef10f1) H | tree cm | tree H | Mark | tree at |
+The depths of main (970cad3b) and of the working tree with no change:
+H of each body, main (970cad3b) -> working tree: badger 0.244 m -> 0.244 m
+| Species | Set | Pair | main (970cad3b) cm | main (970cad3b) H | tree cm | tree H | Mark | tree at |
 |---|---|---|---:|---:|---:|---:|---|---|
 | badger | play | forearms in body | 3.5 | 0.143 | 1.5 | 0.062 |  | Disney_Themes_-_Pirates_Of_The_Caribbean 47.55 s |
 | badger | play | upper arms in body | 3.6 | 0.149 | 2.1 | 0.085 |  | Disney_Themes_-_Pirates_Of_The_Caribbean 47.55 s |

@@ -3,9 +3,9 @@
 > node tools/pose-depth.ts xylophonist --base main
 
 Sweep of the xylophonist: 1 demo with the role (percussion-test), 1 row to sweep.
-Estimated time: about 8 s: 1 row of 8.1 s, from the last rows of this sweep, with a time for 1 of 1 demos.
-Sweeps of main (99ef10f1) and of the working tree: 9.2 s.
-base (7.9 s):
+Estimated time: about 10 s: 1 row of 10.5 s, from the last rows of this sweep, with a time for 1 of 1 demos.
+Sweeps of main (970cad3b) and of the working tree: 13.6 s.
+base (11.4 s):
   percussion-test xylophonist 0 (badger, stand)
     play: paws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 161 samples over 1.5 cm (0.0%)
     play: paws in instrument: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 161 samples over 1.5 cm (0.0%)
@@ -124,9 +124,9 @@ The share of the samples over the goal of each pair (the limit, or --goal):
 |---|---|---|
 | base | 16.1 | 14.6 |
 
-The depths of main (99ef10f1) and of the working tree with no change:
-H of each body, main (99ef10f1) -> working tree: badger 0.244 m -> 0.244 m
-| Species | Set | Pair | main (99ef10f1) cm | main (99ef10f1) H | tree cm | tree H | Mark | tree at |
+The depths of main (970cad3b) and of the working tree with no change:
+H of each body, main (970cad3b) -> working tree: badger 0.244 m -> 0.244 m
+| Species | Set | Pair | main (970cad3b) cm | main (970cad3b) H | tree cm | tree H | Mark | tree at |
 |---|---|---|---:|---:|---:|---:|---|---|
 | badger | play | forearms in body | 5.0 | 0.204 | 3.4 | 0.141 |  | percussion-test 26.45 s |
 | badger | play | upper arms in body | 4.8 | 0.196 | 3.8 | 0.158 |  | percussion-test 26.45 s |
