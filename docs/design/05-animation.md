@@ -35,18 +35,18 @@ Each new role and each new hold adds its row to this table in the same commit.
 | Cello, dog | Chair | The cellists of `docs/reference/string-technique.md`, section 2.7 | The cello leans back in front of the knees, with its neck at the left of the head. The bow plays no hair near the frog. In pizzicato, the right paw comes up from the side near the end of the fingerboard | The cello stays between the knees, and the bow stands over the right knee with the tip up | `DOG_HOLD`, `UPRIGHT_BOW`, `pose/bowed-rig.ts` | 5.2, 5.3 bowed strings, `2026-10-17-dog-arms.md`, `2026-10-17-dog-rest.md` | `pnpm close-views cellist <dir>` |
 | Contrabass, hippo | Stands | Hands and bow: `docs/reference/string-technique.md` | The smaller contrabass leans to the left of the head on its short end pin, its back touches the front of the belly and does not go in, the player leans forward, and both shoulders turn forward | The contrabass stays at its playing place with the left paw on the neck, and the bow hangs from the right paw beside the belly | `HIPPO_HOLD`, `HANGING_BOW`, `pose/bowed-rig.ts` | 5.3 bowed strings, `2026-10-18-mesh-hippo.md`, `2026-10-19-hippo-chest.md`, `2026-10-19-hippo-arms.md`, `2026-10-19-arm-skin.md`, `2026-10-21-hippo-bass.md`, `2026-10-21-hippo-bass-arms.md` | `pnpm close-views bassist <dir>` |
 | Flute, tan fox | Chair, stands as a soloist | Play: Michel Debost, Flute Talk, May/June 1996 (`2026-10-14-fox-flute.md`). Rest: Patricia George, The Instrumentalist, December 2018 (`2026-10-15-flute-rest.md`). Technique: `docs/reference/wind-technique.md` | Turns the head to the left, with the flute about square to the face and the shoulders square and low. The flute goes through the closed right paw | The flute stands nearly upright with the foot joint on the top of the right thigh, leaned in from the closed right paw at the right-hand keys, and the left arm hangs near the side | `FOX_FLUTE`, `pose/winds.ts` | 5.2, 5.3 woodwinds and brass, `2026-10-17-fox-form.md`, `2026-10-17-tan-rest.md`, `2026-10-24-wind-grips.md`, `2026-10-25-wind-arms.md` | `pnpm close-views flutist <dir>` |
-| Oboe, mouse | No chair, in the seated pose at the seat height of its legs (4.5, props), stands as a soloist | Technique: Cline, "Oboe for Starters", and `docs/reference/wind-technique.md` 2.3 (`docs/research/2026-10-19-mouse-mesh.md`) | Holds the oboe with the reed in the mouth under the long muzzle, 15° from the vertical, both paws closed on it from the front, and the elbows down near the body | The oboe stands upright in front of the belly, close to it, both paws closed on its middle, and the head lifts. The round belly covers the thighs, so the oboe does not rest on a leg | `MOUSE_OBOE`, `pose/winds.ts` | 5.2, 5.3 woodwinds and brass, `2026-10-19-mesh-mouse.md`, `2026-10-24-wind-grips.md`, `2026-10-25-wind-arms.md` | `pnpm close-views oboist <dir>` |
-| Clarinet, wolf | Chair that fits its legs, stands as a soloist | Technique: `docs/reference/wind-technique.md` 3 (`docs/research/2026-10-20-wolf-mesh.md`) | Holds the clarinet at the middle of the body, 20° from the vertical, with the mouthpiece in the mouth under the long muzzle, the clarinet through both closed paws, and the elbows down | The bell stands on the front of the seat between the knees, the clarinet leans forward, both paws close on its upper half, and the head lifts | `WOLF_CLARINET` of `SPECIES_WIND_HOLDS`, `pose/winds.ts` | 5.2, 5.3 woodwinds and brass, `2026-10-20-mesh-wolf.md`, `2026-10-24-wind-grips.md`, `2026-10-25-wind-arms.md` | `pnpm close-views clarinetist <dir>` |
-| Bassoon, beaver | No chair, in the seated pose at the seat height of its legs (4.5, props) | Technique: `docs/reference/wind-technique.md` 3 (`docs/research/2026-10-19-beaver-mesh.md`) | The smaller bassoon lies diagonal in front of the body, the left paw above the right paw, the reed in the mouth under the front teeth, and the bocal nearly level | The bassoon moves off the mouth and tilts, both paws keep their grips, the left elbow keeps its play direction, and the head lifts | `BEAVER_BASSOON` of `SPECIES_WIND_HOLDS`, `pose/winds.ts` | 5.2, 5.3 woodwinds and brass, `2026-10-19-mesh-beaver.md` | `pnpm close-views bassoonist <dir>` |
+| Oboe, mouse | No chair, in the seated pose at the seat height of its legs (4.5, props), stands as a soloist | Technique: Cline, "Oboe for Starters", and `docs/reference/wind-technique.md` 2.3 (`docs/research/2026-10-19-mouse-mesh.md`) | Holds the oboe with the reed in the mouth under the long muzzle, 15° from the vertical, both paws closed on it from the front, and the elbows down near the body | The oboe stands upright in front of the belly, close to it, both paws closed on its middle, and the head lifts. The round belly covers the thighs, so the oboe does not rest on a leg | `MOUSE_OBOE`, `pose/winds.ts` | 5.2, 5.3 woodwinds and brass, `2026-10-19-mesh-mouse.md`, `2026-10-24-wind-grips.md`, `2026-10-25-wind-arms.md`, `2026-10-25-grips.md` | `pnpm close-views oboist <dir>` |
+| Clarinet, wolf | Chair that fits its legs, stands as a soloist | Technique: `docs/reference/wind-technique.md` 3 (`docs/research/2026-10-20-wolf-mesh.md`) | Holds the clarinet at the middle of the body, 20° from the vertical, with the mouthpiece in the mouth under the long muzzle, both paws closed around it from the side of the body with the fingers over its front, and the elbows down | The bell stands on the front of the seat between the knees, the clarinet leans forward, both paws close on its upper half, and the head lifts | `WOLF_CLARINET` of `SPECIES_WIND_HOLDS`, `pose/winds.ts` | 5.2, 5.3 woodwinds and brass, `2026-10-20-mesh-wolf.md`, `2026-10-24-wind-grips.md`, `2026-10-25-wind-arms.md`, `2026-10-25-grips.md` | `pnpm close-views clarinetist <dir>` |
+| Bassoon, beaver | No chair, in the seated pose at the seat height of its legs (4.5, props) | Technique: `docs/reference/wind-technique.md` 3 (`docs/research/2026-10-19-beaver-mesh.md`) | The smaller bassoon crosses the body from the right hip up past the left shoulder, with the bell above the head, the left paw high on the wing joint and the right paw low on the boot joint, the reed in the mouth under the front teeth, and the bocal nearly level | The bassoon keeps its diagonal and moves forward off the mouth, both paws keep their grips, the left elbow keeps its play direction, and the head lifts | `BEAVER_BASSOON` of `SPECIES_WIND_HOLDS`, `pose/winds.ts` | 5.2, 5.3 woodwinds and brass, `2026-10-19-mesh-beaver.md`, `2026-10-25-grips.md` | `pnpm close-views bassoonist <dir>` |
 | Horn, pig | Chair that fits its short legs, stands as a soloist | Technique: `docs/reference/wind-technique.md` 2.2 (`docs/research/2026-10-19-pig-mesh.md`) | The left paw holds the valves at the middle of the body, the right paw is in the bell, and the horn lies across the body from the mouth to the bell at the right of the torso, turned back toward the body | The horn comes down and forward onto the round belly over the lap, with the bell at the right beside the haunch, and both paws keep their grips | `PIG_TURNS`, `PIG_HORN`, `pose/winds.ts` | 5.2, 5.3 woodwinds and brass, `2026-10-19-mesh-pig.md` | `pnpm close-views hornist <dir>` |
-| Trumpet, monkey | No chair: it stands with the feet under the hips and the trunk leaned forward, so that the center of mass is over the middle of the soles (4.4, seat), and stands upright as a soloist | Technique: `docs/reference/wind-technique.md` 2.1 (`docs/research/2026-10-20-mesh-monkey.md`). Stand: the stability range of the center of foot pressure (`docs/research/2026-10-20-monkey-stand.md`) | The smaller trumpet points forward and slightly down from the mouth, the palms hold the valve casings at their lower half, the right paw presses the valves, and the elbows point down | The trumpet moves off the mouth and turns down in front of the chest, both paws keep their grips, and the head lifts | `MONKEY_TRUMPET` of `SPECIES_WIND_HOLDS`, `pose/winds.ts` | 5.2, 5.3 woodwinds and brass, `2026-10-20-mesh-monkey.md`, `2026-10-21-monkey-stand.md` | `pnpm close-views trumpeter <dir>` |
-| Trombone, panda | Chair, stands as a soloist | Play: pBone, "How To Hold A Trombone", and Western Carolina University, "Slide Technique" (`docs/research/2026-10-18-panda-mesh.md`). Left shoulder: Human Kinetics (`docs/research/2026-10-18-panda-folds.md`). Technique: `docs/reference/wind-technique.md` | The left paw holds the weight at the grip near the mouthpiece, with the left shoulder forward, and the right paw moves the slide with the pitch. The slide turns right and down toward the right shoulder, as near to the level and to the front as the arm reaches | The trombone moves off the mouth and stands upright at the right side | `PANDA_PLAY`, `PANDA_TROMBONE`, `pose/winds.ts` | 5.2, 5.3 woodwinds and brass, `2026-10-18-mesh-panda.md`, `2026-10-18-trombone-fit.md` | `pnpm close-views trombonist <dir>` |
-| Tuba, rhino | Stands in each seat, in the standing pose of its mesh, as a tubist on a strap | Technique: `docs/reference/wind-technique.md` 3 (`docs/research/2026-10-21-mesh-rhino.md`) | The tuba with a longer lead pipe stands under the muzzle in front of the chest, with the bell at the left of the horn and the head. The left paw holds the main branch, the right paw presses the valves, and the elbows point out, down, and forward | The tuba moves off the mouth and its lower end turns forward, and both paws keep their grips | `RHINO_TUBA` of `SPECIES_WIND_HOLDS`, `pose/winds.ts` | 5.2, 5.3 woodwinds and brass, `2026-10-21-mesh-rhino.md` | `pnpm close-views tubist <dir>` |
+| Trumpet, monkey | No chair: it stands with the feet under the hips and the trunk leaned forward, so that the center of mass is over the middle of the soles (4.4, seat), and stands upright as a soloist | Technique: `docs/reference/wind-technique.md` 2.1 (`docs/research/2026-10-20-mesh-monkey.md`). Stand: the stability range of the center of foot pressure (`docs/research/2026-10-20-monkey-stand.md`) | The smaller trumpet points forward and down from the mouth, the paws close around the valve block below the mouth, the right fingers press the valves, and the elbows point down | The trumpet moves off the mouth and turns down in front of the chest, both paws keep their grips, and the head lifts | `MONKEY_TRUMPET` of `SPECIES_WIND_HOLDS`, `pose/winds.ts` | 5.2, 5.3 woodwinds and brass, `2026-10-20-mesh-monkey.md`, `2026-10-21-monkey-stand.md`, `2026-10-25-grips.md` | `pnpm close-views trumpeter <dir>` |
+| Trombone, panda | Chair, stands as a soloist | Play: pBone, "How To Hold A Trombone", and Western Carolina University, "Slide Technique" (`docs/research/2026-10-18-panda-mesh.md`). Left shoulder: Human Kinetics (`docs/research/2026-10-18-panda-folds.md`). Technique: `docs/reference/wind-technique.md` | The left paw holds the weight at the grip near the mouthpiece, with the left shoulder forward, and the right paw moves the slide with the pitch. The slide points forward and a little down, turned to the right toward the right shoulder as far as the reach of the slide travel needs | The trombone moves off the mouth and stands upright at the right side | `PANDA_PLAY`, `PANDA_TROMBONE`, `pose/winds.ts` | 5.2, 5.3 woodwinds and brass, `2026-10-18-mesh-panda.md`, `2026-10-18-trombone-fit.md`, `2026-10-25-grips.md` | `pnpm close-views trombonist <dir>` |
+| Tuba, rhino | Stands in each seat, in the standing pose of its mesh, as a tubist on a strap | Technique: `docs/reference/wind-technique.md` 3 (`docs/research/2026-10-21-mesh-rhino.md`) | The tuba with a longer lead pipe stands under the muzzle in front of the chest, with the bell at the left of the horn and the head. The left paw holds the main branch, the right paw presses the valves from their front right, where it shows from the front, and the elbows point out, down, and forward | The tuba moves off the mouth and its lower end turns forward, and both paws keep their grips | `RHINO_TUBA` of `SPECIES_WIND_HOLDS`, `pose/winds.ts` | 5.2, 5.3 woodwinds and brass, `2026-10-21-mesh-rhino.md`, `2026-10-25-grips.md` | `pnpm close-views tubist <dir>` |
 | Timpani, elephant | Stands | The reference images (`docs/research/2026-10-19-elephant-pose.md`) | Each mallet strikes the front kettle of its side, 0.25 m in from the near rim, and turns up and out between strikes. The trunk hangs in the gap between the two front kettles | The paws stay above the near rims with the mallets up | `PERCUSSION_HOLDS.timpani`, `TIMPANI`, `pose/percussion-rig.ts` | 5.2, 5.3 percussion, `2026-10-19-elephant-pose.md` | `pnpm close-views timpanist <dir>` |
 | Bass drum, badger | Stands behind the drum | `docs/reference/percussion-technique.md` 5 | The beater in the right paw strikes 12 cm below the middle of the right head, and leaves the side of the fist at the angle of no paw twist between strikes | The beater stays over the drum, and the left arm hangs | `PERCUSSION_HOLDS['bass-drum']`, `BASS_DRUM`, `pose/percussion-rig.ts` | 5.3 percussion, `2026-10-20-mesh-badger.md` | `pnpm close-views bass-drummer <dir>` |
 | Snare drum, badger | Stands | `docs/reference/percussion-technique.md` 6 | The drum stands at the height of the wrists, and the sticks leave the front of the fists in a V of about 66°, almost level, with the paws in turn | The arms hang | `PERCUSSION_HOLDS['snare-drum']`, `SNARE_DRUM`, `pose/percussion-rig.ts` | 5.3 percussion, `2026-10-20-mesh-badger.md` | `pnpm close-views snare-drummer <dir>` |
 | Cymbals, badger | Stands | `docs/reference/percussion-technique.md` 7 | A suspended cymbal on a stand: the yarn mallets leave the front of the fists, as the snare sticks, and the paws strike in turn near the edge, opposite each other | The arms hang | `SUSPENDED_CYMBAL_HOLD`, `SUSPENDED_CYMBAL`, `pose/percussion-rig.ts` | 5.3 percussion, `2026-10-20-badger-cymbals.md` | `pnpm close-views cymbalist <dir>` |
-| Small percussion, badger | Stands | `docs/reference/percussion-technique.md` 8 | The left paw holds the triangle by its clip at the height of the mouth, and the beater in the right paw strikes it, or the tambourine on its stand at the front right | The left paw keeps the triangle up, and the beater stays near it | `PERCUSSION_HOLDS['small-percussion']`, `PERCUSSION_PLACES`, `TAMBOURINE`, `TRIANGLE`, `pose/percussion-rig.ts` | 5.3 percussion, `2026-10-20-mesh-badger.md` | `pnpm close-views percussionist <dir>` |
+| Small percussion, badger | Stands | `docs/reference/percussion-technique.md` 8 | The left paw holds the triangle by its clip at the height of the mouth, and the beater in the right paw strikes it, or the tambourine on its stand at the front right | The left paw keeps the triangle up, and the beater stays near it | `PERCUSSION_HOLDS['small-percussion']`, `PERCUSSION_PLACES`, `TAMBOURINE`, `TRIANGLE`, `pose/percussion-rig.ts` | 5.3 percussion, `2026-10-20-mesh-badger.md`, `2026-10-25-grips.md` | `pnpm close-views percussionist <dir>` |
 | Xylophone, badger | Stands | `docs/reference/percussion-technique.md` 9 | The mallets leave the front of the fists, as the snare sticks, and strike the bar of each key. The short arms do not reach the outer bars (open) | The arms hang | `PERCUSSION_HOLDS.xylophone`, `XYLOPHONE`, `pose/percussion-rig.ts` | 5.3 percussion, `2026-10-20-mesh-badger.md` | `pnpm close-views xylophonist <dir>` |
 | Choir, penguin | Stands on a riser, in the standing pose of its mesh, with the center of mass over the soles (4.4, seat) | The reference images (`docs/research/2026-10-21-mesh-penguin.md`) | The beak opens with each note and closes to half between two notes, the head lifts a little, and the flippers hold the lower corners of the folder in front of the chest | The beak closes, the head comes down, and the flippers keep the folder | `CHOIR_HOLD`, `CHOIR_MOTION`, `CHOIR_FOLDER`, `pose/choir.ts` | 5.3 choir, `2026-10-21-mesh-penguin.md`, `2026-10-21-penguin-beak.md` | `pnpm close-views singer <dir>` |
 
@@ -341,10 +341,10 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
   forearm went into the belly. The round belly of
   the mouse covers its short thighs, so the oboe does not rest on a leg
   (`docs/decisions/2026-10-19-mouse-size.md`, `docs/decisions/2026-10-25-wind-arms.md`).
-- **Bassoon at rest.** The beaver takes the rest turn of the bassoon of `WIND_HOLDS`: the bassoon
-  moves off the mouth and tilts, and both paws keep their grips. It does not rest on a leg,
-  because the round belly of the beaver covers its short thighs
-  (`docs/decisions/2026-10-19-mesh-beaver.md`).
+- **Bassoon at rest.** The beaver keeps the diagonal of the play and moves the bassoon forward
+  off the mouth, and both paws keep their grips, so that the lift does not turn them
+  (`BEAVER_BASSOON`, `docs/decisions/2026-10-25-grips.md`). It does not rest on a leg, because the
+  round belly of the beaver covers its short thighs (`docs/decisions/2026-10-19-mesh-beaver.md`).
 - **Trumpet at rest.** The monkey takes the rest of the trumpet of `WIND_HOLDS`: the trumpet
   moves off the mouth and turns down in front of the chest, with the bell down, and both paws
   keep their grips (`docs/decisions/2026-10-20-mesh-monkey.md`). No source of
@@ -504,16 +504,25 @@ The code constants of each family hold the times, the angles, and the lengths of
   - The mouthpiece stays at the mouth: the head and the instrument follow the chest, and the
     look at the conductor does not turn the head. The palms stay on their grips, and the elbows
     point as far down and in as the arms permit (`WIND_HOLDS`, user decision of 2026-10-10).
-  - A paw on a woodwind closes around the tube, as the left paw of the red fox closes on the
-    violin neck. Its palm faces the axis of the tube (`WindHold.palmToTube`), and a hold moves its
-    grip around the tube (`WindHold.gripShiftL`, `gripShiftR`) until the tube goes through the
-    closed paw: the grip of the instrument lies 2.5 cm off the axis, the palm point of the IK is
-    the middle of the paw, and the retarget turns each paw in the plane of its palm toward the
-    forearm (4.4), so a paw on that grip can lie beside the tube and point away from it. A hold can
-    give the rest its own grips (`restGripShiftL`, `restGripShiftR`), and keep the aim and the
-    roll of the play at rest (`restAim`). `pnpm wind-grip` measures the contact of each paw in
-    the play, the lift, the rest, and the lowering, because the arm gate does not see a paw that
-    misses the tube (`docs/decisions/2026-10-24-wind-grips.md`).
+  - A paw on a wind instrument closes around its tube, as the left paw of the red fox closes on
+    the violin neck. The tube is the tube that the instrument names for the palm
+    (`InstrumentGrips.tubeL`), such as the valve block of a trumpet or the brace of a trombone
+    slide, else the line of a woodwind through its mouthpiece. A hold names the side of each paw
+    that faces its tube (`WindHold.faceTube`): the palm, so that the fingers curl over the front of
+    the tube with the thumb behind it, as a real player holds a woodwind
+    (`docs/reference/wind-technique.md` 2.3), the back, with the tube through the closed paw, as
+    the tan fox holds the flute, or none, when a palm on the tube twists the forearm too far. The
+    fingers keep a grip curl at rest and in the play (`WindHold.gripCurl`), and close further for
+    the closed keys or the pressed valves. A hold moves each grip around the tube
+    (`WindHold.gripShiftL`, `gripShiftR`): the palm point of the IK is the middle of the paw, and
+    the retarget turns each paw in the plane of its palm toward the forearm (4.4), so a paw on the
+    grip of the instrument can lie beside the tube and point away from it. A hold can give the
+    rest its own grips (`restGripShiftL`, `restGripShiftR`), and keep the aim and the roll of the
+    play at rest (`restAim`). `pnpm wind-grip` measures the contact of each paw in the play, the
+    lift, the rest, and the lowering, because the arm gate does not see a paw that misses the
+    tube. A paw grasps when its finger tips are on the instrument, its palm faces the tube, and it
+    is on the side of the tube that the technique names (`docs/decisions/2026-10-24-wind-grips.md`,
+    `docs/decisions/2026-10-25-grips.md`).
   - The tan fox holds the flute as a real flutist (`FOX_FLUTE` of `SPECIES_WIND_HOLDS`, Debost,
     Flute Talk, May/June 1996): the head turns to the left, the flute lies about square to the
     face, and the shoulders stay square and low. The lip plate sits under the long muzzle
@@ -534,37 +543,45 @@ The code constants of each family hold the times, the angles, and the lengths of
     away from the reed, so that the forearms do not rise steeply and the paws close around the
     tube.
   - The beaver holds the bassoon as a real bassoonist (`BEAVER_BASSOON` of `SPECIES_WIND_HOLDS`,
-    `docs/reference/wind-technique.md` 3): the bassoon lies diagonal in front of the body, the
-    left paw above the right paw, and the bocal brings the reed to the mouth nearly level. The
+    `docs/reference/wind-technique.md` 3): the bassoon crosses the body on a diagonal from the
+    right hip up past the left shoulder, with the bell above the head, the left paw high on the
+    wing joint, the right paw low on the boot joint, and the bocal brings the reed to the mouth
+    nearly level. The
     long muzzle and the front teeth put the tip of the nose far in front of the mouth, so the reed
     sits under the front teeth (`WindHold.lipShift`). The beaver plays a smaller bassoon (4.6),
     and its shoulder bones turn forward, so that each paw reaches its grip. The app has no seat
     strap.
   - The monkey holds the trumpet as a real trumpet player (`MONKEY_TRUMPET` of
     `SPECIES_WIND_HOLDS`, `docs/reference/wind-technique.md` 2.1): the trumpet points forward and
-    slightly down from the mouth, the left paw holds the valve casings, and the right paw presses
-    the valves. The monkey plays a smaller trumpet with longer arms (4.6). Its big head puts the
-    mouthpiece high above the shoulders, so the elbows point down, and the upper arms do not turn
-    into flat bands. A paw on its grip lies along the line from its shoulder, so the palms hold
-    the valve casings at their lower half, and the long fingers reach up to the tops of the
-    valves.
+    down from the mouth, the left paw wraps the valve casings, and the right fingers come over
+    the valve tops. The monkey plays a smaller trumpet with longer arms (4.6). Its big head puts
+    the mouthpiece high above the shoulders, so the elbows point down, and the upper arms do not
+    turn into flat bands. A paw on its grip lies along the line from its shoulder, so both palms
+    face the valve block from below its middle, and the long fingers curl over the casings and
+    the valve tops. The bell points further down than a level trumpet, so that the valves and the
+    paws come below the mouth, and the face shows in the front view.
   - The rhino holds the tuba as a real tubist who stands with the tuba on a strap (`RHINO_TUBA` of
     `SPECIES_WIND_HOLDS`, `docs/reference/wind-technique.md` 3): the tuba stands against the body,
     the bell at the left of the head, the left paw on the main branch, and the right paw on the
     valves. The long muzzle puts the mouthpiece far in front of the chest, so the tuba has a longer
     lead pipe (4.6), and the shoulder bones turn forward, as the shoulder blades of a real player
     slide forward. The lower end of the tuba turns to the right, so that the bell stands at the left
-    of the horn on the muzzle. The elbows point out, down, and forward.
+    of the horn on the muzzle. The elbows point out, down, and forward. The right paw lies on the
+    valve tops at the front right of the valve branch, so that a paw shows from the front. The
+    left paw keeps the roll of its shoulder, because with its palm to the main branch, the forearm
+    twisted so far that the paw flipped in the lowering.
   - The panda holds the trombone as a real trombonist (`PANDA_TROMBONE` of `SPECIES_WIND_HOLDS`,
     pBone and Western Carolina University): the left paw holds the weight at the grip near the
     mouthpiece, and the right paw holds the slide brace. Its big round head puts the mouth far in
-    front of the shoulders, so while it plays, the slide turns to its right and down around the
-    mouthpiece, toward the right shoulder, and the right arm reaches the first part of the travel.
-    The slide reach takes this turn and the turned head (`slideReachOf()`). A real trombonist points
-    the slide toward the audience and never down to the floor (`docs/reference/wind-technique.md`
-    1.1). For the same reach, a slide less far down must turn further to the side, so the user chose
-    a slide between the most level and the most straight forward that keeps the clearance and no
-    fold (`PANDA_PLAY`, `docs/research/2026-10-18-trombone-fit.md`). The left shoulder turns
+    front of the shoulders, so while it plays, the slide turns to its right around the mouthpiece,
+    toward the right shoulder, and the right arm reaches the first part of the travel. The slide
+    reach takes this turn and the turned head (`slideReachOf()`). A real trombonist points the
+    slide toward the audience and never down to the floor (`docs/reference/wind-technique.md` 1.1),
+    and the pandas of `orchestra-latest.png` hold it forward and about level. The slide stays a
+    little below the level, and turns as far to the right as the reach of the slide travel needs:
+    straight ahead, the right paw reached the first position but almost no travel (`PANDA_PLAY`,
+    `docs/decisions/2026-10-25-grips.md`). The left palm faces the inner slide tubes, and the right
+    palm the slide brace. The left shoulder turns
     forward, as the shoulder blade of a real player slides forward when the arm reaches forward
     (`WindHold.reachL`, `docs/research/2026-10-18-panda-folds.md`). Thus the left upper arm does
     not take the whole turn to the grip, and the front of the left shoulder does not fold. The left
@@ -588,8 +605,8 @@ The code constants of each family hold the times, the angles, and the lengths of
     turn forward. The elbows point down and a little out, which gave the smallest paw turns on the
     forearms. A paw on its grip aims across the tube (`WindHold.aimAcross`), so that its fingers
     wrap the tube, on the wolf, the mouse, and the tan fox. The paws of the wolf and the mouse
-    also turn half toward the side across the tube (`WindHold.aimSide`), and their grips move past
-    the axis of the tube, so that the tube goes through each closed paw, as the fingers of a real
+    also turn half toward the side across the tube (`WindHold.aimSide`), their palms face the tube
+    from the side of the body, and their fingers curl over its front, as the fingers of a real
     clarinetist come around the tube. The left grip of the wolf is low on the upper joint: higher,
     the forearm rose steeply, and the retarget turned the paw up along the tube.
   - A woodwind player closes the holes with both hands, and up the octave the right hand opens
@@ -662,7 +679,9 @@ The code constants of each family hold the times, the angles, and the lengths of
       twist of the paw.
     - The small percussion player holds the triangle up by its clip at the height of the mouth, as
       near to the eye level of a real player as the short arm reaches, with a turn of the paw that
-      bends it little on the forearm (`PERCUSSION_PLACES.triangleHand`). It keeps the triangle up
+      bends it little on the forearm (`PERCUSSION_PLACES.triangleHand`). The clip lies in the palm
+      under the curled fingers and leaves the heel of the paw, and the triangle hangs from it in a
+      loop of cord, as a real player holds it (`TRIANGLE_CLIP`). It keeps the triangle up
       also at rest (`ready`). The beater leaves the front of the right fist and strikes the
       triangle, or the tambourine on its stand at the front right, within the reach of the arm.
     - The short arms cannot hold hand cymbals of a real size out of the round body, at any crash
