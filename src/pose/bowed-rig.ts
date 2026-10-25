@@ -754,14 +754,25 @@ export const BOWED_HOLDS = {
  * red fox (2026-10-16-mesh-cat decisions). At the place of the viola hold, the paw reached the
  * fingerboard from 0.29 of its length (`pnpm hold-reach cat --instrument viola`). The viola is
  * also 0.04 H lower than the viola hold, so that the jaw lies on the chin rest: 0.05 H lower put
- * the head 1.2 cm into the viola (0.1 cm now, the red fox 0.1 cm). It points 74° to the left of the
- * front, the violin of the red fox 64°: a turn of 3° toward the front put the nut out of the reach
- * of the left paw (0.07 of the fingerboard), and a turn of 10° from 0.16 to 0.32 of it, with each
- * place of the viola that kept the head out (2026-10-25-cat-arms decisions).
+ * the head 1.2 cm into the viola. The middle line of the viola points 45° to the left of the front,
+ * as a real player holds it (`docs/reference/string-technique.md`, section 1.10), 25° nearer to the
+ * front than the viola hold (2026-10-25-string-angle decisions). The cat plays a 1/2 viola, 0.87 of
+ * the viola of the app (`SpeciesParams.violaScale`), and its left shoulder bone turns 15° forward
+ * in the play (`reachL`), so that the shoulder joint comes 1.9 cm forward, inside the forward move
+ * of the shoulder of real violinists, and the left paw reaches the nut: with the viola of the app
+ * and a turn of 30°, the paw reached the fingerboard from 0.16 of its length. The viola sits
+ * 0.06 H higher and 0.03 H further forward than at 70° (0.05 H, -0.031 H, 0.1405 H from the viola
+ * hold), so that it goes 1.6 cm into the chest (2.6 cm at 70°, 3.5 cm at 45° with no move), and
+ * the jaw lies on the chin rest with the head 0.2 cm in it. The bow lies square across the strings
+ * (`slant` 0), as a real bow: with the slant of -20° of the viola hold, the right paw swung 76° on
+ * the wrist in the lift (limit 70).
  *
  * The deeper chest of the cat form of 2026-10-17 (2026-10-16-cat-form decisions) took the room of
  * the left elbow: with the left elbow pole of the chin hold, the left upper arm went 5.5 cm into
- * the body in the play. The left elbow points out as far as down, and less forward. The stick of
+ * the body in the play. The left elbow points down and forward, and a little less out, so that it
+ * comes toward the middle under the viola: the upper arm turns 38° from the vertical to the side
+ * (43° with the elbow (-1, -1, -0.75) of 2026-10-17). With the elbow (-0.5, -1, -0.75), the left
+ * upper arm went 2.4 cm into the body in the play (1.2 cm now). The stick of
  * the bow passes through the middle of the paw since 2026-10-17 (`SpeciesParams.bowGrip`), and the
  * hand sits about 4 cm further out on the bow, so the right elbow of the play points a little
  * further out than the elbow of the chin hold. Since the rebuilt arms of 2026-10-25, the right
@@ -784,9 +795,9 @@ export const BOWED_HOLDS = {
  * (`restPlace`): with 0.3 H forward and 0.5, the paw swung 98° on the wrist, with 0.25 H forward
  * and the top plate back and to the left 91°, with 8 folded faces of the left arm, and now 26°, with
  * 2 folded faces (limit 8, 2026-10-24-violin-poses and 2026-10-24-violin-review decisions). The left
- * elbow points down, a little out, and a little back: the elbow is 6.5 cm out from the side
- * (11.6 cm with the elbow (-1, -1, 0.5) of 2026-10-16). With the elbow further in, (-0.5, -1, 0.3),
- * it was 5.0 cm out, and the left upper arm went 1.9 cm into the body. A place further down the
+ * elbow points down, out, and a little back, (-0.8, -1, 0.3): with the elbow (-0.6, -1, 0.3) of
+ * 2026-10-24, the left upper arm went 2.6 cm into the body by the smaller viola (1.5 cm now), and
+ * with (-0.5, -1, 0.3) 1.9 cm by the viola of the app. A place further down the
  * upper bout put the left forearm 2.4 cm to 2.8 cm into the viola. The grip of the bow is 0.6 H
  * out, 0.3 H down, and 0.1 H back at 0.5 of the way to the knee, and the right elbow points down,
  * out, and a little back, (0.8, -1, 0.2), so the forearm comes forward to the paw over the outer
@@ -808,8 +819,12 @@ export const BOWED_HOLDS = {
  * a little to the left, and the top plate to the body, as the violin of the rabbit (`liftTurn`), so
  * that the paw twist on the forearm goes from the rest through 0° to the play. Thus the left elbow
  * bends to 148° at most: with the tail end on the path, the paw went 1.28 H to the front, and the
- * elbow straightened to 180°. The paw rolls 45° further over the neck (`liftTiltL`): with no roll,
- * the left paw went 2.8 cm into the viola (1.4 cm now, 2026-10-24-violin-poses decisions). In the
+ * elbow straightened to 180°. The paw rolls 52° further over the neck (`liftTiltL`): with no roll,
+ * the left paw went 2.8 cm into the viola (2026-10-24-violin-poses decisions). In the middle of the
+ * moves, the left elbow points down, forward, and out, (-0.45, -1, -0.6) (`liftPoleL`): with the
+ * smaller viola at 45° and a direct mix of the poles, the left paw swung 73° on the wrist in the
+ * lift (limit 70, 69° now), and with the elbow (-0.3, -1, -0.5) the left upper arm went 2.6 cm into
+ * the body (2.2 cm now). In the
  * middle, the bow points up, forward, and a little to the left, with the hair down, and the grip
  * moves 0.45 H out, 0.4 H up, and 0.4 H to the front, so that the bow rises beside the viola: with
  * the via of `UPRIGHT_BOW` (the tip forward, the grip 0.3 H out and 0.1 H up), the bow lay across
@@ -868,15 +883,18 @@ export const BOWED_HOLDS = {
 const CAT_HOLD = {
   ...BOWED_HOLDS.viola,
   stringTurn: 11 * MathUtils.DEG2RAD,
-  playShift: [0.05, -0.09, 0.17],
+  playShift: [0.05, -0.031, 0.1405],
+  playTurn: violinTurn(-25, 0),
+  reachL: 15 * MathUtils.DEG2RAD,
+  slant: 0,
   tiltL: 45 * MathUtils.DEG2RAD,
-  poleL: [-1, -1, -0.75],
+  poleL: [-0.75, -1, -0.75],
   elbowPerString: 2 * MathUtils.DEG2RAD,
   highTilt: 20 * MathUtils.DEG2RAD,
   poleR: [1.2, -0.5, -1],
   poleTipR: [1, -1, -1],
   restPoleR: [0.8, -1, 0.2],
-  restPoleL: [-0.6, -1, 0.3],
+  restPoleL: [-0.8, -1, 0.3],
   restPlace: 0.4,
   rest: {
     axis: LAP_VIOLIN.axis,
@@ -886,7 +904,8 @@ const CAT_HOLD = {
   liftReach: [0, 0.25, -0.2],
   liftTurn: { axis: [-0.3, 1, -0.6], top: [0, 0, 1] },
   liftPlace: 1,
-  liftTiltL: 45 * MathUtils.DEG2RAD,
+  liftTiltL: 52 * MathUtils.DEG2RAD,
+  liftPoleL: [-0.45, -1, -0.6],
   restBow: {
     lap: { along: 0.5, offset: [0.6, -0.3, 0.1] },
     tip: UPRIGHT_BOW.tip,

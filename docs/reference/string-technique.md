@@ -459,16 +459,20 @@ A round that changes the motion updates the items.
   (`BowedHold.reachL`, `shoulderTurnL()` of `pose/bowed.ts`), as the left shoulder of a
   violinist moves forward [80]: the shoulder joint moves 2.9 cm on the rabbit and 1.1 cm on the
   red fox, so that the short left arms reach the nut. At 45°, the bow paw of the rabbit at the
-  frog went into its jaw. The viola of the cat points 70° to the left (74° on the line between
-  the farthest ends), because a turn of 3° toward the front put the nut 0.07 of the fingerboard
-  out of the reach of its left paw. The jaw lies on the chin rest: the head touches the
-  instrument in each play sample of `angle-probe.ts` of
-  `docs/research/2026-10-25-string-angle/`. The rabbit lowers its head 17° while it plays
+  frog went into its jaw. The viola of the cat points 45° to the left (70° before, 74° on the line
+  between the farthest ends). The cat plays a 1/2 viola, 0.87 of the viola of the app, with a body
+  of 304 mm (`SpeciesParams.violaScale`, the 280 mm to 320 mm of [82], 12 inches of [81]), and its
+  shoulder joint moves 1.9 cm forward: with the viola of the app (350 mm, near 14 inches), a
+  shoulder turn of 30° still left the nut 0.16 of the fingerboard out of reach. The jaw lies on
+  the chin rest: the head touches the instrument in each play sample of the rabbit and the red
+  fox, and in most play samples of the cat, in `angle-probe.ts` of
+  `docs/research/2026-10-25-string-angle/`. The bow of the cat lies square across the strings
+  (`BowedHold.slant` 0). The rabbit lowers its head 17° while it plays
   (`BowedHold.headDrop`), so that its violin sits 0.03 H higher out of the chest
   (`docs/decisions/2026-10-25-string-angle.md`).
 - **The left elbow under the instrument** (section 1.10). The left elbow points down and forward
   under the instrument (`BowedHold.poleL`). The left upper arm turns 46° from the vertical to
-  the side on the rabbit and 29° on the red fox, where a violin student turns it 16° to 25°
+  the side on the rabbit, 29° on the red fox, and 38° on the cat, where a violin student turns it 16° to 25°
   toward the middle of the body [80]. With the elbow further in, the left paw twisted past the
   limit of 170° on its forearm, and on the red fox it left its accepted grip.
 
