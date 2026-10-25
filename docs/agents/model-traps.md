@@ -39,6 +39,13 @@ group of your work before you plan it. A probe that a trap names is in its resea
   the tube, and the palm point of the IK is the middle of the paw. Measure each hold with
   `pnpm wind-grip`, and move the grip around the tube (`WindHold.gripShiftL`,
   `docs/research/2026-10-24-wind-grips.md`).
+- The palm faces +x of the left hand of the player and -x of the right hand: a curl moves the
+  finger tips of the skin to that side. Check a palm rule with a curl of the skin
+  (`curl-side.ts` of `docs/research/2026-10-25-grips/probes/`), because a rule with the other
+  signs turned the back of each wind paw to its tube for two rounds.
+- The rule `weights.fingers` 0.5 of a rig keeps no paw vertex mainly on the fingers, so a curl
+  closes little. Give a role that closes its paw around a tube the whole weights (1), and count
+  them with `glb_fingers.py` of the same folder.
 
 ## Reach and rest of the instrument
 
