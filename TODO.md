@@ -443,10 +443,18 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
 - [ ] Red fox: the left paw twist passes 180° once in the lift and in the lowering, so the twist
       bone of the forearm jumps (`OPEN` in the gate). The middle turn of the rabbit
       (`BowedHold.liftTurn`) can remove it (`2026-10-24-violin-rest.md`).
-- [ ] Elephant (A-pose mesh): the long arm faces show dark shards on the bent arms from the front
+- [x] Elephant (A-pose mesh): the long arm faces show dark shards on the bent arms from the front
       and a slit under the left forearm from the back, and one to three thin faces fold in each
-      sample. Only a split of the faces removes them, and the user chose no split
-      (`2026-10-23-elephant-apose.md`).
+      sample. Done: quad arm tubes, Blender weights, and arm segments. The gate folds 3 and 2
+      faces (`2026-10-25-elephant-arms.md`).
+- [ ] Elephant: the upper arms go 3.4 cm into the belly near the elbow (1.8 cm on `main`,
+      accepted 3.0 cm). Each tube variant gave 2.4 cm or more. Try the elbows of
+      `PERCUSSION_HOLDS.timpani` a little out, and check the gap from the back
+      (`2026-10-25-elephant-arms.md`).
+- [ ] Elephant: short light and dark creases show at each inner elbow from the front, where the
+      thick arm bends about 90° (`2026-10-25-elephant-arms.md`).
+- [ ] Elephant: the right flat p5 of the arm gate is 0.76 at the shoulder ring (0.87 on `main`,
+      margin 0.05). The manager decides (`2026-10-25-elephant-arms.md`).
 - [x] Rhino: the left arm skin creased in 16.7% of the edges in the play, and the narrow axis of
       the middle of each upper arm was 0.39 and 0.41 of the wide axis. Now 11.1% and 12.0%, and
       0.65 and 0.63 (`2026-10-22-rhino-arm.md`).
@@ -946,10 +954,11 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       of the right armpit (`2026-10-19-elephant-grip.md`).
 - [x] Remove the mallet cock (`PercussionHold.cock`): no hold uses it since phase 3 of the
       elephant pose (`2026-10-19-elephant-pose.md`). Done in round `elephant-grip`.
-- [ ] Elephant timpanist arms after the refit: the long thin faces at the front of the right
+- [x] Elephant timpanist arms after the refit: the long thin faces at the front of the right
       armpit shade dark. From the front, the bent left elbow shows a sharp corner, and the cut a
       dark slot at the top of the left upper arm (`arms.webp` of
-      `docs/research/2026-10-19-arm-skin/elephant/`).
+      `docs/research/2026-10-19-arm-skin/elephant/`). Done: the A-pose mesh has no cut, and its
+      arms are quad tubes (`2026-10-25-elephant-arms.md`).
 - [x] Elephant timpanist grip: the user saw the mallets held in the reverse direction, and
       squeezed arms from the back. Done: the head out of the front of the fist, the mallets
       forward and in, the paw turn 39° / 44° (`2026-10-19-elephant-grip.md`).
@@ -965,9 +974,9 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       (`docs/research/2026-10-22-seam-gate.md`). Each mesh round looks at the sheets of
       `pnpm close-views audit`. Next idea: a render measure on the audit cells, or a form
       measure of the trunk under the source arm.
-- [ ] Elephant timpanist: the third shape of `raise` (the bent right wrist with the mallet up)
-      has no pose near its rule since the new grip. Remove it, or fit it to another fold
-      (`tools/mesh-rigs/elephant.json`).
+- [x] Elephant timpanist: the third shape of `raise` (the bent right wrist with the mallet up)
+      has no pose near its rule since the new grip. Done: the arm segments replace each shape of
+      `raise` (`2026-10-25-elephant-arms.md`).
 - [ ] Pig hornist folds: two faces of the right hoof fold in each rest sample and in 26.5% of the
       lift samples, because a body has at most four corrective shapes (`RAISE_LIMIT`). Try a
       weight rule of the right paw, or a rest with a smaller turn of the right wrist
