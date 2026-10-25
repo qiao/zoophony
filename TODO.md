@@ -883,8 +883,24 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
 - [x] Tan fox flute rest: the foot joint stands on the top of the right thigh, in the closed
       right paw at the right-hand keys (`2026-10-25-wind-arms.md`).
 - [ ] The mittens of the wind players close as one block, so no finger lies on a key, and the
-      finger tips of the right paw of the wolf stay about 5 cm from the tube. The red fox on the
-      violin neck has its tips on the neck (`pnpm wind-grip`).
+      finger tips of the right paw of the wolf stay 4.3 cm from the tube, with the palm on it. The
+      red fox on the violin neck has its tips on the neck (`pnpm wind-grip`, `2026-10-25-grips.md`).
+- [ ] Wind grips, after the review of the 2x crops of `docs/research/2026-10-25-grips/` by the
+      manager: write the new entries of `ACCEPTED_GRIPS` for the bassoonist, the trombonist, the
+      oboist, the clarinetist, the trumpeter, and the tubist. The gate fails their grip turns until
+      then (`2026-10-25-grips.md`).
+- [ ] Panda trombone: the right mitten stays 2 cm off the thin slide brace, on the side of the
+      player, and the slide points 45° to the right to keep 0.105 m of travel. Show the user the
+      lineup of 45° and 50° (`2026-10-25-grips.md`).
+- [ ] Monkey trumpet: the bell points 20° below the level, so that the paws come below the mouth.
+      The reference says "slightly down". Show the user the front view (`2026-10-25-grips.md`).
+- [ ] Rhino tuba: the left paw keeps the roll of its shoulder on the main branch, because a palm
+      on the branch twisted the forearm 167° and flipped (`2026-10-25-grips.md`).
+- [ ] Beaver bassoon: the right claws go 1.5 cm into the bassoon in one lowering sample of 30 in
+      four demos (`depth-bassoonist.txt` of `docs/research/2026-10-25-grips/`).
+- [ ] Badger triangle: the left paw stands with the fingers up and the clip leaves its heel. A
+      real player holds the clip between the thumb and the fingers at eye level
+      (`docs/reference/percussion-technique.md` 10).
 - [x] Arm segments for the wolf and the mouse: copies of the meshes with the arm factors in
       Blender, and Blender weights (`2026-10-25-wind-arms.md`).
 - [ ] Arm segments for the tan fox: its rig also serves the red fox violinist, so it keeps its
