@@ -1,0 +1,25 @@
+Arm gate of 1 roles in 2 variants: 2 children, at most 3 at the same time, in 63 s. A cell gives the value and the verdict of a value that does not pass.
+
+- grip: trombone@panda.gripShiftR=0,-0.03,-0.08;trombone@panda.aimSide=1
+- grip60: trombone@panda.gripShiftR=0,-0.03,-0.08;trombone@panda.aimSide=1;trombone@panda.reach=1.0472
+
+| Variant | Role | Arm | folds p95 (8) | twist p95 (55) | forearm twist p95 (80) | flat p5 (0.55) | paw twist p95 (170) | paw swing p95 (70) | paw jumps (0.5%) | stretch p95 (0.35) | grip turn p50 (45) | move twist max (176) | move turn max (3000) | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| grip | trombonist | L | 3 | 9 | 29 | 0.63 | 99 | 30 | 0.0% | 0.09 | 5 | 100 | 83 | PASS |
+| grip | trombonist | R | 3 | 27 | 27 | 0.69 | 89 | 72 FAIL | 1.1% FAIL | 0.21 | 36 | 89 | 9809 FAIL | FAIL |
+| grip60 | trombonist | L | 3 | 9 | 29 | 0.63 | 99 | 30 | 0.0% | 0.09 | 5 | 100 | 83 | PASS |
+| grip60 | trombonist | R | 1 | 30 | 21 | 0.62 | 70 | 70 | 0.0% | 0.16 | 37 | 71 | 11317 FAIL | FAIL |
+
+Variant grip:
+
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| trombonist | R | paw swing p95 | play | 4788 | 72 | 72 | 100.0% | 73 at boulanger-matin.mid 258.88 s | 72 | 70 | - | FAIL |
+| trombonist | R | paw jumps | lift | 93 | 0 | 0 | 1.1% | 101 at boulanger-matin.mid wall 0.5 s | 1.1% | 0.5% | - | FAIL |
+| trombonist | R | move turn max | move | 3483 | 16 | 297 | 86.4% | 9809 at brahms-2.mid lower 501.64 s, wall 0.50 s | 9809 | 3000 | - | FAIL |
+
+Variant grip60:
+
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| trombonist | R | move turn max | move | 3483 | 13 | 260 | 83.7% | 11317 at beethoven-9.mid lower 52.77 s, wall 0.46 s | 11317 | 3000 | - | FAIL |

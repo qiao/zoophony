@@ -1,0 +1,26 @@
+Arm gate of the working tree on dc0beb23~1, a15f8679, 4e84fdc3, 1ffd11e4 and on the working tree, 1 roles in 178 s. A cell gives the value of the gate, and FAIL for a value over its limit.
+
+| Role | Arm | Measure (limit) | dc0beb23~1 | a15f8679 | 4e84fdc3 | 1ffd11e4 | tree |
+|---|---|---|---|---|---|---|---|
+| bassoonist | L | folds p95 (8) | 0 | 1 | 2 | 2 | 2 |
+| bassoonist | L | twist p95 (55) | 29 | 29 | 29 | 29 | 29 |
+| bassoonist | L | forearm twist p95 (80) | 33 | 33 | 14 | 14 | 14 |
+| bassoonist | L | flat p5 (0.55) | 0.79 | 0.79 | 0.79 | 0.79 | 0.79 |
+| bassoonist | L | paw twist p95 (170) | 118 | 118 | 57 | 57 | 57 |
+| bassoonist | L | paw swing p95 (70) | 38 | 38 | 27 | 27 | 27 |
+| bassoonist | L | paw jumps (0.5%) | 0.0% | 0.0% | 0.0% | 0.0% | 0.0% |
+| bassoonist | L | stretch p95 (0.35) | 0.06 | 0.06 | 0.05 | 0.05 | 0.05 |
+| bassoonist | L | grip turn p50 (45) | 0 | 0 | 175 FAIL | 175 FAIL | 175 FAIL |
+| bassoonist | L | move twist max (176) | 118 | 118 | 57 | 57 | 57 |
+| bassoonist | L | move turn max (3000) | 19 | 19 | 42 | 42 | 42 |
+| bassoonist | R | folds p95 (8) | 0 | 1 | 4 | 4 | 4 |
+| bassoonist | R | twist p95 (55) | 33 | 33 | 44 | 44 | 44 |
+| bassoonist | R | forearm twist p95 (80) | 25 | 25 | 37 | 37 | 37 |
+| bassoonist | R | flat p5 (0.55) | 0.78 | 0.78 | 0.77 | 0.77 | 0.77 |
+| bassoonist | R | paw twist p95 (170) | 78 | 78 | 110 | 110 | 110 |
+| bassoonist | R | paw swing p95 (70) | 26 | 26 | 39 | 39 | 39 |
+| bassoonist | R | paw jumps (0.5%) | 0.0% | 0.0% | 0.0% | 0.0% | 0.0% |
+| bassoonist | R | stretch p95 (0.35) | 0.15 | 0.15 | 0.19 | 0.19 | 0.19 |
+| bassoonist | R | grip turn p50 (45) | 0 | 0 | 163 FAIL | 163 FAIL | 163 FAIL |
+| bassoonist | R | move twist max (176) | 78 | 78 | 110 | 110 | 110 |
+| bassoonist | R | move turn max (3000) | 21 | 21 | 157 | 157 | 157 |

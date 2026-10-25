@@ -1,0 +1,33 @@
+Arm gate of 1 roles in 3 variants: 3 children, at most 3 at the same time, in 41 s. A cell gives the value and the verdict of a value that does not pass.
+
+- q1: trombone@panda.gripShiftR=0,-0.04,-0.08;trombone@panda.aimSide=0.75;trombone@panda.restAim=1;trombone@panda.gripCurl=1.5708,1.9199;trombone@panda.poleR=1,-1,0
+- q2: trombone@panda.gripShiftR=0,-0.04,-0.08;trombone@panda.aimSide=0.8;trombone@panda.restAim=1;trombone@panda.gripCurl=1.5708,1.9199;trombone@panda.poleR=1,-1,0.3
+- q3: trombone@panda.gripShiftR=0,-0.04,-0.08;trombone@panda.aimSide=0.8;trombone@panda.restAim=1;trombone@panda.gripCurl=1.5708,1.9199;trombone@panda.poleR=1,-0.5,0
+
+| Variant | Role | Arm | folds p95 (8) | twist p95 (55) | forearm twist p95 (80) | flat p5 (0.55) | paw twist p95 (170) | paw swing p95 (70) | paw jumps (0.5%) | stretch p95 (0.35) | grip turn p50 (45) | move twist max (176) | move turn max (3000) | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| q1 | trombonist | L | 3 | 9 | 30 | 0.63 | 103 | 34 | 0.0% | 0.08 | 1 | 103 | 71 | PASS |
+| q1 | trombonist | R | 4 | 26 | 9 | 0.78 | 31 | 65 | 0.0% | 0.09 | 64 FAIL | 31 | 107 | FAIL |
+| q2 | trombonist | L | 3 | 9 | 30 | 0.63 | 102 | 34 | 0.0% | 0.08 | 2 | 102 | 74 | PASS |
+| q2 | trombonist | R | 5 | 26 | 9 | 0.77 | 33 | 70 FAIL | 0.0% | 0.09 | 58 FAIL | 33 | 109 | FAIL |
+| q3 | trombonist | L | 3 | 9 | 30 | 0.63 | 102 | 34 | 0.0% | 0.08 | 2 | 102 | 74 | PASS |
+| q3 | trombonist | R | 5 | 26 | 9 | 0.77 | 33 | 70 | 0.0% | 0.09 | 49 FAIL | 33 | 101 | FAIL |
+
+Variant q1:
+
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| trombonist | R | grip turn p50 | play | 4788 | 64 | 67 | 100.0% | 71 at boulanger-matin.mid 258.88 s | 64 | 45 | - | FAIL |
+
+Variant q2:
+
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| trombonist | R | paw swing p95 | play | 4788 | 60 | 70 | 100.0% | 85 at boulanger-matin.mid 258.88 s | 70 | 70 | - | FAIL |
+| trombonist | R | grip turn p50 | play | 4788 | 58 | 59 | 100.0% | 62 at boulanger-matin.mid 258.88 s | 58 | 45 | - | FAIL |
+
+Variant q3:
+
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| trombonist | R | grip turn p50 | play | 4788 | 49 | 50 | 100.0% | 51 at boulanger-matin.mid 258.88 s | 49 | 45 | - | FAIL |

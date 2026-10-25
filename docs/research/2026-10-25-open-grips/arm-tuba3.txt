@@ -1,0 +1,47 @@
+Arm gate of 1 roles in 4 variants: 4 children, at most 4 at the same time, in 41 s. A cell gives the value and the verdict of a value that does not pass.
+
+- cp: tuba@rhino.faceTube=["palm","palm"];tuba@rhino.restAim=1;tuba@rhino.gripShiftL=0,0.15,0.1
+- cm: tuba@rhino.faceTube=["palm","palm"];tuba@rhino.restAim=1;tuba@rhino.gripShiftL=0,0.15,-0.1
+- up: tuba@rhino.faceTube=["palm","palm"];tuba@rhino.restAim=1;tuba@rhino.gripShiftL=0.1,0.15,0
+- dn: tuba@rhino.faceTube=["palm","palm"];tuba@rhino.restAim=1;tuba@rhino.gripShiftL=-0.1,0.15,0
+
+| Variant | Role | Arm | folds p95 (8) | twist p95 (55) | forearm twist p95 (80) | flat p5 (0.55) | paw twist p95 (170) | paw swing p95 (70) | paw jumps (0.5%) | stretch p95 (0.35) | grip turn p50 (45) | move twist max (176) | move turn max (3000) | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| cp | tubist | L | 4 | 37 | 75 | 0.54 FAIL | 178 FAIL | 25 | 0.0% | 0.28 | 55 FAIL | 180 FAIL | 17996 FAIL | FAIL |
+| cp | tubist | R | 4 | 22 | 53 | 0.68 | 133 | 25 | 0.0% | 0.15 | 19 | 133 | 171 | PASS |
+| cm | tubist | L | 3 | 42 | 58 | 0.64 | 148 | 28 | 0.0% | 0.08 | 97 FAIL | 148 | 17 | FAIL |
+| cm | tubist | R | 4 | 22 | 53 | 0.68 | 133 | 25 | 0.0% | 0.15 | 19 | 133 | 171 | PASS |
+| up | tubist | L | 3 | 39 | 72 | 0.55 FAIL | 170 FAIL | 32 | 0.0% | 0.11 | 75 FAIL | 170 | 22 | FAIL |
+| up | tubist | R | 4 | 22 | 53 | 0.68 | 133 | 25 | 0.0% | 0.15 | 19 | 133 | 171 | PASS |
+| dn | tubist | L | 3 | 41 | 68 | 0.58 | 168 | 25 | 0.0% | 0.14 | 74 FAIL | 168 | 209 | FAIL |
+| dn | tubist | R | 4 | 22 | 53 | 0.68 | 133 | 25 | 0.0% | 0.15 | 19 | 133 | 171 | PASS |
+
+Variant cp:
+
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| tubist | L | flat p5 | lift | 62 | 0.55 | 0.54 | 100.0% | 0.53 at boulanger-matin.mid wall 0.5 s | 0.54 | 0.55 | - | FAIL |
+| tubist | L | paw twist p95 | lift | 62 | 176 | 178 | 100.0% | 180 at boulanger-matin.mid wall 0.5 s | 178 | 170 | - | FAIL |
+| tubist | L | grip turn p50 | play | 4147 | 55 | 55 | 100.0% | 55 at brahms-2.mid 705.38 s | 55 | 45 | - | FAIL |
+| tubist | L | move twist max | move | 2322 | 176 | 179 | 100.0% | 180 at boulanger-matin.mid lower 280.67 s, wall 0.73 s | 180 | 176 | - | FAIL |
+| tubist | L | move turn max | move | 2322 | 5 | 11 | 88.1% | 17996 at boulanger-matin.mid lower 280.67 s, wall 0.73 s | 17996 | 3000 | - | FAIL |
+
+Variant cm:
+
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| tubist | L | grip turn p50 | play | 4147 | 97 | 97 | 100.0% | 97 at brahms-2.mid 443.38 s | 97 | 45 | - | FAIL |
+
+Variant up:
+
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| tubist | L | flat p5 | rest | 2 | 0.55 | 0.55 | 100.0% | 0.55 at brahms-2.mid rest | 0.55 | 0.55 | - | FAIL |
+| tubist | L | paw twist p95 | rest | 2 | 170 | 170 | 100.0% | 170 at brahms-2.mid rest | 170 | 170 | - | FAIL |
+| tubist | L | grip turn p50 | play | 4147 | 75 | 75 | 100.0% | 75 at boulanger-matin.mid 117.88 s | 75 | 45 | - | FAIL |
+
+Variant dn:
+
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| tubist | L | grip turn p50 | play | 4147 | 74 | 74 | 100.0% | 74 at brahms-2.mid 499.13 s | 74 | 45 | - | FAIL |

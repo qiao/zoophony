@@ -1,0 +1,25 @@
+Arm gate of 1 roles in 2 variants: 2 children, at most 2 at the same time, in 36 s. A cell gives the value and the verdict of a value that does not pass.
+
+- s15: trombone@panda.gripShiftR=0.05,-0.04,-0.08;trombone@panda.aimSide=0.8;trombone@panda.restAim=1;trombone@panda.gripCurl=1.5708,1.9199;trombone@panda.poleR=1,-0.5,0;trombone@panda.reachSlide=0.2618
+- s10: trombone@panda.gripShiftR=0.05,-0.04,-0.08;trombone@panda.aimSide=0.8;trombone@panda.restAim=1;trombone@panda.gripCurl=1.5708,1.9199;trombone@panda.poleR=1,-0.5,0;trombone@panda.reachSlide=0.1745
+
+| Variant | Role | Arm | folds p95 (8) | twist p95 (55) | forearm twist p95 (80) | flat p5 (0.55) | paw twist p95 (170) | paw swing p95 (70) | paw jumps (0.5%) | stretch p95 (0.35) | grip turn p50 (45) | move twist max (176) | move turn max (3000) | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| s15 | trombonist | L | 3 | 9 | 30 | 0.63 | 102 | 34 | 0.0% | 0.08 | 2 | 102 | 74 | PASS |
+| s15 | trombonist | R | 5 | 28 | 9 | 0.78 | 32 | 76 FAIL | 0.0% | 0.13 | 51 FAIL | 32 | 117 | FAIL |
+| s10 | trombonist | L | 3 | 9 | 30 | 0.63 | 102 | 34 | 0.0% | 0.08 | 2 | 102 | 74 | PASS |
+| s10 | trombonist | R | 5 | 28 | 9 | 0.78 | 32 | 74 FAIL | 0.0% | 0.13 | 51 FAIL | 32 | 115 | FAIL |
+
+Variant s15:
+
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| trombonist | R | paw swing p95 | lift | 93 | 62 | 76 | 100.0% | 76 at brahms-2.mid wall 2.0 s | 76 | 70 | - | FAIL |
+| trombonist | R | grip turn p50 | play | 4788 | 51 | 52 | 100.0% | 52 at boulanger-matin.mid 258.63 s | 51 | 45 | - | FAIL |
+
+Variant s10:
+
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| trombonist | R | paw swing p95 | play | 4788 | 61 | 74 | 100.0% | 91 at boulanger-matin.mid 258.88 s | 74 | 70 | - | FAIL |
+| trombonist | R | grip turn p50 | play | 4788 | 51 | 52 | 100.0% | 52 at boulanger-matin.mid 258.63 s | 51 | 45 | - | FAIL |

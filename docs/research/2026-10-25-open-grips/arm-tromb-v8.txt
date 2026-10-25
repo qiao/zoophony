@@ -1,0 +1,23 @@
+Arm gate of 1 roles in 2 variants: 2 children, at most 2 at the same time, in 34 s. A cell gives the value and the verdict of a value that does not pass.
+
+- r60: trombone@panda.gripShiftR=0.05,-0.04,-0.08;trombone@panda.aimSide=0.8;trombone@panda.restAim=1;trombone@panda.gripCurl=1.5708,1.9199;trombone@panda.poleR=1,-0.5,0;trombone@panda.reach=1.0472
+- r55: trombone@panda.gripShiftR=0.05,-0.04,-0.08;trombone@panda.aimSide=0.8;trombone@panda.restAim=1;trombone@panda.gripCurl=1.5708,1.9199;trombone@panda.poleR=1,-0.5,0;trombone@panda.reach=0.9599
+
+| Variant | Role | Arm | folds p95 (8) | twist p95 (55) | forearm twist p95 (80) | flat p5 (0.55) | paw twist p95 (170) | paw swing p95 (70) | paw jumps (0.5%) | stretch p95 (0.35) | grip turn p50 (45) | move twist max (176) | move turn max (3000) | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| r60 | trombonist | L | 3 | 9 | 30 | 0.63 | 102 | 34 | 0.0% | 0.08 | 2 | 102 | 74 | PASS |
+| r60 | trombonist | R | 4 | 27 | 21 | 0.70 | 80 | 100 FAIL | 0.0% | 0.13 | 21 | 80 | 128 | FAIL |
+| r55 | trombonist | L | 3 | 9 | 30 | 0.63 | 102 | 34 | 0.0% | 0.08 | 2 | 102 | 74 | PASS |
+| r55 | trombonist | R | 3 | 27 | 22 | 0.73 | 80 | 98 FAIL | 0.0% | 0.13 | 21 | 80 | 123 | FAIL |
+
+Variant r60:
+
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| trombonist | R | paw swing p95 | rest | 3 | 100 | 100 | 100.0% | 100 at beethoven-9.mid rest | 100 | 70 | - | FAIL |
+
+Variant r55:
+
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| trombonist | R | paw swing p95 | rest | 3 | 98 | 98 | 100.0% | 98 at beethoven-9.mid rest | 98 | 70 | - | FAIL |

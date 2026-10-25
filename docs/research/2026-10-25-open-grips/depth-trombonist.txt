@@ -1,0 +1,146 @@
+Sweep of the trombonist: 3 demos with the role (beethoven-9, boulanger-matin, brahms-2), 1 row to sweep.
+Estimated time: about 39 s: 1 row of 39.1 s, from the last rows of this sweep, with a time for 3 of 3 demos.
+Sweeps of main (0cfe7ee6) and of the working tree: 42.5 s.
+base (41.0 s):
+  beethoven-9 trombonist 30 (panda, chair)
+    play: paws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 641 samples over 1.5 cm (0.0%)
+    play: paws in trombone: 0.3 cm at song 56.59 s, wall 68.50 s (handL 0.82); next note in 11.99 s; limit 1.5 cm; 0 of 641 samples over 1.5 cm (0.0%)
+    play: claws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 641 samples over 1.5 cm (0.0%)
+    play: claws in trombone: 0.2 cm at song 140.59 s, wall 152.50 s (fingersL); next note in 0.90 s; limit 1.5 cm; 0 of 641 samples over 1.5 cm (0.0%)
+    play: forearms in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 641 samples over 1.5 cm (0.0%)
+    play: forearms in trombone: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 641 samples over 1.5 cm (0.0%)
+    play: upper arms in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 641 samples over 1.5 cm (0.0%)
+    play: upper arms in trombone: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 641 samples over 1.5 cm (0.0%)
+    play: instrument in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 2.0 cm; 0 of 641 samples over 2.0 cm (0.0%)
+    lift: paws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: paws in trombone: 0.5 cm at song -1.21 s, wall 10.70 s (handL 0.15); next note in 69.79 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: claws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: claws in trombone: 0.2 cm at song -0.91 s, wall 11.00 s (fingersL); next note in 69.49 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: forearms in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: forearms in trombone: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: upper arms in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: upper arms in trombone: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: instrument in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 2.0 cm; 0 of 31 samples over 2.0 cm (0.0%)
+    rest: paws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: paws in trombone: 0.4 cm at song -1.91 s, wall 10.00 s (handR 1.11); next note in 70.49 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: claws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: claws in trombone: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: forearms in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: forearms in trombone: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: upper arms in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: upper arms in trombone: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: instrument in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 2.0 cm; 0 of 1 samples over 2.0 cm (0.0%)
+    lower: paws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 30 samples over 1.5 cm (0.0%)
+    lower: paws in trombone: 0.5 cm at song 158.30 s, wall 13.40 s (handL 0.84); after the last note; limit 1.5 cm; 0 of 30 samples over 1.5 cm (0.0%)
+    lower: claws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 30 samples over 1.5 cm (0.0%)
+    lower: claws in trombone: 0.2 cm at song 158.30 s, wall 13.00 s (fingersL); after the last note; limit 1.5 cm; 0 of 30 samples over 1.5 cm (0.0%)
+    lower: forearms in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 30 samples over 1.5 cm (0.0%)
+    lower: forearms in trombone: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 30 samples over 1.5 cm (0.0%)
+    lower: upper arms in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 30 samples over 1.5 cm (0.0%)
+    lower: upper arms in trombone: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 30 samples over 1.5 cm (0.0%)
+    lower: instrument in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 2.0 cm; 0 of 30 samples over 2.0 cm (0.0%)
+    target L: 47.17 mm at song 70.44 s
+    target R: 48.34 mm at song 70.44 s
+    targets: 0.0% of 173 within 5 mm, worst 48.34 mm
+  boulanger-matin trombonist 36 (panda, chair)
+    play: paws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1130 samples over 1.5 cm (0.0%)
+    play: paws in trombone: 0.3 cm at song 198.63 s, wall 210.25 s (handL 0.82); next note in 37.14 s; limit 1.5 cm; 0 of 1130 samples over 1.5 cm (0.0%)
+    play: claws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1130 samples over 1.5 cm (0.0%)
+    play: claws in trombone: 0.3 cm at song 258.88 s, wall 270.50 s (fingersR); next note in 0.23 s; limit 1.5 cm; 0 of 1130 samples over 1.5 cm (0.0%)
+    play: forearms in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1130 samples over 1.5 cm (0.0%)
+    play: forearms in trombone: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1130 samples over 1.5 cm (0.0%)
+    play: upper arms in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1130 samples over 1.5 cm (0.0%)
+    play: upper arms in trombone: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1130 samples over 1.5 cm (0.0%)
+    play: instrument in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 2.0 cm; 0 of 1130 samples over 2.0 cm (0.0%)
+    lift: paws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: paws in trombone: 0.5 cm at song -1.12 s, wall 10.50 s (handL 0.15); next note in 115.32 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: claws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: claws in trombone: 0.2 cm at song -0.72 s, wall 10.90 s (fingersL); next note in 114.92 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: forearms in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: forearms in trombone: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: upper arms in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: upper arms in trombone: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: instrument in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 2.0 cm; 0 of 31 samples over 2.0 cm (0.0%)
+    rest: paws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: paws in trombone: 0.4 cm at song -1.62 s, wall 10.00 s (handR 1.11); next note in 115.82 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: claws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: claws in trombone: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: forearms in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: forearms in trombone: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: upper arms in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: upper arms in trombone: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: instrument in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 2.0 cm; 0 of 1 samples over 2.0 cm (0.0%)
+    lower: paws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 30 samples over 1.5 cm (0.0%)
+    lower: paws in trombone: 0.5 cm at song 280.67 s, wall 13.20 s (handL 0.84); after the last note; limit 1.5 cm; 0 of 30 samples over 1.5 cm (0.0%)
+    lower: claws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 30 samples over 1.5 cm (0.0%)
+    lower: claws in trombone: 0.2 cm at song 280.67 s, wall 12.50 s (fingersL); after the last note; limit 1.5 cm; 0 of 30 samples over 1.5 cm (0.0%)
+    lower: forearms in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 30 samples over 1.5 cm (0.0%)
+    lower: forearms in trombone: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 30 samples over 1.5 cm (0.0%)
+    lower: upper arms in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 30 samples over 1.5 cm (0.0%)
+    lower: upper arms in trombone: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 30 samples over 1.5 cm (0.0%)
+    lower: instrument in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 2.0 cm; 0 of 30 samples over 2.0 cm (0.0%)
+    target L: 47.17 mm at song 269.58 s
+    target R: 81.25 mm at song 258.74 s
+    targets: 0.0% of 47 within 5 mm, worst 81.25 mm
+  brahms-2 trombonist 30 (panda, chair)
+    play: paws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 3017 samples over 1.5 cm (0.0%)
+    play: paws in trombone: 0.3 cm at song 56.88 s, wall 68.50 s (handL 0.82); next note in 278.54 s; limit 1.5 cm; 0 of 3017 samples over 1.5 cm (0.0%)
+    play: claws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 3017 samples over 1.5 cm (0.0%)
+    play: claws in trombone: 0.2 cm at song 701.88 s, wall 713.50 s (fingersL); next note in 0.17 s; limit 1.5 cm; 0 of 3017 samples over 1.5 cm (0.0%)
+    play: forearms in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 3017 samples over 1.5 cm (0.0%)
+    play: forearms in trombone: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 3017 samples over 1.5 cm (0.0%)
+    play: upper arms in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 3017 samples over 1.5 cm (0.0%)
+    play: upper arms in trombone: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 3017 samples over 1.5 cm (0.0%)
+    play: instrument in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 2.0 cm; 0 of 3017 samples over 2.0 cm (0.0%)
+    lift: paws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: paws in trombone: 0.5 cm at song -0.92 s, wall 10.70 s (handL 0.15); next note in 336.34 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: claws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: claws in trombone: 0.2 cm at song -0.62 s, wall 11.00 s (fingersL); next note in 336.04 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: forearms in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: forearms in trombone: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: upper arms in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: upper arms in trombone: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: instrument in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 2.0 cm; 0 of 31 samples over 2.0 cm (0.0%)
+    rest: paws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: paws in trombone: 0.4 cm at song -1.62 s, wall 10.00 s (handR 1.11); next note in 337.04 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: claws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: claws in trombone: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: forearms in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: forearms in trombone: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: upper arms in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: upper arms in trombone: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: instrument in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 2.0 cm; 0 of 1 samples over 2.0 cm (0.0%)
+    lower: paws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 30 samples over 1.5 cm (0.0%)
+    lower: paws in trombone: 0.5 cm at song 752.46 s, wall 13.40 s (handL 0.84); after the last note; limit 1.5 cm; 0 of 30 samples over 1.5 cm (0.0%)
+    lower: claws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 30 samples over 1.5 cm (0.0%)
+    lower: claws in trombone: 0.2 cm at song 752.46 s, wall 10.50 s (fingersL); after the last note; limit 1.5 cm; 0 of 30 samples over 1.5 cm (0.0%)
+    lower: forearms in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 30 samples over 1.5 cm (0.0%)
+    lower: forearms in trombone: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 30 samples over 1.5 cm (0.0%)
+    lower: upper arms in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 30 samples over 1.5 cm (0.0%)
+    lower: upper arms in trombone: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 30 samples over 1.5 cm (0.0%)
+    lower: instrument in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 2.0 cm; 0 of 30 samples over 2.0 cm (0.0%)
+    target L: 47.17 mm at song 683.35 s
+    target R: 48.34 mm at song 697.10 s
+    targets: 0.0% of 146 within 5 mm, worst 48.34 mm
+| variant | play paws>trombone cm | play claws>trombone cm | lift paws>trombone cm | lift claws>trombone cm | rest paws>trombone cm | lower paws>trombone cm | lower claws>trombone cm | target L mm | target R mm | targets within 5 mm % |
+|---|---|---|---|---|---|---|---|---|---|---|
+| base | 0.3 | 0.3 | 0.5 | 0.2 | 0.4 | 0.5 | 0.2 | 47.2 | 81.3 | 0.0 |
+
+The demo and the time of the sample of each value of the table:
+| variant | play paws>trombone cm | play claws>trombone cm | lift paws>trombone cm | lift claws>trombone cm | rest paws>trombone cm | lower paws>trombone cm | lower claws>trombone cm | target L mm | target R mm |
+|---|---|---|---|---|---|---|---|---|---|
+| base | beethoven-9 56.59 s | boulanger-matin 258.88 s | boulanger-matin wall 10.50 s | boulanger-matin wall 10.90 s | boulanger-matin wall 10.00 s | boulanger-matin wall 13.20 s | brahms-2 wall 10.50 s | beethoven-9 70.44 s | boulanger-matin 258.74 s |
+
+The depths of main (0cfe7ee6) and of the working tree with no change:
+H of each body, main (0cfe7ee6) -> working tree: panda 0.472 m -> 0.472 m
+| Species | Set | Pair | main (0cfe7ee6) cm | main (0cfe7ee6) H | tree cm | tree H | Mark | tree at |
+|---|---|---|---:|---:|---:|---:|---|---|
+| panda | play | paws in trombone | 0.4 | 0.008 | 0.3 | 0.006 |  | beethoven-9 56.59 s |
+| panda | play | claws in trombone | 0.1 | 0.002 | 0.3 | 0.006 | GROWS | boulanger-matin 258.88 s |
+| panda | lift | paws in trombone | 0.4 | 0.009 | 0.5 | 0.011 |  | boulanger-matin wall 10.50 s |
+| panda | lift | claws in trombone | 0.1 | 0.002 | 0.2 | 0.004 | GROWS | boulanger-matin wall 10.90 s |
+| panda | lift | forearms in trombone | 0.3 | 0.006 | 0.0 | 0.000 |  | beethoven-9 wall 0.00 s |
+| panda | rest | paws in trombone | 0.3 | 0.006 | 0.4 | 0.008 |  | boulanger-matin wall 10.00 s |
+| panda | lower | paws in trombone | 0.5 | 0.011 | 0.5 | 0.010 |  | boulanger-matin wall 13.20 s |
+| panda | lower | claws in trombone | 0.2 | 0.003 | 0.2 | 0.004 |  | brahms-2 wall 10.50 s |
+| panda | lower | forearms in trombone | 0.3 | 0.007 | 0.0 | 0.000 |  | beethoven-9 wall 0.00 s |

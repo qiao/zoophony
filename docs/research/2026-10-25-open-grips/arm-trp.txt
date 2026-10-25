@@ -1,0 +1,23 @@
+Arm gate of 1 roles in 2 variants: 2 children, at most 2 at the same time, in 48 s. A cell gives the value and the verdict of a value that does not pass.
+
+- t10L: trumpet@monkey.play=holdTurn(-5,0);trumpet@monkey.gripShiftL=0,-0.03,0
+- t12: trumpet@monkey.play=holdTurn(-7,0)
+
+| Variant | Role | Arm | folds p95 (8) | twist p95 (55) | forearm twist p95 (80) | flat p5 (0.55) | paw twist p95 (170) | paw swing p95 (70) | paw jumps (0.5%) | stretch p95 (0.35) | grip turn p50 (45) | move twist max (176) | move turn max (3000) | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| t10L | trumpeter | L | 4 | 21 | 60 | 0.66 | 150 | 52 | 0.0% | 0.07 | 48 FAIL | 150 | 73 | FAIL |
+| t10L | trumpeter | R | 2 | 22 | 50 | 0.64 | 134 | 47 | 0.0% | 0.08 | 26 | 134 | 52 | PASS |
+| t12 | trumpeter | L | 4 | 21 | 61 | 0.65 | 152 | 51 | 0.0% | 0.06 | 48 FAIL | 152 | 72 | FAIL |
+| t12 | trumpeter | R | 2 | 22 | 50 | 0.64 | 134 | 47 | 0.0% | 0.08 | 25 | 134 | 51 | PASS |
+
+Variant t10L:
+
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| trumpeter | L | grip turn p50 | play | 9977 | 48 | 48 | 100.0% | 48 at beethoven-1.mid 9.40 s | 48 | 45 | - | FAIL |
+
+Variant t12:
+
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| trumpeter | L | grip turn p50 | play | 9977 | 48 | 48 | 100.0% | 48 at bach-bwv1047.mid 112.65 s | 48 | 45 | - | FAIL |

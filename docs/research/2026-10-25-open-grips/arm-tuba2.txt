@@ -1,0 +1,26 @@
+Arm gate of 1 roles in 2 variants: 2 children, at most 2 at the same time, in 34 s. A cell gives the value and the verdict of a value that does not pass.
+
+- t15: tuba@rhino.faceTube=["palm","palm"];tuba@rhino.restAim=1;tuba@rhino.gripShiftL=0,0.15,0
+- t15p: tuba@rhino.faceTube=["palm","palm"];tuba@rhino.restAim=1;tuba@rhino.gripShiftL=0,0.15,0;tuba@rhino.poleL=-1,-1,0
+
+| Variant | Role | Arm | folds p95 (8) | twist p95 (55) | forearm twist p95 (80) | flat p5 (0.55) | paw twist p95 (170) | paw swing p95 (70) | paw jumps (0.5%) | stretch p95 (0.35) | grip turn p50 (45) | move twist max (176) | move turn max (3000) | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| t15 | tubist | L | 3 | 40 | 70 | 0.56 | 170 | 27 | 0.0% | 0.18 | 76 FAIL | 170 | 30 | FAIL |
+| t15 | tubist | R | 4 | 22 | 53 | 0.68 | 133 | 25 | 0.0% | 0.15 | 19 | 133 | 171 | PASS |
+| t15p | tubist | L | 4 | 37 | 75 | 0.55 FAIL | 176 FAIL | 29 | 0.0% | 0.30 | 41 | 180 FAIL | 17989 FAIL | FAIL |
+| t15p | tubist | R | 4 | 22 | 53 | 0.68 | 133 | 25 | 0.0% | 0.15 | 19 | 133 | 171 | PASS |
+
+Variant t15:
+
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| tubist | L | grip turn p50 | play | 4147 | 76 | 76 | 100.0% | 76 at brahms-2.mid 310.13 s | 76 | 45 | - | FAIL |
+
+Variant t15p:
+
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| tubist | L | flat p5 | lift | 62 | 0.61 | 0.55 | 100.0% | 0.53 at brahms-2.mid wall 0.4 s | 0.55 | 0.55 | - | FAIL |
+| tubist | L | paw twist p95 | lift | 62 | 170 | 176 | 100.0% | 180 at boulanger-matin.mid wall 0.5 s | 176 | 170 | - | FAIL |
+| tubist | L | move twist max | move | 2322 | 170 | 179 | 100.0% | 180 at brahms-2.mid lower 250.82 s, wall 0.91 s | 180 | 176 | - | FAIL |
+| tubist | L | move turn max | move | 2322 | 9 | 38 | 87.3% | 17989 at boulanger-matin.mid lower 280.67 s, wall 0.74 s | 17989 | 3000 | - | FAIL |
