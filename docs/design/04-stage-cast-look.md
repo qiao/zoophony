@@ -354,9 +354,10 @@ twist bone (`docs/decisions/2026-10-19-arm-skin.md`).
 
 A mesh rig can instead give each arm the bones of a rigger, as on the Rigify rabbit of `ode.html`
 (`armSegments` of the config, `docs/decisions/2026-10-24-polar-bear-arms.md`), as the polar bear,
-the rabbit, the mouse, the wolf, the cat, and the elephant do
+the rabbit, the mouse, the wolf, the cat, the elephant, and the two foxes do
 (`docs/decisions/2026-10-24-violin-arms.md`, `docs/decisions/2026-10-25-wind-arms.md`,
-`docs/decisions/2026-10-25-cat-arms.md`, `docs/decisions/2026-10-25-elephant-arms.md`): 4 deform segments
+`docs/decisions/2026-10-25-cat-arms.md`, `docs/decisions/2026-10-25-elephant-arms.md`,
+`docs/decisions/2026-10-25-fox-arms.md`): 4 deform segments
 on the upper arm and on the forearm, and a helper bone at the elbow and at the wrist. The skin of
 the arm hangs on them, and the upper arm, the forearm, and the forearm twist bone only drive them.
 The app turns them from the joints of the pose, so each song keeps the live pose (`poseArm()`).
@@ -585,7 +586,12 @@ mesh are quad tubes (rings at a right angle to the bones), and the weights come 
     planes stand at a right angle to the arm, the wrist cut lies further out on the paw, and the
     rings of the elbow stand further from the joint, so that the bend of the timpani hold spreads
     over more faces. A tilted cut plane or a near wrist cut crossed the nearest ring and turned
-    the bridge faces over.
+    the bridge faces over. The foxes have such arms since 2026-10-25 (`tools/blender/fox_arms.py`),
+    with the arm factor 1.21 in the copy of the mesh, one rig for the red and the tan fox. The
+    upper arm of the fox joins the trunk only near the shoulder, so its copy takes the seam cut
+    and the side wall of the cat, with no ring of the shoulder: rings packed at the short socket
+    folded into a dark slit. The rule weight of each upper arm goes to its first segment
+    (`armSegments.rootSegment`), so that the socket takes the roll of the first ring.
     `pnpm arm-look` measures the
     crease of the arm skin against the source and the section of the upper arm, with limits from the red fox
     (`docs/decisions/2026-10-21-arm-form.md`).
