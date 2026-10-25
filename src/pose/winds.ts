@@ -880,6 +880,19 @@ const MONKEY_TRUMPET = {
  * turns 25° to the right, so that the bell stands at the left of the horn on the muzzle. The
  * elbows point out, down, and forward. At rest, the tuba moves off the mouth and its lower end
  * turns 5° forward (`docs/research/2026-10-21-mesh-rhino.md`).
+ *
+ * The right palm faces the valve tops (`faceTube`, `InstrumentGrips.tubeR` of
+ * `models/instruments/brass.ts`), and the fingers of both paws curl 80° (`gripCurl`). The left paw
+ * keeps the roll of its shoulder: with its palm to the main branch, it turned 167° on its forearm
+ * and flipped in the lowering (the wrist turned 17960° each second). The right grip moves 0.15 H
+ * along the row of the valves
+ * toward the front and 0.1 H toward the right shoulder (`gripShiftR`), so that the right paw lies
+ * on the valve tops at the front right of the valve branch, where it shows from the front and from
+ * the right front. On the grip of the instrument, the valve branch hid it from both views (manager
+ * review of 2026-10-25). A grip further forward is out of the reach of the arm. The left grip
+ * moves 0.04 H toward the main branch (`gripShiftL`), so that the curled fingers close on it
+ * (`pnpm wind-grip tubist`, `2026-10-25-grips` decisions). With 0.08 H, the left paw went 3.4 cm
+ * into the tuba (`pnpm pose-depth tubist`).
  */
 const RHINO_TUBA = {
   ...WIND_HOLDS.tuba,
@@ -891,6 +904,10 @@ const RHINO_TUBA = {
   rest: holdTurn(5, 20),
   restPoleL: [-1, -0.5, -0.5],
   restPoleR: [1, -0.5, -0.5],
+  faceTube: ['none', 'palm'],
+  gripShiftL: [0, 0.04, 0],
+  gripShiftR: [-0.15, 0, -0.1],
+  gripCurl: curls(80, 80),
 } as const satisfies WindHold;
 
 /**
