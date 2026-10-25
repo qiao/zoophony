@@ -456,6 +456,14 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
 - [ ] The 1/2 viola of the cat moves the seats of the layout by up to 9.5 cm. Run
       `pnpm test:paused src/shots/` and `src/models/layout-scene.test.ts` when the tests come back
       (`layout-move.txt` of `docs/research/2026-10-25-string-angle/`).
+- [ ] The gap of a piano case moves the contrabass rows of `bach-bwv1048` and `bach-bwv1050` back,
+      and the stage of `bach-bwv1050` grows by 0.18 m. Run `pnpm test:paused src/shots/` and
+      `src/models/layout-scene.test.ts` when the tests come back (`2026-10-25-bass-piano-gap.md`).
+- [ ] The layout knows only the bind footprints, so only a piano case keeps the reach of a player
+      in play. A bassist stands 0.15 m from a seated clarinet in `beethoven-8` with no clip now.
+      A new hold that reaches further can clip there (`2026-10-25-bass-piano-gap.md`).
+- [ ] In the default view of `bach-bwv1048` and `bach-bwv1050`, the open lid of the harpsichord
+      hides the contrabasses behind it up to the eyes, on main too (`2026-10-25-bass-piano-gap.md`).
 - [x] Elephant (A-pose mesh): the long arm faces show dark shards on the bent arms from the front
       and a slit under the left forearm from the back, and one to three thin faces fold in each
       sample. Done: quad arm tubes, Blender weights, and arm segments. The gate folds 3 and 2
