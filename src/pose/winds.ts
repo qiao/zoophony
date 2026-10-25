@@ -528,7 +528,8 @@ const MOUSE_OBOE_FORWARD = -15;
  * In the rest, the oboe stands upright in front of the belly, 0.3 H below the mouth, and touches
  * the belly, as a real oboist holds it vertical in a short rest. The left paw closes on it across
  * the body, at a grip nearer to the reed (`restGripShiftL`), with the left elbow out to the side,
- * and the right paw closes on it at its grip of the play, with the right elbow out and down. Both
+ * and the right paw closes on it at its grip of the play, with the right elbow out, down, and back,
+ * so that each of the 4 segments of the right upper arm turns less than 25° from the next. Both
  * paws keep the aim and the roll of the play (`restAim`): with the roll of the shoulder, the left
  * paw turned 177° on its forearm at rest and flipped in the lowering. Before, the oboe stood about
  * 10 cm in front of the right side of the belly, because on the arms before 2026-10-25, an oboe on
@@ -546,8 +547,8 @@ const MOUSE_OBOE = {
   lipShift: [0, -0.04, 0.23],
   rest: holdTurn(-30, 0),
   restShift: [0, -0.3, 0.1],
-  restPoleL: [-1, 0, 0],
-  restPoleR: [1, -0.5, 0],
+  restPoleL: [-1, -0.3, 0],
+  restPoleR: [1, -0.5, 0.5],
   play: holdTurn(MOUSE_OBOE_FORWARD, 0),
   poleL: [-0.5, -1, -0.5],
   poleR: [0.5, -1, -0.5],
