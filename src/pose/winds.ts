@@ -715,10 +715,12 @@ const WOLF_CLARINET_FORWARD = -5;
  * too. Before, the clarinet stood about 0.2 m in front of the knees and touched nothing. With the
  * paws on their grips of the play, which are low on the clarinet at rest, the forearms went 3.2 cm
  * into the belly, and 4.3 cm with the bell 7 cm further back. With the bell on the right knee, the
- * upper arms went 5.6 cm into the body. Each rest of the bell on the seat twists
- * the right upper arm past the limit of the arm gate (twist p95 69°, limit 55°) until the wolf gets
- * a twist bone of the upper arm: with one of half of the roll, the twist is 44°
- * (`docs/research/2026-10-24-wind-grips.md`).
+ * upper arms went 5.6 cm into the body. Each rest of the bell on the seat twisted the right upper
+ * arm past the limit of the arm gate (twist p95 69°, limit 55°) on the arms of one bone, and the
+ * rebuilt arms of 2026-10-25 spread the roll over 4 segments (29°). The left elbow points down,
+ * back, and a little out at rest, and the left grip moves 0.03 H across the tube, so that the
+ * left paw turns 89° on its forearm at rest: with the elbow of the play, it turned 109°, and each
+ * of the 4 segments of the forearm took 27° (target 25°, `docs/research/2026-10-25-wind-arms.md`).
  */
 const WOLF_CLARINET = {
   ...WIND_HOLDS.clarinet,
@@ -730,14 +732,14 @@ const WOLF_CLARINET = {
   restShift: [0, -0.77, -0.35],
   poleL: [-0.3, -1, 0],
   poleR: [0.3, -1, 0],
-  restPoleL: [-0.3, -1, 0],
+  restPoleL: [-0.2, -1, 0.5],
   restPoleR: [0.3, -1, 0],
   palmToTube: true,
   aimAcross: 1,
   aimSide: 0.5,
   gripShiftL: [0.2, 0.12, 0],
   gripShiftR: [0.05, 0.12, -0.02],
-  restGripShiftL: [-0.22, 0.1, 0],
+  restGripShiftL: [-0.22, 0.1, 0.03],
   restGripShiftR: [-0.33, 0.12, -0.02],
   restAim: 1,
 } as const satisfies WindHold;
