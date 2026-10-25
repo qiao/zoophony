@@ -64,6 +64,13 @@ interface CommonParams {
    */
   readonly violinScale?: number;
   /**
+   * The scale of the viola and its bow for the species, as a factor of the viola of the app
+   * (design 4.6). It is 1 when it is not given. Violas have no fixed size: a shop sizes a viola by
+   * the body length for the arm of the player, from junior violas of 12 inches to large violas of
+   * 17 inches (`docs/reference/string-technique.md`, section 1.10).
+   */
+  readonly violaScale?: number;
+  /**
    * The scale of the cello and its bow for the species, as a factor of the cello of the app
    * (design 4.6). It is 1 when it is not given. A species with short arms plays a smaller cello,
    * as a child plays a fractional size: a 1/2 cello is 0.87 of the length of a 4/4 cello. The
@@ -229,6 +236,7 @@ export function isSpeciesId(value: string): value is SpeciesId {
  */
 export const SCALE_PARAMS = {
   violin: 'violinScale',
+  viola: 'violaScale',
   cello: 'celloScale',
   contrabass: 'bassScale',
   oboe: 'oboeScale',

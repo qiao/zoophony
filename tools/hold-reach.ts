@@ -750,7 +750,7 @@ export function holdReachLines(
   const lines = [
     `${species} with the ${instrument} on the ${support}, hold ${own ? `${instrument}@${species} (SPECIES_HOLDS)` : `${instrument} (BOWED_HOLDS)`}:`,
     `  Arm from the shoulder joint to the middle of the palm: L ${m(reach.arms.L)}, R ${m(reach.arms.R)}`,
-    `  ${name}: ${m(reach.length)}, scale ${reach.scale.toFixed(3)} of the ${instrument} of the app${instrument === 'violin' ? ' (violinScale)' : ''}`,
+    `  ${name}: ${m(reach.length)}, scale ${reach.scale.toFixed(3)} of the ${instrument} of the app (${instrument === 'violin' ? 'violinScale' : 'violaScale'})`,
     `  Left shoulder joint to the scroll in the playing pose: ${m(reach.scroll)} (arm L less this: ${Math.abs(spare) < 5e-4 ? '0.000' : spare.toFixed(3)} m)`,
     `  Reached part of the fingerboard (stopRange, 0 at the nut, 1 at the end): ${ranges.stop}`,
     `  Reached part of the bow hair (bowRange, from the frog end): ${ranges.bow}`,
@@ -766,8 +766,8 @@ export function holdReachLines(
   lines.push(`    scale ${ruleScale.toFixed(3)}, ${instrument} ${m(ruleLength)}`);
   if (instrument === 'viola') {
     lines.push(
-      '    The app has no scale of the viola (buildInstrument scales only the violin), so the',
-      '    tool does not rebuild the player at this scale.',
+      '    The tool rebuilds only a violin at this scale. Probe a viola at this scale with',
+      `    --set '${species}.violaScale=${ruleScale.toFixed(3)}'.`,
     );
     return lines;
   }

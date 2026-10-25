@@ -38,6 +38,7 @@ export type InstrumentId =
  */
 const SCALED_INSTRUMENTS = [
   'violin',
+  'viola',
   'cello',
   'contrabass',
   'oboe',

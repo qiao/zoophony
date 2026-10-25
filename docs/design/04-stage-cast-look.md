@@ -115,6 +115,8 @@ interface CommonParams {
   proportions?: Partial<BodyProportions>;
   /** The scale of the violin and its bow for a species (4.6). 1 by default. */
   violinScale?: number;
+  /** The scale of the viola and its bow for a species (4.6). 1 by default. */
+  violaScale?: number;
   /** The scale of the cello and its bow for a species (4.6). 1 by default. */
   celloScale?: number;
   /** The scale of the contrabass and its bow for a species (4.6). 1 by default. */
@@ -1222,10 +1224,11 @@ declare function castScore(score: Score): PlayerCast[];
 ```
 
 The instruments follow the reference image and the polished images, and their sizes fit the
-animals of the reference image. A species can play a smaller violin, cello, contrabass, oboe, bassoon,
-trumpet, or harp (`SpeciesParams.violinScale`, `celloScale`, `bassScale`, `oboeScale`,
-`bassoonScale`, `trumpetScale`, `harpScale`), as a child plays a fractional size or a small lever
-harp. One list names these instruments (`SCALED_INSTRUMENTS`), so that the
+animals of the reference image. A species can play a smaller violin, viola, cello, contrabass,
+oboe, bassoon, trumpet, or harp (`SpeciesParams.violinScale`, `violaScale`, `celloScale`,
+`bassScale`, `oboeScale`, `bassoonScale`, `trumpetScale`, `harpScale`), as a child plays a
+fractional size or a small lever harp. Violas have no fixed size: a shop sizes a viola by the
+length of its body (`docs/reference/string-technique.md`, section 1.10). One list names these instruments (`SCALED_INSTRUMENTS`), so that the
 typecheck stops a new scale that a reader of the scales misses. A smaller oboe or bassoon shrinks toward the tip of the reed, so the reed
 stays in the mouth, and a smaller trumpet shrinks toward its mouthpiece. A smaller harp shrinks
 toward its base on the floor, with its distance in front of the player. A

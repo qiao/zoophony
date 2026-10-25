@@ -76,8 +76,6 @@ export function buildInstrument(
     return buildScaled(id, scale, bowGrip, cymbalForm);
   }
   switch (id) {
-    case 'viola':
-      return buildBowedString(id, 1, bowGrip);
     case 'piano':
       return buildPiano();
     case 'choir-folder':
@@ -129,6 +127,7 @@ function buildScaled(
 ): InstrumentModel {
   switch (id) {
     case 'violin':
+    case 'viola':
     case 'cello':
     case 'contrabass':
       return buildBowedString(id, scale, bowGrip);
