@@ -17,5 +17,3 @@ reverse each decision. Then update its section, and remove its row.
 | The side aim is 0 on the mouse and 0.25 on the wolf and the beaver (`aimSide`), and the fingers curl 100° and 80° (mouse), 115° (wolf), and 100° (beaver) (`gripCurl`). With 0.5 and the grips behind the tube, each palm faced the audience and each thumb pointed down the tube. | 5.3 |
 | The grip tool puts the middle of a woodwind paw at the side of the tube of its own arm (`ROLES` of `tools/wind-grip.ts`). Behind the tube, a palm on the tube faces the audience. | 9.8 |
 | The left oboe paw holds the upper joint, 9.7 cm from the reed, and the right paw the lower joint, 20.9 cm from the reed, 6.0 cm apart (`gripShiftL`, `gripShiftR`). At rest, the left paw stays above the right paw. | 5.3 |
-| The left oboe elbow points out and a little down in the play, as at rest (`poleL`, `restPoleL`). With the elbow down, out, and forward, the left paw folded 9 faces or turned 172° from its accepted grip. | 5.3 |
-| The right trombone paw keeps its hold: its palm faces the audience (+0.93) and its thumb points down the slide. It is open in `TODO.md`. | 5.3 |
