@@ -687,8 +687,10 @@ The code constants of each family hold the times, the angles, and the lengths of
     - The snare drum stands at the height of the wrists, near enough for the short arms. The
       sticks leave the front of the fists, along the thumbs (`SNARE_DRUM.malletTilt`), and point
       from homes out from the shoulders, so that they make a V at a strike and are almost level,
-      as in the matched grip of a real player. Between strikes, each stick keeps the angle of no
-      twist of the paw.
+      as in the matched grip of a real player. Between strikes, each stick keeps its strike
+      direction, and the wrist lifts the tip over the head (`MalletAcross.pitch`), so that the
+      tip stays over its spot, as with a real player. A turn of the stick across the forearm
+      swung the tips out over the rim (`docs/decisions/2026-10-25-percussion-tips.md`).
     - The small percussion player holds the triangle up by its clip at the height of the mouth, as
       near to the eye level of a real player as the short arm reaches, with a turn of the paw that
       bends it little on the forearm (`PERCUSSION_PLACES.triangleHand`). The clip lies in the palm

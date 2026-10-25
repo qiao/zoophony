@@ -200,8 +200,10 @@ shoulder joint to the palm (`docs/decisions/2026-10-20-mesh-badger.md`).
   fist: no source gives where it leaves the fist.
 - **The snare drum.** The head stands 0.46 m high, at about the height of the wrists, and 0.45 m in
   front. The sticks leave the front of the fists and make a V of about 66°, 9° down at a strike,
-  as section 6 gives. Between strikes, the tips lift about 18° above the level and come closer
-  together (a V of about 20°). The elbows point down and out.
+  as section 6 gives. Between strikes, each stick keeps its strike direction seen from above,
+  and the wrist lifts the tip about 17 cm above its spot (`MalletAcross.pitch`). The tip stays
+  over the head, about 4 cm from its spot, and the V opens to about 78°. Section 6 gives a lift
+  of about 8 inches (20 cm) for a full stroke. The elbows point down and out.
 - **The triangle and the tambourine.** The left paw holds the triangle by its clip at the height
   of the mouth of the badger, below the eye level of section 8, because the short arm reaches no
   higher in front of the long snout. The clip lies in the palm under the curled fingers and
@@ -227,7 +229,7 @@ shoulder joint to the palm (`docs/decisions/2026-10-20-mesh-badger.md`).
   and do not cross, as section 9 gives, but the app differs in two rules: a repeat on one bar
   stays in one hand, and the left mallet strikes 3 cm nearer to the player than the middle of a
   bar, the right mallet 3 cm farther (`PERCUSSION_HOLDS.xylophone`). Between strikes, each head
-  swings in to the rest direction of the snare grip, so two heads on near bars met
+  swings in to its rest direction across the forearm, so two heads on near bars met
   (`docs/research/2026-10-21-pirates-clip.md`).
 
 ## 11. Sources
