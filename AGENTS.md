@@ -48,6 +48,10 @@ Open these files for these kinds of work:
   playing spot of the timpani, the drums, the cymbals, the triangle, and the xylophone).
   `docs/reference/percussion-technique.md` is the target, with a source for each fact. A change
   of the percussion motion updates its section 10 "Use in the app" in the same commit.
+- **Motion of the harp player** (the size and the lean of the harp, the hands and their
+  registers, the pluck, and the rest). `docs/reference/harp-technique.md` is the target, with a
+  source for each fact. A change of the harp motion or place updates its section 6 "Use in the
+  app" in the same commit.
 - **UI.** Open `docs/prototype/ui.html` in a browser, or read its screenshots in
   `docs/prototype/`. Design 2.8 gives the tokens and the exact message texts.
 - **Assets.** `demos/README.md` gives the sources, the licenses, the checksums, and the reason for
