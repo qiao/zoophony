@@ -739,13 +739,14 @@ export const BOWED_HOLDS = {
  *
  * The rest pose is the upright rest of the rabbit and the red fox, as the seated violinist of the
  * image of the user (2026-10-17-cat-bow and 2026-10-17-cat-look decisions): the viola stands
- * upright on the front of the left knee, 0.95 of the way from the hip and 0.25 H forward (at 0.7
+ * upright on the front of the left knee, 0.95 of the way from the hip and 0.15 H forward (at 0.7
  * of the way, of 2026-10-17, it stood beside the hip and went 7.4 cm into the belly, and the user
  * asked for the rest of the fox, 2026-10-24-violin-rest decisions), and the bow stands upright at
  * the right side, with the frog in the right paw. Both elbows hang near the sides. The left paw
  * holds the viola at the top of the upper bout, at 0.4 of the fingerboard from the nut
- * (`restPlace`): with 0.3 H forward and 0.5, the paw swung 98° on the wrist, and now 91°, with 8
- * folded faces of the left arm (7 before, limit 8, 2026-10-24-violin-poses decisions). The left
+ * (`restPlace`): with 0.3 H forward and 0.5, the paw swung 98° on the wrist, with 0.25 H forward
+ * and the top plate back and to the left 91°, with 8 folded faces of the left arm, and now 26°, with
+ * 2 folded faces (limit 8, 2026-10-24-violin-poses and 2026-10-24-violin-review decisions). The left
  * elbow points down, a little out, and a little back: the elbow is 6.5 cm out from the side
  * (11.6 cm with the elbow (-1, -1, 0.5) of 2026-10-16). With the elbow further in, (-0.5, -1, 0.3),
  * it was 5.0 cm out, and the left upper arm went 1.9 cm into the body. A place further down the
@@ -763,19 +764,19 @@ export const BOWED_HOLDS = {
  *
  * In the lift and the lowering, the left paw carries the viola at the end of the fingerboard
  * (`liftPlace`), as on the rabbit, and the paw moves 0.2 H up and 0.1 H to the front in the middle
- * (`liftReach`). In the middle, the viola turns upright, with the scroll up, forward, and to the
- * left toward the left shoulder, and the top plate to the chest and up (`liftTurn`). Thus the left
- * elbow bends to 142° at most: with the tail end on the path, the paw went 1.28 H to the front, and
- * the elbow straightened to 180°. The paw rolls 45° further over the neck (`liftTiltL`): with no
- * roll, the left paw went 2.8 cm into the viola (1.3 cm now), and with the top plate to the body
- * and a little to the right, the arms went 2.9 cm into it in `mozart-k191` (2.6 cm now,
- * 2026-10-24-violin-poses decisions). The bow turns through the front with the grip 0.3 H out, 0.1
- * H up, and 0.4 H to the front (the via of `UPRIGHT_BOW`). With a direct turn from the rest on the
- * knee, the viola lay flat far in front, and the cat held both arms out straight (user, 2026-10-24:
- * "fix the arm transition for how the cat raises and lowers the violin", 2026-10-24-violin-rest
- * decisions). With a move of 0.4 H up, the left paw rose to the top of the head (3.3 H above the
- * root, 2.8 H now). With the grip 0.5 H to the front, the right paw twisted 137° on its forearm in
- * a lift (2026-10-24-violin-poses decisions).
+ * (`liftReach`). In the middle, the viola turns upright, with the scroll up, a little forward, and
+ * a little to the left, and the top plate to the body, as the violin of the rabbit (`liftTurn`), so
+ * that the paw twist on the forearm goes from the rest through 0° to the play. Thus the left elbow
+ * bends to 148° at most: with the tail end on the path, the paw went 1.28 H to the front, and the
+ * elbow straightened to 180°. The paw rolls 45° further over the neck (`liftTiltL`): with no roll,
+ * the left paw went 2.8 cm into the viola (1.4 cm now, 2026-10-24-violin-poses decisions). The bow
+ * turns through the front with the grip 0.3 H out, 0.1 H up, and 0.4 H to the front (the via of
+ * `UPRIGHT_BOW`). With a direct turn from the rest on the knee, the viola lay flat far in front,
+ * and the cat held both arms out straight (user, 2026-10-24: "fix the arm transition for how the
+ * cat raises and lowers the violin", 2026-10-24-violin-rest decisions). With a move of 0.4 H up,
+ * the left paw rose to the top of the head (3.3 H above the root, 2.8 H now). With the grip 0.5 H
+ * to the front, the right paw twisted 137° on its forearm in a lift (2026-10-24-violin-poses
+ * decisions).
  *
  * A cat soloist who stands hangs the bow from the right paw with the tip down, a little forward and
  * out, and turns it through the front in the lift and the lowering (`HANGING_BOW`).
@@ -809,12 +810,17 @@ export const BOWED_HOLDS = {
  * kept a crease, and with 50°, the wrist bent 34°. In the fifth position, the paw tilts 65° with
  * `highTilt` (2026-10-20-cat-left-arm decisions).
  *
- * In the rest pose, the top plate of the viola faces back and to the left, toward the body, so
- * that the left paw on the neck turns about 90° on its forearm, on the same side as its 148° in the
- * play. With the top to the front, the paw turned -94° at rest, and the lift and the lowering
- * turned it through 180°: the twist bone of the forearm jumped by 180° and wrung the forearm
- * (user, 2026-10-23: "the cat's ... arm is very twisted when transitioned from rest to play",
- * 2026-10-23-night-fixes decisions).
+ * In the rest pose, the top plate of the viola faces the front and 30° to the left, toward the
+ * audience, as the bridge of a resting violin faces out (`docs/reference/string-technique.md`,
+ * section 2.9, user, 2026-10-24: "why in the rest mode, the cat's viola's back is facing the
+ * audience"). The left paw on the neck turns -81° on its forearm at rest, and the middle turn of
+ * the lift (`liftTurn`) takes it through 0° to the play. With the top to the front, or 15° to the
+ * left, the right paw turned up to 7,437°/s in a lowering with each middle turn that was tried,
+ * because the mix of the bow changed its side in the middle (2026-10-24-violin-review decisions).
+ * Up to 2026-10-24, the top faced back and to the left, because with the top to the front and no
+ * middle turn, the lift turned the left paw through 180° and wrung the forearm (user, 2026-10-23:
+ * "the cat's ... arm is very twisted when transitioned from rest to play", 2026-10-23-night-fixes
+ * decisions).
  */
 const CAT_HOLD = {
   ...BOWED_HOLDS.viola,
@@ -829,9 +835,13 @@ const CAT_HOLD = {
   restPoleR: [0.3, -1, 1],
   restPoleL: [-0.6, -1, 0.3],
   restPlace: 0.4,
-  rest: { axis: LAP_VIOLIN.axis, top: [-0.7, 0, 0.7], lap: { along: 0.95, offset: [0, 0, -0.25] } },
+  rest: {
+    axis: LAP_VIOLIN.axis,
+    top: [-0.5, 0, -0.87],
+    lap: { along: 0.95, offset: [0, 0, -0.15] },
+  },
   liftReach: [0, 0.2, -0.1],
-  liftTurn: { axis: [-0.6, 1, -0.6], top: [0.07, 0.55, 0.84] },
+  liftTurn: { axis: [-0.3, 1, -0.6], top: [0, 0, 1] },
   liftPlace: 1,
   liftTiltL: 45 * MathUtils.DEG2RAD,
   restBow: {

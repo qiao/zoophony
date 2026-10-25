@@ -356,6 +356,17 @@ and at the highest rates the wrist and the elbow move in phase [56 (abstract)].
   fingerboard. Many bassists strike with the side of the index finger. For fast passages, some
   pluck higher on the fingerboard, nearer to the left hand [72].
 
+### 2.9 The violin and the viola at rest
+
+- **The seated rest.** The seated player rests the violin on the left thigh and holds its neck with
+  the left hand [73]. Orchestra violinists sit with their violins upright on their laps [75]. A
+  school orchestra holds the violin "out in front, straight up and down, with the fiddle resting
+  on your knee" [74].
+- **The side of the top plate.** In the standing rest, the violin lies under the right arm with
+  the scroll forward and the bridge facing out [73]. No source of this file gives the side of the
+  top plate in the seated rest. The image of the user shows a seated violinist with the top plate
+  to the front (`docs/research/2026-10-16-bow-rest.md`).
+
 ## 3. Use in the app
 
 Since 2026-10-17 (round `left-hand`), the left hand of the app follows this reference: the position
@@ -457,9 +468,13 @@ A round that changes the motion updates the items.
   carries the instrument by the end of the fingerboard (`BowedHold.liftPlace`), as a player
   brings the violin up by its neck, so that the left elbow opens to at most 137° (rabbit) and
   142° (cat), against 127° on the red fox. At rest, both elbows bend: the rabbit holds the upper
-  neck and the frog above the right knee. In the middle of the move, the scroll of the viola
-  turns toward the left shoulder, and the left paw stays below the top of the head
-  (`docs/decisions/2026-10-24-violin-poses.md`, `docs/research/2026-10-24-violin-moves.md`).
+  neck and the frog above the right knee (`docs/decisions/2026-10-24-violin-poses.md`,
+  `docs/research/2026-10-24-violin-moves.md`).
+- **The violin and the viola at rest** (section 2.9). The rabbit, the red fox, and the cat rest the
+  instrument upright on the left knee and hold its neck with the left paw. The top plate of the
+  violin faces the front, and the top plate of the viola the front and 30° to the left: with the top
+  to the front, the bow paw of the cat turned up to 7,437°/s in a lowering
+  (`docs/decisions/2026-10-24-violin-review.md`).
 - **The string crossing leads the note** (section 2.3). `bowStateAt()` of `pose/strokes.ts` turns
   the bow to the string of the next note in at most 0.08 s, and in at most 0.3 of the time from
   the note start to the next note (`BOW_MOTION.crossSec` and `crossShare`). The turn ends 0.01 s
@@ -744,3 +759,10 @@ Each source opened on 2026-10-17, except where a fact has a mark of section "Sou
     https://theinstrumentalist.com/april-2015/elements-of-double-bass-shifting/
 72. No Treble, "Right-hand technique for upright bass: pizzicato" (2009). Opened on 2026-10-21.
     https://www.notreble.com/buzz/2009/11/09/right-hand-technique-for-upright-bass-pizzicato/
+73. Taylor Violin, "Playing posture", the rest position, standing and seated. Opened on
+    2026-10-24. http://taylorviolin.com/playing-posture
+74. G. Elias, "Tales of an orchestral violinist: sitting correctly", The Strad, 10 March 2021.
+    Opened on 2026-10-24.
+    https://www.thestrad.com/playing-hub/tales-of-an-orchestral-violinist-sitting-correctly/11628.article
+75. Violinspiration, "Proper violin posture in 5 steps", the photo of a seated orchestra. Opened
+    on 2026-10-24. https://violinspiration.com/violin-posture/

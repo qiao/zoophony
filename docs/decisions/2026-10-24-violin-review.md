@@ -12,4 +12,5 @@ images. The user can reverse each decision. Then update its section, and remove 
 | Decision | Section |
 |---|---|
 | The manager: "a dark wedge fold opens under the right armpit" of the cat at the tip. The right elbow of the cat points down, out, and forward at the tip (`poleTipR`, up before): the right paw turns 90° on its forearm (116°), and the narrowest ring of the right arm keeps 0.49 of its axis (0.14). | 5.3 |
+| The user: "why in the rest mode, the cat's viola's back is facing the audience". The cat rest viola faces the front and 30° to the left (`rest.top`), 0.15 H in front of the knee (0.25 H), and turns with the top plate to the body in the middle of the moves, as the rabbit violin (`liftTurn`). The left paw swings 26° at rest (91°). With the top to the front or 15° to the left, the right paw turned up to 7,437°/s in a lowering. | 5.2, 5.3 |
 | Open: the right paw of the cat turns 32° from its accepted grip in the play (`grip turn` of the gate, 12° before), because the forearm rolls with the lower elbow. A new entry of `ACCEPTED_GRIPS` needs the acceptance of the manager of the 2x paw crops. | 9.3 |
