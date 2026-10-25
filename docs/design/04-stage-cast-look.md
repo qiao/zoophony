@@ -498,7 +498,14 @@ mesh are quad tubes (rings at a right angle to the bones), and the weights come 
     cut into a sheet that faces down, and the skin faces of the rim of the notch turn far from the
     skin around them. With their own normals, the notch shows as a jagged dark gap, as if a piece
     of the body is missing. `cut.bodyNormals` names the sides that give the caps of the body, the
-    quads, and the rim (`StudioBody.rim`) the normals of the skin, the rim with no crease angle. A
+    quads, and the rim (`StudioBody.rim`) the normals of the skin, the rim with no crease angle.
+    The seated bind turns a hanging arm up, so the faces of its root meet at sharp angles, and the
+    crease angle splits their normals into a black slot or a hard dark wedge under the raised
+    arm, with no dark color on the faces. `rootNormals` adds the skin faces within a radius of
+    each shoulder joint to the rim, so that the arm root shades as a soft armpit and the facets
+    elsewhere stay. The beaver and the rhino have it. Their rebuilt quad arms kept the slots
+    without it, folded the beaver arms, and put the rhino arms into the belly, so both keep the
+    faces of their meshes (`docs/decisions/2026-10-25-beaver-rhino-arms.md`). A
     raised arm also casts the hard shadow of its faces into the crease between the arm and the
     trunk, and on white fur the shadow shows as black wedges with steps of the
     shadow map along the seam. The rig cannot change these shadows, so the soft shadow edge of the high tier (4.5) decides them. The thick arm of the rhino joins the side of the
