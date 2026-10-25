@@ -101,6 +101,8 @@ reads it (route 3 of `docs/agents/model-work.md`). The steps:
    config, the shape of each rule follows, such as `arm_raise_R` (`raise_rules()`): the move
    that relaxes the faces which the skin turns over in the pose of the rule (`raise_shape()`).
    `raise` holds one rule, or a list of up to four rules for a raised arm or a bent wrist.
+   With `spread`, the move of single vertices of the shape spreads over their neighbors
+   (`spread_shape()`).
    With `upperTwist` of the config, the solve of each shape gives each upper arm the twist bone of
    the app (`upper_twist()`), and the file names the share for `pnpm studio-body`.
 9. Write the GLB file with the code of this script: the materials `fur`, `gloss`, and `chair`,
@@ -3895,6 +3897,33 @@ def raise_shape(rule, bind, tris, weights, heads, down, sheet, earlier=(), upper
     return shape, down_weight, before, after, rounds, int(moved.sum())
 
 
+def spread_shape(shape, points, tris, rule):
+    """Spreads the move of single vertices of a corrective shape over their neighbors (`spread`
+    of a rule of `raise`). For each point of `points` (source units), the vertex of the source
+    nearest to it and `rings` rings of its neighbors take, `rounds` times, the mean of their move
+    and the mean move of their neighbors. The relax of a rule can move one vertex several cm to
+    turn back one face, and the step to its neighbors then shows as a crease in each pose with
+    the shape. Gives the new shape and the vertices of the points."""
+    neighbors = [set() for _ in range(len(shape))]
+    for a, b, c in tris:
+        neighbors[a].update((b, c))
+        neighbors[b].update((a, c))
+        neighbors[c].update((a, b))
+    neighbors = [np.array(sorted(n), int) for n in neighbors]
+    out = shape.copy()
+    seeds = [int(np.argmin(np.linalg.norm(points - np.asarray(p, float), axis=1)))
+             for p in rule['points']]
+    region = np.zeros(len(shape), bool)
+    region[seeds] = True
+    for _ in range(rule['rings']):
+        region[np.concatenate([neighbors[v] for v in np.nonzero(region)[0]])] = True
+    ids = np.nonzero(region)[0]
+    for _ in range(rule['rounds']):
+        mids = np.array([out[neighbors[v]].mean(axis=0) for v in ids])
+        out[ids] = 0.5 * out[ids] + 0.5 * mids
+    return out, seeds
+
+
 def chair_mesh(rule, bind, weights):
     """Makes the chair under the seated body: a seat whose top is the lowest point of the body
     over the seat, four legs, and a back. The shins and the feet hang in front of the seat, and
@@ -4627,6 +4656,11 @@ def main():
         shape, down_weight, before, after, rounds, count = raise_shape(
             rule, bind_all, tris_all, twist_weights, bind_heads, shapes[f'arm_down_{side}'],
             sheet, earlier, upper_share)
+        if 'spread' in rule:
+            shape, seeds = spread_shape(shape, src_all, tris_all, rule['spread'])
+            log(f'raise {target}: the move of the vertices {seeds} spreads over '
+                f"{rule['spread']['rings']} rings, the bind places "
+                f'{[[round(float(x), 4) for x in bind_all[v]] for v in seeds]} u')
         shapes[target] = shape
         earlier.append((rule, shape))
         key = RAISE_KEYS[rule.get('bone')]
