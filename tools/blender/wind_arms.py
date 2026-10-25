@@ -75,6 +75,7 @@ ANIMALS = {
         'cut': {'shoulder': 0.6, 'tilt': 0.0, 'wrist': 0.1},
         'zone': {'x': 0.06, 'radius': 0.08},
         'gap': 0.0085,
+        'cleanPit': {'x': (0.08, 0.13), 'y': (0.48, 0.6)},
         'upper': (0.7, 0.8),
         'fore': 6,
         'texture': 512,
@@ -319,6 +320,51 @@ def step_clean_cut(s):
     return count
 
 
+def step_clean_pit(s):
+    """Collapses the thin faces of the source in front of and under each armpit (Collapse Edges),
+    in the box `cleanPit` of the animal: |x| from `x[0]` to `x[1]` and the height from `y[0]` to
+    `y[1]`, in the units of the studio. On the mouse, the upper arm joins the trunk there, and
+    thin faces of the source with corners of 5° to 10° folded in each pose. While a face in the box
+    has a corner below `CUT_ANGLE`, its shortest edge collapses to its middle, and a merged vertex
+    of a cut loop stays a vertex of the loop. Gives the number of collapsed edges.
+    """
+    import bmesh
+
+    box = s.spec.get('cleanPit')
+    if not box:
+        return 0
+    mesh, fr = s.mesh, s.fr
+    bpy.context.view_layer.objects.active = mesh
+    bpy.ops.object.mode_set(mode='EDIT')
+    bm = bmesh.from_edit_mesh(mesh.data)
+    part = bm.verts.layers.int['arm_part']
+
+    def inside(f):
+        c = f.calc_center_median()
+        x, y = abs(c.x) / fr.height, (c.z - fr.floor) / fr.height
+        return box['x'][0] < x < box['x'][1] and box['y'][0] < y < box['y'][1]
+
+    count = 0
+    for _ in range(200):
+        thin = next((f for f in bm.faces if all(p[part] == 0 or p[part] in (1, 11) for p in f.verts)
+                     and inside(f)
+                     and min(math.degrees(c.calc_angle()) for c in f.loops) < CUT_ANGLE), None)
+        if thin is None:
+            break
+        edge = min(thin.edges, key=lambda e: e.calc_length())
+        code = max(p[part] for p in edge.verts)
+        bmesh.ops.collapse(bm, edges=[edge], uvs=True)
+        count += 1
+        if code:
+            for p in bm.verts:
+                if p.is_valid and p[part] == 0 and p.is_boundary and any(
+                        e.other_vert(p)[part] == code for e in p.link_edges):
+                    p[part] = code
+    bmesh.update_edit_mesh(mesh.data)
+    bpy.ops.object.mode_set(mode='OBJECT')
+    return count
+
+
 def step_clean_bridge(s):
     """Collapses the thin bridge triangles (Collapse Edges), after Beautify Faces.
 
@@ -431,7 +477,7 @@ def step_weights(s):
 STEPS = tuple(
     out for step in va.STEPS
     for out in {va.step_skeleton: (step_skeleton,), va.step_weights: (step_weights,),
-                va.step_cut_and_tube: (step_cut_and_tube, step_clean_cut),
+                va.step_cut_and_tube: (step_cut_and_tube, step_clean_cut, step_clean_pit),
                 va.step_beautify: (va.step_beautify, step_clean_bridge),
                 va.step_paint: (step_paint,)}.get(step, (step,)))
 

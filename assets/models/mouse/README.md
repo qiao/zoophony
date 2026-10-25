@@ -60,7 +60,8 @@ and with arms 1.4 times longer. On 2026-10-24 the user allowed loop edges, retop
 bones for the arm and wrist twist ("add loop edges and retopology and additional bones if needed to
 address them"). `tools/blender/wind_arms.py mouse` replays the Blender session of 2026-10-25 that
 made both files, byte for byte. The faces of the paws, the trunk, the legs, and the head are the
-faces of the user, except the thin faces at the cut loops, whose short edges collapse. The new arm
+faces of the user, except the thin faces at the cut loops and in front of and under the armpits, whose short edges
+collapse. The new arm
 surface lies on the old one. The arms are 1.4 times longer from the shoulder line, as the rig made
 them before (`armFactor` of the config), because a rig with arm segments does not stretch the arms.
 The cut of the shoulder line lies at 0.6 of the upper arm, because the upper arm joins the trunk
@@ -70,10 +71,10 @@ mouse` writes `src/models/studio/mouse.ts`.
 
 | Item | Value |
 |---|---|
-| `mouse-arms.glb` | 1,148,204 bytes, SHA-256 `930e6d0930ab679c0f156974d99d58fb99d8796592099edb0ef9718cf6e31b4b` |
-| Mesh | 1,976 vertices after a weld at 1e-5, 3,892 triangles (3,077 in the source): on each arm a tube of quad rings of 16 vertices, joined to the trunk and the paw with Bridge Edge Loops, with Beautify Faces and Collapse Edges on the bridge triangles |
+| `mouse-arms.glb` | 1,147,060 bytes, SHA-256 `10e0e5e851b8baaec1ca4984188d9cda2cb830a169052972b1ee1d56d904b9ad` |
+| Mesh | 1,961 vertices after a weld at 1e-5, 3,862 triangles (3,077 in the source): on each arm a tube of quad rings of 16 vertices, joined to the trunk and the paw with Bridge Edge Loops, with Beautify Faces and Collapse Edges on the bridge triangles |
 | Material | One material with one base color JPEG: the atlas of the source, and a strip of 512 pixels on top with the fur color of the source arms, baked onto the new faces. No metallic-roughness texture |
-| `mouse-weights.json` | 443,574 bytes, SHA-256 `ff177bb2589bad9aba7f849791ac887eb49c27e926fee4ee8a93ee28ed211b72` |
+| `mouse-weights.json` | 440,106 bytes, SHA-256 `e0df39d510ce81c3c2b3fba27def1986ee8ac87b129c60e99385539f41e84545` |
 | Weights | The automatic weights of Blender with the Weight Paint fixes of the session, on the studio bones and the arm segments and helpers (`armSegments` of the config), for `paintedWeights` of the config |
 | License | Derived from the mesh of the user, who holds its rights |
 
