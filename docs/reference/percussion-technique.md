@@ -229,10 +229,10 @@ shoulder joint to the palm (`docs/decisions/2026-10-20-mesh-badger.md`).
   hand cymbals of the app meet in front of the shoulders, vertical (`PERCUSSION_PLACES`).
 - **The xylophone.** The mallets leave the front of the fists, as the sticks of the snare drum,
   as section 9 gives. The badger moves the body from side to side behind the notes with the feet
-  in place, as section 9 gives with few steps: the hips move up to 2 cm, and the spine leans up
-  to 10° toward the mean place of the notes, in the 0.6 s before each note
-  (`PercussionHold.side`). The short legs of the badger tilt far with a small move of the hips,
-  so the spine takes most of the move. The neck and the head turn back by the side lean, so the
+  in place, as section 9 gives with few steps: the spine leans up to 10° toward the mean place
+  of the notes, in the 0.6 s before each note (`PercussionHold.side`). The hips keep their
+  place, because the short legs of the badger tilt far with a small move of the hips, and the
+  foot skin then sinks into the floor. The neck and the head turn back by the side lean, so the
   eyes stay level and look at the bars. The app differs: the spine also leans 11° forward over the
   bars (`PercussionHold.lean`), because the short arms do not reach the bars from an upright
   body. Section 9 gives no lean. The app also differs in the size of the bars: they are 3 cm

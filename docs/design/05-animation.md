@@ -723,11 +723,12 @@ The code constants of each family hold the times, the angles, and the lengths of
       badger moves its body from side to side behind the notes, as a real player does, with the
       feet in place (`PercussionHold.side`, `pose/side-move.ts`). The body moves toward the mean
       side place of the notes in a time before each note, so near notes give a mean place, and
-      the pose stays a function of the score and the time. The hips move a little, and the
-      spine leans toward the notes. Each leg reaches its bind ankle, and the hips drop so that
-      no leg is longer than in the bind pose, so the feet stay on the floor. The short legs tilt
-      far with a small move of the hips, and the foot skin then follows the shin into the floor,
-      so the spine takes most of the move. The neck and the head turn back by the side lean, and
+      the pose stays a function of the score and the time. The spine leans toward the notes. A
+      side move of the hips (`SideMove.hips`) keeps the feet on the floor: each leg reaches its
+      bind ankle, and the hips drop so that no leg is longer than in the bind pose. The short
+      legs of the badger tilt far with a small move of the hips, and the foot skin then follows
+      the shin into the floor, so its hips keep their place, and the spine takes the whole move.
+      The neck and the head turn back by the side lean, and
       the look to the side turns the head around the vertical of the world over the leaned spine,
       so that the eyes stay level, as a real player looks at the bars. The spine also leans forward over the bars while the
       badger plays (`PercussionHold.lean`), because the short arms do not reach the bars from an

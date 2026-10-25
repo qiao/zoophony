@@ -319,8 +319,9 @@ export const PERCUSSION_HOLDS = {
     reach: 0.53,
     lean: 0.2,
     // The short legs tilt far with a small move of the hips, and the foot skin then sinks into
-    // the floor, so the spine takes most of the move.
-    side: { span: 0.25, hips: 0.02, spine: 10 * MathUtils.DEG2RAD, moveSec: 0.6 },
+    // the floor, so the hips keep their place, and the spine takes the whole move
+    // (2026-10-25-xylophone-reach decisions).
+    side: { span: 0.25, hips: 0, spine: 10 * MathUtils.DEG2RAD, moveSec: 0.6 },
   },
 } as const satisfies Readonly<Record<PercussionInstrument, PercussionHold>>;
 
