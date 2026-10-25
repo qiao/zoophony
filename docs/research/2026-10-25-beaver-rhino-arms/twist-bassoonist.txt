@@ -1,0 +1,12 @@
+| Link | Mean | Largest | Worst sample |
+|---|---:|---:|---|
+| L clavicle>upper | 41.5 | 41.5 | play beethoven-8-4.mid 285.09 s |
+| L upper>fore | 0.0 | 0.0 | play mozart-k191.mid 166.30 s |
+| L fore>ftwist | 28.6 | 28.7 | play beethoven-1.mid 276.15 s |
+| L ftwist>hand | 28.6 | 28.7 | play beethoven-1.mid 261.40 s |
+| R clavicle>upper | 64.7 | 64.8 | play mendelssohn-op61.mid 124.02 s |
+| R upper>fore | 0.0 | 0.0 | play beethoven-8-4.mid 6.09 s |
+| R fore>ftwist | 46.5 | 54.8 | rest mendelssohn-op61.mid rest |
+| R ftwist>hand | 46.5 | 54.8 | rest mendelssohn-op61.mid rest |
+L total twist: mean 98.8, largest 98.8
+R total twist: mean 157.8, largest 159.7

@@ -1,0 +1,26 @@
+| Link | Mean | Largest | Worst sample |
+|---|---:|---:|---|
+| L clavicle>u0 | 3.9 | 4.4 | rest brahms-2.mid rest |
+| L u0>u1 | 25.0 | 25.0 | play brahms-2.mid 705.38 s |
+| L u1>u2 | 25.0 | 25.0 | play boulanger-matin.mid 221.88 s |
+| L u2>u3 | 25.0 | 25.0 | play brahms-2.mid 681.13 s |
+| L u3>elbow | 6.4 | 7.0 | rest boulanger-matin.mid rest |
+| L elbow>f0 | 16.1 | 16.1 | play brahms-2.mid 2.63 s |
+| L f0>f1 | 32.2 | 32.2 | play boulanger-matin.mid 264.88 s |
+| L f1>f2 | 32.2 | 32.2 | play brahms-2.mid 256.13 s |
+| L f2>f3 | 32.2 | 32.2 | play brahms-2.mid 455.38 s |
+| L f3>wrist | 16.1 | 16.1 | play brahms-2.mid 187.13 s |
+| L wrist>hand | 0.0 | 0.0 | play brahms-2.mid 499.13 s |
+| R clavicle>u0 | 2.0 | 2.8 | rest brahms-2.mid rest |
+| R u0>u1 | 14.4 | 14.4 | play brahms-2.mid 438.38 s |
+| R u1>u2 | 14.4 | 14.4 | play brahms-2.mid 687.88 s |
+| R u2>u3 | 14.4 | 14.4 | play brahms-2.mid 511.88 s |
+| R u3>elbow | 4.5 | 5.0 | lift brahms-2.mid wall 0.4 s |
+| R elbow>f0 | 16.1 | 17.2 | rest brahms-2.mid rest |
+| R f0>f1 | 32.2 | 34.5 | rest brahms-2.mid rest |
+| R f1>f2 | 32.2 | 34.5 | rest brahms-2.mid rest |
+| R f2>f3 | 32.2 | 34.5 | rest brahms-2.mid rest |
+| R f3>wrist | 16.1 | 17.2 | rest brahms-2.mid rest |
+| R wrist>hand | 0.0 | 0.0 | play boulanger-matin.mid 198.13 s |
+L total twist: mean 213.9, largest 214.0
+R total twist: mean 178.8, largest 187.3

@@ -1,0 +1,36 @@
+
+> zoophony@0.0.0 arm-check /Users/xueqiaoxu/proj/zoophony/.claude/worktrees/agent-ac2bfab3973e300cf
+> node tools/arm-check.ts bassoonist --glb scratch/runs/rBN/variant-2.glb --base main
+
+Arm gate of 1 roles against main in 61 s. A cell gives the value, the base in parentheses, and the verdict of a value that does not pass.
+
+| Role | Arm | folds p95 (8) | twist p95 (55) | forearm twist p95 (80) | flat p5 (0.55) | paw twist p95 (170) | paw swing p95 (70) | paw jumps (0.5%) | stretch p95 (0.35) | grip turn p50 (45) | move twist max (176) | move turn max (3000) | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| bassoonist | L | 15 (2) FAIL | 18 (29) | 35 (14) FAIL | 0.71 (0.79) FAIL | 57 (57) | 27 (27) | 0.0% (0.0%) | 0.03 (0.05) | 175 (175) OPEN | 57 (57) | 42 (42) | FAIL |
+| bassoonist | R | 15 (4) FAIL | 33 (44) | 58 (37) FAIL | 0.64 (0.77) FAIL | 110 (110) | 39 (39) | 0.0% (0.0%) | 0.09 (0.19) | 163 (163) OPEN | 110 (110) | 157 (157) | FAIL |
+
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| bassoonist | L | folds p95 | play | 11254 | 15 | 15 | 100.0% | 15 at beethoven-1.mid -2.10 s | 15 | 8 | 2 | FAIL |
+| bassoonist | L | twist p95 | rest | 8 | 18 | 18 | 100.0% | 18 at mendelssohn-op61.mid rest | 18 | 55 | 29 | PASS |
+| bassoonist | L | forearm twist p95 | play | 11254 | 35 | 35 | 100.0% | 35 at brahms-2.mid 436.88 s | 35 | 80 | 14 | FAIL |
+| bassoonist | L | flat p5 | play | 11254 | 0.71 | 0.71 | 100.0% | 0.71 at brahms-2.mid 228.13 s | 0.71 | 0.55 | 0.79 | FAIL |
+| bassoonist | L | paw twist p95 | lift | 248 | 57 | 57 | 100.0% | 57 at beethoven-8-4.mid wall 2.8 s | 57 | 170 | 57 | PASS |
+| bassoonist | L | paw swing p95 | rest | 8 | 27 | 27 | 100.0% | 27 at mozart-k191.mid rest | 27 | 70 | 27 | PASS |
+| bassoonist | L | paw jumps | rest | 8 | 0 | 0 | 0.0% | 0 at beethoven-1.mid rest | 0.0% | 0.5% | 0.0% | PASS |
+| bassoonist | L | stretch p95 | play | 11254 | 0.03 | 0.03 | 100.0% | 0.03 at beethoven-1.mid 10.90 s | 0.03 | 0.35 | 0.05 | PASS |
+| bassoonist | L | grip turn p50 | play | 11254 | 175 | 175 | 100.0% | 175 at beethoven-8.mid 171.65 s | 175 | 45 | 175 | OPEN |
+| bassoonist | L | move twist max | move | 9288 | 55 | 57 | 100.0% | 57 at mozart-k191.mid lift 74.83 s, wall 1.47 s | 57 | 176 | 57 | PASS |
+| bassoonist | L | move turn max | move | 9288 | 4 | 35 | 88.8% | 42 at mozart-k191.mid lift 74.83 s, wall 0.42 s | 42 | 3000 | 42 | PASS |
+| bassoonist | R | folds p95 | play | 11254 | 14 | 15 | 100.0% | 15 at beethoven-1.mid 35.90 s | 15 | 8 | 4 | FAIL |
+| bassoonist | R | twist p95 | play | 11254 | 33 | 33 | 100.0% | 33 at brahms-2.mid 721.88 s | 33 | 55 | 44 | PASS |
+| bassoonist | R | forearm twist p95 | lift | 248 | 54 | 58 | 100.0% | 58 at mozart-k191.mid wall 0.4 s | 58 | 80 | 37 | FAIL |
+| bassoonist | R | flat p5 | lift | 248 | 0.66 | 0.64 | 100.0% | 0.63 at mozart-k191.mid wall 0.4 s | 0.64 | 0.55 | 0.77 | FAIL |
+| bassoonist | R | paw twist p95 | rest | 8 | 110 | 110 | 100.0% | 110 at mendelssohn-op61.mid rest | 110 | 170 | 110 | PASS |
+| bassoonist | R | paw swing p95 | rest | 8 | 39 | 39 | 100.0% | 39 at mozart-k191.mid rest | 39 | 70 | 39 | PASS |
+| bassoonist | R | paw jumps | rest | 8 | 0 | 0 | 0.0% | 0 at beethoven-1.mid rest | 0.0% | 0.5% | 0.0% | PASS |
+| bassoonist | R | stretch p95 | play | 11254 | 0.09 | 0.09 | 100.0% | 0.09 at boulanger-matin.mid 129.13 s | 0.09 | 0.35 | 0.19 | PASS |
+| bassoonist | R | grip turn p50 | play | 11254 | 163 | 163 | 100.0% | 163 at beethoven-8-4.mid 510.34 s | 163 | 45 | 163 | OPEN |
+| bassoonist | R | move twist max | move | 9288 | 100 | 110 | 100.0% | 110 at mendelssohn-op61.mid lift 0.00 s, wall 0.01 s | 110 | 176 | 110 | PASS |
+| bassoonist | R | move turn max | move | 9288 | 4 | 29 | 81.3% | 157 at mendelssohn-op61.mid lift 0.00 s, wall 0.35 s | 157 | 3000 | 157 | PASS |
+ ELIFECYCLE  Command failed with exit code 1.
