@@ -1,0 +1,18 @@
+SET deer.harpScale=0.78;harpPlace.side=0;harpPlace.lift=0.017;harpPlace.front=0.44;harpPlace.tilt=0;harpPlace.turn=30deg;harp.lean=8deg;harp.poleL=[-0.3,-1,0];harp.poleR=[1,-1,0.3];harp.restL.pole=[-0.3,-1,0.3];harp.restR.pole=[0.3,-1,0.3] demo boulanger-matin every 4
+play  n  283  strings in body 0.0 cm  frame in body 4.6 cm at 113.38 s [0.072, 0.777, -0.146]  frame gap 0.0..0.0 cm  head gap 6.8 cm at 117.38 s harp [-0.039, 0.963, -0.381] head [-0.037, 1.019, -0.341]
+lift  n   31  strings in body 0.0 cm  frame in body 3.8 cm at -0.82 s [0.074, 0.763, -0.141]  frame gap 0.0..0.0 cm  head gap 7.1 cm at -0.82 s harp [-0.035, 0.959, -0.374] head [-0.020, 1.020, -0.341]
+rest  n    1  strings in body 0.0 cm  frame in body 1.5 cm at -1.62 s [0.095, 0.763, -0.108]  frame gap 0.0..0.0 cm  head gap 15.4 cm at -1.62 s harp [0.002, 0.915, -0.310] head [0.009, 1.045, -0.228]
+lower n   90  strings in body 0.0 cm  frame in body 3.9 cm at 249.54 s [0.068, 0.782, -0.153]  frame gap 0.0..0.0 cm  head gap 6.9 cm at 278.71 s harp [-0.039, 0.963, -0.381] head [-0.033, 1.019, -0.341]
+rest joint hips      [0.000, 0.355, 0.028]
+rest joint chest     [0.000, 0.708, -0.006]
+rest joint neck      [0.000, 0.951, -0.001]
+rest joint head      [0.000, 1.044, -0.005]
+rest joint upperArmL [-0.159, 0.817, -0.003]
+rest joint upperArmR [0.159, 0.817, -0.003]
+rest joint shinL     [-0.148, 0.262, -0.122]
+rest joint shinR     [0.148, 0.262, -0.122]
+rest joint footL     [-0.148, 0.084, -0.122]
+rest joint footR     [0.148, 0.084, -0.122]
+harp soundbox bottom [-0.086, 0.076, -0.501] top [0.117, 0.778, -0.149]
+harp column top [-0.148, 1.027, -0.609] base front [0.031, 0.044, -0.298] base back [-0.164, 0.044, -0.636]
+harp up axis [0.000, 1.000, 0.000]  lean back 0.0 deg

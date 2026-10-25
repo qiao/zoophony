@@ -1,0 +1,7 @@
+# pnpm pose-depth harpist --demo boulanger-matin --gaps --every 6 --set 'harp.poleL=<pole>;harp.poleR=[0.7,-1,0]'
+# columns: play paws, forearms, upper arms in body, forearms in harp, lift and lower depths (cm), head gaps (cm), worst target L and R (mm), targets within 5 mm (%). base = main (55c4cc17) in the scans before the change, else the working tree.
+variant                                           pawB   foreB     upB   foreH    LupB LoforeB   LoupB   headG  LheadG      tL      tR    tgt%
+base                                                 -       -     2.8     1.5     2.5       -     2.7     6.6     6.6       -       -   100.0
+L80                                                  -       -     3.2     1.8     2.8       -     2.9     6.6     6.6       -       -   100.0
+L85                                                  -       -     3.1     1.8     2.7       -     2.9     6.6     6.6       -       -   100.0
+L90                                                  -       -     3.1     1.8     2.6       -     2.8     6.6     6.6       -       -   100.0

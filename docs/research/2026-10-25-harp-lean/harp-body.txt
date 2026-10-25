@@ -1,0 +1,18 @@
+SET (main) demo boulanger-matin every 4
+play  n  283  strings in body 0.0 cm  frame in body 2.2 cm at 113.38 s [0.099, 0.765, -0.121]  frame gap 0.0..0.0 cm  head gap 6.6 cm at 161.38 s harp [0.014, 1.001, -0.342] head [0.020, 1.047, -0.295]
+lift  n   31  strings in body 0.0 cm  frame in body 1.4 cm at -0.82 s [0.099, 0.766, -0.121]  frame gap 0.0..0.0 cm  head gap 6.6 cm at -0.82 s harp [0.014, 1.001, -0.342] head [0.007, 1.047, -0.295]
+rest  n    1  strings in body 0.0 cm  frame in body 0.2 cm at -1.62 s [0.099, 0.765, -0.121]  frame gap 0.0..0.0 cm  head gap 10.4 cm at -1.62 s harp [0.017, 0.994, -0.335] head [0.007, 1.066, -0.260]
+lower n   90  strings in body 0.0 cm  frame in body 1.4 cm at 249.54 s [0.099, 0.766, -0.121]  frame gap 0.0..0.0 cm  head gap 6.6 cm at 249.54 s harp [0.014, 1.001, -0.342] head [0.008, 1.048, -0.295]
+rest joint hips      [0.000, 0.355, 0.028]
+rest joint chest     [0.000, 0.708, -0.006]
+rest joint neck      [0.000, 0.951, -0.001]
+rest joint head      [0.000, 1.044, -0.005]
+rest joint upperArmL [-0.159, 0.817, -0.003]
+rest joint upperArmR [0.159, 0.817, -0.003]
+rest joint shinL     [-0.148, 0.262, -0.122]
+rest joint shinR     [0.148, 0.262, -0.122]
+rest joint footL     [-0.148, 0.084, -0.122]
+rest joint footR     [0.148, 0.084, -0.122]
+harp soundbox bottom [-0.056, 0.317, -0.527] top [0.120, 0.780, -0.149]
+harp column top [-0.032, 1.053, -0.474] base front [0.016, 0.256, -0.372] base back [-0.108, 0.318, -0.638]
+harp up axis [0.088, 0.978, 0.188]  lean back 12.0 deg
