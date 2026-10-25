@@ -55,7 +55,7 @@
  * (`tools/hold-sets.ts`), and `--lines` prints each sample. With several `--set` options, the tool
  * prints a scan: one row for the working tree and one row for each variant (about 3 s each).
  */
-import { MathUtils, Quaternion, Triangle, Vector3 } from 'three';
+import { MathUtils, Matrix3, Matrix4, Quaternion, Triangle, Vector3 } from 'three';
 
 import { GRIP_GAP, volumeMiddle } from './bow-grip.ts';
 import { setHolds } from './hold-sets.ts';
@@ -531,11 +531,7 @@ function tipsOf(posed: PosedSkeleton, paw: PosedPart, side: Side): Vector3[] {
   const orders = TIP_ORDERS.get(posed.model) ?? {};
   let order = orders[side];
   if (!order) {
-    const rotations = new Float32Array(posed.pose.rotations.length);
-    for (let i = 3; i < rotations.length; i += 4) {
-      rotations[i] = 1;
-    }
-    const bind = poseSkeleton(posed.model, { ...posed.pose, rotations });
+    const bind = bindSkeleton(posed);
     const wrist = new Vector3(
       ...(posed.model.skeleton.positions[boneIndex(`hand${side}`)] ?? [0, 0, 0]),
     );
@@ -681,29 +677,90 @@ function shaftContact(posed: PosedSkeleton, tube: Tube, side: Side, paw: PosedPa
       held += AXIS_STEP;
     }
   }
-  const hand = posed.frames[boneIndex(`hand${side}`)];
-  const wrist = hand?.position ?? new Vector3();
-  const tips = tipsOf(posed, paw.part, side);
-  const reach = tips
-    .reduce((sum, p) => sum.add(p), new Vector3())
-    .divideScalar(tips.length)
-    .sub(wrist)
-    .normalize();
-  // The palm of the hand of the player (see `pawContact()`), and the thumb normal to it and to
-  // the fingers: forward in the bind pose, where the fingers point down.
-  const palm = new Vector3(side === 'L' ? 1 : -1, 0, 0).applyQuaternion(
-    hand?.rotation ?? new Quaternion(),
-  );
-  const thumb =
-    side === 'L'
-      ? new Vector3().crossVectors(palm, reach)
-      : new Vector3().crossVectors(reach, palm);
+  // The axes of the visible paw: in the bind pose, the fingers point down and the thumb forward.
+  const turn = pawTurn(posed, side);
+  const fingers = new Vector3(0, -1, 0).applyQuaternion(turn);
+  const thumb = new Vector3(0, 0, -1).applyQuaternion(turn);
   return {
     butt,
     held,
     exit: angleOf(tube.axis, thumb),
-    fingers: angleOf(tube.axis, reach),
+    fingers: angleOf(tube.axis, fingers),
   };
+}
+
+/** The corners of the `hand` bone of each paw in the bind pose, by the model. */
+const BIND_HANDS = new WeakMap<PosedSkeleton['model'], Partial<Record<Side, readonly Vector3[]>>>();
+
+/**
+ * Gives the turn of the visible paw from the bind pose: the rotation that best maps the corners of
+ * the `hand` bone of the bind pose onto the posed corners (Kabsch, by a polar decomposition). The
+ * retarget turns the studio paw in the plane of its palm (`PAW_TURN` of `models/studio-rig.ts`),
+ * so the visible paw can differ from the hand of the player. The curled fingers do not move it.
+ *
+ * @param posed The posed skeleton.
+ * @param side The side.
+ * @returns The turn.
+ */
+function pawTurn(posed: PosedSkeleton, side: Side): Quaternion {
+  const bones: BoneName[] = [`hand${side}`];
+  const hands = BIND_HANDS.get(posed.model) ?? {};
+  let bindCorners = hands[side];
+  if (!bindCorners) {
+    bindCorners = posedPart(bindSkeleton(posed), bones).triangles.flatMap((t: Triangle) => [
+      t.a,
+      t.b,
+      t.c,
+    ]);
+    hands[side] = bindCorners;
+    BIND_HANDS.set(posed.model, hands);
+  }
+  const corners = posedPart(posed, bones).triangles.flatMap((t: Triangle) => [t.a, t.b, t.c]);
+  const bindMiddle = new Vector3();
+  const middle = new Vector3();
+  for (const [i, c] of corners.entries()) {
+    bindMiddle.add(bindCorners[i] ?? c);
+    middle.add(c);
+  }
+  bindMiddle.divideScalar(Math.max(1, corners.length));
+  middle.divideScalar(Math.max(1, corners.length));
+  // The cross covariance: the sum of the posed corner times the bind corner, both centered.
+  const sums = [0, 0, 0, 0, 0, 0, 0, 0, 0];
+  const a = new Vector3();
+  const b = new Vector3();
+  for (const [i, c] of corners.entries()) {
+    a.copy(bindCorners[i] ?? c).sub(bindMiddle);
+    b.copy(c).sub(middle);
+    const bind = a.toArray();
+    const pose = b.toArray();
+    for (let r = 0; r < 3; r++) {
+      for (let k = 0; k < 3; k++) {
+        sums[r * 3 + k] = (sums[r * 3 + k] ?? 0) + (pose[r] ?? 0) * (bind[k] ?? 0);
+      }
+    }
+  }
+  let rotation = new Matrix3().fromArray(sums).transpose();
+  for (let step = 0; step < 60; step++) {
+    const inverse = rotation.clone().invert().transpose();
+    rotation = new Matrix3().fromArray(
+      rotation.elements.map((x, k) => 0.5 * (x + (inverse.elements[k] ?? 0))),
+    );
+  }
+  return new Quaternion().setFromRotationMatrix(new Matrix4().setFromMatrix3(rotation));
+}
+
+/**
+ * Gives the skeleton of a posed player in its bind pose: no rotation on any bone.
+ *
+ * @param posed The posed skeleton.
+ * @returns The bind skeleton.
+ */
+function bindSkeleton(posed: PosedSkeleton): PosedSkeleton {
+  const rotations = new Float32Array(posed.pose.rotations.length);
+  for (let i = 3; i < rotations.length; i += 4) {
+    rotations[i] = 1;
+  }
+  return poseSkeleton(posed.model, { ...posed.pose, rotations });
 }
 
 /**
