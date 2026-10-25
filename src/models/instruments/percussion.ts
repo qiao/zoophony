@@ -170,6 +170,26 @@ export const TRIANGLE = {
   malletTilt: 1.3 as number,
 } as const;
 
+/**
+ * The clip of the triangle and its loop of cord, in meters, in the axes of the piece of the
+ * triangle: the triangle hangs in the plane x-y, along -y, with its top corner 0.05 m below the
+ * origin. The left paw of the badger holds the triangle up, with its palm toward -x and its
+ * fingers along +y, and its skin from 2.6 cm below the origin to 9.2 cm above it, and from 4.7 cm
+ * at -x to 3.8 cm at +x (`docs/research/2026-10-25-grips.md`). Thus the clip runs down the inner
+ * side of the palm, under the curled fingers, and leaves the heel of the paw.
+ */
+export const TRIANGLE_CLIP = {
+  /** The upper end of the clip, in the closed paw. */
+  clip: [-0.025, 0.04, -0.015],
+  /** The lower end of the clip, below the heel of the paw, where the loop goes through it. */
+  clipEnd: [-0.01, -0.032, -0.004],
+  /**
+   * The points where the loop meets the two upper sides of the triangle, just below its top
+   * corner: the distance to each side of the middle, and the height.
+   */
+  loop: [0.006, -0.06],
+} as const satisfies Readonly<Record<'clip' | 'clipEnd', Vec3> & { loop: readonly number[] }>;
+
 /** The faces around the axis of a kettle. */
 const KETTLE_SEGMENTS = 16;
 
@@ -738,9 +758,9 @@ export function buildSmallPercussion(): InstrumentModel {
   const tambourine = stand.build('instrument', hold('floor'));
   const tambourineHead = toVec3(new Vector3(0, 0.045, 0).applyQuaternion(tilt).add(mountAt));
 
-  // The triangle hangs 0.05 m below the clip in the left hand, in the plane x-y. In the bind
-  // pose, it points forward from the hanging hand, as a mallet does, so that it stays above the
-  // floor. It hung 0.2 m down and cut 0.08 m into the floor (review of step 4, P1).
+  // The triangle hangs 0.05 m below the origin of its piece, in the plane x-y. In the bind pose,
+  // it points forward from the hanging hand, as a mallet does, so that it stays above the floor.
+  // It hung 0.2 m down and cut 0.08 m into the floor (review of step 4, P1).
   const side = 0.17;
   const triangle = new PieceBuilder();
   const topCorner: Vec3 = [0, -0.05, 0];
@@ -749,7 +769,15 @@ export function buildSmallPercussion(): InstrumentModel {
   for (let i = 0; i + 1 < corners.length; i++) {
     triangle.rod(corners[i] ?? topCorner, corners[i + 1] ?? topCorner, 0.005, 4, metal, 'metal');
   }
-  triangle.rod([0, 0, 0], topCorner, 0.0015, 3, INSTRUMENT_COLORS.hardware);
+  // A real player holds the triangle by a clip in the left hand, and the triangle hangs in a loop
+  // of cord through the clip (`docs/reference/percussion-technique.md` 8). The clip lies in the
+  // palm of the closed left paw and leaves its heel, and the loop goes around the top corner.
+  const { clip, clipEnd, loop } = TRIANGLE_CLIP;
+  triangle.bar(clip, clipEnd, 0.012, 0.006, metal, 'metal');
+  for (const sideX of [-1, 1]) {
+    const onSide: Vec3 = [sideX * loop[0], loop[1], 0];
+    triangle.rod(clipEnd, onSide, 0.0018, 4, INSTRUMENT_COLORS.bowHair);
+  }
   const barMiddle: Vec3 = [side / 4, -0.05 - (side * Math.sin(60 * MathUtils.DEG2RAD)) / 2, 0];
   const beater = mallet('malletR', 0.15, 0, metal, metal, 'metal', TRIANGLE.malletTilt);
   return {
