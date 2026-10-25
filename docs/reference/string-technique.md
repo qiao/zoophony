@@ -221,6 +221,19 @@ violin, by 0.32 mm on the cello, and by 0.52 mm on the double bass (derived from
   to the ground" [78].
 - **The head.** The player keeps the head straight and holds the instrument between the chin rest
   and the shoulder rest [78]. No source of this file gives the angle of the head.
+- **The left elbow and the left shoulder.** "The left elbow is always mobile underneath the
+  violin." It is more to the right on the G string and in the high positions [79]. In a study of
+  violin students, the left upper arm turned 16° to 25° from the vertical toward the middle of the
+  body (adduction), and the left shoulder (the acromion) moved forward (protraction) by 7.7 mm to
+  9.1 mm in the hold of each player. With the violin further out from the middle of the body, it
+  moved forward by 22.5 mm (standard deviation 7.4 mm), and with the violin 30° nearer to the
+  middle, by 4.8 mm [80].
+- **The size of the viola.** Violas have no fixed size. A shop gives the size as the length of the
+  body: 380 mm to 400 mm for a full viola, 330 mm to 340 mm for a 3/4 viola, and 280 mm to 320 mm
+  for a 1/2 viola [82]. A chart in inches goes from 10 to 16.5 inches. It pairs 12 inches with an
+  arm of 46 cm and 13 inches with an arm of 51 cm, and adults "typically choose between 15, 15.5,
+  and 16+ inch sizes" [81]. The shop measures the left arm extended to the front, from the start
+  of the shoulder to the middle of the open palm [82].
 
 ## 2. The right arm and the bow
 
@@ -806,3 +819,14 @@ Each source opened on 2026-10-17, except where a fact has a mark of section "Sou
     https://violaonline.com/howtoholdtheviola.htm
 78. M. J. Sanchez, "How to hold the fiddle", Fiddle For Dummies. Opened on 2026-10-24.
     https://www.dummies.com/article/academics-the-arts/music/instruments/violin-fiddle/how-to-hold-the-fiddle-146255
+79. S. Fischer, "Basics: Left elbow", The Strad. Opened on 2026-10-25.
+    https://www.simonfischeronline.com/uploads/5/7/7/9/57796211/157_left_elbow.pdf
+80. O. Margulies, M. Nübling, W. Verheul, W. Hildebrandt, H. Hildebrandt, "Determining factors
+    for compensatory movements of the left arm and shoulder in violin playing", Frontiers in
+    Psychology 13:1017039 (2023). Opened on 2026-10-25.
+    https://pmc.ncbi.nlm.nih.gov/articles/PMC9901209
+81. Violinlounge, "Viola size chart: choose the right size viola". Opened on 2026-10-25.
+    https://violinlounge.com/blog/viola-size-chart-choose-the-right-size-viola
+82. Corilon Violins, "Finding a student violin in the proper size", the size chart of the violins
+    and the violas. Opened on 2026-10-25.
+    https://www.corilon.com/gb/library/practical-advice/finding-a-student-violin-in-the-proper-size
