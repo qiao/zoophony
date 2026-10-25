@@ -481,18 +481,25 @@ const FOX_FLUTE = {
 } as const satisfies WindHold;
 
 /**
- * The turns of the trombone hold of the panda while it plays, in degrees (design 5.3). The user
- * chose "B: between (Recommended)" of the round `trombone-fit`: the slide points 35° below the
- * level and 30° to the right. Each set of turns is one change of this constant. The variant A was
- * 35° right, 15° down, and the left shoulder 15° (30° below the level), and the hold before it was
- * 20° right, 25° down, and the left shoulder 9° (40° below the level)
- * (`docs/research/2026-10-18-trombone-fit.md`).
+ * The turns of the trombone hold of the panda while it plays, in degrees (design 5.3). The slide
+ * points 10° below the level and 45° to the right, forward and a little down, as the pandas of
+ * `orchestra-latest.png` hold it and as a trombonist points it toward the audience
+ * (`docs/reference/wind-technique.md` 1.1). The right arm reaches 0.105 m of the slide travel
+ * (`pnpm hold-reach panda --instrument trombone`). Straight ahead and 5° to 10° below the level, the
+ * right paw reached the first position, but the travel was 0 to 3.5 cm. With 50° to the right, the
+ * travel was 13.5 cm, with the slide further to the side. Before 2026-10-25, the slide pointed 35°
+ * below the level and 30° to the right, as the user chose in the round `trombone-fit`
+ * (`docs/research/2026-10-18-trombone-fit.md`), and the bell hung near the knee (manager review of
+ * 2026-10-25, `2026-10-25-grips` decisions).
  */
 const PANDA_PLAY = {
   /** The turn of the slide to the right of the panda, around the mouthpiece. */
-  right: 30,
-  /** The turn of the slide down around the mouthpiece, after the turn right. */
-  down: 20,
+  right: 45,
+  /**
+   * The turn of the slide down around the mouthpiece, after the turn right. The value below 0
+   * turns it up from the 15° below the level of the bind pose.
+   */
+  down: -5,
   /** The forward turn of the left shoulder. */
   shoulderL: 15,
 } as const;
@@ -503,13 +510,19 @@ const PANDA_PLAY = {
  * and the right paw moves the slide. The big round head puts the mouth of the panda 0.40 m in
  * front of its shoulder joints, so with the slide of {@link WIND_HOLDS} straight ahead and 15°
  * down, the grip of the first position is 0.588 m from the right shoulder joint, beyond the reach
- * of the arm, and the slide reach is 0. While the panda plays, the slide turns to its right and
- * then down around the mouthpiece ({@link PANDA_PLAY}), toward the right shoulder, so that the
- * right arm reaches 0.165 m of the travel. A real trombonist points the slide toward the audience,
- * and never down to the floor (`docs/reference/wind-technique.md` 1.1). For the same reach, a
- * slide nearer to the level must turn further to the right: the angle from the front stays about
- * 45°. With 38° right and 12° down (27° below the level), 30% of the play samples folded
- * (`docs/research/2026-10-18-trombone-fit.md`).
+ * of the arm, and the slide reach is 0. While the panda plays, the slide turns 45° to its right
+ * around the mouthpiece, toward the right shoulder, and stays 10° below the level
+ * ({@link PANDA_PLAY}), so that the right arm reaches 0.105 m of the travel. A real trombonist
+ * points the slide toward the audience, and never down to the floor
+ * (`docs/reference/wind-technique.md` 1.1). For the same reach, a slide nearer to the level must
+ * turn further to the right: the angle from the front stays about 45°.
+ *
+ * The left palm faces the inner slide tubes near the mouthpiece brace, and the right palm the
+ * upright slide brace (`faceTube`, `InstrumentGrips.tubeL` of `models/instruments/brass.ts`), and
+ * the fingers curl 90° around them (`gripCurl`), as the left hand of a real trombonist wraps the
+ * slide tubes and the right fingertips hold the brace. Each grip moves toward its tube, 0.1 H on
+ * the left and 0.08 H on the right, because the middle of the big paw is 7 cm (left) and 4.5 cm
+ * (right) from the tube on the grips of the instrument (`pnpm wind-grip trombonist`).
  *
  * The left shoulder turns forward, as the shoulder blade of a real player slides forward when the
  * arm reaches forward. With a square left shoulder, the left upper arm turned 68° from its bind
@@ -528,6 +541,11 @@ const PANDA_TROMBONE = {
       .setFromAxisAngle(Y_AXIS, -PANDA_PLAY.right * MathUtils.DEG2RAD)
       .multiply(new Quaternion().setFromAxisAngle(X_AXIS, -PANDA_PLAY.down * MathUtils.DEG2RAD)),
   ),
+  faceTube: 'palm',
+  aimAcross: 1,
+  gripShiftL: [0, 0.1, 0],
+  gripShiftR: [0, 0.08, 0],
+  gripCurl: curls(90, 90),
 } as const satisfies WindHold;
 
 /**
