@@ -347,7 +347,10 @@ export const ACCEPTED_GRIPS: ReadonlyMap<string, Readonly<Record<Side, number>>>
   ['snare-drummer', { L: -18, R: -6 }],
   ['cymbalist', { L: -16, R: -5 }],
   ['percussionist', { L: -80, R: -28 }],
-  ['xylophonist', { L: -24, R: -24 }],
+  // The spine leans over the bars, and the wrist lifts the head of each mallet over its bar
+  // between strikes (docs/decisions/2026-10-25-xylophone-sway.md), and the review of the 2x paw
+  // crops by the manager on 2026-10-25.
+  ['xylophonist', { L: -28, R: -22 }],
 ]);
 
 /**
