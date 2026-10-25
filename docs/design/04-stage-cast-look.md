@@ -443,7 +443,10 @@ mesh are quad tubes (rings at a right angle to the bones), and the weights come 
   - Weights and shapes. Bone heat gives the weights, and rules and rings of new vertices at the
     joints (`refine.rings`) keep the faces from a fold. The corrective shapes give the source back
     in the standing pose, and up to four shapes of `raise` relax the faces that turn over in a bent
-    arm. The clavicle weights can fade out toward the middle plane of the chest
+    arm. The relax can move one vertex several cm to turn back one face, and the step to its
+    neighbors then shows as a crease line in each pose with the shape. `spread` of a rule spreads
+    the move of that vertex over a ring of its neighbors, as on the bow shoulder of the hippo. A
+    spread of the whole shape loses the relax of the other faces. The clavicle weights can fade out toward the middle plane of the chest
     (`weights.clavicleMiddle`), so that a face on that plane does not take the weights of both
     clavicles, which a bow arm turns far apart. Below a cut of the armpit, a vertex of the trunk can
     give its arm weight to the trunk (`weights.armBelow`), so that a lowered arm does not drag the
@@ -506,7 +509,13 @@ mesh are quad tubes (rings at a right angle to the bones), and the weights come 
     crease angle splits their normals into a black slot or a hard dark wedge under the raised
     arm, with no dark color on the faces. `rootNormals` adds the skin faces within a radius of
     each shoulder joint to the rim, so that the arm root shades as a soft armpit and the facets
-    elsewhere stay. The beaver, the rhino, and the hippo have it. The rebuilt quad arms of the
+    elsewhere stay. The beaver, the rhino, and the hippo have it. A rim corner takes the mean
+    normal of all skin faces at its vertex, and the app moves that normal with the skin of the
+    vertex. A trunk face that shares a corner with the turned arm root, and a face at a notch
+    vertex whose skin faces point in opposite directions, then shade from a normal that their
+    surface does not have, as a soft dark patch under the raised arm. So the hippo keeps in the
+    rim only the faces that the clavicle and the arm move (`rootNormals.armShare`), and no face
+    whose corner normal turns far from its face in the bind (`rootNormals.turn`). The rebuilt quad arms of the
     beaver and the rhino kept the slots without it, folded the beaver arms, and put the rhino arms
     into the belly, so both keep the faces of their meshes (`docs/decisions/2026-10-25-beaver-rhino-arms.md`). A bind that bends
     the elbow splits the normals of the inner elbow in the same way, into short light and dark
