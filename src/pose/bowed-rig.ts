@@ -144,9 +144,10 @@ export interface BowedHold {
   /** The forward turn of the right shoulder bone around y, so that the arm reaches further. */
   readonly reach: number;
   /**
-   * The forward turn of the left shoulder bone around y, in the play and in the rest, so that the
-   * left arm reaches the fingerboard of a floor instrument far in front of a round body. 0 keeps
-   * the shoulder of the bind pose.
+   * The forward turn of the left shoulder bone around y, so that the left arm reaches the
+   * fingerboard: of a floor instrument far in front of a round body, in the play and in the rest,
+   * and of a violin or a viola turned toward the front, in the play only (`shoulderTurnL()` of
+   * `pose/bowed.ts`). 0 keeps the shoulder of the bind pose.
    */
   readonly reachL: number;
   /**
@@ -1320,7 +1321,7 @@ export function stopRangeOf(rig: RigPoints): readonly [low: number, high: number
     rig.armL,
     frames.chest,
     rig.chestBind,
-    shoulderTurnL(rig, new Quaternion()),
+    shoulderTurnL(rig, 1, new Quaternion()),
   ).position;
   const hand = { wrist: new Vector3(), rotation: new Quaternion() };
   let best: [number, number] | null = null;

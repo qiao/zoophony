@@ -317,15 +317,19 @@ export function shoulderTurn(rig: RigPoints, weight: number, out: Quaternion): Q
 
 /**
  * Gives the forward turn of the left shoulder bone, so that the left arm reaches the fingerboard
- * (`BowedHold.reachL`). The turn holds in the rest pose too, because only the hold of a floor
- * instrument has it, and the left hand holds that instrument at its playing place in the rest.
+ * (`BowedHold.reachL`). A violin or a viola on the lap in the rest pose turns it with the weight
+ * of the playing pose, as a player brings the left shoulder forward under the instrument
+ * (`docs/reference/string-technique.md`, section 1.10). A floor instrument keeps the turn in the
+ * rest pose, because the left hand holds it at its playing place in the rest.
  *
  * @param rig The points of the player.
+ * @param weight The weight of the playing pose.
  * @param out The quaternion to write.
  * @returns `out`, with the local rotation of the `shoulderL` bone.
  */
-export function shoulderTurnL(rig: RigPoints, out: Quaternion): Quaternion {
-  return out.setFromAxisAngle(Y_AXIS, -rig.hold.reachL);
+export function shoulderTurnL(rig: RigPoints, weight: number, out: Quaternion): Quaternion {
+  const share = rig.hold.rest ? weight : 1;
+  return out.setFromAxisAngle(Y_AXIS, -rig.hold.reachL * share);
 }
 
 const stringTurn = new Quaternion();
@@ -1207,7 +1211,7 @@ export function poseBowed(
     leftTilt(rig.hold, state.fingerboard) * weight + rig.hold.liftTiltL * 4 * weight * (1 - weight);
   stopHandAt(rig, place, strings, stop, h.curlL * weight, handTilt, finger, handL);
   leftElbow(rig.hold, state, poleL);
-  shoulderTurnL(rig, turnL);
+  shoulderTurnL(rig, weight, turnL);
   writeArm(
     {
       arm: rig.armL,
