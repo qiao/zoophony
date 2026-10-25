@@ -605,10 +605,13 @@ The code constants of each family hold the times, the angles, and the lengths of
     little below the level, and turns as far to the right as the reach of the slide travel needs:
     straight ahead, the right paw reached the first position but almost no travel (`PANDA_PLAY`,
     `docs/decisions/2026-10-25-grips.md`). The left palm faces the inner slide tubes. The right paw
-    holds the slide brace from the right of the slide with its finger tips, as the tips of the
-    thumb and the first two fingers of a real player hold it. The middle of the paw thus stays
-    behind the brace, nearer to the shoulder, and the arm reaches more of the travel
-    (`docs/decisions/2026-10-25-open-grips.md`). The left shoulder turns
+    holds the low part of the slide brace from the right side of the panda, with the palm to the
+    left and the thumb up the brace, as a real player puts the thumb on the top of the brace and
+    turns the wrist sideways to the face or the palm to the floor. A paw on the mouthpiece side of
+    the brace turned the palm to the audience and the thumb down. The slide turns to the right, so
+    the right side of the panda is the far side of the brace, and the arm reaches less of the
+    travel (`docs/decisions/2026-10-25-wind-elbows.md`). The right elbow points down, so that the
+    paw turns less on its forearm. The left shoulder turns
     forward, as the shoulder blade of a real player slides forward when the arm reaches forward
     (`WindHold.reachL`, `docs/research/2026-10-18-panda-folds.md`). Thus the left upper arm does
     not take the whole turn to the grip, and the front of the left shoulder does not fold. The left
