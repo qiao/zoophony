@@ -420,45 +420,29 @@ export const FOX_FLUTE_BACK = 9;
  * The flute hold of the tan fox (design 5.3), the hold of a real flutist (decisions
  * `2026-10-14-fox-flute.md`). The head turns 30° to the left while the fox plays, as Debost
  * writes, and the flute lies 9° back from square to the face, 8° down to the right
- * ({@link FOX_FLUTE_BACK}). The lip plate sits 0.05 H
- * below the mouth, under the long muzzle: at the mouth, the jaw touched the flute. The shoulders
- * stay square and low, with no forward turn of the right shoulder. The left elbow points down and
- * out, and the right elbow out to the side, in line with the shoulder. In the rest pose, the flute
- * stands at the right side with the foot joint down, 10° from the vertical and its foot joint 15°
- * in toward the middle. The closed right paw holds it at the right-hand keys, and its foot joint
- * stands on the top of the right thigh near the knee, as a real flutist rests it vertically on the right leg with the right hand on the
- * right-hand keys (George, `docs/reference/wind-technique.md` 2.4). The left paw leaves its grip
- * ({@link WindHold.restFreeL}), and the left arm hangs down along the side. The right grip moves
- * around the tube (`gripShiftR`, `restGripShiftR`), so that the flute goes through the closed right
- * paw in the play and at rest. At rest, the right elbow points down, back, and a little out, and
- * the paw stays out at the side of the body, where it hung before. Before 2026-10-25, the foot
- * joint stood in the air beside the right knee, 11 cm from the leg. An upright flute with its foot
- * joint on the thigh put the paw nearer to the body, and the right arm went 5 cm into it, so the
- * flute leans in toward the thigh from the paw (`docs/research/2026-10-25-wind-arms.md`). Before that, the flute leaned about 25° out beside the
- * right leg (manager review of 2026-10-24: "the flute slants beside the right leg"), and both paws
- * on a flute across the lap, which players also do (George), flattened both upper arms and flipped
- * the left paw in the lowering.
+ * ({@link FOX_FLUTE_BACK}). The lip plate sits 0.05 H below the mouth, under the long muzzle: at
+ * the mouth, the jaw touched the flute. The shoulders stay square and low, with no forward turn of
+ * the right shoulder. The left elbow points down and out, and the right elbow out to the side, in
+ * line with the shoulder.
  *
- * Before, the flute stood upright at the outer side of the right thigh, with the head joint behind
- * the right arm, and the paw seemed to hold only its lower end (user, 2026-10-24). The paw on the
- * right-hand keys is 0.23 m above the foot joint. An upright flute on the thigh puts the paw higher
- * or nearer to the round chest, and each such place failed the arm gate on the right upper arm
- * (folds, twist, or flat), or put it up to 5 cm into the body (`pnpm arm-check flutist`,
- * `pnpm hold-fit flutist --sets lift,rest,lower`). So the paw stays near its place of 2026-10-17,
- * out by the side, and the flute turns around it until the foot joint comes near the knee: 2.6 cm
- * above the leg (4.3 cm before). The right elbow points down, out, and back.
+ * Each palm faces the flute, and the fingers curl over it (`faceTube`, `gripCurl`), as a real
+ * flutist curves the fingers over the keys (`docs/reference/wind-technique.md` 2.4): the left paw
+ * near the lip plate with the palm toward the player, and the right paw out to the right. Each grip
+ * moves off the tube (`gripShiftL`, `gripShiftR`), so that the finger tips lie on the flute. Before
+ * the rebuilt arms of 2026-10-25, the paws held the flute with the back of the paw, because the
+ * right paw turned 142° on its forearm and flipped; with the arm segments both paws grasp it in
+ * each play sample (`2026-10-25-fox-arms` decisions).
  *
- * On the thighs of 2026-10-16, which slope down to the knees, the paw at 0.66 of the way to
- * the knee did not reach its place, and the left forearm went 2.8 cm into the body. On the top of
- * the knee, 4° from vertical, the right upper arm went 1.6 cm into the body (limit 1.5 cm). With
- * the elbows out to the side, the upper arms folded more faces of the skin than the rest of
- * 2026-10-14 (`docs/research/2026-10-15-flute-rest.md`).
- *
- * With the thighs 25° down and the vertical shins of 2026-10-17, the knees are lower, and the rest
- * of 2026-10-16 put the left upper arm 3.6 cm into the body and the foot joint 5.4 cm above the
- * right leg (2026-10-17-fox-form decisions). The right palm keeps 1.0 cm of reach to its grip
- * (`pnpm hold-reach fox-tan --instrument flute`). An upright flute nearer to the leg put the right
- * upper arm into the body: with the foot joint 2.0 cm above the leg, it went 3.7 cm into the body.
+ * In the rest pose, the flute stands nearly upright at the right side with the foot joint down on
+ * the top of the right thigh, as a real flutist rests it vertically on the right leg with the
+ * right hand on the right-hand keys (George, `docs/reference/wind-technique.md` 2.4). The closed
+ * right paw holds it 0.45 H nearer to the lip plate than in the play, about 0.2 m below the lip
+ * plate on the upper body of the flute, with its fingers on the tube (`restGripShiftR`, `restAim`
+ * 0). Before 2026-10-25, the paw held it near its lower end. The lift moves the right grip around the
+ * flute (`gripAround`): on a straight line, the grip crossed the axis of the tube, and the paw
+ * turned 180° in one frame. With the roll of the play at rest, the paw passed through the tube at
+ * the end of the lift and turned 175°. The elbows point down and out at rest. The left paw leaves
+ * its grip ({@link WindHold.restFreeL}), and the left arm hangs down along the side.
  *
  * The top of the left thigh is out of reach of the left arm: the nearest place of the palm on it
  * is 0.582 m from the shoulder joint, and the arm is 0.545 m (2026-10-17-tan-rest decisions). So
@@ -478,18 +462,21 @@ const FOX_FLUTE = {
   poleR: [1, -0.8, 0],
   rest: holdTurn(0, -15, fluteTurn(0, 80, [0, 0, -1])),
   restShift: [0.8, -0.958, 0.5],
-  restPoleL: [-0.15, -1, 0.38],
-  restPoleR: [0.3, -1, 0.6],
+  restPoleL: [-0.4, -1, 0.38],
+  restPoleR: [0.8, -1, 0.6],
   restFreeL: {
     lap: { along: 0.45, offset: [-0.5, -0.55, -0.12] },
     palm: [0.85, -0.37, 0.38],
     fingers: [0, -1, -0.3],
     arc: [0.57, 0.04, 0.31],
   },
-  faceTube: ['back', 'back'],
+  faceTube: ['palm', 'palm'],
   aimAcross: 1,
-  gripShiftR: [0.05, 0.05, 0],
-  restGripShiftR: [-0.05, 0.03, -0.03],
+  gripShiftL: [-0.04, -0.2, 0.06],
+  gripShiftR: [0, 0.1, -0.14],
+  restGripShiftR: [-0.45, -0.13, -0.08],
+  gripCurl: curls(115, 106),
+  gripAround: true,
 } as const satisfies WindHold;
 
 /**
