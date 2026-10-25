@@ -1423,26 +1423,15 @@ export const TIMPANIST_SWEEP: RoleSweep = {
     { name: 'kettles', surface: instrumentSurface },
   ],
   contact: CONTACT,
-  accepted: [
-    ...['play', 'lift', 'rest', 'lower'].map((samples) => ({
-      part: 'upper arms',
-      into: 'body',
-      samples,
-      depth: 0.03,
-      reason:
-        'The upper arm of the elephant mesh lies on the side of the body above the elbow, so the arm touches the side (design 5.2).',
-      decision: ELEPHANT_DECISIONS,
-    })),
-    ...['play', 'lift', 'lower'].map((samples) => ({
-      part: 'mallets',
-      into: 'kettles',
-      samples,
-      depth: 0.03,
-      reason:
-        'The middle of the ball of a mallet lies on the head of the kettle at the note start (design 5.3).',
-      decision: ELEPHANT_DECISIONS,
-    })),
-  ],
+  accepted: ['play', 'lift', 'lower'].map((samples) => ({
+    part: 'mallets',
+    into: 'kettles',
+    samples,
+    depth: 0.03,
+    reason:
+      'The middle of the ball of a mallet lies on the head of the kettle at the note start (design 5.3).',
+    decision: ELEPHANT_DECISIONS,
+  })),
   targetError: 1e-3,
   hasRole: (score) => score.seats.some((seat) => seat.section === 'timpani'),
   players: (scene) =>
