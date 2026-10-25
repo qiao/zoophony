@@ -20,7 +20,7 @@ fox together.
 | rabbit | the A-pose mesh of the user with quad arm faces and arms 1.15 times longer (`assets/models/rabbit/rabbit-arms.glb`, `tools/blender/violin_arms.py`), rigged by `pnpm rig-mesh rabbit` with Blender weights and arm segments, and a violin of 0.83 | `2026-10-13-mesh-rabbit.md`, `2026-10-23-rabbit-arms.md`, `2026-10-24-rabbit-hold.md`, `2026-10-24-violin-arms.md` | `violinist` |
 | fox-red | the mesh `assets/models/fox/fox.glb`, rigged by `pnpm rig-mesh fox`, with a tail of two bones | `2026-10-14-mesh-fox.md` | `fox-violinist` |
 | fox-tan | the rig of the red fox with a tan palette | `2026-10-14-fox-flute.md` | `flutist` |
-| cat | the mesh `assets/models/cat/cat.glb`, rigged by `pnpm rig-mesh cat` | `2026-10-16-mesh-cat.md` | `violist` |
+| cat | the mesh of the user with quad arm faces, a side wall under each arm, and arms 1.1496 times longer (`assets/models/cat/cat-arms.glb`, `tools/blender/cat_arms.py`), rigged by `pnpm rig-mesh cat` with Blender weights on the arms and arm segments | `2026-10-16-mesh-cat.md`, `2026-10-25-cat-arms.md` | `violist` |
 | dog | the mesh `assets/models/dog/dog.glb`, rigged by `pnpm rig-mesh dog` from a copy with a round inner side of each arm (`dog-arms.glb`), with a cut of each arm seam and a chest share of the inner arm root (`weights.armRoot`) | `2026-10-17-mesh-dog.md` | `cellist` |
 | panda | the mesh `assets/models/panda/panda.glb`, rigged by `pnpm rig-mesh panda` | `2026-10-18-mesh-panda.md` | `trombonist` |
 | hippo | the mesh `assets/models/hippo/hippo.glb`, rigged by `pnpm rig-mesh hippo`, standing at the contrabass | `2026-10-18-mesh-hippo.md` | `bassist` |

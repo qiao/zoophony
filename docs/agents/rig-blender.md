@@ -146,6 +146,11 @@ interface StudioArmSegments {
 - **The joint gaps.** Rings close to a joint give thin faces when the joint bends. On the wolf, the
   elbow rings stand 0.016 units from the joint and the wrist rings 0.0085, because a wide wrist gap
   opened the closed paw (`wristGap` of `wind_arms.py`, `docs/research/2026-10-25-wind-arms.md`).
+- **An arm joined to the trunk.** When the upper arm joins the trunk down to the elbow, cut along
+  the seam, fill a side wall under the arm, and give the tube a flat inner side on the wall that
+  meets it only at a high armpit line (`tools/blender/cat_arms.py`). Put the flat side a little
+  inside the wall and round its edges, else dark slits open at the arm root. Keep the rule weights
+  on the trunk and the first shoulder ring (`docs/research/2026-10-25-cat-arms.md`).
 - **The frame cost.** Each body with `armSegments` has 20 more bone matrices. Run `pnpm frame`
   after a new body uses it.
 
