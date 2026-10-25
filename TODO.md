@@ -356,9 +356,8 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
 - [x] Pig and rabbit: the upper arms of the pig crumpled into flaps, and the bow upper arm of the
       rabbit read as a flat plank. The pig takes round upper arms in a copy of its mesh, and the
       rabbit rounder upper arms and the bow elbow of the red fox (`2026-10-21-arm-form.md`).
-- [ ] Oboe mouse: the arm skin creases against the mesh in 19.6% and 21.4% of the edges in the
-      play, above the limit 14.6% of `pnpm arm-look` (`arm-look-all-main.txt` of the research
-      folder of `2026-10-21-arm-form.md`).
+- [x] Oboe mouse: the arm skin creases against the mesh in 5.9% and 9.5% of the edges in the
+      play with the rebuilt arms (limit 14.6% of `pnpm arm-look`, `2026-10-25-wind-arms.md`).
 - [x] Elephant: the narrow axis of the middle of each upper arm is 0.32 and 0.35 of the wide axis
       in the play, below the limit 0.44 of `pnpm arm-look`. Done: the rig frees each arm at its
       crease with the trunk, 0.55 and 0.47 (`2026-10-22-elephant-crease.md`).
