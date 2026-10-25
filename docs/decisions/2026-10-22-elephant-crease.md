@@ -12,4 +12,4 @@ The user can reverse each decision. Then update its section, and remove its row.
 
 | Decision | Section |
 |---|---|
-| The user: "it's still problematic, there's an unnatural gap between the arm and the body". The free arm of the crease hangs out from the trunk below the shoulder, and a lower top of the cut folded the joined skin in 15% to 100% of the samples. So the timpani elbows point nearer to the body: the pole x goes from 0.7 to 0.45. At 0.2 the forearms went 2.0 cm into the belly, and at 0.35 the arm gate failed on a move twist of 6° (3° on main). | 5.3 |
+| The user: "it's still problematic, there's an unnatural gap between the arm and the body". The free arm of the crease hangs out from the trunk below the shoulder, and a lower top of the cut folded the joined skin in 15% to 100% of the samples. So the timpani elbows point near the body. The pole x of the quad arm tubes is in `2026-10-25-elephant-hippo-creases.md`. | 5.3 |

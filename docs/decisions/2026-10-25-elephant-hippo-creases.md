@@ -16,3 +16,5 @@ and remove its row.
 | The faces within 0.07 units of each elephant elbow joint take the skin normals (`rootNormals.elbow`, `root_rim()` of `tools/blender/rig_mesh.py`). With 0.055 and 0.06, light slivers stayed, and 0.08 smoothed more facets of the forearms. | 4.4 |
 | The dark crease under the left arm of the hippo is the same split at the arm root: with no shadow, its hard edge stays, and the colors probe shows no dark face and the fold probe no fold of the left arm. | 4.4 |
 | The hippo takes `rootNormals.radius` 0.1 units. With 0.14 and 0.18, the arms and the shoulders lost their facets at ±35°. The soft dark under the arm that stays is the shadow and the down-facing skin of a real armpit. | 4.4 |
+| The timpani elbows point a little out: the pole x goes from 0.45 to 0.8 (`PERCUSSION_HOLDS.timpani`). The upper arms then go 2.9 cm into the belly (3.4 cm), and the back shows no gap. The mallets keep their targets and directions. | 5.3 |
+| The elbow pole cannot bring the upper arms to 1.8 cm: the depth stays 2.7 cm or more up to the pole x 1.2, and with the elbows forward. The pole x 0.6 gave 3.1 cm, above the accepted 3.0 cm. | 5.3, 9.3 |

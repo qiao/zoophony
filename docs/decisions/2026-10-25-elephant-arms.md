@@ -21,5 +21,4 @@ its row.
 | Collapse Edges cleans the thin faces under each armpit (`cleanPit`), and the root Smooth spans the top of the shoulder (`paint.root`): the long source faces there folded in each pose. | 4.4 |
 | Only the toes keep the colors of the source (`colors.tone.keep`): with the fingers kept, the tops of the paws showed the warm pink of the texture. | 4.5 |
 | The arm gate gives the right flat p5 0.76 (0.87 on `main`, limit 0.55), past the margin of 0.05, at the shoulder ring. The left arm goes from 0.71 to 0.83, so the worse arm improves. The manager decides. | 9.3 |
-| Open: the upper arms go 3.4 cm into the belly (1.8 cm on `main`, accepted 3.0 cm), at the inner side near the elbow. Each tube variant gave 2.4 cm or more. The elbows of `PERCUSSION_HOLDS.timpani` decide it. | 5.2, 9.3 |
 | Open: short light and dark creases show at each inner elbow from the front, where the thick arm bends about 90°. Five elbow rings made them sharper. | 4.4 |

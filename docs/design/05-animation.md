@@ -662,7 +662,8 @@ The code constants of each family hold the times, the angles, and the lengths of
     (`PercussionHold.across`). The head comes down for the strike. The studio skin twists badly
     when a paw turns far on its forearm (4.4), so the hold takes the real direction with the
     smallest turn of the paw. The elbows of the timpani point down and
-    near the body, as a real timpanist holds them (`poleL`, `poleR`). Elbows out at the height
+    a little out from the body, as a real timpanist holds them (`poleL`, `poleR`). The thick upper
+    arms then go less far into the round belly near the elbows. Elbows out at the height
     of the shoulders roll the upper arms far, and the skin twists at the shoulder (4.4). The
     upper arms touch the side of the body, as the user rule of 2026-10-10 asks, so that no gap
     shows between each upper arm and the trunk from the back. The kettles leave a
