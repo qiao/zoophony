@@ -43,6 +43,10 @@ group of your work before you plan it. A probe that a trap names is in its resea
   finger tips of the skin to that side. Check a palm rule with a curl of the skin
   (`curl-side.ts` of `docs/research/2026-10-25-grips/probes/`), because a rule with the other
   signs turned the back of each wind paw to its tube for two rounds.
+- A palm on its tube can still show to the audience with the thumb down: a woodwind paw behind
+  its tube does so. Put the paw at the side of its own shoulder, and read the thumb and the palm
+  side with `palm-probe.ts` of `docs/research/2026-10-25-wind-palms/`, because `pnpm wind-grip`
+  sees no thumb.
 - The rule `weights.fingers` 0.5 of a rig keeps no paw vertex mainly on the fingers, so a curl
   closes little. Give a role that closes its paw around a tube the whole weights (1), and count
   them with `glb_fingers.py` of the same folder.
