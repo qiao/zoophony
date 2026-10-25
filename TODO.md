@@ -1140,6 +1140,16 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       `2026-10-21-pirates-clip.md` leave a touch in 1% of the samples of the steel drum part of the
       pirates file. A rest direction of 0 removes it, but turns the accepted grip by 36°: show the
       user the crops, and update `ACCEPTED_GRIPS` if the user accepts.
+      The pitch from the strike direction of the snare and the cymbal (`MalletAcross.pitch`,
+      `2026-10-25-percussion-tips.md`) can also keep the heads apart: try it here.
+- [ ] Snare and cymbal grips: the pitch between strikes turns the play median of the paw by 13°
+      to 23° from `ACCEPTED_GRIPS`, so `pnpm arm-check --base main` fails on the grip turn and the
+      paw swing, inside their limits. Show the user the crops of
+      `docs/research/2026-10-25-percussion-tips/`, and update `ACCEPTED_GRIPS` if the user
+      accepts.
+- [ ] Snare and cymbal rest: the arms hang, so the tips point forward beside the drum and the
+      plate, 5 cm to 9 cm outside the rim (design 5.2). `ready` keeps the tips over the instrument
+      also at rest, as for the bass drum, and removes the lift. Ask the user.
 - [ ] Badger xylophone reach: the left arm misses its bars by 38 mm (median) on the steel drum part
       of the pirates file, and the forearms go 3.5 cm into the body in 11% of the play samples
       (`docs/research/2026-10-21-pirates-clip.md`). This waits for the xylophone task above.
