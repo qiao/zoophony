@@ -1142,11 +1142,9 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       user the crops, and update `ACCEPTED_GRIPS` if the user accepts.
       The pitch from the strike direction of the snare and the cymbal (`MalletAcross.pitch`,
       `2026-10-25-percussion-tips.md`) can also keep the heads apart: try it here.
-- [ ] Snare and cymbal grips: the pitch between strikes turns the play median of the paw by 13°
-      to 23° from `ACCEPTED_GRIPS`, so `pnpm arm-check --base main` fails on the grip turn and the
-      paw swing, inside their limits. Show the user the crops of
-      `docs/research/2026-10-25-percussion-tips/`, and update `ACCEPTED_GRIPS` if the user
-      accepts.
+- [x] Snare and cymbal grips: the pitch between strikes turns the play median of the paw by 13°
+      to 23° from `ACCEPTED_GRIPS`. Done: the manager accepted the 2x paw crops of
+      `docs/research/2026-10-25-percussion-tips/` and set the new medians in `ACCEPTED_GRIPS`.
 - [ ] Snare and cymbal rest: the arms hang, so the tips point forward beside the drum and the
       plate, 5 cm to 9 cm outside the rim (design 5.2). `ready` keeps the tips over the instrument
       also at rest, as for the bass drum, and removes the lift. Ask the user.
