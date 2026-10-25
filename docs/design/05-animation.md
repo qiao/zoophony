@@ -316,7 +316,9 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
   straight, far in front of the round belly. Near the chin, the instrument goes smoothly back to
   the path of its tail end (`CARRY_FADE` of `pose/bowed.ts`), because a carry up to the chin
   brings the tail end into the chest from below. The long arms of the red fox reach the neck with
-  the tail end on the path. The viola of the cat rests with the top plate toward the audience, and
+  the tail end on the path, and its violin also turns upright with the top plate to the chest in
+  the middle of the move, so that its left paw does not turn past 180° on the forearm
+  (`docs/decisions/2026-10-25-string-angle.md`). The viola of the cat rests with the top plate toward the audience, and
   turns with the top plate to the body in the middle of the move, as the violin of the rabbit, so
   that the twist of the left paw on its forearm does not pass 180°.
 - **Cello between the knees.** The seated dog keeps the cello at its playing place, as a seated

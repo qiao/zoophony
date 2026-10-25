@@ -673,7 +673,13 @@ const SHOULDER_HOLD = {
  * upper arm 5.0 cm into the body at rest, and this pole 2.4 cm (2026-10-25-fox-arms decisions). The
  * left elbow points down and a little back. In the lift and the lowering, the tail end
  * of the violin moves on its path (`liftPlace` null): the long left arm of the fox reaches the neck
- * there with the elbow bent to 99° to 127° (2026-10-24-violin-poses decisions).
+ * there with the elbow bent to 99° to 127° (2026-10-24-violin-poses decisions). In the middle, the
+ * violin turns upright with the top plate to the body, as the violin of the rabbit (`liftTurn`),
+ * and moves 0.1 H up and 0.2 H to the front (`liftReach`): with a direct turn, the left paw twist
+ * passed 180° once in each move, and the paw turned 17,985°/s (147° and 824°/s now). With the turn
+ * and no move, the violin went 5.6 cm into the body in the lift. The bow hair points to the front
+ * and a little up in the middle (the via of `UPRIGHT_BOW` with its own hair and reach): with the
+ * hair down, the right paw turned 17,038°/s in a lowering.
  *
  * The left elbow turns toward the body by 2° for each lower string of the finger: with the 5° of
  * the chin hold, the left forearm went 2.4 cm into the violin in the middle of the lift and of the
@@ -705,8 +711,8 @@ const FOX_HOLD = {
   restPoleR: [0.5, -1, 0.5],
   restPlace: CHIN_HOLD.restPlace,
   rest: { ...LAP_VIOLIN, lap: { along: 0.8, offset: [0, -0.18, -0.2] } },
-  liftReach: [0, 0, 0],
-  liftTurn: null,
+  liftReach: [0, 0.1, -0.2],
+  liftTurn: SHOULDER_HOLD.liftTurn,
   liftPlace: null,
   liftTiltL: 0,
   liftPoleL: null,
@@ -714,7 +720,7 @@ const FOX_HOLD = {
     lap: { along: 0.55, offset: [0.5, -0.1, -0.15] },
     tip: UPRIGHT_BOW.tip,
     hair: UPRIGHT_BOW.hair,
-    via: { ...UPRIGHT_BOW.via, reach: [0.2, 0.2, -0.4] },
+    via: { ...UPRIGHT_BOW.via, hair: [0, 0.3, 1], reach: [0.2, 0.2, -0.4] },
   },
 } as const satisfies BowedHold;
 
