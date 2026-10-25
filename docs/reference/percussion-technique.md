@@ -200,7 +200,12 @@ shoulder joint to the palm (`docs/decisions/2026-10-20-mesh-badger.md`).
   together (a V of about 20°). The elbows point down and out.
 - **The triangle and the tambourine.** The left paw holds the triangle by its clip at the height
   of the mouth of the badger, below the eye level of section 8, because the short arm reaches no
-  higher in front of the long snout. The beater in the right paw strikes the triangle, and the
+  higher in front of the long snout. The clip lies in the palm under the curled fingers and
+  leaves the heel of the paw, and the triangle hangs from it in a loop of cord, as section 8 gives
+  (`TRIANGLE_CLIP` of `src/models/instruments/percussion.ts`). Before 2026-10-25, a thin cord of
+  1.5 mm joined the heel of the paw to the triangle, and the triangle seemed to float below the
+  paw. The paw of the app stands with the fingers up, and a real player holds the clip between
+  the thumb and the fingers at eye level: no source of section 11 gives the turn of the hand. The beater in the right paw strikes the triangle, and the
   tambourine stands on a stand at the front right, where section 8 gives a tambourine in the hand.
 - **The cymbals.** The badger plays a suspended cymbal, as section 7 gives for a part "with
   mallet": its short arms cannot hold hand cymbals of the smallest real size (14 inches) out of its
