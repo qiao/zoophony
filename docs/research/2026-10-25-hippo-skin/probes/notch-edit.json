@@ -1,0 +1,1 @@
+{"source": "assets/models/hippo/hippo.glb", "output": "scratch/glb/hippo-notch.glb", "weld": 1e-05, "metersPerUnit": 1.600908, "note": "experiment", "edits": [{"method": "hull", "side": "R", "mirror": false, "vertices": [663, 669, 695, 1231, 1232, 1222, 1226], "exclude": [662, 664, 665, 681, 682, 686, 687, 690, 691], "ring": 0.07, "share": 0.7, "cap": 0.012}]}
