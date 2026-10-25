@@ -703,7 +703,9 @@ The code constants of each family hold the times, the angles, and the lengths of
       front of it, as an orchestra plays a part "with mallet" (`SpeciesParams.cymbalForm`). The
       yarn mallets take the grip of the snare sticks, and the paws strike in turn near the edge,
       opposite each other, as a real suspended cymbal roll (`SUSPENDED_CYMBAL_HOLD`,
-      `docs/decisions/2026-10-20-badger-cymbals.md`).
+      `docs/decisions/2026-10-20-badger-cymbals.md`). Between strikes, each mallet keeps its
+      strike direction, and the wrist lifts the head over its spot near the edge, as with the
+      snare sticks.
     - The xylophone mallets take the grip of the snare sticks, as a real player holds them. The
       xylophone of the app is wider than the reach of the short arms, and the body does not move
       from side to side, so the outer bars stay out of reach until the user chooses a smaller

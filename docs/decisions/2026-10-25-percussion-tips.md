@@ -14,3 +14,4 @@ measures. The user can reverse each decision. Then update its section, and remov
 | Cause: between strikes, the paw turned the stick to a rest direction across the forearm (`MalletAcross.rest`). The forearms point out, so the turn swung each tip out by 23° to 31° about the grip, over the rim. | 5.3 |
 | A hold can keep the strike direction of the mallet between strikes, and lift the head with the wrist around the level axis normal to the forearm (`MalletAcross.pitch`). The paw does not twist, and the tip stays over its spot. | 5.3 |
 | Snare drum: pitch 0.9 rad. The tip rests about 17 cm above its spot and 4 cm from it, near the 8 inches of a full stroke (reference 6). The paw swing grows from 32° to 50° (limit 70°). | 5.3 |
+| Suspended cymbal: pitch 0.7 rad. The head rests about 12 cm above its spot, as on main, and 3 cm in from the rim. At "crash" (17 ms after the strike), the head is 0.4 cm from its spot, where main swept it 5 cm out, past the rim. | 5.3 |

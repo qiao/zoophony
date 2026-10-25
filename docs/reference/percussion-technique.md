@@ -217,7 +217,10 @@ shoulder joint to the palm (`docs/decisions/2026-10-20-mesh-badger.md`).
   mallet": its short arms cannot hold hand cymbals of the smallest real size (14 inches) out of its
   round body (`docs/decisions/2026-10-20-badger-cymbals.md`). The cymbal is 0.40 m wide (about 16
   inches), level on a stand. The yarn mallets take the grip of the snare sticks, and the paws
-  strike in turn about half an inch in from the edge, opposite each other, as section 7 gives. The
+  strike in turn about half an inch in from the edge, opposite each other, as section 7 gives.
+  Between strikes, each mallet keeps its strike direction seen from above, and the wrist lifts
+  the head about 12 cm above its spot (`MalletAcross.pitch`). The head stays over the plate,
+  about 3 cm in from the rim. No source of section 11 gives the height between strikes. The
   roll of the app is the alternate strikes of the notes. The app has no muffling of the plate. The
   hand cymbals of the app meet in front of the shoulders, vertical (`PERCUSSION_PLACES`).
 - **The xylophone.** The mallets leave the front of the fists, as the sticks of the snare drum,
