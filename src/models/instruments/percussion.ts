@@ -86,6 +86,10 @@ export const XYLOPHONE = {
    * mallets put the wrists of the badger into its belly.
    */
   front: 0.4,
+  /** The gap between the far end of a natural bar and the near end of the sharp bar behind it. */
+  rowGap: 0.02,
+  /** The radius of the head of each mallet. */
+  head: 0.018,
   /** A mallet strikes a sharp bar this far from its near end, so that the arms reach it. */
   sharpStrike: 0.04,
   /**
@@ -866,7 +870,7 @@ function barTop(key: number): readonly [top: Vec3, length: number] {
   const index = naturalsBelow(key);
   const length = barLength(index / (NATURALS - 1));
   if (SHARPS.has(key % 12)) {
-    const near = x.front + length + 0.02;
+    const near = x.front + length + x.rowGap;
     return [[left + index * x.pitch, x.barHeight + 0.02, -(near + length / 2)], length];
   }
   return [[left + (index + 0.5) * x.pitch, x.barHeight, -(x.front + length / 2)], length];
@@ -932,7 +936,7 @@ export function buildXylophone(): InstrumentModel {
   const left = mallet(
     'malletL',
     0.3,
-    0.018,
+    x.head,
     INSTRUMENT_COLORS.drumShell,
     undefined,
     undefined,
@@ -941,7 +945,7 @@ export function buildXylophone(): InstrumentModel {
   const right = mallet(
     'malletR',
     0.3,
-    0.018,
+    x.head,
     INSTRUMENT_COLORS.drumShell,
     undefined,
     undefined,
