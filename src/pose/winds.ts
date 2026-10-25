@@ -782,7 +782,7 @@ const WOLF_CLARINET_FORWARD = -5;
  * the mouth, the grips are 0.34 m and 0.36 m from the shoulder joints, and the mouthpiece no
  * longer goes into the jaw. Each paw aims across the tube (`aimAcross`) and half toward the side
  * across it (`aimSide`), and its grip moves around the tube (`gripShiftL`, `gripShiftR`). Each
- * palm faces the tube (`faceTube`), and the fingers curl 80° over its front (`gripCurl`), so that
+ * palm faces the tube (`faceTube`), and the fingers curl 80° (left) and 110° (right) over its front (`gripCurl`), so that
  * the paws close around the clarinet from the side of the body, as a clarinetist curves the
  * fingers over the tube with the thumb behind it. With the back of each paw to the tube before
  * 2026-10-25, the paws showed as round fists on the tube. On the grips of the instrument, 2.5 cm
@@ -790,9 +790,15 @@ const WOLF_CLARINET_FORWARD = -5;
  * 7.6 cm and 8.3 cm from the tube (user, 2026-10-24: "they are not even holding the
  * instrument"). The left grip moves 0.2 H down the tube, because 8.5 cm above the shoulder joint,
  * the forearm rose steeply and the retarget turned the paw up along the tube (`PAW_TURN` of
- * `models/studio-rig.ts`). Both grips move 0.12 H toward the axis, and the right grip 0.02 H
- * toward its own side, so that the middle of each paw is 2.1 cm from the axis in the play, with
- * the palm on the tube (`pnpm wind-grip clarinetist`, `2026-10-25-grips` decisions).
+ * `models/studio-rig.ts`). The left grip moves 0.12 H toward the axis, so that the middle of the
+ * left paw is 2.1 cm from the axis in the play, with the palm on the tube (`pnpm wind-grip
+ * clarinetist`, `2026-10-25-grips` decisions). The right grip moves 0.24 H toward the axis and
+ * past it, and 0.07 H toward its own side, at rest too, and the right fingers curl 110°, so that
+ * the middle of the long right paw lies behind the lower joint at its right, and the finger tips
+ * close over its front, as the fingers of a real clarinetist curve over the lower joint with the
+ * thumb behind it. Before, the right grip moved 0.12 H toward the axis, the paw closed into a fist
+ * at the left of the tube, and the finger tips stood 4.3 cm off it (`2026-10-25-open-grips`
+ * decisions).
  *
  * The long muzzle puts the tip of the nose far in front of the mouth, and at 45° the grips moved
  * further forward: the left paw missed its grip by 2.4 cm and the right paw by 6.1 cm. So in round
@@ -843,11 +849,11 @@ const WOLF_CLARINET = {
   aimAcross: 1,
   aimSide: 0.5,
   gripShiftL: [0.2, 0.12, 0],
-  gripShiftR: [0.05, 0.12, -0.02],
+  gripShiftR: [0.05, 0.24, -0.07],
   restGripShiftL: [-0.22, 0.06, 0.03],
-  restGripShiftR: [-0.33, 0.12, -0.02],
+  restGripShiftR: [-0.33, 0.24, -0.07],
   restAim: 1,
-  gripCurl: curls(80, 80),
+  gripCurl: curls(80, 110),
 } as const satisfies WindHold;
 
 /**
