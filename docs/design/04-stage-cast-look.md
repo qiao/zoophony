@@ -354,8 +354,9 @@ twist bone (`docs/decisions/2026-10-19-arm-skin.md`).
 
 A mesh rig can instead give each arm the bones of a rigger, as on the Rigify rabbit of `ode.html`
 (`armSegments` of the config, `docs/decisions/2026-10-24-polar-bear-arms.md`), as the polar bear,
-the rabbit, the mouse, the wolf, and the cat do (`docs/decisions/2026-10-24-violin-arms.md`,
-`docs/decisions/2026-10-25-wind-arms.md`, `docs/decisions/2026-10-25-cat-arms.md`): 4 deform segments
+the rabbit, the mouse, the wolf, the cat, and the elephant do
+(`docs/decisions/2026-10-24-violin-arms.md`, `docs/decisions/2026-10-25-wind-arms.md`,
+`docs/decisions/2026-10-25-cat-arms.md`, `docs/decisions/2026-10-25-elephant-arms.md`): 4 deform segments
 on the upper arm and on the forearm, and a helper bone at the elbow and at the wrist. The skin of
 the arm hangs on them, and the upper arm, the forearm, and the forearm twist bone only drive them.
 The app turns them from the joints of the pose, so each song keeps the live pose (`poseArm()`).
@@ -529,12 +530,12 @@ mesh are quad tubes (rings at a right angle to the bones), and the weights come 
     trunk has a plane of the split out of the crease where they meet, so the free arm is only the
     outer shell of the arm, closed by a flat cap: a thin plate with no armpit. The rig can fit a
     plane through the concave edges of that crease and free the whole arm out of it
-    (`weights.armCrease`). The elephant has a mesh in an A-pose since 2026-10-23, with the arms
-    apart from the trunk, and the user said: "do not cut its arm or create a dent in the arm", then
-    chose to keep the faces of the mesh with no split. So its rig has no cut, no crease rule, and
-    no split, and the line rule takes only the corners on the line (`weights.line.angle` 170),
-    because the long arm faces of the mesh, up to the whole arm, mixed the clavicle and paw
-    weights at the middle corners.
+    (`weights.armCrease`). The elephant has a mesh in an A-pose, with the arms apart from the
+    trunk, and the user said: "do not cut its arm or create a dent in the arm", then chose to keep
+    the faces of the mesh with no split. So its rig has no cut, no crease rule, and no split, and
+    the line rule takes only the corners on the line (`weights.line.angle` 170). The long faces
+    of its arms showed dark shards on the bent upper arms, so its rig reads a copy with quad tube
+    arms that lie on the arms of the mesh, with no dent (below).
   - Upper arm form. A mesh whose arm is free of the trunk only from the elbow down has no upper
     arm of its own: the upper arm is a bulge of the trunk wall, and each turn of the arm crumples
     the wall into flaps. No weight rule, cut, ring, or shape fixes it. The rig of the pig reads a
@@ -571,7 +572,13 @@ mesh are quad tubes (rings at a right angle to the bones), and the weights come 
     the trunk down to the elbow, so its copy also gets an armpit (`tools/blender/cat_arms.py`): a
     cut along the seam where the arm meets the trunk, a side wall of the trunk under the arm, and
     a tube whose flat inner side lies on the wall and meets it only at the armpit line, high under
-    the shoulder. The trunk and the first ring of the shoulder keep the rule weights.
+    the shoulder. The trunk and the first ring of the shoulder keep the rule weights. The
+    elephant has such arms since 2026-10-25 (`tools/blender/elephant_arms.py`), with the length
+    and the thickness of its mesh. Its arms are as thick as half of their length, so its cut
+    planes stand at a right angle to the arm, the wrist cut lies further out on the paw, and the
+    rings of the elbow stand further from the joint, so that the bend of the timpani hold spreads
+    over more faces. A tilted cut plane or a near wrist cut crossed the nearest ring and turned
+    the bridge faces over.
     `pnpm arm-look` measures the
     crease of the arm skin against the source and the section of the upper arm, with limits from the red fox
     (`docs/decisions/2026-10-21-arm-form.md`).
@@ -1380,7 +1387,8 @@ of three.js always blends four bones, so the second bone adds no shader work.
   studio, two eye bones for the pea eyes, and the optional bones (`OPTIONAL_STUDIO_BONES`): the
   tip of a tail of two bones (`tail_tip`: the red fox, the tan fox, the cat, the dog, the mouse,
   the beaver, the wolf, and the monkey), the jaw of a beak that opens (`jaw`: the penguin), and
-  the arm segments and helpers (`ARM_SEGMENT_BONES`: the polar bear, 4.4).
+  the arm segments and helpers (`ARM_SEGMENT_BONES`: the polar bear, the rabbit, the mouse, the
+  wolf, the cat, and the elephant, 4.4).
   The optional bones come after the other bones, so that a new one keeps each other index. The rabbit, the panda,
   the hippo, the pig, the badger, the rhino, the deer, and the penguin have a tail
   ball on one tail bone, with no tip, and so do the bear and the polar bear. Each vertex follows up to four of them. The
@@ -1388,7 +1396,7 @@ of three.js always blends four bones, so the second bone adds no shader work.
   writes their matrices from the pose of the player. So the pose code drives a studio body as
   each other body. A pose also holds the matrices of the twist bones of the upper arms
   (`UPPER_TWIST_BONES`), after the bones of the player. Only a body with `upperTwist` (4.4), the
-  hippo, the elephant, and the rhino, puts weight on them: each one turns with its upper arm, less the rest of the roll from the chest.
+  hippo, the pig, and the rhino, puts weight on them: each one turns with its upper arm, less the rest of the roll from the chest.
 - The arm segments of a body with them take the skin of the arms. `poseArm()` writes each segment
   from the turns of its arm, around the joint at the start of its part: the shoulder for the upper
   arm, the elbow for the forearm and the elbow helper, and the wrist for the wrist helper. The
