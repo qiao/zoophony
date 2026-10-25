@@ -1,5 +1,13 @@
 {
-  "source": "assets/models/cat/cat.glb",
+  "source": "assets/models/cat/cat-arms.glb",
+  "sourceNote": "The mesh of the user of 2026-10-16 (assets/models/cat/README.md), with new faces on each arm. The user said on 2026-10-24: \"note that there's significant twisting happening for the arms and wrists. add loop edges and retopology and additional bones if needed to address them\". The upper arm of the user mesh joins the side of the trunk down to the elbow, so the new faces also make an armpit: a cut along the seam where the arm meets the trunk, a side wall of the trunk under the arm, and a quad tube whose flat inner side lies on the wall and meets it only at the armpit line. tools/blender/cat_arms.py replays the Blender session that made it. The faces of the paws, the trunk, the legs, and the head are the faces of the user. The file of the user, cat.glb, stays unchanged.",
+  "paintedWeights": "assets/models/cat/cat-weights.json",
+  "paintedLower": ["root", "hips", "spine", "spine1", "chest", "neck", "head", "ear_L", "ear_R", "thigh_L", "shin_L", "foot_L", "toes_L", "thigh_R", "shin_R", "foot_R", "toes_R", "tail"],
+  "paintedNote": "The weights of the arm tubes are the automatic weights of Blender with the Weight Paint fixes of tools/blender/cat_arms.py. The trunk, the side walls, the socket of each arm, and the first ring of each shoulder hang only on the bones of paintedLower after the fixes, so they keep the rule weights of weights: the shoulder turns with the rules of the user mesh. With Blender weights on the chest, the faces of the chest in front of each shoulder turned over in the play.",
+  "armSegments": {
+    "helper": 0.017,
+    "note": "Each upper arm and each forearm has 4 deform segments, and each elbow and wrist a helper bone of this length in units, as on the rabbit. The app turns them from the joints of the pose (poseArm() of src/models/studio-rig.ts). They replace the shapes of raise and the rings of refine."
+  },
   "output": "assets/models/cat/cat.rig.glb",
   "name": "Cat",
   "weld": 1e-5,
@@ -8,17 +16,15 @@
     "reach": 0.5452,
     "note": "The scale puts the standing ear tips 1.758 m above the floor, the ear tips of the red fox of the app, because the user chose the size of the fox on 2026-10-16 (\"1.76 m, as the fox\"). The leg factor 1.5 raised the ear tips from 1 to 1.0725 units, so the scale is 1.639161 m for each unit (docs/research/2026-10-16-cat-mesh/arm-factors-legs.txt). The scale stays 1.639161 m for each unit since then. The trunk factor of 2026-10-17 keeps the legs, so the cat is shorter: the standing shoulder joints are 0.636146 units, 1.042745 m, above the floor, and the depth factor raises them to 0.636239 units, 1.042897 m (keptHeight() of tools/rig-mesh.ts, docs/research/2026-10-16-cat-form/). At the shoulder joints of the parametric cat of main (0.55233 m), the cat was 0.868 m high to the ear tips (landmark-probe.txt). The reach is the reach of the red fox of the app, 0.5452 m from the left shoulder joint to the middle of the palm, because the user chose it on 2026-10-16 (\"Fox reach\"), as for the fox (\"1.08x, rabbit reach\"). The viola hold of the cat moves the viola back toward the neck until the left paw reaches the nut. With no --check, pnpm rig-mesh stops when the reach is more than 1% from this reach."
   },
-  "armFactor": 1.1496,
-  "armFactorNote": "The factor of the upper arm and the forearm that gives the reach of app.reach from the joints below at the scale of app.shoulders. pnpm rig-mesh cat --check measured 0.4791 m with no factor at this scale, so the factor of the reach of the red fox (0.5452 m) is 1.1496. The trunk factor and the longer legs keep the scale and the arms, so the factor stays (docs/research/2026-10-16-cat-trunk/). With the leg factor 1 and the ear tips at 1.758 m, the factor was 1.0662, because the shorter body had a larger scale. At the shoulder joints of the parametric cat with the leg factor 1, the reach with no factor was 0.2538 m, and the factor of the reach of the red fox 2.2444 (docs/research/2026-10-16-cat-mesh/arm-factors.txt, arm-factors-legs.txt).",
+  "armFactor": 1,
+  "armFactorNote": "The factor of the upper arm and the forearm in the rig: 1, because the rig with arm segments does not stretch the arms. The arms of cat-arms.glb are already 1.1496 times longer than the arms of the user mesh, with the cross-section 0.85 of the user mesh (step_shape() of tools/blender/cat_arms.py, the armGirth of 2026-10-17: the user said that the arms of the cat \"seem too muscular\"), and the arm joints below are the joints of the longer arms. The factor 1.1496 gives the reach of app.reach from the joints below at the scale of app.shoulders. pnpm rig-mesh cat --check measured 0.4791 m with no factor at this scale, so the factor of the reach of the red fox (0.5452 m) is 1.1496. The trunk factor and the longer legs keep the scale and the arms, so the factor stays (docs/research/2026-10-16-cat-trunk/). With the leg factor 1 and the ear tips at 1.758 m, the factor was 1.0662, because the shorter body had a larger scale. At the shoulder joints of the parametric cat with the leg factor 1, the reach with no factor was 0.2538 m, and the factor of the reach of the red fox 2.2444 (docs/research/2026-10-16-cat-mesh/arm-factors.txt, arm-factors-legs.txt).",
   "legFactor": 1.94168,
   "trunkFactor": 0.686144,
   "girthFactor": [1.08, 1.15],
-  "armGirth": [0.85, 0.85],
   "neckFactor": 0.65,
   "legFactorNote": "The factor of the thigh and the shin. Each one stretches only between its joints, the foot keeps its size, and the body rises 0.1365 units, so that the soles stay at y 0. The user chose the longer legs of the fox on 2026-10-16 (\"Longer legs, 1.5x\"): with the factor 1, the thigh was 0.075 units long and the seat 0.075 m high at the shoulder joints of the parametric cat. With the trunk factor 0.85768 of 2026-10-16, the legs grew until the standing ear tips stayed at 1.758 m: 1.5 + (1 - 0.85768) × 0.45 / 0.145 = 1.94168, where 0.45 units is the height of the neck joint above the hips joint and 0.145 units the height of the hip joint above the ankle (docs/decisions/2026-10-16-cat-trunk.md). The shorter trunk of 2026-10-17 keeps these legs.",
   "neckFactorNote": "The factor of the neck between its joints. The head keeps its size and moves down the neck with the head joint. The user said that the necks of the cat and the fox are too long on 2026-10-16, and the manager chose 0.65, the factor of the fox (docs/decisions/2026-10-16-cat-form.md): the neck joint is 4.9 cm from the head joint (7.6 cm before), and the chin is 0.257 H above the shoulder joints (0.341 H before, the red fox 0.288 H).",
   "girthFactorNote": "The factors of the width and of the depth of the trunk and of the clavicles across the trunk axis (girth_moves() of tools/blender/rig_mesh.py). The user said that the cat \"seems too skinny\" on 2026-10-16, and the manager chose the width 1.08 and the depth 1.15, so that the trunk meets the sheet docs/reference/cat-views.png (docs/decisions/2026-10-16-cat-form.md). In head heights, the belly is 1.420, the hips 1.473, and the depth 1.308, against 1.400, 1.448, and 1.296 on the sheet (1.275, 1.345, and 1.123 before). The arms, the legs, and the tail keep their sizes and move out with their joints (docs/research/2026-10-16-cat-form/).",
-  "armGirthNote": "The factors of the cross-section of the upper arm and of the forearm across their axes (arm_slim() and fore_slim() of tools/blender/rig_mesh.py). The user said that the arms of the cat \"seem too muscular\" in the play on 2026-10-17, and the manager chose 0.85 for both (docs/decisions/2026-10-17-cat-look.md). In the play, the elbows were 0.411 H (left) and 0.399 H (right) wide at most, against about 0.36 H on cat-views.png, and with the factors 0.357 H and 0.356 H. In the standing bind, the elbow and the forearm were within about 5% of the front widths of the sheet, and the girth factors, the arm factor, and the corrective shapes of 2026-10-16 and 2026-10-17 did not widen them: the corrective shape of the bent left elbow adds 0.054 H to the left elbow in the play (docs/research/2026-10-17-cat-look/). The factor of the upper arm fades in from the shoulder joint, and the factor of the forearm fades out to the wrist: a factor up to the wrist folded the left wrist in 94% to 96% of the play samples.",
   "trunkFactorNote": "The factor of the trunk between the hips joint and the neck joint (trunk_moves() of tools/blender/rig_mesh.py). The user said \"the cat is too long and its chair is too low\" on 2026-10-16, and chose the trunk of the red fox (\"V2, fox trunk\", the factor 0.85768): the standing trunk from the hips joint to the shoulder joints was 0.597 m. Then the user said \"the cat's body is too long and it seems too skinny\", and the manager chose 0.8 of that trunk, 0.686144 (docs/decisions/2026-10-16-cat-form.md): the trunk is 0.475 m, and from the narrowest neck row to the crotch it is 1.76 head heights, as on the red fox (1.76). The legs keep their length. The head, the arms, the legs, and the tail keep their sizes and move with the trunk. The factor 0.9 of that trunk gave 1.98 head heights (docs/research/2026-10-16-cat-form/).",
   "joints": {
     "root": { "head": [0, 0, 0], "tail": [0, 0, 0.1], "roll": [0, 1, 0] },
@@ -31,10 +37,10 @@
     "ear_L": { "head": [0.068, 0.89, 0.079], "tail": [0.12, 1.0, 0.115] },
     "clavicle_L": { "head": [0.02, 0.645, 0.055], "tail": "upper_arm_L" },
     "upper_arm_L": { "head": [0.06, 0.636, 0.05], "tail": "forearm_L", "roll": "palm" },
-    "forearm_L": { "head": [0.136, 0.526, 0.055], "tail": "forearm_twist_L", "roll": "palm" },
-    "forearm_twist_L": { "head": [0.174, 0.471, 0.067], "tail": "hand_L", "roll": "palm" },
-    "hand_L": { "head": [0.212, 0.416, 0.079], "tail": "fingers_L", "roll": "palm" },
-    "fingers_L": { "head": [0.238, 0.379, 0.081], "tail": [0.244, 0.349, 0.087], "roll": "palm" },
+    "forearm_L": { "head": [0.14737, 0.50954, 0.05575], "tail": "forearm_twist_L", "roll": "palm" },
+    "forearm_twist_L": { "head": [0.19105, 0.44632, 0.06954], "tail": "hand_L", "roll": "palm" },
+    "hand_L": { "head": [0.23474, 0.38309, 0.08334], "tail": "fingers_L", "roll": "palm" },
+    "fingers_L": { "head": [0.26074, 0.34609, 0.08534], "tail": [0.26674, 0.31609, 0.09134], "roll": "palm" },
     "thigh_L": { "head": [0.07, 0.19, 0.065], "tail": "shin_L" },
     "shin_L": { "head": [0.07, 0.115, 0.058], "tail": "foot_L" },
     "foot_L": { "head": [0.073, 0.045, 0.055], "tail": "toes_L", "roll": [0, 1, 0] },
@@ -75,15 +81,15 @@
     "note": "The studio has no cat. legTurns gives the world turn of each left leg bone from the seated bind pose to the source, and the right side mirrors it. The user asked for a taller chair and legs more perpendicular to the floor on 2026-10-16, and the manager chose the posture P25 (docs/decisions/2026-10-16-cat-form.md): the thigh slopes 25 degrees down from the hip to the knee, 8 degrees out, and the shin is vertical, with the ankle under the knee, so that the knee angle from the side is 115 degrees. The foot and the toes keep the turn of the source, so that the soles stand flat on the floor (docs/research/2026-10-16-hip-open/leg_turns.py <config> 25 8 0). The source shin slants 2.5 degrees back. The seat of 2026-10-16 had the thigh 15 degrees down and the shin 23.8 degrees forward of vertical, with the ankles 9.0 cm in front of the knees (docs/research/2026-10-16-cat-trunk/seat-probe.txt). The bind arms are the bind arms of the fox and the rabbit. tailCurl gives the seated tail. With the hanging tail of tailBind (the root back over the seat 20 degrees below the level, the tip back and down behind the chair), the tail passed the back posts of the chair of the app and its end was 11.7 cm above the floor (docs/decisions/2026-10-16-mesh-cat.md)."
   },
   "weights": {
-    "armSplit": 0.085,
+    "armSplit": 0.1,
+    "armBelow": [0.6, 0.64],
+    "armSplitNote": "With the rebuilt arms, the side wall under each arm and the socket lie inside the plane |x| = 0.1 (0.085 before), and below the armpit line at the height 0.6 they keep no arm weight (armBelow). With 0.085, the rules gave the side wall the weights of the free arm, and the wall followed the arm as a flap on the back.",
     "stretchRamp": 0,
     "stretchRampNote": "With a ramp, the upper arm stretches by the arm factor only on the free arm: the share of the stretch fades from 0 to 1 over this many units on each side of the plane |x| = armSplit. 0 gives no ramp, as for the fox and the rabbit.",
     "headFrom": 0.71,
     "earBase": [0.875, 0.91],
     "tail": { "radius": 0.06, "behind": -0.028, "root": [-0.02, 0.05], "bend": 0.04, "smooth": 3 },
     "sliver": { "angle": 10, "longest": 0.04, "note": "The corners of each thin face share one set of weights, so that the face moves rigidly and does not turn over at a bent joint. A thin face has a corner angle below angle (degrees) and a longest edge below longest (units). The angle is the angle of the fox and the rabbit. The longest edge was 0.03 units, as for the fox and the rabbit, until the arm girth factors of 2026-10-17: then face 1248 of the left armpit, a thin face of 6.0 degrees with a longest edge of about 0.037 units, turned over in each rest sample and in 2.0% of the play samples. With 0.04 units, its corners share one set of weights and it does not fold. The rule takes 228 faces in 21 groups. Face 73 of the right wrist then folds in 3.3% of the play samples. 0.035 units kept face 1248 and folded face 73, and 0.05 units folded the right paw in 71% of the play samples (docs/research/2026-10-17-cat-look/)." },
-    "rigid": [[[0.2359, 0.4139, 0.0929], [0.2508, 0.3874, 0.0943]]],
-    "rigidNote": "The corners of faces 2122 and 2084 of the left wrist take the mean of their weights as one group, because the two thin faces share a corner (rigid_faces() of tools/blender/rig_mesh.py). The points are the middles of the faces in the units of the source. With the left paw tilted 45 degrees over the neck, face 2122 turned over in each play sample, and with face 2122 alone, face 2084 turned over in 92% of the play samples. With the group, no face of the left wrist folds (docs/research/2026-10-20-cat-left-arm/).",
     "line": { "angle": 150, "head": true, "note": "The middle corner of each long thin face (a corner angle above angle, in degrees) takes the mix of the weights of its two other corners by its place along their line, so that it does not lag behind the line when a joint bends. With head, the corners of the head take the rule too. The values are the values of the fox. The rule takes 172 corners." },
     "clavicleFrom": [0.595, 0.64],
     "clavicleFromNote": "The share of the clavicle weight that a vertex keeps grows from 0 at the lower height to 1 at the upper height (units), and the chest takes the rest. This is the rule of the fox, moved with the clavicle joint of the cat (y 0.645 against 0.635), so that a small face of the chest does not take a clavicle weight that the bow arm turns far.",
@@ -99,11 +105,8 @@
     "note": "Beyond the plane |x| = armSplit, only the free arm follows the arm bones: the cuts of sections.py x show the arm apart from the body from x 0.087 out (sections-x.txt). Above headFrom, each vertex except the ears follows the head only: the neck is narrowest at y 0.685 to 0.705, and the chin starts at 0.705. The whiskers follow the head. Each ear vertex goes to its ear bone with a ramp over the heights of earBase. The tail has two bones (tail): the vertices within radius of the line from the root over the bend to the tip, and behind the plane z = behind, follow the tail bones. The share of the tail bones grows from 0 to 1 over the places of root along the line (units from the root), the share of the tip within the tail grows from 0 to 1 over bend units on each side of the bend, and the share of the tail bones takes the mean of its neighbors in smooth rounds. The radius holds each cut of the tail (x ±0.037 at most, facts.txt), and the plane keeps the backs of the thighs (z -0.025 at y 0.235) out of it. The rule takes 127 vertices, and 193 vertices have a tail weight after the smooth rounds."
   },
   "refine": {
-    "rings": [
-      { "joint": "forearm", "minEdge": 0.06, "ends": 0.2 },
-      { "joint": "hand", "minEdge": 0.06, "ends": 0.2 }
-    ],
-    "ringsNote": "Each ring cuts the edges of an arm near a joint with the plane through the joint, as for the rabbit: joint (the arm bone that starts at the joint), minEdge (the shortest edge that the ring cuts, in units), and ends (the smallest part of the edge from each corner). The radius is 0.75 of the arm part that ends at the joint, so that it grows with the arm factor. With the arm factor 1.1496 and no rings, 4 long thin faces crossed the planes of the right elbow and of the wrists, and 1 face at the left elbow, 4 at the right elbow, and 22 at the wrists lay near the joints (docs/research/2026-10-16-cat-mesh/rig-mesh-check-cat-rings.log). The rings at the elbows and the wrists cut 18 edges and add 36 faces. Three thin faces at the wrists stay across the plane with each ring of minEdge 0.04 to 0.08, ends 0.02 to 0.2, and a radius up to 0.15 units.",
+    "rings": [],
+    "ringsNote": "No ring: the quad tube of each arm has rings at the elbow and the wrist (tools/blender/cat_arms.py). Before the rebuilt arms of 2026-10-25, a ring at each elbow and wrist cut 18 edges of the user mesh (docs/research/2026-10-16-cat-mesh/rig-mesh-check-cat-rings.log).",
     "flip": {
       "angle": 150,
       "normals": 60,
@@ -184,49 +187,5 @@
     "root": [0.7, 0.95],
     "top": 0.2673,
     "note": "The underside of the haunch behind the hip joints goes down onto the seat in the seated bind (sit() of tools/blender/rig_mesh.py). The vertices at the root of the tail share their weight with the hips (0.45 to 0.51 of the tail), so with the values of the fox they moved by half of the drop, and the side view of the underside of the final bind stayed 5.22 cm above the seat. With root, a vertex counts its tail share only by its smoothstep from 0.7 to 0.95, so the root of the tail moves with the haunch. With no gap, a ramp of 0.015 units before the hip joints, a drop of at most 0.2 units, and 2 rounds of smoothing, the side view of the final bind was 1.93 cm above the seat at most with the hanging tail. The root of the hanging tail pulled a few vertices down and set the seat top, 0.2157 units. The curled tail does not pull them, and the seat top rose 0.8 to 1.2 cm, so top keeps it. With the curled tail of studio.tailCurl, the side view is 0.16 cm above the seat at most. With the trunk factor and the leg factor 1.94168, the seat top of the hanging tail is 0.2746 units, and the side view is 0.13 cm above the seat at most (docs/research/2026-10-16-cat-trunk/). With the leg factor 1.5, the seat is 1 mm lower, the chair 2 mm deeper, and the standing body stays within 0.248 mm of the source. The thighs 25 degrees down and the shorter, wider, and deeper trunk of 2026-10-17 put the seat top of the hanging tail at 0.2673 units, and the round back of the deeper haunch stayed 1.68 cm above the seat with 2 rounds of smoothing. With 8 rounds, the side view is 0.84 cm above the seat at most with the tail curl of 2026-10-16 (3 rounds 1.12 cm, 4 rounds 1.02 cm), and 0.58 cm with the lifted curl (docs/research/2026-10-16-cat-form/seat-fit.txt). The red fox keeps 2.0 cm. The retro values gap 0 and ramp 0.015 alone gave 5.00 cm, and the haunch ramp 0.12 to 0.2 gave 5.40 cm (pnpm rig-mesh cat --check with these values as --set variants). The corrective shapes give the source back, so the standing body keeps its form."
-  },
-  "raise": [
-    {
-      "side": "L",
-      "bone": "hand",
-      "turns": { "hand": [0.1096, 0.8501, 0.4982, 0.1305] },
-      "fade": [10, 35],
-      "below": 0.3,
-      "note": "The shape of the bent left wrist of the cat violist (raise_shape() of tools/blender/rig_mesh.py, 2026-10-17-cat-bow decisions). In each play sample, faces 2116 and 2007 of the left wrist folded, and the turn of hand_L from forearm_L stayed within 10 degrees of the mean turn of 153.7 degrees (wrist-turn.txt of docs/research/2026-10-17-cat-bow/). At that turn, 1 face turns over in the pose of the rule, and the folded face-samples of hand_L fell from 6774 to 1576. The turn of the rule is the same axis at 165 degrees, so that the pose of the rule turns over the faces of the app: 114 face-samples (175 degrees: 4938). The fade 10 to 35 degrees folds the fewest (102), and the cosines 0.25, 0.5, and 0.7 fold as many or more (rig-mesh-check-wrist.log)."
-    },
-    {
-      "side": "R",
-      "bone": "forearm",
-      "turns": {
-        "clavicle": [0, 0.2588, 0, 0.9659],
-        "upper_arm": [0.3454, 0.3099, -0.4091, 0.7857],
-        "forearm": [-0.2187, 0.1236, -0.2847, 0.9251]
-      },
-      "fade": [20, 40],
-      "below": 0.3,
-      "note": "The shape of the bent right elbow of the cat violist (raise_shape() of tools/blender/rig_mesh.py, 2026-10-17-multi-shape decisions). On main, faces 235, 332, and 338 across the right elbow folded in 92.6%, 87.7%, and 31.2% of the play samples, and the turn of forearm_R from upper_arm_R stayed within 10 degrees of one turn of 44.6 degrees in 3830 of 4426 play samples at a step of 1 s, while the turn of the upper arm spread over 90 degrees (elbow-235.txt and turns-235.txt of docs/research/2026-10-17-multi-shape/). The forearm takes that mean turn from the upper arm. The clavicle takes its turn of 30 degrees around y, the same in each play sample (clavicle-shoulder.txt), and the upper arm the mean turn of 76.4 degrees of the samples in which the faces of the right shoulder fold (upper-shoulder.txt). With the fade 20 to 40 degrees and the cosine 0.3, the play folds of the cat fall from 100% to 43.5% at a step of 1 s, and the folded face-samples of forearm_R to 29. The cosine 0.5, the fade 10 to 30 degrees, and one ring (grow 1) folded 43.4% to 43.8% (rig-check-elbow1.log)."
-    },
-    {
-      "side": "R",
-      "turns": {
-        "clavicle": [0, 0.2588, 0, 0.9659],
-        "upper_arm": [0.4908, 0.1165, -0.6572, 0.56],
-        "forearm": [-0.2187, 0.1236, -0.2847, 0.9251]
-      },
-      "fade": [30, 50],
-      "below": 0.3,
-      "note": "The shape of the raised right arm of the cat violist with the bent elbow of the play (turns.forearm, 2026-10-17-multi-shape decisions). After the shape of the elbow, faces 162, 206, and 254 of the right shoulder folded only with the upper arm forward and up: within 30, 25, and 20 degrees of turns of 111.9, 125.6, and 138.4 degrees around one axis (elbow-turns-162.txt, elbow-turns-206.txt, and elbow-turns-254.txt). The upper arm takes the mean turn of face 162, and the clavicle and the forearm the turns of the shape of the elbow, so that this shape is solved on top of it. With the fade 30 to 50 degrees and the cosine 0.3, the play folds of the cat at a step of 1 s fall from 43.5% with the shape of the elbow alone to 33.7%. At the mean turn of face 206, the fades 20 to 40 and 30 to 50 degrees folded 41.1% and 39.4%, and one ring (grow 1) changed nothing (rig-check-shoulder1.log). At this turn, the fades 20 to 40 and 25 to 45 degrees and the cosine 0.5 also folded 33.6% to 33.7%, and the fade 30 to 50 degrees folded the fewest face-samples of the right shoulder (rig-check-shoulder2.log)."
-    },
-    {
-      "side": "L",
-      "bone": "forearm",
-      "turns": {
-        "upper_arm": [0.1786, -0.02, -0.2142, 0.9601],
-        "forearm": [-0.0754, -0.0426, 0.0981, 0.9914]
-      },
-      "fade": [5, 10],
-      "below": 0.3,
-      "note": "The shape of the bent left elbow of the cat violist (2026-10-17-multi-shape decisions). After the shapes of the right arm, face 1292 at the front of the left upper arm folded in 22.5% of the play samples (fold-probe-elbow-faces12.txt). It folds in 924 of the 1127 play samples in which the turn of the upper arm in the axes of the chest and the turn of the forearm from the upper arm are both within 5 degrees of their means over the folded samples, and in 98 of the other 3299 samples (keys-1292.txt). The turn of the forearm alone separates them: 82% of the samples within 5 degrees of it fold, and 7% of the samples 5 to 10 degrees away. The upper arm and the forearm take these mean turns, and the clavicle keeps its bind turn, as in each play sample (clavicle-1292.txt). With the fade 5 to 10 degrees and the cosine 0.3, the play folds at a step of 1 s fall from 33.7% to 16.1%, and face 1292 folds in 86 samples (1104 before). The fade 4 to 8 degrees and the cosine 0.5 also folded 16.1%, and the fade 3 to 6 degrees 16.7% (rig-check-left1.log)."
-    }
-  ]
+  }
 }

@@ -2,6 +2,34 @@
 
 This folder holds the cat mesh that the user gave. The app does not serve it.
 
+## cat-arms.glb and cat-weights.json
+
+`cat-arms.glb` is `cat.glb` with new faces on each arm and under it, and with arms 1.1496 times
+longer and 0.85 as thick. On 2026-10-24 the user said: "note that there's significant twisting
+happening for the arms and wrists. add loop edges and retopology and additional bones if needed to
+address them". The upper arm of `cat.glb` joins the side of the trunk down to the elbow, so the edit
+also makes an armpit: a cut along the seam where the arm meets the trunk, a side wall of the trunk
+under the arm, and a quad tube from the shoulder to the wrist, whose flat inner side lies on the
+side wall and meets it only at the armpit line. `tools/blender/cat_arms.py` replays the Blender
+session that made both files, byte for byte. The faces of the paws, the trunk, the legs, and the
+head are the faces of the user. The longer and thinner arms are the arms that the rig made before
+(`armFactor` 1.1496 and `armGirth` 0.85 of 2026-10-17), because a rig with arm segments does not
+stretch the arms. `pnpm rig-mesh cat` writes `cat.rig.glb` from it (`tools/mesh-rigs/cat.json`),
+and `pnpm studio-body cat` writes `src/models/studio/cat.ts`.
+
+| Item | Value |
+|---|---|
+| `cat-arms.glb` | 1,182,704 bytes, SHA-256 `0ab8dff8ff1e2bb5c6630af27c8213b884f71982d5ad90477296efeb29af5aa8` |
+| Mesh | 2,161 vertices after a weld at 1e-5, 4,317 triangles (3,121 in the source): on each arm a tube of 16 rings of 16 vertices, joined to the shoulder socket and to the paw with Bridge Edge Loops, and a side wall of 27 faces under each arm |
+| Material | One material with one base color JPEG of 4096 × 4608 pixels: the atlas of the source, and a strip of 512 pixels on top with the fur color of the source arms, baked onto the new faces. The side walls and the flat inner sides of the arms take one gray fur texel of the trunk beside the seam. No metallic-roughness texture |
+| `cat-weights.json` | 483,708 bytes, SHA-256 `ce38d77b17c54cd4bb45fee3825c80ab1d35f7d8c86f6ecd4feb288ab5138eaa` |
+| Weights | The automatic weights of Blender with the Weight Paint fixes of the session, on the studio bones and the arm segments and helpers (`armSegments` of the config), for `paintedWeights` of the config |
+| License | Derived from the mesh of the user, who holds its rights |
+
+```bash
+shasum -a 256 assets/models/cat/cat-arms.glb assets/models/cat/cat-weights.json
+```
+
 ## cat.glb
 
 `cat.glb` is a mesh with no skeleton. The user gave it on 2026-10-16. The file is the file of the
