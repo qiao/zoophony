@@ -244,6 +244,13 @@ export function kettleCount(highestKey: number): KettleCount {
   return highestKey <= TIMPANI.keys[2][1] ? 3 : 4;
 }
 
+/**
+ * The length of the shaft of a mallet, a stick, or a beater behind its grip, in meters: the butt
+ * end, which sticks out behind the hand of a real player (`docs/reference/percussion-technique.md`
+ * 1).
+ */
+export const MALLET_BUTT = 0.04;
+
 /** A mallet, a stick, or a beater, and its target. */
 interface HandTool {
   readonly piece: InstrumentPiece;
@@ -273,7 +280,7 @@ function mallet(
   tilt = 0,
 ): HandTool {
   const piece = new PieceBuilder();
-  piece.rod([-0.04, 0, 0], [length, 0, 0], 0.0055, 4, stickColor, finish);
+  piece.rod([-MALLET_BUTT, 0, 0], [length, 0, 0], 0.0055, 4, stickColor, finish);
   if (ball > 0) {
     piece.add(icosphere(ball, 0), ballColor, transform([length, 0, 0]));
   }
