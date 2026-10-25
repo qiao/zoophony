@@ -326,7 +326,10 @@ function poseAnimal(
   switch (note.family) {
     case 'bowed': {
       const { bow } = scratch;
-      body.lean = note.rig.hold.lean * weight;
+      const { hold } = note.rig;
+      body.lean = hold.lean * weight;
+      // A violinist rests the jaw on the chin rest while it plays (`BowedHold.headDrop`).
+      body.lift = -hold.headDrop * weight;
       writeBody(pose, player, scratch);
       bowStateAt(note.strokes, note.starts, noteTime, bow);
       poseBowed(note.rig, scratch.torso, bow, weight, pose.rotations, pose.instrumentOffset);

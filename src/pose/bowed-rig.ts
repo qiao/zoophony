@@ -165,6 +165,12 @@ export interface BowedHold {
   /** The forward lean of the spine. It brings the shoulders nearer to a floor instrument. */
   readonly lean: number;
   /**
+   * The turn of the head down while the player plays, in radians, so that the jaw lies on the
+   * chin rest, as a violinist rests the jaw on it (`docs/reference/string-technique.md`, section
+   * 1.10). 0 keeps the head level.
+   */
+  readonly headDrop: number;
+  /**
    * The place of the left fingers on the target `fingerboard` in the rest pose: 0 at the nut, 1
    * at the end of the fingerboard.
    */
@@ -349,6 +355,7 @@ const CHIN_HOLD = {
   freeHair: FREE_HAIR,
   frogHair: 0,
   lean: 0,
+  headDrop: 0,
   restPlace: 0.4,
   pluckPlace: 0.9,
   pluckSide: 0,
@@ -418,6 +425,7 @@ const FLOOR_HOLD = {
   freeHair: FREE_HAIR,
   frogHair: 0,
   lean: 10 * MathUtils.DEG2RAD,
+  headDrop: 0,
   restPlace: 0.4,
   pluckPlace: 0.3,
   pluckSide: 0,
