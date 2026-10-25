@@ -1,7 +1,35 @@
 # Elephant model
 
-This folder holds the elephant meshes that the user gave. The app does not serve them. The rig
-uses `elephant-apose.glb` since 2026-10-23. `elephant.glb` stays as the record of the first mesh.
+This folder holds the elephant meshes that the user gave, and a copy of the A-pose mesh with
+rebuilt arms. The app does not serve them. The rig uses `elephant-arms.glb` since 2026-10-25.
+`elephant-apose.glb` is its source, and `elephant.glb` stays as the record of the first mesh.
+
+## elephant-arms.glb and elephant-weights.json
+
+`elephant-arms.glb` is `elephant-apose.glb` with new quad faces on each arm from the shoulder line
+to the wrist. The long faces of the source arms showed dark slits and shards on both upper arms of
+the timpanist. On 2026-10-24 the user allowed loop edges, retopology, and extra bones for the arm
+and wrist twist ("add loop edges and retopology and additional bones if needed to address them").
+`tools/blender/elephant_arms.py` replays the Blender session of 2026-10-25 that made both files,
+byte for byte. The faces of the paws, the trunk, the legs, and the head are the faces of the user,
+except the thin faces at the cut loops and under the armpits, whose short edges collapse. The new
+arm surface lies on the old one, and the arms keep their length and their cross-section: no cut
+into the arm surface and no dent. The rig of this project makes the studio body of the elephant
+from it (`tools/mesh-rigs/elephant.json`): `pnpm rig-mesh elephant` writes `elephant.rig.glb`, and
+`pnpm studio-body elephant` writes `src/models/studio/elephant.ts`.
+
+| Item | Value |
+|---|---|
+| `elephant-arms.glb` | 1,195,432 bytes, SHA-256 `4a5132eca13d5f6382c1d7b3295e48aef791b798e3dc7542e2c9ae16c003e06f` |
+| Mesh | 1,951 vertices after a weld at 1e-5, 3,896 triangles (3,113 in the source): on each arm a tube of 13 quad rings of 16 vertices from 0.4 of the upper arm to 0.3 of the paw, joined to the trunk and the paw with Bridge Edge Loops, with Beautify Faces and Collapse Edges on the bridge triangles |
+| Material | One material with one base color JPEG: the atlas of the source, and a strip of 512 pixels on top with the fur color of the source arms, baked onto the new faces. No metallic-roughness texture |
+| `elephant-weights.json` | 436,645 bytes, SHA-256 `c3afc44019772a9dc9b0a4411d6e2657c2a85abbc37744b8efbfa7aa7e3ec1d5` |
+| Weights | The automatic weights of Blender with the Weight Paint fixes of the session, on the studio bones and the arm segments and helpers (`armSegments` of the config), for `paintedWeights` of the config |
+| License | Derived from the mesh of the user, who holds its rights |
+
+```bash
+shasum -a 256 assets/models/elephant/elephant-arms.glb assets/models/elephant/elephant-weights.json
+```
 
 ## elephant-apose.glb
 
@@ -9,8 +37,9 @@ uses `elephant-apose.glb` since 2026-10-23. `elephant.glb` stays as the record o
 apart from the trunk below the shoulders. The user gave it on 2026-10-23 and said: "replace the
 elephant model by the one at
 @~/Downloads/Meshy_AI_elephant_apose_3k_tri_1023061408_texture.glb note that do not cut its arm
-or create a dent in the arm". The file is the file of the user, byte for byte. `pnpm rig-mesh
-elephant` rigs it with no cut and no split of its faces (`tools/mesh-rigs/elephant.json`).
+or create a dent in the arm". The file is the file of the user, byte for byte. From 2026-10-23 to
+2026-10-25, `pnpm rig-mesh elephant` rigged it with no cut and no split of its faces. Since
+2026-10-25, the rig reads the copy `elephant-arms.glb` above.
 
 | Item | Value |
 |---|---|

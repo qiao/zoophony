@@ -1,5 +1,32 @@
 {
-  "source": "assets/models/elephant/elephant-apose.glb",
+  "source": "assets/models/elephant/elephant-arms.glb",
+  "sourceNote": "The A-pose mesh of the user of 2026-10-23 (assets/models/elephant/README.md), with new quad faces on each arm from the shoulder line to the wrist. The user allowed loop edges, retopology, and extra bones for the arm and wrist twist on 2026-10-24 (\"add loop edges and retopology and additional bones if needed to address them\"). tools/blender/elephant_arms.py replays the Blender session that made it. The faces of the paws, the trunk, the legs, and the head are the faces of the user. The file of the user, elephant-apose.glb, stays unchanged.",
+  "paintedWeights": "assets/models/elephant/elephant-weights.json",
+  "paintedLower": [
+    "root",
+    "hips",
+    "spine",
+    "spine1",
+    "chest",
+    "neck",
+    "head",
+    "ear_L",
+    "ear_R",
+    "thigh_L",
+    "shin_L",
+    "foot_L",
+    "toes_L",
+    "thigh_R",
+    "shin_R",
+    "foot_R",
+    "toes_R",
+    "tail"
+  ],
+  "paintedNote": "The weights of the clavicles and the arms are the automatic weights of Blender with the Weight Paint fixes of tools/blender/elephant_arms.py. The vertices on the bones of paintedLower (the trunk up to the chest, the neck, the head, the ears, the legs, and the tail) keep the rule weights, as on the rabbit, the mouse, and the wolf: the trunk, the trunk of the head, and the ears depend on them.",
+  "armSegments": {
+    "helper": 0.052,
+    "note": "Each upper arm and each forearm has 4 deform segments, and each elbow and wrist a helper bone. The elbow helper is 0.052 units, twice the gap of the rings of the elbow (gap of tools/blender/elephant_arms.py): with the gaps 0.016 and 0.022, the faces of the inner elbow folded (9 and 6 faces of the left arm in the arm gate, limit 8). The wrist rings keep the gap 0.016, and the Blender session gives the wrist helper twice that length. The app turns the bones from the joints of the pose (poseArm() of src/models/studio-rig.ts). They replace upperTwist and the raise shapes."
+  },
   "output": "assets/models/elephant/elephant.rig.glb",
   "name": "Elephant",
   "weld": 1e-05,
@@ -12,10 +39,6 @@
   "armFactorNote": "The arms keep the length of the mesh: 0.387 m from the shoulder joint to the middle of the palm. The arms of the old mesh were 0.451 m.",
   "legFactor": 1,
   "legFactorNote": "The legs keep the length of the mesh. The elephant stands at its timpani in the app, so no seat asks for longer legs.",
-  "upperTwist": {
-    "share": 0.5,
-    "note": "The twist bone of each upper arm takes half of the roll of the upper arm from the chest (StudioBody.upperTwist). With the elbows of the timpani down and near the body, the play twist of the arm skin goes from 57 and 43 degrees to 22 and 22 degrees, and the flat share from 0.96 and 0.74 to 0.91 and 0.91 (pnpm arm-shape timpanist). The shares 0.4 and 0.6 gave a twist of 24 degrees, and 0.6 folded 1.0% of the play (docs/research/2026-10-19-arm-skin.md, the refit of the elephant)."
-  },
   "joints": {
     "root": {
       "head": [
@@ -329,7 +352,7 @@
       ],
       "note": "The part of the thigh weight that goes to the hips grows from 0 at the lower height to 1 at the upper height, so that the round haunch stays on the hips. It starts below the crotch at y 0.19 and ends above it."
     },
-    "note": "Beyond the plane |x| = armSplit, only the free arm follows the arm bones: the A-pose arm is apart from the trunk from x 0.17 out below y 0.55, and the trunk there is narrower than 0.17 (91 vertices of the free left arm). The rig keeps each face of the mesh: no cut, no crease rule, and no split (the user, 2026-10-23). Above headFrom, each vertex follows the head only: the chin is at y 0.745. earBase lies above the head, so the large ears follow the head. The lowest part of each ear hangs below the head line, so earFlap gives it to the head only (28 and 31 vertices). The trunk and the tusks hang in front of the plane z 0.17, and the belly ends at z 0.154, so noseFront gives them to the head only. The tail is a ball on one bone (tailBall). clavicleFrom and shoulderHead are the rules of the hippo, and armTop lies above the shoulder top at y 0.68.",
+    "note": "Beyond the plane |x| = armSplit, only the free arm follows the arm bones: the A-pose arm is apart from the trunk from x 0.17 out below y 0.55, and the trunk there is narrower than 0.17 (91 vertices of the free left arm). The rule weights apply only to the bones of paintedLower. The rig has no crease rule and no split, and the arm faces are the quad tubes of elephant-arms.glb (sourceNote). Above headFrom, each vertex follows the head only: the chin is at y 0.745. earBase lies above the head, so the large ears follow the head. The lowest part of each ear hangs below the head line, so earFlap gives it to the head only (28 and 31 vertices). The trunk and the tusks hang in front of the plane z 0.17, and the belly ends at z 0.154, so noseFront gives them to the head only. The tail is a ball on one bone (tailBall). clavicleFrom and shoulderHead are the rules of the hippo, and armTop lies above the shoulder top at y 0.68.",
     "earFlap": {
       "cut": 0.76,
       "apart": 0.09,
@@ -390,7 +413,6 @@
         0.87
       ],
       "keep": [
-        "fingers",
         "toes"
       ],
       "points": [
@@ -449,7 +471,7 @@
           -0.0245
         ]
       ],
-      "note": "The mesh has warmer colors than SPECIES_COLORS.elephant (#a8a198, Oklab hue 74 degrees, chroma 0.015): the plain faces have the hue 43 to 61 degrees and the chroma 0.018 to 0.046 (fur-colors.txt). As the user chose for the panda, each plain face takes the hue and the chroma of the species color of its band and keeps its lightness: a row is [L, dL, da, db] in Oklab, the skin up to L 0.725 moves to the fur color, and the lighter skin to the belly color #b9b2a8. The cream tusks and nails (L above 0.85) keep their colors."
+      "note": "The mesh has warmer colors than SPECIES_COLORS.elephant (#a8a198, Oklab hue 74 degrees, chroma 0.015): the plain faces have the hue 43 to 61 degrees and the chroma 0.018 to 0.046 (fur-colors.txt). As the user chose for the panda, each plain face takes the hue and the chroma of the species color of its band and keeps its lightness: a row is [L, dL, da, db] in Oklab, the skin up to L 0.725 moves to the fur color, and the lighter skin to the belly color #b9b2a8. The cream tusks and nails (L above 0.85) keep their colors. Only the toes keep the colors of the source: the Blender weights put most of the top of each paw on the fingers bone, and with the fingers in keep, those faces kept the warm pink of the texture."
     },
     "note": "The values of samples, palette, dark, and eyeShare are the values of the other meshes. A dark face in the eye box is a face of an eye: 13 faces on the left and 12 on the right, at x 0.065 to 0.085, y 0.854 to 0.878, and z 0.144 to 0.162 (head-colors.txt). The config has no nose box: the trunk has no nose pad."
   },
@@ -484,65 +506,5 @@
     "end": 0.0065,
     "most": 0.03,
     "note": "The values of the panda and the hippo."
-  },
-  "raise": [
-    {
-      "side": "R",
-      "turns": {
-        "clavicle": [
-          0,
-          0,
-          0,
-          1
-        ],
-        "upper_arm": [
-          0.407,
-          0.2953,
-          0.1411,
-          0.8528
-        ],
-        "forearm": [
-          0.1672,
-          -0.0968,
-          0.2167,
-          0.9569
-        ]
-      },
-      "fade": [
-        10,
-        20
-      ],
-      "below": 0,
-      "note": "The shape of the right arm at a strike (pnpm raise-fit timpanist --faces 795,359 --side R): faces 795 and 359 of the module folded in each play sample, and the upper arm turns 63 degrees from its bind in their mean. A shape of the bent elbow instead left more folds (rig-mesh --check)."
-    },
-    {
-      "side": "L",
-      "turns": {
-        "clavicle": [
-          0,
-          0,
-          0,
-          1
-        ],
-        "upper_arm": [
-          0.4389,
-          -0.2438,
-          -0.1644,
-          0.8491
-        ],
-        "forearm": [
-          0.1589,
-          0.092,
-          -0.2058,
-          0.9612
-        ]
-      },
-      "fade": [
-        10,
-        20
-      ],
-      "below": 0,
-      "note": "The shape of the left arm at a strike (pnpm raise-fit timpanist --faces 1832,1723,1827 --side L): the faces folded in each play sample. A shape of the bent elbow instead left faces 1825 and 1826 turned (rig-mesh --check)."
-    }
-  ]
+  }
 }
