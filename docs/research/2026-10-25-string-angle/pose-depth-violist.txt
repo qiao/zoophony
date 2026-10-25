@@ -1,7 +1,7 @@
 Sweep of the violist: 14 demos with the role (bach-bwv1047, bach-bwv1048, bach-bwv1050, beethoven-1, beethoven-8-4, beethoven-8, beethoven-9, boulanger-matin, brahms-2, mendelssohn-op61, mozart-k191, mozart-k315, mozart-k417, mozart-k525), 1 row to sweep.
-Estimated time: about 6.5 minutes: 1 row of 388.4 s, from the last rows of this sweep, with a time for 14 of 14 demos.
-Sweeps of main (7d27a881) and of the working tree: 375.9 s.
-base (374.6 s):
+Estimated time: about 6.2 minutes: 1 row of 374.6 s, from the last rows of this sweep, with a time for 14 of 14 demos.
+Sweeps of main (caaea96b) and of the working tree: 381.3 s.
+base (380.0 s):
   bach-bwv1047 violist 12 (cat, chair)
     play: paws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1119 samples over 1.5 cm (0.0%)
     play: paws in viola: 0.2 cm at song 255.90 s, wall 268.00 s (handR -0.35); next note in 0.11 s; limit 1.5 cm; 0 of 1119 samples over 1.5 cm (0.0%)
@@ -674,9 +674,9 @@ The share of the samples over the goal of each pair (the limit, or --goal):
 |---|---|---|---|---|---|---|---|---|---|
 | base | 1.7 | 3.5 | 5.8 | 13.4 | 2.5 | 14.3 | 7.4 | 56.0 | 3.6 |
 
-The depths of main (7d27a881) and of the working tree with no change:
-H of each body, main (7d27a881) -> working tree: cat 0.339 m -> 0.339 m
-| Species | Set | Pair | main (7d27a881) cm | main (7d27a881) H | tree cm | tree H | Mark | tree at |
+The depths of main (caaea96b) and of the working tree with no change:
+H of each body, main (caaea96b) -> working tree: cat 0.339 m -> 0.339 m
+| Species | Set | Pair | main (caaea96b) cm | main (caaea96b) H | tree cm | tree H | Mark | tree at |
 |---|---|---|---:|---:|---:|---:|---|---|
 | cat | play | paws in body | 0.1 | 0.004 | 0.0 | 0.000 |  | bach-bwv1047 0.00 s |
 | cat | play | paws in viola | 0.3 | 0.009 | 0.2 | 0.007 |  | brahms-2 503.38 s |

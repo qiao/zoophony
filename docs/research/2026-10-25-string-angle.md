@@ -3,7 +3,7 @@
 Date 2026-10-25. Round `string-angle`. Decisions:
 [`2026-10-25-string-angle.md`](../decisions/2026-10-25-string-angle.md). The probes and their
 outputs are in [`2026-10-25-string-angle/`](2026-10-25-string-angle/). Each command runs from the
-root of the tree. "main" is `7d27a881`.
+root of the tree. "main" is `caaea96b`. The twist steps, the grips, and the angle of main ran on `7d27a881`, which has the same string players.
 
 ## 1. The question
 
