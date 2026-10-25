@@ -63,8 +63,8 @@ def load_violin_arms():
 va = load_violin_arms()
 
 #: The settings of each animal, with the keys of `ANIMALS` of `violin_arms.py`. `paint` can also
-#: name the fixes of `step_paint()`: `side`, the side of the trunk below the armpit, and `elbow`,
-#: the vertices near each elbow joint.
+#: name the fixes of `step_paint()`: `side`, the side of the trunk below the armpit, `elbow`, the
+#: vertices near each elbow joint, and `pit`, the front of the armpit.
 ANIMALS = {
     'mouse': {
         'config': 'tools/mesh-rigs/mouse.json',
@@ -82,7 +82,8 @@ ANIMALS = {
         'paint': {'trunk': {'x': 0.08, 'y': (0.3, 0.52)}, 'root': {'x': (0.08, 0.15),
                                                                    'y': (0.48, 0.64)},
                   'side': {'x': 0.115, 'y': (0.3, 0.545), 'repeat': 4},
-                  'elbow': {'radius': 0.05, 'repeat': 16}},
+                  'elbow': {'radius': 0.05, 'repeat': 16},
+                  'pit': {'x': (0.08, 0.13), 'y': (0.5, 0.6), 'front': 0.05, 'repeat': 10}},
     },
     'wolf': {
         'config': 'tools/mesh-rigs/wolf.json',
@@ -168,6 +169,9 @@ def step_paint(s):
     2. `elbow`: Smooth `elbow.repeat` times on the vertices within `elbow.radius` of each elbow
        joint, so that the weights of the elbow helper fade over the rings of the joint. On the
        mouse, faces of the inner elbow folded at rest.
+    3. `pit`: Smooth `pit.repeat` times on the vertices in front of the armpit: |x| from `pit.x[0]`
+       to `pit.x[1]`, the height from `pit.y[0]` to `pit.y[1]`, and z beyond `pit.front`. On the
+       mouse, the long faces there folded at rest with the right elbow out and back.
     """
     va.step_paint(s)
     mesh, fr, paint = s.mesh, s.fr, s.spec['paint']
@@ -197,6 +201,15 @@ def step_paint(s):
                       < elbow['radius'] * fr.height)
         bpy.ops.object.vertex_group_smooth(group_select_mode='BONE_DEFORM', factor=0.5,
                                            repeat=elbow['repeat'])
+        va.limit_and_normalize()
+        bpy.ops.object.mode_set(mode='OBJECT')
+    pit = paint.get('pit')
+    if pit:
+        va.paint_mode(mesh, lambda p: pit['x'][0] < place(p)[0] < pit['x'][1]
+                      and pit['y'][0] < place(p)[1] < pit['y'][1]
+                      and -p.co.y / fr.height > pit['front'])
+        bpy.ops.object.vertex_group_smooth(group_select_mode='BONE_DEFORM', factor=0.5,
+                                           repeat=pit['repeat'])
         va.limit_and_normalize()
         bpy.ops.object.mode_set(mode='OBJECT')
     mesh.data.use_paint_mask_vertex = False

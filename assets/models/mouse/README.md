@@ -73,7 +73,7 @@ mouse` writes `src/models/studio/mouse.ts`.
 | `mouse-arms.glb` | 1,148,204 bytes, SHA-256 `930e6d0930ab679c0f156974d99d58fb99d8796592099edb0ef9718cf6e31b4b` |
 | Mesh | 1,976 vertices after a weld at 1e-5, 3,892 triangles (3,077 in the source): on each arm a tube of quad rings of 16 vertices, joined to the trunk and the paw with Bridge Edge Loops, with Beautify Faces and Collapse Edges on the bridge triangles |
 | Material | One material with one base color JPEG: the atlas of the source, and a strip of 512 pixels on top with the fur color of the source arms, baked onto the new faces. No metallic-roughness texture |
-| `mouse-weights.json` | 443,565 bytes, SHA-256 `ab45ea6468241e7483fa17fa778f687855119a958248dffe143bb65272c292ad` |
+| `mouse-weights.json` | 443,574 bytes, SHA-256 `ff177bb2589bad9aba7f849791ac887eb49c27e926fee4ee8a93ee28ed211b72` |
 | Weights | The automatic weights of Blender with the Weight Paint fixes of the session, on the studio bones and the arm segments and helpers (`armSegments` of the config), for `paintedWeights` of the config |
 | License | Derived from the mesh of the user, who holds its rights |
 
