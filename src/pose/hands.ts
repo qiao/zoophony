@@ -203,16 +203,18 @@ export const HANDS_HOLDS = {
       pole: [1, -0.3, 0.77],
     },
   },
-  // The left hand plays from the left side of the strings and the right hand from the right
-  // side (design 4.6), with the forearms about level, as a real harpist plays (musicmark.org.uk,
-  // "A Common Approach", harp, area B). The short arms of the deer set the values
-  // (`docs/research/2026-10-21-mesh-deer.md`). The left palm lies 0.14 m above the middle of each
-  // string, nearer to the shoulder: at the middle, the left paw missed the far bass strings by up
-  // to 5 cm, and with 0.1 m on the deer of 1.2 times the size, by up to 7 mm. The left fingers point up and back along the strings (`aimL`): with the fingers on
-  // the line from the shoulder, the left paw bent 86° to 91° on its forearm (paw swing of
-  // `pnpm arm-check`, limit 70°). Of 6 elbow directions, the two that point down passed the arm
-  // gate (paw bends of 60° and 65°). The left elbow takes the one that points a little out, as a
-  // harpist holds the elbows out.
+  // The pose follows a harpist (`docs/reference/harp-technique.md`): the left hand plays the bass
+  // strings from the left side and the right hand the treble strings from the right side, the
+  // trunk sits erect, and the elbows rise out to the sides. The short arms of the deer set the
+  // values (`docs/research/2026-10-25-harp-lean.md`). The spine leans 3° forward: at 8°, the
+  // muzzle came to 1.0 cm of the neck of the leaned harp. The left palm lies 0.14 m above the
+  // middle of each string, nearer to the shoulder: at 0.08 m, the left paw bent 68° on its forearm
+  // (paw swing of `pnpm arm-check`, limit 70°), and at 0.06 m, it missed the far bass strings by
+  // up to 7 mm. The left fingers point up and back along the strings (`aimL`): with the fingers on
+  // the line from the shoulder, the left paw bent 86° to 91° on its forearm. The elbows point out
+  // and down, in the play and at rest: with the elbows down, the left upper arm went 6.3 cm into
+  // the chest when it reached across to the strings. With the left elbow at [-1, -1, 0] in the
+  // play, the left upper arm went flat (flat p5 of `pnpm arm-check` 0.77, 0.83 before).
   harp: {
     action: 'pluck',
     keyPoint: harpStringPosition,
@@ -222,7 +224,7 @@ export const HANDS_HOLDS = {
     faceR: [-1, 0, 0],
     aimL: [0, 1, 0.5],
     aimR: null,
-    lean: 8 * MathUtils.DEG2RAD,
+    lean: 3 * MathUtils.DEG2RAD,
     restLean: 0,
     restHeadLift: 0,
     sideLean: 0,
@@ -230,16 +232,16 @@ export const HANDS_HOLDS = {
     shoulderDrop: 0,
     reach: NO_REACH_LIMIT,
     apart: 0,
-    poleL: [-0.3, -1, 0],
-    poleR: [1, -1, 0.3],
+    poleL: [-0.85, -1, 0],
+    poleR: [0.7, -1, 0],
     curl: 15 * MathUtils.DEG2RAD,
     curlClosed: 60 * MathUtils.DEG2RAD,
     restArc: [0, 0, 0],
     // Both hands rest on a string, a little away from it, as in the play. A left palm on the left
     // thigh, the rest of before, folded the left shoulder of the deer and flattened its upper arm
     // (flat p5 0.39, limit 0.55), and the lift twisted the upper arm by 170°.
-    restL: { kind: 'string', key: 48, away: 0.02, pole: [-0.3, -1, 0.3] },
-    restR: { kind: 'string', key: 60, away: 0.02, pole: [0.3, -1, 0.3] },
+    restL: { kind: 'string', key: 48, away: 0.02, pole: [-1, -1, 0] },
+    restR: { kind: 'string', key: 60, away: 0.02, pole: [1, -1, 0] },
   },
 } as const satisfies Readonly<Record<HandsInstrument, HandsHold>>;
 

@@ -43,30 +43,36 @@ export const HARP = {
 } as const;
 
 /**
- * The place of the harp at the player (design 4.6): the base of the harp stands on the floor in
- * front of the player, between the knees, and the strings stand in front of the chest, so that
- * both hands reach the strings with the forearms about level, as a real harpist plays. `pnpm hold-fit --set` and the other probes change it as
- * `harpPlace`. The deer is the only harp player, and its short arms set the place
- * (`docs/research/2026-10-21-mesh-deer.md`).
+ * The place of the harp at the player (design 4.6). As a harpist sits, the harp leans back, and
+ * the top of its soundbox rests on the right shoulder, near the neck of the player
+ * (`docs/reference/harp-technique.md`, section 2). The base stands in front of the player, between
+ * the knees in the front view, on a box ({@link HARP_STAND}). The deer is the only harp player, and
+ * its body sets the place: the top of the soundbox axis is at (0.12, 0.78, -0.14) m in the model
+ * axes, in front of the right shoulder joint, and the soundbox touches the front of the shoulder
+ * (`docs/research/2026-10-25-harp-lean.md`). `pnpm hold-fit --set` and the other probes change it
+ * as `harpPlace`.
  */
 export const HARP_PLACE = {
   /** The move of the base to the right of the floor point under the seat, in head heights. */
-  side: 0,
+  side: -0.017,
   /** The move of the base up, in meters, at the scale 1 of the harp. */
-  lift: 0.017,
+  lift: 0.404,
   /** The distance of the base in front of the floor point, in meters, at the scale 1. */
-  front: 0.44,
+  front: 0.684,
   /**
-   * The tilt of the harp back to the player. The harp stands upright: with a tilt of 12°, the
-   * upper strings came to the chest of the deer, and its forearms went 5 cm into its chest.
+   * The tilt of the harp back to the player. No source gives the angle. At 12°, the neck keeps
+   * 6.6 cm from the muzzle of the deer, near the 6.9 cm of the upright harp of before. At 15°, it
+   * kept 5.0 cm, and at 20°, 2.4 cm.
    */
-  tilt: 0,
+  tilt: 12 * MathUtils.DEG2RAD,
   /**
    * The turn of the harp around the vertical, seen from above, so that the column goes to the
-   * front left and the soundbox comes back to the right knee. The left hand plays the bass strings
-   * at the front left, and the right hand the treble strings nearer to the body.
+   * front left: the harp is diagonal to the player. The left hand plays the bass strings at the
+   * front left, and the right hand the treble strings near the right shoulder. At 15°, the left
+   * paw missed the far bass strings by up to 2.2 cm. At 45°, the neck crossed in front of the
+   * muzzle, 4.0 cm from it.
    */
-  turn: 30 * MathUtils.DEG2RAD,
+  turn: 25 * MathUtils.DEG2RAD,
 };
 
 /**
@@ -197,8 +203,9 @@ function addStand(piece: PieceBuilder, color: Rgb): void {
 }
 
 /**
- * Builds the concert harp (design 4.6). It stands on the floor between the knees of the player, at
- * its place of {@link HARP_PLACE}. Both hands play the strings, the left hand from the
+ * Builds the concert harp (design 4.6). It stands in front of the player and leans back onto the
+ * right shoulder, at its place of {@link HARP_PLACE}, on a box when it stands high. Both hands
+ * play the strings, the left hand from the
  * left side of the strings and the right hand from the right side. A species with short arms
  * plays a smaller harp (`SpeciesParams.harpScale`), as a child plays a smaller lever harp: the
  * harp, its strings, and its distance in front of the player shrink toward its base on the floor.

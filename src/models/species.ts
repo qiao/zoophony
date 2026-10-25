@@ -456,11 +456,12 @@ export const SPECIES = {
    * with 1.2 times the head top of the parametric deer, the size that the user asked for
    * (2026-10-21-mesh-deer decisions). It sits fully on the stool of the harp, which fits its legs,
    * with no chair back, and the harp soloist keeps the stool. Its head height is the head of the studio body without the antlers, and the seat
-   * height is the seat of the studio body, in H.
+   * height is the seat of the studio body, in H. It plays a harp of 0.84 m, near a lever harp of
+   * 26 strings, leaned back on its right shoulder (`docs/reference/harp-technique.md`).
    */
   deer: {
     body: 'studio-deer',
-    harpScale: 0.78,
+    harpScale: 0.6,
     size: 1,
     colors: SPECIES_COLORS.deer,
     accentParts: ['nose', 'feet'],
