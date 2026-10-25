@@ -160,7 +160,7 @@
     "clavicleFrom": [0.565, 0.61],
     "armTop": [0.67, 0.71],
     "shoulderHead": [0.09, 0.155],
-    "fingers": 0.5,
+    "fingers": 1,
     "haunch": {
       "height": [0.145, 0.195],
       "note": "The part of the thigh weight that goes to the hips grows from 0 at the lower height to 1 at the upper height, so that the buttocks stay on the hips. This is the rule of the cat and the dog, moved with the joints of the panda: it starts 0.03 units above the knee and ends 0.03 units above the thigh joint."
