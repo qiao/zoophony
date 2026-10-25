@@ -504,9 +504,9 @@ mesh are quad tubes (rings at a right angle to the bones), and the weights come 
     crease angle splits their normals into a black slot or a hard dark wedge under the raised
     arm, with no dark color on the faces. `rootNormals` adds the skin faces within a radius of
     each shoulder joint to the rim, so that the arm root shades as a soft armpit and the facets
-    elsewhere stay. The beaver and the rhino have it. Their rebuilt quad arms kept the slots
-    without it, folded the beaver arms, and put the rhino arms into the belly, so both keep the
-    faces of their meshes (`docs/decisions/2026-10-25-beaver-rhino-arms.md`). A bind that bends
+    elsewhere stay. The beaver, the rhino, and the hippo have it. The rebuilt quad arms of the
+    beaver and the rhino kept the slots without it, folded the beaver arms, and put the rhino arms
+    into the belly, so both keep the faces of their meshes (`docs/decisions/2026-10-25-beaver-rhino-arms.md`). A bind that bends
     the elbow splits the normals of the inner elbow in the same way, into short light and dark
     creases on the bent arm. `rootNormals.elbow` adds the skin faces within its radius of each
     elbow joint to the rim. The elephant has it, because its bind bends the thick arms at the

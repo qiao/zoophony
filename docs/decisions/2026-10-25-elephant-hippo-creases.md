@@ -14,3 +14,5 @@ and remove its row.
 |---|---|
 | The elbow creases of the elephant are a split of the smooth normals: the bind bends each elbow about 62°, and the colors probe and the fold probe show no dark face and no fold there. | 4.4 |
 | The faces within 0.07 units of each elephant elbow joint take the skin normals (`rootNormals.elbow`, `root_rim()` of `tools/blender/rig_mesh.py`). With 0.055 and 0.06, light slivers stayed, and 0.08 smoothed more facets of the forearms. | 4.4 |
+| The dark crease under the left arm of the hippo is the same split at the arm root: with no shadow, its hard edge stays, and the colors probe shows no dark face and the fold probe no fold of the left arm. | 4.4 |
+| The hippo takes `rootNormals.radius` 0.1 units. With 0.14 and 0.18, the arms and the shoulders lost their facets at ±35°. The soft dark under the arm that stays is the shadow and the down-facing skin of a real armpit. | 4.4 |

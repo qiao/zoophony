@@ -320,5 +320,5 @@ The decision files:
 - [`2026-10-25-elephant-arms.md`](decisions/2026-10-25-elephant-arms.md): the quad arm tubes, the Blender weights, and the arm segments of the elephant timpanist, its cuts and elbow rings for a thick arm, the paw colors, and the open depth and elbow creases.
 - [`2026-10-25-beaver-rhino-arms.md`](decisions/2026-10-25-beaver-rhino-arms.md): the skin normals of the arm roots of the beaver bassoonist and the rhino tubist, the rebuilt arms that the round did not ship, and the open crease and twist steps.
 - [`2026-10-25-fox-arms.md`](decisions/2026-10-25-fox-arms.md): the quad arm tubes, the side walls, the Blender weights, and the arm segments of the two foxes, the palm grip and the rest of the flute, the grip around the tube, and the open twist steps and depths.
-- [`2026-10-25-elephant-hippo-creases.md`](decisions/2026-10-25-elephant-hippo-creases.md): the skin normals of the elephant elbows.
+- [`2026-10-25-elephant-hippo-creases.md`](decisions/2026-10-25-elephant-hippo-creases.md): the skin normals of the elephant elbows and of the hippo arm roots.
 - [`2026-10-23-rabbit-arms.md`](decisions/2026-10-23-rabbit-arms.md): the A-pose rabbit mesh with its own faces, a short arm stretch, a violin of 0.83, its elbows and rest grip, and the open shards of its arms.

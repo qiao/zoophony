@@ -16,6 +16,10 @@
     "share": 0.4,
     "note": "The twist bone of each upper arm keeps 0.4 of the roll of the upper arm from the chest (StudioBody.upperTwist), as the user chose with the lower elbows (docs/decisions/2026-10-19-arm-skin.md). With the elbow pole of HIPPO_HOLD, the shoulder ring of the right arm turns 30 degrees in the median of the play (56 with no twist bone). On beethoven-9, the shares 0.6 and 0.8 gave 35 and 43 degrees, and the shares 0.25 and 0.4 both gave 27, because the step of the roll moves along the upper arm. With 0.3, faces 520 and 519 of the right shoulder folded in 64% of the play samples (docs/research/2026-10-19-arm-skin.md, section 6)."
   },
+  "rootNormals": {
+    "radius": 0.1,
+    "note": "The skin faces whose middle lies within radius (units, 0.16 m) of the head of an upper arm take the normals of the skin with no crease angle in the app (root_rim() of tools/blender/rig_mesh.py, studioNormals() of src/models/studio-normals.ts). The seated bind turns the hanging arm up, so the faces under each arm root meet at sharp angles, and the crease angle 35 of ANIMALS split their normals into a hard dark crease under the left arm in the side view. The colors probe shows no dark face there. With 0.14 and 0.18, the arms and the shoulders lost their facets in the views at 35 degrees (docs/research/2026-10-25-elephant-hippo-creases.md)."
+  },
   "joints": {
     "root": {
       "head": [
