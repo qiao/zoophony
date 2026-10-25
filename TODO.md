@@ -855,9 +855,6 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
 - [ ] Mouse oboe play: the right paw lies on the oboe with its finger tips 0.9 cm from it, and
       from the left side the left paw keeps its long fingers open. Each right grip that closes on
       the tube folded the right arm 9 to 10 faces (limit 8) (`2026-10-24-wind-grips.md`).
-- [ ] Wind grips of 2026-10-24: the grip turns of the wolf (105°, 82°) and the mouse (77°, 39°)
-      change on purpose. Update `ACCEPTED_GRIPS` of `tools/arm-check.ts` after the manager accepts
-      the 2x paw crops of `docs/research/2026-10-24-wind-grips/`.
 - [ ] Tan fox flute rest: the flute stands nearly upright in the closed right paw, with the foot
       joint in the air beside the right knee. On the knee, and across the lap with both paws, the
       arms failed the arm gate. Try again after the loop edges of the arms
