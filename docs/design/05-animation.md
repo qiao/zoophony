@@ -654,8 +654,12 @@ The code constants of each family hold the times, the angles, and the lengths of
     high keys stand nearest to the player. The small percussion player strikes the tambourine for
     key 54 and the triangle for the other keys.
   - With two mallets, a chord takes both hands, a fast repeat takes the other hand (a roll), and
-    a hand does not cross the other. On the xylophone, a repeat on one bar stays in one hand
-    (`PercussionHold.gap`), and the left mallet strikes a little nearer to the player than the
+    a hand does not cross the other. On the xylophone, a repeat on one bar or a near bar stays in
+    one hand (`PercussionHold.gap`), and a run that leaves the reach of one paw goes on in the
+    other paw, as the double strokes of a real player (`PercussionHold.reach`). The right paw
+    thus does not reach across the body to the lowest bars. A real player alternates the hands in
+    a scale, but there the heads pass each other at one height, and the shafts touch (open). The
+    left mallet strikes a little nearer to the player than the
     middle of the bar and the right mallet a little farther (`offsetL`, `offsetR`). Between
     strikes, each xylophone mallet keeps its strike direction, and the wrist lifts the head over
     its bar (`MalletAcross.pitch`), so that two heads on near bars keep apart. A mallet lifts before a strike, comes down at its full speed

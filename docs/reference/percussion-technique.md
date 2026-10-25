@@ -243,11 +243,17 @@ shoulder joint to the palm (`docs/decisions/2026-10-20-mesh-badger.md`).
   above the bars plays in the octave that puts its highest key in the highest octave of the
   bars (`xylophoneShift()` of `src/pose/percussion-rig.ts`), where the short arms reach best. No
   source of section 11 gives the octave that a player takes for such a part. The mallets make a V
-  and do not cross, as section 9 gives, but the app differs in two rules: a repeat on one bar
-  stays in one hand, and the left mallet strikes 2 cm nearer to the player than the middle of a
-  bar, the right mallet 2 cm farther (`PERCUSSION_HOLDS.xylophone`). Between strikes, each mallet
+  and do not cross, as section 9 gives, but the app differs in three rules. A repeat on one
+  bar, or a strike within 2 cm of the last bar of the other hand, stays in one hand
+  (`PercussionHold.gap`). A run stays in one hand until it leaves the reach of the paw, 0.53 m
+  from the shoulder joint on the floor plane, and then goes on in the other paw
+  (`PercussionHold.reach`): the app plays the double strokes of section 9 in place of the
+  alternate strokes of a scale. With full alternation, each head passes the other head at about
+  the same height, and the shafts touched in 4% to 6% of the samples of the test score (open).
+  The left mallet strikes 2 cm nearer to the player than the middle of a bar, the right mallet
+  2 cm farther (`PERCUSSION_HOLDS.xylophone`). Between strikes, each mallet
   keeps its strike direction seen from above, and the wrist lifts the head about 13 cm above its
-  bar (`MalletAcross.pitch`), so the two heads keep at least 2.5 cm apart. No source of section 11
+  bar (`MalletAcross.pitch`), so the two heads keep at least 1.6 cm apart. No source of section 11
   gives the height between strikes.
 
 ## 11. Sources

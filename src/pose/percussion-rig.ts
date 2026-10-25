@@ -293,7 +293,8 @@ export const PERCUSSION_HOLDS = {
   // and the wrist lifts the head over its bar (across.pitch), so that the two heads keep apart.
   // The short arms do not reach the bars from an upright body, so the spine leans over them
   // (lean), and the body moves from side to side behind the notes with the feet in place (side,
-  // 2026-10-25-xylophone-sway decisions).
+  // 2026-10-25-xylophone-sway decisions). A run that leaves the reach of one paw goes on in the
+  // other paw (reach, 2026-10-25-xylophone-reach decisions).
   xylophone: {
     hands: 'alternate',
     sizes: { lift: 0.08, rest: 0.03 },
@@ -311,10 +312,11 @@ export const PERCUSSION_HOLDS = {
     across: { rest: -0.6, lift: 0.3, pitch: 0.5 },
     ready: false,
     pair: false,
-    // A repeat on one bar stays in one hand, so that a mallet does not strike under the head of
-    // the other mallet, which rests over the bar.
-    gap: 0.01,
-    reach: Infinity,
+    // A repeat on one bar or a near bar stays in one hand, so that a mallet does not strike under
+    // the head of the other mallet, which rests over its bar. With 1 cm, the mallets touched where
+    // a run goes over from one paw to the other (2026-10-25-xylophone-reach decisions).
+    gap: 0.02,
+    reach: 0.53,
     lean: 0.2,
     // The short legs tilt far with a small move of the hips, and the foot skin then sinks into
     // the floor, so the spine takes most of the move.
