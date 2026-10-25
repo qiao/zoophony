@@ -18,4 +18,4 @@ and remove its row.
 | A hold can keep the aim and the roll of the play at rest (`WindHold.restAim`). The wolf and the mouse take 1: with the roll of the shoulder, the rest paw of the mouse turned 177° on its forearm and flipped in the lowering. | 5.2, 5.3 |
 | The wolf grips move past the axis, the left grip 0.2 H down the tube: at its grip of the instrument, 8.5 cm above the shoulder joint, the retarget turned the paw up along the tube. | 5.3 |
 | At rest, the wolf stands the clarinet bell on the front of the seat between the knees, 20° forward, with both paws on its upper half. Each other rest put the arms into the body. | 5.2 |
-| The right grip of the tan fox moves toward and past the axis of the flute, in the play and at rest. | 5.3 |
+| The right grip of the tan fox moves toward and past the axis of the flute in the play. | 5.3 |
