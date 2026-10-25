@@ -24,7 +24,8 @@ reads it (route 3 of `docs/agents/model-work.md`). The steps:
    With `bodyNormals`, the sides of the cut such as "R", the file also names the caps of the body,
    the quads at the top, and the skin faces of their rim (`cut_rim()`) of these sides, which take
    the normals of the skin too. With `rootNormals` of the config, the rim also takes the skin
-   faces within its radius of each shoulder joint (`root_rim()`).
+   faces within its radius of each shoulder joint, and within its `elbow` radius of each elbow
+   joint (`root_rim()`).
 2. Give each face one color from the base color texture. A face of an eye keeps its dark color.
 3. Build the skeleton of the 30 body bones of the studio at the joints of the config, with the
    optional bone `tail_tip` for a tail of two bones and the optional bone `jaw` for a beak that
@@ -1384,12 +1385,15 @@ def root_rim(verts, tris, heads, rule):
     whose middle lies within `radius` of the head of an upper arm. The seated bind turns a hanging
     arm up, so the faces of its root meet at sharp angles, and the crease angle of the app splits
     their normals into a dark wedge under the raised arm. The app gives these faces the normals
-    of the skin with no crease angle, as the rim of a cut. Gives a mask of the faces."""
+    of the skin with no crease angle, as the rim of a cut. With `elbow`, each face whose middle
+    lies within that radius of the head of a forearm is in the rim too: an elbow that the bind
+    bends gives the same split at the inner elbow. Gives a mask of the faces."""
     mids = verts[tris].mean(axis=1)
     out = np.zeros(len(tris), bool)
     for side in 'LR':
-        joint = np.asarray(heads[f'upper_arm_{side}'], float)
-        out |= np.linalg.norm(mids - joint, axis=1) < rule['radius']
+        for bone, key in (('upper_arm', 'radius'), ('forearm', 'elbow')):
+            joint = np.asarray(heads[f'{bone}_{side}'], float)
+            out |= np.linalg.norm(mids - joint, axis=1) < rule.get(key, 0.0)
     return out
 
 
@@ -4622,8 +4626,8 @@ def main():
         if (materials[np.argsort(order)][found] != 'fur').any():
             raise SystemExit('A face of the rim of the cut is not fur.')
         extras['rim'] = sorted(int(t) for t in module_faces(order, materials)[found])
-        log(f'rim: {len(found)} skin faces around the caps of the body or the shoulder joints '
-            f'take the normals of the skin in the app')
+        log(f'rim: {len(found)} skin faces around the caps of the body, the shoulder joints, or '
+            f'the elbow joints take the normals of the skin in the app')
     if raised:
         # One rule writes one pose, as the files before the list of rules did, so that their bytes
         # stay.
