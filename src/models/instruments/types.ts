@@ -115,6 +115,18 @@ export interface PiecePoint {
 }
 
 /**
+ * The axis of the tube or the bar that a palm closes around, as a line on one piece (design 5.3):
+ * the valve casings of a trumpet, or the brace of a trombone slide.
+ */
+export interface GripTube {
+  readonly bone: InstrumentBone;
+  /** A point on the axis, in the axes of the piece. */
+  readonly from: Vec3;
+  /** A second point on the axis. The line from `from` to `to` gives the direction along it. */
+  readonly to: Vec3;
+}
+
+/**
  * The points where the player touches the instrument in the playing pose. `null` means that the
  * body part does not touch it.
  */
@@ -123,6 +135,13 @@ interface InstrumentGrips {
   readonly palmL: PiecePoint | null;
   /** The middle of the right palm. */
   readonly palmR: PiecePoint | null;
+  /**
+   * The tube that the left palm closes around. With none, a palm closes around the line from the
+   * left grip to the right grip through the mouth, the tube of a woodwind.
+   */
+  readonly tubeL?: GripTube;
+  /** The tube that the right palm closes around, as {@link InstrumentGrips.tubeL}. */
+  readonly tubeR?: GripTube;
   /** The point at the mouth: the lip plate, the reed, or the mouthpiece. */
   readonly mouth: PiecePoint | null;
   /** The point under the chin: the chin rest of the violin and the viola. */

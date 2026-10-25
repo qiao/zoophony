@@ -142,6 +142,15 @@ export interface WindHold {
    * the lowering do not turn it around the tube.
    */
   readonly restAim: number;
+  /**
+   * The curl of the fingers of each paw that closes around its tube, in radians (left, right), at
+   * rest and in the play. A paw that closes a key or a valve curls further by its share of the
+   * closed keys or the pressed valves ({@link WIND_BODY.keyCurl}). A real player curves the
+   * fingers over the front of the tube, with the thumb behind it
+   * (`docs/reference/wind-technique.md` 2.3). `null` keeps the curls of {@link WIND_BODY}, which
+   * open the fingers in the play.
+   */
+  readonly gripCurl: readonly [left: number, right: number] | null;
 }
 
 /** The left paw of a wind hold that leaves its grip in the rest pose (`WindHold.restFreeL`). */
@@ -187,6 +196,7 @@ const WOODWIND = {
   restGripShiftL: null,
   restGripShiftR: null,
   restAim: 0,
+  gripCurl: null,
 } as const satisfies WindHold;
 
 const X_AXIS = new Vector3(1, 0, 0);
@@ -835,6 +845,11 @@ export const WIND_BODY = {
   curlClosed: 50 * MathUtils.DEG2RAD,
   /** The curl of a hand that only holds the instrument. */
   curlHold: 35 * MathUtils.DEG2RAD,
+  /**
+   * The extra curl of the fingers of a paw with a grip curl (`WindHold.gripCurl`) when all its
+   * keys close or all its valves go down.
+   */
+  keyCurl: 20 * MathUtils.DEG2RAD,
 } as const;
 
 const BONES = {
@@ -868,6 +883,16 @@ type FreeRest = (
   readonly arc: Vec3;
 };
 
+/** The tube that one paw closes around, in the bind pose (`InstrumentGrips.tubeL`). */
+interface SideTube {
+  /** A point on the axis of the tube. */
+  readonly point: Vec3;
+  /** The unit direction of the axis. */
+  readonly axis: Vec3;
+  /** Whether the tube is on the trombone slide, so that it moves with the slide. */
+  readonly onSlide: boolean;
+}
+
 /** One side of the body of a wind player in the bind pose. */
 interface WindSide {
   readonly arm: ArmRig;
@@ -877,6 +902,12 @@ interface WindSide {
   readonly restGrip: Vec3;
   /** Whether the grip is on the trombone slide. */
   readonly onSlide: boolean;
+  /**
+   * The tube that the paw closes around: the tube of the instrument for the grip
+   * (`InstrumentGrips.tubeL`), or the line from the left grip to the right grip of the instrument
+   * through the mouthpiece, before the moves of {@link WindHold.gripShiftL}.
+   */
+  readonly tube: SideTube;
 }
 
 /**
@@ -899,11 +930,6 @@ export interface WindRig {
   readonly right: WindSide;
   /** The left paw in the rest pose, or `null` when it stays on its grip. */
   readonly freeL: FreeRest | null;
-  /**
-   * The unit direction of the tube in the bind pose, from the grip of the left palm of the
-   * instrument to the grip of the right palm, before the moves of {@link WindHold.gripShiftL}.
-   */
-  readonly tubeAxis: Vec3;
   /** The unit direction of the trombone slide from the first position, or (0, 0, 0). */
   readonly slideAxis: Vec3;
   /**
@@ -1006,30 +1032,21 @@ function slideReachOf(rig: Omit<WindRig, 'slideReach'>, travel: number): number 
 }
 
 /**
- * Moves the grip of one palm of a woodwind in the bind pose, in the axes of its tube
+ * Moves the grip of one palm in the bind pose, in the axes of its tube
  * ({@link WindHold.gripShiftL}): along the tube, from the grip toward the axis of the tube, and
- * across both, away from the shoulder joint of the paw. The tube runs from the left grip to the
- * right grip, and its axis passes through the mouthpiece.
+ * across both, away from the shoulder joint of the paw.
  *
- * @param raw The grips of the instrument in the bind pose.
- * @param side The side of the paw.
- * @param mouthpiece The mouthpiece in the bind pose.
+ * @param raw The grip of the instrument in the bind pose.
+ * @param tube The tube of the paw.
  * @param arm The arm of the paw.
  * @param shift The move, in head heights.
  * @param h The head height, in meters.
  * @returns The moved grip.
  */
-function shiftGrip(
-  raw: Readonly<Record<'L' | 'R', Vec3>>,
-  side: 'L' | 'R',
-  mouthpiece: Vec3,
-  arm: ArmRig,
-  shift: Vec3,
-  h: number,
-): Vec3 {
-  const grip = new Vector3(...raw[side]);
-  const along = new Vector3(...raw.R).sub(new Vector3(...raw.L)).normalize();
-  const toward = new Vector3(...mouthpiece).sub(grip).projectOnPlane(along).normalize();
+function shiftGrip(raw: Vec3, tube: SideTube, arm: ArmRig, shift: Vec3, h: number): Vec3 {
+  const grip = new Vector3(...raw);
+  const along = new Vector3(...tube.axis);
+  const toward = new Vector3(...tube.point).sub(grip).projectOnPlane(along).normalize();
   const across = new Vector3().crossVectors(along, toward);
   if (across.dot(grip.clone().sub(new Vector3(...arm.bind.shoulder))) < 0) {
     across.negate();
@@ -1063,13 +1080,29 @@ export function windRig(
     throw new Error(`The ${instrument} does not hang on the chest.`);
   }
   const at = (bone: number): Vec3 => positions[bone] ?? [0, 0, 0];
-  const grips = { L: model.instrument.grips.palmL, R: model.instrument.grips.palmR };
+  const { grips: all } = model.instrument;
+  const grips = { L: all.palmL, R: all.palmR };
   const raw = { L: gripPoint(model, grips.L), R: gripPoint(model, grips.R) };
+  const tubeAxis = toVec3(new Vector3(...raw.R).sub(new Vector3(...raw.L)).normalize());
+  const tubeOf = (s: 'L' | 'R'): SideTube => {
+    const own = s === 'L' ? all.tubeL : all.tubeR;
+    if (!own) {
+      return { point: at(BONES.instrument), axis: tubeAxis, onSlide: false };
+    }
+    const from = new Vector3(...placePoint(model.pieces, { bone: own.bone, at: own.from }));
+    const to = new Vector3(...placePoint(model.pieces, { bone: own.bone, at: own.to }));
+    return {
+      point: toVec3(from),
+      axis: toVec3(to.sub(from).normalize()),
+      onSlide: own.bone === 'slide',
+    };
+  };
   const side = (s: 'L' | 'R'): WindSide => {
     const arm = armRig(model, s);
+    const tube = tubeOf(s);
     const shifted = (shift: Vec3): Vec3 =>
       shift.some((v) => v !== 0)
-        ? shiftGrip(raw, s, at(BONES.instrument), arm, shift, model.body.headHeight)
+        ? shiftGrip(raw[s], tube, arm, shift, model.body.headHeight)
         : raw[s];
     const play = s === 'L' ? hold.gripShiftL : hold.gripShiftR;
     const rest = (s === 'L' ? hold.restGripShiftL : hold.restGripShiftR) ?? play;
@@ -1078,6 +1111,7 @@ export function windRig(
       grip: shifted(play),
       restGrip: shifted(rest),
       onSlide: grips[s]?.bone === 'slide',
+      tube,
     };
   };
   const slide = model.instrument.targets.find((t) => t.kind === 'slide');
@@ -1096,7 +1130,6 @@ export function windRig(
     left,
     right: side('R'),
     freeL: hold.restFreeL ? freeRestOf(model, left.arm, hold.restFreeL) : null,
-    tubeAxis: toVec3(new Vector3(...raw.R).sub(new Vector3(...raw.L)).normalize()),
     slideAxis: toVec3(travelVector.clone().normalize()),
   };
   return { ...rig, slideReach: slideReachOf(rig, travelVector.length()) };
@@ -1117,10 +1150,15 @@ export interface WindPoseOut {
  *
  * @param closed The close of the fingers, from 0 to 1, or -1 for a hand that only holds.
  * @param weight The weight of the playing pose.
+ * @param grip The grip curl of the hand (`WindHold.gripCurl`), or `null` for the curls of
+ *   {@link WIND_BODY}.
  * @returns The curl angle.
  */
-function curlOf(closed: number, weight: number): number {
+function curlOf(closed: number, weight: number, grip: number | null): number {
   const b = WIND_BODY;
+  if (grip !== null) {
+    return grip + (closed < 0 ? 0 : b.keyCurl * closed * weight);
+  }
   const playing = closed < 0 ? b.curlHold : b.curlOpen + (b.curlClosed - b.curlOpen) * closed;
   return b.curlHold + (playing - b.curlHold) * weight;
 }
@@ -1148,6 +1186,7 @@ const ORIGIN = [0, 0, 0] as const;
 
 const tubeSide = new Vector3();
 const tubeAxis = new Vector3();
+const tubePoint = new Vector3();
 const aimFrom = new Vector3();
 const aimPoint = new Vector3();
 const handAxis = new Vector3();
@@ -1275,11 +1314,16 @@ function poseSide(
   // A paw that leaves its grip at rest keeps the aim and the roll of its shoulder: with the roll,
   // the mix from its rest paw flipped to the other side of its forearm in the middle of the move.
   if (rig.hold.palmToTube && !free) {
-    tubeAxis.fromArray(rig.tubeAxis).applyQuaternion(rotation);
-    // The palm faces from its grip to the axis of the tube, which passes through the mouthpiece.
-    // The up axis of the bone is no such direction: the oboe and the clarinet hang with their
-    // keys toward the body, so with it, the palms faced up.
-    tubeSide.subVectors(pivot, grip).projectOnPlane(tubeAxis).normalize();
+    tubeAxis.fromArray(side.tube.axis).applyQuaternion(rotation);
+    // The palm faces from its grip to the axis of its tube. The axis of a woodwind passes through
+    // the mouthpiece. The up axis of the bone is no such direction: the oboe and the clarinet hang
+    // with their keys toward the body, so with it, the palms faced up.
+    tubePoint.fromArray(side.tube.point);
+    if (side.tube.onSlide) {
+      tubePoint.add(slide);
+    }
+    tubePoint.sub(pivotBind).applyQuaternion(rotation).add(pivot);
+    tubeSide.subVectors(tubePoint, grip).projectOnPlane(tubeAxis).normalize();
     // The share of the aim and the roll of the play: a hold can keep them in the rest pose.
     const aim = rig.hold.restAim + (1 - rig.hold.restAim) * weight;
     aimAcross(shoulder, grip, tubeAxis, rig.hold.aimAcross * aim, aimPoint);
@@ -1455,12 +1499,12 @@ export function poseWind(
   slide.fromArray(rig.slideAxis).multiplyScalar(state.slide * rig.slideReach * weight);
   const { hold } = rig;
   const { freeL } = rig;
-  const left = curlOf(state.fingersL, weight);
+  const left = curlOf(state.fingersL, weight, hold.gripCurl?.[0] ?? null);
   const restPoleL = freeL?.kind === 'hang' ? freeL.hang.pole : hold.restPoleL;
   const poleL = mixPole(restPoleL, hold.poleL, weight);
   leftShoulderTurn(hold, leftTurn);
   poseSide(rig, rig.left, frames, leftTurn, poleL, left, freeL, weight, out.rotations);
-  const right = curlOf(state.fingersR, weight);
+  const right = curlOf(state.fingersR, weight, hold.gripCurl?.[1] ?? null);
   rightShoulderTurn(hold, rightTurn);
   const poleR = mixPole(hold.restPoleR, hold.poleR, weight);
   poseSide(rig, rig.right, frames, rightTurn, poleR, right, null, weight, out.rotations);
