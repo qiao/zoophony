@@ -139,6 +139,13 @@ interface StudioArmSegments {
 - **Rejected fixes.** A second subdivision of the arm faces, weight rules of an agent, a Smooth on
   the upper arm weights, and a move of the elbow alone all failed. The elbow move only shifts
   twist between the upper arm and the forearm.
+- **The cut loops.** The Bisect leaves thin faces where its plane passes near a corner or along an
+  edge, and a cut loop with more vertices than the ring leaves thin bridge triangles. These faces
+  fold in each pose. Collapse their short edges (`step_clean_cut()` and `step_clean_bridge()` of
+  `tools/blender/wind_arms.py`). A tilted cut plane can cross the first ring on the inner side.
+- **The joint gaps.** Rings close to a joint give thin faces when the joint bends. On the wolf, the
+  elbow rings stand 0.016 units from the joint and the wrist rings 0.0085, because a wide wrist gap
+  opened the closed paw (`wristGap` of `wind_arms.py`, `docs/research/2026-10-25-wind-arms.md`).
 - **The frame cost.** Each body with `armSegments` has 20 more bone matrices. Run `pnpm frame`
   after a new body uses it.
 
