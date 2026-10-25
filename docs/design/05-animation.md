@@ -657,8 +657,8 @@ The code constants of each family hold the times, the angles, and the lengths of
     a hand does not cross the other. On the xylophone, a repeat on one bar stays in one hand
     (`PercussionHold.gap`), and the left mallet strikes a little nearer to the player than the
     middle of the bar and the right mallet a little farther (`offsetL`, `offsetR`). Between
-    strikes, each head swings in to the rest direction of the grip, and two heads on near bars
-    met. A mallet lifts before a strike, comes down at its full speed
+    strikes, each xylophone mallet keeps its strike direction, and the wrist lifts the head over
+    its bar (`MalletAcross.pitch`), so that two heads on near bars keep apart. A mallet lifts before a strike, comes down at its full speed
     at the note start, and rebounds (`STRIKE_MOTION`). The elbows point down and near the body
     (user decision of 2026-10-10). The hand cymbals meet in front of the shoulders, with one turn of
     both plates (`PERCUSSION_PLACES`).

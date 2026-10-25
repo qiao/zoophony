@@ -276,20 +276,20 @@ export const PERCUSSION_HOLDS = {
     lean: 0,
     side: null,
   },
-  // The mallets leave the front of the fists (XYLOPHONE.malletTilt) and keep the angle of no
-  // twist of the paw between strikes, as the sticks of the snare drum, because a real player holds
-  // them in the matched grip of the snare drum (2026-10-20-mesh-badger decisions). The short arms
-  // do not reach the bars from an upright body, so the spine leans over them (lean), and the body
-  // moves from side to side behind the notes with the feet in place (side,
+  // The mallets leave the front of the fists (XYLOPHONE.malletTilt), as the sticks of the snare
+  // drum, because a real player holds them in the matched grip of the snare drum
+  // (2026-10-20-mesh-badger decisions). Between strikes, each mallet keeps its strike direction,
+  // and the wrist lifts the head over its bar (across.pitch), so that the two heads keep apart.
+  // The short arms do not reach the bars from an upright body, so the spine leans over them
+  // (lean), and the body moves from side to side behind the notes with the feet in place (side,
   // 2026-10-25-xylophone-sway decisions).
   xylophone: {
     hands: 'alternate',
     sizes: { lift: 0.08, rest: 0.03 },
     // The left mallet strikes 3 cm nearer to the player than the middle of the bar, and the right
-    // mallet 3 cm farther, so that the heads keep apart on near bars between strikes, when each
-    // head swings in to the rest direction. With the heads at the middle, the mallets of the steel
-    // drum part of a file of the user touched in 13 of 248 samples, and with these offsets in 2
-    // (`docs/research/2026-10-21-pirates-clip.md`).
+    // mallet 3 cm farther, so that the heads keep apart on near bars. With the heads at the middle
+    // of the bar, the left paw reached 41% of its strikes of the steel drum part of a file of the
+    // user, and the heads touched in 7% of its samples (2026-10-25-xylophone-sway decisions).
     offsetL: [0, 0, 0.03],
     offsetR: [0, 0, -0.03],
     poleL: [-0.8, -1, 0.3],
@@ -297,7 +297,7 @@ export const PERCUSSION_HOLDS = {
     rim: 0,
     home: MALLET_HOME,
     top: 'up',
-    across: { rest: -0.6, lift: 0.3, pitch: null },
+    across: { rest: -0.6, lift: 0.3, pitch: 0.5 },
     ready: false,
     pair: false,
     // A repeat on one bar stays in one hand, so that a mallet does not strike under the head of

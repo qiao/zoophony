@@ -237,9 +237,10 @@ shoulder joint to the palm (`docs/decisions/2026-10-20-mesh-badger.md`).
   source of section 11 gives the octave that a player takes for such a part. The mallets make a V
   and do not cross, as section 9 gives, but the app differs in two rules: a repeat on one bar
   stays in one hand, and the left mallet strikes 3 cm nearer to the player than the middle of a
-  bar, the right mallet 3 cm farther (`PERCUSSION_HOLDS.xylophone`). Between strikes, each head
-  swings in to its rest direction across the forearm, so two heads on near bars met
-  (`docs/research/2026-10-21-pirates-clip.md`).
+  bar, the right mallet 3 cm farther (`PERCUSSION_HOLDS.xylophone`). Between strikes, each mallet
+  keeps its strike direction seen from above, and the wrist lifts the head about 13 cm above its
+  bar (`MalletAcross.pitch`), so the two heads keep at least 2.5 cm apart. No source of section 11
+  gives the height between strikes.
 
 ## 11. Sources
 
