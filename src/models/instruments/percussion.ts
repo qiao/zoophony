@@ -13,6 +13,35 @@ import type { InstrumentModel, InstrumentPiece, PlayTarget } from './types.ts';
 export type KettleCount = 2 | 3 | 4;
 
 /**
+ * The angle of each mallet, stick, and beater of the badger below the level in the bind pose,
+ * toward the fingers of the hanging paw, in radians: the shaft runs 60° from the fingers toward
+ * the thumb, and the head leaves the front of the closed paw at the side of the thumb, as a real
+ * player holds it (`docs/reference/percussion-technique.md` 1). The paw of the app has no side
+ * bend on the forearm (`PercussionHold.flex`), so a forearm nearer to the shaft than this angle
+ * bends the paw to the side. At 1.3 (the shaft 15° from the fingers), the shaft left the paw along
+ * the claws (`docs/research/2026-10-25-percussion-grip.md`).
+ */
+export const PAW_TILT: number = 30 * MathUtils.DEG2RAD;
+
+/**
+ * The grip of a mallet in the closed paw, in head heights `H`, in the axes of the hanging paw of
+ * the bind pose, from the middle of the palm: toward the palm, along the fingers, and toward the
+ * thumb (design 4.6). The shaft lies on the palm side, under the curled fingers, so that they
+ * close on it (`PercussionHold.curl`), and its butt end sticks out of the heel of the paw
+ * (`docs/research/2026-10-25-percussion-grip.md`).
+ */
+export type MalletSpot = readonly [palm: number, fingers: number, thumb: number];
+
+/**
+ * The grip of the mallets in the paws of the badger mesh ({@link MalletSpot}). The shaft runs 60°
+ * from the fingers toward the thumb ({@link PAW_TILT}), about 2 cm toward the palm from the
+ * middle of the palm, where the claws curled 90° close on it (`PercussionHold.curl`). With the
+ * claws curled 120°, 11 to 20 faces at the knuckles turned over, and at 90°, at most 5
+ * (`docs/research/2026-10-25-percussion-grip.md`).
+ */
+export const PAW_SPOT: MalletSpot = [0.08, -0.04, 0.018];
+
+/**
  * The timpani, in meters (design 4.6). The heads of the kettles have their real size (32, 29, 26,
  * and 23 inches), as the kettles of the reference images, which are about 1.4 head heights of the
  * elephant wide. They stand in an arc in front of the player, the largest at the left. Each
@@ -56,14 +85,24 @@ export const TIMPANI = {
   front: 0.12,
   /**
    * The angle of each mallet below the level in the bind pose, toward the fingers of the hanging
-   * paw, in radians. A real timpanist holds the shaft along the thumb, with the head out of the
-   * front of the fist and the butt end in the palm (`docs/reference/percussion-technique.md` 1).
-   * Thus the shaft slants from the fist toward the line of the forearm. 1.3 gives the smallest
-   * turn of the elephant paw on its forearm with the mallets in the range of real players
-   * (`docs/decisions/2026-10-19-elephant-grip.md`).
+   * paw, in radians: the shaft runs 45° from the fingers toward the thumb. A real timpanist holds
+   * the shaft along the thumb, with the head out of the front of the fist
+   * (`docs/reference/percussion-technique.md` 1). The paw of the app has no side bend on the
+   * forearm (`PercussionHold.flex`), so the forearm stands at least this angle from the shaft. At
+   * the strikes of the elephant, the forearm stands 20° to 44° from the shaft
+   * (`docs/research/2026-10-25-percussion-grip.md`).
    */
-  // SAFETY: the literal widens to a number, so that a hold tool can set it in memory.
-  malletTilt: 1.3 as number,
+  malletTilt: 45 * MathUtils.DEG2RAD,
+  /**
+   * The grip of the mallet in the closed left paw of the elephant mesh (`MalletSpot`). The mesh
+   * is not symmetric: the middle of the right paw lies about 1 cm further toward the palm, so each
+   * paw has its own grip. With the end of the round paw curled 110°, the shaft goes about 1.5 cm
+   * deep through each paw, and the end of the paw touches it (`grip-main.txt` and
+   * `grip-branch.txt` of `docs/research/2026-10-25-percussion-grip/`).
+   */
+  malletSpotL: [0.045, 0.05, 0.035],
+  /** The grip of the mallet in the closed right paw of the elephant mesh. */
+  malletSpotR: [0.06, 0.035, 0.0238],
 } as const;
 
 /**
@@ -95,18 +134,32 @@ export const XYLOPHONE = {
   /** The radius of the head of each mallet: smaller than a real head, as the bars. */
   head: 0.012,
   /**
+   * The length of each mallet from the grip to the middle of its head. The shaft leaves the closed
+   * paw at 60° from the fingers ({@link PAW_TILT}), so it no longer continues the line of the
+   * forearm, and the short arms lose reach. With 0.30 m, 83% of the right strikes of the test
+   * score landed within 5 mm of their bars, and with 0.40 m, 100%
+   * (`docs/research/2026-10-25-percussion-grip.md`).
+   */
+  // SAFETY: the literal widens to a number, so that a hold tool can set it in memory.
+  mallet: 0.4 as number,
+  /**
    * A mallet strikes a sharp bar this far from its near end, at the edge near the player, as a
    * real player strikes it (`docs/reference/percussion-technique.md` 9).
    */
   sharpStrike: 0.02,
   /**
    * The angle of each mallet below the level in the bind pose, toward the fingers of the hanging
-   * paw, in radians, as `TIMPANI.malletTilt`. 0 holds it at 90° to the forearm. A real player
-   * holds it in the matched grip, along the thumb and out of the front of the fist
-   * (`docs/reference/percussion-technique.md` 9), so it takes the tilt 1.3 of the timpani.
+   * paw, in radians ({@link PAW_TILT}).
    */
-  // SAFETY: the literal widens to a number, so that a hold tool can set it in memory.
-  malletTilt: 1.3 as number,
+  malletTilt: PAW_TILT,
+  /**
+   * The grip of each mallet in the closed paw (`MalletSpot`): 0.4 cm nearer to the middle of the
+   * paw than {@link PAW_SPOT}, with the claws curled 100° (`PERCUSSION_HOLDS.xylophone.curl`).
+   * The left paw reaches far for the bars, and with the grip of the snare sticks, its shaft lay
+   * on the skin of the palm out of the closed paw in 29% of the play samples
+   * (`docs/research/2026-10-25-percussion-grip.md`).
+   */
+  malletSpot: [0.065, -0.045, 0.018],
 } as const;
 
 /**
@@ -128,13 +181,12 @@ export const SNARE_DRUM = {
    */
   forward: 0.45,
   /**
-   * The angle of each stick below the level in the bind pose, toward the fingers of the hanging
-   * paw, in radians, as `TIMPANI.malletTilt`. 0 holds it at 90° to the forearm. A real player
-   * holds it in the matched grip, along the thumb and out of the front of the fist
-   * (`docs/reference/percussion-technique.md` 6), so it takes the tilt 1.3 of the timpani.
+   * The angle of each mallet below the level in the bind pose, toward the fingers of the hanging
+   * paw, in radians ({@link PAW_TILT}).
    */
-  // SAFETY: the literal widens to a number, so that a hold tool can set it in memory.
-  malletTilt: 1.3 as number,
+  malletTilt: PAW_TILT,
+  /** The grip of each mallet in the closed paw ({@link PAW_SPOT}). */
+  malletSpot: PAW_SPOT,
 } as const;
 
 /**
@@ -152,11 +204,12 @@ export const BASS_DRUM = {
   /** The turn of the axis of the drum around the vertical from the x axis, in degrees. */
   turn: -30,
   /**
-   * The angle of each beater below the level in the bind pose, toward the fingers of the hanging
-   * paw, in radians, as `TIMPANI.malletTilt`. 0 holds it at 90° to the forearm.
+   * The angle of each mallet below the level in the bind pose, toward the fingers of the hanging
+   * paw, in radians ({@link PAW_TILT}).
    */
-  // SAFETY: the literal widens to a number, so that a hold tool can set it in memory.
-  malletTilt: 0 as number,
+  malletTilt: PAW_TILT,
+  /** The grip of each mallet in the closed paw ({@link PAW_SPOT}). */
+  malletSpot: PAW_SPOT,
 } as const;
 
 /** The tambourine on its stand, in meters (design 4.6). */
@@ -173,12 +226,14 @@ export const TAMBOURINE = {
 export const TRIANGLE = {
   /**
    * The angle of the beater below the level in the bind pose, toward the fingers of the hanging
-   * paw, in radians, as `TIMPANI.malletTilt`. 0 holds it at 90° to the forearm. 1.3 holds it
-   * along the thumb, as the sticks of the snare drum, so that the right paw of the badger bends
-   * less on its forearm (`docs/decisions/2026-10-20-mesh-badger.md`).
+   * paw, in radians: the beater runs 33° from the fingers. The beater strikes near the line of
+   * the forearm, and with {@link PAW_TILT}, the turn of the paw jumped up to 38° in 0.01 s
+   * (`docs/research/2026-10-25-percussion-grip.md`).
    */
   // SAFETY: the literal widens to a number, so that a hold tool can set it in memory.
-  malletTilt: 1.3 as number,
+  malletTilt: 1 as number,
+  /** The grip of each mallet in the closed paw ({@link PAW_SPOT}). */
+  malletSpot: PAW_SPOT,
 } as const;
 
 /**
@@ -251,6 +306,20 @@ export function kettleCount(highestKey: number): KettleCount {
  */
 export const MALLET_BUTT = 0.04;
 
+/**
+ * Gives the offset of a grip from the palm point, in head heights, in the model axes of the bind
+ * pose: the palm of the left paw faces +x, the fingers point down, and the thumb points forward,
+ * along -z.
+ *
+ * @param spot The grip.
+ * @param bone The bone of the mallet: `malletL` in the left paw.
+ * @returns The offset.
+ */
+function spotOffset(spot: MalletSpot, bone: 'malletL' | 'malletR'): Vec3 {
+  const [palm, fingers, thumb] = spot;
+  return [bone === 'malletL' ? palm : -palm, -fingers, -thumb];
+}
+
 /** A mallet, a stick, or a beater, and its target. */
 interface HandTool {
   readonly piece: InstrumentPiece;
@@ -268,6 +337,7 @@ interface HandTool {
  * @param stickColor The color of the stick.
  * @param finish The finish of the stick.
  * @param tilt The angle of the mallet below the level in the bind pose, in radians.
+ * @param spot The grip in the closed paw ({@link MalletSpot}).
  * @returns The piece and the target at the ball.
  */
 function mallet(
@@ -277,7 +347,8 @@ function mallet(
   ballColor: Rgb,
   stickColor: Rgb = INSTRUMENT_COLORS.stick,
   finish: Finish = 'matte',
-  tilt = 0,
+  tilt: number,
+  spot: MalletSpot,
 ): HandTool {
   const piece = new PieceBuilder();
   piece.rod([-MALLET_BUTT, 0, 0], [length, 0, 0], 0.0055, 4, stickColor, finish);
@@ -295,7 +366,7 @@ function mallet(
             .multiply(new Quaternion(...FORWARD)),
         );
   return {
-    piece: piece.build(bone, hold(palm, [0, 0, -0.07], turn)),
+    piece: piece.build(bone, hold(palm, spotOffset(spot, bone), turn)),
     target: {
       kind: 'mallet-head',
       bone,
@@ -428,6 +499,7 @@ export function buildTimpani(kettles: KettleCount): InstrumentModel {
     undefined,
     undefined,
     tilt,
+    t.malletSpotL,
   );
   const right = mallet(
     'malletR',
@@ -437,6 +509,7 @@ export function buildTimpani(kettles: KettleCount): InstrumentModel {
     undefined,
     undefined,
     tilt,
+    t.malletSpotR,
   );
   const instrument = piece.build('instrument', hold('floor'));
   return {
@@ -530,6 +603,7 @@ export function buildBassDrum(): InstrumentModel {
     undefined,
     undefined,
     BASS_DRUM.malletTilt,
+    BASS_DRUM.malletSpot,
   );
   const instrument = piece.build('instrument', hold('floor'));
   const head = toVec3(new Vector3(...center).addScaledVector(axis, depth / 2));
@@ -559,8 +633,27 @@ export function buildSnareDrum(): InstrumentModel {
   drum(piece, center, [0, 1, 0], radius, depth, INSTRUMENT_COLORS.drumShell);
   tripod(piece, [center[0], 0, center[2]], [center[0], top - depth, center[2]], 0.24);
   const tilt = SNARE_DRUM.malletTilt;
-  const left = mallet('malletL', 0.3, 0.008, INSTRUMENT_COLORS.stick, undefined, undefined, tilt);
-  const right = mallet('malletR', 0.3, 0.008, INSTRUMENT_COLORS.stick, undefined, undefined, tilt);
+  const spot = SNARE_DRUM.malletSpot;
+  const left = mallet(
+    'malletL',
+    0.3,
+    0.008,
+    INSTRUMENT_COLORS.stick,
+    undefined,
+    undefined,
+    tilt,
+    spot,
+  );
+  const right = mallet(
+    'malletR',
+    0.3,
+    0.008,
+    INSTRUMENT_COLORS.stick,
+    undefined,
+    undefined,
+    tilt,
+    spot,
+  );
   const instrument = piece.build('instrument', hold('floor'));
   const head: Vec3 = [center[0], top, center[2]];
   return {
@@ -688,11 +781,12 @@ export const SUSPENDED_CYMBAL = {
   ball: 0.02,
   /**
    * The angle of each mallet below the level in the bind pose, toward the fingers of the hanging
-   * paw, in radians, as `SNARE_DRUM.malletTilt`: a real player holds the mallets in the matched
-   * grip of the snare drum.
+   * paw, in radians ({@link PAW_TILT}): a real player holds the mallets in the matched grip of
+   * the snare drum.
    */
-  // SAFETY: the literal widens to a number, so that a hold tool can set it in memory.
-  malletTilt: 1.3 as number,
+  malletTilt: PAW_TILT,
+  /** The grip of each mallet in the closed paw ({@link PAW_SPOT}). */
+  malletSpot: PAW_SPOT,
 } as const;
 
 /**
@@ -715,7 +809,16 @@ export function buildSuspendedCymbal(scale = 1): InstrumentModel {
   const under = center[1] + CYMBAL_INNER * scale;
   tripod(piece, [center[0], 0, center[2]], [center[0], under, center[2]], 0.24);
   const yarn = (bone: 'malletL' | 'malletR'): HandTool =>
-    mallet(bone, 0.3, c.ball, INSTRUMENT_COLORS.drumShell, undefined, undefined, c.malletTilt);
+    mallet(
+      bone,
+      0.3,
+      c.ball,
+      INSTRUMENT_COLORS.drumShell,
+      undefined,
+      undefined,
+      c.malletTilt,
+      c.malletSpot,
+    );
   const left = yarn('malletL');
   const right = yarn('malletR');
   const instrument = piece.build('instrument', hold('floor'));
@@ -797,7 +900,16 @@ export function buildSmallPercussion(): InstrumentModel {
     triangle.rod(clipEnd, onSide, 0.0018, 4, INSTRUMENT_COLORS.bowHair);
   }
   const barMiddle: Vec3 = [side / 4, -0.05 - (side * Math.sin(60 * MathUtils.DEG2RAD)) / 2, 0];
-  const beater = mallet('malletR', 0.15, 0, metal, metal, 'metal', TRIANGLE.malletTilt);
+  const beater = mallet(
+    'malletR',
+    0.15,
+    0,
+    metal,
+    metal,
+    'metal',
+    TRIANGLE.malletTilt,
+    TRIANGLE.malletSpot,
+  );
   return {
     id: 'small-percussion',
     parent: 'root',
@@ -949,21 +1061,23 @@ export function buildXylophone(): InstrumentModel {
   const tilt = x.malletTilt;
   const left = mallet(
     'malletL',
-    0.3,
+    x.mallet,
     x.head,
     INSTRUMENT_COLORS.drumShell,
     undefined,
     undefined,
     tilt,
+    x.malletSpot,
   );
   const right = mallet(
     'malletR',
-    0.3,
+    x.mallet,
     x.head,
     INSTRUMENT_COLORS.drumShell,
     undefined,
     undefined,
     tilt,
+    x.malletSpot,
   );
   const instrument = piece.build('instrument', hold('floor'));
   return {
