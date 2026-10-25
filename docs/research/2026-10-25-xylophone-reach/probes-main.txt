@@ -1,0 +1,17 @@
+== percussion-test
+player 0: L 59 strikes: within 5 mm 46%, median 26, p90 134, max 152 mm, cross 30.0 cm; R 69 strikes: within 5 mm 26%, median 95, p90 244, max 316 mm, cross 32.0 cm
+  front row 75 strikes, over 5 mm 30, max 147 mm; back row 53 strikes, over 5 mm 53, max 316 mm; all over 5 mm 83 of 128
+percussion-test player 0: 763 samples, head gap min 8.8 cm, p5 11.1 cm, median 30.2 cm, heads touch 0 (0.0%), mallets touch 2 (0.3%), head height p50 14.4 cm, p95 20.5 cm
+percussion-test player 1: 763 samples, head gap min 9.0 cm, p5 11.1 cm, median 30.2 cm, heads touch 0 (0.0%), mallets touch 2 (0.3%), head height p50 14.6 cm, p95 20.5 cm
+percussion-test player 0: 127 fast pairs, 4% change hands, longest run in one hand 29 strikes
+percussion-test player 0 (381 samples): footL: sink mm p50 1.2 p95 3.7 max 3.7; lift of a sole corner mm p50 3.3 p95 7.7 max 7.7; footR: sink mm p50 2.1 p95 5.8 max 5.8; lift of a sole corner mm p50 4.8 p95 8.8 max 8.8
+percussion-test player 0: 381 samples. COM side cm min -5.5 max 5.5; COM front cm p50 0.5 max 0.9; inside the posed sole edge cm min 0.4 p50 7.2; inside the bind sole edge cm min 9.6 p50 10.0; lowest sole cm -0.6 to -0.0; ankle move max 0.0 mm
+percussion-test player 0: 768 samples, eye line p50 1.0°, p95 3.0°, max 3.0° at 24.90 s
+== ~/Downloads/Disney_Themes_-_Pirates_Of_The_Caribbean.mid
+player 3: L 82 strikes: within 5 mm 90%, median 0, p90 3, max 122 mm, cross 22.0 cm; R 132 strikes: within 5 mm 89%, median 0, p90 104, max 111 mm, cross 0.0 cm
+  front row 195 strikes, over 5 mm 4, max 33 mm; back row 19 strikes, over 5 mm 19, max 122 mm; all over 5 mm 23 of 214
+Disney_Themes_-_Pirates_Of_The_Caribbean.mid player 3: 1100 samples, head gap min 2.5 cm, p5 2.8 cm, median 8.4 cm, heads touch 0 (0.0%), mallets touch 4 (0.4%), head height p50 13.5 cm, p95 15.6 cm
+Disney_Themes_-_Pirates_Of_The_Caribbean.mid player 3: 198 fast pairs, 20% change hands, longest run in one hand 11 strikes
+Disney_Themes_-_Pirates_Of_The_Caribbean.mid player 3 (550 samples): footL: sink mm p50 0.8 p95 0.9 max 0.9; lift of a sole corner mm p50 2.4 p95 3.2 max 3.3; footR: sink mm p50 4.9 p95 5.8 max 5.8; lift of a sole corner mm p50 6.9 p95 8.7 max 8.8
+Disney_Themes_-_Pirates_Of_The_Caribbean.mid player 3: 550 samples. COM side cm min 1.2 max 5.2; COM front cm p50 0.5 max 0.8; inside the posed sole edge cm min 0.4 p50 7.2; inside the bind sole edge cm min 9.6 p50 9.9; lowest sole cm -0.6 to -0.3; ankle move max 0.0 mm
+Disney_Themes_-_Pirates_Of_The_Caribbean.mid player 3: 1238 samples, eye line p50 1.0°, p95 2.9°, max 4.5° at 4.70 s

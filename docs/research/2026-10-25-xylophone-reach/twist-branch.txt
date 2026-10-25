@@ -1,0 +1,12 @@
+| Link | Mean | Largest | Worst sample |
+|---|---:|---:|---|
+| L clavicle>upper | 45.4 | 53.0 | rest pirates.mid rest |
+| L upper>fore | 0.0 | 0.0 | lift percussion-test.mid wall 2.0 s |
+| L fore>ftwist | 12.0 | 51.2 | lift percussion-test.mid wall 0.1 s |
+| L ftwist>hand | 12.0 | 51.2 | rest percussion-test.mid rest |
+| R clavicle>upper | 43.4 | 53.0 | rest pirates.mid rest |
+| R upper>fore | 0.0 | 0.0 | play pirates.mid 39.80 s |
+| R fore>ftwist | 15.2 | 51.2 | lift percussion-test.mid wall 0.1 s |
+| R ftwist>hand | 15.2 | 51.2 | rest percussion-test.mid rest |
+L total twist: mean 69.4, largest 155.4
+R total twist: mean 73.7, largest 155.4
