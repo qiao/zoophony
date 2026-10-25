@@ -235,9 +235,11 @@ function bassoonParts(piece: PieceBuilder): void {
   piece.add(box(0.07, 0.12, 0.14), wood, transform(at([0, 0.06, 0.035])));
   // The bocal rises from the wing joint to its top, then comes down to the reed. The tube of a
   // player leans, so the end of the bocal brings the reed to the mouth at a nearly level angle,
-  // as on a real bassoon (`docs/reference/wind-technique.md` 3).
-  piece.rod(at([0, 0.62, 0.065]), at([0.08, 0.78, 0.09]), 0.004, 4, metal, 'metal');
-  piece.rod(at([0.08, 0.78, 0.09]), at([0.16, 0.7, 0.125]), 0.004, 4, metal, 'metal');
+  // as on a real bassoon (`docs/reference/wind-technique.md` 3): 1.7° above the level with the
+  // turn of the beaver (`BEAVER_PLAY` of `pose/winds.ts`). With the top at 0.78, the end pointed
+  // 15.7° down into the mouth.
+  piece.rod(at([0, 0.62, 0.065]), at([0.08, 0.74, 0.09]), 0.004, 4, metal, 'metal');
+  piece.rod(at([0.08, 0.74, 0.09]), at([0.16, 0.7, 0.125]), 0.004, 4, metal, 'metal');
   piece.add(box(0.006, 0.002, 0.03), wood, transform(at([0.16, 0.7, 0.14])));
 }
 
