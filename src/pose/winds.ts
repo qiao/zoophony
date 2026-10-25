@@ -501,26 +501,20 @@ const PANDA_TROMBONE = {
   ),
 } as const satisfies WindHold;
 
-/**
- * The turn of the lower end of the oboe of the mouse forward while it plays, in degrees. The value
- * below 0 turns the lower end back toward the body.
- */
-const MOUSE_OBOE_FORWARD = -20;
+/** The turn of the lower end of the oboe of the mouse forward while it plays, in degrees. */
+const MOUSE_OBOE_FORWARD = 0;
 
 /**
  * The oboe hold of the mouse (design 5.3), the hold of a real oboist (decisions
  * `2026-10-19-mesh-mouse.md` and `2026-10-19-mouse-size.md`, `docs/reference/wind-technique.md`
  * 2.3). The long muzzle puts the tip of the nose far in front of the mouth, so the reed sits
  * 0.23 H further back and 0.04 H lower than the mouth of the bind pose, in the mouth under the
- * nose, with about half of the reed in the mouth. The oboe hangs 10° from the vertical, 20° nearer
- * to the body than in {@link WIND_HOLDS} ({@link MOUSE_OBOE_FORWARD}), and each paw aims across the
- * tube (`aimAcross`): the long muzzle already puts the reed about 16 cm in front of the shoulders,
- * so at 30° the arms reached forward as straight planks, with the wrists 23 cm to 26 cm in front of
- * the shoulders (manager review of 2026-10-24, `2026-10-24-wind-grips` decisions). At 10°, the
- * elbows bend near the body. The right elbow points out and forward: down and in, the right arm
- * folded 13 to 17 faces in the play (limit 8 of the arm gate). The twist bones of the upper arms
- * keep the left upper arm round (`upperTwist` of `tools/mesh-rigs/mouse.json`). Each paw also turns
- * half toward the side across the tube (`aimSide`), as on the wolf, and
+ * nose, with about half of the reed in the mouth. The oboe keeps the angle of {@link WIND_HOLDS},
+ * 30° from the vertical ({@link MOUSE_OBOE_FORWARD}° further forward), and each paw aims across the
+ * tube (`aimAcross`): the long muzzle already puts the reed far in front of the chest, so at 40°
+ * the paws held the oboe at arm's length with level forearms (user, 2026-10-24: "also how the mouse
+ * is holding the instrument", `2026-10-24-wind-holds` decisions). At 20°, the right arm folded in
+ * play. Each paw also turns half toward the side across the tube (`aimSide`), as on the wolf, and
  * its grip moves 0.2 H down the tube and toward the axis (`gripShiftL`, `gripShiftR`), so that the
  * tube goes through the closed paw. On the grips of the instrument, the paws touched the tube only
  * with their heels, and the left paw, near the reed and above the shoulder joint, pointed up along
@@ -535,12 +529,12 @@ const MOUSE_OBOE_FORWARD = -20;
  * right paw touches it near the bell. Both paws keep the aim and the roll of the play (`restAim`):
  * with the roll of the shoulder, the left paw turned 177° on its forearm at rest and flipped in the
  * lowering. The oboe stands about 10 cm in front of the belly. On the belly, the right arm folded
- * 11 to 17 faces at rest (limit 8), also with the twist bones, and a grip of the right paw that
- * closes at rest folded 9 to 12 (`pnpm arm-check oboist`, `docs/research/2026-10-24-wind-grips.md`).
+ * 11 to 15 faces at rest (limit 8), and a grip of the right paw that closes at rest folded 9 to 12
+ * (`pnpm arm-check oboist`, `docs/research/2026-10-24-wind-grips.md`).
  *
- * The big head puts the mouth about 0.13 m above the shoulder joints, so the grips are near the
- * height of the shoulders. While the mouse plays, both elbows point out and forward, and the left
- * one also down, as an oboist drops the wrists and keeps the arms a little away from the
+ * The big head puts the mouth about 0.13 m above the shoulder joints, so the grips are at the
+ * height of the shoulders, and the arms reach forward. While the mouse plays, both elbows point
+ * down, out, and forward, as an oboist drops the wrists and keeps the arms a little away from the
  * sides. With the elbow of the right arm of {@link WIND_HOLDS} out and level, the right upper arm
  * turned 83° from its bind direction and the paw 160° from the forearm, and the upper arms showed
  * as flat twisted bands. With the elbows down, they turn 63° and 100°, and the left arm 58° and
@@ -552,15 +546,15 @@ const MOUSE_OBOE = {
   rest: holdTurn(-5, 0),
   restShift: [0.1, -0.4, -0.1],
   restPoleL: [-1, 0, 0],
-  restPoleR: [1, -0.4, -0.6],
+  restPoleR: [0.5, -1, 0],
   play: holdTurn(MOUSE_OBOE_FORWARD, 0),
   poleL: [-0.5, -1, -0.5],
-  poleR: [1, -0.4, -0.6],
+  poleR: [0.5, -1, -0.5],
   palmToTube: true,
   aimAcross: 1,
   aimSide: 0.5,
   gripShiftL: [0.2, 0.05, 0],
-  gripShiftR: [0.2, 0.06, -0.01],
+  gripShiftR: [0.2, 0.08, 0],
   restGripShiftL: [0.1, 0.05, 0],
   restAim: 1,
 } as const satisfies WindHold;
