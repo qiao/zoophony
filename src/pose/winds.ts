@@ -1009,6 +1009,13 @@ interface WindSide {
    * through the mouthpiece, before the moves of {@link WindHold.gripShiftL}.
    */
   readonly tube: SideTube;
+  /**
+   * The sign of the side direction across the tube in the aim of the paw ({@link aimSide}): 1 or
+   * -1 times the cross product of the axis of the tube and the direction from the grip to the
+   * tube. The playing pose sets it once, so that a lift or a lowering that turns the tube does not
+   * flip the side direction, and the paw with it.
+   */
+  readonly aimSign: number;
 }
 
 /**
@@ -1133,6 +1140,39 @@ function slideReachOf(rig: Omit<WindRig, 'slideReach'>, travel: number): number 
 }
 
 /**
+ * Finds the sign of the side direction across the tube in the aim of a paw
+ * ({@link WindSide.aimSign}): the sign that continues the way of the paw from its shoulder across
+ * the body in the playing pose, with the chest in its bind pose. Before, {@link aimSide} took the
+ * sign in each frame, and the side direction flipped in the lowering of the trombone, when the
+ * slide turned down and the brace lay across the aim of the paw.
+ *
+ * @param rig The points of the player.
+ * @param side The side of the body.
+ * @returns 1 or -1.
+ */
+function aimSignOf(rig: Omit<WindRig, 'slideReach'>, side: WindSide): number {
+  const chest = { rotation: new Quaternion(), position: new Vector3(...rig.chestBind) };
+  placeWind(rig, chest, 1);
+  const turn =
+    side.arm.side === 'L'
+      ? leftShoulderTurn(rig.hold, new Quaternion())
+      : rightShoulderTurn(rig.hold, new Quaternion());
+  const from = poseShoulder(side.arm, chest, rig.chestBind, turn);
+  const bind = new Vector3(...rig.pivot);
+  const target = new Vector3(...side.grip).sub(bind).applyQuaternion(rotation).add(pivot);
+  const axis = new Vector3(...side.tube.axis).applyQuaternion(rotation);
+  const front = new Vector3(...side.tube.point)
+    .sub(bind)
+    .applyQuaternion(rotation)
+    .add(pivot)
+    .sub(target)
+    .projectOnPlane(axis)
+    .normalize();
+  const aim = aimAcross(from, target, axis, rig.hold.aimAcross, new Vector3()).sub(from.position);
+  return new Vector3().crossVectors(axis, front).dot(aim) < 0 ? -1 : 1;
+}
+
+/**
  * Moves the grip of one palm in the bind pose, in the axes of its tube
  * ({@link WindHold.gripShiftL}): along the tube, from the grip toward the axis of the tube, and
  * across both, away from the shoulder joint of the paw.
@@ -1213,6 +1253,7 @@ export function windRig(
       restGrip: shifted(rest),
       onSlide: grips[s]?.bone === 'slide',
       tube,
+      aimSign: 1,
     };
   };
   const slide = model.instrument.targets.find((t) => t.kind === 'slide');
@@ -1233,7 +1274,12 @@ export function windRig(
     freeL: hold.restFreeL ? freeRestOf(model, left.arm, hold.restFreeL) : null,
     slideAxis: toVec3(travelVector.clone().normalize()),
   };
-  return { ...rig, slideReach: slideReachOf(rig, travelVector.length()) };
+  const signed = {
+    ...rig,
+    left: { ...rig.left, aimSign: aimSignOf(rig, rig.left) },
+    right: { ...rig.right, aimSign: aimSignOf(rig, rig.right) },
+  };
+  return { ...signed, slideReach: slideReachOf(signed, travelVector.length()) };
 }
 
 /** The pose of a wind player that is not in the rotations of its bones. */
@@ -1439,17 +1485,22 @@ const sideAcross = new Vector3();
  * @param from The posed `shoulder` bone.
  * @param axis The unit direction of the tube.
  * @param front The unit direction from the grip to the tube.
+ * @param sign The sign of the side direction ({@link WindSide.aimSign}), which continues the way
+ *   of the paw from its shoulder across the body in the playing pose.
  * @param share The share of the side direction in the aim, from 0 to 1.
  * @param out The aim point, which the function moves.
  * @returns `out`.
  */
-function aimSide(from: Frame, axis: Vector3, front: Vector3, share: number, out: Vector3): Vector3 {
+function aimSide(
+  from: Frame,
+  axis: Vector3,
+  front: Vector3,
+  sign: number,
+  share: number,
+  out: Vector3,
+): Vector3 {
   sideAim.subVectors(out, from.position).normalize();
-  sideAcross.crossVectors(axis, front).normalize();
-  // The side direction continues the way of the paw from its shoulder across the body.
-  if (sideAcross.dot(sideAim) < 0) {
-    sideAcross.negate();
-  }
+  sideAcross.crossVectors(axis, front).normalize().multiplyScalar(sign);
   sideAim.multiplyScalar(1 - share).addScaledVector(sideAcross, share);
   return out.copy(from.position).add(sideAim);
 }
@@ -1510,7 +1561,7 @@ function poseSide(
     const aim = rig.hold.restAim + (1 - rig.hold.restAim) * weight;
     aimAcross(shoulder, grip, tubeAxis, rig.hold.aimAcross * aim, aimPoint);
     if (rig.hold.aimSide > 0) {
-      aimSide(shoulder, tubeAxis, tubeSide, rig.hold.aimSide * aim, aimPoint);
+      aimSide(shoulder, tubeAxis, tubeSide, side.aimSign, rig.hold.aimSide * aim, aimPoint);
     }
     handToward(shoulder, aimPoint, hand);
     faceTube(hand, tubeSide, side.arm.side, face, aim);
