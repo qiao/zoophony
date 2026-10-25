@@ -573,8 +573,9 @@ The code constants of each family hold the times, the angles, and the lengths of
     slide forward. The lower end of the tuba turns to the right, so that the bell stands at the left
     of the horn on the muzzle. The elbows point out, down, and forward. The right paw lies on the
     valve tops at the front right of the valve branch, so that a paw shows from the front. The
-    left paw keeps the roll of its shoulder, because with its palm to the main branch, the forearm
-    twisted so far that the paw flipped in the lowering.
+    left palm lies on the back left of the main branch, as the left hand of a real tubist grips
+    the tubing at the side of a rotary tuba. Both paws keep the hold of the play at rest, so that the lowering
+    does not turn the left paw over its forearm.
   - The panda holds the trombone as a real trombonist (`PANDA_TROMBONE` of `SPECIES_WIND_HOLDS`,
     pBone and Western Carolina University): the left paw holds the weight at the grip near the
     mouthpiece, and the right paw holds the slide brace. Its big round head puts the mouth far in

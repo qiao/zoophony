@@ -901,18 +901,23 @@ const MONKEY_TRUMPET = {
  * elbows point out, down, and forward. At rest, the tuba moves off the mouth and its lower end
  * turns 5° forward (`docs/research/2026-10-21-mesh-rhino.md`).
  *
- * The right palm faces the valve tops (`faceTube`, `InstrumentGrips.tubeR` of
- * `models/instruments/brass.ts`), and the fingers of both paws curl 80° (`gripCurl`). The left paw
- * keeps the roll of its shoulder: with its palm to the main branch, it turned 167° on its forearm
- * and flipped in the lowering (the wrist turned 17960° each second). The right grip moves 0.15 H
+ * The right palm faces the valve tops, and the left palm faces the main branch (`faceTube`,
+ * `InstrumentGrips.tubeL` of `models/instruments/brass.ts`), as the left hand of a real tubist
+ * grips the tubing at the side of a rotary tuba, with the knuckles to the left, while the right
+ * hand works the valves
+ * (`docs/reference/wind-technique.md` 3). The fingers of both paws curl 80° (`gripCurl`). Both
+ * paws keep the aim and the roll of the play at rest (`restAim`): with the roll of the shoulder at
+ * rest, the left paw flipped in the lowering (the wrist turned 17960° each second). The left grip
+ * moves 0.12 H toward the main branch and 0.1 H around it toward the body (`gripShiftL`), so that
+ * the palm lies on the back left of the branch and the finger tips touch it. There, the left paw
+ * turns 148° on its forearm. On the left side of the branch, it turned 167° to 170°, near the
+ * limit of the arm gate. Before 2026-10-25, the left paw kept the roll of its shoulder, with the
+ * back of the paw to the branch (`2026-10-25-open-grips` decisions). The right grip moves 0.15 H
  * along the row of the valves
  * toward the front and 0.1 H toward the right shoulder (`gripShiftR`), so that the right paw lies
  * on the valve tops at the front right of the valve branch, where it shows from the front and from
  * the right front. On the grip of the instrument, the valve branch hid it from both views (manager
- * review of 2026-10-25). A grip further forward is out of the reach of the arm. The left grip
- * moves 0.04 H toward the main branch (`gripShiftL`), so that the curled fingers close on it
- * (`pnpm wind-grip tubist`, `2026-10-25-grips` decisions). With 0.08 H, the left paw went 3.4 cm
- * into the tuba (`pnpm pose-depth tubist`).
+ * review of 2026-10-25). A grip further forward is out of the reach of the arm.
  */
 const RHINO_TUBA = {
   ...WIND_HOLDS.tuba,
@@ -924,9 +929,10 @@ const RHINO_TUBA = {
   rest: holdTurn(5, 20),
   restPoleL: [-1, -0.5, -0.5],
   restPoleR: [1, -0.5, -0.5],
-  faceTube: ['none', 'palm'],
-  gripShiftL: [0, 0.04, 0],
+  faceTube: ['palm', 'palm'],
+  gripShiftL: [0, 0.12, -0.1],
   gripShiftR: [-0.15, 0, -0.1],
+  restAim: 1,
   gripCurl: curls(80, 80),
 } as const satisfies WindHold;
 

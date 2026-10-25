@@ -342,7 +342,9 @@ from the first position (derived).
   above (derived). No source of this file gives the rest.
 - **Tuba.** The tuba rests on the thigh, between the legs on the chair, or on a stand, and the
   player sits on the front of the chair with a stand [1] [53]. The right hand works the valves
-  [54]. The bell is at the left of the head on a rotary tuba and at the right of the head on a
+  [54]. The left hand grips the tubing at the side of the tuba: on a rotary tuba "with her
+  knuckles facing left", and on a piston tuba it wraps the valve tubing "with his knuckles facing
+  out" (opened 2026-10-25) [53]. The bell is at the left of the head on a rotary tuba and at the right of the head on a
   piston tuba [53]. The player brings the tuba to the body, with no change of the back, the neck,
   or the head [1]. The tuba can be at a slight angle for the embouchure [1]. No source of this
   file gives the rest between two entrances.
@@ -413,7 +415,7 @@ the rows.
 | Trumpet angle (`trumpet()` of `models/instruments/brass.ts`, `play` of `MONKEY_TRUMPET`) | 10° below the level, straight ahead, about 80° to a vertical face. The left grip lies 0.03 H low on the valve block (`gripShiftL`) | "Angled slightly down", a little less than 90° to the face (2.1) | Matches. No source gives degrees. With 5° down, both paws of the monkey covered the mouth in the front view. With 10°, the top of the left paw is 0.3 cm below the mouthpiece and the top of the right paw 0.9 cm above it, and the mouth shows (`docs/research/2026-10-25-open-grips.md`) |
 | Trumpet rest (`WIND_HOLDS.trumpet.rest`) | Off the mouth, turned down in front of the chest with the bell down, and both paws keep their grips | No source (2.1) | No source |
 | Tuba stand (`INSTRUMENT_SUPPORTS.tuba`, `RHINO_TUBA`) | The rhino stands in each seat, in the standing pose of its mesh, and the tuba stands against its body. The paws carry no weight | A standing tubist carries the tuba on a strap or a harness (3) | Matches. The app draws no strap |
-| Tuba hands (`RHINO_TUBA`, `palmL`, `palmR`, `tubeL`, `tubeR` of `tuba()`) | The left paw holds the main branch at its back left with the roll of its shoulder. The right palm faces the valve tops at the front right of the valve branch, and the fingers curl 80° | The right hand works the valves (3) | Matches. The right paw shows from the front. With its palm to the main branch, the left paw turned 167° on its forearm and flipped |
+| Tuba hands (`RHINO_TUBA`, `palmL`, `palmR`, `tubeL`, `tubeR` of `tuba()`) | The left palm faces the main branch at its back left, with the finger tips on it, and the right palm faces the valve tops at the front right of the valve branch. The fingers curl 80°. Both paws keep the hold of the play at rest (`restAim`) | The right hand works the valves, and on a rotary tuba the left hand grips the tubing at the side with the knuckles to the left (3) | Matches. The right paw shows from the front. The left paw turns 148° on its forearm. On the left side of the branch it turned 167° to 170°, and with the roll of the shoulder at rest it flipped in the lowering (`docs/research/2026-10-25-open-grips.md`) |
 | Tuba bell and angle (`play` of `RHINO_TUBA`) | The lower end turns 25° to the right, so the bell stands at the left of the head and of the horn | The bell at the left of the head on a rotary tuba, the tuba at a slight angle (3) | Matches |
 | Tuba lead pipe (`tubaPipe` of `SPECIES.rhino`) | 0.25 m longer back and 0.1 m to the left, because the long muzzle puts the mouthpiece 0.51 m in front of the shoulder joints | The player brings the tuba to the body (3). This file gives no length of a lead pipe | No source |
 | Tuba rest (`rest` of `RHINO_TUBA`) | Off the mouth, the lower end 5° forward, both paws on their grips | No source (3) | No source |
