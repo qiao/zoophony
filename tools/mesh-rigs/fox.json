@@ -4,6 +4,10 @@
   "paintedWeights": "assets/models/fox/fox-weights.json",
   "paintedLower": ["root", "hips", "spine", "spine1", "chest", "neck", "head", "ear_L", "ear_R", "thigh_L", "shin_L", "foot_L", "toes_L", "thigh_R", "shin_R", "foot_R", "toes_R", "tail", "tail_tip"],
   "paintedNote": "The weights of the clavicles and the arms are the automatic weights of Blender with the Weight Paint fixes of tools/blender/fox_arms.py. The vertices on the bones of paintedLower (the trunk up to the chest, the neck, the head, the ears, the legs, and the tail) keep the rule weights, as on the wolf and the mouse: the seated bind of the app depends on them.",
+  "rootNormals": {
+    "radius": 0.12,
+    "note": "The skin faces whose middle lies within radius (units) of the head of an upper arm take the normals of the skin with no crease angle in the app (root_rim() of tools/blender/rig_mesh.py), as on the beaver and the rhino. On the rebuilt arms, the crease angle split the normals at the back of the right armpit of the red fox into a thin dark slit at the tip and a dark wedge in the lift, from the stage camera (az150, elevation 40). The back of the armpit lies 0.094 units from the shoulder joint, and the radius 0.15 gave the same look as 0.12 (docs/research/2026-10-25-fox-arms.md)."
+  },
   "armSegments": {
     "helper": 0.032,
     "rootSegment": true,
