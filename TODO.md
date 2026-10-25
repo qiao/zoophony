@@ -933,6 +933,24 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       after the rebuilt arms (`2026-10-25-wind-arms.md`).
 - [x] Mouse oboe play: the oboe hangs 15° from the vertical, the elbows bend near the body, and
       both paws close on the tube with no slit on the rebuilt arms (`2026-10-25-wind-arms.md`).
+- [x] Mouse oboe and wolf clarinet angle: the oboe hung 15° and the clarinet 20° from the
+      vertical. Done: the oboe at 40° on an oboe of 0.5, and the clarinet at 30° of the reference
+      images (`2026-10-25-wind-angle.md`).
+- [ ] Wind angle gate: three values grow on the margin against main, inside their limits: the
+      left forearm twist of the mouse at rest 59° (40°, limit 80°), and the right move twist max
+      of the mouse 99° (84°) and of the wolf 103° (93°, limit 176°). The manager decides
+      (`gate.txt` of `docs/research/2026-10-25-wind-angle/`).
+- [ ] Wind angle twist steps: the right forearm steps of the mouse and the wolf grow to 24.8° and
+      25.8° (21.1° and 23.3° on main, target 25°, `twist-*.txt` of
+      `docs/research/2026-10-25-wind-angle/`).
+- [ ] Mouse oboe at 40°: from the side, the arms reach forward with a more open elbow than at
+      15°. Show the user `oboist-play-side.webp` of `docs/research/2026-10-25-wind-angle/`, and
+      offer a smaller oboe or a forward lean of the head.
+- [ ] Wolf clarinet angle: renders of the app from the camera of the reference images put the
+      wolf of the images at about 30° to 35°. The clarinet takes 30°. Show the user
+      `wolf-reference.webp`, and offer 35° (`2026-10-25-wind-angle.md`).
+- [ ] Oboist close views: at zoom 2, the oboe at 40° leaves the frame of the ±35° views at the
+      paws. Widen the frame of the oboist in `ROLE_VIEWS` of `tools/close-views.ts`.
 - [x] Tan fox flute rest: the foot joint stands on the top of the right thigh, and the closed
       right paw holds the upper body of the flute (`2026-10-25-fox-arms.md`).
 - [ ] The mittens of the wind players close as one block, so no finger lies on a key. The red fox
@@ -944,7 +962,8 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       `ACCEPTED_GRIPS` for the bassoonist, the trombonist, the oboist, the clarinetist, the
       trumpeter, and the tubist. The gate fails their grip turns until then. The bassoon turns of
       175° and 163° come from the entry of the hold before the palms faced the tube
-      (`2026-10-25-open-grips.md`, section 6).
+      (`2026-10-25-open-grips.md`, section 6). After the new wind angles, the grip turns are
+      oboist 10° and 176°, and clarinetist 174° and 174° (`2026-10-25-wind-angle.md`).
 - [x] Panda trombone: the right mitten stood 2 cm off the slide brace. Done: the finger tips hold
       the brace from the right of the slide (`2026-10-25-open-grips.md`).
 - [ ] Panda trombone travel: the arm reaches 0.17 m of the slide at 45° to the right, 30% of a real
@@ -1005,9 +1024,10 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       (`chair-species-play-views.webp` of `docs/research/2026-10-19-mouse-size/`). Show the user
       the side view, and offer a lower haunch or the heels further back, with a rig round of the
       legs (`2026-10-19-mouse-size.md`).
-- [ ] Mouse oboe size: the mouse plays an oboe of 0.62 of the oboe of the app (0.34 m). No source
-      gives the size of a smaller oboe for a child (`docs/reference/wind-technique.md` 4.2). Show
-      the user the play frame with the small oboe (`2026-10-19-mouse-size.md`).
+- [ ] Mouse oboe size: the mouse plays an oboe of 0.5 of the oboe of the app (0.275 m), so that
+      it holds the oboe at 40°. No source gives the size of a smaller oboe for a child
+      (`docs/reference/wind-technique.md` 4.2). Show the user the play frame with the small oboe
+      (`2026-10-25-wind-angle.md`).
 - [x] Elephant timpanist: the skin folded in each sample, up to 23 faces. The mallet grip with
       its top toward the shoulder, the mallet home further forward, the arm cut, a ring, three
       rigid faces, and four new shapes cut the play folds to 0.4%, the lift to 11.3%, and the rest
