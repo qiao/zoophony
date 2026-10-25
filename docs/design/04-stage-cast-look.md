@@ -1126,13 +1126,18 @@ angles are on the left. A seat at the angle `a` and the radius `r` is at
 - Row `n` has the radius `r(n) = max(r(n - 1) + 1.2, width(n) / 2.79)`, where `width(n)` is the
   arc length that its players need and 2.79 is 160° in radians. `r(-1)` is 1.2. Then the row moves
   back until its footprints keep 0.05 m from the items in front.
+- A player in a row behind a piano case keeps a larger gap from the case (`PIANO_REACH_GAP` of
+  `models/layout-scene.ts`), also in the spread. A footprint is the bind pose, and a player behind
+  the case faces it and reaches toward it in play. Thus a contrabass of a continuo group stands
+  near the case, with a clear gap. The players in front of the case face away from it and keep
+  0.05 m.
 - Riser level `k` of the choir has the radius `r + 0.8 × k` and the height `1.0 + 0.25 × k`, where
   `r` is 1.2 m more than the radius of the last instrumental row, so that the back row hides no
   singer (4.2). The layout keeps the count of levels with the smallest stage, then widens the
   levels (`widenRisers()`). The vocal soloists of 3.8 stand alone on level 0.
 - After the stage size, each instrumental row spreads to the side edges, because the packed rows
   left the front corners empty. Each side takes the largest factor of its arcs (`SpreadLimits`)
-  that keeps each footprint 0.3 m inside the stage (`boxOnStage()`) and 0.05 m from the other
+  that keeps each footprint 0.3 m inside the stage (`boxOnStage()`) and its gap from the other
   items. Then row 1 moves its back desks toward the first desks of their seats, as the wedges of a
   professional orchestra.
 

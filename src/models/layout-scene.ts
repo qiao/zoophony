@@ -42,6 +42,15 @@ const HALF_SPAN = (80 * Math.PI) / 180;
  */
 export const FOOTPRINT_GAP = 0.05;
 
+/**
+ * The smallest free space between the footprint of a piano case and the footprint of a player in
+ * a row behind it, in meters (design 4.5, seat geometry). A footprint is the bind pose, and a
+ * player behind the case faces it and reaches toward it in play. With the gap of 0.05 m, the bow
+ * arm of the hippo contrabass of `bach-bwv1050` touched the curved side of the case. With 0.15 m,
+ * the nearest part keeps 14 cm through the whole song.
+ */
+const PIANO_REACH_GAP = 0.15;
+
 /** The step by which a row, a stand, or a seat arc grows until it is clear, in meters. */
 const CLEAR_STEP = 0.02;
 
@@ -590,17 +599,41 @@ function touchesAny(fresh: readonly Obstacle[], placed: readonly Obstacle[]): bo
 interface RowClearance {
   /** The obstacles of the other items on the stage. Each item of the row keeps 0.05 m. */
   readonly placed: readonly Obstacle[];
+  /** The piano cases in front of the row. Each player of the row keeps {@link PIANO_REACH_GAP}. */
+  readonly pianosInFront: readonly Obstacle[];
+  /** The players of the rows behind. Each piano case of the row keeps {@link PIANO_REACH_GAP}. */
+  readonly playersBehind: readonly Obstacle[];
 }
 
 /**
- * Finds if a row keeps its gaps: 0.05 m from each item.
+ * Gives the obstacles of the piano cases of a row: the pianists with their pianos.
+ *
+ * @param row The places of the row.
+ * @returns The obstacles of the pianists.
+ */
+function pianosOfRow(row: RowPlacement): Obstacle[] {
+  return row.players.filter((p) => p.place.cast.instrument === 'piano').map((p) => p.obstacle);
+}
+
+/**
+ * Finds if a row keeps its gaps: 0.05 m from each item, and {@link PIANO_REACH_GAP} between a
+ * piano case and a player of a row behind it.
  *
  * @param row The places of the row.
  * @param clearance The items around the row.
  * @returns True if the row is clear.
  */
 function rowClear(row: RowPlacement, clearance: RowClearance): boolean {
-  return !touchesAny(obstaclesOfRow(row), clearance.placed);
+  const players = row.players.map((p) => p.obstacle);
+  return (
+    !touchesAny(obstaclesOfRow(row), clearance.placed) &&
+    !players.some((a) =>
+      clearance.pianosInFront.some((b) => obstaclesTouch(a, b, PIANO_REACH_GAP)),
+    ) &&
+    !pianosOfRow(row).some((a) =>
+      clearance.playersBehind.some((b) => obstaclesTouch(a, b, PIANO_REACH_GAP)),
+    )
+  );
 }
 
 /**
@@ -1491,24 +1524,29 @@ function wedgeSide(
  * first desks ({@link wedgeSide}). The stage side does not change.
  *
  * @param rows The packed rows, from the front.
- * @param fixed The obstacles that do not move: the podium with the conductor, the piano, the
+ * @param fixed The obstacles that do not move: the podium with the conductor, the soloist, the
  *   risers, and the singers.
+ * @param soloPianos The obstacles of the piano soloists, which are also in `fixed`.
  * @param stage The stage side and the front distance.
  * @returns The rows after the spread.
  */
 function spreadRows(
   rows: readonly FittedRow[],
   fixed: readonly Obstacle[],
+  soloPianos: readonly Obstacle[],
   stage: StageSize,
 ): FittedRow[] {
   const done: FittedRow[] = [];
   rows.forEach((row, n) => {
+    const behind = rows.slice(n + 1);
     const clearance: RowClearance = {
       placed: [
         ...fixed,
         ...done.flatMap((r) => obstaclesOfRow(r.placement)),
-        ...rows.slice(n + 1).flatMap((r) => obstaclesOfRow(r.placement)),
+        ...behind.flatMap((r) => obstaclesOfRow(r.placement)),
       ],
+      pianosInFront: [...soloPianos, ...done.flatMap((r) => pianosOfRow(r.placement))],
+      playersBehind: behind.flatMap((r) => r.placement.players.map((p) => p.obstacle)),
     };
     let next = spreadSide(spreadSide(row, -1, clearance, stage), 1, clearance, stage);
     const front = done.find((r) => r.row === 0);
@@ -1552,6 +1590,7 @@ export function placesOfCast(
  * score (design 4.5, 5.1). The sections sit in rows around the podium. The footprints of the
  * players, their instruments, their seats, and the stands keep 0.05 m from each other: a seat
  * arc grows for a wide footprint, and a row moves back until it is clear of the items in front.
+ * A player behind a piano case keeps {@link PIANO_REACH_GAP} from it.
  *
  * @param score The score.
  * @param models The player models of the score. The pose plan and the scene can share this cache,
@@ -1590,10 +1629,14 @@ export function layoutScene(score: Score, models = new ModelCache()): SceneLayou
   const fixed: Obstacle[] = [conductorObstacle(CENTER, models)];
 
   let soloistFront = -Infinity;
+  const soloPianos: Obstacle[] = [];
   for (const member of inGroup('soloist')) {
     const soloist = placeSoloist(member);
     players[member.index] = soloist.place;
     fixed.push(soloist.obstacle);
+    if (member.cast.instrument === 'piano') {
+      soloPianos.push(soloist.obstacle);
+    }
     soloistFront = Math.max(soloistFront, soloist.front);
   }
 
@@ -1606,6 +1649,8 @@ export function layoutScene(score: Score, models = new ModelCache()): SceneLayou
     }
     const fit = fitRow(row, n, radius + ROW_STEP, {
       placed: [...fixed, ...rows.flatMap((r) => obstaclesOfRow(r.placement))],
+      pianosInFront: [...soloPianos, ...rows.flatMap((r) => pianosOfRow(r.placement))],
+      playersBehind: [],
     });
     radius = fit.radius;
     rows.push(fit);
@@ -1651,7 +1696,7 @@ export function layoutScene(score: Score, models = new ModelCache()): SceneLayou
 
   const stage = stageOf(draft);
   // The rows spread inside the stage, and the stage side stays (design 4.5, stage origin).
-  const spread = spreadRows(rows, [...fixed, ...choir.obstacles], stage);
+  const spread = spreadRows(rows, [...fixed, ...choir.obstacles], soloPianos, stage);
   const places = withRows(spread);
   for (const s of choir.singers) {
     places[s.index] = s.place;
