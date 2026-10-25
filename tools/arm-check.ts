@@ -332,7 +332,11 @@ export const ACCEPTED_GRIPS: ReadonlyMap<string, Readonly<Record<Side, number>>>
   // docs/decisions/2026-10-24-wind-grips.md, and the review of the 2x crops by the manager on
   // 2026-10-24).
   ['clarinetist', { L: -89, R: -71 }],
-  ['oboist', { L: 83, R: -77 }],
+  // The mouse holds the 40° oboe from the side of each paw, with the left paw on the upper joint
+  // and the thumbs up the tube (user, 2026-10-25: "their palm are facing outwards and thumbs
+  // downwards", docs/decisions/2026-10-25-wind-palms.md, and the review of the crops by the
+  // manager on 2026-10-25).
+  ['oboist', { L: -137, R: -90 }],
   // The paws of the woodwinds of the tan fox face its tube (faceTube of pose/winds.ts,
   // docs/decisions/2026-10-23-night-fixes.md).
   ['flutist', { L: -120, R: -30 }],
