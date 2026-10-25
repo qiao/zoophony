@@ -1,0 +1,26 @@
+
+> zoophony@0.0.0 size /Users/xueqiaoxu/proj/zoophony/.claude/worktrees/agent-abd81643d9b77565e
+> node tools/size.ts --base main
+
+First download after gzip (design 7.2):
+     1,561 B  dist/index.html
+    48,577 B  dist/assets/index-C9esDx0P.js
+     5,534 B  dist/assets/index-DTsrC5J3.css
+       392 B  dist/assets/modulepreload-polyfill-P2Xu9kJm.js
+       978 B  dist/assets/preload-helper-CmwdZ4On.js
+       136 B  dist/assets/fetch-ok-CaAbW7On.js
+   680,024 B  dist/assets/renderer-CQBkokrG.js
+       250 B  dist/assets/drum-map--rjToQku.js
+     6,110 B  dist/assets/layout-scene-Cxp6hkmA.js
+     7,143 B  dist/assets/score-CkWITP8q.js
+       258 B  dist/assets/synth-C2pyjh8y.js
+       933 B  dist/assets/soundfont-info-C6WyTrmI.js
+     1,220 B  dist/assets/demos-K8bpQi2S.js
+     4,416 B  dist/assets/OrbitControls-CyqEMdaw.js
+    30,097 B  dist/demos/boulanger-matin.mid
+   787,629 B  total
+ 1,000,000 B  limit: pass
+Base main (08c16704), built in a temporary folder:
+   786,190 B  total of the base
+   787,629 B  total of the working tree
+    +1,439 B  difference

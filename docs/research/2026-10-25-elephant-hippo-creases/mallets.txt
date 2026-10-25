@@ -1,0 +1,18 @@
+== beethoven-9
+== tree
+  L: strikes 49/304; paw strike 25° (tw -6, sw 24), rest 27° (tw -7, sw 26), all 25° (tw -6, sw 25); mallet strike -23° pitch, 7° out; rest -15° pitch, 9° out; forearm 10° out, forearm to mallet 13°
+  R: strikes 0/216; paw strike 25° (tw 6, sw 24), rest 27° (tw 7, sw 26), all 25° (tw 6, sw 24); mallet strike -21° pitch, -1° out; rest -12° pitch, 3° out; forearm 4° out, forearm to mallet 12°
+  V between strikes: -12° (each mallet in from forward: L -9°, R -3°)
+== timpani.poleL=-0.45,-1,0.2;timpani.poleR=0.45,-1,0.2
+  L: strikes 28/304; paw strike 25° (tw -7, sw 24), rest 29° (tw -9, sw 28), all 26° (tw -7, sw 25); mallet strike -23° pitch, 7° out; rest -13° pitch, 10° out; forearm 15° out, forearm to mallet 13°
+  R: strikes 0/216; paw strike 25° (tw 6, sw 24), rest 30° (tw 10, sw 28), all 25° (tw 7, sw 25); mallet strike -21° pitch, -1° out; rest -9° pitch, 2° out; forearm 9° out, forearm to mallet 13°
+  V between strikes: -12° (each mallet in from forward: L -10°, R -2°)
+== beethoven-1
+== tree
+  L: strikes 172/172; paw strike 26° (tw -8, sw 25), rest 42° (tw -15, sw 40), all 26° (tw -9, sw 24); mallet strike -26° pitch, 9° out; rest -2° pitch, -10° out; forearm 1° out, forearm to mallet 10°
+  R: strikes 41/204; paw strike 26° (tw 6, sw 25), rest 29° (tw 8, sw 28), all 26° (tw 7, sw 25); mallet strike -23° pitch, 0° out; rest -14° pitch, 3° out; forearm 8° out, forearm to mallet 14°
+  V between strikes: 6° (each mallet in from forward: L 10°, R -3°)
+== timpani.poleL=-0.45,-1,0.2;timpani.poleR=0.45,-1,0.2
+  L: strikes 172/172; paw strike 25° (tw -5, sw 25), rest 43° (tw -18, sw 40), all 25° (tw -7, sw 24); mallet strike -26° pitch, 9° out; rest 2° pitch, -0° out; forearm 10° out, forearm to mallet 4°
+  R: strikes 27/204; paw strike 25° (tw 6, sw 25), rest 30° (tw 9, sw 28), all 26° (tw 7, sw 25); mallet strike -23° pitch, 0° out; rest -13° pitch, 6° out; forearm 13° out, forearm to mallet 16°
+  V between strikes: -6° (each mallet in from forward: L 0°, R -6°)
