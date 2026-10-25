@@ -1,0 +1,11 @@
+
+> zoophony@0.0.0 fold-probe /Users/xueqiaoxu/proj/zoophony/.claude/worktrees/agent-a39078377c91f99c9
+> node tools/fold-probe.ts violist --base main
+
+Folded faces of the studio body of the violist on main (a3a44898) and on the working tree: 63.8 s.
+
+| Set | main (a3a44898) | Working tree |
+|---|---:|---:|
+| rest | 100.0% (14/14), most 11 (L 2 / R 6 / other 3) | 100.0% (14/14), most 12 (L 1 / R 4 / other 7) |
+| play | 9.3% (1651/17788), most 4 (L 0 / R 4 / other 0) | 100.0% (17788/17788), most 16 (L 2 / R 3 / other 11) |
+| lift | 50.5% (219/434), most 11 (L 2 / R 6 / other 3) | 100.0% (434/434), most 20 (L 7 / R 1 / other 12) |

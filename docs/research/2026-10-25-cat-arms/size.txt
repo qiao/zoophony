@@ -1,0 +1,4 @@
+Base main (a3a44898), built in a temporary folder:
+   762,276 B  total of the base
+   767,703 B  total of the working tree
+    +5,427 B  difference

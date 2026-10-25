@@ -1,0 +1,5 @@
+main (a3a44898):
+cat      26 samples | slope 0° (0..0) | left of front 74° | head gap p50 0.0 max 0.0 cm | head depth max 1.2 cm | instrument in body max 2.4 cm
+branch:
+cat      26 samples | slope 0° (0..0) | left of front 74° | head gap p50 0.0 max 0.0 cm | head depth max 0.1 cm | instrument in body max 2.6 cm
+fox-red  23 samples | slope 5° (5..5) | left of front 64° | head gap p50 0.0 max 0.0 cm | head depth max 0.1 cm | instrument in body max 2.3 cm
