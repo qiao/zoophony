@@ -610,10 +610,27 @@ const BEAVER_SHOULDER_TURN = {
 } as const;
 
 /**
+ * The turn of the bassoon of the beaver, relative to the chest: the lower end 10° forward and 5°
+ * to the left from the bind pose of `woodwindRotation()` of `models/instruments/woodwinds.ts`,
+ * which leans the tube 35° to the left. The tube lies 30° from the vertical, and its top 1° back.
+ */
+const BEAVER_PLAY = holdTurn(10, -5);
+
+/**
  * The bassoon hold of the beaver (design 5.3), the hold of a real bassoonist (decisions
  * `2026-10-19-mesh-beaver.md`, `docs/reference/wind-technique.md` 3): the bassoon lies diagonal
  * in front of the body, the left paw above the right paw, and the bocal brings the reed to the
- * mouth at a nearly level angle. The play turn and the rest are those of {@link WIND_HOLDS}.
+ * mouth at a nearly level angle. The bassoon crosses the body from the right hip up past the left
+ * shoulder, 30° from the vertical in the front view, with the bell above the head
+ * ({@link BEAVER_PLAY}). With the play turn of {@link WIND_HOLDS}, it lay 54° from the vertical,
+ * near level from the side, with its top at the shoulder (manager review of 2026-10-25). At rest,
+ * it keeps that diagonal 0.2 H forward and 0.05 H lower, off the mouth, so that the paws keep
+ * their grips and the lift does not turn them. With the rest 0.2 H lower, the right upper arm went
+ * 2.7 cm into the body. The left paw holds the wing joint high, and the right
+ * grip moves 0.15 H up the boot joint and 0.05 H across it toward the body (`gripShiftR`): at its
+ * grip of the instrument, the right paw missed by 1.4 cm. Each palm faces the tube from the side
+ * of the body (`faceTube`, `aimSide`), and the fingers curl 70° over its front (`gripCurl`), so
+ * that both paws grasp the bassoon (`pnpm wind-grip bassoonist`, `2026-10-25-grips` decisions).
  *
  * The long muzzle and the front teeth put the tip of the nose far in front of the mouth, so the
  * reed sits 0.33 H lower and 0.25 H further back than the mouth of the bind pose, under the front
@@ -633,9 +650,18 @@ const BEAVER_BASSOON = {
   reach: BEAVER_SHOULDER_TURN.right * MathUtils.DEG2RAD,
   reachL: BEAVER_SHOULDER_TURN.left * MathUtils.DEG2RAD,
   lipShift: [0, -0.33, 0.25],
+  play: BEAVER_PLAY,
+  rest: BEAVER_PLAY,
+  restShift: [0, -0.05, -0.2],
   poleL: [-0.5, -1, -0.5],
   poleR: [0.5, -1, -0.5],
   restPoleL: [-0.5, -1, -0.5],
+  faceTube: 'palm',
+  aimAcross: 1,
+  aimSide: 0.5,
+  gripShiftR: [0.15, 0, -0.05],
+  restAim: 1,
+  gripCurl: curls(70, 70),
 } as const satisfies WindHold;
 
 /** The turns of the horn of the pig around the mouthpiece, relative to the chest (design 5.3). */
@@ -724,12 +750,12 @@ const WOLF_CLARINET_FORWARD = -5;
  * fingers over the tube with the thumb behind it. With the back of each paw to the tube before
  * 2026-10-25, the paws showed as round fists on the tube. On the grips of the instrument, 2.5 cm
  * in front of the tube, the paws lay in front of it and pointed away from it, with the finger tips
- * 7.6 cm and 8.3 cm from the tube (user, 2026-10-24: "they are not even holding the instrument"). The left grip
- * moves 0.2 H down the tube, because 8.5 cm above the shoulder joint, the forearm rose steeply and
- * the retarget turned the paw up along the tube (`PAW_TURN` of `models/studio-rig.ts`). Both grips
- * move 0.12 H toward the axis, and the right grip 0.02 H toward its own side, so that the middle
- * of each paw is 2.1 cm from the axis in the play, with the palm on the tube
- * (`pnpm wind-grip clarinetist`, `2026-10-25-grips` decisions).
+ * 7.6 cm and 8.3 cm from the tube (user, 2026-10-24: "they are not even holding the
+ * instrument"). The left grip moves 0.2 H down the tube, because 8.5 cm above the shoulder joint,
+ * the forearm rose steeply and the retarget turned the paw up along the tube (`PAW_TURN` of
+ * `models/studio-rig.ts`). Both grips move 0.12 H toward the axis, and the right grip 0.02 H
+ * toward its own side, so that the middle of each paw is 2.1 cm from the axis in the play, with
+ * the palm on the tube (`pnpm wind-grip clarinetist`, `2026-10-25-grips` decisions).
  *
  * The long muzzle puts the tip of the nose far in front of the mouth, and at 45° the grips moved
  * further forward: the left paw missed its grip by 2.4 cm and the right paw by 6.1 cm. So in round
