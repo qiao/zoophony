@@ -146,6 +146,12 @@ interface StudioArmSegments {
 - **The joint gaps.** Rings close to a joint give thin faces when the joint bends. On the wolf, the
   elbow rings stand 0.016 units from the joint and the wrist rings 0.0085, because a wide wrist gap
   opened the closed paw (`wristGap` of `wind_arms.py`, `docs/research/2026-10-25-wind-arms.md`).
+- **A thick arm.** On an arm as thick as half of its length, a cut plane with a tilt or a wrist
+  cut near the joint crosses the nearest ring, and the bridge turns faces over. A wide elbow gap
+  folds fewer faces, but the elbow helper then turns the inner upper arm into the belly
+  (`tools/blender/elephant_arms.py`, `docs/research/2026-10-25-elephant-arms.md`).
+- **The kept colors.** Blender weights can put the top of a paw on the `fingers` bone, so a tone
+  rule that keeps the colors of the fingers (`colors.tone.keep`) shows the raw texture there.
 - **An arm joined to the trunk.** When the upper arm joins the trunk down to the elbow, cut along
   the seam, fill a side wall under the arm, and give the tube a flat inner side on the wall that
   meets it only at a high armpit line (`tools/blender/cat_arms.py`). Put the flat side a little
