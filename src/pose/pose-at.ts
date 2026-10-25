@@ -403,6 +403,8 @@ function poseAnimal(
           strikeStateAt(track, noteTime, state);
         }
       }
+      // The spine leans over the instrument (`PercussionHold.lean`).
+      body.lean = note.rig.hold.lean * weight;
       writeBody(pose, player, scratch);
       posePercussion(note.rig, scratch.torso, strikes, weight, pose.rotations);
       break;
