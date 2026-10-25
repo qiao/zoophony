@@ -1,6 +1,7 @@
 # Mouse model
 
-This folder holds the mouse mesh that the user gave. The app does not serve it.
+This folder holds the mouse mesh that the user gave, and a copy of it with rebuilt arms. The app
+does not serve them.
 
 ## mouse.glb
 
@@ -51,3 +52,31 @@ side of the animal):
 - The long thin tail goes from its root under the buttock (y 0.17, z -0.09) down and back to the
   floor at z -0.33, then lies on the floor in a curve to the right side, to its tip at x -0.17 and
   z -0.12.
+
+## mouse-arms.glb and mouse-weights.json
+
+`mouse-arms.glb` is `mouse.glb` with new quad faces on each arm from the shoulder line to the wrist,
+and with arms 1.4 times longer. On 2026-10-24 the user allowed loop edges, retopology, and extra
+bones for the arm and wrist twist ("add loop edges and retopology and additional bones if needed to
+address them"). `tools/blender/wind_arms.py mouse` replays the Blender session of 2026-10-25 that
+made both files, byte for byte. The faces of the paws, the trunk, the legs, and the head are the
+faces of the user, except the thin faces at the cut loops, whose short edges collapse. The new arm
+surface lies on the old one. The arms are 1.4 times longer from the shoulder line, as the rig made
+them before (`armFactor` of the config), because a rig with arm segments does not stretch the arms.
+The cut of the shoulder line lies at 0.6 of the upper arm, because the upper arm joins the trunk
+above it. The rig of this project makes the studio body of the mouse from it
+(`tools/mesh-rigs/mouse.json`): `pnpm rig-mesh mouse` writes `mouse.rig.glb`, and `pnpm studio-body
+mouse` writes `src/models/studio/mouse.ts`.
+
+| Item | Value |
+|---|---|
+| `mouse-arms.glb` | 1,148,204 bytes, SHA-256 `930e6d0930ab679c0f156974d99d58fb99d8796592099edb0ef9718cf6e31b4b` |
+| Mesh | 1,976 vertices after a weld at 1e-5, 3,892 triangles (3,077 in the source): on each arm a tube of quad rings of 16 vertices, joined to the trunk and the paw with Bridge Edge Loops, with Beautify Faces and Collapse Edges on the bridge triangles |
+| Material | One material with one base color JPEG: the atlas of the source, and a strip of 512 pixels on top with the fur color of the source arms, baked onto the new faces. No metallic-roughness texture |
+| `mouse-weights.json` | 443,565 bytes, SHA-256 `ab45ea6468241e7483fa17fa778f687855119a958248dffe143bb65272c292ad` |
+| Weights | The automatic weights of Blender with the Weight Paint fixes of the session, on the studio bones and the arm segments and helpers (`armSegments` of the config), for `paintedWeights` of the config |
+| License | Derived from the mesh of the user, who holds its rights |
+
+```bash
+shasum -a 256 assets/models/mouse/mouse-arms.glb assets/models/mouse/mouse-weights.json
+```
