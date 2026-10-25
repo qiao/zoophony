@@ -341,8 +341,11 @@ export const ACCEPTED_GRIPS: ReadonlyMap<string, Readonly<Record<Side, number>>>
   ['tubist', { L: -129, R: -148 }],
   ['singer', { L: -79, R: -79 }],
   ['bass-drummer', { L: -102, R: 20 }],
-  ['snare-drummer', { L: -32, R: -29 }],
-  ['cymbalist', { L: -29, R: -28 }],
+  // The wrist lifts the tip of the stick or the mallet over its spot between strikes
+  // (docs/decisions/2026-10-25-percussion-tips.md), and the review of the 2x paw crops by the
+  // manager on 2026-10-25.
+  ['snare-drummer', { L: -18, R: -6 }],
+  ['cymbalist', { L: -16, R: -5 }],
   ['percussionist', { L: -80, R: -28 }],
   ['xylophonist', { L: -24, R: -24 }],
 ]);
