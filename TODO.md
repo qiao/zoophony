@@ -488,9 +488,18 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
 - [x] Hippo bassist: a hard dark crease shows under the left arm from the left side. Done: a split
       of the normals of the arm root. The faces around each shoulder joint take the skin normals
       (`rootNormals`, `2026-10-25-elephant-hippo-creases.md`).
-- [ ] Hippo bassist: a soft dark patch stays at the inner left elbow from the left side, also with
-      no shadow. Find the faces of the patch with the normals probe, and try to keep the trunk
-      faces out of the rim (`2026-10-25-elephant-hippo-creases.md`).
+- [x] Hippo bassist: a soft dark patch stays at the inner left elbow from the left side, also with
+      no shadow. Done: the rim gave trunk faces 776 and 777 the normal of the turned arm root.
+      The rim keeps only the faces that the arm moves, and no face with a far corner normal, so
+      the black wedge under the bow arm goes too (`rootNormals.armShare`, `rootNormals.turn`,
+      `2026-10-25-hippo-skin.md`).
+- [x] Hippo bassist: a crease line runs over the top of the right shoulder from the right in the
+      play. Done: the relax of the shape `arm_raise_R` moved vertex 177 3.6 cm, and its move
+      spreads over one ring (`spread`, `2026-10-25-hippo-skin.md`).
+- [ ] Hippo bassist: a small dark slit shows on the belly beside the right arm at rest from the
+      right. The inner side of the hanging arm of the source lies inside the plane of `armSplit`,
+      so the rig keeps it on the trunk. Rebuild the arms with a seam cut and a side wall, as the
+      fox (`docs/agents/rig-blender.md`, `2026-10-25-hippo-skin.md`).
 - [x] Rhino: the left arm skin creased in 16.7% of the edges in the play, and the narrow axis of
       the middle of each upper arm was 0.39 and 0.41 of the wide axis. Now 11.1% and 12.0%, and
       0.65 and 0.63 (`2026-10-22-rhino-arm.md`).
@@ -833,11 +842,12 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       bone of the upper arm, the right elbow forward and a little down, a trunk rule under the
       armpit, and new shapes. The shoulder ring turns 30° (56°), and the dark spikes go
       (`refit-hippo-views.webp` of `docs/research/2026-10-19-arm-skin/`, `2026-10-19-arm-skin.md`).
-- [ ] Hippo bassist: the skin folds in 9.5% of the play samples (the lift and the rest in none):
-      the pizzicato of `boulanger-matin` (4.7%), faces 258 and 442 of the right shoulder (2.6%,
-      2.0%), and the left clavicle (1.5%). In pizzicato, the paw turns about 134° on the forearm,
-      and a shape of the bent wrist moved the folds to faces 434 and 436. Try a pizzicato that
-      keeps the arm of the bow (`refit-hippo-rigs.txt` of `docs/research/2026-10-19-arm-skin/`).
+- [ ] Hippo bassist: the skin folds in 29.0% of the play samples (28.6% on main, 9.5% before the
+      holds of 2026-10-21 and 2026-10-24): faces 258, 442, and 561 under the 50° shoulder turn
+      of the bow arm (23.2%, 21.6%, 7.9%), and the pizzicato paw (4.7%). A bow turn of 40°
+      folds 6.6%, but straightens the bow arm in 11.7% of the play samples. Refits of the shape,
+      rigid faces, and weight smoothing moved the folds. Try the arm rebuild, or a trunk turn that
+      takes a part of the shoulder turn (`2026-10-25-hippo-skin.md`).
 - [ ] Hippo bassist: the shoulder ring of the bow arm keeps a flat share of 0.68 (goal 0.80), and
       8 shoulder faces stretch more than 1.8 times (`pnpm arm-shape bassist`). The renders show no
       flat band. One shape of `raise` is free (`2026-10-19-arm-skin.md`).
@@ -851,6 +861,8 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       Rigid weights and a ring at the shoulder fold more, and a turn of 45° or 48° keeps their
       mean creases above 60° (`docs/research/2026-10-19-cut-caps.md`). Try a flip of their long
       edges or a shape that relaxes them.
+      Tried: a bow turn of 40° keeps their creases. Faces 115 and 116 crease 53° (47° on main)
+      after the spread of the shoulder shape (`2026-10-25-hippo-skin.md`).
 - [ ] Hippo bassist: on the E and A strings, the roll of the bow paw stays at its low end, and the
       paw goes more than 1.5 cm into the belly in 4.6% of the play samples. A hold that moves the
       right elbow off the line of the stick, such as the slant -10°, can remove it
