@@ -162,7 +162,8 @@ interface StudioArmSegments {
 - **A slot that is shading.** A black slot or a hard dark wedge under a raised arm can come from
   the normals: the seated bind turns the hanging arm up, and the crease angle splits the normals
   of the arm root. Render `--probe colors,normals` of `pnpm close-views` first. With no dark
-  color, give the arm roots `rootNormals` before a rebuild. On the beaver and the rhino, the
+  color, give the arm roots `rootNormals` before a rebuild. A bind that bends the elbow splits
+  the inner elbow the same way: give it `rootNormals.elbow`. On the beaver and the rhino, the
   rebuilt arms kept the slots and failed the gate (`docs/research/2026-10-25-beaver-rhino-arms.md`).
 - **The clavicle of a thick arm.** Automatic weights give the clavicle most of the root of a
   thick arm. Its faces then stay with the shoulder, and the root folds.
