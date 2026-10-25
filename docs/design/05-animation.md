@@ -571,7 +571,9 @@ The code constants of each family hold the times, the angles, and the lengths of
     valves. The long muzzle puts the mouthpiece far in front of the chest, so the tuba has a longer
     lead pipe (4.6), and the shoulder bones turn forward, as the shoulder blades of a real player
     slide forward. The lower end of the tuba turns to the right, so that the bell stands at the left
-    of the horn on the muzzle. The elbows point out, down, and forward. The right paw lies on the
+    of the horn on the muzzle. The elbows point out, down, and forward, and the right elbow more
+    out than down, so that the right upper arm stays out of the body, as the arms of a real player
+    stay away from the rib cage. The right paw lies on the
     valve tops at the front right of the valve branch, so that a paw shows from the front. The
     left palm lies on the back left of the main branch, as the left hand of a real tubist grips
     the tubing at the side of a rotary tuba. Both paws keep the hold of the play at rest, so that the lowering

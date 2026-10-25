@@ -18,7 +18,7 @@ remove its row.
 | Each upper arm has a twist bone with the share 0.4, as the hippo. With no twist bone, the left upper arm rolled 63° to 82°, above the limit 55° (`upperTwist`). | 4.4, 4.7 |
 | The tip of the nose is the front of the muzzle under the horn, so the mouthpiece is at the lips (`noseTop` of `ANIMALS`). | 4.4 |
 | The lead pipe of the tuba is 0.25 m longer back and 0.1 m to the left, so the tuba stands under the long muzzle and the bell beside the horn (`SpeciesParams.tubaPipe`). | 4.6, 5.3 |
-| Hold: the shoulders turn 30° and 40° forward, the lower end of the tuba 25° to the right, and the elbows point out, down, and forward (`RHINO_TUBA`). | 5.3 |
+| Hold: the left shoulder turns 40° forward (the right shoulder: `2026-10-25-thick-arm-depth.md`), the lower end of the tuba 25° to the right, and the elbows point out, down, and forward (`RHINO_TUBA`). | 5.3 |
 | The left palm holds the main branch 0.17 m from its axis, so the thick paw closes on the tube (`tuba()`). Its fingers go 2.1 cm in, an accepted depth (`TUBIST_SWEEP`). | 4.6, 9.3 |
 | At rest, the tuba moves off the mouth and its lower end turns 5° forward. No source gives the rest of a tubist (`RHINO_TUBA.rest`). | 5.2 |
 | Colors: the mesh keeps its texture with no tone rule. Its gray is a little warmer and darker than `SPECIES_COLORS.rhino`, and no reference image shows a rhino. | 4.5 |
