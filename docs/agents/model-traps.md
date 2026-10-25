@@ -106,6 +106,11 @@ group of your work before you plan it. A probe that a trap names is in its resea
   lid. A higher bench lowers the keys against the shoulders and loses reach. Scan the arm factor
   with the front of the keys, the lean, and the gap of the head to the lid (`scan2.sh` of
   `docs/research/2026-10-22-mesh-polar-bear/`), and point the elbows out and level.
+- Short arms in front of a deep instrument stop at their full reach mostly along the forward
+  direction, so a side move of the body gains little. Read the wrist reach at each strike
+  (`dbg.ts` of `docs/research/2026-10-25-xylophone-sway/`), and lean the spine forward
+  (`PercussionHold.lean`). A hip move over short legs tilts the shins, and the foot skin sinks
+  into the floor: read the lowest sole with `balance.ts` of the same folder.
 - Read the spare reach of each grip after each move of a rest place of a wind hold. `pnpm hold-fit`
   gives it, also with `--scan`, and a grip below 0 is a missed goal.
 - A bow that rests upright and plays across the strings turns its tip from up to the left. A direct
@@ -398,6 +403,7 @@ The pose values in meters do not change with the body size:
 - the hands and the head: `lift` and `pull` of `HAND_MOTION` (`src/pose/hand-notes.ts`), the `sizes`
   of each hold of `src/pose/percussion-rig.ts`, `scale` of `CONDUCTOR_MOTION`
   (`src/pose/conductor-notes.ts`), and `eyeHeight` of the cues (`src/pose/cues.ts`);
+- the body: `hips` and `span` of the side move of a percussion hold (`PercussionHold.side`);
 - the sweep: `CONTACT`, the `depth` of each accepted depth, and the `targetError` of each role
   (`src/pose/test-sweep-roles.ts`), `PIANIST_GAP` (`src/pose/test-pianist-clearance.ts`), and `GAP`
   (`src/pose/test-conductor-clearance.ts`).
