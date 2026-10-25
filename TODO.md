@@ -450,10 +450,11 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
 - [x] Elephant: the upper arms go 3.4 cm into the belly near the elbow (1.8 cm before the arm
       tubes, accepted 3.0 cm). Done: the timpani elbows point a little out (pole x 0.8). The
       upper arms go 2.9 cm in, and the back shows no gap (`2026-10-25-elephant-hippo-creases.md`).
-- [ ] Elephant: the upper arms still go 2.9 cm into the belly at 0.71 of the right upper arm. No
-      elbow pole gives less than 2.7 cm. The elbow helper turns the inner upper arm into the
-      belly: try a smaller weight of the helper on the inner upper arm in
-      `tools/blender/elephant_arms.py` (`2026-10-25-elephant-hippo-creases.md`).
+- [x] Elephant: the upper arms still go 2.9 cm into the belly at 0.71 of the right upper arm. No
+      elbow pole gives less than 2.7 cm. Done: the elbow helper is not the cause. The thick arm
+      turns into the belly as one rigid part, and the inner front of each upper arm is a little
+      flatter in `tools/blender/elephant_arms.py`. The upper arms go 1.3 cm in
+      (`2026-10-25-thick-arm-depth.md`).
 - [x] Elephant: short light and dark creases show at each inner elbow from the front, where the
       thick arm bends about 90°. Done: a split of the normals of the bent bind elbow. The faces
       around each elbow take the skin normals (`rootNormals.elbow`,
@@ -941,8 +942,15 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       tuba paw grasped in 0% of the play samples of `pnpm wind-grip` (97% on `main`), because the
       far claw corners stood 1.2 cm off the valves. A new try needs a flatter inner side of the
       upper arm, or a choice of the user on its thickness (`2026-10-25-beaver-rhino-arms.md`).
-- [ ] Twist steps of the beaver and the rhino: 64.8° and 64.5° (target 25°), as on `main`. Only
-      rebuilt arms with segments lower them (`2026-10-25-beaver-rhino-arms.md`).
+- [x] Rhino tubist: the upper arms go 1.8 cm to 2.0 cm into the body (goal 1.5 cm). Done: the
+      right shoulder turns 45° forward, and the right elbow points more out than down. The upper
+      arms go 1.4 cm to 1.5 cm in (`2026-10-25-thick-arm-depth.md`).
+- [ ] Rhino tubist: the arm gate fails the margin of the right move twist max, 148° against 133°
+      before the elbow change, inside the limit 176°. The manager decides
+      (`2026-10-25-thick-arm-depth.md`).
+- [ ] Twist steps of the beaver and the rhino: 64.8° and 74.1° (target 25°). The right elbow of
+      the rhino out raised its step from 64.5°. Only rebuilt arms with segments lower them
+      (`2026-10-25-beaver-rhino-arms.md`, `2026-10-25-thick-arm-depth.md`).
 - [x] Arm segments for the wolf and the mouse: copies of the meshes with the arm factors in
       Blender, and Blender weights (`2026-10-25-wind-arms.md`).
 - [x] Arm segments for the foxes: a copy of the mesh with a side wall under each arm, Blender
