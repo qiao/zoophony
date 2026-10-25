@@ -438,6 +438,14 @@ A round that changes the motion updates the items.
   with 30°, the skin of its wrist under the neck pinched into a twisted band. Its wrist then
   bends about 30° from the line of the forearm in the low positions, where a real player keeps it
   straight (decisions [`2026-10-20-cat-left-arm.md`](../decisions/2026-10-20-cat-left-arm.md)).
+- **The violin under the jaw** (section 1.10). The instrument lies about level: the strings rise
+  0° to 5° to the scroll on the rabbit, the cat, and the red fox. The scroll points 64° to the
+  left of the front of the chest on the rabbit and the red fox, further than the 45° of [78],
+  because a turn to the front took the nut out of the reach of the short left arms. The jaw lies
+  on the chin rest: the head touches the instrument in each play sample of the probe of
+  `docs/research/2026-10-24-violin-arms.md`. The rabbit lowers its head 12° while it plays
+  (`BowedHold.headDrop`), and its violin sits 0.08 H higher than before, because the jaw of its
+  round head stayed 1.7 cm above the violin (`docs/decisions/2026-10-24-violin-review.md`).
 
 ### 3.2 The bow arm
 

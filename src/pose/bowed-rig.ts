@@ -511,9 +511,13 @@ const HANGING_BOW = {
  * little (`violinScale`, 2026-10-23-rabbit-arms decisions). The short arms of 2026-10-24 reach it
  * nearly straight, as the user asked: the scroll points 60° to the left of the front, so that it
  * comes nearer to the left shoulder, and the left paw reaches the fingerboard from 0.06 of its
- * length (0.24 at 45°). The violin sits 0.2 H below the tail end of the chin hold and 0.15 H
- * forward, so that the jaw lies on it and the bow passes under the chin: 0.15 H higher, it sat at
- * the mouth (2026-10-24-rabbit-hold decisions). With the shorter arms
+ * length (0.24 at 45°). The violin sits 0.12 H below the tail end of the chin hold, and the head
+ * turns 12° down while the rabbit plays (`headDrop`), so that the jaw lies on the chin rest, as a
+ * violinist rests the jaw on it (`docs/reference/string-technique.md`, section 1.10). With the
+ * violin 0.08 H lower, 0.015 H further forward, and the head level, the jaw stayed 1.7 cm above the
+ * violin (manager review of 2026-10-24, 2026-10-24-violin-review decisions), and with the violin
+ * 0.15 H higher than then and the head level, it sat at the mouth (2026-10-24-rabbit-hold
+ * decisions). With the shorter arms
  * of 2026-10-14, it sits 0.039 H further back, so that the left paw reaches the nut: at the old
  * place, the paw reached the fingerboard from 0.06 of its length. A turn of the scroll further to
  * the left also reached the nut, but folded the skin of the left arm in 76% to 100% of the play
@@ -587,12 +591,13 @@ const HANGING_BOW = {
 const SHOULDER_HOLD = {
   ...CHIN_HOLD,
   poleL: [-1, -1.4, -0.3],
-  playShift: [-0.054, -0.2, 0.15],
+  playShift: [-0.054, -0.12, 0.165],
   playTurn: violinTurn(-10, 5),
   poleR: [1.8, -0.3, -1],
   freeHair: 0.06,
   poleTipR: CHIN_HOLD.poleR,
   lean: 0,
+  headDrop: 12 * MathUtils.DEG2RAD,
   slant: -5 * MathUtils.DEG2RAD,
   stringTurn: 10 * MathUtils.DEG2RAD,
   restPoleL: [-0.6, -1, 0.3],
@@ -623,6 +628,7 @@ const SHOULDER_HOLD = {
  * Straight back by 0.06 H, the violin went 1.3 cm into the neck, and with the place of the arms
  * round 1.1 cm (`violin-probe.txt` of the research folder of the decisions). It sits 0.01 H
  * higher, and goes 1.0 cm into the trunk and the neck (2026-10-14-fox-rabbit-fix decisions). The
+ * head stays level (`headDrop` 0), because the long jaw already lies on the violin. The
  * shorter neck of 2026-10-17 moves the head and the violin 1.7 cm down, and the violin went 2.4 cm
  * into the body in the play (1.7 cm before), so it sits 0.01 H higher again (2026-10-17-fox-form
  * decisions). The
@@ -677,6 +683,7 @@ const FOX_HOLD = {
   elbowPerString: 2 * MathUtils.DEG2RAD,
   poleR: [1.8, -0.7, -1],
   playShift: [-0.07, 0.05, 0.25],
+  headDrop: 0,
   slant: -12 * MathUtils.DEG2RAD,
   stringTurn: 9 * MathUtils.DEG2RAD,
   bowTilt: 15 * MathUtils.DEG2RAD,

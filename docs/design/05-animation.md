@@ -435,7 +435,10 @@ The code constants of each family hold the times, the angles, and the lengths of
   - **Holds of the species** (`holdOf()` and `SPECIES_HOLDS` of `pose/bowed-rig.ts`):
     - The rabbits hold the violin on the left shoulder as a real violinist does
       (`SHOULDER_HOLD`): the tail end on the collarbone under the jaw, the strings about level,
-      the bow nearly square, and the back straight. The violin sits back toward the neck, so that
+      the bow nearly square, and the back straight. The head turns down while the rabbit plays
+      (`BowedHold.headDrop`), so that the jaw lies on the chin rest
+      (`docs/reference/string-technique.md`, section 1.10,
+      `docs/decisions/2026-10-24-violin-review.md`). The violin sits back toward the neck, so that
       the left paw reaches the nut with the size that the user set (`SpeciesParams.violinScale`).
       The bow keeps a free hair at each end (`BowedHold.freeHair`), so that the paw stays out of
       the body at the frog. The bow elbow points out and forward as the elbow of the red fox
