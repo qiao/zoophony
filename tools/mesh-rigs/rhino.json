@@ -17,6 +17,10 @@
     "share": 0.4,
     "note": "The twist bone of each upper arm keeps 0.4 of the roll of the upper arm from the chest (StudioBody.upperTwist), the share of the old rhino and of the hippo. With the A-pose mesh, the arm gate gives a twist of 43 and 26 degrees, below the limit 55 (pnpm arm-check tubist)."
   },
+  "rootNormals": {
+    "radius": 0.12,
+    "note": "The skin faces whose middle lies within radius (units) of the head of an upper arm take the normals of the skin with no crease angle in the app (root_rim() of tools/blender/rig_mesh.py, studioNormals() of src/models/studio-normals.ts). The seated bind turns the hanging arm up, so the faces of the arm root meet at sharp angles, and the crease angle 35 of ANIMALS split their normals into a black slot or a dark wedge under each raised arm. On the rebuilt arms, the radius 0.08 left the wedge under the left arm. The faces of the mesh and the weights stay: the rebuilt quad arms of the method of the elephant put the upper arms 3.5 cm into the belly and took the right paw off the valves (pnpm wind-grip tubist), and they did not remove the wedge without this rule (docs/research/2026-10-25-beaver-rhino-arms.md)."
+  },
   "joints": {
     "root": {
       "head": [
