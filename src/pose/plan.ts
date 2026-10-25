@@ -45,6 +45,7 @@ import type { PercussionRig } from './percussion-rig.ts';
 import { hashUnit, mixHash, mulberry32 } from './random.ts';
 import { CONDUCTOR_MOTION, restMotion } from './rest.ts';
 import type { RestMotion } from './rest.ts';
+import type { SideTrack } from './side-move.ts';
 import type { StrikeTrack } from './strikes.ts';
 import { buildStrokes, vibratoRate } from './strokes.ts';
 import type { Stroke } from './strokes.ts';
@@ -104,6 +105,8 @@ export interface PercussionLayer {
   /** The strikes of each hand. The cymbals share one track, and a free hand has `null`. */
   readonly left: StrikeTrack | null;
   readonly right: StrikeTrack | null;
+  /** The side move of the body behind the notes (`PercussionHold.side`), or `null`. */
+  readonly side: SideTrack | null;
 }
 
 /** The note layer of the conductor: the baton, the cues, and the left hand (design 5.4). */

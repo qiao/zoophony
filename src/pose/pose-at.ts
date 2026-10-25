@@ -28,6 +28,7 @@ import type { PercussionState } from './percussion.ts';
 import type { IdleState } from './idle.ts';
 import type { NoteLayer, PlayerPlan, PosePlan } from './plan.ts';
 import { END_BOW, endBowAt, seatHeight, smoothstep, transportHeight } from './rest.ts';
+import { hipsOffset, plantFeet, sideMoveAt } from './side-move.ts';
 import { createStrikeState, strikeStateAt } from './strikes.ts';
 import { bowStateAt, createBowState } from './strokes.ts';
 import type { BowState } from './strokes.ts';
@@ -185,7 +186,7 @@ const FLOOR_INSTRUMENTS: ReadonlySet<InstrumentId> = new Set<InstrumentId>(['cel
 /**
  * Writes the body layer of one animal: the breath and the sway of the spine, the look at the
  * conductor, the ears, the tail, and the blink (design 5.1). The legs keep the bind pose (4.7),
- * except the right leg of a pianist on the damper pedal (5.3).
+ * except the right leg of a pianist on the damper pedal and the legs of a side move (5.3).
  * Then it calculates the frames of the torso with the root offset of the pose, from which the
  * note layer hangs the arms.
  *
@@ -403,10 +404,25 @@ function poseAnimal(
           strikeStateAt(track, noteTime, state);
         }
       }
-      // The spine leans over the instrument (`PercussionHold.lean`).
+      // The spine leans over the instrument (`PercussionHold.lean`). The body moves to the side
+      // behind the notes, and the instrument and the feet stay in place (`PercussionHold.side`).
+      // A positive sway leans to the left, and a positive share moves to the right.
+      const { legs } = note.rig;
       body.lean = note.rig.hold.lean * weight;
+      if (note.side && legs) {
+        const share = sideMoveAt(note.side, noteTime) * weight;
+        body.sway -= share * note.side.move.spine;
+        hipsOffset(legs, share * note.side.move.hips, pose.rootOffset);
+        const [x, y, z] = pose.rootOffset;
+        pose.instrumentOffset[0] = -x;
+        pose.instrumentOffset[1] = -y;
+        pose.instrumentOffset[2] = -z;
+      }
       writeBody(pose, player, scratch);
       posePercussion(note.rig, scratch.torso, strikes, weight, pose.rotations);
+      if (note.side && legs) {
+        plantFeet(legs, pose.rootOffset, pose.rotations);
+      }
       break;
     }
     case 'conductor': {

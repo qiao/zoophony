@@ -18,6 +18,8 @@ import {
   xylophoneShift,
 } from './percussion-rig.ts';
 import type { PercussionRig, PercussionSide } from './percussion-rig.ts';
+import { buildSideTrack } from './side-move.ts';
+import type { SideTrack } from './side-move.ts';
 import { alternateHands, buildStrikeTrack } from './strikes.ts';
 import type { Strike, StrikeGroup, StrikeState, StrikeTarget, StrikeTrack } from './strikes.ts';
 
@@ -25,6 +27,8 @@ import type { Strike, StrikeGroup, StrikeState, StrikeTarget, StrikeTrack } from
 interface PercussionTracks {
   readonly left: StrikeTrack | null;
   readonly right: StrikeTrack | null;
+  /** The side move of the body behind the notes (`PercussionHold.side`), or `null`. */
+  readonly side: SideTrack | null;
 }
 
 /**
@@ -32,7 +36,9 @@ interface PercussionTracks {
  * start within 50 ms of each other strike together. A drum player strikes its own instrument for
  * each of its notes, also for the notes of another key group (design 3.8). Of a chord of the
  * small percussion player, the triangle sounds unless all notes are the tambourine. A timpani
- * hold with a pair of front kettles (`PercussionHold.pair`) plays each note on one of them.
+ * hold with a pair of front kettles (`PercussionHold.pair`) plays each note on one of them. A
+ * hold with a side move (`PercussionHold.side`) moves the body toward the mean side place of the
+ * targets of each strike group.
  *
  * @param rig The points of the player.
  * @param notes The notes of the player, sorted by start.
@@ -77,6 +83,21 @@ export function percussionTracks(
     }
     return { start: group.start, loudness: group.loudness, targets };
   });
+  const side = hold.side
+    ? buildSideTrack(
+        hold.side,
+        groups.flatMap((g) =>
+          g.targets.length > 0
+            ? [
+                {
+                  start: g.start,
+                  place: g.targets.reduce((sum, t) => sum + t.point[0], 0) / g.targets.length,
+                },
+              ]
+            : [],
+        ),
+      )
+    : null;
   // With a gap, a hand waits at its rest target before its first strike, and the other hand keeps
   // the gap from that place.
   const waits = hold.gap > 0;
@@ -97,6 +118,7 @@ export function percussionTracks(
     return {
       left: track(left, hold.offsetL, rig.restL),
       right: track(right, hold.offsetR, rig.restR),
+      side,
     };
   }
   const strikes = groups.flatMap((g): Strike[] => {
@@ -104,7 +126,7 @@ export function percussionTracks(
     return target ? [{ ...target, start: g.start, loudness: g.loudness }] : [];
   });
   const one = track(strikes, hold.offsetR, rig.restR);
-  return hold.hands === 'pair' ? { left: one, right: one } : { left: null, right: one };
+  return hold.hands === 'pair' ? { left: one, right: one, side } : { left: null, right: one, side };
 }
 
 /**

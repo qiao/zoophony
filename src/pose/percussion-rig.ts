@@ -17,6 +17,8 @@ import { hangingArm } from './hang.ts';
 import type { HangingArm } from './hang.ts';
 import { armRig } from './ik.ts';
 import type { ArmRig } from './ik.ts';
+import { plantedLegs } from './side-move.ts';
+import type { PlantedLegs, SideMove } from './side-move.ts';
 import type { StrikeSizes, StrikeTarget } from './strikes.ts';
 
 /** The timpani, the drums, the cymbals, the small percussion, and the xylophone (design 4.6). */
@@ -136,6 +138,11 @@ interface PercussionHold {
   readonly gap: number;
   /** The forward lean of the spine over the instrument while the player plays, in radians. */
   readonly lean: number;
+  /**
+   * The side move of the body behind the notes, with the feet on the floor, or `null`: the body
+   * keeps its place.
+   */
+  readonly side: SideMove | null;
 }
 
 /**
@@ -180,6 +187,7 @@ export const PERCUSSION_HOLDS = {
     pair: true,
     gap: 0,
     lean: 0,
+    side: null,
   },
   // The badger strikes the bass drum below the middle of the head, as a real player strikes off
   // the middle. The beater leaves the side of the fist at the angle of no twist of the paw on the
@@ -201,6 +209,7 @@ export const PERCUSSION_HOLDS = {
     pair: false,
     gap: 0,
     lean: 0,
+    side: null,
   },
   // The sticks leave the front of the fists (SNARE_DRUM.malletTilt) and point from homes out
   // from the shoulders, so that they make a V of about 66° at a strike and slant down 9°, as the
@@ -223,6 +232,7 @@ export const PERCUSSION_HOLDS = {
     pair: false,
     gap: 0,
     lean: 0,
+    side: null,
   },
   // The lift is the half of the gap between the inner faces of the two cymbals. The elbows point
   // down and a little out, so that fewer faces of the left shoulder of the badger mesh fold in the
@@ -242,6 +252,7 @@ export const PERCUSSION_HOLDS = {
     pair: false,
     gap: 0,
     lean: 0,
+    side: null,
   },
   // The left hand holds the triangle up, and its elbow points out to the left. The beater leaves
   // the front of the right fist (TRIANGLE.malletTilt) and keeps the angle of no twist of the paw
@@ -263,6 +274,7 @@ export const PERCUSSION_HOLDS = {
     pair: false,
     gap: 0,
     lean: 0,
+    side: null,
   },
   // The mallets leave the front of the fists (XYLOPHONE.malletTilt) and keep the angle of no
   // twist of the paw between strikes, as the sticks of the snare drum, because a real player holds
@@ -289,6 +301,7 @@ export const PERCUSSION_HOLDS = {
     // the other mallet, which rests over the bar.
     gap: 0.01,
     lean: 0,
+    side: null,
   },
 } as const satisfies Readonly<Record<PercussionInstrument, PercussionHold>>;
 
@@ -320,6 +333,7 @@ export const SUSPENDED_CYMBAL_HOLD: PercussionHold = {
   pair: false,
   gap: 0,
   lean: 0,
+  side: null,
 };
 
 /** The places of the hands of a percussion player, in head heights `H` (design 5.3). */
@@ -422,6 +436,8 @@ export interface PercussionRig {
   readonly hangL: HangingArm;
   /** The right arm in the rest pose. */
   readonly hangR: HangingArm;
+  /** The legs whose feet stay on the floor in a side move (`PercussionHold.side`), or `null`. */
+  readonly legs: PlantedLegs | null;
 }
 
 /**
@@ -763,6 +779,7 @@ export function percussionRig(model: PlayerModel, instrument: PercussionInstrume
     restR: offsetTarget(restR, hold.offsetR),
     hangL: hangingArm(model, left),
     hangR: hangingArm(model, right),
+    legs: hold.side ? plantedLegs(model) : null,
   };
 }
 
