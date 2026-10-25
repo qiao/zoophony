@@ -31,7 +31,7 @@ import type { Fingering } from '../src/pose/wind-notes.ts';
 import { IDENTITY } from '../src/models/tuples.ts';
 import type { Quat } from '../src/models/tuples.ts';
 import { SPECIES_WIND_HOLDS, holdTurn } from '../src/pose/winds.ts';
-import type { FreePaw, WindHold } from '../src/pose/winds.ts';
+import type { FreePaw } from '../src/pose/winds.ts';
 
 /**
  * The own holds of the species (`SPECIES_HOLDS` of the bowed strings and `SPECIES_WIND_HOLDS` of
@@ -171,13 +171,6 @@ const TEXT_FIELDS: ReadonlyMap<string, readonly string[]> = new Map([
       'valves-right': true,
       slide: true,
     } satisfies Record<Fingering, true>),
-  ],
-  [
-    'faceTube',
-    Object.keys({ palm: true, back: true, none: true } satisfies Record<
-      WindHold['faceTube'],
-      true
-    >),
   ],
 ]);
 

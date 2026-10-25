@@ -88,8 +88,9 @@ export interface WindHold {
    */
   readonly restFreeL: FreePaw | null;
   /**
-   * The side of each paw that faces its tube: each paw rolls around the line from its shoulder to
-   * its grip until that side faces the tube ({@link faceTube}).
+   * The side of each paw that faces its tube, for the left paw and the right paw: each paw rolls
+   * around the line from its shoulder to its grip until that side faces the tube
+   * ({@link faceTube}).
    *
    * - `palm`: the palm faces the tube, so that the curled fingers close around its front, as the
    *   fingers of a real player curve over the tube with the thumb behind it
@@ -101,7 +102,7 @@ export interface WindHold {
    *   with its palm to the side (user, 2026-10-23: "wolf, mouse, and tan fox not holding the
    *   instrument properly").
    */
-  readonly faceTube: 'palm' | 'back' | 'none';
+  readonly faceTube: readonly [left: TubeFace, right: TubeFace];
   /**
    * The share, from 0 to 1, of the part along the tube that the aim of each paw on its grip loses
    * in the playing pose ({@link aimAcross}). With 0, the paw points along the line from its
@@ -161,6 +162,9 @@ export interface WindHold {
   readonly gripCurl: readonly [left: number, right: number] | null;
 }
 
+/** The side of a paw that faces its tube (`WindHold.faceTube`). */
+export type TubeFace = 'palm' | 'back' | 'none';
+
 /** The left paw of a wind hold that leaves its grip in the rest pose (`WindHold.restFreeL`). */
 export interface FreePaw extends LapHand {
   /**
@@ -196,7 +200,7 @@ const WOODWIND = {
   headTurn: 0,
   lipShift: [0, 0, 0],
   restFreeL: null,
-  faceTube: 'none',
+  faceTube: ['none', 'none'],
   aimAcross: 0,
   aimSide: 0,
   gripShiftL: [0, 0, 0],
@@ -474,7 +478,7 @@ const FOX_FLUTE = {
     fingers: [0, -1, -0.3],
     arc: [0.57, 0.04, 0.31],
   },
-  faceTube: 'back',
+  faceTube: ['back', 'back'],
   aimAcross: 1,
   gripShiftR: [0.05, 0.05, 0],
   restGripShiftR: [-0.05, 0.03, -0.03],
@@ -541,7 +545,7 @@ const PANDA_TROMBONE = {
       .setFromAxisAngle(Y_AXIS, -PANDA_PLAY.right * MathUtils.DEG2RAD)
       .multiply(new Quaternion().setFromAxisAngle(X_AXIS, -PANDA_PLAY.down * MathUtils.DEG2RAD)),
   ),
-  faceTube: 'palm',
+  faceTube: ['palm', 'palm'],
   aimAcross: 1,
   gripShiftL: [0, 0.1, 0],
   gripShiftR: [0, 0.08, 0],
@@ -605,7 +609,7 @@ const MOUSE_OBOE = {
   play: holdTurn(MOUSE_OBOE_FORWARD, 0),
   poleL: [-0.5, -1, -0.5],
   poleR: [0.5, -1, -0.5],
-  faceTube: 'palm',
+  faceTube: ['palm', 'palm'],
   aimAcross: 1,
   aimSide: 0.5,
   gripShiftL: [0.2, 0.05, 0],
@@ -674,7 +678,7 @@ const BEAVER_BASSOON = {
   poleL: [-0.5, -1, -0.5],
   poleR: [0.5, -1, -0.5],
   restPoleL: [-0.5, -1, -0.5],
-  faceTube: 'palm',
+  faceTube: ['palm', 'palm'],
   aimAcross: 1,
   aimSide: 0.5,
   gripShiftR: [0.15, 0, -0.05],
@@ -820,7 +824,7 @@ const WOLF_CLARINET = {
   poleR: [0.3, -1, 0],
   restPoleL: [-0.7, -1, 0.2],
   restPoleR: [0.3, -1, 0],
-  faceTube: 'palm',
+  faceTube: ['palm', 'palm'],
   aimAcross: 1,
   aimSide: 0.5,
   gripShiftL: [0.2, 0.12, 0],
@@ -862,7 +866,7 @@ const MONKEY_TRUMPET = {
   play: holdTurn(-15, 0),
   poleL: [-0.3, -1, 0],
   poleR: [0.3, -1, 0],
-  faceTube: 'palm',
+  faceTube: ['palm', 'palm'],
   gripCurl: curls(86, 92),
 } as const satisfies WindHold;
 
@@ -1427,7 +1431,8 @@ function poseSide(
   poseShoulder(side.arm, chest, rig.chestBind, turn, shoulder);
   // A paw that leaves its grip at rest keeps the aim and the roll of its shoulder: with the roll,
   // the mix from its rest paw flipped to the other side of its forearm in the middle of the move.
-  if (rig.hold.faceTube !== 'none' && !free) {
+  const face = rig.hold.faceTube[side.arm.side === 'L' ? 0 : 1];
+  if (face !== 'none' && !free) {
     tubeAxis.fromArray(side.tube.axis).applyQuaternion(rotation);
     // The palm faces from its grip to the axis of its tube. The axis of a woodwind passes through
     // the mouthpiece. The up axis of the bone is no such direction: the oboe and the clarinet hang
@@ -1445,7 +1450,7 @@ function poseSide(
       aimSide(shoulder, tubeAxis, tubeSide, rig.hold.aimSide * aim, aimPoint);
     }
     handToward(shoulder, aimPoint, hand);
-    faceTube(hand, tubeSide, side.arm.side, rig.hold.faceTube, aim);
+    faceTube(hand, tubeSide, side.arm.side, face, aim);
   } else {
     handToward(shoulder, grip, hand);
   }
