@@ -25,7 +25,7 @@ reads it (route 3 of `docs/agents/model-work.md`). The steps:
    the quads at the top, and the skin faces of their rim (`cut_rim()`) of these sides, which take
    the normals of the skin too. With `rootNormals` of the config, the rim also takes the skin
    faces within its radius of each shoulder joint, and within its `elbow` radius of each elbow
-   joint (`root_rim()`).
+   joint, and with `armShare` only the faces that the clavicle and the arm move (`root_rim()`).
 2. Give each face one color from the base color texture. A face of an eye keeps its dark color.
 3. Build the skeleton of the 30 body bones of the studio at the joints of the config, with the
    optional bone `tail_tip` for a tail of two bones and the optional bone `jaw` for a beak that
@@ -1380,20 +1380,32 @@ def cut_rim(tris, body_caps, arm_caps):
     return ~new & on_body[tris].any(axis=1) & ~on_arm[tris].any(axis=1)
 
 
-def root_rim(verts, tris, heads, rule):
+def root_rim(verts, tris, heads, rule, weights):
     """Finds the skin faces around the shoulder joints (`rootNormals` of the config): each face
     whose middle lies within `radius` of the head of an upper arm. The seated bind turns a hanging
     arm up, so the faces of its root meet at sharp angles, and the crease angle of the app splits
     their normals into a dark wedge under the raised arm. The app gives these faces the normals
     of the skin with no crease angle, as the rim of a cut. With `elbow`, each face whose middle
     lies within that radius of the head of a forearm is in the rim too: an elbow that the bind
-    bends gives the same split at the inner elbow. Gives a mask of the faces."""
+    bends gives the same split at the inner elbow.
+
+    With `armShare`, a face stays in the rim only when the mean weight of its corners on the
+    clavicle and the arm bones of its side is at least that share. A trunk face whose corner
+    joins the arm root takes the mean normal of the arm root faces at that corner, which point
+    down and back in the bind, so a trunk face that the arm does not move shades as a dark patch
+    under the raised arm. Gives a mask of the faces."""
     mids = verts[tris].mean(axis=1)
     out = np.zeros(len(tris), bool)
     for side in 'LR':
+        near = np.zeros(len(tris), bool)
         for bone, key in (('upper_arm', 'radius'), ('forearm', 'elbow')):
             joint = np.asarray(heads[f'{bone}_{side}'], float)
-            out |= np.linalg.norm(mids - joint, axis=1) < rule.get(key, 0.0)
+            near |= np.linalg.norm(mids - joint, axis=1) < rule.get(key, 0.0)
+        if 'armShare' in rule:
+            bones = [BONES.index(f'clavicle_{side}')] + [BONES.index(b) for b in arm_bones(side)]
+            share = weights[:, bones].sum(axis=1)[tris].mean(axis=1)
+            near &= share >= rule['armShare']
+        out |= near
     return out
 
 
@@ -4351,7 +4363,7 @@ def main():
             skin_caps |= chosen[origin]
             rim = cut_rim(tris, body_cap[origin], arm_cap[origin])
     if 'rootNormals' in config:
-        rim |= root_rim(long_verts, tris, long_heads, config['rootNormals'])
+        rim |= root_rim(long_verts, tris, long_heads, config['rootNormals'], weights)
     # The move of the head from the source: the pivot, the head factor, the rise, and the drop.
     head_move = (heads['neck'], factors['head'], rise,
                  drop + lower if factors['trunk'] != 1 else drop)
