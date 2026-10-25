@@ -1210,14 +1210,31 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       Done: the wrists stopped at their full reach in front of the bars. The spine leans over
       the bars, and the body moves from side to side behind the notes with the feet in place
       (`2026-10-25-xylophone-sway.md`).
-- [ ] Badger xylophone back row: the sharp bars stay about 11 cm out of reach also with the lean
+- [x] Badger xylophone back row: the sharp bars stay about 11 cm out of reach also with the lean
       (`2026-10-25-xylophone-sway.md`). Ask the user for a smaller xylophone or longer arms.
+      Done: the user prefers a smaller xylophone. The bars are 3 cm wide and 12 cm to 8 cm long,
+      0.42 m in front, and each strike of the pirates part lands within 5 mm
+      (`2026-10-25-xylophone-reach.md`).
 - [ ] Badger xylophone runs: a scale stays in one hand, because a hand does not cross the other
       (`alternateHands()`), so on the percussion test score the right paw reaches across the
       body to the lowest bars (median miss 9.5 cm). A real player alternates the hands in a
       scale, with no cross of the mallets (`docs/reference/percussion-technique.md` 9).
-- [ ] Badger xylophone soles: the side move of the hips sinks the soles 3 to 6 mm into the floor,
+      Done: a run that leaves the reach of one paw goes on in the other paw, and the right paw
+      strikes 93% of its bars within 5 mm, median 0 mm (`2026-10-25-xylophone-reach.md`). The
+      alternation stays open (below).
+- [ ] Badger xylophone alternation: a scale stays in one hand up to the reach of the paw, where
+      a real player alternates the hands (`docs/reference/percussion-technique.md` 9). With full
+      alternation, each head passes the other head at one height, and the shafts touched in 3.9%
+      to 7.1% of the samples of the test score (`2026-10-25-xylophone-reach/clip-alternate.txt`).
+- [ ] Badger xylophone back row middle: in a run up the test score, the right paw misses 4
+      strikes on the two sharp bars in the middle of the back row by 8 to 26 mm, and the paw
+      rises to the height of the muzzle there (`2026-10-25-xylophone-reach/run-test.webp`).
+- [ ] Badger xylophone mallets: the mallets of 0.30 m look long beside the small bars of 12 cm
+      to 8 cm. A shorter mallet moves the band of reach nearer, and the bars with it.
+- [x] Badger xylophone soles: the side move of the hips sinks the soles 3 to 6 mm into the floor,
       because the foot skin follows the tilted shin (`2026-10-25-xylophone-sway.md`).
+      Done: the hips keep their place, and the spine takes the whole side move. No sole corner
+      sinks or lifts (`2026-10-25-xylophone-reach.md`).
 - [x] Badger xylophone mallets: between strikes, each head swings in to the rest direction of the
       snare grip, so two heads on near bars can meet. The offsets and the repeat rule of
       `2026-10-21-pirates-clip.md` leave a touch in 1% of the samples of the steel drum part of the
@@ -1232,7 +1249,8 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       `docs/research/2026-10-25-xylophone-sway/` and sets the new medians.
       Done: the manager accepted the crops on 2026-10-25, and `ACCEPTED_GRIPS` holds L -28, R -22.
 - [ ] Badger xylophone shafts: on a chord of two near bars, the shafts of the two mallets touch
-      in 0.4% of the samples of the steel drum part (`2026-10-25-xylophone-sway.md`).
+      in 0.4% of the samples of the steel drum part (`2026-10-25-xylophone-sway.md`). The smaller
+      bars and heads leave 0.1% (`2026-10-25-xylophone-reach.md`).
 - [x] Snare and cymbal grips: the pitch between strikes turns the play median of the paw by 13°
       to 23° from `ACCEPTED_GRIPS`. Done: the manager accepted the 2x paw crops of
       `docs/research/2026-10-25-percussion-tips/` and set the new medians in `ACCEPTED_GRIPS`.
