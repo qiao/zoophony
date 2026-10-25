@@ -323,10 +323,14 @@ export const ACCEPTED_GRIPS: ReadonlyMap<string, Readonly<Record<Side, number>>>
   ['timpanist', { L: -2, R: -6 }],
   ['bassoonist', { L: -118, R: -70 }],
   ['hornist', { L: -153, R: -54 }],
-  // The palms of the woodwinds of the wolf, the mouse, and the tan fox face their tubes
-  // (palmToTube of pose/winds.ts, docs/decisions/2026-10-23-night-fixes.md).
-  ['clarinetist', { L: 16, R: 11 }],
-  ['oboist', { L: -8, R: -9 }],
+  // The wolf and the mouse close their paws around the tube, with the palms toward its axis and
+  // the grips moved around it (user, 2026-10-24: "they are not even holding the instrument",
+  // docs/decisions/2026-10-24-wind-grips.md, and the review of the 2x crops by the manager on
+  // 2026-10-24).
+  ['clarinetist', { L: -89, R: -71 }],
+  ['oboist', { L: 69, R: 30 }],
+  // The palms of the woodwinds of the tan fox face its tube (palmToTube of pose/winds.ts,
+  // docs/decisions/2026-10-23-night-fixes.md).
   ['flutist', { L: -120, R: -30 }],
   ['trumpeter', { L: -99, R: -98 }],
   // The rhino of the A-pose mesh (docs/decisions/2026-10-23-rhino-apose.md).
