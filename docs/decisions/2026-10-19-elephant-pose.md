@@ -18,5 +18,4 @@ the measures. The user can reverse each decision. Then update its section, and r
 | Each note plays on one of the two front kettles, split at the middle key of the part (`PercussionHold.pair`). The outer kettles stand 0.95 m out (`TIMPANI.side`): at the arc, the third kettle cut 8.8 cm into the body. | 4.6, 5.3 |
 | The mallets stay over the kettles in the rest pose (`PercussionHold.ready`), because the hanging left paw went 3.7 cm into the front left kettle. | 5.2 |
 | Phase 3: at rest, the top of each grip points along the forearm, so the paw does not bend on it. The three shapes of phase 2 keep the play folds at 0.3%. | 4.4, 5.3 |
-| Three shapes fit the new hold: the right and the left arm at a strike, and the bent right wrist with the mallet up (`raise` of `tools/mesh-rigs/elephant.json`). The play, lift, and rest folds are 0.0%. The shapes of the old hold folded 98.6% of the play. | 4.4 |
 | Phase 4: rings at the middle, the elbow, and the wrist of the right forearm gave no visible gain, so the round kept none. Open: the right shoulder ring stays flat (0.70 of the bind), and the right paw bends about 50° at a strike. | 4.4, 9.3 |
