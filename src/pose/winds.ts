@@ -160,6 +160,13 @@ export interface WindHold {
    * open the fingers in the play.
    */
   readonly gripCurl: readonly [left: number, right: number] | null;
+  /**
+   * Whether the lift and the lowering move each grip around the axis of its tube, from its rest
+   * place to its place in the play ({@link aroundTube}). A grip that slides on a straight line
+   * crosses the axis when the two places lie on different sides of the tube, and the paw that faces
+   * the tube then turns over in one frame. `false` slides each grip on a straight line.
+   */
+  readonly gripAround: boolean;
 }
 
 /** The side of a paw that faces its tube (`WindHold.faceTube`). */
@@ -209,6 +216,7 @@ const WOODWIND = {
   restGripShiftR: null,
   restAim: 0,
   gripCurl: null,
+  gripAround: false,
 } as const satisfies WindHold;
 
 const X_AXIS = new Vector3(1, 0, 0);
@@ -1310,6 +1318,51 @@ const NO_ROLL = new Quaternion();
  */
 const OPPOSITE = Math.cos(170 * MathUtils.DEG2RAD);
 
+const aroundAxis = new Vector3();
+const aroundFrom = new Vector3();
+const aroundTo = new Vector3();
+const aroundTurn = new Quaternion();
+
+/**
+ * Moves a grip around the axis of its tube, from its rest place to its place in the play
+ * ({@link WindHold.gripAround}): the place along the axis and the distance from the axis change on
+ * straight lines, and the direction from the axis turns around it by the shorter way.
+ *
+ * @param rest The grip in the rest pose, in the bind pose.
+ * @param play The grip in the playing pose, in the bind pose.
+ * @param tube The tube of the paw, in the bind pose.
+ * @param weight The weight of the playing pose.
+ * @param out The grip to write.
+ * @returns `out`.
+ */
+function aroundTube(
+  rest: Vector3,
+  play: Vector3,
+  tube: SideTube,
+  weight: number,
+  out: Vector3,
+): Vector3 {
+  aroundAxis.fromArray(tube.axis);
+  const point = tubePoint.fromArray(tube.point);
+  aroundFrom.subVectors(rest, point);
+  aroundTo.subVectors(play, point);
+  const along = MathUtils.lerp(aroundFrom.dot(aroundAxis), aroundTo.dot(aroundAxis), weight);
+  aroundFrom.projectOnPlane(aroundAxis);
+  aroundTo.projectOnPlane(aroundAxis);
+  const radius = MathUtils.lerp(aroundFrom.length(), aroundTo.length(), weight);
+  const angle = Math.atan2(
+    aroundAxis.dot(rollCross.crossVectors(aroundFrom, aroundTo)),
+    aroundFrom.dot(aroundTo),
+  );
+  aroundTurn.setFromAxisAngle(aroundAxis, angle * weight);
+  return out
+    .copy(aroundFrom)
+    .applyQuaternion(aroundTurn)
+    .setLength(radius)
+    .addScaledVector(aroundAxis, along)
+    .add(point);
+}
+
 /**
  * Rolls a hand around its own long axis, the line from its shoulder to its grip, until one side
  * of the paw faces the tube: the direction from the grip to the axis of the tube, square to the
@@ -1440,7 +1493,13 @@ function poseSide(
   rotations: Float32Array,
 ): void {
   const { chest, root } = frames;
-  grip.lerpVectors(restGrip.fromArray(side.restGrip), playGrip.fromArray(side.grip), weight);
+  restGrip.fromArray(side.restGrip);
+  playGrip.fromArray(side.grip);
+  if (rig.hold.gripAround) {
+    aroundTube(restGrip, playGrip, side.tube, weight, grip);
+  } else {
+    grip.lerpVectors(restGrip, playGrip, weight);
+  }
   if (side.onSlide) {
     grip.add(slide);
   }
