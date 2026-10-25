@@ -173,16 +173,16 @@ export const TRIANGLE = {
 /**
  * The clip of the triangle and its loop of cord, in meters, in the axes of the piece of the
  * triangle: the triangle hangs in the plane x-y, along -y, with its top corner 0.05 m below the
- * origin. The left paw of the badger holds the triangle up, with its palm toward -x and its
+ * origin. The left paw of the badger holds the triangle up, with its palm toward +x and its
  * fingers along +y, and its skin from 2.6 cm below the origin to 9.2 cm above it, and from 4.7 cm
- * at -x to 3.8 cm at +x (`docs/research/2026-10-25-grips.md`). Thus the clip runs down the inner
- * side of the palm, under the curled fingers, and leaves the heel of the paw.
+ * at -x to 3.8 cm at +x (`docs/research/2026-10-25-grips.md`). Thus the clip runs down the palm,
+ * under the curled fingers, and leaves the heel of the paw.
  */
 export const TRIANGLE_CLIP = {
-  /** The upper end of the clip, in the closed paw. */
-  clip: [-0.025, 0.04, -0.015],
+  /** The upper end of the clip, in the palm under the curled fingers. */
+  clip: [0.025, 0.075, -0.016],
   /** The lower end of the clip, below the heel of the paw, where the loop goes through it. */
-  clipEnd: [-0.01, -0.032, -0.004],
+  clipEnd: [0.008, -0.032, -0.004],
   /**
    * The points where the loop meets the two upper sides of the triangle, just below its top
    * corner: the distance to each side of the middle, and the height.
