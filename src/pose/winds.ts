@@ -116,9 +116,11 @@ export interface WindHold {
    * grip in the playing pose ({@link aimSide}). With 0, the paw points from its shoulder to the
    * tube. A tube far in front of the body then makes the paw point forward, and the fingers stick
    * out in front of the tube. With a share, the paw turns toward the other side of the body, so
-   * that it lies across the back of the tube and its curled fingers wrap the front, as the fingers
-   * of a real clarinetist come around the tube from the side. Only a paw that rolls to face its
-   * tube ({@link WindHold.faceTube}) takes it.
+   * that it lies across the back of the tube and its curled fingers wrap the front. With a grip
+   * behind the tube, a share of half turned the palm of a woodwind paw to the audience and its
+   * thumb down the tube, so a woodwind paw takes a small share and a grip at the side of its own
+   * shoulder (`docs/research/2026-10-25-wind-palms.md`). Only a paw that rolls to face its tube
+   * ({@link WindHold.faceTube}) takes it.
    */
   readonly aimSide: number;
   /**
@@ -583,23 +585,22 @@ const MOUSE_OBOE_FORWARD = 10;
  * it about 40° from the body. The small mouse plays a smaller oboe (`SpeciesParams.oboeScale`),
  * so that the grips stay near the chest and the elbows bend near the body. On the oboe of 0.62,
  * the arms reached forward straight at 35° and 40°, and the oboe hung 15° from the vertical
- * (`2026-10-25-wind-angle` decisions). Each paw aims across the tube (`aimAcross`) and turns half
- * toward the side across it (`aimSide`), as on the wolf. As on a real oboe, the left paw holds the
- * upper joint near the reed, and the right paw holds the lower joint above the bell, with a clear
- * gap between the paws: the left grip moves 0.05 H down the tube and 0.09 H toward the axis, just
- * past it, and the right grip 0.15 H down and 0.08 H toward the axis (`gripShiftL`,
- * `gripShiftR`). The middle of the left paw is about 10 cm down the oboe from the reed, and the
- * middle of the right paw about 22 cm (`pnpm wind-grip oboist`, `2026-10-25-oboe-hands`
- * decisions). With the left grip 0.3 H down, both paws lay together on the lower half. Each palm
- * faces the tube (`faceTube`), and the fingers curl 80° (left) and 55° (right) over its front
- * (`gripCurl`), as an oboist curves the fingers over the keys with the thumb behind the tube
- * (`docs/reference/wind-technique.md` 2.3). Both paws grasp the oboe in each play sample. On the
- * high grip with the left elbow down, out, and forward, the left finger tips stood 0.7 cm to
- * 1.3 cm off the tube. A grip moved across the tube toward the left shoulder put the tips on the
- * tube, but the left paw turned over, pointed up beside the reed, and flipped in the lift. With
- * the left grip on the axis (0.04 H toward it), the roll to the tube has no direction, and the paw
- * turned over. With 60° on the right, the right arm folded 9 faces at rest (limit 8,
- * `2026-10-25-grips` decisions).
+ * (`2026-10-25-wind-angle` decisions). As on a real oboe, the left paw holds the upper joint near
+ * the reed, and the right paw holds the lower joint above the bell, with a clear gap between the
+ * paws: the left grip moves 0.05 H down the tube and the right grip 0.15 H down (`gripShiftL`,
+ * `gripShiftR`). With the left grip 0.3 H down, both paws lay together on the lower half
+ * (`2026-10-25-wind-palms` decisions). Each grip also moves 0.06 H toward the axis and 0.05 H
+ * across it toward the shoulder of its paw, so that each paw holds the tube from its own side.
+ * Each paw aims across the tube (`aimAcross`) with no side aim (`aimSide`), each palm faces the
+ * tube (`faceTube`), and the fingers curl 100° (left) and 80° (right) over its front
+ * (`gripCurl`). The thumbs then point up the oboe to the reed, as an oboist curves the fingers
+ * over the keys with the thumb behind the tube (`docs/reference/wind-technique.md` 2.3). Both
+ * paws grasp the oboe in each sample (`pnpm wind-grip oboist`). With the grips behind the tube
+ * and a side aim of half, each paw lay behind the tube with its palm to the audience and its
+ * thumb down the oboe (user, 2026-10-25: "their palm are facing outwards and thumbs downwards",
+ * `docs/research/2026-10-25-wind-palms.md`). With the left grip on the axis (0.04 H toward it),
+ * the roll to the tube has no direction, and the paw turned over. With 60° on the right, the right
+ * arm folded 9 faces at rest (limit 8, `2026-10-25-grips` decisions).
  *
  * In the rest, the oboe stands upright in front of the belly, 0.3 H below the mouth and 1 cm from
  * the belly, as a real oboist holds it vertical in a short rest. Both paws close on its middle:
@@ -607,7 +608,8 @@ const MOUSE_OBOE_FORWARD = 10;
  * elbow out to the side, and the right paw just below it (`restGripShiftR`), with the right elbow
  * out and down. The rest grips are 13.2 cm (left) and 15.6 cm (right) down the oboe from the reed,
  * as on the oboe of 0.62: on the smaller oboe with the rest grips of that oboe, the right arm
- * folded 11 faces at rest. With the elbow out, down, and back of 2026-10-25, the right arm folded 11 faces at
+ * folded 11 faces at rest. Each rest grip moves across the tube toward the shoulder of its paw as
+ * in the play, so that the paw keeps its side of the tube, and the lift does not turn it over. With the elbow out, down, and back of 2026-10-25, the right arm folded 11 faces at
  * rest with the palm to the tube. With the right paw at its grip of the play, near the bell, the
  * right forearm went 3.4 cm into the belly (`pnpm pose-depth oboist`). Both
  * paws keep the aim and the roll of the play (`restAim`): with the roll of the shoulder, the left
@@ -636,13 +638,13 @@ const MOUSE_OBOE = {
   poleR: [0.5, -1, -0.5],
   faceTube: ['palm', 'palm'],
   aimAcross: 1,
-  aimSide: 0.5,
-  gripShiftL: [0.05, 0.09, 0],
-  gripShiftR: [0.15, 0.08, 0],
-  restGripShiftL: [0.173, 0.05, 0],
-  restGripShiftR: [-0.05, 0.08, 0],
+  aimSide: 0,
+  gripShiftL: [0.05, 0.06, -0.05],
+  gripShiftR: [0.15, 0.06, -0.05],
+  restGripShiftL: [0.173, 0.05, -0.05],
+  restGripShiftR: [-0.05, 0.06, -0.05],
   restAim: 1,
-  gripCurl: curls(80, 55),
+  gripCurl: curls(100, 80),
 } as const satisfies WindHold;
 
 /** The forward turns of the shoulder bones of the bassoon beaver while it plays, in degrees. */
@@ -673,11 +675,17 @@ const BEAVER_PLAY = holdTurn(10, -5);
  * near level from the side, with its top at the shoulder (manager review of 2026-10-25). At rest,
  * it keeps that diagonal 0.2 H forward and 0.05 H lower, off the mouth, so that the paws keep
  * their grips and the lift does not turn them. With the rest 0.2 H lower, the right upper arm went
- * 2.7 cm into the body. The left paw holds the wing joint high, and the right
- * grip moves 0.15 H up the boot joint and 0.05 H across it toward the body (`gripShiftR`): at its
- * grip of the instrument, the right paw missed by 1.4 cm. Each palm faces the tube from the side
- * of the body (`faceTube`, `aimSide`), and the fingers curl 70° over its front (`gripCurl`), so
- * that both paws grasp the bassoon (`pnpm wind-grip bassoonist`, `2026-10-25-grips` decisions).
+ * 2.7 cm into the body. The left paw holds the wing joint high, and the right grip moves 0.15 H
+ * up the boot joint (`gripShiftR`): at its grip of the instrument, the right paw missed by
+ * 1.4 cm. Each grip moves toward the axis and to the side of its own shoulder, the left grip 0.1 H
+ * toward the axis and 0.1 H across it toward the left shoulder, and the right grip 0.2 H toward
+ * the axis and 0.14 H across it toward the right shoulder. Each palm then faces the tube from its own side (`faceTube`), each paw aims a quarter
+ * toward the side across the tube (`aimSide`), the fingers curl 100° over its front
+ * (`gripCurl`), and the thumbs point up the bassoon, so that both paws grasp it
+ * (`pnpm wind-grip bassoonist`, `docs/research/2026-10-25-wind-palms.md`). With the grips behind
+ * the tube and a side aim of half, each paw lay behind the tube with its palm to the audience and
+ * its thumb down the bassoon (user, 2026-10-25: "their palm are facing outwards and thumbs
+ * downwards").
  *
  * The long muzzle and the front teeth put the tip of the nose far in front of the mouth, so the
  * reed sits 0.33 H lower and 0.25 H further back than the mouth of the bind pose, under the front
@@ -705,10 +713,11 @@ const BEAVER_BASSOON = {
   restPoleL: [-0.5, -1, -0.5],
   faceTube: ['palm', 'palm'],
   aimAcross: 1,
-  aimSide: 0.5,
-  gripShiftR: [0.15, 0, -0.05],
+  aimSide: 0.25,
+  gripShiftL: [0, 0.1, -0.1],
+  gripShiftR: [0.15, 0.2, -0.14],
   restAim: 1,
-  gripCurl: curls(70, 70),
+  gripCurl: curls(100, 100),
 } as const satisfies WindHold;
 
 /** The turns of the horn of the pig around the mouthpiece, relative to the chest (design 5.3). */
@@ -788,27 +797,22 @@ const WOLF_CLARINET_FORWARD = 5;
  * at 24° and 28° (`2026-10-25-wind-angle` decisions). A real clarinetist holds it at about 45°,
  * and the long muzzle already puts the mouthpiece far in front of the chest: at 45°, the bell was
  * far in front of the knees. With the mouthpiece 0.18 H below the mouth, the mouthpiece does not
- * go into the jaw. Each paw aims across the tube (`aimAcross`) and half toward the side
+ * go into the jaw. Each paw aims across the tube (`aimAcross`) and a quarter toward the side
  * across it (`aimSide`), and its grip moves around the tube (`gripShiftL`, `gripShiftR`). Each
- * palm faces the tube (`faceTube`), and the fingers curl 100° (left) and 110° (right) over its
- * front (`gripCurl`), so that
- * the paws close around the clarinet from the side of the body, as a clarinetist curves the
- * fingers over the tube with the thumb behind it. With the back of each paw to the tube before
- * 2026-10-25, the paws showed as round fists on the tube. On the grips of the instrument, 2.5 cm
- * in front of the tube, the paws lay in front of it and pointed away from it, with the finger tips
- * 7.6 cm and 8.3 cm from the tube (user, 2026-10-24: "they are not even holding the
- * instrument"). The left grip moves 0.15 H down the tube, because 8.5 cm above the shoulder joint,
- * the forearm rose steeply and the retarget turned the paw up along the tube (`PAW_TURN` of
- * `models/studio-rig.ts`). The left grip moves 0.12 H toward the axis, so that the middle of the
- * left paw is 1.8 cm from the axis in the play, with the palm on the tube (`pnpm wind-grip
- * clarinetist`, `2026-10-25-grips` decisions). At 30°, with the left grip 0.2 H down and a left
- * curl of 80°, the left finger tips stood 1.3 cm off the clarinet. The right grip moves 0.24 H toward the axis and
- * past it, and 0.07 H toward its own side, at rest too, and the right fingers curl 110°, so that
- * the middle of the long right paw lies behind the lower joint at its right, and the finger tips
- * close over its front, as the fingers of a real clarinetist curve over the lower joint with the
- * thumb behind it. Before, the right grip moved 0.12 H toward the axis, the paw closed into a fist
- * at the left of the tube, and the finger tips stood 4.3 cm off it (`2026-10-25-open-grips`
- * decisions).
+ * palm faces the tube (`faceTube`), and the fingers curl 115° over its front (`gripCurl`), as a
+ * clarinetist curves the fingers over the tube with the thumb behind it. Each grip moves toward
+ * the axis and to the side of its own shoulder, so that each paw holds the tube from its own side,
+ * the palm faces the tube, and the thumb points up the clarinet to the mouthpiece
+ * (`docs/research/2026-10-25-wind-palms.md`). The left grip moves 0.14 H toward the axis and
+ * 0.11 H across it toward the left shoulder, and the right grip 0.19 H toward the axis and 0.11 H
+ * across it toward the right shoulder. With the
+ * grips behind the tube and a side aim of half, each paw lay behind the tube with its palm to the
+ * audience and its thumb down the clarinet (user, 2026-10-25: "their palm are facing outwards and
+ * thumbs downwards"). The left grip moves 0.15 H down the tube, because 8.5 cm above the shoulder
+ * joint, the forearm rose steeply and the retarget turned the paw up along the tube (`PAW_TURN` of
+ * `models/studio-rig.ts`). On the grips of the instrument, 2.5 cm in front of the tube, the paws
+ * lay in front of it and pointed away from it, with the finger tips 7.6 cm and 8.3 cm from the
+ * tube (user, 2026-10-24: "they are not even holding the instrument").
  *
  * The long muzzle puts the tip of the nose far in front of the mouth, and at 45° the grips moved
  * further forward: the left paw missed its grip by 2.4 cm and the right paw by 6.1 cm. So in round
@@ -838,10 +842,10 @@ const WOLF_CLARINET_FORWARD = 5;
  * upper arms went 5.6 cm into the body. Each rest of the bell on the seat twisted the right upper
  * arm past the limit of the arm gate (twist p95 69°, limit 55°) on the arms of one bone, and the
  * rebuilt arms of 2026-10-25 spread the roll over 4 segments (29°). At rest, the left elbow points
- * down and out, and a little back, and the left grip moves 0.03 H across the tube and 0.04 H less
- * toward its axis, so that each of the 4 segments of the left forearm turns 23° from the next:
- * with the elbow of the play, 27° (target 25°). With the elbow further back, the left upper arm
- * went 6 cm into the body (`docs/research/2026-10-25-wind-arms.md`).
+ * down and out, and a little back. With the elbow further back, the left upper arm went 6 cm into
+ * the body (`docs/research/2026-10-25-wind-arms.md`). Each rest grip keeps the moves toward the
+ * axis and to the side of the play, so that the paw keeps its side of the tube at rest, and the
+ * lift and the lowering do not turn it around the tube.
  */
 const WOLF_CLARINET = {
   ...WIND_HOLDS.clarinet,
@@ -857,13 +861,13 @@ const WOLF_CLARINET = {
   restPoleR: [0.3, -1, 0],
   faceTube: ['palm', 'palm'],
   aimAcross: 1,
-  aimSide: 0.5,
-  gripShiftL: [0.15, 0.12, 0],
-  gripShiftR: [0.05, 0.24, -0.07],
-  restGripShiftL: [-0.22, 0.06, 0.03],
-  restGripShiftR: [-0.33, 0.24, -0.07],
+  aimSide: 0.25,
+  gripShiftL: [0.15, 0.14, -0.11],
+  gripShiftR: [0.05, 0.19, -0.11],
+  restGripShiftL: [-0.22, 0.14, -0.11],
+  restGripShiftR: [-0.33, 0.19, -0.11],
   restAim: 1,
-  gripCurl: curls(100, 110),
+  gripCurl: curls(115, 115),
 } as const satisfies WindHold;
 
 /**

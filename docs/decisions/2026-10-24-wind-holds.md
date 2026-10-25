@@ -12,4 +12,4 @@ and remove its row.
 | Decision | Section |
 |---|---|
 | The wolf clarinet mouthpiece sits 0.18 H below the mouth (0.12 H before). | 4.6, 5.3 |
-| A wind paw on its grip can turn toward the side across the tube (`WindHold.aimSide`, 0 by default). The wolf and the mouse take 0.5: the lower paw of the wolf stuck out in front of the tube when seen from the side. | 5.3 |
+| A wind paw on its grip can turn toward the side across the tube (`WindHold.aimSide`, 0 by default). The wolf takes 0.25: with 0, the lower paw of the wolf stuck out in front of the tube when seen from the side. `2026-10-25-wind-palms.md` gives the side aim of each woodwind. | 5.3 |
