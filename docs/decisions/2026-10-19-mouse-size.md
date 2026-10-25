@@ -13,7 +13,6 @@ gives the measures. The user can reverse each decision. Then update its section,
 |---|---|
 | The user, quote above: the standing skull top of the mouse is at 0.812 m, the head top of the parametric mouse of `ab002346`: 0.856045 m for each unit, H 0.272 m, seat 0.076 m, chair 0.120 m deep (`app` of `tools/mesh-rigs/mouse.json`, `ANIMALS`). | 4.4 |
 | The manager: the arm factor stays 1.4 (arms 0.91 of the trunk), and the mouse plays a smaller oboe, as a child plays a fractional violin (`SpeciesParams.oboeScale`, `buildWoodwind()`). | 4.6 |
-| The oboe scale is 0.62, the largest scale at which each paw has 3 cm to spare in the play and in the rest. At 0.63, the right paw had 2.8 cm in the play (`hold-reach.txt`). | 4.6 |
 | The reed goes 0.23 H in place of 0.14 H behind the mouth of the bind pose, about half of the reed, 1.0 cm into the head (`lipShift`). The angle stays 40°, and the elbows keep their directions, which gave the smallest arm turns. | 5.3 |
 | The rest shape of the left arm takes the mean turns of the new rest (`raise` of the rig config). The play, the rest, and the lift fold in no sample (`fold-probe-oboist.txt`). | 4.4 |
 | The tail loop lies on the floor behind the mouse, and the footprint is 0.764 m deep. The stages of the demos with oboes are 2.1% to 6.3% smaller than on `ef456e07` (`rig-check.txt`). | 4.4 |
