@@ -442,10 +442,13 @@ A round that changes the motion updates the items.
   0° to 5° to the scroll on the rabbit, the cat, and the red fox. The scroll points 64° to the
   left of the front of the chest on the rabbit and the red fox, and 74° on the cat, further than
   the 45° of [78], because a turn to the front took the nut out of the reach of the short left
-  arms. At 69°, the viola of the cat went 4.1 cm into the chest, or the left paw lost the nut, or
-  it swung past the limit of the arm gate. The jaw lies on the chin rest: the head touches the
-  instrument in each play sample of the probe of `docs/research/2026-10-24-violin-arms.md`, and
-  the head of the cat goes 1.2 cm into the viola. The rabbit lowers its head 12° while it plays
+  arms. With the rebuilt arms of 2026-10-25, a turn of 3° toward the front put the nut 0.07 of the
+  fingerboard out of the reach of the left paw of the cat, and a turn of 10° 0.16 to 0.32, with
+  each place of the viola that kept the head out of it. The jaw lies on the chin rest: the head
+  touches the instrument in each play sample of the probe of
+  `docs/research/2026-10-24-violin-arms.md`. The viola of the cat sits 0.04 H lower than the chin
+  hold, and the head goes 0.1 cm into it, as on the red fox (1.2 cm before,
+  `docs/decisions/2026-10-25-cat-arms.md`). The rabbit lowers its head 12° while it plays
   (`BowedHold.headDrop`), and its violin sits 0.08 H higher than before, because the jaw of its
   round head stayed 1.7 cm above the violin (`docs/decisions/2026-10-24-violin-review.md`).
 
@@ -478,7 +481,10 @@ A round that changes the motion updates the items.
   than the red fox. With the elbow further down, the long flat upper arm of the rabbit turned its
   broad side to the front as a plank (user, 2026-10-21, `docs/decisions/2026-10-21-arm-form.md`),
   and the A-pose rabbit folded more faces of the right arm
-  (`docs/decisions/2026-10-23-rabbit-arms.md`). At the tip, the elbow of the rabbit and of the cat
+  (`docs/decisions/2026-10-23-rabbit-arms.md`). The cat points the elbow out, forward, and less
+  down than before, because the back of its rebuilt upper arm lies against the trunk and went
+  3.8 cm into the body with the lower elbow (`docs/decisions/2026-10-25-cat-arms.md`). At the tip,
+  the elbow of the rabbit and of the cat
   points down, out, and forward (`BowedHold.poleTipR`): the elbow of the cat pointed up there, and a
   dark wedge fold opened under its right armpit (`docs/decisions/2026-10-24-violin-review.md`).
 - **The stick in the paw.** The stick passes through the middle of the closed right paw of the
