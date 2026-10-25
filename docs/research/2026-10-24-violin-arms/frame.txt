@@ -1,0 +1,6 @@
+Median of the runs (ms), pnpm frame:
+
+| Item | Runs | Main thread p50 / p95 | GPU p50 / p95 | Frame rate with no cap |
+|---|---|---|---|---|
+| main (ef1f1666) | 2 of 2 | 3.84 / 5.11 | 7.82 / 8.01 | 131.4 fps |
+| HEAD (88231cb4) | 2 of 2 | 3.84 / 5.05 | 7.86 / 8.02 | 130.6 fps |
