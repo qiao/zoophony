@@ -429,20 +429,33 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       of `ACCEPTED_GRIPS` takes the new medians (`2026-10-24-violin-review.md`).
 - [x] Cat: the head goes 1.2 cm into the viola. The viola sits 0.04 H lower, and the head goes
       0.1 cm in, as on the red fox (`2026-10-25-cat-arms.md`).
-- [ ] Cat: the viola points 74° to the left (64° on the red fox). A turn of 3° took the nut out of
-      the reach of the left paw, and a turn of 10° took 0.16 to 0.32 of the fingerboard. The user
-      decides on a smaller viola or a hold that loses the nut (`2026-10-25-cat-arms.md`).
-- [ ] Cat: the viola goes 2.6 cm into the chest in the play (limit 2.0, 2.4 cm on `main`)
-      (`2026-10-25-cat-arms.md`).
+- [x] Cat: the viola pointed 74° to the left (64° on the red fox). The cat plays a 1/2 viola at
+      45°, with the left shoulder 1.9 cm forward, and the paw reaches the nut. The red fox holds the
+      violin at 45° and the rabbit at 50° (`2026-10-25-string-angle.md`).
+- [x] Cat: the viola went 2.6 cm into the chest in the play (limit 2.0). It goes 1.6 cm in
+      (`2026-10-25-string-angle.md`).
 - [ ] Rabbit: the bow goes up to 2.5 cm into the arms in the lowering and 1.0 cm at rest, near the
       grip (`shares.txt` of `2026-10-24-violin-arms/`).
-- [ ] Rabbit and cat: the forearms and the upper arms go up to 2.1 cm (rabbit) and 2.9 cm (cat)
-      into the instrument in the lift and the lowering (limit 1.5), near the end of the lift. No
-      value of the lift of the cat hold changed it (`2026-10-25-cat-arms.md`). The rabbit paws go 1.8 cm into the violin in a lowering
-      (1.1 cm) (`pnpm pose-depth violinist`, `2026-10-24-violin-moves.md`).
-- [ ] Red fox: the left paw twist passes 180° once in the lift and in the lowering, so the twist
-      bone of the forearm jumps (`OPEN` in the gate). The middle turn of the rabbit
-      (`BowedHold.liftTurn`) can remove it (`2026-10-24-violin-rest.md`).
+- [ ] Rabbit, red fox, and cat: the forearms and the upper arms go up to 2.1 cm (rabbit), 2.5 cm
+      (red fox, 2.4 cm before the middle turn), and 2.5 cm (cat, 2.9 cm before) into the
+      instrument in the lift and the lowering (limit 1.5), near the end of the lift
+      (`2026-10-25-string-angle.md`).
+- [x] Red fox: the left paw twist passed 180° once in the lift and in the lowering. The violin
+      turns upright in the middle of the moves, as the rabbit violin, and the twist stays at 147°
+      (`2026-10-25-string-angle.md`).
+- [ ] Rabbit: the violin points 50° to the left, 5° more than a real player: at 45°, the bow paw at
+      the frog went 1.9 cm into the jaw and the right forearm 2.3 cm into the body. A bow arm round
+      or a smaller violin can bring it to 45° (`2026-10-25-string-angle.md`).
+- [ ] Cat: the claws of the bow paw go 2.2 cm into the viola in the play (1.5 cm before), and the
+      left upper arm 2.2 cm into the body in the moves (1.5 cm before) (`2026-10-25-string-angle.md`).
+- [ ] Rabbit, red fox, and cat: the left elbow points to the side under the instrument, and the
+      upper arm turns 29° to 46° to the side, where a violin student turns it 16° to 25° toward the
+      middle. Further in, the paw twisted past 170° on the forearm (`2026-10-25-string-angle.md`).
+- [ ] User decision: the cat plays a 1/2 viola, the size of the red fox violin, so that it can
+      hold it at 45°. A 3/4 viola (0.94) reaches the nut at about 55° (`2026-10-25-string-angle.md`).
+- [ ] The 1/2 viola of the cat moves the seats of the layout by up to 9.5 cm. Run
+      `pnpm test:paused src/shots/` and `src/models/layout-scene.test.ts` when the tests come back
+      (`layout-move.txt` of `docs/research/2026-10-25-string-angle/`).
 - [x] Elephant (A-pose mesh): the long arm faces show dark shards on the bent arms from the front
       and a slit under the left forearm from the back, and one to three thin faces fold in each
       sample. Done: quad arm tubes, Blender weights, and arm segments. The gate folds 3 and 2
@@ -738,10 +751,9 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       into it, the right upper arm 2.0 cm into the body, and the bow reach is 69% (goal 70%). A loop
       that moves the cello and rebuilds the left-arm shapes (`2026-10-17-dog-folds.md`).
 - [ ] Dog cellist: the knees stay about 21 cm from the leaned cello (`2026-10-17-dog-rest.md`).
-- [ ] Cat violist: the left forearm goes 2.5 cm into the viola in the fifth position of
-      `mozart-k191` (1.5 cm on `main`), because the wrist helper of the rebuilt arm turns the end of
-      the forearm with the paw. The user decides if the viola moves forward and the paw loses the nut
-      (`2026-10-17-cat-hand.md`, `2026-10-25-cat-arms.md`).
+- [x] Cat violist: the left forearm went 2.5 cm into the viola in the fifth position of
+      `mozart-k191`. With the 1/2 viola at 45°, it goes 1.5 cm in
+      (`2026-10-17-cat-hand.md`, `2026-10-25-string-angle.md`).
 - [ ] Cat violist: in the 5th position, the left wrist under the neck keeps a twisted band, as on
       `main` before the tilt (`2026-10-20-cat-left-arm.md`).
 - [ ] Cat violist: the left wrist bends about 30° from the forearm in the low positions, where a
