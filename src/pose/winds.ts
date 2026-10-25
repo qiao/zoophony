@@ -430,7 +430,7 @@ export const FOX_FLUTE_BACK = 9;
  * near the lip plate with the palm toward the player, and the right paw out to the right. Each grip
  * moves off the tube (`gripShiftL`, `gripShiftR`), so that the finger tips lie on the flute. Before
  * the rebuilt arms of 2026-10-25, the paws held the flute with the back of the paw, because the
- * right paw turned 142° on its forearm and flipped; with the arm segments both paws grasp it in
+ * right paw turned 142° on its forearm and flipped. With the arm segments, both paws grasp it in
  * each play sample (`2026-10-25-fox-arms` decisions).
  *
  * In the rest pose, the flute stands nearly upright at the right side with the foot joint down on
