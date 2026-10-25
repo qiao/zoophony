@@ -719,12 +719,16 @@ const BEAVER_REST = holdTurn(0, 0);
  * (`SpeciesParams.bassoonScale`), and each shoulder bone turns forward
  * ({@link BEAVER_SHOULDER_TURN}), as the shoulder blade of a real player slides forward when the
  * arm reaches forward: with square shoulders, the right paw reached its grip with 3 cm to spare
- * only on a bassoon of 0.75. Both elbows point down, out, and forward, which gave the smallest arm
- * turns of 3 elbow directions. The left elbow keeps that direction in the rest pose: with the
- * elbow of the shared bassoon rest straight out to the side, the left paw turned 178° on its
- * forearm at rest, so the lift and the lowering turned it through 180° and the twist bone of the
- * forearm jumped (user, 2026-10-23: "the cat's and beaver's arm is very twisted when transitioned
- * from rest to play"). With it, the paw turns at most 118° (2026-10-23-night-fixes decisions).
+ * only on a bassoon of 0.75. The right elbow points down, out, and forward, which gave the
+ * smallest arm turns of 3 elbow directions. The left elbow points down, out, and a little back,
+ * in the play and at rest. The beaver has no arm segments, so the twist of the left paw on the
+ * side grips goes into two links of the forearm: 55.4° for each link, against 64.6° with the
+ * elbow down, out, and forward (`docs/research/2026-10-25-wind-elbows.md`). With the elbow of the
+ * shared bassoon rest straight out to the side, the left paw turned 178° on its forearm at rest,
+ * so the lift and the lowering turned it through 180° and the twist bone of the forearm jumped
+ * (user, 2026-10-23: "the cat's and beaver's arm is very twisted when transitioned
+ * from rest to play", 2026-10-23-night-fixes decisions). With one left elbow in the play and at
+ * rest, the lift does not turn the paw through 180°.
  */
 const BEAVER_BASSOON = {
   ...WIND_HOLDS.bassoon,
@@ -734,9 +738,9 @@ const BEAVER_BASSOON = {
   play: BEAVER_PLAY,
   rest: BEAVER_REST,
   restShift: [0, -0.05, -0.15],
-  poleL: [-0.5, -1, -0.5],
+  poleL: [-0.5, -1, 0.2],
   poleR: [0.5, -1, -0.5],
-  restPoleL: [-0.5, -1, -0.5],
+  restPoleL: [-0.5, -1, 0.2],
   faceTube: ['palm', 'palm'],
   aimAcross: 1,
   aimSide: 0.25,
