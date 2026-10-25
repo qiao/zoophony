@@ -902,20 +902,28 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       both paws close on the tube with no slit on the rebuilt arms (`2026-10-25-wind-arms.md`).
 - [x] Tan fox flute rest: the foot joint stands on the top of the right thigh, and the closed
       right paw holds the upper body of the flute (`2026-10-25-fox-arms.md`).
-- [ ] The mittens of the wind players close as one block, so no finger lies on a key, and the
-      finger tips of the right paw of the wolf stay 4.3 cm from the tube, with the palm on it. The
-      red fox on the violin neck has its tips on the neck (`pnpm wind-grip`, `2026-10-25-grips.md`).
-- [ ] Wind grips, after the review of the 2x crops of `docs/research/2026-10-25-grips/` by the
-      manager: write the new entries of `ACCEPTED_GRIPS` for the bassoonist, the trombonist, the
-      oboist, the clarinetist, the trumpeter, and the tubist. The gate fails their grip turns until
-      then (`2026-10-25-grips.md`).
-- [ ] Panda trombone: the right mitten stays 2 cm off the thin slide brace, on the side of the
-      player, and the slide points 45° to the right to keep 0.105 m of travel. Show the user the
-      lineup of 45° and 50° (`2026-10-25-grips.md`).
-- [ ] Monkey trumpet: the bell points 20° below the level, so that the paws come below the mouth.
-      The reference says "slightly down". Show the user the front view (`2026-10-25-grips.md`).
-- [ ] Rhino tuba: the left paw keeps the roll of its shoulder on the main branch, because a palm
-      on the branch twisted the forearm 167° and flipped (`2026-10-25-grips.md`).
+- [ ] The mittens of the wind players close as one block, so no finger lies on a key. The red fox
+      on the violin neck has its tips on the neck (`pnpm wind-grip`, `2026-10-25-grips.md`).
+- [x] Wolf clarinet: the right finger tips stood 4.3 cm from the tube. Done: they close on the
+      lower joint, 0.1 cm (`2026-10-25-open-grips.md`).
+- [ ] Wind grips, after the review of the 2x crops of `docs/research/2026-10-25-grips/` and
+      `docs/research/2026-10-25-open-grips/` by the manager: write the new entries of
+      `ACCEPTED_GRIPS` for the bassoonist, the trombonist, the oboist, the clarinetist, the
+      trumpeter, and the tubist. The gate fails their grip turns until then. The bassoon turns of
+      175° and 163° come from the entry of the hold before the palms faced the tube
+      (`2026-10-25-open-grips.md`, section 6).
+- [x] Panda trombone: the right mitten stood 2 cm off the slide brace. Done: the finger tips hold
+      the brace from the right of the slide (`2026-10-25-open-grips.md`).
+- [ ] Panda trombone travel: the arm reaches 0.17 m of the slide at 45° to the right, 30% of a real
+      seventh position (0.57 m). 60° gives 0.26 m and 90° 0.455 m. Show the user the lineup of 45°
+      and 60° (`slide-scan-final.txt` of `docs/research/2026-10-25-open-grips/`).
+- [ ] Panda trombone: with the play hold at rest, the left finger tips stand 0.7 cm from the slide
+      tubes at rest (0.4 cm on 0cfe7ee6, limit 0.6 cm). A rest aim for each paw would keep the left
+      paw as before (`2026-10-25-open-grips.md`).
+- [x] Monkey trumpet: the bell pointed 20° below the level. Done: 10°, slightly down, with the
+      mouth visible (`2026-10-25-open-grips.md`).
+- [x] Rhino tuba: the left paw kept the roll of its shoulder. Done: the palm faces the main branch
+      at its back left (`2026-10-25-open-grips.md`).
 - [ ] Beaver bassoon: the right claws go 1.5 cm into the bassoon in one lowering sample of 30 in
       four demos (`depth-bassoonist.txt` of `docs/research/2026-10-25-grips/`).
 - [ ] Badger triangle: the left paw stands with the fingers up and the clip leaves its heel. A
@@ -944,7 +952,10 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       the tan fox (target 25°, `2026-10-25-fox-arms.md`).
 - [ ] Tan fox flute: the grips of the play and the rest lie on two sides of the flute, so the
       right paw turns around the tube in the lift (`gripAround`). Show the user the 2x cells of
-      the lift (`2026-10-25-fox-arms.md`).
+      the lift (`2026-10-25-fox-arms.md`). The right paw stays within 0.7 cm of the flute in each
+      step, and the flute stays out of the body, but in the first and the last 0.4 s of the move
+      the finger tips are 0.6 cm to 0.9 cm off (`crops/flute-moves.webp` of
+      `docs/research/2026-10-25-open-grips/`).
 - [ ] Mouse tail: the loop of the long tail lies on the floor behind the mouse, and the footprint
       is 0.764 m deep. The stages of the demos with oboes are 2.1% to 6.3% smaller
       than with the large mouse, about the stages of the parametric mouse. Check the tail between
