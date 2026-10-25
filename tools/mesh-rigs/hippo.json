@@ -18,7 +18,9 @@
   },
   "rootNormals": {
     "radius": 0.1,
-    "note": "The skin faces whose middle lies within radius (units, 0.16 m) of the head of an upper arm take the normals of the skin with no crease angle in the app (root_rim() of tools/blender/rig_mesh.py, studioNormals() of src/models/studio-normals.ts). The seated bind turns the hanging arm up, so the faces under each arm root meet at sharp angles, and the crease angle 35 of ANIMALS split their normals into a hard dark crease under the left arm in the side view. The colors probe shows no dark face there. With 0.14 and 0.18, the arms and the shoulders lost their facets in the views at 35 degrees (docs/research/2026-10-25-elephant-hippo-creases.md)."
+    "armShare": 0.3,
+    "note": "The skin faces whose middle lies within radius (units, 0.16 m) of the head of an upper arm take the normals of the skin with no crease angle in the app (root_rim() of tools/blender/rig_mesh.py, studioNormals() of src/models/studio-normals.ts). The seated bind turns the hanging arm up, so the faces under each arm root meet at sharp angles, and the crease angle 35 of ANIMALS split their normals into a hard dark crease under the left arm in the side view. The colors probe shows no dark face there. With 0.14 and 0.18, the arms and the shoulders lost their facets in the views at 35 degrees (docs/research/2026-10-25-elephant-hippo-creases.md).",
+    "armShareNote": "A face of the radius stays in the rim only when the mean weight of its corners on the clavicle and the arm bones of its side is 0.3 or more (root_rim()). The big trunk faces 776 and 777 under the left armpit shared corners with the turned arm root, and with the rim they took its mean normal, which points down and back: 113 degrees from the face at rest, so a soft dark patch showed under the left arm also with no shadow. With 0.3, the rim keeps 74 of 145 faces, and these faces shade 14 to 17 degrees from their own normal. With 0.2, a part of the patch stayed (docs/research/2026-10-25-hippo-skin.md)."
   },
   "joints": {
     "root": {
