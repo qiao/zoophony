@@ -1,0 +1,103 @@
+
+> zoophony@0.0.0 arm-check /Users/xueqiaoxu/proj/zoophony/.claude/worktrees/agent-ad294f3fd34e1a21e
+> node tools/arm-check.ts --all --base main
+
+base: cached (main, caadec2430c8)
+base: cached (main, 3d953242cceb)
+base: cached (main, 686fa6928573)
+base: cached (main, 33b2e8eff52f)
+base: cached (main, 77bc6ad5f260)
+tree: cached (2997187ed7f2)
+base: cached (main, 7bea054caefc)
+tree: cached (7974d946eddd)
+base: cached (main, a33496c92856)
+tree: cached (43c958b50bd5)
+base: cached (main, b199dbd0b95f)
+tree: cached (c32d09128d02)
+base: cached (main, 9b5549dad9c5)
+tree: cached (49480ba1c18f)
+Arm gate of 23 roles against main in 288 s. A cell gives the value, the base in parentheses, and the verdict of a value that does not pass.
+
+| Role | Arm | folds p95 (8) | twist p95 (55) | forearm twist p95 (80) | flat p5 (0.55) | paw twist p95 (170) | paw swing p95 (70) | paw jumps (0.5%) | stretch p95 (0.35) | grip turn p50 (45) | move twist max (176) | move turn max (3000) | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| conductor | L | 4 (4) | 35 (35) | 14 (14) | 0.84 (0.84) | 53 (53) | 26 (26) | 0.0% (0.0%) | 0.24 (0.24) | 12 (12) | 61 (61) | 494 (494) | PASS |
+| conductor | R | 7 (7) | 26 (26) | 12 (12) | 0.73 (0.73) | 47 (47) | 34 (34) | 0.0% (0.0%) | 0.20 (0.20) | 27 (27) | 81 (81) | 1153 (1153) | PASS |
+| pianist | L | 20 (20) OPEN | 26 (26) | 9 (9) | 0.83 (0.83) | 27 (27) | 32 (32) | 0.0% (0.0%) | 0.04 (0.04) | 9 (9) | 36 (36) | 126 (126) | OPEN |
+| pianist | R | 13 (13) OPEN | 25 (25) | 9 (9) | 0.85 (0.85) | 26 (26) | 34 (34) | 0.0% (0.0%) | 0.04 (0.04) | 16 (16) | 35 (35) | 142 (142) | OPEN |
+| harpist | L | 1 (1) | 30 (30) | 22 (22) | 0.83 (0.83) | 69 (69) | 54 (54) | 0.0% (0.0%) | 0.10 (0.10) | 9 (9) | 66 (66) | 193 (193) | PASS |
+| harpist | R | 7 (7) | 55 (55) OPEN | 41 (41) | 0.84 (0.84) | 102 (102) | 29 (29) | 0.0% (0.0%) | 0.07 (0.07) | 2 (2) | 100 (100) | 65 (65) | OPEN |
+| violinist | L | 7 (7) | 17 (17) | 80 (80) OPEN | 0.85 (0.85) | 155 (155) | 57 (57) | 0.0% (0.0%) | 0.10 (0.10) | 12 (12) | 162 (162) | 518 (518) | OPEN |
+| violinist | R | 3 (3) | 22 (22) | 50 (50) | 0.86 (0.86) | 129 (129) | 48 (48) | 0.0% (0.0%) | 0.08 (0.08) | 19 (19) | 145 (145) | 1056 (1056) | PASS |
+| fox-violinist | L | 4 (4) | 23 (23) | 50 (50) | 0.63 (0.63) | 168 (168) | 51 (51) | 0.0% (0.0%) | 0.14 (0.14) | 11 (11) | 180 (180) OPEN | 17985 (17985) OPEN | OPEN |
+| fox-violinist | R | 6 (6) | 44 (44) | 35 (35) | 0.56 (0.56) | 123 (123) | 48 (48) | 0.0% (0.0%) | 0.05 (0.05) | 10 (10) | 124 (124) | 184 (184) | PASS |
+| violist | L | 4 (4) | 25 (25) | 71 (71) | 0.73 (0.73) | 147 (147) | 69 (69) | 0.0% (0.0%) | 0.08 (0.08) | 4 (4) | 149 (149) | 957 (957) | PASS |
+| violist | R | 4 (4) | 49 (49) | 43 (43) | 0.75 (0.75) | 108 (108) | 65 (65) | 0.0% (0.0%) | 0.03 (0.03) | 13 (13) | 128 (128) | 912 (912) | PASS |
+| cellist | L | 1 (1) | 46 (46) | 49 (49) | 0.73 (0.73) | 155 (155) | 56 (56) | 0.0% (0.0%) | 0.32 (0.32) | 2 (2) | 160 (160) | 77 (77) | PASS |
+| cellist | R | 0 (0) | 54 (54) | 35 (35) | 0.70 (0.70) | 116 (116) | 34 (34) | 0.0% (0.0%) | 0.18 (0.18) | 4 (4) | 116 (116) | 442 (442) | PASS |
+| bassist | L | 0 (0) | 18 (18) | 58 (58) | 0.65 (0.65) | 174 (174) OPEN | 38 (38) | 0.0% (0.0%) | 0.10 (0.10) | 5 (5) | 176 (176) | 50 (50) | OPEN |
+| bassist | R | 1 (1) | 25 (25) | 24 (24) | 0.54 (0.54) OPEN | 70 (70) | 25 (25) | 0.0% (0.0%) | 0.27 (0.27) | 5 (5) | 152 (152) | 1450 (1450) | OPEN |
+| flutist | L | 2 (2) | 28 (28) | 33 (33) | 0.68 (0.68) | 120 (120) | 39 (39) | 0.0% (0.0%) | 0.18 (0.18) | 0 (0) | 128 (128) | 301 (301) | PASS |
+| flutist | R | 5 (5) | 20 (20) | 21 (21) | 0.64 (0.64) | 74 (74) | 28 (28) | 0.0% (0.0%) | 0.16 (0.16) | 13 (13) | 74 (74) | 127 (127) | PASS |
+| trombonist | L | 4 (0) FAIL | 9 (12) | 34 (30) | 0.62 (0.69) FAIL | 114 (104) | 30 (35) | 0.0% (0.0%) | 0.09 (0.05) | 10 (0) | 114 (104) FAIL | 74 (34) | FAIL |
+| trombonist | R | 0 (0) | 28 (29) | 30 (28) | 0.70 (0.71) | 96 (92) | 33 (33) | 0.0% (0.0%) | 0.25 (0.08) FAIL | 134 (2) FAIL | 96 (92) FAIL | 318 (80) | FAIL |
+| oboist | L | 6 (5) | 32 (32) | 40 (58) | 0.69 (0.69) | 120 (72) FAIL | 31 (29) | 0.0% (0.0%) | 0.02 (0.02) | 176 (11) FAIL | 120 (72) FAIL | 75 (79) | FAIL |
+| oboist | R | 8 (8) | 29 (31) | 65 (32) FAIL | 0.72 (0.72) | 84 (97) | 27 (26) | 0.0% (0.0%) | 0.03 (0.03) | 161 (14) FAIL | 84 (97) | 64 (49) | FAIL |
+| timpanist | L | 2 (2) | 14 (14) | 4 (4) | 0.71 (0.71) | 20 (20) | 43 (43) | 0.0% (0.0%) | 0.20 (0.20) | 7 (7) | 20 (20) | 63 (63) | PASS |
+| timpanist | R | 1 (1) | 13 (13) | 6 (6) | 0.87 (0.87) | 10 (10) | 28 (28) | 0.0% (0.0%) | 0.07 (0.07) | 4 (4) | 10 (10) | 8 (8) | PASS |
+| bassoonist | L | 2 (0) | 29 (29) | 14 (33) | 0.79 (0.79) | 57 (118) | 27 (38) | 0.0% (0.0%) | 0.05 (0.06) | 175 (0) FAIL | 57 (118) | 42 (19) | FAIL |
+| bassoonist | R | 4 (0) FAIL | 44 (33) FAIL | 37 (25) | 0.77 (0.78) | 110 (78) FAIL | 39 (26) | 0.0% (0.0%) | 0.19 (0.15) | 163 (0) FAIL | 110 (78) FAIL | 157 (21) | FAIL |
+| hornist | L | 2 (2) | 37 (37) | 55 (55) | 0.63 (0.63) | 153 (153) | 49 (49) | 0.0% (0.0%) | 0.11 (0.11) | 0 (0) | 153 (153) | 34 (34) | PASS |
+| hornist | R | 3 (3) | 37 (37) | 37 (37) | 0.82 (0.82) | 107 (107) | 37 (37) | 0.0% (0.0%) | 0.09 (0.09) | 9 (9) | 107 (107) | 118 (118) | PASS |
+| clarinetist | L | 4 (4) | 24 (23) | 58 (35) FAIL | 0.90 (0.90) | 111 (91) | 51 (43) | 0.0% (0.0%) | 0.05 (0.04) | 170 (0) FAIL | 111 (92) FAIL | 199 (207) | FAIL |
+| clarinetist | R | 5 (4) | 30 (29) | 50 (37) | 0.91 (0.91) | 93 (94) | 41 (50) | 0.0% (0.0%) | 0.01 (0.02) | 164 (0) FAIL | 93 (94) | 53 (47) | FAIL |
+| trumpeter | L | 4 (2) | 21 (21) | 61 (61) | 0.66 (0.64) | 152 (152) | 51 (51) | 0.0% (0.0%) | 0.05 (0.07) | 47 (8) FAIL | 152 (152) | 73 (86) | FAIL |
+| trumpeter | R | 2 (1) | 22 (22) | 50 (47) | 0.64 (0.67) | 134 (134) | 47 (47) | 0.0% (0.0%) | 0.06 (0.08) | 22 (9) | 134 (134) | 48 (75) | PASS |
+| tubist | L | 4 (3) | 42 (43) | 48 (48) | 0.76 (0.77) | 129 (129) | 26 (26) | 0.0% (0.0%) | 0.19 (0.20) | 0 (0) | 129 (129) | 29 (30) | PASS |
+| tubist | R | 4 (4) | 22 (26) | 56 (62) | 0.66 (0.63) | 138 (149) | 25 (30) | 0.0% (0.0%) | 0.15 (0.26) | 19 (0) FAIL | 138 (149) | 175 (43) | FAIL |
+| singer | L | 3 (3) | 31 (31) | 26 (26) | 0.79 (0.79) | 79 (79) | 36 (36) | 0.0% (0.0%) | 0.02 (0.02) | 0 (0) | 79 (79) | 13 (13) | PASS |
+| singer | R | 1 (1) | 34 (34) | 27 (27) | 0.83 (0.83) | 79 (79) | 36 (36) | 0.0% (0.0%) | 0.00 (0.00) | 0 (0) | 79 (79) | 13 (13) | PASS |
+| bass-drummer | L | 0 (0) | 34 (34) | 30 (30) | 0.80 (0.80) | 102 (102) | 25 (25) | 0.0% (0.0%) | 0.00 (0.00) | 0 (0) | 102 (102) | 20 (20) | PASS |
+| bass-drummer | R | 2 (2) | 41 (41) | 11 (11) | 0.64 (0.64) | 33 (33) | 40 (40) | 0.0% (0.0%) | 0.06 (0.06) | 0 (0) | 21 (21) | 7 (7) | PASS |
+| snare-drummer | L | 0 (0) | 34 (34) | 30 (30) | 0.80 (0.80) | 102 (102) | 32 (32) | 0.0% (0.0%) | 0.22 (0.22) | 0 (0) | 102 (102) | 86 (86) | PASS |
+| snare-drummer | R | 0 (0) | 32 (32) | 31 (31) | 0.80 (0.80) | 102 (102) | 25 (25) | 0.0% (0.0%) | 0.17 (0.17) | 0 (0) | 102 (102) | 91 (91) | PASS |
+| cymbalist | L | 0 (0) | 34 (34) | 30 (30) | 0.80 (0.80) | 102 (102) | 30 (30) | 0.0% (0.0%) | 0.09 (0.09) | 0 (0) | 102 (102) | 102 (102) | PASS |
+| cymbalist | R | 0 (0) | 32 (32) | 31 (31) | 0.80 (0.80) | 102 (102) | 26 (26) | 0.0% (0.0%) | 0.08 (0.08) | 0 (0) | 102 (102) | 105 (105) | PASS |
+| percussionist | L | 5 (5) | 28 (28) | 22 (22) | 0.83 (0.83) | 82 (82) | 59 (59) | 0.0% (0.0%) | 0.01 (0.01) | 1 (1) | 83 (83) | 12 (12) | PASS |
+| percussionist | R | 0 (0) | 31 (31) | 8 (8) | 0.72 (0.72) | 29 (29) | 28 (28) | 0.0% (0.0%) | 0.20 (0.20) | 0 (0) | 29 (29) | 7 (7) | PASS |
+| xylophonist | L | 8 (8) | 34 (34) | 30 (30) | 0.64 (0.64) | 102 (102) | 27 (27) | 0.0% (0.0%) | 0.25 (0.25) | 0 (0) | 102 (102) | 86 (86) | PASS |
+| xylophonist | R | 6 (6) | 32 (32) | 31 (31) | 0.61 (0.61) | 102 (102) | 27 (27) | 0.0% (0.0%) | 0.21 (0.21) | 0 (0) | 102 (102) | 86 (86) | PASS |
+
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| pianist | L | folds p95 | rest | 4 | 20 | 20 | 100.0% | 20 at bach-bwv1047.mid rest | 20 | 8 | 20 | OPEN |
+| pianist | R | folds p95 | lift | 124 | 10 | 13 | 100.0% | 14 at bach-bwv1047.mid wall 1.3 s | 13 | 8 | 13 | OPEN |
+| harpist | R | twist p95 | play | 1130 | 53 | 55 | 100.0% | 57 at boulanger-matin.mid 185.63 s | 55 | 55 | 55 | OPEN |
+| violinist | L | forearm twist p95 | play | 17788 | 74 | 80 | 100.0% | 86 at boulanger-matin.mid 167.38 s | 80 | 80 | 80 | OPEN |
+| fox-violinist | L | move twist max | move | 16254 | 150 | 174 | 100.0% | 180 at bach-bwv1047.mid lift 185.00 s, wall 0.44 s | 180 | 176 | 180 | OPEN |
+| fox-violinist | L | move turn max | move | 16254 | 17 | 218 | 88.8% | 17985 at mozart-k315.mid lower 170.00 s, wall 0.85 s | 17985 | 3000 | 17985 | OPEN |
+| bassist | L | paw twist p95 | play | 12912 | 166 | 174 | 100.0% | 176 at beethoven-8-4.mid 666.09 s | 174 | 170 | 174 | OPEN |
+| bassist | R | flat p5 | play | 12912 | 0.57 | 0.54 | 100.0% | 0.52 at brahms-2.mid 439.38 s | 0.54 | 0.55 | 0.54 | OPEN |
+| trombonist | L | folds p95 | play | 4788 | 4 | 4 | 100.0% | 4 at beethoven-9.mid -1.91 s | 4 | 8 | 0 | FAIL |
+| trombonist | L | flat p5 | lift | 93 | 0.62 | 0.62 | 100.0% | 0.62 at boulanger-matin.mid wall 1.2 s | 0.62 | 0.55 | 0.69 | FAIL |
+| trombonist | L | move twist max | move | 3483 | 93 | 114 | 100.0% | 114 at beethoven-9.mid lift 105.53 s, wall 1.12 s | 114 | 176 | 104 | FAIL |
+| trombonist | R | stretch p95 | play | 4788 | 0.25 | 0.25 | 100.0% | 0.25 at beethoven-9.mid 25.34 s | 0.25 | 0.35 | 0.08 | FAIL |
+| trombonist | R | grip turn p50 | play | 4788 | 134 | 135 | 100.0% | 136 at boulanger-matin.mid 258.88 s | 134 | 45 | 2 | FAIL |
+| trombonist | R | move twist max | move | 3483 | 91 | 96 | 100.0% | 96 at boulanger-matin.mid lower 93.56 s, wall 1.99 s | 96 | 176 | 92 | FAIL |
+| oboist | L | paw twist p95 | rest | 11 | 120 | 120 | 100.0% | 120 at mozart-k315.mid rest | 120 | 170 | 72 | FAIL |
+| oboist | L | grip turn p50 | play | 14223 | 176 | 176 | 100.0% | 176 at brahms-2.mid 648.38 s | 176 | 45 | 11 | FAIL |
+| oboist | L | move twist max | move | 12771 | 115 | 120 | 100.0% | 120 at beethoven-9.mid lower 52.77 s, wall 1.94 s | 120 | 176 | 72 | FAIL |
+| oboist | R | forearm twist p95 | rest | 11 | 65 | 65 | 100.0% | 65 at bach-bwv1047.mid rest | 65 | 80 | 32 | FAIL |
+| oboist | R | grip turn p50 | play | 14223 | 161 | 161 | 100.0% | 161 at beethoven-8.mid 145.40 s | 161 | 45 | 14 | FAIL |
+| bassoonist | L | grip turn p50 | play | 11254 | 175 | 175 | 100.0% | 175 at brahms-2.mid 425.38 s | 175 | 45 | 0 | FAIL |
+| bassoonist | R | folds p95 | rest | 8 | 4 | 4 | 100.0% | 4 at beethoven-1.mid rest | 4 | 8 | 0 | FAIL |
+| bassoonist | R | twist p95 | play | 11254 | 44 | 44 | 100.0% | 44 at boulanger-matin.mid 23.63 s | 44 | 55 | 33 | FAIL |
+| bassoonist | R | paw twist p95 | rest | 8 | 110 | 110 | 100.0% | 110 at mendelssohn-op61.mid rest | 110 | 170 | 78 | FAIL |
+| bassoonist | R | grip turn p50 | play | 11254 | 163 | 163 | 100.0% | 163 at beethoven-8-4.mid 510.34 s | 163 | 45 | 0 | FAIL |
+| bassoonist | R | move twist max | move | 9288 | 100 | 110 | 100.0% | 110 at mendelssohn-op61.mid lift 0.00 s, wall 0.01 s | 110 | 176 | 78 | FAIL |
+| clarinetist | L | forearm twist p95 | rest | 7 | 58 | 58 | 100.0% | 58 at beethoven-1.mid rest | 58 | 80 | 35 | FAIL |
+| clarinetist | L | grip turn p50 | play | 10349 | 170 | 170 | 100.0% | 170 at beethoven-8-4.mid 281.09 s | 170 | 45 | 0 | FAIL |
+| clarinetist | L | move twist max | move | 8127 | 89 | 111 | 100.0% | 111 at boulanger-matin.mid lower 93.56 s, wall 1.98 s | 111 | 176 | 92 | FAIL |
+| clarinetist | R | grip turn p50 | play | 10349 | 164 | 164 | 100.0% | 164 at beethoven-1.mid 54.65 s | 164 | 45 | 0 | FAIL |
+| trumpeter | L | grip turn p50 | play | 9977 | 47 | 47 | 100.0% | 47 at brahms-2.mid 689.38 s | 47 | 45 | 8 | FAIL |
+| tubist | R | grip turn p50 | play | 4147 | 19 | 19 | 100.0% | 19 at brahms-2.mid 459.38 s | 19 | 45 | 0 | FAIL |
+ ELIFECYCLE  Command failed with exit code 1.
