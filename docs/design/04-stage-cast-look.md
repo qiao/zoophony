@@ -1490,7 +1490,8 @@ type BoneName =
   mallet heads, and the piano keys.
 - `fingersL` and `fingersR` curl as one block. On a wind instrument, they move on each note.
 - The legs keep a seated or standing pose. The idle motion moves only the spine, the head, the
-  ears, the eyes, and the tail.
+  ears, the eyes, and the tail. The right leg of a pianist on the damper pedal and the legs of a
+  side move of the hips turn (5.3), and the feet then stay on the floor.
 - The conductor uses the same rig, with the baton in the right hand.
 - The torso splits at the height of the `chest` bone. The lower part follows `spine`. The upper
   part follows `chest`, as the shoulders, the arms, and a violin do, so that a rotation of

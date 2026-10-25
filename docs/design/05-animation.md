@@ -47,7 +47,7 @@ Each new role and each new hold adds its row to this table in the same commit.
 | Snare drum, badger | Stands | `docs/reference/percussion-technique.md` 6 | The drum stands at the height of the wrists, and the sticks leave the front of the fists in a V of about 66°, almost level, with the paws in turn | The arms hang | `PERCUSSION_HOLDS['snare-drum']`, `SNARE_DRUM`, `pose/percussion-rig.ts` | 5.3 percussion, `2026-10-20-mesh-badger.md` | `pnpm close-views snare-drummer <dir>` |
 | Cymbals, badger | Stands | `docs/reference/percussion-technique.md` 7 | A suspended cymbal on a stand: the yarn mallets leave the front of the fists, as the snare sticks, and the paws strike in turn near the edge, opposite each other | The arms hang | `SUSPENDED_CYMBAL_HOLD`, `SUSPENDED_CYMBAL`, `pose/percussion-rig.ts` | 5.3 percussion, `2026-10-20-badger-cymbals.md` | `pnpm close-views cymbalist <dir>` |
 | Small percussion, badger | Stands | `docs/reference/percussion-technique.md` 8 | The left paw holds the triangle by its clip at the height of the mouth, and the beater in the right paw strikes it, or the tambourine on its stand at the front right | The left paw keeps the triangle up, and the beater stays near it | `PERCUSSION_HOLDS['small-percussion']`, `PERCUSSION_PLACES`, `TAMBOURINE`, `TRIANGLE`, `pose/percussion-rig.ts` | 5.3 percussion, `2026-10-20-mesh-badger.md`, `2026-10-25-grips.md` | `pnpm close-views percussionist <dir>` |
-| Xylophone, badger | Stands | `docs/reference/percussion-technique.md` 9 | The mallets leave the front of the fists, as the snare sticks, and strike the bar of each key. The short arms do not reach the outer bars (open) | The arms hang | `PERCUSSION_HOLDS.xylophone`, `XYLOPHONE`, `pose/percussion-rig.ts` | 5.3 percussion, `2026-10-20-mesh-badger.md` | `pnpm close-views xylophonist <dir>` |
+| Xylophone, badger | Stands, and moves from side to side behind the notes with the feet in place | `docs/reference/percussion-technique.md` 9 | The mallets leave the front of the fists, as the snare sticks, and strike the bar of each key. The spine leans over the bars. The short arms do not reach the sharp bars of the back row (open) | The arms hang | `PERCUSSION_HOLDS.xylophone`, `XYLOPHONE`, `pose/percussion-rig.ts` | 5.3 percussion, `2026-10-20-mesh-badger.md` | `pnpm close-views xylophonist <dir>` |
 | Choir, penguin | Stands on a riser, in the standing pose of its mesh, with the center of mass over the soles (4.4, seat) | The reference images (`docs/research/2026-10-21-mesh-penguin.md`) | The beak opens with each note and closes to half between two notes, the head lifts a little, and the flippers hold the lower corners of the folder in front of the chest | The beak closes, the head comes down, and the flippers keep the folder | `CHOIR_HOLD`, `CHOIR_MOTION`, `CHOIR_FOLDER`, `pose/choir.ts` | 5.3 choir, `2026-10-21-mesh-penguin.md`, `2026-10-21-penguin-beak.md` | `pnpm close-views singer <dir>` |
 
 `BOWED_HOLDS.violin` (the chin hold), `BOWED_HOLDS.cello`, `WIND_HOLDS.flute`, and
@@ -89,7 +89,7 @@ interface SeatAudibility {
 interface AnimalPose {
   /** One quaternion (x, y, z, w) for each bone, in the order of `BoneName` (4.7). */
   rotations: Float32Array;
-  /** The offset of the root bone, for the sway. */
+  /** The offset of the root bone: the side move of the hips of a percussion player (5.3). */
   rootOffset: readonly [number, number, number];
   /**
    * The move of the `slide` bone from its bind place, in the axes of the `instrument` bone. It is
@@ -716,9 +716,17 @@ The code constants of each family hold the times, the angles, and the lengths of
       strike direction, and the wrist lifts the head over its spot near the edge, as with the
       snare sticks.
     - The xylophone mallets take the grip of the snare sticks, as a real player holds them. The
-      xylophone of the app is wider than the reach of the short arms, and the body does not move
-      from side to side, so the outer bars stay out of reach until the user chooses a smaller
-      xylophone or longer arms (open).
+      badger moves its body from side to side behind the notes, as a real player does, with the
+      feet in place (`PercussionHold.side`, `pose/side-move.ts`). The body moves toward the mean
+      side place of the notes in a time before each note, so near notes give a mean place, and
+      the pose stays a function of the score and the time. The hips move a little, and the
+      spine leans toward the notes. Each leg reaches its bind ankle, and the hips drop so that
+      no leg is longer than in the bind pose, so the feet stay on the floor. The short legs tilt
+      far with a small move of the hips, and the foot skin then follows the shin into the floor,
+      so the spine takes most of the move. The spine also leans forward over the bars while the
+      badger plays (`PercussionHold.lean`), because the short arms do not reach the bars from an
+      upright body. The center of mass stays over the soles. The sharp bars of the back row stay
+      out of reach until the user chooses a smaller xylophone or longer arms (open).
 - Piano: the hands move to the key position. The left hand plays low notes and the right hand
   plays high notes.
 - **Piano and harp in detail** (`pose/hand-notes.ts`, `pose/hands.ts`):

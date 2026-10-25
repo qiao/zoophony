@@ -278,7 +278,10 @@ export const PERCUSSION_HOLDS = {
   },
   // The mallets leave the front of the fists (XYLOPHONE.malletTilt) and keep the angle of no
   // twist of the paw between strikes, as the sticks of the snare drum, because a real player holds
-  // them in the matched grip of the snare drum (2026-10-20-mesh-badger decisions).
+  // them in the matched grip of the snare drum (2026-10-20-mesh-badger decisions). The short arms
+  // do not reach the bars from an upright body, so the spine leans over them (lean), and the body
+  // moves from side to side behind the notes with the feet in place (side,
+  // 2026-10-25-xylophone-sway decisions).
   xylophone: {
     hands: 'alternate',
     sizes: { lift: 0.08, rest: 0.03 },
@@ -300,8 +303,10 @@ export const PERCUSSION_HOLDS = {
     // A repeat on one bar stays in one hand, so that a mallet does not strike under the head of
     // the other mallet, which rests over the bar.
     gap: 0.01,
-    lean: 0,
-    side: null,
+    lean: 0.2,
+    // The short legs tilt far with a small move of the hips, and the foot skin then sinks into
+    // the floor, so the spine takes most of the move.
+    side: { span: 0.25, hips: 0.02, spine: 10 * MathUtils.DEG2RAD, moveSec: 0.6 },
   },
 } as const satisfies Readonly<Record<PercussionInstrument, PercussionHold>>;
 

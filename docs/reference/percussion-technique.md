@@ -224,8 +224,14 @@ shoulder joint to the palm (`docs/decisions/2026-10-20-mesh-badger.md`).
   roll of the app is the alternate strikes of the notes. The app has no muffling of the plate. The
   hand cymbals of the app meet in front of the shoulders, vertical (`PERCUSSION_PLACES`).
 - **The xylophone.** The mallets leave the front of the fists, as the sticks of the snare drum,
-  as section 9 gives. The app differs: the body does not move from side to side behind the
-  notes, so the short arms do not reach the outer bars, and the hold is open. A part below or
+  as section 9 gives. The badger moves the body from side to side behind the notes with the feet
+  in place, as section 9 gives with few steps: the hips move up to 2 cm, and the spine leans up
+  to 10° toward the mean place of the notes, in the 0.6 s before each note
+  (`PercussionHold.side`). The short legs of the badger tilt far with a small move of the hips,
+  so the spine takes most of the move. The app differs: the spine also leans 11° forward over the
+  bars (`PercussionHold.lean`), because the short arms do not reach the bars from an upright
+  body. Section 9 gives no lean. The arms do not reach the sharp bars of the back row, about
+  11 cm short, and the hold is open. A part below or
   above the bars plays in the octave that puts its highest key in the highest octave of the
   bars (`xylophoneShift()` of `src/pose/percussion-rig.ts`), where the short arms reach best. No
   source of section 11 gives the octave that a player takes for such a part. The mallets make a V
