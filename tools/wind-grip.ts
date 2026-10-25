@@ -117,7 +117,7 @@ const ROLES = {
   oboist: wind('oboist', 'mouse', 'oboe', { L: [0, 0, -1], R: [0, 0, -1] }),
   flutist: wind('flutist', 'fox-tan', 'flute', {}),
   bassoonist: wind('bassoonist', 'beaver', 'bassoon', { L: [0, 0, -1], R: [0, 0, -1] }),
-  trombonist: wind('trombonist', 'panda', 'trombone', { L: [-1, 0, 0], R: [1, 0, 0] }),
+  trombonist: wind('trombonist', 'panda', 'trombone', { L: [-1, 0, 0], R: [1, 0, 1] }),
   trumpeter: wind('trumpeter', 'monkey', 'trumpet', { L: [-1, 0, 0], R: [1, 0, 0] }),
   tubist: wind('tubist', 'rhino', 'tuba', { R: [1, 0, 0] }),
   percussionist: {
