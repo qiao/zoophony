@@ -994,16 +994,29 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       limits: oboist left paw twist 137° (93°), move twists 137° (93°) and 121° (99°), bassoonist
       left forearm twist 38° (14°), paw twist 135° (57°), paw swing 54° (27°), right rest folds 8
       (4, limit 8). The manager decides (`gate.txt` of `docs/research/2026-10-25-wind-palms/`).
-- [ ] Wind palms twist steps: the left oboe forearm step grows to 34.2° (23.3° on main, target
-      25°), and the left bassoon forearm, with no arm segments, to 64.6° at each link (28.6°).
-      Give the beaver arm segments, or scan the left elbow (`twist-*.txt` of
-      `docs/research/2026-10-25-wind-palms/`).
-- [ ] Panda trombone right paw: the palm faces the audience (+0.93) and the thumb points down the
-      slide. No source gives the side of the right palm on the brace. Find a source, then fix the
-      hold (`palm-branch.txt` of `docs/research/2026-10-25-wind-palms/`).
-- [ ] Beaver bassoon rest: the right paw stands about 10 cm from the boot joint at rest, out of
-      the reach of the right arm (9.1 cm on main, `grip-branch.txt` of
-      `docs/research/2026-10-25-wind-palms/`).
+- [x] Wind palms twist steps: the left oboe forearm step grew to 34.2°, and the left bassoon
+      forearm to 64.6° at each link. Done: the lower left oboe elbow gives 21.3° (largest 30.5°
+      at rest), and the left bassoon elbow back gives 55.4° (`2026-10-25-wind-elbows.md`).
+- [ ] Beaver left forearm: each of its two links twists 55.4° in the play (target 25°), because
+      the beaver has no arm segments. Only rebuilt arms with segments lower it (see "Beaver
+      rebuilt arms", `2026-10-25-wind-elbows.md`).
+- [x] Panda trombone right paw: the palm faced the audience (+0.93) and the thumb pointed down the
+      brace. Done: from sources, the paw holds the low brace from the right of the panda, the
+      palm to the side (-0.17), the thumb 5.8 cm up (`2026-10-25-wind-elbows.md`).
+- [ ] Panda trombone right forearm: with the side palm, each of its two links twists 42.8° in
+      the play and up to 70.6° at rest (5.4° and 15.8° before), and the paw twist p95 is 141°
+      (limit 170°). No image shows a band. The panda has no arm segments
+      (`twist-branch-trombonist.txt` of `docs/research/2026-10-25-wind-elbows/`).
+- [ ] Wind elbows gate: five values grow on the margin against main, inside the limits: oboist
+      left flat p5 0.68 (0.75), trombonist right forearm twist 45° (9°), paw twist and move
+      twist 141° (32°), and flat p5 0.66 (0.79). The manager decides (`gate.txt` of
+      `docs/research/2026-10-25-wind-elbows/`).
+- [ ] Panda trombone right paw in the front view: the paw lies below the lower slide tube with
+      its finger tips on the brace, so from the front it reads as a paw under the slide. Show the
+      user `trombonist-right-paw-first.webp` of `docs/research/2026-10-25-wind-elbows/`.
+- [x] Beaver bassoon rest: the right paw stood about 10 cm from the boot joint at rest. Done: the
+      rest turns the lower end 10° back, and both paws grasp in each set
+      (`2026-10-25-wind-elbows.md`).
 - [ ] Wind thumbs: the mesh thumbs have no bone, so on the left oboe paw and the right bassoon
       paw the thumb tip lies 1.2 cm and 5.0 cm in front of the tube axis. Add the
       thumb measure of `palm-probe.ts` to `pnpm wind-grip`, so that a gate sees the thumb.
@@ -1012,9 +1025,11 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       images and the technique (`palm-branch.txt`).
 - [x] Panda trombone: the right mitten stood 2 cm off the slide brace. Done: the finger tips hold
       the brace from the right of the slide (`2026-10-25-open-grips.md`).
-- [ ] Panda trombone travel: the arm reaches 0.17 m of the slide at 45° to the right, 30% of a real
-      seventh position (0.57 m). 60° gives 0.26 m and 90° 0.455 m. Show the user the lineup of 45°
-      and 60° (`slide-scan-final.txt` of `docs/research/2026-10-25-open-grips/`).
+- [ ] Panda trombone travel: the arm reaches 0.105 m of the slide at 45° to the right, 18% of a
+      real seventh position (0.57 m), since the right paw holds the far side of the brace (0.17 m
+      before, `2026-10-25-wind-elbows.md`). On the grip before, 60° gave 0.26 m and 90° 0.455 m.
+      Show the user the lineup of 45° and 60° (`slide-scan-final.txt` of
+      `docs/research/2026-10-25-open-grips/`).
 - [ ] Panda trombone: with the play hold at rest, the left finger tips stand 0.7 cm from the slide
       tubes at rest (0.4 cm on 0cfe7ee6, limit 0.6 cm). A rest aim for each paw would keep the left
       paw as before (`2026-10-25-open-grips.md`).
