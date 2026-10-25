@@ -42,10 +42,10 @@ project makes the studio body of the rabbit from it (`tools/mesh-rigs/rabbit.jso
 
 | Item | Value |
 |---|---|
-| `rabbit-arms.glb` | 1,066,300 bytes, SHA-256 `9e4766ee2f878c4c3faf46c6de6b7708a4275635777ec5e5fe2ac72382ddea50` |
-| Mesh | 2,084 vertices after a weld at 1e-5, 4,154 triangles (3,118 in the source): on each arm a tube of 15 rings of 16 vertices, joined to the trunk and the paw with Bridge Edge Loops |
+| `rabbit-arms.glb` | 1,066,280 bytes, SHA-256 `3a8d60065ea5679e331fc16e106e74e3f68546654b83176a55dba878e2554245` |
+| Mesh | 2,084 vertices after a weld at 1e-5, 4,154 triangles (3,118 in the source): on each arm a tube of 15 rings of 16 vertices, joined to the trunk and the paw with Bridge Edge Loops, with Beautify Faces on the bridge triangles |
 | Material | One material with one base color JPEG of 4096 × 4608 pixels: the atlas of the source, and a strip of 512 pixels on top with the fur color of the source arms, baked onto the new faces. No metallic-roughness texture |
-| `rabbit-weights.json` | 460,545 bytes, SHA-256 `5ae60b20db489e2e7914d4faf22ef98348152478cfa8f6c537b7d0d51f58b9fd` |
+| `rabbit-weights.json` | 460,502 bytes, SHA-256 `e257527785da440da83161e07fce7e3700bebaeaa527a6dec2ad88d072d99969` |
 | Weights | The automatic weights of Blender with the Weight Paint fixes of the session, on the studio bones and the arm segments and helpers (`armSegments` of the config), for `paintedWeights` of the config |
 | License | Derived from the mesh of the user, who holds its rights |
 
