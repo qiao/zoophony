@@ -21,26 +21,41 @@
  *   the place of its grip.
  * - `side`: the direction from the axis to the middle of the paw, in the axes of the chest
  *   (right, up, forward), in cm.
+ * - `palm`: the angle between the normal of the palm and the direction from the middle of the paw
+ *   to the axis, square to the axis, in degrees. 0 when the palm faces the tube.
+ * - `place`: the angle between the direction from the axis to the middle of the paw and the side
+ *   of the tube that the technique of the role names for the paw ({@link RoleGrip.places}), both
+ *   square to the axis, in degrees.
+ * - `top`: the height of the highest corner of the paw above the mouthpiece, in the axes of the
+ *   chest, in cm. A paw far above it covers the face in the front view.
  *
  * A paw holds ({@link holds}) as a fist, with the tube through the middle of the paw, or as a
- * wrap, with its skin and its finger tips on the instrument. The table gives, for each set and paw, the share of the
- * samples in which the paw holds, the median of each measure, and the worst sample. It also gives
- * the smallest gap between the two paws. A paw that leaves its grip on purpose at rest, as the
- * left paw of the tan fox, still gets its row.
+ * wrap, with its skin and its finger tips on the instrument. A paw grasps ({@link grasps}) as a
+ * person sees a hand that holds a tube: its finger tips are on the instrument, its palm faces the
+ * tube, and it is on the side of the tube that the technique names. The tool skips the palm and
+ * the place when the middle of the paw is within {@link CENTERED} of the axis, because the tube
+ * then goes through the closed paw. The table gives, for each set and paw, the share of the
+ * samples in which the paw holds and grasps, the median of each measure, and the worst sample. It
+ * also gives the smallest gap between the two paws. A paw that leaves its grip on purpose at
+ * rest, as the left paw of the tan fox, still gets its row.
  *
- * Usage: pnpm wind-grip <clarinetist | oboist | flutist | fox-violinist>... [--demo <id>]... [--every <n>]
- * [--set <changes>] [--lines]
+ * The tube of a paw is the tube that the instrument names for its palm (`InstrumentGrips.tubeL`),
+ * such as the valve casings of a trumpet or the brace of a trombone slide, else the tube of the
+ * woodwind from its mouthpiece. The percussionist holds the clip of the triangle in its left paw.
+ *
+ * Usage: pnpm wind-grip <role>... [--demo <id>]... [--every <n>] [--set <changes>] [--lines]
  *
  * `--every <n>` takes each n-th play sample (8 by default), `--set` changes the holds in memory
  * (`tools/hold-sets.ts`), and `--lines` prints each sample. With several `--set` options, the tool
  * prints a scan: one row for the working tree and one row for each variant (about 3 s each).
  */
-import { Triangle, Vector3 } from 'three';
+import { MathUtils, Quaternion, Triangle, Vector3 } from 'three';
 
 import { GRIP_GAP, volumeMiddle } from './bow-grip.ts';
 import { setHolds } from './hold-sets.ts';
 import type { DemoFile } from './patch-demos.ts';
 import { probeDemos } from './probe-demos.ts';
+import { TRIANGLE_CLIP } from '../src/models/instruments/percussion.ts';
 import type { InstrumentId } from '../src/models/instruments/types.ts';
 import { WOODWINDS } from '../src/models/instruments/woodwinds.ts';
 import type { WoodwindId } from '../src/models/instruments/woodwinds.ts';
@@ -64,52 +79,92 @@ import type { TestScene } from '../src/pose/test-scene.ts';
 import { SWEEP_ROLES } from '../src/pose/test-sweep-roles.ts';
 import type { SweepSample } from '../src/pose/test-sweep.ts';
 
+/** A side of the body. */
+type Side = 'L' | 'R';
+
+/** A direction in the axes of the chest: right, up, forward. */
+type ChestDirection = readonly [right: number, up: number, forward: number];
+
 /** A role that the tool measures. */
 interface RoleGrip {
   /** The sweep of the role, which gives the sample sets. */
   readonly sweep: keyof typeof SWEEP_ROLES;
   readonly species: SpeciesId;
   readonly instrument: InstrumentId;
-  /** Gives the posed tube or neck that the paws hold. */
-  readonly tube: (posed: PosedSkeleton) => Tube;
+  /** Gives the posed tube or neck that a paw holds. */
+  readonly tube: (posed: PosedSkeleton, side: Side) => Tube;
   /** The paws that hold it. */
-  readonly paws: readonly ('L' | 'R')[];
+  readonly paws: readonly Side[];
+  /**
+   * The side of the tube on which the technique of the role puts the middle of each paw, in the
+   * axes of the chest, or none for no rule.
+   */
+  readonly places: Readonly<Partial<Record<Side, ChestDirection>>>;
+  /** The bones of the instrument that the paws hold, for the gaps of the skin and the tips. */
+  readonly parts: readonly BoneName[];
 }
 
 /**
- * The roles that the tool measures: the three woodwinds, and the left paw of the red fox on the
- * neck of the violin, the grip that the user accepts (user, 2026-10-24), for a compare.
+ * The roles that the tool measures: the woodwinds, the brass, the clip of the triangle, and the
+ * left paw of the red fox on the neck of the violin, the grip that the user accepts (user,
+ * 2026-10-24), for a compare. The places come from `docs/reference/wind-technique.md` and
+ * `docs/reference/percussion-technique.md`: the thumb of a woodwind hand is behind the tube, so
+ * the middle of the paw is on the side of the player, and a brass hand holds the valves or the
+ * slide from its own side.
  */
 const ROLES = {
-  clarinetist: woodwind('clarinetist', 'wolf', 'clarinet'),
-  oboist: woodwind('oboist', 'mouse', 'oboe'),
-  flutist: woodwind('flutist', 'fox-tan', 'flute'),
+  clarinetist: wind('clarinetist', 'wolf', 'clarinet', { L: [0, 0, -1], R: [0, 0, -1] }),
+  oboist: wind('oboist', 'mouse', 'oboe', { L: [0, 0, -1], R: [0, 0, -1] }),
+  flutist: wind('flutist', 'fox-tan', 'flute', {}),
+  bassoonist: wind('bassoonist', 'beaver', 'bassoon', { L: [0, 0, -1], R: [0, 0, -1] }),
+  trombonist: wind('trombonist', 'panda', 'trombone', { L: [-1, 0, 0], R: [1, 0, 0] }),
+  trumpeter: wind('trumpeter', 'monkey', 'trumpet', { L: [-1, 0, 0], R: [1, 0, 0] }),
+  tubist: wind('tubist', 'rhino', 'tuba', { R: [1, 0, 0] }),
+  percussionist: {
+    sweep: 'percussionist',
+    species: 'badger',
+    instrument: 'small-percussion',
+    tube: clipOf,
+    paws: ['L'],
+    places: {},
+    parts: ['malletL'],
+  },
   'fox-violinist': {
     sweep: 'violinist',
     species: 'fox-red',
     instrument: 'violin',
     tube: neckOf,
     paws: ['L'],
+    places: {},
+    parts: ['instrument'],
   },
 } as const satisfies Readonly<Record<string, RoleGrip>>;
 
 type GripRole = keyof typeof ROLES;
 
 /**
- * Gives the role of a woodwind.
+ * Gives the role of a wind instrument.
  *
  * @param sweep The sweep of the role.
  * @param species The species.
- * @param id The woodwind.
+ * @param id The instrument.
+ * @param places The side of the tube for each paw ({@link RoleGrip.places}).
  * @returns The role.
  */
-function woodwind(sweep: keyof typeof SWEEP_ROLES, species: SpeciesId, id: WoodwindId): RoleGrip {
+function wind(
+  sweep: keyof typeof SWEEP_ROLES,
+  species: SpeciesId,
+  id: InstrumentId,
+  places: RoleGrip['places'],
+): RoleGrip {
   return {
     sweep,
     species,
     instrument: id,
-    tube: (posed) => tubeOf(posed, id),
+    tube: (posed, side) => ownTube(posed, side) ?? tubeOf(posed, id),
     paws: ['L', 'R'],
+    places,
+    parts: ['instrument', 'slide'],
   };
 }
 
@@ -144,6 +199,18 @@ export interface PawContact {
   readonly along: number;
   /** The direction from the axis to the middle of the paw in the axes of the chest, in meters. */
   readonly side: readonly [number, number, number];
+  /**
+   * The angle between the normal of the palm and the direction from the middle of the paw to the
+   * axis, square to the axis, in degrees, or `null` when the paw is centered on the axis.
+   */
+  readonly palm: number | null;
+  /**
+   * The angle between the direction from the axis to the middle of the paw and the side that the
+   * technique names, square to the axis, in degrees, or `null` with no rule or a centered paw.
+   */
+  readonly place: number | null;
+  /** The height of the highest corner of the paw above the mouthpiece, in meters. */
+  readonly top: number;
 }
 
 /**
@@ -162,6 +229,34 @@ export function holds(c: PawContact): boolean {
   return fist || (c.gap <= TOUCH && c.tips <= TIPS);
 }
 
+/**
+ * The distance of the middle of a paw from the axis below which the tool skips the palm and the
+ * place, in meters: the tube goes through the closed paw.
+ */
+export const CENTERED = 0.01;
+
+/** The largest angle of the palm from the tube for a grasp, in degrees. */
+export const PALM_LIMIT = 60;
+
+/** The largest angle of the paw from the side of the tube that the technique names, in degrees. */
+export const PLACE_LIMIT = 60;
+
+/**
+ * Tells if a paw grasps its tube as a person sees a hand that holds it: its finger tips are on the
+ * instrument ({@link TIPS}), its palm faces the tube ({@link PALM_LIMIT}), and the paw is on the
+ * side of the tube that the technique names ({@link PLACE_LIMIT}). An open paw with the tube
+ * through its middle holds as a fist ({@link holds}), but it does not grasp, because its finger
+ * tips stand off the tube.
+ *
+ * @param c The measures of the paw.
+ * @returns True when the paw grasps.
+ */
+export function grasps(c: PawContact): boolean {
+  const palm = c.palm === null || c.palm <= PALM_LIMIT;
+  const place = c.place === null || c.place <= PLACE_LIMIT;
+  return c.tips <= TIPS && palm && place;
+}
+
 /** The tube of a woodwind in one pose, from the mouthpiece, or the neck of a violin from the nut. */
 interface Tube {
   readonly start: Vector3;
@@ -178,15 +273,59 @@ interface Tube {
  * @returns The tube.
  * @throws Error if the instrument has no grip of the right palm.
  */
-function tubeOf(posed: PosedSkeleton, id: WoodwindId): Tube {
+function tubeOf(posed: PosedSkeleton, id: InstrumentId): Tube {
   const grip = posed.model.instrument.grips.palmR;
-  if (!grip) {
-    throw new Error(`The ${id} has no grip of the right palm.`);
+  if (!grip || !isWoodwind(id)) {
+    throw new Error(`The ${id} has no tube of a woodwind for the palms.`);
   }
   const w = WOODWINDS[id];
   const length = (grip.at[0] / w.palmR) * w.length;
   const start = new Vector3(...posedPiecePoint(posed, { bone: 'instrument', at: [0, 0, 0] }));
   const end = new Vector3(...posedPiecePoint(posed, { bone: 'instrument', at: [length, 0, 0] }));
+  return { start, axis: end.sub(start).normalize(), length };
+}
+
+/**
+ * Tells if an instrument is a woodwind.
+ *
+ * @param id The instrument.
+ * @returns True for a woodwind.
+ */
+function isWoodwind(id: InstrumentId): id is WoodwindId {
+  return id in WOODWINDS;
+}
+
+/**
+ * Gives the posed tube that the instrument names for a palm (`InstrumentGrips.tubeL`).
+ *
+ * @param posed The posed skeleton.
+ * @param side The side of the palm.
+ * @returns The tube, or `null` when the instrument names none.
+ */
+function ownTube(posed: PosedSkeleton, side: Side): Tube | null {
+  const { grips } = posed.model.instrument;
+  const own = side === 'L' ? grips.tubeL : grips.tubeR;
+  if (!own) {
+    return null;
+  }
+  const start = new Vector3(...posedPiecePoint(posed, { bone: own.bone, at: own.from }));
+  const end = new Vector3(...posedPiecePoint(posed, { bone: own.bone, at: own.to }));
+  const length = end.distanceTo(start);
+  return { start, axis: end.sub(start).normalize(), length };
+}
+
+/**
+ * Gives the posed clip of the triangle in the left paw, from its upper end in the paw to its
+ * lower end (`TRIANGLE_CLIP` of `models/instruments/percussion.ts`).
+ *
+ * @param posed The posed skeleton.
+ * @returns The clip.
+ */
+function clipOf(posed: PosedSkeleton): Tube {
+  const { clip, clipEnd } = TRIANGLE_CLIP;
+  const start = new Vector3(...posedPiecePoint(posed, { bone: 'malletL', at: clip }));
+  const end = new Vector3(...posedPiecePoint(posed, { bone: 'malletL', at: clipEnd }));
+  const length = end.distanceTo(start);
   return { start, axis: end.sub(start).normalize(), length };
 }
 
@@ -271,13 +410,15 @@ function tipsOf(posed: PosedSkeleton, paw: PosedPart, side: 'L' | 'R'): Vector3[
  * @param tube The posed tube.
  * @param side The side.
  * @param instrument The posed instrument.
+ * @param place The side of the tube that the technique names for the paw, or none.
  * @returns The measures.
  */
 export function pawContact(
   posed: PosedSkeleton,
   tube: Tube,
-  side: 'L' | 'R',
+  side: Side,
   instrument: PosedPart,
+  place?: ChestDirection,
 ): PawContact {
   const paw = pawOf(posed, side);
   const middle = volumeMiddle(paw.closed);
@@ -288,11 +429,37 @@ export function pawContact(
     points.push(tube.start.clone().addScaledVector(tube.axis, s));
   }
   const palm = side === 'L' ? posed.model.body.palmL : posed.model.body.palmR;
-  const chest = posed.frames[boneIndex('chest')]?.rotation;
-  const offset = middle.clone().sub(onAxis);
-  if (chest) {
-    offset.applyQuaternion(chest.clone().invert());
+  const chest = posed.frames[boneIndex('chest')]?.rotation ?? new Quaternion();
+  const toChest = chest.clone().invert();
+  const out = middle.clone().sub(onAxis);
+  const offset = out.clone().applyQuaternion(toChest);
+  const centered = out.length() < CENTERED;
+  const square = out.clone().projectOnPlane(tube.axis);
+
+  // The x axis of the hand of the player is the normal of its palm: out of the back on the left
+  // hand, and out of the palm on the right hand (`palmToTube()` of `pose/winds.ts`). The retarget
+  // turns the paw of the studio only in the plane of its palm, so the normal is the same.
+  const hand = posed.frames[boneIndex(`hand${side}`)]?.rotation ?? new Quaternion();
+  const normal = new Vector3(side === 'L' ? -1 : 1, 0, 0)
+    .applyQuaternion(hand)
+    .projectOnPlane(tube.axis);
+  const palmAngle = centered ? null : angleOf(normal, square.clone().negate());
+  let placeAngle: number | null = null;
+  if (place && !centered) {
+    const wanted = new Vector3(place[0], place[1], -place[2])
+      .applyQuaternion(chest)
+      .projectOnPlane(tube.axis);
+    placeAngle = angleOf(wanted, square);
   }
+
+  const mouth = posed.model.instrument.grips.mouth;
+  const top = mouth
+    ? new Vector3(...posedPiecePoint(posed, mouth))
+    : (posed.frames[boneIndex('head')]?.position.clone() ?? new Vector3());
+  const up = new Vector3(0, 1, 0).applyQuaternion(chest);
+  const highest = Math.max(
+    ...paw.part.triangles.flatMap((t) => [t.a, t.b, t.c]).map((p) => p.clone().sub(top).dot(up)),
+  );
   return {
     gap: partDistance(paw.part, instrument, FAR),
     axis: middle.distanceTo(onAxis),
@@ -301,7 +468,24 @@ export function pawContact(
     drift: middle.distanceTo(new Vector3(...posedPoint(posed, `hand${side}`, palm))),
     along,
     side: [offset.x, offset.y, -offset.z],
+    palm: palmAngle,
+    place: placeAngle,
+    top: highest,
   };
+}
+
+/**
+ * Gives the angle between two directions, in degrees.
+ *
+ * @param a The first direction.
+ * @param b The second direction.
+ * @returns The angle, or 180 when a direction is 0.
+ */
+function angleOf(a: Vector3, b: Vector3): number {
+  if (a.lengthSq() < 1e-12 || b.lengthSq() < 1e-12) {
+    return 180;
+  }
+  return a.angleTo(b) * MathUtils.RAD2DEG;
 }
 
 /** The measures of the paws in one sample. */
@@ -373,11 +557,12 @@ function measureScene(grip: RoleGrip, scene: TestScene, every: number): SampleCo
         throw new Error(`The pose has no player ${index}.`);
       }
       const posed = poseSkeleton(model, pose);
-      const instrumentPart = posedPart(posed, ['instrument']);
-      const tube = grip.tube(posed);
-      const paws: Partial<Record<'L' | 'R', PawContact>> = {};
+      const instrumentPart = posedPart(posed, grip.parts);
+      const tube = grip.tube(posed, grip.paws[0] ?? 'L');
+      const paws: Partial<Record<Side, PawContact>> = {};
       for (const side of grip.paws) {
-        paws[side] = pawContact(posed, tube, side, instrumentPart);
+        const own = grip.tube(posed, side);
+        paws[side] = pawContact(posed, own, side, instrumentPart, grip.places[side]);
       }
       const between = partDistance(
         posedPart(posed, ['handL', 'fingersL']),
@@ -418,6 +603,21 @@ function median(values: readonly number[]): number {
 }
 
 /**
+ * Writes the median of angles in whole degrees, with the share of the samples that have no angle.
+ *
+ * @param values The angles, or `null` for a paw centered on its tube.
+ * @returns The text, or "-" when no sample has an angle.
+ */
+function degrees(values: readonly (number | null)[]): string {
+  const known = values.filter((v): v is number => v !== null);
+  if (known.length === 0) {
+    return '-';
+  }
+  const centered = values.length - known.length;
+  return `${median(known).toFixed(0)}${centered > 0 ? ` (${centered} centered)` : ''}`;
+}
+
+/**
  * Writes centimeters with one decimal.
  *
  * @param meters The value, in meters.
@@ -444,8 +644,8 @@ function tableLines(
 ): string[] {
   const out = [
     `${name} (${grip.species}, ${grip.instrument}): the gaps and the distances in cm, the median of each set; "worst" names the sample with the largest axis distance`,
-    '| Set | Paw | Samples | Holds | Gap | Axis | In | Tips | Drift | Along | Side (right, up, fwd) | Worst axis | Paws gap min | Body gap | End gap |',
-    '|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---|---|---:|---:|---:|',
+    '| Set | Paw | Samples | Holds | Grasps | Gap | Axis | In | Tips | Palm ° | Place ° | Top | Drift | Along | Side (right, up, fwd) | Worst axis | Paws gap min | Body gap | End gap |',
+    '|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|---|---:|---:|---:|',
   ];
   for (const set of ['play', 'lift', 'rest', 'lower']) {
     const of = samples.filter((s) => s.set === set);
@@ -459,11 +659,13 @@ function tableLines(
       });
       const paws = measured.map((m) => m.c);
       const held = paws.filter(holds).length;
+      const grasped = paws.filter(grasps).length;
       const worst = measured.reduce((a, b) => (b.c.axis > a.c.axis ? b : a));
       const at = (f: (c: PawContact) => number): string => cm(median(paws.map(f)));
       const sideMedian = [0, 1, 2].map((k) => at((p) => p.side[k] ?? 0));
+      const share = (n: number): string => `${((100 * n) / of.length).toFixed(0)}%`;
       out.push(
-        `| ${set} | ${side} | ${of.length} | ${((100 * held) / of.length).toFixed(0)}% | ${at((p) => p.gap)} | ${at((p) => p.axis)} | ${at((p) => p.inside)} | ${at((p) => p.tips)} | ${at((p) => p.drift)} | ${at((p) => p.along)} | ${sideMedian.join(', ')} | ${cm(worst.c.axis)} at ${worst.s.song.toFixed(2)} s, wall ${worst.s.wall.toFixed(2)} s | ${cm(Math.min(...of.map((s) => s.between)))} | ${cm(median(of.map((s) => s.body)))} | ${cm(median(of.map((s) => s.end)))} |`,
+        `| ${set} | ${side} | ${of.length} | ${share(held)} | ${share(grasped)} | ${at((p) => p.gap)} | ${at((p) => p.axis)} | ${at((p) => p.inside)} | ${at((p) => p.tips)} | ${degrees(paws.map((p) => p.palm))} | ${degrees(paws.map((p) => p.place))} | ${at((p) => p.top)} | ${at((p) => p.drift)} | ${at((p) => p.along)} | ${sideMedian.join(', ')} | ${cm(worst.c.axis)} at ${worst.s.song.toFixed(2)} s, wall ${worst.s.wall.toFixed(2)} s | ${cm(Math.min(...of.map((s) => s.between)))} | ${cm(median(of.map((s) => s.body)))} | ${cm(median(of.map((s) => s.end)))} |`,
       );
     }
   }
@@ -501,8 +703,9 @@ function scanRow(label: string, grip: RoleGrip, samples: readonly SampleContact[
         return '-';
       }
       const held = (100 * paws.filter(holds).length) / paws.length;
+      const grasped = (100 * paws.filter(grasps).length) / paws.length;
       const at = (f: (c: PawContact) => number): string => cm(median(paws.map(f)));
-      return `${held.toFixed(0)}% ${at((p) => p.axis)} ${at((p) => p.tips)} ${at((p) => p.gap)}`;
+      return `${held.toFixed(0)}% ${grasped.toFixed(0)}% ${at((p) => p.axis)} ${at((p) => p.tips)} ${at((p) => p.gap)} ${degrees(paws.map((p) => p.palm))}`;
     }),
   );
   const between = cm(Math.min(...samples.map((s) => s.between)));
@@ -567,7 +770,7 @@ async function main(args: readonly string[]): Promise<void> {
       const sets = ['play', 'lift', 'rest', 'lower'];
       const heads = sets.flatMap((set) => grip.paws.map((side) => `${set} ${side}`));
       console.log(
-        `\n${name}: each cell gives the share of the samples that hold, then the median axis distance, tip gap, and skin gap in cm`,
+        `\n${name}: each cell gives the share of the samples that hold and that grasp, then the median axis distance, tip gap, and skin gap in cm, and the median palm angle in degrees`,
       );
       console.log(`| Variant | ${heads.join(' | ')} | Paws gap min | Rest body, end gap |`);
       console.log(`|---|${heads.map(() => '---').join('|')}|---:|---|`);
