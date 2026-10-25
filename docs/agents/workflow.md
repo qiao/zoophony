@@ -51,6 +51,9 @@ load. While all tests are paused, `pnpm test` runs no test, and the rule of `pnp
 - Run the check script in the background, because a run with no cache can take more than the
   10-minute limit of a Bash call. It checks the commits in a temporary worktree, so you can edit
   and commit while it runs. A new commit during the run gives the exit code 4: run it again.
+  Wait for the exit notice of the background run. Do not wait in a loop on
+  `pgrep -f "check-commits.sh"`: the loop shell holds the same text, matches itself, and never
+  stops.
 - After a commit that moves code between files, or a commit made while other changes are stashed,
   run `tools/check-commits.sh HEAD~1` before the next commit.
 - A `kill -9` of the check script leaves its temporary worktree. `git worktree list` shows it,
