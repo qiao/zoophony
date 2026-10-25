@@ -1,0 +1,6 @@
+rabbit tail (0.001, 0.845, -0.209) scroll (-0.346, 0.889, -0.457) head (0.000, 0.919, -0.108) length 0.428 m
+rabbit   23 samples | slope 5° (5..5) | left of front 54° | head gap p50 0.0 max 0.0 cm | head depth max 0.7 cm | instrument in body max 1.8 cm
+cat tail (0.046, 0.922, -0.232) scroll (-0.346, 0.917, -0.568) head (0.000, 0.985, -0.085) length 0.516 m
+cat      26 samples | slope 0° (0..0) | left of front 49° | head gap p50 0.0 max 0.9 cm | head depth max 0.2 cm | instrument in body max 1.6 cm
+fox-red tail (0.007, 0.989, -0.236) scroll (-0.383, 1.028, -0.570) head (0.000, 1.072, -0.075) length 0.515 m
+fox-red  23 samples | slope 5° (5..5) | left of front 49° | head gap p50 0.0 max 0.0 cm | head depth max 0.6 cm | instrument in body max 1.8 cm

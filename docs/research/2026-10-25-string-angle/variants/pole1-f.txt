@@ -1,0 +1,22 @@
+tree: cached (fox-violinist, 90460dcf0089)
+Arm gate of 1 roles in 3 variants: 3 children, at most 8 at the same time, in 79 s. A cell gives the value and the verdict of a value that does not pass.
+
+- f0: violin@fox-red.playTurn=0.02344,-0.21623,-0.03679,0.97537;violin@fox-red.reachL=0.14;violin@fox-red.liftTurn={"axis":[-0.3,1,-0.6],"top":[0,0,1]};violin@fox-red.restBow.via.hair=[0,0.3,1]
+- f1: violin@fox-red.playTurn=0.02344,-0.21623,-0.03679,0.97537;violin@fox-red.reachL=0.14;violin@fox-red.liftTurn={"axis":[-0.3,1,-0.6],"top":[0,0,1]};violin@fox-red.restBow.via.hair=[0,0.3,1];violin@fox-red.poleL=[0,-1,-1]
+- f2: violin@fox-red.playTurn=0.02344,-0.21623,-0.03679,0.97537;violin@fox-red.reachL=0.14;violin@fox-red.liftTurn={"axis":[-0.3,1,-0.6],"top":[0,0,1]};violin@fox-red.restBow.via.hair=[0,0.3,1];violin@fox-red.poleL=[0.5,-1,-1]
+
+| Variant | Role | Arm | folds p95 (8) | twist p95 (55) | forearm twist p95 (80) | flat p5 (0.55) | paw twist p95 (170) | paw swing p95 (70) | paw jumps (0.5%) | stretch p95 (0.35) | grip turn p50 (45) | move twist max (176) | move turn max (3000) | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| f0 | fox-violinist | L | 2 | 27 | 67 | 0.77 | 147 | 59 | 0.0% | 0.08 | 3 | 147 | 763 | PASS |
+| f0 | fox-violinist | R | 3 | 39 | 46 | 0.86 | 129 | 62 | 0.0% | 0.04 | 11 | 144 | 1506 | PASS |
+| f1 | fox-violinist | L | 2 | 28 | 68 | 0.76 | 164 | 53 | 0.0% | 0.08 | 18 | 164 | 726 | PASS |
+| f1 | fox-violinist | R | 3 | 39 | 46 | 0.86 | 129 | 62 | 0.0% | 0.04 | 11 | 144 | 1506 | PASS |
+| f2 | fox-violinist | L | 2 | 40 | 70 | 0.72 | 178 FAIL | 49 | 0.0% | 0.08 | 33 | 178 FAIL | 661 | FAIL |
+| f2 | fox-violinist | R | 3 | 39 | 46 | 0.86 | 129 | 62 | 0.0% | 0.04 | 11 | 144 | 1506 | PASS |
+
+Variant f2:
+
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| fox-violinist | L | paw twist p95 | play | 17788 | 173 | 178 | 100.0% | 179 at boulanger-matin.mid 61.88 s | 178 | 170 | - | FAIL |
+| fox-violinist | L | move twist max | move | 16254 | 80 | 176 | 100.0% | 178 at bach-bwv1050.mid lower 310.00 s, wall 0.23 s | 178 | 176 | - | FAIL |

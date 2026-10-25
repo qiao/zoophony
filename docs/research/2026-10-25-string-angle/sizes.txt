@@ -1,0 +1,3 @@
+rabbit violin: scale 0.83, body 252 mm (9.9 in), length 421 mm, full viola of the app 350 mm
+fox-red violin: scale 0.998, body 303 mm (11.9 in), length 506 mm, full viola of the app 350 mm
+cat viola: scale 0.87, body 304 mm (12.0 in), length 507 mm, full viola of the app 350 mm

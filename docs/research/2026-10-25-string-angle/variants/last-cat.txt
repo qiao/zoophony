@@ -1,0 +1,11 @@
+cat | base
+  lift fingersR>viola 1.9 cm (boulanger-matin wall 12.00 s)
+  play fingersR>viola 2.1 cm (bach-bwv1048 149.00 s)
+cat | viola@cat.frogHair=0.06
+  lift fingersR>viola 2.1 cm (boulanger-matin wall 11.60 s)
+  play fingersR>viola 2.2 cm (bach-bwv1048 260.50 s)
+cat | viola@cat.frogHair=0.09
+  play fingersR>viola 2.2 cm (boulanger-matin 119.38 s)
+cat | viola@cat.poleR=[1.4,-0.5,-1]
+  lift fingersR>viola 1.9 cm (boulanger-matin wall 12.00 s)
+  play fingersR>viola 2.2 cm (boulanger-matin 117.88 s)

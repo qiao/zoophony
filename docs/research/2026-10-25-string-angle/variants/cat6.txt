@@ -1,0 +1,41 @@
+Arm gate of 1 roles in 6 variants: 6 children, at most 8 at the same time, in 101 s. A cell gives the value and the verdict of a value that does not pass.
+
+- n1: cat.violaScale=0.87;viola@cat.playTurn=0,-0.21644,0,0.9763;viola@cat.reachL=0.26;viola@cat.playShift=0.05,-0.031,0.1405;viola@cat.slant=0;viola@cat.liftPoleL=[-0.15,-1,-0.5]
+- n2: cat.violaScale=0.87;viola@cat.playTurn=0,-0.21644,0,0.9763;viola@cat.reachL=0.26;viola@cat.playShift=0.05,-0.031,0.1405;viola@cat.slant=0;viola@cat.liftPoleL=[-0.3,-1,-0.5];viola@cat.liftTiltL=0.9
+- n3: cat.violaScale=0.87;viola@cat.playTurn=0,-0.21644,0,0.9763;viola@cat.reachL=0.26;viola@cat.playShift=0.05,-0.031,0.1405;viola@cat.slant=0;viola@cat.liftPoleL=[-0.3,-1,-0.5];viola@cat.liftTiltL=0.65
+- n4: cat.violaScale=0.87;viola@cat.playTurn=0,-0.21644,0,0.9763;viola@cat.reachL=0.26;viola@cat.playShift=0.05,-0.031,0.1405;viola@cat.slant=0;viola@cat.liftPoleL=[-0.15,-1,-0.5];viola@cat.liftReach=[0,0.25,-0.25]
+- n5: cat.violaScale=0.87;viola@cat.playTurn=0,-0.21644,0,0.9763;viola@cat.reachL=0.26;viola@cat.playShift=0.05,-0.031,0.1405;viola@cat.slant=0;viola@cat.liftPoleL=[-0.15,-1,-0.7]
+- n6: cat.violaScale=0.87;viola@cat.playTurn=0,-0.21644,0,0.9763;viola@cat.reachL=0.26;viola@cat.playShift=0.05,-0.031,0.1405;viola@cat.slant=0;viola@cat.liftPoleL=[-0.3,-1,-0.8]
+
+| Variant | Role | Arm | folds p95 (8) | twist p95 (55) | forearm twist p95 (80) | flat p5 (0.55) | paw twist p95 (170) | paw swing p95 (70) | paw jumps (0.5%) | stretch p95 (0.35) | grip turn p50 (45) | move twist max (176) | move turn max (3000) | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| n1 | violist | L | 7 | 28 | 67 | 0.65 | 131 | 69 | 0.0% | 0.07 | 19 | 135 | 971 | PASS |
+| n1 | violist | R | 4 | 49 | 44 | 0.75 | 109 | 55 | 0.0% | 0.03 | 18 | 144 | 733 | PASS |
+| n2 | violist | L | 7 | 28 | 67 | 0.69 | 131 | 68 | 0.0% | 0.07 | 19 | 135 | 842 | PASS |
+| n2 | violist | R | 4 | 49 | 44 | 0.75 | 109 | 55 | 0.0% | 0.03 | 18 | 144 | 733 | PASS |
+| n3 | violist | L | 7 | 28 | 67 | 0.66 | 131 | 74 FAIL | 0.0% | 0.07 | 19 | 135 | 906 | FAIL |
+| n3 | violist | R | 4 | 49 | 44 | 0.75 | 109 | 55 | 0.0% | 0.03 | 18 | 144 | 733 | PASS |
+| n4 | violist | L | 7 | 28 | 67 | 0.64 | 131 | 71 FAIL | 0.0% | 0.07 | 19 | 135 | 929 | FAIL |
+| n4 | violist | R | 4 | 49 | 44 | 0.75 | 109 | 55 | 0.0% | 0.03 | 18 | 144 | 734 | PASS |
+| n5 | violist | L | 7 | 28 | 67 | 0.65 | 131 | 69 | 0.0% | 0.07 | 19 | 135 | 970 | PASS |
+| n5 | violist | R | 4 | 49 | 44 | 0.75 | 109 | 55 | 0.0% | 0.03 | 18 | 144 | 733 | PASS |
+| n6 | violist | L | 7 | 28 | 67 | 0.68 | 131 | 71 FAIL | 0.0% | 0.07 | 19 | 135 | 967 | FAIL |
+| n6 | violist | R | 4 | 49 | 44 | 0.75 | 109 | 55 | 0.0% | 0.03 | 18 | 144 | 733 | PASS |
+
+Variant n3:
+
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| violist | L | paw swing p95 | lift | 434 | 45 | 74 | 100.0% | 80 at boulanger-matin.mid wall 0.6 s | 74 | 70 | - | FAIL |
+
+Variant n4:
+
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| violist | L | paw swing p95 | lift | 434 | 45 | 71 | 100.0% | 79 at boulanger-matin.mid wall 0.6 s | 71 | 70 | - | FAIL |
+
+Variant n6:
+
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| violist | L | paw swing p95 | lift | 434 | 45 | 71 | 100.0% | 79 at boulanger-matin.mid wall 0.6 s | 71 | 70 | - | FAIL |

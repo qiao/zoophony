@@ -1,0 +1,40 @@
+Arm gate of 1 roles in 5 variants: 5 children, at most 6 at the same time, in 83 s. A cell gives the value and the verdict of a value that does not pass.
+
+- v1: violin@fox-red.playTurn=0.02344,-0.21623,-0.03679,0.97537;violin@fox-red.reachL=0.14;violin@fox-red.liftTurn={"axis":[-0.3,1,-0.6],"top":[0,0,1]};violin@fox-red.restBow.via.hair=[0,0,1]
+- v2: violin@fox-red.playTurn=0.02344,-0.21623,-0.03679,0.97537;violin@fox-red.reachL=0.14;violin@fox-red.liftTurn={"axis":[-0.3,1,-0.6],"top":[0,0,1]};violin@fox-red.restBow.via.hair=[0,0,1];violin@fox-red.restBow.via.reach=[0.2,0.2,-0.3]
+- v3: violin@fox-red.playTurn=0.02344,-0.21623,-0.03679,0.97537;violin@fox-red.reachL=0.14;violin@fox-red.liftTurn={"axis":[-0.3,1,-0.6],"top":[0,0,1]};violin@fox-red.restBow.via.reach=[0.3,0.3,-0.4]
+- v4: violin@fox-red.playTurn=0.02344,-0.21623,-0.03679,0.97537;violin@fox-red.reachL=0.14;violin@fox-red.liftTurn={"axis":[-0.3,1,-0.6],"top":[0,0,1]};violin@fox-red.restBow.via.tip=[-0.3,0.5,-1]
+- v5: violin@fox-red.playTurn=0.02344,-0.21623,-0.03679,0.97537;violin@fox-red.reachL=0.14;violin@fox-red.liftTurn={"axis":[-0.3,1,-0.6],"top":[0,0,1]};violin@fox-red.restBow.via.hair=[0,0,1];violin@fox-red.restBow.via.reach=[0,0.2,-0.4]
+
+| Variant | Role | Arm | folds p95 (8) | twist p95 (55) | forearm twist p95 (80) | flat p5 (0.55) | paw twist p95 (170) | paw swing p95 (70) | paw jumps (0.5%) | stretch p95 (0.35) | grip turn p50 (45) | move twist max (176) | move turn max (3000) | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| v1 | fox-violinist | L | 2 | 27 | 67 | 0.77 | 147 | 59 | 0.0% | 0.08 | 3 | 147 | 763 | PASS |
+| v1 | fox-violinist | R | 2 | 39 | 46 | 0.86 | 129 | 66 | 0.0% | 0.04 | 11 | 143 | 1501 | PASS |
+| v2 | fox-violinist | L | 2 | 27 | 67 | 0.77 | 147 | 59 | 0.0% | 0.08 | 3 | 147 | 763 | PASS |
+| v2 | fox-violinist | R | 4 | 39 | 46 | 0.86 | 129 | 63 | 0.0% | 0.05 | 11 | 144 | 1839 | PASS |
+| v3 | fox-violinist | L | 2 | 27 | 67 | 0.77 | 147 | 59 | 0.0% | 0.08 | 3 | 147 | 763 | PASS |
+| v3 | fox-violinist | R | 4 | 39 | 46 | 0.86 | 129 | 74 FAIL | 0.0% | 0.04 | 11 | 136 | 17310 FAIL | FAIL |
+| v4 | fox-violinist | L | 2 | 27 | 67 | 0.77 | 147 | 59 | 0.0% | 0.08 | 3 | 147 | 763 | PASS |
+| v4 | fox-violinist | R | 2 | 39 | 46 | 0.86 | 129 | 71 FAIL | 0.0% | 0.04 | 11 | 152 | 7096 FAIL | FAIL |
+| v5 | fox-violinist | L | 2 | 27 | 67 | 0.77 | 147 | 59 | 0.0% | 0.08 | 3 | 147 | 763 | PASS |
+| v5 | fox-violinist | R | 3 | 39 | 46 | 0.86 | 129 | 73 FAIL | 0.0% | 0.04 | 11 | 143 | 1555 | FAIL |
+
+Variant v3:
+
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| fox-violinist | R | paw swing p95 | lift | 434 | 55 | 74 | 100.0% | 83 at mozart-k417.mid wall 0.3 s | 74 | 70 | - | FAIL |
+| fox-violinist | R | move turn max | move | 16254 | 26 | 422 | 85.3% | 17310 at boulanger-matin.mid lower 280.67 s, wall 1.06 s | 17310 | 3000 | - | FAIL |
+
+Variant v4:
+
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| fox-violinist | R | paw swing p95 | lift | 434 | 55 | 71 | 100.0% | 85 at mozart-k417.mid wall 0.4 s | 71 | 70 | - | FAIL |
+| fox-violinist | R | move turn max | move | 16254 | 24 | 447 | 85.2% | 7096 at boulanger-matin.mid lower 280.67 s, wall 1.09 s | 7096 | 3000 | - | FAIL |
+
+Variant v5:
+
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| fox-violinist | R | paw swing p95 | lift | 434 | 55 | 73 | 100.0% | 86 at mozart-k417.mid wall 0.4 s | 73 | 70 | - | FAIL |
