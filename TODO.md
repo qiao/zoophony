@@ -447,14 +447,28 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       and a slit under the left forearm from the back, and one to three thin faces fold in each
       sample. Done: quad arm tubes, Blender weights, and arm segments. The gate folds 3 and 2
       faces (`2026-10-25-elephant-arms.md`).
-- [ ] Elephant: the upper arms go 3.4 cm into the belly near the elbow (1.8 cm on `main`,
-      accepted 3.0 cm). Each tube variant gave 2.4 cm or more. Try the elbows of
-      `PERCUSSION_HOLDS.timpani` a little out, and check the gap from the back
-      (`2026-10-25-elephant-arms.md`).
-- [ ] Elephant: short light and dark creases show at each inner elbow from the front, where the
-      thick arm bends about 90° (`2026-10-25-elephant-arms.md`).
-- [ ] Elephant: the right flat p5 of the arm gate is 0.76 at the shoulder ring (0.87 on `main`,
-      margin 0.05). The manager decides (`2026-10-25-elephant-arms.md`).
+- [x] Elephant: the upper arms go 3.4 cm into the belly near the elbow (1.8 cm before the arm
+      tubes, accepted 3.0 cm). Done: the timpani elbows point a little out (pole x 0.8). The
+      upper arms go 2.9 cm in, and the back shows no gap (`2026-10-25-elephant-hippo-creases.md`).
+- [ ] Elephant: the upper arms still go 2.9 cm into the belly at 0.71 of the right upper arm. No
+      elbow pole gives less than 2.7 cm. The elbow helper turns the inner upper arm into the
+      belly: try a smaller weight of the helper on the inner upper arm in
+      `tools/blender/elephant_arms.py` (`2026-10-25-elephant-hippo-creases.md`).
+- [x] Elephant: short light and dark creases show at each inner elbow from the front, where the
+      thick arm bends about 90°. Done: a split of the normals of the bent bind elbow. The faces
+      around each elbow take the skin normals (`rootNormals.elbow`,
+      `2026-10-25-elephant-hippo-creases.md`).
+- [ ] Elephant: a short light sliver stays at the inner root of the right arm, near the tusk, from
+      the front (`2026-10-25-elephant-hippo-creases.md`).
+- [ ] Elephant: the right flat p5 of the arm gate is 0.78 at the shoulder ring (0.87 before the
+      arm tubes, margin 0.05). The manager decides (`2026-10-25-elephant-arms.md`,
+      `2026-10-25-elephant-hippo-creases.md`).
+- [x] Hippo bassist: a hard dark crease shows under the left arm from the left side. Done: a split
+      of the normals of the arm root. The faces around each shoulder joint take the skin normals
+      (`rootNormals`, `2026-10-25-elephant-hippo-creases.md`).
+- [ ] Hippo bassist: a soft dark patch stays at the inner left elbow from the left side, also with
+      no shadow. Find the faces of the patch with the normals probe, and try to keep the trunk
+      faces out of the rim (`2026-10-25-elephant-hippo-creases.md`).
 - [x] Rhino: the left arm skin creased in 16.7% of the edges in the play, and the narrow axis of
       the middle of each upper arm was 0.39 and 0.41 of the wide axis. Now 11.1% and 12.0%, and
       0.65 and 0.63 (`2026-10-22-rhino-arm.md`).
