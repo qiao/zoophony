@@ -210,6 +210,18 @@ violin, by 0.32 mm on the cello, and by 0.52 mm on the double bass (derived from
   in very slightly can feel free, and a hand position that depends on a wrist that sticks out can
   give tension [68].
 
+### 1.10 The violin under the jaw
+
+- **The place.** The player places the violin or the viola on the left collarbone, or in the soft
+  spot just behind it, and rests "the left side of your jaw on the chin rest" [76, 77]. The chin
+  can be on the right edge of the chin rest [78].
+- **The level and the angle.** The instrument "is held horizontally (parallel with the floor) and
+  is angled to the left of a straight forward position" [76, 77]. One guide gives "about 45
+  degrees" to the left, with the fiddle "slightly tilted down toward the right but is still level
+  to the ground" [78].
+- **The head.** The player keeps the head straight and holds the instrument between the chin rest
+  and the shoulder rest [78]. No source of this file gives the angle of the head.
+
 ## 2. The right arm and the bow
 
 ### 2.1 The bow hold and the bow
@@ -766,3 +778,9 @@ Each source opened on 2026-10-17, except where a fact has a mark of section "Sou
     https://www.thestrad.com/playing-hub/tales-of-an-orchestral-violinist-sitting-correctly/11628.article
 75. Violinspiration, "Proper violin posture in 5 steps", the photo of a seated orchestra. Opened
     on 2026-10-24. https://violinspiration.com/violin-posture/
+76. Violin Online, "How to hold the violin". Opened on 2026-10-24.
+    https://www.violinonline.com/howtoholdtheviolin.htm
+77. Viola Online, "How to hold the viola". Opened on 2026-10-24.
+    https://violaonline.com/howtoholdtheviola.htm
+78. M. J. Sanchez, "How to hold the fiddle", Fiddle For Dummies. Opened on 2026-10-24.
+    https://www.dummies.com/article/academics-the-arts/music/instruments/violin-fiddle/how-to-hold-the-fiddle-146255
