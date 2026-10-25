@@ -1,6 +1,8 @@
 #!/bin/sh
 # Sets the turn share of the elbow helper in poseSegments() for a probe, runs the args, and
-# restores the file. Usage: sh scratch/helper-share.sh <share> <command...>
+# restores the file. Run it from the root of the tree on main, with the share 0 and 1:
+#   sh docs/research/2026-10-25-thick-arm-depth/probes/helper-turn.sh <share> \
+#     pnpm pose-depth timpanist --where upperArmR beethoven-8-4:565.34
 set -u
 FILE=src/models/studio-rig.ts
 cp "$FILE" scratch/studio-rig.orig.ts
