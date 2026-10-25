@@ -117,15 +117,18 @@ interface RoleGrip {
  * The roles that the tool measures: the woodwinds, the brass, the clip of the triangle, and the
  * left paw of the red fox on the neck of the violin, the grip that the user accepts (user,
  * 2026-10-24), for a compare. The places come from `docs/reference/wind-technique.md` and
- * `docs/reference/percussion-technique.md`: the thumb of a woodwind hand is behind the tube, so
- * the middle of the paw is on the side of the player, and a brass hand holds the valves or the
- * slide from its own side.
+ * `docs/reference/percussion-technique.md`. A woodwind hand has its thumb behind the tube and its
+ * fingers over the front, so the middle of the paw is at the side of the tube of its own arm, and
+ * the palm faces the tube from that side. With the middle of the paw behind the tube, the palm
+ * faced the audience, and the thumb pointed down the tube (user, 2026-10-25: "their palm are
+ * facing outwards and thumbs downwards", `docs/research/2026-10-25-wind-palms.md`). A brass hand
+ * holds the valves or the slide from its own side.
  */
 const ROLES = {
-  clarinetist: wind('clarinetist', 'wolf', 'clarinet', { L: [0, 0, -1], R: [0, 0, -1] }),
-  oboist: wind('oboist', 'mouse', 'oboe', { L: [0, 0, -1], R: [0, 0, -1] }),
+  clarinetist: wind('clarinetist', 'wolf', 'clarinet', { L: [-1, 0, 0], R: [1, 0, 0] }),
+  oboist: wind('oboist', 'mouse', 'oboe', { L: [-1, 0, 0], R: [1, 0, 0] }),
   flutist: wind('flutist', 'fox-tan', 'flute', {}),
-  bassoonist: wind('bassoonist', 'beaver', 'bassoon', { L: [0, 0, -1], R: [0, 0, -1] }),
+  bassoonist: wind('bassoonist', 'beaver', 'bassoon', { L: [-1, 0, 0], R: [1, 0, 0] }),
   trombonist: wind('trombonist', 'panda', 'trombone', { L: [0, 0, -1], R: [0, 0, 1] }, 'slide'),
   trumpeter: wind('trumpeter', 'monkey', 'trumpet', { L: [-1, 0, 0], R: [1, 0, 0] }),
   tubist: wind('tubist', 'rhino', 'tuba', { R: [1, 0, 0] }),
