@@ -26,6 +26,8 @@ reads it (route 3 of `docs/agents/model-work.md`). The steps:
    the normals of the skin too. With `rootNormals` of the config, the rim also takes the skin
    faces within its radius of each shoulder joint, and within its `elbow` radius of each elbow
    joint, and with `armShare` only the faces that the clavicle and the arm move (`root_rim()`).
+   With `turn`, a face whose corner takes a skin normal more than `turn` degrees from its own
+   face in the final bind keeps the crease normals (`rim_turns()`).
 2. Give each face one color from the base color texture. A face of an eye keeps its dark color.
 3. Build the skeleton of the 30 body bones of the studio at the joints of the config, with the
    optional bone `tail_tip` for a tail of two bones and the optional bone `jaw` for a beak that
@@ -1407,6 +1409,30 @@ def root_rim(verts, tris, heads, rule, weights):
             near &= share >= rule['armShare']
         out |= near
     return out
+
+
+def rim_turns(bind, tris, caps, rim):
+    """Gives the largest turn in degrees between the normal of each face of `rim` and the normal
+    that the app gives its corners: the mean of the normals of the skin faces at the vertex, each
+    with the angle of its corner, with no cap (`studioNormals()`). A vertex in a deep notch of the
+    seated bind, where the inner side of the arm meets the trunk, has skin faces that point in
+    opposite directions, so their mean can point far from each of them. Gives 0 for a face out of
+    the rim."""
+    a, b, c = (bind[tris[:, k]] for k in range(3))
+    normals = np.cross(b - a, c - a)
+    normals /= np.maximum(np.linalg.norm(normals, axis=1, keepdims=True), 1e-12)
+    sums = np.zeros_like(bind)
+    for k in range(3):
+        p, q, r = (bind[tris[:, (k + j) % 3]] for j in range(3))
+        u, v = q - p, r - p
+        cos = np.einsum('ij,ij->i', u, v) / np.maximum(
+            np.linalg.norm(u, axis=1) * np.linalg.norm(v, axis=1), 1e-12)
+        angle = np.arccos(np.clip(cos, -1.0, 1.0))
+        np.add.at(sums, tris[~caps, k], (normals * angle[:, None])[~caps])
+    means = sums / np.maximum(np.linalg.norm(sums, axis=1, keepdims=True), 1e-12)
+    dots = np.einsum('ijk,ik->ij', means[tris], normals)
+    turns = np.degrees(np.arccos(np.clip(dots.min(axis=1), -1.0, 1.0)))
+    return np.where(rim, turns, 0.0)
 
 
 def arm_side(verts, rules, heads, ends, sign):
@@ -4362,8 +4388,11 @@ def main():
             # trunk, and a raised arm turns them away from the light too.
             skin_caps |= chosen[origin]
             rim = cut_rim(tris, body_cap[origin], arm_cap[origin])
+    # The faces of `rootNormals`, apart from the rim of the cut: the final bind can take some of
+    # them out (`rim_turns()`).
+    root = np.zeros(len(tris), bool)
     if 'rootNormals' in config:
-        rim |= root_rim(long_verts, tris, long_heads, config['rootNormals'], weights)
+        root = root_rim(long_verts, tris, long_heads, config['rootNormals'], weights)
     # The move of the head from the source: the pivot, the head factor, the rise, and the drop.
     head_move = (heads['neck'], factors['head'], rise,
                  drop + lower if factors['trunk'] != 1 else drop)
@@ -4479,6 +4508,16 @@ def main():
             f'most {silhouette_gap(xs, zs, gaps, rule["end"]) * meters * 100:.2f} cm above the '
             f'seat top')
 
+    if 'turn' in config.get('rootNormals', {}):
+        # A face of the root rim whose corner takes a skin normal far from its own face shades
+        # from a direction that its surface does not have, so it keeps the crease normals.
+        root_turns = rim_turns(bind, tris, skin_caps, root)
+        far = root_turns > config['rootNormals']['turn']
+        log(f"rootNormals: {int(far.sum())} faces of the rim take a skin normal more than "
+            f"{config['rootNormals']['turn']} degrees from their face in the bind, and keep the "
+            f"crease normals")
+        root &= ~far
+    rim |= root
     src_all, bind_all, tris_all, colors_all, materials, old_eyes, near_dark = add_eye_shells(
         long_verts, bind, tris, colors, dark, eyes, config['eyeShell'])
     materials[nose] = 'gloss'
