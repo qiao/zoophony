@@ -9,8 +9,8 @@ does for the polar bear:
 1. Import the mesh of the user and Merge by Distance.
 2. Replace the faces of each arm from the shoulder line to the wrist with a quad tube: Bisect at
    the shoulder line and at the wrist, Delete Faces, a tube of rings of `RING_VERTS`, Shrinkwrap
-   onto the source arm, and Bridge Edge Loops to the trunk and to the paw. The faces of the paws,
-   the trunk, the legs, and the head stay.
+   onto the source arm, Bridge Edge Loops to the trunk and to the paw, and Beautify Faces on the
+   bridge triangles. The faces of the paws, the trunk, the legs, and the head stay.
 3. Give the new arm faces a UV layout, bake the fur color of the source arm onto them (Cycles,
    Selected to Active), and transfer the custom normals of the source surface (Data Transfer).
 4. Give the arms the cross-section and the length of the app body (`step_shape()`), put the arm
@@ -471,6 +471,30 @@ def step_bridge(s):
     bmesh.update_edit_mesh(mesh.data)
     bpy.ops.object.mode_set(mode='OBJECT')
     return made
+
+
+def step_beautify(s):
+    """Runs Beautify Faces on the bridge triangles of each arm. Bridge Edge Loops joins a ring of
+    16 vertices to a cut loop with more vertices, and some of its triangles were slivers with a
+    corner of less than 2°, which folded at the left wrist of the rabbit in each play sample."""
+    mesh = s.mesh
+    bpy.context.view_layer.objects.active = mesh
+    bpy.ops.object.mode_set(mode='EDIT')
+    bm = bmesh.from_edit_mesh(mesh.data)
+    part = bm.verts.layers.int['arm_part']
+    tubes = (PART['tube'], PART['tube'] + 10)
+    bridge = [f for f in bm.faces if len(f.verts) == 3
+              and any(p[part] in tubes for p in f.verts) and any(p[part] not in tubes for p in f.verts)
+              and all(p[part] > 0 for p in f.verts)]
+    inner = [e for e in {e for f in bridge for e in f.edges}
+             if len(e.link_faces) == 2 and all(g in bridge for g in e.link_faces)]
+    res = bmesh.ops.beautify_fill(bm, faces=bridge, edges=inner)
+    for f in res['geom']:
+        if isinstance(f, bmesh.types.BMFace):
+            f.smooth = True
+    bmesh.update_edit_mesh(mesh.data)
+    bpy.ops.object.mode_set(mode='OBJECT')
+    return len(bridge)
 
 
 def arm_faces(bm, part):
@@ -985,8 +1009,9 @@ def step_weights(s):
 
 
 #: The steps of the session, in order.
-STEPS = (import_mesh, step_cut_and_tube, step_wrap, step_bridge, step_uv, step_bake, step_normals,
-         step_shape, step_atlas, step_export, step_skeleton, step_bind, step_paint, step_weights)
+STEPS = (import_mesh, step_cut_and_tube, step_wrap, step_bridge, step_beautify, step_uv, step_bake,
+         step_normals, step_shape, step_atlas, step_export, step_skeleton, step_bind, step_paint,
+         step_weights)
 
 
 def clear_scene():
