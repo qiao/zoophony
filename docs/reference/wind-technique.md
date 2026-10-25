@@ -55,6 +55,18 @@ derived value of the trombone. A fact with no mark comes from the text of the so
   and the fingers turn around the brace as the wrist makes small adjustments [1]. The thumb stays
   on the brace, with "NO throw and catch" [3]. The wrists stay "straight and in line with your
   arms" [2]. The right hand does not touch the bell [3].
+- **Right thumb and fingers on the brace.** "Place your thumb on the top of the hand slide brace
+  and your fingers on the bottom" [2], and "Let the slide weight rest on the fingers with the
+  thumb easily on top" [4]. One teacher pinches the brace "at the bottom corner", and keeps "your
+  other fingers below the slide" [64]. "Let ring and little go beneath bottom slide tube" [61].
+  Thus the thumb points up the brace, on its side near the player (derived).
+- **Right palm.** The sources disagree. "Palm faces floor. Wrist remains straight" [61]. "Palm
+  facing the chest", with the thumb and the first two fingers "towards the bottom of the brace"
+  [62]. Burtis gives a range: the common grip turns the wrist "sideways in relation to the face",
+  and a rarer grip turns "the bottom of the wrist" to the player, with "many degrees of rotation
+  between these two extremes" [63]. At the seventh position, the "palm faces slide tube", "as if
+  you were reaching out a long way to shake someone's hand" [61]. No source of this file puts the
+  palm toward the audience or the thumb under the brace.
 - **The bell.** The angle between the slide and the bell section is a little less than 90° [1]
   [6].
 - **The angle.** The trombone "must be pointed toward the audience", and "Do NOT point it down
@@ -294,6 +306,12 @@ from the first position (derived).
   can expand [33] [34]. The fingers curve in a C shape, and the pads of the fingers touch the keys
   [33]. Ray Still, former principal oboe of the Chicago Symphony, drops the wrists and keeps the
   arch of each finger the same when it opens and closes a key [37].
+- **The elbows.** "Arms should hang loosely and comfortably from your shoulders. Your elbows do not
+  need to stick out when you play the oboe nor do they need to be "held" close to the body" [65].
+  "Keep the shoulders relaxed and low", and "Neither tuck the elbows in nor stick them out
+  excessively" [66]. "The elbows and hands are free from the body" [33]. Thus the elbows hang
+  below the shoulders, a little out from the sides (derived). No source gives the angle of the
+  upper arm.
 - **The breath.** The oboe needs little air, so an oboist breathes out the stale air before the
   next breath in [36] [39]. Reed players (oboe, bassoon, clarinet, and alto saxophone) took
   breaths "typically about 300 ms long" [38].
@@ -339,7 +357,11 @@ from the first position (derived).
   "straight and upright", "not tilted to one side or the other", and the music stand stands so
   that the player reads "to the right side of the bassoon bell" [51]. Thus the boot rests at the
   right thigh, and the bell rises at the left of the line of sight, at the height of the eyes or
-  above (derived). No source of this file gives the rest.
+  above (derived). Three points carry the bassoon: "The seat strap The right thigh Base of the
+  left index finger", and "the boot joint should fit in the palm of your right hand" [67]. A wet
+  bassoon "is positioned vertically during play", and a horizontal place after the performance
+  "can be a problem" for the wood [68]. No source of this file gives the rest between two
+  entrances.
 - **Tuba.** The tuba rests on the thigh, between the legs on the chair, or on a stand, and the
   player sits on the front of the chair with a stand [1] [53]. The right hand works the valves
   [54]. The left hand grips the tubing at the side of the tuba: on a rotary tuba "with her
@@ -563,3 +585,21 @@ Each source opened on 2026-10-18, except where a fact has a mark of section "Sou
     https://engadinemusic.com.au/products/neotech-pad-it-tuba-harness
 60. C. Jones, "Clarinet Thumb Pain", Clarinet Now (opened 2026-10-24).
     https://clarinet-now.com/clarinet-thumb-pain.html
+61. "Slide Tips", Performance Clinic, Old Dominion University, faculty site of J. Hall (2015,
+    opened 2026-10-25). https://fs.wp.odu.edu/jhall/performance-clinic/slide-tips/
+62. M. Mumford, "Low Brass Basics", ASBOF (2019, opened 2026-10-25).
+    https://asbof.org.au/wp-content/uploads/2019/07/Low-Brass-Basics.pdf
+63. S. Burtis, "Out of the Case: Slide Technique", Online Trombone Journal (1997, opened
+    2026-10-25). https://www.trombone.org/articles/view.php?id=56
+64. D. Farrant, "How to Hold a Trombone", Hello Music Theory (2021, opened 2026-10-25).
+    https://hellomusictheory.com/learn/how-to-hold-trombone/
+65. C. Garvey, "Developing Good Physical Habits for Playing Oboe", Band Director (2013, opened
+    2026-10-25).
+    https://banddirector.com/woodwinds/double-reeds/developing-good-physical-habits-for-playing-oboe/
+66. A. Rollins, "Posture", Fundamentals of Beginner Oboe (opened 2026-10-25).
+    https://arollinsoboe.weebly.com/fundamentalsofbeginneroboeposture.html
+67. C. Lowe, "Supporting the Bassoon", *A Modern Guide to Teaching and Playing the Bassoon* (2024,
+    opened 2026-10-25).
+    https://lowecc.pressbooks.sunycreate.cloud/chapter/supporting-the-bassoon-teaching-and-playing-the-bassoon-a-modern-guide/
+68. Yamaha, Musical Instrument Guide, "Bassoon" trivia (opened 2026-10-25).
+    https://www.yamaha.com/en/musical_instrument_guide/bassoon/trivia/trivia002.html
