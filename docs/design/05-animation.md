@@ -562,8 +562,9 @@ The code constants of each family hold the times, the angles, and the lengths of
     the mouthpiece high above the shoulders, so the elbows point down, and the upper arms do not
     turn into flat bands. A paw on its grip lies along the line from its shoulder, so both palms
     face the valve block from below its middle, and the long fingers curl over the casings and
-    the valve tops. The bell points further down than a level trumpet, so that the valves and the
-    paws come below the mouth, and the face shows in the front view.
+    the valve tops. The bell points slightly down, as the sources of a real player say, and the
+    left grip lies a little low on the valve block, so that the paws stay below the mouth and the
+    face shows in the front view.
   - The rhino holds the tuba as a real tubist who stands with the tuba on a strap (`RHINO_TUBA` of
     `SPECIES_WIND_HOLDS`, `docs/reference/wind-technique.md` 3): the tuba stands against the body,
     the bell at the left of the head, the left paw on the main branch, and the right paw on the

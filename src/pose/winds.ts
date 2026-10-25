@@ -857,15 +857,19 @@ const WOLF_CLARINET = {
  * shoulders are those of {@link WIND_HOLDS}. The monkey keeps the arms and plays the smaller
  * trumpet that the user chose (`SpeciesParams.trumpetScale`).
  *
- * While the monkey plays, the bell turns 15° further down, to 20° below the level, so that the
- * valves and the paws come below the mouth. With the bell 5° below the level, both paws covered the
- * mouth in the front view (manager review of 2026-10-25). Each palm faces the valve block
+ * While the monkey plays, the bell turns 5° further down, to 10° below the level, about 80° to a
+ * vertical face, as a real player angles the trumpet "slightly down" and slightly less than 90° to
+ * the face (`docs/reference/wind-technique.md` 2.1). The left grip moves 0.03 H down from the
+ * valve block (`gripShiftL`), so that the top of the left paw stays 0.3 cm below the mouthpiece
+ * and the mouth shows in the front view. The top of the right paw is 0.9 cm above the mouthpiece,
+ * below the lips. With the bell 5° below the level, both paws covered the mouth in the front view
+ * (manager review of 2026-10-25), and 20° below the level was more than slightly down. With the
+ * right grip 0.03 H down too, the right finger tips left the valves. Each palm faces the valve block
  * (`faceTube`, `InstrumentGrips.tubeL` of `models/instruments/brass.ts`): the left paw wraps the
  * casings from the left, and the right fingers come over the valve tops from the right. The
  * fingers curl 86° (left) and 92° (right), so that the long fingers close on the valves in place
  * of standing open above the trumpet (`gripCurl`). Both paws grasp the trumpet in each play
- * sample, and the tops of the paws are about 1 cm below the mouthpiece, against 5 cm to 6 cm
- * above it before (`pnpm wind-grip trumpeter`, `2026-10-25-grips` decisions).
+ * sample (`pnpm wind-grip trumpeter`, `2026-10-25-grips` and `2026-10-25-open-grips` decisions).
  *
  * The big head puts the mouthpiece 0.23 m above the shoulder joints, so the grips are 0.17 m to
  * 0.18 m above the shoulders at the size 1.1 that the user chose
@@ -878,10 +882,11 @@ const WOLF_CLARINET = {
  */
 const MONKEY_TRUMPET = {
   ...WIND_HOLDS.trumpet,
-  play: holdTurn(-15, 0),
+  play: holdTurn(-5, 0),
   poleL: [-0.3, -1, 0],
   poleR: [0.3, -1, 0],
   faceTube: ['palm', 'palm'],
+  gripShiftL: [0, -0.03, 0],
   gripCurl: curls(86, 92),
 } as const satisfies WindHold;
 
