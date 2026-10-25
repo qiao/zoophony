@@ -27,6 +27,10 @@
     "helper": 0.052,
     "note": "Each upper arm and each forearm has 4 deform segments, and each elbow and wrist a helper bone. The elbow helper is 0.052 units, twice the gap of the rings of the elbow (gap of tools/blender/elephant_arms.py): with the gaps 0.016 and 0.022, the faces of the inner elbow folded (9 and 6 faces of the left arm in the arm gate, limit 8). The wrist rings keep the gap 0.016, and the Blender session gives the wrist helper twice that length. The app turns the bones from the joints of the pose (poseArm() of src/models/studio-rig.ts). They replace upperTwist and the raise shapes."
   },
+  "rootNormals": {
+    "elbow": 0.07,
+    "note": "The skin faces whose middle lies within elbow (units, 0.134 m) of the head of a forearm take the normals of the skin with no crease angle in the app (root_rim() of tools/blender/rig_mesh.py, studioNormals() of src/models/studio-normals.ts). The bind bends each elbow about 62 degrees, so the faces of the inner elbow meet at sharp angles, and the crease angle 35 of ANIMALS split their normals into short light and dark creases on each bent arm. The colors probe shows no dark face there. With 0.055 and 0.06, light slivers stayed at the inner elbows, and 0.08 smoothed more of the facets of the forearms (docs/research/2026-10-25-elephant-hippo-creases.md)."
+  },
   "output": "assets/models/elephant/elephant.rig.glb",
   "name": "Elephant",
   "weld": 1e-05,

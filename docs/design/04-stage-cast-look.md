@@ -506,7 +506,11 @@ mesh are quad tubes (rings at a right angle to the bones), and the weights come 
     each shoulder joint to the rim, so that the arm root shades as a soft armpit and the facets
     elsewhere stay. The beaver and the rhino have it. Their rebuilt quad arms kept the slots
     without it, folded the beaver arms, and put the rhino arms into the belly, so both keep the
-    faces of their meshes (`docs/decisions/2026-10-25-beaver-rhino-arms.md`). A
+    faces of their meshes (`docs/decisions/2026-10-25-beaver-rhino-arms.md`). A bind that bends
+    the elbow splits the normals of the inner elbow in the same way, into short light and dark
+    creases on the bent arm. `rootNormals.elbow` adds the skin faces within its radius of each
+    elbow joint to the rim. The elephant has it, because its bind bends the thick arms at the
+    elbow (`docs/decisions/2026-10-25-elephant-hippo-creases.md`). A
     raised arm also casts the hard shadow of its faces into the crease between the arm and the
     trunk, and on white fur the shadow shows as black wedges with steps of the
     shadow map along the seam. The rig cannot change these shadows, so the soft shadow edge of the high tier (4.5) decides them. The thick arm of the rhino joins the side of the
