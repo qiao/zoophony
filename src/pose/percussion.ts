@@ -20,7 +20,7 @@ import {
 import type { PercussionRig, PercussionSide } from './percussion-rig.ts';
 import { buildSideTrack } from './side-move.ts';
 import type { SideTrack } from './side-move.ts';
-import { alternateHands, buildStrikeTrack } from './strikes.ts';
+import { STRIKE_MOTION, alternateHands, buildStrikeTrack } from './strikes.ts';
 import type { Strike, StrikeGroup, StrikeState, StrikeTarget, StrikeTrack } from './strikes.ts';
 
 /** The strike data of the two hands. A hand with no strikes has `null`. */
@@ -109,12 +109,16 @@ export function percussionTracks(
       amplitude,
     );
   if (hold.hands === 'alternate' || hold.hands === 'sides') {
-    const [left, right] = alternateHands(
-      groups,
-      hold.hands === 'sides' ? 0 : undefined,
-      hold.gap,
-      waits ? [rig.restL.point[0], rig.restR.point[0]] : undefined,
-    );
+    const [left, right] = alternateHands(groups, {
+      alternateSec: hold.hands === 'sides' ? 0 : STRIKE_MOTION.alternateSec,
+      gap: hold.gap,
+      places: waits ? [rig.restL.point[0], rig.restR.point[0]] : [-Infinity, Infinity],
+      reach: hold.reach,
+      shoulders: [
+        [rig.left.arm.bind.shoulder[0], rig.left.arm.bind.shoulder[2]],
+        [rig.right.arm.bind.shoulder[0], rig.right.arm.bind.shoulder[2]],
+      ],
+    });
     return {
       left: track(left, hold.offsetL, rig.restL),
       right: track(right, hold.offsetR, rig.restR),

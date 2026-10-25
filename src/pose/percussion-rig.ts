@@ -136,6 +136,12 @@ interface PercussionHold {
    * up to the target of the other hand, as two mallets in turn on one timpani head.
    */
   readonly gap: number;
+  /**
+   * The farthest distance on the floor plane from the shoulder joint of a hand to its target, in
+   * meters (`alternateHands()`). A farther target goes to the other hand when that hand is
+   * nearer. `Infinity`: no limit.
+   */
+  readonly reach: number;
   /** The forward lean of the spine over the instrument while the player plays, in radians. */
   readonly lean: number;
   /**
@@ -186,6 +192,7 @@ export const PERCUSSION_HOLDS = {
     ready: true,
     pair: true,
     gap: 0,
+    reach: Infinity,
     lean: 0,
     side: null,
   },
@@ -208,6 +215,7 @@ export const PERCUSSION_HOLDS = {
     ready: true,
     pair: false,
     gap: 0,
+    reach: Infinity,
     lean: 0,
     side: null,
   },
@@ -231,6 +239,7 @@ export const PERCUSSION_HOLDS = {
     ready: false,
     pair: false,
     gap: 0,
+    reach: Infinity,
     lean: 0,
     side: null,
   },
@@ -251,6 +260,7 @@ export const PERCUSSION_HOLDS = {
     ready: false,
     pair: false,
     gap: 0,
+    reach: Infinity,
     lean: 0,
     side: null,
   },
@@ -273,6 +283,7 @@ export const PERCUSSION_HOLDS = {
     ready: true,
     pair: false,
     gap: 0,
+    reach: Infinity,
     lean: 0,
     side: null,
   },
@@ -303,6 +314,7 @@ export const PERCUSSION_HOLDS = {
     // A repeat on one bar stays in one hand, so that a mallet does not strike under the head of
     // the other mallet, which rests over the bar.
     gap: 0.01,
+    reach: Infinity,
     lean: 0.2,
     // The short legs tilt far with a small move of the hips, and the foot skin then sinks into
     // the floor, so the spine takes most of the move.
@@ -337,6 +349,7 @@ export const SUSPENDED_CYMBAL_HOLD: PercussionHold = {
   ready: false,
   pair: false,
   gap: 0,
+  reach: Infinity,
   lean: 0,
   side: null,
 };

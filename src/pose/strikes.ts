@@ -54,6 +54,42 @@ export interface StrikeGroup {
   readonly targets: readonly StrikeTarget[];
 }
 
+/** The rules by which {@link alternateHands} gives the strikes of a player to its two hands. */
+export interface HandRules {
+  /**
+   * The longest time from the strike before in which a single target takes the other hand, in
+   * seconds. With 0, each single target takes the hand on its side.
+   */
+  readonly alternateSec: number;
+  /**
+   * The least distance along x from the last target of the other hand, in meters. With 0, only
+   * a target past it stays with the other hand.
+   */
+  readonly gap: number;
+  /** The places of the left and of the right hand along x before their first strikes. */
+  readonly places: readonly [left: number, right: number];
+  /**
+   * The farthest distance on the floor plane from the shoulder joint of a hand to its target, in
+   * meters. A farther target goes to the other hand when that hand is nearer to it and does not
+   * cross the hand.
+   */
+  readonly reach: number;
+  /** The places (x, z) of the left and of the right shoulder joint on the floor plane. */
+  readonly shoulders: readonly [left: readonly [number, number], right: readonly [number, number]];
+}
+
+/** The rules of {@link alternateHands} with no hold: no limit of the reach. */
+const BASE_RULES: HandRules = {
+  alternateSec: STRIKE_MOTION.alternateSec,
+  gap: 0,
+  places: [-Infinity, Infinity],
+  reach: Infinity,
+  shoulders: [
+    [0, 0],
+    [0, 0],
+  ],
+};
+
 /**
  * Gives the strikes of a player to its two hands (design 5.3). A chord with two or more targets
  * takes both hands: the left hand strikes the target farthest to the left, and the right hand the
@@ -62,23 +98,21 @@ export interface StrikeGroup {
  * hand does not cross the other hand: a target to the right of the last target of the right hand
  * takes the right hand, and a target to the left of the last target of the left hand takes the
  * left hand. With a gap, a target nearer than the gap to the last target of the other hand also
- * stays with that hand, so that a mallet does not strike where the other mallet rests.
+ * stays with that hand, so that a mallet does not strike where the other mallet rests. With a
+ * reach, a target out of the reach of its hand goes to the other hand, when that hand is nearer
+ * and keeps the gap on its side of the last target of the first hand. Thus a run that leaves the
+ * reach of one hand goes on in the other hand, and no paw reaches across the body.
  *
  * @param groups The strikes of the player, sorted by start.
- * @param alternateSec The longest time from the strike before in which a single target takes the
- *   other hand, in seconds. With 0, each single target takes the hand on its side.
- * @param gap The least distance along x from the last target of the other hand, in meters. 0 by
- *   default: only a target past it stays with the other hand.
- * @param places The places of the left and of the right hand along x before their first strikes.
- *   No limit by default.
+ * @param rules The rules that differ from {@link BASE_RULES}.
  * @returns The strikes of the left hand and of the right hand, sorted by start.
  */
 export function alternateHands(
   groups: readonly StrikeGroup[],
-  alternateSec: number = STRIKE_MOTION.alternateSec,
-  gap = 0,
-  places: readonly [left: number, right: number] = [-Infinity, Infinity],
+  rules: Partial<HandRules> = {},
 ): readonly [left: Strike[], right: Strike[]] {
+  const { alternateSec, gap, places, reach, shoulders } = { ...BASE_RULES, ...rules };
+  const [leftShoulder, rightShoulder] = shoulders;
   const left: Strike[] = [];
   const right: Strike[] = [];
   let last: 'L' | 'R' | 'both' = 'both';
@@ -108,8 +142,19 @@ export function alternateHands(
       const alternate: boolean = last !== 'both' && group.start - lastStart < alternateSec;
       const onSide: 'L' | 'R' = x < 0 ? 'L' : 'R';
       const chosen: 'L' | 'R' = alternate ? (last === 'L' ? 'R' : 'L') : onSide;
-      const crosses: boolean = chosen === 'L' ? x > rightX - gap : x < leftX + gap;
-      const side: 'L' | 'R' = crosses ? (chosen === 'L' ? 'R' : 'L') : chosen;
+      // The distance of the target past the last target of the other hand: below 0 on the side
+      // of the hand.
+      const past = (hand: 'L' | 'R'): number => (hand === 'L' ? x - rightX : leftX - x);
+      const crosses: boolean = past(chosen) > -gap;
+      let side: 'L' | 'R' = crosses ? (chosen === 'L' ? 'R' : 'L') : chosen;
+      const z = first.point[2];
+      const toLeft = Math.hypot(x - leftShoulder[0], z - leftShoulder[1]);
+      const toRight = Math.hypot(x - rightShoulder[0], z - rightShoulder[1]);
+      if (side === 'L' && toLeft > reach && toRight < toLeft && past('R') <= -gap) {
+        side = 'R';
+      } else if (side === 'R' && toRight > reach && toLeft < toRight && past('L') <= -gap) {
+        side = 'L';
+      }
       (side === 'L' ? left : right).push(strike(first));
       if (side === 'L') {
         leftX = x;
