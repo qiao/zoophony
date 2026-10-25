@@ -383,17 +383,20 @@ export const FOX_FLUTE_BACK = 9;
  * below the mouth, under the long muzzle: at the mouth, the jaw touched the flute. The shoulders
  * stay square and low, with no forward turn of the right shoulder. The left elbow points down and
  * out, and the right elbow out to the side, in line with the shoulder. In the rest pose, the flute
- * stands on the right leg with the foot joint down, and the right paw holds it at the right-hand
- * keys, as a real flutist rests it (decisions `2026-10-15-flute-rest.md`). The foot joint stands
- * near the top of the right knee, and the flute leans about 25° out and forward, so that the head
- * joint stands outside the right arm and in front of it (2026-10-24-wind-holds decisions). The
- * left paw leaves its grip ({@link WindHold.restFreeL}), and the left arm hangs down along the
- * side. The right grip moves around the tube (`gripShiftR`, `restGripShiftR`), so that the flute
- * goes through the closed right paw in the play and at rest. On the grip of the instrument, the
- * right paw lay flat under the flute with its fingers forward past it, and at rest the flute lay
- * 3.8 cm from the middle of the paw (`pnpm wind-grip flutist`, `2026-10-24-wind-grips` decisions).
- * An upright flute on the right knee folded and twisted the right arm past the arm gate in each
- * elbow direction, and both paws on it also flattened the left upper arm.
+ * stands upright at the right side with the foot joint down, 10° from the vertical, and the closed
+ * right paw holds it near the foot joint, as a real flutist rests it vertically on the right leg
+ * with the right hand on the right-hand keys (George, `docs/reference/wind-technique.md` 2.4). The
+ * foot joint stands in the air beside the right knee. The left paw leaves its grip
+ * ({@link WindHold.restFreeL}), and the left arm hangs down along the side. The right grip moves
+ * around the tube (`gripShiftR`, `restGripShiftR`), so that the flute goes through the closed right
+ * paw in the play and at rest. On the grip of the instrument, the right paw lay flat under the
+ * flute with its fingers forward past it, and at rest the flute lay 3.8 cm from the middle of the
+ * paw (`pnpm wind-grip flutist`, `2026-10-24-wind-grips` decisions). Before, the flute leaned
+ * about 25° out beside the right leg (manager review of 2026-10-24: "the flute slants beside the
+ * right leg"). With the foot joint on the knee, the right arm folded, went flat, or went up to
+ * 5.6 cm into the body, and the right paw on the right-hand keys failed the arm gate. Both paws on
+ * a flute across the lap, which players also do (George), flattened both upper arms and flipped the
+ * left paw in the lowering.
  *
  * Before, the flute stood upright at the outer side of the right thigh, with the head joint behind
  * the right arm, and the paw seemed to hold only its lower end (user, 2026-10-24). The paw on the
@@ -432,8 +435,8 @@ const FOX_FLUTE = {
   play: fluteTurn(FOX_HEAD_TURN - FOX_FLUTE_BACK, 8),
   poleL: [-1, -1, -0.3],
   poleR: [1, -0.8, 0],
-  rest: fluteTurn(-161, 65, [0.7, 0, 0.7]),
-  restShift: [1.326, -0.926, 0.445],
+  rest: fluteTurn(0, 80, [0, 0, -1]),
+  restShift: [0.5, -0.508, 0.445],
   restPoleL: [-0.15, -1, 0.38],
   restPoleR: [0.5, -1, 0.5],
   restFreeL: {
@@ -445,7 +448,7 @@ const FOX_FLUTE = {
   palmToTube: true,
   aimAcross: 1,
   gripShiftR: [0.05, 0.05, 0],
-  restGripShiftR: [0.1, 0.1, -0.03],
+  restGripShiftR: [0.4, 0.05, 0],
 } as const satisfies WindHold;
 
 /**
