@@ -1,0 +1,26 @@
+| Link | Mean | Largest | Worst sample |
+|---|---:|---:|---|
+| L clavicle>u0 | 3.1 | 4.5 | lift mozart-k525.mid wall 0.2 s |
+| L u0>u1 | 6.2 | 9.1 | lift mozart-k525.mid wall 0.2 s |
+| L u1>u2 | 6.2 | 9.1 | lift mozart-k525.mid wall 0.2 s |
+| L u2>u3 | 6.2 | 9.1 | lift mozart-k525.mid wall 0.2 s |
+| L u3>elbow | 1.3 | 2.3 | lift mozart-k525.mid wall 0.1 s |
+| L elbow>f0 | 18.8 | 22.3 | lift mozart-k525.mid wall 0.6 s |
+| L f0>f1 | 37.7 | 44.5 | lift mozart-k525.mid wall 0.6 s |
+| L f1>f2 | 37.7 | 44.5 | lift mozart-k525.mid wall 0.6 s |
+| L f2>f3 | 37.7 | 44.5 | lift mozart-k525.mid wall 0.6 s |
+| L f3>wrist | 18.8 | 22.3 | lift mozart-k525.mid wall 0.6 s |
+| L wrist>hand | 0.0 | 0.0 | play beethoven-1.mid 6.65 s |
+| R clavicle>u0 | 4.6 | 7.0 | lift mozart-k525.mid wall 0.1 s |
+| R u0>u1 | 16.6 | 23.3 | play bach-bwv1047.mid 110.15 s |
+| R u1>u2 | 16.6 | 23.3 | play bach-bwv1047.mid 110.15 s |
+| R u2>u3 | 16.6 | 23.3 | play bach-bwv1047.mid 110.15 s |
+| R u3>elbow | 2.6 | 4.3 | play brahms-2.mid 413.63 s |
+| R elbow>f0 | 12.4 | 16.4 | play boulanger-matin.mid 106.88 s |
+| R f0>f1 | 24.8 | 32.9 | play boulanger-matin.mid 106.88 s |
+| R f1>f2 | 24.8 | 32.9 | play boulanger-matin.mid 106.88 s |
+| R f2>f3 | 24.8 | 32.9 | play boulanger-matin.mid 106.88 s |
+| R f3>wrist | 12.4 | 16.4 | play boulanger-matin.mid 106.88 s |
+| R wrist>hand | 0.0 | 0.0 | play mozart-k315.mid 109.15 s |
+L total twist: mean 173.7, largest 191.1
+R total twist: mean 156.4, largest 184.3

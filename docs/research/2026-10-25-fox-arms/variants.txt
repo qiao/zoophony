@@ -1,0 +1,158 @@
+Gate rows of the variants of the Blender session, in the order of the round. Each variant changes FOX of tools/blender/fox_arms.py in memory (a driver that sets the keys from JSON), then pnpm rig-mesh fox --check --set "source=<variant>/fox-arms.glb;paintedWeights=<variant>/fox-weights.json" --keep <dir> and pnpm arm-check <role> --glb <dir>/variant-<n>.glb. The rows give: folds p95, twist, forearm twist, flat, paw twist, paw swing, paw jumps, stretch, grip turn, move twist, move turn, verdict.
+
+## batch b1
+rig_mesh: bind: after 60 rounds of relaxing, 19 faces turn over, on the bones chest 2, upper_arm_seg0_L 5, upper_arm_seg0_R 12
+source=scratch/var/a-ruled0/fox-arms.glb;paintedWeights=scratch/var/a-ruled0/fox-weights.json:
+rig_mesh: bind: after 60 rounds of relaxing, 11 faces turn over, on the bones chest 2, upper_arm_seg0_L 5, upper_arm_seg0_R 4
+source=scratch/var/b-anchor0/fox-arms.glb;paintedWeights=scratch/var/b-anchor0/fox-weights.json:
+rig_mesh: bind: after 60 rounds of relaxing, 18 faces turn over, on the bones chest 2, upper_arm_seg0_L 5, upper_arm_seg0_R 11
+source=scratch/var/d-base/fox-arms.glb;paintedWeights=scratch/var/d-base/fox-weights.json:
+rig_mesh: bind: after 60 rounds of relaxing, 19 faces turn over, on the bones chest 2, upper_arm_seg0_L 5, upper_arm_seg0_R 12
+source=scratch/var/e-ramp4/fox-arms.glb;paintedWeights=scratch/var/e-ramp4/fox-weights.json:
+rig_mesh: bind: after 60 rounds of relaxing, 18 faces turn over, on the bones chest 2, upper_arm_seg0_L 5, upper_arm_seg0_R 11
+source=scratch/var/f-x105/fox-arms.glb;paintedWeights=scratch/var/f-x105/fox-weights.json:
+rig_mesh: bind: after 60 rounds of relaxing, 37 faces turn over, on the bones chest 2, neck 2, upper_arm_seg0_L 8, upper_arm_seg0_R 25
+
+## batch b2
+rig_mesh: bind: after 60 rounds of relaxing, 19 faces turn over, on the bones chest 2, upper_arm_seg0_L 5, upper_arm_seg0_R 12
+source=scratch/var/g-clean/fox-arms.glb;paintedWeights=scratch/var/g-clean/fox-weights.json:
+rig_mesh: bind: after 60 rounds of relaxing, 11 faces turn over, on the bones chest 2, upper_arm_seg0_L 5, upper_arm_seg0_R 4
+source=scratch/var/h-x097/fox-arms.glb;paintedWeights=scratch/var/h-x097/fox-weights.json:
+rig_mesh: bind: after 60 rounds of relaxing, 11 faces turn over, on the bones clavicle_R 2, spine1 1, upper_arm_seg0_L 5, upper_arm_seg0_R 3
+source=scratch/var/i-high/fox-arms.glb;paintedWeights=scratch/var/i-high/fox-weights.json:
+rig_mesh: bind: after 60 rounds of relaxing, 49 faces turn over, on the bones chest 2, upper_arm_seg0_L 18, upper_arm_seg0_R 19, upper_arm_seg2_L 5, upper_arm_s
+source=scratch/var/j-lean/fox-arms.glb;paintedWeights=scratch/var/j-lean/fox-weights.json:
+rig_mesh: bind: after 60 rounds of relaxing, 90 faces turn over, on the bones chest 2, spine1 39, upper_arm_seg0_L 23, upper_arm_seg0_R 26
+
+## batch b3
+rig_mesh: bind: after 60 rounds of relaxing, 11 faces turn over, on the bones chest 2, upper_arm_seg0_L 5, upper_arm_seg0_R 4
+source=scratch/var/k-s20/fox-arms.glb;paintedWeights=scratch/var/k-s20/fox-weights.json:
+rig_mesh: bind: after 60 rounds of relaxing, 18 faces turn over, on the bones chest 2, upper_arm_seg0_L 5, upper_arm_seg0_R 11
+source=scratch/var/l-s30/fox-arms.glb;paintedWeights=scratch/var/l-s30/fox-weights.json:
+rig_mesh: bind: after 60 rounds of relaxing, 17 faces turn over, on the bones chest 2, upper_arm_seg0_L 4, upper_arm_seg0_R 11
+source=scratch/var/m-s15/fox-arms.glb;paintedWeights=scratch/var/m-s15/fox-weights.json:
+rig_mesh: bind: after 60 rounds of relaxing, 19 faces turn over, on the bones chest 2, upper_arm_seg0_L 5, upper_arm_seg0_R 12
+k-s20 | fox-violinist | L | 5 | 28 | 79 | 0.75 | 169 | 54 | 0.0% | 0.08 | 11 | 180 FAIL | 17992 FAIL | FAIL |
+k-s20 | fox-violinist | R | 29 FAIL | 33 | 46 | 0.77 | 123 | 48 | 0.0% | 0.03 | 10 | 124 | 183 | FAIL |
+k-s20 | flutist | L | 4 | 28 | 51 | 0.79 | 120 | 39 | 0.0% | 0.07 | 0 | 129 | 301 | PASS |
+k-s20 | flutist | R | 21 FAIL | 18 | 30 | 0.79 | 74 | 28 | 0.0% | 0.06 | 13 | 74 | 127 | FAIL |
+l-s30 | fox-violinist | L | 8 | 29 | 79 | 0.76 | 169 | 54 | 0.0% | 0.08 | 11 | 180 FAIL | 17992 FAIL | FAIL |
+l-s30 | fox-violinist | R | 31 FAIL | 34 | 46 | 0.77 | 123 | 48 | 0.0% | 0.03 | 10 | 124 | 183 | FAIL |
+l-s30 | flutist | L | 5 | 29 | 51 | 0.80 | 120 | 39 | 0.0% | 0.07 | 0 | 129 | 301 | PASS |
+l-s30 | flutist | R | 20 FAIL | 18 | 30 | 0.77 | 74 | 28 | 0.0% | 0.06 | 13 | 74 | 127 | FAIL |
+m-s15 | fox-violinist | L | 7 | 28 | 79 | 0.75 | 169 | 54 | 0.0% | 0.08 | 11 | 180 FAIL | 17992 FAIL | FAIL |
+m-s15 | fox-violinist | R | 30 FAIL | 33 | 46 | 0.77 | 123 | 48 | 0.0% | 0.03 | 10 | 124 | 183 | FAIL |
+m-s15 | flutist | L | 5 | 28 | 51 | 0.79 | 120 | 39 | 0.0% | 0.07 | 0 | 129 | 301 | PASS |
+m-s15 | flutist | R | 23 FAIL | 18 | 30 | 0.79 | 74 | 28 | 0.0% | 0.06 | 13 | 74 | 127 | FAIL |
+
+## batch b4
+rig_mesh: bind: after 60 rounds of relaxing, 11 faces turn over, on the bones chest 2, upper_arm_seg0_L 5, upper_arm_seg0_R 4
+source=scratch/var/n-bridge/fox-arms.glb;paintedWeights=scratch/var/n-bridge/fox-weights.json:
+rig_mesh: bind: after 5 rounds of relaxing, 0 faces turn over
+source=scratch/var/o-rings/fox-arms.glb;paintedWeights=scratch/var/o-rings/fox-weights.json:
+rig_mesh: bind: after 60 rounds of relaxing, 18 faces turn over, on the bones chest 2, upper_arm_seg0_R 16
+source=scratch/var/p-ring1/fox-arms.glb;paintedWeights=scratch/var/p-ring1/fox-weights.json:
+rig_mesh: bind: after 60 rounds of relaxing, 34 faces turn over, on the bones chest 2, upper_arm_seg0_L 6, upper_arm_seg0_R 26
+n-bridge | fox-violinist | L | 7 | 31 | 79 | 0.72 | 169 | 54 | 0.0% | 0.08 | 11 | 180 FAIL | 17992 FAIL | FAIL |
+n-bridge | fox-violinist | R | 14 FAIL | 39 | 46 | 0.73 | 123 | 48 | 0.0% | 0.03 | 10 | 124 | 183 | FAIL |
+n-bridge | flutist | L | 6 | 31 | 51 | 0.76 | 120 | 39 | 0.0% | 0.07 | 0 | 129 | 301 | PASS |
+n-bridge | flutist | R | 4 | 21 | 30 | 0.78 | 74 | 28 | 0.0% | 0.06 | 13 | 74 | 127 | PASS |
+o-rings | fox-violinist | L | 6 | 30 | 79 | 0.73 | 169 | 54 | 0.0% | 0.08 | 11 | 180 FAIL | 17992 FAIL | FAIL |
+o-rings | fox-violinist | R | 25 FAIL | 41 | 46 | 0.66 | 123 | 48 | 0.0% | 0.03 | 10 | 124 | 183 | FAIL |
+o-rings | flutist | L | 5 | 30 | 51 | 0.77 | 120 | 39 | 0.0% | 0.07 | 0 | 129 | 301 | PASS |
+o-rings | flutist | R | 29 FAIL | 23 | 30 | 0.71 | 74 | 28 | 0.0% | 0.06 | 13 | 74 | 127 | FAIL |
+p-ring1 | fox-violinist | L | 9 FAIL | 24 | 79 | 0.78 | 169 | 54 | 0.0% | 0.08 | 11 | 180 FAIL | 17992 FAIL | FAIL |
+p-ring1 | fox-violinist | R | 34 FAIL | 37 | 46 | 0.72 | 123 | 48 | 0.0% | 0.03 | 10 | 124 | 183 | FAIL |
+p-ring1 | flutist | L | 9 FAIL | 27 | 51 | 0.82 | 120 | 39 | 0.0% | 0.07 | 0 | 129 | 301 | FAIL |
+p-ring1 | flutist | R | 29 FAIL | 18 | 30 | 0.76 | 74 | 28 | 0.0% | 0.06 | 13 | 74 | 127 | FAIL |
+
+## batch b5
+rig_mesh: bind: after 5 rounds of relaxing, 0 faces turn over
+source=scratch/var/q-anc4/fox-arms.glb;paintedWeights=scratch/var/q-anc4/fox-weights.json:
+rig_mesh: bind: after 5 rounds of relaxing, 0 faces turn over
+source=scratch/var/r-anc0/fox-arms.glb;paintedWeights=scratch/var/r-anc0/fox-weights.json:
+rig_mesh: bind: after 60 rounds of relaxing, 25 faces turn over, on the bones upper_arm_seg0_R 15, upper_arm_seg2_R 10
+source=scratch/var/s-anc4r8/fox-arms.glb;paintedWeights=scratch/var/s-anc4r8/fox-weights.json:
+rig_mesh: bind: after 5 rounds of relaxing, 0 faces turn over
+source=scratch/var/t-pit/fox-arms.glb;paintedWeights=scratch/var/t-pit/fox-weights.json:
+rig_mesh: bind: after 60 rounds of relaxing, 23 faces turn over, on the bones upper_arm_seg0_R 20, upper_arm_seg2_R 3
+q-anc4 | fox-violinist | L | 5 | 31 | 79 | 0.73 | 169 | 54 | 0.0% | 0.08 | 11 | 180 FAIL | 17992 FAIL | FAIL |
+q-anc4 | fox-violinist | R | 11 FAIL | 40 | 46 | 0.70 | 123 | 48 | 0.0% | 0.03 | 10 | 124 | 183 | FAIL |
+q-anc4 | flutist | L | 3 | 31 | 52 | 0.78 | 120 | 39 | 0.0% | 0.07 | 0 | 129 | 301 | PASS |
+q-anc4 | flutist | R | 3 | 22 | 30 | 0.78 | 74 | 28 | 0.0% | 0.06 | 13 | 74 | 127 | PASS |
+r-anc0 | fox-violinist | L | 9 FAIL | 28 | 79 | 0.70 | 169 | 54 | 0.0% | 0.08 | 11 | 180 FAIL | 17992 FAIL | FAIL |
+r-anc0 | fox-violinist | R | 30 FAIL | 31 | 46 | 0.72 | 123 | 48 | 0.0% | 0.03 | 10 | 124 | 183 | FAIL |
+r-anc0 | flutist | L | 9 FAIL | 27 | 51 | 0.74 | 120 | 39 | 0.0% | 0.08 | 0 | 129 | 301 | FAIL |
+r-anc0 | flutist | R | 29 FAIL | 18 | 30 | 0.75 | 74 | 28 | 0.0% | 0.06 | 13 | 74 | 127 | FAIL |
+s-anc4r8 | fox-violinist | L | 5 | 31 | 79 | 0.76 | 169 | 54 | 0.0% | 0.08 | 11 | 180 FAIL | 17992 FAIL | FAIL |
+s-anc4r8 | fox-violinist | R | 9 FAIL | 40 | 45 | 0.75 | 123 | 48 | 0.0% | 0.03 | 10 | 124 | 183 | FAIL |
+s-anc4r8 | flutist | L | 5 | 32 | 53 | 0.80 | 120 | 39 | 0.0% | 0.07 | 0 | 129 | 301 | PASS |
+s-anc4r8 | flutist | R | 4 | 21 | 30 | 0.79 | 74 | 28 | 0.0% | 0.06 | 13 | 74 | 127 | PASS |
+t-pit | fox-violinist | L | 4 | 29 | 79 | 0.74 | 169 | 54 | 0.0% | 0.08 | 11 | 180 FAIL | 17992 FAIL | FAIL |
+t-pit | fox-violinist | R | 31 FAIL | 29 | 46 | 0.77 | 123 | 48 | 0.0% | 0.03 | 10 | 124 | 183 | FAIL |
+t-pit | flutist | L | 4 | 29 | 51 | 0.78 | 120 | 39 | 0.0% | 0.07 | 0 | 129 | 301 | PASS |
+t-pit | flutist | R | 30 FAIL | 17 | 30 | 0.77 | 74 | 28 | 0.0% | 0.06 | 13 | 74 | 127 | FAIL |
+
+## batch b6
+rig_mesh: bind: after 5 rounds of relaxing, 0 faces turn over
+source=scratch/var/u-a5r8/fox-arms.glb;paintedWeights=scratch/var/u-a5r8/fox-weights.json:
+rig_mesh: bind: after 5 rounds of relaxing, 0 faces turn over
+source=scratch/var/v-a6r8/fox-arms.glb;paintedWeights=scratch/var/v-a6r8/fox-weights.json:
+rig_mesh: bind: after 5 rounds of relaxing, 0 faces turn over
+source=scratch/var/w-a4r11/fox-arms.glb;paintedWeights=scratch/var/w-a4r11/fox-weights.json:
+rig_mesh: bind: after 5 rounds of relaxing, 0 faces turn over
+source=scratch/var/x-a5r11/fox-arms.glb;paintedWeights=scratch/var/x-a5r11/fox-weights.json:
+rig_mesh: bind: after 5 rounds of relaxing, 0 faces turn over
+u-a5r8 | fox-violinist | L | 5 | 31 | 78 | 0.76 | 169 | 54 | 0.0% | 0.08 | 11 | 180 FAIL | 17992 FAIL | FAIL |
+u-a5r8 | fox-violinist | R | 11 FAIL | 39 | 44 | 0.77 | 123 | 48 | 0.0% | 0.10 | 10 | 124 | 183 | FAIL |
+u-a5r8 | flutist | L | 4 | 31 | 53 | 0.82 | 120 | 39 | 0.0% | 0.08 | 0 | 129 | 301 | PASS |
+u-a5r8 | flutist | R | 6 | 22 | 30 | 0.79 | 74 | 28 | 0.0% | 0.10 | 13 | 74 | 127 | PASS |
+v-a6r8 | fox-violinist | L | 3 | 34 | 77 | 0.73 | 169 | 54 | 0.0% | 0.08 | 11 | 180 FAIL | 17992 FAIL | FAIL |
+v-a6r8 | fox-violinist | R | 10 FAIL | 38 | 45 | 0.76 | 123 | 48 | 0.0% | 0.12 | 10 | 124 | 183 | FAIL |
+v-a6r8 | flutist | L | 3 | 30 | 53 | 0.82 | 120 | 39 | 0.0% | 0.19 | 0 | 129 | 301 | PASS |
+v-a6r8 | flutist | R | 4 | 25 | 33 | 0.79 | 74 | 28 | 0.0% | 0.11 | 13 | 74 | 127 | PASS |
+w-a4r11 | fox-violinist | L | 6 | 34 | 76 | 0.74 | 169 | 54 | 0.0% | 0.08 | 11 | 180 FAIL | 17992 FAIL | FAIL |
+w-a4r11 | fox-violinist | R | 11 FAIL | 41 | 43 | 0.77 | 123 | 48 | 0.0% | 0.23 | 10 | 124 | 183 | FAIL |
+w-a4r11 | flutist | L | 4 | 31 | 53 | 0.84 | 120 | 39 | 0.0% | 0.22 | 0 | 129 | 301 | PASS |
+w-a4r11 | flutist | R | 6 | 28 | 35 | 0.79 | 74 | 28 | 0.0% | 0.16 | 13 | 74 | 127 | PASS |
+x-a5r11 | fox-violinist | L | 4 | 33 | 75 | 0.66 | 169 | 54 | 0.0% | 0.08 | 11 | 180 FAIL | 17992 FAIL | FAIL |
+x-a5r11 | fox-violinist | R | 13 FAIL | 39 | 43 | 0.69 | 123 | 48 | 0.0% | 0.26 | 10 | 124 | 183 | FAIL |
+x-a5r11 | flutist | L | 3 | 30 | 54 | 0.79 | 120 | 39 | 0.0% | 0.22 | 0 | 129 | 301 | PASS |
+x-a5r11 | flutist | R | 2 | 27 | 36 | 0.78 | 74 | 28 | 0.0% | 0.17 | 13 | 74 | 127 | PASS |
+
+## batch b7
+rig_mesh: bind: after 5 rounds of relaxing, 0 faces turn over
+source=scratch/var/z-bridge2/fox-arms.glb;paintedWeights=scratch/var/z-bridge2/fox-weights.json:
+rig_mesh: bind: after 5 rounds of relaxing, 0 faces turn over
+z-bridge2 | fox-violinist | L | 3 | 27 | 79 | 0.71 | 168 | 51 | 0.0% | 0.08 | 11 | 180 FAIL | 17985 FAIL | FAIL |
+z-bridge2 | fox-violinist | R | 6 | 32 | 45 | 0.76 | 123 | 48 | 0.0% | 0.03 | 10 | 124 | 203 | PASS |
+z-bridge2 | flutist | L | 5 | 31 | 48 | 0.72 | 116 | 39 | 0.0% | 0.07 | 5 | 124 | 284 | PASS |
+z-bridge2 | flutist | R | 5 | 33 | 47 | 0.76 | 122 | 30 | 0.0% | 0.02 | 16 | 132 | 320 | PASS |
+
+## batch b8
+rig_mesh: bind: after 5 rounds of relaxing, 0 faces turn over
+source=scratch/var/r-none/fox-arms.glb;paintedWeights=scratch/var/r-none/fox-weights.json:
+rig_mesh: bind: after 60 rounds of relaxing, 2 faces turn over, on the bones chest 2
+source=scratch/var/r-half/fox-arms.glb;paintedWeights=scratch/var/r-half/fox-weights.json:
+rig_mesh: bind: after 60 rounds of relaxing, 5 faces turn over, on the bones chest 2, upper_arm_seg0_L 3
+source=scratch/var/r-up/fox-arms.glb;paintedWeights=scratch/var/r-up/fox-weights.json:
+rig_mesh: bind: after 60 rounds of relaxing, 12 faces turn over, on the bones upper_arm_seg0_R 10, upper_arm_seg2_R 2
+source=scratch/var/r-up2/fox-arms.glb;paintedWeights=scratch/var/r-up2/fox-weights.json:
+rig_mesh: bind: after 60 rounds of relaxing, 2 faces turn over, on the bones chest 2
+r-none | fox-violinist | L | 2 | 27 | 79 | 0.77 | 168 | 51 | 0.0% | 0.08 | 11 | 180 FAIL | 17985 FAIL | FAIL |
+r-none | fox-violinist | R | 2 | 41 | 44 | 0.88 | 123 | 48 | 0.0% | 0.03 | 10 | 124 | 198 | PASS |
+r-none | flutist | L | 2 | 33 | 48 | 0.81 | 115 | 39 | 0.0% | 0.08 | 5 | 124 | 284 | PASS |
+r-none | flutist | R | 3 | 42 | 46 | 0.88 | 122 | 30 | 0.0% | 0.02 | 16 | 132 | 320 | PASS |
+r-half | fox-violinist | L | 7 | 23 | 79 | 0.79 | 168 | 51 | 0.0% | 0.08 | 11 | 180 FAIL | 17985 FAIL | FAIL |
+r-half | fox-violinist | R | 7 | 51 | 45 | 0.78 | 123 | 48 | 0.0% | 0.03 | 10 | 124 | 196 | PASS |
+r-half | flutist | L | 6 | 27 | 49 | 0.82 | 115 | 39 | 0.0% | 0.08 | 5 | 124 | 284 | PASS |
+r-half | flutist | R | 8 | 52 | 47 | 0.78 | 122 | 30 | 0.0% | 0.02 | 16 | 132 | 320 | PASS |
+r-up | fox-violinist | L | 10 FAIL | 27 | 78 | 0.73 | 168 | 51 | 0.0% | 0.09 | 11 | 180 FAIL | 17985 FAIL | FAIL |
+r-up | fox-violinist | R | 22 FAIL | 26 | 45 | 0.88 | 123 | 48 | 0.0% | 0.03 | 10 | 124 | 205 | FAIL |
+r-up | flutist | L | 7 | 31 | 49 | 0.76 | 115 | 39 | 0.0% | 0.07 | 5 | 124 | 284 | PASS |
+r-up | flutist | R | 24 FAIL | 24 | 47 | 0.89 | 122 | 30 | 0.0% | 0.02 | 16 | 132 | 320 | FAIL |
+r-up2 | fox-violinist | L | 13 FAIL | 31 | 78 | 0.79 | 168 | 51 | 0.0% | 0.09 | 11 | 180 FAIL | 17985 FAIL | FAIL |
+r-up2 | fox-violinist | R | 13 FAIL | 55 | 46 | 0.83 | 123 | 48 | 0.0% | 0.03 | 10 | 124 | 196 | FAIL |
+r-up2 | flutist | L | 9 FAIL | 34 | 49 | 0.83 | 115 | 39 | 0.0% | 0.08 | 5 | 123 | 284 | FAIL |
+r-up2 | flutist | R | 15 FAIL | 55 | 49 | 0.84 | 122 | 30 | 0.0% | 0.02 | 16 | 132 | 320 | FAIL |
+

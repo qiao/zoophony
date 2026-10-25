@@ -1,0 +1,45 @@
+measure-lock: fox-arms holds the lock.
+
+> zoophony@0.0.0 frame /Users/xueqiaoxu/proj/zoophony/.claude/worktrees/agent-a7ca68243302d7201
+> node tools/split-soundfont.ts && node tools/patch-demos.ts && node tools/write-perf-60.ts && node tools/measure-frame.ts
+
+Wrote 274 preset files (53,834,004 B) and sf/index.json.
+Wrote 14 demo files to public/demos/.
+perf/perf-60.mid: 34193 B
+CPU use 43% over 5 s is above 40%: the main-thread phase waits.
+CPU use 51% over 5 s is above 40%: the main-thread phase waits.
+CPU use 45% over 5 s is above 40%: the main-thread phase waits.
+CPU use 51% over 5 s is above 40%: the main-thread phase waits.
+CPU use 41% over 5 s is above 40%: the main-thread phase waits.
+CPU use 50% over 5 s is above 40%: the main-thread phase waits.
+CPU use 43% over 5 s is above 40%: the main-thread phase waits.
+CPU use 47% over 5 s is above 40%: the main-thread phase waits.
+Frame measure of perf-60 (60 players), cinematic, 1440 × 900 at the device scale 2
+Chrome 155.0.8059.85, headless, ANGLE (Apple, ANGLE Metal Renderer: Apple M1 Max, Unspecified Version)
+Drawing buffer of the stage: 2880 × 1800 pixels.
+CPU use over 5 s before the main-thread phase: 35% of all cores. Limit 40%.
+Load average (1 min, for information): main-thread phase 6.4, GPU phase 7.1, end 15.3.
+The Chrome trace started at the song time 33.0 s and ended at 0.0 s, after a seek to 32 s.
+Frame rate: 60.0 fps with the cap, 130.2 fps with no cap.
+Disjoint timer results (dropped): 0.
+GPU performance states in the Metal trace: Minimum 3 ms, Maximum 3476 ms (99.9% "Maximum"). The "Maximum" rows cover 93.4% of the span of the GPU intervals.
+Other processes used the GPU in 0% of the Metal trace.
+The messages of xctrace at the start and at the end of the record came at the song times 18.8 s and 23.3 s, after a seek to 16 s. These times bracket the Metal trace.
+Self-check of the GPU row: 405 WebGL frames in 3.714 s of the Metal trace, against 405 from the 811 canvas writes of the trace, with 1 at its ends (0.0%). Merged frames: 0.
+The page drew 105.7 fps in the middle of the record: 392 frames (3.2%), for information.
+Dropped by the filter in each frame: canvas buffers 0.000 ms (0 buffers), other buffers 0.134 ms (254 buffers).
+Guard of the GPU phase (at least 90% "Maximum", "Maximum" rows over at least 60% of the span, at most 10% other GPU work), 1 record(s): valid.
+Console warnings and errors of the pages: none.
+
+| Measure | Frames | p50 (ms) | p95 (ms) | Max (ms) | Within 4 ms | Target |
+|---|---|---|---|---|---|---|
+| Main thread: tasks of each frame (Chrome trace, 60 fps) | 536 | 4.12 | 5.55 | 171.81 | 37.7% | fail |
+| GPU: WebGL frames in the Metal trace (no frame cap) | 405 | 7.88 | 8.08 | 8.28 | 0.0% | fail |
+| GPU: timer query (no frame cap) | 1303 | 13.89 | 17.96 | 18.47 | 0.0% | information |
+| GPU: timer query (60 fps, clock of the GPU) | 601 | 15.77 | 19.28 | 25.72 | 0.0% | information |
+| Frame callback (performance.now, 60 fps) | 601 | 3.80 | 4.70 | 12.70 | 71.9% | information |
+
+Run time: 206 s.
+The frame target of design 9.7 fails.
+ ELIFECYCLE  Command failed with exit code 1.
+measure-lock: fox-arms frees the lock (exit code 1).

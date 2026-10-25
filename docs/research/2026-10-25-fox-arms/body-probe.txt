@@ -1,0 +1,95 @@
+
+> zoophony@0.0.0 body-probe /Users/xueqiaoxu/proj/zoophony/.claude/worktrees/agent-a7ca68243302d7201
+> node tools/body-probe.ts --base main
+
+base main, new: the working tree
+bodies equal: 85 of 95
+players equal: 21 of 23
+pose sets equal: 1251 of 1492
+body fox-red chair: mesh differs (positions, colors, bones, blendBones, blendWeights, finishes, correctives, normals), joints differ
+body fox-red stool: mesh differs (positions, colors, bones, blendBones, blendWeights, finishes, correctives, normals), joints differ
+body fox-red high-stool: mesh differs (positions, colors, bones, blendBones, blendWeights, finishes, correctives, normals), joints differ
+body fox-red bench: mesh differs (positions, colors, bones, blendBones, blendWeights, finishes, correctives, normals), joints differ
+body fox-red stand: mesh differs (positions, colors, bones, blendBones, blendWeights, finishes, correctives, normals), joints differ
+body fox-tan chair: mesh differs (positions, colors, bones, blendBones, blendWeights, finishes, correctives, normals), joints differ
+body fox-tan stool: mesh differs (positions, colors, bones, blendBones, blendWeights, finishes, correctives, normals), joints differ
+body fox-tan high-stool: mesh differs (positions, colors, bones, blendBones, blendWeights, finishes, correctives, normals), joints differ
+body fox-tan bench: mesh differs (positions, colors, bones, blendBones, blendWeights, finishes, correctives, normals), joints differ
+body fox-tan stand: mesh differs (positions, colors, bones, blendBones, blendWeights, finishes, correctives, normals), joints differ
+player violin/fox-red/violin: mesh differs (positions, colors, bones, blendBones, blendWeights, finishes, correctives, normals), moved bones: eyeR
+player flute/fox-tan/flute: mesh differs (positions, colors, bones, blendBones, blendWeights, finishes, correctives, normals), moved bones: eyeR
+pose bach-bwv1047 4 violin/fox-red/violin: rest from sample 1 of 4 (song -2.10 s, wall 10.00 s), lift from sample 1 of 40 (song -2.10 s, wall 10.00 s), lower from sample 10 of 58 (song 138.75 s, wall 13.30 s)
+pose bach-bwv1047 5 violin/fox-red/violin: rest from sample 1 of 4 (song -2.10 s, wall 10.00 s), lift from sample 1 of 40 (song -2.10 s, wall 10.00 s), lower from sample 12 of 58 (song 138.75 s, wall 13.50 s)
+pose bach-bwv1047 6 violin/fox-red/violin: rest from sample 1 of 4 (song -2.10 s, wall 10.00 s), lift from sample 1 of 40 (song -2.10 s, wall 10.00 s), lower from sample 13 of 58 (song 138.75 s, wall 13.60 s)
+pose bach-bwv1047 7 violin/fox-red/violin: rest from sample 1 of 4 (song -2.10 s, wall 10.00 s), lift from sample 1 of 40 (song -2.10 s, wall 10.00 s), lower from sample 14 of 58 (song 138.75 s, wall 13.70 s)
+pose bach-bwv1047 19 flute/fox-tan/flute: rest from sample 1 of 4 (song -2.10 s, wall 10.00 s), lift from sample 1 of 40 (song -2.10 s, wall 10.00 s), play from sample 1 of 560 (song -2.10 s, wall 10.00 s), lower from sample 1 of 58 (song 138.75 s, wall 10.00 s)
+pose bach-bwv1048 4 violin/fox-red/violin: rest from sample 1 of 4 (song -1.50 s, wall 10.00 s), lift from sample 1 of 40 (song -1.50 s, wall 10.00 s), lower from sample 10 of 58 (song 163.65 s, wall 13.30 s)
+pose bach-bwv1048 5 violin/fox-red/violin: rest from sample 1 of 4 (song -1.50 s, wall 10.00 s), lift from sample 1 of 40 (song -1.50 s, wall 10.00 s), lower from sample 12 of 58 (song 163.65 s, wall 13.50 s)
+pose bach-bwv1048 6 violin/fox-red/violin: rest from sample 1 of 4 (song -1.50 s, wall 10.00 s), lift from sample 1 of 40 (song -1.50 s, wall 10.00 s), lower from sample 13 of 58 (song 163.65 s, wall 13.60 s)
+pose bach-bwv1048 7 violin/fox-red/violin: rest from sample 1 of 4 (song -1.50 s, wall 10.00 s), lift from sample 1 of 40 (song -1.50 s, wall 10.00 s), lower from sample 14 of 58 (song 163.65 s, wall 13.70 s)
+pose bach-bwv1050 4 violin/fox-red/violin: rest from sample 1 of 4 (song -1.70 s, wall 10.00 s), lift from sample 1 of 40 (song -1.70 s, wall 10.00 s), lower from sample 10 of 58 (song 155.00 s, wall 13.30 s)
+pose bach-bwv1050 5 violin/fox-red/violin: rest from sample 1 of 4 (song -1.70 s, wall 10.00 s), lift from sample 1 of 40 (song -1.70 s, wall 10.00 s), lower from sample 12 of 58 (song 155.00 s, wall 13.50 s)
+pose bach-bwv1050 6 violin/fox-red/violin: rest from sample 1 of 4 (song -1.70 s, wall 10.00 s), lift from sample 1 of 40 (song -1.70 s, wall 10.00 s), lower from sample 13 of 58 (song 155.00 s, wall 13.60 s)
+pose bach-bwv1050 7 violin/fox-red/violin: rest from sample 1 of 4 (song -1.70 s, wall 10.00 s), lift from sample 1 of 40 (song -1.70 s, wall 10.00 s), lower from sample 14 of 58 (song 155.00 s, wall 13.70 s)
+pose bach-bwv1050 17 flute/fox-tan/flute: rest from sample 1 of 4 (song -1.70 s, wall 10.00 s), lift from sample 1 of 40 (song -1.70 s, wall 10.00 s), play from sample 1 of 624 (song -1.70 s, wall 10.00 s), lower from sample 1 of 58 (song 155.00 s, wall 10.00 s)
+pose beethoven-1 4 violin/fox-red/violin: rest from sample 1 of 4 (song -2.10 s, wall 10.00 s), lift from sample 1 of 40 (song -2.10 s, wall 10.00 s), lower from sample 10 of 58 (song 147.16 s, wall 13.30 s)
+pose beethoven-1 5 violin/fox-red/violin: rest from sample 1 of 4 (song -2.10 s, wall 10.00 s), lift from sample 1 of 40 (song -2.10 s, wall 10.00 s), lower from sample 12 of 58 (song 147.16 s, wall 13.50 s)
+pose beethoven-1 6 violin/fox-red/violin: rest from sample 1 of 4 (song -2.10 s, wall 10.00 s), lift from sample 1 of 40 (song -2.10 s, wall 10.00 s), lower from sample 13 of 58 (song 147.16 s, wall 13.60 s)
+pose beethoven-1 7 violin/fox-red/violin: rest from sample 1 of 4 (song -2.10 s, wall 10.00 s), lift from sample 1 of 40 (song -2.10 s, wall 10.00 s), lower from sample 14 of 58 (song 147.16 s, wall 13.70 s)
+pose beethoven-1 16 flute/fox-tan/flute: rest from sample 1 of 4 (song -2.10 s, wall 10.00 s), lift from sample 1 of 40 (song -2.10 s, wall 10.00 s), play from sample 1 of 593 (song -2.10 s, wall 10.00 s), lower from sample 1 of 58 (song 147.16 s, wall 10.00 s)
+pose beethoven-1 17 flute/fox-tan/flute: rest from sample 1 of 4 (song -2.10 s, wall 10.00 s), lift from sample 1 of 40 (song -2.10 s, wall 10.00 s), play from sample 1 of 593 (song -2.10 s, wall 10.00 s), lower from sample 1 of 58 (song 147.16 s, wall 10.00 s)
+pose beethoven-8-4 4 violin/fox-red/violin: rest from sample 1 of 4 (song -1.91 s, wall 10.00 s), lift from sample 1 of 40 (song -1.91 s, wall 10.00 s), lower from sample 10 of 58 (song 359.46 s, wall 13.30 s)
+pose beethoven-8-4 5 violin/fox-red/violin: rest from sample 1 of 4 (song -1.91 s, wall 10.00 s), lift from sample 1 of 40 (song -1.91 s, wall 10.00 s), lower from sample 12 of 58 (song 359.46 s, wall 13.50 s)
+pose beethoven-8-4 6 violin/fox-red/violin: rest from sample 1 of 4 (song -1.91 s, wall 10.00 s), lift from sample 1 of 40 (song -1.91 s, wall 10.00 s), lower from sample 13 of 58 (song 359.46 s, wall 13.60 s)
+pose beethoven-8-4 7 violin/fox-red/violin: rest from sample 1 of 4 (song -1.91 s, wall 10.00 s), lift from sample 1 of 40 (song -1.91 s, wall 10.00 s), lower from sample 14 of 58 (song 359.46 s, wall 13.70 s)
+pose beethoven-8-4 16 flute/fox-tan/flute: rest from sample 1 of 4 (song -1.91 s, wall 10.00 s), lift from sample 1 of 40 (song -1.91 s, wall 10.00 s), play from sample 1 of 1442 (song -1.91 s, wall 10.00 s), lower from sample 1 of 58 (song 359.46 s, wall 10.00 s)
+pose beethoven-8-4 17 flute/fox-tan/flute: rest from sample 1 of 4 (song -1.91 s, wall 10.00 s), lift from sample 1 of 40 (song -1.91 s, wall 10.00 s), play from sample 1 of 1442 (song -1.91 s, wall 10.00 s), lower from sample 1 of 58 (song 359.46 s, wall 10.00 s)
+pose beethoven-8 4 violin/fox-red/violin: rest from sample 1 of 4 (song -2.10 s, wall 10.00 s), lift from sample 1 of 40 (song -2.10 s, wall 10.00 s), lower from sample 10 of 58 (song 110.11 s, wall 13.30 s)
+pose beethoven-8 5 violin/fox-red/violin: rest from sample 1 of 4 (song -2.10 s, wall 10.00 s), lift from sample 1 of 40 (song -2.10 s, wall 10.00 s), lower from sample 12 of 58 (song 110.11 s, wall 13.50 s)
+pose beethoven-8 6 violin/fox-red/violin: rest from sample 1 of 4 (song -2.10 s, wall 10.00 s), lift from sample 1 of 40 (song -2.10 s, wall 10.00 s), lower from sample 13 of 58 (song 110.11 s, wall 13.60 s)
+pose beethoven-8 7 violin/fox-red/violin: rest from sample 1 of 4 (song -2.10 s, wall 10.00 s), lift from sample 1 of 40 (song -2.10 s, wall 10.00 s), lower from sample 14 of 58 (song 110.11 s, wall 13.70 s)
+pose beethoven-8 16 flute/fox-tan/flute: rest from sample 1 of 4 (song -2.10 s, wall 10.00 s), lift from sample 1 of 40 (song -2.10 s, wall 10.00 s), play from sample 1 of 445 (song -2.10 s, wall 10.00 s), lower from sample 1 of 58 (song 110.11 s, wall 10.00 s)
+pose beethoven-8 17 flute/fox-tan/flute: rest from sample 1 of 4 (song -2.10 s, wall 10.00 s), lift from sample 1 of 40 (song -2.10 s, wall 10.00 s), play from sample 1 of 445 (song -2.10 s, wall 10.00 s), lower from sample 1 of 58 (song 110.11 s, wall 10.00 s)
+pose beethoven-9 4 violin/fox-red/violin: rest from sample 1 of 4 (song -1.91 s, wall 10.00 s), lift from sample 1 of 40 (song -1.91 s, wall 10.00 s), lower from sample 10 of 58 (song 79.15 s, wall 13.30 s)
+pose beethoven-9 5 violin/fox-red/violin: rest from sample 1 of 4 (song -1.91 s, wall 10.00 s), lift from sample 1 of 40 (song -1.91 s, wall 10.00 s), lower from sample 12 of 58 (song 79.15 s, wall 13.50 s)
+pose beethoven-9 6 violin/fox-red/violin: rest from sample 1 of 4 (song -1.91 s, wall 10.00 s), lift from sample 1 of 40 (song -1.91 s, wall 10.00 s), lower from sample 13 of 58 (song 79.15 s, wall 13.60 s)
+pose beethoven-9 7 violin/fox-red/violin: rest from sample 1 of 4 (song -1.91 s, wall 10.00 s), lift from sample 1 of 40 (song -1.91 s, wall 10.00 s), lower from sample 14 of 58 (song 79.15 s, wall 13.70 s)
+pose beethoven-9 16 flute/fox-tan/flute: rest from sample 1 of 4 (song -1.91 s, wall 10.00 s), lift from sample 1 of 40 (song -1.91 s, wall 10.00 s), play from sample 1 of 321 (song -1.91 s, wall 10.00 s), lower from sample 1 of 58 (song 79.15 s, wall 10.00 s)
+pose beethoven-9 17 flute/fox-tan/flute: rest from sample 1 of 4 (song -1.91 s, wall 10.00 s), lift from sample 1 of 40 (song -1.91 s, wall 10.00 s), play from sample 1 of 321 (song -1.91 s, wall 10.00 s), lower from sample 1 of 58 (song 79.15 s, wall 10.00 s)
+pose beethoven-9 18 flute/fox-tan/flute: rest from sample 1 of 4 (song -1.91 s, wall 10.00 s), lift from sample 1 of 40 (song -1.91 s, wall 10.00 s), play from sample 1 of 321 (song -1.91 s, wall 10.00 s), lower from sample 1 of 58 (song 79.15 s, wall 10.00 s)
+pose boulanger-matin 4 violin/fox-red/violin: rest from sample 1 of 4 (song -1.62 s, wall 10.00 s), lift from sample 1 of 40 (song -1.62 s, wall 10.00 s), lower from sample 10 of 58 (song 140.33 s, wall 13.30 s)
+pose boulanger-matin 5 violin/fox-red/violin: rest from sample 1 of 4 (song -1.62 s, wall 10.00 s), lift from sample 1 of 40 (song -1.62 s, wall 10.00 s), lower from sample 12 of 58 (song 140.33 s, wall 13.50 s)
+pose boulanger-matin 6 violin/fox-red/violin: rest from sample 1 of 4 (song -1.62 s, wall 10.00 s), lift from sample 1 of 40 (song -1.62 s, wall 10.00 s), lower from sample 13 of 58 (song 140.33 s, wall 13.60 s)
+pose boulanger-matin 7 violin/fox-red/violin: rest from sample 1 of 4 (song -1.62 s, wall 10.00 s), lift from sample 1 of 40 (song -1.62 s, wall 10.00 s), lower from sample 14 of 58 (song 140.33 s, wall 13.70 s)
+pose boulanger-matin 18 flute/fox-tan/flute: rest from sample 1 of 4 (song -1.62 s, wall 10.00 s), lift from sample 1 of 40 (song -1.62 s, wall 10.00 s), play from sample 1 of 565 (song -1.62 s, wall 10.00 s), lower from sample 1 of 58 (song 140.33 s, wall 10.00 s)
+pose boulanger-matin 19 flute/fox-tan/flute: rest from sample 1 of 4 (song -1.62 s, wall 10.00 s), lift from sample 1 of 40 (song -1.62 s, wall 10.00 s), play from sample 1 of 565 (song -1.62 s, wall 10.00 s), lower from sample 1 of 58 (song 140.33 s, wall 10.00 s)
+pose boulanger-matin 20 flute/fox-tan/flute: rest from sample 1 of 4 (song -1.62 s, wall 10.00 s), lift from sample 1 of 40 (song -1.62 s, wall 10.00 s), play from sample 1 of 565 (song -1.62 s, wall 10.00 s), lower from sample 1 of 58 (song 140.33 s, wall 10.00 s)
+pose brahms-2 4 violin/fox-red/violin: rest from sample 1 of 4 (song -1.62 s, wall 10.00 s), lift from sample 1 of 40 (song -1.62 s, wall 10.00 s), lower from sample 10 of 58 (song 376.23 s, wall 13.30 s)
+pose brahms-2 5 violin/fox-red/violin: rest from sample 1 of 4 (song -1.62 s, wall 10.00 s), lift from sample 1 of 40 (song -1.62 s, wall 10.00 s), lower from sample 12 of 58 (song 376.23 s, wall 13.50 s)
+pose brahms-2 6 violin/fox-red/violin: rest from sample 1 of 4 (song -1.62 s, wall 10.00 s), lift from sample 1 of 40 (song -1.62 s, wall 10.00 s), lower from sample 13 of 58 (song 376.23 s, wall 13.60 s)
+pose brahms-2 7 violin/fox-red/violin: rest from sample 1 of 4 (song -1.62 s, wall 10.00 s), lift from sample 1 of 40 (song -1.62 s, wall 10.00 s), lower from sample 14 of 58 (song 376.23 s, wall 13.70 s)
+pose brahms-2 16 flute/fox-tan/flute: rest from sample 1 of 4 (song -1.62 s, wall 10.00 s), lift from sample 1 of 40 (song -1.62 s, wall 10.00 s), play from sample 1 of 1509 (song -1.62 s, wall 10.00 s), lower from sample 1 of 58 (song 376.23 s, wall 10.00 s)
+pose brahms-2 17 flute/fox-tan/flute: rest from sample 1 of 4 (song -1.62 s, wall 10.00 s), lift from sample 1 of 40 (song -1.62 s, wall 10.00 s), play from sample 1 of 1509 (song -1.62 s, wall 10.00 s), lower from sample 1 of 58 (song 376.23 s, wall 10.00 s)
+pose mendelssohn-op61 4 violin/fox-red/violin: rest from sample 1 of 4 (song -1.73 s, wall 10.00 s), lift from sample 1 of 40 (song -1.73 s, wall 10.00 s), lower from sample 10 of 58 (song 74.21 s, wall 13.30 s)
+pose mendelssohn-op61 5 violin/fox-red/violin: rest from sample 1 of 4 (song -1.73 s, wall 10.00 s), lift from sample 1 of 40 (song -1.73 s, wall 10.00 s), lower from sample 12 of 58 (song 74.21 s, wall 13.50 s)
+pose mendelssohn-op61 6 violin/fox-red/violin: rest from sample 1 of 4 (song -1.73 s, wall 10.00 s), lift from sample 1 of 40 (song -1.73 s, wall 10.00 s), lower from sample 13 of 58 (song 74.21 s, wall 13.60 s)
+pose mendelssohn-op61 7 violin/fox-red/violin: rest from sample 1 of 4 (song -1.73 s, wall 10.00 s), lift from sample 1 of 40 (song -1.73 s, wall 10.00 s), lower from sample 14 of 58 (song 74.21 s, wall 13.70 s)
+pose mendelssohn-op61 16 flute/fox-tan/flute: rest from sample 1 of 4 (song -1.73 s, wall 10.00 s), lift from sample 1 of 40 (song -1.73 s, wall 10.00 s), play from sample 1 of 301 (song -1.73 s, wall 10.00 s), lower from sample 1 of 58 (song 74.21 s, wall 10.00 s)
+pose mendelssohn-op61 17 flute/fox-tan/flute: rest from sample 1 of 4 (song -1.73 s, wall 10.00 s), lift from sample 1 of 40 (song -1.73 s, wall 10.00 s), play from sample 1 of 301 (song -1.73 s, wall 10.00 s), lower from sample 1 of 58 (song 74.21 s, wall 10.00 s)
+pose mozart-k191 4 violin/fox-red/violin: rest from sample 1 of 4 (song -1.70 s, wall 10.00 s), lift from sample 1 of 40 (song -1.70 s, wall 10.00 s), lower from sample 10 of 58 (song 112.25 s, wall 13.30 s)
+pose mozart-k191 5 violin/fox-red/violin: rest from sample 1 of 4 (song -1.70 s, wall 10.00 s), lift from sample 1 of 40 (song -1.70 s, wall 10.00 s), lower from sample 12 of 58 (song 112.25 s, wall 13.50 s)
+pose mozart-k191 6 violin/fox-red/violin: rest from sample 1 of 4 (song -1.70 s, wall 10.00 s), lift from sample 1 of 40 (song -1.70 s, wall 10.00 s), lower from sample 13 of 58 (song 112.25 s, wall 13.60 s)
+pose mozart-k191 7 violin/fox-red/violin: rest from sample 1 of 4 (song -1.70 s, wall 10.00 s), lift from sample 1 of 40 (song -1.70 s, wall 10.00 s), lower from sample 14 of 58 (song 112.25 s, wall 13.70 s)
+pose mozart-k315 4 violin/fox-red/violin: rest from sample 1 of 4 (song -2.10 s, wall 10.00 s), lift from sample 1 of 40 (song -2.10 s, wall 10.00 s), lower from sample 10 of 58 (song 127.50 s, wall 13.30 s)
+pose mozart-k315 5 violin/fox-red/violin: rest from sample 1 of 4 (song -2.10 s, wall 10.00 s), lift from sample 1 of 40 (song -2.10 s, wall 10.00 s), lower from sample 12 of 58 (song 127.50 s, wall 13.50 s)
+pose mozart-k315 6 violin/fox-red/violin: rest from sample 1 of 4 (song -2.10 s, wall 10.00 s), lift from sample 1 of 40 (song -2.10 s, wall 10.00 s), lower from sample 13 of 58 (song 127.50 s, wall 13.60 s)
+pose mozart-k315 7 violin/fox-red/violin: rest from sample 1 of 4 (song -2.10 s, wall 10.00 s), lift from sample 1 of 40 (song -2.10 s, wall 10.00 s), lower from sample 14 of 58 (song 127.50 s, wall 13.70 s)
+pose mozart-k315 14 flute/fox-tan/flute: rest from sample 1 of 4 (song -2.10 s, wall 10.00 s), lift from sample 1 of 40 (song -2.10 s, wall 10.00 s), play from sample 1 of 515 (song -2.10 s, wall 10.00 s), lower from sample 1 of 58 (song 127.50 s, wall 10.00 s)
+pose mozart-k417 4 violin/fox-red/violin: rest from sample 1 of 4 (song -1.80 s, wall 10.00 s), lift from sample 1 of 40 (song -1.80 s, wall 10.00 s), lower from sample 10 of 58 (song 101.60 s, wall 13.30 s)
+pose mozart-k417 5 violin/fox-red/violin: rest from sample 1 of 4 (song -1.80 s, wall 10.00 s), lift from sample 1 of 40 (song -1.80 s, wall 10.00 s), lower from sample 12 of 58 (song 101.60 s, wall 13.50 s)
+pose mozart-k417 6 violin/fox-red/violin: rest from sample 1 of 4 (song -1.80 s, wall 10.00 s), lift from sample 1 of 40 (song -1.80 s, wall 10.00 s), lower from sample 13 of 58 (song 101.60 s, wall 13.60 s)
+pose mozart-k417 7 violin/fox-red/violin: rest from sample 1 of 4 (song -1.80 s, wall 10.00 s), lift from sample 1 of 40 (song -1.80 s, wall 10.00 s), lower from sample 14 of 58 (song 101.60 s, wall 13.70 s)
+pose mozart-k525 3 violin/fox-red/violin: rest from sample 1 of 4 (song -1.65 s, wall 10.00 s), lift from sample 1 of 40 (song -1.65 s, wall 10.00 s), lower from sample 10 of 58 (song 124.32 s, wall 13.30 s)
+pose mozart-k525 4 violin/fox-red/violin: rest from sample 1 of 4 (song -1.65 s, wall 10.00 s), lift from sample 1 of 40 (song -1.65 s, wall 10.00 s), lower from sample 12 of 58 (song 124.32 s, wall 13.50 s)
+pose mozart-k525 5 violin/fox-red/violin: rest from sample 1 of 4 (song -1.65 s, wall 10.00 s), lift from sample 1 of 40 (song -1.65 s, wall 10.00 s), lower from sample 13 of 58 (song 124.32 s, wall 13.60 s)
+ ELIFECYCLE  Command failed with exit code 1.

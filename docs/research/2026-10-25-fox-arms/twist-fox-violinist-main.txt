@@ -1,0 +1,12 @@
+| Link | Mean | Largest | Worst sample |
+|---|---:|---:|---|
+| L clavicle>upper | 24.8 | 36.3 | lift mozart-k525.mid wall 0.2 s |
+| L upper>fore | 0.0 | 0.0 | play mozart-k315.mid 129.65 s |
+| L fore>ftwist | 75.4 | 89.0 | lift mozart-k525.mid wall 0.6 s |
+| L ftwist>hand | 75.4 | 89.0 | lift mozart-k525.mid wall 0.6 s |
+| R clavicle>upper | 62.7 | 88.3 | play bach-bwv1047.mid 110.15 s |
+| R upper>fore | 0.0 | 0.0 | play mozart-k191.mid 83.05 s |
+| R fore>ftwist | 49.7 | 65.8 | play boulanger-matin.mid 106.88 s |
+| R ftwist>hand | 49.7 | 65.8 | play boulanger-matin.mid 106.88 s |
+L total twist: mean 175.5, largest 192.4
+R total twist: mean 162.0, largest 189.7

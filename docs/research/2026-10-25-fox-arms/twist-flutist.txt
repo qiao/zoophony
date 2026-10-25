@@ -1,0 +1,26 @@
+| Link | Mean | Largest | Worst sample |
+|---|---:|---:|---|
+| L clavicle>u0 | 4.7 | 6.6 | rest mozart-k315.mid rest |
+| L u0>u1 | 9.3 | 13.2 | rest mozart-k315.mid rest |
+| L u1>u2 | 9.3 | 13.2 | rest mozart-k315.mid rest |
+| L u2>u3 | 9.3 | 13.2 | rest mozart-k315.mid rest |
+| L u3>elbow | 1.9 | 3.4 | lift mozart-k315.mid wall 0.3 s |
+| L elbow>f0 | 14.3 | 15.5 | lift mozart-k315.mid wall 0.6 s |
+| L f0>f1 | 28.6 | 30.9 | lift mozart-k315.mid wall 0.6 s |
+| L f1>f2 | 28.6 | 30.9 | lift mozart-k315.mid wall 0.6 s |
+| L f2>f3 | 28.6 | 30.9 | lift mozart-k315.mid wall 0.6 s |
+| L f3>wrist | 14.3 | 15.5 | lift mozart-k315.mid wall 0.6 s |
+| L wrist>hand | 0.0 | 0.0 | lift beethoven-1.mid wall 0.4 s |
+| R clavicle>u0 | 4.3 | 8.9 | lift boulanger-matin.mid wall 0.1 s |
+| R u0>u1 | 8.6 | 17.8 | lift boulanger-matin.mid wall 0.1 s |
+| R u1>u2 | 8.6 | 17.8 | lift boulanger-matin.mid wall 0.1 s |
+| R u2>u3 | 8.6 | 17.8 | lift boulanger-matin.mid wall 0.1 s |
+| R u3>elbow | 1.9 | 3.6 | lift bach-bwv1047.mid wall 0.2 s |
+| R elbow>f0 | 5.8 | 16.4 | lift bach-bwv1047.mid wall 0.5 s |
+| R f0>f1 | 11.5 | 32.8 | lift bach-bwv1047.mid wall 0.5 s |
+| R f1>f2 | 11.5 | 32.8 | lift bach-bwv1047.mid wall 0.5 s |
+| R f2>f3 | 11.5 | 32.8 | lift bach-bwv1047.mid wall 0.5 s |
+| R f3>wrist | 5.8 | 16.4 | lift bach-bwv1047.mid wall 0.5 s |
+| R wrist>hand | 0.0 | 0.0 | lift bach-bwv1050.mid wall 0.2 s |
+L total twist: mean 149.0, largest 162.5
+R total twist: mean 78.2, largest 184.4
