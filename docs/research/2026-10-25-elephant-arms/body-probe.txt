@@ -1,0 +1,14 @@
+
+> node tools/body-probe.ts --base main
+
+base main, new: the working tree
+bodies equal: 90 of 95
+players equal: 22 of 23
+pose sets equal: 1492 of 1492
+body elephant chair: mesh differs (positions, colors, bones, blendBones, blendWeights, finishes, correctives, normals), joints differ
+body elephant stool: mesh differs (positions, colors, bones, blendBones, blendWeights, finishes, correctives, normals), joints differ
+body elephant high-stool: mesh differs (positions, colors, bones, blendBones, blendWeights, finishes, correctives, normals), joints differ
+body elephant bench: mesh differs (positions, colors, bones, blendBones, blendWeights, finishes, correctives, normals), joints differ
+body elephant stand: mesh differs (positions, colors, bones, blendBones, blendWeights, finishes, correctives, normals), joints differ
+player timpani/elephant/timpani: mesh differs (positions, colors, bones, blendBones, blendWeights, finishes, correctives, normals), moved bones: none
+ ELIFECYCLE  Command failed with exit code 1.

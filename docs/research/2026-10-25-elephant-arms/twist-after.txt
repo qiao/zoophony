@@ -1,0 +1,26 @@
+| Link | Mean | Largest | Worst sample |
+|---|---:|---:|---|
+| L clavicle>u0 | 4.9 | 5.9 | play beethoven-1.mid 151.40 s |
+| L u0>u1 | 9.8 | 11.7 | play beethoven-1.mid 151.40 s |
+| L u1>u2 | 9.8 | 11.7 | play beethoven-1.mid 151.40 s |
+| L u2>u3 | 9.8 | 11.7 | play beethoven-1.mid 151.40 s |
+| L u3>elbow | 2.9 | 3.1 | play beethoven-1.mid 244.90 s |
+| L elbow>f0 | 1.3 | 2.5 | play beethoven-1.mid 141.65 s |
+| L f0>f1 | 2.6 | 5.0 | play beethoven-1.mid 141.65 s |
+| L f1>f2 | 2.6 | 5.0 | play beethoven-1.mid 141.65 s |
+| L f2>f3 | 2.6 | 5.0 | play beethoven-1.mid 141.65 s |
+| L f3>wrist | 1.3 | 2.5 | play beethoven-1.mid 141.65 s |
+| L wrist>hand | 0.0 | 0.0 | play beethoven-1.mid 34.90 s |
+| R clavicle>u0 | 4.8 | 5.2 | play beethoven-1.mid 237.40 s |
+| R u0>u1 | 9.6 | 10.4 | play beethoven-1.mid 237.40 s |
+| R u1>u2 | 9.6 | 10.4 | play beethoven-1.mid 237.40 s |
+| R u2>u3 | 9.6 | 10.4 | play beethoven-1.mid 237.40 s |
+| R u3>elbow | 2.9 | 3.1 | play beethoven-1.mid 237.40 s |
+| R elbow>f0 | 1.2 | 1.8 | play beethoven-1.mid 187.65 s |
+| R f0>f1 | 2.4 | 3.7 | play beethoven-1.mid 187.65 s |
+| R f1>f2 | 2.4 | 3.7 | play beethoven-1.mid 187.65 s |
+| R f2>f3 | 2.4 | 3.7 | play beethoven-1.mid 187.65 s |
+| R f3>wrist | 1.2 | 1.8 | play beethoven-1.mid 187.65 s |
+| R wrist>hand | 0.0 | 0.0 | play beethoven-1.mid 239.40 s |
+L total twist: mean 47.3, largest 60.4
+R total twist: mean 45.8, largest 51.7
