@@ -663,8 +663,10 @@ const SHOULDER_HOLD = {
  * The grip is 0.5 H out, and in the middle of the lift and of the lowering it moves 0.2 H out,
  * 0.2 H up, and 0.4 H to the front (the via of `UPRIGHT_BOW` with its own reach): the upper arm
  * goes 3.3 cm into the body in each set (`pnpm hold-fit fox-violinist --base main --sets
- * lift,rest,lower`, 2026-10-17-grip-all decisions). The right elbow points down and a little out
- * and back, and the left elbow down and a little back. In the lift and the lowering, the tail end
+ * lift,rest,lower`, 2026-10-17-grip-all decisions). The right elbow points down, out, and back,
+ * (0.5, -1, 0.5): on the rebuilt arms of 2026-10-25, the elbow of (0.3, -1, 0.3) put the right
+ * upper arm 5.0 cm into the body at rest, and this pole 2.4 cm (2026-10-25-fox-arms decisions). The
+ * left elbow points down and a little back. In the lift and the lowering, the tail end
  * of the violin moves on its path (`liftPlace` null): the long left arm of the fox reaches the neck
  * there with the elbow bent to 99° to 127° (2026-10-24-violin-poses decisions).
  *
@@ -693,7 +695,7 @@ const FOX_HOLD = {
   freeHair: 0.12,
   pizzicatoTip: [0.3, 0.5, 1],
   restPoleL: [-0.3, -1, 0.3],
-  restPoleR: [0.3, -1, 0.3],
+  restPoleR: [0.5, -1, 0.5],
   restPlace: CHIN_HOLD.restPlace,
   rest: { ...LAP_VIOLIN, lap: { along: 0.8, offset: [0, -0.18, -0.2] } },
   liftReach: [0, 0, 0],
