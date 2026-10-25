@@ -584,8 +584,11 @@ The code constants of each family hold the times, the angles, and the lengths of
     and the pandas of `orchestra-latest.png` hold it forward and about level. The slide stays a
     little below the level, and turns as far to the right as the reach of the slide travel needs:
     straight ahead, the right paw reached the first position but almost no travel (`PANDA_PLAY`,
-    `docs/decisions/2026-10-25-grips.md`). The left palm faces the inner slide tubes, and the right
-    palm the slide brace. The left shoulder turns
+    `docs/decisions/2026-10-25-grips.md`). The left palm faces the inner slide tubes. The right paw
+    holds the slide brace from the right of the slide with its finger tips, as the tips of the
+    thumb and the first two fingers of a real player hold it. The middle of the paw thus stays
+    behind the brace, nearer to the shoulder, and the arm reaches more of the travel
+    (`docs/decisions/2026-10-25-open-grips.md`). The left shoulder turns
     forward, as the shoulder blade of a real player slides forward when the arm reaches forward
     (`WindHold.reachL`, `docs/research/2026-10-18-panda-folds.md`). Thus the left upper arm does
     not take the whole turn to the grip, and the front of the left shoulder does not fold. The left
