@@ -1,0 +1,14 @@
+== tree
+snare-drummer
+  0.483    L: spot 4.0 rimIn 10.2 up 17.0 | stick in 39 up 24 | fore in -14 up -13 | tip -2.9,63.0,-41.2  ||  R: spot 0.0 rimIn 11.0 up 0.1 | stick in 33 up -8 | fore in -11 up -7 | tip 4.0,46.1,-45.0
+  0.733    L: spot 0.0 rimIn 11.0 up 0.1 | stick in 33 up -8 | fore in -15 up -11 | tip -4.0,46.1,-45.0  ||  R: spot 4.4 rimIn 9.7 up 18.2 | stick in 40 up 27 | fore in -11 up -11 | tip 3.1,64.2,-40.7
+cymbalist
+  0.483    L: spot 4.1 rimIn 3.3 up 11.8 | stick in 25 up 22 | fore in -34 up 0 | tip -16.4,63.8,-38.6  ||  R: spot 0.0 rimIn 1.3 up 0.1 | stick in 18 up -0 | fore in -33 up 4 | tip 18.7,52.1,-42.0
+  0.733    L: spot 3.7 rimIn 3.3 up 10.8 | stick in 24 up 20 | fore in -38 up -4 | tip -16.4,62.8,-39.1  ||  R: spot 4.4 rimIn 3.2 up 12.6 | stick in 25 up 24 | fore in -31 up 4 | tip 16.4,64.6,-38.3
+== snare-drum.across={"rest":-0.6,"lift":0.3,"pitch":null};suspended-cymbal.across={"rest":-0.6,"lift":0.3,"pitch":null}
+snare-drummer
+  0.483    L: spot 11.9 rimIn -0.8 up 13.6 | stick in 10 up 18 | fore in -8 up -10 | tip -15.4,59.6,-48.3  ||  R: spot 0.1 rimIn 10.9 up 0.1 | stick in 33 up -9 | fore in -11 up -7 | tip 4.1,46.1,-45.1
+  0.733    L: spot 0.1 rimIn 10.9 up 0.1 | stick in 33 up -9 | fore in -15 up -11 | tip -4.1,46.1,-45.1  ||  R: spot 11.3 rimIn -0.2 up 14.4 | stick in 11 up 19 | fore in -5 up -6 | tip 14.9,60.4,-48.0
+cymbalist
+  0.483    L: spot 15.6 rimIn -14.3 up 12.0 | stick in -13 up 23 | fore in -28 up 2 | tip -34.2,64.0,-40.4  ||  R: spot 0.1 rimIn 1.2 up 0.1 | stick in 18 up -0 | fore in -33 up 4 | tip 18.8,52.1,-42.0
+  0.733    L: spot 16.8 rimIn -15.5 up 10.6 | stick in -15 up 20 | fore in -30 up -1 | tip -35.5,62.6,-40.7  ||  R: spot 14.5 rimIn -13.1 up 13.5 | stick in -11 up 26 | fore in -26 up 5 | tip 33.0,65.5,-40.0
