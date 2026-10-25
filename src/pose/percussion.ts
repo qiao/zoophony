@@ -10,7 +10,6 @@ import type { HangingArm } from './hang.ts';
 import { limitReach, poseShoulder, solveTwoBone, writeArm, writeCurl } from './ik.ts';
 import { groupChords } from './note-groups.ts';
 import {
-  GRIP_CURL,
   acrossAxes,
   frontKettles,
   offsetTarget,
@@ -189,6 +188,130 @@ const shoulderBind = new Vector3();
 const turnedPole = new Vector3();
 const joints = { elbow: new Vector3(), wrist: new Vector3() };
 
+const thumbAxis = new Vector3();
+const rollSide = new Vector3();
+const rollUp = new Vector3();
+const shaftInHand = new Vector3();
+const strikeTurn = new Quaternion();
+const strikeDirection = new Vector3();
+const Z_AXIS = new Vector3(0, 0, 1);
+
+/**
+ * Writes the turn of a hand with a mallet across the forearm and the direction of the mallet,
+ * for one share of the turn toward the rest direction (see `acrossHand()`). The roll of the paw
+ * around the mallet comes from the rest direction, where the top of the grip points along the
+ * forearm toward the elbow, and the swings carry it to the strike.
+ *
+ * @param side The hand with a mallet across the forearm.
+ * @param armForearm The unit direction of the posed forearm, from the elbow to the wrist. The
+ *   module vectors `acrossUp` and `acrossOut` hold its axes ({@link acrossAxes}).
+ * @param share The share of the turn toward the rest direction, from 0 at a strike to 1.
+ * @param out Gets the world rotation of the hand from the bind pose.
+ * @param direction Gets the unit direction of the mallet.
+ */
+function holdTurn(
+  side: Extract<PercussionSide, { kind: 'mallet' }>,
+  armForearm: Vector3,
+  share: number,
+  out: Quaternion,
+  direction: Vector3,
+): void {
+  const { across } = side;
+  if (!across) {
+    return;
+  }
+  // The rest direction across the armForearm, and the paw that holds it with no swing. A mallet
+  // that slants toward the wrist in the bind pose keeps that slant.
+  direction
+    .copy(acrossUp)
+    .multiplyScalar(Math.cos(across.rest))
+    .addScaledVector(acrossOut, Math.sin(across.rest))
+    .multiplyScalar(Math.cos(side.tilt))
+    .addScaledVector(armForearm, Math.sin(side.tilt));
+  top.copy(armForearm).negate();
+  top.addScaledVector(direction, -top.dot(direction)).normalize();
+  setFromBasis(out, direction, top).multiply(inverse.fromArray(side.inverse));
+  // The wrist lifts the head: a out of the paw around the level axis normal to the armForearm,
+  // with no twist on the armForearm.
+  level.crossVectors(armForearm, UP);
+  if (across.lift !== 0 && level.lengthSq() > 1e-8) {
+    swing.setFromAxisAngle(level.normalize(), across.lift);
+    out.premultiply(swing);
+    direction.applyQuaternion(swing);
+  }
+  // The smallest out from the rest direction to the strike direction, by the share left.
+  swing
+    .setFromUnitVectors(direction, strikeAlong)
+    .slerp(NO_TURN, across.pitch === null ? share : 0);
+  out.premultiply(swing);
+  direction.applyQuaternion(swing);
+  // With a pitch, the paw keeps the out of the strike, and the wrist lifts the head over its
+  // spot by a share of the pitch.
+  level.crossVectors(armForearm, UP);
+  if (across.pitch !== null && level.lengthSq() > 1e-8) {
+    swing.setFromAxisAngle(level.normalize(), across.pitch * share);
+    out.premultiply(swing);
+    direction.applyQuaternion(swing);
+  }
+}
+
+/**
+ * Gives the roll of a mallet in its paw that removes the side bend of the paw on the forearm at
+ * a strike (design 5.3). The retarget turns each studio paw in the plane of its palm toward the
+ * forearm (`PAW_TURN` of `models/studio-rig.ts`), but the mallet follows the hand of the player.
+ * With a side bend, the shaft thus moves in the visible paw and leaves it along the fingers
+ * (`docs/research/2026-10-25-percussion-grip.md`). The hand turns around the shaft until its thumb
+ * axis is normal to the forearm: then the retarget turns no paw, and the shaft stays where the
+ * bind pose holds it. Of the two turns, the function takes the smaller one. When the forearm is
+ * nearer to the shaft than the shaft to the fingers in the bind pose, no turn removes the side
+ * bend, and the function takes the turn with the least side bend. Near the line of the shaft, the
+ * roll fades out ({@link GRIP_FADE}). The paw keeps the roll through the stroke, because a roll
+ * for each moment of the stroke turned the paws up to 79° in 0.01 s.
+ *
+ * @param side The hand with a mallet.
+ * @param direction The unit direction of the mallet at the strike, from the grip to the head.
+ * @param armForearm The unit direction of the posed forearm, from the elbow to the wrist.
+ * @param out The world rotation of the hand at the strike. Gets the roll, as a rotation in the
+ *   axes of the hand.
+ * @returns `out`.
+ */
+function gripRoll(
+  side: Extract<PercussionSide, { kind: 'mallet' }>,
+  direction: Vector3,
+  armForearm: Vector3,
+  out: Quaternion,
+): Quaternion {
+  // The roll r around the shaft that puts the thumb axis (z of the hand) normal to the forearm:
+  // c + a cos(r) + b sin(r) = 0.
+  thumbAxis.copy(Z_AXIS).applyQuaternion(out);
+  const c = thumbAxis.dot(direction) * armForearm.dot(direction);
+  rollSide.copy(thumbAxis).addScaledVector(direction, -thumbAxis.dot(direction));
+  rollUp.crossVectors(direction, rollSide);
+  const a = armForearm.dot(rollSide);
+  const b = armForearm.dot(rollUp);
+  const radius = Math.hypot(a, b);
+  // The axis of the mallet in the axes of the hand.
+  shaftInHand.set(1, 0, 0).applyQuaternion(inverse.fromArray(side.inverse).invert());
+  if (radius < 1e-8) {
+    return out.identity();
+  }
+  const base = Math.atan2(b, a);
+  const spread = Math.acos(MathUtils.clamp(-c / radius, -1, 1));
+  const wrap = (r: number): number => Math.atan2(Math.sin(r), Math.cos(r));
+  const first = wrap(base + spread);
+  const second = wrap(base - spread);
+  const roll = Math.abs(first) <= Math.abs(second) ? first : second;
+  const fromFingers = Math.PI / 2 - side.tilt;
+  const fade = MathUtils.smoothstep(
+    armForearm.angleTo(direction),
+    fromFingers - GRIP_FADE[0],
+    fromFingers - GRIP_FADE[1],
+  );
+  return out.setFromAxisAngle(shaftInHand, roll * fade);
+}
+
+const GRIP_FADE = [30 * MathUtils.DEG2RAD, 10 * MathUtils.DEG2RAD] as const;
+
 /**
  * Writes the wrist and the world rotation of a hand with a mallet across the forearm between
  * strikes (`PercussionHold.across`, design 5.3). At a strike, the mallet points from the home of
@@ -230,36 +353,12 @@ function acrossHand(
     solveTwoBone(joint, wrist, upper, lower, pole, joints);
     forearm.subVectors(joints.wrist, joints.elbow).normalize();
     acrossAxes(forearm, upperArm.subVectors(joints.elbow, joint), arm.side, acrossUp, acrossOut);
-    // The rest direction across the forearm, and the paw that holds it with no swing. A mallet
-    // that slants toward the wrist in the bind pose keeps that slant.
-    along
-      .copy(acrossUp)
-      .multiplyScalar(Math.cos(across.rest))
-      .addScaledVector(acrossOut, Math.sin(across.rest))
-      .multiplyScalar(Math.cos(side.tilt))
-      .addScaledVector(forearm, Math.sin(side.tilt));
-    top.copy(forearm).negate();
-    top.addScaledVector(along, -top.dot(along)).normalize();
-    setFromBasis(turn, along, top).multiply(inverse.fromArray(side.inverse));
-    // The wrist lifts the head: a turn of the paw around the level axis normal to the forearm,
-    // with no twist on the forearm.
-    level.crossVectors(forearm, UP);
-    if (across.lift !== 0 && level.lengthSq() > 1e-8) {
-      swing.setFromAxisAngle(level.normalize(), across.lift);
-      turn.premultiply(swing);
-      along.applyQuaternion(swing);
-    }
-    // The smallest turn from the rest direction to the strike direction, by the share left.
-    swing.setFromUnitVectors(along, strikeAlong).slerp(NO_TURN, across.pitch === null ? share : 0);
-    turn.premultiply(swing);
-    along.applyQuaternion(swing);
-    // With a pitch, the paw keeps the turn of the strike, and the wrist lifts the head over its
-    // spot by a share of the pitch.
-    level.crossVectors(forearm, UP);
-    if (across.pitch !== null && level.lengthSq() > 1e-8) {
-      swing.setFromAxisAngle(level.normalize(), across.pitch * share);
-      turn.premultiply(swing);
-      along.applyQuaternion(swing);
+    holdTurn(side, forearm, share, turn, along);
+    // A paw with a bend rule holds the mallet with no side bend on the forearm at the strike, and
+    // keeps that roll of the mallet in the paw through the stroke.
+    if (side.strikeRoll) {
+      holdTurn(side, forearm, 0, strikeTurn, strikeDirection);
+      turn.multiply(gripRoll(side, strikeDirection, forearm, strikeTurn));
     }
     point.copy(grip).addScaledVector(along, side.length);
     offset.fromArray(side.head).sub(wristBind.fromArray(arm.bind.wrist)).applyQuaternion(turn);
@@ -367,7 +466,8 @@ function poseHand(
     chest.rotation,
     rotations,
   );
-  writeCurl(arm, GRIP_CURL * play, rotations);
+  // A paw with a mallet holds it also at rest and in the lift.
+  writeCurl(arm, side.kind === 'mallet' ? rig.hold.curl : rig.hold.curl * play, rotations);
 }
 
 /**

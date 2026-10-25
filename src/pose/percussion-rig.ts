@@ -145,6 +145,18 @@ interface PercussionHold {
   /** The forward lean of the spine over the instrument while the player plays, in radians. */
   readonly lean: number;
   /**
+   * The curl of the fingers around a mallet, a stick, a beater, or the strap of a cymbal, in
+   * radians, so that the claws close on the shaft.
+   */
+  readonly curl: number;
+  /**
+   * True: each paw with a mallet turns around the shaft until it has no side bend on the forearm
+   * at the strike, and keeps that roll through the stroke (`gripRoll()` of `pose/percussion.ts`).
+   * False: the forearm lies in the plane of the palm, and the paw bends only to the side. That
+   * side bend is small when the forearm stands near the angle of the shaft from the fingers.
+   */
+  readonly strikeRoll: boolean;
+  /**
    * The side move of the body behind the notes, with the feet on the floor, or `null`: the body
    * keeps its place.
    */
@@ -160,6 +172,14 @@ const POLE_R: Vec3 = [1, -1, 0.3];
 
 /** The place from which a mallet points to its target in most holds (`PercussionHold.home`). */
 const MALLET_HOME: Vec3 = [0, -0.2, -0.75];
+
+/**
+ * The curl of the fingers of the badger around a mallet, a stick, a beater, or the strap of a
+ * cymbal. The claws close on a shaft on the palm side of the paw (`PAW_SPOT` of
+ * `models/instruments/percussion.ts`). At 60°, the claws stayed open beside the shaft, and above
+ * 90°, more faces at the knuckles turned over.
+ */
+export const GRIP_CURL = 90 * MathUtils.DEG2RAD;
 
 /** The holds of the percussion instruments. */
 export const PERCUSSION_HOLDS = {
@@ -195,6 +215,13 @@ export const PERCUSSION_HOLDS = {
     reach: Infinity,
     lean: 0,
     side: null,
+    // The end of the round paw of the elephant closes on the shaft (TIMPANI.malletSpotL and malletSpotR).
+    curl: 110 * MathUtils.DEG2RAD,
+    // The elephant grip lies far from the wrist across the shaft, so a roll of the paw moves the
+    // wrist far, and a roll that removes the side bend flipped the left paw in the rolls. At the
+    // strikes, the forearms stand near the 45° of the shaft from the fingers, so the paws keep
+    // the forearm in the plane of the palm (2026-10-25-percussion-grip decisions).
+    strikeRoll: false,
   },
   // The badger strikes the bass drum below the middle of the head, as a real player strikes off
   // the middle. The beater leaves the side of the fist at the angle of no twist of the paw on the
@@ -218,6 +245,8 @@ export const PERCUSSION_HOLDS = {
     reach: Infinity,
     lean: 0,
     side: null,
+    curl: GRIP_CURL,
+    strikeRoll: true,
   },
   // The sticks leave the front of the fists (SNARE_DRUM.malletTilt) and point from homes out
   // from the shoulders, so that they make a V of about 66° at a strike and slant down 9°, as the
@@ -242,6 +271,8 @@ export const PERCUSSION_HOLDS = {
     reach: Infinity,
     lean: 0,
     side: null,
+    curl: GRIP_CURL,
+    strikeRoll: true,
   },
   // The lift is the half of the gap between the inner faces of the two cymbals. The elbows point
   // down and a little out, so that fewer faces of the left shoulder of the badger mesh fold in the
@@ -263,6 +294,8 @@ export const PERCUSSION_HOLDS = {
     reach: Infinity,
     lean: 0,
     side: null,
+    curl: GRIP_CURL,
+    strikeRoll: true,
   },
   // The left hand holds the triangle up, and its elbow points out to the left. The beater leaves
   // the front of the right fist (TRIANGLE.malletTilt) and keeps the angle of no twist of the paw
@@ -286,6 +319,11 @@ export const PERCUSSION_HOLDS = {
     reach: Infinity,
     lean: 0,
     side: null,
+    curl: GRIP_CURL,
+    // A beater near the line of the forearm turned the paw fast with a roll that removes the
+    // side bend, so the forearm lies in the plane of the palm (2026-10-25-percussion-grip
+    // decisions).
+    strikeRoll: false,
   },
   // The mallets leave the front of the fists (XYLOPHONE.malletTilt), as the sticks of the snare
   // drum, because a real player holds them in the matched grip of the snare drum
@@ -307,7 +345,10 @@ export const PERCUSSION_HOLDS = {
     poleL: [-0.8, -1, 0.3],
     poleR: [0.8, -1, 0.3],
     rim: 0,
-    home: MALLET_HOME,
+    // The homes stand out from the shoulders, so that the mallets make a V and stand at least
+    // 30° from the forearms. Below that angle, the shaft leaves the closed paw along the claws
+    // (2026-10-25-percussion-grip decisions).
+    home: [0.55, -0.2, -0.75],
     top: 'up',
     across: { rest: -0.6, lift: 0.3, pitch: 0.5 },
     ready: false,
@@ -322,6 +363,13 @@ export const PERCUSSION_HOLDS = {
     // the floor, so the hips keep their place, and the spine takes the whole move
     // (2026-10-25-xylophone-reach decisions).
     side: { span: 0.25, hips: 0, spine: 10 * MathUtils.DEG2RAD, moveSec: 0.6 },
+    // The left paw reaches far for the bars, so the claws close further on the mallet
+    // (XYLOPHONE.malletSpot).
+    curl: 100 * MathUtils.DEG2RAD,
+    // A roll that removes the side bend at each strike turned the left paw up to 113° in 0.01 s
+    // between the bars, so the forearm lies in the plane of the palm (2026-10-25-percussion-grip
+    // decisions).
+    strikeRoll: false,
   },
 } as const satisfies Readonly<Record<PercussionInstrument, PercussionHold>>;
 
@@ -355,6 +403,8 @@ export const SUSPENDED_CYMBAL_HOLD: PercussionHold = {
   reach: Infinity,
   lean: 0,
   side: null,
+  curl: GRIP_CURL,
+  strikeRoll: true,
 };
 
 /** The places of the hands of a percussion player, in head heights `H` (design 5.3). */
@@ -385,9 +435,6 @@ export const PERCUSSION_PLACES = {
   // forearm of the raised arm.
   triangleHand: [-0.664463, 0.241845, 0.241845, 0.664463],
 } as const;
-
-/** The curl of the fingers around a mallet, a stick, or the strap of a cymbal. */
-export const GRIP_CURL = 60 * MathUtils.DEG2RAD;
 
 /** The MIDI key of the tambourine (design 4.6). The other keys of the player strike the triangle. */
 const TAMBOURINE_KEY = 54;
@@ -421,6 +468,8 @@ export type PercussionSide =
       readonly length: number;
       /** The inverse of the rotation of the mallet in the bind pose. */
       readonly inverse: Quat;
+      /** The roll of the mallet at the strike (`PercussionHold.strikeRoll`). */
+      readonly strikeRoll: boolean;
     }
   | {
       readonly kind: 'plate';
@@ -696,6 +745,7 @@ export function percussionRig(model: PlayerModel, instrument: PercussionInstrume
       tilt: malletTilt(arm, turn),
       length: malletLength(bone),
       inverse: toQuat(turn.clone().invert()),
+      strikeRoll: hold.strikeRoll,
     };
   };
   const targets = new Map<number, StrikeTarget>();

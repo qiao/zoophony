@@ -382,7 +382,9 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
 - **Percussion, standing.** The badger holds the beater of the bass drum over the drum and the
   triangle up also at rest (`PercussionHold.ready`), because the lift from the hanging arms swept
   the beater through the body and swung the left paw far on its forearm. With the snare drum, the
-  cymbals, and the xylophone, its arms hang (`docs/decisions/2026-10-20-mesh-badger.md`).
+  cymbals, and the xylophone, its arms hang (`docs/decisions/2026-10-20-mesh-badger.md`), and
+  each closed paw keeps its stick or mallet, which points up and forward from the front of the
+  fist.
 - **Folder at rest.** The penguin keeps the choir folder in its flippers in front of the chest
   also at rest, as a choir holds its folders between two pieces (`poseChoir()`,
   `docs/decisions/2026-10-21-mesh-penguin.md`).
@@ -662,6 +664,21 @@ The code constants of each family hold the times, the angles, and the lengths of
 - **Percussion in detail** (`pose/strikes.ts`, `pose/percussion-rig.ts`, `pose/percussion.ts`):
   - The notes that start within 50 ms of each other strike together. A drum player strikes its
     own instrument for each note, also for another key group (3.8).
+  - Each paw holds its mallet, stick, or beater in the closed fingers, as a real player does: the
+    shaft lies on the palm side under the curled fingers, the head leaves the front of the fist at
+    the side of the thumb, and the butt end sticks out of the heel of the paw
+    (`docs/reference/percussion-technique.md` 1). The bind pose of each instrument places the
+    shaft in the paw (`MalletSpot`, `malletTilt`), and the fingers keep their curl at rest and in
+    the lift (`PercussionHold.curl`). The retarget removes each side bend of a paw on its forearm
+    (`PAW_TURN`, 4.4), and the mallet follows the hand of the player, so a side bend moves the
+    shaft in the visible paw. So the snare, the cymbal, and the bass drum paws turn around the
+    shaft until the paw has no side bend at the strike, and keep that roll of the mallet through
+    the stroke (`gripRoll()`, `PercussionHold.strikeRoll`): the shaft then keeps its place in the paw.
+    A roll for each moment of a stroke turned the paws too fast. The other holds keep the forearm
+    in the plane of the palm, and their mallets stand near the angle of the shaft from the fingers
+    away from the forearm, so the side bend stays small. A hold points each mallet from a home
+    that gives that angle. `pnpm wind-grip` measures the grip
+    (`docs/research/2026-10-25-percussion-grip.md`).
   - A timpani note plays on the kettle whose key range has its middle nearest to the key. A
     xylophone note strikes the bar of its key (4.6). A xylophone part outside the bars moves by
     octaves, so that its highest key is in the highest octave of the bars (`xylophoneShift()`),
@@ -687,10 +704,9 @@ The code constants of each family hold the times, the angles, and the lengths of
     plays on one of the two front kettles (`PercussionHold.pair`), because the outer kettles of
     the real size stand beyond the reach of the arms. The paws rest above the near rims, as in
     the reference images, and each mallet strikes 0.25 m in from the near rim, as the user chose
-    (`PercussionHold.rim`). A real timpanist strikes about 3 inches in. The paw holds each mallet
-    as a real timpanist holds it: the head leaves the front of the fist, and the shaft lies along
-    the thumb, near the line of the forearm (`TIMPANI.malletTilt`,
-    `docs/reference/percussion-technique.md`). Each mallet points to its target from a place
+    (`PercussionHold.rim`). A real timpanist strikes about 3 inches in. The round paw of the
+    elephant closes its end on the shaft, and the head leaves the front of the fist
+    (`TIMPANI.malletSpotL`, `docs/reference/percussion-technique.md`). Each mallet points to its target from a place
     below, in front of, and out from its shoulder (`PercussionHold.home`), so that it points
     forward at a strike. Between strikes, the paw holds the mallet forward and in, at the angle of
     no twist of the paw on the forearm, and the wrist lifts the head a little above the level
@@ -702,8 +718,7 @@ The code constants of each family hold the times, the angles, and the lengths of
     of the shoulders roll the upper arms far, and the skin twists at the shoulder (4.4). The
     upper arms touch the side of the body, as the user rule of 2026-10-10 asks, so that no gap
     shows between each upper arm and the trunk from the back. The kettles leave a
-    gap at the front of the player for the trunk (`TIMPANI.front`, 4.6). The other holds keep the
-    top of each grip up (`PercussionHold.top`).
+    gap at the front of the player for the trunk (`TIMPANI.front`, 4.6).
   - The badger mesh has short arms (0.27 m from the shoulder joint to the palm) and a round belly,
     so its instruments stand nearer than for the parametric badger (4.6), and its upper arms touch
     the side of the body. The holds follow real players
@@ -713,7 +728,7 @@ The code constants of each family hold the times, the angles, and the lengths of
       of no twist of the paw on the forearm (`across`). The paw holds the beater over the drum also
       at rest (`ready`), so that the beater does not sweep through the body in the lift.
     - The snare drum stands at the height of the wrists, near enough for the short arms. The
-      sticks leave the front of the fists, along the thumbs (`SNARE_DRUM.malletTilt`), and point
+      sticks leave the front of the fists at the side of the thumbs (`PAW_TILT`), and point
       from homes out from the shoulders, so that they make a V at a strike and are almost level,
       as in the matched grip of a real player. Between strikes, each stick keeps its strike
       direction, and the wrist lifts the tip over the head (`MalletAcross.pitch`), so that the
@@ -734,7 +749,11 @@ The code constants of each family hold the times, the angles, and the lengths of
       `docs/decisions/2026-10-20-badger-cymbals.md`). Between strikes, each mallet keeps its
       strike direction, and the wrist lifts the head over its spot near the edge, as with the
       snare sticks.
-    - The xylophone mallets take the grip of the snare sticks, as a real player holds them. The
+    - The xylophone mallets take the grip of the snare sticks, as a real player holds them, and
+      point from homes out from the shoulders, so that they make a V and stand away from the
+      forearms. The mallets are longer than the snare sticks, because a shaft that leaves the
+      front of the fist does not continue the line of the forearm, and the short arms lose reach
+      (`XYLOPHONE.mallet`). The
       badger moves its body from side to side behind the notes, as a real player does, with the
       feet in place (`PercussionHold.side`, `pose/side-move.ts`). The body moves toward the mean
       side place of the notes in a time before each note, so near notes give a mean place, and
