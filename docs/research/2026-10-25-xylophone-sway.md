@@ -84,14 +84,35 @@ in their bind places in each sample.
 p95 grows from 27° to 35°, and the grip turn p50 is 7° (L) and 4° (R) from `ACCEPTED_GRIPS`.
 With no pitch, the lean and the side move alone give 4° and 1° (`arm-scan.txt`). With the
 entry of the xylophonist removed, the tool gives the ready entry
-`['xylophonist', { L: -28, R: -22 }]` (`grip-entry.txt`), against -24 and -24 on `main`.
+`['xylophonist', { L: -28, R: -22 }]` (`grip-entry.txt`), against -24 and -24 on `main`. The
+manager accepted it after the review of the crops. With the new entry, the grip turn p50 is 8°
+(L) and 3° (R) (`arm-check-role.txt`).
 `pnpm clip-probe --base main --jobs 4` (`clip-demos.txt`) passes each demo and the test score
 with the values of `main`, also with `--midi <file>` (`clip-pirates.txt`). `pnpm body-probe
 --base main` (`body-probe.txt`) keeps all 1,492 pose sets, because no demo has a xylophone.
 `pnpm arm-check --all --base main` (`arm-check-all.txt`) gives no `FAIL`, and each other role
 keeps each value of `main`.
 
-## 5. The result
+## 5. The head
+
+The manager review of the 2x crops saw the side lean tilt the whole head in the front view. On
+the branch at `f0f06376`, the eye line in the front view tilted up to 12.9° on the pirates part
+(p95 12.2°) and 13.0° on the test score. With the side move off, the forward lean alone still
+gave 9.5° at 5.25 s: the look to the side turned the head around the axis of the leaned neck.
+The neck and the head now turn back by the side lean, and the look turns around the vertical of
+the world over the leaned spine.
+
+| File | `main` p95, max | before p95, max | after p95, max |
+|---|---|---|---|
+| Pirates part | 2.8°, 4.9° | 12.2°, 12.9° | 2.9°, 4.5° |
+| Test score | 2.9°, 2.9° | 12.1°, 13.0° | 3.0°, 3.0° |
+
+`eyes.ts` (`eyes.txt`) reads the posed eye bones at steps of 0.05 s. The arm gate rows do not
+change, and `pnpm body-probe --base main` keeps all pose sets. `head-e20.webp` and
+`head-e40.webp` give the head and the neck from the front, ±35°, the back, and each side. No neck
+skin folds, and the head still looks down at the bars. `body-e40.webp` gives the new pose.
+
+## 6. The result
 
 The badger leans over the bars and moves behind its notes, and it reaches 89% to 90% of the
 strikes of the steel drum part, where `main` reached none. The pitch keeps the heads apart. The

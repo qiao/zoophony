@@ -1,0 +1,8 @@
+== SET=xylophone.side=null;xylophone.lean=0;xylophone.across.pitch=null ~/Downloads/Disney_Themes_-_Pirates_Of_The_Caribbean.mid
+Disney_Themes_-_Pirates_Of_The_Caribbean.mid player 3: 1238 samples, eye line p50 0.9°, p95 2.8°, max 4.9° at 4.70 s
+== branch ~/Downloads/Disney_Themes_-_Pirates_Of_The_Caribbean.mid
+Disney_Themes_-_Pirates_Of_The_Caribbean.mid player 3: 1238 samples, eye line p50 1.0°, p95 2.9°, max 4.5° at 4.70 s
+== SET=xylophone.side=null;xylophone.lean=0;xylophone.across.pitch=null percussion-test
+percussion-test player 0: 768 samples, eye line p50 1.0°, p95 2.9°, max 2.9° at 17.70 s
+== branch percussion-test
+percussion-test player 0: 768 samples, eye line p50 1.0°, p95 3.0°, max 3.0° at 24.90 s
