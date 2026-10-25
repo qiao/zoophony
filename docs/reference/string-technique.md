@@ -441,7 +441,9 @@ A round that changes the motion updates the items.
   than the red fox. With the elbow further down, the long flat upper arm of the rabbit turned its
   broad side to the front as a plank (user, 2026-10-21, `docs/decisions/2026-10-21-arm-form.md`),
   and the A-pose rabbit folded more faces of the right arm
-  (`docs/decisions/2026-10-23-rabbit-arms.md`).
+  (`docs/decisions/2026-10-23-rabbit-arms.md`). At the tip, the elbow of the rabbit and of the cat
+  points down, out, and forward (`BowedHold.poleTipR`): the elbow of the cat pointed up there, and a
+  dark wedge fold opened under its right armpit (`docs/decisions/2026-10-24-violin-review.md`).
 - **The stick in the paw.** The stick passes through the middle of the closed right paw of the
   rabbit, the red fox, the cat, and the hippo (`SpeciesParams.bowGrip`), as the fingers of a real
   player close around it. With the grip of the bind bow, the stick of the hippo passed under the

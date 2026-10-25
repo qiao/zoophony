@@ -312,6 +312,7 @@ The decision files:
 - [`2026-10-24-wind-grips.md`](decisions/2026-10-24-wind-grips.md): the contact probe of the wind grips, the palms toward the tube axis, the grips moved around the tube in the play and at rest, the wolf bell on the seat between the knees, and the upright mouse oboe at rest.
 - [`2026-10-24-polar-bear-arms.md`](decisions/2026-10-24-polar-bear-arms.md): the quad arm faces of the polar bear, its Blender weights, and the arm segments and helpers that the pose code turns.
 - [`2026-10-24-pianist-pose.md`](decisions/2026-10-24-pianist-pose.md): the upright polar bear pianist after a professional pianist, the larger and nearer piano, the claws on the key tops, the low shoulders, and the side lean toward the far keys.
+- [`2026-10-24-violin-review.md`](decisions/2026-10-24-violin-review.md): the fixes of the review of the violin poses: the right elbow of the cat at the tip.
 - [`2026-10-24-violin-arms.md`](decisions/2026-10-24-violin-arms.md): the quad arm faces, the Blender weights, and the arm segments and helpers of the rabbit and the cat, and the arm tools that count the segments.
 - [`2026-10-24-piano-pedals.md`](decisions/2026-10-24-piano-pedals.md): the pedal lyre and the three brass pedals of the piano, and the right foot of the pianist on the damper pedal with the sustain pedal of the score.
 - [`2026-10-23-rabbit-arms.md`](decisions/2026-10-23-rabbit-arms.md): the A-pose rabbit mesh with its own faces, a short arm stretch, a violin of 0.83, its elbows and rest grip, and the open shards of its arms.

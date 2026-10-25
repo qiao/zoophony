@@ -731,7 +731,11 @@ export const BOWED_HOLDS = {
  * further out than the elbow of the chin hold: with that elbow, the right upper arm went 0.6 cm
  * into the body (0.0 cm before the grip), and with (1.1, -1, -1) 0.3 cm. The pole (1.2, -1, -1)
  * gave 0.0 cm, but folded face 187 of the right clavicle in more play samples (2026-10-17-cat-bow
- * decisions).
+ * decisions). At the tip, the right elbow points down, out, and forward, (1, -1, -1), as the elbow
+ * of the rabbit: with the elbow up of the chin hold, (0.5, 1, -1), a dark wedge fold opened under
+ * the right armpit at the tip (manager review of 2026-10-24), the right paw turned 116° on its
+ * forearm (90° now), and the narrowest ring of the right arm kept 0.14 of its axis (0.49 now,
+ * 2026-10-24-violin-review decisions).
  *
  * The rest pose is the upright rest of the rabbit and the red fox, as the seated violinist of the
  * image of the user (2026-10-17-cat-bow and 2026-10-17-cat-look decisions): the viola stands
@@ -821,6 +825,7 @@ const CAT_HOLD = {
   elbowPerString: 2 * MathUtils.DEG2RAD,
   highTilt: 20 * MathUtils.DEG2RAD,
   poleR: [1.1, -1, -1],
+  poleTipR: [1, -1, -1],
   restPoleR: [0.3, -1, 1],
   restPoleL: [-0.6, -1, 0.3],
   restPlace: 0.4,
