@@ -88,18 +88,26 @@ export interface WindHold {
    */
   readonly restFreeL: FreePaw | null;
   /**
-   * True when each paw rolls around the line from its shoulder to its grip until its palm faces
-   * the tube ({@link palmToTube}). With false, the paw keeps the roll of its shoulder, and a
-   * small paw can hang beside the tube with its palm to the side (user, 2026-10-23: "wolf, mouse,
-   * and tan fox not holding the instrument properly").
+   * The side of each paw that faces its tube: each paw rolls around the line from its shoulder to
+   * its grip until that side faces the tube ({@link faceTube}).
+   *
+   * - `palm`: the palm faces the tube, so that the curled fingers close around its front, as the
+   *   fingers of a real player curve over the tube with the thumb behind it
+   *   (`docs/reference/wind-technique.md` 2.3).
+   * - `back`: the back of the paw faces the tube, and the grip moves past the axis, so that the
+   *   tube goes through the closed paw. The tan fox holds the flute so. With `palm`, its right
+   *   paw turned 142° on its forearm and flipped in the lowering (`2026-10-25-grips` decisions).
+   * - `none`: the paw keeps the roll of its shoulder, and a small paw can hang beside the tube
+   *   with its palm to the side (user, 2026-10-23: "wolf, mouse, and tan fox not holding the
+   *   instrument properly").
    */
-  readonly palmToTube: boolean;
+  readonly faceTube: 'palm' | 'back' | 'none';
   /**
    * The share, from 0 to 1, of the part along the tube that the aim of each paw on its grip loses
    * in the playing pose ({@link aimAcross}). With 0, the paw points along the line from its
    * shoulder to its grip. A tube far in front of the body then puts that line along the tube, and
-   * the fingers point past the tube in place of around it. Only a paw that rolls its palm to the
-   * tube ({@link WindHold.palmToTube}) takes it.
+   * the fingers point past the tube in place of around it. Only a paw that rolls to face its tube
+   * ({@link WindHold.faceTube}) takes it.
    */
   readonly aimAcross: number;
   /**
@@ -108,8 +116,8 @@ export interface WindHold {
    * tube. A tube far in front of the body then makes the paw point forward, and the fingers stick
    * out in front of the tube. With a share, the paw turns toward the other side of the body, so
    * that it lies across the back of the tube and its curled fingers wrap the front, as the fingers
-   * of a real clarinetist come around the tube from the side. Only a paw that rolls its palm to the
-   * tube ({@link WindHold.palmToTube}) takes it.
+   * of a real clarinetist come around the tube from the side. Only a paw that rolls to face its
+   * tube ({@link WindHold.faceTube}) takes it.
    */
   readonly aimSide: number;
   /**
@@ -134,8 +142,8 @@ export interface WindHold {
   /** The move of the grip of the right palm in the rest pose, as {@link WindHold.restGripShiftL}. */
   readonly restGripShiftR: Vec3 | null;
   /**
-   * The share, from 0 to 1, of the roll of the palm to the tube and of the aim across it
-   * ({@link WindHold.palmToTube}, {@link WindHold.aimAcross}, {@link WindHold.aimSide}) that a paw on
+   * The share, from 0 to 1, of the roll of the paw to the tube and of the aim across it
+   * ({@link WindHold.faceTube}, {@link WindHold.aimAcross}, {@link WindHold.aimSide}) that a paw on
    * its grip keeps in the rest pose. With 0, the rest paw keeps the roll and the aim of its
    * shoulder, and the lift and the lowering turn it to the grip of the play. With 1, the paw holds
    * the tube at rest as it does in the play, so its fingers close around the tube, and the lift and
@@ -188,7 +196,7 @@ const WOODWIND = {
   headTurn: 0,
   lipShift: [0, 0, 0],
   restFreeL: null,
-  palmToTube: false,
+  faceTube: 'none',
   aimAcross: 0,
   aimSide: 0,
   gripShiftL: [0, 0, 0],
@@ -455,7 +463,7 @@ const FOX_FLUTE = {
     fingers: [0, -1, -0.3],
     arc: [0.57, 0.04, 0.31],
   },
-  palmToTube: true,
+  faceTube: 'back',
   aimAcross: 1,
   gripShiftR: [0.05, 0.05, 0],
   restGripShiftR: [-0.05, 0.03, -0.03],
@@ -529,7 +537,7 @@ const MOUSE_OBOE_FORWARD = -15;
  * broke the right arm into dark slits and thin shards (user: "the mouse's right arm is regressed",
  * `2026-10-25-wind-arms` decisions). Each paw aims across the tube (`aimAcross`) and turns half
  * toward the side across it (`aimSide`), as on the wolf, and its grip moves 0.2 H down the tube
- * and toward the axis (`gripShiftL`, `gripShiftR`), so that the tube goes through the closed paw
+ * and toward the axis (`gripShiftL`, `gripShiftR`), and each palm faces the tube (`faceTube`)
  * (`pnpm wind-grip oboist`, `2026-10-24-wind-grips` decisions). The small mouse plays a smaller
  * oboe (`SpeciesParams.oboeScale`).
  * With the reed 0.14 H back, the right paw reached its grip with 3 cm to spare only on an oboe
@@ -564,7 +572,7 @@ const MOUSE_OBOE = {
   play: holdTurn(MOUSE_OBOE_FORWARD, 0),
   poleL: [-0.5, -1, -0.5],
   poleR: [0.5, -1, -0.5],
-  palmToTube: true,
+  faceTube: 'palm',
   aimAcross: 1,
   aimSide: 0.5,
   gripShiftL: [0.2, 0.05, 0],
@@ -694,8 +702,8 @@ const WOLF_CLARINET_FORWARD = -5;
  * the instrument", `2026-10-24-wind-holds` decisions). At 20°, with the mouthpiece 0.18 H below
  * the mouth, the grips are 0.34 m and 0.36 m from the shoulder joints, and the mouthpiece no
  * longer goes into the jaw. Each paw aims across the tube (`aimAcross`) and half toward the side
- * across it (`aimSide`), and its grip moves around the tube (`gripShiftL`, `gripShiftR`), so that
- * the tube goes through the closed paw. On the grips of the instrument, 2.5 cm in front of the
+ * across it (`aimSide`), and its grip moves around the tube (`gripShiftL`, `gripShiftR`), and
+ * each palm faces the tube (`faceTube`). On the grips of the instrument, 2.5 cm in front of the
  * tube, the paws lay in front of it and pointed away from it, with the finger tips 7.6 cm and 8.3
  * cm from the tube (user, 2026-10-24: "they are not even holding the instrument"). The left grip
  * moves 0.2 H down the tube, because 8.5 cm above the shoulder joint, the forearm rose steeply and
@@ -749,7 +757,7 @@ const WOLF_CLARINET = {
   poleR: [0.3, -1, 0],
   restPoleL: [-0.7, -1, 0.2],
   restPoleR: [0.3, -1, 0],
-  palmToTube: true,
+  faceTube: 'palm',
   aimAcross: 1,
   aimSide: 0.5,
   gripShiftL: [0.2, 0.12, 0],
@@ -1193,14 +1201,24 @@ const handAxis = new Vector3();
 const palmNow = new Vector3();
 const palmGoal = new Vector3();
 const palmRoll = new Quaternion();
+const rollCross = new Vector3();
 const NO_ROLL = new Quaternion();
 
 /**
- * Rolls a hand around its own long axis, the line from its shoulder to its grip, until the normal
- * of its palm faces the tube: the direction from the grip to the axis of the tube, square to the
- * tube. The x axis of the hand of the player is the normal of its palm, out of the back on the left
- * hand and out of the palm on the right hand: with the other signs, the left palm cupped up, away
- * from the tube.
+ * The angle between the side of a paw and its tube above which the roll of {@link faceTube} turns
+ * around the long axis of the hand. Near 180°, the cross product of the two directions vanishes,
+ * and `Quaternion.setFromUnitVectors()` takes any axis square to them, so the paw of the wolf
+ * flipped in the lift (the wrist turned 9978° each second).
+ */
+const OPPOSITE = Math.cos(170 * MathUtils.DEG2RAD);
+
+/**
+ * Rolls a hand around its own long axis, the line from its shoulder to its grip, until one side
+ * of the paw faces the tube: the direction from the grip to the axis of the tube, square to the
+ * tube ({@link WindHold.faceTube}). The palm faces +x of the hand of the player on the left hand
+ * and -x on the right hand: a curl of the fingers (`writeCurl()` of `pose/ik.ts`) moves the
+ * finger tips of the skin to that side, and `PALMS` of `models/studio-rig.ts` gives the same
+ * sides. The back faces the other way.
  *
  * The roll grows with the given share, the weight of the playing pose by default
  * ({@link WindHold.restAim}), so that the rest pose can keep the paw of the shoulder, and the lift
@@ -1209,20 +1227,39 @@ const NO_ROLL = new Quaternion();
  * @param out The world rotation of the hand, which the function changes.
  * @param toTube The unit direction from the grip to the axis of the tube.
  * @param side The side of the hand.
+ * @param face The side of the paw that faces the tube.
  * @param weight The share of the roll: the eased weight of the playing pose, or more with
  *   {@link WindHold.restAim}.
  */
-function palmToTube(out: Quaternion, toTube: Vector3, side: 'L' | 'R', weight: number): void {
+function faceTube(
+  out: Quaternion,
+  toTube: Vector3,
+  side: 'L' | 'R',
+  face: 'palm' | 'back',
+  weight: number,
+): void {
   handAxis.set(0, 1, 0).applyQuaternion(out);
+  const palmX = side === 'L' ? 1 : -1;
   palmNow
-    .set(side === 'L' ? -1 : 1, 0, 0)
+    .set(face === 'palm' ? palmX : -palmX, 0, 0)
     .applyQuaternion(out)
     .projectOnPlane(handAxis);
   palmGoal.copy(toTube).projectOnPlane(handAxis);
   if (palmNow.lengthSq() < 1e-8 || palmGoal.lengthSq() < 1e-8) {
     return;
   }
-  palmRoll.setFromUnitVectors(palmNow.normalize(), palmGoal.normalize());
+  palmNow.normalize();
+  palmGoal.normalize();
+  if (palmNow.dot(palmGoal) > OPPOSITE) {
+    palmRoll.setFromUnitVectors(palmNow, palmGoal);
+  } else {
+    // Both directions are square to the axis of the hand, so the roll turns around it.
+    const angle = Math.atan2(
+      handAxis.dot(rollCross.crossVectors(palmNow, palmGoal)),
+      palmNow.dot(palmGoal),
+    );
+    palmRoll.setFromAxisAngle(handAxis.normalize(), angle);
+  }
   out.premultiply(palmRoll.slerp(NO_ROLL, 1 - weight));
 }
 
@@ -1313,7 +1350,7 @@ function poseSide(
   poseShoulder(side.arm, chest, rig.chestBind, turn, shoulder);
   // A paw that leaves its grip at rest keeps the aim and the roll of its shoulder: with the roll,
   // the mix from its rest paw flipped to the other side of its forearm in the middle of the move.
-  if (rig.hold.palmToTube && !free) {
+  if (rig.hold.faceTube !== 'none' && !free) {
     tubeAxis.fromArray(side.tube.axis).applyQuaternion(rotation);
     // The palm faces from its grip to the axis of its tube. The axis of a woodwind passes through
     // the mouthpiece. The up axis of the bone is no such direction: the oboe and the clarinet hang
@@ -1331,7 +1368,7 @@ function poseSide(
       aimSide(shoulder, tubeAxis, tubeSide, rig.hold.aimSide * aim, aimPoint);
     }
     handToward(shoulder, aimPoint, hand);
-    palmToTube(hand, tubeSide, side.arm.side, aim);
+    faceTube(hand, tubeSide, side.arm.side, rig.hold.faceTube, aim);
   } else {
     handToward(shoulder, grip, hand);
   }
