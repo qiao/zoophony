@@ -1,0 +1,26 @@
+| Link | Mean | Largest | Worst sample |
+|---|---:|---:|---|
+| L clavicle>u0 | 7.0 | 7.0 | lift boulanger-matin.mid wall 0.8 s |
+| L u0>u1 | 9.6 | 15.1 | lift boulanger-matin.mid wall 0.4 s |
+| L u1>u2 | 9.6 | 15.1 | lift boulanger-matin.mid wall 0.4 s |
+| L u2>u3 | 9.6 | 15.1 | lift boulanger-matin.mid wall 0.4 s |
+| L u3>elbow | 1.5 | 2.9 | rest beethoven-9.mid rest |
+| L elbow>f0 | 10.1 | 13.9 | rest boulanger-matin.mid rest |
+| L f0>f1 | 20.3 | 27.7 | rest boulanger-matin.mid rest |
+| L f1>f2 | 20.3 | 27.7 | rest boulanger-matin.mid rest |
+| L f2>f3 | 20.3 | 27.7 | rest boulanger-matin.mid rest |
+| L f3>wrist | 10.1 | 13.9 | rest boulanger-matin.mid rest |
+| L wrist>hand | 0.0 | 0.0 | lift beethoven-1.mid wall 0.1 s |
+| R clavicle>u0 | 19.3 | 19.8 | lift beethoven-1.mid wall 0.5 s |
+| R u0>u1 | 14.9 | 23.4 | lift boulanger-matin.mid wall 0.3 s |
+| R u1>u2 | 14.9 | 23.4 | lift boulanger-matin.mid wall 0.3 s |
+| R u2>u3 | 14.9 | 23.4 | lift boulanger-matin.mid wall 0.3 s |
+| R u3>elbow | 2.4 | 3.9 | rest beethoven-1.mid rest |
+| R elbow>f0 | 11.6 | 11.7 | play beethoven-8-4.mid 435.59 s |
+| R f0>f1 | 23.3 | 23.3 | play brahms-2.mid 712.63 s |
+| R f1>f2 | 23.3 | 23.3 | play brahms-2.mid 639.63 s |
+| R f2>f3 | 23.3 | 23.3 | play beethoven-1.mid 117.40 s |
+| R f3>wrist | 11.6 | 11.7 | play mendelssohn-op61.mid 67.52 s |
+| R wrist>hand | 0.0 | 0.0 | play brahms-2.mid 391.63 s |
+L total twist: mean 118.3, largest 164.1
+R total twist: mean 159.5, largest 175.3
