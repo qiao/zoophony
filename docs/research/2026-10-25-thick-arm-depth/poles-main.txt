@@ -1,0 +1,49 @@
+poleR 0.3,-1,0.2
+  joint forearmR: [0.363, 1.001, -0.003]
+  joint handR: [0.385, 0.912, -0.154]
+  joint fingersR: [0.401, 0.905, -0.215]
+  in body: 18 of 94 corners, the deepest 3.7 cm
+    3.7 cm at [0.252, 1.017, 0.023] along 0.72
+    3.1 cm at [0.266, 0.996, 0.058] along 0.74
+poleR 0.8,-1,0.2
+  joint forearmR: [0.381, 1.012, -0.011]
+  joint handR: [0.384, 0.920, -0.162]
+  joint fingersR: [0.399, 0.915, -0.224]
+  in body: 14 of 94 corners, the deepest 2.9 cm
+    2.9 cm at [0.265, 1.020, 0.006] along 0.71
+    2.8 cm at [0.277, 1.002, 0.036] along 0.72
+poleR 1.5,-1,0.2
+  joint forearmR: [0.388, 1.023, -0.021]
+  joint handR: [0.379, 0.926, -0.169]
+  joint fingersR: [0.393, 0.922, -0.231]
+  in body: 12 of 94 corners, the deepest 2.7 cm
+    2.7 cm at [0.278, 1.010, 0.014] along 0.72
+    2.0 cm at [0.298, 0.995, 0.042] along 0.72
+poleR 3,-1,0.2
+  joint forearmR: [0.391, 1.033, -0.030]
+  joint handR: [0.374, 0.929, -0.173]
+  joint fingersR: [0.386, 0.927, -0.235]
+  in body: 11 of 94 corners, the deepest 2.5 cm
+    2.5 cm at [0.291, 1.005, 0.019] along 0.72
+    2.0 cm at [0.280, 1.027, -0.007] along 0.71
+poleR 1,-0.3,0.2
+  joint forearmR: [0.390, 1.031, -0.028]
+  joint handR: [0.375, 0.929, -0.172]
+  joint fingersR: [0.387, 0.926, -0.234]
+  in body: 11 of 94 corners, the deepest 2.5 cm
+    2.5 cm at [0.288, 1.006, 0.018] along 0.72
+    2.0 cm at [0.278, 1.028, -0.008] along 0.71
+poleR 1,-1,1
+  joint forearmR: [0.379, 1.011, -0.010]
+  joint handR: [0.384, 0.919, -0.162]
+  joint fingersR: [0.400, 0.914, -0.223]
+  in body: 14 of 94 corners, the deepest 3.0 cm
+    3.0 cm at [0.262, 1.023, 0.004] along 0.71
+    2.9 cm at [0.273, 1.003, 0.035] along 0.72
+poleR 1,-1,-0.5
+  joint forearmR: [0.390, 1.027, -0.024]
+  joint handR: [0.378, 0.927, -0.170]
+  joint fingersR: [0.391, 0.924, -0.232]
+  in body: 12 of 94 corners, the deepest 2.6 cm
+    2.6 cm at [0.283, 1.008, 0.016] along 0.72
+    1.9 cm at [0.276, 1.031, -0.011] along 0.71

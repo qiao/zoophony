@@ -1,0 +1,44 @@
+bind pose: deepest upper arm corner 0.0 cm
+timpanist upperArmR at beethoven-8-4:565.34: 94 corners; deepest cm: rig 2.94, helper 2.94, trunk 3.41, rigid 3.42
+  vertex 231 bind [0.350, 1.123, -0.076] rig 2.9 helper 2.9 trunk 2.9 rigid 3.0 bind 0.0 | upper_arm_seg2_R 0.36, upper_arm_seg3_R 0.28, upper_arm_seg1_R 0.25, forearm_seg0_R 0.11
+  vertex 232 bind [0.355, 1.090, -0.063] rig 2.8 helper 2.9 trunk 2.8 rigid 3.0 bind 0.0 | upper_arm_seg2_R 0.35, upper_arm_seg1_R 0.27, upper_arm_seg3_R 0.25, elbow_R 0.13
+  vertex 248 bind [0.335, 1.084, -0.045] rig 1.8 helper 1.8 trunk 3.4 rigid 3.4 bind 0.0 | upper_arm_seg1_R 0.38, upper_arm_seg2_R 0.33, clavicle_R 0.14, upper_arm_seg3_R 0.14
+  vertex 215 bind [0.387, 1.118, -0.091] rig 1.6 helper 1.6 trunk 1.6 rigid 1.7 bind 0.0 | upper_arm_seg3_R 0.31, forearm_seg0_R 0.24, upper_arm_seg2_R 0.24, forearm_seg1_R 0.21
+  vertex 233 bind [0.373, 1.058, -0.043] rig 1.2 helper 1.7 trunk 1.2 rigid 1.7 bind 0.0 | elbow_R 0.30, upper_arm_seg2_R 0.27, upper_arm_seg1_R 0.26, upper_arm_seg3_R 0.16
+  vertex 214 bind [0.381, 1.148, -0.085] rig 1.2 helper 1.2 trunk 1.2 rigid 1.5 bind 0.0 | upper_arm_seg3_R 0.32, upper_arm_seg2_R 0.24, forearm_seg0_R 0.24, forearm_seg1_R 0.20
+  vertex 265 bind [0.328, 1.053, -0.006] rig 1.1 helper 1.5 trunk 2.9 rigid 3.4 bind 0.0 | upper_arm_seg1_R 0.45, clavicle_R 0.24, upper_arm_seg2_R 0.21, elbow_R 0.11
+  vertex 230 bind [0.354, 1.160, -0.074] rig 1.1 helper 1.1 trunk 1.1 rigid 0.7 bind 0.0 | upper_arm_seg2_R 0.36, upper_arm_seg3_R 0.29, upper_arm_seg1_R 0.24, forearm_seg0_R 0.12
+  vertex 247 bind [0.333, 1.117, -0.064] rig 1.1 helper 1.1 trunk 2.8 rigid 2.2 bind 0.0 | upper_arm_seg1_R 0.36, upper_arm_seg2_R 0.33, upper_arm_seg3_R 0.16, clavicle_R 0.15
+  vertex 216 bind [0.401, 1.091, -0.091] rig 1.1 helper 1.1 trunk 1.1 rigid 1.0 bind 0.0 | upper_arm_seg3_R 0.29, forearm_seg0_R 0.26, forearm_seg1_R 0.23, upper_arm_seg2_R 0.22
+  vertex 264 bind [0.317, 1.082, -0.032] rig 0.9 helper 0.9 trunk 3.0 rigid 2.8 bind 0.0 | upper_arm_seg1_R 0.45, clavicle_R 0.25, upper_arm_seg2_R 0.25, upper_arm_seg3_R 0.05
+  vertex 249 bind [0.350, 1.052, -0.021] rig 0.8 helper 1.5 trunk 2.4 rigid 3.4 bind 0.0 | upper_arm_seg1_R 0.38, upper_arm_seg2_R 0.28, elbow_R 0.20, clavicle_R 0.14
+bind pose: deepest upper arm corner 0.0 cm
+timpanist upperArmR at beethoven-8-4:rest: 94 corners; deepest cm: rig 2.90, helper 2.90, trunk 3.39, rigid 3.44
+  vertex 231 bind [0.350, 1.123, -0.076] rig 2.9 helper 2.9 trunk 2.9 rigid 3.0 bind 0.0 | upper_arm_seg2_R 0.36, upper_arm_seg3_R 0.28, upper_arm_seg1_R 0.25, forearm_seg0_R 0.11
+  vertex 232 bind [0.355, 1.090, -0.063] rig 2.8 helper 2.8 trunk 2.8 rigid 3.0 bind 0.0 | upper_arm_seg2_R 0.35, upper_arm_seg1_R 0.27, upper_arm_seg3_R 0.25, elbow_R 0.13
+  vertex 248 bind [0.335, 1.084, -0.045] rig 1.7 helper 1.7 trunk 3.4 rigid 3.4 bind 0.0 | upper_arm_seg1_R 0.38, upper_arm_seg2_R 0.33, clavicle_R 0.14, upper_arm_seg3_R 0.14
+  vertex 215 bind [0.387, 1.118, -0.091] rig 1.6 helper 1.6 trunk 1.6 rigid 1.7 bind 0.0 | upper_arm_seg3_R 0.31, forearm_seg0_R 0.24, upper_arm_seg2_R 0.24, forearm_seg1_R 0.21
+bind pose: deepest upper arm corner 0.0 cm
+timpanist upperArmL at beethoven-8-4:565.34: 96 corners; deepest cm: rig 1.10, helper 1.26, trunk 2.44, rigid 2.47
+  vertex 1936 bind [-0.357, 1.083, -0.059] rig 1.1 helper 1.3 trunk 1.1 rigid 1.4 bind 0.0 | upper_arm_seg2_L 0.38, upper_arm_seg1_L 0.24, upper_arm_seg3_L 0.24, elbow_L 0.14
+  vertex 1797 bind [-0.349, 1.114, -0.072] rig 0.7 helper 0.7 trunk 1.8 rigid 2.0 bind 0.0 | upper_arm_seg2_L 0.38, upper_arm_seg3_L 0.28, upper_arm_seg1_L 0.24, clavicle_L 0.10
+  vertex 1765 bind [-0.354, 1.158, -0.075] rig 0.5 helper 0.5 trunk 0.5 rigid 0.5 bind 0.0 | upper_arm_seg2_L 0.37, upper_arm_seg3_L 0.30, upper_arm_seg1_L 0.24, forearm_seg1_L 0.09
+  vertex 1935 bind [-0.333, 1.108, -0.060] rig 0.5 helper 0.5 trunk 2.3 rigid 2.5 bind 0.0 | upper_arm_seg2_L 0.35, upper_arm_seg1_L 0.32, clavicle_L 0.18, upper_arm_seg3_L 0.15
+  vertex 1767 bind [-0.389, 1.113, -0.094] rig 0.3 helper 0.3 trunk 0.3 rigid 0.5 bind 0.0 | upper_arm_seg3_L 0.31, upper_arm_seg2_L 0.25, forearm_seg1_L 0.22, forearm_seg0_L 0.22
+  vertex 1406 bind [-0.318, 1.073, -0.027] rig 0.2 helper 0.3 trunk 2.4 rigid 2.3 bind 0.0 | upper_arm_seg1_L 0.36, clavicle_L 0.30, upper_arm_seg2_L 0.27, elbow_L 0.07
+bind pose: deepest upper arm corner 1.0 cm
+tubist upperArmR at brahms-2:340.38: 36 corners; deepest cm: rig 1.77, helper 1.77, trunk 1.77, rigid 1.77
+  vertex 94 bind [0.196, 0.851, -0.001] rig 1.8 helper 1.8 trunk 1.8 rigid 1.8 bind 0.9 | undefined 0.41, chest 0.38, spine1 0.14, spine 0.07
+  vertex 157 bind [0.219, 0.828, 0.044] rig 1.6 helper 1.6 trunk 1.6 rigid 1.6 bind 1.0 | undefined 0.45, chest 0.31, spine1 0.15, spine 0.09
+  vertex 82 bind [0.221, 0.827, 0.017] rig 1.3 helper 1.3 trunk 1.3 rigid 1.3 bind 0.5 | undefined 0.58, chest 0.24, spine1 0.12, spine 0.06
+  vertex 86 bind [0.262, 0.900, -0.061] rig 0.7 helper 0.7 trunk 0.7 rigid 0.7 bind 0.0 | upper_arm_R 0.47, undefined 0.35, chest 0.09, forearm_R 0.08
+  vertex 84 bind [0.204, 0.857, -0.023] rig 0.7 helper 0.7 trunk 0.7 rigid 0.7 bind 0.0 | undefined 0.55, chest 0.29, spine1 0.09, upper_arm_R 0.07
+  vertex 30 bind [0.365, 0.817, 0.070] rig 0.0 helper 0.0 trunk 0.0 rigid 0.0 bind 0.0 | upper_arm_R 0.57, undefined 0.21, forearm_R 0.15, chest 0.07
+bind pose: deepest upper arm corner 1.0 cm
+tubist upperArmR at brahms-2:rest: 36 corners; deepest cm: rig 1.99, helper 1.99, trunk 1.99, rigid 1.99
+  vertex 86 bind [0.262, 0.900, -0.061] rig 2.0 helper 2.0 trunk 2.0 rigid 2.0 bind 0.0 | upper_arm_R 0.47, undefined 0.35, chest 0.09, forearm_R 0.08
+  vertex 94 bind [0.196, 0.851, -0.001] rig 1.8 helper 1.8 trunk 1.8 rigid 1.8 bind 0.9 | undefined 0.41, chest 0.38, spine1 0.14, spine 0.07
+  vertex 157 bind [0.219, 0.828, 0.044] rig 1.6 helper 1.6 trunk 1.6 rigid 1.6 bind 1.0 | undefined 0.45, chest 0.31, spine1 0.15, spine 0.09
+  vertex 82 bind [0.221, 0.827, 0.017] rig 1.3 helper 1.3 trunk 1.3 rigid 1.3 bind 0.5 | undefined 0.58, chest 0.24, spine1 0.12, spine 0.06
+  vertex 83 bind [0.262, 0.853, -0.051] rig 1.2 helper 1.2 trunk 1.2 rigid 1.2 bind 0.0 | upper_arm_R 0.47, undefined 0.35, chest 0.10, forearm_R 0.08
+  vertex 84 bind [0.204, 0.857, -0.023] rig 0.9 helper 0.9 trunk 0.9 rigid 0.9 bind 0.0 | undefined 0.55, chest 0.29, spine1 0.09, upper_arm_R 0.07

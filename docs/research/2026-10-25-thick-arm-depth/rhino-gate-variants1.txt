@@ -1,0 +1,64 @@
+
+> zoophony@0.0.0 arm-check /Users/xueqiaoxu/proj/zoophony/.claude/worktrees/agent-a1c3bf4ff40f2e8ec
+> node tools/arm-check.ts tubist --jobs 6 --variant v1 --set tuba\@rhino.reach\=0.785\;tuba\@rhino.poleR\=1\,-0.25\,-0.5\;tuba\@rhino.restPoleR\=1\,-0.25\,-0.5 --variant v2 --set tuba\@rhino.reach\=0.9\;tuba\@rhino.poleR\=1\,-0.25\,-0.5\;tuba\@rhino.restPoleR\=1\,-0.25\,-0.5 --variant v3 --set tuba\@rhino.reach\=0.9\;tuba\@rhino.poleR\=1\,0\,-0.5\;tuba\@rhino.restPoleR\=1\,0\,-0.5 --variant v4 --set tuba\@rhino.reach\=0.785\;tuba\@rhino.poleR\=1\,0\,-0.5 --variant v5 --set tuba\@rhino.reach\=0.785 --variant v6 --set tuba\@rhino.reach\=0.785\;tuba\@rhino.poleR\=1\,-0.5\,0\;tuba\@rhino.restPoleR\=1\,-0.5\,0
+
+Arm gate of 1 roles in 6 variants: 6 children, at most 6 at the same time, in 36 s. A cell gives the value and the verdict of a value that does not pass.
+
+- v1: tuba@rhino.reach=0.785;tuba@rhino.poleR=1,-0.25,-0.5;tuba@rhino.restPoleR=1,-0.25,-0.5
+- v2: tuba@rhino.reach=0.9;tuba@rhino.poleR=1,-0.25,-0.5;tuba@rhino.restPoleR=1,-0.25,-0.5
+- v3: tuba@rhino.reach=0.9;tuba@rhino.poleR=1,0,-0.5;tuba@rhino.restPoleR=1,0,-0.5
+- v4: tuba@rhino.reach=0.785;tuba@rhino.poleR=1,0,-0.5
+- v5: tuba@rhino.reach=0.785
+- v6: tuba@rhino.reach=0.785;tuba@rhino.poleR=1,-0.5,0;tuba@rhino.restPoleR=1,-0.5,0
+
+| Variant | Role | Arm | folds p95 (8) | twist p95 (55) | forearm twist p95 (80) | flat p5 (0.55) | paw twist p95 (170) | paw swing p95 (70) | paw jumps (0.5%) | stretch p95 (0.35) | grip turn p50 (45) | move twist max (176) | move turn max (3000) | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| v1 | tubist | L | 3 | 42 | 59 | 0.63 | 148 | 29 | 0.0% | 0.08 | 96 FAIL | 148 | 18 | FAIL |
+| v1 | tubist | R | 4 | 32 | 61 | 0.65 | 147 | 30 | 0.0% | 0.15 | 7 | 147 | 28 | PASS |
+| v2 | tubist | L | 3 | 42 | 59 | 0.63 | 148 | 29 | 0.0% | 0.08 | 96 FAIL | 148 | 18 | FAIL |
+| v2 | tubist | R | 4 | 35 | 61 | 0.67 | 148 | 33 | 0.0% | 0.10 | 7 | 148 | 23 | PASS |
+| v3 | tubist | L | 3 | 42 | 59 | 0.63 | 148 | 29 | 0.0% | 0.08 | 96 FAIL | 148 | 18 | FAIL |
+| v3 | tubist | R | 5 | 36 | 70 | 0.61 | 162 | 36 | 0.0% | 0.09 | 8 | 162 | 25 | PASS |
+| v4 | tubist | L | 3 | 42 | 59 | 0.63 | 148 | 29 | 0.0% | 0.08 | 96 FAIL | 148 | 18 | FAIL |
+| v4 | tubist | R | 3 | 33 | 65 | 0.65 | 156 | 32 | 0.0% | 0.15 | 8 | 156 | 38 | PASS |
+| v5 | tubist | L | 3 | 42 | 59 | 0.63 | 148 | 29 | 0.0% | 0.08 | 96 FAIL | 148 | 18 | FAIL |
+| v5 | tubist | R | 4 | 30 | 54 | 0.70 | 135 | 28 | 0.0% | 0.15 | 20 | 135 | 25 | PASS |
+| v6 | tubist | L | 3 | 42 | 59 | 0.63 | 148 | 29 | 0.0% | 0.08 | 96 FAIL | 148 | 18 | FAIL |
+| v6 | tubist | R | 4 | 30 | 52 | 0.73 | 130 | 27 | 0.0% | 0.15 | 25 | 130 | 23 | PASS |
+
+Variant v1:
+
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| tubist | L | grip turn p50 | play | 4147 | 96 | 96 | 100.0% | 96 at brahms-2.mid 142.88 s | 96 | 45 | - | FAIL |
+
+Variant v2:
+
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| tubist | L | grip turn p50 | play | 4147 | 96 | 96 | 100.0% | 96 at brahms-2.mid 142.88 s | 96 | 45 | - | FAIL |
+
+Variant v3:
+
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| tubist | L | grip turn p50 | play | 4147 | 96 | 96 | 100.0% | 96 at brahms-2.mid 142.88 s | 96 | 45 | - | FAIL |
+
+Variant v4:
+
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| tubist | L | grip turn p50 | play | 4147 | 96 | 96 | 100.0% | 96 at brahms-2.mid 142.88 s | 96 | 45 | - | FAIL |
+
+Variant v5:
+
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| tubist | L | grip turn p50 | play | 4147 | 96 | 96 | 100.0% | 96 at brahms-2.mid 142.88 s | 96 | 45 | - | FAIL |
+
+Variant v6:
+
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| tubist | L | grip turn p50 | play | 4147 | 96 | 96 | 100.0% | 96 at brahms-2.mid 142.88 s | 96 | 45 | - | FAIL |
+ ELIFECYCLE  Command failed with exit code 1.

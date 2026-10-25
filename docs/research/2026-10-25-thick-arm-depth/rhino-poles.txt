@@ -1,0 +1,15 @@
+reach 0.524, poles 1,-0.5,-0.5
+tubist upperArmR at brahms-2:340.38: 36 corners; deepest cm: rig 1.76, helper 1.76, trunk 1.76, rigid 1.76
+tubist upperArmR at brahms-2:rest: 36 corners; deepest cm: rig 1.99, helper 1.99, trunk 1.99, rigid 1.99
+reach 0.785, poles 1,-0.5,0
+tubist upperArmR at brahms-2:340.38: 36 corners; deepest cm: rig 1.78, helper 1.78, trunk 1.78, rigid 1.78
+tubist upperArmR at brahms-2:rest: 36 corners; deepest cm: rig 1.80, helper 1.80, trunk 1.80, rigid 1.80
+reach 0.785, poles 1,-0.25,-0.25
+tubist upperArmR at brahms-2:340.38: 36 corners; deepest cm: rig 1.44, helper 1.44, trunk 1.44, rigid 1.44
+tubist upperArmR at brahms-2:rest: 36 corners; deepest cm: rig 1.53, helper 1.53, trunk 1.53, rigid 1.53
+reach 0.785, poles 1,-0.2,-0.25
+tubist upperArmR at brahms-2:340.38: 36 corners; deepest cm: rig 1.38, helper 1.38, trunk 1.38, rigid 1.38
+tubist upperArmR at brahms-2:rest: 36 corners; deepest cm: rig 1.47, helper 1.47, trunk 1.47, rigid 1.47
+reach 0.785, poles 1,0,-0.5
+tubist upperArmR at brahms-2:340.38: 36 corners; deepest cm: rig 1.21, helper 1.21, trunk 1.21, rigid 1.21
+tubist upperArmR at brahms-2:rest: 36 corners; deepest cm: rig 1.40, helper 1.40, trunk 1.40, rigid 1.40

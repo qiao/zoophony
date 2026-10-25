@@ -1,0 +1,20 @@
+
+> zoophony@0.0.0 arm-check /Users/xueqiaoxu/proj/zoophony/.claude/worktrees/agent-a1c3bf4ff40f2e8ec
+> node tools/arm-check.ts timpanist tubist --base main
+
+base: cached (main, 467dfd9a2f9a)
+base: cached (main, 4bab107994d0)
+Arm gate of 2 roles against main in 46 s. A cell gives the value, the base in parentheses, and the verdict of a value that does not pass.
+
+| Role | Arm | folds p95 (8) | twist p95 (55) | forearm twist p95 (80) | flat p5 (0.55) | paw twist p95 (170) | paw swing p95 (70) | paw jumps (0.5%) | stretch p95 (0.35) | grip turn p50 (45) | move twist max (176) | move turn max (3000) | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| timpanist | L | 4 (4) | 27 (26) | 7 (8) | 0.82 (0.82) | 18 (18) | 43 (43) | 0.0% (0.0%) | 0.08 (0.08) | 4 (4) | 18 (18) | 82 (82) | PASS |
+| timpanist | R | 2 (3) | 29 (29) | 5 (5) | 0.78 (0.78) | 9 (9) | 31 (31) | 0.0% (0.0%) | 0.02 (0.02) | 0 (0) | 10 (10) | 147 (147) | PASS |
+| tubist | L | 3 (3) | 42 (42) | 59 (59) | 0.63 (0.63) | 148 (148) | 29 (29) | 0.0% (0.0%) | 0.08 (0.08) | 96 (96) OPEN | 148 (148) | 18 (18) | OPEN |
+| tubist | R | 4 (4) | 32 (22) | 62 (53) | 0.65 (0.68) | 148 (133) | 30 (25) | 0.0% (0.0%) | 0.15 (0.15) | 6 (19) | 148 (133) FAIL | 29 (171) | FAIL |
+
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| tubist | L | grip turn p50 | play | 4147 | 96 | 96 | 100.0% | 96 at brahms-2.mid 142.88 s | 96 | 45 | 96 | OPEN |
+| tubist | R | move twist max | move | 2322 | 146 | 148 | 100.0% | 148 at brahms-2.mid lower 250.82 s, wall 1.82 s | 148 | 176 | 133 | FAIL |
+ ELIFECYCLE  Command failed with exit code 1.
