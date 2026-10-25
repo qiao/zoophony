@@ -744,9 +744,10 @@ export const BOWED_HOLDS = {
  * the body in the play. The left elbow points out as far as down, and less forward. The stick of
  * the bow passes through the middle of the paw since 2026-10-17 (`SpeciesParams.bowGrip`), and the
  * hand sits about 4 cm further out on the bow, so the right elbow of the play points a little
- * further out than the elbow of the chin hold: with that elbow, the right upper arm went 0.6 cm
- * into the body (0.0 cm before the grip), and with (1.1, -1, -1) 0.3 cm. The pole (1.2, -1, -1)
- * gave 0.0 cm, but folded face 187 of the right clavicle in more play samples (2026-10-17-cat-bow
+ * further out than the elbow of the chin hold. Since the rebuilt arms of 2026-10-25, the right
+ * elbow of the play points out, forward, and less down, (1.2, -0.5, -1), as the elbow of a real
+ * violist at the frog: the back of the rebuilt upper arm lies against the trunk in the bind, and
+ * with (1.1, -1, -1) of 2026-10-17 it went 3.8 cm into the body (1.3 cm now, 2026-10-25-cat-arms
  * decisions). At the tip, the right elbow points down, out, and forward, (1, -1, -1), as the elbow
  * of the rabbit: with the elbow up of the chin hold, (0.5, 1, -1), a dark wedge fold opened under
  * the right armpit at the tip (manager review of 2026-10-24), the right paw turned 116° on its
@@ -767,10 +768,11 @@ export const BOWED_HOLDS = {
  * (11.6 cm with the elbow (-1, -1, 0.5) of 2026-10-16). With the elbow further in, (-0.5, -1, 0.3),
  * it was 5.0 cm out, and the left upper arm went 1.9 cm into the body. A place further down the
  * upper bout put the left forearm 2.4 cm to 2.8 cm into the viola. The grip of the bow is 0.6 H
- * out, 0.3 H down, and 0.1 H back at 0.5 of the way to the knee, and the right elbow points down, a
- * little out, and back. The upper arm hangs 34° from the vertical, the elbow is 2.7 cm out from the
- * side and 2.4 cm behind the back, and it bends to 103°, so the forearm comes forward to the paw
- * over the outer side of the thigh, as the forearm of a seated violinist. The arm of the cat, with
+ * out, 0.3 H down, and 0.1 H back at 0.5 of the way to the knee, and the right elbow points down,
+ * out, and a little back, (0.8, -1, 0.2), so the forearm comes forward to the paw over the outer
+ * side of the thigh, as the forearm of a seated violinist. With the elbow of 2026-10-17,
+ * (0.3, -1, 1), 2.4 cm behind the back, the rebuilt right upper arm went 2.7 cm into the back, and
+ * its skin rolled 64° on the gate (limit 55, 2026-10-25-cat-arms decisions). The arm of the cat, with
  * the reach of the red fox, reaches the top of the thigh only nearly straight, so the paw stays
  * above the thigh: with the grip of 2026-10-17 (0.87 H out), the arm hung straight, down and out to
  * the side, with the paw far from the body, and the user said that the pose looked weird. A grip on
@@ -849,9 +851,9 @@ const CAT_HOLD = {
   poleL: [-1, -1, -0.75],
   elbowPerString: 2 * MathUtils.DEG2RAD,
   highTilt: 20 * MathUtils.DEG2RAD,
-  poleR: [1.1, -1, -1],
+  poleR: [1.2, -0.5, -1],
   poleTipR: [1, -1, -1],
-  restPoleR: [0.3, -1, 1],
+  restPoleR: [0.8, -1, 0.2],
   restPoleL: [-0.6, -1, 0.3],
   restPlace: 0.4,
   rest: {
