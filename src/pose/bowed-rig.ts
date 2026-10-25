@@ -737,7 +737,12 @@ export const BOWED_HOLDS = {
  * {@link BOWED_HOLDS}, with the viola 0.05 H further right and 0.21 H further back, toward the
  * neck, so that the left paw reaches the nut, as the user asked for the arms of the reach of the
  * red fox (2026-10-16-mesh-cat decisions). At the place of the viola hold, the paw reached the
- * fingerboard from 0.29 of its length (`pnpm hold-reach cat --instrument viola`).
+ * fingerboard from 0.29 of its length (`pnpm hold-reach cat --instrument viola`). The viola is
+ * also 0.04 H lower than the viola hold, so that the jaw lies on the chin rest: 0.05 H lower put
+ * the head 1.2 cm into the viola (0.1 cm now, the red fox 0.1 cm). It points 74° to the left of the
+ * front, the violin of the red fox 64°: a turn of 3° toward the front put the nut out of the reach
+ * of the left paw (0.07 of the fingerboard), and a turn of 10° from 0.16 to 0.32 of it, with each
+ * place of the viola that kept the head out (2026-10-25-cat-arms decisions).
  *
  * The deeper chest of the cat form of 2026-10-17 (2026-10-16-cat-form decisions) took the room of
  * the left elbow: with the left elbow pole of the chin hold, the left upper arm went 5.5 cm into
@@ -848,7 +853,7 @@ export const BOWED_HOLDS = {
 const CAT_HOLD = {
   ...BOWED_HOLDS.viola,
   stringTurn: 11 * MathUtils.DEG2RAD,
-  playShift: [0.05, -0.05, 0.17],
+  playShift: [0.05, -0.09, 0.17],
   tiltL: 45 * MathUtils.DEG2RAD,
   poleL: [-1, -1, -0.75],
   elbowPerString: 2 * MathUtils.DEG2RAD,
