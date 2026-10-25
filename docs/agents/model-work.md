@@ -35,13 +35,10 @@ fox together.
 | deer | the mesh `assets/models/deer/deer.glb`, rigged by `pnpm rig-mesh deer` from a copy with a round inner side of each arm (`deer-arms.glb`) at 1.2 times the size of the parametric deer, with arms 1.25, a cut of each arm seam, a puff tail ball, the ears and the antlers on the head, the whole haunch on the stool of the harp, and a smaller harp (`harpScale`) | `2026-10-21-mesh-deer.md` | `harpist` |
 | penguin | the mesh `assets/models/penguin/penguin.glb`, rigged by `pnpm rig-mesh penguin` at the head top of the egg penguin, with the flippers of the mesh as arms, a jaw bone of the beak that `penguin-beak.glb` splits, and a tail ball, standing on its riser with the folder in front of the chest | `2026-10-21-mesh-penguin.md` | `singer` |
 
-No species has the parametric body of 2026-10-06 18:58 since the meshes of the rhino and the deer
-(`docs/decisions/2026-10-11-body-revert.md`). `pnpm sheet-check <id> <dir>` compares a parametric
-body with its
-sheet. The penguin has no sheet, so `pnpm choir-check <dir>` compares it with the choir of the two
-newest reference images. The GLB files `assets/models/rabbit/rabbit.glb` and
-`assets/models/bear/bear.glb` of the user stay for the tools of route 1. The meshes of the bear and
-of the polar bear in `assets/models/` and their rig configs stay for route 3. No species uses them.
+No species has the parametric body of 2026-10-06 (`docs/decisions/2026-10-11-body-revert.md`).
+The penguin has no sheet, so `pnpm choir-check <dir>` compares it with the choir of the two newest
+reference images. The GLB files `assets/models/rabbit/rabbit.glb` and `assets/models/bear/bear.glb`
+of the user stay for the tools of route 1.
 
 ## The arm gate
 
@@ -96,41 +93,10 @@ since 2026-10-11. Before step 3, bring back the code of 2026-10-10 with
 
 No species has such a body since 2026-10-21. `git show c4951160:src/models/penguin/<file>` gives
 the egg penguin of 2026-10-11, and `git show b9f71daf:src/models/fox/<file>` the fox body of
-2026-10-10.
-
-```text
- <id>-views.png --make_matte.py + <id>.json--> tools/sheet-mattes/<id>.png --+
-                                                                             v
- src/models/<species>/ --> views.html?sheet=<id> --> pnpm sheet-check --> IoU, row diffs,
-         ^                                                                colors, rows.txt
-         +-------------------------- edit, one round ---------------------------+
-```
-
-1. Add the sheet to `VIEW_SHEETS`: the scale, the floor, the turns, the shadows, and the light.
-   Write the matte config, and check the matte with its check image.
-2. Measure the sheet in head heights of the sheet animal: the head, the joints, the widths, and the
-   depths. Set the skeleton (`proportions`) from these measures.
-3. Build the body with the shared parts of the egg penguin, which `git show c4951160:<path>` gives
-   back: `ringLoft()` of `src/models/primitives.ts`, `addPainted()` of `src/models/painted.ts`,
-   `limbTube()` of `src/models/limb-tube.ts`, and the plates of `src/models/face-plates.ts`.
-   Select it with `SpeciesParams.body` and the dispatch of `buildBiped()`.
-4. In each round, run `pnpm sheet-check <id> <dir>`, and change the largest difference first. Tune
-   a pose with `pnpm pose-probe <id> --set <changes>`.
-5. Record the measures in a research report and the decisions in a decision file.
-
-The traps of route 2:
-
-- The baked occlusion (design 4.5) draws a dark line where two body bones meet on a concave
-  surface. Keep the regions that do not move against each other in one part, such as a torso on
-  `spine`.
-- In a side view, a far limb that is further forward shows in front of the near limb. Compare the
-  runs in `<id>-rows.txt` before you move a joint.
-- A sheet from an image model can disagree between its views. Measure each view, and choose the
-  value that keeps each view close.
-- The holds are in head heights, so a new head height moves each hold. Scale the holds first, then
-  tune them.
-- The colors of a sheet page pass through its light. Change that light only for a sheet with a
-  different light, such as the soft light of `bear-views.png`.
+2026-10-10. The route: add the sheet to `VIEW_SHEETS` with a matte config, measure the sheet in
+head heights, build the body with `ringLoft()`, `addPainted()`, `limbTube()`, and the face plates
+of the egg penguin, and compare it with `pnpm sheet-check <id> <dir>` in each round.
+`git show 4c3d3f7e:docs/agents/model-work.md` gives its steps and its traps in full.
 
 ## Route 3: a studio body
 
