@@ -157,6 +157,10 @@ from the V).
 - A mallet strikes a natural bar at its middle, and a sharp bar at its edge [9], the edge near the
   player (search summary of [29]).
 - The wrists stay low, and the elbows move forward to reach the back row [27].
+- A scale plays with alternate strokes, from either hand, and the hands also alternate on the
+  sharp bars of a chromatic scale [34]. Mallet technique rests on alternate single strokes. Where
+  full alternation would make the hands cross, the player puts in double strokes, two strokes of
+  one hand [35].
 
 ## 10. Use in the app
 
@@ -314,3 +318,6 @@ has a mark of section "Source marks" or a source says "a search summary only".
 32. Wikipedia, "Suspended cymbal". https://en.wikipedia.org/wiki/Suspended_cymbal
 33. Zildjian, "18\" S Family Suspended" (a product page, a search summary only).
     https://zildjian.com/18-s-family-suspended.html
+34. Vic Firth, "Chromatic Scale", Two Mallet Fundamentals. https://ae.vicfirth.com/?p=3141
+35. M. Peters, "The Double Stroke in Mallet Technique", The Instrumentalist, April 2012.
+    https://theinstrumentalist.com/?p=3568
