@@ -354,8 +354,8 @@ twist bone (`docs/decisions/2026-10-19-arm-skin.md`).
 
 A mesh rig can instead give each arm the bones of a rigger, as on the Rigify rabbit of `ode.html`
 (`armSegments` of the config, `docs/decisions/2026-10-24-polar-bear-arms.md`), as the polar bear,
-the rabbit, the mouse, and the wolf do (`docs/decisions/2026-10-24-violin-arms.md`,
-`docs/decisions/2026-10-25-wind-arms.md`): 4 deform segments
+the rabbit, the mouse, the wolf, and the cat do (`docs/decisions/2026-10-24-violin-arms.md`,
+`docs/decisions/2026-10-25-wind-arms.md`, `docs/decisions/2026-10-25-cat-arms.md`): 4 deform segments
 on the upper arm and on the forearm, and a helper bone at the elbow and at the wrist. The skin of
 the arm hangs on them, and the upper arm, the forearm, and the forearm twist bone only drive them.
 The app turns them from the joints of the pose, so each song keeps the live pose (`poseArm()`).
@@ -563,7 +563,11 @@ mesh are quad tubes (rings at a right angle to the bones), and the weights come 
     arms, so the copy of the mesh gets the arm length in Blender (`tools/blender/violin_arms.py`).
     The mouse and the wolf have such arms since 2026-10-25 (`tools/blender/wind_arms.py`), with
     their arm factors 1.4 and 1.178 in the copy of the mesh. The upper arm of the mouse joins the
-    trunk down to 0.6 of its length, so its tube starts there.
+    trunk down to 0.6 of its length, so its tube starts there. The upper arm of the cat joins
+    the trunk down to the elbow, so its copy also gets an armpit (`tools/blender/cat_arms.py`): a
+    cut along the seam where the arm meets the trunk, a side wall of the trunk under the arm, and
+    a tube whose flat inner side lies on the wall and meets it only at the armpit line, high under
+    the shoulder. The trunk and the first ring of the shoulder keep the rule weights.
     `pnpm arm-look` measures the
     crease of the arm skin against the source and the section of the upper arm, with limits from the red fox
     (`docs/decisions/2026-10-21-arm-form.md`).
