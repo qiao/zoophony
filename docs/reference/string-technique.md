@@ -491,7 +491,7 @@ A round that changes the motion updates the items.
   of the cello on the C string. It also plays no hair within 0.12 m of the frog
   (`BowedHold.frogHair`), where its forearm crossed the rim. The contrabass of the hippo turns
   12°: with 25°, the bow paw on the lowest string went 9.1 cm into the round belly. The bow of
-  the rabbit plays no hair within 0.09 m of the frog (`BowedHold.frogHair`), because at the frog
+  the rabbit plays no hair within 0.11 m of the frog (`BowedHold.frogHair`), because at the frog
   the violin at 50° brought the bow paw to the jaw. The rabbit and the red fox pluck over the end
   of the fingerboard (`BowedHold.pluckPlace` 0), because a pluck near the bow put the right
   forearm into the body (`docs/decisions/2026-10-25-string-angle.md`). No source of this file

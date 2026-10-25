@@ -528,8 +528,9 @@ const HANGING_BOW = {
  * broad side of the long upper arm faced the front as a flat plank, and with this elbow the upper
  * arm reads across the body. With the A-pose mesh, 9 faces of the right arm folded at that elbow
  * in the arm gate (limit 8), and 7 at this elbow (2026-10-23-rabbit-arms decisions). The bow
- * plays no hair within 0.09 m of the frog (`frogHair`): with the violin turned to 50°, the frog
- * brought the bow paw to the jaw. In pizzicato, the paw plucks over the end of the fingerboard
+ * plays no hair within 0.11 m of the frog (`frogHair`): with the violin turned to 50°, the frog
+ * brought the bow paw to the jaw, and with 0.09 m the right forearm went 1.7 cm into the body
+ * (1.2 cm now). In pizzicato, the paw plucks over the end of the fingerboard
  * (`pluckPlace` 0), with the bow tip up and back: with the pluck of the chin hold, near the bow,
  * the right forearm went 3.5 cm into the body. The right elbow points down at the tip too: up,
  * as in the chin hold, the skin of the studio rabbit folded at the right upper arm
@@ -596,7 +597,7 @@ const SHOULDER_HOLD = {
   reachL: 15.5 * MathUtils.DEG2RAD,
   poleR: [1.8, -0.3, -1],
   freeHair: 0.06,
-  frogHair: 0.09,
+  frogHair: 0.11,
   pluckPlace: 0,
   pizzicatoTip: [0.3, 0.5, 1],
   poleTipR: CHIN_HOLD.poleR,
