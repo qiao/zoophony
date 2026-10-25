@@ -150,8 +150,11 @@ interface StudioArmSegments {
   opened the closed paw (`wristGap` of `wind_arms.py`, `docs/research/2026-10-25-wind-arms.md`).
 - **A thick arm.** On an arm as thick as half of its length, a cut plane with a tilt or a wrist
   cut near the joint crosses the nearest ring, and the bridge turns faces over. A wide elbow gap
-  folds fewer faces, but the elbow helper then turns the inner upper arm into the belly
-  (`tools/blender/elephant_arms.py`, `docs/research/2026-10-25-elephant-arms.md`).
+  folds fewer faces. A thick upper arm that turns down to a round belly goes into it as one
+  rigid part: the weights cannot fix it, so make its inner side a little flatter with Translate
+  and Proportional Editing (`step_flatten()` of `tools/blender/elephant_arms.py`,
+  `docs/research/2026-10-25-thick-arm-depth.md`). Prove the cause of a depth first with
+  `probes/depth-cause.ts` of that report.
 - **The kept colors.** Blender weights can put the top of a paw on the `fingers` bone, so a tone
   rule that keeps the colors of the fingers (`colors.tone.keep`) shows the raw texture there.
 - **An arm joined to the trunk.** When the upper arm joins the trunk down to the elbow, cut along
