@@ -400,17 +400,31 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
 - [x] Rabbit (A-pose mesh): the long arm faces show dark shards on the bent arms at rest, at the
       frog, and at the tip (`arm-crops.webp` of `2026-10-23-rabbit-arms/`). The user allowed one
       ring at each elbow (`2026-10-24-rabbit-hold.md`).
-- [ ] Rabbit: the right wrist stretches 0.37 in the play (limit 0.35). No hold variant moved it
-      (`2026-10-24-rabbit-hold.md`). The lift from the knee turns the paws at 563°/s and
-      880°/s (limit 3,000) (`2026-10-24-violin-moves.md`).
-- [ ] Cat: the left paw swings 91° at rest on the knee (limit 70) (`2026-10-24-violin-poses.md`).
+- [x] Rabbit: the right wrist stretched 0.37 in the play (limit 0.35). With the rebuilt arms, it
+      stretches 0.08 (`2026-10-24-violin-arms.md`). The lift from the knee turns the paws at
+      563°/s and 880°/s (limit 3,000) (`2026-10-24-violin-moves.md`).
+- [x] Cat: the left paw swung 91° at rest on the knee (limit 70). With the top plate 30° to the
+      left of the front, it swings 26° (`2026-10-24-violin-review.md`).
 - [x] Rabbit and cat: the left elbow straightened in the middle of the lift and of the lowering,
       because the short arm reached the instrument in front of the round belly. Now the left paw
       carries the instrument by the end of the fingerboard, and the left elbow opens to 137°
       (rabbit) and 142° (cat), against 127° on the red fox (`2026-10-24-violin-moves.md`).
-- [ ] Rabbit: 7 faces of the right arm fold at rest with the bent elbow (limit 8, 2 with the
-      straight arm), and no crop shows them. A corrective shape of the rest can remove them
-      (`2026-10-24-violin-poses.md`).
+- [x] Rabbit: 7 faces of the right arm folded at rest with the bent elbow (limit 8). With the
+      rebuilt arms, 3 fold (`2026-10-24-violin-arms.md`).
+- [ ] Rabbit: the largest twist step between two arm bones is 42.1° on the left forearm (target
+      25°, 83.7° on `main`), because the left paw asks for about 150° of twist in the play. A
+      smaller twist of the hold, or more forearm segments, can lower it (`2026-10-24-violin-arms.md`).
+- [ ] Cat: the arms keep the faces of `main`, because the upper arm joins the trunk down to the
+      elbow, and a cut at 0.8 of the upper arm folded 12 to 16 faces at each elbow. A new cut of
+      the arm root in Blender is the next step (`2026-10-24-violin-arms.md`).
+- [ ] Cat: the right paw turns 32° from its accepted grip in the play (12° on `main`), because the
+      forearm rolls with the lower elbow at the tip. A new entry of `ACCEPTED_GRIPS` needs the
+      acceptance of the 2x paw crops (`2026-10-24-violin-review.md`).
+- [ ] Cat: the viola points 74° to the left (64° on the red fox), and the head goes 1.2 cm into
+      it. Each place nearer to 64° put the viola into the chest, took the nut out of the reach of
+      the left paw, or swung the paw past 70° (`2026-10-24-violin-review.md`).
+- [ ] Rabbit: the bow goes up to 2.5 cm into the arms in the lowering and 1.0 cm at rest, near the
+      grip (`shares.txt` of `2026-10-24-violin-arms/`).
 - [ ] Rabbit and cat: the forearms and the upper arms go up to 2.1 cm (rabbit) and 2.8 cm (cat)
       into the instrument in the lift and the lowering (limit 1.5), and the cat upper arms 2.7 cm
       in the lift (1.7 cm on `main`). The rabbit paws go 1.8 cm into the violin in a lowering
