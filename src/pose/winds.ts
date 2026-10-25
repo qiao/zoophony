@@ -548,9 +548,13 @@ const MOUSE_OBOE_FORWARD = -15;
  * broke the right arm into dark slits and thin shards (user: "the mouse's right arm is regressed",
  * `2026-10-25-wind-arms` decisions). Each paw aims across the tube (`aimAcross`) and turns half
  * toward the side across it (`aimSide`), as on the wolf, and its grip moves 0.2 H down the tube
- * and toward the axis (`gripShiftL`, `gripShiftR`), and each palm faces the tube (`faceTube`)
- * (`pnpm wind-grip oboist`, `2026-10-24-wind-grips` decisions). The small mouse plays a smaller
- * oboe (`SpeciesParams.oboeScale`).
+ * and toward the axis (`gripShiftL`, `gripShiftR`). Each palm faces the tube (`faceTube`), and the
+ * fingers curl 70° (left) and 55° (right) over its front (`gripCurl`), as an oboist curves the
+ * fingers over the keys with the thumb behind the tube (`docs/reference/wind-technique.md` 2.3).
+ * Both paws grasp the oboe in each play sample (`pnpm wind-grip oboist`). With the back of each paw
+ * to the tube before 2026-10-25, the fingers stood open beside the oboe. With 60° on the right,
+ * the right arm folded 9 faces at rest (limit 8, `2026-10-25-grips` decisions). The small mouse
+ * plays a smaller oboe (`SpeciesParams.oboeScale`).
  * With the reed 0.14 H back, the right paw reached its grip with 3 cm to spare only on an oboe
  * of 0.52, and 0.09 H further back, on an oboe of 0.62.
  *
@@ -558,9 +562,9 @@ const MOUSE_OBOE_FORWARD = -15;
  * the belly, as a real oboist holds it vertical in a short rest. Both paws close on its middle:
  * the left paw across the body at a grip nearer to the reed (`restGripShiftL`), with the left
  * elbow out to the side, and the right paw just below it (`restGripShiftR`), with the right elbow
- * out, down, and back, so that each of the 4 segments of the right upper arm turns less than 25°
- * from the next. With the right paw at its grip of the play, near the bell, the right forearm went
- * 3.4 cm into the belly (`pnpm pose-depth oboist`). Both
+ * out and down. With the elbow out, down, and back of 2026-10-25, the right arm folded 11 faces at
+ * rest with the palm to the tube. With the right paw at its grip of the play, near the bell, the
+ * right forearm went 3.4 cm into the belly (`pnpm pose-depth oboist`). Both
  * paws keep the aim and the roll of the play (`restAim`): with the roll of the shoulder, the left
  * paw turned 177° on its forearm at rest and flipped in the lowering. Before, the oboe stood about
  * 10 cm in front of the right side of the belly, because on the arms before 2026-10-25, an oboe on
@@ -579,7 +583,7 @@ const MOUSE_OBOE = {
   rest: holdTurn(-30, 0),
   restShift: [0.1, -0.3, 0.1],
   restPoleL: [-1, -0.3, 0],
-  restPoleR: [1, -0.5, 0.5],
+  restPoleR: [1, -0.5, 0],
   play: holdTurn(MOUSE_OBOE_FORWARD, 0),
   poleL: [-0.5, -1, -0.5],
   poleR: [0.5, -1, -0.5],
@@ -591,6 +595,7 @@ const MOUSE_OBOE = {
   restGripShiftL: [0.1, 0.05, 0],
   restGripShiftR: [-0.2, 0.08, 0],
   restAim: 1,
+  gripCurl: curls(70, 55),
 } as const satisfies WindHold;
 
 /** The forward turns of the shoulder bones of the bassoon beaver while it plays, in degrees. */
