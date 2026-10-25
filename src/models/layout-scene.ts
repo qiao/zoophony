@@ -586,6 +586,23 @@ function touchesAny(fresh: readonly Obstacle[], placed: readonly Obstacle[]): bo
   return fresh.some((a) => placed.some((b) => obstaclesTouch(a, b, FOOTPRINT_GAP)));
 }
 
+/** The items that a row keeps clear of (design 4.5, seat geometry). */
+interface RowClearance {
+  /** The obstacles of the other items on the stage. Each item of the row keeps 0.05 m. */
+  readonly placed: readonly Obstacle[];
+}
+
+/**
+ * Finds if a row keeps its gaps: 0.05 m from each item.
+ *
+ * @param row The places of the row.
+ * @param clearance The items around the row.
+ * @returns True if the row is clear.
+ */
+function rowClear(row: RowPlacement, clearance: RowClearance): boolean {
+  return !touchesAny(obstaclesOfRow(row), clearance.placed);
+}
+
 /**
  * Places a row at the smallest radius that keeps it within its span and clear of the items in
  * front (design 4.5, seat geometry).
@@ -593,14 +610,14 @@ function touchesAny(fresh: readonly Obstacle[], placed: readonly Obstacle[]): bo
  * @param members The players of the row from left to right.
  * @param row The index of the row in {@link ROWS}.
  * @param smallest The radius of the previous row plus 1.2 m.
- * @param placed The obstacles on the stage.
+ * @param clearance The items on the stage, all in front of the row.
  * @returns The row with its radius, its angles, and its places.
  */
 function fitRow(
   members: readonly Member[],
   row: number,
   smallest: number,
-  placed: readonly Obstacle[],
+  clearance: RowClearance,
 ): FittedRow {
   const split = row < SPLIT_ROWS;
   let radius = smallest;
@@ -612,7 +629,7 @@ function fitRow(
     }
     const angles = rowAngles(arrangement, radius);
     const placement = placeRow(members, angles, radius);
-    if (!touchesAny(obstaclesOfRow(placement), placed)) {
+    if (rowClear(placement, clearance)) {
       return { members, row, split, radius, angles, placement };
     }
     radius += CLEAR_STEP;
@@ -1341,20 +1358,21 @@ function spreadAngles(row: FittedRow, side: -1 | 1, factor: number): number[] {
 /**
  * Spreads the players of one side of a row with the largest factor, in steps of 0.02 down from
  * 1.6 / 0.95, that keeps the limits (design 4.5, seat geometry). Each seat stays within ±90°,
- * each box keeps 0.3 m from the edges, and each footprint keeps 0.05 m from the other items.
- * {@link spreadAngles} keeps the arcs at most 1.6 m. The spread only makes the arcs of a row
- * longer, so the items of the row stay apart. The overlap test of the layouts checks all pairs.
+ * each box keeps 0.3 m from the edges, and each footprint keeps its gaps from the other items
+ * ({@link rowClear}). {@link spreadAngles} keeps the arcs at most 1.6 m. The spread only makes the
+ * arcs of a row longer, so the items of the row stay apart. The overlap test of the layouts checks
+ * all pairs.
  *
  * @param row The row.
  * @param side -1 for the players left of 0°, 1 for the players right of 0°.
- * @param placed The obstacles of the other items on the stage.
+ * @param clearance The other items on the stage.
  * @param stage The stage side and the front distance.
  * @returns The row with the new angles, or the same row if no factor above 1 fits.
  */
 function spreadSide(
   row: FittedRow,
   side: -1 | 1,
-  placed: readonly Obstacle[],
+  clearance: RowClearance,
   stage: StageSize,
 ): FittedRow {
   const { maxAngle, maxArc } = SPREAD_LIMITS;
@@ -1364,7 +1382,7 @@ function spreadSide(
       continue;
     }
     const placement = placeRow(row.members, next, row.radius);
-    if (rowOnStage(placement, stage) && !touchesAny(obstaclesOfRow(placement), placed)) {
+    if (rowOnStage(placement, stage) && rowClear(placement, clearance)) {
       return { ...row, angles: next, placement };
     }
   }
@@ -1429,13 +1447,13 @@ function wedgeAngles(packed: FittedRow, front: FittedRow, side: -1 | 1): number[
  * the wedges of the strings of a professional orchestra (design 4.5, seat geometry). The row
  * takes the largest blend, in steps of 0.1, between the spread angles and the angles of
  * {@link wedgeAngles} that keeps each seat within ±90°, each box 0.3 m from the edges, and each
- * footprint 0.05 m from the other items.
+ * footprint its gaps from the other items ({@link rowClear}).
  *
  * @param spread Row 1 after the spread.
  * @param packed Row 1 before the spread.
  * @param front Row 0 after the spread.
  * @param side -1 for the players left of 0°, 1 for the players right of 0°.
- * @param placed The obstacles of the other items on the stage.
+ * @param clearance The other items on the stage.
  * @param stage The stage side and the front distance.
  * @returns The row with the new angles, or the spread row if no blend fits.
  */
@@ -1444,7 +1462,7 @@ function wedgeSide(
   packed: FittedRow,
   front: FittedRow,
   side: -1 | 1,
-  placed: readonly Obstacle[],
+  clearance: RowClearance,
   stage: StageSize,
 ): FittedRow {
   const target = wedgeAngles(packed, front, side);
@@ -1458,7 +1476,7 @@ function wedgeSide(
       continue;
     }
     const placement = placeRow(spread.members, next, spread.radius);
-    if (rowOnStage(placement, stage) && !touchesAny(obstaclesOfRow(placement), placed)) {
+    if (rowOnStage(placement, stage) && rowClear(placement, clearance)) {
       return { ...spread, angles: next, placement };
     }
   }
@@ -1485,16 +1503,18 @@ function spreadRows(
 ): FittedRow[] {
   const done: FittedRow[] = [];
   rows.forEach((row, n) => {
-    const placed = [
-      ...fixed,
-      ...done.flatMap((r) => obstaclesOfRow(r.placement)),
-      ...rows.slice(n + 1).flatMap((r) => obstaclesOfRow(r.placement)),
-    ];
-    let next = spreadSide(spreadSide(row, -1, placed, stage), 1, placed, stage);
+    const clearance: RowClearance = {
+      placed: [
+        ...fixed,
+        ...done.flatMap((r) => obstaclesOfRow(r.placement)),
+        ...rows.slice(n + 1).flatMap((r) => obstaclesOfRow(r.placement)),
+      ],
+    };
+    let next = spreadSide(spreadSide(row, -1, clearance, stage), 1, clearance, stage);
     const front = done.find((r) => r.row === 0);
     if (row.row === BACK_DESK_ROW && front) {
-      next = wedgeSide(next, row, front, -1, placed, stage);
-      next = wedgeSide(next, row, front, 1, placed, stage);
+      next = wedgeSide(next, row, front, -1, clearance, stage);
+      next = wedgeSide(next, row, front, 1, clearance, stage);
     }
     done.push(next);
   });
@@ -1584,8 +1604,9 @@ export function layoutScene(score: Score, models = new ModelCache()): SceneLayou
     if (row.length === 0) {
       return;
     }
-    const placed = [...fixed, ...rows.flatMap((r) => obstaclesOfRow(r.placement))];
-    const fit = fitRow(row, n, radius + ROW_STEP, placed);
+    const fit = fitRow(row, n, radius + ROW_STEP, {
+      placed: [...fixed, ...rows.flatMap((r) => obstaclesOfRow(r.placement))],
+    });
     radius = fit.radius;
     rows.push(fit);
   });
