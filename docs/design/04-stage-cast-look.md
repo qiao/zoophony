@@ -447,6 +447,10 @@ mesh are quad tubes (rings at a right angle to the bones), and the weights come 
     weights of its corners (`weights.rigid`), and thin faces that share corners take one mean
     together, so that one face does not undo the other. When a grip far in front of a deep chest turns the upper arm so far that no rule removes
     the fold at the front of the shoulder, the hold shares the turn with the shoulder bone (5.3).
+    The `fingers` bone keeps its whole weight of bone heat (`weights.fingers` 1) on the bodies of
+    the beaver, the badger, the panda, the monkey, and the rhino, so that a curl closes the paw
+    around a tube or a clip. With half of it, no vertex of these paws followed the fingers more
+    than the paw, and the paws stayed open (`docs/decisions/2026-10-25-grips.md`).
   - Colors. Each face takes the nearest palette color of the texture, and the faces of the old
     eyes take the color of the fur around them. A rule can move the plain fur in Oklab toward the
     color of the reference after a choice of the user (`colors.tone`): the cat takes half of the
