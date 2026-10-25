@@ -110,7 +110,13 @@ group of your work before you plan it. A probe that a trap names is in its resea
   direction, so a side move of the body gains little. Read the wrist reach at each strike
   (`dbg.ts` of `docs/research/2026-10-25-xylophone-sway/`), and lean the spine forward
   (`PercussionHold.lean`). A hip move over short legs tilts the shins, and the foot skin sinks
-  into the floor: read the lowest sole with `balance.ts` of the same folder.
+  into the floor: keep the hips (`SideMove.hips`), and read each sole corner with `soles.ts` of
+  `docs/research/2026-10-25-xylophone-reach/`.
+- Short arms with a long mallet reach an instrument only in a band about 0.12 m deep: nearer
+  targets put the paws into the belly, and farther targets are out of reach. Measure both ends,
+  the paws with `pnpm pose-depth` and the misses with `reach.ts` of the same folder, and fit the
+  depth of the instrument into the band. A hand choice that alternates the hands in a scale
+  makes each head pass the other at one height, and the shafts touch (`pnpm clip-probe`).
 - Read the spare reach of each grip after each move of a rest place of a wind hold. `pnpm hold-fit`
   gives it, also with `--scan`, and a grip below 0 is a missed goal.
 - A bow that rests upright and plays across the strings turns its tip from up to the left. A direct
