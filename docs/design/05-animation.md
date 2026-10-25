@@ -558,8 +558,10 @@ The code constants of each family hold the times, the angles, and the lengths of
     the paws (`docs/decisions/2026-10-25-wind-palms.md`). The big head puts the reed high above
     the shoulders, so the right elbow points down, and the right upper arm does not turn into a
     twisted band. The right grip moves down the oboe, away from the reed, so that the right
-    forearm does not rise steeply. The left elbow points out to the side, as at rest, so that the
-    left paw reaches its high grip and closes around the tube.
+    forearm does not rise steeply. The left elbow points down and a little out, as a real oboist
+    lets the arms hang loosely with the elbows a little free from the body, so that the left arm
+    does not read as a raised wing. At rest, the left elbow points out to the side, because a rest
+    elbow down folds the left arm (`docs/decisions/2026-10-25-wind-elbows.md`).
   - The beaver holds the bassoon as a real bassoonist (`BEAVER_BASSOON` of `SPECIES_WIND_HOLDS`,
     `docs/reference/wind-technique.md` 3): the bassoon crosses the body on a diagonal from the
     right hip up past the left shoulder, with the bell above the head, the left paw high on the

@@ -622,9 +622,14 @@ const MOUSE_OBOE_FORWARD = 10;
  * as an oboist drops the wrists and keeps the arms a little away from the sides. With the elbow of
  * the right arm of {@link WIND_HOLDS} out and level, the right upper arm turned 83° from its bind
  * direction and the paw 160° from the forearm, and the upper arms showed as flat twisted bands.
- * The left elbow points out and a little down, as at rest (`poleL`, `restPoleL`), so that the left
- * paw reaches the high grip with its finger tips on the tube, and the lift does not turn the
- * elbow. The shoulder turns are those of {@link WIND_HOLDS}.
+ * The left elbow points down and a little out (`poleL`), as a real oboist lets the arms hang
+ * loosely from low shoulders with the elbows a little free from the body
+ * (`docs/reference/wind-technique.md` 2.3): the left upper arm hangs about 33° below the level,
+ * and the left paw keeps its grip on the upper joint. With the elbow out and a little down, as at
+ * rest, the left upper arm stood 3.5° below the level, and from ±35° and from the back the left
+ * arm read as a raised wing. At rest, the left elbow points out and a little down (`restPoleL`):
+ * with the rest elbow down too, the left arm folded 9 faces at rest (limit 8,
+ * `docs/research/2026-10-25-wind-elbows.md`). The shoulder turns are those of {@link WIND_HOLDS}.
  */
 const MOUSE_OBOE = {
   ...WIND_HOLDS.oboe,
@@ -634,7 +639,7 @@ const MOUSE_OBOE = {
   restPoleL: [-1, -0.3, 0],
   restPoleR: [1, -0.5, 0],
   play: holdTurn(MOUSE_OBOE_FORWARD, 0),
-  poleL: [-1, -0.3, 0],
+  poleL: [-0.5, -1, 0],
   poleR: [0.5, -1, -0.5],
   faceTube: ['palm', 'palm'],
   aimAcross: 1,
