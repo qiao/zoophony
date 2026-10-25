@@ -1175,9 +1175,10 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       `2026-10-25-percussion-tips.md`) can also keep the heads apart: try it here.
       Done: the pitch 0.5 keeps the heads at least 2.5 cm apart on the steel drum part, and the
       grip turns 7° and 4° from `ACCEPTED_GRIPS` (`2026-10-25-xylophone-sway.md`).
-- [ ] Badger xylophone grips: the lean and the pitch turn the play median of each paw by 7° (L) and
+- [x] Badger xylophone grips: the lean and the pitch turn the play median of each paw by 7° (L) and
       4° (R) from `ACCEPTED_GRIPS`. The manager reads the 2x paw crops of
       `docs/research/2026-10-25-xylophone-sway/` and sets the new medians.
+      Done: the manager accepted the crops on 2026-10-25, and `ACCEPTED_GRIPS` holds L -28, R -22.
 - [ ] Badger xylophone shafts: on a chord of two near bars, the shafts of the two mallets touch
       in 0.4% of the samples of the steel drum part (`2026-10-25-xylophone-sway.md`).
 - [x] Snare and cymbal grips: the pitch between strikes turns the play median of the paw by 13°
