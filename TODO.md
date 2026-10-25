@@ -313,11 +313,31 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
 - [x] Rig the mesh of the deer (harp). The user gave it on 2026-10-21. The deer sits on the stool
       of the harp with its whole haunch on the seat, at the size of the parametric deer, and plays
       a smaller harp (`2026-10-21-mesh-deer.md`).
-- [ ] Deer: the manager chose arms 1.25 and a harp of 0.78 upright in front of the chest while the
-      user slept. The user reviews them against the arms 1.15 or 1 of the report "Arms and harp"
-      (`docs/research/2026-10-21-mesh-deer.md`).
-- [ ] Deer: the harp stands upright, while a real harp leans back on the right shoulder. A tilt back
-      put the upper strings into the chest of the short-armed deer (`harp/depths-arms125-a.txt`).
+- [ ] Deer: the manager chose arms 1.25 while the user slept, and the round `harp-lean` chose a
+      harp of 0.6 (0.84 m) leaned 12° back onto the right shoulder, on a box of 0.23 m. The user
+      reviews the arms against 1.15 or 1 of the report "Arms and harp"
+      (`docs/research/2026-10-21-mesh-deer.md`), and the harp size, the lean, and the box
+      (`docs/research/2026-10-25-harp-lean.md`, `images/`).
+- [x] Deer: the harp stood upright, while a real harp leans back on the right shoulder. The harp
+      leans 12° back with the top of its soundbox on the front of the right shoulder, and the
+      elbows point out (`docs/decisions/2026-10-25-harp-lean.md`).
+- [ ] Deer harp: the right move twist max of the arm gate is 108° (100° on `main`, margin 3°,
+      limit 176°), a `FAIL` on the margin only. Five right elbows gave 106° to 110°. Try a turn
+      of the right paw toward the treble strings, or accept it in the gate.
+- [ ] Deer harp: the left palm is 0.14 m above the middle of the strings and the right palm at the
+      middle, where a harpist holds both hands at almost one level. At 0.08 m, the left paw swing
+      is 68° (limit 70°) (`palm-scan.txt` of `docs/research/2026-10-25-harp-lean/`).
+- [ ] Deer harp: the forearms rise about 30° from the elbow to the wrist, where a harpist holds them
+      level. The elbows of the short arms hang below the strings.
+- [ ] Deer harp: the knees lie under the round belly, so the base stands in front of them, between
+      them only in the front view. From the front, the crown of the column stands just below the
+      muzzle (`images/views-chord-front.webp` of the round).
+- [ ] Deer harp: the smaller harp moved the seats of `boulanger-matin` by 4 to 6 cm, and 8 to
+      30 cm for the deer, the piano, three violins, and the three oboes (`layout-moves.txt`).
+      Check the shots of the demo after the test pause (`pnpm test:paused src/shots/`).
+- [ ] Deer harp: `HARPIST_SWEEP` keeps the accepted depth of the forearms in the body (2.5 cm), now
+      0.0 cm, and its reason of the right forearm on the soundbox. Trim them when the tests come
+      back.
 - [x] Deer: the haunch spread into a flat light rim on the seat of the stool, and a dark wedge
       showed under the puff tail from the back. The sit now goes to the final seat top and carries
       the tail down (`seat/seat-after.webp` of the research folder).
@@ -1351,10 +1371,10 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       - [x] Deer shards: the rig reads a copy with a round patch on each inner arm and cuts the
             seam above the back notch (round `deer-dog-seams`,
             `docs/research/2026-10-22-deer-dog-seams.md`).
-      - [ ] Deer upper arms in the body: with the cut, the sweep gives 4.9 cm in the play (limit
+      - [x] Deer upper arms in the body: with the cut, the sweep gave 4.9 cm in the play (limit
             3.5 cm, 15.5% of the samples), 3.7 cm at rest, and 4.5 cm in the lowering, against
-            3.2, 1.9, and 3.1 cm on the base. The caps of the body close the notches, so the
-            closed trunk takes in the arm root. Check that no view shows it, or lower the caps.
+            3.2, 1.9, and 3.1 cm on the base. With the elbows out at the leaned harp, they are
+            3.2, 2.4, and 2.9 cm (`pose-depth.txt` of `docs/research/2026-10-25-harp-lean/`).
       - [ ] Deer marks after the cut: at az150, a dark area with a light jagged line on the back
             of the right upper arm root, most at rest from 40°, and a small dark V under the left
             root at az-150 (`deer-root-rest-e40.webp` of the round `deer-dog-seams`).
