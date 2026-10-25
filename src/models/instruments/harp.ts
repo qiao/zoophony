@@ -1,9 +1,10 @@
 import { MathUtils, Quaternion, Vector3 } from 'three';
 import { INSTRUMENT_COLORS } from '../colors.ts';
 import { transform } from '../mesh.ts';
+import type { Rgb } from '../mesh.ts';
 import { toQuat, toVec3 } from '../tuples.ts';
 import type { Vec3 } from '../tuples.ts';
-import { cylinder, icosphere } from '../primitives.ts';
+import { box, cylinder, icosphere } from '../primitives.ts';
 import { PieceBuilder, hold, pieceSize } from './piece.ts';
 import type { InstrumentModel } from './types.ts';
 
@@ -16,6 +17,8 @@ import type { InstrumentModel } from './types.ts';
  */
 export const HARP = {
   height: 1.4,
+  /** The base on the floor: a bar along z at the height y, with its width on x and its height. */
+  base: { z: [-0.42, 0.08], y: 0.04, width: 0.26, height: 0.08 },
   /** The bottom and the top of the column, as (y, z). */
   column: [
     [0.08, -0.38],
@@ -64,6 +67,18 @@ export const HARP_PLACE = {
    * at the front left, and the right hand the treble strings nearer to the body.
    */
   turn: 30 * MathUtils.DEG2RAD,
+};
+
+/**
+ * The box under a raised harp, in meters at the scale 1 (design 4.6). A short lever harp stands on
+ * a box or a stool, so that it comes up to the right shoulder of the player
+ * (`docs/reference/harp-technique.md`, section 1).
+ */
+const HARP_STAND = {
+  /** The least lift of the base that gets a box (`HARP_PLACE.lift`). A lower harp stands on the floor. */
+  minLift: 0.05,
+  /** The width of the box, a little more than the width of the base. */
+  width: 0.3,
 };
 
 /** The places of the bass string and of the treble string along z. */
@@ -147,6 +162,41 @@ export function harpStringPosition(key: number, scale = 1): Vec3 {
 }
 
 /**
+ * Adds the box under a raised harp (design 4.6), in the axes of the harp before its scale. The box
+ * stands level on the floor, and the harp leans back on it (`HARP_PLACE.tilt`), so the box top
+ * touches the lowest edge of the base, the edge at the player.
+ *
+ * @param piece The harp.
+ * @param color The color of the frame.
+ */
+function addStand(piece: PieceBuilder, color: Rgb): void {
+  const level = new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), -HARP_PLACE.tilt);
+  const tilt = level.clone().invert();
+  let low = Infinity;
+  let near = -Infinity;
+  let far = Infinity;
+  const { base } = HARP;
+  for (const y of [base.y - base.height / 2, base.y + base.height / 2]) {
+    for (const z of base.z) {
+      const corner = new Vector3(0, y, z).applyQuaternion(tilt);
+      low = Math.min(low, corner.y);
+      near = Math.max(near, corner.z);
+      far = Math.min(far, corner.z);
+    }
+  }
+  // The floor is at -lift below the origin of the harp axes.
+  const height = low + HARP_PLACE.lift;
+  const middle = new Vector3(0, (low - HARP_PLACE.lift) / 2, (near + far) / 2).applyQuaternion(
+    level,
+  );
+  piece.add(
+    box(HARP_STAND.width, height, near - far),
+    color,
+    transform(toVec3(middle), toQuat(level)),
+  );
+}
+
+/**
  * Builds the concert harp (design 4.6). It stands on the floor between the knees of the player, at
  * its place of {@link HARP_PLACE}. Both hands play the strings, the left hand from the
  * left side of the strings and the right hand from the right side. A species with short arms
@@ -164,7 +214,11 @@ export function buildHarp(scale = 1): InstrumentModel {
   const yz = ([y, z]: readonly [number, number], x = 0): Vec3 => [x, y, z];
 
   // The base, the column with its crown, and the neck.
-  piece.bar([0, 0.04, -0.42], [0, 0.04, 0.08], 0.26, 0.08, frame);
+  const { base } = h;
+  piece.bar([0, base.y, base.z[0]], [0, base.y, base.z[1]], base.width, base.height, frame);
+  if (HARP_PLACE.lift > HARP_STAND.minLift) {
+    addStand(piece, frame);
+  }
   const [columnBottom, columnTop] = h.column;
   piece.rod(yz(columnBottom), yz(columnTop), 0.03, 6, frame);
   const crown = new Vector3(...yz(columnTop)).add(new Vector3(0, 0.04, 0));
