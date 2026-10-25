@@ -82,8 +82,11 @@ import type { SweepSample } from '../src/pose/test-sweep.ts';
 /** A side of the body. */
 type Side = 'L' | 'R';
 
-/** A direction in the axes of the chest: right, up, forward. */
-type ChestDirection = readonly [right: number, up: number, forward: number];
+/**
+ * A direction in the axes of a place ({@link RoleGrip.placeAxes}): right, up, and forward in the
+ * axes of the chest, or out along the slide, up, and to the right of the slide.
+ */
+type PlaceDirection = readonly [x: number, y: number, z: number];
 
 /** A role that the tool measures. */
 interface RoleGrip {
@@ -97,9 +100,15 @@ interface RoleGrip {
   readonly paws: readonly Side[];
   /**
    * The side of the tube on which the technique of the role puts the middle of each paw, in the
-   * axes of the chest, or none for no rule.
+   * axes of {@link RoleGrip.placeAxes}, or none for no rule.
    */
-  readonly places: Readonly<Partial<Record<Side, ChestDirection>>>;
+  readonly places: Readonly<Partial<Record<Side, PlaceDirection>>>;
+  /**
+   * The axes of the places: `chest` (right, up, forward), or `slide` for the trombone (out along
+   * the slide, up, and to the right of the slide). A turn of the slide to the side then turns the
+   * place with it, because a trombonist holds the brace from the right of the slide at each angle.
+   */
+  readonly placeAxes: 'chest' | 'slide';
   /** The bones of the instrument that the paws hold, for the gaps of the skin and the tips. */
   readonly parts: readonly BoneName[];
 }
@@ -117,7 +126,7 @@ const ROLES = {
   oboist: wind('oboist', 'mouse', 'oboe', { L: [0, 0, -1], R: [0, 0, -1] }),
   flutist: wind('flutist', 'fox-tan', 'flute', {}),
   bassoonist: wind('bassoonist', 'beaver', 'bassoon', { L: [0, 0, -1], R: [0, 0, -1] }),
-  trombonist: wind('trombonist', 'panda', 'trombone', { L: [-1, 0, 0], R: [1, 0, 1] }),
+  trombonist: wind('trombonist', 'panda', 'trombone', { L: [0, 0, -1], R: [0, 0, 1] }, 'slide'),
   trumpeter: wind('trumpeter', 'monkey', 'trumpet', { L: [-1, 0, 0], R: [1, 0, 0] }),
   tubist: wind('tubist', 'rhino', 'tuba', { R: [1, 0, 0] }),
   percussionist: {
@@ -127,6 +136,7 @@ const ROLES = {
     tube: clipOf,
     paws: ['L'],
     places: {},
+    placeAxes: 'chest',
     parts: ['malletL'],
   },
   'fox-violinist': {
@@ -136,6 +146,7 @@ const ROLES = {
     tube: neckOf,
     paws: ['L'],
     places: {},
+    placeAxes: 'chest',
     parts: ['instrument'],
   },
 } as const satisfies Readonly<Record<string, RoleGrip>>;
@@ -149,6 +160,7 @@ type GripRole = keyof typeof ROLES;
  * @param species The species.
  * @param id The instrument.
  * @param places The side of the tube for each paw ({@link RoleGrip.places}).
+ * @param placeAxes The axes of the places ({@link RoleGrip.placeAxes}). The chest by default.
  * @returns The role.
  */
 function wind(
@@ -156,6 +168,7 @@ function wind(
   species: SpeciesId,
   id: InstrumentId,
   places: RoleGrip['places'],
+  placeAxes: RoleGrip['placeAxes'] = 'chest',
 ): RoleGrip {
   return {
     sweep,
@@ -164,6 +177,7 @@ function wind(
     tube: (posed, side) => ownTube(posed, side) ?? tubeOf(posed, id),
     paws: ['L', 'R'],
     places,
+    placeAxes,
     parts: ['instrument', 'slide'],
   };
 }
@@ -404,13 +418,52 @@ function tipsOf(posed: PosedSkeleton, paw: PosedPart, side: 'L' | 'R'): Vector3[
 }
 
 /**
+ * Gives the world direction of a place of the technique ({@link RoleGrip.places}). The axes of the
+ * slide come from the posed slide target (out along the slide) and the posed brace of the right
+ * palm (`InstrumentGrips.tubeR`), which runs down from the upper tube.
+ *
+ * @param posed The posed skeleton.
+ * @param place The place, in the axes of `axes`.
+ * @param axes The axes of the place.
+ * @returns The unit direction, in world axes.
+ * @throws Error if the axes of the slide come with no slide target or no brace.
+ */
+function placeDirection(
+  posed: PosedSkeleton,
+  place: PlaceDirection,
+  axes: RoleGrip['placeAxes'],
+): Vector3 {
+  if (axes === 'chest') {
+    const chest = posed.frames[boneIndex('chest')]?.rotation ?? new Quaternion();
+    return new Vector3(place[0], place[1], -place[2]).applyQuaternion(chest).normalize();
+  }
+  const slide = posed.model.instrument.targets.find((t) => t.kind === 'slide');
+  const brace = ownTube(posed, 'R');
+  if (!slide || !brace) {
+    throw new Error(`The ${posed.model.instrument.id} has no slide and no brace for the places.`);
+  }
+  const from = new Vector3(...posedPiecePoint(posed, { bone: slide.bone, at: slide.from }));
+  const out = new Vector3(...posedPiecePoint(posed, { bone: slide.bone, at: slide.to }))
+    .sub(from)
+    .normalize();
+  const up = brace.axis.clone().negate().projectOnPlane(out).normalize();
+  const right = new Vector3().crossVectors(out, up);
+  return out
+    .multiplyScalar(place[0])
+    .addScaledVector(up, place[1])
+    .addScaledVector(right, place[2])
+    .normalize();
+}
+
+/**
  * Measures one paw in one pose ({@link PawContact}).
  *
  * @param posed The posed skeleton.
  * @param tube The posed tube.
  * @param side The side.
  * @param instrument The posed instrument.
- * @param place The side of the tube that the technique names for the paw, or none.
+ * @param place The side of the tube that the technique names for the paw, in world axes
+ *   ({@link placeDirection}), or none.
  * @returns The measures.
  */
 export function pawContact(
@@ -418,7 +471,7 @@ export function pawContact(
   tube: Tube,
   side: Side,
   instrument: PosedPart,
-  place?: ChestDirection,
+  place?: Vector3,
 ): PawContact {
   const paw = pawOf(posed, side);
   const middle = volumeMiddle(paw.closed);
@@ -446,9 +499,7 @@ export function pawContact(
   const palmAngle = centered ? null : angleOf(normal, square.clone().negate());
   let placeAngle: number | null = null;
   if (place && !centered) {
-    const wanted = new Vector3(place[0], place[1], -place[2])
-      .applyQuaternion(chest)
-      .projectOnPlane(tube.axis);
+    const wanted = place.clone().projectOnPlane(tube.axis);
     placeAngle = angleOf(wanted, square);
   }
 
@@ -562,7 +613,9 @@ function measureScene(grip: RoleGrip, scene: TestScene, every: number): SampleCo
       const paws: Partial<Record<Side, PawContact>> = {};
       for (const side of grip.paws) {
         const own = grip.tube(posed, side);
-        paws[side] = pawContact(posed, own, side, instrumentPart, grip.places[side]);
+        const wanted = grip.places[side];
+        const toward = wanted ? placeDirection(posed, wanted, grip.placeAxes) : undefined;
+        paws[side] = pawContact(posed, own, side, instrumentPart, toward);
       }
       const between = partDistance(
         posedPart(posed, ['handL', 'fingersL']),
