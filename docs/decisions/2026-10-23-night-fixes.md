@@ -15,5 +15,5 @@ images. The user can reverse each decision. Then update its section, and remove 
 |---|---|
 | Dog pizzicato: the right paw plucks from the side, 0.15 m right of the strings, at 0.2 of the way from the end of the fingerboard to the bow, with the elbow out and down (`DOG_HOLD`), as the bassist of the source. Over the fingerboard, the paw lay flat across the strings. | 5.3 |
 | Beaver: the left rest elbow takes the play direction (`BEAVER_BASSOON.restPoleL`). The rest paw turned 178°, and the lowering crossed 180°. | 5.2 |
-| Wolf, mouse, tan fox: each paw on its grip rolls until its palm faces the tube (`palmToTube`). The left paw of the tan fox leaves its grip at rest and keeps its roll, because the mix from its rest paw flipped. | 5.3 |
+| Wolf, mouse, tan fox: each paw on its grip rolls to face the tube (`faceTube`, `2026-10-25-grips.md`). The left paw of the tan fox leaves its grip at rest and keeps its roll, because the mix from its rest paw flipped. | 5.3 |
 | The accepted grips of the clarinetist, the oboist, and the flutist take the new play medians. | 9.8 |

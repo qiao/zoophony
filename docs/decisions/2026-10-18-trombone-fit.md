@@ -12,8 +12,6 @@ lineup. The user can reverse each decision. Then update its section, and remove 
 
 | Decision | Section |
 |---|---|
-| The user, to "Which trombone angle do you want for the panda?": "B: between (Recommended)". The slide points 35° below the level and 30° to the right, and the arm reaches 0.165 m (`PANDA_PLAY`, `PANDA_TROMBONE` of `pose/winds.ts`). | 5.3 |
 | Conflict with "Try the 9° turn" (`2026-10-18-panda-folds.md`), told to the user with the question: the left shoulder turns 15°, because 10° folds faces 1290 and 1291 in each play sample. The belly band grows from 20.9% to 44.6% of its box. | 5.3 |
-| A variant passes with a reach of at least 0.15 m, each depth within 1.5 cm, and play folds of at most 5%. For the same reach, a slide less far down turns further right: the angle from the front stays 44° to 46°. | 5.3 |
 | The right shoulder keeps its forward turn of 45°. A turn of 50° brings the slide nearer to the front, but it folds 6.5% of the lift samples, and 55° folds each play sample. | 5.3 |
 | `PANDA_PLAY` holds the turn right, the turn down, and the left shoulder turn, so that one constant switches between the start, A, and B. | 5.3 |
