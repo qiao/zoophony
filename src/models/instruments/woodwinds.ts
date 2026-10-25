@@ -7,7 +7,7 @@ import type { Finish, Rgb } from '../mesh.ts';
 import { box, lathe } from '../primitives.ts';
 import type { ProfilePoint } from '../primitives.ts';
 import { PieceBuilder, hold, pieceSize } from './piece.ts';
-import type { InstrumentModel } from './types.ts';
+import type { GripTube, InstrumentModel } from './types.ts';
 
 /** The woodwinds of design 4.6. */
 export type WoodwindId = 'flute' | 'oboe' | 'clarinet' | 'bassoon';
@@ -242,6 +242,26 @@ function bassoonParts(piece: PieceBuilder): void {
 }
 
 /**
+ * Gives the tube that each palm of the bassoon closes around (`InstrumentGrips.tubeL`): the wing
+ * joint and the long joint together, along the bassoon, at the middle between their axes. The reed
+ * is far off this line at the end of the bocal, so the line of a woodwind through the mouthpiece
+ * does not fit the bassoon.
+ *
+ * @param scale The scale of the bassoon.
+ * @returns The tubes of the left and the right palm, from the boot toward the bell.
+ */
+function bassoonTubes(scale: number): Record<'tubeL' | 'tubeR', GripTube> {
+  const reed = BASSOON_REED;
+  const at = (y: number): Vec3 => [
+    -reed[0] * scale,
+    (y - reed[1]) * scale,
+    (0.035 - reed[2]) * scale,
+  ];
+  const line: GripTube = { bone: 'instrument', from: at(0.1), to: at(0.9) };
+  return { tubeL: line, tubeR: line };
+}
+
+/**
  * The rotation of each woodwind in the bind pose (design 4.6). The flute points to the right,
  * 10° to the front and 8° down. The oboe and the clarinet hang from the mouth to the front: the
  * angle of design 4.6 is the angle from the vertical, as on the clarinets of the reference image.
@@ -312,16 +332,17 @@ export function buildWoodwind(id: WoodwindId, scale = 1): InstrumentModel {
         : [along, -0.025, 0];
     return [at[0] * scale, at[1] * scale, at[2] * scale];
   };
+  const grips = {
+    palmL: { bone: 'instrument', at: palm(w.palmL) },
+    palmR: { bone: 'instrument', at: palm(w.palmR) },
+    mouth: { bone: 'instrument', at: [0, 0, 0] },
+    chin: null,
+  } as const;
   return {
     id,
     parent: 'chest',
     pieces: [instrument],
-    grips: {
-      palmL: { bone: 'instrument', at: palm(w.palmL) },
-      palmR: { bone: 'instrument', at: palm(w.palmR) },
-      mouth: { bone: 'instrument', at: [0, 0, 0] },
-      chin: null,
-    },
+    grips: id === 'bassoon' ? { ...grips, ...bassoonTubes(scale) } : grips,
     targets: [],
     size: pieceSize(instrument),
   };

@@ -6,7 +6,7 @@ import type { Quat, Vec3 } from '../tuples.ts';
 import { cylinder, lathe } from '../primitives.ts';
 import type { ProfilePoint } from '../primitives.ts';
 import { PieceBuilder, hold, pieceSize } from './piece.ts';
-import type { InstrumentModel, InstrumentPiece, PlayTarget } from './types.ts';
+import type { GripTube, InstrumentModel, InstrumentPiece, PlayTarget } from './types.ts';
 
 /** The brass instruments of design 4.6. */
 type BrassId = 'horn' | 'trumpet' | 'trombone' | 'tuba';
@@ -205,6 +205,8 @@ interface BrassBuild {
   readonly palmL: Vec3;
   /** The right palm is on the slide for the trombone, and on the instrument for the others. */
   readonly palmR: Vec3;
+  /** The tube that each palm closes around (`InstrumentGrips.tubeL`), or none. */
+  readonly tubes: Readonly<Partial<Record<'tubeL' | 'tubeR', GripTube>>>;
   readonly targets: readonly PlayTarget[];
 }
 
@@ -268,6 +270,20 @@ function trumpet(scale: number): BrassBuild {
     ],
     palmL: scaled([0.17, -0.07, -0.03]),
     palmR: scaled([0.18, -0.05, 0.03]),
+    // Both palms close around the valve block, along the trumpet through the middle of the
+    // casings: the left hand wraps the casings, and the right fingers come over to the valve tops.
+    tubes: {
+      tubeL: {
+        bone: 'instrument',
+        from: scaled([0.15, -0.025, 0]),
+        to: scaled([0.202, -0.025, 0]),
+      },
+      tubeR: {
+        bone: 'instrument',
+        from: scaled([0.15, -0.025, 0]),
+        to: scaled([0.202, -0.025, 0]),
+      },
+    },
     targets: [{ ...bellTarget, from: bellMouth, to: bellMouth }],
   };
 }
@@ -350,6 +366,12 @@ function trombone(): BrassBuild {
     ],
     palmL: [0.08, low / 2, side / 2],
     palmR: [0, 0, 0.02],
+    // The left fingers wrap the inner slide tubes near the mouthpiece brace, and the right
+    // fingertips hold the upright slide brace (`docs/reference/wind-technique.md` 1.1).
+    tubes: {
+      tubeL: { bone: 'instrument', from: [0.04, low / 2, 0], to: [0.3, low / 2, 0] },
+      tubeR: { bone: 'slide', from: [0, -low / 2, 0], to: [0, low / 2, 0] },
+    },
     targets: [
       bellTarget,
       {
@@ -442,6 +464,7 @@ function horn(): BrassBuild {
     // the palm was 0.98 of the arm length of the pig with the turn of the horn.
     palmL: ring(Math.PI * 0.9, h.coilRadius * 0.8),
     palmR: toVec3(new Vector3(...bellTarget.from).addScaledVector(bellAxis, -HORN_PALM_DEPTH)),
+    tubes: {},
     targets: [bellTarget],
   };
 }
@@ -505,6 +528,12 @@ function tuba(lead: readonly [back: number, left: number]): BrassBuild {
     // the tube (docs/research/2026-10-21-mesh-rhino/pose-depth-grip.txt).
     palmL: at([-0.22, 0.4, 0.06]),
     palmR: at([0.1, 0.47, 0.05]),
+    // The left palm closes around the upright main branch, and the right fingers come down onto
+    // the tops of the valves, a row from the front to the back.
+    tubes: {
+      tubeL: { bone: 'instrument', from: at([-0.06, 0.3, 0]), to: at([-0.06, 0.5, 0]) },
+      tubeR: { bone: 'instrument', from: at([0.1, 0.475, -0.06]), to: at([0.1, 0.475, 0.045]) },
+    },
     targets: [bellTarget],
   };
 }
@@ -546,6 +575,7 @@ export function buildBrass(
       palmR: { bone: id === 'trombone' ? 'slide' : 'instrument', at: built.palmR },
       mouth: { bone: 'instrument', at: [0, 0, 0] },
       chin: null,
+      ...built.tubes,
     },
     targets: built.targets,
     size: pieceSize(main),
