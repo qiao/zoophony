@@ -982,8 +982,34 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       `ACCEPTED_GRIPS` for the bassoonist, the trombonist, the oboist, the clarinetist, the
       trumpeter, and the tubist. The gate fails their grip turns until then. The bassoon turns of
       175° and 163° come from the entry of the hold before the palms faced the tube
-      (`2026-10-25-open-grips.md`, section 6). After the new wind angles, the grip turns are
-      oboist 10° and 176°, and clarinetist 174° and 174° (`2026-10-25-wind-angle.md`).
+      (`2026-10-25-open-grips.md`, section 6). After the side grips of the woodwinds, the grip
+      turns are oboist 140° and 13°, clarinetist 21° and 6°, and bassoonist 11° and 10°: the
+      paws turned back near the grips of 2026-10-24 (`2026-10-25-wind-palms.md`).
+- [x] Mouse oboe hands: both paws lay together on the lower half, 0.2 cm apart. Done: the left
+      paw on the upper joint, 9.7 cm from the reed, 6.0 cm from the right paw
+      (`2026-10-25-wind-palms.md`).
+- [x] Wind palms: the woodwind palms faced the audience and the thumbs pointed down. Done: each
+      paw holds its tube from its own side, with the thumb up (`2026-10-25-wind-palms.md`).
+- [ ] Wind palms gate: the oboist and the bassoonist grow on the margin against main, inside the
+      limits: oboist left paw twist 137° (93°), move twists 137° (93°) and 121° (99°), bassoonist
+      left forearm twist 38° (14°), paw twist 135° (57°), paw swing 54° (27°), right rest folds 8
+      (4, limit 8). The manager decides (`gate.txt` of `docs/research/2026-10-25-wind-palms/`).
+- [ ] Wind palms twist steps: the left oboe forearm step grows to 34.2° (23.3° on main, target
+      25°), and the left bassoon forearm, with no arm segments, to 64.6° at each link (28.6°).
+      Give the beaver arm segments, or scan the left elbow (`twist-*.txt` of
+      `docs/research/2026-10-25-wind-palms/`).
+- [ ] Panda trombone right paw: the palm faces the audience (+0.93) and the thumb points down the
+      slide. No source gives the side of the right palm on the brace. Find a source, then fix the
+      hold (`palm-branch.txt` of `docs/research/2026-10-25-wind-palms/`).
+- [ ] Beaver bassoon rest: the right paw stands about 10 cm from the boot joint at rest, out of
+      the reach of the right arm (9.1 cm on main, `grip-branch.txt` of
+      `docs/research/2026-10-25-wind-palms/`).
+- [ ] Wind thumbs: the mesh thumbs have no bone, so on the left oboe paw and the right bassoon
+      paw the thumb tip lies 1.2 cm and 5.0 cm in front of the tube axis. Add the
+      thumb measure of `palm-probe.ts` to `pnpm wind-grip`, so that a gate sees the thumb.
+- [ ] Rhino and pig paws have no separate digit, so the palm probe gives no thumb for the tuba
+      and the horn. The left tuba palm faces the audience by +0.43. Check the tuba hold from the
+      images and the technique (`palm-branch.txt`).
 - [x] Panda trombone: the right mitten stood 2 cm off the slide brace. Done: the finger tips hold
       the brace from the right of the slide (`2026-10-25-open-grips.md`).
 - [ ] Panda trombone travel: the arm reaches 0.17 m of the slide at 45° to the right, 30% of a real
