@@ -12,8 +12,8 @@
  * - `axis`: the distance from the middle of the closed paw to the axis of the tube, in cm.
  * - `in`: the depth of the axis of the tube in the closed paw, in cm. Above 0, the tube goes
  *   through the paw, as a stick goes through a fist.
- * - `tips`: the distance from the finger tips (the corners of the paw farthest from the wrist) to
- *   the instrument, in cm.
+ * - `tips`: the distance from the finger tips (the corners of the paw farthest from the wrist in
+ *   the bind pose) to the instrument, in cm.
  * - `drift`: the distance from the middle of the closed paw to the palm point of the hand of the
  *   player, which the IK puts on the grip, in cm. The retarget turns the paw of the studio
  *   (`PAW_TURN` of `models/studio-rig.ts`), so the paw can leave the grip.
@@ -28,6 +28,10 @@
  *   square to the axis, in degrees.
  * - `top`: the height of the highest corner of the paw above the mouthpiece, in the axes of the
  *   chest, in cm. A paw far above it covers the face in the front view.
+ * - For a mallet, a stick, or a beater (`ShaftContact`): `butt`, the length of the shaft from its
+ *   butt end to the paw, in cm, `held`, the length of the shaft in the closed paw, in cm, `exit`,
+ *   the angle of the shaft from the thumb side of the paw, and `fingers`, its angle from the line
+ *   from the wrist to the finger tips, in degrees.
  *
  * A paw holds ({@link holds}) as a fist, with the tube through the middle of the paw, or as a
  * wrap, with its skin and its finger tips on the instrument. A paw grasps ({@link grasps}) as a
@@ -41,7 +45,9 @@
  *
  * The tube of a paw is the tube that the instrument names for its palm (`InstrumentGrips.tubeL`),
  * such as the valve casings of a trumpet or the brace of a trombone slide, else the tube of the
- * woodwind from its mouthpiece. The percussionist holds the clip of the triangle in its left paw.
+ * woodwind from its mouthpiece. The percussionist holds the clip of the triangle in its left paw
+ * and the beater in its right paw. The tube of a mallet is its shaft, from its butt end to the
+ * middle of its head (`docs/reference/percussion-technique.md` 1).
  *
  * Usage: pnpm wind-grip <role>... [--demo <id>]... [--every <n>] [--set <changes>] [--lines]
  *
@@ -55,7 +61,7 @@ import { GRIP_GAP, volumeMiddle } from './bow-grip.ts';
 import { setHolds } from './hold-sets.ts';
 import type { DemoFile } from './patch-demos.ts';
 import { probeDemos } from './probe-demos.ts';
-import { TRIANGLE_CLIP } from '../src/models/instruments/percussion.ts';
+import { MALLET_BUTT, TRIANGLE_CLIP } from '../src/models/instruments/percussion.ts';
 import type { InstrumentId } from '../src/models/instruments/types.ts';
 import { WOODWINDS } from '../src/models/instruments/woodwinds.ts';
 import type { WoodwindId } from '../src/models/instruments/woodwinds.ts';
@@ -109,14 +115,25 @@ interface RoleGrip {
    * place with it, because a trombonist holds the brace from the right of the slide at each angle.
    */
   readonly placeAxes: 'chest' | 'slide';
-  /** The bones of the instrument that the paws hold, for the gaps of the skin and the tips. */
-  readonly parts: readonly BoneName[];
+  /**
+   * The bones of the instrument that each paw holds, for the gaps of the skin and the tips. A
+   * percussion paw holds only its own mallet.
+   */
+  readonly parts: Readonly<Record<Side, readonly BoneName[]>>;
+  /**
+   * True when each paw holds a shaft, such as a mallet, a stick, or a beater, from its butt end to
+   * its head. The tool then measures the butt and the exit of the shaft ({@link ShaftContact}).
+   */
+  readonly shaft: boolean;
 }
 
+/** The mallet of each paw of a percussion player. */
+const OWN_MALLETS: RoleGrip['parts'] = { L: ['malletL'], R: ['malletR'] };
+
 /**
- * The roles that the tool measures: the woodwinds, the brass, the clip of the triangle, and the
- * left paw of the red fox on the neck of the violin, the grip that the user accepts (user,
- * 2026-10-24), for a compare. The places come from `docs/reference/wind-technique.md` and
+ * The roles that the tool measures: the woodwinds, the brass, the clip of the triangle, the
+ * mallets, the sticks, and the beaters of the percussion players, and the left paw of the red fox
+ * on the neck of the violin, the grip that the user accepts (user, 2026-10-24), for a compare. The places come from `docs/reference/wind-technique.md` and
  * `docs/reference/percussion-technique.md`. A woodwind hand has its thumb behind the tube and its
  * fingers over the front, so the middle of the paw is at the side of the tube of its own arm, and
  * the palm faces the tube from that side. With the middle of the paw behind the tube, the palm
@@ -136,12 +153,18 @@ const ROLES = {
     sweep: 'percussionist',
     species: 'badger',
     instrument: 'small-percussion',
-    tube: clipOf,
-    paws: ['L'],
+    tube: (posed, side) => (side === 'L' ? clipOf(posed) : shaftOf(posed, side)),
+    paws: ['L', 'R'],
     places: {},
     placeAxes: 'chest',
-    parts: ['malletL'],
+    parts: OWN_MALLETS,
+    shaft: false,
   },
+  'bass-drummer': percussion('bass-drummer', 'badger', 'bass-drum', ['R']),
+  'snare-drummer': percussion('snare-drummer', 'badger', 'snare-drum', ['L', 'R']),
+  cymbalist: percussion('cymbalist', 'badger', 'cymbals', ['L', 'R']),
+  xylophonist: percussion('xylophonist', 'badger', 'xylophone', ['L', 'R']),
+  timpanist: percussion('timpanist', 'elephant', 'timpani', ['L', 'R']),
   'fox-violinist': {
     sweep: 'violinist',
     species: 'fox-red',
@@ -150,7 +173,8 @@ const ROLES = {
     paws: ['L'],
     places: {},
     placeAxes: 'chest',
-    parts: ['instrument'],
+    parts: { L: ['instrument'], R: ['instrument'] },
+    shaft: false,
   },
 } as const satisfies Readonly<Record<string, RoleGrip>>;
 
@@ -181,7 +205,37 @@ function wind(
     paws: ['L', 'R'],
     places,
     placeAxes,
-    parts: ['instrument', 'slide'],
+    parts: { L: ['instrument', 'slide'], R: ['instrument', 'slide'] },
+    shaft: false,
+  };
+}
+
+/**
+ * Gives the role of a percussion player with a mallet, a stick, or a beater in each of its paws.
+ * The tube of each paw is the shaft of its mallet, from the butt end to the middle of the head.
+ *
+ * @param sweep The sweep of the role.
+ * @param species The species.
+ * @param id The instrument.
+ * @param paws The paws with a mallet.
+ * @returns The role.
+ */
+function percussion(
+  sweep: keyof typeof SWEEP_ROLES,
+  species: SpeciesId,
+  id: InstrumentId,
+  paws: readonly Side[],
+): RoleGrip {
+  return {
+    sweep,
+    species,
+    instrument: id,
+    tube: shaftOf,
+    paws,
+    places: {},
+    placeAxes: 'chest',
+    parts: OWN_MALLETS,
+    shaft: true,
   };
 }
 
@@ -228,6 +282,29 @@ export interface PawContact {
   readonly place: number | null;
   /** The height of the highest corner of the paw above the mouthpiece, in meters. */
   readonly top: number;
+  /** The measures of a shaft through the paw, or `null` when the paw holds no shaft. */
+  readonly shaft: ShaftContact | null;
+}
+
+/** The measures of a shaft of a mallet, a stick, or a beater in one paw. */
+export interface ShaftContact {
+  /**
+   * The length of the shaft from its butt end to its first point in the closed paw, in meters, or
+   * `null` when no point of the shaft is in the paw. A real player has 13 mm to 25 mm of the butt
+   * behind the hand (`docs/reference/percussion-technique.md` 1).
+   */
+  readonly butt: number | null;
+  /** The length of the shaft in the closed paw, in meters. */
+  readonly held: number;
+  /**
+   * The angle between the shaft, toward its head, and the thumb side of the paw, in degrees. The
+   * thumb side is normal to the palm and to the line from the wrist to the finger tips of the
+   * skin. Near 0, the head leaves the front of the fist at the side of the thumb and the index
+   * finger, as a real grip. Near 90, the shaft leaves the paw along the fingers or the palm.
+   */
+  readonly exit: number;
+  /** The angle between the shaft, toward its head, and the line from the wrist to the tips. */
+  readonly fingers: number;
 }
 
 /**
@@ -261,9 +338,10 @@ export const PLACE_LIMIT = 60;
 /**
  * Tells if a paw grasps its tube as a person sees a hand that holds it: its finger tips are on the
  * instrument ({@link TIPS}), its palm faces the tube ({@link PALM_LIMIT}), and the paw is on the
- * side of the tube that the technique names ({@link PLACE_LIMIT}). An open paw with the tube
- * through its middle holds as a fist ({@link holds}), but it does not grasp, because its finger
- * tips stand off the tube.
+ * side of the tube that the technique names ({@link PLACE_LIMIT}). A paw with a shaft also has the
+ * shaft in the closed paw, and the head leaves the paw at the thumb side ({@link EXIT_LIMIT}). An
+ * open paw with the tube through its middle holds as a fist ({@link holds}), but it does not
+ * grasp, because its finger tips stand off the tube.
  *
  * @param c The measures of the paw.
  * @returns True when the paw grasps.
@@ -271,8 +349,15 @@ export const PLACE_LIMIT = 60;
 export function grasps(c: PawContact): boolean {
   const palm = c.palm === null || c.palm <= PALM_LIMIT;
   const place = c.place === null || c.place <= PLACE_LIMIT;
-  return c.tips <= TIPS && palm && place;
+  const shaft = c.shaft === null || (c.inside > 0 && c.shaft.exit <= EXIT_LIMIT);
+  return c.tips <= TIPS && palm && place && shaft;
 }
+
+/**
+ * The largest angle of a shaft from the thumb side of the paw for a grasp, in degrees
+ * ({@link ShaftContact.exit}). A shaft at a larger angle leaves the paw along the fingers.
+ */
+export const EXIT_LIMIT = 60;
 
 /** The tube of a woodwind in one pose, from the mouthpiece, or the neck of a violin from the nut. */
 interface Tube {
@@ -347,6 +432,29 @@ function clipOf(posed: PosedSkeleton): Tube {
 }
 
 /**
+ * Gives the posed shaft of the mallet of a paw, from its butt end ({@link MALLET_BUTT} behind the
+ * grip) to the middle of its head.
+ *
+ * @param posed The posed skeleton.
+ * @param side The side of the paw.
+ * @returns The shaft.
+ * @throws Error if the mallet of the paw has no head target.
+ */
+function shaftOf(posed: PosedSkeleton, side: Side): Tube {
+  const bone = side === 'L' ? 'malletL' : 'malletR';
+  const head = posed.model.instrument.targets.find(
+    (t) => t.kind === 'mallet-head' && t.bone === bone,
+  );
+  if (!head) {
+    throw new Error(`The ${posed.model.instrument.id} has no mallet head on ${bone}.`);
+  }
+  const start = new Vector3(...posedPiecePoint(posed, { bone, at: [-MALLET_BUTT, 0, 0] }));
+  const end = new Vector3(...posedPiecePoint(posed, { bone, at: head.from }));
+  const length = end.distanceTo(start);
+  return { start, axis: end.sub(start).normalize(), length };
+}
+
+/**
  * Gives the posed neck of a violin: the line of its target `fingerboard`, from the nut to the end
  * of the fingerboard, along the strings.
  *
@@ -404,20 +512,43 @@ function pointsDistance(points: readonly Vector3[], part: PosedPart): number {
   return best;
 }
 
+/** The order of the corners of each paw by their distance from the wrist in the bind pose. */
+const TIP_ORDERS = new WeakMap<PosedSkeleton['model'], Partial<Record<Side, readonly number[]>>>();
+
 /**
- * Gives the finger tips of a posed paw: the corners of the paw farthest from the wrist. The skin of
- * a studio body gives most corners of the fingers the bone `hand`, so the tool reads the whole paw.
+ * Gives the finger tips of a posed paw: the corners of the paw farthest from the wrist in the bind
+ * pose, where the fingers are straight. The skin of a studio body gives most corners of the
+ * fingers the bone `hand`, so the tool reads the whole paw. A paw that closes its fingers has the
+ * knuckles as its farthest corners in the pose, so the tool picks the corners in the bind pose.
  *
  * @param posed The posed skeleton.
- * @param paw The posed paw.
+ * @param paw The posed paw ({@link pawOf}).
  * @param side The side.
  * @returns The corners.
  */
-function tipsOf(posed: PosedSkeleton, paw: PosedPart, side: 'L' | 'R'): Vector3[] {
-  const wrist = posed.frames[boneIndex(`hand${side}`)]?.position ?? new Vector3();
+function tipsOf(posed: PosedSkeleton, paw: PosedPart, side: Side): Vector3[] {
   const corners = paw.triangles.flatMap((t: Triangle) => [t.a, t.b, t.c]);
-  const sorted = corners.toSorted((a, b) => b.distanceTo(wrist) - a.distanceTo(wrist));
-  return sorted.slice(0, Math.max(1, Math.round(sorted.length * TIP_SHARE)));
+  const orders = TIP_ORDERS.get(posed.model) ?? {};
+  let order = orders[side];
+  if (!order) {
+    const rotations = new Float32Array(posed.pose.rotations.length);
+    for (let i = 3; i < rotations.length; i += 4) {
+      rotations[i] = 1;
+    }
+    const bind = poseSkeleton(posed.model, { ...posed.pose, rotations });
+    const wrist = new Vector3(
+      ...(posed.model.skeleton.positions[boneIndex(`hand${side}`)] ?? [0, 0, 0]),
+    );
+    const bindCorners = pawOf(bind, side).part.triangles.flatMap((t: Triangle) => [t.a, t.b, t.c]);
+    order = bindCorners
+      .map((c, i) => [c.distanceTo(wrist), i] as const)
+      .toSorted((x, y) => y[0] - x[0])
+      .map(([, i]) => i);
+    orders[side] = order;
+    TIP_ORDERS.set(posed.model, orders);
+  }
+  const count = Math.max(1, Math.round(order.length * TIP_SHARE));
+  return order.slice(0, count).flatMap((i) => (corners[i] ? [corners[i]] : []));
 }
 
 /**
@@ -465,6 +596,7 @@ function placeDirection(
  * @param tube The posed tube.
  * @param side The side.
  * @param instrument The posed instrument.
+ * @param shaft True when the tube is the shaft of a mallet ({@link ShaftContact}).
  * @param place The side of the tube that the technique names for the paw, in world axes
  *   ({@link placeDirection}), or none.
  * @returns The measures.
@@ -474,6 +606,7 @@ export function pawContact(
   tube: Tube,
   side: Side,
   instrument: PosedPart,
+  shaft: boolean,
   place?: Vector3,
 ): PawContact {
   const paw = pawOf(posed, side);
@@ -525,6 +658,51 @@ export function pawContact(
     palm: palmAngle,
     place: placeAngle,
     top: highest,
+    shaft: shaft ? shaftContact(posed, tube, side, paw) : null,
+  };
+}
+
+/**
+ * Measures a shaft in a paw ({@link ShaftContact}).
+ *
+ * @param posed The posed skeleton.
+ * @param tube The posed shaft, from its butt end.
+ * @param side The side.
+ * @param paw The posed paw.
+ * @returns The measures.
+ */
+function shaftContact(posed: PosedSkeleton, tube: Tube, side: Side, paw: PosedPaw): ShaftContact {
+  let butt: number | null = null;
+  let held = 0;
+  for (let s = 0; s <= tube.length; s += AXIS_STEP) {
+    const point = tube.start.clone().addScaledVector(tube.axis, s);
+    if (closedDepth([point], paw.closed).depth > 0) {
+      butt ??= s;
+      held += AXIS_STEP;
+    }
+  }
+  const hand = posed.frames[boneIndex(`hand${side}`)];
+  const wrist = hand?.position ?? new Vector3();
+  const tips = tipsOf(posed, paw.part, side);
+  const reach = tips
+    .reduce((sum, p) => sum.add(p), new Vector3())
+    .divideScalar(tips.length)
+    .sub(wrist)
+    .normalize();
+  // The palm of the hand of the player (see `pawContact()`), and the thumb normal to it and to
+  // the fingers: forward in the bind pose, where the fingers point down.
+  const palm = new Vector3(side === 'L' ? 1 : -1, 0, 0).applyQuaternion(
+    hand?.rotation ?? new Quaternion(),
+  );
+  const thumb =
+    side === 'L'
+      ? new Vector3().crossVectors(palm, reach)
+      : new Vector3().crossVectors(reach, palm);
+  return {
+    butt,
+    held,
+    exit: angleOf(tube.axis, thumb),
+    fingers: angleOf(tube.axis, reach),
   };
 }
 
@@ -611,14 +789,15 @@ function measureScene(grip: RoleGrip, scene: TestScene, every: number): SampleCo
         throw new Error(`The pose has no player ${index}.`);
       }
       const posed = poseSkeleton(model, pose);
-      const instrumentPart = posedPart(posed, grip.parts);
+      const instrumentPart = posedPart(posed, [...new Set([...grip.parts.L, ...grip.parts.R])]);
       const tube = grip.tube(posed, grip.paws[0] ?? 'L');
       const paws: Partial<Record<Side, PawContact>> = {};
       for (const side of grip.paws) {
         const own = grip.tube(posed, side);
         const wanted = grip.places[side];
         const toward = wanted ? placeDirection(posed, wanted, grip.placeAxes) : undefined;
-        paws[side] = pawContact(posed, own, side, instrumentPart, toward);
+        const part = posedPart(posed, grip.parts[side]);
+        paws[side] = pawContact(posed, own, side, part, grip.shaft, toward);
       }
       const between = partDistance(
         posedPart(posed, ['handL', 'fingersL']),
@@ -674,6 +853,29 @@ function degrees(values: readonly (number | null)[]): string {
 }
 
 /**
+ * Writes the cells of the shaft measures of a set: the median butt length, held length, exit
+ * angle, and fingers angle ({@link ShaftContact}).
+ *
+ * @param paws The measures of one paw in the samples of the set.
+ * @returns The cells, or "-" cells when the paw holds no shaft.
+ */
+function shaftCells(paws: readonly PawContact[]): string {
+  const shafts = paws.flatMap((p) => (p.shaft ? [p.shaft] : []));
+  if (shafts.length === 0) {
+    return '- | - | - | -';
+  }
+  const butts = shafts.flatMap((s) => (s.butt === null ? [] : [s.butt]));
+  const out = shafts.length - butts.length;
+  const butt = butts.length > 0 ? cm(median(butts)) : '-';
+  return [
+    `${butt}${out > 0 ? ` (${out} out)` : ''}`,
+    cm(median(shafts.map((s) => s.held))),
+    median(shafts.map((s) => s.exit)).toFixed(0),
+    median(shafts.map((s) => s.fingers)).toFixed(0),
+  ].join(' | ');
+}
+
+/**
  * Writes centimeters with one decimal.
  *
  * @param meters The value, in meters.
@@ -700,8 +902,8 @@ function tableLines(
 ): string[] {
   const out = [
     `${name} (${grip.species}, ${grip.instrument}): the gaps and the distances in cm, the median of each set; "worst" names the sample with the largest axis distance`,
-    '| Set | Paw | Samples | Holds | Grasps | Gap | Axis | In | Tips | Palm ° | Place ° | Top | Drift | Along | Side (right, up, fwd) | Worst axis | Paws gap min | Body gap | End gap |',
-    '|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|---|---:|---:|---:|',
+    '| Set | Paw | Samples | Holds | Grasps | Gap | Axis | In | Tips | Palm ° | Place ° | Butt | Held | Exit ° | Fingers ° | Top | Drift | Along | Side (right, up, fwd) | Worst axis | Paws gap min | Body gap | End gap |',
+    '|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|---|---:|---:|---:|',
   ];
   for (const set of ['play', 'lift', 'rest', 'lower']) {
     const of = samples.filter((s) => s.set === set);
@@ -721,7 +923,7 @@ function tableLines(
       const sideMedian = [0, 1, 2].map((k) => at((p) => p.side[k] ?? 0));
       const share = (n: number): string => `${((100 * n) / of.length).toFixed(0)}%`;
       out.push(
-        `| ${set} | ${side} | ${of.length} | ${share(held)} | ${share(grasped)} | ${at((p) => p.gap)} | ${at((p) => p.axis)} | ${at((p) => p.inside)} | ${at((p) => p.tips)} | ${degrees(paws.map((p) => p.palm))} | ${degrees(paws.map((p) => p.place))} | ${at((p) => p.top)} | ${at((p) => p.drift)} | ${at((p) => p.along)} | ${sideMedian.join(', ')} | ${cm(worst.c.axis)} at ${worst.s.song.toFixed(2)} s, wall ${worst.s.wall.toFixed(2)} s | ${cm(Math.min(...of.map((s) => s.between)))} | ${cm(median(of.map((s) => s.body)))} | ${cm(median(of.map((s) => s.end)))} |`,
+        `| ${set} | ${side} | ${of.length} | ${share(held)} | ${share(grasped)} | ${at((p) => p.gap)} | ${at((p) => p.axis)} | ${at((p) => p.inside)} | ${at((p) => p.tips)} | ${degrees(paws.map((p) => p.palm))} | ${degrees(paws.map((p) => p.place))} | ${shaftCells(paws)} | ${at((p) => p.top)} | ${at((p) => p.drift)} | ${at((p) => p.along)} | ${sideMedian.join(', ')} | ${cm(worst.c.axis)} at ${worst.s.song.toFixed(2)} s, wall ${worst.s.wall.toFixed(2)} s | ${cm(Math.min(...of.map((s) => s.between)))} | ${cm(median(of.map((s) => s.body)))} | ${cm(median(of.map((s) => s.end)))} |`,
       );
     }
   }
