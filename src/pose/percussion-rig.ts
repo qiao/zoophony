@@ -233,29 +233,34 @@ export const PERCUSSION_HOLDS = {
   // from the rim, as the user chose for the look of the reference images. As a real timpanist,
   // the paw holds the head out of the front of the fist (TIMPANI.malletTilt), and each mallet
   // points forward and in. The homes stand out from the shoulders, so that the mallets point
-  // forward at a strike. Between strikes, the wrist lifts the head a little above the level, with
-  // little twist of the paw on the forearm (across, 2026-10-19-elephant-grip decisions). The
-  // elbows point down and a little out from the body, so that the upper arms roll less, the skin
-  // does not twist at the shoulder (2026-10-19-arm-skin decisions), no gap shows between each
-  // upper arm and the trunk from the back (2026-10-22-elephant-crease decisions), and the thick
-  // upper arms of the quad tubes go less far into the round belly near the elbows
-  // (2026-10-25-elephant-hippo-creases decisions). The mallets stay over the kettles in
-  // the rest pose, because the hanging paws reach into the large kettles (ready,
-  // 2026-10-19-elephant-pose decisions).
+  // forward and 22° to 28° in at a strike, a V of about 50° as in the American grip. Between
+  // strikes and at rest, each mallet keeps its strike direction, and the wrist lifts the head
+  // 2 cm to 7 cm above the playing spot (across.pitch), as the set position of a real timpanist.
+  // Before a strike, the wrist lifts the head 10 cm to 15 cm higher (sizes.lift, across.peak) and
+  // brings it down at the note start, as the full stroke of a real player. A turn of the mallet
+  // across the forearm between strikes laid the right mallet level across the belly, and a
+  // larger pitch moved the shaft out of the closed paw (2026-10-25-timpani-piano-rest
+  // decisions). The elbows point down and a little out from the body, so that the upper arms roll
+  // less, the skin does not twist at the shoulder (2026-10-19-arm-skin decisions), no gap shows
+  // between each upper arm and the trunk from the back (2026-10-22-elephant-crease decisions),
+  // and the thick upper arms of the quad tubes go less far into the round belly near the elbows
+  // (2026-10-25-elephant-hippo-creases decisions). The mallets stay over the kettles in the rest
+  // pose, because the hanging paws reach into the large kettles (ready, 2026-10-19-elephant-pose
+  // decisions).
   timpani: {
     hands: 'sides',
-    sizes: { lift: 0.1, rest: 0.2 },
-    // The left mallet strikes 8 cm toward the middle, so that its strike direction stays near its
-    // rest direction: with no offset, the left paw turned up to 33° in 0.01 s in the rolls
-    // (2026-10-25-percussion-grip decisions).
+    sizes: { lift: 0.2, rest: 0.03 },
+    // The left mallet strikes 8 cm toward the middle, so that it points in as far as the right
+    // mallet: with no offset, the left mallet pointed 17° in and the right mallet 22°
+    // (2026-10-25-timpani-piano-rest decisions).
     offsetL: [0.08, 0, 0],
     offsetR: [-0.05, 0, 0],
     poleL: [-0.8, -1, 0.2],
     poleR: [0.8, -1, 0.2],
     rim: 0.25,
-    home: [0.1, -0.37, -0.2],
+    home: [0.45, -0.37, -0.2],
     top: 'shoulder',
-    across: { rest: -1.2, lift: 0.65, pitch: null, peak: 1 },
+    across: { rest: -1.2, lift: 0.65, pitch: 0.1, peak: 8 },
     pitchR: 1,
     ready: true,
     set: null,
@@ -267,11 +272,12 @@ export const PERCUSSION_HOLDS = {
     side: null,
     // The end of the round paw of the elephant closes on the shaft (TIMPANI.malletSpotL and malletSpotR).
     curl: 100 * MathUtils.DEG2RAD,
-    // The elephant grip lies far from the wrist across the shaft, so a roll of the paw moves the
-    // wrist far, and a roll that removes the side bend flipped the left paw in the rolls. At the
-    // strikes, the forearms stand near the 45° of the shaft from the fingers, so the paws keep
-    // the forearm in the plane of the palm (2026-10-25-percussion-grip decisions).
-    strikeRoll: false,
+    // Each paw turns around the shaft until it has no side bend at the strike, and keeps that roll
+    // between strikes, so that the shaft stays in the closed paw. Each hand strikes one kettle in
+    // one direction, so the roll stays near one value. With no roll, the shafts left the paws
+    // 80° from the thumb side between strikes, and no paw grasped its mallet
+    // (2026-10-25-timpani-piano-rest decisions).
+    strikeRoll: true,
   },
   // The badger strikes the bass drum below the middle of the head, as a real player strikes off
   // the middle. The beater leaves the side of the fist at the angle of no twist of the paw on the

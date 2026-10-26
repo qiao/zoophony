@@ -42,7 +42,7 @@ Each new role and each new hold adds its row to this table in the same commit.
 | Trumpet, monkey | No chair: it stands with the feet under the hips and the trunk leaned forward, so that the center of mass is over the middle of the soles (4.4, seat), and stands upright as a soloist | Technique: `docs/reference/wind-technique.md` 2.1 (`docs/research/2026-10-20-mesh-monkey.md`). Stand: the stability range of the center of foot pressure (`docs/research/2026-10-20-monkey-stand.md`) | The smaller trumpet points forward and down from the mouth, the paws close around the valve block below the mouth, the right fingers press the valves, and the elbows point down | The trumpet moves off the mouth and turns down in front of the chest, both paws keep their grips, and the head lifts | `MONKEY_TRUMPET` of `SPECIES_WIND_HOLDS`, `pose/winds.ts` | 5.2, 5.3 woodwinds and brass, `2026-10-20-mesh-monkey.md`, `2026-10-21-monkey-stand.md`, `2026-10-25-grips.md` | `pnpm close-views trumpeter <dir>` |
 | Trombone, panda | Chair, stands as a soloist | Play: pBone, "How To Hold A Trombone", and Western Carolina University, "Slide Technique" (`docs/research/2026-10-18-panda-mesh.md`). Left shoulder: Human Kinetics (`docs/research/2026-10-18-panda-folds.md`). Technique: `docs/reference/wind-technique.md` | The left paw holds the weight at the grip near the mouthpiece, with the left shoulder forward, and the right paw moves the slide with the pitch. The slide points forward and a little down, turned to the right toward the right shoulder as far as the reach of the slide travel needs | The trombone moves off the mouth and stands upright at the right side | `PANDA_PLAY`, `PANDA_TROMBONE`, `pose/winds.ts` | 5.2, 5.3 woodwinds and brass, `2026-10-18-mesh-panda.md`, `2026-10-18-trombone-fit.md`, `2026-10-25-grips.md` | `pnpm close-views trombonist <dir>` |
 | Tuba, rhino | Stands in each seat, in the standing pose of its mesh, as a tubist on a strap | Technique: `docs/reference/wind-technique.md` 3 (`docs/research/2026-10-21-mesh-rhino.md`) | The tuba with a longer lead pipe stands under the muzzle in front of the chest, with the bell at the left of the horn and the head. The left paw holds the main branch, the right paw presses the valves from their front right, where it shows from the front, and the elbows point out, down, and forward | The tuba moves off the mouth and its lower end turns forward, and both paws keep their grips | `RHINO_TUBA` of `SPECIES_WIND_HOLDS`, `pose/winds.ts` | 5.2, 5.3 woodwinds and brass, `2026-10-21-mesh-rhino.md`, `2026-10-25-grips.md` | `pnpm close-views tubist <dir>` |
-| Timpani, elephant | Stands | The reference images (`docs/research/2026-10-19-elephant-pose.md`) | Each mallet strikes the front kettle of its side, 0.25 m in from the near rim, and turns up and out between strikes. The trunk hangs in the gap between the two front kettles | The paws stay above the near rims with the mallets up | `PERCUSSION_HOLDS.timpani`, `TIMPANI`, `pose/percussion-rig.ts` | 5.2, 5.3 percussion, `2026-10-19-elephant-pose.md` | `pnpm close-views timpanist <dir>` |
+| Timpani, elephant | Stands | The reference images (`docs/research/2026-10-19-elephant-pose.md`) | Each mallet strikes the front kettle of its side, 0.25 m in from the near rim. Between strikes, it points forward and a little in, with the head a few cm above its spot, and the wrist lifts it higher before a strike. The trunk hangs in the gap between the two front kettles | The mallets keep the set position of between strikes over the kettles | `PERCUSSION_HOLDS.timpani`, `TIMPANI`, `pose/percussion-rig.ts` | 5.2, 5.3 percussion, `2026-10-19-elephant-pose.md`, `2026-10-25-timpani-piano-rest.md` | `pnpm close-views timpanist <dir>` |
 | Bass drum, badger | Stands behind the drum | `docs/reference/percussion-technique.md` 5 | The beater in the right paw strikes 12 cm below the middle of the right head, and leaves the side of the fist at the angle of no paw twist between strikes | The beater stays over the drum, and the left arm hangs | `PERCUSSION_HOLDS['bass-drum']`, `BASS_DRUM`, `pose/percussion-rig.ts` | 5.3 percussion, `2026-10-20-mesh-badger.md` | `pnpm close-views bass-drummer <dir>` |
 | Snare drum, badger | Stands | `docs/reference/percussion-technique.md` 6 | The drum stands at the height of the wrists, and the sticks leave the front of the fists in a V of about 66°, almost level, with the paws in turn | The arms hang | `PERCUSSION_HOLDS['snare-drum']`, `SNARE_DRUM`, `pose/percussion-rig.ts` | 5.3 percussion, `2026-10-20-mesh-badger.md` | `pnpm close-views snare-drummer <dir>` |
 | Cymbals, badger | Stands | `docs/reference/percussion-technique.md` 7 | A suspended cymbal on a stand: the yarn mallets leave the front of the fists, as the snare sticks, and the paws strike in turn near the edge, opposite each other | The arms hang | `SUSPENDED_CYMBAL_HOLD`, `SUSPENDED_CYMBAL`, `pose/percussion-rig.ts` | 5.3 percussion, `2026-10-20-badger-cymbals.md` | `pnpm close-views cymbalist <dir>` |
@@ -675,14 +675,14 @@ The code constants of each family hold the times, the angles, and the lengths of
     shaft in the paw (`MalletSpot`, `malletTilt`), and the fingers keep their curl at rest and in
     the lift (`PercussionHold.curl`). The retarget removes each side bend of a paw on its forearm
     (`PAW_TURN`, 4.4), and the mallet follows the hand of the player, so a side bend moves the
-    shaft in the visible paw. So the snare, the cymbal, and the bass drum paws turn around the
-    shaft until the paw has no side bend at the strike, and keep that roll of the mallet through
-    the stroke (`gripRoll()`, `PercussionHold.strikeRoll`): the shaft then keeps its place in the paw.
-    A roll for each moment of a stroke turned the paws too fast. The other holds keep the forearm
-    in the plane of the palm, and their mallets stand near the angle of the shaft from the fingers
-    away from the forearm, so the side bend stays small. On the xylophone, the short arms hold
-    each mallet near the line of the forearm, so the shaft leaves the closed paw under the curled
-    claws. `pnpm wind-grip` measures the grip
+    shaft in the visible paw. So the snare, the cymbal, the bass drum, and the timpani paws turn
+    around the shaft until the paw has no side bend at the strike, and keep that roll of the
+    mallet through the stroke (`gripRoll()`, `PercussionHold.strikeRoll`): the shaft then keeps
+    its place in the paw. A roll for each moment of a stroke turned the paws too fast. The other
+    holds keep the forearm in the plane of the palm, and their mallets stand near the angle of
+    the shaft from the fingers away from the forearm, so the side bend stays small. On the
+    xylophone, the short arms hold each mallet near the line of the forearm, so the shaft leaves
+    the closed paw under the curled claws. `pnpm wind-grip` measures the grip
     (`docs/research/2026-10-25-percussion-grip.md`).
   - A timpani note plays on the kettle whose key range has its middle nearest to the key. A
     xylophone note strikes the bar of its key (4.6). A xylophone part outside the bars moves by
@@ -716,11 +716,13 @@ The code constants of each family hold the times, the angles, and the lengths of
     elephant closes its end on the shaft, and the head leaves the front of the fist
     (`TIMPANI.malletSpotL`, `docs/reference/percussion-technique.md`). Each mallet points to its target from a place
     below, in front of, and out from its shoulder (`PercussionHold.home`), so that it points
-    forward at a strike. Between strikes, the paw holds the mallet forward and in, at the angle of
-    no twist of the paw on the forearm, and the wrist lifts the head a little above the level
-    (`PercussionHold.across`). The head comes down for the strike. The studio skin twists badly
-    when a paw turns far on its forearm (4.4), so the hold takes the real direction with the
-    smallest turn of the paw. The elbows of the timpani point down and
+    forward and a little in at a strike, as the V of the American grip. Between
+    strikes and at rest, each mallet keeps its strike direction, and the wrist lifts the head a
+    few cm above its spot, as the set position of a real timpanist (`MalletAcross.pitch`). Before
+    a strike, the wrist lifts the head higher and brings it down at the note start, as the full
+    stroke of a real player (`MalletAcross.peak`). A turn of the mallet across the forearm
+    between strikes laid the right mallet level across the belly
+    (`docs/decisions/2026-10-25-timpani-piano-rest.md`). The elbows of the timpani point down and
     a little out from the body, as a real timpanist holds them (`poleL`, `poleR`). The thick upper
     arms then go less far into the round belly near the elbows. Elbows out at the height
     of the shoulders roll the upper arms far, and the skin twists at the shoulder (4.4). The

@@ -56,8 +56,13 @@ from the V).
 
 - The shaft is 10° to 25° from the drum head [3]. Peters gives about 10° above the head [2].
 - The mallets do not go below the level [5].
-- No source gives the height of the head between strikes. The heights of 12 inches [5] and 18
-  inches [7] are drills.
+- In the set position before the first note, the mallets are about one inch (2.5 cm) above the
+  drum head, parallel to the floor, and the forearm slopes down about 10° to 15° to the wrist [41
+  (a search summary only)].
+- A general stroke is a smooth down-up motion that starts with the mallet above the head, and
+  the player lifts the mallet head up at once after the attack [40]. Louder notes fall from a
+  greater height [42]. The heights of 12 inches [5] and
+  18 inches [7] are drills.
 - The upper arm hangs beside the body, and the elbow bends so that the mallet reaches the head
   [3]. The shoulders do not lift [1].
 - The wrist has a small bend, which lets it turn [4].
@@ -194,13 +199,20 @@ motion updates the items.
   front of the fist about 45° from the thumb side, as section 1 gives (`TIMPANI.malletSpotL`,
   `malletTilt`). The elephant paw has no fingers, so no finger wraps the shaft. The shaft lies
   45° from the line of the paw: section 1 gives no angle. The shaft is 6 cm
-  long behind the grip (`TIMPANI.malletButt`), so the butt end sticks out 2.3 cm (left) and
-  1.8 cm (right) behind the paw in the play, as section 1 gives 13 mm to 25 mm.
-- **The direction between strikes.** Each mallet points forward and in, 14° to 16° from forward
-  (a V of about 30°, as the French and the American grips), and 1° to 7° above the level
-  (`PercussionHold.across`, sections 2 and 3). A wider V of the German grip turns the paw of the
-  elephant further on its forearm (`docs/research/2026-10-19-elephant-grip.md`). At a strike,
-  each mallet points forward and 20° to 23° down (section 3).
+  long behind the grip (`TIMPANI.malletButt`), so the butt end sticks out 2.5 cm (left) and
+  2.0 cm (right) behind the paw in the play, as section 1 gives 13 mm to 25 mm. In the play, the
+  shaft leaves the paw 54° (left) and 52° (right) from the thumb side (`pnpm wind-grip`).
+- **The direction between strikes.** Each mallet points forward and in, 22° to 30° from
+  forward (a V of about 50°, as the American grip, `PercussionHold.home`), as section 2 gives.
+  Between strikes and at rest, each mallet keeps that direction, and the wrist lifts the head
+  2 cm to 7 cm above its spot, with the shaft 15° to 22° down (`MalletAcross.pitch`). Section 3
+  gives the set position one inch above the head with a level shaft. The app differs: the grip
+  stands higher, because the mallet strikes 20° to 23° down, and a larger lift of the wrist
+  moved the shaft out of the closed paw. Each paw turns around the shaft until it has no side
+  bend at the strike, and keeps that roll (`PercussionHold.strikeRoll`), so the shaft stays in
+  the paw. A turn of the mallet across the forearm laid the right mallet level across the belly
+  (`docs/research/2026-10-25-timpani-piano-rest.md`). A wider V of the German grip turns the
+  paw of the elephant further on its forearm (`docs/research/2026-10-19-elephant-grip.md`).
 - **The elbows.** Each upper arm hangs near the side of the body, and the elbow points down and
   a little out (`PercussionHold.poleL` and `poleR`), as section 3 gives. Section 3 gives no
   distance of the elbow from the body, and section 6 gives about a fist for the snare drum. With
@@ -210,7 +222,10 @@ motion updates the items.
   back with the elbows a little out, and the thick upper arms go less far into the round belly
   (`docs/decisions/2026-10-25-elephant-hippo-creases.md`).
 - **The stroke.** The head lifts before the note, comes down at its full speed at the note
-  start, and rebounds (`STRIKE_MOTION` of `src/pose/strikes.ts`), as section 4 gives.
+  start, and rebounds (`STRIKE_MOTION` of `src/pose/strikes.ts`), as section 4 gives. The
+  wrist lifts the timpani head up to 11 cm to 22 cm above its spot, more for a louder note
+  (`MalletAcross.peak`), as the full stroke of section 3. The arm moves little, as section 4
+  gives.
 - **The playing spot.** The app differs. Each mallet strikes 0.25 m in from the near rim
   (`PercussionHold.rim`), because the short arms of the elephant hold the paws above the near
   rims, as the user chose (`docs/decisions/2026-10-19-elephant-pose.md`). A real player strikes
@@ -316,7 +331,7 @@ shoulder joint to the palm (`docs/decisions/2026-10-20-mesh-badger.md`).
 
 ## 11. Sources
 
-Sources 1 to 12 opened on 2026-10-19, sources 13 to 33 on 2026-10-20, and sources 36 to 39 on
+Sources 1 to 12 opened on 2026-10-19, sources 13 to 33 on 2026-10-20, and sources 36 to 42 on
 2026-10-25, except where a fact has a mark of section "Source marks" or a source says "a search
 summary only".
 
@@ -394,3 +409,10 @@ summary only".
     2010. https://www.midwestclinic.org/user_files_1/pdfs/clinicianmaterials/2010/michael_varner.pdf
 39. B. Becker, interview with G. Koshinski on two-mallet performance, NEXUS blog, 2009, and
     Malletech, "Two-Mallet Performance". https://malletech.com/?p=2590
+40. B. Jones, "Percussion Performance: Timpani", SBO+, 2013.
+    https://sboplus.net/percussion-performance-timpani/
+41. Meyer, Bandmasters Review, Texas Bandmasters Association, April 2015 (a search summary
+    only: the server did not answer).
+    https://apps.texasbandmasters.org/archives/pdfs/bmr/2015-04-meyer.pdf
+42. R. Adams, "A Conductor's Guide to Percussion: Timpani Methods", Mr. A Music Place, 2014.
+    https://mramusicplace.net/2014/08/06/a-conductors-guide-to-percussion-timpani-methods/
