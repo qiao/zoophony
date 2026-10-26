@@ -676,8 +676,9 @@ The code constants of each family hold the times, the angles, and the lengths of
     the stroke (`gripRoll()`, `PercussionHold.strikeRoll`): the shaft then keeps its place in the paw.
     A roll for each moment of a stroke turned the paws too fast. The other holds keep the forearm
     in the plane of the palm, and their mallets stand near the angle of the shaft from the fingers
-    away from the forearm, so the side bend stays small. A hold points each mallet from a home
-    that gives that angle. `pnpm wind-grip` measures the grip
+    away from the forearm, so the side bend stays small. On the xylophone, the short arms hold
+    each mallet near the line of the forearm, so the shaft leaves the closed paw under the curled
+    claws. `pnpm wind-grip` measures the grip
     (`docs/research/2026-10-25-percussion-grip.md`).
   - A timpani note plays on the kettle whose key range has its middle nearest to the key. A
     xylophone note strikes the bar of its key (4.6). A xylophone part outside the bars moves by
@@ -749,11 +750,7 @@ The code constants of each family hold the times, the angles, and the lengths of
       `docs/decisions/2026-10-20-badger-cymbals.md`). Between strikes, each mallet keeps its
       strike direction, and the wrist lifts the head over its spot near the edge, as with the
       snare sticks.
-    - The xylophone mallets take the grip of the snare sticks, as a real player holds them, and
-      point from homes out from the shoulders, so that they make a V and stand away from the
-      forearms. The mallets are longer than the snare sticks, because a shaft that leaves the
-      front of the fist does not continue the line of the forearm, and the short arms lose reach
-      (`XYLOPHONE.mallet`). The
+    - The xylophone mallets take the grip of the snare sticks, as a real player holds them. The
       badger moves its body from side to side behind the notes, as a real player does, with the
       feet in place (`PercussionHold.side`, `pose/side-move.ts`). The body moves toward the mean
       side place of the notes in a time before each note, so near notes give a mean place, and

@@ -114,16 +114,21 @@ export const TIMPANI = {
  * arms of the badger reach the bars only in a band about 0.12 m deep: nearer bars put the paws
  * into the belly, and the arms do not reach farther bars. With bars of a real size (0.30 m to
  * 0.17 m long), the sharp bars stood about 11 cm out of reach (2026-10-25-xylophone-reach
- * decisions).
+ * decisions). The bars of 11 cm to 7 cm bring the sharp bars nearer for the grip of the closed paw
+ * (2026-10-25-percussion-grip decisions).
  */
 export const XYLOPHONE = {
   keys: [72, 101],
   barHeight: 0.4,
   /** The width of a natural bar with its gap. */
   pitch: 0.03,
-  /** The lengths of the lowest and of the highest natural bar. */
-  longest: 0.12,
-  shortest: 0.08,
+  /**
+   * The lengths of the lowest and of the highest natural bar. With 12 cm to 8 cm and the mallet of
+   * the closed paw, 88% of the right strikes of the test score landed within 5 mm of their bars,
+   * and with 11 cm to 7 cm, 93% (`docs/research/2026-10-25-percussion-grip.md`).
+   */
+  longest: 0.11,
+  shortest: 0.07,
   /**
    * The distance of the front edge of the natural bars in front of the player. At 0.40 m, the
    * left wrist of the badger bent 64° at the lowest bars, and the paws went 2.9 cm into the belly.
@@ -133,15 +138,9 @@ export const XYLOPHONE = {
   rowGap: 0.005,
   /** The radius of the head of each mallet: smaller than a real head, as the bars. */
   head: 0.012,
-  /**
-   * The length of each mallet from the grip to the middle of its head. The shaft leaves the closed
-   * paw at 60° from the fingers ({@link PAW_TILT}), so it no longer continues the line of the
-   * forearm, and the short arms lose reach. With 0.30 m, 83% of the right strikes of the test
-   * score landed within 5 mm of their bars, and with 0.40 m, 100%
-   * (`docs/research/2026-10-25-percussion-grip.md`).
-   */
+  /** The length of each mallet from the grip to the middle of its head. */
   // SAFETY: the literal widens to a number, so that a hold tool can set it in memory.
-  mallet: 0.4 as number,
+  mallet: 0.3 as number,
   /**
    * A mallet strikes a sharp bar this far from its near end, at the edge near the player, as a
    * real player strikes it (`docs/reference/percussion-technique.md` 9).
@@ -149,17 +148,14 @@ export const XYLOPHONE = {
   sharpStrike: 0.02,
   /**
    * The angle of each mallet below the level in the bind pose, toward the fingers of the hanging
-   * paw, in radians ({@link PAW_TILT}).
+   * paw, in radians: the shaft runs 30° from the fingers. The paws hang low in front of the belly,
+   * where each mallet runs near the line of its forearm, so the shaft leaves the closed paw under
+   * the curled claws. With {@link PAW_TILT}, the same paws folded more faces at the knuckles.
    */
-  malletTilt: PAW_TILT,
-  /**
-   * The grip of each mallet in the closed paw (`MalletSpot`): 0.4 cm nearer to the middle of the
-   * paw than {@link PAW_SPOT}, with the claws curled 100° (`PERCUSSION_HOLDS.xylophone.curl`).
-   * The left paw reaches far for the bars, and with the grip of the snare sticks, its shaft lay
-   * on the skin of the palm out of the closed paw in 29% of the play samples
-   * (`docs/research/2026-10-25-percussion-grip.md`).
-   */
-  malletSpot: [0.065, -0.045, 0.018],
+  // SAFETY: the literal widens to a number, so that a hold tool can set it in memory.
+  malletTilt: 1.05 as number,
+  /** The grip of each mallet in the closed paw ({@link PAW_SPOT}). */
+  malletSpot: PAW_SPOT,
 } as const;
 
 /**

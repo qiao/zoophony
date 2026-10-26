@@ -200,11 +200,14 @@ The badger plays the other percussion instruments (`PERCUSSION_HOLDS` of
 `XYLOPHONE` of `src/models/instruments/percussion.ts`). Its short arms reach 0.27 m from the
 shoulder joint to the palm (`docs/decisions/2026-10-20-mesh-badger.md`).
 
-- **The grip.** Each paw holds its stick, mallet, or beater in the claws curled 90°, 100° on the
-  xylophone, and 75° with the triangle: the shaft lies on the palm side, and the head leaves the front of the fist at
-  the side of the thumb, as section 1 gives (`PAW_SPOT`, `PAW_TILT` of
+- **The grip.** Each paw holds its stick, mallet, or beater in the claws curled 90°, and 75° with
+  the triangle: the shaft lies on the palm side, and the head leaves the front of the fist at the
+  side of the thumb, as section 1 gives (`PAW_SPOT`, `PAW_TILT` of
   `src/models/instruments/percussion.ts`). The shaft lies 60° from the line of the paw in the
-  bind pose, the triangle beater 33°, and the bass drum beater 90°, as a hammer. The butt end sticks out up to 3.2 cm behind the paw,
+  bind pose, the xylophone mallet and the triangle beater 30° to 33°, and the bass drum beater
+  90°, as a hammer. The app differs on the xylophone: the paws hang low in front of the belly,
+  and each mallet runs near the line of its forearm, so the shaft leaves the closed paw under the
+  curled claws. The butt end sticks out up to 3.2 cm behind the paw,
   where section 1 gives 13 mm to 25 mm. The butt of the triangle beater stays in the paw. The
   paw keeps its stick at rest and in the lift, with the head up and forward.
 
@@ -246,7 +249,7 @@ shoulder joint to the palm (`docs/decisions/2026-10-20-mesh-badger.md`).
   eyes stay level and look at the bars. The app differs: the spine also leans 11° forward over the
   bars (`PercussionHold.lean`), because the short arms do not reach the bars from an upright
   body. Section 9 gives no lean. The app also differs in the size of the bars: they are 3 cm
-  wide and 12 cm to 8 cm long, and the near edge of the bars stands 0.42 m in front of the
+  wide and 11 cm to 7 cm long, and the near edge of the bars stands 0.42 m in front of the
   badger (`XYLOPHONE`), because the short arms reach the bars only in a band about 0.12 m deep.
   With bars of a real size, the sharp bars stood about 11 cm out of reach. A mallet strikes a
   sharp bar 2 cm from its edge near the player, as section 9 gives. A part below or

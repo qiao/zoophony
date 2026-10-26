@@ -347,10 +347,7 @@ export const PERCUSSION_HOLDS = {
     poleL: [-0.8, -1, 0.3],
     poleR: [0.8, -1, 0.3],
     rim: 0,
-    // The homes stand out from the shoulders, so that the mallets make a V and stand at least
-    // 30° from the forearms. Below that angle, the shaft leaves the closed paw along the claws
-    // (2026-10-25-percussion-grip decisions).
-    home: [0.55, -0.2, -0.75],
+    home: MALLET_HOME,
     top: 'up',
     across: { rest: -0.6, lift: 0.3, pitch: 0.5 },
     ready: false,
@@ -365,12 +362,9 @@ export const PERCUSSION_HOLDS = {
     // the floor, so the hips keep their place, and the spine takes the whole move
     // (2026-10-25-xylophone-reach decisions).
     side: { span: 0.25, hips: 0, spine: 10 * MathUtils.DEG2RAD, moveSec: 0.6 },
-    // The left paw reaches far for the bars, so the claws close further on the mallet
-    // (XYLOPHONE.malletSpot).
-    curl: 100 * MathUtils.DEG2RAD,
-    // A roll that removes the side bend at each strike turned the left paw up to 113° in 0.01 s
-    // between the bars, so the forearm lies in the plane of the palm (2026-10-25-percussion-grip
-    // decisions).
+    curl: GRIP_CURL,
+    // A roll that removes the side bend at each strike turned the paws fast between the bars, so
+    // the forearm lies in the plane of the palm (2026-10-25-percussion-grip decisions).
     strikeRoll: false,
   },
 } as const satisfies Readonly<Record<PercussionInstrument, PercussionHold>>;
