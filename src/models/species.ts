@@ -492,12 +492,10 @@ export const SPECIES = {
   /**
    * Mouse, the oboes: a gray-brown mouse with a cream belly, large round ears, and a long pink
    * tail. It has the studio body of the mesh of the user, `assets/models/mouse/mouse.glb`, which
-   * `pnpm rig-mesh mouse` rigs (design 4.4), with the size of the parametric mouse and longer arms
-   * (2026-10-19-mesh-mouse and 2026-10-19-mouse-size decisions). Its arms keep the factor of the
-   * other meshes, so it plays a smaller oboe: 0.5 of the oboe of the app, 0.275 m. At 40° from
-   * the vertical, a real angle, the oboe of 0.62 put the grips far in front of the chest, and the
-   * arms reached forward straight. The user prefers a smaller instrument to longer arms
-   * (2026-10-25-wind-angle decisions). It has no chair (2026-10-19-mouse-size decisions): the round belly hides the
+   * `pnpm rig-mesh mouse` rigs (design 4.4), with the size of the parametric mouse and arms 1.25
+   * times the arms of the mesh: the user called the arms 1.4 too long on 2026-10-25
+   * (2026-10-26-short-arms decisions). It plays a smaller oboe: 0.45 of the oboe of the app. The
+   * user prefers a smaller instrument to longer arms (2026-10-25-wind-angle decisions). It has no chair (2026-10-19-mouse-size decisions): the round belly hides the
    * short thighs, so it stands on its hind legs with bent knees, in the seated pose at the seat
    * height of its legs. Its long tail goes back and lies on the floor behind it, and it stands
    * upright as a soloist. Its head height is the head of the studio body, and the seat height is
@@ -508,7 +506,7 @@ export const SPECIES = {
     size: 1,
     colors: SPECIES_COLORS.mouse,
     accentParts: ['inner-ears', 'nose'],
-    oboeScale: 0.5,
+    oboeScale: 0.45,
     noChair: true,
     proportions: {
       headHeight: STUDIO_MOUSE.headHeight,

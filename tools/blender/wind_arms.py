@@ -70,7 +70,7 @@ ANIMALS = {
         'config': 'tools/mesh-rigs/mouse.json',
         'source': 'assets/models/mouse/mouse.glb',
         'folder': 'assets/models/mouse',
-        'factor': 1.4,
+        'factor': 1.25,
         'slim': (1.0, 1.0),
         'cut': {'shoulder': 0.6, 'tilt': 0.0, 'wrist': 0.1},
         'zone': {'x': 0.06, 'radius': 0.08},

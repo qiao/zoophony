@@ -33,11 +33,11 @@
   "weld": 1e-05,
   "app": {
     "shoulders": 0.507635,
-    "reach": 0.3252,
+    "reach": 0.2926,
     "note": "The size of the parametric mouse of ab002346 (size 0.75, H 0.285 m), which stood 0.812 m high to the head top. The user said: \"the mouse is way too big. make it the size of the previous parametric model\" (docs/decisions/2026-10-19-mouse-size.md). The scale puts the standing skull top (the highest vertex within 0.03 u of the middle plane, 0.9485 u) at 0.812 m, 0.856045 m for each unit, with the standing shoulder joints at 0.507635 m (the entry of the mouse in ANIMALS). The ear tips stand at 0.856 m. The reach is the reach of the arm factor below, from the shoulder joint to the middle of the palm. With no --check, pnpm rig-mesh stops until the arm factor gives this reach."
   },
   "armFactor": 1,
-  "armFactorNote": "The factor of the upper arm and the forearm in the rig: 1, because the rig with arm segments does not stretch the arms (armSegments of tools/blender/rig_mesh.py). The arms of mouse-arms.glb are already 1.4 times longer than the arms of the user mesh (step_shape() of tools/blender/violin_arms.py, called by wind_arms.py), and the arm joints below are the joints of the longer arms, so the reach stays app.reach. The reasons for the factor 1.4 before: the arms of the mesh are short: 0.238 m from the shoulder joint to the middle of the palm with no factor, 0.67 of the trunk from the hips joint to the shoulder joints. With 1.4, the reach is 0.325 m, and the arm is 0.91 of the trunk, as the red fox (0.91), the dog (0.92), the panda, and the hippo (0.94). The user called the arms of the dog with the factor 1.75 much too long, so the mouse plays a smaller oboe (SpeciesParams.oboeScale), and its hold brings the oboe to the arms (SPECIES_WIND_HOLDS.mouse of src/pose/winds.ts, docs/research/2026-10-19-mouse-size.md).",
+  "armFactorNote": "The factor of the upper arm and the forearm in the rig: 1, because the rig with arm segments does not stretch the arms (armSegments of tools/blender/rig_mesh.py). The arms of mouse-arms.glb are already 1.25 times longer than the arms of the user mesh (step_shape() of tools/blender/violin_arms.py, called by wind_arms.py), and the arm joints below are the joints of the longer arms, so the reach stays app.reach. The user called the arms 1.4 too long on 2026-10-25, so the factor is 1.25, with a reach of 0.293 m (docs/decisions/2026-10-26-short-arms.md). The reasons for the factor 1.4 before: the arms of the mesh are short: 0.238 m from the shoulder joint to the middle of the palm with no factor, 0.67 of the trunk from the hips joint to the shoulder joints. With 1.4, the reach is 0.325 m, and the arm is 0.91 of the trunk, as the red fox (0.91), the dog (0.92), the panda, and the hippo (0.94). The user called the arms of the dog with the factor 1.75 much too long, so the mouse plays a smaller oboe (SpeciesParams.oboeScale), and its hold brings the oboe to the arms (SPECIES_WIND_HOLDS.mouse of src/pose/winds.ts, docs/research/2026-10-19-mouse-size.md).",
   "legFactor": 1,
   "legFactorNote": "The legs keep the length of the mesh (user rule: do not stretch the legs, change the chair). The seat of the legs of the seated bind is 0.076 m, and the chair of the app is 0.120 m deep.",
   "joints": {
@@ -140,43 +140,23 @@
       "roll": "palm"
     },
     "forearm_L": {
-      "head": [
-        0.1884,
-        0.4698,
-        0.1168
-      ],
+      "head": [0.17775, 0.483, 0.1105],
       "tail": "forearm_twist_L",
       "roll": "palm"
     },
     "forearm_twist_L": {
-      "head": [
-        0.2374,
-        0.4033,
-        0.1609
-      ],
+      "head": [0.2215, 0.423625, 0.149875],
       "tail": "hand_L",
       "roll": "palm"
     },
     "hand_L": {
-      "head": [
-        0.2864,
-        0.3368,
-        0.205
-      ],
+      "head": [0.26525, 0.36425, 0.18925],
       "tail": "fingers_L",
       "roll": "palm"
     },
     "fingers_L": {
-      "head": [
-        0.3113,
-        0.303,
-        0.2274
-      ],
-      "tail": [
-        0.3178,
-        0.263,
-        0.2343
-      ],
+      "head": [0.29015, 0.33045, 0.21165],
+      "tail": [0.29665, 0.29045, 0.21855],
       "roll": "palm"
     },
     "thigh_L": {
@@ -261,7 +241,7 @@
     -0.481,
     -0.575
   ],
-  "jointsNote": "The places are in the units and the axes of the studio in the pose of the source: 1 unit from the soles to the top of the ears, the soles at y = 0, +z forward, +x the left side. The right side mirrors the left side. The probes are in docs/research/2026-10-19-mouse-mesh/: sections.py gives the cuts at each height (sections-y.txt, sections-x.txt, sections-z.txt), and measures.py the parts (measures.txt). The legs are short cones apart below the crotch at y 0.145, with the middle of each leg at x 0.095. The thigh joint lies just above the crotch, the knee halfway to the ankle, the ankle at the narrowest leg cut (y 0.045), and the toes at the ball of the long flat foot (toe tip at z 0.18). The trunk joints lie 0.01 to 0.02 behind the middle of the body cut. The narrowest neck cut is at y 0.68, and the head starts at the chin at y 0.70. The cuts across the free arm give its middle line, (0.61, -0.71, 0.35) down the arm: the arm is apart from the body from x 0.11 out. The shoulder joint lies on that line 0.035 u inside the root, the elbow on the middle line of the cuts, the wrist at the narrowest cut before the fingers (y 0.41), the forearm twist halfway between them, and the finger joint 0.035 u before the tip of the paw (paw.py). The ear joint lies at the root of the large round ear on the head, and its tail at the top of the ear. The long tail has two bones: the root under the buttock, the bend on the floor at the back of the loop of the tail, and the tip at the end of the loop. The bend gives the smallest largest gap of a tail vertex from the line of the bones, 0.077 u (tail_bend.py). The palm takes the smallest principal direction of the vertices of the left paw beyond the wrist, inward, down, and back. Since 2026-10-25, the joints of the elbow, the wrist, and the paw are the joints of the arms that are 1.4 times longer (wind_arms.py), and the joints of the source arms are in source_joints() of tools/blender/violin_arms.py.",
+  "jointsNote": "The places are in the units and the axes of the studio in the pose of the source: 1 unit from the soles to the top of the ears, the soles at y = 0, +z forward, +x the left side. The right side mirrors the left side. The probes are in docs/research/2026-10-19-mouse-mesh/: sections.py gives the cuts at each height (sections-y.txt, sections-x.txt, sections-z.txt), and measures.py the parts (measures.txt). The legs are short cones apart below the crotch at y 0.145, with the middle of each leg at x 0.095. The thigh joint lies just above the crotch, the knee halfway to the ankle, the ankle at the narrowest leg cut (y 0.045), and the toes at the ball of the long flat foot (toe tip at z 0.18). The trunk joints lie 0.01 to 0.02 behind the middle of the body cut. The narrowest neck cut is at y 0.68, and the head starts at the chin at y 0.70. The cuts across the free arm give its middle line, (0.61, -0.71, 0.35) down the arm: the arm is apart from the body from x 0.11 out. The shoulder joint lies on that line 0.035 u inside the root, the elbow on the middle line of the cuts, the wrist at the narrowest cut before the fingers (y 0.41), the forearm twist halfway between them, and the finger joint 0.035 u before the tip of the paw (paw.py). The ear joint lies at the root of the large round ear on the head, and its tail at the top of the ear. The long tail has two bones: the root under the buttock, the bend on the floor at the back of the loop of the tail, and the tip at the end of the loop. The bend gives the smallest largest gap of a tail vertex from the line of the bones, 0.077 u (tail_bend.py). The palm takes the smallest principal direction of the vertices of the left paw beyond the wrist, inward, down, and back. Since 2026-10-25, the joints of the elbow, the wrist, and the paw are the joints of the arms that are 1.25 times longer (wind_arms.py), and the joints of the source arms are in source_joints() of tools/blender/violin_arms.py.",
   "studio": {
     "legTurns": {
       "thigh": [

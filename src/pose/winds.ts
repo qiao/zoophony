@@ -591,7 +591,8 @@ const MOUSE_OBOE_FORWARD = 10;
  * nose, with about half of the reed in the mouth. The oboe hangs 40° from the vertical, 10°
  * further forward than in {@link WIND_HOLDS} ({@link MOUSE_OBOE_FORWARD}), as a real oboist holds
  * it about 40° from the body. The small mouse plays a smaller oboe (`SpeciesParams.oboeScale`),
- * so that the grips stay near the chest and the elbows bend near the body. On the oboe of 0.62,
+ * so that the grips stay near the chest and the elbows bend near the body: 0.45 of the oboe of the
+ * app, with the arms 1.25 times the arms of the mesh (2026-10-26-short-arms decisions). On the oboe of 0.62,
  * the arms reached forward straight at 35° and 40°, and the oboe hung 15° from the vertical
  * (`2026-10-25-wind-angle` decisions). As on a real oboe, the left paw holds the upper joint near
  * the reed, and the right paw holds the lower joint above the bell, with a clear gap between the
@@ -600,7 +601,7 @@ const MOUSE_OBOE_FORWARD = 10;
  * (`2026-10-25-wind-palms` decisions). Each grip also moves 0.06 H toward the axis and 0.05 H
  * across it toward the shoulder of its paw, so that each paw holds the tube from its own side.
  * Each paw aims across the tube (`aimAcross`) with no side aim (`aimSide`), each palm faces the
- * tube (`faceTube`), and the fingers curl 100° (left) and 80° (right) over its front
+ * tube (`faceTube`), and the fingers curl 100° (left) and 110° (right) over its front
  * (`gripCurl`). The thumbs then point up the oboe to the reed, as an oboist curves the fingers
  * over the keys with the thumb behind the tube (`docs/reference/wind-technique.md` 2.3). Both
  * paws grasp the oboe in each sample (`pnpm wind-grip oboist`). With the grips behind the tube
@@ -610,8 +611,10 @@ const MOUSE_OBOE_FORWARD = 10;
  * the roll to the tube has no direction, and the paw turned over. With 60° on the right, the right
  * arm folded 9 faces at rest (limit 8, `2026-10-25-grips` decisions).
  *
- * In the rest, the oboe stands upright in front of the belly, 0.3 H below the mouth and 1 cm from
- * the belly, as a real oboist holds it vertical in a short rest. Both paws close on its middle:
+ * In the rest, the oboe stands upright in front of the belly, 0.45 H below the mouth and 1 cm from
+ * the belly, as a real oboist holds it vertical in a short rest. With the shorter arms and the oboe
+ * 0.3 H below the mouth, the elbows bent further, and the arms folded 10 and 11 faces at rest
+ * (2026-10-26-short-arms decisions). Both paws close on its middle:
  * the left paw across the body at a grip nearer to the reed (`restGripShiftL`), with the left
  * elbow out to the side, and the right paw just below it (`restGripShiftR`), with the right elbow
  * out and down. The rest grips are 13.2 cm (left) and 15.6 cm (right) down the oboe from the reed,
@@ -635,7 +638,8 @@ const MOUSE_OBOE_FORWARD = 10;
  * (`docs/reference/wind-technique.md` 2.3): the left upper arm hangs about 33° below the level,
  * and the left paw keeps its grip on the upper joint. With the elbow out and a little down, as at
  * rest, the left upper arm stood 3.5° below the level, and from ±35° and from the back the left
- * arm read as a raised wing. At rest, the left elbow points out and a little down (`restPoleL`):
+ * arm read as a raised wing. At rest, the left elbow points out, a little down, and a little
+ * forward (`restPoleL`), the one of 5 rest elbows that folds 8 faces or fewer on the shorter arms:
  * with the rest elbow down too, the left arm folded 9 faces at rest (limit 8,
  * `docs/research/2026-10-25-wind-elbows.md`). The shoulder turns are those of {@link WIND_HOLDS}.
  */
@@ -643,8 +647,8 @@ const MOUSE_OBOE = {
   ...WIND_HOLDS.oboe,
   lipShift: [0, -0.04, 0.23],
   rest: holdTurn(-30, 0),
-  restShift: [0.1, -0.3, 0.1],
-  restPoleL: [-1, -0.3, 0],
+  restShift: [0.1, -0.45, 0.1],
+  restPoleL: [-1, -0.1, -0.2],
   restPoleR: [1, -0.5, 0],
   play: holdTurn(MOUSE_OBOE_FORWARD, 0),
   poleL: [-0.5, -1, 0],
@@ -657,7 +661,7 @@ const MOUSE_OBOE = {
   restGripShiftL: [0.173, 0.05, -0.05],
   restGripShiftR: [-0.05, 0.06, -0.05],
   restAim: 1,
-  gripCurl: curls(100, 80),
+  gripCurl: curls(100, 110),
 } as const satisfies WindHold;
 
 /** The forward turns of the shoulder bones of the bassoon beaver while it plays, in degrees. */
