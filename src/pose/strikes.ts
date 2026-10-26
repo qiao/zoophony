@@ -83,6 +83,12 @@ export interface HandRules {
   readonly reach: number;
   /** The places (x, z) of the left and of the right shoulder joint on the floor plane. */
   readonly shoulders: readonly [left: readonly [number, number], right: readonly [number, number]];
+  /**
+   * Gives the move of both shoulder joints along x at the start of a strike, in meters, as the body
+   * moves from side to side behind the notes (`PercussionHold.side`). The reach counts from the
+   * moved shoulders.
+   */
+  readonly shift: (start: number) => number;
 }
 
 /** The rules of {@link alternateHands} with no hold: no limit of the reach. */
@@ -96,6 +102,7 @@ const BASE_RULES: HandRules = {
     [0, 0],
     [0, 0],
   ],
+  shift: () => 0,
 };
 
 /**
@@ -121,7 +128,10 @@ export function alternateHands(
   groups: readonly StrikeGroup[],
   rules: Partial<HandRules> = {},
 ): readonly [left: Strike[], right: Strike[]] {
-  const { alternateSec, gap, pass, places, reach, shoulders } = { ...BASE_RULES, ...rules };
+  const { alternateSec, gap, pass, places, reach, shoulders, shift } = {
+    ...BASE_RULES,
+    ...rules,
+  };
   const [leftShoulder, rightShoulder] = shoulders;
   const left: Strike[] = [];
   const right: Strike[] = [];
@@ -159,11 +169,14 @@ export function alternateHands(
       const crosses: boolean = alternate ? past(chosen) > pass : past(chosen) > -gap;
       let side: 'L' | 'R' = crosses ? (chosen === 'L' ? 'R' : 'L') : chosen;
       const z = first.point[2];
-      const toLeft = Math.hypot(x - leftShoulder[0], z - leftShoulder[1]);
-      const toRight = Math.hypot(x - rightShoulder[0], z - rightShoulder[1]);
-      if (side === 'L' && toLeft > reach && toRight < toLeft && past('R') <= -gap) {
+      const moved = shift(group.start);
+      const toLeft = Math.hypot(x - leftShoulder[0] - moved, z - leftShoulder[1]);
+      const toRight = Math.hypot(x - rightShoulder[0] - moved, z - rightShoulder[1]);
+      // The other hand can take a target out of reach, as far past the hand as the rules allow.
+      const allowed = alternate ? pass : -gap;
+      if (side === 'L' && toLeft > reach && toRight < toLeft && past('R') <= allowed) {
         side = 'R';
-      } else if (side === 'R' && toRight > reach && toLeft < toRight && past('L') <= -gap) {
+      } else if (side === 'R' && toRight > reach && toLeft < toRight && past('L') <= allowed) {
         side = 'L';
       }
       (side === 'L' ? left : right).push(strike(first));

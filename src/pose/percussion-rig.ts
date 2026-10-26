@@ -564,6 +564,11 @@ export interface PercussionRig {
   readonly hangR: HangingArm;
   /** The legs whose feet stay on the floor in a side move (`PercussionHold.side`), or `null`. */
   readonly legs: PlantedLegs | null;
+  /**
+   * The height of the shoulder joints above the spine joint in the bind pose, in meters: the arm of
+   * the side lean of the spine (`SideMove.spine`).
+   */
+  readonly lever: number;
 }
 
 /**
@@ -910,6 +915,7 @@ export function percussionRig(model: PlayerModel, instrument: PercussionInstrume
     hangL: hangingArm(model, left),
     hangR: hangingArm(model, right),
     legs: hold.side ? plantedLegs(model) : null,
+    lever: left.bind.shoulder[1] - (model.skeleton.positions[boneIndex('spine')]?.[1] ?? 0),
   };
 }
 

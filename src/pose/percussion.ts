@@ -17,7 +17,7 @@ import {
   xylophoneShift,
 } from './percussion-rig.ts';
 import type { MalletSet, PercussionRig, PercussionSide } from './percussion-rig.ts';
-import { buildSideTrack } from './side-move.ts';
+import { buildSideTrack, sideMoveAt } from './side-move.ts';
 import type { SideTrack } from './side-move.ts';
 import { STRIKE_MOTION, alternateHands, buildStrikeTrack } from './strikes.ts';
 import type { Strike, StrikeGroup, StrikeState, StrikeTarget, StrikeTrack } from './strikes.ts';
@@ -118,6 +118,11 @@ export function percussionTracks(
         [rig.left.arm.bind.shoulder[0], rig.left.arm.bind.shoulder[2]],
         [rig.right.arm.bind.shoulder[0], rig.right.arm.bind.shoulder[2]],
       ],
+      // The hips and the lean of the spine move the shoulders toward the notes.
+      shift: (start) =>
+        side && hold.side
+          ? sideMoveAt(side, start) * (hold.side.hips + Math.sin(hold.side.spine) * rig.lever)
+          : 0,
     });
     return {
       left: track(left, hold.offsetL, rig.restL),
