@@ -47,6 +47,12 @@ group of your work before you plan it. A probe that a trap names is in its resea
   its tube does so. Put the paw at the side of its own shoulder, and read the thumb and the palm
   side with `palm-probe.ts` of `docs/research/2026-10-25-wind-palms/`, because `pnpm wind-grip`
   sees no thumb.
+- A paw that points at its tube cannot face it with the palm: the roll takes the direction to the
+  tube square to the paw, and the palm of the left tuba paw faced up. Put the grip beside the
+  tube, so that the line from the shoulder passes it. A side aim across the tube
+  (`WindHold.aimSide`) is lost on a paw whose forearm lies in the plane of its palm, because
+  `PAW_TURN` turns the paw back, and the paw leaves its grip. Measure the visible paw with
+  `brass-probe.ts` of `docs/research/2026-10-25-brass-grips/`.
 - A prop on the hand of the player moves in the visible paw by the side bend that `PAW_TURN`
   removes, up to 70°. Hold a mallet with no side bend (`gripRoll()` of `pose/percussion.ts`),
   and measure it with `shaft-frame.ts` of `docs/research/2026-10-25-percussion-grip/`. A roll
