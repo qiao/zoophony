@@ -233,7 +233,7 @@ export const PERCUSSION_HOLDS = {
   // from the rim, as the user chose for the look of the reference images. As a real timpanist,
   // the paw holds the head out of the front of the fist (TIMPANI.malletTilt), and each mallet
   // points forward and in. The homes stand out from the shoulders, so that the mallets point
-  // forward and 22° to 28° in at a strike, a V of about 50° as in the American grip. Between
+  // forward and 24° to 32° in at a strike, a V of about 55° as in the American grip. Between
   // strikes and at rest, each mallet keeps its strike direction, and the wrist lifts the head
   // 2 cm to 7 cm above the playing spot (across.pitch), as the set position of a real timpanist.
   // Before a strike, the wrist lifts the head 10 cm to 15 cm higher (sizes.lift, across.peak) and
@@ -258,7 +258,7 @@ export const PERCUSSION_HOLDS = {
     poleL: [-0.8, -1, 0.2],
     poleR: [0.8, -1, 0.2],
     rim: 0.25,
-    home: [0.45, -0.37, -0.2],
+    home: [0.48, -0.37, -0.2],
     top: 'shoulder',
     across: { rest: -1.2, lift: 0.65, pitch: 0.1, peak: 8 },
     pitchR: 1,

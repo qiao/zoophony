@@ -201,9 +201,9 @@ motion updates the items.
   45° from the line of the paw: section 1 gives no angle. The shaft is 6 cm
   long behind the grip (`TIMPANI.malletButt`), so the butt end sticks out 2.5 cm (left) and
   2.0 cm (right) behind the paw in the play, as section 1 gives 13 mm to 25 mm. In the play, the
-  shaft leaves the paw 54° (left) and 52° (right) from the thumb side (`pnpm wind-grip`).
-- **The direction between strikes.** Each mallet points forward and in, 22° to 30° from
-  forward (a V of about 50°, as the American grip, `PercussionHold.home`), as section 2 gives.
+  shaft leaves the paw 54° (left) and 51° (right) from the thumb side (`pnpm wind-grip`).
+- **The direction between strikes.** Each mallet points forward and in, 24° to 32° from
+  forward (a V of about 55°, as the American grip, `PercussionHold.home`), as section 2 gives.
   Between strikes and at rest, each mallet keeps that direction, and the wrist lifts the head
   2 cm to 7 cm above its spot, with the shaft 15° to 22° down (`MalletAcross.pitch`). Section 3
   gives the set position one inch above the head with a level shaft. The app differs: the grip
@@ -223,7 +223,7 @@ motion updates the items.
   (`docs/decisions/2026-10-25-elephant-hippo-creases.md`).
 - **The stroke.** The head lifts before the note, comes down at its full speed at the note
   start, and rebounds (`STRIKE_MOTION` of `src/pose/strikes.ts`), as section 4 gives. The
-  wrist lifts the timpani head up to 11 cm to 22 cm above its spot, more for a louder note
+  wrist lifts the timpani head up to 11 cm to 21 cm above its spot, more for a louder note
   (`MalletAcross.peak`), as the full stroke of section 3. The arm moves little, as section 4
   gives.
 - **The playing spot.** The app differs. Each mallet strikes 0.25 m in from the near rim
