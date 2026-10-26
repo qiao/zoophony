@@ -616,7 +616,7 @@ const SHOULDER_HOLD = {
   slant: -5 * MathUtils.DEG2RAD,
   stringTurn: 10 * MathUtils.DEG2RAD,
   restPoleL: [-1, -0.6, 0],
-  restPoleR: [0.3, -1, 1],
+  restPoleR: [0.3, -1, 0.2],
   restPlace: 0.1,
   rest: { ...LAP_VIOLIN, lap: { along: 1, offset: [-0.1, -0.05, 0] } },
   liftReach: [-0.1, 0.1, -0.08],
@@ -626,10 +626,10 @@ const SHOULDER_HOLD = {
   restTwistL: 1.5,
   liftPoleL: [0, -1, -0.5],
   restBow: {
-    lap: { along: 1, offset: [0.4, 0.8, -0.2] },
-    tip: UPRIGHT_BOW.tip,
-    hair: UPRIGHT_BOW.hair,
-    via: { tip: [-0.3, 0.3, -1], hair: [0, 0, 1], reach: [0, 0.2, -0.4] },
+    lap: { along: 1, offset: [0.65, 0.45, 0] },
+    tip: [0.2, 1, -0.1],
+    hair: [0, 0, -1],
+    via: { tip: [0.2, 0.8, -0.6], hair: [0, 0, -1], reach: [0, 0.1, -0.2] },
   },
   standBow: HANGING_BOW,
 } as const satisfies BowedHold;
@@ -720,7 +720,7 @@ const FOX_HOLD = {
   freeHair: 0.12,
   pizzicatoTip: [0.3, 0.5, 1],
   restPoleL: [-1, -0.6, 0],
-  restPoleR: [0.5, -1, 0.5],
+  restPoleR: [0.4, -1, -0.3],
   restPlace: CHIN_HOLD.restPlace,
   rest: { ...LAP_VIOLIN, lap: { along: 0.8, offset: [0, -0.18, -0.2] } },
   liftReach: [0, 0.1, -0.2],
@@ -730,10 +730,10 @@ const FOX_HOLD = {
   restTwistL: 1.5,
   liftPoleL: null,
   restBow: {
-    lap: { along: 0.55, offset: [0.5, -0.1, -0.15] },
-    tip: UPRIGHT_BOW.tip,
-    hair: UPRIGHT_BOW.hair,
-    via: { ...UPRIGHT_BOW.via, hair: [0, 0.3, 1], reach: [0.2, 0.2, -0.4] },
+    lap: { along: 0.8, offset: [0.35, 0.45, -0.2] },
+    tip: [0.3, 1, -0.2],
+    hair: [0, 0, -1],
+    via: { tip: [0.2, 0.8, -0.6], hair: [0, 0, -1], reach: [0, 0.1, -0.2] },
   },
 } as const satisfies BowedHold;
 
@@ -906,7 +906,7 @@ const CAT_HOLD = {
   highTilt: 20 * MathUtils.DEG2RAD,
   poleR: [1.2, -0.5, -1],
   poleTipR: [1, -1, -1],
-  restPoleR: [0.8, -1, 0.2],
+  restPoleR: [0.6, -1, 0],
   restPoleL: [-0.8, -1, 0.3],
   restPlace: 0.4,
   rest: {
@@ -921,10 +921,10 @@ const CAT_HOLD = {
   restTwistL: 1.5,
   liftPoleL: [-0.45, -1, -0.6],
   restBow: {
-    lap: { along: 0.5, offset: [0.6, -0.3, 0.1] },
-    tip: UPRIGHT_BOW.tip,
-    hair: UPRIGHT_BOW.hair,
-    via: { tip: [-0.2, 1, -1], hair: [0, -1, 0], reach: [0.45, 0.4, -0.4] },
+    lap: { along: 0.8, offset: [0.7, 0.3, 0] },
+    tip: [0.2, 1, -0.1],
+    hair: [0, 0, -1],
+    via: { tip: [0, 1, -0.6], hair: [0, 0, -1], reach: [0.45, 0.3, -0.3] },
   },
   standBow: HANGING_BOW,
 } as const satisfies BowedHold;
