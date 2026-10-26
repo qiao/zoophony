@@ -1263,10 +1263,24 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       Done: a run that leaves the reach of one paw goes on in the other paw, and the right paw
       strikes 93% of its bars within 5 mm, median 0 mm (`2026-10-25-xylophone-reach.md`). The
       alternation stays open (below).
-- [ ] Badger xylophone alternation: a scale stays in one hand up to the reach of the paw, where
+- [x] Badger xylophone alternation: a scale stays in one hand up to the reach of the paw, where
       a real player alternates the hands (`docs/reference/percussion-technique.md` 9). With full
       alternation, each head passes the other head at one height, and the shafts touched in 3.9%
       to 7.1% of the samples of the test score (`2026-10-25-xylophone-reach/clip-alternate.txt`).
+      Done: a fast strike takes the other paw and passes the other paw by up to 3.5 cm, the right
+      head lifts higher than the left head, and the reach counts from the shoulders of the side
+      move. The hands change in 35% of the fast pairs of the test score and 74% of the pirates
+      part, and the mallets touch in 0% and 1% (`2026-10-25-percussion-rest.md`).
+- [ ] Badger xylophone outer runs: the runs at the outer bars of the test score stay in one paw,
+      because the other short arm does not reach them (reach 0.53 m from the moved shoulders).
+      A real player alternates there too. A larger side move of the body or a step can help.
+- [ ] Badger xylophone passes: where one paw passes the other in a run, the two shafts show as
+      an X from above, at two heights, with no touch. A real player keeps a V with no cross
+      (`docs/reference/percussion-technique.md` 9, `2026-10-25-percussion-rest/pairs/`).
+- [ ] Badger xylophone head height: between strikes, the right head stands up to 13 cm above the
+      right shoulder joint and shows beside the shoulder from the back, and the left head about
+      13 cm above its bar. A real player keeps the stroke 2 to 3 inches high (source 39). A lower
+      head bent the wrist over the gate (`2026-10-25-percussion-rest/runs-gate.txt`).
 - [ ] Badger xylophone back row middle: in a run up the test score, the right paw misses 4
       strikes on the two sharp bars in the middle of the back row by 8 to 26 mm, and the paw
       rises to the height of the muzzle there (`2026-10-25-xylophone-reach/run-test.webp`).
@@ -1302,15 +1316,27 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       shafts leave the fists past the knuckles, under the curled claws. The paws hold as fists in
       62% (L) and 90% (R) of the play, but grasp in 0% by the exit rule. Accept the crops, then
       set the xylophone medians in `ACCEPTED_GRIPS`.
+      Round `percussion-rest`: no grip passes the limits. The rest angle 0.6 grasps the right paw in
+      81% of the play, but folds the left knuckles 11 times and turns the grips 70° to 73°. The roll
+      at the strike turns the paws up to 109° in 0.01 s (`2026-10-25-percussion-rest/exit-scan.txt`).
 - [ ] Percussion grip, elephant left paw: it grasps in 68% of the lift samples, and its total
       arm twist grows from a mean of 61.5° to 81.0° (`twist-branch-timpanist.txt`). Its largest
       step is 29° in 0.01 s (`main` 16°).
-- [ ] Percussion grip, butt ends: the butt of the right elephant mallet, of the triangle beater,
+- [x] Percussion grip, butt ends: the butt of the right elephant mallet, of the triangle beater,
       and of the bass drum beater stays in the paw, where a real player has 13 mm to 25 mm
       behind the hand (`percussion-technique.md` 1). A longer butt (`MALLET_BUTT`) or a grip
       further toward the head fixes it.
-- [ ] Percussion grip, rest: the arms of the snare drum, cymbal, and xylophone players hang, and
+      Done: the shafts are 6 cm (timpani, bass drum) and 7 cm (triangle) long behind the grip
+      (`malletButt`), and the butt ends stick out 1.8 cm to 2.3 cm (`2026-10-25-percussion-rest.md`).
+- [x] Percussion grip, rest: the arms of the snare drum, cymbal, and xylophone players hang, and
       each closed paw holds its stick up and forward from the front of the fist. Show the user.
+      Done: the snare and the cymbal paws hold the sticks level across the waist, palms down, as a
+      real snare drummer between entrances (`PercussionHold.set`, `2026-10-25-percussion-rest.md`).
+- [ ] Xylophone rest: the xylophone paws still hold the mallets up and forward at rest. No source
+      gives the rest of a xylophonist. The set position of the snare drum can fit it.
+- [ ] Snare stretch gate: the arm gate counts the stretch from the rest sample, so the new rest
+      raises the snare stretch p95 from 0.14 to 0.28 (limit 0.35) with no change of the play.
+      From the bind, the left play stretch is 0.32 (`2026-10-25-percussion-rest/set-gate.txt`).
 - [ ] Wind grip tips: `pnpm wind-grip` now takes the finger tips from the bind pose. The right
       oboe paw then grasps in 54% of the play samples in place of 100%: its old tips were the
       knuckles (`2026-10-25-percussion-grip.md`).
