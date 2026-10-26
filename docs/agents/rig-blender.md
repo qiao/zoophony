@@ -194,7 +194,10 @@ interface StudioArmSegments {
   each curl of the fingers folded faces. Remove the head below the neck, and give half of the
   fingers weight to the hand with a Vertex Weight Mix modifier and Levels, as the rule weights do
   (`step_paint()` of `tools/blender/bear_arms.py`). A clean angle of 20° fixed the thin faces of
-  the shoulder loops, but at the wrist it broke the paw into a dark notch: keep 12° there.
+  the shoulder loops, but at the wrist it broke the paw into a dark notch: keep 12° there. Above
+  20° at the shoulder, the collapses drew dark bands around the upper arms. Keep the head and the
+  neck in `paintedLower`: with Blender weights there, the nose search of `pnpm studio-body` took
+  the top of the head. For a thin painted face that folds, use `weights.rigidPainted`.
 - **The frame cost.** Each body with `armSegments` has 20 more bone matrices. Run `pnpm frame`
   after a new body uses it.
 
