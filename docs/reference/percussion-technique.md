@@ -172,8 +172,9 @@ motion updates the items.
 - **The grip.** The end of the round paw curls 100° onto the shaft, and the head leaves the
   front of the fist about 45° from the thumb side, as section 1 gives (`TIMPANI.malletSpotL`,
   `malletTilt`). The elephant paw has no fingers, so no finger wraps the shaft. The shaft lies
-  45° from the line of the paw: section 1 gives no angle. The butt end stays in the paw or sticks
-  out 1 cm, where section 1 gives 13 mm to 25 mm (open).
+  45° from the line of the paw: section 1 gives no angle. The shaft is 6 cm
+  long behind the grip (`TIMPANI.malletButt`), so the butt end sticks out 2.3 cm (left) and
+  1.8 cm (right) behind the paw in the play, as section 1 gives 13 mm to 25 mm.
 - **The direction between strikes.** Each mallet points forward and in, 14° to 16° from forward
   (a V of about 30°, as the French and the American grips), and 1° to 7° above the level
   (`PercussionHold.across`, sections 2 and 3). A wider V of the German grip turns the paw of the
@@ -209,8 +210,9 @@ shoulder joint to the palm (`docs/decisions/2026-10-20-mesh-badger.md`).
   bind pose, the xylophone mallet and the triangle beater 30° to 33°, and the bass drum beater
   90°, as a hammer. The app differs on the xylophone: the paws hang low in front of the belly,
   and each mallet runs near the line of its forearm, so the shaft leaves the closed paw under the
-  curled claws. The butt end sticks out up to 3.2 cm behind the paw,
-  where section 1 gives 13 mm to 25 mm. The butt of the triangle beater stays in the paw. The
+  curled claws. The butt end sticks out 0.8 cm to 3.2 cm behind the paw,
+  where section 1 gives 13 mm to 25 mm. The bass drum beater and the triangle beater have a
+  longer butt (`BASS_DRUM.malletButt`, `TRIANGLE.malletButt`), so that 2 cm sticks out. The
   paw keeps its stick at rest and in the lift, with the head up and forward.
 
 - **The bass drum.** The badger stands behind the drum at its front left, and the beater in the

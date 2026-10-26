@@ -103,9 +103,14 @@ export const TIMPANI = {
   malletSpotL: [0.045, 0.05, 0.035],
   /** The grip of the mallet in the closed right paw of the elephant mesh. */
   malletSpotR: [0.06, 0.035, 0.0238],
-  /** The length of each shaft behind its grip, in meters ({@link MALLET_BUTT}). */
+  /**
+   * The length of each shaft behind its grip, in meters ({@link MALLET_BUTT}). The shaft goes
+   * about 8 cm through the large paw of the elephant, so the butt end sticks out 2.3 cm (left)
+   * and 1.8 cm (right) behind the paw, as a real player holds 13 mm to 25 mm behind the hand
+   * (`docs/reference/percussion-technique.md` 1). With 4 cm, the right butt stayed in the paw.
+   */
   // SAFETY: the literal widens to a number, so that a hold tool can set it in memory.
-  malletButt: 0.04 as number,
+  malletButt: 0.06 as number,
 } as const;
 
 /**
@@ -212,9 +217,13 @@ export const BASS_DRUM = {
   malletTilt: 0 as number,
   /** The grip of each mallet in the closed paw ({@link PAW_SPOT}). */
   malletSpot: PAW_SPOT,
-  /** The length of the shaft behind its grip, in meters ({@link MALLET_BUTT}). */
+  /**
+   * The length of the shaft behind its grip, in meters ({@link MALLET_BUTT}): the butt end
+   * sticks out 2 cm behind the paw, as a real player holds 13 mm to 25 mm behind the hand
+   * (`docs/reference/percussion-technique.md` 1). With 4 cm, it stayed in the paw.
+   */
   // SAFETY: the literal widens to a number, so that a hold tool can set it in memory.
-  malletButt: 0.04 as number,
+  malletButt: 0.06 as number,
 } as const;
 
 /** The tambourine on its stand, in meters (design 4.6). */
@@ -239,9 +248,13 @@ export const TRIANGLE = {
   malletTilt: 1 as number,
   /** The grip of each mallet in the closed paw ({@link PAW_SPOT}). */
   malletSpot: PAW_SPOT,
-  /** The length of the shaft behind its grip, in meters ({@link MALLET_BUTT}). */
+  /**
+   * The length of the shaft behind its grip, in meters ({@link MALLET_BUTT}): the butt end
+   * sticks out 2 cm behind the paw, as a real player holds 13 mm to 25 mm behind the hand
+   * (`docs/reference/percussion-technique.md` 1). With 4 cm, it stayed in the paw.
+   */
   // SAFETY: the literal widens to a number, so that a hold tool can set it in memory.
-  malletButt: 0.04 as number,
+  malletButt: 0.07 as number,
 } as const;
 
 /**
