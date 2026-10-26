@@ -118,6 +118,12 @@ export const PAW_TURN = {
    * the turn fades out: a forearm along the palm normal gives no direction in the plane.
    */
   fade: [0.2, 0.5],
+  /**
+   * The angle of the forearm in the plane of the palm, in radians, from which the turn fades out
+   * toward the angle π: there, the angle jumps from π to -π, and the turn jumped from the largest
+   * turn to the other side in one frame (`docs/research/2026-10-26-violin-lift.md`).
+   */
+  back: (150 * Math.PI) / 180,
 } as const;
 
 /** The direction down: the bones of each arm of the player point down in the bind pose. */
@@ -1187,8 +1193,15 @@ function poseArm(rig: StudioRig, arm: StudioArm, pose: Float32Array, out: Studio
   const inPlane = Math.hypot(inHand.y, inHand.z);
   const [low, high] = PAW_TURN.fade;
   const fade = Math.min(1, Math.max(0, (inPlane - low) / (high - low)));
-  const angle = Math.atan2(-inHand.z, -inHand.y) * fade * fade * (3 - 2 * fade);
-  const limited = Math.min(PAW_TURN.max, Math.max(-PAW_TURN.max, angle));
+  const planeAngle = Math.atan2(-inHand.z, -inHand.y);
+  // Near π, the angle jumps to the other side, so the turn fades out there.
+  const back = Math.min(
+    1,
+    Math.max(0, (Math.PI - Math.abs(planeAngle)) / (Math.PI - PAW_TURN.back)),
+  );
+  const angle = planeAngle * fade * fade * (3 - 2 * fade);
+  const limited =
+    Math.min(PAW_TURN.max, Math.max(-PAW_TURN.max, angle)) * back * back * (3 - 2 * back);
   // The right paw turns only toward the baton (PAW_TURN).
   palmTurn.setFromAxisAngle(X_AXIS, arm.side === 'R' ? Math.max(0, limited) : limited);
   paw.fromArray(arm.paw);

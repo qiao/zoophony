@@ -733,7 +733,9 @@ mesh are quad tubes (rings at a right angle to the bones), and the weights come 
   down, because the pose code reads a hanging arm in the bind pose (4.7, 5.2).
   `poseStudioBones()` moves the bones of the studio with the bones of the player, and bends each
   arm at the elbow axis of the studio. Each paw turns toward the forearm, up to a limit
-  (`PAW_TURN`), because the skin of the studio bends well only near its clips. Each shape takes its
+  (`PAW_TURN`), because the skin of the studio bends well only near its clips. The turn fades out
+  where the forearm passes behind the palm, because the side of the turn there jumps in one frame
+  (`docs/decisions/2026-10-26-violin-lift.md`). Each shape takes its
   weight from the pose alone (`raiseWeight()`), so the rule of stateless poses holds.
 - **Render.** The scene draws the body with four bones for each vertex and the shapes as morph
   targets. The colors hold the baked occlusion of the studio. The fur gets smooth normals within
