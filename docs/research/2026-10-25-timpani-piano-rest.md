@@ -33,11 +33,11 @@ the kettle heads. "In" is the angle of the shaft in from forward, seen from abov
 
 | Measure | `main` | Branch |
 |---|---|---|
-| Head between strikes, p50, L / R | 8.6 to 12.1 / 1.7 to 9.2 cm | 1.9 to 4.3 / 4.2 to 6.7 cm |
-| Shaft in from forward, p50, L / R | 52° to 57° / 34° to 51° | 27° to 30° / 23° to 24° |
-| Shaft down from the level, p50 | 3° to 21° | 15° to 22° |
-| Highest head in a lift | 3.5 to 13.9 cm | 11.1 to 21.5 cm |
-| Largest paw turn in 0.01 s | 42.6° (117 turns over 30°) | 10.0° (0) |
+| Head between strikes, p50, L / R | 8.6 to 12.1 / 1.7 to 9.2 cm | 2.4 to 4.7 / 4.5 to 6.9 cm |
+| Shaft in from forward, p50, L / R | 52° to 57° / 34° to 51° | 29° to 32° / 24° to 26° |
+| Shaft down from the level, p50 | 3° to 21° | 15° to 21° |
+| Highest head in a lift | 3.5 to 13.9 cm | 10.7 to 21.3 cm |
+| Largest paw turn in 0.01 s | 42.6° (117 turns over 30°) | 7.1° (0) |
 
 On `main`, the paw turned the mallet across the forearm between strikes (`MalletAcross.rest`),
 so the right mallet pointed 51° in, almost level, toward the middle of the belly. The lift ended
@@ -49,8 +49,8 @@ goes 10 cm to 15 cm higher (`peak`, `sizes.lift` 0.2).
 
 | Paw | `main` play, lift, rest | Branch play, lift, rest | Branch exit, butt |
 |---|---|---|---|
-| L | 96%, 68%, 100% | 94%, 94%, 100% | 54°, 2.5 cm |
-| R | 95%, 100%, 100% | 97%, 100%, 100% | 52°, 2.0 cm |
+| L | 96%, 68%, 100% | 93%, 94%, 100% | 54°, 2.5 cm |
+| R | 95%, 100%, 100% | 97%, 100%, 100% | 51°, 2.0 cm |
 
 The trades (`scans.txt`):
 
@@ -59,6 +59,7 @@ The trades (`scans.txt`):
 | Pitch 0.2, homes 0.1 H to 0.3 H, no roll | Grasps 0%: the shafts leave the paws 80° to 109° from the thumb side |
 | Strike roll, homes 0.3 H to 0.35 H | Left grasps 10% to 73% |
 | Strike roll, home 0.4 H | Right grip turn 28° (`main` 0°) and move twist 38° (20°), margin fails |
+| Strike roll, home 0.45 H | Right move twist 25° (20°), over the margin of 3°: the home went to 0.48 H |
 | Pitch 0.2 or 0.3 with the roll | Left exit 60° to 68°, grasps 5% to 32% on `beethoven-1` |
 | Left offset 0 | The left mallet points 17° in and the right 22° |
 
@@ -95,14 +96,14 @@ The values give the tree and `main` in parentheses.
 
 | Role | Arm | Value | Verdict | Reason |
 |---|---|---|---|---|
-| timpanist | R | grip turn p50 18° (0°), limit 45° | `FAIL` on the margin | The strike roll turns the paw around the shaft, so the paw closes on it: a new grip, measured from the grip that the manager accepted on `main` (`ACCEPTED_GRIPS`) |
-| timpanist | R | move twist max 25° (20°), limit 176° | `FAIL` on the margin | The same roll, in the lift |
-| timpanist | L, R | folds 5 / 2 (8 / 4), paw twist 13 / 26 (23 / 20), paw swing 42 / 32 (46 / 43) | `PASS` | |
+| timpanist | L, R | grip turn p50 0 / 0, move twist max 9° / 20° (22° / 20°) | `PASS` | The manager accepted the new grips of the strike roll, and `ACCEPTED_GRIPS` holds their play medians, -9° and -20° (`main` -21° and -7°). The 3x crops show the homes at 0.45 H, 1 cm from the 0.48 H of the tree |
+| timpanist | L, R | folds 4 / 1 (8 / 4), paw twist 9 / 21 (23 / 20), paw swing 45 / 35 (46 / 43) | `PASS` | |
 | pianist | L | folds p95 19 (20) at rest | `OPEN` | The left shoulder of the rig (section 4) |
 | pianist | R | folds p95 15 (13) at rest | `OPEN` | Inside the margin of 2 |
 
-`pnpm clip-probe --base main --jobs 4` (`clip-probe.txt`): each demo and the percussion test score
-pass, with the values of `main`.
+`pnpm clip-probe --base main --jobs 4` (`clip-probe.txt`, homes at 0.45 H): each demo and the
+percussion test score pass, with the values of `main`. With the homes at 0.48 H, the four demos
+with a timpani part pass (`clip-probe-048.txt`).
 
 ## 6. The images
 

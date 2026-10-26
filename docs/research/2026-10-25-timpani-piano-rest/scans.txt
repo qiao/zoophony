@@ -32,6 +32,23 @@
 | l20 | timpanist | L | 5 (8) | 22 (35) | 6 (9) | 0.87 (0.80) | 13 (23) | 42 (46) | 0.0% (0.0%) | 0.01 (0.09) | 9 (1) | 13 (22) | 30 (7) | PASS |
 | l20 | timpanist | R | 2 (4) | 23 (29) | 11 (8) | 0.85 (0.73) | 26 (20) | 32 (43) | 0.0% (0.0%) | 0.02 (0.02) | 18 (0) FAIL | 25 (20) FAIL | 8 (8) | FAIL |
 
+## scratch/arm-timp-4.txt
+- or3: timpani.offsetR=[-0.03,0,0]
+- or7: timpani.offsetR=[-0.07,0,0]
+- or0: timpani.offsetR=[0,0,0]
+- h42: timpani.home=[0.42,-0.37,-0.2]
+- h48: timpani.home=[0.48,-0.37,-0.2]
+| or3 | timpanist | L | 5 (8) | 22 (35) | 6 (9) | 0.87 (0.80) | 13 (23) | 42 (46) | 0.0% (0.0%) | 0.01 (0.09) | 1 (9) | 13 (22) | 30 (7) | PASS |
+| or3 | timpanist | R | 2 (4) | 22 (29) | 11 (8) | 0.85 (0.73) | 26 (20) | 32 (43) | 0.0% (0.0%) | 0.02 (0.02) | 1 (18) | 26 (20) FAIL | 8 (8) | FAIL |
+| or7 | timpanist | L | 5 (8) | 22 (35) | 6 (9) | 0.87 (0.80) | 13 (23) | 42 (46) | 0.0% (0.0%) | 0.01 (0.09) | 1 (9) | 13 (22) | 30 (7) | PASS |
+| or7 | timpanist | R | 2 (4) | 23 (29) | 11 (8) | 0.84 (0.73) | 25 (20) | 33 (43) | 0.0% (0.0%) | 0.02 (0.02) | 1 (18) | 25 (20) FAIL | 8 (8) | FAIL |
+| or0 | timpanist | L | 5 (8) | 22 (35) | 6 (9) | 0.87 (0.80) | 13 (23) | 42 (46) | 0.0% (0.0%) | 0.01 (0.09) | 1 (9) | 13 (22) | 30 (7) | PASS |
+| or0 | timpanist | R | 2 (4) | 21 (29) | 12 (8) | 0.86 (0.73) | 27 (20) | 30 (43) | 0.0% (0.0%) | 0.02 (0.02) | 2 (18) | 27 (20) FAIL | 9 (8) | FAIL |
+| h42 | timpanist | L | 7 (8) | 22 (35) | 8 (9) | 0.87 (0.80) | 17 (23) | 38 (46) | 0.0% (0.0%) | 0.02 (0.09) | 5 (9) | 17 (22) | 11 (7) | PASS |
+| h42 | timpanist | R | 2 (4) | 22 (29) | 13 (8) | 0.84 (0.73) | 32 (20) | 30 (43) | 0.0% (0.0%) | 0.03 (0.02) | 5 (18) | 30 (20) FAIL | 33 (8) | FAIL |
+| h48 | timpanist | L | 4 (8) | 22 (35) | 7 (9) | 0.88 (0.80) | 9 (23) | 45 (46) | 0.0% (0.0%) | 0.01 (0.09) | 3 (9) | 9 (22) | 6 (7) | PASS |
+| h48 | timpanist | R | 1 (4) | 23 (29) | 9 (8) | 0.85 (0.73) | 21 (20) | 35 (43) | 0.0% (0.0%) | 0.02 (0.02) | 5 (18) | 20 (20) | 7 (8) | PASS |
+
 ## scratch/arm-pian-1.txt
 - p1: piano.restL.lap.offset=[0.03,-0.15,-0.33];piano.restR.lap.offset=[-0.03,-0.12,-0.36]
 - p2: piano.restL.lap.offset=[0.03,-0.15,-0.33];piano.restR.lap.offset=[-0.03,-0.12,-0.36];piano.restL.palm=[0.2,-0.6,0.8];piano.restR.palm=[-0.2,-0.6,0.8]
@@ -183,6 +200,9 @@ p10r3	timpani.across.pitch=0.1;timpani.sizes.rest=0.03;timpani.across.peak=6
 # scratch/grip-v7.tsv
 l20	timpani.across.pitch=0.1;timpani.sizes.rest=0.03;timpani.sizes.lift=0.2;timpani.across.peak=8
 l15	timpani.across.pitch=0.1;timpani.sizes.rest=0.03;timpani.sizes.lift=0.15;timpani.across.peak=8
+# scratch/grip-v8.tsv
+h48	timpani.home=[0.48,-0.37,-0.2]
+h50	timpani.home=[0.5,-0.37,-0.2]
 ### scratch/grip-main.txt
 beethoven-1.mid
  play   L  holds  96%  grasps  96%  exit  49  butt  2.0 
@@ -367,6 +387,22 @@ beethoven-1.mid
  lift   R  holds  100%  grasps  100%  exit  52  butt  2.0 
  rest   L  holds  100%  grasps  100%  exit  54  butt  2.5 
  rest   R  holds  100%  grasps  100%  exit  51  butt  2.0 
+### scratch/grip-h48.txt
+beethoven-9.mid
+ play   L  holds  89%  grasps  88%  exit  55  butt  2.5 
+ play   R  holds  88%  grasps  88%  exit  52  butt  2.0 
+ lift   L  holds  100%  grasps  100%  exit  55  butt  2.5 
+ lift   R  holds  94%  grasps  94%  exit  52  butt  2.0 
+ rest   L  holds  100%  grasps  100%  exit  55  butt  2.5 
+ rest   R  holds  100%  grasps  100%  exit  52  butt  2.0 
+### scratch/grip-h50.txt
+beethoven-9.mid
+ play   L  holds  88%  grasps  88%  exit  54  butt  2.5 
+ play   R  holds  88%  grasps  88%  exit  52  butt  2.0 
+ lift   L  holds  100%  grasps  100%  exit  54  butt  2.5 
+ lift   R  holds  94%  grasps  94%  exit  51  butt  2.0 
+ rest   L  holds  100%  grasps  100%  exit  54  butt  2.5 
+ rest   R  holds  100%  grasps  100%  exit  52  butt  2.0 
 
 ## pnpm fold-probe pianist --demo bach-bwv1047 --faces 40 [--set piano.poleR=<pole>]: play share of the right inner elbow faces
 ### scratch/elbow-main.txt

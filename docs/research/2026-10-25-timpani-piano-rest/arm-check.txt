@@ -2,18 +2,7 @@
 > zoophony@0.0.0 arm-check /Users/xueqiaoxu/proj/zoophony/.claude/worktrees/agent-a4d045361ccbaadfd
 > node tools/arm-check.ts --all --base main --jobs 4
 
-base: cached (main, da5bac798f92)
-base: cached (main, 2447f452e615)
-base: cached (main, 4f1e67c7606d)
-base: cached (main, cf8a49a34bd0)
-base: cached (main, 4c3844bd6408)
-base: cached (main, c972511e1839)
-base: cached (main, b64f34d354f5)
-base: cached (main, 0e643f40ef70)
-base: cached (main, 38275cfee705)
-base: cached (main, d2eb1d2b1b97)
-base: cached (main, 29ef40e778ba)
-Arm gate of 23 roles against main in 331 s. A cell gives the value, the base in parentheses, and the verdict of a value that does not pass.
+Arm gate of 23 roles against main in 422 s. A cell gives the value, the base in parentheses, and the verdict of a value that does not pass.
 
 | Role | Arm | folds p95 (8) | twist p95 (55) | forearm twist p95 (80) | flat p5 (0.55) | paw twist p95 (170) | paw swing p95 (70) | paw jumps (0.5%) | stretch p95 (0.35) | grip turn p50 (45) | move twist max (176) | move turn max (3000) | Verdict |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|
@@ -39,8 +28,8 @@ Arm gate of 23 roles against main in 331 s. A cell gives the value, the base in 
 | trombonist | R | 6 (6) | 25 (25) | 45 (45) | 0.66 (0.66) | 141 (141) | 44 (44) | 0.0% (0.0%) | 0.14 (0.14) | 1 (1) | 141 (141) | 119 (119) | PASS |
 | oboist | L | 7 (7) | 32 (32) | 41 (41) | 0.68 (0.68) | 122 (122) | 44 (44) | 0.0% (0.0%) | 0.02 (0.02) | 0 (0) | 122 (122) | 88 (88) | PASS |
 | oboist | R | 6 (6) | 30 (30) | 41 (41) | 0.74 (0.74) | 121 (121) | 44 (44) | 0.0% (0.0%) | 0.04 (0.04) | 0 (0) | 121 (121) | 113 (113) | PASS |
-| timpanist | L | 5 (8) | 22 (35) | 6 (9) | 0.87 (0.80) | 13 (23) | 42 (46) | 0.0% (0.0%) | 0.01 (0.09) | 9 (1) | 13 (22) | 30 (7) | PASS |
-| timpanist | R | 2 (4) | 23 (29) | 11 (8) | 0.85 (0.73) | 26 (20) | 32 (43) | 0.0% (0.0%) | 0.02 (0.02) | 18 (0) FAIL | 25 (20) FAIL | 8 (8) | FAIL |
+| timpanist | L | 4 (8) | 22 (35) | 7 (9) | 0.88 (0.80) | 9 (23) | 45 (46) | 0.0% (0.0%) | 0.01 (0.09) | 0 (12) | 9 (22) | 6 (7) | PASS |
+| timpanist | R | 1 (4) | 23 (29) | 9 (8) | 0.85 (0.73) | 21 (20) | 35 (43) | 0.0% (0.0%) | 0.02 (0.02) | 0 (13) | 20 (20) | 7 (8) | PASS |
 | bassoonist | L | 3 (3) | 23 (23) | 34 (34) | 0.74 (0.74) | 124 (124) | 48 (48) | 0.0% (0.0%) | 0.02 (0.02) | 7 (7) | 124 (124) | 20 (20) | PASS |
 | bassoonist | R | 8 (8) | 37 (37) | 26 (26) | 0.77 (0.77) | 80 (80) | 21 (21) | 0.0% (0.0%) | 0.04 (0.04) | 10 (10) | 80 (80) | 26 (26) | PASS |
 | hornist | L | 2 (2) | 37 (37) | 55 (55) | 0.63 (0.63) | 153 (153) | 49 (49) | 0.0% (0.0%) | 0.11 (0.11) | 0 (0) | 153 (153) | 34 (34) | PASS |
@@ -69,8 +58,5 @@ Arm gate of 23 roles against main in 331 s. A cell gives the value, the base in 
 | pianist | L | folds p95 | rest | 4 | 19 | 19 | 100.0% | 19 at bach-bwv1047.mid rest | 19 | 8 | 20 | OPEN |
 | pianist | R | folds p95 | rest | 4 | 15 | 15 | 100.0% | 15 at bach-bwv1047.mid rest | 15 | 8 | 13 | OPEN |
 | bassist | L | paw twist p95 | play | 12912 | 166 | 174 | 100.0% | 176 at beethoven-8-4.mid 666.09 s | 174 | 170 | 174 | OPEN |
-| timpanist | R | grip turn p50 | play | 7728 | 18 | 19 | 100.0% | 20 at beethoven-9.mid 134.59 s | 18 | 45 | 0 | FAIL |
-| timpanist | R | move twist max | move | 4644 | 25 | 25 | 100.0% | 25 at beethoven-9.mid lift 0.00 s, wall 1.52 s | 25 | 176 | 20 | FAIL |
 | trumpeter | L | grip turn p50 | play | 9977 | 48 | 48 | 100.0% | 48 at beethoven-1.mid 9.40 s | 48 | 45 | 48 | OPEN |
 | tubist | L | grip turn p50 | play | 4147 | 96 | 96 | 100.0% | 96 at brahms-2.mid 142.88 s | 96 | 45 | 96 | OPEN |
- ELIFECYCLE  Command failed with exit code 1.
