@@ -517,25 +517,22 @@ A round that changes the motion updates the items.
   player close around it. With the grip of the bind bow, the stick of the hippo passed under the
   paw (`docs/decisions/2026-10-24-bow-holds.md`).
 - **The lift and the lowering of the rabbit, the red fox, and the cat.** No source of this file
-  gives the path of the violin or the viola from the lap to the chin. The violin of the rabbit and
-  of the red fox and the viola of the cat stand upright on the left knee at rest, and turn upright
-  in front of the chest in the middle of the move, with both arms bent near the body
-  (`BowedHold.liftTurn`, `BowedHold.liftReach`, the via of the rest bow), as a player brings the
-  instrument up close to the body (`docs/decisions/2026-10-24-violin-rest.md`). The left paw
-  carries the instrument by the end of the fingerboard (`BowedHold.liftPlace`), as a player
-  brings the violin up by its neck, so that the left elbow opens to at most 137° (rabbit) and
-  142° (cat), against 127° on the red fox. At rest, both elbows bend: the rabbit holds the upper
-  neck and the frog above the right knee (`docs/decisions/2026-10-24-violin-poses.md`,
-  `docs/research/2026-10-24-violin-moves.md`). With a direct turn, the left paw twist of the red
-  fox passed 180° once in each move, so the twist bone of its forearm jumped
-  (`docs/decisions/2026-10-25-string-angle.md`). The cat raises the bow up and forward beside the
-  viola in the middle of the move, because a bow across the belly went into the viola
-  (`docs/decisions/2026-10-24-violin-review.md`).
+  gives the path of the violin or the viola from the lap to the chin. The instrument takes the
+  short turn from the rest to the play, 117° to 140°. Up to 2026-10-25, it turned upright with
+  the top plate to the chest in the middle of the move (`liftTurn`), and that path rolled it a
+  full turn around its long axis (user: "the violins / violas are rotated by nearly 360 degress",
+  `docs/decisions/2026-10-26-violin-lift.md`). At rest, the left paw holds the neck with a
+  straight wrist and a natural twist (`BowedHold.restTwistL`), and in the move it changes to the
+  playing grip (`carryLift()` of `pose/bowed.ts`). The left paw of the rabbit and the cat carries
+  the instrument by the end of the fingerboard (`BowedHold.liftPlace`), as a player brings the
+  violin up by its neck.
 - **The violin and the viola at rest** (section 2.9). The rabbit, the red fox, and the cat rest the
   instrument upright on the left knee and hold its neck with the left paw. The top plate of the
   violin faces the front, and the top plate of the viola the front and 30° to the left: with the top
   to the front, the bow paw of the cat turned up to 7,437°/s in a lowering
-  (`docs/decisions/2026-10-24-violin-review.md`).
+  (`docs/decisions/2026-10-24-violin-review.md`). The bow paw rests near the lap, beside the right
+  thigh (rabbit) or on its front (red fox, cat), as the user asked on 2026-10-26
+  (`docs/decisions/2026-10-26-violin-lift.md`).
 - **The string crossing leads the note** (section 2.3). `bowStateAt()` of `pose/strokes.ts` turns
   the bow to the string of the next note in at most 0.08 s, and in at most 0.3 of the time from
   the note start to the next note (`BOW_MOTION.crossSec` and `crossShare`). The turn ends 0.01 s

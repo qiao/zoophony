@@ -1495,11 +1495,17 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       `docs/research/2026-10-19-arm-gate-2/conductor-lift.webp`). The baton turn of the lift now
       keeps at most 60° of twist: the paw twist stays at most 105°, and the paw jumps are 0%
       (`2026-10-21-wrist-lift.md`).
-- [ ] Left paw of the violins and of the viola: in each lift and lowering, the paw twist passes
+- [x] Left paw of the violins and of the viola: in each lift and lowering, the paw twist passes
       180° on the forearm, and the twist bone jumps by 180° in one frame, because the rest twist
-      (-122° on the rabbit) and the play twist (137°) lie on the two sides of 180°. Fix the rest
-      grip on the neck, so that its twist lies on the side of the play twist, and show the user
-      the rest views (`2026-10-21-wrist-lift.md`).
+      (-122° on the rabbit) and the play twist (137°) lie on the two sides of 180°. Done: at rest,
+      the paw holds the neck with a natural twist and a straight wrist (`restTwistL`), and it
+      changes to the playing grip in the lift. The middle turn that rolled the instrument a full
+      turn is gone (user, 2026-10-25: "the violins / violas are rotated by nearly 360 degress",
+      `2026-10-26-violin-lift.md`).
+- [ ] Rabbit, red fox, and cat: in the middle of the lift and of the lowering, the bow stands
+      upright in front of the body with its tip near the eyes for a moment. A lift path out to the
+      right side raised the paw twist of the red fox to 179° (limit 176,
+      `2026-10-26-violin-lift.md`).
 - [ ] Rabbit lowering: the right forearm goes 2.1 cm into the body for 0.2 s at the song end of
       `bach-bwv1050`, against 1.0 cm before the fix of the bow flip (`pnpm pose-depth violinist
       --base 39aa09c9`, `2026-10-21-wrist-lift.md`).

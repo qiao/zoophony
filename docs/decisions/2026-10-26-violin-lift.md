@@ -1,0 +1,21 @@
+# Decisions of the violin and viola lift and the bow rest
+
+The Section column names a section of the design. [`design.md`](../design.md) gives the file of
+each section.
+
+On 2026-10-25, the user said: "the violins / violas are rotated by nearly 360 degress when
+transitioning from rest mode to playing mode and vice versa", and "the cat's pose of holding the
+bow is unnatural when in rest mode". On 2026-10-26, the user rejected a rest across the lap: the
+instruments rest "vertically placed on their lap, with the strings facing the audience", and "their
+bow hand should also be resting on or near the lap". The manager worked alone on `main`. The
+report [`2026-10-26-violin-lift.md`](../research/2026-10-26-violin-lift.md) gives the measures.
+The user can reverse each decision. Then update its section, and remove its row.
+
+| Decision | Section |
+|---|---|
+| No hold turns the instrument through a turn of the middle (`liftTurn` null). The middle turn of `main` rolled the upright instrument a full turn around its long axis: 252° to 282° of turn, against a short turn of 117° to 140°. | 5.2 |
+| At rest, the left paw of the rabbit, the red fox, and the cat holds the neck with a straight wrist and a twist of 1.5 rad on the forearm (`restTwistL`). In the lift, its twist and its bend go to the playing grip on a line (`carryLift()`, `mixTwist()` of `pose/bowed.ts`). The playing grip carried to the upright rest needs 227° of forearm turn, more than a real forearm turns. | 5.2 |
+| The retarget fades the palm turn of a paw out where the forearm passes behind the palm (`PAW_TURN.back` of `models/studio-rig.ts`, from 150°). There, the angle jumped from π to -π, and the paw turned 140° in one frame. | 4.4 |
+| The bow paws rest near the lap: the rabbit beside the right thigh with the arm hanging, the red fox and the cat on the front of the right thigh (`restBow`, `restPoleR`), with a lift path of the bow to the front and up (`via`). With the paw on the thigh top, the short right arm of the rabbit folded 13 to 22 faces. | 5.2 |
+| Gate margins against `main`, each inside its limit: the cat right twist falls from 49 to 34, and the left move turns fall from 531, 824, and 840 °/s. | 9.3 |
+| Open: in the middle of each move, the bow stands upright in front of the body with its tip near the eyes for a moment. | 5.2 |
