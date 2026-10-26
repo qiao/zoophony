@@ -516,10 +516,13 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
 - [x] Hippo bassist: a crease line runs over the top of the right shoulder from the right in the
       play. Done: the relax of the shape `arm_raise_R` moved vertex 177 3.6 cm, and its move
       spreads over one ring (`spread`, `2026-10-25-hippo-skin.md`).
-- [ ] Hippo bassist: a small dark slit shows on the belly beside the right arm at rest from the
+- [x] Hippo bassist: a small dark slit shows on the belly beside the right arm at rest from the
       right. The inner side of the hanging arm of the source lies inside the plane of `armSplit`,
       so the rig keeps it on the trunk. Rebuild the arms with a seam cut and a side wall, as the
       fox (`docs/agents/rig-blender.md`, `2026-10-25-hippo-skin.md`).
+      Done: the rebuilt arms take the seam cut at the crease of the arm and a side wall, so
+      the inner side of the arm moves with the arm, and no slit shows at rest
+      (`2026-10-25-hippo-arms.md`).
 - [x] Rhino: the left arm skin creased in 16.7% of the edges in the play, and the narrow axis of
       the middle of each upper arm was 0.39 and 0.41 of the wide axis. Now 11.1% and 12.0%, and
       0.65 and 0.63 (`2026-10-22-rhino-arm.md`).
@@ -862,27 +865,51 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       bone of the upper arm, the right elbow forward and a little down, a trunk rule under the
       armpit, and new shapes. The shoulder ring turns 30° (56°), and the dark spikes go
       (`refit-hippo-views.webp` of `docs/research/2026-10-19-arm-skin/`, `2026-10-19-arm-skin.md`).
-- [ ] Hippo bassist: the skin folds in 29.0% of the play samples (28.6% on main, 9.5% before the
+- [x] Hippo bassist: the skin folds in 29.0% of the play samples (28.6% on main, 9.5% before the
       holds of 2026-10-21 and 2026-10-24): faces 258, 442, and 561 under the 50° shoulder turn
       of the bow arm (23.2%, 21.6%, 7.9%), and the pizzicato paw (4.7%). A bow turn of 40°
       folds 6.6%, but straightens the bow arm in 11.7% of the play samples. Refits of the shape,
       rigid faces, and weight smoothing moved the folds. Try the arm rebuild, or a trunk turn that
       takes a part of the shoulder turn (`2026-10-25-hippo-skin.md`).
-- [ ] Hippo bassist: the shoulder ring of the bow arm keeps a flat share of 0.68 (goal 0.80), and
+      Done: with the rebuilt arms, 20.0% of the play samples fold, and faces 258, 442, and
+      561 are gone. The rest and the lift fold more: see the open items below
+      (`2026-10-25-hippo-arms.md`).
+- [ ] Hippo bassist: each rest sample folds 5 faces against the bind, and the lift 19.0% of
+      its samples (0% and 9.7% before the rebuilt arms). The bind crushes the inner right
+      elbow and the trunk at the back of the right arm root. The inner right elbow face
+      also folds in 11.0% of the play samples (`2026-10-25-hippo-arms.md`).
+- [ ] Hippo bassist: from az-150, the back of the right arm root shows past the trunk as a
+      dark flat piece in the play (`arm-root-az-150.webp`). The anchor, a turned seam plane,
+      and the skin normals did not remove it (`2026-10-25-hippo-arms.md`).
+- [ ] Hippo bassist: the arm gate gives the right twist at rest 40 (25 before the rebuilt
+      arms, limit 55). The manager decides, or lower the roll of the hanging bow arm
+      (`2026-10-25-hippo-arms.md`).
+- [ ] Hippo bassist: the left forearm goes 2.1 cm into the contrabass in 0.1% of the play
+      samples (1.5 cm before), and the right upper arm 2.0 cm in 0.4% of the lowering
+      (0.9 cm). The left paw on the neck stays within the accepted 2.0 cm (1.8 cm), but goes
+      over 1.5 cm in 39.9% of the play samples (0.9% before). A light face of the texture under
+      the right arm shows from az150 (`2026-10-25-hippo-arms.md`).
+- [x] Hippo bassist: the shoulder ring of the bow arm keeps a flat share of 0.68 (goal 0.80), and
       8 shoulder faces stretch more than 1.8 times (`pnpm arm-shape bassist`). The renders show no
       flat band. One shape of `raise` is free (`2026-10-19-arm-skin.md`).
-- [ ] Hippo bassist: with the forward elbow, the right forearm goes 1.2 cm deeper into the body in
+      Done: the shoulder ring of the rebuilt bow arm keeps 0.88 in the play, and no shoulder
+      spike stretches (`pnpm arm-shape bassist --rings`, `2026-10-25-hippo-arms.md`).
+- [x] Hippo bassist: with the forward elbow, the right forearm goes 1.2 cm deeper into the body in
       the lift and 1.8 cm in the lowering (`refit-hippo-depths.txt`). Fit `restPoleR` or the via
       of the rest bow, and count the roll jumps of the bow paw again (`2026-10-18-hippo-arm.md`).
+      Done: `pnpm pose-depth bassist` gives 0.0 cm for each arm part in the body, before and
+      after the rebuilt arms (`2026-10-25-hippo-arms.md`).
 - [x] Hippo bassist: the dark slot at the front of the right armpit is the shading of the cut
       caps, whose normals point away from the light. Done: the caps of the arm take the normals
       of the skin around them, also on the elephant and the beaver (`2026-10-19-cut-caps.md`).
-- [ ] Hippo bassist: the 50° shoulder turn squeezes faces 114 to 116 and 238 to light slivers.
+- [x] Hippo bassist: the 50° shoulder turn squeezes faces 114 to 116 and 238 to light slivers.
       Rigid weights and a ring at the shoulder fold more, and a turn of 45° or 48° keeps their
       mean creases above 60° (`docs/research/2026-10-19-cut-caps.md`). Try a flip of their long
       edges or a shape that relaxes them.
       Tried: a bow turn of 40° keeps their creases. Faces 115 and 116 crease 53° (47° on main)
       after the spread of the shoulder shape (`2026-10-25-hippo-skin.md`).
+      Done: the rebuilt arms replace these faces, and the views of the right shoulder show no
+      light sliver (`2026-10-25-hippo-arms.md`).
 - [ ] Hippo bassist: on the E and A strings, the roll of the bow paw stays at its low end, and the
       paw goes more than 1.5 cm into the belly in 4.6% of the play samples. A hold that moves the
       right elbow off the line of the stick, such as the slant -10°, can remove it
