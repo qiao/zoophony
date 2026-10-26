@@ -104,7 +104,7 @@ add its own verdicts below.
 
 | Fault | Verdict | Commits | What is left |
 |---|---|---|---|
-| 1 timpanist mallet | fixed | 2f83f2e1, 86487c0b | Each mallet keeps its strike direction between strikes and at rest, with the head 2 cm to 7 cm above its spot. The right paw turns 18° from its accepted grip, for the manager |
+| 1 timpanist mallet | fixed | 2f83f2e1, 86487c0b, 202686b4 | Each mallet keeps its strike direction between strikes and at rest, with the head 2 cm to 7 cm above its spot. The manager accepted the new grips of the strike roll (`ACCEPTED_GRIPS`, ef99326b) |
 | 3 pianist rest | partly fixed | 93e1949a | The paws rest on the lower belly, 5 cm to 9 cm lower. The thighs are out of the reach of the arms. The left shoulder folds (rest p95 19) are a fault of the rig (`TODO.md`) |
 | 4 timpanist moments | fixed | d1f53635, 86487c0b | The wrist lifts the head 10 cm to 15 cm above the set position before a strike. The new moment `up` of `pnpm close-views timpanist` shows it |
 | Unverified: pianist left paw at rest | fixed | 93e1949a | From az35, the left forearm rises along the chest from the elbow, and the paw now lies on the lower belly, below the chest |
