@@ -691,15 +691,18 @@ The code constants of each family hold the times, the angles, and the lengths of
     high keys stand nearest to the player. The small percussion player strikes the tambourine for
     key 54 and the triangle for the other keys.
   - With two mallets, a chord takes both hands, a fast repeat takes the other hand (a roll), and
-    a hand does not cross the other. On the xylophone, a repeat on one bar or a near bar stays in
-    one hand (`PercussionHold.gap`), and a run that leaves the reach of one paw goes on in the
-    other paw, as the double strokes of a real player (`PercussionHold.reach`). The right paw
-    thus does not reach across the body to the lowest bars. A real player alternates the hands in
-    a scale, but there the heads pass each other at one height, and the shafts touch (open). The
-    left mallet strikes a little nearer to the player than the
-    middle of the bar and the right mallet a little farther (`offsetL`, `offsetR`). Between
-    strikes, each xylophone mallet keeps its strike direction, and the wrist lifts the head over
-    its bar (`MalletAcross.pitch`), so that two heads on near bars keep apart. A mallet lifts before a strike, comes down at its full speed
+    a hand does not cross the other. On the xylophone, a fast strike takes the other paw also in a
+    run, as a real player plays a scale with alternate strokes, and it can pass the last bar of
+    the other paw by about one bar (`PercussionHold.pass`). A wider leap takes a double stroke. A
+    later strike on one bar or a near bar stays in one hand (`PercussionHold.gap`). A bar out of
+    the reach of one paw goes to the other paw (`PercussionHold.reach`), and the reach counts
+    from the shoulders of the side move of the body (`HandRules.shift`). The right paw thus does
+    not reach across the body to the lowest bars, and the outer runs stay in one paw. The left
+    mallet strikes a little nearer to the player than the middle of the bar and the right mallet
+    a little farther (`offsetL`, `offsetR`). Between strikes, each xylophone mallet keeps its
+    strike direction, and the wrist lifts the head over its bar (`MalletAcross.pitch`). The right
+    head lifts higher than the left head (`PercussionHold.pitchR`), so that the two heads pass
+    each other at two heights in a run (`docs/decisions/2026-10-25-percussion-rest.md`). A mallet lifts before a strike, comes down at its full speed
     at the note start, and rebounds (`STRIKE_MOTION`). The elbows point down and near the body
     (user decision of 2026-10-10). The hand cymbals meet in front of the shoulders, with one turn of
     both plates (`PERCUSSION_PLACES`).

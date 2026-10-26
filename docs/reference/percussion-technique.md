@@ -174,6 +174,14 @@ from the V).
   sharp bars of a chromatic scale [34]. Mallet technique rests on alternate single strokes. Where
   full alternation would make the hands cross, the player puts in double strokes, two strokes of
   one hand [35].
+- An ascending chromatic scale takes no double strokes [34]. About 90% of mallet technique is
+  alternate single strokes, and a double stroke is for a small interval, only where it is
+  necessary [35].
+- George Hamilton Green held the left mallet in front of the right mallet, the standard
+  set-up of two mallets for decades. In his tremolos on the upper manual, the left mallet played
+  in the middle of the bar, and the right mallet on the extreme near end [39].
+- Bob Becker plays with the palms down and the hands at most one inch above the keyboard. His
+  stroke is two or three inches high at each dynamic, made almost only with the wrist [39].
 
 ## 10. Use in the app
 
@@ -271,7 +279,7 @@ shoulder joint to the palm (`docs/decisions/2026-10-20-mesh-badger.md`).
   front of the shoulders, vertical (`PERCUSSION_PLACES`).
 - **The xylophone.** The mallets leave the front of the fists, as the sticks of the snare drum,
   as section 9 gives. The badger moves the body from side to side behind the notes with the feet
-  in place, as section 9 gives with few steps: the spine leans up to 10° toward the mean place
+  in place, as section 9 gives with few steps: the spine leans up to 12° toward the mean place
   of the notes, in the 0.6 s before each note (`PercussionHold.side`). The hips keep their
   place, because the short legs of the badger tilt far with a small move of the hips, and the
   foot skin then sinks into the floor. The neck and the head turn back by the side lean, so the
@@ -284,25 +292,33 @@ shoulder joint to the palm (`docs/decisions/2026-10-20-mesh-badger.md`).
   sharp bar 2 cm from its edge near the player, as section 9 gives. A part below or
   above the bars plays in the octave that puts its highest key in the highest octave of the
   bars (`xylophoneShift()` of `src/pose/percussion-rig.ts`), where the short arms reach best. No
-  source of section 11 gives the octave that a player takes for such a part. The mallets make a V
-  and do not cross, as section 9 gives, but the app differs in three rules. A repeat on one
-  bar, or a strike within 2 cm of the last bar of the other hand, stays in one hand
-  (`PercussionHold.gap`). A run stays in one hand until it leaves the reach of the paw, 0.53 m
-  from the shoulder joint on the floor plane, and then goes on in the other paw
-  (`PercussionHold.reach`): the app plays the double strokes of section 9 in place of the
-  alternate strokes of a scale. With full alternation, each head passes the other head at about
-  the same height, and the shafts touched in 4% to 6% of the samples of the test score (open).
+  source of section 11 gives the octave that a player takes for such a part. A fast strike (within
+  0.5 s) takes the other paw, so that a run and a roll alternate the paws, as section 9 gives.
+  The strike can pass the last bar of the other paw by up to 3.5 cm, about one bar
+  (`PercussionHold.pass`). A wider leap takes a double stroke, as section 9 gives for the
+  intervals where the hands would cross. The app differs where the short arms do not reach: a
+  bar more than 0.53 m on the floor plane from the shoulder joint of its paw goes to the other
+  paw (`PercussionHold.reach`). The shoulders move with the side lean of the body
+  (`HandRules.shift`). So the outer runs of the test score stay in one paw, and the hands
+  change in 35% of its fast pairs and in 74% of the fast pairs of the steel drum part of the
+  pirates file. A real player alternates in each fast pair. A later strike within 2 cm of the
+  last bar of the other paw stays in one paw (`PercussionHold.gap`).
   The left mallet strikes 2 cm nearer to the player than the middle of a bar, the right mallet
-  2 cm farther (`PERCUSSION_HOLDS.xylophone`). Between strikes, each mallet
-  keeps its strike direction seen from above, and the wrist lifts the head about 13 cm above its
-  bar (`MalletAcross.pitch`), so the two heads keep at least 1.6 cm apart. No source of section 11
-  gives the height between strikes.
+  2 cm farther (`PERCUSSION_HOLDS.xylophone`). The app differs from the set-up of Green in
+  section 9, the left mallet in the middle and the right mallet at the near end: with the left
+  mallet 2 cm farther, the short left arm missed a third of its strikes by more than 5 mm.
+  Between strikes, each mallet keeps its strike direction seen from above, and the wrist lifts
+  the head about 13 cm above its bar (`MalletAcross.pitch`). The right head lifts with twice the
+  pitch of the left head (`PercussionHold.pitchR`), so that the two heads pass each other at two
+  heights in a run, and keep at least 2 cm apart. Section 9 gives the two mallets at two depths
+  (Green), and no source of section 11 gives the height between strikes. With one height, the
+  heads passed through each other in a run.
 
 ## 11. Sources
 
-Sources 1 to 12 opened on 2026-10-19, sources 13 to 33 on 2026-10-20, and sources 36 to 38 on
-2026-10-25, except where a fact
-has a mark of section "Source marks" or a source says "a search summary only".
+Sources 1 to 12 opened on 2026-10-19, sources 13 to 33 on 2026-10-20, and sources 36 to 39 on
+2026-10-25, except where a fact has a mark of section "Source marks" or a source says "a search
+summary only".
 
 1. "3 Timpani Grips", The Instrumentalist, December 2014.
    https://theinstrumentalist.com/december-2014/3-timpani-grips/
@@ -376,3 +392,5 @@ has a mark of section "Source marks" or a source says "a search summary only".
     Educators' Companion, vol. I. https://pas.org/wp-content/uploads/2024/04/ECV0122-28.pdf
 38. M. Varner, "Excellence in Cymbal Sounds: A Conductor's 'Crash Course'", Midwest Clinic,
     2010. https://www.midwestclinic.org/user_files_1/pdfs/clinicianmaterials/2010/michael_varner.pdf
+39. B. Becker, interview with G. Koshinski on two-mallet performance, NEXUS blog, 2009, and
+    Malletech, "Two-Mallet Performance". https://malletech.com/?p=2590

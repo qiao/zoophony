@@ -387,8 +387,9 @@ export const PERCUSSION_HOLDS = {
   // and the wrist lifts the head over its bar (across.pitch), so that the two heads keep apart.
   // The short arms do not reach the bars from an upright body, so the spine leans over them
   // (lean), and the body moves from side to side behind the notes with the feet in place (side,
-  // 2026-10-25-xylophone-sway decisions). A run that leaves the reach of one paw goes on in the
-  // other paw (reach, 2026-10-25-xylophone-reach decisions).
+  // 2026-10-25-xylophone-sway decisions). A run alternates the paws, as a real player plays a
+  // scale with alternate strokes, and goes on in one paw only where the other paw does not reach
+  // (pass, reach, 2026-10-25-percussion-rest decisions).
   xylophone: {
     hands: 'alternate',
     sizes: { lift: 0.08, rest: 0.03 },
@@ -404,21 +405,29 @@ export const PERCUSSION_HOLDS = {
     home: MALLET_HOME,
     top: 'up',
     across: { rest: -0.6, lift: 0.3, pitch: 0.5 },
-    pitchR: 1,
+    // Between strikes, the right head stays higher than the left head, so that the heads pass each
+    // other at two heights in a run. At one height, the heads passed through each other, and the
+    // mallets touched in 7% of the samples of the test score. With the right head lower, the right
+    // wrist bent more (2026-10-25-percussion-rest decisions).
+    pitchR: 2,
     ready: false,
     set: null,
     pair: false,
-    // A repeat on one bar or a near bar stays in one hand, so that a mallet does not strike under
-    // the head of the other mallet, which rests over its bar. With 1 cm, the mallets touched where
-    // a run goes over from one paw to the other (2026-10-25-xylophone-reach decisions).
+    // A later strike on one bar or a near bar stays in one hand, so that a mallet does not strike
+    // under the head of the other mallet, which rests over its bar. With 1 cm, the mallets touched
+    // where a run goes over from one paw to the other (2026-10-25-xylophone-reach decisions).
     gap: 0.02,
-    pass: 0,
+    // A fast strike passes the last bar of the other paw by up to about one bar, as a real player
+    // alternates the hands in a scale. A wider leap takes a double stroke.
+    pass: 0.035,
     reach: 0.53,
     lean: 0.2,
     // The short legs tilt far with a small move of the hips, and the foot skin then sinks into
     // the floor, so the hips keep their place, and the spine takes the whole move
-    // (2026-10-25-xylophone-reach decisions).
-    side: { span: 0.25, hips: 0, spine: 10 * MathUtils.DEG2RAD, moveSec: 0.6 },
+    // (2026-10-25-xylophone-reach decisions). A lean of 12° moves the shoulders 5.5 cm toward the
+    // notes, so that both paws reach more bars of a run. At 14°, the left paw bent 70° on the
+    // forearm, the limit of the arm gate (2026-10-25-percussion-rest decisions).
+    side: { span: 0.25, hips: 0, spine: 12 * MathUtils.DEG2RAD, moveSec: 0.6 },
     curl: GRIP_CURL,
     // A roll that removes the side bend at each strike turned the paws fast between the bars, so
     // the forearm lies in the plane of the palm (2026-10-25-percussion-grip decisions).
