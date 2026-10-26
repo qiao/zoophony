@@ -47,14 +47,15 @@ export const CONDUCTOR_HOLD = {
    */
   beatPoint: [0.28, 1.235, -2.177],
   /**
-   * The baton points from this place to its tip, from the right shoulder joint: forward, up 30°,
-   * and 20° inward at beat 1, as a conductor points it at the players. The pivot is 0.96 m from
+   * The baton points from this place to its tip, from the right shoulder joint: forward, up 25°,
+   * and 20° inward at beat 1, as a conductor points it at the players (30° up before 2026-10-26,
+   * 2026-10-26-second-review decisions). The pivot is about 0.9 m from
    * the tip, about twice as far as the wrist, so that the wrist follows about half of the motion
    * of the tip in the beat plane, and the arm beats with the baton. On the mesh bear, with the
    * baton up 22°, a fast turn of the paw (4,249° per second) jumped in the lowering of the arms,
    * and the arm gate failed.
    */
-  batonPivot: [1.187, -0.298, 0.318],
+  batonPivot: [1.187, -0.003, 0.318],
   /**
    * The beat plane turns this part of the turn of the upper body to a cued section on the left.
    * Thus the arm opens to the right in a turn to the left, and the hand stays beside the head from
@@ -77,19 +78,33 @@ export const CONDUCTOR_HOLD = {
   batonCurl: 60 * MathUtils.DEG2RAD,
   /**
    * In the lift and in the lowering of the arms (5.2), the baton turns toward this direction: out
-   * to the right side and down, as a loose wrist lets it fall. Thus its tip leaves the desk of the
-   * conductor stand at the side before it comes down. With a straight lowering, the tip came
-   * 0.006 m near the desk when the arms came down after the song end. The twist of the paw on
-   * its forearm in this turn is at most {@link CONDUCTOR_HOLD.liftTwist}.
+   * to the right side and a little down, as a loose wrist lets it fall. Thus its tip leaves the desk
+   * of the conductor stand at the side before it comes down. With a straight lowering, the tip came
+   * 0.006 m near the desk when the arms came down after the song end. With the baton 25° up and
+   * the direction (0.8, -0.6, 0), the right paw turned 4,653°/s at the start of a lowering. The
+   * twist of the paw on its forearm in this turn is at most {@link CONDUCTOR_HOLD.liftTwist}.
    */
-  liftBaton: [0.8, -0.6, 0],
+  liftBaton: [1, -0.3, 0],
   /**
    * The largest twist of the paw on its forearm in the turn of the baton of `liftBaton`, in
    * radians. The full turn twisted the paw by about 130°, past 180° on its forearm. With 60°, the
    * paw twist stays at most 105° and the paw swing at most 71° in the moves of the demos, and the
-   * baton keeps clear of the desk (`docs/research/2026-10-21-wrist-lift.md`).
+   * baton keeps clear of the desk (`docs/research/2026-10-21-wrist-lift.md`). With the paw rolled
+   * around the baton ({@link CONDUCTOR_HOLD.batonRoll}), the turn keeps no twist: with 60°, the right
+   * arm folded 9 faces at the start of a lift (limit 8), and the baton still keeps clear of the desk.
    */
-  liftTwist: 60 * MathUtils.DEG2RAD,
+  liftTwist: 0,
+  /**
+   * The roll of the right paw around the baton from the top up, in radians, positive by the right
+   * hand around the direction of the baton. The palm of the paw of the bear mesh lies about 48° from
+   * the palm of the player, so with no roll the paw faced the players with the pads out and the
+   * claws up, and the baton stood up from it (user, 2026-10-26: "the bear is not holding the baton
+   * in a natural way"). With the roll, the claws curl around the baton, and the back of the paw
+   * faces up, as a conductor holds the baton between the thumb and the fingers with the palm down.
+   * A true palm hint of the mesh (`palm` of `tools/mesh-rigs/bear.json`) turned the left paw too,
+   * and the left arm failed the gate.
+   */
+  batonRoll: 0.84,
   /** The curl of the fingers of the open left hand of a cue. */
   cueCurl: 10 * MathUtils.DEG2RAD,
   /**
@@ -412,6 +427,7 @@ function batonHand(rig: ConductorRig, point: Vector3, from: Vector3): void {
   } else {
     top.set(0, 0, 1);
   }
+  top.applyAxisAngle(along, CONDUCTOR_HOLD.batonRoll);
   setFromBasis(hand, along, top).multiply(BATON_INVERSE);
   offset.fromArray(rig.tip).sub(wristBind.fromArray(rig.right.bind.wrist)).applyQuaternion(hand);
   wrist.copy(point).sub(offset);

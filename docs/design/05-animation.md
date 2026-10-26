@@ -265,7 +265,7 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
   paw twist (`TWIST_SHARE` of `models/studio-rig.ts`), so a twist past 180° turns it by 180° in one
   frame. The bow of a string player takes the side of its mix from the bow at the play place of the
   instrument (`liftMix()` of `pose/bowed.ts`), and the baton turn of the conductor keeps at most
-  `CONDUCTOR_HOLD.liftTwist` of twist. The arm gate measures each move at steps of 0.01 s
+  `CONDUCTOR_HOLD.liftTwist` of twist (none since 2026-10-26). The arm gate measures each move at steps of 0.01 s
   (`probeMoves()` of `tools/arm-check.ts`). The rest twist of the left paw of the violins and of the
   viola lies on the far side of 180° from its play twist, so their moves still pass 180° (open,
   `docs/decisions/2026-10-21-wrist-lift.md`).
@@ -909,7 +909,8 @@ The code constants of each family hold the times, the angles, and the lengths of
     off the right paw. In the lift and the lowering, the baton turns out to the right, so that it
     does not sweep through the desk (`pose/test-conductor-clearance.ts`). The paw twists on its
     forearm by at most `CONDUCTOR_HOLD.liftTwist` for this turn, because the full turn twisted it
-    past 180° (5.2).
+    past 180° (5.2). The right paw holds the baton between the thumb and the fingers with the palm
+    down and the claws around the stick (`CONDUCTOR_HOLD.batonRoll`), and the baton points 25° up.
   - **Bow at the song end.** At the pause at the song end (6.5), the bear bows to the orchestra
     while the instruments are still up. A hanging arm follows half of the bend (`HANG_FOLLOW`),
     so that the paws touch neither the belly nor the stand. The bow is a function of the wall
