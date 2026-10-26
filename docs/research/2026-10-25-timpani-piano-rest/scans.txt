@@ -1,0 +1,476 @@
+# Scans of the round timpani-piano-rest. Each --set changes the working tree of its time.
+# arm-timp-1 and the grip scans h01 to tree ran with the timpani values pitch 0.2, rest 0.04,
+# peak 4, lift 0.1, home 0.3 H, and no roll. The later timpani scans name each change.
+# The pianist scans ran with the rest of main, at offsets [0.03,0.22,-0.5] and [-0.03,0.22,-0.5].
+# Each arm-check block: pnpm arm-check <role> --base main --variant <name> --set <changes>.
+# The base column in parentheses is main.
+
+## scratch/arm-timp-1.txt
+- h01: timpani.across.pitch=0.2;timpani.sizes.rest=0.04;timpani.across.peak=4
+- h02: timpani.across.pitch=0.2;timpani.sizes.rest=0.04;timpani.across.peak=4;timpani.home=[0.2,-0.37,-0.2]
+- h03: timpani.across.pitch=0.2;timpani.sizes.rest=0.04;timpani.across.peak=4;timpani.home=[0.3,-0.37,-0.2]
+| h01 | timpanist | L | 11 (8) FAIL | 35 (35) | 9 (9) | 0.74 (0.80) FAIL | 5 (23) | 29 (46) | 0.0% (0.0%) | 0.02 (0.09) | 17 (1) FAIL | 4 (22) | 9 (7) | FAIL |
+| h01 | timpanist | R | 6 (4) | 32 (29) | 6 (8) | 0.71 (0.73) | 4 (20) | 28 (43) | 0.0% (0.0%) | 0.02 (0.02) | 5 (0) | 4 (20) | 9 (8) | PASS |
+| h02 | timpanist | L | 8 (8) | 33 (35) | 9 (9) | 0.78 (0.80) | 5 (23) | 34 (46) | 0.0% (0.0%) | 0.02 (0.09) | 17 (1) FAIL | 4 (22) | 8 (7) | FAIL |
+| h02 | timpanist | R | 3 (4) | 30 (29) | 6 (8) | 0.75 (0.73) | 4 (20) | 32 (43) | 0.0% (0.0%) | 0.02 (0.02) | 5 (0) | 4 (20) | 8 (8) | PASS |
+| h03 | timpanist | L | 7 (8) | 28 (35) | 7 (9) | 0.82 (0.80) | 7 (23) | 36 (46) | 0.0% (0.0%) | 0.02 (0.09) | 15 (1) | 6 (22) | 24 (7) | PASS |
+| h03 | timpanist | R | 3 (4) | 28 (29) | 5 (8) | 0.79 (0.73) | 6 (20) | 34 (43) | 0.0% (0.0%) | 0.02 (0.02) | 3 (0) | 5 (20) | 22 (8) | PASS |
+
+## scratch/arm-timp-2.txt
+- h03: timpani.home=[0.3,-0.37,-0.2]
+- r40: timpani.strikeRoll=true;timpani.home=[0.4,-0.37,-0.2]
+- r45: timpani.strikeRoll=true;timpani.home=[0.45,-0.37,-0.2]
+| h03 | timpanist | L | 7 (8) | 28 (35) | 7 (9) | 0.82 (0.80) | 7 (23) | 36 (46) | 0.0% (0.0%) | 0.02 (0.09) | 15 (1) | 6 (22) | 24 (7) | PASS |
+| h03 | timpanist | R | 3 (4) | 28 (29) | 5 (8) | 0.79 (0.73) | 6 (20) | 34 (43) | 0.0% (0.0%) | 0.02 (0.02) | 3 (0) | 5 (20) | 22 (8) | PASS |
+| r40 | timpanist | L | 6 (8) | 22 (35) | 11 (9) | 0.86 (0.80) | 25 (23) | 35 (46) | 0.0% (0.0%) | 0.03 (0.09) | 2 (1) | 31 (22) FAIL | 28 (7) | FAIL |
+| r40 | timpanist | R | 3 (4) | 22 (29) | 18 (8) | 0.84 (0.73) | 44 (20) | 29 (43) | 0.0% (0.0%) | 0.03 (0.02) | 28 (0) FAIL | 38 (20) FAIL | 11 (8) | FAIL |
+| r45 | timpanist | L | 4 (8) | 23 (35) | 7 (9) | 0.87 (0.80) | 12 (23) | 44 (46) | 0.0% (0.0%) | 0.01 (0.09) | 10 (1) | 12 (22) | 24 (7) | PASS |
+| r45 | timpanist | R | 2 (4) | 23 (29) | 11 (8) | 0.84 (0.73) | 26 (20) | 34 (43) | 0.0% (0.0%) | 0.02 (0.02) | 18 (0) FAIL | 26 (20) FAIL | 8 (8) | FAIL |
+
+## scratch/arm-timp-3.txt
+- l20: timpani.across.pitch=0.1;timpani.sizes.rest=0.03;timpani.sizes.lift=0.2;timpani.across.peak=8
+| l20 | timpanist | L | 5 (8) | 22 (35) | 6 (9) | 0.87 (0.80) | 13 (23) | 42 (46) | 0.0% (0.0%) | 0.01 (0.09) | 9 (1) | 13 (22) | 30 (7) | PASS |
+| l20 | timpanist | R | 2 (4) | 23 (29) | 11 (8) | 0.85 (0.73) | 26 (20) | 32 (43) | 0.0% (0.0%) | 0.02 (0.02) | 18 (0) FAIL | 25 (20) FAIL | 8 (8) | FAIL |
+
+## scratch/arm-pian-1.txt
+- p1: piano.restL.lap.offset=[0.03,-0.15,-0.33];piano.restR.lap.offset=[-0.03,-0.12,-0.36]
+- p2: piano.restL.lap.offset=[0.03,-0.15,-0.33];piano.restR.lap.offset=[-0.03,-0.12,-0.36];piano.restL.palm=[0.2,-0.6,0.8];piano.restR.palm=[-0.2,-0.6,0.8]
+- p3: piano.restL.lap.offset=[0.03,-0.1,-0.3];piano.restR.lap.offset=[-0.03,-0.07,-0.33]
+- p4: piano.restL.lap.offset=[0.03,-0.15,-0.33];piano.restR.lap.offset=[-0.03,-0.12,-0.36];piano.restLean=12deg
+| p1 | pianist | L | 20 (20) OPEN | 27 (26) | 8 (9) | 0.83 (0.83) | 28 (27) | 51 (32) FAIL | 0.0% (0.0%) | 0.06 (0.04) | 9 (9) | 31 (36) | 204 (126) | FAIL |
+| p1 | pianist | R | 19 (13) FAIL | 25 (25) | 7 (9) | 0.81 (0.85) | 25 (26) | 49 (34) FAIL | 0.0% (0.0%) | 0.06 (0.04) | 16 (16) | 31 (35) | 282 (142) | FAIL |
+| p2 | pianist | L | 20 (20) OPEN | 27 (26) | 13 (9) | 0.83 (0.83) | 38 (27) | 29 (32) | 0.0% (0.0%) | 0.05 (0.04) | 9 (9) | 46 (36) FAIL | 112 (126) | FAIL |
+| p2 | pianist | R | 17 (13) FAIL | 25 (25) | 13 (9) | 0.83 (0.85) | 37 (26) | 28 (34) | 0.0% (0.0%) | 0.06 (0.04) | 16 (16) | 45 (35) FAIL | 252 (142) | FAIL |
+| p3 | pianist | L | 21 (20) OPEN | 28 (26) | 8 (9) | 0.83 (0.83) | 23 (27) | 47 (32) FAIL | 0.0% (0.0%) | 0.05 (0.04) | 9 (9) | 31 (36) | 197 (126) | FAIL |
+| p3 | pianist | R | 19 (13) FAIL | 26 (25) | 7 (9) | 0.84 (0.85) | 23 (26) | 46 (34) | 0.0% (0.0%) | 0.05 (0.04) | 16 (16) | 31 (35) | 259 (142) | FAIL |
+| p4 | pianist | L | 21 (20) OPEN | 28 (26) | 8 (9) | 0.83 (0.83) | 23 (27) | 50 (32) FAIL | 0.0% (0.0%) | 0.06 (0.04) | 9 (9) | 31 (36) | 212 (126) | FAIL |
+| p4 | pianist | R | 19 (13) FAIL | 26 (25) | 7 (9) | 0.84 (0.85) | 23 (26) | 50 (34) FAIL | 0.0% (0.0%) | 0.06 (0.04) | 16 (16) | 31 (35) | 267 (142) | FAIL |
+
+## scratch/arm-pian-2.txt
+- q1: piano.restL.lap.offset=[0.03,-0.15,-0.33];piano.restR.lap.offset=[-0.03,-0.12,-0.36];piano.restL.pole=[-1,-0.5,0];piano.restR.pole=[1,-0.5,0]
+- q2: piano.restL.lap.offset=[0.03,-0.15,-0.33];piano.restR.lap.offset=[-0.03,-0.12,-0.36];piano.restL.pole=[-1,-0.8,-0.4];piano.restR.pole=[1,-0.8,-0.4]
+- q3: piano.restL.lap.offset=[0.03,-0.15,-0.33];piano.restR.lap.offset=[-0.03,-0.12,-0.36];piano.restL.pole=[-1,0,0];piano.restR.pole=[1,0,0]
+- q4: piano.restL.lap.offset=[0.15,-0.15,-0.36];piano.restR.lap.offset=[-0.15,-0.12,-0.39];piano.restL.pole=[-1,-0.5,0];piano.restR.pole=[1,-0.5,0]
+- q5: piano.restL.pole=[-1,-0.5,0];piano.restR.pole=[1,-0.5,0]
+| q1 | pianist | L | 21 (20) OPEN | 34 (26) | 14 (9) | 0.83 (0.83) | 46 (27) | 56 (32) FAIL | 0.0% (0.0%) | 0.06 (0.04) | 9 (9) | 47 (36) FAIL | 229 (126) | FAIL |
+| q1 | pianist | R | 18 (13) FAIL | 32 (25) | 14 (9) | 0.80 (0.85) | 46 (26) | 55 (34) FAIL | 0.0% (0.0%) | 0.06 (0.04) | 16 (16) | 47 (35) FAIL | 260 (142) | FAIL |
+| q2 | pianist | L | 20 (20) OPEN | 37 (26) FAIL | 17 (9) | 0.83 (0.83) | 53 (27) | 59 (32) FAIL | 0.0% (0.0%) | 0.06 (0.04) | 9 (9) | 55 (36) FAIL | 261 (126) | FAIL |
+| q2 | pianist | R | 18 (13) FAIL | 34 (25) | 17 (9) | 0.80 (0.85) FAIL | 54 (26) | 58 (34) FAIL | 0.0% (0.0%) | 0.07 (0.04) | 16 (16) | 56 (35) FAIL | 273 (142) | FAIL |
+| q3 | pianist | L | 21 (20) OPEN | 39 (26) FAIL | 19 (9) | 0.83 (0.83) | 59 (27) FAIL | 61 (32) FAIL | 0.0% (0.0%) | 0.06 (0.04) | 9 (9) | 61 (36) FAIL | 214 (126) | FAIL |
+| q3 | pianist | R | 18 (13) FAIL | 37 (25) FAIL | 20 (9) | 0.79 (0.85) FAIL | 61 (26) FAIL | 60 (34) FAIL | 0.0% (0.0%) | 0.07 (0.04) | 16 (16) | 62 (35) FAIL | 224 (142) | FAIL |
+| q4 | pianist | L | 22 (20) OPEN | 33 (26) | 13 (9) | 0.81 (0.83) | 42 (27) | 55 (32) FAIL | 0.0% (0.0%) | 0.06 (0.04) | 9 (9) | 44 (36) FAIL | 223 (126) | FAIL |
+| q4 | pianist | R | 18 (13) FAIL | 31 (25) | 14 (9) | 0.76 (0.85) FAIL | 45 (26) | 55 (34) FAIL | 0.0% (0.0%) | 0.07 (0.04) | 16 (16) | 47 (35) FAIL | 255 (142) | FAIL |
+| q5 | pianist | L | 19 (20) OPEN | 30 (26) | 10 (9) | 0.83 (0.83) | 33 (27) | 36 (32) | 0.0% (0.0%) | 0.05 (0.04) | 9 (9) | 33 (36) | 164 (126) | OPEN |
+| q5 | pianist | R | 13 (13) OPEN | 29 (25) | 11 (9) | 0.85 (0.85) | 34 (26) | 39 (34) | 0.0% (0.0%) | 0.04 (0.04) | 16 (16) | 35 (35) | 181 (142) | OPEN |
+
+## scratch/arm-pian-3.txt
+- r1: piano.restL.lap.offset=[0.03,-0.15,-0.33];piano.restR.lap.offset=[-0.03,-0.12,-0.36];piano.restL.pole=[-1,-0.3,-0.5];piano.restR.pole=[1,-0.3,-0.5]
+- r2: piano.restL.lap.offset=[0.03,-0.15,-0.33];piano.restR.lap.offset=[-0.03,-0.12,-0.36];piano.restL.pole=[-1,-1,-0.5];piano.restR.pole=[1,-1,-0.5]
+- r3: piano.restL.lap.offset=[0.03,-0.15,-0.33];piano.restR.lap.offset=[-0.03,-0.12,-0.36];piano.restL.pole=[-0.5,-1,0];piano.restR.pole=[0.5,-1,0]
+- r4: piano.restL.lap.offset=[0.03,-0.15,-0.33];piano.restR.lap.offset=[-0.03,-0.12,-0.36];piano.restL.pole=[-1,-1,0.3];piano.restR.pole=[1,-1,0.3]
+- r5: piano.restL.lap.offset=[0.03,-0.15,-0.33];piano.restR.lap.offset=[-0.03,-0.12,-0.36];piano.restLean=14deg
+- r6: piano.restL.lap.offset=[0.03,0.1,-0.5];piano.restR.lap.offset=[-0.03,0.1,-0.5]
+- r7: piano.restL.lap.offset=[0.03,0.22,-0.3];piano.restR.lap.offset=[-0.03,0.22,-0.3]
+| r1 | pianist | L | 19 (20) OPEN | 43 (26) FAIL | 23 (9) | 0.81 (0.83) | 72 (27) FAIL | 66 (32) FAIL | 0.0% (0.0%) | 0.07 (0.04) | 9 (9) | 75 (36) FAIL | 267 (126) | FAIL |
+| r1 | pianist | R | 19 (13) FAIL | 41 (25) FAIL | 24 (9) FAIL | 0.78 (0.85) FAIL | 75 (26) FAIL | 64 (34) FAIL | 0.0% (0.0%) | 0.07 (0.04) | 16 (16) | 76 (35) FAIL | 272 (142) | FAIL |
+| r2 | pianist | L | 20 (20) OPEN | 36 (26) | 16 (9) | 0.83 (0.83) | 52 (27) | 58 (32) FAIL | 0.0% (0.0%) | 0.06 (0.04) | 9 (9) | 54 (36) FAIL | 270 (126) | FAIL |
+| r2 | pianist | R | 18 (13) FAIL | 34 (25) | 17 (9) | 0.80 (0.85) FAIL | 52 (26) | 57 (34) FAIL | 0.0% (0.0%) | 0.06 (0.04) | 16 (16) | 54 (35) FAIL | 282 (142) | FAIL |
+| r3 | pianist | L | 20 (20) OPEN | 24 (26) | 8 (9) | 0.83 (0.83) | 23 (27) | 48 (32) FAIL | 0.0% (0.0%) | 0.06 (0.04) | 9 (9) | 24 (36) | 239 (126) | FAIL |
+| r3 | pianist | R | 21 (13) FAIL | 21 (25) | 7 (9) | 0.81 (0.85) | 23 (26) | 47 (34) | 0.0% (0.0%) | 0.06 (0.04) | 16 (16) | 25 (35) | 288 (142) | FAIL |
+| r4 | pianist | L | 19 (20) OPEN | 27 (26) | 8 (9) | 0.83 (0.83) | 27 (27) | 50 (32) FAIL | 0.0% (0.0%) | 0.06 (0.04) | 9 (9) | 28 (36) | 229 (126) | FAIL |
+| r4 | pianist | R | 19 (13) FAIL | 25 (25) | 7 (9) | 0.81 (0.85) | 24 (26) | 49 (34) | 0.0% (0.0%) | 0.06 (0.04) | 16 (16) | 25 (35) | 284 (142) | FAIL |
+| r5 | pianist | L | 22 (20) OPEN | 29 (26) | 8 (9) | 0.83 (0.83) | 23 (27) | 50 (32) FAIL | 0.0% (0.0%) | 0.06 (0.04) | 9 (9) | 31 (36) | 216 (126) | FAIL |
+| r5 | pianist | R | 20 (13) FAIL | 26 (25) | 7 (9) | 0.85 (0.85) | 23 (26) | 50 (34) FAIL | 0.0% (0.0%) | 0.06 (0.04) | 16 (16) | 31 (35) | 246 (142) | FAIL |
+| r6 | pianist | L | 21 (20) OPEN | 26 (26) | 9 (9) | 0.83 (0.83) | 25 (27) | 37 (32) | 0.0% (0.0%) | 0.05 (0.04) | 9 (9) | 34 (36) | 145 (126) | OPEN |
+| r6 | pianist | R | 15 (13) OPEN | 25 (25) | 8 (9) | 0.85 (0.85) | 25 (26) | 36 (34) | 0.0% (0.0%) | 0.04 (0.04) | 16 (16) | 34 (35) | 199 (142) | OPEN |
+| r7 | pianist | L | 24 (20) FAIL | 29 (26) | 10 (9) | 0.83 (0.83) | 26 (27) | 32 (32) | 0.0% (0.0%) | 0.04 (0.04) | 9 (9) | 35 (36) | 149 (126) | FAIL |
+| r7 | pianist | R | 15 (13) OPEN | 27 (25) | 9 (9) | 0.85 (0.85) | 23 (26) | 35 (34) | 0.0% (0.0%) | 0.04 (0.04) | 16 (16) | 34 (35) | 163 (142) | OPEN |
+
+## scratch/arm-pian-4.txt
+- s1: piano.restHeadLift=0
+- s2: piano.restLean=0
+- s3: piano.restLean=14deg;piano.restHeadLift=0
+- s4: piano.restL.lap.offset=[0.03,0.5,-0.3];piano.restR.lap.offset=[-0.03,0.5,-0.3]
+| s1 | pianist | L | 20 (20) OPEN | 26 (26) | 9 (9) | 0.83 (0.83) | 27 (27) | 32 (32) | 0.0% (0.0%) | 0.04 (0.04) | 9 (9) | 36 (36) | 126 (126) | OPEN |
+| s1 | pianist | R | 13 (13) OPEN | 25 (25) | 9 (9) | 0.85 (0.85) | 26 (26) | 34 (34) | 0.0% (0.0%) | 0.04 (0.04) | 16 (16) | 35 (35) | 142 (142) | OPEN |
+| s2 | pianist | L | 19 (20) OPEN | 25 (26) | 10 (9) | 0.83 (0.83) | 29 (27) | 33 (32) | 0.0% (0.0%) | 0.04 (0.04) | 9 (9) | 35 (36) | 113 (126) | OPEN |
+| s2 | pianist | R | 15 (13) OPEN | 24 (25) | 9 (9) | 0.84 (0.85) | 29 (26) | 29 (34) | 0.0% (0.0%) | 0.05 (0.04) | 16 (16) | 35 (35) | 186 (142) | OPEN |
+| s3 | pianist | L | 23 (20) FAIL | 27 (26) | 9 (9) | 0.83 (0.83) | 27 (27) | 32 (32) | 0.0% (0.0%) | 0.04 (0.04) | 9 (9) | 37 (36) | 140 (126) | FAIL |
+| s3 | pianist | R | 15 (13) OPEN | 25 (25) | 8 (9) | 0.85 (0.85) | 26 (26) | 34 (34) | 0.0% (0.0%) | 0.04 (0.04) | 16 (16) | 36 (35) | 154 (142) | OPEN |
+| s4 | pianist | L | 26 (20) FAIL | 27 (26) | 11 (9) | 0.83 (0.83) | 31 (27) | 28 (32) | 0.0% (0.0%) | 0.03 (0.04) | 9 (9) | 41 (36) FAIL | 112 (126) | FAIL |
+| s4 | pianist | R | 16 (13) FAIL | 25 (25) | 10 (9) | 0.85 (0.85) | 29 (26) | 28 (34) | 0.0% (0.0%) | 0.03 (0.04) | 16 (16) | 39 (35) FAIL | 124 (142) | FAIL |
+
+## scratch/arm-pian-5.txt
+- t1: piano.restL.lap.offset=[-0.15,-0.1,-0.25];piano.restR.lap.offset=[0.15,-0.07,-0.28];piano.restL.pole=[-1,0.3,0.3];piano.restR.pole=[1,0.3,0.3]
+- t2: piano.restL.lap.offset=[-0.25,-0.05,-0.2];piano.restR.lap.offset=[0.25,-0.02,-0.23];piano.restL.pole=[-1,0.3,0.3];piano.restR.pole=[1,0.3,0.3]
+- t3: piano.restL.lap.offset=[-0.1,0.1,-0.35];piano.restR.lap.offset=[0.1,0.13,-0.38];piano.restL.pole=[-1,0.5,0];piano.restR.pole=[1,0.5,0]
+- t4: piano.restL.lap.offset=[0.03,-0.15,-0.33];piano.restR.lap.offset=[-0.03,-0.12,-0.36];piano.restL.pole=[-1,0.5,0.3];piano.restR.pole=[1,0.5,0.3]
+| t1 | pianist | L | 19 (20) OPEN | 39 (26) FAIL | 17 (9) | 0.83 (0.83) | 56 (27) | 61 (32) FAIL | 0.0% (0.0%) | 0.06 (0.04) | 9 (9) | 57 (36) FAIL | 203 (126) | FAIL |
+| t1 | pianist | R | 16 (13) FAIL | 37 (25) FAIL | 17 (9) | 0.85 (0.85) | 56 (26) | 60 (34) FAIL | 0.0% (0.0%) | 0.07 (0.04) | 16 (16) | 56 (35) FAIL | 209 (142) | FAIL |
+| t2 | pianist | L | 19 (20) OPEN | 40 (26) FAIL | 18 (9) | 0.83 (0.83) | 57 (27) FAIL | 62 (32) FAIL | 0.0% (0.0%) | 0.06 (0.04) | 9 (9) | 58 (36) FAIL | 213 (126) | FAIL |
+| t2 | pianist | R | 13 (13) OPEN | 37 (25) FAIL | 17 (9) | 0.85 (0.85) | 55 (26) | 61 (34) FAIL | 0.0% (0.0%) | 0.07 (0.04) | 16 (16) | 56 (35) FAIL | 209 (142) | FAIL |
+| t3 | pianist | L | 20 (20) OPEN | 43 (26) FAIL | 19 (9) | 0.83 (0.83) | 61 (27) FAIL | 62 (32) FAIL | 0.0% (0.0%) | 0.06 (0.04) | 9 (9) | 64 (36) FAIL | 218 (126) | FAIL |
+| t3 | pianist | R | 13 (13) OPEN | 41 (25) FAIL | 21 (9) | 0.85 (0.85) | 67 (26) FAIL | 63 (34) FAIL | 0.0% (0.0%) | 0.07 (0.04) | 16 (16) | 68 (35) FAIL | 212 (142) | FAIL |
+| t4 | pianist | L | 20 (20) OPEN | 40 (26) FAIL | 19 (9) | 0.83 (0.83) | 61 (27) FAIL | 62 (32) FAIL | 0.0% (0.0%) | 0.06 (0.04) | 9 (9) | 63 (36) FAIL | 192 (126) | FAIL |
+| t4 | pianist | R | 18 (13) FAIL | 37 (25) FAIL | 20 (9) | 0.79 (0.85) FAIL | 64 (26) FAIL | 61 (34) FAIL | 0.0% (0.0%) | 0.07 (0.04) | 16 (16) | 64 (35) FAIL | 222 (142) | FAIL |
+
+## scratch/arm-pian-6.txt
+- u1: piano.restL.lap.offset=[0.03,-0.05,-0.38];piano.restR.lap.offset=[-0.03,-0.02,-0.41];piano.restL.pole=[-1,-0.5,0];piano.restR.pole=[1,-0.5,0]
+- u2: piano.restL.lap.offset=[0.03,0,-0.4];piano.restR.lap.offset=[-0.03,0.03,-0.43];piano.restL.pole=[-1,-0.5,0];piano.restR.pole=[1,-0.5,0]
+- u3: piano.restL.lap.offset=[0.03,0.05,-0.42];piano.restR.lap.offset=[-0.03,0.08,-0.45];piano.restL.pole=[-1,-0.5,0];piano.restR.pole=[1,-0.5,0]
+- u4: piano.restL.lap.offset=[0.03,-0.05,-0.38];piano.restR.lap.offset=[-0.03,-0.02,-0.41]
+- u5: piano.restL.lap.offset=[0.03,0.05,-0.42];piano.restR.lap.offset=[-0.03,0.08,-0.45]
+- u6: piano.restL.lap.offset=[0.03,-0.1,-0.38];piano.restR.lap.offset=[-0.03,-0.07,-0.41];piano.restL.pole=[-1,-0.5,0.4];piano.restR.pole=[1,-0.5,0.4]
+| u1 | pianist | L | 19 (20) OPEN | 33 (26) | 12 (9) | 0.83 (0.83) | 39 (27) | 50 (32) FAIL | 0.0% (0.0%) | 0.06 (0.04) | 9 (9) | 40 (36) FAIL | 210 (126) | FAIL |
+| u1 | pianist | R | 18 (13) FAIL | 31 (25) | 13 (9) | 0.84 (0.85) | 41 (26) | 51 (34) FAIL | 0.0% (0.0%) | 0.06 (0.04) | 16 (16) | 42 (35) FAIL | 220 (142) | FAIL |
+| u2 | pianist | L | 19 (20) OPEN | 33 (26) | 11 (9) | 0.83 (0.83) | 37 (27) | 47 (32) FAIL | 0.0% (0.0%) | 0.05 (0.04) | 9 (9) | 38 (36) | 202 (126) | FAIL |
+| u2 | pianist | R | 18 (13) FAIL | 31 (25) | 12 (9) | 0.85 (0.85) | 40 (26) | 49 (34) | 0.0% (0.0%) | 0.05 (0.04) | 16 (16) | 40 (35) FAIL | 212 (142) | FAIL |
+| u3 | pianist | L | 19 (20) OPEN | 33 (26) | 11 (9) | 0.83 (0.83) | 35 (27) | 45 (32) | 0.0% (0.0%) | 0.05 (0.04) | 9 (9) | 36 (36) | 194 (126) | OPEN |
+| u3 | pianist | R | 15 (13) OPEN | 30 (25) | 12 (9) | 0.85 (0.85) | 38 (26) | 46 (34) | 0.0% (0.0%) | 0.05 (0.04) | 16 (16) | 39 (35) FAIL | 203 (142) | FAIL |
+| u4 | pianist | L | 19 (20) OPEN | 27 (26) | 8 (9) | 0.83 (0.83) | 23 (27) | 44 (32) | 0.0% (0.0%) | 0.05 (0.04) | 9 (9) | 32 (36) | 180 (126) | OPEN |
+| u4 | pianist | R | 19 (13) FAIL | 25 (25) | 7 (9) | 0.85 (0.85) | 23 (26) | 42 (34) | 0.0% (0.0%) | 0.05 (0.04) | 16 (16) | 32 (35) | 244 (142) | FAIL |
+| u5 | pianist | L | 21 (20) OPEN | 27 (26) | 8 (9) | 0.83 (0.83) | 24 (27) | 39 (32) | 0.0% (0.0%) | 0.05 (0.04) | 9 (9) | 33 (36) | 159 (126) | OPEN |
+| u5 | pianist | R | 15 (13) OPEN | 25 (25) | 8 (9) | 0.85 (0.85) | 24 (26) | 38 (34) | 0.0% (0.0%) | 0.04 (0.04) | 16 (16) | 33 (35) | 201 (142) | OPEN |
+| u6 | pianist | L | 20 (20) OPEN | 29 (26) | 9 (9) | 0.83 (0.83) | 31 (27) | 49 (32) FAIL | 0.0% (0.0%) | 0.06 (0.04) | 9 (9) | 32 (36) | 201 (126) | FAIL |
+| u6 | pianist | R | 17 (13) FAIL | 27 (25) | 9 (9) | 0.83 (0.85) | 30 (26) | 47 (34) | 0.0% (0.0%) | 0.06 (0.04) | 16 (16) | 31 (35) | 261 (142) | FAIL |
+
+## scratch/arm-pian-7.txt
+- v1: piano.restL.lap.offset=[0.03,-0.05,-0.38];piano.restR.lap.offset=[-0.03,0.08,-0.45]
+- v2: piano.restL.lap.offset=[0.03,-0.05,-0.38];piano.restR.lap.offset=[-0.03,0.03,-0.43]
+- v3: piano.restL.lap.offset=[0.03,-0.1,-0.36];piano.restR.lap.offset=[-0.03,0.08,-0.45]
+- v4: piano.restL.lap.offset=[0.03,-0.05,-0.38];piano.restR.lap.offset=[-0.03,0.08,-0.45];piano.restR.pole=[1,-0.3,1]
+- v5: piano.restL.lap.offset=[0.03,-0.05,-0.38];piano.restR.lap.offset=[-0.03,0.03,-0.43];piano.restR.pole=[1,0,0.77]
+| v1 | pianist | L | 19 (20) OPEN | 27 (26) | 8 (9) | 0.83 (0.83) | 23 (27) | 44 (32) | 0.0% (0.0%) | 0.05 (0.04) | 9 (9) | 32 (36) | 180 (126) | OPEN |
+| v1 | pianist | R | 15 (13) OPEN | 25 (25) | 8 (9) | 0.85 (0.85) | 24 (26) | 38 (34) | 0.0% (0.0%) | 0.04 (0.04) | 16 (16) | 33 (35) | 201 (142) | OPEN |
+| v2 | pianist | L | 19 (20) OPEN | 27 (26) | 8 (9) | 0.83 (0.83) | 23 (27) | 44 (32) | 0.0% (0.0%) | 0.05 (0.04) | 9 (9) | 32 (36) | 180 (126) | OPEN |
+| v2 | pianist | R | 16 (13) FAIL | 25 (25) | 7 (9) | 0.85 (0.85) | 23 (26) | 40 (34) | 0.0% (0.0%) | 0.05 (0.04) | 16 (16) | 33 (35) | 223 (142) | FAIL |
+| v3 | pianist | L | 20 (20) OPEN | 27 (26) | 8 (9) | 0.83 (0.83) | 25 (27) | 47 (32) FAIL | 0.0% (0.0%) | 0.05 (0.04) | 9 (9) | 32 (36) | 191 (126) | FAIL |
+| v3 | pianist | R | 15 (13) OPEN | 25 (25) | 8 (9) | 0.85 (0.85) | 24 (26) | 38 (34) | 0.0% (0.0%) | 0.04 (0.04) | 16 (16) | 33 (35) | 201 (142) | OPEN |
+| v4 | pianist | L | 19 (20) OPEN | 27 (26) | 8 (9) | 0.83 (0.83) | 23 (27) | 44 (32) | 0.0% (0.0%) | 0.05 (0.04) | 9 (9) | 32 (36) | 180 (126) | OPEN |
+| v4 | pianist | R | 16 (13) FAIL | 23 (25) | 7 (9) | 0.85 (0.85) | 23 (26) | 35 (34) | 0.0% (0.0%) | 0.04 (0.04) | 16 (16) | 33 (35) | 214 (142) | FAIL |
+| v5 | pianist | L | 19 (20) OPEN | 27 (26) | 8 (9) | 0.83 (0.83) | 23 (27) | 44 (32) | 0.0% (0.0%) | 0.05 (0.04) | 9 (9) | 32 (36) | 180 (126) | OPEN |
+| v5 | pianist | R | 17 (13) FAIL | 27 (25) | 9 (9) | 0.85 (0.85) | 29 (26) | 43 (34) | 0.0% (0.0%) | 0.05 (0.04) | 16 (16) | 39 (35) FAIL | 198 (142) | FAIL |
+
+## pnpm wind-grip timpanist --demo <demo> --set <changes>: play, lift, rest rows
+# scratch/grip-v1.tsv
+main	timpani.across.pitch=null;timpani.sizes.rest=0.2;timpani.across.peak=1;timpani.home=[0.1,-0.37,-0.2]
+h01	timpani.home=[0.1,-0.37,-0.2]
+h02	timpani.home=[0.2,-0.37,-0.2]
+tree	timpani.home=[0.3,-0.37,-0.2]
+# scratch/grip-v2.tsv
+roll3	timpani.strikeRoll=true
+roll2	timpani.strikeRoll=true;timpani.home=[0.2,-0.37,-0.2]
+roll1	timpani.strikeRoll=true;timpani.home=[0.1,-0.37,-0.2]
+# scratch/grip-v3.tsv
+r35	timpani.strikeRoll=true;timpani.home=[0.35,-0.37,-0.2]
+r40	timpani.strikeRoll=true;timpani.home=[0.4,-0.37,-0.2]
+rhi	timpani.strikeRoll=true;timpani.home=[0.3,-0.3,-0.2]
+rfw	timpani.strikeRoll=true;timpani.home=[0.3,-0.37,-0.3]
+# scratch/grip-v4.tsv
+r45	timpani.strikeRoll=true;timpani.home=[0.45,-0.37,-0.2]
+r50	timpani.strikeRoll=true;timpani.home=[0.5,-0.37,-0.2]
+r40lo	timpani.strikeRoll=true;timpani.home=[0.4,-0.42,-0.2]
+# scratch/grip-v5.tsv
+off0	timpani.offsetL=[0,0,0]
+off4	timpani.offsetL=[0.04,0,0]
+off12	timpani.offsetL=[0.12,0,0]
+p10	timpani.across.pitch=0.1
+p30	timpani.across.pitch=0.3
+# scratch/grip-v6.tsv
+p10	timpani.across.pitch=0.1
+p12	timpani.across.pitch=0.12;timpani.across.peak=5
+p10r3	timpani.across.pitch=0.1;timpani.sizes.rest=0.03;timpani.across.peak=6
+# scratch/grip-v7.tsv
+l20	timpani.across.pitch=0.1;timpani.sizes.rest=0.03;timpani.sizes.lift=0.2;timpani.across.peak=8
+l15	timpani.across.pitch=0.1;timpani.sizes.rest=0.03;timpani.sizes.lift=0.15;timpani.across.peak=8
+### scratch/grip-main.txt
+beethoven-1.mid
+ play   L  holds  96%  grasps  96%  exit  49  butt  2.0 
+ play   R  holds  96%  grasps  95%  exit  47  butt  1.5 
+ lift   L  holds  68%  grasps  68%  exit  50  butt  3.0 
+ lift   R  holds  100%  grasps  100%  exit  46  butt  1.5 
+ rest   L  holds  100%  grasps  100%  exit  47  butt  3.0 
+ rest   R  holds  100%  grasps  100%  exit  48  butt  1.8 
+### scratch/grip-h01.txt
+beethoven-9.mid
+ play   L  holds  49%  grasps  0%  exit  108  butt  5.3 
+ play   R  holds  80%  grasps  0%  exit  104  butt  6.0 
+ lift   L  holds  39%  grasps  0%  exit  108  butt  5.3 
+ lift   R  holds  94%  grasps  0%  exit  104  butt  6.0 
+ rest   L  holds  100%  grasps  0%  exit  109  butt  5.3 
+ rest   R  holds  100%  grasps  0%  exit  104  butt  6.0 
+### scratch/grip-h02.txt
+beethoven-9.mid
+ play   L  holds  0%  grasps  0%  exit  95  butt  4.5 
+ play   R  holds  86%  grasps  0%  exit  94  butt  5.3 
+ lift   L  holds  0%  grasps  0%  exit  95  butt  4.5 
+ lift   R  holds  58%  grasps  0%  exit  94  butt  5.3 
+ rest   L  holds  0%  grasps  0%  exit  96  butt  4.5 
+ rest   R  holds  100%  grasps  0%  exit  94  butt  5.3 
+### scratch/grip-tree.txt
+beethoven-9.mid
+ play   L  holds  0%  grasps  0%  exit  81  butt  3.8 
+ play   R  holds  11%  grasps  0%  exit  82  butt  4.3 
+ lift   L  holds  0%  grasps  0%  exit  81  butt  3.8 
+ lift   R  holds  6%  grasps  0%  exit  82  butt  4.3 
+ rest   L  holds  0%  grasps  0%  exit  81  butt  3.8 
+ rest   R  holds  0%  grasps  0%  exit  82  butt  4.3 
+### scratch/grip-roll1.txt
+beethoven-9.mid
+ play   L  holds  52%  grasps  0%  exit  110  butt  5.3 
+ play   R  holds  57%  grasps  0%  exit  92  butt  5.3 
+ lift   L  holds  42%  grasps  0%  exit  109  butt  5.3 
+ lift   R  holds  87%  grasps  0%  exit  93  butt  5.3 
+ rest   L  holds  100%  grasps  0%  exit  110  butt  5.5 
+ rest   R  holds  0%  grasps  0%  exit  91  butt  5.3 
+### scratch/grip-roll2.txt
+beethoven-9.mid
+ play   L  holds  0%  grasps  0%  exit  96  butt  4.5 
+ play   R  holds  7%  grasps  7%  exit  68  butt  2.7 
+ lift   L  holds  0%  grasps  0%  exit  97  butt  4.5 
+ lift   R  holds  3%  grasps  3%  exit  70  butt  3.0 
+ rest   L  holds  0%  grasps  0%  exit  98  butt  4.5 
+ rest   R  holds  0%  grasps  0%  exit  68  butt  2.7 
+### scratch/grip-roll3.txt
+beethoven-9.mid
+ play   L  holds  73%  grasps  68%  exit  59  butt  2.7 
+ play   R  holds  36%  grasps  36%  exit  59  butt  2.3 
+ lift   L  holds  100%  grasps  100%  exit  57  butt  2.3 
+ lift   R  holds  6%  grasps  6%  exit  60  butt  2.3 
+ rest   L  holds  100%  grasps  100%  exit  56  butt  3.5 
+ rest   R  holds  0%  grasps  0%  exit  59  butt  2.3 
+### scratch/grip-r35.txt
+beethoven-9.mid
+ play   L  holds  91%  grasps  73%  exit  60  butt  2.7 
+ play   R  holds  100%  grasps  100%  exit  55  butt  2.3 
+ lift   L  holds  90%  grasps  55%  exit  60  butt  2.7 
+ lift   R  holds  100%  grasps  100%  exit  56  butt  2.3 
+ rest   L  holds  100%  grasps  100%  exit  60  butt  2.7 
+ rest   R  holds  100%  grasps  100%  exit  55  butt  2.3 
+### scratch/grip-r40.txt
+beethoven-9.mid
+ play   L  holds  84%  grasps  78%  exit  59  butt  2.7 
+ play   R  holds  99%  grasps  99%  exit  55  butt  2.0 
+ lift   L  holds  100%  grasps  100%  exit  59  butt  2.7 
+ lift   R  holds  100%  grasps  100%  exit  54  butt  2.0 
+ rest   L  holds  100%  grasps  100%  exit  59  butt  2.7 
+ rest   R  holds  100%  grasps  100%  exit  55  butt  2.0 
+### scratch/grip-r45.txt
+beethoven-9.mid
+ play   L  holds  75%  grasps  72%  exit  59  butt  2.7 
+ play   R  holds  90%  grasps  90%  exit  54  butt  2.0 
+ lift   L  holds  100%  grasps  100%  exit  59  butt  2.7 
+ lift   R  holds  94%  grasps  94%  exit  54  butt  2.0 
+ rest   L  holds  100%  grasps  100%  exit  60  butt  2.7 
+ rest   R  holds  100%  grasps  100%  exit  54  butt  2.0 
+### scratch/grip-r50.txt
+beethoven-9.mid
+ play   L  holds  58%  grasps  58%  exit  60  butt  2.7 
+ play   R  holds  89%  grasps  89%  exit  54  butt  2.0 
+ lift   L  holds  100%  grasps  100%  exit  59  butt  2.7 
+ lift   R  holds  94%  grasps  94%  exit  54  butt  2.0 
+ rest   L  holds  100%  grasps  100%  exit  60  butt  2.7 
+ rest   R  holds  100%  grasps  100%  exit  54  butt  2.0 
+### scratch/grip-r40lo.txt
+beethoven-9.mid
+ play   L  holds  44%  grasps  37%  exit  61  butt  2.7 
+ play   R  holds  91%  grasps  91%  exit  55  butt  2.0 
+ lift   L  holds  19%  grasps  0%  exit  60  butt  2.7 
+ lift   R  holds  97%  grasps  97%  exit  55  butt  2.0 
+ rest   L  holds  0%  grasps  0%  exit  61  butt  2.7 
+ rest   R  holds  100%  grasps  100%  exit  55  butt  2.0 
+### scratch/grip-rhi.txt
+beethoven-9.mid
+ play   L  holds  14%  grasps  2%  exit  69  butt  3.2 
+ play   R  holds  0%  grasps  0%  exit  64  butt  2.5 
+ lift   L  holds  0%  grasps  0%  exit  68  butt  3.2 
+ lift   R  holds  0%  grasps  0%  exit  65  butt  2.5 
+ rest   L  holds  0%  grasps  0%  exit  71  butt  3.5 
+ rest   R  holds  0%  grasps  0%  exit  64  butt  2.5 
+### scratch/grip-rfw.txt
+beethoven-9.mid
+ play   L  holds  74%  grasps  63%  exit  59  butt  2.5 
+ play   R  holds  31%  grasps  31%  exit  60  butt  2.3 
+ lift   L  holds  100%  grasps  100%  exit  57  butt  2.3 
+ lift   R  holds  6%  grasps  6%  exit  60  butt  2.3 
+ rest   L  holds  100%  grasps  100%  exit  57  butt  2.3 
+ rest   R  holds  0%  grasps  0%  exit  59  butt  2.3 
+### scratch/grip-off0.txt
+beethoven-1.mid
+ play   L  holds  66%  grasps  66%  exit  60  butt  2.7 
+ play   R  holds  97%  grasps  97%  exit  55  butt  2.0 
+ lift   L  holds  81%  grasps  81%  exit  59  butt  2.7 
+ lift   R  holds  100%  grasps  100%  exit  55  butt  2.0 
+ rest   L  holds  100%  grasps  100%  exit  59  butt  2.7 
+ rest   R  holds  100%  grasps  100%  exit  55  butt  2.0 
+### scratch/grip-off4.txt
+beethoven-1.mid
+ play   L  holds  23%  grasps  23%  exit  60  butt  3.0 
+ play   R  holds  97%  grasps  97%  exit  55  butt  2.0 
+ lift   L  holds  42%  grasps  42%  exit  60  butt  2.7 
+ lift   R  holds  100%  grasps  100%  exit  55  butt  2.0 
+ rest   L  holds  100%  grasps  100%  exit  60  butt  2.7 
+ rest   R  holds  100%  grasps  100%  exit  55  butt  2.0 
+### scratch/grip-off12.txt
+beethoven-1.mid
+ play   L  holds  7%  grasps  7%  exit  61  butt  3.0 
+ play   R  holds  97%  grasps  97%  exit  55  butt  2.0 
+ lift   L  holds  32%  grasps  32%  exit  61  butt  3.0 
+ lift   R  holds  100%  grasps  100%  exit  55  butt  2.0 
+ rest   L  holds  0%  grasps  0%  exit  61  butt  3.0 
+ rest   R  holds  100%  grasps  100%  exit  55  butt  2.0 
+### scratch/grip-p10.txt
+beethoven-9.mid
+ play   L  holds  100%  grasps  100%  exit  55  butt  2.5 
+ play   R  holds  100%  grasps  100%  exit  52  butt  2.0 
+ lift   L  holds  100%  grasps  100%  exit  55  butt  3.2 
+ lift   R  holds  100%  grasps  100%  exit  52  butt  2.0 
+ rest   L  holds  100%  grasps  100%  exit  55  butt  2.5 
+ rest   R  holds  100%  grasps  100%  exit  52  butt  2.0 
+### scratch/grip-p12.txt
+beethoven-9.mid
+ play   L  holds  98%  grasps  98%  exit  56  butt  2.5 
+ play   R  holds  100%  grasps  100%  exit  53  butt  2.0 
+ lift   L  holds  100%  grasps  100%  exit  56  butt  2.5 
+ lift   R  holds  100%  grasps  100%  exit  53  butt  2.0 
+ rest   L  holds  100%  grasps  100%  exit  56  butt  2.5 
+ rest   R  holds  100%  grasps  100%  exit  53  butt  2.0 
+### scratch/grip-p10r3.txt
+beethoven-9.mid
+ play   L  holds  98%  grasps  98%  exit  55  butt  2.5 
+ play   R  holds  100%  grasps  100%  exit  52  butt  2.0 
+ lift   L  holds  100%  grasps  100%  exit  55  butt  3.2 
+ lift   R  holds  100%  grasps  100%  exit  52  butt  2.0 
+ rest   L  holds  100%  grasps  100%  exit  55  butt  2.5 
+ rest   R  holds  100%  grasps  100%  exit  52  butt  2.0 
+### scratch/grip-p30.txt
+beethoven-1.mid
+ play   L  holds  5%  grasps  5%  exit  68  butt  3.0 
+ play   R  holds  9%  grasps  9%  exit  59  butt  2.3 
+ lift   L  holds  32%  grasps  32%  exit  68  butt  3.0 
+ lift   R  holds  0%  grasps  0%  exit  59  butt  2.3 
+ rest   L  holds  0%  grasps  0%  exit  67  butt  3.0 
+ rest   R  holds  0%  grasps  0%  exit  59  butt  2.3 
+### scratch/grip-l20.txt
+beethoven-1.mid
+ play   L  holds  94%  grasps  94%  exit  54  butt  2.5 
+ play   R  holds  98%  grasps  97%  exit  52  butt  2.0 
+ lift   L  holds  94%  grasps  94%  exit  54  butt  2.5 
+ lift   R  holds  100%  grasps  100%  exit  52  butt  2.0 
+ rest   L  holds  100%  grasps  100%  exit  54  butt  2.5 
+ rest   R  holds  100%  grasps  100%  exit  51  butt  2.0 
+### scratch/grip-l15.txt
+beethoven-1.mid
+ play   L  holds  95%  grasps  95%  exit  54  butt  2.5 
+ play   R  holds  97%  grasps  97%  exit  52  butt  2.0 
+ lift   L  holds  94%  grasps  94%  exit  54  butt  2.5 
+ lift   R  holds  100%  grasps  100%  exit  52  butt  2.0 
+ rest   L  holds  100%  grasps  100%  exit  54  butt  2.5 
+ rest   R  holds  100%  grasps  100%  exit  51  butt  2.0 
+
+## pnpm fold-probe pianist --demo bach-bwv1047 --faces 40 [--set piano.poleR=<pole>]: play share of the right inner elbow faces
+### scratch/elbow-main.txt
+ 574  play  75.5%   forearm_seg0_R 
+ 576  play  68.0%   forearm_seg0_R 
+ 575  play  66.2%   upper_arm_seg3_R 
+ 612  play  32.6%   upper_arm_seg3_R 
+ 572  play  12.4%   elbow_R 
+ 574  play  0.380, 1.118, -0.305   0.0 
+ 574  play  0.398, 1.134, -0.282   0.0 
+ 574  play  0.380, 1.121, -0.307   0.0 
+ 576  play  0.368, 1.094, -0.326   0.0 
+ 576  play  0.380, 1.121, -0.307   0.0 
+ 576  play  0.369, 1.097, -0.332   0.0 
+ 575  play  0.368, 1.094, -0.326   0.0 
+ 575  play  0.380, 1.118, -0.305   0.0 
+ 575  play  0.380, 1.121, -0.307   0.0 
+ 612  play  0.366, 1.064, -0.341   0.0 
+ 612  play  0.368, 1.094, -0.326   0.0 
+ 612  play  0.369, 1.097, -0.332   0.0 
+ 572  play  0.398, 1.130, -0.277   0.0 
+ 572  play  0.421, 1.137, -0.257   0.0 
+ 572  play  0.398, 1.134, -0.282   0.0 
+### scratch/elbow-_1_-0.5_0.4_.txt
+ 576  play  77.0%   forearm_seg0_R 
+ 574  play  76.5%   forearm_seg0_R 
+ 575  play  67.7%   upper_arm_seg3_R 
+ 612  play  51.0%   upper_arm_seg3_R 
+ 572  play  7.6%   elbow_R 
+ 576  play  0.368, 1.094, -0.326   0.0 
+ 576  play  0.380, 1.121, -0.307   0.0 
+ 576  play  0.369, 1.097, -0.332   0.0 
+ 574  play  0.380, 1.118, -0.305   0.0 
+ 574  play  0.398, 1.134, -0.282   0.0 
+ 574  play  0.380, 1.121, -0.307   0.0 
+ 575  play  0.368, 1.094, -0.326   0.0 
+ 575  play  0.380, 1.118, -0.305   0.0 
+ 575  play  0.380, 1.121, -0.307   0.0 
+ 612  play  0.366, 1.064, -0.341   0.0 
+ 612  play  0.368, 1.094, -0.326   0.0 
+ 612  play  0.369, 1.097, -0.332   0.0 
+ 572  play  0.398, 1.130, -0.277   0.0 
+ 572  play  0.421, 1.137, -0.257   0.0 
+ 572  play  0.398, 1.134, -0.282   0.0 
+### scratch/elbow-_1_-1.2_0.4_.txt
+ 574  play  74.0%   forearm_seg0_R 
+ 575  play  62.4%   upper_arm_seg3_R 
+ 576  play  53.8%   forearm_seg0_R 
+ 572  play  18.0%   elbow_R 
+ 612  play  16.0%   upper_arm_seg3_R 
+ 574  play  0.380, 1.118, -0.305   0.0 
+ 574  play  0.398, 1.134, -0.282   0.0 
+ 574  play  0.380, 1.121, -0.307   0.0 
+ 575  play  0.368, 1.094, -0.326   0.0 
+ 575  play  0.380, 1.118, -0.305   0.0 
+ 575  play  0.380, 1.121, -0.307   0.0 
+ 576  play  0.368, 1.094, -0.326   0.0 
+ 576  play  0.380, 1.121, -0.307   0.0 
+ 576  play  0.369, 1.097, -0.332   0.0 
+ 572  play  0.398, 1.130, -0.277   0.0 
+ 572  play  0.421, 1.137, -0.257   0.0 
+ 572  play  0.398, 1.134, -0.282   0.0 
+ 612  play  0.366, 1.064, -0.341   0.0 
+ 612  play  0.368, 1.094, -0.326   0.0 
+ 612  play  0.369, 1.097, -0.332   0.0 
+### scratch/elbow-_1_-0.8_0_.txt
+ 574  play  75.6%   forearm_seg0_R 
+ 576  play  69.3%   forearm_seg0_R 
+ 575  play  66.5%   upper_arm_seg3_R 
+ 612  play  33.6%   upper_arm_seg3_R 
+ 572  play  12.3%   elbow_R 
+ 574  play  0.380, 1.118, -0.305   0.0 
+ 574  play  0.398, 1.134, -0.282   0.0 
+ 574  play  0.380, 1.121, -0.307   0.0 
+ 576  play  0.368, 1.094, -0.326   0.0 
+ 576  play  0.380, 1.121, -0.307   0.0 
+ 576  play  0.369, 1.097, -0.332   0.0 
+ 575  play  0.368, 1.094, -0.326   0.0 
+ 575  play  0.380, 1.118, -0.305   0.0 
+ 575  play  0.380, 1.121, -0.307   0.0 
+ 612  play  0.366, 1.064, -0.341   0.0 
+ 612  play  0.368, 1.094, -0.326   0.0 
+ 612  play  0.369, 1.097, -0.332   0.0 
+ 572  play  0.398, 1.130, -0.277   0.0 
+ 572  play  0.421, 1.137, -0.257   0.0 
+ 572  play  0.398, 1.134, -0.282   0.0 
+### scratch/elbow-_1_-0.8_0.8_.txt
+ 574  play  75.5%   forearm_seg0_R 
+ 576  play  67.5%   forearm_seg0_R 
+ 575  play  65.8%   upper_arm_seg3_R 
+ 612  play  32.2%   upper_arm_seg3_R 
+ 572  play  12.5%   elbow_R 
+ 574  play  0.380, 1.118, -0.305   0.0 
+ 574  play  0.398, 1.134, -0.282   0.0 
+ 574  play  0.380, 1.121, -0.307   0.0 
+ 576  play  0.368, 1.094, -0.326   0.0 
+ 576  play  0.380, 1.121, -0.307   0.0 
+ 576  play  0.369, 1.097, -0.332   0.0 
+ 575  play  0.368, 1.094, -0.326   0.0 
+ 575  play  0.380, 1.118, -0.305   0.0 
+ 575  play  0.380, 1.121, -0.307   0.0 
+ 612  play  0.366, 1.064, -0.341   0.0 
+ 612  play  0.368, 1.094, -0.326   0.0 
+ 612  play  0.369, 1.097, -0.332   0.0 
+ 572  play  0.398, 1.130, -0.277   0.0 
+ 572  play  0.421, 1.137, -0.257   0.0 
+ 572  play  0.398, 1.134, -0.282   0.0 

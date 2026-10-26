@@ -1,0 +1,16 @@
+length 0.300 m
+beethoven-1.mid: rest L height 0.9 cm, in 31.9°, up -22.9°; R 3.9 cm, in 24.1°, up -18.4°
+  L: height cm p5 1.5 p50 1.9 p95 3.2 max 11.1; in p50 30.0°, up p5 -21.8° p50 -21.5° p95 -19.7°; turns over 30° 0, largest step 10.0° at 195.06 s
+  R: height cm p5 3.4 p50 4.2 p95 5.3 max 17.3; in p50 24.1°, up p5 -18.6° p50 -18.4° p95 -16.9°; turns over 30° 0, largest step 5.2° at 245.83 s
+length 0.300 m
+beethoven-8-4.mid: rest L height 3.8 cm, in 27.3°, up -18.1°; R 6.3 cm, in 22.8°, up -15.5°
+  L: height cm p5 3.5 p50 4.1 p95 5.3 max 16.9; in p50 27.4°, up p5 -18.3° p50 -18.1° p95 -16.6°; turns over 30° 0, largest step 5.2° at 618.38 s
+  R: height cm p5 5.9 p50 6.5 p95 10.9 max 21.5; in p50 22.8°, up p5 -15.6° p50 -15.5° p95 -7.4°; turns over 30° 0, largest step 5.3° at 378.20 s
+length 0.300 m
+beethoven-9.mid: rest L height 4.1 cm, in 27.4°, up -18.0°; R 5.2 cm, in 23.8°, up -18.3°
+  L: height cm p5 3.0 p50 4.3 p95 12.2 max 14.6; in p50 27.3°, up p5 -19.4° p50 -18.0° p95 -4.3°; turns over 30° 0, largest step 4.4° at 77.65 s
+  R: height cm p5 5.6 p50 6.7 p95 15.1 max 18.9; in p50 22.8°, up p5 -16.9° p50 -15.5° p95 0.2°; turns over 30° 0, largest step 4.7° at 150.90 s
+length 0.300 m
+brahms-2.mid: rest L height 3.8 cm, in 27.3°, up -18.1°; R 6.3 cm, in 22.8°, up -15.5°
+  L: height cm p5 3.4 p50 4.1 p95 4.7 max 14.5; in p50 27.4°, up p5 -18.2° p50 -18.1° p95 -17.8°; turns over 30° 0, largest step 4.7° at 705.90 s
+  R: height cm p5 6.0 p50 6.6 p95 9.6 max 19.4; in p50 22.8°, up p5 -15.7° p50 -15.5° p95 -9.6°; turns over 30° 0, largest step 5.4° at 94.27 s

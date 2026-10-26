@@ -1,0 +1,4 @@
+main az-35: left 6.7%, between 2.4%, up 9.5%, right 3.3%
+branch az-35: left 2.7%, between 2.6%, up 10.8%, right 2.8%
+main front: left 7.9%, between 3.7%, up 13.2%, right 7.2%
+branch front: left 3.8%, between 3.6%, up 15.3%, right 3.8%

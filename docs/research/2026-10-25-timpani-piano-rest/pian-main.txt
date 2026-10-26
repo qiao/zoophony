@@ -1,0 +1,12 @@
+bach-bwv1047.mid: H 0.336, hips y 0.385, knee L -0.268,0.339,-0.514
+  L: palm -0.209,0.800,-0.502 above thigh top 41.2 cm, paw gap to lap 4.5 cm, paw depth in lap 0.0 cm, along hip-knee 0.80, elbow bend 74.1°
+  R: palm 0.209,0.776,-0.502 above thigh top 41.3 cm, paw gap to lap 3.9 cm, paw depth in lap 0.0 cm, along hip-knee 0.81, elbow bend 66.9°
+bach-bwv1048.mid: H 0.336, hips y 0.385, knee L -0.268,0.339,-0.514
+  L: palm -0.209,0.800,-0.502 above thigh top 41.2 cm, paw gap to lap 4.4 cm, paw depth in lap 0.0 cm, along hip-knee 0.80, elbow bend 74.9°
+  R: palm 0.209,0.776,-0.502 above thigh top 41.3 cm, paw gap to lap 3.8 cm, paw depth in lap 0.0 cm, along hip-knee 0.81, elbow bend 67.8°
+bach-bwv1050.mid: H 0.336, hips y 0.385, knee L -0.268,0.339,-0.514
+  L: palm -0.209,0.800,-0.502 above thigh top 41.2 cm, paw gap to lap 4.3 cm, paw depth in lap 0.0 cm, along hip-knee 0.80, elbow bend 76.2°
+  R: palm 0.209,0.776,-0.502 above thigh top 41.3 cm, paw gap to lap 3.8 cm, paw depth in lap 0.0 cm, along hip-knee 0.81, elbow bend 69.1°
+boulanger-matin.mid: H 0.336, hips y 0.385, knee L -0.268,0.339,-0.514
+  L: palm -0.209,0.800,-0.502 above thigh top 41.2 cm, paw gap to lap 4.1 cm, paw depth in lap 0.0 cm, along hip-knee 0.80, elbow bend 77.3°
+  R: palm 0.209,0.776,-0.502 above thigh top 41.3 cm, paw gap to lap 3.7 cm, paw depth in lap 0.0 cm, along hip-knee 0.81, elbow bend 70.3°

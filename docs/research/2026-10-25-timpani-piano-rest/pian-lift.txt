@@ -1,0 +1,10 @@
+# main (the rest offsets of main through SET)
+bach-bwv1047.mid: count-in 2.10 s; deepest paw L 0.0 cm at wall 0.00 s, R 0.0 cm at 0.00 s
+bach-bwv1048.mid: count-in 1.50 s; deepest paw L 0.0 cm at wall 0.00 s, R 0.0 cm at 0.00 s
+bach-bwv1050.mid: count-in 1.70 s; deepest paw L 0.0 cm at wall 0.00 s, R 0.0 cm at 0.00 s
+boulanger-matin.mid: count-in 1.62 s; deepest paw L 0.0 cm at wall 0.00 s, R 0.0 cm at 0.00 s
+# branch
+bach-bwv1047.mid: count-in 2.10 s; deepest paw L 0.0 cm at wall 0.00 s, R 0.0 cm at 0.00 s
+bach-bwv1048.mid: count-in 1.50 s; deepest paw L 0.0 cm at wall 0.00 s, R 0.0 cm at 0.00 s
+bach-bwv1050.mid: count-in 1.70 s; deepest paw L 0.0 cm at wall 0.00 s, R 0.0 cm at 0.00 s
+boulanger-matin.mid: count-in 1.62 s; deepest paw L 0.0 cm at wall 0.00 s, R 0.0 cm at 0.00 s
