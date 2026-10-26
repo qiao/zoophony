@@ -257,9 +257,10 @@ const CLOSE_ROLES: readonly CloseRole[] = [
  *   mouse, which has no chair.
  * - The elephant timpanist, who stands: the front, both sides, and the back. The moments are a
  *   strike of the left mallet on the front kettle at the left of the trunk, a strike of the right
- *   mallet on the front kettle at its right, a time between two strikes, the rest pose, and
- *   halfway through the lift and the lowering at the first strike. The camera looks down 30°, as a seat of the
- *   hall looks at the back row.
+ *   mallet on the front kettle at its right, a time between two strikes, the top of the lift
+ *   of the right mallet before its strike, the rest pose, and halfway through the lift and the
+ *   lowering at the first strike. The camera looks down 30°, as a seat of the hall looks at the
+ *   back row.
  * - The beaver bassoonist: the views and the moments of the flutist. The side views and the back
  *   view also show the broad tail, which goes back from the haunch and lies on the floor behind
  *   the beaver, which has no chair.
@@ -549,6 +550,8 @@ export const ROLE_VIEWS: Readonly<Record<CloseRole, RoleViews>> = {
     moments: [
       { name: 'left', time: 0.5, rest: false },
       { name: 'between', time: 1, rest: false },
+      // The top of the lift of the right mallet, 0.125 s before its strike (`STRIKE_MOTION`).
+      { name: 'up', time: 1.375, rest: false },
       { name: 'right', time: 1.5, rest: false },
       { name: 'rest', time: 0, rest: true },
       ...halfMoves(0.5),
