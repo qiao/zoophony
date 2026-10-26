@@ -1,0 +1,19 @@
+base main, new: the working tree
+bodies equal: 95 of 95
+players equal: 17 of 23
+pose sets equal: 1456 of 1492
+player timpani/elephant/timpani: mesh differs (positions), moved bones: malletL malletR
+player percussion/badger/bass-drum: mesh differs (positions), moved bones: malletR
+player percussion/badger/snare-drum: mesh differs (positions), moved bones: malletL malletR
+player percussion/badger/cymbals: mesh differs (positions), moved bones: malletL malletR
+player percussion/badger/small-percussion: mesh differs (positions), moved bones: malletR
+player percussion/badger/xylophone: mesh differs (positions), moved bones: malletL malletR
+pose beethoven-1 28 timpani/elephant/timpani: rest from sample 1 of 4 (song -2.10 s, wall 10.00 s), lift from sample 1 of 40 (song -2.10 s, wall 10.00 s), play from sample 1 of 593 (song -2.10 s, wall 10.00 s), lower from sample 1 of 58 (song 147.16 s, wall 10.00 s)
+pose beethoven-8-4 28 timpani/elephant/timpani: rest from sample 1 of 4 (song -1.91 s, wall 10.00 s), lift from sample 1 of 40 (song -1.91 s, wall 10.00 s), play from sample 1 of 1442 (song -1.91 s, wall 10.00 s), lower from sample 1 of 58 (song 359.46 s, wall 10.00 s)
+pose beethoven-9 33 timpani/elephant/timpani: rest from sample 1 of 4 (song -1.91 s, wall 10.00 s), lift from sample 1 of 40 (song -1.91 s, wall 10.00 s), play from sample 1 of 321 (song -1.91 s, wall 10.00 s), lower from sample 1 of 58 (song 79.15 s, wall 10.00 s)
+pose beethoven-9 34 percussion/badger/bass-drum: rest from sample 1 of 4 (song -1.91 s, wall 10.00 s), lift from sample 1 of 40 (song -1.91 s, wall 10.00 s), play from sample 1 of 321 (song -1.91 s, wall 10.00 s), lower from sample 1 of 58 (song 79.15 s, wall 10.00 s)
+pose beethoven-9 35 percussion/badger/cymbals: rest from sample 1 of 4 (song -1.91 s, wall 10.00 s), lift from sample 1 of 40 (song -1.91 s, wall 10.00 s), play from sample 1 of 321 (song -1.91 s, wall 10.00 s), lower from sample 1 of 58 (song 79.15 s, wall 10.00 s)
+pose beethoven-9 36 percussion/badger/small-percussion: rest from sample 1 of 4 (song -1.91 s, wall 10.00 s), lift from sample 1 of 40 (song -1.91 s, wall 10.00 s), play from sample 1 of 321 (song -1.91 s, wall 10.00 s), lower from sample 1 of 58 (song 79.15 s, wall 10.00 s)
+pose boulanger-matin 40 percussion/badger/cymbals: rest from sample 1 of 4 (song -1.62 s, wall 10.00 s), lift from sample 1 of 40 (song -1.62 s, wall 10.00 s), play from sample 1 of 565 (song -1.62 s, wall 10.00 s), lower from sample 1 of 58 (song 140.33 s, wall 10.00 s)
+pose boulanger-matin 41 percussion/badger/small-percussion: rest from sample 1 of 4 (song -1.62 s, wall 10.00 s), lift from sample 1 of 40 (song -1.62 s, wall 10.00 s), play from sample 1 of 565 (song -1.62 s, wall 10.00 s), lower from sample 1 of 58 (song 140.33 s, wall 10.00 s)
+pose brahms-2 34 timpani/elephant/timpani: rest from sample 1 of 4 (song -1.62 s, wall 10.00 s), lift from sample 1 of 40 (song -1.62 s, wall 10.00 s), play from sample 1 of 1509 (song -1.62 s, wall 10.00 s), lower from sample 1 of 58 (song 376.23 s, wall 10.00 s)

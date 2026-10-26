@@ -1,0 +1,12 @@
+| Link | Mean | Largest | Worst sample |
+|---|---:|---:|---|
+| L clavicle>upper | 42.9 | 43.5 | play beethoven-9.mid 78.09 s |
+| L upper>fore | 0.0 | 0.0 | play beethoven-9.mid 35.34 s |
+| L fore>ftwist | 39.9 | 41.9 | play beethoven-9.mid 152.84 s |
+| L ftwist>hand | 39.9 | 41.9 | play beethoven-9.mid 152.84 s |
+| R clavicle>upper | 47.4 | 53.7 | play boulanger-matin.mid 63.13 s |
+| R upper>fore | 0.0 | 0.0 | play boulanger-matin.mid 184.38 s |
+| R fore>ftwist | 13.6 | 14.3 | play boulanger-matin.mid 143.13 s |
+| R ftwist>hand | 13.6 | 14.3 | play boulanger-matin.mid 143.13 s |
+L total twist: mean 122.6, largest 125.9
+R total twist: mean 74.5, largest 81.3

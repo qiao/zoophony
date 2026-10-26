@@ -1,0 +1,9 @@
+Medians over play samples. Angles in degrees, thumb moves in cm.
+| Role | Paw | Thumb in the bind mesh | True palm to hint palm | True palm to tube | Hint palm to tube | Thumb tip along the tube (+ to the mouthpiece) | Thumb tip toward the player (+) | True palm to the front (+1 faces the audience) | Thumb tip behind the tube axis (+ toward the player) | Hint palm to the front | Chirality thumb along the tube (+1 to the mouthpiece) |
+|---|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| snare-drummer | L | cut 0.45, 7 tris, off 0.46 | 35 | 79 | 53 | -2.09 | +1.49 | +0.45 | +1.31 | +0.70 | -0.87 |
+| snare-drummer | R | cut 0.45, 7 tris, off 0.45 | 34 | 77 | 50 | -2.11 | +1.60 | +0.49 | +1.52 | +0.70 | -0.87 |
+| xylophonist | L | cut 0.45, 7 tris, off 0.46 | 35 | 94 | 76 | -3.23 | +0.26 | -0.05 | -0.39 | +0.43 | -0.87 |
+| xylophonist | R | cut 0.45, 7 tris, off 0.45 | 35 | 96 | 71 | -2.76 | +1.17 | +0.05 | +0.56 | +0.45 | -0.87 |
+| timpanist | L | no separate digit | - | - | 86 | - | - | - | - | +0.23 | -0.71 |
+| timpanist | R | no separate digit | - | - | 38 | - | - | - | - | +0.14 | -0.71 |
