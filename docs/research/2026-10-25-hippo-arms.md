@@ -98,7 +98,9 @@ fails, as on the recent bases.
 ## 5. The images
 
 `pair-e20-<view>.webp` and `pair-e40-<view>.webp` give each moment from eight views, `main` above
-the tree, at zoom 2. In `paws-left-3x.webp` and `paws-right-3x.webp`, the left paw closes on the
+the tree, at zoom 2 (`pnpm close-views bassist <dir> --views front,back,left,right,35,-35,150,-150
+--zoom 2 --elevation <e> --base main`, then `probes/pairs.py`). `probes/rows.py` and
+`probes/probecrop.py` make the crops and the probe pairs. In `paws-left-3x.webp` and `paws-right-3x.webp`, the left paw closes on the
 neck and the right paw holds the bow as on `main`. Open: from az-150, the back of the right arm
 root shows past the trunk as a dark flat piece in the play (`arm-root-az-150.webp`), also with no
 shadow. A smaller anchor makes it smaller, but folds 35.6% of the play. From az150, a light face
