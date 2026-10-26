@@ -1270,11 +1270,8 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
 - [ ] Badger xylophone back row middle: in a run up the test score, the right paw misses 4
       strikes on the two sharp bars in the middle of the back row by 8 to 26 mm, and the paw
       rises to the height of the muzzle there (`2026-10-25-xylophone-reach/run-test.webp`).
-- [ ] Badger xylophone mallets: the mallets of 0.40 m look long beside the small bars of 12 cm
-      to 8 cm. The grip of 2026-10-25 lets the shaft leave the front of the fist, so it no
-      longer continues the forearm, and 0.30 m reached 83% of the right strikes
-      (`2026-10-25-percussion-grip.md`). A shorter mallet moves the band of reach nearer, and the
-      bars with it.
+- [ ] Badger xylophone mallets: the mallets of 0.30 m look long beside the small bars of 11 cm
+      to 7 cm. A shorter mallet moves the band of reach nearer, and the bars with it.
 - [x] Badger xylophone soles: the side move of the hips sinks the soles 3 to 6 mm into the floor,
       because the foot skin follows the tilted shin (`2026-10-25-xylophone-sway.md`).
       Done: the hips keep their place, and the spine takes the whole side move. No sole corner
@@ -1295,18 +1292,19 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
 - [ ] Badger xylophone shafts: on a chord of two near bars, the shafts of the two mallets touch
       in 0.4% of the samples of the steel drum part (`2026-10-25-xylophone-sway.md`). The smaller
       bars and heads leave 0.1% (`2026-10-25-xylophone-reach.md`).
-- [ ] Percussion grip, xylophone folds: with the claws curled 100° on the mallets and the homes
-      0.55 H out, the arm gate counts 12 (L) and 14 (R) folded faces (limit 8, `main` 3): the
-      knuckle faces and two arm faces. A curl of 80° to 90° or a nearer home passes the folds but
-      grasps the shaft in 0% to 81% of the play. Decide from the crops, or give the knuckles a
-      weight rule in the rig (`2026-10-25-percussion-grip.md`).
-- [ ] Percussion grip, accepted grips: the grip turns of the new grips are 47° (L) and 35° (R) on
-      the xylophone and 16° (L) on the cymbal (`arm-check-roles.txt` of
-      `docs/research/2026-10-25-percussion-grip/`). Accept the 3x crops of that folder, then set
-      the new medians in `ACCEPTED_GRIPS`.
-- [ ] Percussion grip, elephant left paw: it grasps in 68% of the lift samples, turns up to 33°
-      in 0.01 s in fast rolls (5 steps over 30°, `main` 16°), and its total arm twist grows from
-      a mean of 61.5° to 77.5° (`jumps-branch.txt`, `twist-branch-timpanist.txt`).
+- [x] Percussion grip, xylophone folds: with mallets of 0.40 m from homes 0.55 H out, the arm
+      gate counted 12 and 14 folds. Done: the mallets of 0.30 m, the homes of `main`, and bars of
+      11 cm to 7 cm give 7 and 3 folds, and grip turns of 15 and 9
+      (`2026-10-25-percussion-grip.md`).
+- [x] Percussion grip, accepted grips: done, the manager accepted the crops of the snare drum,
+      the cymbal, the bass drum, the triangle, and the timpani (`ACCEPTED_GRIPS`).
+- [ ] Percussion grip, xylophone exit: the mallets run near the line of the forearms, so the
+      shafts leave the fists past the knuckles, under the curled claws. The paws hold as fists in
+      62% (L) and 90% (R) of the play, but grasp in 0% by the exit rule. Accept the crops, then
+      set the xylophone medians in `ACCEPTED_GRIPS`.
+- [ ] Percussion grip, elephant left paw: it grasps in 68% of the lift samples, and its total
+      arm twist grows from a mean of 61.5° to 81.0° (`twist-branch-timpanist.txt`). Its largest
+      step is 29° in 0.01 s (`main` 16°).
 - [ ] Percussion grip, butt ends: the butt of the right elephant mallet, of the triangle beater,
       and of the bass drum beater stays in the paw, where a real player has 13 mm to 25 mm
       behind the hand (`percussion-technique.md` 1). A longer butt (`MALLET_BUTT`) or a grip
