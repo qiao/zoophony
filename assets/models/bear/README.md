@@ -47,7 +47,7 @@ little flatter, so that it stays out of the round belly.
 | `bear-arms.glb` | 876,804 bytes, SHA-256 `16c0b58b46a24f92b897f7bf5905cd42088de52737335cdf950ba70fdfcd0dbc` |
 | Mesh | 1,928 vertices after a weld at 1e-5, 3,851 triangles (3,142 in the source): on each arm a tube of 13 rings of 16 vertices, joined to the trunk and the paw with Bridge Edge Loops |
 | Material | One material with one base color JPEG of 4096 × 4608 pixels: the atlas of the source, and a strip of 512 pixels on top with the fur color of the source arms, baked onto the new faces. No metallic-roughness texture |
-| `bear-weights.json` | 429,563 bytes, SHA-256 `38223bfab0200de52d829a65220d0c870cb8770bd7747cf92eff0a602a9822e3` |
+| `bear-weights.json` | 429,540 bytes, SHA-256 `d0eb24fa0340a7bb1de0f1b9fba62fb2543dd54b71a19f615baa3ae73990c2c6` |
 | Weights | The automatic weights of Blender with the Weight Paint fixes of the session, on the studio bones and the arm segments and helpers (`armSegments` of the config), for `paintedWeights` of the config |
 | License | Derived from the mesh of the user, who holds its rights |
 
