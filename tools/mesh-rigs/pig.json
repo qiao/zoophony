@@ -13,6 +13,10 @@
   "armFactorNote": "The factor of the upper arm and the forearm. The arms of the mesh are short: 0.263 m from the shoulder joint to the middle of the palm with no factor, 0.58 of the trunk from the hips joint to the shoulder joints. The user chose the factor 1.5 from the mid-report (pnpm mesh-options pig, docs/decisions/2026-10-19-mesh-pig.md): the reach is 0.385 m, and the arm is 0.84 of the trunk. The long snout puts the mouthpiece of the horn far in front of the body, so the pig plays the horn of the app with a hold of its own that turns the horn back toward the body (SPECIES_WIND_HOLDS.pig of src/pose/winds.ts).",
   "legFactor": 1,
   "legFactorNote": "The legs keep the length of the mesh (user rule: do not stretch the legs, change the chair).",
+  "rootNormals": {
+    "radius": 0.16,
+    "note": "The skin faces whose middle lies within radius (units) of the head of an upper arm take the normals of the skin with no crease angle in the app (root_rim() of tools/blender/rig_mesh.py, studioNormals() of src/models/studio-normals.ts), as on the rhino. The user: \"the pig has unnatural seam between the trunk and the arm. also there's a black area under the armpit\" (2026-10-25): the crease angle split the normals of the sharp faces of the arm root into a hard line and a dark wedge under the arm. With the radius 0.12, a softer line stayed at the back of the root (docs/decisions/2026-10-26-arm-fixes.md)."
+  },
   "upperTwist": {
     "share": 0.4,
     "note": "The twist bone of each upper arm keeps 0.4 of the roll of the upper arm from the chest (StudioBody.upperTwist), the share of the hippo and the rhino. The user chose it with the new upper arms on 2026-10-21: the twist p95 of the arm gate falls from 48 to 39 degrees on the left and to 35 on the right (docs/research/2026-10-21-arm-form.md)."
