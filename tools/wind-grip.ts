@@ -147,7 +147,9 @@ const ROLES = {
   flutist: wind('flutist', 'fox-tan', 'flute', {}),
   bassoonist: wind('bassoonist', 'beaver', 'bassoon', { L: [-1, 0, 0], R: [1, 0, 0] }),
   trombonist: wind('trombonist', 'panda', 'trombone', { L: [0, 0, -1], R: [0, 0, 1] }, 'slide'),
-  trumpeter: wind('trumpeter', 'monkey', 'trumpet', { L: [-1, 0, 0], R: [1, 0, 0] }),
+  // The left paw wraps the valve casings from the left, and the right paw lies above the valves
+  // with its fingers down on them (wind-technique 2.1, docs/research/2026-10-25-brass-grips.md).
+  trumpeter: wind('trumpeter', 'monkey', 'trumpet', { L: [-1, 0, 0], R: [0, 1, 0] }),
   tubist: wind('tubist', 'rhino', 'tuba', { R: [1, 0, 0] }),
   percussionist: {
     sweep: 'percussionist',
