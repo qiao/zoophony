@@ -546,20 +546,28 @@ const HANGING_BOW = {
  * decisions). The left elbow points down, a little out, and a little back, (-0.6, -1, 0.3)
  * (2026-10-17-rabbit-pose decisions).
  *
- * In the lift and the lowering, the left paw carries the violin at the end of the fingerboard
- * (`liftPlace`): the paw moves on a line from its rest place to its playing place, and 0.1 H in,
- * 0.1 H up, and 0.08 H to the front in the middle (`liftReach`). The violin hangs from the paw and
+ * In the lift and the lowering, the left paw carries the violin at the nut (`liftPlace`): at the
+ * end of the fingerboard, the heel of the paw went 2.0 cm into the violin in the re-grip
+ * (2026-10-26-violin-lift decisions). The paw moves on a line from its rest place to its playing
+ * place, and 0.35 H up and 0.2 H to the front in the middle (`liftReach`): with the paw at the
+ * nut and 0.08 H to the front, the violin went 4.4 cm to 6.5 cm into the body in the lift and the
+ * lowering, and with 0.3 H to the front, the bow paw turned 2,295°/s in a lift. The violin hangs
+ * from the paw and
  * takes the short turn to the play. At rest, the paw holds the neck with a straight wrist and a
  * twist of 1.5 rad (`restTwistL`), and it changes to the playing grip in the move: a middle turn
  * with the top plate to the body rolled the violin a full turn (user, 2026-10-25,
  * 2026-10-26-violin-lift decisions). With the tail end on the path, the paw went 1.09 H to the
  * front, and the elbow straightened to 180°. With no move to the front, the violin went 3.2 cm
- * into the belly in a lowering. The elbow points down and to the front in the middle
- * (`liftPoleL`). The left rest elbow points out and a little down, (-1, -0.6, 0): with
+ * into the belly in a lowering. In the middle, the elbow points out and a little down, as at rest
+ * (`liftPoleL`): down and to the front, (0, -1, -0.5), the left upper arm went 2.5 cm into the
+ * body in the lift. The left rest elbow points out and a little down, (-1, -0.6, 0): with
  * (-0.6, -1, 0.3), the left upper arm went 3.4 cm into the body at rest with the new grip. With
  * the top of the rest of 2026-10-24, the wrist bent past 90°
- * from the knee. The bow tip turns through the front, with the hair to the back, and the grip moves
- * 0.2 H up and 0.4 H to the front: with the via of `UPRIGHT_BOW`, the right paw turned 5,188°/s in
+ * from the knee. In the middle of the move, the bow tip points forward and a little out and up,
+ * (0.4, 0.3, -1), with the hair to the back, and the grip moves 0.3 H out, 0.1 H up, and 0.3 H to
+ * the front: with the tip up, (0.2, 0.8, -0.6), the bow stood upright in front of the face, and
+ * with the grip 0.2 H to the front only, the right elbow of the red fox went 4.3 cm into the body in
+ * a lowering (2026-10-26-violin-lift decisions). With the via of `UPRIGHT_BOW`, the right paw turned 5,188°/s in
  * a lowering (2026-10-24-violin-rest decisions). With 0.2 H to the front, the right forearm went
  * 2.2 cm into the body in a lowering, with no move up, the right elbow opened to 163° (147° now),
  * and with 0.05 H out, the right paw twisted 145° on its forearm in a lowering (142° on `main`,
@@ -599,15 +607,15 @@ const SHOULDER_HOLD = {
   restPoleR: [0.3, -1, 0.2],
   restPlace: 0.1,
   rest: { ...LAP_VIOLIN, lap: { along: 1, offset: [-0.1, -0.05, 0] } },
-  liftReach: [-0.1, 0.1, -0.08],
-  liftPlace: 1,
+  liftReach: [0, 0.35, -0.2],
+  liftPlace: 0,
   restTwistL: 1.5,
-  liftPoleL: [0, -1, -0.5],
+  liftPoleL: [-1, -0.6, 0],
   restBow: {
     lap: { along: 1, offset: [0.65, 0.45, 0] },
     tip: [0.2, 1, -0.1],
     hair: [0, 0, -1],
-    via: { tip: [0.2, 0.8, -0.6], hair: [0, 0, -1], reach: [0, 0.1, -0.2] },
+    via: { tip: [0.4, 0.3, -1], hair: [0, 0, -1], reach: [0.3, 0.1, -0.3] },
   },
   standBow: HANGING_BOW,
 } as const satisfies BowedHold;
@@ -647,8 +655,8 @@ const SHOULDER_HOLD = {
  * stands on the left thigh at 0.8 of the way to the knee, 0.18 H down and 0.2 H forward. With the
  * thighs 25° down of 2026-10-17, the place of 2026-10-16 (0.65 of the way, 0.24 H down, and 0.3 H
  * forward) put the lower end 13.8 cm above the thigh (2026-10-17-fox-form decisions). The left
- * paw holds the violin at 0.4 of the fingerboard (`restPlace` of the chin hold), with the elbow
- * bent to about 110°. The long right arm of the fox reaches the right thigh only nearly straight,
+ * paw holds the violin at 0.2 of the fingerboard (`restPlace`): at 0.4, the heel of the paw went
+ * 1.6 cm into the violin early in the lowering (2026-10-26-violin-lift decisions). The long right arm of the fox reaches the right thigh only nearly straight,
  * and its line from the shoulder to a paw on the top of the thigh passes through the side of the
  * belly: with the grip 0.15 H out at 0.65 of the way, the right upper arm went 6.2 cm into the
  * body. So the grip is at
@@ -666,9 +674,8 @@ const SHOULDER_HOLD = {
  * there with the elbow bent to 99° to 127° (2026-10-24-violin-poses decisions). The violin takes
  * the short turn to the play, and the left paw changes from its rest grip (`restTwistL`) to the
  * playing grip, as on the rabbit. In the middle, the violin moves 0.1 H up and 0.2 H to the front
- * (`liftReach`): with no move, it went 5.6 cm into the body in the lift. The bow hair points to the front
- * and a little up in the middle (the via of `UPRIGHT_BOW` with its own hair and reach): with the
- * hair down, the right paw turned 17,038°/s in a lowering.
+ * (`liftReach`): with no move, it went 5.6 cm into the body in the lift. The bow takes the via of
+ * the rabbit: with the hair down, the right paw turned 17,038°/s in a lowering.
  *
  * The left elbow turns toward the body by 2° for each lower string of the finger: with the 5° of
  * the chin hold, the left forearm went 2.4 cm into the violin in the middle of the lift and of the
@@ -698,7 +705,7 @@ const FOX_HOLD = {
   pizzicatoTip: [0.3, 0.5, 1],
   restPoleL: [-1, -0.6, 0],
   restPoleR: [0.4, -1, -0.3],
-  restPlace: CHIN_HOLD.restPlace,
+  restPlace: 0.2,
   rest: { ...LAP_VIOLIN, lap: { along: 0.8, offset: [0, -0.18, -0.2] } },
   liftReach: [0, 0.1, -0.2],
   liftPlace: null,
@@ -708,7 +715,7 @@ const FOX_HOLD = {
     lap: { along: 0.8, offset: [0.35, 0.45, -0.2] },
     tip: [0.3, 1, -0.2],
     hair: [0, 0, -1],
-    via: { tip: [0.2, 0.8, -0.6], hair: [0, 0, -1], reach: [0, 0.1, -0.2] },
+    via: { tip: [0.4, 0.3, -1], hair: [0, 0, -1], reach: [0.3, 0.1, -0.3] },
   },
 } as const satisfies BowedHold;
 
@@ -799,20 +806,26 @@ export const BOWED_HOLDS = {
  * out at 0.55 of the way to the knee bent the elbow to 143° only, with the forearm out to the side.
  * The level bow of 2026-10-16 ran forward past the knees, and a real violist rests as a violinist.
  *
- * In the lift and the lowering, the left paw carries the viola at the end of the fingerboard
- * (`liftPlace`), as on the rabbit, and the paw moves 0.25 H up and 0.2 H to the front in the
+ * The left paw holds the viola at rest at 0.2 of the fingerboard (`restPlace`), and in the lift
+ * and the lowering it carries the viola at the nut (`liftPlace`), as on the rabbit: at 0.4 and at
+ * the end of the fingerboard, the heel of the paw went 2.5 cm into the viola in the re-grip, and
+ * the left upper arm 1.9 cm into the body at rest (2026-10-26-violin-lift decisions). The paw moves
+ * 0.25 H up and 0.2 H to the front in the
  * middle (`liftReach`): with the rebuilt arms of 2026-10-25 and 0.2 H up and 0.1 H to the front,
  * the left paw swung 71° on the wrist (limit 70), and with 0.2 H up, the left wrist turned
  * 1,011°/s at most, 499°/s more than on `main` (2026-10-25-cat-arms decisions). The viola takes
  * the short turn to the play, and the left paw changes from its rest grip (`restTwistL`) to the
  * playing grip, as on the rabbit (2026-10-26-violin-lift decisions). With the tail end on the
  * path, the paw went 1.28 H to the front, and the elbow straightened to 180°. In the middle of the
- * moves, the left elbow points down, forward, and out, (-0.45, -1, -0.6) (`liftPoleL`): with the
+ * moves, the left elbow points out and a little down, as at rest (`liftPoleL`). With (-0.45, -1,
+ * -0.6), the left upper arm went 1.7 cm into the body in the lift (1.4 cm now). With the
  * smaller viola at 45° and a direct mix of the poles, the left paw swung 73° on the wrist in the
  * lift (limit 70, 69° now), and with the elbow (-0.3, -1, -0.5) the left upper arm went 2.6 cm into
  * the body (2.2 cm now). In the
- * middle, the bow points up, forward, and a little to the left, with the hair down, and the grip
- * moves 0.45 H out, 0.4 H up, and 0.4 H to the front, so that the bow rises beside the viola: with
+ * middle, the bow points forward and a little out and up, (0.4, 0.3, -1), and the grip moves 0.55 H
+ * out, 0.3 H up, and 0.3 H to the front, so that the bow passes beside the viola: with the tip up,
+ * (0, 1, -0.6), the bow stood upright in front of the face, and with the grip 0.45 H out, the right
+ * upper arm went 2.5 cm into the body in a lowering (2026-10-26-violin-lift decisions). With
  * the via of `UPRIGHT_BOW` (the tip forward, the grip 0.3 H out and 0.1 H up), the bow lay across
  * the belly and went 1.3 cm into the viola and 2.7 cm into the arms (manager review of 2026-10-24,
  * 2026-10-24-violin-review decisions). With a direct turn from the rest on the knee, the viola lay
@@ -879,21 +892,21 @@ const CAT_HOLD = {
   poleTipR: [1, -1, -1],
   restPoleR: [0.6, -1, 0],
   restPoleL: [-0.8, -1, 0.3],
-  restPlace: 0.4,
+  restPlace: 0.2,
   rest: {
     axis: LAP_VIOLIN.axis,
     top: [-0.5, 0, -0.87],
     lap: { along: 0.95, offset: [0, 0, -0.15] },
   },
   liftReach: [0, 0.25, -0.2],
-  liftPlace: 1,
+  liftPlace: 0,
   restTwistL: 1.5,
-  liftPoleL: [-0.45, -1, -0.6],
+  liftPoleL: [-1, -0.6, 0],
   restBow: {
     lap: { along: 0.8, offset: [0.7, 0.3, 0] },
     tip: [0.2, 1, -0.1],
     hair: [0, 0, -1],
-    via: { tip: [0, 1, -0.6], hair: [0, 0, -1], reach: [0.45, 0.3, -0.3] },
+    via: { tip: [0.4, 0.3, -1], hair: [0, 0, -1], reach: [0.55, 0.3, -0.3] },
   },
   standBow: HANGING_BOW,
 } as const satisfies BowedHold;
