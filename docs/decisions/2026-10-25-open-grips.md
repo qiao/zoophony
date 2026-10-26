@@ -17,6 +17,5 @@ images. The user can reverse each decision. Then update its section, and remove 
 | The trombone keeps the play hold at rest (`restAim` 1), and the right elbow points (1, -0.5, 0): else the right wrist flipped in the lowering, or bent 73° to the side. | 5.2, 5.3 |
 | `pnpm wind-grip` measures the trombone places in the axes of the slide (`placeAxes`), so that the place turns with the slide. | 9.8 |
 | The side aim of a wind paw takes its sign once in the playing pose (`WindSide.aimSign`): the sign of each frame flipped the trombone paw in the lowering. | 5.3 |
-| The trumpet of the monkey points 10° below the level, about 80° to the face, as a real player angles it "slightly down" (`MONKEY_TRUMPET`). The left grip lies 0.03 H low, so the mouth shows in the front view. It replaces the 20° of `2026-10-25-grips.md`. | 5.3 |
-| The left rhino palm faces the main branch at its back left, as a tubist grips the tubing at the side of a rotary tuba (`RHINO_TUBA`, wind-technique 3). Both paws keep the play hold at rest (`restAim` 1): else the left paw flipped in the lowering. | 5.3 |
+| The trumpet of the monkey points 10° below the level, about 80° to the face, as a real player angles it "slightly down" (`MONKEY_TRUMPET`). It replaces the 20° of `2026-10-25-grips.md`. | 5.3 |
 | The tan fox flute keeps its hold. The right paw stays within 0.7 cm of the flute in each step of the lift and the lowering, and the flute stays out of the body (`flute-lines.txt`). | 5.3 |

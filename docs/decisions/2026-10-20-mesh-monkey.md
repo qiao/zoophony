@@ -18,8 +18,6 @@ The user can reverse each decision. Then update its section, and remove its row.
 | Question: the seated monkey looks as if it stands in front of its low chair, so a chair or no chair? The user: "no chair". The monkey stands to play, as the mouse and the beaver do (`SpeciesParams.noChair`). | 4.4, 4.5 |
 | Colors: the fur matches `SPECIES_COLORS.monkey` (hue 53° against 54°), so the config has no tone rule. The dark limit 0.02 keeps the hands and the feet a dark brown in place of a dark face (`colors.dark`). | 4.5 |
 | Face: the user asks for happy faces. A smile band of 5 faces in a mid brown gives the smile line that the face colors lose, with the corners 1.9 cm up (`colors.smile`). A smile rule with its own color needs no patch rule (`rig_mesh.py`). The user: "keep the smile line" (`face-crops-smile.webp`). | 4.4 |
-| Both elbows point down and a little out, the smallest paw turns of 5 elbow directions that pass the arm gate. Higher elbows failed the flat share of the right upper arm (`MONKEY_TRUMPET`, report "Elbows"). | 5.3 |
-| The palms hold the valve casings at their lower half, so that the long paws do not rise past the trumpet to the eyes (`palmL`, `palmR` of `trumpet()`, report "Grips"). | 4.6, 5.3 |
 | The rest is the rest of `WIND_HOLDS.trumpet`: the trumpet turns down in front of the chest in both paws. No source gives the rest of a trumpet player (`docs/reference/wind-technique.md` 2.1). | 5.2 |
 | The role `trumpeter` is in `SWEEP_ROLES`, `FOLD_ROLES`, `ROLE_VIEWS`, and `ACCEPTED_GRIPS`, with 5 open loops (`MONKEY_BODY_LOOPS`). | 9.3 |
 | The first download grows by 25,991 B to 740,713 B with the monkey body (`pnpm size --base 14bc0436`). | 7.2 |
