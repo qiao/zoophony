@@ -53,10 +53,11 @@ WELD = 1e-5
 #: joint from the joint. `upper`: the shares of the upper arm with a ring. `fore`: the number of
 #: inner rings of the forearm. `texture`: the size of the arm image in pixels. `faces`: the most
 #: faces that one arm can have between its cuts. `paint`: the places of the Weight Paint fixes.
-#: `factor`: the length factor of the upper arm and the forearm, and `slim`: the factors of their
-#: cross-sections, which `step_shape()` gives the mesh. The joints of the config are the joints of
-#: the longer arm, and its `armFactor` is 1, because the rig with arm segments does not stretch
-#: the arms (`armSegments` of `tools/blender/rig_mesh.py`).
+#: `bake` (optional): the cage extrusion and the most ray distance of the bake, 0.006 and 0.017
+#: by default. `factor`: the length factor of the upper arm and the forearm, and `slim`: the
+#: factors of their cross-sections, which `step_shape()` gives the mesh. The joints of the config
+#: are the joints of the longer arm, and its `armFactor` is 1, because the rig with arm segments
+#: does not stretch the arms (`armSegments` of `tools/blender/rig_mesh.py`).
 ANIMALS = {
     'rabbit': {
         'config': 'tools/mesh-rigs/rabbit.json',
@@ -599,8 +600,9 @@ def step_bake(s):
     scene.render.engine = 'CYCLES'
     scene.cycles.samples = 16
     scene.render.bake.margin = 8
+    cage, reach = s.spec.get('bake', (0.006, 0.017))
     bpy.ops.object.bake(type='DIFFUSE', pass_filter={'COLOR'}, use_selected_to_active=True,
-                        cage_extrusion=s.units(0.006), max_ray_distance=s.units(0.017),
+                        cage_extrusion=s.units(cage), max_ray_distance=s.units(reach),
                         margin=8)
     scene.render.engine = engine
     bpy.data.objects.remove(target, do_unlink=True)
