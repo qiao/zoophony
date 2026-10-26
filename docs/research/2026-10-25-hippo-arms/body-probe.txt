@@ -1,0 +1,51 @@
+
+> zoophony@0.0.0 body-probe /Users/xueqiaoxu/proj/zoophony/.claude/worktrees/agent-ae698fd4accea4778
+> node tools/body-probe.ts --base main
+
+base main, new: the working tree
+bodies equal: 90 of 95
+players equal: 22 of 23
+pose sets equal: 1387 of 1492
+body hippo chair: mesh differs (positions, colors, bones, blendBones, blendWeights, finishes, correctives, normals), joints differ
+body hippo stool: mesh differs (positions, colors, bones, blendBones, blendWeights, finishes, correctives, normals), joints differ
+body hippo high-stool: mesh differs (positions, colors, bones, blendBones, blendWeights, finishes, correctives, normals), joints differ
+body hippo bench: mesh differs (positions, colors, bones, blendBones, blendWeights, finishes, correctives, normals), joints differ
+body hippo stand: mesh differs (positions, colors, bones, blendBones, blendWeights, finishes, correctives, normals), joints differ
+player contrabass/hippo/contrabass: mesh differs (positions, colors, bones, blendBones, blendWeights, finishes, correctives, normals), moved bones: hips spine jaw eyeL eyeR tail1 tail2 shoulderL upperArmL forearmL handL fingersL shoulderR upperArmR forearmR handR fingersR thighL shinL footL thighR shinR footR bow malletL malletR baton
+pose bach-bwv1048 18 contrabass/hippo/contrabass: rest from sample 1 of 4 (song -1.50 s, wall 10.00 s), lift from sample 1 of 40 (song -1.50 s, wall 10.00 s), play from sample 1 of 658 (song -1.50 s, wall 10.00 s), lower from sample 1 of 58 (song 163.65 s, wall 10.00 s)
+pose bach-bwv1048 19 contrabass/hippo/contrabass: rest from sample 1 of 4 (song -1.50 s, wall 10.00 s), lift from sample 1 of 40 (song -1.50 s, wall 10.00 s), play from sample 1 of 658 (song -1.50 s, wall 10.00 s), lower from sample 1 of 58 (song 163.65 s, wall 10.00 s)
+pose bach-bwv1048 conductor/bear/baton: lift from sample 8 of 40 (song -0.80 s, wall 10.70 s), play from sample 4 of 658 (song 0.00 s, wall 11.50 s)
+pose bach-bwv1050 14 contrabass/hippo/contrabass: rest from sample 1 of 4 (song -1.70 s, wall 10.00 s), lift from sample 1 of 40 (song -1.70 s, wall 10.00 s), play from sample 1 of 624 (song -1.70 s, wall 10.00 s), lower from sample 1 of 58 (song 155.00 s, wall 10.00 s)
+pose bach-bwv1050 15 contrabass/hippo/contrabass: rest from sample 1 of 4 (song -1.70 s, wall 10.00 s), lift from sample 1 of 40 (song -1.70 s, wall 10.00 s), play from sample 1 of 624 (song -1.70 s, wall 10.00 s), lower from sample 1 of 58 (song 155.00 s, wall 10.00 s)
+pose bach-bwv1050 conductor/bear/baton: play from sample 129 of 624 (song 62.30 s, wall 74.00 s)
+pose beethoven-1 14 contrabass/hippo/contrabass: rest from sample 1 of 4 (song -2.10 s, wall 10.00 s), lift from sample 1 of 40 (song -2.10 s, wall 10.00 s), play from sample 1 of 593 (song -2.10 s, wall 10.00 s), lower from sample 1 of 58 (song 147.16 s, wall 10.00 s)
+pose beethoven-1 15 contrabass/hippo/contrabass: rest from sample 1 of 4 (song -2.10 s, wall 10.00 s), lift from sample 1 of 40 (song -2.10 s, wall 10.00 s), play from sample 1 of 593 (song -2.10 s, wall 10.00 s), lower from sample 1 of 58 (song 147.16 s, wall 10.00 s)
+pose beethoven-1 28 timpani/elephant/timpani: play from sample 58 of 593 (song 26.40 s, wall 38.50 s)
+pose beethoven-1 conductor/bear/baton: lift from sample 9 of 40 (song -1.30 s, wall 10.80 s), play from sample 3 of 593 (song -1.10 s, wall 11.00 s)
+pose beethoven-8-4 14 contrabass/hippo/contrabass: rest from sample 1 of 4 (song -1.91 s, wall 10.00 s), lift from sample 1 of 40 (song -1.91 s, wall 10.00 s), play from sample 1 of 1442 (song -1.91 s, wall 10.00 s), lower from sample 1 of 58 (song 359.46 s, wall 10.00 s)
+pose beethoven-8-4 15 contrabass/hippo/contrabass: rest from sample 1 of 4 (song -1.91 s, wall 10.00 s), lift from sample 1 of 40 (song -1.91 s, wall 10.00 s), play from sample 1 of 1442 (song -1.91 s, wall 10.00 s), lower from sample 1 of 58 (song 359.46 s, wall 10.00 s)
+pose beethoven-8-4 28 timpani/elephant/timpani: play from sample 10 of 1442 (song 2.59 s, wall 14.50 s), lower from sample 19 of 58 (song 359.46 s, wall 14.20 s)
+pose beethoven-8-4 conductor/bear/baton: play from sample 51 of 1442 (song 23.09 s, wall 35.00 s)
+pose beethoven-8 14 contrabass/hippo/contrabass: rest from sample 1 of 4 (song -2.10 s, wall 10.00 s), lift from sample 1 of 40 (song -2.10 s, wall 10.00 s), play from sample 1 of 445 (song -2.10 s, wall 10.00 s), lower from sample 1 of 58 (song 110.11 s, wall 10.00 s)
+pose beethoven-8 15 contrabass/hippo/contrabass: rest from sample 1 of 4 (song -2.10 s, wall 10.00 s), lift from sample 1 of 40 (song -2.10 s, wall 10.00 s), play from sample 1 of 445 (song -2.10 s, wall 10.00 s), lower from sample 1 of 58 (song 110.11 s, wall 10.00 s)
+pose beethoven-8 conductor/bear/baton: play from sample 36 of 445 (song 15.40 s, wall 27.50 s)
+pose beethoven-9 14 contrabass/hippo/contrabass: rest from sample 1 of 4 (song -1.91 s, wall 10.00 s), lift from sample 1 of 40 (song -1.91 s, wall 10.00 s), play from sample 1 of 321 (song -1.91 s, wall 10.00 s), lower from sample 1 of 58 (song 79.15 s, wall 10.00 s)
+pose beethoven-9 15 contrabass/hippo/contrabass: rest from sample 1 of 4 (song -1.91 s, wall 10.00 s), lift from sample 1 of 40 (song -1.91 s, wall 10.00 s), play from sample 1 of 321 (song -1.91 s, wall 10.00 s), lower from sample 1 of 58 (song 79.15 s, wall 10.00 s)
+pose beethoven-9 33 timpani/elephant/timpani: play from sample 39 of 321 (song 17.09 s, wall 29.00 s)
+pose beethoven-9 34 percussion/badger/bass-drum: rest from sample 3 of 4 (song -1.91 s, wall 12.00 s), lift from sample 17 of 40 (song -0.31 s, wall 11.60 s), play from sample 5 of 321 (song 0.09 s, wall 12.00 s), lower from sample 5 of 58 (song 79.15 s, wall 12.00 s)
+pose beethoven-9 36 percussion/badger/small-percussion: play from sample 118 of 321 (song 56.59 s, wall 68.50 s)
+pose beethoven-9 conductor/bear/baton: lift from sample 8 of 40 (song -1.21 s, wall 10.70 s), play from sample 3 of 321 (song -0.91 s, wall 11.00 s)
+pose boulanger-matin 14 contrabass/hippo/contrabass: rest from sample 1 of 4 (song -1.62 s, wall 10.00 s), lift from sample 1 of 40 (song -1.62 s, wall 10.00 s), play from sample 1 of 565 (song -1.62 s, wall 10.00 s), lower from sample 1 of 58 (song 140.33 s, wall 10.00 s)
+pose boulanger-matin 15 contrabass/hippo/contrabass: rest from sample 1 of 4 (song -1.62 s, wall 10.00 s), lift from sample 1 of 40 (song -1.62 s, wall 10.00 s), play from sample 1 of 565 (song -1.62 s, wall 10.00 s), lower from sample 1 of 58 (song 140.33 s, wall 10.00 s)
+pose boulanger-matin 40 percussion/badger/cymbals: play from sample 20 of 565 (song 7.88 s, wall 19.50 s)
+pose boulanger-matin conductor/bear/baton: lift from sample 8 of 40 (song -0.92 s, wall 10.70 s), play from sample 3 of 565 (song -0.62 s, wall 11.00 s), lower from sample 30 of 58 (song 280.67 s, wall 10.00 s)
+pose brahms-2 14 contrabass/hippo/contrabass: rest from sample 1 of 4 (song -1.62 s, wall 10.00 s), lift from sample 1 of 40 (song -1.62 s, wall 10.00 s), play from sample 1 of 1509 (song -1.62 s, wall 10.00 s), lower from sample 1 of 58 (song 376.23 s, wall 10.00 s)
+pose brahms-2 15 contrabass/hippo/contrabass: rest from sample 1 of 4 (song -1.62 s, wall 10.00 s), lift from sample 1 of 40 (song -1.62 s, wall 10.00 s), play from sample 1 of 1509 (song -1.62 s, wall 10.00 s), lower from sample 1 of 58 (song 376.23 s, wall 10.00 s)
+pose brahms-2 23 bassoon/beaver/bassoon: rest from sample 1 of 4 (song -1.62 s, wall 10.00 s), lift from sample 1 of 40 (song -1.62 s, wall 10.00 s)
+pose brahms-2 28 trumpet/monkey/trumpet: lower from sample 19 of 58 (song 376.23 s, wall 14.20 s)
+pose brahms-2 34 timpani/elephant/timpani: rest from sample 3 of 4 (song -1.62 s, wall 12.00 s), lift from sample 14 of 40 (song -0.32 s, wall 11.30 s), play from sample 4 of 1509 (song -0.12 s, wall 11.50 s), lower from sample 4 of 58 (song 376.23 s, wall 11.50 s)
+pose brahms-2 conductor/bear/baton: lift from sample 9 of 40 (song -0.82 s, wall 10.80 s), play from sample 4 of 1509 (song -0.12 s, wall 11.50 s)
+pose mendelssohn-op61 14 contrabass/hippo/contrabass: rest from sample 1 of 4 (song -1.73 s, wall 10.00 s), lift from sample 1 of 40 (song -1.73 s, wall 10.00 s), play from sample 1 of 301 (song -1.73 s, wall 10.00 s), lower from sample 1 of 58 (song 74.21 s, wall 10.00 s)
+pose mendelssohn-op61 15 contrabass/hippo/contrabass: rest from sample 1 of 4 (song -1.73 s, wall 10.00 s), lift from sample 1 of 40 (song -1.73 s, wall 10.00 s), play from sample 1 of 301 (song -1.73 s, wall 10.00 s), lower from sample 1 of 58 (song 74.21 s, wall 10.00 s)
+pose mendelssohn-op61 conductor/bear/baton: play from sample 9 of 301 (song 2.27 s, wall 14.00 s), lower from sample 30 of 58 (song 148.41 s, wall 10.00 s)
+ ELIFECYCLE  Command failed with exit code 1.

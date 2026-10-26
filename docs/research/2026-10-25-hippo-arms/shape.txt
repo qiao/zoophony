@@ -1,0 +1,25 @@
+
+> zoophony@0.0.0 arm-shape /Users/xueqiaoxu/proj/zoophony/.claude/worktrees/agent-ae698fd4accea4778
+> node tools/arm-shape.ts bassist --rings
+
+Arm skin of bassist over 9 demos: twist and roll in degrees, collapse and flat as shares of the bind, spikes of the shoulder and the armpit (edge growth > 1.8).
+
+| Set | Side | Samples | Bone roll | Twist p50 / p95 | Collapse p50 / p5 | Flat p50 / p5 | Spikes mean / max | Folds |
+|---|---|---|---|---|---|---|---|---|
+| rest | L | 9 | 49 | 22 / 22 | 0.85 / 0.85 | 0.87 / 0.87 | 0.0 / 0 | 100.0% |
+| rest | R | 9 | -57 | 39 / 40 | 0.89 / 0.89 | 0.84 / 0.84 | 0.0 / 0 | 100.0% |
+| play | L | 12912 | 7 | 17 / 19 | 0.86 / 0.84 | 0.87 / 0.86 | 0.0 / 0 | 20.0% |
+| play | R | 12912 | -49 | 26 / 31 | 1.00 / 0.92 | 0.86 / 0.82 | 1.0 / 1 | 20.0% |
+| lift | L | 279 | 9 | 16 / 22 | 0.85 / 0.85 | 0.87 / 0.87 | 0.0 / 0 | 19.0% |
+| lift | R | 279 | -55 | 28 / 39 | 1.00 / 0.90 | 0.86 / 0.84 | 0.7 / 1 | 19.0% |
+
+Median of each ring (roll / collapse / flat): shoulder, upper, elbow, forearm.
+
+| Set | Side | shoulder | upper | elbow | forearm |
+|---|---|---|---|---|---|
+| rest | L | 1 / 0.98 / 0.97 | 23 / 1.00 / 0.90 | 27 / 0.96 / 0.90 | -73 / 0.85 / 0.87 |
+| rest | R | -5 / 0.89 / 0.88 | -12 / 0.90 / 0.84 | -51 / 0.95 / 0.87 | -31 / 0.98 / 0.97 |
+| play | L | -2 / 1.03 / 1.02 | 10 / 1.01 / 0.96 | -6 / 0.96 / 0.89 | -74 / 0.86 / 0.88 |
+| play | R | -4 / 1.18 / 0.88 | -31 / 1.05 / 0.86 | -47 / 1.01 / 0.93 | -8 / 1.00 / 1.00 |
+| lift | L | -1 / 1.02 / 1.02 | 11 / 1.01 / 0.96 | -5 / 0.96 / 0.90 | -74 / 0.85 / 0.87 |
+| lift | R | -5 / 1.18 / 0.88 | -32 / 1.06 / 0.86 | -51 / 1.01 / 0.94 | -7 / 1.00 / 1.00 |
