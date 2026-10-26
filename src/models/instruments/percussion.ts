@@ -96,7 +96,7 @@ export const TIMPANI = {
   /**
    * The grip of the mallet in the closed left paw of the elephant mesh (`MalletSpot`). The mesh
    * is not symmetric: the middle of the right paw lies about 1 cm further toward the palm, so each
-   * paw has its own grip. With the end of the round paw curled 110°, the shaft goes about 1.5 cm
+   * paw has its own grip. With the end of the round paw curled 100°, the shaft goes about 1.5 cm
    * deep through each paw, and the end of the paw touches it (`grip-main.txt` and
    * `grip-branch.txt` of `docs/research/2026-10-25-percussion-grip/`).
    */
@@ -204,10 +204,13 @@ export const BASS_DRUM = {
   /** The turn of the axis of the drum around the vertical from the x axis, in degrees. */
   turn: -30,
   /**
-   * The angle of each mallet below the level in the bind pose, toward the fingers of the hanging
-   * paw, in radians ({@link PAW_TILT}).
+   * The angle of the beater below the level in the bind pose, toward the fingers of the hanging
+   * paw, in radians: 0 holds it at 90° to the fingers, out of the side of the fist at the thumb.
+   * With {@link PAW_TILT}, the beater crossed the hanging left paw in 44.5% of the samples of
+   * beethoven-9 (`docs/research/2026-10-25-percussion-grip.md`).
    */
-  malletTilt: PAW_TILT,
+  // SAFETY: the literal widens to a number, so that a hold tool can set it in memory.
+  malletTilt: 0 as number,
   /** The grip of each mallet in the closed paw ({@link PAW_SPOT}). */
   malletSpot: PAW_SPOT,
 } as const;
