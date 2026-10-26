@@ -52,7 +52,10 @@ import violin_arms as va  # noqa: E402
 #: - `x`, `lean`: the plane of the seam, |x| from the middle plane at the height `armpit`, and its
 #:   lean out for each unit of height down, as the side of the trunk widens below the armpit.
 #: - `low`: the lowest height of the cut, below the old armpit. `reach`: the distance from the
-#:   forearm line of a face of the free arm below `low`.
+#:   forearm line of a face of the free arm below `low`. `under` (optional): a face below `low`
+#:   is also out from |x| `under.x` plus `under.lean` for each unit of height below `low`, so that
+#:   a round belly under a thick forearm stays on the trunk (the hippo). `hole` (optional): the
+#:   reach of the hole of the seam from the upper arm line, 0.16 by default.
 #: - `edge`, `armpit`: the heights of the ends and of the middle of the armpit line. Equal heights
 #:   give a straight line.
 #: - `lift`: the place of the flat inner side of the arm from the side wall: a small depth in the
@@ -217,6 +220,7 @@ def step_cut(s):
         seam_edges = {x for x in res['geom_cut'] if isinstance(x, bmesh.types.BMEdge)}
         # The faces of the arm.
         fore = s.units(seam['reach'])
+        under = seam.get('under')
 
         def inside(f):
             c = f.calc_center_median()
@@ -224,6 +228,10 @@ def step_cut(s):
                 return False
             if c.z > low:
                 return va.seg_distance(c, a, e) < reach or va.seg_distance(c, e, w) < fore
+            if under:
+                depth = seam['low'] - (c.z - s.fr.floor) / s.fr.height
+                if c.x * side < s.units(under['x'] + under['lean'] * depth):
+                    return False
             return va.seg_distance(c, e, w) < fore or va.seg_distance(c, w, t) < fore
         mid = e.lerp(w, 0.5)
         seed = min(bm.faces, key=lambda f: (f.calc_center_median() - mid).length)
@@ -288,9 +296,10 @@ def walk(edges):
 
 def hole(s, bm, side):
     """Gives the ordered vertices of the hole of the seam of one side: the longest open loop on
-    that side near the upper arm, with no vertex of the wrist cut."""
+    that side near the upper arm (within `seam.hole` units, 0.16 by default), with no vertex of
+    the wrist cut."""
     a, e, _, _ = va.arm_line(s, side)
-    reach = s.units(0.16)
+    reach = s.units(s.spec['seam'].get('hole', 0.16))
     part = bm.verts.layers.int['arm_part']
     wrist = PART['wrist'] + (0 if side > 0 else 10)
     edges = [x for x in bm.edges if x.is_boundary
