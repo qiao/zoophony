@@ -707,11 +707,19 @@ def border_faces(corners, colors, fur, share, rule, tris=None):
     arms. With `teeth` of the rule, each dark fur face of the box with at least `teeth` light
     neighbors over its edges (`tris`) also takes the color of the nearest light fur face, after
     the share rule. The cut of the panda (`cut_seam()`) leaves such small black teeth at the old
-    seam. Gives the new colors and the changed faces."""
+    seam. With `gray` of the rule, each fur face of the box with an Oklab lightness from `dark` up
+    to `gray` also takes the color of the nearest light fur face (lightness `gray` or more): a face
+    across the edge of the black band of the panda took the mean of its gray edge samples, and
+    showed as a gray wedge under the arm. Gives the new colors and the changed faces."""
     centers = corners.mean(axis=1)
-    dark = oklab(colors)[:, 0] < rule['dark']
+    lightness = oklab(colors)[:, 0]
+    dark = lightness < rule['dark']
     inside = in_box(centers, rule['box'])
     changed = fur & dark & inside & (share < rule['share'])
+    gray = fur & ~dark & inside & (lightness < rule.get('gray', 0.0))
+    for f in np.nonzero(gray)[0]:
+        log(f'border: the gray face at ({", ".join(f"{v:.4f}" for v in centers[f])}) u, '
+            f'lightness {lightness[f]:.2f}')
     if 'teeth' in rule:
         across = {}
         for f, t in enumerate(tris):
@@ -724,7 +732,8 @@ def border_faces(corners, colors, fur, share, rule, tris=None):
                 (int(t[i]), int(t[(i + 1) % 3]))))] if g != f and not still[g])
             if light_sides >= rule['teeth']:
                 changed[f] = True
-    light = np.nonzero(fur & ~dark)[0]
+    light = np.nonzero(fur & ~dark & ~gray)[0]
+    changed |= gray
     out = colors.copy()
     for f in np.nonzero(changed)[0]:
         out[f] = colors[light[np.argmin(np.linalg.norm(centers[light] - centers[f], axis=1))]]
@@ -4585,7 +4594,7 @@ def main():
                                            config['colors']['border'], tris_all)
         border_changed = changed
         sides = (corners[changed].mean(axis=1)[:, 0] > 0).sum()
-        log(f'border: {len(changed)} dark faces ({sides} left, {len(changed) - sides} right) take '
+        log(f'border: {len(changed)} dark and gray faces ({sides} left, {len(changed) - sides} right) take '
             f'the color of the nearest light fur face')
     if 'patch' in config['colors']:
         colors_all, changed, patch_dark = patch_shape(corners, colors_all, fur_all,
