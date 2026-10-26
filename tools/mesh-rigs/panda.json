@@ -127,6 +127,8 @@
     "note": "The studio has no panda. legTurns gives the world turn of each left leg bone from the seated bind pose to the source, and the right side mirrors it (docs/research/2026-10-18-panda-mesh/leg_turns.py <config> 25 8 0). The posture is the posture of design 5.2: the thigh slopes 25 degrees down from the hip to the knee, 8 degrees out, and the shin is vertical, so that the knee angle from the side is 115 degrees. The foot and the toes keep the turn of the source, so that the soles stand flat on the floor. The source shin slants 14.6 degrees back. The bind arms are the bind arms of the fox, the rabbit, the cat, and the dog. The tail has one bone, as the tail ball of the rabbit, so it needs no bind direction."
   },
   "weights": {
+    "rigid": [[[0.1769, 0.6474, 0.0404], [0.1726, 0.6222, 0.0595]]],
+    "rigidNote": "The two faces at the front of the left arm root take the mean of the weights of their 4 corners, so that they move rigidly. With bone heat, they folded in each play sample under the raised left arm (user, 2026-10-26: \"there's black area under the panda's armpit\", docs/decisions/2026-10-26-third-review.md). With face 842 below them in the group, the left arm skin twisted 19° (9° before) and stretched 0.17 (0.08), and the rigid face 305 of the right chest moved the folds to 7 faces around it.",
     "armSplit": 0.16,
     "armFree": {
       "turn": 0,
@@ -214,6 +216,8 @@
       "share": 0.5,
       "dark": 0.5,
       "teeth": 2,
+      "gray": 0.8,
+      "grayNote": "Each fur face of the box with an Oklab lightness from dark (0.5) up to gray (0.8) also takes the color of the nearest light fur face. Three faces at the front of the left armpit, across the edge of the black band, took the mean of their gray edge samples (lightness 0.70) and showed as a gray wedge under the raised arm (user, 2026-10-26). With 0.9, 22 faces of plain white fur (lightness 0.81 to 0.90) changed.",
       "note": "The user said on 2026-10-18: \"there's unexpected black marks on the torso. fix that\" (docs/decisions/2026-10-18-panda-marks.md). A face takes black from the share eyeShare (0.34) of dark texture samples. Seven large faces at the lower border of the black band under the arms are mostly white in the texture (36% to 46% dark samples). They gave the band black teeth, and the raised arms stretched the teeth into black wedges on the white sides of the belly. In the box of the trunk, from the crotch (y 0.17) to the neck (0.69), each dark face with less than half dark samples takes the color of the nearest light fur face: 7 faces, 3 on the left and 4 on the right. No other face of the trunk has a share from 0.34 to 0.5 (docs/research/2026-10-18-panda-marks.md). With teeth 2, each dark face of the box with at least 2 light neighbors also takes the white: 6 small black teeth at the old seam that the cut (cut below) leaves (docs/research/2026-10-18-panda-seam.md)."
     },
     "patch": {
