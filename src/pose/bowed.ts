@@ -96,7 +96,6 @@ const Y_AXIS = new Vector3(0, 1, 0);
 
 const rest = new Quaternion();
 const playTurn = new Quaternion();
-const liftTurn = new Quaternion();
 const playShift = new Vector3();
 const ORIGIN = [0, 0, 0] as const;
 const restPivot = new Vector3();
@@ -127,17 +126,7 @@ export function instrumentAt(
   const parent = rig.parent === BONES.chest ? frames.chest : frames.root;
   rest.fromArray(rig.restRotation);
   playTurn.fromArray(rig.hold.playTurn);
-  if (rig.liftRotation && weight > 0 && weight < 1) {
-    // The instrument turns from the rest to the turn of the middle, then to the playing turn.
-    liftTurn.fromArray(rig.liftRotation);
-    if (weight < 0.5) {
-      mixRotation(rest, liftTurn, 2 * weight, out.local);
-    } else {
-      mixRotation(liftTurn, playTurn, 2 * weight - 1, out.local);
-    }
-  } else {
-    mixRotation(rest, playTurn, weight, out.local);
-  }
+  mixRotation(rest, playTurn, weight, out.local);
   out.rotation.multiplyQuaternions(parent.rotation, out.local);
   posePoint(parent, rig.parentBind, rig.pivot, out.pivot);
   out.pivot.add(playShift.fromArray(rig.playShift).applyQuaternion(parent.rotation));
@@ -840,37 +829,19 @@ function shortTurn(q: Quaternion): Quaternion {
 
 /**
  * Writes {@link toPlay}: the turn that moves the instrument from its posed place in a lift or a
- * lowering to its place in the playing pose, in the model axes. Each part of the path of the
- * instrument turns by less than 180°, so the short turn of each part gives the turn. Before the
- * turn of the middle (`BowedHold.liftTurn`), the turn goes through it: the whole rest of the path
- * can pass 180°, and its short turn then jumped to the other side.
+ * lowering to its place in the playing pose, in the model axes. The instrument takes the short
+ * turn from the rest to the play, so the short turn gives the turn.
  *
  * @param rig The points of the player.
  * @param frames The posed frames of the torso.
  * @param place The posed place of the instrument.
- * @param weight The eased weight of the playing pose: 0 is the rest pose.
  */
-function turnToPlay(
-  rig: RigPoints,
-  frames: TorsoFrames,
-  place: InstrumentPlace,
-  weight: number,
-): void {
+function turnToPlay(rig: RigPoints, frames: TorsoFrames, place: InstrumentPlace): void {
   const parent = rig.parent === BONES.chest ? frames.chest : frames.root;
   placeInverse.copy(place.rotation).invert();
   toPlay.copy(parent.rotation).multiply(playTurn.fromArray(rig.hold.playTurn));
-  if (!rig.liftRotation || weight >= 0.5) {
-    shortTurn(toPlay.multiply(placeInverse));
-    return;
-  }
-  middle.copy(parent.rotation).multiply(liftTurn.fromArray(rig.liftRotation));
-  shortTurn(toPlay.multiply(middleInverse.copy(middle).invert()));
-  toPlay.multiply(shortTurn(middle.multiply(placeInverse)));
+  shortTurn(toPlay.multiply(placeInverse));
 }
-
-/** The turn of the middle of the move, and its inverse, for {@link turnToPlay}. */
-const middle = new Quaternion();
-const middleInverse = new Quaternion();
 
 /**
  * Mixes the rest bow and the playing bow, or the hands on them, by the weight of the playing pose
@@ -1060,7 +1031,7 @@ function carryLift(
   out: StopHand,
 ): boolean {
   const hold = rig.hold;
-  if (hold.restTwistL === null || rig.liftRotation || weight >= 1) {
+  if (hold.restTwistL === null || weight >= 1) {
     return false;
   }
   const chest = frames.chest;
@@ -1232,7 +1203,7 @@ export function poseBowed(
     place,
     handL,
   );
-  turnToPlay(rig, frames, place, weight);
+  turnToPlay(rig, frames, place);
   soundingPointAt(rig, state.loudness, stringsAt(rig, place, strings));
   // The hand holds the bow with no tilt, and the fingers turn the stick by the tilt.
   const tilt = heldBowAt(rig, strings, state.string, state.bow, state.lift, tilted, bow);
@@ -1389,8 +1360,7 @@ export function poseBowed(
   // it does not move the hand.
   finger.reach = state.reach * weight;
   finger.stopString = MIDDLE_FINGER.stopString + (state.stopString - 1.5) * weight;
-  const handTilt =
-    leftTilt(rig.hold, state.fingerboard) * weight + rig.hold.liftTiltL * 4 * weight * (1 - weight);
+  const handTilt = leftTilt(rig.hold, state.fingerboard) * weight;
   if (!carried) {
     stopHandAt(rig, place, strings, stop, h.curlL * weight, handTilt, finger, handL);
   }

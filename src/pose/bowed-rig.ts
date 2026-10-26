@@ -216,32 +216,16 @@ export interface BowedHold {
    */
   readonly liftReach: Vec3;
   /**
-   * The turn of the instrument in the middle of the lift and of the lowering: the direction from
-   * the tail end to the scroll, and the side of the top plate, in the axes of the root, as
-   * {@link BowedHold.rest} (design 5.2). The instrument turns from the rest to this turn, then to
-   * the playing turn. Thus the left paw on the neck can turn on a path that keeps its twist on the
-   * forearm away from 180°, and the instrument can stay near the chest. `null` mixes the rest
-   * turn and the playing turn directly.
-   */
-  readonly liftTurn: { readonly axis: Vec3; readonly top: Vec3 } | null;
-  /**
    * The place of the left fingers on the target `fingerboard` in the middle of the lift and of the
    * lowering, where the left paw carries the instrument (design 5.2): from 0 at the nut to 1 at the
    * end of the fingerboard. The paw slides from the place of the rest to this place, then to the
    * place of the note. Its point on the neck moves on a straight line from its place at the rest to
    * its place at the play, with the move of {@link BowedHold.liftReach}, and the instrument hangs
-   * from it with the turn of the move ({@link BowedHold.liftTurn}). Thus the left arm keeps its
+   * from it. Thus the left arm keeps its
    * bend on the way, as the left hand of a player who brings the instrument up by its neck. `null`
    * moves the tail end of the instrument on that path, and the paw slides directly.
    */
   readonly liftPlace: number | null;
-  /**
-   * The further tilt of the left hand over the neck in the middle of the lift and of the lowering,
-   * in radians (design 5.2): the hand rolls around the neck toward the side of the elbow, by `4 ×
-   * weight × (1 - weight)` times this angle, so that the wrist bends less. 0 keeps the tilt of the
-   * hold.
-   */
-  readonly liftTiltL: number;
   /**
    * The twist of the left paw on its forearm in the rest pose, in radians, with a straight wrist
    * (design 5.2): at rest, the paw holds the neck with this natural twist, and in the lift it
@@ -375,9 +359,7 @@ const CHIN_HOLD = {
     lap: { along: 0.85, offset: [0, 0.06, 0] },
   },
   liftReach: [0, 0, 0],
-  liftTurn: null,
   liftPlace: null,
-  liftTiltL: 0,
   restTwistL: null,
   liftPoleL: null,
   restAtSide: false,
@@ -442,9 +424,7 @@ const FLOOR_HOLD = {
   stopEnd: 1,
   rest: null,
   liftReach: [0, 0, 0],
-  liftTurn: null,
   liftPlace: null,
-  liftTiltL: 0,
   restTwistL: null,
   liftPoleL: null,
   restAtSide: false,
@@ -569,14 +549,15 @@ const HANGING_BOW = {
  * In the lift and the lowering, the left paw carries the violin at the end of the fingerboard
  * (`liftPlace`): the paw moves on a line from its rest place to its playing place, and 0.1 H in,
  * 0.1 H up, and 0.08 H to the front in the middle (`liftReach`). The violin hangs from the paw and
- * turns upright in the middle, with the scroll up, a little forward, and a little to the left, and
- * the top plate to the body (`liftTurn`). Thus the left elbow bends to 137° at most: with the tail
- * end on the path, the paw went 1.09 H to the front, and the elbow straightened to 180°. With no
- * move to the front, the violin went 3.2 cm into the belly in a lowering. The paw rolls 45° further
- * over the neck (`liftTiltL`), and the elbow points down and to the front (`liftPoleL`): with
- * neither, the paw swung 94° from the line of the forearm (62° now, 2026-10-24-violin-poses
- * decisions). With a direct turn, the paw twist on the forearm went through 180° and the twist bone
- * jumped, as on the red fox, and with the top of the rest of 2026-10-24, the wrist bent past 90°
+ * takes the short turn to the play. At rest, the paw holds the neck with a straight wrist and a
+ * twist of 1.5 rad (`restTwistL`), and it changes to the playing grip in the move: a middle turn
+ * with the top plate to the body rolled the violin a full turn (user, 2026-10-25,
+ * 2026-10-26-violin-lift decisions). With the tail end on the path, the paw went 1.09 H to the
+ * front, and the elbow straightened to 180°. With no move to the front, the violin went 3.2 cm
+ * into the belly in a lowering. The elbow points down and to the front in the middle
+ * (`liftPoleL`). The left rest elbow points out and a little down, (-1, -0.6, 0): with
+ * (-0.6, -1, 0.3), the left upper arm went 3.4 cm into the body at rest with the new grip. With
+ * the top of the rest of 2026-10-24, the wrist bent past 90°
  * from the knee. The bow tip turns through the front, with the hair to the back, and the grip moves
  * 0.2 H up and 0.4 H to the front: with the via of `UPRIGHT_BOW`, the right paw turned 5,188°/s in
  * a lowering (2026-10-24-violin-rest decisions). With 0.2 H to the front, the right forearm went
@@ -587,12 +568,11 @@ const HANGING_BOW = {
  *
  * The right elbow hangs near the side, as the elbows of the violinist (2026-10-16-rabbit-arm
  * decisions). The belly is widest below the elbow, so the right arm hangs out around it, and the
- * paw does not reach the top of the right thigh. The grip is above the outer side of the right
- * knee, 0.4 H out from the top of the knee, 0.8 H above it, and 0.2 H forward, so that the right
- * elbow bends to about 130° beside the body, and the elbow points down and back. With the grip
- * 0.65 H out and 0.45 H above the knee, of 2026-10-23, the right arm hung straight down the side
- * to the paw, and 2 faces of the right arm folded at rest (7 now, limit 8 of the arm gate,
- * 2026-10-24-violin-poses decisions). With the stick through the middle of the paw of
+ * paw does not reach the top of the right thigh. The grip is beside the right thigh, 0.65 H out
+ * from the top of the knee and 0.45 H above it, with the right arm hanging, so that the bow paw
+ * rests near the lap (user, 2026-10-26: "their bow hand should also be resting on or near the
+ * lap"). With the paw on the top of the thigh, the short right arm folded 13 to 22 faces at rest
+ * (2026-10-26-violin-lift decisions). With the stick through the middle of the paw of
  * 2026-10-17, the grip 0.55 H out and 0.45 H above the knee turned face 372 of the right upper arm
  * over in each rest sample (2026-10-17-grip-all decisions). With the grip on the belly over the
  * right thigh, the paw was 25 cm from the shoulder joint, so the bent arm put the elbow 19 cm out
@@ -620,9 +600,7 @@ const SHOULDER_HOLD = {
   restPlace: 0.1,
   rest: { ...LAP_VIOLIN, lap: { along: 1, offset: [-0.1, -0.05, 0] } },
   liftReach: [-0.1, 0.1, -0.08],
-  liftTurn: null,
   liftPlace: 1,
-  liftTiltL: 0,
   restTwistL: 1.5,
   liftPoleL: [0, -1, -0.5],
   restBow: {
@@ -681,15 +659,14 @@ const SHOULDER_HOLD = {
  * 0.2 H up, and 0.4 H to the front (the via of `UPRIGHT_BOW` with its own reach): the upper arm
  * goes 3.3 cm into the body in each set (`pnpm hold-fit fox-violinist --base main --sets
  * lift,rest,lower`, 2026-10-17-grip-all decisions). The right elbow points down, out, and back,
- * (0.5, -1, 0.5): on the rebuilt arms of 2026-10-25, the elbow of (0.3, -1, 0.3) put the right
- * upper arm 5.0 cm into the body at rest, and this pole 2.4 cm (2026-10-25-fox-arms decisions). The
- * left elbow points down and a little back. In the lift and the lowering, the tail end
+ * (0.4, -1, -0.3), with the frog on the front of the right thigh, near the lap, as the user asked
+ * on 2026-10-26 (2026-10-26-violin-lift decisions). The left rest elbow points out and a little
+ * down, (-1, -0.6, 0), as on the rabbit. In the lift and the lowering, the tail end
  * of the violin moves on its path (`liftPlace` null): the long left arm of the fox reaches the neck
- * there with the elbow bent to 99° to 127° (2026-10-24-violin-poses decisions). In the middle, the
- * violin turns upright with the top plate to the body, as the violin of the rabbit (`liftTurn`),
- * and moves 0.1 H up and 0.2 H to the front (`liftReach`): with a direct turn, the left paw twist
- * passed 180° once in each move, and the paw turned 17,985°/s (147° and 824°/s now). With the turn
- * and no move, the violin went 5.6 cm into the body in the lift. The bow hair points to the front
+ * there with the elbow bent to 99° to 127° (2026-10-24-violin-poses decisions). The violin takes
+ * the short turn to the play, and the left paw changes from its rest grip (`restTwistL`) to the
+ * playing grip, as on the rabbit. In the middle, the violin moves 0.1 H up and 0.2 H to the front
+ * (`liftReach`): with no move, it went 5.6 cm into the body in the lift. The bow hair points to the front
  * and a little up in the middle (the via of `UPRIGHT_BOW` with its own hair and reach): with the
  * hair down, the right paw turned 17,038°/s in a lowering.
  *
@@ -724,9 +701,7 @@ const FOX_HOLD = {
   restPlace: CHIN_HOLD.restPlace,
   rest: { ...LAP_VIOLIN, lap: { along: 0.8, offset: [0, -0.18, -0.2] } },
   liftReach: [0, 0.1, -0.2],
-  liftTurn: null,
   liftPlace: null,
-  liftTiltL: 0,
   restTwistL: 1.5,
   liftPoleL: null,
   restBow: {
@@ -828,12 +803,10 @@ export const BOWED_HOLDS = {
  * (`liftPlace`), as on the rabbit, and the paw moves 0.25 H up and 0.2 H to the front in the
  * middle (`liftReach`): with the rebuilt arms of 2026-10-25 and 0.2 H up and 0.1 H to the front,
  * the left paw swung 71° on the wrist (limit 70), and with 0.2 H up, the left wrist turned
- * 1,011°/s at most, 499°/s more than on `main` (2026-10-25-cat-arms decisions). In the middle, the viola turns upright, with the scroll up, a little forward, and
- * a little to the left, and the top plate to the body, as the violin of the rabbit (`liftTurn`), so
- * that the paw twist on the forearm goes from the rest through 0° to the play. Thus the left elbow
- * bends to 148° at most: with the tail end on the path, the paw went 1.28 H to the front, and the
- * elbow straightened to 180°. The paw rolls 52° further over the neck (`liftTiltL`): with no roll,
- * the left paw went 2.8 cm into the viola (2026-10-24-violin-poses decisions). In the middle of the
+ * 1,011°/s at most, 499°/s more than on `main` (2026-10-25-cat-arms decisions). The viola takes
+ * the short turn to the play, and the left paw changes from its rest grip (`restTwistL`) to the
+ * playing grip, as on the rabbit (2026-10-26-violin-lift decisions). With the tail end on the
+ * path, the paw went 1.28 H to the front, and the elbow straightened to 180°. In the middle of the
  * moves, the left elbow points down, forward, and out, (-0.45, -1, -0.6) (`liftPoleL`): with the
  * smaller viola at 45° and a direct mix of the poles, the left paw swung 73° on the wrist in the
  * lift (limit 70, 69° now), and with the elbow (-0.3, -1, -0.5) the left upper arm went 2.6 cm into
@@ -884,14 +857,12 @@ export const BOWED_HOLDS = {
  * In the rest pose, the top plate of the viola faces the front and 30° to the left, toward the
  * audience, as the bridge of a resting violin faces out (`docs/reference/string-technique.md`,
  * section 2.9, user, 2026-10-24: "why in the rest mode, the cat's viola's back is facing the
- * audience"). The left paw on the neck turns -81° on its forearm at rest, and the middle turn of
- * the lift (`liftTurn`) takes it through 0° to the play. With the top to the front, or 15° to the
- * left, the right paw turned up to 7,437°/s in a lowering with each middle turn that was tried,
- * because the mix of the bow changed its side in the middle (2026-10-24-violin-review decisions).
- * Up to 2026-10-24, the top faced back and to the left, because with the top to the front and no
- * middle turn, the lift turned the left paw through 180° and wrung the forearm (user, 2026-10-23:
- * "the cat's ... arm is very twisted when transitioned from rest to play", 2026-10-23-night-fixes
- * decisions).
+ * audience"). With the playing grip on the neck at rest, the left paw turned -81° on its forearm,
+ * and a direct lift wrung the forearm past 180° (user, 2026-10-23: "the cat's ... arm is very
+ * twisted when transitioned from rest to play"). The paw now holds the neck at rest with its own
+ * twist (`restTwistL`). The bow paw rests beside the right thigh with the arm hanging, as the user
+ * asked on 2026-10-26: on the front of the thigh, the right arm went 5.9 cm into the deep belly
+ * (2026-10-26-violin-lift decisions).
  */
 const CAT_HOLD = {
   ...BOWED_HOLDS.viola,
@@ -915,9 +886,7 @@ const CAT_HOLD = {
     lap: { along: 0.95, offset: [0, 0, -0.15] },
   },
   liftReach: [0, 0.25, -0.2],
-  liftTurn: null,
   liftPlace: 1,
-  liftTiltL: 0,
   restTwistL: 1.5,
   liftPoleL: [-0.45, -1, -0.6],
   restBow: {
@@ -1207,11 +1176,6 @@ export interface BowedRig {
    * axes of the root (`BowedHold.liftReach`).
    */
   readonly liftReach: Vec3;
-  /**
-   * The rotation of the `instrument` bone in the middle of the lift and of the lowering, relative
-   * to its parent (`BowedHold.liftTurn`), or `null` for a direct mix.
-   */
-  readonly liftRotation: Quat | null;
   /** The direction to which the right elbow points in the rest pose, in the axes of the root. */
   readonly restPoleR: Vec3;
   /** The direction to which the left elbow points in the rest pose, in the axes of the chest. */
@@ -1541,7 +1505,6 @@ export function bowedRig(
     playShift: toVec3(playShift),
     restPivot: restPivotOf(model, hold, atSide, pivot, playShift),
     liftReach: toVec3(new Vector3(...hold.liftReach).multiplyScalar(model.body.headHeight)),
-    liftRotation: hold.liftTurn ? toQuat(turnTo(hold.liftTurn, new Quaternion())) : null,
     restPoleR: hold.restPoleR,
     restPoleL: hold.restPoleL,
     restBow: {
