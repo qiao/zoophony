@@ -303,9 +303,11 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
   beside the right thigh with the arm hanging, and the red fox and the cat on the front of the
   right thigh. With the paw on the top of the thigh, the short right arm of the rabbit folded
   (`docs/decisions/2026-10-26-violin-lift.md`). In the lift and the lowering, the
-  bow tip turns through the front and up (`BowVia` of `pose/bowed-rig.ts`). The left paw
-  of the rabbit and of the cat carries the instrument by the end of the fingerboard
-  (`BowedHold.liftPlace`), as a player brings the violin up by its neck. The paw moves on a line
+  bow tip turns through the front, forward and a little up, beside the body (`BowVia` of
+  `pose/bowed-rig.ts`): with the tip up, the bow stood in front of the face. The left paw of the
+  rabbit and of the cat carries the instrument by the nut (`BowedHold.liftPlace`), as a player
+  brings the violin up by its neck: by the end of the fingerboard, the heel of the paw went into
+  the instrument in the re-grip (`docs/decisions/2026-10-26-violin-lift.md`). The paw moves on a line
   from its rest place to its playing place, with a move off the line in the middle
   (`BowedHold.liftReach`). The instrument takes the short turn from the rest to the play: a turn
   through an upright instrument with the top plate to the chest rolled it a full turn around its

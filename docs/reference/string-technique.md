@@ -524,8 +524,9 @@ A round that changes the motion updates the items.
   `docs/decisions/2026-10-26-violin-lift.md`). At rest, the left paw holds the neck with a
   straight wrist and a natural twist (`BowedHold.restTwistL`), and in the move it changes to the
   playing grip (`carryLift()` of `pose/bowed.ts`). The left paw of the rabbit and the cat carries
-  the instrument by the end of the fingerboard (`BowedHold.liftPlace`), as a player brings the
-  violin up by its neck.
+  the instrument by the nut (`BowedHold.liftPlace`), as a player brings the violin up by its neck,
+  and the bow tip points forward beside the body in the middle of the move
+  (`docs/decisions/2026-10-26-violin-lift.md`).
 - **The violin and the viola at rest** (section 2.9). The rabbit, the red fox, and the cat rest the
   instrument upright on the left knee and hold its neck with the left paw. The top plate of the
   violin faces the front, and the top plate of the viola the front and 30° to the left: with the top
