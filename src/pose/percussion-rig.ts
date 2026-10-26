@@ -244,12 +244,13 @@ export const PERCUSSION_HOLDS = {
   // less, the skin does not twist at the shoulder (2026-10-19-arm-skin decisions), no gap shows
   // between each upper arm and the trunk from the back (2026-10-22-elephant-crease decisions),
   // and the thick upper arms of the quad tubes go less far into the round belly near the elbows
-  // (2026-10-25-elephant-hippo-creases decisions). The homes stand 0.15 H below the shoulders and
-  // level with them in depth, and the elbows point a little back, so that each mallet slopes down
-  // along the line of its forearm and the paw, as a real timpanist holds it. With the homes 0.37 H
-  // down and 0.2 H forward, the forearm hung down, and the mallet left the bottom of the paw nearly
-  // at a right angle (user, 2026-10-26: "the elephants wrists are twisting in unnatural way when
-  // hitting the drum", 2026-10-26-second-review decisions). The mallets stay over the kettles in
+  // (2026-10-25-elephant-hippo-creases decisions). The homes stand 0.25 H below the shoulders and
+  // 0.2 H forward, so that each mallet slopes down along the line of its forearm and the paw, as a
+  // real timpanist holds it. With the homes 0.37 H down, the forearm hung down, and the mallet left
+  // the bottom of the paw nearly at a right angle (user, 2026-10-26: "the elephants wrists are
+  // twisting in unnatural way when hitting the drum", 2026-10-26-second-review decisions). Homes
+  // higher than 0.25 H, or elbows that point back, folded more faces of the paws and turned the
+  // paws faster in the lowering. The mallets stay over the kettles in
   // the rest pose, because the hanging paws reach into the large kettles (ready,
   // 2026-10-19-elephant-pose decisions).
   timpani: {
@@ -260,10 +261,10 @@ export const PERCUSSION_HOLDS = {
     // (2026-10-25-timpani-piano-rest decisions).
     offsetL: [0.08, 0, 0],
     offsetR: [-0.05, 0, 0],
-    poleL: [-0.8, -1, 0.6],
-    poleR: [0.8, -1, 0.6],
+    poleL: [-0.8, -1, 0.2],
+    poleR: [0.8, -1, 0.2],
     rim: 0.25,
-    home: [0.48, -0.15, 0],
+    home: [0.48, -0.25, -0.2],
     top: 'shoulder',
     across: { rest: -1.2, lift: 0.65, pitch: 0.1, peak: 8 },
     pitchR: 1,

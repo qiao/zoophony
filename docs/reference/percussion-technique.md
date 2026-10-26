@@ -213,15 +213,14 @@ motion updates the items.
   the paw. A turn of the mallet across the forearm laid the right mallet level across the belly
   (`docs/research/2026-10-25-timpani-piano-rest.md`). A wider V of the German grip turns the
   paw of the elephant further on its forearm (`docs/research/2026-10-19-elephant-grip.md`).
-- **The elbows.** Each upper arm hangs near the side of the body, and the elbow points down, a
-  little out, and a little back (`PercussionHold.poleL` and `poleR`), as section 3 gives. The
-  mallet slopes down along the line of the forearm and the paw (`PercussionHold.home`), so the
-  wrist stays nearly straight, as section 3 gives for the forearm (10° to 15° down to the wrist).
-  With a level forearm reach, the mallet left the bottom of the hanging paw nearly at a right angle
-  (`docs/decisions/2026-10-26-second-review.md`). Section 3 gives no
-  distance of the elbow from the body, and section 6 gives about a fist for the snare drum. With
-  the elbows farther
-  out on the old arms, the user saw "an unnatural gap between the arm and the body" from the
+- **The elbows.** Each upper arm hangs near the side of the body, and the elbow points down and
+  a little out (`PercussionHold.poleL` and `poleR`), as section 3 gives. The mallet slopes down
+  along the line of the forearm and the paw (`PercussionHold.home`), so the wrist stays nearly
+  straight, as section 3 gives for the forearm (10° to 15° down to the wrist). With a forearm
+  that hung down, the mallet left the bottom of the paw nearly at a right angle
+  (`docs/decisions/2026-10-26-second-review.md`). Section 3 gives no distance of the elbow from
+  the body, and section 6 gives about a fist for the snare drum. With the elbows farther out on
+  the old arms, the user saw "an unnatural gap between the arm and the body" from the
   back (`docs/decisions/2026-10-22-elephant-crease.md`). The quad arm tubes show no gap from the
   back with the elbows a little out, and the thick upper arms go less far into the round belly
   (`docs/decisions/2026-10-25-elephant-hippo-creases.md`).
