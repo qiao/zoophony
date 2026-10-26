@@ -2,26 +2,26 @@
 > zoophony@0.0.0 fold-probe /Users/xueqiaoxu/proj/zoophony/.claude/worktrees/agent-ae698fd4accea4778
 > node tools/fold-probe.ts bassist --faces 12 --base main
 
-Folded faces of the studio body of the bassist on main (cf42d8bf) and on the working tree: 46.5 s.
+base: cached (main, 78c8545fb092)
+Folded faces of the studio body of the bassist on main (e9a1a31c) and on the working tree: 58.1 s.
 
-| Set | main (cf42d8bf) | Working tree |
+| Set | main (e9a1a31c) | Working tree |
 |---|---:|---:|
-| rest | 0.0% (0/9), most 0 (L 0 / R 0 / other 0) | 100.0% (9/9), most 5 (L 0 / R 3 / other 2) |
-| play | 29.0% (3741/12912), most 5 (L 0 / R 1 / other 4) | 20.0% (2580/12912), most 2 (L 2 / R 0 / other 0) |
-| lift | 9.7% (27/279), most 2 (L 0 / R 1 / other 1) | 19.0% (53/279), most 5 (L 0 / R 3 / other 2) |
+| rest | 0.0% (0/9), most 0 (L 0 / R 0 / other 0) | 0.0% (0/9), most 0 (L 0 / R 0 / other 0) |
+| play | 29.0% (3741/12912), most 5 (L 0 / R 1 / other 4) | 9.7% (1256/12912), most 4 (L 1 / R 2 / other 1) |
+| lift | 9.7% (27/279), most 2 (L 0 / R 1 / other 1) | 0.0% (0/279), most 0 (L 0 / R 0 / other 0) |
 
-The faces of main (cf42d8bf) and of the working tree have other corners, so the faces pair one to one by the nearest middles within 0.01 m.
+The faces of main (e9a1a31c) and of the working tree have other corners, so the faces pair one to one by the nearest middles within 0.01 m.
 
-| Face (tree) | Face (main (cf42d8bf)) | main (cf42d8bf): rest / play / lift | Working tree: rest / play / lift | Mark | Main bone | Worst sample, angle, bone of the fold |
+| Face (tree) | Face (main (e9a1a31c)) | main (e9a1a31c): rest / play / lift | Working tree: rest / play / lift | Mark | Main bone | Worst sample, angle, bone of the fold |
 |---:|---:|---|---|---|---|---|
-| 445 | - | 0.0% / 0.0% / 0.0% | 100.0% / 11.0% / 19.0% | new | forearm_seg1_R | beethoven-8-4.mid 623.34 s, 130°, turn of forearm_seg2_R 9° |
-| 1434 | - | 0.0% / 0.0% / 0.0% | 0.0% / 4.9% / 0.0% | new | forearm_seg1_L | bach-bwv1050.mid 50.80 s, 176°, turn of forearm_seg1_L 145° |
-| 904 | 561 | 0.0% / 7.9% / 0.0% | 0.0% / 4.3% / 0.0% |  | chest | boulanger-matin.mid 270.13 s, 96°, turn of clavicle_R 59° |
-| 113 | - | 0.0% / 0.0% / 0.0% | 100.0% / 0.0% / 6.8% | new | forearm_seg2_R | bach-bwv1048.mid rest, 95°, turn of wrist_R 28° |
-| 585 | - | 0.0% / 0.0% / 0.0% | 100.0% / 0.0% / 6.5% | new | spine | bach-bwv1050.mid rest, 92°, turn of upper_arm_seg1_R 15° |
-| 1657 | - | 0.0% / 0.0% / 0.0% | 0.0% / 0.2% / 0.0% | new | forearm_seg0_L | beethoven-8-4.mid 172.59 s, 97°, turn of forearm_seg1_L 74° |
-| 471 | - | 0.0% / 0.0% / 0.0% | 88.9% / 0.0% / 3.2% | new | forearm_seg0_R | bach-bwv1050.mid rest, 91°, turn of forearm_seg1_R 60° |
-| 586 | - | 0.0% / 0.0% / 0.0% | 88.9% / 0.0% / 2.9% | new | spine1 | bach-bwv1050.mid rest, 90°, turn of upper_arm_seg1_R 9° |
+| 1474 | - | 0.0% / 0.0% / 0.0% | 0.0% / 4.9% / 0.0% | new | forearm_seg1_L | bach-bwv1050.mid 50.80 s, 176°, turn of forearm_seg1_L 145° |
+| 171 | - | 0.0% / 0.0% / 0.0% | 0.0% / 4.7% / 0.0% | new | forearm_seg3_R | boulanger-matin.mid 210.88 s, 101°, turn of forearm_seg3_R 133° |
+| 588 | - | 0.0% / 0.0% / 0.0% | 0.0% / 4.6% / 0.0% | new | upper_arm_seg0_R | boulanger-matin.mid 270.13 s, 108°, turn of upper_arm_seg0_R 154° |
+| 659 | 561 | 0.0% / 7.9% / 0.0% | 0.0% / 4.3% / 0.0% |  | chest | boulanger-matin.mid 270.13 s, 96°, turn of clavicle_R 59° |
+| 2259 | - | 0.0% / 0.0% / 0.0% | 0.0% / 0.2% / 0.0% | new | forearm_seg0_L | beethoven-8-4.mid 172.59 s, 97°, turn of forearm_seg1_L 74° |
+| 584 | - | 0.0% / 0.0% / 0.0% | 0.0% / 0.2% / 0.0% | new | upper_arm_seg0_R | brahms-2.mid 248.88 s, 93°, turn of upper_arm_seg0_R 11° |
+| 608 | - | 0.0% / 0.0% / 0.0% | 0.0% / 0.2% / 0.0% | new | upper_arm_seg1_R | brahms-2.mid 249.38 s, 94°, turn of upper_arm_seg1_R 4° |
 | - | 258 | 0.0% / 23.2% / 6.5% | 0.0% / 0.0% / 0.0% | gone | spine1 | brahms-2.mid 249.13 s, 102°, turn of clavicle_R 57° |
 | - | 442 | 0.0% / 21.6% / 0.0% | 0.0% / 0.0% / 0.0% | gone | chest | beethoven-9.mid 21.09 s, 176°, turn of clavicle_R 157° |
 | - | 54 | 0.0% / 4.7% / 0.0% | 0.0% / 0.0% / 0.0% | gone | hand_R | boulanger-matin.mid 270.13 s, 123°, turn of hand_R 101° |

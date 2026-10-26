@@ -1,0 +1,64 @@
+
+> zoophony@0.0.0 arm-check /Users/xueqiaoxu/proj/zoophony/.claude/worktrees/agent-ae698fd4accea4778
+> node tools/arm-check.ts bassist --variant p1 --set contrabass\@hippo.restPoleR\=\[1\,-1\,0\] --variant p2 --set contrabass\@hippo.restPoleR\=\[0.5\,-1\,0.3\] --variant p3 --set contrabass\@hippo.restPoleR\=\[0.6\,-1\,0\] --variant p4 --set contrabass\@hippo.restPoleR\=\[0.7\,-1\,0.2\] --variant p5 --set contrabass\@hippo.restPoleR\=\[0.8\,-1\,0.3\] --variant p6 --set contrabass\@hippo.restPoleR\=\[0.5\,-1\,0.5\]
+
+Arm gate of 1 roles in 6 variants: 6 children, at most 4 at the same time, in 137 s. A cell gives the value and the verdict of a value that does not pass.
+
+- p1: contrabass@hippo.restPoleR=[1,-1,0]
+- p2: contrabass@hippo.restPoleR=[0.5,-1,0.3]
+- p3: contrabass@hippo.restPoleR=[0.6,-1,0]
+- p4: contrabass@hippo.restPoleR=[0.7,-1,0.2]
+- p5: contrabass@hippo.restPoleR=[0.8,-1,0.3]
+- p6: contrabass@hippo.restPoleR=[0.5,-1,0.5]
+
+| Variant | Role | Arm | folds p95 (8) | twist p95 (55) | forearm twist p95 (80) | flat p5 (0.55) | paw twist p95 (170) | paw swing p95 (70) | paw jumps (0.5%) | stretch p95 (0.35) | grip turn p50 (45) | move twist max (176) | move turn max (3000) | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| p1 | bassist | L | 0 | 16 | 63 | 0.79 | 174 FAIL | 38 | 0.0% | 0.08 | 5 | 176 | 50 | FAIL |
+| p1 | bassist | R | 1 | 41 | 36 | 0.85 | 70 | 25 | 0.0% | 0.19 | 5 | 152 | 1450 | PASS |
+| p2 | bassist | L | 0 | 16 | 63 | 0.79 | 174 FAIL | 38 | 0.0% | 0.08 | 5 | 176 | 50 | FAIL |
+| p2 | bassist | R | 0 | 30 | 37 | 0.84 | 83 | 25 | 0.0% | 0.17 | 5 | 153 | 1440 | PASS |
+| p3 | bassist | L | 0 | 16 | 63 | 0.79 | 174 FAIL | 38 | 0.0% | 0.08 | 5 | 176 | 50 | FAIL |
+| p3 | bassist | R | 0 | 29 | 37 | 0.84 | 84 | 25 | 0.0% | 0.17 | 5 | 153 | 1440 | PASS |
+| p4 | bassist | L | 0 | 16 | 63 | 0.79 | 174 FAIL | 38 | 0.0% | 0.08 | 5 | 176 | 50 | FAIL |
+| p4 | bassist | R | 0 | 34 | 37 | 0.86 | 78 | 25 | 0.0% | 0.18 | 5 | 153 | 1444 | PASS |
+| p5 | bassist | L | 0 | 16 | 63 | 0.79 | 174 FAIL | 38 | 0.0% | 0.08 | 5 | 176 | 50 | FAIL |
+| p5 | bassist | R | 0 | 37 | 36 | 0.85 | 75 | 25 | 0.0% | 0.18 | 5 | 153 | 1447 | PASS |
+| p6 | bassist | L | 0 | 16 | 63 | 0.79 | 174 FAIL | 38 | 0.0% | 0.08 | 5 | 176 | 50 | FAIL |
+| p6 | bassist | R | 0 | 32 | 37 | 0.86 | 81 | 25 | 0.0% | 0.18 | 5 | 153 | 1442 | PASS |
+
+Variant p1:
+
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| bassist | L | paw twist p95 | play | 12912 | 166 | 174 | 100.0% | 176 at beethoven-8-4.mid 666.09 s | 174 | 170 | - | FAIL |
+
+Variant p2:
+
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| bassist | L | paw twist p95 | play | 12912 | 166 | 174 | 100.0% | 176 at beethoven-8-4.mid 666.09 s | 174 | 170 | - | FAIL |
+
+Variant p3:
+
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| bassist | L | paw twist p95 | play | 12912 | 166 | 174 | 100.0% | 176 at beethoven-8-4.mid 666.09 s | 174 | 170 | - | FAIL |
+
+Variant p4:
+
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| bassist | L | paw twist p95 | play | 12912 | 166 | 174 | 100.0% | 176 at beethoven-8-4.mid 666.09 s | 174 | 170 | - | FAIL |
+
+Variant p5:
+
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| bassist | L | paw twist p95 | play | 12912 | 166 | 174 | 100.0% | 176 at beethoven-8-4.mid 666.09 s | 174 | 170 | - | FAIL |
+
+Variant p6:
+
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| bassist | L | paw twist p95 | play | 12912 | 166 | 174 | 100.0% | 176 at beethoven-8-4.mid 666.09 s | 174 | 170 | - | FAIL |
+ ELIFECYCLE  Command failed with exit code 1.
