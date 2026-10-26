@@ -189,6 +189,12 @@ interface StudioArmSegments {
   socket follows the first ring, and keep the anchor and the wrist helper off the forearm and the
   paws. The length of a helper changes only the automatic weights
   (`tools/blender/hippo_arms.py`, `docs/research/2026-10-25-hippo-arms.md`).
+- **The head and the fingers of a T-pose bear.** On the bear, the automatic weights gave the
+  shoulder line up to 0.18 of the head, and the full fingers bone to each paw. Each head turn and
+  each curl of the fingers folded faces. Remove the head below the neck, and give half of the
+  fingers weight to the hand with a Vertex Weight Mix modifier and Levels, as the rule weights do
+  (`step_paint()` of `tools/blender/bear_arms.py`). A clean angle of 20° fixed the thin faces of
+  the shoulder loops, but at the wrist it broke the paw into a dark notch: keep 12° there.
 - **The frame cost.** Each body with `armSegments` has 20 more bone matrices. Run `pnpm frame`
   after a new body uses it.
 
