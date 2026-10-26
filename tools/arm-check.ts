@@ -331,8 +331,13 @@ export const ACCEPTED_GRIPS: ReadonlyMap<string, Readonly<Record<Side, number>>>
   // The paws of the timpanist and of the badger close on their mallets, sticks, and beaters
   // (user, 2026-10-25: "the badger doesnt seem to be 'holding' the stick",
   // docs/decisions/2026-10-25-percussion-grip.md, and the review of the 3x crops of
-  // docs/research/2026-10-25-percussion-grip/ by the manager on 2026-10-25).
-  ['timpanist', { L: -21, R: -7 }],
+  // docs/research/2026-10-25-percussion-grip/ by the manager on 2026-10-25). Since 2026-10-25,
+  // each timpani paw turns around the shaft at the strike (strikeRoll), so that the shaft stays in
+  // the closed paw, and the left paw turns 12° and the right paw 13° further. The manager accepted
+  // the 3x crops of
+  // docs/research/2026-10-25-timpani-piano-rest/pairs/timpanist-rest-crop3.webp
+  // (docs/decisions/2026-10-25-timpani-piano-rest.md).
+  ['timpanist', { L: -9, R: -20 }],
   ['bassoonist', { L: -118, R: -70 }],
   ['hornist', { L: -153, R: -54 }],
   // The wolf and the mouse close their paws around the tube, with the palms toward its axis and
