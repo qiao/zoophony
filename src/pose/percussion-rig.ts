@@ -136,6 +136,12 @@ interface PercussionHold {
    */
   readonly across: MalletAcross | null;
   /**
+   * The share of the pitch between strikes (`MalletAcross.pitch`) that the right mallet takes, so
+   * that the two heads keep two heights between strikes and pass each other in a run. 1: both
+   * heads at one height.
+   */
+  readonly pitchR: number;
+  /**
    * True: the player holds its mallets over the instrument also in the rest pose, and the arms do
    * not hang (design 5.2). The hanging paws of a player with short arms can reach into large
    * kettles in front of it.
@@ -242,6 +248,7 @@ export const PERCUSSION_HOLDS = {
     home: [0.1, -0.37, -0.2],
     top: 'shoulder',
     across: { rest: -1.2, lift: 0.65, pitch: null },
+    pitchR: 1,
     ready: true,
     set: null,
     pair: true,
@@ -274,6 +281,7 @@ export const PERCUSSION_HOLDS = {
     home: MALLET_HOME,
     top: 'up',
     across: { rest: -1.4, lift: 0.6, pitch: null },
+    pitchR: 1,
     ready: true,
     set: null,
     pair: false,
@@ -302,6 +310,7 @@ export const PERCUSSION_HOLDS = {
     home: [0.5, -0.3, -0.5],
     top: 'up',
     across: { rest: -0.6, lift: 0.3, pitch: 0.9 },
+    pitchR: 1,
     ready: false,
     set: { raise: 0.01, rise: [0.1, 0.22] },
     pair: false,
@@ -327,6 +336,7 @@ export const PERCUSSION_HOLDS = {
     home: MALLET_HOME,
     top: 'up',
     across: null,
+    pitchR: 1,
     ready: false,
     set: null,
     pair: false,
@@ -354,6 +364,7 @@ export const PERCUSSION_HOLDS = {
     home: MALLET_HOME,
     top: 'up',
     across: { rest: -0.6, lift: 0.3, pitch: null },
+    pitchR: 1,
     ready: true,
     set: null,
     pair: false,
@@ -393,6 +404,7 @@ export const PERCUSSION_HOLDS = {
     home: MALLET_HOME,
     top: 'up',
     across: { rest: -0.6, lift: 0.3, pitch: 0.5 },
+    pitchR: 1,
     ready: false,
     set: null,
     pair: false,
@@ -438,6 +450,7 @@ export const SUSPENDED_CYMBAL_HOLD: PercussionHold = {
   home: [0.6, -0.3, -0.5],
   top: 'up',
   across: { rest: -0.6, lift: 0.3, pitch: 0.7 },
+  pitchR: 1,
   ready: false,
   set: { raise: 0.06, rise: [0, 0.15] },
   pair: false,
@@ -784,7 +797,10 @@ export function percussionRig(model: PlayerModel, instrument: PercussionInstrume
       head: malletHead(bone),
       home: toVec3(fromShoulder(arm, homeOf(arm))),
       top: hold.top,
-      across: hold.across,
+      across:
+        hold.across && hold.across.pitch !== null && arm.side === 'R'
+          ? { ...hold.across, pitch: hold.across.pitch * hold.pitchR }
+          : hold.across,
       tilt: malletTilt(arm, turn),
       length: malletLength(bone),
       inverse: toQuat(turn.clone().invert()),
