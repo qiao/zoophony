@@ -874,21 +874,30 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       Done: with the rebuilt arms, 20.0% of the play samples fold, and faces 258, 442, and
       561 are gone. The rest and the lift fold more: see the open items below
       (`2026-10-25-hippo-arms.md`).
-- [ ] Hippo bassist: each rest sample folds 5 faces against the bind, and the lift 19.0% of
+- [x] Hippo bassist: each rest sample folds 5 faces against the bind, and the lift 19.0% of
       its samples (0% and 9.7% before the rebuilt arms). The bind crushes the inner right
-      elbow and the trunk at the back of the right arm root. The inner right elbow face
-      also folds in 11.0% of the play samples (`2026-10-25-hippo-arms.md`).
-- [ ] Hippo bassist: from az-150, the back of the right arm root shows past the trunk as a
-      dark flat piece in the play (`arm-root-az-150.webp`). The anchor, a turned seam plane,
-      and the skin normals did not remove it (`2026-10-25-hippo-arms.md`).
-- [ ] Hippo bassist: the arm gate gives the right twist at rest 40 (25 before the rebuilt
-      arms, limit 55). The manager decides, or lower the roll of the hanging bow arm
-      (`2026-10-25-hippo-arms.md`).
-- [ ] Hippo bassist: the left forearm goes 2.1 cm into the contrabass in 0.1% of the play
-      samples (1.5 cm before), and the right upper arm 2.0 cm in 0.4% of the lowering
-      (0.9 cm). The left paw on the neck stays within the accepted 2.0 cm (1.8 cm), but goes
-      over 1.5 cm in 39.9% of the play samples (0.9% before). A light face of the texture under
-      the right arm shows from az150 (`2026-10-25-hippo-arms.md`).
+      elbow and the trunk at the back of the right arm root (`2026-10-25-hippo-arms.md`).
+      Done: the flip of thin bind faces takes corners above 130 degrees, and the arm vertices
+      hang on no lower trunk bone. No rest sample and no lift sample folds, and 9.7% of the
+      play (`2026-10-25-hippo-arms.md`).
+- [x] Hippo bassist: from az-150, the back of the right arm root shows past the trunk as a
+      dark flat piece in the play (`arm-root-az-150.webp`) (`2026-10-25-hippo-arms.md`).
+      Done: the back of the first ring hung 0.6 to 0.8 on the spine and spine1 and stayed with
+      the trunk. The arm vertices now hang on no lower trunk bone (`step_tube_trunk()`), and
+      the piece is gone from az-150 and az150 (`2026-10-25-hippo-arms.md`).
+- [x] Hippo bassist: the arm gate gives the right twist at rest 40 (25 before the rebuilt
+      arms, limit 55) (`2026-10-25-hippo-arms.md`).
+      Done: the rest elbow points down and a little out (`restPoleR`), and the twist is 29.
+      Poles that give 25 put the forearm into the belly (`2026-10-25-hippo-arms.md`).
+- [ ] Hippo bassist: the sweep gives the right upper arm root 4.1 cm to 6.1 cm in the body
+      (0.0 cm before the rebuilt arms). The flat inner side of the tube lies behind the side
+      wall by design and now counts as upper arm. Measure the clip of the visible surface only,
+      or give the pair an accepted depth (`2026-10-25-hippo-arms.md`).
+- [ ] Hippo bassist: the left paw goes over 1.5 cm into the neck in 27.0% of the play samples
+      (0.9% before), at most 1.7 cm, inside the accepted 2.0 cm, while the left forearm passes
+      1.5 cm in 1.6% (19.7%): the wrist skin counts as paw now. The left forearm goes 2.1 cm in,
+      in 0.1% of the play, and the right upper arm 2.0 cm in 0.4% of the lowering. A light face
+      of the texture under the right arm shows from az150 (`2026-10-25-hippo-arms.md`).
 - [x] Hippo bassist: the shoulder ring of the bow arm keeps a flat share of 0.68 (goal 0.80), and
       8 shoulder faces stretch more than 1.8 times (`pnpm arm-shape bassist`). The renders show no
       flat band. One shape of `raise` is free (`2026-10-19-arm-skin.md`).
