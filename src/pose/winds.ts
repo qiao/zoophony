@@ -904,18 +904,22 @@ const WOLF_CLARINET = {
  * The trumpet hold of the monkey (design 5.3), the hold of a real trumpet player
  * (`docs/reference/wind-technique.md` 2.1): the left paw wraps the valve casings and holds the
  * weight, the right fingers arch down onto the valves, and the trumpet points forward, angled
- * slightly down. The monkey keeps the arms and plays the smaller trumpet that the user chose
- * (`SpeciesParams.trumpetScale`).
+ * slightly down. The arms are 1.2 times the arms of the mesh, since the user called the arms 1.5
+ * too long (2026-10-26-short-arms decisions), so the monkey plays a trumpet of 0.65
+ * (`SpeciesParams.trumpetScale`), and each shoulder bone turns 34° forward (`reach`), as the
+ * shoulder blade of a real player slides forward. With square shoulders, the right paw missed the
+ * valves by 3.4 cm.
  *
- * While the monkey plays, the bell turns 5° further down, to 10° below the level, about 80° to a
- * vertical face, as a real player angles the trumpet "slightly down" and slightly less than 90° to
- * the face. With the bell 5° below the level, the paws covered the mouth in the front view
- * (manager review of 2026-10-25), and 20° below the level was more than slightly down.
+ * While the monkey plays, the bell turns 10° further down, to 15° below the level, as a real
+ * player angles the trumpet "slightly down". With the bell 5° below the level, the paws covered the
+ * mouth in the front view (manager review of 2026-10-25), and 20° below the level was more than
+ * slightly down.
  *
  * The left palm faces the upright casings from the left, below the middle of their height
  * (`InstrumentGrips.tubeL` of `models/instruments/brass.ts`), the left paw points up along its
- * forearm with the thumb up and back toward the first valve slide, and its fingers curl 109°
- * around the casings (`gripCurl`). The right palm lies above the valves at their right and faces
+ * forearm with the thumb up and back toward the first valve slide, and its fingers curl 130°
+ * around the thin casings of the smaller trumpet (`gripCurl`): with 109°, the finger tips stood
+ * 1.1 cm off. The right palm lies above the valves at their right and faces
  * down, and the right paw points to the left across the valve tops: 0.8 of its aim is the side
  * direction across the valves (`aimSide`), and its fingers curl 92° down onto the valves. Before
  * 2026-10-25, both palms faced the valve block from its two sides, and the two paws pressed
@@ -938,14 +942,15 @@ const WOLF_CLARINET = {
  */
 const MONKEY_TRUMPET = {
   ...WIND_HOLDS.trumpet,
-  play: holdTurn(-5, 0),
+  reach: 34 * MathUtils.DEG2RAD,
+  play: holdTurn(-10, 0),
   poleL: [-1, -1, 0],
   poleR: [1, -1, 0],
   faceTube: ['palm', 'palm'],
   aimSide: [0, 0.8],
   restGripShiftL: [0, 0, 0.04],
   restAim: 1,
-  gripCurl: curls(109, 92),
+  gripCurl: curls(130, 92),
 } as const satisfies WindHold;
 
 /**

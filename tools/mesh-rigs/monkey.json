@@ -5,11 +5,11 @@
   "weld": 1e-05,
   "app": {
     "shoulders": 0.691834,
-    "reach": 0.46937,
+    "reach": 0.384,
     "note": "No reference image shows a monkey, so the mesh took the head top of the parametric monkey (user, 2026-10-19, docs/decisions/2026-10-19-mouse-size.md): the standing head top of the parametric monkey with the trumpet is 1.029 m (docs/research/2026-10-20-mesh-monkey/landmark-probe.txt). The skull top of the mesh under the small tuft of hair is at about 0.965 u, and the tuft top, the highest point in the middle strip of pnpm mesh-options, at 1.0 u. The skull top at 1.029 m gave 1.066 m for each unit (size skull of options.md). Then the user said: \"make the monkey 1.1x bigger\" (docs/decisions/2026-10-20-mesh-monkey.md): 1.1726 m for each unit, the standing shoulder joints at 0.59 u (0.691834 m), the skull top at 1.132 m, and H 0.334 m. The reach is the reach of the arm factor below at that scale. With no --check, pnpm rig-mesh stops until the arm factor gives this reach."
   },
-  "armFactor": 1.5,
-  "armFactorNote": "The factor of the upper arm and the forearm. The arms of the mesh are short for the trumpet: 0.79 of the trunk from the shoulder joint to the middle of the palm with no factor (0.297 m at 1.066 m for each unit). With the trumpet hold of the base, no factor up to 1.25 reaches both trumpet grips (options.md, trumpet-scale.txt of docs/research/2026-10-20-mesh-monkey/). The user chose \"arms 1.5, trumpet at the scale 0.8\" (docs/decisions/2026-10-20-mesh-monkey.md): the reach was 0.427 m at 1.066 m for each unit, and is 0.469 m at the size 1.1 of the user, 1.13 of the trunk. The monkey plays a smaller trumpet (SpeciesParams.trumpetScale), and its hold brings the trumpet to the arms (SPECIES_WIND_HOLDS.monkey of src/pose/winds.ts).",
+  "armFactor": 1.2,
+  "armFactorNote": "The factor of the upper arm and the forearm. The arms of the mesh are short for the trumpet: 0.79 of the trunk from the shoulder joint to the middle of the palm with no factor (0.297 m at 1.066 m for each unit). With the trumpet hold of the base, no factor up to 1.25 reaches both trumpet grips (options.md, trumpet-scale.txt of docs/research/2026-10-20-mesh-monkey/). The user chose \"arms 1.5, trumpet at the scale 0.8\" (docs/decisions/2026-10-20-mesh-monkey.md), and then said that the arms are too long (2026-10-25, docs/decisions/2026-10-26-short-arms.md): the factor is now 1.2, with a reach of 0.384 m at the size 1.1 of the user (0.469 m with 1.5), and a trumpet at the scale 0.65. The monkey plays a smaller trumpet (SpeciesParams.trumpetScale), and its hold brings the trumpet to the arms (SPECIES_WIND_HOLDS.monkey of src/pose/winds.ts).",
   "legFactor": 1,
   "legFactorNote": "The legs keep the length of the mesh (user rule: do not stretch the legs, change the chair).",
   "joints": {
