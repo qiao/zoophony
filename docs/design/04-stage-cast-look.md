@@ -616,7 +616,9 @@ mesh are quad tubes (rings at a right angle to the bones), and the weights come 
     takes the seam cut and the side wall of the cat at the crease of the arm, with no ring of the
     shoulder. A second plane under the seam keeps the round belly under the forearm on the trunk,
     and the thin ears of the hole go before the wall. The rule weights serve only the trunk and
-    the socket, so the plane of the arm split lies out of the whole trunk.
+    the socket, so the plane of the arm split lies out of the whole trunk. The arm vertices hang
+    on no lower trunk bone, so that the back of the arm root turns with the arm, and the paws hang
+    on no wrist helper, so that they turn with the hands.
     `pnpm arm-look` measures the
     crease of the arm skin against the source and the section of the upper arm, with limits from the red fox
     (`docs/decisions/2026-10-21-arm-form.md`).
