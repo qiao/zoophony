@@ -328,7 +328,11 @@ export const ACCEPTED_GRIPS: ReadonlyMap<string, Readonly<Record<Side, number>>>
   // thumbs downwards", docs/decisions/2026-10-25-wind-elbows.md, and the 3x crops of
   // docs/research/2026-10-25-wind-elbows/).
   ['trombonist', { L: -104, R: -85 }],
-  ['timpanist', { L: -2, R: -6 }],
+  // The paws of the timpanist and of the badger close on their mallets, sticks, and beaters
+  // (user, 2026-10-25: "the badger doesnt seem to be 'holding' the stick",
+  // docs/decisions/2026-10-25-percussion-grip.md, and the review of the 3x crops of
+  // docs/research/2026-10-25-percussion-grip/ by the manager on 2026-10-25).
+  ['timpanist', { L: -21, R: -7 }],
   ['bassoonist', { L: -118, R: -70 }],
   ['hornist', { L: -153, R: -54 }],
   // The wolf and the mouse close their paws around the tube, with the palms toward its axis and
@@ -350,12 +354,13 @@ export const ACCEPTED_GRIPS: ReadonlyMap<string, Readonly<Record<Side, number>>>
   // The rhino of the A-pose mesh (docs/decisions/2026-10-23-rhino-apose.md).
   ['tubist', { L: -129, R: -148 }],
   ['singer', { L: -79, R: -79 }],
-  ['bass-drummer', { L: -102, R: 20 }],
+  ['bass-drummer', { L: -102, R: 21 }],
   // The wrist lifts the tip of the stick or the mallet over its spot between strikes
-  // (docs/decisions/2026-10-25-percussion-tips.md), and the review of the 2x paw crops by the
-  // manager on 2026-10-25.
-  ['snare-drummer', { L: -18, R: -6 }],
-  ['cymbalist', { L: -16, R: -5 }],
+  // (docs/decisions/2026-10-25-percussion-tips.md), and the paws close on their sticks and
+  // mallets (docs/decisions/2026-10-25-percussion-grip.md), after the review of the paw crops by
+  // the manager on 2026-10-25.
+  ['snare-drummer', { L: -4, R: -4 }],
+  ['cymbalist', { L: 0, R: 0 }],
   ['percussionist', { L: -80, R: -28 }],
   // The spine leans over the bars, and the wrist lifts the head of each mallet over its bar
   // between strikes (docs/decisions/2026-10-25-xylophone-sway.md), and the review of the 2x paw
