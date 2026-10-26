@@ -1,0 +1,72 @@
+pnpm arm-check snare-drummer cymbalist --base main, and --explain stretch of the snare drummer.
+
+== arm-set.txt
+
+> zoophony@0.0.0 arm-check /Users/xueqiaoxu/proj/zoophony/.claude/worktrees/agent-aac5a55d59251931a
+> node tools/arm-check.ts snare-drummer cymbalist --base main
+
+Arm gate of 2 roles against main in 30 s. A cell gives the value, the base in parentheses, and the verdict of a value that does not pass.
+
+| Role | Arm | folds p95 (8) | twist p95 (55) | forearm twist p95 (80) | flat p5 (0.55) | paw twist p95 (170) | paw swing p95 (70) | paw jumps (0.5%) | stretch p95 (0.35) | grip turn p50 (45) | move twist max (176) | move turn max (3000) | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| snare-drummer | L | 5 (5) | 32 (34) | 6 (30) | 0.82 (0.80) | 21 (102) | 55 (55) | 0.0% (0.0%) | 0.28 (0.14) FAIL | 1 (1) | 21 (102) | 104 (153) | FAIL |
+| snare-drummer | R | 2 (2) | 30 (32) | 8 (31) | 0.81 (0.80) | 30 (102) | 54 (54) | 0.0% (0.0%) | 0.21 (0.13) FAIL | 1 (1) | 30 (102) | 103 (153) | FAIL |
+| cymbalist | L | 5 (5) | 29 (34) | 6 (30) | 0.84 (0.80) | 23 (102) | 47 (47) | 0.0% (0.0%) | 0.13 (0.15) | 0 (0) | 23 (102) | 102 (179) | PASS |
+| cymbalist | R | 1 (1) | 28 (32) | 9 (31) | 0.85 (0.80) | 32 (102) | 47 (47) | 0.0% (0.0%) | 0.12 (0.12) | 0 (0) | 32 (102) | 107 (179) | PASS |
+
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| snare-drummer | L | stretch p95 | play | 161 | 0.23 | 0.28 | 100.0% | 0.30 at percussion-test.mid 28.45 s | 0.28 | 0.35 | 0.14 | FAIL |
+| snare-drummer | R | stretch p95 | play | 161 | 0.16 | 0.21 | 100.0% | 0.22 at percussion-test.mid 9.95 s | 0.21 | 0.35 | 0.13 | FAIL |
+ ELIFECYCLE  Command failed with exit code 1.
+
+== explain-stretch.txt
+
+> zoophony@0.0.0 arm-check /Users/xueqiaoxu/proj/zoophony/.claude/worktrees/agent-aac5a55d59251931a
+> node tools/arm-check.ts snare-drummer --explain stretch
+
+Explain of stretch p95 of the snare-drummer over 1 demos at a step of 0.25 s: percussion-test.mid.
+The stretch is the largest growth of an edge of the faces of the forearm and the paw, as a share of the upper arm (L 0.122 m, R 0.122 m). The gate counts it from the rest sample of the same demo, and "from the bind" counts it from the bind pose.
+MOVES: R play, R lift. The stretch from the rest is larger than from the bind, because the rest sample shrinks the edges that these samples stretch. The gate counts that move of the rest as stretch.
+
+| Arm | Set | Samples | p95 from the rest (gate) | p95 from the bind | Worst from the rest | Worst from the bind | Mark |
+|---|---|---:|---:|---:|---|---|---|
+| L | rest | 1 | 0.000 | 0.124 | 0.000, percussion-test.mid rest | 0.124, percussion-test.mid rest |  |
+| L | play | 161 | 0.282 | 0.323 | 0.298, percussion-test.mid 28.45 s | 0.339, percussion-test.mid 28.45 s |  |
+| L | lift | 31 | 0.231 | 0.272 | 0.235, percussion-test.mid wall 1.1 s | 0.276, percussion-test.mid wall 1.1 s |  |
+| R | rest | 1 | 0.000 | 0.152 | 0.000, percussion-test.mid rest | 0.152, percussion-test.mid rest |  |
+| R | play | 161 | 0.206 | 0.152 | 0.222, percussion-test.mid 9.95 s | 0.169, percussion-test.mid 9.95 s | MOVES |
+| R | lift | 31 | 0.176 | 0.152 | 0.179, percussion-test.mid wall 1.1 s | 0.152, percussion-test.mid wall 0.0 s | MOVES |
+
+The part of the rest sample of each demo that shrinks most from the bind. A short edge in the rest makes each stretch from the rest larger.
+
+| Arm | Rest sample | Part | Rest from the bind |
+|---|---|---|---:|
+| L | percussion-test.mid rest | face 2410, edge 1012-1283, hand_L | -0.147 |
+| R | percussion-test.mid rest | face 306, edge 183-217, fingers_R | -0.221 |
+
+The worst sample of the L arm for the gate: percussion-test.mid 28.45 s (play), 0.298 from the rest, 0.339 from the bind.
+
+| Faces | Edge | Bone | Sample cm | Rest cm | Bind cm | From the rest | From the bind | Rest from the bind |
+|---|---|---|---:|---:|---:|---:|---:|---:|
+| 559 | 119-349 | upper_arm_L | 14.12 | 10.50 | 10.00 | 0.298 | 0.339 | 0.041 |
+| 559 | 119-348 | upper_arm_L | 13.12 | 11.16 | 11.19 | 0.161 | 0.159 | -0.003 |
+| 1068 | 349-350 | forearm_L | 7.72 | 6.08 | 6.93 | 0.135 | 0.065 | -0.070 |
+| 1818, 2304 | 1013-1014 | forearm_twist_L | 7.80 | 6.44 | 6.99 | 0.112 | 0.066 | -0.045 |
+| 1784, 1785 | 619-637 | forearm_twist_L | 6.14 | 4.98 | 5.60 | 0.095 | 0.044 | -0.051 |
+| 1790, 1819 | 997-998 | hand_L | 5.95 | 4.80 | 4.29 | 0.094 | 0.137 | 0.042 |
+| 1789, 1790 | 996-997 | forearm_twist_L | 4.93 | 3.80 | 3.37 | 0.093 | 0.128 | 0.035 |
+| 1070, 1783 | 616-617 | upper_arm_L | 2.13 | 1.03 | 1.71 | 0.091 | 0.035 | -0.056 |
+
+The worst sample of the R arm for the gate: percussion-test.mid 9.95 s (play), 0.222 from the rest, 0.169 from the bind.
+
+| Faces | Edge | Bone | Sample cm | Rest cm | Bind cm | From the rest | From the bind | Rest from the bind |
+|---|---|---|---:|---:|---:|---:|---:|---:|
+| 84, 85 | 43-70 | upper_arm_R | 5.76 | 3.06 | 3.71 | 0.222 | 0.169 | -0.054 |
+| 194, 195 | 21-149 | forearm_twist_R | 8.55 | 6.92 | 7.67 | 0.134 | 0.072 | -0.062 |
+| 85 | 45-70 | upper_arm_R | 3.75 | 2.41 | 2.71 | 0.110 | 0.085 | -0.025 |
+| 193, 194 | 19-149 | hand_R | 5.77 | 4.47 | 5.16 | 0.107 | 0.051 | -0.057 |
+| 231 | 31-69 | upper_arm_R | 6.10 | 4.83 | 4.79 | 0.105 | 0.108 | 0.003 |
+| 18, 193 | 16-19 | hand_R | 5.54 | 4.27 | 5.07 | 0.105 | 0.038 | -0.066 |
+| 605, 606 | 150-232 | hand_R | 4.91 | 3.72 | 3.38 | 0.097 | 0.125 | 0.028 |
+| 196, 606 | 150-151 | hand_R | 5.80 | 4.70 | 4.17 | 0.091 | 0.135 | 0.044 |

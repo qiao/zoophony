@@ -1,0 +1,98 @@
+node tools/wind-grip.ts xylophonist --set <variant>...: the share of the play samples that hold and grasp, by paw, for the exit of the xylophone shafts. Then the arm gate of the best variants.
+
+== exit-scan1.txt
+
+xylophonist: each cell gives the share of the samples that hold and that grasp, then the median axis distance, tip gap, and skin gap in cm, and the median palm angle in degrees
+| Variant | play L | play R | lift L | lift R | rest L | rest R | lower L | lower R | Paws gap min | Rest body, end gap |
+|---|---|---|---|---|---|---|---|---|---:|---|
+| tree | 57% 0% 2.3 0.3 0.0 21 | 90% 0% 2.2 0.2 0.0 15 | 26% 10% 2.7 1.0 0.0 41 | 100% 13% 2.3 0.3 0.0 18 | 100% 100% 2.4 0.0 0.0 29 | 100% 100% 2.3 0.0 0.0 21 | 100% 30% 2.3 0.3 0.0 21 | 100% 40% 2.3 0.0 0.0 21 | 12.5 | 9.4 35.7 |
+| bars.malletTilt=0.79 | 100% 0% 2.5 0.2 0.0 31 | 81% 0% 2.2 0.3 0.0 12 | 100% 16% 2.7 0.1 0.0 42 | 29% 19% 2.5 0.7 0.0 30 | 100% 100% 2.4 0.3 0.0 28 | 100% 100% 2.3 0.4 0.0 19 | 100% 40% 2.4 0.3 0.0 28 | 100% 50% 2.3 0.2 0.0 13 | 10.9 | 9.4 32.6 |
+| bars.malletTilt=0.52 | 100% 0% 2.5 0.3 0.0 31 | 100% 0% 2.4 0.3 0.0 22 | 100% 16% 2.6 0.2 0.0 40 | 100% 19% 2.5 0.3 0.0 30 | 100% 100% 2.3 0.5 0.0 26 | 100% 100% 2.3 0.4 0.0 16 | 100% 43% 2.3 0.3 0.0 26 | 100% 53% 2.2 0.3 0.0 13 | 9.8 | 9.6 28.8 |
+| xylophone.strikeRoll=true | 95% 0% 2.1 0.2 0.0 14 | 48% 0% 2.2 0.8 0.0 24 | 77% 10% 2.3 0.0 0.0 25 | 100% 23% 2.0 0.3 0.0 16 | 100% 100% 2.4 0.0 0.0 29 | 100% 100% 2.3 0.0 0.0 21 | 100% 30% 2.0 0.2 0.0 9 | 57% 40% 2.3 0.2 0.0 21 | 11.0 | 9.4 35.7 |
+| xylophone.strikeRoll=true;bars.malletTilt=0.79 | 100% 5% 2.1 0.3 0.0 16 | 90% 0% 2.1 0.3 0.0 21 | 100% 19% 2.4 0.3 0.0 28 | 100% 23% 2.3 0.2 0.0 32 | 100% 100% 2.4 0.3 0.0 28 | 100% 100% 2.3 0.4 0.0 19 | 100% 40% 2.0 0.2 0.0 8 | 100% 50% 2.3 0.3 0.0 13 | 11.4 | 9.4 32.6 |
+| xylophone.strikeRoll=true;bars.malletTilt=0.52 | 100% 14% 2.1 0.3 0.0 14 | 100% 5% 2.3 0.3 0.0 18 | 100% 26% 2.3 0.4 0.0 26 | 100% 19% 2.5 0.3 0.0 31 | 100% 100% 2.3 0.5 0.0 26 | 100% 100% 2.3 0.4 0.0 16 | 100% 43% 2.2 0.3 0.0 25 | 100% 53% 2.2 0.3 0.0 13 | 10.4 | 9.6 28.8 |
+| xylophone.across.rest=-1.2 | 76% 0% 2.2 0.2 0.0 16 | 76% 0% 2.2 0.3 0.0 10 | 26% 10% 2.8 0.7 0.0 41 | 26% 10% 2.5 0.9 0.0 27 | 100% 100% 2.4 0.0 0.0 29 | 100% 100% 2.3 0.0 0.0 21 | 100% 30% 2.2 0.2 0.0 16 | 100% 37% 2.2 0.2 0.0 14 | 10.8 | 9.4 35.7 |
+| xylophone.across.rest=0 | 67% 0% 2.4 0.3 0.0 32 | 95% 48% 2.4 0.0 0.0 22 | 29% 10% 2.6 0.8 0.0 43 | 100% 13% 2.2 0.2 0.0 9 | 100% 100% 2.4 0.0 0.0 29 | 100% 100% 2.3 0.0 0.0 21 | 100% 30% 2.2 0.2 0.0 18 | 100% 100% 2.4 0.0 0.0 22 | 15.2 | 9.4 35.7 |
+
+== exit-scan2.txt
+
+xylophonist: each cell gives the share of the samples that hold and that grasp, then the median axis distance, tip gap, and skin gap in cm, and the median palm angle in degrees
+| Variant | play L | play R | lift L | lift R | rest L | rest R | lower L | lower R | Paws gap min | Rest body, end gap |
+|---|---|---|---|---|---|---|---|---|---:|---|
+| tree | 57% 0% 2.3 0.3 0.0 21 | 90% 0% 2.2 0.2 0.0 15 | 26% 10% 2.7 1.0 0.0 41 | 100% 13% 2.3 0.3 0.0 18 | 100% 100% 2.4 0.0 0.0 29 | 100% 100% 2.3 0.0 0.0 21 | 100% 30% 2.3 0.3 0.0 21 | 100% 40% 2.3 0.0 0.0 21 | 12.5 | 9.4 35.7 |
+| xylophone.across.rest=0.3 | 86% 0% 2.3 0.3 0.0 20 | 95% 52% 2.4 0.0 0.0 22 | 100% 10% 1.8 0.2 0.0 8 | 100% 26% 2.3 0.0 0.0 21 | 100% 100% 2.4 0.0 0.0 29 | 100% 100% 2.3 0.0 0.0 21 | 100% 30% 2.1 0.2 0.0 12 | 100% 100% 2.4 0.0 0.0 21 | 16.3 | 9.4 35.7 |
+| xylophone.across.rest=0.6 | 95% 5% 2.2 0.2 0.0 20 | 100% 81% 2.4 0.0 0.0 22 | 100% 77% 2.3 0.0 0.0 38 | 100% 100% 2.3 0.0 0.0 23 | 100% 100% 2.4 0.0 0.0 29 | 100% 100% 2.3 0.0 0.0 21 | 100% 30% 2.1 0.2 0.0 13 | 100% 100% 2.4 0.0 0.0 21 | 15.4 | 9.4 35.7 |
+| xylophone.across.rest=1 | 81% 5% 2.2 0.2 0.0 15 | 100% 81% 2.4 0.0 0.0 22 | 29% 16% 2.6 1.1 0.0 49 | 100% 100% 2.3 0.0 0.0 25 | 100% 100% 2.4 0.0 0.0 29 | 100% 100% 2.3 0.0 0.0 21 | 100% 30% 2.2 0.2 0.0 16 | 100% 100% 2.4 0.0 0.0 21 | 13.8 | 9.4 35.7 |
+| xylophone.across.rest=0.6;bars.malletTilt=0.79 | 90% 14% 2.2 0.2 0.0 18 | 100% 76% 2.3 0.2 0.0 18 | 58% 48% 2.3 0.5 0.0 40 | 100% 100% 2.2 0.2 0.0 17 | 100% 100% 2.4 0.3 0.0 28 | 100% 100% 2.3 0.4 0.0 19 | 100% 43% 2.1 0.3 0.0 16 | 100% 100% 2.3 0.3 0.0 18 | 15.0 | 9.4 32.6 |
+| xylophone.across.rest=0.6;xylophone.across.lift=0 | 90% 0% 2.2 0.2 0.0 16 | 100% 76% 2.4 0.0 0.0 22 | 100% 10% 1.9 0.2 0.0 19 | 100% 100% 2.3 0.0 0.0 23 | 100% 100% 2.4 0.0 0.0 29 | 100% 100% 2.3 0.0 0.0 21 | 100% 30% 2.1 0.2 0.0 13 | 100% 100% 2.4 0.0 0.0 21 | 16.0 | 9.4 35.7 |
+| xylophone.across.rest=0.6;xylophone.across.lift=0.6 | 86% 5% 2.2 0.3 0.0 22 | 100% 81% 2.4 0.0 0.0 22 | 29% 13% 2.6 1.0 0.0 49 | 100% 100% 2.3 0.0 0.0 23 | 100% 100% 2.4 0.0 0.0 29 | 100% 100% 2.3 0.0 0.0 21 | 100% 30% 2.1 0.2 0.0 13 | 100% 100% 2.4 0.0 0.0 21 | 14.8 | 9.4 35.7 |
+
+== exit-scan3.txt
+
+xylophonist: each cell gives the share of the samples that hold and that grasp, then the median axis distance, tip gap, and skin gap in cm, and the median palm angle in degrees
+| Variant | play L | play R | lift L | lift R | rest L | rest R | lower L | lower R | Paws gap min | Rest body, end gap |
+|---|---|---|---|---|---|---|---|---|---:|---|
+| tree | 57% 0% 2.3 0.3 0.0 21 | 90% 0% 2.2 0.2 0.0 15 | 26% 10% 2.7 1.0 0.0 41 | 100% 13% 2.3 0.3 0.0 18 | 100% 100% 2.4 0.0 0.0 29 | 100% 100% 2.3 0.0 0.0 21 | 100% 30% 2.3 0.3 0.0 21 | 100% 40% 2.3 0.0 0.0 21 | 12.5 | 9.4 35.7 |
+| xylophone.across.rest=0.6;xylophone.strikeRoll=true | 100% 38% 2.0 0.2 0.0 29 | 57% 10% 2.2 0.3 0.0 26 | 100% 84% 2.3 0.0 0.0 41 | 100% 23% 2.0 0.3 0.0 16 | 100% 100% 2.4 0.0 0.0 29 | 100% 100% 2.3 0.0 0.0 21 | 100% 30% 2.0 0.2 0.0 15 | 57% 40% 2.3 0.2 0.0 21 | 11.1 | 9.4 35.7 |
+| xylophone.across.rest=0.6;xylophone.strikeRoll=true;bars.malletTilt=0.79 | 100% 38% 2.0 0.2 0.0 20 | 100% 57% 2.2 0.2 0.0 16 | 100% 58% 2.2 0.3 0.0 38 | 100% 100% 2.2 0.2 0.0 16 | 100% 100% 2.4 0.3 0.0 28 | 100% 100% 2.3 0.4 0.0 19 | 100% 43% 2.1 0.2 0.0 12 | 100% 100% 2.3 0.2 0.0 16 | 12.5 | 9.4 32.6 |
+| xylophone.across.rest=0.6;xylophone.strikeRoll=true;bars.malletTilt=0.52 | 100% 43% 2.1 0.2 0.0 14 | 100% 76% 2.3 0.1 0.0 6 | 100% 100% 2.0 0.4 0.0 32 | 100% 100% 2.1 0.0 0.0 6 | 100% 100% 2.3 0.5 0.0 26 | 100% 100% 2.3 0.4 0.0 16 | 100% 43% 2.2 0.4 0.0 22 | 100% 100% 2.3 0.2 0.0 9 | 13.5 | 9.6 28.8 |
+| xylophone.across.rest=0.6;xylophone.across.pitch=0.3 | 86% 10% 2.2 0.2 0.0 15 | 100% 5% 2.3 0.2 0.0 14 | 100% 52% 2.3 0.0 0.0 37 | 100% 13% 2.1 0.2 0.0 6 | 100% 100% 2.4 0.0 0.0 29 | 100% 100% 2.3 0.0 0.0 21 | 100% 30% 2.2 0.2 0.0 19 | 100% 30% 2.3 0.0 0.0 18 | 15.7 | 9.4 35.7 |
+
+== arm-exit.txt
+
+> zoophony@0.0.0 arm-check /Users/xueqiaoxu/proj/zoophony/.claude/worktrees/agent-aac5a55d59251931a
+> node tools/arm-check.ts xylophonist --jobs 4 --variant rest06 --set xylophone.across.rest\=0.6 --variant rest04 --set xylophone.across.rest\=0.4
+
+Arm gate of 1 roles in 2 variants: 2 children, at most 4 at the same time, in 31 s. A cell gives the value and the verdict of a value that does not pass.
+
+- rest06: xylophone.across.rest=0.6
+- rest04: xylophone.across.rest=0.4
+
+| Variant | Role | Arm | folds p95 (8) | twist p95 (55) | forearm twist p95 (80) | flat p5 (0.55) | paw twist p95 (170) | paw swing p95 (70) | paw jumps (0.5%) | stretch p95 (0.35) | grip turn p50 (45) | move twist max (176) | move turn max (3000) | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| rest06 | xylophonist | L | 11 FAIL | 34 | 52 | 0.66 | 178 FAIL | 73 FAIL | 0.0% | 0.35 | 73 FAIL | 175 | 143 | FAIL |
+| rest06 | xylophonist | R | 4 | 32 | 42 | 0.73 | 142 | 31 | 0.0% | 0.21 | 70 FAIL | 122 | 165 | FAIL |
+| rest04 | xylophonist | L | 12 FAIL | 34 | 43 | 0.66 | 168 | 86 FAIL | 0.0% | 0.19 | 56 FAIL | 155 | 147 | FAIL |
+| rest04 | xylophonist | R | 4 | 32 | 38 | 0.74 | 126 | 37 | 0.0% | 0.20 | 61 FAIL | 113 | 120 | FAIL |
+
+Variant rest06:
+
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| xylophonist | L | folds p95 | lift | 31 | 9 | 11 | 100.0% | 11 at percussion-test.mid wall 1.8 s | 11 | 8 | - | FAIL |
+| xylophonist | L | paw twist p95 | lift | 31 | 175 | 178 | 100.0% | 179 at percussion-test.mid wall 1.8 s | 178 | 170 | - | FAIL |
+| xylophonist | L | paw swing p95 | lift | 31 | 54 | 73 | 100.0% | 73 at percussion-test.mid wall 1.8 s | 73 | 70 | - | FAIL |
+| xylophonist | L | grip turn p50 | play | 161 | 73 | 145 | 100.0% | 151 at percussion-test.mid 34.20 s | 73 | 45 | - | FAIL |
+| xylophonist | R | grip turn p50 | play | 161 | 70 | 120 | 100.0% | 132 at percussion-test.mid 26.20 s | 70 | 45 | - | FAIL |
+
+Variant rest04:
+
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| xylophonist | L | folds p95 | lift | 31 | 9 | 12 | 100.0% | 12 at percussion-test.mid wall 1.8 s | 12 | 8 | - | FAIL |
+| xylophonist | L | paw swing p95 | lift | 31 | 62 | 86 | 100.0% | 86 at percussion-test.mid wall 2.6 s | 86 | 70 | - | FAIL |
+| xylophonist | L | grip turn p50 | play | 161 | 56 | 124 | 100.0% | 128 at percussion-test.mid -0.05 s | 56 | 45 | - | FAIL |
+| xylophonist | R | grip turn p50 | play | 161 | 61 | 104 | 100.0% | 123 at percussion-test.mid 26.20 s | 61 | 45 | - | FAIL |
+ ELIFECYCLE  Command failed with exit code 1.
+
+== arm-exit-p.txt
+
+> zoophony@0.0.0 arm-check /Users/xueqiaoxu/proj/zoophony/.claude/worktrees/agent-aac5a55d59251931a
+> node tools/arm-check.ts xylophonist --jobs 4 --midi /Users/xueqiaoxu/Downloads/Disney_Themes_-_Pirates_Of_The_Caribbean.mid --variant rest06 --set xylophone.across.rest\=0.6
+
+Arm gate of 1 roles in 1 variants: 1 children, at most 4 at the same time, in 1 s. A cell gives the value and the verdict of a value that does not pass.
+
+- rest06: xylophone.across.rest=0.6
+
+| Variant | Role | Arm | folds p95 (8) | twist p95 (55) | forearm twist p95 (80) | flat p5 (0.55) | paw twist p95 (170) | paw swing p95 (70) | paw jumps (0.5%) | stretch p95 (0.35) | grip turn p50 (45) | move twist max (176) | move turn max (3000) | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| rest06 | xylophonist | L | 6 | 34 | 33 | 0.77 | 119 | 39 | 0.0% | 0.11 | 47 FAIL | 119 | 57 | FAIL |
+| rest06 | xylophonist | R | 4 | 32 | 45 | 0.74 | 147 | 39 | 0.0% | 0.12 | 96 FAIL | 146 | 54 | FAIL |
+
+Variant rest06:
+
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| xylophonist | L | grip turn p50 | play | 255 | 47 | 90 | 100.0% | 91 at Disney_Themes_-_Pirates_Of_The_Caribbean.mid 0.55 s | 47 | 45 | - | FAIL |
+| xylophonist | R | grip turn p50 | play | 255 | 96 | 123 | 100.0% | 125 at Disney_Themes_-_Pirates_Of_The_Caribbean.mid 0.55 s | 96 | 45 | - | FAIL |
+ ELIFECYCLE  Command failed with exit code 1.

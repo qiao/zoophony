@@ -1,0 +1,99 @@
+The runs of the xylophone for each variant (runs.ts via a scan loop): the test score, then the pirates file. Logs 1 to 3 ran before the commit c576ea3a that moves the shoulders with the side move.
+
+== xylo-scan1.txt
+== xylophone.pass=0.035
+percussion-test player 0: fast pairs 127, hand changes 22%, longest run 23, passes 12; within 5 mm L 100% of 72, R 96% of 56, worst 14 mm; head gap min -1.1 cm; mallets touch 7% of 763 (3.68 3.73 3.78 4.08 5.03 5.18)
+Disney_Themes_-_Pirates_Of_The_Caribbean.mid player 3: fast pairs 198, hand changes 14%, longest run 21, passes 0; within 5 mm L 100% of 18, R 100% of 196, worst 0 mm; head gap min 1.6 cm; mallets touch 4% of 1100 (5.05 8.55 8.60 8.70 8.75 11.70)
+== xylophone.pass=0.035;xylophone.offsetL=[0,0,-0.02];xylophone.offsetR=[0,0,0.02]
+percussion-test player 0: fast pairs 127, hand changes 22%, longest run 23, passes 12; within 5 mm L 67% of 72, R 100% of 56, worst 32 mm; head gap min -2.1 cm; mallets touch 9% of 763 (3.73 3.78 3.83 3.98 4.03 4.08)
+Disney_Themes_-_Pirates_Of_The_Caribbean.mid player 3: fast pairs 198, hand changes 14%, longest run 21, passes 0; within 5 mm L 100% of 18, R 100% of 196, worst 0 mm; head gap min 0.1 cm; mallets touch 4% of 1100 (8.55 8.60 8.70 8.75 11.75 11.90)
+== xylophone.pass=0.035;xylophone.offsetL=[0,0,-0.03];xylophone.offsetR=[0,0,0.03]
+percussion-test player 0: fast pairs 127, hand changes 22%, longest run 23, passes 12; within 5 mm L 54% of 72, R 100% of 56, worst 41 mm; head gap min -1.2 cm; mallets touch 7% of 763 (3.73 3.78 3.83 3.98 4.03 4.38)
+Disney_Themes_-_Pirates_Of_The_Caribbean.mid player 3: fast pairs 198, hand changes 14%, longest run 21, passes 0; within 5 mm L 100% of 18, R 100% of 196, worst 0 mm; head gap min 1.2 cm; mallets touch 3% of 1100 (8.55 8.60 8.70 8.75 11.75 11.90)
+
+== xylo-scan2.txt
+== xylophone.pass=0.035;xylophone.pitchR=0.5
+percussion-test player 0: fast pairs 127, hand changes 22%, longest run 23, passes 12; within 5 mm L 100% of 72, R 96% of 56, worst 14 mm; head gap min 1.5 cm; mallets touch 0% of 763 ()
+Disney_Themes_-_Pirates_Of_The_Caribbean.mid player 3: fast pairs 198, hand changes 14%, longest run 21, passes 0; within 5 mm L 100% of 18, R 100% of 196, worst 0 mm; head gap min 1.6 cm; mallets touch 0% of 1100 ()
+== xylophone.pass=0.035;xylophone.pitchR=0.2
+percussion-test player 0: fast pairs 127, hand changes 22%, longest run 23, passes 12; within 5 mm L 100% of 72, R 96% of 56, worst 14 mm; head gap min -0.3 cm; mallets touch 1% of 763 (3.88 4.48 11.98 21.28 21.88 29.38)
+Disney_Themes_-_Pirates_Of_The_Caribbean.mid player 3: fast pairs 198, hand changes 14%, longest run 21, passes 0; within 5 mm L 100% of 18, R 100% of 196, worst 0 mm; head gap min 1.8 cm; mallets touch 0% of 1100 ()
+== xylophone.pass=0.035;xylophone.pitchR=1.6
+percussion-test player 0: fast pairs 127, hand changes 22%, longest run 23, passes 12; within 5 mm L 100% of 72, R 96% of 56, worst 14 mm; head gap min 0.0 cm; mallets touch 1% of 763 (4.83 12.33 22.23 29.73)
+Disney_Themes_-_Pirates_Of_The_Caribbean.mid player 3: fast pairs 198, hand changes 14%, longest run 21, passes 0; within 5 mm L 100% of 18, R 100% of 196, worst 0 mm; head gap min 1.7 cm; mallets touch 1% of 1100 (5.85 11.85 12.35 20.65 24.45 36.45)
+
+== xylo-scan3.txt
+== xylophone.pass=0.035;xylophone.pitchR=0.5;xylophone.reach=0.56
+percussion-test player 0: fast pairs 127, hand changes 52%, longest run 16, passes 31; within 5 mm L 100% of 74, R 87% of 54, worst 65 mm; head gap min 0.6 cm; mallets touch 2% of 763 (4.23 4.83 5.73 6.33 6.93 11.13)
+Disney_Themes_-_Pirates_Of_The_Caribbean.mid player 3: fast pairs 198, hand changes 87%, longest run 5, passes 28; within 5 mm L 97% of 95, R 100% of 119, worst 17 mm; head gap min -0.6 cm; mallets touch 1% of 1100 (4.00 7.80 10.80 15.85 17.75 19.80)
+== xylophone.pass=0.035;xylophone.pitchR=0.5;xylophone.reach=0.6
+percussion-test player 0: fast pairs 127, hand changes 79%, longest run 8, passes 48; within 5 mm L 91% of 70, R 72% of 58, worst 78 mm; head gap min -1.6 cm; mallets touch 7% of 763 (1.53 1.68 1.73 1.93 1.98 2.03)
+Disney_Themes_-_Pirates_Of_The_Caribbean.mid player 3: fast pairs 198, hand changes 90%, longest run 5, passes 38; within 5 mm L 92% of 100, R 100% of 114, worst 17 mm; head gap min -0.6 cm; mallets touch 1% of 1100 (7.80 10.80 15.85 17.75 19.80 24.45)
+== xylophone.pass=0.035;xylophone.pitchR=0.5;xylophone.reach=0.56;xylophone.side.spine=14deg
+percussion-test player 0: fast pairs 127, hand changes 52%, longest run 16, passes 31; within 5 mm L 100% of 74, R 87% of 54, worst 63 mm; head gap min 0.6 cm; mallets touch 3% of 763 (4.23 4.83 5.73 6.33 6.93 11.13)
+Disney_Themes_-_Pirates_Of_The_Caribbean.mid player 3: fast pairs 198, hand changes 87%, longest run 5, passes 28; within 5 mm L 97% of 95, R 100% of 119, worst 17 mm; head gap min -0.6 cm; mallets touch 1% of 1100 (4.00 7.80 10.80 15.85 17.75 19.80)
+== xylophone.pass=0.06;xylophone.pitchR=0.5
+percussion-test player 0: fast pairs 127, hand changes 22%, longest run 23, passes 12; within 5 mm L 100% of 72, R 96% of 56, worst 14 mm; head gap min 1.5 cm; mallets touch 0% of 763 ()
+Disney_Themes_-_Pirates_Of_The_Caribbean.mid player 3: fast pairs 198, hand changes 14%, longest run 21, passes 0; within 5 mm L 100% of 18, R 100% of 196, worst 0 mm; head gap min 1.6 cm; mallets touch 0% of 1100 ()
+
+== xylo-scan4.txt
+== xylophone.pass=0
+percussion-test player 0: fast pairs 127, hand changes 4%, longest run 30, passes 0; within 5 mm L 100% of 71, R 93% of 57, worst 29 mm; head gap min 0.9 cm; mallets touch 1% of 763 (3.38 3.43 11.78 11.83 20.78 20.83)
+Disney_Themes_-_Pirates_Of_The_Caribbean.mid player 3: fast pairs 198, hand changes 38%, longest run 15, passes 0; within 5 mm L 100% of 42, R 100% of 172, worst 0 mm; head gap min 1.6 cm; mallets touch 10% of 1100 (4.50 4.60 4.65 4.70 4.90 5.05)
+== xylophone.pass=0.035;xylophone.pitchR=0.5
+percussion-test player 0: fast pairs 127, hand changes 32%, longest run 22, passes 22; within 5 mm L 100% of 75, R 96% of 53, worst 29 mm; head gap min 1.5 cm; mallets touch 1% of 763 (4.23 5.73 6.33 21.63 23.13 23.73)
+Disney_Themes_-_Pirates_Of_The_Caribbean.mid player 3: fast pairs 198, hand changes 48%, longest run 14, passes 10; within 5 mm L 100% of 52, R 100% of 162, worst 0 mm; head gap min 1.6 cm; mallets touch 1% of 1100 (7.80 10.80 24.45 24.50 36.45 36.50)
+== xylophone.pass=0.035;xylophone.pitchR=0.5;xylophone.reach=0.55
+percussion-test player 0: fast pairs 127, hand changes 57%, longest run 13, passes 36; within 5 mm L 100% of 71, R 86% of 57, worst 29 mm; head gap min -0.9 cm; mallets touch 2% of 763 (4.23 5.73 6.33 6.93 11.13 18.93)
+Disney_Themes_-_Pirates_Of_The_Caribbean.mid player 3: fast pairs 198, hand changes 85%, longest run 5, passes 19; within 5 mm L 100% of 95, R 100% of 119, worst 0 mm; head gap min 1.6 cm; mallets touch 1% of 1100 (4.00 7.80 10.80 19.80 24.45 24.50)
+
+== xylo-scan5.txt
+== xylophone.pass=0.035;xylophone.pitchR=0.5;xylophone.side.spine=14deg
+percussion-test player 0: fast pairs 127, hand changes 35%, longest run 22, passes 22; within 5 mm L 100% of 77, R 96% of 51, worst 29 mm; head gap min 1.5 cm; mallets touch 1% of 763 (4.23 5.73 6.33 11.13 21.63 23.13)
+Disney_Themes_-_Pirates_Of_The_Caribbean.mid player 3: fast pairs 198, hand changes 79%, longest run 8, passes 14; within 5 mm L 100% of 82, R 100% of 132, worst 0 mm; head gap min 1.6 cm; mallets touch 1% of 1100 (4.00 7.80 10.80 19.80 24.45 24.50)
+== xylophone.pass=0.035;xylophone.pitchR=0.35
+percussion-test player 0: fast pairs 127, hand changes 32%, longest run 22, passes 22; within 5 mm L 100% of 75, R 96% of 53, worst 29 mm; head gap min 1.0 cm; mallets touch 0% of 763 ()
+Disney_Themes_-_Pirates_Of_The_Caribbean.mid player 3: fast pairs 198, hand changes 48%, longest run 14, passes 10; within 5 mm L 100% of 52, R 100% of 162, worst 0 mm; head gap min 1.8 cm; mallets touch 1% of 1100 (7.80 10.80 24.00 36.00 42.85 54.85)
+== xylophone.pass=0.035;xylophone.pitchR=0.35;xylophone.side.spine=14deg
+percussion-test player 0: fast pairs 127, hand changes 35%, longest run 22, passes 22; within 5 mm L 100% of 77, R 96% of 51, worst 29 mm; head gap min 1.0 cm; mallets touch 0% of 763 ()
+Disney_Themes_-_Pirates_Of_The_Caribbean.mid player 3: fast pairs 198, hand changes 79%, longest run 8, passes 14; within 5 mm L 100% of 82, R 100% of 132, worst 0 mm; head gap min 1.8 cm; mallets touch 1% of 1100 (4.00 7.80 10.80 18.45 19.80 24.00)
+
+== xylo-scan6.txt
+== xylophone.pitchR=1.6
+percussion-test player 0: fast pairs 127, hand changes 35%, longest run 22, passes 22; within 5 mm L 100% of 77, R 96% of 51, worst 29 mm; head gap min 0.0 cm; mallets touch 1% of 763 (4.83 6.93 10.53 22.23 24.33 27.93)
+Disney_Themes_-_Pirates_Of_The_Caribbean.mid player 3: fast pairs 198, hand changes 79%, longest run 8, passes 14; within 5 mm L 100% of 82, R 100% of 132, worst 0 mm; head gap min 1.6 cm; mallets touch 2% of 1100 (5.85 6.35 6.60 11.25 16.35 19.50)
+== xylophone.pitchR=1.8
+percussion-test player 0: fast pairs 127, hand changes 35%, longest run 22, passes 22; within 5 mm L 100% of 77, R 96% of 51, worst 29 mm; head gap min 1.6 cm; mallets touch 0% of 763 ()
+Disney_Themes_-_Pirates_Of_The_Caribbean.mid player 3: fast pairs 198, hand changes 79%, longest run 8, passes 14; within 5 mm L 100% of 82, R 100% of 132, worst 0 mm; head gap min 1.8 cm; mallets touch 2% of 1100 (7.00 7.50 9.00 10.65 11.80 12.30)
+== xylophone.pitchR=1.6;xylophone.side.spine=12deg
+percussion-test player 0: fast pairs 127, hand changes 35%, longest run 22, passes 22; within 5 mm L 100% of 77, R 96% of 51, worst 29 mm; head gap min 0.0 cm; mallets touch 1% of 763 (4.83 6.93 10.53 22.23 24.33 27.93)
+Disney_Themes_-_Pirates_Of_The_Caribbean.mid player 3: fast pairs 198, hand changes 74%, longest run 8, passes 14; within 5 mm L 100% of 77, R 100% of 137, worst 0 mm; head gap min 1.6 cm; mallets touch 2% of 1100 (5.85 6.35 6.60 16.35 19.50 20.35)
+== xylophone.pitchR=2
+percussion-test player 0: fast pairs 127, hand changes 35%, longest run 22, passes 22; within 5 mm L 100% of 77, R 96% of 51, worst 29 mm; head gap min 3.6 cm; mallets touch 0% of 763 ()
+Disney_Themes_-_Pirates_Of_The_Caribbean.mid player 3: fast pairs 198, hand changes 79%, longest run 8, passes 14; within 5 mm L 100% of 82, R 100% of 132, worst 0 mm; head gap min 2.0 cm; mallets touch 1% of 1100 (5.90 6.65 7.50 9.00 11.85 12.30)
+
+== xylo-final.txt
+== 
+percussion-test player 0: fast pairs 127, hand changes 35%, longest run 22, passes 22; within 5 mm L 100% of 77, R 96% of 51, worst 29 mm; head gap min 3.6 cm; mallets touch 0% of 763 ()
+Disney_Themes_-_Pirates_Of_The_Caribbean.mid player 3: fast pairs 198, hand changes 74%, longest run 8, passes 14; within 5 mm L 100% of 77, R 100% of 137, worst 0 mm; head gap min 2.0 cm; mallets touch 1% of 1100 (5.90 6.65 7.50 9.00 11.85 12.30)
+== xylophone.across.pitch=0.3;xylophone.pitchR=2
+percussion-test player 0: fast pairs 127, hand changes 35%, longest run 22, passes 22; within 5 mm L 100% of 77, R 96% of 51, worst 29 mm; head gap min 0.8 cm; mallets touch 0% of 763 ()
+Disney_Themes_-_Pirates_Of_The_Caribbean.mid player 3: fast pairs 198, hand changes 74%, longest run 8, passes 14; within 5 mm L 100% of 77, R 100% of 137, worst 0 mm; head gap min 1.8 cm; mallets touch 2% of 1100 (4.30 5.90 6.65 6.95 7.45 8.95)
+== xylophone.across.pitch=0.25;xylophone.pitchR=2.4
+percussion-test player 0: fast pairs 127, hand changes 35%, longest run 22, passes 22; within 5 mm L 100% of 77, R 96% of 51, worst 29 mm; head gap min 1.9 cm; mallets touch 0% of 763 ()
+Disney_Themes_-_Pirates_Of_The_Caribbean.mid player 3: fast pairs 198, hand changes 74%, longest run 8, passes 14; within 5 mm L 100% of 77, R 100% of 137, worst 0 mm; head gap min 1.6 cm; mallets touch 2% of 1100 (4.30 7.45 8.95 9.80 18.30 20.65)
+== xylophone.pitchR=1.3
+percussion-test player 0: fast pairs 127, hand changes 35%, longest run 22, passes 22; within 5 mm L 100% of 77, R 96% of 51, worst 29 mm; head gap min 0.7 cm; mallets touch 2% of 763 (6.03 6.63 10.83 11.43 12.03 12.63)
+Disney_Themes_-_Pirates_Of_The_Caribbean.mid player 3: fast pairs 198, hand changes 74%, longest run 8, passes 14; within 5 mm L 100% of 77, R 100% of 137, worst 0 mm; head gap min 1.9 cm; mallets touch 3% of 1100 (4.25 4.35 4.85 8.35 8.70 11.15)
+== xylophone.pitchR=1
+percussion-test player 0: fast pairs 127, hand changes 35%, longest run 22, passes 22; within 5 mm L 100% of 77, R 96% of 51, worst 29 mm; head gap min -1.1 cm; mallets touch 18% of 763 (3.38 3.43 3.48 3.53 3.68 3.73); a head above its shoulder 4%, highest 0.7 cm over it
+Disney_Themes_-_Pirates_Of_The_Caribbean.mid player 3: fast pairs 198, hand changes 74%, longest run 8, passes 14; within 5 mm L 100% of 77, R 100% of 137, worst 0 mm; head gap min 1.6 cm; mallets touch 14% of 1100 (4.05 4.10 4.15 4.20 4.50 4.65); a head above its shoulder 0%, highest -0.1 cm over it
+== xylophone.pitchR=1.6
+percussion-test player 0: fast pairs 127, hand changes 35%, longest run 22, passes 22; within 5 mm L 100% of 77, R 96% of 51, worst 29 mm; head gap min 0.0 cm; mallets touch 1% of 763 (4.83 6.93 10.53 22.23 24.33 27.93); a head above its shoulder 82%, highest 8.9 cm over it
+Disney_Themes_-_Pirates_Of_The_Caribbean.mid player 3: fast pairs 198, hand changes 74%, longest run 8, passes 14; within 5 mm L 100% of 77, R 100% of 137, worst 0 mm; head gap min 1.6 cm; mallets touch 2% of 1100 (5.85 6.35 6.60 16.35 19.50 20.35); a head above its shoulder 82%, highest 8.0 cm over it
+== xylophone.pitchR=1.8
+percussion-test player 0: fast pairs 127, hand changes 35%, longest run 22, passes 22; within 5 mm L 100% of 77, R 96% of 51, worst 29 mm; head gap min 1.6 cm; mallets touch 0% of 763 (); a head above its shoulder 92%, highest 11.4 cm over it
+Disney_Themes_-_Pirates_Of_The_Caribbean.mid player 3: fast pairs 198, hand changes 74%, longest run 8, passes 14; within 5 mm L 100% of 77, R 100% of 137, worst 0 mm; head gap min 1.9 cm; mallets touch 2% of 1100 (7.00 7.50 9.00 10.65 11.80 12.30); a head above its shoulder 85%, highest 10.4 cm over it
+== xylophone.pitchR=2
+percussion-test player 0: fast pairs 127, hand changes 35%, longest run 22, passes 22; within 5 mm L 100% of 77, R 96% of 51, worst 29 mm; head gap min 3.6 cm; mallets touch 0% of 763 (); a head above its shoulder 93%, highest 13.8 cm over it
+Disney_Themes_-_Pirates_Of_The_Caribbean.mid player 3: fast pairs 198, hand changes 74%, longest run 8, passes 14; within 5 mm L 100% of 77, R 100% of 137, worst 0 mm; head gap min 2.0 cm; mallets touch 1% of 1100 (5.90 6.65 7.50 9.00 11.85 12.30); a head above its shoulder 86%, highest 12.8 cm over it

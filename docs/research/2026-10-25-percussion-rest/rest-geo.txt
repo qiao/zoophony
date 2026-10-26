@@ -1,0 +1,44 @@
+node docs/research/2026-10-25-percussion-rest/rest-geo.ts: the rest pose of the tree, then with
+--set snare-drum.set=null --set suspended-cymbal.set=null (the rest of main). Each paw gives the
+joints, then the grip and the tip of its stick in cm (x right, y up; the player faces -z) and
+the angle of the stick above the level.
+
+== tree
+== snare (H 0.244)
+  target head 0.0,46.0,-45.0
+  L shoulder -14.5,59.6,1.7 elbow -22.8,51.5,-2.1 wrist -23.1,49.9,-14.3
+    grip -22.5,47.8,-15.8 tip 3.0,48.3,-31.6 dir 0.85,0.02,-0.53 up 1°
+  R shoulder 14.5,59.6,1.7 elbow 22.8,51.5,-2.1 wrist 23.1,49.9,-14.3
+    grip 22.2,47.9,-15.9 tip -2.8,51.4,-32.1 dir -0.83,0.12,-0.54 up 7°
+== cymbal (H 0.244)
+  target head 0.0,52.0,-42.0
+  L shoulder -14.5,59.6,1.7 elbow -24.1,53.1,-2.1 wrist -23.1,54.9,-14.3
+    grip -22.5,53.2,-16.3 tip 4.6,55.1,-29.0 dir 0.90,0.06,-0.42 up 4°
+  R shoulder 14.5,59.6,1.7 elbow 24.1,53.1,-2.1 wrist 23.1,54.9,-14.3
+    grip 22.2,53.3,-16.3 tip -4.6,59.0,-28.4 dir -0.89,0.19,-0.41 up 11°
+== xylophone (H 0.244)
+  target bars -25.5,40.0,-47.5
+  L shoulder -14.5,59.6,1.7 elbow -22.5,51.3,-2.2 wrist -23.1,48.9,-14.3
+    grip -21.2,48.9,-16.2 tip -21.8,58.5,-44.6 dir -0.02,0.32,-0.95 up 19°
+  R shoulder 14.5,59.6,1.7 elbow 22.5,51.3,-2.2 wrist 23.1,48.9,-14.3
+    grip 21.2,48.9,-16.2 tip 21.8,58.5,-44.6 dir 0.02,0.32,-0.95 up 19°
+
+== main
+== snare (H 0.244)
+  target head 0.0,46.0,-45.0
+  L shoulder -14.5,59.6,1.7 elbow -22.5,51.3,-2.2 wrist -23.1,48.9,-14.3
+    grip -21.2,48.9,-16.2 tip -20.8,71.4,-36.0 dir 0.01,0.75,-0.66 up 49°
+  R shoulder 14.5,59.6,1.7 elbow 22.5,51.3,-2.2 wrist 23.1,48.9,-14.3
+    grip 21.2,48.9,-16.2 tip 20.8,71.4,-36.0 dir -0.01,0.75,-0.66 up 49°
+== cymbal (H 0.244)
+  target head 0.0,52.0,-42.0
+  L shoulder -14.5,59.6,1.7 elbow -22.5,51.3,-2.2 wrist -23.1,48.9,-14.3
+    grip -21.2,48.9,-16.2 tip -20.8,71.4,-36.0 dir 0.01,0.75,-0.66 up 49°
+  R shoulder 14.5,59.6,1.7 elbow 22.5,51.3,-2.2 wrist 23.1,48.9,-14.3
+    grip 21.2,48.9,-16.2 tip 20.8,71.4,-36.0 dir -0.01,0.75,-0.66 up 49°
+== xylophone (H 0.244)
+  target bars -25.5,40.0,-47.5
+  L shoulder -14.5,59.6,1.7 elbow -22.5,51.3,-2.2 wrist -23.1,48.9,-14.3
+    grip -21.2,48.9,-16.2 tip -21.8,58.5,-44.6 dir -0.02,0.32,-0.95 up 19°
+  R shoulder 14.5,59.6,1.7 elbow 22.5,51.3,-2.2 wrist 23.1,48.9,-14.3
+    grip 21.2,48.9,-16.2 tip 21.8,58.5,-44.6 dir 0.02,0.32,-0.95 up 19°

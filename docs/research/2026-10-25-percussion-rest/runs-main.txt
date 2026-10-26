@@ -1,0 +1,6 @@
+The runs of the xylophone with the hand rules of main: node docs/research/2026-10-25-percussion-rest/runs.ts <file>
+at commit 05c2dc86, where each hold has the pass 0, so that the hands follow main (pnpm body-probe equal).
+
+percussion-test player 0: fast pairs 127, hand changes 3%, longest run 29, passes 0; within 5 mm L 100% of 70, R 93% of 58, worst 29 mm; head gap min 0.6 cm; mallets touch 0% of 763 ()
+percussion-test player 1: fast pairs 127, hand changes 3%, longest run 29, passes 0; within 5 mm L 100% of 70, R 93% of 58, worst 27 mm; head gap min 0.7 cm; mallets touch 0% of 763 ()
+Disney_Themes_-_Pirates_Of_The_Caribbean.mid player 3: fast pairs 198, hand changes 14%, longest run 21, passes 0; within 5 mm L 100% of 18, R 100% of 196, worst 0 mm; head gap min 1.6 cm; mallets touch 4% of 1100 (5.05 8.55 8.60 8.70 8.75 11.70)
