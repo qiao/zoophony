@@ -902,42 +902,50 @@ const WOLF_CLARINET = {
 
 /**
  * The trumpet hold of the monkey (design 5.3), the hold of a real trumpet player
- * (`docs/reference/wind-technique.md` 2.1): the right fingertips on the valves, the left paw
- * holds the weight, and the trumpet points forward, angled slightly down. The rest and the
- * shoulders are those of {@link WIND_HOLDS}. The monkey keeps the arms and plays the smaller
- * trumpet that the user chose (`SpeciesParams.trumpetScale`).
+ * (`docs/reference/wind-technique.md` 2.1): the left paw wraps the valve casings and holds the
+ * weight, the right fingers arch down onto the valves, and the trumpet points forward, angled
+ * slightly down. The monkey keeps the arms and plays the smaller trumpet that the user chose
+ * (`SpeciesParams.trumpetScale`).
  *
  * While the monkey plays, the bell turns 5° further down, to 10° below the level, about 80° to a
  * vertical face, as a real player angles the trumpet "slightly down" and slightly less than 90° to
- * the face (`docs/reference/wind-technique.md` 2.1). The left grip moves 0.03 H down from the
- * valve block (`gripShiftL`), so that the top of the left paw stays 0.3 cm below the mouthpiece
- * and the mouth shows in the front view. The top of the right paw is 0.9 cm above the mouthpiece,
- * below the lips. With the bell 5° below the level, both paws covered the mouth in the front view
- * (manager review of 2026-10-25), and 20° below the level was more than slightly down. With the
- * right grip 0.03 H down too, the right finger tips left the valves. Each palm faces the valve block
- * (`faceTube`, `InstrumentGrips.tubeL` of `models/instruments/brass.ts`): the left paw wraps the
- * casings from the left, and the right fingers come over the valve tops from the right. The
- * fingers curl 86° (left) and 92° (right), so that the long fingers close on the valves in place
- * of standing open above the trumpet (`gripCurl`). Both paws grasp the trumpet in each play
- * sample (`pnpm wind-grip trumpeter`, `2026-10-25-grips` and `2026-10-25-open-grips` decisions).
+ * the face. With the bell 5° below the level, the paws covered the mouth in the front view
+ * (manager review of 2026-10-25), and 20° below the level was more than slightly down.
+ *
+ * The left palm faces the upright casings from the left, below the middle of their height
+ * (`InstrumentGrips.tubeL` of `models/instruments/brass.ts`), the left paw points up along its
+ * forearm with the thumb up and back toward the first valve slide, and its fingers curl 109°
+ * around the casings (`gripCurl`). The right palm lies above the valves at their right and faces
+ * down, and the right paw points to the left across the valve tops: 0.8 of its aim is the side
+ * direction across the valves (`aimSide`), and its fingers curl 92° down onto the valves. Before
+ * 2026-10-25, both palms faced the valve block from its two sides, and the two paws pressed
+ * together in front of the mouth like praying hands (`docs/audits/2026-10-25-role-visual-audit.md`,
+ * fault 2, `docs/research/2026-10-25-brass-grips.md`). The left paw takes no side aim: the retarget
+ * turns the paw back to its forearm in the plane of its palm (`PAW_TURN` of
+ * `models/studio-rig.ts`), and with the side aim of the right paw, the left paw left its grip by
+ * 4.2 cm. Both paws keep the hold of the play at rest (`restAim`), so that the right fingers stay
+ * on the valves: with the roll of the shoulder at rest, the right finger tips stood 3.3 cm off. At
+ * rest, the left grip moves 0.04 H along the casings toward the bell (`restGripShiftL`), so that
+ * the left finger tips stay on the casings of the upright trumpet: on the grip of the play, they
+ * stood 1.1 cm off.
  *
  * The big head puts the mouthpiece 0.23 m above the shoulder joints, so the grips are 0.17 m to
  * 0.18 m above the shoulders at the size 1.1 that the user chose
- * (`docs/research/2026-10-20-mesh-monkey/size-1.1/mouth-probe.txt`).
- * Both elbows point down and a little out, as a real player lets the elbows hang. Of 5 elbow
- * directions that pass the arm gate, this one gave the smallest paw turns on the forearms:
- * 103° (left) and 106° (right) in the play, against 117° and 134° with the elbows of
- * {@link WIND_HOLDS}. Elbows out and higher gave level forearms, but the right upper arm went flat
- * (`docs/research/2026-10-20-mesh-monkey/arm-poles.txt`).
+ * (`docs/research/2026-10-20-mesh-monkey/size-1.1/mouth-probe.txt`), and the forearms rise
+ * steeply. Both elbows point down and out, as a real player lets the elbows hang. With the
+ * elbows out and level, the forearms were flatter, but the right upper arm went flat (0.51,
+ * limit 0.55) and the right wrist bent 71° (limit 70°).
  */
 const MONKEY_TRUMPET = {
   ...WIND_HOLDS.trumpet,
   play: holdTurn(-5, 0),
-  poleL: [-0.3, -1, 0],
-  poleR: [0.3, -1, 0],
+  poleL: [-1, -1, 0],
+  poleR: [1, -1, 0],
   faceTube: ['palm', 'palm'],
-  gripShiftL: [0, -0.03, 0],
-  gripCurl: curls(86, 92),
+  aimSide: [0, 0.8],
+  restGripShiftL: [0, 0, 0.04],
+  restAim: 1,
+  gripCurl: curls(109, 92),
 } as const satisfies WindHold;
 
 /**

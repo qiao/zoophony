@@ -211,17 +211,26 @@ interface BrassBuild {
 }
 
 /**
+ * The distance of the right palm of the trumpet to the right of the axes of the valves, in meters
+ * at the size 1 ({@link trumpet}). With the palm straight above the valves, the paw of the monkey
+ * reached 2.7 cm past them to the left, onto the left paw.
+ */
+const VALVES_TO_RIGHT_PALM = 0.045;
+
+/**
  * Builds the trumpet. The mouthpiece is at the origin, and the trumpet runs along +x to the bell.
  * The valves stand up (+y), and the player holds it horizontal and forward. A species with short
  * arms plays a smaller trumpet (`SpeciesParams.trumpetScale`), as a child plays a fractional
  * violin. The trumpet, its grips, and its bell target shrink toward the mouthpiece, so the
  * mouthpiece stays at the mouth.
  *
- * The palms hold the valve casings at their lower half, the left palm at the left side and the
- * right palm at the right side, so that the fingers of a long paw reach up to the tops of the
- * valves, as the left hand of a real player holds the casings and the right fingertips rest on
- * the valves (`docs/reference/wind-technique.md` 2.1). With the right palm on top of the valves,
- * the long paws of the monkey rose past the trumpet to the eyes.
+ * The left palm holds the valve casings from the left, below the middle of their height, and its
+ * fingers close around the upright casings, as the left hand of a real player wraps the casings
+ * and holds the weight (`docs/reference/wind-technique.md` 2.1). The right palm lies above the
+ * valve tops and 3.6 cm to their right at the size 0.8, and faces down, so that the right fingers
+ * reach to the left over the valves and arch down onto them. With both palms at the sides of the
+ * casings, the two paws of the monkey pressed together in front of the mouth like praying hands
+ * (`docs/audits/2026-10-25-role-visual-audit.md`, fault 2).
  *
  * @param scale The scale of the trumpet, as a factor of its size in {@link BRASS}.
  * @returns The parts and the play data.
@@ -268,20 +277,21 @@ function trumpet(scale: number): BrassBuild {
         hold('mouth', [0, 0, 0], pointing([0, -Math.sin(5 * MathUtils.DEG2RAD), -1], [0, 1, 0])),
       ),
     ],
-    palmL: scaled([0.17, -0.07, -0.03]),
-    palmR: scaled([0.18, -0.05, 0.03]),
-    // Both palms close around the valve block, along the trumpet through the middle of the
-    // casings: the left hand wraps the casings, and the right fingers come over to the valve tops.
+    palmL: scaled([0.176, -0.07, -0.038]),
+    palmR: scaled([0.176, 0.045, VALVES_TO_RIGHT_PALM]),
     tubes: {
+      // The left fingers close around the upright middle casing.
       tubeL: {
         bone: 'instrument',
-        from: scaled([0.15, -0.025, 0]),
-        to: scaled([0.202, -0.025, 0]),
+        from: scaled([0.176, -0.0625, 0]),
+        to: scaled([0.176, 0.0125, 0]),
       },
+      // The right palm faces down onto the line of the valve tops under it, so the line lies to
+      // the right of the valves by the same distance as the palm.
       tubeR: {
         bone: 'instrument',
-        from: scaled([0.15, -0.025, 0]),
-        to: scaled([0.202, -0.025, 0]),
+        from: scaled([0.15, 0.0125, VALVES_TO_RIGHT_PALM]),
+        to: scaled([0.202, 0.0125, VALVES_TO_RIGHT_PALM]),
       },
     },
     targets: [{ ...bellTarget, from: bellMouth, to: bellMouth }],
