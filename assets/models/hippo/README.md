@@ -48,3 +48,32 @@ side of the animal):
   top of the muzzle are a little darker than the muzzle.
 - The small round ears stand on the top of the head, from y 0.965 to 1.0 at x ±0.1.
 - The small tail hangs down under the buttock, from y 0.215 to 0.157 at z -0.24 to -0.205.
+
+## hippo-arms.glb and hippo-weights.json
+
+`hippo-arms.glb` is `hippo.glb` with new quad faces on each arm, a side wall of the trunk under
+each arm, and arms 1.5 times longer. On 2026-10-24 the user allowed loop edges, retopology, and
+extra bones for the arm and wrist twist ("add loop edges and retopology and additional bones if
+needed to address them"). `tools/blender/hippo_arms.py` replays the Blender session of 2026-10-25
+that made both files, byte for byte. The hanging upper arm joins the trunk down to about y 0.45,
+near the elbow, so the session takes the route of the cat and the fox (`tools/blender/cat_arms.py`,
+`tools/blender/fox_arms.py`): a cut along the seam where the arm meets the trunk, a side wall of
+the trunk under the arm, and a tube with a flat inner side on the wall. The faces of the paws, the
+trunk, the legs, and the head are the faces of the user, except the thin faces at the cut loops,
+which collapse or go. The arms are 1.5 times longer from the socket, as the rig made them before
+(`armFactor` of the config), because a rig with arm segments does not stretch the arms.
+`pnpm rig-mesh hippo` writes `hippo.rig.glb`, and `pnpm studio-body hippo` writes
+`src/models/studio/hippo.ts`.
+
+| Item | Value |
+|---|---|
+| `hippo-arms.glb` | 923,940 bytes, SHA-256 `d36280c389d484c752a9f96532e7f4599273e770a33001e6eba0cc6c2fe036fc` |
+| Mesh | 1,824 vertices after a weld at 1e-5, 3,643 triangles (3,141 in the source): on each arm a tube of quad rings of 16 vertices, joined to the socket and the paw with Bridge Edge Loops, with Beautify Faces and Collapse Edges on the thin faces |
+| Material | One material with one base color JPEG: the atlas of the source, and a strip of 512 pixels on top with the skin color of the source arms, baked onto the new faces. The side walls and the flat inner sides take one skin color of the trunk. No metallic-roughness texture |
+| `hippo-weights.json` | 406,180 bytes, SHA-256 `b594453f8776a26d0b251e667c30dcb955b804fad6166c8ecfe5c4ba5d595a05` |
+| Weights | The automatic weights of Blender with the Weight Paint fixes of the session, on the studio bones and the arm segments and helpers (`armSegments` of the config), for `paintedWeights` of the config |
+| License | Derived from the mesh of the user, who holds its rights |
+
+```bash
+shasum -a 256 assets/models/hippo/hippo-arms.glb assets/models/hippo/hippo-weights.json
+```
