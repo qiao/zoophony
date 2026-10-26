@@ -910,7 +910,7 @@ The code constants of each family hold the times, the angles, and the lengths of
     does not sweep through the desk (`pose/test-conductor-clearance.ts`). The paw twists on its
     forearm by at most `CONDUCTOR_HOLD.liftTwist` for this turn, because the full turn twisted it
     past 180° (5.2). The right paw holds the baton between the thumb and the fingers with the palm
-    down and the claws around the stick (`CONDUCTOR_HOLD.batonRoll`), and the baton points 25° up.
+    down and the claws around the stick (`CONDUCTOR_HOLD.batonRoll`), and the baton points 18° up.
   - **Bow at the song end.** At the pause at the song end (6.5), the bear bows to the orchestra
     while the instruments are still up. A hanging arm follows half of the bend (`HANG_FOLLOW`),
     so that the paws touch neither the belly nor the stand. The bow is a function of the wall

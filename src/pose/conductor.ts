@@ -47,15 +47,15 @@ export const CONDUCTOR_HOLD = {
    */
   beatPoint: [0.28, 1.235, -2.177],
   /**
-   * The baton points from this place to its tip, from the right shoulder joint: forward, up 25°,
+   * The baton points from this place to its tip, from the right shoulder joint: forward, up 18°,
    * and 20° inward at beat 1, as a conductor points it at the players (30° up before 2026-10-26,
-   * 2026-10-26-second-review decisions). The pivot is about 0.9 m from
-   * the tip, about twice as far as the wrist, so that the wrist follows about half of the motion
-   * of the tip in the beat plane, and the arm beats with the baton. On the mesh bear, with the
-   * baton up 22°, a fast turn of the paw (4,249° per second) jumped in the lowering of the arms,
-   * and the arm gate failed.
+   * 2026-10-26-second-review decisions). With 25° up, the baton rose past the face in the views
+   * from the front. The pivot is about 0.9 m from the tip, about twice as far as the wrist, so
+   * that the wrist follows about half of the motion of the tip in the beat plane, and the arm
+   * beats with the baton. With 15° up, the right forearm twisted more in the lift (p95 28°
+   * against 12°), and with 10° inward, the baton stood straight up from the front.
    */
-  batonPivot: [1.187, -0.003, 0.318],
+  batonPivot: [1.233, 0.33, 0.442],
   /**
    * The beat plane turns this part of the turn of the upper body to a cued section on the left.
    * Thus the arm opens to the right in a turn to the left, and the hand stays beside the head from
