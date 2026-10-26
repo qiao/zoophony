@@ -956,8 +956,8 @@ const MONKEY_TRUMPET = {
  * is longer (`SpeciesParams.tubaPipe`), the right shoulder turns 45° forward, and the left
  * shoulder 40°, as the shoulder blades of a real player slide forward. The lower end of the tuba
  * turns 25° to the right, so that the bell stands at the left of the horn on the muzzle. The
- * elbows point out, down, and forward, and the right elbow points more out than down, as the arms
- * of a real player stay away from the rib cage (`docs/reference/wind-technique.md` 1.8). With
+ * elbows point out and down, and the right elbow also a little forward and more out than down, as
+ * the arms of a real player stay away from the rib cage (`docs/reference/wind-technique.md` 1.8). With
  * the right shoulder at 30° and the right elbow down and out, the right upper arm went 1.8 cm to
  * 2.0 cm into the body (`docs/decisions/2026-10-25-thick-arm-depth.md`). At rest, the tuba moves
  * off the mouth and its lower end turns 5° forward (`docs/research/2026-10-21-mesh-rhino.md`).
@@ -965,16 +965,20 @@ const MONKEY_TRUMPET = {
  * The right palm faces the valve tops, and the left palm faces the main branch (`faceTube`,
  * `InstrumentGrips.tubeL` of `models/instruments/brass.ts`), as the left hand of a real tubist
  * grips the tubing at the side of a rotary tuba, with the knuckles to the left, while the right
- * hand works the valves
- * (`docs/reference/wind-technique.md` 3). The fingers of both paws curl 80° (`gripCurl`). Both
- * paws keep the aim and the roll of the play at rest (`restAim`): with the roll of the shoulder at
- * rest, the left paw flipped in the lowering (the wrist turned 17960° each second). The left grip
- * moves 0.12 H toward the main branch and 0.1 H around it toward the body (`gripShiftL`), so that
- * the palm lies on the back left of the branch and the finger tips touch it. There, the left paw
- * turns 148° on its forearm. On the left side of the branch, it turned 167° to 170°, near the
- * limit of the arm gate. Before 2026-10-25, the left paw kept the roll of its shoulder, with the
- * back of the paw to the branch (`2026-10-25-open-grips` decisions). The right grip moves 0.15 H
- * along the row of the valves
+ * hand works the valves (`docs/reference/wind-technique.md` 3). The left grip moves 0.16 H toward
+ * the main branch, 0.05 H around it away from the shoulder, and 0.07 H up (`gripShiftL`), so that
+ * the left paw lies on the left side of the branch: its palm faces the branch, the back of the paw
+ * faces out to the left, and the fingers point forward and down around the front of the branch.
+ * The left elbow points out and down (`poleL`, `restPoleL`), and the left fingers curl 92°
+ * (`gripCurl`). Before 2026-10-25, the left paw lay at the back left of the branch and pointed
+ * at it, so its palm faced up, and the paw turned 96° from its accepted grip
+ * (`docs/research/2026-10-25-brass-grips.md`). With the left elbow down, the thick left upper arm
+ * went 2.5 cm to 3.3 cm into the body, and with the elbow further out, the paw turned more than
+ * 170° on its forearm. At rest, the left grip moves 0.02 H out from the branch
+ * (`restGripShiftL`): on the grip of the play, the left forearm went 1.6 cm into the tuba at
+ * rest. Both paws keep the aim and the roll of the play at rest (`restAim`): with the roll of the
+ * shoulder at rest, the left paw flipped in the lowering (the wrist turned 17960° each second).
+ * The right fingers curl 80°. The right grip moves 0.15 H along the row of the valves
  * toward the front and 0.1 H toward the right shoulder (`gripShiftR`), so that the right paw lies
  * on the valve tops at the front right of the valve branch, where it shows from the front and from
  * the right front. On the grip of the instrument, the valve branch hid it from both views (manager
@@ -985,16 +989,17 @@ const RHINO_TUBA = {
   reach: 45 * MathUtils.DEG2RAD,
   reachL: 40 * MathUtils.DEG2RAD,
   play: holdTurn(0, 25),
-  poleL: [-1, -0.5, -0.5],
+  poleL: [-1, -0.75, 0],
   poleR: [1, -0.2, -0.25],
   rest: holdTurn(5, 20),
-  restPoleL: [-1, -0.5, -0.5],
+  restPoleL: [-1, -0.75, 0],
   restPoleR: [1, -0.2, -0.25],
   faceTube: ['palm', 'palm'],
-  gripShiftL: [0, 0.12, -0.1],
+  gripShiftL: [0.07, 0.16, 0.05],
   gripShiftR: [-0.15, 0, -0.1],
+  restGripShiftL: [0.07, 0.14, 0.05],
   restAim: 1,
-  gripCurl: curls(80, 80),
+  gripCurl: curls(92, 80),
 } as const satisfies WindHold;
 
 /**
