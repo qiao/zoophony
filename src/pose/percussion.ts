@@ -197,6 +197,38 @@ const strikeDirection = new Vector3();
 const Z_AXIS = new Vector3(0, 0, 1);
 
 /**
+ * Writes the turn of a paw that holds its mallet across the forearm with no bend and the
+ * direction of the mallet: the mallet points at an angle around the forearm from the direction of
+ * no twist, and the top of the grip points along the forearm toward the elbow. A mallet that
+ * slants toward the wrist in the bind pose keeps that slant.
+ *
+ * @param side The hand with a mallet.
+ * @param armForearm The unit direction of the posed forearm, from the elbow to the wrist. The
+ *   module vectors `acrossUp` and `acrossOut` hold its axes ({@link acrossAxes}).
+ * @param angle The angle of the mallet around the forearm from the direction of no twist toward
+ *   the out side of the hand, in radians.
+ * @param out Gets the world rotation of the hand from the bind pose.
+ * @param direction Gets the unit direction of the mallet.
+ */
+function crossTurn(
+  side: Extract<PercussionSide, { kind: 'mallet' }>,
+  armForearm: Vector3,
+  angle: number,
+  out: Quaternion,
+  direction: Vector3,
+): void {
+  direction
+    .copy(acrossUp)
+    .multiplyScalar(Math.cos(angle))
+    .addScaledVector(acrossOut, Math.sin(angle))
+    .multiplyScalar(Math.cos(side.tilt))
+    .addScaledVector(armForearm, Math.sin(side.tilt));
+  top.copy(armForearm).negate();
+  top.addScaledVector(direction, -top.dot(direction)).normalize();
+  setFromBasis(out, direction, top).multiply(inverse.fromArray(side.inverse));
+}
+
+/**
  * Writes the turn of a hand with a mallet across the forearm and the direction of the mallet,
  * for one share of the turn toward the rest direction (see `acrossHand()`). The roll of the paw
  * around the mallet comes from the rest direction, where the top of the grip points along the
@@ -220,17 +252,8 @@ function holdTurn(
   if (!across) {
     return;
   }
-  // The rest direction across the armForearm, and the paw that holds it with no swing. A mallet
-  // that slants toward the wrist in the bind pose keeps that slant.
-  direction
-    .copy(acrossUp)
-    .multiplyScalar(Math.cos(across.rest))
-    .addScaledVector(acrossOut, Math.sin(across.rest))
-    .multiplyScalar(Math.cos(side.tilt))
-    .addScaledVector(armForearm, Math.sin(side.tilt));
-  top.copy(armForearm).negate();
-  top.addScaledVector(direction, -top.dot(direction)).normalize();
-  setFromBasis(out, direction, top).multiply(inverse.fromArray(side.inverse));
+  // The rest direction across the armForearm, and the paw that holds it with no swing.
+  crossTurn(side, armForearm, across.rest, out, direction);
   // The wrist lifts the head: a out of the paw around the level axis normal to the armForearm,
   // with no twist on the armForearm.
   level.crossVectors(armForearm, UP);
