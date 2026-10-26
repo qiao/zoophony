@@ -66,6 +66,10 @@ at once in the running app (user, 2026-10-17). It needs no merge, and it pushes 
 uses its own branch and worktree only when another agent works on the repository at the same time.
 Then these rules hold:
 
+- At the start, check the base of your worktree. A new agent worktree can start at `origin/main`,
+  and `origin/main` is old because nobody pushes. When `git merge-base HEAD main` differs from
+  `git rev-parse main`, run `git reset --hard main` before your first change. On 2026-10-25, an
+  audit rendered a tree 428 commits behind `main` and reported faults that `main` had fixed.
 - Stage each path by its name: `git add <path>`. `git add -A` and `git add .` also stage the files
   of the other agents.
 - Merge a branch with `tools/merge-branch.sh <branch> [worktree]`. It rebases with no
