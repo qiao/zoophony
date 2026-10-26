@@ -4298,6 +4298,11 @@ def main():
         else:
             log(f"weights: painted in Blender ({config['paintedWeights']}), no rules")
         weights = limit(weights)
+        if rules.get('rigidPainted'):
+            # The thin faces at these points take the mean of the painted weights of their corners,
+            # as `rigid` does for the rule weights.
+            weights = limit(rigid_faces(verts, source_tris, weights,
+                                        {'rigid': rules['rigidPainted']}))
     else:
         weights = apply_rules(verts, source_tris,
                               bone_heat(verts, source_tris, heads, ends, rolls), rules, heads, ends)
