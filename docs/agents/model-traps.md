@@ -47,6 +47,11 @@ group of your work before you plan it. A probe that a trap names is in its resea
   its tube does so. Put the paw at the side of its own shoulder, and read the thumb and the palm
   side with `palm-probe.ts` of `docs/research/2026-10-25-wind-palms/`, because `pnpm wind-grip`
   sees no thumb.
+- A prop on the hand of the player moves in the visible paw by the side bend that `PAW_TURN`
+  removes, up to 70°. Hold a mallet with no side bend (`gripRoll()` of `pose/percussion.ts`),
+  and measure it with `shaft-frame.ts` of `docs/research/2026-10-25-percussion-grip/`. A roll
+  that removes the side bend flips where the shaft passes the forearm line: count the jumps with
+  `jumps.ts` of the same folder.
 - The rule `weights.fingers` 0.5 of a rig keeps no paw vertex mainly on the fingers, so a curl
   closes little. Give a role that closes its paw around a tube the whole weights (1), and count
   them with `glb_fingers.py` of the same folder.
