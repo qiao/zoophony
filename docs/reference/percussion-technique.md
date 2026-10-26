@@ -17,7 +17,8 @@ app.
 **Source marks.** Each fact names its source by a number of section 11. "(abstract)" marks a fact
 from an abstract or a search summary, because the full text did not open. "(secondary)" marks a
 fact that another source quotes. "(derived)" marks a value that this file calculates from the
-values of its sources. A fact with no mark comes from the text of the source.
+values of its sources. "(photo)" marks a fact that a photo of the source shows, with no text.
+A fact with no mark comes from the text of the source.
 
 ## Terms
 
@@ -105,6 +106,14 @@ from the V).
   body [18], or a little off the middle [9].
 - The elbows are about a fist from the body, the upper arms hang mostly still, and the wrist
   makes the stroke [17]. A full stroke lifts the tip about 8 inches [18].
+- Between entrances, the player holds the sticks in a rest position: level and across the body
+  in front of the waist, side by side, one in each hand [36 (photo)]. The ready position holds the
+  tips 1 to 2 inches above the head, and the sticks can go back to it in a rest of the music
+  [36]. No object goes on the drum head [36].
+- A drumline holds a set position between passages: the two sticks parallel, facing opposite
+  directions, in front of the belly and about one inch above the rim nearest to the body. The
+  players go to the playing position two beats before an entrance, and back to the set position
+  one beat after the end of a passage [37].
 
 ## 7. The crash cymbals and the suspended cymbal
 
@@ -133,7 +142,11 @@ from the V).
   opposite, because the plate then rocks [31].
 - The stroke is legato, as on a marimba bar, and comes off the cymbal at the end of the roll
   [30]. Single notes play at the very edge with a legato stroke [31].
-- No source of this file gives the height of the stand.
+- The suspended cymbal hangs flat, a little above the height of the waist [38].
+- No source of this file gives where a suspended cymbal player holds the mallets between
+  entrances. The bongos, played with snare sticks on a stand, take the ready position of the
+  snare drum [36], and the photos of [36] show the same rest position as for the snare drum
+  [36 (photo)].
 
 ## 8. The triangle and the tambourine
 
@@ -213,7 +226,7 @@ shoulder joint to the palm (`docs/decisions/2026-10-20-mesh-badger.md`).
   curled claws. The butt end sticks out 0.8 cm to 3.2 cm behind the paw,
   where section 1 gives 13 mm to 25 mm. The bass drum beater and the triangle beater have a
   longer butt (`BASS_DRUM.malletButt`, `TRIANGLE.malletButt`), so that 2 cm sticks out. The
-  paw keeps its stick at rest and in the lift, with the head up and forward.
+  xylophone paws keep their mallets at rest, with the heads up and forward.
 
 - **The bass drum.** The badger stands behind the drum at its front left, and the beater in the
   right paw strikes 12 cm below the middle of the head, as section 5 gives. The left arm hangs,
@@ -225,6 +238,14 @@ shoulder joint to the palm (`docs/decisions/2026-10-20-mesh-badger.md`).
   and the wrist lifts the tip about 17 cm above its spot (`MalletAcross.pitch`). The tip stays
   over the head, about 4 cm from its spot, and the V opens to about 78°. Section 6 gives a lift
   of about 8 inches (20 cm) for a full stroke. The elbows point down and out.
+  At rest, the badger holds the sticks in the rest position of section 6: the upper arms hang,
+  the forearms point forward, and each paw turns its palm down, so that its stick points in
+  across the body in front of the waist (`PercussionHold.set`). The wrists rise 1 cm, so that
+  the tips stay 2 cm (left) and 5 cm (right) above the head at the rim nearest to the body, as
+  section 6 gives about one inch. The left stick rises 1° and the right stick 7°, so that the
+  two sticks cross 2.4 cm apart in height. The sticks also point about 30° forward, because
+  each stick leaves the fist 60° from the fingers, and the forearm of the hanging arm points
+  forward. The lift turns the sticks from there to the play.
 - **The triangle and the tambourine.** The left paw holds the triangle by its clip at the height
   of the mouth of the badger, below the eye level of section 8, because the short arm reaches no
   higher in front of the long snout. The clip lies in the palm under the curled fingers and
@@ -242,8 +263,12 @@ shoulder joint to the palm (`docs/decisions/2026-10-20-mesh-badger.md`).
   Between strikes, each mallet keeps its strike direction seen from above, and the wrist lifts
   the head about 12 cm above its spot (`MalletAcross.pitch`). The head stays over the plate,
   about 3 cm in from the rim. No source of section 11 gives the height between strikes. The
-  roll of the app is the alternate strikes of the notes. The app has no muffling of the plate. The
-  hand cymbals of the app meet in front of the shoulders, vertical (`PERCUSSION_PLACES`).
+  roll of the app is the alternate strikes of the notes. At rest, the badger holds the mallets
+  across the body as the snare sticks, above the plate: the wrists rise 6 cm, so that the yarn
+  heads stay about 2 cm above the near part of the plate (`SUSPENDED_CYMBAL_HOLD.set`). No
+  source of section 11 gives this rest, and section 7 gives the bongos with sticks the positions
+  of the snare drum. The app has no muffling of the plate. The hand cymbals of the app meet in
+  front of the shoulders, vertical (`PERCUSSION_PLACES`).
 - **The xylophone.** The mallets leave the front of the fists, as the sticks of the snare drum,
   as section 9 gives. The badger moves the body from side to side behind the notes with the feet
   in place, as section 9 gives with few steps: the spine leans up to 10° toward the mean place
@@ -275,7 +300,8 @@ shoulder joint to the palm (`docs/decisions/2026-10-20-mesh-badger.md`).
 
 ## 11. Sources
 
-Sources 1 to 12 opened on 2026-10-19, and sources 13 to 33 on 2026-10-20, except where a fact
+Sources 1 to 12 opened on 2026-10-19, sources 13 to 33 on 2026-10-20, and sources 36 to 38 on
+2026-10-25, except where a fact
 has a mark of section "Source marks" or a source says "a search summary only".
 
 1. "3 Timpani Grips", The Instrumentalist, December 2014.
@@ -344,3 +370,9 @@ has a mark of section "Source marks" or a source says "a search summary only".
 34. Vic Firth, "Chromatic Scale", Two Mallet Fundamentals. https://ae.vicfirth.com/?p=3141
 35. M. Peters, "The Double Stroke in Mallet Technique", The Instrumentalist, April 2012.
     https://theinstrumentalist.com/?p=3568
+36. "Band Expressions, Book One", percussion student edition, unit 1 (sample pages), Alfred
+    Music, 2012. https://content.alfred.com/catpages/00-MCB1016CDXpdf.pdf
+37. G. Hicken, "Establishing Consistency Within Your Marching Percussion Section", PAS
+    Educators' Companion, vol. I. https://pas.org/wp-content/uploads/2024/04/ECV0122-28.pdf
+38. M. Varner, "Excellence in Cymbal Sounds: A Conductor's 'Crash Course'", Midwest Clinic,
+    2010. https://www.midwestclinic.org/user_files_1/pdfs/clinicianmaterials/2010/michael_varner.pdf

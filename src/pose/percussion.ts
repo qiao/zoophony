@@ -16,7 +16,7 @@ import {
   targetKeyOf,
   xylophoneShift,
 } from './percussion-rig.ts';
-import type { PercussionRig, PercussionSide } from './percussion-rig.ts';
+import type { MalletSet, PercussionRig, PercussionSide } from './percussion-rig.ts';
 import { buildSideTrack } from './side-move.ts';
 import type { SideTrack } from './side-move.ts';
 import { STRIKE_MOTION, alternateHands, buildStrikeTrack } from './strikes.ts';
@@ -194,6 +194,7 @@ const rollUp = new Vector3();
 const shaftInHand = new Vector3();
 const strikeTurn = new Quaternion();
 const strikeDirection = new Vector3();
+const inward = new Vector3();
 const Z_AXIS = new Vector3(0, 0, 1);
 
 /**
@@ -390,6 +391,49 @@ function acrossHand(
 }
 
 /**
+ * Moves the wrist and the hand of the rest pose to the set position of the sticks
+ * (`PercussionHold.set`, design 5.2). The wrist goes up from its place on the hanging arm by the
+ * raise, the elbow points as on the hanging arm, and the paw turns on the forearm with no bend
+ * until its stick points in across the body, level, and then up by the rise of its side. The
+ * slant of the stick toward the wrist (`PercussionSide.tilt`) also points it forward.
+ *
+ * @param side The hand with a mallet.
+ * @param set The set position.
+ * @param pole The direction to which the elbow of the hanging arm points, in the axes of the
+ *   chest.
+ * @param joint The posed shoulder joint of the side.
+ * @param chest The posed frame of the chest.
+ * @param wristOut The wrist of the hanging arm. Gets the wrist of the set position.
+ * @param handOut Gets the world rotation of the hand.
+ */
+function setHand(
+  side: Extract<PercussionSide, { kind: 'mallet' }>,
+  set: MalletSet,
+  pole: Vec3,
+  joint: Vector3,
+  chest: Frame,
+  wristOut: Vector3,
+  handOut: Quaternion,
+): void {
+  const { arm } = side;
+  wristOut.y += set.raise;
+  shoulderBind.fromArray(arm.bind.shoulder);
+  elbowBind.fromArray(arm.bind.elbow);
+  const upper = elbowBind.distanceTo(shoulderBind);
+  const lower = wristBind.fromArray(arm.bind.wrist).distanceTo(elbowBind);
+  turnedPole.fromArray(pole).applyQuaternion(chest.rotation);
+  solveTwoBone(joint, wristOut, upper, lower, turnedPole, joints);
+  forearm.subVectors(joints.wrist, joints.elbow).normalize();
+  acrossAxes(forearm, upperArm.subVectors(joints.elbow, joint), arm.side, acrossUp, acrossOut);
+  // The level direction in across the body, as an angle around the forearm from no twist.
+  inward.set(arm.side === 'L' ? 1 : -1, 0, 0).applyQuaternion(chest.rotation);
+  const across = Math.atan2(inward.dot(acrossOut), inward.dot(acrossUp));
+  const rise = set.rise[arm.side === 'L' ? 0 : 1];
+  // A turn toward the direction of no twist lifts the tip.
+  crossTurn(side, forearm, across - Math.sign(across) * rise, handOut, along);
+}
+
+/**
  * Writes the wrist and the world rotation of a hand with a mallet (design 5.3). The head is at
  * the height of the strike state above its target, and the mallet points from the home of the
  * hand to the head. The top of the mallet points up or toward the shoulder joint
@@ -451,6 +495,10 @@ function poseHand(
   poseShoulder(arm, chest, rig.chestBind, NO_TURN, shoulder);
   hangingWrist(hang, shoulder, hanging);
   hangingHand(hang, shoulder, restHand);
+  // A hold with a set position holds the sticks across the body at rest.
+  if (side.kind === 'mallet' && rig.hold.set) {
+    setHand(side, rig.hold.set, hang.pole, shoulder.position, chest, hanging, restHand);
+  }
   const play = side.kind === 'free' ? 0 : rig.hold.ready ? 1 : weight;
 
   head.fromArray(hand.point);

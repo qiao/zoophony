@@ -26,7 +26,7 @@ import {
   PERCUSSION_PLACES,
   SUSPENDED_CYMBAL_HOLD,
 } from '../src/pose/percussion-rig.ts';
-import type { HandsRule, MalletAcross, MalletTop } from '../src/pose/percussion-rig.ts';
+import type { HandsRule, MalletAcross, MalletSet, MalletTop } from '../src/pose/percussion-rig.ts';
 import type { SideMove } from '../src/pose/side-move.ts';
 import type { Fingering } from '../src/pose/wind-notes.ts';
 import { IDENTITY } from '../src/models/tuples.ts';
@@ -142,6 +142,7 @@ const NULL_FIELDS: ReadonlyMap<string, HoldValue> = new Map<string, HoldValue>([
   ],
   ['across', { rest: 0, lift: 0, pitch: null } satisfies MalletAcross],
   ['across.pitch', 0 satisfies NonNullable<MalletAcross['pitch']>],
+  ['set', { raise: 0, rise: [0, 0] } satisfies MalletSet],
   ['side', { span: 0, hips: 0, spine: 0, moveSec: 0 } satisfies SideMove],
   ['aimL', [0, 0, -1]],
   ['aimR', [0, 0, -1]],

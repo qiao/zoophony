@@ -81,6 +81,25 @@ export interface MalletAcross {
 }
 
 /**
+ * The set position of the sticks or the mallets of a hold at rest (design 5.2). Between
+ * entrances, a real snare drummer holds the sticks level across the body in front of the waist,
+ * about one inch above the rim nearest to the body (`docs/reference/percussion-technique.md` 6).
+ * The upper arms hang, the forearms point forward, and each paw turns its palm down on the
+ * forearm, so that its stick points in across the body. The lift turns the sticks from there to
+ * the play.
+ */
+export interface MalletSet {
+  /** The move of each wrist up from its place on the hanging arm, in meters. */
+  readonly raise: number;
+  /**
+   * The turn of the left and of the right stick around the forearm, up from the level direction
+   * in across the body, in radians. The two sticks cross in front of the body, so they take two
+   * turns and cross at two heights.
+   */
+  readonly rise: readonly [left: number, right: number];
+}
+
+/**
  * The values of the hold of each percussion instrument (design 5.3). The directions are in the
  * model axes of the bind pose: the player faces -z, and its left is -x.
  */
@@ -122,6 +141,11 @@ interface PercussionHold {
    * kettles in front of it.
    */
   readonly ready: boolean;
+  /**
+   * The set position of the sticks or the mallets at rest, or `null`: then each closed paw of the
+   * hanging arm keeps its mallet as in the bind pose, and with `ready` the paws do not rest.
+   */
+  readonly set: MalletSet | null;
   /**
    * True: each timpani note plays on one of the two kettles beside the front gap
    * ({@link frontKettles}), and the other kettles stand beyond the reach of short arms. A note
@@ -213,6 +237,7 @@ export const PERCUSSION_HOLDS = {
     top: 'shoulder',
     across: { rest: -1.2, lift: 0.65, pitch: null },
     ready: true,
+    set: null,
     pair: true,
     gap: 0,
     reach: Infinity,
@@ -243,6 +268,7 @@ export const PERCUSSION_HOLDS = {
     top: 'up',
     across: { rest: -1.4, lift: 0.6, pitch: null },
     ready: true,
+    set: null,
     pair: false,
     gap: 0,
     reach: Infinity,
@@ -269,6 +295,7 @@ export const PERCUSSION_HOLDS = {
     top: 'up',
     across: { rest: -0.6, lift: 0.3, pitch: 0.9 },
     ready: false,
+    set: { raise: 0.01, rise: [0.1, 0.22] },
     pair: false,
     gap: 0,
     reach: Infinity,
@@ -292,6 +319,7 @@ export const PERCUSSION_HOLDS = {
     top: 'up',
     across: null,
     ready: false,
+    set: null,
     pair: false,
     gap: 0,
     reach: Infinity,
@@ -317,6 +345,7 @@ export const PERCUSSION_HOLDS = {
     top: 'up',
     across: { rest: -0.6, lift: 0.3, pitch: null },
     ready: true,
+    set: null,
     pair: false,
     gap: 0,
     reach: Infinity,
@@ -354,6 +383,7 @@ export const PERCUSSION_HOLDS = {
     top: 'up',
     across: { rest: -0.6, lift: 0.3, pitch: 0.5 },
     ready: false,
+    set: null,
     pair: false,
     // A repeat on one bar or a near bar stays in one hand, so that a mallet does not strike under
     // the head of the other mallet, which rests over its bar. With 1 cm, the mallets touched where
@@ -397,6 +427,7 @@ export const SUSPENDED_CYMBAL_HOLD: PercussionHold = {
   top: 'up',
   across: { rest: -0.6, lift: 0.3, pitch: 0.7 },
   ready: false,
+  set: { raise: 0.06, rise: [0, 0.15] },
   pair: false,
   gap: 0,
   reach: Infinity,

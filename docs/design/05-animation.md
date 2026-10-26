@@ -381,10 +381,14 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
   (`docs/decisions/2026-10-19-elephant-pose.md`).
 - **Percussion, standing.** The badger holds the beater of the bass drum over the drum and the
   triangle up also at rest (`PercussionHold.ready`), because the lift from the hanging arms swept
-  the beater through the body and swung the left paw far on its forearm. With the snare drum, the
-  cymbals, and the xylophone, its arms hang (`docs/decisions/2026-10-20-mesh-badger.md`), and
-  each closed paw keeps its stick or mallet, which points up and forward from the front of the
-  fist.
+  the beater through the body and swung the left paw far on its forearm. With the snare drum and
+  the suspended cymbal, the upper arms hang, and the paws hold the sticks or the mallets in the
+  rest position of a real snare drummer between entrances: level and across the body in front of
+  the waist, a little above the rim nearest to the body (`PercussionHold.set`,
+  `docs/reference/percussion-technique.md` 6, `docs/decisions/2026-10-25-percussion-rest.md`).
+  Each paw turns its palm down on the forearm, and the two sticks cross at two heights. With the
+  xylophone, the arms hang (`docs/decisions/2026-10-20-mesh-badger.md`), and each closed paw
+  keeps its mallet, which points up and forward from the front of the fist.
 - **Folder at rest.** The penguin keeps the choir folder in its flippers in front of the chest
   also at rest, as a choir holds its folders between two pieces (`poseChoir()`,
   `docs/decisions/2026-10-21-mesh-penguin.md`).
