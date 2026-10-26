@@ -113,16 +113,16 @@ export interface WindHold {
   readonly aimAcross: number;
   /**
    * The share, from 0 to 1, of the side direction across the tube in the aim of each paw on its
-   * grip in the playing pose ({@link aimSide}). With 0, the paw points from its shoulder to the
-   * tube. A tube far in front of the body then makes the paw point forward, and the fingers stick
-   * out in front of the tube. With a share, the paw turns toward the other side of the body, so
-   * that it lies across the back of the tube and its curled fingers wrap the front. With a grip
-   * behind the tube, a share of half turned the palm of a woodwind paw to the audience and its
-   * thumb down the tube, so a woodwind paw takes a small share and a grip at the side of its own
-   * shoulder (`docs/research/2026-10-25-wind-palms.md`). Only a paw that rolls to face its tube
-   * ({@link WindHold.faceTube}) takes it.
+   * grip in the playing pose ({@link aimSide}), for the left paw and the right paw. With 0, the
+   * paw points from its shoulder to the tube. A tube far in front of the body then makes the paw
+   * point forward, and the fingers stick out in front of the tube. With a share, the paw turns
+   * toward the other side of the body, so that it lies across the back of the tube and its curled
+   * fingers wrap the front. With a grip behind the tube, a share of half turned the palm of a
+   * woodwind paw to the audience and its thumb down the tube, so a woodwind paw takes a small
+   * share and a grip at the side of its own shoulder (`docs/research/2026-10-25-wind-palms.md`).
+   * Only a paw that rolls to face its tube ({@link WindHold.faceTube}) takes it.
    */
-  readonly aimSide: number;
+  readonly aimSide: readonly [left: number, right: number];
   /**
    * The move of the grip of the left palm from the grip of the instrument, in head heights, in the
    * axes of the tube ({@link shiftGrip}): along the tube from the mouthpiece, toward the axis of
@@ -211,7 +211,7 @@ const WOODWIND = {
   restFreeL: null,
   faceTube: ['none', 'none'],
   aimAcross: 0,
-  aimSide: 0,
+  aimSide: [0, 0],
   gripShiftL: [0, 0, 0],
   gripShiftR: [0, 0, 0],
   restGripShiftL: null,
@@ -570,7 +570,7 @@ const PANDA_TROMBONE = {
   restPoleR: [0.3, -1, -0.3],
   faceTube: ['palm', 'palm'],
   aimAcross: 1,
-  aimSide: 0.8,
+  aimSide: [0.8, 0.8],
   gripShiftL: [0, 0.1, 0],
   gripShiftR: [0.15, 0, 0.08],
   restAim: 1,
@@ -651,7 +651,7 @@ const MOUSE_OBOE = {
   poleR: [0.5, -1, -0.5],
   faceTube: ['palm', 'palm'],
   aimAcross: 1,
-  aimSide: 0,
+  aimSide: [0, 0],
   gripShiftL: [0.05, 0.06, -0.05],
   gripShiftR: [0.15, 0.06, -0.05],
   restGripShiftL: [0.173, 0.05, -0.05],
@@ -743,7 +743,7 @@ const BEAVER_BASSOON = {
   restPoleL: [-0.5, -1, 0.2],
   faceTube: ['palm', 'palm'],
   aimAcross: 1,
-  aimSide: 0.25,
+  aimSide: [0.25, 0.25],
   gripShiftL: [0, 0.1, -0.1],
   gripShiftR: [0.15, 0.2, -0.14],
   restAim: 1,
@@ -891,7 +891,7 @@ const WOLF_CLARINET = {
   restPoleR: [0.3, -1, 0],
   faceTube: ['palm', 'palm'],
   aimAcross: 1,
-  aimSide: 0.25,
+  aimSide: [0.25, 0.25],
   gripShiftL: [0.15, 0.14, -0.11],
   gripShiftR: [0.05, 0.19, -0.11],
   restGripShiftL: [-0.22, 0.14, -0.11],
@@ -1644,8 +1644,9 @@ function poseSide(
     // The share of the aim and the roll of the play: a hold can keep them in the rest pose.
     const aim = rig.hold.restAim + (1 - rig.hold.restAim) * weight;
     aimAcross(shoulder, grip, tubeAxis, rig.hold.aimAcross * aim, aimPoint);
-    if (rig.hold.aimSide > 0) {
-      aimSide(shoulder, tubeAxis, tubeSide, side.aimSign, rig.hold.aimSide * aim, aimPoint);
+    const sideShare = rig.hold.aimSide[side.arm.side === 'L' ? 0 : 1];
+    if (sideShare > 0) {
+      aimSide(shoulder, tubeAxis, tubeSide, side.aimSign, sideShare * aim, aimPoint);
     }
     handToward(shoulder, aimPoint, hand);
     faceTube(hand, tubeSide, side.arm.side, face, aim);
