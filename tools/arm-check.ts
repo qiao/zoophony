@@ -322,7 +322,9 @@ export const ACCEPTED_GRIPS: ReadonlyMap<string, Readonly<Record<Side, number>>>
   // manager on 2026-10-24.
   ['violist', { L: 147, R: -62 }],
   ['cellist', { L: -146, R: 12 }],
-  ['bassist', { L: -164, R: 22 }],
+  // The hippo bow arm with the elbow out and a little up, so that the forearm slopes down to the
+  // bow with a nearly straight wrist (user, 2026-10-25, docs/decisions/2026-10-26-arm-fixes.md).
+  ['bassist', { L: -164, R: -10 }],
   // The panda holds the low part of the slide brace from its right side, with the right palm to
   // the left and the thumb up the brace (user, 2026-10-25: "their palm are facing outwards and
   // thumbs downwards", docs/decisions/2026-10-25-wind-elbows.md, and the 3x crops of
