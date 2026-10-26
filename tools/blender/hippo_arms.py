@@ -20,8 +20,10 @@ through MCP, with an image after each step:
    of the trunk faces that span two islands (`step_torn_uv()`), put the arm image in a strip of
    the atlas, give the inner side the fur color of the trunk, and write `hippo-arms.glb`.
 5. Add the studio skeleton with the arm segments and the helpers, parent with automatic weights,
-   and paint the fixes of `cat_arms.step_paint()` with the Weight Paint tools. The fingers keep half
-   of their weight (`fox_arms.step_fingers()`), as the rule `weights.fingers` of the old rig.
+   and paint the fixes of `cat_arms.step_paint()` with the Weight Paint tools. Then take the lower
+   trunk bones off the arm vertices (`step_tube_trunk()`), and the wrist helper off the paws and
+   the hand off the rings before the wrist (`step_wrist()`). The fingers keep half of their weight
+   (`fox_arms.step_fingers()`), as the rule `weights.fingers` of the old rig.
 6. Write the weights for `paintedWeights` of the config (`hippo-weights.json`).
 
 The faces of the paws, the trunk, the legs, and the head stay the faces of the user. The file of
@@ -78,6 +80,8 @@ HIPPO = {
              'wrap': 0.03},
     'anchor': {'share': 0.4, 'reach': 0.08, 'crease': True, 'rings': 3},
     'fingers': 0.5,
+    'tubeTrunk': 0.0,
+    'handRings': 1,
 }
 va.ANIMALS['hippo'] = HIPPO
 
@@ -253,6 +257,83 @@ def step_torn_uv(s):
     return round(limit, 2), count
 
 
+#: The trunk bones that `step_tube_trunk()` takes off the vertices of the arms. The chest stays,
+#: because the anchor of `cat_arms.anchor()` gives the tube near the side walls a chest share.
+TUBE_TRUNK = ('hips', 'spine', 'spine1')
+
+
+def step_tube_trunk(s):
+    """Lowers the lower trunk bones on the vertices of the arms to the share `tubeTrunk` of the
+    animal (Weight Paint Levels with that gain on each group of `TUBE_TRUNK`, or Remove From Group
+    for 0, then Normalize All), after the paint.
+
+    The Smooth of `cat_arms.step_paint()` averages the first rings of the tube with the trunk
+    vertices of the socket outside the mask, so the back of the first ring took 0.6 to 0.8 of the
+    spine and spine1. In the rig, a vertex mixes the rule weights by its share of the lower bones,
+    so the back of the ring stayed with the trunk while the bow arm turned forward, and the back of
+    the arm root swung out as a dark flap from behind. Gives the number of vertices.
+    """
+    import bmesh
+    mesh = s.mesh
+    keep = s.spec.get('tubeTrunk', 0.0)
+    bm = bmesh.new()
+    bm.from_mesh(mesh.data)
+    layer = bm.verts.layers.int['arm_part']
+    island = {p.index for off in (0, 10) for p in ca.arm_verts(s, bm, layer, off)}
+    bm.free()
+    va.paint_mode(mesh, lambda p: p.index in island)
+    groups = mesh.vertex_groups
+    if keep > 0:
+        for name in TUBE_TRUNK:
+            if name in groups:
+                groups.active_index = groups[name].index
+                va.bpy.ops.object.vertex_group_levels(group_select_mode='ACTIVE', gain=keep)
+    else:
+        va.remove_from(mesh, TUBE_TRUNK)
+    va.bpy.ops.object.vertex_group_normalize_all(group_select_mode='BONE_DEFORM',
+                                                 lock_active=False)
+    va.bpy.ops.object.mode_set(mode='OBJECT')
+    mesh.data.use_paint_mask_vertex = False
+    return len(island)
+
+
+def step_wrist(s):
+    """Takes the wrist helper off the paws (Remove From Group of `wrist_L` and `wrist_R` on the
+    vertices of the paw and of the wrist loop, then Normalize All), after the paint.
+
+    The automatic weights gave the paw a mean wrist helper share of about 0.26, so the paw turned
+    only in part with the hand, and the left paw went over 1.5 cm into the neck of the contrabass
+    in 39.9% of the play samples. The rings of the tube keep the helper: without it on the forearm,
+    a face of the left forearm folded in nearly each play sample. Gives the number of vertices.
+    """
+    import bmesh
+    mesh = s.mesh
+    data = mesh.data
+    part = [a.value for a in data.attributes['arm_part'].data]
+    bm = bmesh.new()
+    bm.from_mesh(data)
+    layer = bm.verts.layers.int['arm_part']
+    island = {p.index for off in (0, 10) for p in ca.arm_verts(s, bm, layer, off)}
+    bm.free()
+    tubes = (ca.PART['tube'], ca.PART['tube'] + 10)
+    chosen = {i for i in island if part[i] not in tubes}
+    va.paint_mode(mesh, lambda p: p.index in chosen)
+    va.remove_from(mesh, ('wrist_L', 'wrist_R'))
+    va.bpy.ops.object.vertex_group_normalize_all(group_select_mode='BONE_DEFORM',
+                                                 lock_active=False)
+    va.bpy.ops.object.mode_set(mode='OBJECT')
+    ring = [a.value for a in data.attributes['arm_ring'].data]
+    last = len(s.axes[1]) - s.spec.get('handRings', len(s.axes[1]))
+    tube = {i for i in island if part[i] in tubes and ring[i] < last}
+    va.paint_mode(mesh, lambda p: p.index in tube)
+    va.remove_from(mesh, ('hand_L', 'hand_R'))
+    va.bpy.ops.object.vertex_group_normalize_all(group_select_mode='BONE_DEFORM',
+                                                 lock_active=False)
+    va.bpy.ops.object.mode_set(mode='OBJECT')
+    data.use_paint_mask_vertex = False
+    return len(chosen)
+
+
 def step_weights(s):
     """Writes the weights file (`cat_arms.step_weights()`), with the note of this session."""
     count = ca.step_weights(s)
@@ -276,7 +357,8 @@ STEPS = tuple(out for step in ca.STEPS
                           ca.step_beautify: (ca.step_beautify, fa.step_clean_bridge,
                                              step_clean_seam),
                           ca.step_shape: (ca.step_shape, step_torn_uv),
-                          ca.step_paint: (ca.step_paint, fa.step_fingers),
+                          ca.step_paint: (ca.step_paint, step_tube_trunk, step_wrist,
+                                          fa.step_fingers),
                           ca.step_weights: (step_weights,)}.get(step, (step,)))
 
 
