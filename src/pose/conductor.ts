@@ -102,9 +102,10 @@ export const CONDUCTOR_HOLD = {
    * in a natural way"). With the roll, the claws curl around the baton, and the back of the paw
    * faces up, as a conductor holds the baton between the thumb and the fingers with the palm down.
    * A true palm hint of the mesh (`palm` of `tools/mesh-rigs/bear.json`) turned the left paw too,
-   * and the left arm failed the gate.
+   * and the left arm failed the gate. The full roll of 48° (0.84) twisted the right forearm more in
+   * the lift (p95 28° against 12°), with no change that the eye sees.
    */
-  batonRoll: 0.84,
+  batonRoll: 0.7,
   /** The curl of the fingers of the open left hand of a cue. */
   cueCurl: 10 * MathUtils.DEG2RAD,
   /**
