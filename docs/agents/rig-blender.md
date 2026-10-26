@@ -184,10 +184,11 @@ interface StudioArmSegments {
   with a second plane (`seam.under`). Delete the thin ears of the hole before the wall, and
   triangulate the cut quads before the clean, or a degenerate face folds in each sample. A
   vertex mixes the rule weights by its painted share of the lower bones, so put `armSplit` out of
-  the whole trunk, keep the Smooth share of the trunk on the first rings (without it the socket
-  folded more), and keep the chest share of the anchor off the forearm (`anchor.rings`). The
-  length of a helper changes only the automatic weights (`tools/blender/hippo_arms.py`,
-  `docs/research/2026-10-25-hippo-arms.md`).
+  the whole trunk, take the lower trunk bones off the arm vertices (the Smooth gave them to the
+  back of the first ring, which then swung out as a dark flap), lower `armBelow` until the
+  socket follows the first ring, and keep the anchor and the wrist helper off the forearm and the
+  paws. The length of a helper changes only the automatic weights
+  (`tools/blender/hippo_arms.py`, `docs/research/2026-10-25-hippo-arms.md`).
 - **The frame cost.** Each body with `armSegments` has 20 more bone matrices. Run `pnpm frame`
   after a new body uses it.
 
