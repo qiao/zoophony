@@ -274,9 +274,16 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
 - [ ] Monkey: two thin faces across the wrists (329 and 1090) fold in each sample of the
       trumpeter. Rigid weights and a ring at the wrist move the fold to the next faces. Count their
       pixels in a probe build, or cut the thin faces (`2026-10-20-mesh-monkey.md`).
-- [ ] Monkey: from the front, the paws on the valves hide the mouth and the smile while the
-      monkey plays, and the right fingers reach the valves from the side, because each paw lies
-      along the line from its shoulder (`PAW_TURN`, `2026-10-20-mesh-monkey.md`).
+- [x] Monkey trumpeter (audit 2026-10-25, fault 2): both paws pressed together in front of the
+      mouth like praying hands, and the arm gate failed the left grip turn (48°). Done: the left
+      paw wraps the casings from the left, the right paw lies across the valve tops with the
+      fingers down on them, and the grip turn is 17° (`2026-10-25-brass-grips.md`).
+- [ ] Monkey trumpeter: from the front at the elevation 20, the right paw across the valve tops
+      covers the mouth. From the stage camera (elevation 40), the mouth shows. A lower right grip
+      or a smaller curl can free the mouth (`2026-10-25-brass-grips.md`).
+- [ ] Monkey trumpeter: the right thumb of the mesh points back toward the mouthpiece at the
+      height of the valve tops. A real player puts it under the lead pipe between the first and
+      the second valve casing (wind-technique 2.1). The thumb has no bone.
 - [x] Monkey: the standing monkey fell back, with its center of mass 17 cm behind its soles. It
       now stands with its feet under its hips and a forward lean (`2026-10-21-monkey-stand.md`).
 - [ ] Monkey: the manager chose the stand C' while the user slept. The user reviews it against B
@@ -308,6 +315,15 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       30% to 60%. A small lean of the trunk back is an option (`balance.txt`).
 - [ ] Rhino: the thick left paw goes 2.1 cm into the main branch of the tuba, an accepted depth of
       the sweep. The paws are mittens and do not wrap the tube (`TUBIST_SWEEP`).
+- [x] Rhino tubist (audit 2026-10-25, unverified row): the arm gate failed the left grip turn
+      (96°), because the left paw pointed at the main branch from its back left, and its palm
+      faced up. Done: the left paw lies on the left side of the branch with the knuckles to the
+      left, and the grip turn is 40° (`2026-10-25-brass-grips.md`).
+- [ ] Rhino tubist: the left paw turns 169° on its forearm (limit 170°, 148° before), and the
+      left forearm edge at rest is 22% shorter than in its bind, so the stretch measure reads
+      0.24 (0.08 before, limit 0.35). With the left elbow further out, the paw passed 170°, and
+      with the elbow down, the upper arm went 2.5 cm to 3.3 cm into the body
+      (`2026-10-25-brass-grips.md`).
 - [ ] Trim `docs/agents/model-traps.md` to about 3,000 words: it has 3,964 words since the traps
       of the rhino, the deer, and the penguin meshes, and of the split beak.
 - [x] Rig the mesh of the deer (harp). The user gave it on 2026-10-21. The deer sits on the stool
@@ -1040,8 +1056,9 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       lower joint, 0.1 cm (`2026-10-25-open-grips.md`).
 - [ ] Wind grips, after the review of the 2x crops of `docs/research/2026-10-25-grips/` and
       `docs/research/2026-10-25-open-grips/` by the manager: write the new entries of
-      `ACCEPTED_GRIPS` for the bassoonist, the trombonist, the oboist, the clarinetist, the
-      trumpeter, and the tubist. The gate fails their grip turns until then. The bassoon turns of
+      `ACCEPTED_GRIPS` for the bassoonist, the trombonist, the oboist, and the clarinetist. The
+      gate fails their grip turns until then. The trumpeter and the tubist pass with their entries
+      since `2026-10-25-brass-grips.md`. The bassoon turns of
       175° and 163° come from the entry of the hold before the palms faced the tube
       (`2026-10-25-open-grips.md`, section 6). After the side grips of the woodwinds, the grip
       turns are oboist 140° and 13°, clarinetist 21° and 6°, and bassoonist 11° and 10°: the
@@ -1082,8 +1099,9 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       paw the thumb tip lies 1.2 cm and 5.0 cm in front of the tube axis. Add the
       thumb measure of `palm-probe.ts` to `pnpm wind-grip`, so that a gate sees the thumb.
 - [ ] Rhino and pig paws have no separate digit, so the palm probe gives no thumb for the tuba
-      and the horn. The left tuba palm faces the audience by +0.43. Check the tuba hold from the
-      images and the technique (`palm-branch.txt`).
+      and the horn. Check the horn hold from the images and the technique (`palm-branch.txt`).
+      The left tuba palm faced the audience by +0.43. It faces the main branch since
+      `2026-10-25-brass-grips.md` (0.90 to the right, -0.06 to the audience).
 - [x] Panda trombone: the right mitten stood 2 cm off the slide brace. Done: the finger tips hold
       the brace from the right of the slide (`2026-10-25-open-grips.md`).
 - [ ] Panda trombone travel: the arm reaches 0.105 m of the slide at 45° to the right, 18% of a
