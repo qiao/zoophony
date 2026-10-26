@@ -285,7 +285,8 @@ asked for the studio bear and the studio polar bear again after their meshes, wi
 (`docs/decisions/2026-10-22-studio-bears.md`). Both then got new meshes in a T-pose
 (`docs/decisions/2026-10-23-bear-tpose.md`, `docs/decisions/2026-10-24-polar-bear-tpose.md`).
 The arms of the polar bear then got quad faces and Blender weights
-(`docs/decisions/2026-10-24-polar-bear-arms.md`).
+(`docs/decisions/2026-10-24-polar-bear-arms.md`), and the arms of the bear too
+(`docs/decisions/2026-10-26-arm-fixes.md`).
 
 Each body follows these rules:
 
