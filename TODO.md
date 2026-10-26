@@ -444,9 +444,12 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       feet. No demo has sustain pedal data (CC 64) on the piano, so the damper pedal moves only
       with a file of the user.
 - [ ] Bear (T-pose mesh, `2026-10-23-bear-tpose.md`): at rest, the arms stand out about 35° from
-      the body around the wide belly, where the studio bear held its paws at the hips. Some long
-      sharp facets show on the bent upper arms (`arm-crops.webp` of `2026-10-23-bear-tpose/`). The
-      upper arms go 3.5 cm into the body while the arms move (1.4 cm before).
+      the body around the wide belly, where the studio bear held its paws at the hips. The
+      upper arms go 2.2 cm into the body while the arms move (3.5 cm before the quad arms of
+      `2026-10-26-arm-fixes.md`, which remove the long sharp facets of the bent arms).
+- [ ] Bear rig (`2026-10-26-arm-fixes.md`): the left shoulder bridge folds 8 tiny faces at p95
+      in the play (4 on the old rig, limit 8), and the right move twist max is 87 (81). No fold
+      shows at a zoom of 4.
 - [x] Rabbit (A-pose mesh): the long arm faces show dark shards on the bent arms at rest, at the
       frog, and at the tip (`arm-crops.webp` of `2026-10-23-rabbit-arms/`). The user allowed one
       ring at each elbow (`2026-10-24-rabbit-hold.md`).
