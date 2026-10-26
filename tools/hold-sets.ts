@@ -125,6 +125,7 @@ const NULL_FIELDS: ReadonlyMap<string, HoldValue> = new Map<string, HoldValue>([
   ['liftTurn', { axis: [0, 0, 0], top: [0, 0, 0] } satisfies NonNullable<BowedHold['liftTurn']>],
   ['liftPoleL', [0, 0, 0] satisfies NonNullable<BowedHold['liftPoleL']>],
   ['liftPlace', 0 satisfies NonNullable<BowedHold['liftPlace']>],
+  ['restTwistL', 0 satisfies NonNullable<BowedHold['restTwistL']>],
   ['restBow.via', { tip: [0, 0, 0], hair: [0, 0, 0], reach: [0, 0, 0] } satisfies BowVia],
   [
     'standBow',

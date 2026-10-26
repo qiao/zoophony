@@ -1006,6 +1006,174 @@ function leftPole(rig: RigPoints, weight: number, play: Vector3): Vector3 {
     : mixDirection(liftPole, play, 2 * weight - 1, play);
 }
 
+/** The scratch objects of {@link carryLift}. */
+const liftPlay = createPlace();
+const carryStrings = createBowPlaces().strings;
+const carryHand: StopHand = { wrist: new Vector3(), rotation: new Quaternion() };
+const carryShoulder = createFrame();
+const carryTurn = new Quaternion();
+const carryPole = new Vector3();
+const carryArm = createArmPose();
+const handInRest = new Quaternion();
+const handInPlay = new Quaternion();
+const handInMix = new Quaternion();
+const carryStop = new Vector3();
+const carryNeckAxis = new Vector3();
+const carryBlock = new Vector3();
+const carryCurl = new Quaternion();
+const carryPoint = new Vector3();
+const playFinger = { reach: 0, stopString: MIDDLE_FINGER.stopString } satisfies StopFinger;
+const playPoleL = new Vector3();
+
+/**
+ * Lets the left paw of a hold with a rest twist (`BowedHold.restTwistL`, design 5.2) hold the neck
+ * at rest with a straight wrist and a natural twist, and change its grip in the lift and the
+ * lowering. The turn of the paw in the axes of the forearm goes from the rest turn, a twist around
+ * the forearm with no bend, to the turn of the playing grip, so that the twist and the bend of the
+ * wrist stay between their values at the rest and at the play ({@link mixTwist}). The finger
+ * block keeps its stop on the neck of the moving instrument. Thus the instrument takes the short
+ * turn from the rest to the play, and the forearm does not wring past 180°.
+ *
+ * @param rig The points of the player.
+ * @param frames The posed frames of the torso.
+ * @param state The bow state.
+ * @param weight The eased weight of the playing pose: 0 is the rest pose.
+ * @param note The place of the hand frame on the fingerboard at the play.
+ * @param stop The place of the paw on the fingerboard at this weight.
+ * @param curlAngle The curl of the fingers at this weight.
+ * @param elbow The left elbow at this weight, in the axes of the chest.
+ * @param place The place of the instrument at this weight.
+ * @param out The left hand to write.
+ * @returns True when the paw takes this grip, false when the hold has no rest twist or the weight
+ *   is the play.
+ */
+function carryLift(
+  rig: RigPoints,
+  frames: TorsoFrames,
+  state: BowState,
+  weight: number,
+  note: number,
+  stop: number,
+  curlAngle: number,
+  elbow: Vector3,
+  place: InstrumentPlace,
+  out: StopHand,
+): boolean {
+  const hold = rig.hold;
+  if (hold.restTwistL === null || rig.liftRotation || weight >= 1) {
+    return false;
+  }
+  const chest = frames.chest;
+  // The turn of the playing grip in the axes of the forearm.
+  instrumentAt(rig, frames, 1, liftPlay);
+  stringsAt(rig, liftPlay, carryStrings);
+  playFinger.reach = state.reach;
+  playFinger.stopString = state.stopString;
+  stopHandAt(
+    rig,
+    liftPlay,
+    carryStrings,
+    note,
+    BOWED_HANDS.curlL,
+    leftTilt(hold, state.fingerboard),
+    playFinger,
+    carryHand,
+  );
+  shoulderTurnL(rig, 1, carryTurn);
+  let shoulder = poseShoulder(rig.armL, chest, rig.chestBind, carryTurn, carryShoulder);
+  carryPole.copy(leftElbow(hold, state, playPoleL)).applyQuaternion(chest.rotation);
+  solveArm(
+    rig.armL.bind,
+    shoulder.position,
+    shoulder.rotation,
+    carryHand.wrist,
+    carryPole,
+    carryArm,
+  );
+  handInPlay.copy(carryArm.lower).invert().multiply(carryHand.rotation);
+
+  // The rest turn: a twist around the forearm, with a straight wrist.
+  const bind = rig.armL.bind;
+  twistAxis.fromArray(bind.wrist).sub(carryPoint.fromArray(bind.elbow)).normalize();
+  handInRest.setFromAxisAngle(twistAxis, hold.restTwistL);
+  mixTwist(rig, handInRest, handInPlay, weight, handInMix);
+
+  // The finger block keeps its stop on the neck.
+  carryNeckAxis.fromArray(rig.neck);
+  onInstrument(rig, place, carryStop.fromArray(rig.nut).addScaledVector(carryNeckAxis, stop));
+  carryCurl.setFromAxisAngle(Z_AXIS, curlAngle);
+  shoulderTurnL(rig, weight, carryTurn);
+  shoulder = poseShoulder(rig.armL, chest, rig.chestBind, carryTurn, carryShoulder);
+  carryPole.copy(elbow).applyQuaternion(chest.rotation);
+  out.rotation.copy(carryHand.rotation);
+  for (let pass = 0; pass <= CARRY_PASSES; pass++) {
+    carryBlock
+      .fromArray(rig.fingerBlock)
+      .applyQuaternion(carryCurl)
+      .add(carryPoint.fromArray(rig.knuckles));
+    out.wrist.copy(carryStop).sub(carryBlock.applyQuaternion(out.rotation));
+    if (pass === CARRY_PASSES) {
+      break;
+    }
+    solveArm(rig.armL.bind, shoulder.position, shoulder.rotation, out.wrist, carryPole, carryArm);
+    out.rotation.copy(carryArm.lower).multiply(handInMix);
+  }
+  return true;
+}
+
+const twistAxis = new Vector3();
+const twistRest = new Quaternion();
+const twistPlay = new Quaternion();
+const swingRest = new Quaternion();
+const swingPlay = new Quaternion();
+
+/**
+ * Gives the angle of the twist of a turn around an axis: the twist part of the swing and twist
+ * split, with the turn as the swing after the twist.
+ *
+ * @param q The turn.
+ * @param axis The unit axis.
+ * @returns The angle, from -π to π.
+ */
+function twistOf(q: Quaternion, axis: Vector3): number {
+  const angle = 2 * Math.atan2(q.x * axis.x + q.y * axis.y + q.z * axis.z, q.w);
+  return Math.atan2(Math.sin(angle), Math.cos(angle));
+}
+
+/**
+ * Mixes two turns of the left hand in the axes of the forearm (design 5.2): the twist around the
+ * forearm goes on a straight line from its first angle to its second angle on the short side,
+ * and the rest of the turn, the bend of the wrist, mixes on its own. A mix of the whole turns can
+ * bend the wrist far past both ends in the middle, and its twist can jump to the other side.
+ *
+ * @param rig The points of the player.
+ * @param from The turn at the weight 0.
+ * @param to The turn at the weight 1.
+ * @param weight The weight.
+ * @param out The quaternion to write. It must not be `from` or `to`.
+ * @returns `out`.
+ */
+function mixTwist(
+  rig: RigPoints,
+  from: Quaternion,
+  to: Quaternion,
+  weight: number,
+  out: Quaternion,
+): Quaternion {
+  const bind = rig.armL.bind;
+  twistAxis.fromArray(bind.wrist).sub(carryPoint.fromArray(bind.elbow)).normalize();
+  const a = twistOf(from, twistAxis);
+  const b = twistOf(to, twistAxis);
+  const change = Math.atan2(Math.sin(b - a), Math.cos(b - a));
+  swingRest.copy(from).multiply(twistRest.setFromAxisAngle(twistAxis, -a));
+  swingPlay.copy(to).multiply(twistPlay.setFromAxisAngle(twistAxis, -b));
+  mixRotation(swingRest, swingPlay, weight, out);
+  return out.multiply(twistRest.setFromAxisAngle(twistAxis, a + change * weight));
+}
+
+/** The number of times that {@link carryLift} solves the arm and moves the wrist. */
+const CARRY_PASSES = 3;
+
 /**
  * Writes the arms and the instrument of a bowed string player (design 5.3, 4.7). The bow plays
  * on the strings at the place of the bow state, on the string of the stroke, and lifts in a rest.
@@ -1050,6 +1218,20 @@ export function poseBowed(
   const note = low + (state.fingerboard + state.vibrato) * (high - low);
   const stop = stopAt(rig.hold, note, weight);
   carryByPaw(rig, frames, weight, note, stop, place);
+  leftElbow(rig.hold, state, poleL);
+  leftPole(rig, weight, poleL);
+  const carried = carryLift(
+    rig,
+    frames,
+    state,
+    weight,
+    note,
+    stop,
+    h.curlL * weight,
+    poleL,
+    place,
+    handL,
+  );
   turnToPlay(rig, frames, place, weight);
   soundingPointAt(rig, state.loudness, stringsAt(rig, place, strings));
   // The hand holds the bow with no tilt, and the fingers turn the stick by the tilt.
@@ -1209,16 +1391,18 @@ export function poseBowed(
   finger.stopString = MIDDLE_FINGER.stopString + (state.stopString - 1.5) * weight;
   const handTilt =
     leftTilt(rig.hold, state.fingerboard) * weight + rig.hold.liftTiltL * 4 * weight * (1 - weight);
-  stopHandAt(rig, place, strings, stop, h.curlL * weight, handTilt, finger, handL);
-  leftElbow(rig.hold, state, poleL);
+  if (!carried) {
+    stopHandAt(rig, place, strings, stop, h.curlL * weight, handTilt, finger, handL);
+  }
   shoulderTurnL(rig, weight, turnL);
+  const shoulderFrameL = poseShoulder(rig.armL, chest, rig.chestBind, turnL, shoulderL);
   writeArm(
     {
       arm: rig.armL,
-      shoulder: poseShoulder(rig.armL, chest, rig.chestBind, turnL, shoulderL),
+      shoulder: shoulderFrameL,
       wrist: handL.wrist,
       hand: handL.rotation,
-      pole: leftPole(rig, weight, poleL).toArray(poleTuple),
+      pole: poleL.toArray(poleTuple),
     },
     chest.rotation,
     rotations,

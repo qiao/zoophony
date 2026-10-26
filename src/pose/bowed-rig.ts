@@ -243,6 +243,14 @@ export interface BowedHold {
    */
   readonly liftTiltL: number;
   /**
+   * The twist of the left paw on its forearm in the rest pose, in radians, with a straight wrist
+   * (design 5.2): at rest, the paw holds the neck with this natural twist, and in the lift it
+   * changes to the playing grip (`carryLift()` of `pose/bowed.ts`). Thus the instrument takes the
+   * short turn from the rest to the play, and the forearm does not wring past 180°. `null` keeps
+   * the playing grip on the neck at rest.
+   */
+  readonly restTwistL: number | null;
+  /**
    * The direction to which the left elbow points in the middle of the lift and of the lowering, in
    * the axes of the chest (design 5.2). The elbow turns from the rest pole to this pole, then to
    * the playing pole. `null` mixes the rest pole and the playing pole directly.
@@ -370,6 +378,7 @@ const CHIN_HOLD = {
   liftTurn: null,
   liftPlace: null,
   liftTiltL: 0,
+  restTwistL: null,
   liftPoleL: null,
   restAtSide: false,
   restBow: {
@@ -436,6 +445,7 @@ const FLOOR_HOLD = {
   liftTurn: null,
   liftPlace: null,
   liftTiltL: 0,
+  restTwistL: null,
   liftPoleL: null,
   restAtSide: false,
   restBow: {
@@ -605,14 +615,15 @@ const SHOULDER_HOLD = {
   headDrop: 17 * MathUtils.DEG2RAD,
   slant: -5 * MathUtils.DEG2RAD,
   stringTurn: 10 * MathUtils.DEG2RAD,
-  restPoleL: [-0.6, -1, 0.3],
+  restPoleL: [-1, -0.6, 0],
   restPoleR: [0.3, -1, 1],
   restPlace: 0.1,
   rest: { ...LAP_VIOLIN, lap: { along: 1, offset: [-0.1, -0.05, 0] } },
   liftReach: [-0.1, 0.1, -0.08],
-  liftTurn: { axis: [-0.3, 1, -0.6], top: [0, 0, 1] },
+  liftTurn: null,
   liftPlace: 1,
-  liftTiltL: 45 * MathUtils.DEG2RAD,
+  liftTiltL: 0,
+  restTwistL: 1.5,
   liftPoleL: [0, -1, -0.5],
   restBow: {
     lap: { along: 1, offset: [0.4, 0.8, -0.2] },
@@ -708,14 +719,15 @@ const FOX_HOLD = {
   poleTipR: [1, -0.85, -1],
   freeHair: 0.12,
   pizzicatoTip: [0.3, 0.5, 1],
-  restPoleL: [-0.3, -1, 0.3],
+  restPoleL: [-1, -0.6, 0],
   restPoleR: [0.5, -1, 0.5],
   restPlace: CHIN_HOLD.restPlace,
   rest: { ...LAP_VIOLIN, lap: { along: 0.8, offset: [0, -0.18, -0.2] } },
   liftReach: [0, 0.1, -0.2],
-  liftTurn: SHOULDER_HOLD.liftTurn,
+  liftTurn: null,
   liftPlace: null,
   liftTiltL: 0,
+  restTwistL: 1.5,
   liftPoleL: null,
   restBow: {
     lap: { along: 0.55, offset: [0.5, -0.1, -0.15] },
@@ -903,9 +915,10 @@ const CAT_HOLD = {
     lap: { along: 0.95, offset: [0, 0, -0.15] },
   },
   liftReach: [0, 0.25, -0.2],
-  liftTurn: { axis: [-0.3, 1, -0.6], top: [0, 0, 1] },
+  liftTurn: null,
   liftPlace: 1,
-  liftTiltL: 52 * MathUtils.DEG2RAD,
+  liftTiltL: 0,
+  restTwistL: 1.5,
   liftPoleL: [-0.45, -1, -0.6],
   restBow: {
     lap: { along: 0.5, offset: [0.6, -0.3, 0.1] },
