@@ -1,4 +1,27 @@
-Arm gate of 23 roles against main in 431 s. A cell gives the value, the base in parentheses, and the verdict of a value that does not pass.
+base: cached (main, 51c3720ca92c)
+base: cached (main, f0367c86e1a7)
+base: cached (main, 505a88e8ca5b)
+base: cached (main, 1143a0b9d44a)
+base: cached (main, cb6bf95fb096)
+base: cached (main, 2c4a22307c87)
+base: cached (main, 0f0332872e7a)
+base: cached (main, 380efb72e1ae)
+base: cached (main, c2ffe9f8bfe5)
+base: cached (main, d99dd39b4ec0)
+base: cached (main, 8dd3bdc26d20)
+base: cached (main, 8fd121a4213d)
+base: cached (main, ab1995a4deee)
+base: cached (main, 61897540e6d2)
+base: cached (main, cefae7d39fc6)
+base: cached (main, 3bfb4abe1a9d)
+base: cached (main, 37021510a291)
+base: cached (main, dddba4345f84)
+base: cached (main, 660a528e3819)
+base: cached (main, cbab25e3009d)
+base: cached (main, 66c2248aaabe)
+base: cached (main, 0524a24adeaa)
+base: cached (main, 18610512e733)
+Arm gate of 23 roles against main in 297 s. A cell gives the value, the base in parentheses, and the verdict of a value that does not pass.
 
 | Role | Arm | folds p95 (8) | twist p95 (55) | forearm twist p95 (80) | flat p5 (0.55) | paw twist p95 (170) | paw swing p95 (70) | paw jumps (0.5%) | stretch p95 (0.35) | grip turn p50 (45) | move twist max (176) | move turn max (3000) | Verdict |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|
@@ -24,8 +47,8 @@ Arm gate of 23 roles against main in 431 s. A cell gives the value, the base in 
 | trombonist | R | 6 (6) | 25 (25) | 45 (45) | 0.66 (0.66) | 141 (141) | 44 (44) | 0.0% (0.0%) | 0.14 (0.14) | 1 (1) | 141 (141) | 119 (119) | PASS |
 | oboist | L | 7 (7) | 32 (32) | 41 (41) | 0.68 (0.68) | 122 (122) | 44 (44) | 0.0% (0.0%) | 0.02 (0.02) | 0 (0) | 122 (122) | 88 (88) | PASS |
 | oboist | R | 6 (6) | 30 (30) | 41 (41) | 0.74 (0.74) | 121 (121) | 44 (44) | 0.0% (0.0%) | 0.04 (0.04) | 0 (0) | 121 (121) | 113 (113) | PASS |
-| timpanist | L | 10 (4) FAIL | 34 (27) | 10 (7) | 0.81 (0.82) | 26 (18) | 48 (43) | 0.0% (0.0%) | 0.11 (0.08) | 18 (4) | 26 (18) FAIL | 55 (82) | FAIL |
-| timpanist | R | 5 (2) FAIL | 29 (29) | 8 (5) | 0.73 (0.78) | 20 (9) | 43 (31) | 0.0% (0.0%) | 0.02 (0.02) | 1 (0) | 20 (10) FAIL | 8 (147) | FAIL |
+| timpanist | L | 8 (4) FAIL | 35 (27) | 9 (7) | 0.80 (0.82) | 23 (18) | 46 (43) | 0.0% (0.0%) | 0.09 (0.08) | 19 (4) | 22 (18) FAIL | 7 (82) | FAIL |
+| timpanist | R | 4 (2) | 29 (29) | 8 (5) | 0.73 (0.78) | 20 (9) | 43 (31) | 0.0% (0.0%) | 0.02 (0.02) | 1 (0) | 20 (10) FAIL | 8 (147) | FAIL |
 | bassoonist | L | 3 (3) | 23 (23) | 34 (34) | 0.74 (0.74) | 124 (124) | 48 (48) | 0.0% (0.0%) | 0.02 (0.02) | 7 (7) | 124 (124) | 20 (20) | PASS |
 | bassoonist | R | 8 (8) | 37 (37) | 26 (26) | 0.77 (0.77) | 80 (80) | 21 (21) | 0.0% (0.0%) | 0.04 (0.04) | 10 (10) | 80 (80) | 26 (26) | PASS |
 | hornist | L | 2 (2) | 37 (37) | 55 (55) | 0.63 (0.63) | 153 (153) | 49 (49) | 0.0% (0.0%) | 0.11 (0.11) | 0 (0) | 153 (153) | 34 (34) | PASS |
@@ -39,15 +62,15 @@ Arm gate of 23 roles against main in 431 s. A cell gives the value, the base in 
 | singer | L | 3 (3) | 31 (31) | 26 (26) | 0.79 (0.79) | 79 (79) | 36 (36) | 0.0% (0.0%) | 0.02 (0.02) | 0 (0) | 79 (79) | 13 (13) | PASS |
 | singer | R | 1 (1) | 34 (34) | 27 (27) | 0.83 (0.83) | 79 (79) | 36 (36) | 0.0% (0.0%) | 0.00 (0.00) | 0 (0) | 79 (79) | 13 (13) | PASS |
 | bass-drummer | L | 0 (0) | 34 (34) | 30 (30) | 0.80 (0.80) | 102 (102) | 25 (25) | 0.0% (0.0%) | 0.00 (0.00) | 0 (0) | 102 (102) | 20 (20) | PASS |
-| bass-drummer | R | 4 (2) | 41 (41) | 11 (11) | 0.63 (0.64) | 33 (33) | 37 (40) | 0.0% (0.0%) | 0.06 (0.06) | 1 (0) | 22 (21) | 6 (7) | PASS |
+| bass-drummer | R | 4 (2) | 41 (41) | 12 (11) | 0.62 (0.64) | 37 (33) | 37 (40) | 0.0% (0.0%) | 0.05 (0.06) | 1 (0) | 21 (21) | 7 (7) | PASS |
 | snare-drummer | L | 5 (0) FAIL | 34 (34) | 30 (30) | 0.80 (0.80) | 102 (102) | 55 (50) | 0.0% (0.0%) | 0.14 (0.23) | 14 (2) | 102 (102) | 153 (143) | FAIL |
 | snare-drummer | R | 2 (0) | 32 (32) | 31 (31) | 0.80 (0.80) | 102 (102) | 54 (46) | 0.0% (0.0%) | 0.13 (0.19) | 2 (1) | 102 (102) | 153 (164) | PASS |
 | cymbalist | L | 5 (0) FAIL | 34 (34) | 30 (30) | 0.80 (0.80) | 102 (102) | 47 (43) | 0.0% (0.0%) | 0.15 (0.12) | 16 (0) FAIL | 102 (102) | 179 (157) | FAIL |
 | cymbalist | R | 1 (0) | 32 (32) | 31 (31) | 0.80 (0.80) | 102 (102) | 47 (40) | 0.0% (0.0%) | 0.12 (0.18) | 5 (0) | 102 (102) | 179 (192) | PASS |
-| percussionist | L | 10 (5) FAIL | 28 (28) | 22 (22) | 0.83 (0.83) | 82 (82) | 59 (59) | 0.0% (0.0%) | 0.01 (0.01) | 1 (1) | 83 (83) | 12 (12) | FAIL |
-| percussionist | R | 2 (0) | 29 (31) | 8 (8) | 0.74 (0.72) | 29 (29) | 29 (28) | 0.0% (0.0%) | 0.20 (0.20) | 0 (0) | 29 (29) | 7 (7) | PASS |
-| xylophonist | L | 12 (3) FAIL | 34 (34) | 30 (30) | 0.80 (0.77) | 102 (102) | 40 (49) | 0.0% (0.0%) | 0.23 (0.16) FAIL | 47 (9) FAIL | 102 (102) | 225 (92) | FAIL |
-| xylophonist | R | 14 (3) FAIL | 32 (32) | 31 (31) | 0.80 (0.75) | 102 (102) | 40 (33) | 0.0% (0.0%) | 0.18 (0.18) | 35 (2) FAIL | 102 (102) | 176 (101) | FAIL |
+| percussionist | L | 5 (5) | 28 (28) | 22 (22) | 0.83 (0.83) | 82 (82) | 59 (59) | 0.0% (0.0%) | 0.01 (0.01) | 1 (1) | 83 (83) | 12 (12) | PASS |
+| percussionist | R | 1 (0) | 29 (31) | 8 (8) | 0.74 (0.72) | 29 (29) | 29 (28) | 0.0% (0.0%) | 0.20 (0.20) | 0 (0) | 29 (29) | 7 (7) | PASS |
+| xylophonist | L | 7 (3) FAIL | 34 (34) | 30 (30) | 0.79 (0.77) | 102 (102) | 66 (49) FAIL | 0.0% (0.0%) | 0.17 (0.16) | 15 (9) | 102 (102) | 205 (92) | FAIL |
+| xylophonist | R | 3 (3) | 32 (32) | 31 (31) | 0.75 (0.75) | 102 (102) | 43 (33) | 0.0% (0.0%) | 0.14 (0.18) | 9 (2) | 102 (102) | 118 (101) | PASS |
 
 | Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
@@ -55,18 +78,13 @@ Arm gate of 23 roles against main in 431 s. A cell gives the value, the base in 
 | pianist | R | folds p95 | lift | 124 | 10 | 13 | 100.0% | 14 at bach-bwv1047.mid wall 1.3 s | 13 | 8 | 13 | OPEN |
 | bassist | L | paw twist p95 | play | 12912 | 166 | 174 | 100.0% | 176 at beethoven-8-4.mid 666.09 s | 174 | 170 | 174 | OPEN |
 | bassist | R | flat p5 | play | 12912 | 0.57 | 0.54 | 100.0% | 0.52 at brahms-2.mid 439.38 s | 0.54 | 0.55 | 0.54 | OPEN |
-| timpanist | L | folds p95 | lift | 124 | 7 | 10 | 100.0% | 10 at beethoven-1.mid wall 2.1 s | 10 | 8 | 4 | FAIL |
-| timpanist | L | move twist max | move | 4644 | 20 | 26 | 100.0% | 26 at beethoven-1.mid lower 98.11 s, wall 1.13 s | 26 | 176 | 18 | FAIL |
-| timpanist | R | folds p95 | play | 7728 | 4 | 5 | 100.0% | 7 at beethoven-1.mid 282.90 s | 5 | 8 | 2 | FAIL |
+| timpanist | L | folds p95 | lift | 124 | 4 | 8 | 100.0% | 8 at beethoven-1.mid wall 2.1 s | 8 | 8 | 4 | FAIL |
+| timpanist | L | move twist max | move | 4644 | 21 | 22 | 100.0% | 22 at beethoven-9.mid lower 52.77 s, wall 0.45 s | 22 | 176 | 18 | FAIL |
 | timpanist | R | move twist max | move | 4644 | 7 | 19 | 100.0% | 20 at beethoven-1.mid lower 98.11 s, wall 2.30 s | 20 | 176 | 10 | FAIL |
 | trumpeter | L | grip turn p50 | play | 9977 | 48 | 48 | 100.0% | 48 at beethoven-1.mid 9.40 s | 48 | 45 | 48 | OPEN |
 | tubist | L | grip turn p50 | play | 4147 | 96 | 96 | 100.0% | 96 at brahms-2.mid 142.88 s | 96 | 45 | 96 | OPEN |
 | snare-drummer | L | folds p95 | rest | 1 | 5 | 5 | 100.0% | 5 at percussion-test.mid rest | 5 | 8 | 0 | FAIL |
 | cymbalist | L | folds p95 | rest | 3 | 5 | 5 | 100.0% | 5 at beethoven-9.mid rest | 5 | 8 | 0 | FAIL |
 | cymbalist | L | grip turn p50 | play | 1932 | 16 | 19 | 100.0% | 30 at boulanger-matin.mid 236.63 s | 16 | 45 | 0 | FAIL |
-| percussionist | L | folds p95 | play | 1932 | 8 | 10 | 100.0% | 12 at beethoven-9.mid 70.84 s | 10 | 8 | 5 | FAIL |
-| xylophonist | L | folds p95 | play | 161 | 7 | 12 | 100.0% | 12 at percussion-test.mid -1.80 s | 12 | 8 | 3 | FAIL |
-| xylophonist | L | stretch p95 | lift | 31 | 0.22 | 0.23 | 96.8% | 0.23 at percussion-test.mid wall 1.8 s | 0.23 | 0.35 | 0.16 | FAIL |
-| xylophonist | L | grip turn p50 | play | 161 | 47 | 70 | 100.0% | 72 at percussion-test.mid -1.05 s | 47 | 45 | 9 | FAIL |
-| xylophonist | R | folds p95 | play | 161 | 6 | 14 | 100.0% | 15 at percussion-test.mid 7.95 s | 14 | 8 | 3 | FAIL |
-| xylophonist | R | grip turn p50 | play | 161 | 35 | 61 | 100.0% | 70 at percussion-test.mid 8.70 s | 35 | 45 | 2 | FAIL |
+| xylophonist | L | folds p95 | play | 161 | 6 | 7 | 100.0% | 8 at percussion-test.mid 20.20 s | 7 | 8 | 3 | FAIL |
+| xylophonist | L | paw swing p95 | lift | 31 | 51 | 66 | 100.0% | 66 at percussion-test.mid wall 2.6 s | 66 | 70 | 49 | FAIL |
