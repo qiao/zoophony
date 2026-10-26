@@ -1505,10 +1505,10 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       changes to the playing grip in the lift. The middle turn that rolled the instrument a full
       turn is gone (user, 2026-10-25: "the violins / violas are rotated by nearly 360 degress",
       `2026-10-26-violin-lift.md`).
-- [ ] Rabbit, red fox, and cat: in the middle of the lift and of the lowering, the bow stands
-      upright in front of the body with its tip near the eyes for a moment. A lift path out to the
-      right side raised the paw twist of the red fox to 179° (limit 176,
-      `2026-10-26-violin-lift.md`).
+- [x] Rabbit, red fox, and cat: in the middle of the lift and of the lowering, the bow stands
+      upright in front of the body with its tip near the eyes for a moment. Done: the bow tip
+      points forward beside the body in the middle, and the left paw carries the instrument by the
+      nut, so its heel stays out of the instrument (`2026-10-26-violin-lift.md`).
 - [ ] Rabbit lowering: the right forearm goes 2.1 cm into the body for 0.2 s at the song end of
       `bach-bwv1050`, against 1.0 cm before the fix of the bow flip (`pnpm pose-depth violinist
       --base 39aa09c9`, `2026-10-21-wrist-lift.md`).
