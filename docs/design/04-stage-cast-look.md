@@ -356,10 +356,11 @@ twist bone (`docs/decisions/2026-10-19-arm-skin.md`).
 
 A mesh rig can instead give each arm the bones of a rigger, as on the Rigify rabbit of `ode.html`
 (`armSegments` of the config, `docs/decisions/2026-10-24-polar-bear-arms.md`), as the polar bear,
-the rabbit, the mouse, the wolf, the cat, the elephant, and the two foxes do
+the rabbit, the mouse, the wolf, the cat, the elephant, the two foxes, and the hippo do
 (`docs/decisions/2026-10-24-violin-arms.md`, `docs/decisions/2026-10-25-wind-arms.md`,
 `docs/decisions/2026-10-25-cat-arms.md`, `docs/decisions/2026-10-25-elephant-arms.md`,
-`docs/decisions/2026-10-25-fox-arms.md`): 4 deform segments
+`docs/decisions/2026-10-25-fox-arms.md`, `docs/decisions/2026-10-25-hippo-arms.md`): 4 deform
+segments
 on the upper arm and on the forearm, and a helper bone at the elbow and at the wrist. The skin of
 the arm hangs on them, and the upper arm, the forearm, and the forearm twist bone only drive them.
 The app turns them from the joints of the pose, so each song keeps the live pose (`poseArm()`).
@@ -445,7 +446,7 @@ mesh are quad tubes (rings at a right angle to the bones), and the weights come 
     in the standing pose, and up to four shapes of `raise` relax the faces that turn over in a bent
     arm. The relax can move one vertex several cm to turn back one face, and the step to its
     neighbors then shows as a crease line in each pose with the shape. `spread` of a rule spreads
-    the move of that vertex over a ring of its neighbors, as on the bow shoulder of the hippo. A
+    the move of that vertex over a ring of its neighbors. A
     spread of the whole shape loses the relax of the other faces. The clavicle weights can fade out toward the middle plane of the chest
     (`weights.clavicleMiddle`), so that a face on that plane does not take the weights of both
     clavicles, which a bow arm turns far apart. Below a cut of the armpit, a vertex of the trunk can
@@ -489,7 +490,7 @@ mesh are quad tubes (rings at a right angle to the bones), and the weights come 
     No weight rule, corrective shape, or vertex move fixes both. `cut` removes the faces that join
     the forearm to the belly below a height and closes both holes with new faces, with no move of
     a vertex. The user chose it for the panda, and the caps of the belly take its white. The
-    beaver and the hippo take the same cut under each armpit, where
+    beaver takes the same cut under each armpit, where
     thin faces join the upper arm to the chest and turn over in each pose, or a corner of the
     trunk with a part of the arm weight makes a ridge of long faces when the arm rises. A shape of
     `raise` can also relax the faces that turn far short of a fold (`below`), with one ring of
@@ -520,8 +521,9 @@ mesh are quad tubes (rings at a right angle to the bones), and the weights come 
     into the belly, so both keep the faces of their meshes (`docs/decisions/2026-10-25-beaver-rhino-arms.md`). A bind that bends
     the elbow splits the normals of the inner elbow in the same way, into short light and dark
     creases on the bent arm. `rootNormals.elbow` adds the skin faces within its radius of each
-    elbow joint to the rim. The elephant has it, because its bind bends the thick arms at the
-    elbow (`docs/decisions/2026-10-25-elephant-hippo-creases.md`). A
+    elbow joint to the rim. The elephant and the hippo have it, because the bind bends their
+    thick arms at the elbow (`docs/decisions/2026-10-25-elephant-hippo-creases.md`,
+    `docs/decisions/2026-10-25-hippo-arms.md`). A
     raised arm also casts the hard shadow of its faces into the crease between the arm and the
     trunk, and on white fur the shadow shows as black wedges with steps of the
     shadow map along the seam. The rig cannot change these shadows, so the soft shadow edge of the high tier (4.5) decides them. The thick arm of the rhino joins the side of the
@@ -608,7 +610,13 @@ mesh are quad tubes (rings at a right angle to the bones), and the weights come 
     upper arm of the fox joins the trunk only near the shoulder, so its copy takes the seam cut
     and the side wall of the cat, with no ring of the shoulder: rings packed at the short socket
     folded into a dark slit. The rule weight of each upper arm goes to its first segment
-    (`armSegments.rootSegment`), so that the socket takes the roll of the first ring.
+    (`armSegments.rootSegment`), so that the socket takes the roll of the first ring. The hippo
+    has such arms since 2026-10-25 (`tools/blender/hippo_arms.py`), with the arm factor 1.5 in the
+    copy of the mesh. Its thick hanging upper arm joins the trunk down to the elbow, so its copy
+    takes the seam cut and the side wall of the cat at the crease of the arm, with no ring of the
+    shoulder. A second plane under the seam keeps the round belly under the forearm on the trunk,
+    and the thin ears of the hole go before the wall. The rule weights serve only the trunk and
+    the socket, so the plane of the arm split lies out of the whole trunk.
     `pnpm arm-look` measures the
     crease of the arm skin against the source and the section of the upper arm, with limits from the red fox
     (`docs/decisions/2026-10-21-arm-form.md`).
@@ -1429,7 +1437,7 @@ of three.js always blends four bones, so the second bone adds no shader work.
   tip of a tail of two bones (`tail_tip`: the red fox, the tan fox, the cat, the dog, the mouse,
   the beaver, the wolf, and the monkey), the jaw of a beak that opens (`jaw`: the penguin), and
   the arm segments and helpers (`ARM_SEGMENT_BONES`: the polar bear, the rabbit, the mouse, the
-  wolf, the cat, and the elephant, 4.4).
+  wolf, the cat, the elephant, the two foxes, and the hippo, 4.4).
   The optional bones come after the other bones, so that a new one keeps each other index. The rabbit, the panda,
   the hippo, the pig, the badger, the rhino, the deer, and the penguin have a tail
   ball on one tail bone, with no tip, and so do the bear and the polar bear. Each vertex follows up to four of them. The
@@ -1437,7 +1445,7 @@ of three.js always blends four bones, so the second bone adds no shader work.
   writes their matrices from the pose of the player. So the pose code drives a studio body as
   each other body. A pose also holds the matrices of the twist bones of the upper arms
   (`UPPER_TWIST_BONES`), after the bones of the player. Only a body with `upperTwist` (4.4), the
-  hippo, the pig, and the rhino, puts weight on them: each one turns with its upper arm, less the rest of the roll from the chest.
+  pig and the rhino, puts weight on them: each one turns with its upper arm, less the rest of the roll from the chest.
 - The arm segments of a body with them take the skin of the arms. `poseArm()` writes each segment
   from the turns of its arm, around the joint at the start of its part: the shoulder for the upper
   arm, the elbow for the forearm and the elbow helper, and the wrist for the wrist helper. The
