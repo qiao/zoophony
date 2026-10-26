@@ -299,9 +299,9 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
   `docs/decisions/2026-10-16-bow-rest.md`, `docs/decisions/2026-10-24-violin-rest.md`). A real
   violist rests as a violinist. Each elbow bends at rest, as the arms of a seated player: the
   short left arm of the rabbit holds the upper neck (`docs/decisions/2026-10-24-violin-poses.md`).
-  The bow paws rest near the lap, as the user asked on 2026-10-26: the rabbit holds the frog
-  beside the right thigh with the arm hanging, and the red fox and the cat on the front of the
-  right thigh. With the paw on the top of the thigh, the short right arm of the rabbit folded
+  The bow paws rest on the lap, as the user asked on 2026-10-26: the rabbit and the cat hold the
+  frog at the front of the right thigh with the elbow bent and the bow upright beside the body,
+  and the red fox on the front of the right thigh (`docs/decisions/2026-10-26-second-review.md`). With the paw on the top of the thigh, the short right arm of the rabbit folded
   (`docs/decisions/2026-10-26-violin-lift.md`). In the lift and the lowering, the
   bow tip turns through the front, forward and a little up, beside the body (`BowVia` of
   `pose/bowed-rig.ts`): with the tip up, the bow stood in front of the face. The left paw of the

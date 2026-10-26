@@ -576,11 +576,12 @@ const HANGING_BOW = {
  *
  * The right elbow hangs near the side, as the elbows of the violinist (2026-10-16-rabbit-arm
  * decisions). The belly is widest below the elbow, so the right arm hangs out around it, and the
- * paw does not reach the top of the right thigh. The grip is beside the right thigh, 0.65 H out
- * from the top of the knee and 0.45 H above it, with the right arm hanging, so that the bow paw
- * rests near the lap (user, 2026-10-26: "their bow hand should also be resting on or near the
- * lap"). With the paw on the top of the thigh, the short right arm folded 13 to 22 faces at rest
- * (2026-10-26-violin-lift decisions). With the stick through the middle of the paw of
+ * paw does not reach the top of the right thigh. The grip rests on the lap at the front of the
+ * right thigh, 0.35 H out from the top of the knee, 0.7 H above it, and 0.5 H to the front, with
+ * the elbow bent and the bow upright beside the body (user, 2026-10-26: "they should be more
+ * relaxed and closer to the body / lap", 2026-10-26-arm-fixes decisions). With the grip 0.65 H out
+ * and 0.45 H up, the arm hung straight down at the side. With the paw on the top of the thigh, the
+ * short right arm folded 13 to 22 faces at rest (2026-10-26-violin-lift decisions). With the stick through the middle of the paw of
  * 2026-10-17, the grip 0.55 H out and 0.45 H above the knee turned face 372 of the right upper arm
  * over in each rest sample (2026-10-17-grip-all decisions). With the grip on the belly over the
  * right thigh, the paw was 25 cm from the shoulder joint, so the bent arm put the elbow 19 cm out
@@ -612,7 +613,7 @@ const SHOULDER_HOLD = {
   restTwistL: 1.5,
   liftPoleL: [-1, -0.6, 0],
   restBow: {
-    lap: { along: 1, offset: [0.65, 0.45, 0] },
+    lap: { along: 1, offset: [0.35, 0.7, -0.5] },
     tip: [0.2, 1, -0.1],
     hair: [0, 0, -1],
     via: { tip: [0.4, 0.3, -1], hair: [0, 0, -1], reach: [0.3, 0.1, -0.3] },
@@ -873,9 +874,10 @@ export const BOWED_HOLDS = {
  * audience"). With the playing grip on the neck at rest, the left paw turned -81° on its forearm,
  * and a direct lift wrung the forearm past 180° (user, 2026-10-23: "the cat's ... arm is very
  * twisted when transitioned from rest to play"). The paw now holds the neck at rest with its own
- * twist (`restTwistL`). The bow paw rests beside the right thigh with the arm hanging, as the user
- * asked on 2026-10-26: on the front of the thigh, the right arm went 5.9 cm into the deep belly
- * (2026-10-26-violin-lift decisions).
+ * twist (`restTwistL`). The bow paw rests on the lap at the front of the right thigh, with the
+ * grip of the rabbit and the elbow bent, as the user asked on 2026-10-26 (2026-10-26-arm-fixes
+ * decisions). The right elbow points out and a little back, (1, -1, 0.3) (`restPoleR`): with
+ * (0.6, -1, 0), the right upper arm went 1.8 cm into the body at rest.
  */
 const CAT_HOLD = {
   ...BOWED_HOLDS.viola,
@@ -890,7 +892,7 @@ const CAT_HOLD = {
   highTilt: 20 * MathUtils.DEG2RAD,
   poleR: [1.2, -0.5, -1],
   poleTipR: [1, -1, -1],
-  restPoleR: [0.6, -1, 0],
+  restPoleR: [1, -1, 0.3],
   restPoleL: [-0.8, -1, 0.3],
   restPlace: 0.2,
   rest: {
@@ -903,7 +905,7 @@ const CAT_HOLD = {
   restTwistL: 1.5,
   liftPoleL: [-1, -0.6, 0],
   restBow: {
-    lap: { along: 0.8, offset: [0.7, 0.3, 0] },
+    lap: { along: 0.8, offset: [0.35, 0.7, -0.5] },
     tip: [0.2, 1, -0.1],
     hair: [0, 0, -1],
     via: { tip: [0.4, 0.3, -1], hair: [0, 0, -1], reach: [0.55, 0.3, -0.3] },
