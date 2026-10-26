@@ -111,6 +111,7 @@ export function percussionTracks(
     const [left, right] = alternateHands(groups, {
       alternateSec: hold.hands === 'sides' ? 0 : STRIKE_MOTION.alternateSec,
       gap: hold.gap,
+      pass: hold.pass,
       places: waits ? [rig.restL.point[0], rig.restR.point[0]] : [-Infinity, Infinity],
       reach: hold.reach,
       shoulders: [

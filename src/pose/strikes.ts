@@ -66,6 +66,13 @@ export interface HandRules {
    * a target past it stays with the other hand.
    */
   readonly gap: number;
+  /**
+   * The farthest distance along x by which a fast single target of the other hand can pass the
+   * last target of the hand before it, in meters: the hands alternate in a run, as a real player
+   * plays a scale with alternate strokes. A target farther past takes the hand before it again, as
+   * the double stroke of a real player. With 0, a fast target does not pass the other hand.
+   */
+  readonly pass: number;
   /** The places of the left and of the right hand along x before their first strikes. */
   readonly places: readonly [left: number, right: number];
   /**
@@ -82,6 +89,7 @@ export interface HandRules {
 const BASE_RULES: HandRules = {
   alternateSec: STRIKE_MOTION.alternateSec,
   gap: 0,
+  pass: 0,
   places: [-Infinity, Infinity],
   reach: Infinity,
   shoulders: [
@@ -94,11 +102,13 @@ const BASE_RULES: HandRules = {
  * Gives the strikes of a player to its two hands (design 5.3). A chord with two or more targets
  * takes both hands: the left hand strikes the target farthest to the left, and the right hand the
  * target farthest to the right. A single target within 0.5 s of the strike before takes the other
- * hand, so that a roll alternates the hands. A later single target takes the hand on its side. A
- * hand does not cross the other hand: a target to the right of the last target of the right hand
- * takes the right hand, and a target to the left of the last target of the left hand takes the
- * left hand. With a gap, a target nearer than the gap to the last target of the other hand also
- * stays with that hand, so that a mallet does not strike where the other mallet rests. With a
+ * hand, so that a roll and a run alternate the hands. A fast target can pass the last target of
+ * the other hand by the pass, and a target farther past takes the hand before it again, as a
+ * double stroke. A later single target takes the hand on its side, and it does not cross the
+ * other hand: a target to the right of the last target of the right hand takes the right hand,
+ * and a target to the left of the last target of the left hand takes the left hand. With a gap,
+ * a later target nearer than the gap to the last target of the other hand also stays with that
+ * hand, so that a mallet does not strike where the other mallet rests. With a
  * reach, a target out of the reach of its hand goes to the other hand, when that hand is nearer
  * and keeps the gap on its side of the last target of the first hand. Thus a run that leaves the
  * reach of one hand goes on in the other hand, and no paw reaches across the body.
@@ -111,7 +121,7 @@ export function alternateHands(
   groups: readonly StrikeGroup[],
   rules: Partial<HandRules> = {},
 ): readonly [left: Strike[], right: Strike[]] {
-  const { alternateSec, gap, places, reach, shoulders } = { ...BASE_RULES, ...rules };
+  const { alternateSec, gap, pass, places, reach, shoulders } = { ...BASE_RULES, ...rules };
   const [leftShoulder, rightShoulder] = shoulders;
   const left: Strike[] = [];
   const right: Strike[] = [];
@@ -145,7 +155,8 @@ export function alternateHands(
       // The distance of the target past the last target of the other hand: below 0 on the side
       // of the hand.
       const past = (hand: 'L' | 'R'): number => (hand === 'L' ? x - rightX : leftX - x);
-      const crosses: boolean = past(chosen) > -gap;
+      // A fast strike can pass the other hand by the pass, and a later strike keeps the gap.
+      const crosses: boolean = alternate ? past(chosen) > pass : past(chosen) > -gap;
       let side: 'L' | 'R' = crosses ? (chosen === 'L' ? 'R' : 'L') : chosen;
       const z = first.point[2];
       const toLeft = Math.hypot(x - leftShoulder[0], z - leftShoulder[1]);

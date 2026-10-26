@@ -161,6 +161,12 @@ interface PercussionHold {
    */
   readonly gap: number;
   /**
+   * The farthest distance along x by which a fast strike of a hand can pass the last target of the
+   * other hand, in meters (`alternateHands()`). A target farther past takes the hand before it
+   * again, as a double stroke. 0: a fast strike does not pass the other hand.
+   */
+  readonly pass: number;
+  /**
    * The farthest distance on the floor plane from the shoulder joint of a hand to its target, in
    * meters (`alternateHands()`). A farther target goes to the other hand when that hand is
    * nearer. `Infinity`: no limit.
@@ -240,6 +246,7 @@ export const PERCUSSION_HOLDS = {
     set: null,
     pair: true,
     gap: 0,
+    pass: 0,
     reach: Infinity,
     lean: 0,
     side: null,
@@ -271,6 +278,7 @@ export const PERCUSSION_HOLDS = {
     set: null,
     pair: false,
     gap: 0,
+    pass: 0,
     reach: Infinity,
     lean: 0,
     side: null,
@@ -298,6 +306,7 @@ export const PERCUSSION_HOLDS = {
     set: { raise: 0.01, rise: [0.1, 0.22] },
     pair: false,
     gap: 0,
+    pass: 0,
     reach: Infinity,
     lean: 0,
     side: null,
@@ -322,6 +331,7 @@ export const PERCUSSION_HOLDS = {
     set: null,
     pair: false,
     gap: 0,
+    pass: 0,
     reach: Infinity,
     lean: 0,
     side: null,
@@ -348,6 +358,7 @@ export const PERCUSSION_HOLDS = {
     set: null,
     pair: false,
     gap: 0,
+    pass: 0,
     reach: Infinity,
     lean: 0,
     side: null,
@@ -389,6 +400,7 @@ export const PERCUSSION_HOLDS = {
     // the head of the other mallet, which rests over its bar. With 1 cm, the mallets touched where
     // a run goes over from one paw to the other (2026-10-25-xylophone-reach decisions).
     gap: 0.02,
+    pass: 0,
     reach: 0.53,
     lean: 0.2,
     // The short legs tilt far with a small move of the hips, and the foot skin then sinks into
@@ -430,6 +442,7 @@ export const SUSPENDED_CYMBAL_HOLD: PercussionHold = {
   set: { raise: 0.06, rise: [0, 0.15] },
   pair: false,
   gap: 0,
+  pass: 0,
   reach: Infinity,
   lean: 0,
   side: null,
