@@ -523,9 +523,9 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
 - [x] Elephant timpanist (audit 2026-10-25, faults 1 and 4): the right mallet lay level across
       the belly between strikes, and the moments looked the same. Done: the set position and the
       full stroke (`2026-10-25-timpani-piano-rest.md`).
-- [ ] Elephant timpanist: the strike roll turns the right paw 18° from its accepted grip (arm
-      gate grip turn, `main` 0°, limit 45°). The manager checks the 3x paw crops and sets the
-      new play medians in `ACCEPTED_GRIPS` (`2026-10-25-timpani-piano-rest.md`).
+- [x] Elephant timpanist: the strike roll turns the right paw 18° from its accepted grip (arm
+      gate grip turn, `main` 0°, limit 45°). Done: the manager accepted the 3x paw crops, and
+      `ACCEPTED_GRIPS` holds the new play medians (`2026-10-25-timpani-piano-rest.md`).
 - [ ] Elephant timpanist: between strikes, the heads stay 2 cm to 7 cm above the spots with the
       shafts 15° to 22° down. A real timpanist sets them one inch above the head with a level
       shaft. A larger wrist lift moved the shafts out of the closed paws
