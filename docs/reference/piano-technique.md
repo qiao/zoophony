@@ -13,8 +13,9 @@ app.
 
 **Source marks.** Each fact names its source by a number of section 10. "(abstract)" marks a fact
 from an abstract only. "(secondary)" marks a fact that another source quotes. "(derived)" marks a
-value that this file calculates from the values of its sources. A fact with no mark comes from
-the text of the source.
+value that this file calculates from the values of its sources. "(a search summary only)" marks a
+fact from a search summary, because the page did not open. A fact with no mark comes from the
+text of the source.
 
 ## Terms
 
@@ -114,8 +115,11 @@ the text of the source.
 - The pianist sits tall on the front half of the bench [2].
 - Before the pianist plays, the arms hang at the sides, and the wrists find their neutral
   position [6][17].
-- No source of this file says that the hands rest on the lap or the thighs. The rest of the app
-  follows `docs/research/2026-10-13-pianist-lap.md`.
+- In the rest position before the first note, the pianist sits tall, "strong in the small of
+  their back", with the head up, the shoulders down, the elbows relaxed, and "both hands resting
+  on lap". Then the pianist lifts the hands to the keyboard [21].
+- In a competition, a pianist waited before the first note with the hands poised over the keys,
+  or with the hands in the lap [22 (a search summary only)].
 
 The side view below shows the target pose: the elbow level with the key surface and a little in
 front of the trunk, and the trunk upright over the sit bones.
@@ -181,11 +185,16 @@ differences. The research report
   pedal, and the foot follows it. The left foot stays flat on the floor, left of the soft pedal.
   The report [`2026-10-24-piano-pedals.md`](../research/2026-10-24-piano-pedals.md) gives the
   measures.
-- **Rest.** The paws rest on the thighs, and the trunk sits tall (section 8).
+- **Rest.** The trunk sits tall, and the paws rest in the lap (section 8). The app differs: the
+  round belly of the polar bear covers its thighs up to 0.45 m in front of the hips, and the top
+  of a thigh past the belly stands about 0.7 m from the shoulder joint, where the arm reaches
+  0.49 m. So the paws lie on the lower belly, as low as the arms reach, 8 cm to 10 cm below
+  the key top, with the palms down and the elbows bent by the sides
+  (`docs/research/2026-10-25-timpani-piano-rest.md`).
 
 ## 10. Sources
 
-All sources opened on 2026-10-24.
+Sources 1 to 20 opened on 2026-10-24, and source 21 on 2026-10-25.
 
 1. Yamaha Corporation. "How to Play the Piano: Correct Posture." Musical Instrument Guide.
    https://www.yamaha.com/en/musical_instrument_guide/piano/play/play002.html
@@ -231,6 +240,12 @@ All sources opened on 2026-10-24.
     7,456,349 B2, 2008. https://patents.google.com/patent/US7456349B2/en
 20. Piano Technicians Guild. "Sustain pedal height and travel." Discussion forum, measures by
     F. Gadd on nine pianos. https://my.ptg.org/discussion/sustain-pedal-height-and-travel
+21. J. Macmillan. "Ready – Steady – Go: Preparing for the First Note." European Suzuki
+    Association.
+    https://europeansuzuki.org/assets/Uploads/Ready-Steady-Go-Preparing-for-the-first-note.pdf
+22. "Closer Than They Appear", a report from the World Piano Competition, Cincinnati, 2012 (a
+    search summary only: the server refused the page).
+    https://helldriver.commons.gc.cuny.edu/2012/08/04/closer-than-they-appear/
 
 **Conflicts.** The sources put the elbow from a little below the keys [5][8] to about 2.5 cm
 above them [4][5]. Most sources put the pianist on the front half of the bench, and one on the

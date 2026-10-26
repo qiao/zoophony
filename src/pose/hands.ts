@@ -142,7 +142,7 @@ export const HANDS_HOLDS = {
   // put the upper arms up to 11 cm into the round trunk (`pnpm pose-depth pianist`). The paws reach
   // from A0 to B♭4 with the left paw and from C4 to C8 with the right paw (`pose/hands.test.ts`),
   // so a melody changes paws between them. The wrists go up and forward over the case between the
-  // lap and the keys (`restArc`): with the paws on the thighs, the arc 0.1 H forward put the paws
+  // lap and the keys (`restArc`): with the paws in the lap, the arc 0.1 H forward put the paws
   // of the T-pose polar bear 2.6 cm into its body when they lowered, and 0.25 H 0.8 cm or less.
   // With the paws in the lap, an arc of 0.5 H out stood the upper arms 61° out from the trunk in
   // the lift. With no arc out, they stand out at most as far as in a play.
@@ -177,27 +177,27 @@ export const HANDS_HOLDS = {
     // with a slight lean toward the piano, the head is up, and the hands rest in the lap
     // (`docs/research/2026-10-13-pianist-lap.md`). The rest lean is the lean of the `ready` clip
     // of the studio (`clip_ready()` of `lowpoly-studio/roles/pianist/clips.py`). The head lifts
-    // against it (`restHeadLift`), so the gaze is level and the face shows over the lid. The paws
-    // rest on the thighs, with the palms down and the fingers forward and in, and the elbows bend
-    // by the sides (`docs/decisions/2026-10-24-polar-bear-seat.md`). The long thighs of the T-pose
-    // polar bear put its knees far forward, so a palm 0.5 H in front of the knee, the place for
-    // the round belly of the studio polar bear, was out of reach, and each arm hung straight. A
-    // palm 0.14 H over the middle of the thigh went 4.2 cm into the leg. The elbows point out more
-    // than down, and the paws lie 0.5 H in front of the thigh: elbows that point down, or paws
-    // 0.35 H in front, folded 10 to 13 faces of an arm (`pnpm arm-check`, limit 8). Higher paws
-    // with the elbows forward looked as if the bear held its paws up at the keys (review of
-    // 2026-10-13). With the trunk of the studio rest clip, the bear slumped forward over its
-    // knees, and the paws hung beside them (user report of 2026-10-13).
+    // against it (`restHeadLift`), so the gaze is level and the face shows over the lid. The
+    // round belly of the T-pose polar bear covers its thighs up to 0.45 m in front of the hips, and
+    // the short arms reach no part of the thighs past it: the top of the thigh stands about 0.7 m
+    // from the shoulder joint, and the arm reaches 0.49 m. So the paws lie in the lap on the lower
+    // belly, where it meets the thighs, as low as the arms reach, with the palms down and the
+    // fingers forward and in, and the elbows bend by the sides
+    // (`docs/decisions/2026-10-25-timpani-piano-rest.md`). Paws 0.27 H higher hung in front of the
+    // chest at the height of the keys. Lower paws, or elbows that point down or forward, folded up
+    // to 6 more faces at the right shoulder (`pnpm arm-check`, limit 8). The right paw lies 2 cm
+    // higher than the left paw for this reason. With the trunk of the studio rest clip, the bear
+    // slumped forward over its knees, and the paws hung beside them (user report of 2026-10-13).
     restL: {
       kind: 'lap',
-      lap: { along: 0.45, offset: [0.03, 0.22, -0.5] },
+      lap: { along: 0.45, offset: [0.03, -0.05, -0.38] },
       palm: [0.15, -1, 0.1],
       fingers: [0.5, 0, -1],
       pole: [-1, -0.3, 0.77],
     },
     restR: {
       kind: 'lap',
-      lap: { along: 0.45, offset: [-0.03, 0.22, -0.5] },
+      lap: { along: 0.45, offset: [-0.03, 0.08, -0.45] },
       palm: [-0.15, -1, 0.1],
       fingers: [-0.5, 0, -1],
       pole: [1, -0.3, 0.77],
@@ -261,7 +261,7 @@ interface HandSide {
    * the palm ({@link HandsHold.aimL}).
    */
   readonly aim: Vec3 | null;
-  /** The hand in the rest pose, on the top of its thigh (design 5.3). */
+  /** The hand in the rest pose, in its lap or on a string (design 5.3). */
   readonly rest: {
     /** The place of the `hand` bone, in the model axes. */
     readonly wrist: Vec3;
@@ -507,7 +507,7 @@ function poseHand(
   wrist.fromArray(arm.palm).applyQuaternion(turn);
   limitReach(arm, shoulder.position, wrist.subVectors(palm, wrist));
 
-  // In the rest pose, the hand rests on its thigh, which does not move with the chest.
+  // In the rest pose, the hand rests in its lap, which does not move with the chest.
   posePoint(root, ORIGIN, side.rest.wrist, restWrist);
   restHand.fromArray(side.rest.rotation).premultiply(root.rotation);
   // The elbow points out to the side in the rest pose.
@@ -536,7 +536,7 @@ function poseHand(
  * Writes the arms and the fingers of a piano or harp player (design 5.3, 4.7). Each palm goes
  * to the place of its hand state, with the lift of a strike or the pull of a pluck, and the
  * two-bone IK places each arm. The palm faces the keys or the strings, and the fingers point
- * away from the shoulder. In the rest pose, the palms rest on the thighs.
+ * away from the shoulder. In the rest pose, the palms rest in the lap.
  *
  * The caller writes the lean of the hold into the spine before it calculates the frames.
  *
