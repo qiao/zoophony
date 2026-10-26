@@ -447,9 +447,10 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       the body around the wide belly, where the studio bear held its paws at the hips. The
       upper arms go 2.2 cm into the body while the arms move (3.5 cm before the quad arms of
       `2026-10-26-arm-fixes.md`, which remove the long sharp facets of the bent arms).
-- [ ] Bear rig (`2026-10-26-arm-fixes.md`): the left shoulder bridge folds 8 tiny faces at p95
-      in the play (4 on the old rig, limit 8), and the right move twist max is 87 (81). No fold
-      shows at a zoom of 4.
+- [x] Bear rig (`2026-10-26-arm-fixes.md`): the left shoulder bridge folds 8 tiny faces at p95
+      in the play (4 on the old rig, limit 8), and the right move twist max is 87 (81). Done: the
+      head keeps the rule weights, and four shoulder faces take the mean of their painted weights
+      (6 folds, twist 82).
 - [x] Rabbit (A-pose mesh): the long arm faces show dark shards on the bent arms at rest, at the
       frog, and at the tip (`arm-crops.webp` of `2026-10-23-rabbit-arms/`). The user allowed one
       ring at each elbow (`2026-10-24-rabbit-hold.md`).
