@@ -468,7 +468,13 @@ export const ANIMALS: ReadonlyMap<string, AnimalSettings> = new Map([
       seated: true,
       soloist: true,
       constant: 'STUDIO_PENGUIN',
-      crease: 35,
+      // The user said on 2026-10-26: "the meshes for the penguine are too faceted on the side. make
+      // it round". With the crease 35° and no blend, the sides showed hard facets and a sawtooth of
+      // white, tan, and black faces along the belly. The crease 60° smooths the shading, and the
+      // blend 0.7 fades the face colors across the border. With 1.0, the beak blurred into the
+      // head (docs/decisions/2026-10-26-second-review.md).
+      crease: 60,
+      colorBlend: 0.7,
       glb: 'assets/models/penguin/penguin.rig.glb',
     },
   ],
