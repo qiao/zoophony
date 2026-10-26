@@ -109,3 +109,11 @@ add its own verdicts below.
 | 4 timpanist moments | fixed | d1f53635, 86487c0b | The wrist lifts the head 10 cm to 15 cm above the set position before a strike. The new moment `up` of `pnpm close-views timpanist` shows it |
 | Unverified: pianist left paw at rest | fixed | 93e1949a | From az35, the left forearm rises along the chest from the elbow, and the paw now lies on the lower belly, below the chest |
 | Pianist elbow V in the chord (round brief) | open | none | Faces of the inner elbow fold at each elbow pole of the scan: a fault of the rig (`TODO.md`) |
+
+Round `brass-grips` (`docs/research/2026-10-25-brass-grips.md`). The hashes are of the branch
+before its merge.
+
+| Fault | Verdict | Commits | What is left |
+|---|---|---|---|
+| 2 trumpeter paws | fixed | 30b42554, 1360d5a0, ec788797 | The left paw wraps the valve casings from the left, the right paw lies across the valve tops with the fingers down on them, and the left grip turn falls from 48° to 17°. From the front at the elevation 20, the right paw covers the mouth. The right thumb of the mesh does not reach under the lead pipe (`TODO.md`) |
+| Unverified: rhino left grip | fixed | e858d96b | The left paw pointed at the main branch from its back left, so the palm faced up. It now lies on the left side of the branch with the knuckles to the left, and the grip turn falls from 96° to 40°. The left paw turns 169° on its forearm (limit 170°), and the stretch reads 0.24 from a short rest forearm (`TODO.md`) |
