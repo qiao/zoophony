@@ -402,12 +402,27 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       of spine1 turn over (2 on `main` before), and no view shows them.
 - [ ] Polar bear (`2026-10-24-polar-bear-seat.md`): with the nearer keys, the play forearms go
       4.3 cm into the belly (3.1 cm before, accepted limit 9 cm), and the left upper arm keeps
-      0.55 of its round shape, at its limit. The rest paws hover 2 cm above the thighs. From the
-      front, the open lid now hides the head in the play.
+      0.55 of its round shape, at its limit. From the front, the open lid now hides the head in
+      the play.
 - [ ] Polar bear (`2026-10-24-pianist-pose.md`): from the front, the larger lid hides the bear
       and its paws. At the far keys, the outer upper arm stands 42° to 47° out, and the upper arms
       stand about 36° out and 28° forward around the round trunk (a pianist: 0° to 20° forward).
       The wrist touches the front edge of the keys up to 1.1 cm (limit 1.5 cm).
+- [x] Polar bear (audit 2026-10-25, fault 3): at rest, the paws hung in front of the chest at the
+      height of the keys. Done: the paws rest in the lap on the lower belly
+      (`2026-10-25-timpani-piano-rest.md`).
+- [ ] Polar bear rest: the paws rest 8 cm to 10 cm below the key top, on the lower belly. The
+      thighs past the belly stand 0.7 m from the shoulder joint, and the arm reaches 0.49 m. Lower
+      paws folded up to 6 more faces at the right shoulder (`2026-10-25-timpani-piano-rest.md`).
+- [ ] Polar bear rig: the left shoulder folds about 20 faces at rest and in most play samples
+      (arm gate folds p95 19, limit 8, `OPEN`). An arm-root face folds when the upper arm turns
+      more than 60° from the T bind (`pnpm fold-probe pianist --bins 1750`). No pose of the scan
+      moved it: it needs loop edges or a corrective shape at the armpit
+      (`2026-10-25-timpani-piano-rest.md`).
+- [ ] Polar bear rig (audit 2026-10-25, fault 4): each forearm folds into a hard dark V at the
+      inner elbow in the chord. The right faces 574, 575, and 576 fold in 54% to 77% of the play
+      at each elbow pole of the scan, so the fix needs loop edges or a corrective shape at the
+      elbow (`2026-10-25-timpani-piano-rest.md`).
 - [ ] Polar bear (`2026-10-24-piano-pedals.md`): the case shades the brass pedals in the gallery
       light. From the stage camera at elevation 40, the bear and the keys hide the pedals and the
       feet. No demo has sustain pedal data (CC 64) on the piano, so the damper pedal moves only
@@ -505,6 +520,16 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
 - [ ] Elephant: the right flat p5 of the arm gate is 0.78 at the shoulder ring (0.87 before the
       arm tubes, margin 0.05). The manager decides (`2026-10-25-elephant-arms.md`,
       `2026-10-25-elephant-hippo-creases.md`).
+- [x] Elephant timpanist (audit 2026-10-25, faults 1 and 4): the right mallet lay level across
+      the belly between strikes, and the moments looked the same. Done: the set position and the
+      full stroke (`2026-10-25-timpani-piano-rest.md`).
+- [ ] Elephant timpanist: the strike roll turns the right paw 18° from its accepted grip (arm
+      gate grip turn, `main` 0°, limit 45°). The manager checks the 3x paw crops and sets the
+      new play medians in `ACCEPTED_GRIPS` (`2026-10-25-timpani-piano-rest.md`).
+- [ ] Elephant timpanist: between strikes, the heads stay 2 cm to 7 cm above the spots with the
+      shafts 15° to 22° down. A real timpanist sets them one inch above the head with a level
+      shaft. A larger wrist lift moved the shafts out of the closed paws
+      (`2026-10-25-timpani-piano-rest.md`).
 - [x] Hippo bassist: a hard dark crease shows under the left arm from the left side. Done: a split
       of the normals of the arm root. The faces around each shoulder joint take the skin normals
       (`rootNormals`, `2026-10-25-elephant-hippo-creases.md`).
