@@ -1,0 +1,11 @@
+node docs/research/2026-10-25-brass-grips/probes/wind-jumps.ts <demo> <species> <instrument>
+bach-bwv1047.mid monkey trumpet L: 27751 steps of 0.01 s, turns over 30 deg in one step 0, largest step 0.2 deg at 246.77 s
+bach-bwv1047.mid monkey trumpet R: 27751 steps of 0.01 s, turns over 30 deg in one step 0, largest step 0.2 deg at 50.78 s
+beethoven-1.mid monkey trumpet L: 29433 steps of 0.01 s, turns over 30 deg in one step 0, largest step 0.2 deg at 281.87 s
+beethoven-1.mid monkey trumpet R: 29433 steps of 0.01 s, turns over 30 deg in one step 0, largest step 0.2 deg at 281.84 s
+brahms-2.mid monkey trumpet L: 75247 steps of 0.01 s, turns over 30 deg in one step 0, largest step 0.2 deg at 240.27 s
+brahms-2.mid monkey trumpet R: 75247 steps of 0.01 s, turns over 30 deg in one step 0, largest step 0.2 deg at 240.27 s
+boulanger-matin.mid rhino tuba L: 28067 steps of 0.01 s, turns over 30 deg in one step 0, largest step 0.2 deg at 266.84 s
+boulanger-matin.mid rhino tuba R: 28067 steps of 0.01 s, turns over 30 deg in one step 0, largest step 0.2 deg at 266.84 s
+brahms-2.mid rhino tuba L: 75247 steps of 0.01 s, turns over 30 deg in one step 0, largest step 0.2 deg at 683.13 s
+brahms-2.mid rhino tuba R: 75247 steps of 0.01 s, turns over 30 deg in one step 0, largest step 0.2 deg at 683.13 s
