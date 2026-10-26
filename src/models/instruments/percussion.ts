@@ -7,7 +7,7 @@ import type { Finish, Rgb, Transform } from '../mesh.ts';
 import { box, icosphere, lathe } from '../primitives.ts';
 import type { ProfilePoint } from '../primitives.ts';
 import { PieceBuilder, hold, pieceSize } from './piece.ts';
-import type { InstrumentModel, InstrumentPiece, PlayTarget } from './types.ts';
+import type { InstrumentId, InstrumentModel, InstrumentPiece, PlayTarget } from './types.ts';
 
 /** The number of kettles of the timpani (design 4.6). */
 export type KettleCount = 2 | 3 | 4;
@@ -103,6 +103,9 @@ export const TIMPANI = {
   malletSpotL: [0.045, 0.05, 0.035],
   /** The grip of the mallet in the closed right paw of the elephant mesh. */
   malletSpotR: [0.06, 0.035, 0.0238],
+  /** The length of each shaft behind its grip, in meters ({@link MALLET_BUTT}). */
+  // SAFETY: the literal widens to a number, so that a hold tool can set it in memory.
+  malletButt: 0.04 as number,
 } as const;
 
 /**
@@ -209,6 +212,9 @@ export const BASS_DRUM = {
   malletTilt: 0 as number,
   /** The grip of each mallet in the closed paw ({@link PAW_SPOT}). */
   malletSpot: PAW_SPOT,
+  /** The length of the shaft behind its grip, in meters ({@link MALLET_BUTT}). */
+  // SAFETY: the literal widens to a number, so that a hold tool can set it in memory.
+  malletButt: 0.04 as number,
 } as const;
 
 /** The tambourine on its stand, in meters (design 4.6). */
@@ -233,6 +239,9 @@ export const TRIANGLE = {
   malletTilt: 1 as number,
   /** The grip of each mallet in the closed paw ({@link PAW_SPOT}). */
   malletSpot: PAW_SPOT,
+  /** The length of the shaft behind its grip, in meters ({@link MALLET_BUTT}). */
+  // SAFETY: the literal widens to a number, so that a hold tool can set it in memory.
+  malletButt: 0.04 as number,
 } as const;
 
 /**
@@ -306,6 +315,27 @@ export function kettleCount(highestKey: number): KettleCount {
 export const MALLET_BUTT = 0.04;
 
 /**
+ * Gives the length of the shaft behind the grip of the mallets of an instrument, in meters: the
+ * own butt of the timpani, the bass drum, and the triangle beater, and {@link MALLET_BUTT} for the
+ * other mallets and sticks.
+ *
+ * @param id The instrument.
+ * @returns The butt length.
+ */
+export function malletButt(id: InstrumentId): number {
+  switch (id) {
+    case 'timpani':
+      return TIMPANI.malletButt;
+    case 'bass-drum':
+      return BASS_DRUM.malletButt;
+    case 'small-percussion':
+      return TRIANGLE.malletButt;
+    default:
+      return MALLET_BUTT;
+  }
+}
+
+/**
  * Gives the offset of a grip from the palm point, in head heights, in the model axes of the bind
  * pose: the palm of the left paw faces +x, the fingers point down, and the thumb points forward,
  * along -z.
@@ -337,6 +367,7 @@ interface HandTool {
  * @param finish The finish of the stick.
  * @param tilt The angle of the mallet below the level in the bind pose, in radians.
  * @param spot The grip in the closed paw ({@link MalletSpot}).
+ * @param butt The length of the shaft behind the grip ({@link MALLET_BUTT}).
  * @returns The piece and the target at the ball.
  */
 function mallet(
@@ -348,9 +379,10 @@ function mallet(
   finish: Finish = 'matte',
   tilt: number,
   spot: MalletSpot,
+  butt: number = MALLET_BUTT,
 ): HandTool {
   const piece = new PieceBuilder();
-  piece.rod([-MALLET_BUTT, 0, 0], [length, 0, 0], 0.0055, 4, stickColor, finish);
+  piece.rod([-butt, 0, 0], [length, 0, 0], 0.0055, 4, stickColor, finish);
   if (ball > 0) {
     piece.add(icosphere(ball, 0), ballColor, transform([length, 0, 0]));
   }
@@ -499,6 +531,7 @@ export function buildTimpani(kettles: KettleCount): InstrumentModel {
     undefined,
     tilt,
     t.malletSpotL,
+    t.malletButt,
   );
   const right = mallet(
     'malletR',
@@ -509,6 +542,7 @@ export function buildTimpani(kettles: KettleCount): InstrumentModel {
     undefined,
     tilt,
     t.malletSpotR,
+    t.malletButt,
   );
   const instrument = piece.build('instrument', hold('floor'));
   return {
@@ -603,6 +637,7 @@ export function buildBassDrum(): InstrumentModel {
     undefined,
     BASS_DRUM.malletTilt,
     BASS_DRUM.malletSpot,
+    BASS_DRUM.malletButt,
   );
   const instrument = piece.build('instrument', hold('floor'));
   const head = toVec3(new Vector3(...center).addScaledVector(axis, depth / 2));
@@ -908,6 +943,7 @@ export function buildSmallPercussion(): InstrumentModel {
     'metal',
     TRIANGLE.malletTilt,
     TRIANGLE.malletSpot,
+    TRIANGLE.malletButt,
   );
   return {
     id: 'small-percussion',

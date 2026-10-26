@@ -61,7 +61,7 @@ import { GRIP_GAP, volumeMiddle } from './bow-grip.ts';
 import { setHolds } from './hold-sets.ts';
 import type { DemoFile } from './patch-demos.ts';
 import { probeDemos } from './probe-demos.ts';
-import { MALLET_BUTT, TRIANGLE_CLIP } from '../src/models/instruments/percussion.ts';
+import { TRIANGLE_CLIP, malletButt } from '../src/models/instruments/percussion.ts';
 import type { InstrumentId } from '../src/models/instruments/types.ts';
 import { WOODWINDS } from '../src/models/instruments/woodwinds.ts';
 import type { WoodwindId } from '../src/models/instruments/woodwinds.ts';
@@ -432,7 +432,7 @@ function clipOf(posed: PosedSkeleton): Tube {
 }
 
 /**
- * Gives the posed shaft of the mallet of a paw, from its butt end ({@link MALLET_BUTT} behind the
+ * Gives the posed shaft of the mallet of a paw, from its butt end ({@link malletButt} behind the
  * grip) to the middle of its head.
  *
  * @param posed The posed skeleton.
@@ -448,7 +448,9 @@ function shaftOf(posed: PosedSkeleton, side: Side): Tube {
   if (!head) {
     throw new Error(`The ${posed.model.instrument.id} has no mallet head on ${bone}.`);
   }
-  const start = new Vector3(...posedPiecePoint(posed, { bone, at: [-MALLET_BUTT, 0, 0] }));
+  const start = new Vector3(
+    ...posedPiecePoint(posed, { bone, at: [-malletButt(posed.model.instrument.id), 0, 0] }),
+  );
   const end = new Vector3(...posedPiecePoint(posed, { bone, at: head.from }));
   const length = end.distanceTo(start);
   return { start, axis: end.sub(start).normalize(), length };
