@@ -297,11 +297,14 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
   violin or the viola upright on the left knee or thigh with the left arm to the neck, and the
   bow upright at the right side with the frog in the right paw (5.3,
   `docs/decisions/2026-10-16-bow-rest.md`, `docs/decisions/2026-10-24-violin-rest.md`). A real
-  violist rests as a violinist. Each elbow bends at rest, as the arms of a seated player: the
-  short left arm of the rabbit holds the upper neck (`docs/decisions/2026-10-24-violin-poses.md`).
-  The bow paws rest on the lap, as the user asked on 2026-10-26: the rabbit and the cat hold the
-  frog at the front of the right thigh with the elbow bent and the bow upright beside the body,
-  and the red fox on the front of the right thigh (`docs/decisions/2026-10-26-second-review.md`). With the paw on the top of the thigh, the short right arm of the rabbit folded
+  violist rests as a violinist. Each elbow bends at rest and hangs near the side, as the arms of a
+  seated player, and the left paw closes around the neck at 0.4 of the fingerboard, below the
+  pegbox (`BowedHold.restPlace`): with the grip near the nut, the paw lay over the scroll, and
+  with the left elbow out to the side, the arms looked long (user, 2026-10-26,
+  `docs/decisions/2026-10-26-third-review.md`). The bow paws rest on the lap: the rabbit and the
+  cat hold the frog at the front of the lap with the elbow bent near the body and the bow upright
+  beside it, and the red fox on the front of the right thigh
+  (`docs/decisions/2026-10-26-third-review.md`). With the paw on the top of the thigh, the short right arm of the rabbit folded
   (`docs/decisions/2026-10-26-violin-lift.md`). In the lift and the lowering, the
   bow tip turns through the front, forward and a little up, beside the body (`BowVia` of
   `pose/bowed-rig.ts`): with the tip up, the bow stood in front of the face. The left paw of the

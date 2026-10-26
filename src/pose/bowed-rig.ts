@@ -541,10 +541,10 @@ const HANGING_BOW = {
  * the top of the left knee, at the knee joint, 0.1 H out and 0.05 H down, with the top plate to
  * the front. On the belly at 0.85 of the way, of 2026-10-24, the scroll came up to the chin, the
  * paw held the neck at the mouth, and the violin went 4.8 cm into the belly. The left paw holds
- * the upper neck, at 0.1 of the fingerboard from the nut (`restPlace`), so that the elbow bends to
- * about 120°: at 0.4, the short arm hung straight to the violin (2026-10-24-violin-poses
- * decisions). The left elbow points down, a little out, and a little back, (-0.6, -1, 0.3)
- * (2026-10-17-rabbit-pose decisions).
+ * the neck at 0.4 of the fingerboard from the nut (`restPlace`), so that the paw closes around it:
+ * at 0.1, the paw lay over the scroll, and the user said that the rabbit did not hold the violin
+ * properly (2026-10-26-third-review decisions). The left elbow points down, a little out, and a
+ * little back, (-0.6, -1, 0.3) (2026-10-17-rabbit-pose decisions).
  *
  * In the lift and the lowering, the left paw carries the violin at the nut (`liftPlace`): at the
  * end of the fingerboard, the heel of the paw went 2.0 cm into the violin in the re-grip
@@ -560,8 +560,10 @@ const HANGING_BOW = {
  * front, and the elbow straightened to 180°. With no move to the front, the violin went 3.2 cm
  * into the belly in a lowering. In the middle, the elbow points out and a little down, as at rest
  * (`liftPoleL`): down and to the front, (0, -1, -0.5), the left upper arm went 2.5 cm into the
- * body in the lift. The left rest elbow points out and a little down, (-1, -0.6, 0): with
- * (-0.6, -1, 0.3), the left upper arm went 3.4 cm into the body at rest with the new grip. With
+ * body in the lift. The left rest elbow points down and a little out and back, (-0.6, -1, 0.3),
+ * so that the left arm bends at the side: with the elbow out, (-1, -0.6, 0), the arm reached up
+ * to the nut and looked long (user, 2026-10-26: "the violin player's arms are becoming much
+ * longer and bent than before", 2026-10-26-third-review decisions). With
  * the top of the rest of 2026-10-24, the wrist bent past 90°
  * from the knee. In the middle of the move, the bow tip points forward and a little out and up,
  * (0.4, 0.3, -1), with the hair to the back, and the grip moves 0.3 H out, 0.1 H up, and 0.3 H to
@@ -576,10 +578,12 @@ const HANGING_BOW = {
  *
  * The right elbow hangs near the side, as the elbows of the violinist (2026-10-16-rabbit-arm
  * decisions). The belly is widest below the elbow, so the right arm hangs out around it, and the
- * paw does not reach the top of the right thigh. The grip rests on the lap at the front of the
- * right thigh, 0.35 H out from the top of the knee, 0.7 H above it, and 0.5 H to the front, with
- * the elbow bent and the bow upright beside the body (user, 2026-10-26: "they should be more
- * relaxed and closer to the body / lap", 2026-10-26-arm-fixes decisions). With the grip 0.65 H out
+ * paw does not reach the top of the right thigh. The grip rests at the front of the lap, 0.4 H
+ * out from the top of the knee, 0.85 H above it, and 0.3 H to the front, and the elbow points
+ * down and back, (0.3, -1, 1), so that the arm bends near the body and the bow stands upright
+ * beside it (user, 2026-10-26: "they should be more relaxed and closer to the body / lap",
+ * 2026-10-26-third-review decisions). With the grip 0.5 H to the front, the arm reached nearly
+ * straight to the front and looked long. With the grip 0.65 H out
  * and 0.45 H up, the arm hung straight down at the side. With the paw on the top of the thigh, the
  * short right arm folded 13 to 22 faces at rest (2026-10-26-violin-lift decisions). With the stick through the middle of the paw of
  * 2026-10-17, the grip 0.55 H out and 0.45 H above the knee turned face 372 of the right upper arm
@@ -604,16 +608,16 @@ const SHOULDER_HOLD = {
   headDrop: 17 * MathUtils.DEG2RAD,
   slant: -5 * MathUtils.DEG2RAD,
   stringTurn: 10 * MathUtils.DEG2RAD,
-  restPoleL: [-1, -0.6, 0],
-  restPoleR: [0.3, -1, 0.2],
-  restPlace: 0.1,
+  restPoleL: [-0.6, -1, 0.3],
+  restPoleR: [0.3, -1, 1],
+  restPlace: 0.4,
   rest: { ...LAP_VIOLIN, lap: { along: 1, offset: [-0.1, -0.05, 0] } },
   liftReach: [0, 0.35, -0.2],
   liftPlace: 0,
   restTwistL: 1.5,
   liftPoleL: [-1, -0.6, 0],
   restBow: {
-    lap: { along: 1, offset: [0.35, 0.7, -0.5] },
+    lap: { along: 1, offset: [0.4, 0.85, -0.3] },
     tip: [0.2, 1, -0.1],
     hair: [0, 0, -1],
     via: { tip: [0.4, 0.3, -1], hair: [0, 0, -1], reach: [0.3, 0.1, -0.3] },
@@ -656,8 +660,8 @@ const SHOULDER_HOLD = {
  * stands on the left thigh at 0.8 of the way to the knee, 0.18 H down and 0.2 H forward. With the
  * thighs 25° down of 2026-10-17, the place of 2026-10-16 (0.65 of the way, 0.24 H down, and 0.3 H
  * forward) put the lower end 13.8 cm above the thigh (2026-10-17-fox-form decisions). The left
- * paw holds the violin at 0.2 of the fingerboard (`restPlace`): at 0.4, the heel of the paw went
- * 1.6 cm into the violin early in the lowering (2026-10-26-violin-lift decisions). The long right arm of the fox reaches the right thigh only nearly straight,
+ * paw holds the violin at 0.4 of the fingerboard (`restPlace`), so that it closes around the
+ * neck: at 0.2, the paw lay over the scroll (2026-10-26-third-review decisions). The long right arm of the fox reaches the right thigh only nearly straight,
  * and its line from the shoulder to a paw on the top of the thigh passes through the side of the
  * belly: with the grip 0.15 H out at 0.65 of the way, the right upper arm went 6.2 cm into the
  * body. So the grip is at
@@ -669,8 +673,9 @@ const SHOULDER_HOLD = {
  * goes 3.3 cm into the body in each set (`pnpm hold-fit fox-violinist --base main --sets
  * lift,rest,lower`, 2026-10-17-grip-all decisions). The right elbow points down, out, and back,
  * (0.4, -1, -0.3), with the frog on the front of the right thigh, near the lap, as the user asked
- * on 2026-10-26 (2026-10-26-violin-lift decisions). The left rest elbow points out and a little
- * down, (-1, -0.6, 0), as on the rabbit. In the lift and the lowering, the tail end
+ * on 2026-10-26 (2026-10-26-violin-lift decisions). The left rest elbow points down and a little
+ * out and back, (-0.6, -1, 0.3), as on the rabbit: out, (-1, -0.6, 0), the arm looked long and
+ * bent (2026-10-26-third-review decisions). In the lift and the lowering, the tail end
  * of the violin moves on its path (`liftPlace` null): the long left arm of the fox reaches the neck
  * there with the elbow bent to 99° to 127° (2026-10-24-violin-poses decisions). The violin takes
  * the short turn to the play, and the left paw changes from its rest grip (`restTwistL`) to the
@@ -704,9 +709,9 @@ const FOX_HOLD = {
   poleTipR: [1, -0.85, -1],
   freeHair: 0.12,
   pizzicatoTip: [0.3, 0.5, 1],
-  restPoleL: [-1, -0.6, 0],
+  restPoleL: [-0.6, -1, 0.3],
   restPoleR: [0.4, -1, -0.3],
-  restPlace: 0.2,
+  restPlace: 0.4,
   rest: { ...LAP_VIOLIN, lap: { along: 0.8, offset: [0, -0.18, -0.2] } },
   liftReach: [0, 0.1, -0.2],
   liftPlace: null,
@@ -792,13 +797,19 @@ export const BOWED_HOLDS = {
  * (`restPlace`): with 0.3 H forward and 0.5, the paw swung 98° on the wrist, with 0.25 H forward
  * and the top plate back and to the left 91°, with 8 folded faces of the left arm, and now 26°, with
  * 2 folded faces (limit 8, 2026-10-24-violin-poses and 2026-10-24-violin-review decisions). The left
- * elbow points down, out, and a little back, (-0.8, -1, 0.3): with the elbow (-0.6, -1, 0.3) of
+ * elbow points down, out, and a little back, (-1, -1, 0.3): with the grip at 0.4 of the
+ * fingerboard and the elbow (-0.8, -1, 0.3), the left upper arm went 1.9 cm into the body at rest
+ * (2026-10-26-third-review decisions), and with the elbow (-0.6, -1, 0.3) of
  * 2026-10-24, the left upper arm went 2.6 cm into the body by the smaller viola (1.5 cm now), and
  * with (-0.5, -1, 0.3) 1.9 cm by the viola of the app. A place further down the
- * upper bout put the left forearm 2.4 cm to 2.8 cm into the viola. The grip of the bow is 0.6 H
- * out, 0.3 H down, and 0.1 H back at 0.5 of the way to the knee, and the right elbow points down,
- * out, and a little back, (0.8, -1, 0.2), so the forearm comes forward to the paw over the outer
- * side of the thigh, as the forearm of a seated violinist. With the elbow of 2026-10-17,
+ * upper bout put the left forearm 2.4 cm to 2.8 cm into the viola. The grip of the bow rests on
+ * the lap near the hip, 0.35 H out, 0.5 H up, and 0.25 H to the front at 0.7 of the way to the
+ * knee, with the tip a little forward, (0.3, 1, -0.4), and the right elbow points out and a little
+ * down, (1, -0.6, 0), so that the arm bends near the body (user, 2026-10-26: "cat's bow hand should
+ * rest on/near its lap", 2026-10-26-third-review decisions). With the grip 0.5 H to the front at
+ * 0.8 of the way, the arm reached nearly straight to the knee. With the tip of the rabbit,
+ * (0.2, 1, -0.1), the right arm twisted 35° to 46° at rest (25° on `main`, 33° now, limit 55). With the
+ * elbow of 2026-10-17,
  * (0.3, -1, 1), 2.4 cm behind the back, the rebuilt right upper arm went 2.7 cm into the back, and
  * its skin rolled 64° on the gate (limit 55, 2026-10-25-cat-arms decisions). The arm of the cat, with
  * the reach of the red fox, reaches the top of the thigh only nearly straight, so the paw stays
@@ -808,10 +819,10 @@ export const BOWED_HOLDS = {
  * out at 0.55 of the way to the knee bent the elbow to 143° only, with the forearm out to the side.
  * The level bow of 2026-10-16 ran forward past the knees, and a real violist rests as a violinist.
  *
- * The left paw holds the viola at rest at 0.2 of the fingerboard (`restPlace`), and in the lift
- * and the lowering it carries the viola at the nut (`liftPlace`), as on the rabbit: at 0.4 and at
- * the end of the fingerboard, the heel of the paw went 2.5 cm into the viola in the re-grip, and
- * the left upper arm 1.9 cm into the body at rest (2026-10-26-violin-lift decisions). The paw moves
+ * The left paw holds the viola at rest at 0.4 of the fingerboard (`restPlace`), so that it closes
+ * around the neck: at 0.2, the paw lay over the top of the neck, and the user said that the cat
+ * did not hold the viola properly (2026-10-26-third-review decisions). In the lift and the
+ * lowering, the paw carries the viola at the nut (`liftPlace`), as on the rabbit. The paw moves
  * 0.25 H up and 0.2 H to the front in the
  * middle (`liftReach`): with the rebuilt arms of 2026-10-25 and 0.2 H up and 0.1 H to the front,
  * the left paw swung 71° on the wrist (limit 70), and with 0.2 H up, the left wrist turned
@@ -893,9 +904,9 @@ const CAT_HOLD = {
   highTilt: 20 * MathUtils.DEG2RAD,
   poleR: [2, 0, -0.5],
   poleTipR: [1, -1, -1],
-  restPoleR: [1, -1, 0.3],
-  restPoleL: [-0.8, -1, 0.3],
-  restPlace: 0.2,
+  restPoleR: [1, -0.6, 0],
+  restPoleL: [-1, -1, 0.3],
+  restPlace: 0.4,
   rest: {
     axis: LAP_VIOLIN.axis,
     top: [-0.5, 0, -0.87],
@@ -906,8 +917,8 @@ const CAT_HOLD = {
   restTwistL: 1.5,
   liftPoleL: [-1, -0.6, 0],
   restBow: {
-    lap: { along: 0.8, offset: [0.35, 0.7, -0.5] },
-    tip: [0.2, 1, -0.1],
+    lap: { along: 0.7, offset: [0.35, 0.5, -0.25] },
+    tip: [0.3, 1, -0.4],
     hair: [0, 0, -1],
     via: { tip: [0.4, 0.3, -1], hair: [0, 0, -1], reach: [0.55, 0.3, -0.3] },
   },

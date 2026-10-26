@@ -528,12 +528,14 @@ A round that changes the motion updates the items.
   and the bow tip points forward beside the body in the middle of the move
   (`docs/decisions/2026-10-26-violin-lift.md`).
 - **The violin and the viola at rest** (section 2.9). The rabbit, the red fox, and the cat rest the
-  instrument upright on the left knee and hold its neck with the left paw. The top plate of the
+  instrument upright on the left knee, and the left paw closes around its neck at 0.4 of the
+  fingerboard, with the elbow near the side (`BowedHold.restPlace` and `restPoleL`). With the grip
+  near the nut, the paw lay over the scroll (`docs/decisions/2026-10-26-third-review.md`). The top plate of the
   violin faces the front, and the top plate of the viola the front and 30° to the left: with the top
   to the front, the bow paw of the cat turned up to 7,437°/s in a lowering
-  (`docs/decisions/2026-10-24-violin-review.md`). The bow paw rests on the lap at the front of the
-  right thigh, with the elbow bent and the bow upright, as the user asked on 2026-10-26
-  (`docs/decisions/2026-10-26-second-review.md`).
+  (`docs/decisions/2026-10-24-violin-review.md`). The bow paw rests at the front of the lap, with
+  the elbow bent near the body and the bow upright, as the user asked on 2026-10-26
+  (`docs/decisions/2026-10-26-third-review.md`).
 - **The string crossing leads the note** (section 2.3). `bowStateAt()` of `pose/strokes.ts` turns
   the bow to the string of the next note in at most 0.08 s, and in at most 0.3 of the time from
   the note start to the next note (`BOW_MOTION.crossSec` and `crossShare`). The turn ends 0.01 s
