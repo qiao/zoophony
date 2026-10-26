@@ -623,7 +623,9 @@ A round that changes the motion updates the items.
   differs from the source: a real bassist leans the bass against the left side of the hip and the
   left knee [69, 70], but the knee of the hippo lies under its belly, so the contrabass stands in
   front of the belly. Both shoulders of the hippo turn forward (`BowedHold.reach`,
-  `BowedHold.reachL`), so that the short arms reach the strings 0.28 m in front of the belly.
+  `BowedHold.reachL`), so that the short arms reach the strings 0.28 m in front of the belly. At
+  rest, the app points the right elbow down and a little out (`BowedHold.restPoleR`), so that the
+  skin of the hanging upper arm twists less.
 - **The left hand over the neck** (section 2.8). The thick left paw of the hippo tilts 55° over
   the neck, as the paw of the dog (section 3.3), so that the left arm keeps off the body. A real
   bassist touches the back of the neck with the thumb alone [71]. The app differs: the paw of the

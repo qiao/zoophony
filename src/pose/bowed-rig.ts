@@ -1041,8 +1041,11 @@ const DOG_HOLD = {
  * with the elbow out to the left and a little down: with the elbow further down, the left forearm
  * went 2.2 cm into the neck in the lift and the lowering, and with a level elbow, the left paw
  * twisted 178° on its forearm in the lowering (limit 176°). The right paw hangs beside the belly with the
- * bow tip down (`HANGING_BOW`), and the elbow points down and out, as the arms of the mesh hang: the
- * knee of the floor hold lies under the belly, and the right forearm went 13.8 cm into the body. In
+ * bow tip down (`HANGING_BOW`), and the elbow points down and a little out, as the arms of the
+ * mesh hang: the knee of the floor hold lies under the belly, and the right forearm went 13.8 cm
+ * into the body. With the elbow further out, the arm segments rolled the hanging upper arm so far
+ * that the skin twisted 41° along it (29° with this elbow, the arm gate). With the elbow further
+ * in or forward, the right forearm went 1.6 cm to 4.8 cm into the belly. In
  * the lift and the lowering, the tip turns through the front, as the upright bow of the violinists,
  * with the grip 0.3 H out, 0.3 H up, and 0.6 H to the front: with no move up, the bow paw turned
  * 2,959°/s at the most in the lowering (1,877°/s on 2026-10-21 before the move of the contrabass).
@@ -1066,7 +1069,7 @@ const HIPPO_HOLD = {
   pluckSide: 0.18,
   stopEnd: 0.7,
   farSideR: 30 * MathUtils.DEG2RAD,
-  restPoleR: [1, -1, 0],
+  restPoleR: [0.6, -1, 0],
   restPoleL: [-1, -0.3, 0],
   restBow: {
     lap: { along: 1, offset: [0.7, 1, -0.4] },
