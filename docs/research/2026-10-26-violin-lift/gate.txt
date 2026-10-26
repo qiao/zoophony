@@ -1,0 +1,19 @@
+base: cached (main, 55862268a2fa)
+base: cached (main, 0cf84c546a9a)
+base: cached (main, 5d10f798a69b)
+Arm gate of 3 roles against main in 82 s. A cell gives the value, the base in parentheses, and the verdict of a value that does not pass.
+
+| Role | Arm | folds p95 (8) | twist p95 (55) | forearm twist p95 (80) | flat p5 (0.55) | paw twist p95 (170) | paw swing p95 (70) | paw jumps (0.5%) | stretch p95 (0.35) | grip turn p50 (45) | move twist max (176) | move turn max (3000) | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| violinist | L | 7 (7) | 25 (17) | 80 (80) | 0.86 (0.86) | 159 (159) | 27 (58) | 0.0% (0.0%) | 0.08 (0.10) | 17 (17) | 162 (162) | 240 (531) | PASS |
+| violinist | R | 5 (5) | 23 (23) | 48 (48) | 0.83 (0.86) | 128 (128) | 36 (41) | 0.0% (0.0%) | 0.08 (0.08) | 19 (19) | 137 (137) | 357 (1099) | PASS |
+| fox-violinist | L | 2 (2) | 52 (27) FAIL | 67 (67) | 0.84 (0.77) | 147 (147) | 28 (66) | 0.0% (0.0%) | 0.06 (0.08) | 3 (3) | 147 (147) | 236 (824) | FAIL |
+| fox-violinist | R | 3 (2) | 42 (39) | 49 (46) | 0.78 (0.86) FAIL | 137 (129) | 56 (59) | 0.0% (0.0%) | 0.07 (0.04) | 11 (11) | 149 (145) FAIL | 272 (1216) | FAIL |
+| violist | L | 3 (7) | 29 (28) | 71 (69) | 0.70 (0.70) | 142 (140) | 43 (69) | 0.0% (0.0%) | 0.05 (0.08) | 11 (11) | 143 (142) | 172 (840) | PASS |
+| violist | R | 2 (4) | 24 (49) | 44 (44) | 0.80 (0.75) | 109 (109) | 51 (55) | 0.0% (0.0%) | 0.07 (0.03) | 18 (18) | 144 (144) | 252 (733) | PASS |
+
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| fox-violinist | L | twist p95 | rest | 14 | 49 | 52 | 100.0% | 52 at mozart-k525.mid rest | 52 | 55 | 27 | FAIL |
+| fox-violinist | R | flat p5 | lift | 434 | 0.90 | 0.78 | 100.0% | 0.76 at mozart-k525.mid wall 0.5 s | 0.78 | 0.55 | 0.86 | FAIL |
+| fox-violinist | R | move twist max | move | 16254 | 123 | 141 | 100.0% | 149 at beethoven-8.mid lower 146.82 s, wall 1.20 s | 149 | 176 | 145 | FAIL |
