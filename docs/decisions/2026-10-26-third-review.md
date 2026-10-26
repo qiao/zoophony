@@ -14,3 +14,4 @@ its row.
 | Decision | Section |
 |---|---|
 | The two faces at the front of the left arm root of the panda move rigidly (`weights.rigid`), and the fur faces of the trunk box with an Oklab lightness from 0.5 to 0.8 take the color of the nearest light fur face (`colors.border.gray`). Three faces across the edge of the black band took gray edge samples (lightness 0.70) and showed as a gray wedge under the raised left arm. The left play folds fall from 3 to 1, and the arm gate passes against `main`. | 4.4 |
+| In the trunk box of the pig, from y 0.4 to the chin, each dark fur face takes the color of the nearest light fur face (`colors.border`). Four faces under the right arm took dark texture samples and showed as a black sliver under the raised arm. The hooves lie below the box and stay black. | 4.4 |

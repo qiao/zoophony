@@ -362,6 +362,12 @@
     "note": "The values of the fox, the cat, the dog, the panda, the hippo, and the mouse."
   },
   "colors": {
+    "border": {
+      "box": [[-0.3, 0.4, -0.3], [0.3, 0.67, 0.3]],
+      "share": 1.01,
+      "dark": 0.5,
+      "note": "In the box of the trunk, from y 0.4 to the chin (0.67), each dark fur face takes the color of the nearest light fur face. Four faces under the right arm (faces 1709 and 1716 to 1718 of the module) took dark texture samples and showed as a black sliver under the raised right arm (user, 2026-10-26: \"black area under the pig's armpit\", docs/decisions/2026-10-26-third-review.md). The share 1.01 takes each dark face of the box: the dark hooves of the hands lie on the free arms, below the box."
+    },
     "samples": 6,
     "palette": 48,
     "dark": 0.05,
