@@ -815,7 +815,9 @@ def anchor(s, island):
     Proximity modifier gives each tube vertex a weight by its distance to the side walls: `share`
     on the wall, falling to 0 at the distance `reach` (units). A Vertex Weight Mix modifier adds it
     to the chest, and Normalize All takes it from the arm bones. Thus the skin of the armpit
-    follows the trunk in part, as a real armpit does.
+    follows the trunk in part, as a real armpit does. With `rings`, only the tube vertices of the
+    first `rings` rings take the share: on the short arm of the hippo, the forearm lies within
+    `reach` of the side wall too.
     """
     mesh, rule = s.mesh, s.spec['anchor']
     if rule['share'] <= 0:
@@ -843,8 +845,10 @@ def anchor(s, island):
     bm.free()
     wall.matrix_world = mesh.matrix_world
     part = [a.value for a in mesh.data.attributes['arm_part'].data]
+    ring = [a.value for a in mesh.data.attributes['arm_ring'].data]
     tubes = (PART['tube'], PART['tube'] + 10)
-    tube = [i for i in island if part[i] in tubes]
+    rings = rule.get('rings', len(s.axes[1]))
+    tube = [i for i in island if part[i] in tubes and ring[i] < rings]
     group = mesh.vertex_groups.new(name='anchor')
     group.add(tube, 1.0, 'REPLACE')
     bpy.context.view_layer.objects.active = mesh
