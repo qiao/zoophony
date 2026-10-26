@@ -244,7 +244,8 @@ function crossTurn(
  * @param side The hand with a mallet across the forearm.
  * @param armForearm The unit direction of the posed forearm, from the elbow to the wrist. The
  *   module vectors `acrossUp` and `acrossOut` hold its axes ({@link acrossAxes}).
- * @param share The share of the turn toward the rest direction, from 0 at a strike to 1.
+ * @param share The share of the turn toward the rest direction, from 0 at a strike to 1. With a
+ *   pitch, a share above 1 lifts the head higher than between strikes (`MalletAcross.peak`).
  * @param out Gets the world rotation of the hand from the bind pose.
  * @param direction Gets the unit direction of the mallet.
  */
@@ -357,7 +358,8 @@ const GRIP_FADE = [30 * MathUtils.DEG2RAD, 10 * MathUtils.DEG2RAD] as const;
  *
  * @param side The hand with a mallet across the forearm.
  * @param point The target of the mallet head. The function writes the head into it.
- * @param share The share of the turn toward the rest direction, from 0 at a strike to 1.
+ * @param share The share of the turn toward the rest direction, from 0 at a strike to 1. With a
+ *   pitch, a share above 1 lifts the head higher than between strikes (`MalletAcross.peak`).
  * @param joint The posed shoulder joint of the side.
  * @param pole The direction to which the elbow points, in the model axes.
  */
@@ -510,7 +512,7 @@ function poseHand(
   head.fromArray(hand.point);
   if (side.kind === 'mallet' && side.across) {
     const rest = rig.hold.sizes.rest;
-    const share = MathUtils.clamp(rest > 0 ? hand.height / rest : 0, 0, 1);
+    const share = MathUtils.clamp(rest > 0 ? hand.height / rest : 0, 0, side.across.peak);
     turnedPole.fromArray(pole).applyQuaternion(chest.rotation);
     acrossHand(side, head, share, shoulder.position, turnedPole);
   } else if (side.kind === 'mallet') {

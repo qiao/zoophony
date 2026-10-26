@@ -140,7 +140,7 @@ const NULL_FIELDS: ReadonlyMap<string, HoldValue> = new Map<string, HoldValue>([
       arc: [0, 0, 0],
     } satisfies FreePaw,
   ],
-  ['across', { rest: 0, lift: 0, pitch: null } satisfies MalletAcross],
+  ['across', { rest: 0, lift: 0, pitch: null, peak: 1 } satisfies MalletAcross],
   ['across.pitch', 0 satisfies NonNullable<MalletAcross['pitch']>],
   ['set', { raise: 0, rise: [0, 0] } satisfies MalletSet],
   ['side', { span: 0, hips: 0, spine: 0, moveSec: 0 } satisfies SideMove],

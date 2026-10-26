@@ -78,6 +78,14 @@ export interface MalletAcross {
    * at a strike. With `null`, the paw turns to the rest direction across the forearm.
    */
   readonly pitch: number | null;
+  /**
+   * The largest share of the pitch in the lift before a strike. The share is the height of the
+   * strike state over the rest height of the hold (`StrikeSizes.rest`), so a share above 1 lifts
+   * the head higher than between strikes, as a real timpanist lifts the mallet before the stroke
+   * (`docs/reference/percussion-technique.md` 4). 1: the head lifts no higher than between
+   * strikes. A hold with no pitch takes 1, because its share mixes two turns.
+   */
+  readonly peak: number;
 }
 
 /**
@@ -247,7 +255,7 @@ export const PERCUSSION_HOLDS = {
     rim: 0.25,
     home: [0.1, -0.37, -0.2],
     top: 'shoulder',
-    across: { rest: -1.2, lift: 0.65, pitch: null },
+    across: { rest: -1.2, lift: 0.65, pitch: null, peak: 1 },
     pitchR: 1,
     ready: true,
     set: null,
@@ -280,7 +288,7 @@ export const PERCUSSION_HOLDS = {
     rim: 0,
     home: MALLET_HOME,
     top: 'up',
-    across: { rest: -1.4, lift: 0.6, pitch: null },
+    across: { rest: -1.4, lift: 0.6, pitch: null, peak: 1 },
     pitchR: 1,
     ready: true,
     set: null,
@@ -309,7 +317,7 @@ export const PERCUSSION_HOLDS = {
     rim: 0,
     home: [0.5, -0.3, -0.5],
     top: 'up',
-    across: { rest: -0.6, lift: 0.3, pitch: 0.9 },
+    across: { rest: -0.6, lift: 0.3, pitch: 0.9, peak: 1 },
     pitchR: 1,
     ready: false,
     set: { raise: 0.01, rise: [0.1, 0.22] },
@@ -363,7 +371,7 @@ export const PERCUSSION_HOLDS = {
     rim: 0,
     home: MALLET_HOME,
     top: 'up',
-    across: { rest: -0.6, lift: 0.3, pitch: null },
+    across: { rest: -0.6, lift: 0.3, pitch: null, peak: 1 },
     pitchR: 1,
     ready: true,
     set: null,
@@ -404,7 +412,7 @@ export const PERCUSSION_HOLDS = {
     rim: 0,
     home: MALLET_HOME,
     top: 'up',
-    across: { rest: -0.6, lift: 0.3, pitch: 0.5 },
+    across: { rest: -0.6, lift: 0.3, pitch: 0.5, peak: 1 },
     // Between strikes, the right head stays higher than the left head, so that the heads pass each
     // other at two heights in a run. At one height, the heads passed through each other, and the
     // mallets touched in 7% of the samples of the test score. With the right head lower, the right
@@ -458,7 +466,7 @@ export const SUSPENDED_CYMBAL_HOLD: PercussionHold = {
   rim: 0,
   home: [0.6, -0.3, -0.5],
   top: 'up',
-  across: { rest: -0.6, lift: 0.3, pitch: 0.7 },
+  across: { rest: -0.6, lift: 0.3, pitch: 0.7, peak: 1 },
   pitchR: 1,
   ready: false,
   set: { raise: 0.06, rise: [0, 0.15] },
