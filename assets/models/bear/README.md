@@ -1,15 +1,17 @@
 # Bear models
 
-This folder holds the three bear models that the user gave. The app does not serve them.
+This folder holds the three bear models that the user gave, and the files that this project made
+from them. The app does not serve them.
 
 ## bear-tpose.glb
 
 `bear-tpose.glb` is a mesh with no skeleton, with the arms in a T-pose: out to the sides and a
 little down, free of the trunk. The user gave it on 2026-10-23 and said: "also use the new bear
-model [...] note that this is a T-pose". The file is the file of the user, byte for byte. The rig
-of this project makes the studio body of the bear conductor from it with its own faces
-(`tools/mesh-rigs/bear.json`): `pnpm rig-mesh bear` writes the rigged file `bear-tpose.rig.glb`,
-and `pnpm studio-body bear` writes the module `src/models/studio/bear.ts` from it.
+model [...] note that this is a T-pose". The file is the file of the user, byte for byte. Since
+2026-10-26, the rig of this project makes the studio body of the bear conductor from its copy with
+rebuilt arms, `bear-arms.glb` (below, `tools/mesh-rigs/bear.json`): `pnpm rig-mesh bear` writes
+the rigged file `bear-tpose.rig.glb`, and `pnpm studio-body bear` writes the module
+`src/models/studio/bear.ts` from it.
 
 | Item | Value |
 |---|---|
@@ -29,6 +31,29 @@ With a weld at 1e-5, in the units of the studio, the mesh has 1,573 vertices in 
 edge, and 105 faces with a corner angle below 10° (`docs/research/2026-10-23-bear-tpose/`). The
 box is x -0.502 to 0.502, y 0 to 1, and z -0.221 to 0.220. Each arm is free of the trunk beyond
 x 0.18, from y 0.58 to 0.75.
+
+## bear-arms.glb and bear-weights.json
+
+`bear-arms.glb` is `bear-tpose.glb` with new quad faces on each arm from the shoulder line to the
+wrist. The user said on 2026-10-25: "the bear's arm has unnatural facets underneath". The long
+thin faces of the source arm folded into shards under the bent elbow. `tools/blender/bear_arms.py`
+replays the Blender session that made both files, byte for byte. The faces
+of the paws, the trunk, the legs, and the head are the faces of the user. The new arm surface
+lies on the old one, with the arm length of the user. Only the inner side of each upper arm is a
+little flatter, so that it stays out of the round belly.
+
+| Item | Value |
+|---|---|
+| `bear-arms.glb` | 876,804 bytes, SHA-256 `16c0b58b46a24f92b897f7bf5905cd42088de52737335cdf950ba70fdfcd0dbc` |
+| Mesh | 1,928 vertices after a weld at 1e-5, 3,851 triangles (3,142 in the source): on each arm a tube of 13 rings of 16 vertices, joined to the trunk and the paw with Bridge Edge Loops |
+| Material | One material with one base color JPEG of 4096 × 4608 pixels: the atlas of the source, and a strip of 512 pixels on top with the fur color of the source arms, baked onto the new faces. No metallic-roughness texture |
+| `bear-weights.json` | 429,563 bytes, SHA-256 `38223bfab0200de52d829a65220d0c870cb8770bd7747cf92eff0a602a9822e3` |
+| Weights | The automatic weights of Blender with the Weight Paint fixes of the session, on the studio bones and the arm segments and helpers (`armSegments` of the config), for `paintedWeights` of the config |
+| License | Derived from the mesh of the user, who holds its rights |
+
+```bash
+shasum -a 256 assets/models/bear/bear-arms.glb assets/models/bear/bear-weights.json
+```
 
 ## bear-mesh.glb
 
