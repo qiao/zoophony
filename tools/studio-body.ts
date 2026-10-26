@@ -311,7 +311,8 @@ export const ANIMALS: ReadonlyMap<string, AnimalSettings> = new Map([
     },
   ],
   // The contrabass hippo: decisions/2026-10-18-mesh-hippo.md. It stands at its contrabass, so the
-  // export keeps the standing pose of the rig.
+  // export keeps the standing pose of the rig. The pea eyes are 0.8 of their size: the user said
+  // "the hippo's eyes are too big" (2026-10-26-third-review decisions).
   [
     'hippo',
     {
@@ -322,6 +323,7 @@ export const ANIMALS: ReadonlyMap<string, AnimalSettings> = new Map([
       constant: 'STUDIO_HIPPO',
       crease: 35,
       glb: 'assets/models/hippo/hippo.rig.glb',
+      eyeSize: 0.8,
     },
   ],
   // The oboe mouse: decisions/2026-10-19-mesh-mouse.md. It stands as a soloist.
