@@ -201,7 +201,10 @@ export const PERCUSSION_HOLDS = {
   timpani: {
     hands: 'sides',
     sizes: { lift: 0.1, rest: 0.2 },
-    offsetL: [0, 0, 0],
+    // The left mallet strikes 8 cm toward the middle, so that its strike direction stays near its
+    // rest direction: with no offset, the left paw turned up to 33° in 0.01 s in the rolls
+    // (2026-10-25-percussion-grip decisions).
+    offsetL: [0.08, 0, 0],
     offsetR: [-0.05, 0, 0],
     poleL: [-0.8, -1, 0.2],
     poleR: [0.8, -1, 0.2],

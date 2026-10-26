@@ -193,7 +193,9 @@ motion updates the items.
   (`PercussionHold.rim`), because the short arms of the elephant hold the paws above the near
   rims, as the user chose (`docs/decisions/2026-10-19-elephant-pose.md`). A real player strikes
   5 to 10 cm in (section 4). Each hand plays only the front kettle on its side of the trunk
-  (`PercussionHold.pair`), so the two mallets never strike one head together.
+  (`PercussionHold.pair`), so the two mallets never strike one head together. The left mallet
+  strikes 8 cm and the right mallet 5 cm toward the middle of the player (`offsetL`,
+  `offsetR`). Section 4 gives the spot directly in front of the player.
 
 The badger plays the other percussion instruments (`PERCUSSION_HOLDS` of
 `src/pose/percussion-rig.ts`, `BASS_DRUM`, `SNARE_DRUM`, `TAMBOURINE`, `TRIANGLE`, and
