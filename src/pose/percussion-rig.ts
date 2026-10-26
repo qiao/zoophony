@@ -216,7 +216,7 @@ export const PERCUSSION_HOLDS = {
     lean: 0,
     side: null,
     // The end of the round paw of the elephant closes on the shaft (TIMPANI.malletSpotL and malletSpotR).
-    curl: 110 * MathUtils.DEG2RAD,
+    curl: 100 * MathUtils.DEG2RAD,
     // The elephant grip lies far from the wrist across the shaft, so a roll of the paw moves the
     // wrist far, and a roll that removes the side bend flipped the left paw in the rolls. At the
     // strikes, the forearms stand near the 45° of the shaft from the fingers, so the paws keep
@@ -319,7 +319,9 @@ export const PERCUSSION_HOLDS = {
     reach: Infinity,
     lean: 0,
     side: null,
-    curl: GRIP_CURL,
+    // The left paw closes on the clip of the triangle and the right paw on the short beater with
+    // less curl: at 90°, the left paw folded 10 faces at the knuckles.
+    curl: 75 * MathUtils.DEG2RAD,
     // A beater near the line of the forearm turned the paw fast with a roll that removes the
     // side bend, so the forearm lies in the plane of the palm (2026-10-25-percussion-grip
     // decisions).

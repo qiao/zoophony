@@ -169,7 +169,7 @@ The elephant plays the timpani of the app (`PERCUSSION_HOLDS.timpani` of
 gives the rule of the app, or where the app differs from sections 1 to 4. A round that changes the
 motion updates the items.
 
-- **The grip.** The end of the round paw curls 110° onto the shaft, and the head leaves the
+- **The grip.** The end of the round paw curls 100° onto the shaft, and the head leaves the
   front of the fist about 45° from the thumb side, as section 1 gives (`TIMPANI.malletSpotL`,
   `malletTilt`). The elephant paw has no fingers, so no finger wraps the shaft. The shaft lies
   45° from the line of the paw: section 1 gives no angle. The butt end stays in the paw or sticks
@@ -200,11 +200,11 @@ The badger plays the other percussion instruments (`PERCUSSION_HOLDS` of
 `XYLOPHONE` of `src/models/instruments/percussion.ts`). Its short arms reach 0.27 m from the
 shoulder joint to the palm (`docs/decisions/2026-10-20-mesh-badger.md`).
 
-- **The grip.** Each paw holds its stick, mallet, or beater in the claws curled 90°, and 100° on
-  the xylophone: the shaft lies on the palm side, and the head leaves the front of the fist at
+- **The grip.** Each paw holds its stick, mallet, or beater in the claws curled 90°, 100° on the
+  xylophone, and 75° with the triangle: the shaft lies on the palm side, and the head leaves the front of the fist at
   the side of the thumb, as section 1 gives (`PAW_SPOT`, `PAW_TILT` of
   `src/models/instruments/percussion.ts`). The shaft lies 60° from the line of the paw in the
-  bind pose, and the triangle beater 33°. The butt end sticks out up to 3.2 cm behind the paw,
+  bind pose, the triangle beater 33°, and the bass drum beater 90°, as a hammer. The butt end sticks out up to 3.2 cm behind the paw,
   where section 1 gives 13 mm to 25 mm. The butt of the triangle beater stays in the paw. The
   paw keeps its stick at rest and in the lift, with the head up and forward.
 
