@@ -8,6 +8,10 @@
     "spine",
     "spine1",
     "chest",
+    "neck",
+    "head",
+    "ear_L",
+    "ear_R",
     "thigh_L",
     "shin_L",
     "foot_L",
@@ -18,7 +22,7 @@
     "toes_R",
     "tail"
   ],
-  "paintedNote": "The weights of the clavicles and the arms are the automatic weights of Blender with the Weight Paint fixes of tools/blender/bear_arms.py: the head bone is off the shoulders below y 0.77, and each paw gives half of its fingers weight to the hand bone, as weights.fingers does. The vertices on the bones of paintedLower (the trunk up to the chest, the legs, and the tail) keep the rule weights, as on the polar bear.",
+  "paintedNote": "The weights of the clavicles and the arms are the automatic weights of Blender with the Weight Paint fixes of tools/blender/bear_arms.py: the head bone is off the shoulders below y 0.77, and each paw gives half of its fingers weight to the hand bone, as weights.fingers does. The vertices on the bones of paintedLower (the trunk up to the chest, the neck, the head, the ears, the legs, and the tail) keep the rule weights. With Blender weights on the head, the vertices of the gloss nose had a part of the neck, so the search of the tip of the nose (tools/studio-body.ts) took a point at the top of the head, and the largest paw twist of the right arm in a lift was 87\u00b0 (81\u00b0 on the old rig, 82\u00b0 now).",
   "armSegments": {
     "helper": 0.044,
     "note": "Each upper arm and each forearm has 4 deform segments, and each elbow and wrist a helper bone of this length in units, which spans the three rings of its joint in the bind. The app turns them from the joints of the pose (poseArm() of src/models/studio-rig.ts). The helper is twice the gap of the elbow rings (0.022, gap of tools/blender/bear_arms.py): with the gap 0.015, the squeezed rings of the inner elbow of the bind folded 11 faces of the left arm in the lift (limit 8)."
@@ -354,7 +358,30 @@
       ],
       "note": "The part of the thigh weight that goes to the hips grows from 0 at the knee to 1 at the thigh joint, so that the round haunch stays on the hips."
     },
-    "note": "Beyond the plane of armSplit (armFree), only the free arm follows the arm bones. Above headFrom, each vertex follows the head only. Each round ear follows its ear bone above earBase. The short tail is a ball on one bone (tailBall). clavicleFrom, armTop, and shoulderHead are the rules of the bear mesh of 2026-10-22, moved with the shoulder joint. The rig has no cut and no split: the arms of the T-pose are free of the trunk. The arm faces from the shoulder line to the wrist are new quad faces (sourceNote), and the other faces of the user stay."
+    "note": "Beyond the plane of armSplit (armFree), only the free arm follows the arm bones. Above headFrom, each vertex follows the head only. Each round ear follows its ear bone above earBase. The short tail is a ball on one bone (tailBall). clavicleFrom, armTop, and shoulderHead are the rules of the bear mesh of 2026-10-22, moved with the shoulder joint. The rig has no cut and no split: the arms of the T-pose are free of the trunk. The arm faces from the shoulder line to the wrist are new quad faces (sourceNote), and the other faces of the user stay.",
+    "rigidPainted": [
+      [
+        0.1873,
+        0.7005,
+        0.0661
+      ],
+      [
+        0.1965,
+        0.719,
+        0.0541
+      ],
+      [
+        0.1948,
+        0.7279,
+        0.0463
+      ],
+      [
+        0.1995,
+        0.7389,
+        0.0289
+      ]
+    ],
+    "rigidPaintedNote": "The corners of each thin face at these points take the mean of their painted weights (rigid_faces() of tools/blender/rig_mesh.py, after the painted weights). The points are the middles of four faces of the front of the left shoulder bridge in the units of the source (pnpm fold-probe conductor --faces). They folded in 35% to 86% of the play, and the left arm folded 8 faces at p95 (4 on the old rig, limit 8); with the rule, 6."
   },
   "refine": {
     "rings": [],
