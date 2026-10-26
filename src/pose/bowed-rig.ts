@@ -771,11 +771,12 @@ export const BOWED_HOLDS = {
  * upper arm went 2.4 cm into the body in the play (1.2 cm now). The stick of
  * the bow passes through the middle of the paw since 2026-10-17 (`SpeciesParams.bowGrip`), and the
  * hand sits about 4 cm further out on the bow, so the right elbow of the play points a little
- * further out than the elbow of the chin hold. Since the rebuilt arms of 2026-10-25, the right
- * elbow of the play points out, forward, and less down, (1.2, -0.5, -1), as the elbow of a real
- * violist at the frog: the back of the rebuilt upper arm lies against the trunk in the bind, and
- * with (1.1, -1, -1) of 2026-10-17 it went 3.8 cm into the body (1.3 cm now, 2026-10-25-cat-arms
- * decisions). At the tip, the right elbow points down, out, and forward, (1, -1, -1), as the elbow
+ * further out than the elbow of the chin hold. The right elbow of the play points out to the side,
+ * level, and a little forward, (2, 0, -0.5), so that it comes near the height of the hand, as the
+ * elbow of a real violist at the frog (user, 2026-10-26: "the cat's arm is bent in an unatural
+ * way", 2026-10-26-second-review decisions). With (1.2, -0.5, -1), the upper arm hung down the side
+ * of the body, and the forearm folded up to the chin. With (1.1, -1, -1) of 2026-10-17 the back of
+ * the rebuilt upper arm went 3.8 cm into the body (2026-10-25-cat-arms decisions). At the tip, the right elbow points down, out, and forward, (1, -1, -1), as the elbow
  * of the rabbit: with the elbow up of the chin hold, (0.5, 1, -1), a dark wedge fold opened under
  * the right armpit at the tip (manager review of 2026-10-24), the right paw turned 116° on its
  * forearm (90° now), and the narrowest ring of the right arm kept 0.14 of its axis (0.49 now,
@@ -890,7 +891,7 @@ const CAT_HOLD = {
   poleL: [-0.75, -1, -0.75],
   elbowPerString: 2 * MathUtils.DEG2RAD,
   highTilt: 20 * MathUtils.DEG2RAD,
-  poleR: [1.2, -0.5, -1],
+  poleR: [2, 0, -0.5],
   poleTipR: [1, -1, -1],
   restPoleR: [1, -1, 0.3],
   restPoleL: [-0.8, -1, 0.3],
