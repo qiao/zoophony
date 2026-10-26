@@ -320,10 +320,10 @@
   "weights": {
     "armSplit": 0.26,
     "armBelow": [
-      0.46,
-      0.54
+      0.42,
+      0.52
     ],
-    "armBelowNote": "Inside the plane of armSplit, the share of the arm weight that a vertex keeps grows from 0 at the lower height to 1 at the upper height (units), and the trunk takes the rest. Since the arms of hippo-arms.glb, the rule weights serve only the trunk and the socket (paintedLower), and the rule weight of the upper arm goes to its first segment (armSegments.rootSegment). With 0.5 to 0.56, the trunk beside the root of the right tube stayed while the first ring turned with the bow arm, and 87.5% of the play samples folded. With 0.46 to 0.54, 20.0% fold, and 0.42 to 0.52 and 0.48 to 0.54 give 20.0% and 20.5% (docs/research/2026-10-25-hippo-arms.md).",
+    "armBelowNote": "Inside the plane of armSplit, the share of the arm weight that a vertex keeps grows from 0 at the lower height to 1 at the upper height (units), and the trunk takes the rest. Since the arms of hippo-arms.glb, the rule weights serve only the trunk and the socket (paintedLower), and the rule weight of the upper arm goes to its first segment (armSegments.rootSegment). The arm vertices hang on no hips, spine, or spine1 (step_tube_trunk() of tools/blender/hippo_arms.py), so the trunk around the socket must follow the first ring: with 0.46 to 0.54 and 0.40 to 0.50, 100% of the play samples folded at the root of the right tube, with 0.44 to 0.52 32.3%, and with 0.42 to 0.52 20.6% (docs/research/2026-10-25-hippo-arms.md).",
     "stretchRamp": 0,
     "headFrom": 0.7,
     "earBase": [
@@ -388,14 +388,14 @@
   "refine": {
     "rings": [],
     "flip": {
-      "angle": 150,
+      "angle": 130,
       "normals": 90,
       "move": 0.004,
       "rounds": 4,
       "note": "The values of the fox, the rabbit, the cat, the dog, and the panda. The rule flips 13 edges."
     },
     "ringsNote": "The rig has no rings. A ring at each elbow puts the rig at 3,211 triangles, above the budget of 3,200 of a studio body (the mesh has 3,141 triangles), so the long thin faces 753 of the left upper arm and 30 of the right upper arm stay (rig-rings.log). A ring at the left wrist cuts 32 edges and puts the rig at 3,205 triangles (docs/research/2026-10-19-hippo-arms.md).",
-    "flipNote": "The long edge of each thin face of the arms in the seated bind flips (flip_edges() of tools/blender/rig_mesh.py). The bind bends the thick elbows of the hippo 62 degrees, so the faces of the inner elbow are thin there. With a move of 0.0016 units and normals within 60 degrees, the faces of the inner right elbow folded in 8,464 play samples, and with 0.004 and 90 degrees in 1,482 (docs/research/2026-10-25-hippo-arms.md)."
+    "flipNote": "The long edge of each thin face of the arms in the seated bind flips (flip_edges() of tools/blender/rig_mesh.py). The bind bends the thick elbows of the hippo 62 degrees, so the faces of the inner elbow are thin there. A face with a corner above 130 degrees flips with a move of up to 0.004 units and normals within 90 degrees: with 150 degrees, 0.0016 units, and 60 degrees, the inner right elbow folded in each rest sample and in 8,464 play samples. With 130 degrees, the play folds fall from 20.6% to 9.6%, and with 120 degrees 9.7% (docs/research/2026-10-25-hippo-arms.md)."
   },
   "check": {
     "thin": {
