@@ -2625,7 +2625,7 @@ def refine(verts, tris, uvs, weights, heads, ends, matrices, config, source):
     """Changes the faces of the arms and the legs so that they bend at the joints (design 4.4),
     by the rule `refine` of the config: first the flips of the bad diagonals of the legs of
     `legFlip` (`leg_flips()`) and of the edges at the points of `pointFlip` (`point_flips()`),
-    then a ring of new vertices at each joint of `rings`
+    then a ring of new vertices at each joint of `rings`, if the rule has any
     (`ring_cuts()`, `split_faces()`), on the sides of its `sides` or on both sides, then the flips
     of the long edges of the faces that are thin in the seated bind pose of `bind_skin()`
     (`flip_edges()`). Each ring splits the faces that the rings before it made, so that two rings
@@ -2646,7 +2646,7 @@ def refine(verts, tris, uvs, weights, heads, ends, matrices, config, source):
         tris, uvs, named = point_flips(source, bind_skin(config, weights, matrices, verts), tris,
                                        uvs, rule['pointFlip'])
         log(f"point flips: {named} of {len(rule['pointFlip']['points'])} edges")
-    for ring in rule['rings']:
+    for ring in rule.get('rings', ()):
         cuts = {}
         for side in ring.get('sides', 'LR'):
             cuts.update(ring_cuts(verts, tris, weights, heads, ends, ring, side))
