@@ -313,17 +313,19 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
 - [ ] Rhino: with an assumed tuba of 10 kg, the center of mass is 2.7 cm to 3.4 cm in front of the
       middle of the soles, at 59% to 61% of the support depth, at the top of the stable range of
       30% to 60%. A small lean of the trunk back is an option (`balance.txt`).
-- [ ] Rhino: the thick left paw goes 2.1 cm into the main branch of the tuba, an accepted depth of
+- [ ] Rhino: the thick left paw goes 1.9 cm into the main branch of the tuba, an accepted depth of
       the sweep. The paws are mittens and do not wrap the tube (`TUBIST_SWEEP`).
 - [x] Rhino tubist (audit 2026-10-25, unverified row): the arm gate failed the left grip turn
       (96°), because the left paw pointed at the main branch from its back left, and its palm
       faced up. Done: the left paw lies on the left side of the branch with the knuckles to the
       left, and the grip turn is 40° (`2026-10-25-brass-grips.md`).
-- [ ] Rhino tubist: the left paw turns 169° on its forearm (limit 170°, 148° before), and the
+- [x] Rhino tubist: the left paw turns 169° on its forearm (limit 170°, 148° before), and the
       left forearm edge at rest is 22% shorter than in its bind, so the stretch measure reads
       0.24 (0.08 before, limit 0.35). With the left elbow further out, the paw passed 170°, and
       with the elbow down, the upper arm went 2.5 cm to 3.3 cm into the body
-      (`2026-10-25-brass-grips.md`).
+      (`2026-10-25-brass-grips.md`). Done: the bind elbow bends forward, and the tuba elbows point
+      down and out. The paws turn 87° and 37° on their forearms, and the stretch reads 0.07
+      (`2026-10-26-fifth-review-rhino.md`).
 - [ ] Trim `docs/agents/model-traps.md` to about 3,000 words: it has 3,964 words since the traps
       of the rhino, the deer, and the penguin meshes, and of the split beak.
 - [x] Rig the mesh of the deer (harp). The user gave it on 2026-10-21. The deer sits on the stool
@@ -466,6 +468,9 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       in the play (4 on the old rig, limit 8), and the right move twist max is 87 (81). Done: the
       head keeps the rule weights, and four shoulder faces take the mean of their painted weights
       (6 folds, twist 82).
+- [x] Rhino (`2026-10-26-fifth-review-rhino.md`): the user saw the arms stretched and twisted.
+      Done: rebuilt quad arms with arm segments, a bind elbow bent forward, and the tuba elbows
+      down and out. The largest twist step falls from 84.4° to 22.7°, and the forearms stay round.
 - [x] Rabbit (A-pose mesh): the long arm faces show dark shards on the bent arms at rest, at the
       frog, and at the tip (`arm-crops.webp` of `2026-10-23-rabbit-arms/`). The user allowed one
       ring at each elbow (`2026-10-24-rabbit-hold.md`).
@@ -1148,19 +1153,34 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
 - [ ] Beaver rebuilt arms: the method of the cat folded 15 faces of each arm (limit 8) around the
       socket of the seam cut. A new try needs a smaller socket, because the upper arm joins the
       trunk down to 0.9 of its length (`2026-10-25-beaver-rhino-arms.md`).
-- [ ] Rhino rebuilt arms: the round tubes put the upper arms 3.5 cm into the belly, and the right
+- [x] Rhino rebuilt arms: the round tubes put the upper arms 3.5 cm into the belly, and the right
       tuba paw grasped in 0% of the play samples of `pnpm wind-grip` (97% on `main`), because the
       far claw corners stood 1.2 cm off the valves. A new try needs a flatter inner side of the
       upper arm, or a choice of the user on its thickness (`2026-10-25-beaver-rhino-arms.md`).
+      Done: the inner lower side of each upper arm is flatter after the bake, and the paws keep
+      the rule weights. The upper arms go 0.3 cm to 0.9 cm in, and both paws grasp in each
+      sample (`2026-10-26-fifth-review-rhino.md`).
 - [x] Rhino tubist: the upper arms go 1.8 cm to 2.0 cm into the body (goal 1.5 cm). Done: the
       right shoulder turns 45° forward, and the right elbow points more out than down. The upper
       arms go 1.4 cm to 1.5 cm in (`2026-10-25-thick-arm-depth.md`).
-- [ ] Rhino tubist: the arm gate fails the margin of the right move twist max, 148° against 133°
+- [x] Rhino tubist: the arm gate fails the margin of the right move twist max, 148° against 133°
       before the elbow change, inside the limit 176°. The manager decides
-      (`2026-10-25-thick-arm-depth.md`).
-- [ ] Twist steps of the beaver and the rhino: 64.8° and 74.1° (target 25°). The right elbow of
-      the rhino out raised its step from 64.5°. Only rebuilt arms with segments lower them
-      (`2026-10-25-beaver-rhino-arms.md`, `2026-10-25-thick-arm-depth.md`).
+      (`2026-10-25-thick-arm-depth.md`). Done: the right move twist max is 37°
+      (`2026-10-26-fifth-review-rhino.md`).
+- [ ] Twist step of the beaver upper arm: 64.8° (target 25°). Only rebuilt arms with segments
+      lower it (`2026-10-25-beaver-rhino-arms.md`). The rhino has them since 2026-10-27, with
+      the largest steps 22.7° and 19.6° (74.1° before, `2026-10-26-fifth-review-rhino.md`).
+- [ ] Rhino tubist: the left forearm comes 1.5 cm into the main branch of the tuba in the moves
+      and at rest (limit 1.5 cm, 0.8 cm before), because the left elbow is lower
+      (`pose-depth.txt` of `docs/research/2026-10-26-fifth-rhino/`).
+- [ ] Rhino tubist: the manager checks the new accepted grips of the tubist (-87°, -32°) in the
+      2x paw crops (`paws.webp` of `docs/research/2026-10-26-fifth-rhino/`). The bind moved the
+      zero of the paw twist, so the old entry failed the same grips.
+- [ ] Mesh rigs: the bind arms of the other configs bend the elbow up, so their bind paws can
+      start pronated on the forearm, and their paws twist more than a real forearm turns. Read
+      the bind turn of each role with `forearm-turn.ts` of the probes of
+      `docs/research/2026-10-26-fifth-rhino/` (the rhino read -78°, and -13° with its elbow
+      forward).
 - [x] Arm segments for the wolf and the mouse: copies of the meshes with the arm factors in
       Blender, and Blender weights (`2026-10-25-wind-arms.md`).
 - [x] Arm segments for the foxes: a copy of the mesh with a side wall under each arm, Blender
