@@ -32,7 +32,8 @@ reads it (route 3 of `docs/agents/model-work.md`). The steps:
 2. Give each face one color from the base color texture. A face of an eye keeps its dark color.
 3. Build the skeleton of the 30 body bones of the studio at the joints of the config, with the
    optional bone `tail_tip` for a tail of two bones and the optional bone `jaw` for a beak that
-   opens, and give the weights with bone heat. Then the rules of the config: the free arm (beyond a plane, which `armFree` turns around the vertical
+   opens, and give the weights with bone heat. With `heatSource`, a vertex at a place of that
+   mesh takes its bone heat (`kept_heat()`). Then the rules of the config: the free arm (beyond a plane, which `armFree` turns around the vertical
    for a thick arm that joins the trunk, with each island inside the plane that only the free arm
    surrounds with `armIslands`, and only the arm bones on a free arm that is a tube of its own
    with `armOwn`), the chest share of the inner root of a cut arm (`armRoot`),
@@ -1132,6 +1133,30 @@ def bone_heat(verts, tris, heads, ends, rolls):
     bpy.data.objects.remove(ob)
     bpy.data.objects.remove(rig)
     return weights
+
+
+def kept_heat(verts, tris, heads, ends, rolls, config):
+    """Gives the bone heat of the body bones for each vertex (`bone_heat()`). With `heatSource` of
+    the config, a mesh before a rebuild of some faces, each vertex at a place of that mesh takes
+    the bone heat of that mesh, and only the new vertices take the bone heat of the source. Bone
+    heat spreads over the whole mesh, so the new leg faces of the polar bear moved the weights of
+    its crotch by up to 0.23 and its seat top 7 mm down. With the heat of the old mesh, the trunk,
+    the haunch, and the seat keep their weights (`docs/research/2026-10-27-polar-legs-rebuild.md`).
+    """
+    heat = bone_heat(verts, tris, heads, ends, rolls)
+    if 'heatSource' not in config:
+        return heat
+    old_verts, old_tris, _, _ = load_mesh({**config, 'source': config['heatSource']})
+    old = bone_heat(old_verts, old_tris, heads, ends, rolls)
+    kept = 0
+    for v, point in enumerate(verts):
+        gaps = np.linalg.norm(old_verts - point, axis=1)
+        k = int(np.argmin(gaps))
+        if gaps[k] < 1e-6:
+            heat[v] = old[k]
+            kept += 1
+    log(f'bone heat: {kept} of {len(verts)} vertices take the heat of {config["heatSource"]}')
+    return heat
 
 
 def nearest_bone(p, heads, ends):
@@ -4725,7 +4750,8 @@ def main():
             # of the haunch onto the seat and the tail ball) depends on them. The rules see the
             # body bones only, before the arm segments join the bones.
             rule_weights = apply_rules(verts, source_tris,
-                                       bone_heat(verts, source_tris, heads, ends, rolls), rules,
+                                       kept_heat(verts, source_tris, heads, ends, rolls, config),
+                                       rules,
                                        heads, ends)
             rule_weights = straight_slivers(verts, source_tris,
                                             rigid_slivers(verts, source_tris, rule_weights, rules),
@@ -4774,7 +4800,8 @@ def main():
                                         {'rigid': rules['rigidPainted']}))
     else:
         weights = apply_rules(verts, source_tris,
-                              bone_heat(verts, source_tris, heads, ends, rolls), rules, heads, ends)
+                              kept_heat(verts, source_tris, heads, ends, rolls, config), rules, heads,
+                              ends)
         weights = straight_slivers(verts, source_tris,
                                    rigid_slivers(verts, source_tris, weights, rules), rules)
         weights = limit(rigid_faces(verts, source_tris, weights, rules))
