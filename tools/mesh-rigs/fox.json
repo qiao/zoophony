@@ -72,6 +72,8 @@
       "forearm": [0.316246, 0.757051, 0.571719],
       "hand": [-0.078782, 0.677317, 0.731461]
     },
+    "bindSupination": { "L": 110 },
+    "bindSupinationNote": "The bind paw of the left arm turns 110 degrees about its bind forearm toward supination (paw_supination() of tools/blender/rig_mesh.py), and the forearm segments share the turn in the bind. The forearm of the app turns with its elbow hinge, so the bind paw sets the zero of the paw twist. With the bind arms alone, the left paw of the violin twisted -94 degrees at rest and 133 to 150 degrees in the play, and it supinated through 180 degrees in each lift and lowering, where the forearm skin unwound. With 110 degrees, it twists 16 degrees at rest and -117 to -100 degrees in the play. The tan fox takes this rig too: its left flute paw twists -3 to 66 degrees at rest and -5 degrees in the play, in place of -113 to -44 and -115 degrees. The forearm twist p95 of pnpm arm-check was 75, 65, and 55 on the violin and 26, 35, and 45 on the flute with 80, 100, and 120 degrees (67 and 48 with no turn), so 110 degrees keeps both below the values with no turn (docs/decisions/2026-10-27-left-paw-bind.md). The right paw holds the bow and the flute, and keeps the bind arms.",
     "tailBind": {
       "tail": [0, -0.12, -1],
       "tail_tip": [0, -1.4, -1]
