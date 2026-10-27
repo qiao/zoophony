@@ -521,8 +521,8 @@ mesh are quad tubes (rings at a right angle to the bones), and the weights come 
     surface does not have, as a soft dark patch under the raised arm. So the hippo keeps in the
     rim only the faces that the clavicle and the arm move (`rootNormals.armShare`), and no face
     whose corner normal turns far from its face in the bind (`rootNormals.turn`). The rebuilt quad arms of the
-    beaver and the rhino kept the slots without it, folded the beaver arms, and put the rhino arms
-    into the belly, so both keep the faces of their meshes (`docs/decisions/2026-10-25-beaver-rhino-arms.md`). A bind that bends
+    beaver and the rhino kept the slots without it, and they folded the beaver arms, so the beaver
+    keeps the faces of its mesh (`docs/decisions/2026-10-25-beaver-rhino-arms.md`). A bind that bends
     the elbow splits the normals of the inner elbow in the same way, into short light and dark
     creases on the bent arm. `rootNormals.elbow` adds the skin faces within its radius of each
     elbow joint to the rim. The elephant and the hippo have it, because the bind bends their
@@ -555,7 +555,11 @@ mesh are quad tubes (rings at a right angle to the bones), and the weights come 
     front lips are white belly fur that the black arm would show as a white tag. Each flipper of the penguin is an arm of the rig, free of the body
     below its root, so the plane frees it with no cut. The upper arm of its bind points far down
     (`studio.bindArms`), because the large turn from the hanging flipper to the bind arm of the
-    other meshes turned the faces at the root of the flipper over. A hanging upper arm that is one solid with the
+    other meshes turned the faces at the root of the flipper over. The forearm of the app turns with
+    the elbow hinge, so the bind arms also set the zero of the paw twist: the bind forearm of the
+    rhino bends forward and not up, so that its bind paw sits on its forearm as the A-pose paw of
+    the source with a forward elbow. With the elbow up, each tuba paw turned about 63° more on its
+    forearm (`docs/decisions/2026-10-26-fifth-review-rhino.md`). A hanging upper arm that is one solid with the
     trunk has a plane of the split out of the crease where they meet, so the free arm is only the
     outer shell of the arm, closed by a flat cap: a thin plate with no armpit. The rig can fit a
     plane through the concave edges of that crease and free the whole arm out of it
@@ -587,9 +591,9 @@ mesh are quad tubes (rings at a right angle to the bones), and the weights come 
     free arm of a cut only arm weights, so the inner root of the bow arm swings into the chest.
     The inner root gives a share of its weight to the chest (`weights.armRoot`).
     The rhino has a mesh in an A-pose since 2026-10-23, with the arms apart from the trunk below
-    the shoulders, so its rig keeps each face of the mesh with no copy, cut, or split (user:
-    "don't split the arm"). The copy with round tube arms of 2026-10-22 stays in its folder as a
-    record. The rabbit also has a mesh in an A-pose since 2026-10-23. Its arms stretch only 1.15
+    the shoulders, so its rig has no cut or split of the arm (user: "don't split the arm"). The
+    copy with round tube arms of 2026-10-22 stays in its folder as a record. The rabbit also has a
+    mesh in an A-pose since 2026-10-23. Its arms stretch only 1.15
     times, and its violin is smaller (4.6). Long faces of the mesh crossed each elbow and twisted
     along the forearm, so its arms have new quad faces from the shoulder line to the wrist and
     arm segments (user, 2026-10-24: "add loop edges and retopology and additional bones if needed",
@@ -622,7 +626,14 @@ mesh are quad tubes (rings at a right angle to the bones), and the weights come 
     and the thin ears of the hole go before the wall. The rule weights serve only the trunk and
     the socket, so the plane of the arm split lies out of the whole trunk. The arm vertices hang
     on no lower trunk bone, so that the back of the arm root turns with the arm, and the paws hang
-    on no wrist helper, so that they turn with the hands.
+    on no wrist helper, so that they turn with the hands. The rhino has such arms since 2026-10-27
+    (`tools/blender/rhino_arms.py`), with the settings of the elephant for a thick arm and the
+    length of its mesh, because long faces and two bones along each forearm twisted its skin into
+    a thin band. The inner lower side of each upper arm and its shoulder loop are a little flatter,
+    so that the upper arms stay out of the round belly when the elbows point down. The flatten
+    comes after the bake of the fur, because the bake casts its rays from a small distance out of
+    the tube. The paws of the rhino keep the rule weights of the rig, because the Blender weights
+    of the short paws folded their faces in the curl around the tubes.
     `pnpm arm-look` measures the
     crease of the arm skin against the source and the section of the upper arm, with limits from the red fox
     (`docs/decisions/2026-10-21-arm-form.md`).
