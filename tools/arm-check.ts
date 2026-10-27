@@ -122,6 +122,7 @@ import {
   studioOffsets,
   twistAngle,
 } from '../src/models/studio-rig.ts';
+import * as studioRig from '../src/models/studio-rig.ts';
 import type { StudioRig } from '../src/models/studio-rig.ts';
 import { countInAt } from '../src/pose/count-in.ts';
 import { createScenePose, poseAt } from '../src/pose/pose-at.ts';
@@ -131,6 +132,15 @@ import type { Transport } from '../src/pose/types.ts';
 
 /** The sides of the arms. */
 const SIDES = ['L', 'R'] as const;
+
+/**
+ * Gives the twist that the twist bone and the segments of a forearm share (`skinTwist()` of
+ * `src/models/studio-rig.ts`), or the twist itself in the tree of an older commit, which has no
+ * such function and shares the whole twist.
+ */
+// SAFETY: the module of an older tree has no `skinTwist`, so the field can be missing.
+const sharedTwist: (twist: number, fade: number) => number =
+  (studioRig as Partial<Pick<typeof studioRig, 'skinTwist'>>).skinTwist ?? ((twist) => twist);
 
 /** The measures of the gate. */
 export const MEASURES = [
@@ -1232,10 +1242,11 @@ export function demoMoves(duration: number): Move[] {
  * ({@link demoMoves}). A lift starts from the rest pose and takes the time of its seeded motion,
  * with no count-in limit, as the set `lift` of `probeFolds()`: a short count-in only makes it
  * faster. A lowering starts from the play pose at its pause point, after the hold. Each sample of
- * each arm gives two values: `moveTwist`, the size of the paw twist on the forearm, and
+ * each arm gives two values: `moveTwist`, the size of the paw twist on the forearm that the twist
+ * bone and the segments of the forearm share (`skinTwist()` of `models/studio-rig.ts`), and
  * `moveTurn`, the turn rate of the wrist from the sample before, in degrees per second: the
  * larger turn of the twist bone of the forearm on the forearm and of the paw on the twist bone. A
- * twist past 180° makes the twist bone, which takes half of the twist, jump by 180°.
+ * shared twist past 180° makes the twist bone, which takes half of it, jump by 180°.
  *
  * @param role The role.
  * @param demos The demos. A demo with no body of the role adds nothing.
@@ -1297,7 +1308,10 @@ export function probeMoves(role: RoleSource, demos: readonly DemoFile[]): Sample
                 MOVE_STEP
               : 0;
             const values = store.values[side];
-            values.moveTwist.push(Math.abs((twistAngle(paw, foreBind) * 180) / Math.PI));
+            // The twist that the twist bone and the segments of the forearm share.
+            const fade = side === 'L' ? (pose.twistFadeL ?? 0) : 0;
+            const shared = sharedTwist(twistAngle(paw, foreBind), fade);
+            values.moveTwist.push(Math.abs((shared * 180) / Math.PI));
             values.moveTurn.push(rate);
           }
         }
