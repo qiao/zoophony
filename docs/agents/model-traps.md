@@ -12,11 +12,12 @@ group of your work before you plan it. A probe that a trap names is in its resea
   79° in the paw. Give the rest paw its own turn (`pawTurnL` of `AnimalPose`) around the wrist, and
   read the grip with `pnpm carry-check`. A turn around the strings bent the rest wrist 83° to 109°.
 - The bind paw of a mesh is pronated about 55°, so a far supinated hold, such as the violin grip
-  (215° to 234° from the bind), passes 180° of skin twist from any natural rest. Read the rest and
-  play twists from the bind first (`carry-geo.ts`, `pole-scan.sh` of
-  `docs/research/2026-10-27-violin-carry/`). An elbow path in the move keeps both ends, so it
-  cannot remove the pass, and a play elbow toward the middle flattened the cat shoulder ring
-  (`path-probe.ts` of `docs/research/2026-10-27-violin-unwind/`).
+  (215° to 234° from the bind), passes 180° of skin twist from any natural rest. An elbow path in
+  the move keeps both ends, so it cannot remove the pass. Supinate the bind paw about its forearm
+  (`studio.bindSupination`) by about half of the play twist, and scan the angle with the rest,
+  play, and move twists and the arm gate (`bind-scan.ts` of
+  `docs/research/2026-10-27-left-paw-bind/`). A turn of the bind elbow about the upper arm moves
+  the zero of the upper arm roll too.
 - The `palm` of a rig config sets the roll of the arm bones. The claws curl toward the palm, so read
   the palm from their curl. The flat side of a paw can lie 90° from it. A palm 90° off twisted
   each paw of the bear 122° at rest (`palm.txt` of `docs/research/2026-10-22-mesh-bear/`).

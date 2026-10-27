@@ -127,15 +127,18 @@ interface StudioArmSegments {
 
 - **The 180° jump.** `twistAngle()` gives a value from -180° to 180°. Each share of it, of the
   old twist bone or of a segment, flips when the paw turn passes 180°. The polar bear stays near
-  76°. For a larger twist, lower the twist of the hold. Or measure the twist around a center of
-  the role, `wrap(raw - center) + center`, so that the jump falls outside the used range. Carry no
-  value from the last frame.
+  76°. For a larger twist, lower the twist of the hold, or move the zero of the twist with a
+  supinated bind paw (`studio.bindSupination`, `docs/research/2026-10-27-left-paw-bind.md`). Or
+  measure the twist around a center of the role, `wrap(raw - center) + center`, so that the jump
+  falls outside the used range. Carry no value from the last frame.
 - **The bind elbow.** The forearm of the app turns with the elbow hinge, so the bind arms set the
   zero of the paw twist. The bind arms of most configs bend the elbow up, and the A-pose paw of
   the rhino then sat 78° pronated, so each tuba paw twisted about 63° more. Read the bind turn
   with `probes/forearm-turn.ts` of `docs/research/2026-10-26-fifth-rhino/`. Turn the bind forearm
   about the bind upper arm (`studio.bindArms`), and keep the wrist bend in the frame of the palm,
-  else the paw swing of the gate changes.
+  else the paw swing of the gate changes. The upper arm also turns with the hinge, so this turn
+  moves the zero of the upper arm roll too: on the violins, the left play roll would go from about
+  0° to -100°. To move only the paw twist, use `studio.bindSupination`.
 - **The legs.** Blender weights on the hips, the spine, and the chest folded a V on the lower back
   over the bench, and cut a slit under each arm. Keep the rule weights there with `paintedLower`.
 - **The preview.** glTF and three.js have no B-Bones and use linear skinning with 4 weights for
