@@ -499,7 +499,7 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
 - [x] Cat (`2026-10-26-fifth-review-strings.md`): the bow arm bent as a wing at rest, and the bow
       arm went straight in the lowering. Done: the bow paw rests at the lap with the elbow at 111°,
       and the moves keep it bent from 74° to 98°.
-- [ ] Rabbit, red fox, and cat (`2026-10-26-fifth-review-strings.md`): in each move, the left
+- [x] Rabbit, red fox, and cat (`2026-10-26-fifth-review-strings.md`): in each move, the left
       forearm skin passes one twist step of 180°, so the wrist flattens for a moment near the jaw
       (lift flat p5 0.72 to 0.76 against 0.81 to 0.86), and the moves of the arm gate are worse
       than on `57849ac5` within each limit (move turn up to 2,197°/s). A playing grip near the
@@ -515,7 +515,23 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       elbow toward the middle (cat shoulder ring flat 0.24 to 0.50, red fox forearm twist 92° to
       102°) failed (`2026-10-27-violin-unwind.md`). Next: a new bind of the mesh paw, supinated
       about 60° in Blender, for the rabbit, the red fox, and the cat. The rest twist then lies near
-      -31° and the play twist near -155°. Check the play skin with the arm gate first.
+      -31° and the play twist near -155°. Check the play skin with the arm gate first. Done: the
+      bind left paw turns 100°, 110°, and 120° toward supination (`bindSupination`), each twist
+      stays within 122°, the left forearm twist changes at most 9.6° in 0.05 s over all moves
+      (58.1° before), the unwind is gone, and the left arms pass the gate against `57849ac5`
+      (`2026-10-27-left-paw-bind.md`).
+- [ ] Rabbit, red fox, cat, and tan fox (`2026-10-27-left-paw-bind.md`): the bind forearm of the
+      left arm is twisted 100° to 120° by the linear skin of the rig, and the arm-down shape of the
+      clip `reference` restores the loss twice. The mean radius of the rest forearm is 3% to 9%
+      above the bind forearm of `main` (`forearm-radius.txt` of
+      `docs/research/2026-10-27-left-paw-bind/`), and four depth pairs grow by 0.1 cm to 0.2 cm
+      (rabbit paws in the violin in the lift 0.9 cm, cat paws in the viola in the play 0.9 cm).
+      Mask the forearm part of the arm-down shape on a supinated side, and compare the 2x crops of
+      the rest from each side.
+- [ ] Cellist, bassist, and hornist (`2026-10-27-left-paw-bind.md`): their accepted left grips
+      twist -146°, -164°, and -153° from the pronated bind of their meshes, near the limit of 170°.
+      A supinated bind paw (`bindSupination`) can lower these twists. Scan the angle with
+      `bind-scan.ts` of `docs/research/2026-10-27-left-paw-bind/` and the arm gate.
 - [x] Rabbit, red fox, and cat (`2026-10-26-fifth-review-strings.md`): the grip that the viewer sees
       changes by 56° to 79° in the moves (target 30°), because the retarget turns each paw toward
       its forearm (`PAW_TURN`), and the forearm crosses the neck at rest and runs along it in the
