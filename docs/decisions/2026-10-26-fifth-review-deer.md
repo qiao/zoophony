@@ -15,3 +15,4 @@ reverse each decision. Then update its section, and remove its row.
 | A cap plane at 0.2 of the upper arm, turned 30° toward the trunk, keeps the round top of the shoulder on the trunk (`seam.cap` of `DEER`). With the seam plane alone, the hole took the shoulder top, and bridge faces turned into the arm. | 4.4 |
 | The tube has one ring between the socket and its first ring (`seam.rings`). The chest anchor is 0.2 within 0.03 units, the radius of the arm (`anchor`): with 0.4 within 0.06, the outer upper arm took 0.24 of the chest. | 4.4 |
 | Six faces in the crease of the left socket and one thin face under the right armpit take the mean painted weights of their corners (`weights.rigidPainted`). They folded in each sample of the harpist. | 4.4 |
+| The faces within 0.08 units of each shoulder joint take the skin normals (`rootNormals`). The crease angle split the normals at the back of the left arm root into dark slits. | 4.4 |
