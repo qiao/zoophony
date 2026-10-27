@@ -2673,7 +2673,10 @@ async function speciesViews(args: SpeciesArgs, site: TreeSite): Promise<CommitRe
  * camera 360° (the rotate speed 1 of the orbit controls).
  */
 export interface PlayCamera {
-  /** The name of the camera in the file names and the labels. */
+  /**
+   * The name of the camera in the file names and the labels: a label of `--camera-file`, or a name
+   * from the camera.
+   */
   readonly name: string;
   /** The drag to the right, in CSS pixels. A drag to the right moves the camera to the left. */
   readonly dx: number;
@@ -2975,7 +2978,8 @@ interface CameraJson {
  * Reads a camera in JSON: `{"position":[x,y,z],"target":[x,y,z],"fov":<deg>}` in the axes of the
  * stage, in meters, with no `fov` for the field of view of the stage (`FIELD_OF_VIEW`). The stage
  * camera of the build follows it in each frame, as the camera of `--at` ({@link aimPlugin}). The
- * name of the camera is `pose-` and the first 6 hex digits of the SHA-256 of the text.
+ * name of the camera is `pose-` and the first 6 hex digits of the SHA-256 of the text. A camera of
+ * `--camera-file` takes its label in place of that name ({@link cameraFile}).
  *
  * @param text The JSON text.
  * @returns The camera.
@@ -3035,6 +3039,60 @@ export function playCamera(text: string): PlayCamera {
   throw new Error(
     `The camera "${text}" is not known. The correct names are: ${names}. A camera can also be <dx>,<dy>,<wheel>, such as 45,-60,12, or JSON, such as {"position":[0,3,9],"target":[0,1,0]}.`,
   );
+}
+
+/** The form of a label of `--camera-file`: a part of a file name. */
+const CAMERA_LABEL = /^[A-Za-z0-9][A-Za-z0-9._-]*$/;
+
+/**
+ * Reads the cameras of `--camera-file <json>`: a JSON object that maps a label to a camera of
+ * `--camera` ({@link playCamera}). A camera is a text, such as `violins` or `45,-60,12`, or an
+ * object of a camera in JSON ({@link jsonCamera}). Each camera takes its label as its name, so the
+ * file of each frame and the label of each cell name it, such as `play-knee-R-az60.png`.
+ *
+ * @param path The path of the file.
+ * @returns The cameras, in the order of the file.
+ * @throws Error that names the file, if it cannot be read, holds no object with a camera, has a
+ *   label that is not a part of a file name, or has a camera that {@link playCamera} refuses.
+ */
+export function cameraFile(path: string): PlayCamera[] {
+  let parsed: Readonly<Record<string, string | CameraJson>> | null = null;
+  try {
+    // SAFETY: the file comes from the command line, and the checks below read each entry.
+    parsed = JSON.parse(readFileSync(path, 'utf8')) as Readonly<
+      Record<string, string | CameraJson>
+    > | null;
+  } catch (error) {
+    const cause = error instanceof Error ? error.message : String(error);
+    throw new Error(`The camera file ${path} cannot be read as JSON: ${cause}`, { cause: error });
+  }
+  const entries = parsed instanceof Object && !Array.isArray(parsed) ? Object.entries(parsed) : [];
+  if (entries.length === 0) {
+    throw new Error(
+      `The camera file ${path} holds no JSON object of labels and cameras, such as {"knee-R-az60":{"position":[-2.7,0.1,1.6],"target":[-3.7,0.3,1.5],"fov":30},"wide":"orchestra"}.`,
+    );
+  }
+
+  const cameras: PlayCamera[] = [];
+  for (const [label, value] of entries) {
+    if (!CAMERA_LABEL.test(label)) {
+      throw new Error(
+        `The label "${label}" of the camera file ${path} is not a part of a file name. A label has letters, digits, ".", "_", and "-", and starts with a letter or a digit.`,
+      );
+    }
+    const text = value instanceof Object ? JSON.stringify(value) : String(value);
+    let camera: PlayCamera;
+    try {
+      camera = playCamera(text);
+    } catch (error) {
+      const cause = error instanceof Error ? error.message : String(error);
+      throw new Error(`The camera "${label}" of the camera file ${path} is wrong. ${cause}`, {
+        cause: error,
+      });
+    }
+    cameras.push({ ...camera, name: label });
+  }
+  return cameras;
 }
 
 /**
@@ -3195,8 +3253,9 @@ export function playParts(args: PlayArgs): PlayArgs[] {
 
 /**
  * Reads the command line of the mode `play`:
- * `play <dir> [--demo <id> | --midi <path>] [--time <s>... | --strip <from>:<step>:<count>] [--camera <name>|<dx>,<dy>,<wheel>|<JSON>]... [--cinematic] [--shot <seat|species>] [--at <seat|species> [--azimuth <deg>]... [--zoom <z>] [--elevation <deg>]] [--url <url>] [--base <ref>] [--set <changes>]... [--size <w>x<h>]`.
- * With no `--camera`, the camera is `default`. `--midi` renders a MIDI file of the user in place
+ * `play <dir> [--demo <id> | --midi <path>] [--time <s>... | --strip <from>:<step>:<count>] [--camera <name>|<dx>,<dy>,<wheel>|<JSON>]... [--camera-file <json>] [--cinematic] [--shot <seat|species>] [--at <seat|species> [--azimuth <deg>]... [--zoom <z>] [--elevation <deg>]] [--url <url>] [--base <ref>] [--set <changes>]... [--size <w>x<h>]`.
+ * With no `--camera`, the camera is `default`. `--camera-file` gives labelled cameras in place of
+ * `--camera` ({@link cameraFile}). `--midi` renders a MIDI file of the user in place
  * of a demo ({@link openMidi}). `--strip` renders frames at exact song times from one page each
  * ({@link stripTimes}, {@link stripViews}). `--size` sets the size of the frames
  * ({@link playSize}). `--cinematic` renders the camera of the shot plan
@@ -3212,9 +3271,10 @@ export function playParts(args: PlayArgs): PlayArgs[] {
  * @throws Error that lists the correct names, for an unknown demo, camera, or species, and an
  *   error for a wrong time, a time below {@link SEEK_LEAD_SEC}, a time at or after the end of the
  *   demo, a file of `--midi` that does not exist or comes with `--demo`, two times with one
- *   folder, `--camera` with `--cinematic` or `--shot`, `--time` with `--shot`, `--at` with
- *   `--camera`, `--cinematic`, `--shot`, or `--url`, `--set` with `--url` or `--base`, an option of
- *   `--at` with no `--at`, a wrong option, or a missing word.
+ *   folder, `--camera` or `--camera-file` with `--cinematic` or `--shot`, `--camera-file` with
+ *   `--camera`, a wrong camera file, `--time` with `--shot`, `--at` with `--camera`,
+ *   `--camera-file`, `--cinematic`, `--shot`, or `--url`, `--set` with `--url` or `--base`, an
+ *   option of `--at` with no `--at`, a wrong option, or a missing word.
  */
 export function playArgs(args: readonly string[]): PlayArgs | null {
   if (args[0] !== 'play') {
@@ -3227,6 +3287,7 @@ export function playArgs(args: readonly string[]): PlayArgs | null {
       '--midi',
       '--time',
       '--camera',
+      '--camera-file',
       '--shot',
       '--at',
       '--azimuth',
@@ -3256,10 +3317,14 @@ export function playArgs(args: readonly string[]): PlayArgs | null {
   const shotText = line.options.get('--shot')?.[0] ?? null;
   const cinematic = line.flags.has('--cinematic') || shotText !== null;
   const cameraTexts = line.options.get('--camera');
-  if (cinematic && cameraTexts) {
+  const cameraPath = line.options.get('--camera-file')?.[0] ?? null;
+  if (cinematic && (cameraTexts || cameraPath !== null)) {
     throw new Error(
-      'The options --cinematic and --shot take no --camera, because a drag or a wheel turns the camera to Free (design 2.5).',
+      'The options --cinematic and --shot take no --camera or --camera-file, because a drag or a wheel turns the camera to Free (design 2.5).',
     );
+  }
+  if (cameraTexts && cameraPath !== null) {
+    throw new Error('The option --camera-file gives the cameras, so it takes no --camera.');
   }
   const timeTexts = line.options.get('--time') ?? [];
   if (shotText !== null && timeTexts.length > 0) {
@@ -3274,9 +3339,9 @@ export function playArgs(args: readonly string[]): PlayArgs | null {
   if (atText === null && ['--azimuth', '--zoom', '--elevation'].some((o) => line.options.has(o))) {
     throw new Error('The options --azimuth, --zoom, and --elevation need --at.');
   }
-  if (aimCameras && (cinematic || cameraTexts)) {
+  if (aimCameras && (cinematic || cameraTexts || cameraPath !== null)) {
     throw new Error(
-      'The option --at gives the camera, so it takes no --camera, --cinematic, or --shot.',
+      'The option --at gives the camera, so it takes no --camera, --camera-file, --cinematic, or --shot.',
     );
   }
   if (aimCameras && url !== null) {
@@ -3336,8 +3401,10 @@ export function playArgs(args: readonly string[]): PlayArgs | null {
     'time folder',
   );
   const time: PlayTime = { kind: 'song', sec: first };
+  const fileCameras = cameraPath === null ? null : cameraFile(cameraPath);
   const cameras =
     aimCameras?.cameras ??
+    fileCameras ??
     (cinematic ? [CINEMATIC_CAMERA] : (cameraTexts ?? ['default']).map(playCamera));
   return {
     demo,
@@ -4880,7 +4947,7 @@ const USAGE = [
   `Usage: pnpm close-views <${CLOSE_ROLES.join('|')}> <output directory> [--target head] [--views <view|deg,...>] [--moments <moment,...>] [--zoom <n>] [--elevation <deg>] [--scale <n>] [--probe <${GALLERY_PROBES.join('|')},...>] [--url <url>] [--glb <file>] [--set <changes>] [--lineup [--with <role,...>] [--crop <n>] [--box <x>,<y>,<w>,<h>]] [--base <ref> [--pairs <view|cell,...> [--crop <x>,<y>,<w>,<h>]]]`,
   '       pnpm close-views lineup <species,...> <output directory> [--url <url>] [--base <ref>]',
   `       pnpm close-views species <species,...> <output directory> [--views <${SPECIES_VIEWS.map((view) => view.name).join('|')},...>] [--moment <play|rest|lift<p>|lower<p>>] [--zoom <n>] [--elevation <deg>] [--url <url>] [--base <ref>]`,
-  `       pnpm close-views play <output directory> [--demo <id> | --midi <path>] [--time <s>]... [--strip <from>:<step>:<count>] [--camera <${PLAY_CAMERAS.map((camera) => camera.name).join('|')}|<dx>,<dy>,<wheel>|<JSON>>]... [--cinematic] [--shot <seat|species>] [--at <seat|species> [--azimuth <deg>]... [--zoom <z>] [--elevation <deg>]] [--url <url>] [--base <ref>] [--set <changes>]... [--size <w>x<h>]`,
+  `       pnpm close-views play <output directory> [--demo <id> | --midi <path>] [--time <s>]... [--strip <from>:<step>:<count>] [--camera <${PLAY_CAMERAS.map((camera) => camera.name).join('|')}|<dx>,<dy>,<wheel>|<JSON>>]... [--camera-file <json>] [--cinematic] [--shot <seat|species>] [--at <seat|species> [--azimuth <deg>]... [--zoom <z>] [--elevation <deg>]] [--url <url>] [--base <ref>] [--set <changes>]... [--size <w>x<h>]`,
   '       pnpm close-views batch <output directory> [--species <species,...> [--moments <play|rest|lift<p>|lower<p>,...>] [--views <view,...>] [--zoom <n>]... [--elevation <deg>] [--lineup]] [--role <role>]... [--camera <camera>]... [--demo <id>] [--time <s>] [--url <url>] [--base <ref>]',
   '       pnpm close-views audit <output directory> [--roles <role,...>] [--url <url>] [--base <ref>]',
 ].join('\n');
