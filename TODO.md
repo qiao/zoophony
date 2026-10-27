@@ -451,9 +451,8 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       V shows below the ruff at the middle of the upper back, with two small dark slits beside it.
       It stays with no shadow, so it is the shade of notches of the mesh. Rigid faces 2053 and 2054
       and smooth skin normals around (0, 0.65, -0.02) u changed nothing that the eye sees.
-- [ ] Rabbit (`2026-10-26-third-review.md`): the user saw the left lap or leg as cut at rest. The
-      rest views from eight sides and the stage view do not show it yet; the camera of the user is
-      needed.
+- [x] Rabbit (`2026-10-26-third-review.md`): the user saw the left lap or leg as cut at rest. Done:
+      the lower end of the violin sank into the left knee; the violin now stands 0.1 H above it.
 - [x] Bear rig (`2026-10-26-arm-fixes.md`): the left shoulder bridge folds 8 tiny faces at p95
       in the play (4 on the old rig, limit 8), and the right move twist max is 87 (81). Done: the
       head keeps the rule weights, and four shoulder faces take the mean of their painted weights

@@ -538,8 +538,9 @@ const HANGING_BOW = {
  *
  * The rest pose and the lift are those of the red fox (user, 2026-10-24: "the violinists like
  * rabbit and cat should use similar poses and motion as the fox"): the violin stands upright on
- * the top of the left knee, at the knee joint, 0.1 H out and 0.05 H down, with the top plate to
- * the front. On the belly at 0.85 of the way, of 2026-10-24, the scroll came up to the chin, the
+ * the top of the left knee, at the knee joint, 0.1 H out and 0.1 H up, with the top plate to the
+ * front: at 0.05 H down, the lower end sank into the knee, and the left leg looked cut from the
+ * left side (user, 2026-10-26, 2026-10-26-third-review decisions). On the belly at 0.85 of the way, of 2026-10-24, the scroll came up to the chin, the
  * paw held the neck at the mouth, and the violin went 4.8 cm into the belly. The left paw holds
  * the neck at 0.4 of the fingerboard from the nut (`restPlace`), so that the paw closes around it:
  * at 0.1, the paw lay over the scroll, and the user said that the rabbit did not hold the violin
@@ -611,7 +612,7 @@ const SHOULDER_HOLD = {
   restPoleL: [-0.6, -1, 0.3],
   restPoleR: [0.3, -1, 1],
   restPlace: 0.4,
-  rest: { ...LAP_VIOLIN, lap: { along: 1, offset: [-0.1, -0.05, 0] } },
+  rest: { ...LAP_VIOLIN, lap: { along: 1, offset: [-0.1, 0.1, 0] } },
   liftReach: [0, 0.35, -0.2],
   liftPlace: 0,
   restTwistL: 1.5,
