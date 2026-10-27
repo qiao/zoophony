@@ -368,24 +368,68 @@
         "joint": "shin",
         "radius": 0.25,
         "minEdge": 0.03,
-        "ends": 0.2
+        "ends": 0.2,
+        "toward": [
+          0,
+          0,
+          1
+        ],
+        "within": 90
       },
       {
         "joint": "shin",
         "offset": -0.05,
         "radius": 0.25,
         "minEdge": 0.03,
-        "ends": 0.2
+        "ends": 0.2,
+        "toward": [
+          0,
+          0,
+          1
+        ],
+        "within": 90
       },
       {
         "joint": "shin",
         "offset": 0.04,
         "radius": 0.25,
         "minEdge": 0.03,
-        "ends": 0.2
+        "ends": 0.2,
+        "toward": [
+          0,
+          0,
+          1
+        ],
+        "within": 90
+      },
+      {
+        "joint": "shin",
+        "offset": -0.1,
+        "radius": 0.25,
+        "minEdge": 0.03,
+        "ends": 0.2,
+        "toward": [
+          0,
+          0,
+          -1
+        ],
+        "within": 90
+      },
+      {
+        "joint": "shin",
+        "offset": 0.08,
+        "radius": 0.25,
+        "minEdge": 0.03,
+        "ends": 0.2,
+        "toward": [
+          0,
+          0,
+          -1
+        ],
+        "within": 90
       }
     ],
-    "ringsNote": "The source leg has faces that run from near the crotch to the ankle across the knee joint (35 faces on each leg, a longest edge of 0.185 units on the median). A face cannot bend, so in the seated bind it stayed one flat plane from the thigh to the shin: the knee read as a large angular block with hard ridges, and long faces from the calf to the haunch made a slab under the thigh (user, 2026-10-26: \"the polar bear's knees are more bulky than it should be\"). The weight bands of the knee and the haunch, and a seat with the thighs or the shins 10 degrees down, kept the slab. Three rings at the knee plane, 0.05 units above it, and 0.04 units below it, with a radius of 0.25 units, cut the faces from the haunch to the shin, and each new vertex takes the knee and haunch rules at its height (ring_leg_weights() of tools/blender/rig_mesh.py). With the radius 0.17, the slab under the thigh stayed. With rings 0.04 above and below, one face between the thighs folded in each play sample. A cut keeps 0.2 of the edge at each end: with 0.1, two thin faces of the inner right thigh folded in the play.",
+    "ringsNote": "The source leg has faces that run from near the crotch to the ankle across the knee joint (35 faces on each leg, a longest edge of 0.185 units on the median). A face cannot bend, so in the seated bind it stayed one flat plane from the thigh to the shin: the knee read as a large angular block with hard ridges, and long faces from the calf to the haunch made a slab under the thigh (user, 2026-10-26: \"the polar bear's knees are more bulky than it should be\"). The weight bands of the knee and the haunch, and a seat with the thighs or the shins 10 degrees down, kept the slab. Rings of new vertices cut these faces, and each new vertex takes the knee and haunch rules at its height (ring_leg_weights() of tools/blender/rig_mesh.py). Three rings cut the front half of each knee (toward +z, within 90 degrees): at the knee plane, 0.05 units above it, and 0.04 units below it. Two rings cut the back half: 0.1 units above the knee plane and 0.08 units below it. The bent knee puts each back vertex nearer to the knee plane than the radius of the leg inside the leg, so whole rings at the back folded the skin into stacked light stripes under the thigh. The back rings stand where the thigh and the shin meet in the bind, so their vertices stay on the skin. With a radius of 0.17, the slab under the thigh stayed. With the front rings 0.04 above and below, one face between the thighs folded in each play sample. A cut keeps 0.2 of the edge at each end: with 0.1, two thin faces of the inner right thigh folded in the play.",
     "flip": {
       "angle": 150,
       "normals": 60,
@@ -476,6 +520,13 @@
     "back": 0.1,
     "below": 0.03,
     "note": "The values of the other meshes."
+  },
+  "kneeCrease": {
+    "rings": 2,
+    "rounds": 4,
+    "share": 0.5,
+    "inner": 0.0,
+    "note": "The faces at the corner of each bent knee turned more than the crease angle of the app (40 degrees) from each other, so each showed as a light wedge at the back of the knee. The seam is each vertex of both a thigh face and a shin face on the inner side of the knee. It and two rings of its neighbors move half of the way to the middle of their neighbors in each of 4 rounds (knee_relax() of tools/blender/rig_mesh.py). With 1 ring and 3 rounds, a thin light line stayed on the calf from behind and the right."
   },
   "sit": {
     "gap": 0,

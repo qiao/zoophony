@@ -1,0 +1,7 @@
+# hard_edges.py: the last step of each variant
+main 12-crease_relax left: back faces 7, hard edges 0 (0.000 u), pleat faces 3
+rings3 12-crease_relax left: back faces 112, hard edges 42 (0.831 u), pleat faces 1
+front 12-crease_relax left: back faces 17, hard edges 4 (0.142 u), pleat faces 0
+back 12-crease_relax left: back faces 27, hard edges 4 (0.142 u), pleat faces 1
+wide 12-crease_relax left: back faces 33, hard edges 3 (0.079 u), pleat faces 0
+final 13-knee_relax left: back faces 18, hard edges 0 (0.000 u), pleat faces 3

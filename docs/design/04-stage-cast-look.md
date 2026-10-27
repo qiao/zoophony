@@ -453,7 +453,13 @@ mesh are quad tubes (rings at a right angle to the bones), and the weights come 
     in the seated bind, and the knee reads as an angular block over a slab. Rings of new vertices
     at the knee cut such faces (`refine.rings` with the joint `shin`), and each new vertex takes
     the knee and haunch rules at its height, so that the seated leg reads as a thigh, a round
-    knee, and a shin. `pnpm rig-mesh --check` gives the gaps of the tail to the floor and to the
+    knee, and a shin. At the back of the bent knee, the bind puts each vertex nearer to the knee
+    plane than the radius of the leg inside the leg, and its faces fold through the skin as
+    stacked light stripes. So the rings near the knee plane cut only the front arc of the knee
+    (`toward`, `within`), and the rings of the back arc stand where the thigh and the calf meet
+    in the bind. A smoothing of the seam of the thigh and the shin faces at the back of each knee
+    (`kneeCrease`) rounds the corner, so that its faces do not turn more than the crease angle
+    from each other. `pnpm rig-mesh --check` gives the gaps of the tail to the floor and to the
     chair over one sway period (`tools/tail-gap.ts`).
   - Weights and shapes. Bone heat gives the weights, and rules and rings of new vertices at the
     joints (`refine.rings`) keep the faces from a fold. The corrective shapes give the source back

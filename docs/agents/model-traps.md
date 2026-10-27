@@ -332,6 +332,11 @@ group of your work before you plan it. A probe that a trap names is in its resea
   at the knee and a slab from the calf to the haunch. No weight band or seat removes them. Count
   them, and cut them with rings at the knee whose radius reaches the haunch (`refine.rings`,
   `steps.py` and `knee_facets.py` of `docs/research/2026-10-26-fifth-bears/`).
+- The bind puts a ring vertex at the back of a bent knee inside the leg when it lies nearer to the
+  knee plane than the radius of the leg, and the skin folds into stacked light stripes. Cut the
+  front arc near the knee plane (`toward`, `within`), put the back rings where the thigh and the
+  calf meet in the bind, and smooth the crease (`kneeCrease`). Count the edges through the skin
+  (`crossings.py`, `knee-stripes.md` of the same folder).
 - A long thigh needs a seat of its own (`studio.legTurns`, `weights.haunch`). A large tail needs two
   bones (`tail_tip`).
 - Short thighs under a round belly, or thighs that slope down to a level seat, set the seat top
