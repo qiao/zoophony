@@ -2305,8 +2305,11 @@ def ring_cuts(verts, tris, weights, heads, ends, ring, side):
     units along its normal (toward the child bone for a value above 0). An edge counts when both
     corners lie within the radius of the ring (`ring_radius()`) of the joint, a bone of the limb
     of the side (`limb_bones()`) moves one corner, it is at least `minEdge` long, and the plane
-    cuts it at least `ends` of its length from each corner. Gives the place of the cut along each
-    edge, by the sorted pair of its corners."""
+    cuts it at least `ends` of its length from each corner. With `toward` (a direction of the left
+    side in the axes of the studio, mirrored for the right side) and `within` (degrees), the ring
+    cuts only an arc: the direction from the joint to the cut, across the bone, turns at most
+    `within` from `toward`. Gives the place of the cut along each edge, by the sorted pair of its
+    corners."""
     joint = f"{ring['joint']}_{side}"
     point, normal = joint_plane(heads, ends, joint)
     near = np.linalg.norm(verts - point, axis=1) <= ring_radius(ring, heads, side)
@@ -2315,6 +2318,11 @@ def ring_cuts(verts, tris, weights, heads, ends, ring, side):
     for name in limb_bones(ring['joint'], side):
         arm |= weights[:, BONES.index(name)] > 0
     height = (verts - point) @ normal
+    toward = None
+    if 'toward' in ring:
+        toward = np.array(ring['toward'], float) * (1.0 if side == 'L' else [-1.0, 1.0, 1.0])
+        toward = unit(toward - (toward @ normal) * normal)
+        least = math.cos(math.radians(ring['within']))
     cuts = {}
     for a, b in edge_faces(tris):
         if not (near[a] and near[b] and (arm[a] or arm[b])) or height[a] * height[b] >= 0:
@@ -2322,8 +2330,14 @@ def ring_cuts(verts, tris, weights, heads, ends, ring, side):
         if np.linalg.norm(verts[a] - verts[b]) < ring.get('minEdge', 0.0):
             continue
         t = height[a] / (height[a] - height[b])
-        if ring.get('ends', 0.0) <= t <= 1.0 - ring.get('ends', 0.0):
-            cuts[(a, b)] = float(t)
+        if not ring.get('ends', 0.0) <= t <= 1.0 - ring.get('ends', 0.0):
+            continue
+        if toward is not None:
+            across = (1 - t) * verts[a] + t * verts[b] - point
+            across -= (across @ normal) * normal
+            if across @ toward < least * np.linalg.norm(across):
+                continue
+        cuts[(a, b)] = float(t)
     return cuts
 
 
