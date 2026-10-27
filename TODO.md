@@ -1804,6 +1804,11 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
         `docs/research/2026-10-26-fifth-bears/`).
       - Give `pnpm carry-check` a cache of the working tree, as `pose-depth` has. Each run
         takes about 44 s now.
+      - Keep the base frames of `close-views play --base` in a cache, keyed by the tree hash,
+        the camera, the time, and the size. The legs round rendered `main` again for each
+        variant, about 3 minutes for each 20 frames.
+      - Let `pnpm pose-depth` print, for each body, only the pairs that differ between its
+        `--set` rows. The violin carry round wrote a parser to compare its variants.
 
 Done when: the pose tests pass, and the pose and frame targets pass.
 
