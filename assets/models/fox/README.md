@@ -57,17 +57,19 @@ for byte. The inner side of the upper arm joins the trunk down to the armpit, so
 the route of the cat (`tools/blender/cat_arms.py`): a cut along the seam where the arm meets the
 trunk, a side wall of the trunk under the arm, and a tube with a flat inner side on the wall. The
 faces of the paws, the trunk, the legs, and the head are the faces of the user, except the thin
-faces at the cut loops, whose short edges collapse. The arms are 1.21 times longer from the socket,
+faces at the cut loops, whose short edges collapse, and 18 vertices of the small notches at the
+back of the neck, below the ruff, which Smooth Vertices smooths (`step_smooth_notches()`, user,
+2026-10-26: "dark area on the fox (both red and tan)'s back"). The arms are 1.21 times longer from the socket,
 as the rig made them before (`armFactor` of the config), because a rig with arm segments does not
 stretch the arms. The red fox and the tan fox share the rig. `pnpm rig-mesh fox` writes
 `fox.rig.glb`, and `pnpm studio-body fox` writes `src/models/studio/fox.ts`.
 
 | Item | Value |
 |---|---|
-| `fox-arms.glb` | 1,173,608 bytes, SHA-256 `1369c42c10b9d36ac4c094966becacb2f4d7376613bfb4ede68c3c75ad84406d` |
+| `fox-arms.glb` | 1,173,608 bytes, SHA-256 `e975e65114c6591cb4327d3d82b72a71f81a3c2b17d7d2967026aac3d65bbb44` |
 | Mesh | 2,046 vertices after a weld at 1e-5, 4,085 triangles (3,111 in the source): on each arm a tube of quad rings of 16 vertices, joined to the socket and the paw with Bridge Edge Loops, with Beautify Faces and Collapse Edges on the bridge triangles |
 | Material | One material with one base color JPEG: the atlas of the source, and a strip of 512 pixels on top with the fur color of the source arms, baked onto the new faces. The side walls and the flat inner sides take one fur color of the trunk. No metallic-roughness texture |
-| `fox-weights.json` | 459,612 bytes, SHA-256 `d8540d01e30d631db4eed58c40b17d77c9793ac040b88ad4fb041a80339bbebb` |
+| `fox-weights.json` | 459,512 bytes, SHA-256 `ccf5e085477dc8f27f8bdd3d2777ecfab8605e9a5800285dcdb375a684d2b2bf` |
 | Weights | The automatic weights of Blender with the Weight Paint fixes of the session, on the studio bones and the arm segments and helpers (`armSegments` of the config), for `paintedWeights` of the config |
 | License | Derived from the mesh of the user, who holds its rights |
 

@@ -447,10 +447,9 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       the body around the wide belly, where the studio bear held its paws at the hips. The
       upper arms go 2.2 cm into the body while the arms move (3.5 cm before the quad arms of
       `2026-10-26-arm-fixes.md`, which remove the long sharp facets of the bent arms).
-- [ ] Red and tan foxes (`2026-10-26-third-review.md`): the user saw a dark area on the back. A dark
-      V shows below the ruff at the middle of the upper back, with two small dark slits beside it.
-      It stays with no shadow, so it is the shade of notches of the mesh. Rigid faces 2053 and 2054
-      and smooth skin normals around (0, 0.65, -0.02) u changed nothing that the eye sees.
+- [x] Red and tan foxes (`2026-10-26-third-review.md`): the user saw a dark area on the back. Done:
+      the undersides of small fur notches below the ruff faced down; `fox_arms.py` now smooths the
+      18 vertices of the notches, as the user allowed.
 - [x] Rabbit (`2026-10-26-third-review.md`): the user saw the left lap or leg as cut at rest. Done:
       the lower end of the violin sank into the left knee; the violin now stands 0.1 H above it.
 - [x] Bear rig (`2026-10-26-arm-fixes.md`): the left shoulder bridge folds 8 tiny faces at p95

@@ -9,7 +9,8 @@ armpit at about 0.6 of the upper arm. A cut at a right angle to the bone then ru
 of the trunk, and its bridge faces turned over in the seated bind. So the session of 2026-10-25
 used the steps of `cat_arms.py`, in a headless Blender, with check images after the steps:
 
-1. Import the mesh of the user and Merge by Distance.
+1. Import the mesh of the user and Merge by Distance. Smooth the small notches of the fur at the
+   back of the neck (`step_smooth_notches()`, 2026-10-26).
 2. Cut each arm along the seam where it meets the trunk and at the wrist, fill a side wall of the
    trunk under the arm, collapse the thin faces at the cut loops, and model a quad tube with a flat
    inner side on the wall.
@@ -52,7 +53,8 @@ va = ca.va
 #: at the back of the arm root. The first ring of the tube takes Blender weights (`seam.ruled` 0).
 #: The tube near the side walls takes a chest share of 0.4 (`anchor`): with 0.2, the right arm of the
 #: red fox folded 9 to 11 faces at rest. `fingers`: the share of the weight of each finger bone that
-#: the fingers keep (`step_fingers()`).
+#: the fingers keep (`step_fingers()`). `notches`: the sphere at the back of the neck, below the
+#: ruff, whose vertices `step_smooth_notches()` smooths.
 FOX = {
     'config': 'tools/mesh-rigs/fox.json',
     'source': 'assets/models/fox/fox.glb',
@@ -71,6 +73,7 @@ FOX = {
              'wrap': 0.03},
     'anchor': {'share': 0.4, 'reach': 0.08, 'crease': True},
     'fingers': 0.5,
+    'notches': {'center': (0.0, 0.65, -0.02), 'radius': 0.05, 'rounds': 4, 'factor': 0.5},
 }
 va.ANIMALS['fox'] = FOX
 
@@ -152,11 +155,40 @@ def step_clean_bridge(s):
     return count
 
 
+def step_smooth_notches(s):
+    """Smooths the small notches of the fur at the back of the neck, below the ruff (`notches` of
+    `FOX`): Smooth Vertices, with the factor `factor`, `rounds` times, on the vertices within
+    `radius` of `center`, in the units of the studio. The undersides of the notches face down,
+    away from the light, and showed as a dark V on the back of the red and the tan fox (user,
+    2026-10-26: "dark area on the fox (both red and tan)'s back"). The user allowed this edit on
+    2026-10-26. No other vertex moves. Gives the number of the smoothed vertices."""
+    import bmesh
+
+    spec = s.spec.get('notches')
+    if not spec:
+        return 0
+    mesh = s.mesh
+    bpy = va.bpy
+    bpy.context.view_layer.objects.active = mesh
+    bpy.ops.object.mode_set(mode='EDIT')
+    bm = bmesh.from_edit_mesh(mesh.data)
+    center = s.fr.point(spec['center'])
+    radius = s.units(spec['radius'])
+    verts = [p for p in bm.verts if (p.co - center).length < radius]
+    for _ in range(spec['rounds']):
+        bmesh.ops.smooth_vert(bm, verts=verts, factor=spec['factor'], use_axis_x=True,
+                              use_axis_y=True, use_axis_z=True)
+    bmesh.update_edit_mesh(mesh.data)
+    bpy.ops.object.mode_set(mode='OBJECT')
+    return len(verts)
+
+
 #: The steps of the session: the steps of `cat_arms.py`, with the clean of the cut loops after the
 #: side wall, the clean of the bridge after Beautify Faces, the share of the fingers after the
 #: paint, and the weights file above.
 STEPS = tuple(out for step in ca.STEPS
-              for out in {ca.step_wall: (ca.step_wall, step_clean_cut),
+              for out in {va.import_mesh: (va.import_mesh, step_smooth_notches),
+                          ca.step_wall: (ca.step_wall, step_clean_cut),
                           ca.step_beautify: (ca.step_beautify, step_clean_bridge),
                           ca.step_paint: (ca.step_paint, step_fingers),
                           ca.step_weights: (step_weights,)}.get(step, (step,)))
