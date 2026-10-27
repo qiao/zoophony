@@ -544,8 +544,11 @@ A round that changes the motion updates the items.
   `fifth-strings`, it took its own short turn while the paw pronated, so the two turned in opposite
   directions (`docs/decisions/2026-10-26-fifth-review-strings.md`). The bow tip points forward
   beside the body in the middle of the move (`docs/decisions/2026-10-26-violin-lift.md`).
-- **The violin and the viola at rest** (section 2.9). The rabbit, the red fox, and the cat rest the
-  instrument upright on the left knee, and the left paw holds its neck in a rest grip: the playing
+- **The violin and the viola at rest** (section 2.9). The rabbit and the red fox rest the
+  instrument upright on the left knee, and the cat rests the viola upright on the top of the left
+  thigh near the knee, so that its left elbow bends to about 116° (131° on the knee, user,
+  2026-10-27: "the cat's arm has dent and is longer than expected",
+  `docs/decisions/2026-10-27-cat-fox.md`). The left paw holds the neck in a rest grip: the playing
   grip at the rest place, with the fingers closed around the neck, a few millimeters off it, and
   turned at most 10° around the normal of the top plate, so that the paw holds the neck and goes at
   most 0.5 cm into the instrument (`restHandAt()` of `pose/bowed.ts`). The paw keeps a turn in the
