@@ -940,7 +940,6 @@ const upperTurn = new Quaternion();
 const foreTurn = new Quaternion();
 const handTurn = new Quaternion();
 const fingersTurn = new Quaternion();
-const inHand = new Vector3();
 const palmTurn = new Quaternion();
 const curlTurn = new Quaternion();
 const curlAxis = new Vector3();
@@ -1157,6 +1156,38 @@ export function raiseWeight(raise: StudioRaise, turn: Quat): number {
   return t * t * (3 - 2 * t);
 }
 
+const palmFore = new Vector3();
+const palmHand = new Quaternion();
+
+/**
+ * Gives the turn of a paw in the plane of its palm toward the forearm ({@link PAW_TURN}, design
+ * 4.4): the angle of the forearm in the plane of the palm, faded where the forearm comes near the
+ * palm normal and near the back of the palm, and limited to `PAW_TURN.max`. The right paw turns
+ * only toward the baton. The pose of a carried violin uses it too, so that the instrument hangs
+ * from the paw that the viewer sees (`carryLift()` of `pose/bowed.ts`).
+ *
+ * @param side The side of the arm.
+ * @param hand The world rotation of the hand of the player. Its x axis is the normal of its palm.
+ * @param forearm The unit direction of the forearm, from the elbow to the wrist.
+ * @returns The angle of the turn around the x axis of the hand, in radians.
+ */
+export function palmTurnAngle(side: Side, hand: Quaternion, forearm: Vector3): number {
+  palmFore.copy(forearm).applyQuaternion(palmHand.copy(hand).invert());
+  const inPlane = Math.hypot(palmFore.y, palmFore.z);
+  const [low, high] = PAW_TURN.fade;
+  const fade = Math.min(1, Math.max(0, (inPlane - low) / (high - low)));
+  const planeAngle = Math.atan2(-palmFore.z, -palmFore.y);
+  // Near π, the angle jumps to the other side, so the turn fades out there.
+  const back = Math.min(
+    1,
+    Math.max(0, (Math.PI - Math.abs(planeAngle)) / (Math.PI - PAW_TURN.back)),
+  );
+  const angle = planeAngle * fade * fade * (3 - 2 * fade);
+  const limited =
+    Math.min(PAW_TURN.max, Math.max(-PAW_TURN.max, angle)) * back * back * (3 - 2 * back);
+  return side === 'R' ? Math.max(0, limited) : limited;
+}
+
 /**
  * Writes the bones of one arm of a studio body: the upper arm, the forearm, the twist bone, the
  * paw, and the fingers. It leaves the module vector `upper` at the posed direction of the upper
@@ -1186,24 +1217,9 @@ function poseArm(rig: StudioRig, arm: StudioArm, pose: Float32Array, out: Studio
   alignFrames(upperBind, hingeBind, upper, hinge, upperTurn);
   alignFrames(foreBind, hingeBind, fore, hinge, foreTurn);
 
-  // The paw turns in the plane of its palm toward the forearm. The x axis of the hand of the
-  // player is the normal of its palm, so the turn is around it.
+  // The paw turns in the plane of its palm toward the forearm.
   const hand = rotations[arm.drivers.hand] ?? local;
-  inHand.copy(fore).applyQuaternion(relative.copy(hand).invert());
-  const inPlane = Math.hypot(inHand.y, inHand.z);
-  const [low, high] = PAW_TURN.fade;
-  const fade = Math.min(1, Math.max(0, (inPlane - low) / (high - low)));
-  const planeAngle = Math.atan2(-inHand.z, -inHand.y);
-  // Near π, the angle jumps to the other side, so the turn fades out there.
-  const back = Math.min(
-    1,
-    Math.max(0, (Math.PI - Math.abs(planeAngle)) / (Math.PI - PAW_TURN.back)),
-  );
-  const angle = planeAngle * fade * fade * (3 - 2 * fade);
-  const limited =
-    Math.min(PAW_TURN.max, Math.max(-PAW_TURN.max, angle)) * back * back * (3 - 2 * back);
-  // The right paw turns only toward the baton (PAW_TURN).
-  palmTurn.setFromAxisAngle(X_AXIS, arm.side === 'R' ? Math.max(0, limited) : limited);
+  palmTurn.setFromAxisAngle(X_AXIS, palmTurnAngle(arm.side, hand, fore));
   paw.fromArray(arm.paw);
   handTurn.copy(hand).multiply(palmTurn).multiply(paw);
 
