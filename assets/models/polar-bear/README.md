@@ -1,15 +1,15 @@
 # Polar bear models
 
-This folder holds the two polar bear meshes that the user gave, and the copy with the new arms
-that the rig reads. The app does not serve them.
+This folder holds the two polar bear meshes that the user gave, the copy with the new arms, and
+the copy with the new arms and legs that the rig reads. The app does not serve them.
 
 ## polar-bear-tpose.glb
 
 `polar-bear-tpose.glb` is a mesh with no skeleton, with the arms in a T-pose: out to the sides and
 level, free of the trunk. The user gave it on 2026-10-24 and said: "mesh for polar bear: [...] use
 the same eye size as the bear". The file is the file of the user, byte for byte. Since
-2026-10-24 the rig of this project reads its copy with new arm faces (`polar-bear-arms.glb`,
-below), and `tools/mesh-rigs/polar-bear.json` names it: `pnpm rig-mesh polar-bear` writes the
+2026-10-27 the rig of this project reads its copy with new arm and leg faces
+(`polar-bear-limbs.glb`, below), and `tools/mesh-rigs/polar-bear.json` names it: `pnpm rig-mesh polar-bear` writes the
 rigged file `polar-bear-tpose.rig.glb`, and `pnpm studio-body polar-bear` writes the module
 `src/models/studio/polar-bear.ts` from it.
 
@@ -38,7 +38,8 @@ line to the wrist. On 2026-10-24 the user saw the rebuilt arms of the Rigify rab
 apply similar techniques to the polars bear". `tools/blender/polar_bear_arms.py` replays the
 Blender session that made both files, byte for byte. The faces of the paws, the trunk, the legs,
 and the head are the faces of the user. The new arm surface lies on the old one, with the arm
-length of the user.
+length of the user. Since 2026-10-27, `tools/blender/polar_bear_legs.py` reads both files, and the
+rig takes the bone heat of each kept vertex from this mesh (`heatSource` of the config).
 
 | Item | Value |
 |---|---|
@@ -51,6 +52,30 @@ length of the user.
 
 ```bash
 shasum -a 256 assets/models/polar-bear/polar-bear-arms.glb assets/models/polar-bear/polar-bear-weights.json
+```
+
+## polar-bear-limbs.glb and polar-bear-limbs-weights.json
+
+`polar-bear-limbs.glb` is `polar-bear-arms.glb` with new quad faces on each leg from the haunch
+line, below the crotch, to the ankle. On 2026-10-27 the user said: "the bear's knee is still much
+bulkier than expected. it's not anatomically correct". Long faces of the user mesh ran from the
+haunch to the heel, so the seated leg was a wedge with no hollow behind the knee.
+`tools/blender/polar_bear_legs.py` replays the Blender session that made both files, byte for
+byte. The faces of the feet, the trunk, the haunch, the arms, and the head stay. The new leg
+surface lies on the old one, with the leg length of the user: the rig makes the legs longer
+(`legFactor`).
+
+| Item | Value |
+|---|---|
+| `polar-bear-limbs.glb` | 1,259,300 bytes, SHA-256 `9509e0f436d60309df62ee0d7383121f398f986da4f45d708c77bfe197780f32` |
+| Mesh | 2,555 vertices after a weld at 1e-5, 5,106 triangles (4,142 in `polar-bear-arms.glb`): on each leg a tube of 10 rings of 20 vertices, joined to the haunch and the foot with Bridge Edge Loops |
+| Material | One material with one base color JPEG of 4096 × 5120 pixels: the atlas of `polar-bear-arms.glb`, with the fur color of the source legs baked into the strip on top, beside the arm image |
+| `polar-bear-limbs-weights.json` | 568,677 bytes, SHA-256 `5e524b62caa6a743f2e9a8ee51b326d06264076765cb7b269dacf6c5ab79fa6c` |
+| Weights | The weights of `polar-bear-weights.json` for each kept vertex, and the automatic weights of Blender for each new vertex, for `paintedWeights` of the config |
+| License | Derived from the mesh of the user, who holds its rights |
+
+```bash
+shasum -a 256 assets/models/polar-bear/polar-bear-limbs.glb assets/models/polar-bear/polar-bear-limbs-weights.json
 ```
 
 ## polar-bear-mesh.glb
