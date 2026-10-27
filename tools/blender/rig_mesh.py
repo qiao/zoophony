@@ -60,7 +60,8 @@ reads it (route 3 of `docs/agents/model-work.md`). The steps:
    and the factor of the forearm fades out to the wrist, so that the shoulders and the paws keep
    their form.
 5. Change the faces of the arms and the legs so that they bend at the joints: with `legFlip`,
-   a bad diagonal of a leg near the knee flips first (`leg_flips()`), then a ring of new
+   a bad diagonal of a leg near the knee flips first (`leg_flips()`), and with `pointFlip` the
+   edge at each of its points (`point_flips()`), then a ring of new
    vertices at each joint of the config splits the faces that it crosses, and the long edge of a
    face that is thin in the seated bind pose flips. Each face then takes its color from the
    texture again.
@@ -2521,10 +2522,63 @@ def leg_flips(verts, bind, tris, uvs, weights, heads, rule):
     return tris, uvs, flips
 
 
+def point_flips(source, bind, tris, uvs, rule):
+    """Flips the edge nearest to each point of `points` to the other diagonal of its two faces
+    (design 4.4). A quad of an arm tube can split along its short diagonal in the source, and the
+    bent elbow of the seated bind can shear it, so that the diagonal becomes the long one. Its
+    thin face then folds when the elbow bends further. The points are in the units of the source,
+    as the points of `rigid`. The edge flips when its middle in `source` lies within `near` units
+    of the point, two faces share it, the two corners across it sum to more than 180 degrees in
+    the bind, no seam of the texture runs along it, and the new faces keep the side of the old
+    faces in the source and in the bind. Gives the new triangles and corner UVs, and the number
+    of flips. A flip keeps the index of each of its two faces."""
+    tris, uvs = tris.copy(), uvs.copy()
+    flips = 0
+    for point in np.asarray(rule['points'], float).reshape(-1, 3):
+        faces_of = edge_faces(tris)
+        pairs = [key for key, faces in faces_of.items() if len(faces) == 2]
+        middles = np.array([(source[a] + source[b]) / 2 for a, b in pairs])
+        k = int(np.argmin(np.linalg.norm(middles - point, axis=1)))
+        place = ', '.join(f'{x:.4f}' for x in point)
+        gap = float(np.linalg.norm(middles[k] - point))
+        if gap > rule['near']:
+            warn(f'point flips: no edge within {rule["near"]} u of ({place}) u, the nearest '
+                 f'{gap:.4f} u')
+            continue
+        f, g = faces_of[pairs[k]]
+        t = [int(v) for v in tris[f]]
+        m = next(v for v in t if v not in pairs[k])
+        # The face f is (m, a, b) in its order, so the face g holds (b, a, n).
+        a, b = t[(t.index(m) + 1) % 3], t[(t.index(m) + 2) % 3]
+        n = int(next(v for v in tris[g] if v not in (a, b)))
+        across = (corner_angle(bind[m], bind[a], bind[b])
+                  + corner_angle(bind[n], bind[a], bind[b]))
+        uv_f = {int(v): uvs[f][j] for j, v in enumerate(tris[f])}
+        uv_g = {int(v): uvs[g][j] for j, v in enumerate(tris[g])}
+        new = np.array([[m, a, n], [m, n, b]])
+        fits = across > 180.0 and all(np.abs(uv_f[v] - uv_g[v]).max() <= 1e-6 for v in (a, b))
+        for points in (source, bind):
+            old = face_normals(points, tris[[f, g]]).sum(axis=0)
+            fits &= bool((face_normals(points, new) @ old > 0).all())
+        if not fits:
+            warn(f'point flips: the edge at ({place}) u does not flip, the corners across it '
+                 f'sum to {across:.1f} degrees in the bind')
+            continue
+        uv_g[m] = uv_f[m]
+        tris[f], tris[g] = new
+        uvs[f] = [uv_f[m], uv_f[a], uv_g[n]]
+        uvs[g] = [uv_f[m], uv_g[n], uv_f[b]]
+        flips += 1
+        log(f'point flips: the edge at ({place}) u flips, the corners across it sum to '
+            f'{across:.1f} degrees in the bind')
+    return tris, uvs, flips
+
+
 def refine(verts, tris, uvs, weights, heads, ends, matrices, config, source):
     """Changes the faces of the arms and the legs so that they bend at the joints (design 4.4),
     by the rule `refine` of the config: first the flips of the bad diagonals of the legs of
-    `legFlip` (`leg_flips()`), then a ring of new vertices at each joint of `rings`
+    `legFlip` (`leg_flips()`) and of the edges at the points of `pointFlip` (`point_flips()`),
+    then a ring of new vertices at each joint of `rings`
     (`ring_cuts()`, `split_faces()`), on the sides of its `sides` or on both sides, then the flips
     of the long edges of the faces that are thin in the seated bind pose of `bind_skin()`
     (`flip_edges()`). Each ring splits the faces that the rings before it made, so that two rings
@@ -2541,6 +2595,10 @@ def refine(verts, tris, uvs, weights, heads, ends, matrices, config, source):
         tris, uvs, legs = leg_flips(verts, bind_skin(config, weights, matrices, verts), tris, uvs,
                                     weights, heads, rule['legFlip'])
         log(f'leg flips: {legs} bad diagonals of the legs')
+    if 'pointFlip' in rule:
+        tris, uvs, named = point_flips(source, bind_skin(config, weights, matrices, verts), tris,
+                                       uvs, rule['pointFlip'])
+        log(f"point flips: {named} of {len(rule['pointFlip']['points'])} edges")
     for ring in rule['rings']:
         cuts = {}
         for side in ring.get('sides', 'LR'):
