@@ -1,0 +1,37 @@
+
+> zoophony@0.0.0 arm-check /Users/xueqiaoxu/proj/zoophony/.claude/worktrees/sixth-wolf-bind
+> node tools/arm-check.ts clarinetist --glb scratch/rigA/variant-2.glb --base 876ba389
+
+base: cached (876ba389, 3afb76f1e447)
+Arm gate of 1 roles against 876ba389 in 58 s. A cell gives the value, the base in parentheses, and the verdict of a value that does not pass.
+
+| Role | Arm | folds p95 (8) | twist p95 (55) | forearm twist p95 (80) | flat p5 (0.55) | paw twist p95 (170) | paw swing p95 (70) | paw jumps (0.5%) | stretch p95 (0.35) | grip turn p50 (45) | move twist max (176) | move turn max (3000) | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| clarinetist | L | 2 (2) | 19 (24) | 17 (35) | 0.92 (0.91) | 43 (89) | 57 (40) FAIL | 0.0% (0.0%) | 0.03 (0.01) | 20 (89) | 43 (89) | 149 (62) | FAIL |
+| clarinetist | R | 4 (5) | 23 (35) | 12 (40) | 0.79 (0.82) | 23 (101) | 40 (46) | 0.0% (0.0%) | 0.02 (0.02) | 6 (106) | 23 (101) | 88 (86) | PASS |
+
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| clarinetist | L | folds p95 | play | 10349 | 2 | 2 | 100.0% | 2 at beethoven-1.mid -2.10 s | 2 | 8 | 2 | PASS |
+| clarinetist | L | twist p95 | rest | 7 | 19 | 19 | 100.0% | 19 at beethoven-9.mid rest | 19 | 55 | 24 | PASS |
+| clarinetist | L | forearm twist p95 | play | 10349 | 17 | 17 | 100.0% | 17 at brahms-2.mid 99.13 s | 17 | 80 | 35 | PASS |
+| clarinetist | L | flat p5 | lift | 217 | 0.92 | 0.92 | 100.0% | 0.92 at beethoven-8-4.mid wall 2.6 s | 0.92 | 0.55 | 0.91 | PASS |
+| clarinetist | L | paw twist p95 | rest | 7 | 43 | 43 | 100.0% | 43 at boulanger-matin.mid rest | 43 | 170 | 89 | PASS |
+| clarinetist | L | paw swing p95 | rest | 7 | 57 | 57 | 100.0% | 57 at beethoven-9.mid rest | 57 | 70 | 40 | FAIL |
+| clarinetist | L | paw jumps | rest | 7 | 0 | 0 | 0.0% | 0 at beethoven-1.mid rest | 0.0% | 0.5% | 0.0% | PASS |
+| clarinetist | L | stretch p95 | play | 10349 | 0.03 | 0.03 | 100.0% | 0.03 at beethoven-8.mid 58.65 s | 0.03 | 0.35 | 0.01 | PASS |
+| clarinetist | L | grip turn p50 | play | 10349 | 20 | 20 | 100.0% | 20 at brahms-2.mid 216.88 s | 20 | 45 | 89 | PASS |
+| clarinetist | L | move twist max | move | 8127 | 41 | 43 | 100.0% | 43 at beethoven-1.mid lower 98.11 s, wall 1.74 s | 43 | 176 | 89 | PASS |
+| clarinetist | L | move turn max | move | 8127 | 14 | 121 | 90.6% | 149 at beethoven-9.mid lift 0.00 s, wall 0.42 s | 149 | 3000 | 62 | PASS |
+| clarinetist | R | folds p95 | rest | 7 | 4 | 4 | 100.0% | 4 at beethoven-1.mid rest | 4 | 8 | 5 | PASS |
+| clarinetist | R | twist p95 | rest | 7 | 23 | 23 | 100.0% | 23 at beethoven-1.mid rest | 23 | 55 | 35 | PASS |
+| clarinetist | R | forearm twist p95 | lift | 217 | 10 | 12 | 100.0% | 12 at beethoven-9.mid wall 0.5 s | 12 | 80 | 40 | PASS |
+| clarinetist | R | flat p5 | rest | 7 | 0.79 | 0.79 | 100.0% | 0.79 at beethoven-9.mid rest | 0.79 | 0.55 | 0.82 | PASS |
+| clarinetist | R | paw twist p95 | play | 10349 | 23 | 23 | 100.0% | 23 at boulanger-matin.mid 105.13 s | 23 | 170 | 101 | PASS |
+| clarinetist | R | paw swing p95 | rest | 7 | 40 | 40 | 100.0% | 40 at beethoven-9.mid rest | 40 | 70 | 46 | PASS |
+| clarinetist | R | paw jumps | rest | 7 | 0 | 0 | 0.0% | 0 at beethoven-1.mid rest | 0.0% | 0.5% | 0.0% | PASS |
+| clarinetist | R | stretch p95 | lift | 217 | 0.02 | 0.02 | 96.8% | 0.02 at boulanger-matin.mid wall 1.8 s | 0.02 | 0.35 | 0.02 | PASS |
+| clarinetist | R | grip turn p50 | play | 10349 | 6 | 6 | 100.0% | 6 at boulanger-matin.mid 62.38 s | 6 | 45 | 106 | PASS |
+| clarinetist | R | move twist max | move | 8127 | 17 | 23 | 100.0% | 23 at mendelssohn-op61.mid lift 49.47 s, wall 0.91 s | 23 | 176 | 101 | PASS |
+| clarinetist | R | move turn max | move | 8127 | 8 | 70 | 89.1% | 88 at beethoven-9.mid lift 0.00 s, wall 0.36 s | 88 | 3000 | 86 | PASS |
+ ELIFECYCLE  Command failed with exit code 1.

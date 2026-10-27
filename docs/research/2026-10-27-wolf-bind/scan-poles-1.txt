@@ -1,0 +1,39 @@
+
+> zoophony@0.0.0 arm-check /Users/xueqiaoxu/proj/zoophony/.claude/worktrees/sixth-wolf-bind
+> node tools/arm-check.ts clarinetist --demo beethoven-9 --jobs 5 --variant v0 --set clarinet\@wolf.restPoleL\=\[-1.3\,-1\,-0.2\]\;clarinet\@wolf.restPoleR\=\[0.3\,-1\,0\] --variant v1 --set clarinet\@wolf.restPoleL\=\[-1\,-1\,0\]\;clarinet\@wolf.restPoleR\=\[0.3\,-1\,-0.2\] --variant v2 --set clarinet\@wolf.restPoleL\=\[-1\,-1\,-0.4\]\;clarinet\@wolf.restPoleR\=\[0.6\,-1\,-0.2\] --variant v3 --set clarinet\@wolf.restPoleL\=\[-0.6\,-1\,0\]\;clarinet\@wolf.restPoleR\=\[0\,-1\,-0.2\] --variant v4 --set clarinet\@wolf.restPoleL\=\[-0.6\,-1\,-0.4\]\;clarinet\@wolf.restPoleR\=\[0.6\,-1\,0\] --variant v5 --set clarinet\@wolf.restPoleL\=\[-1.6\,-1\,0\]\;clarinet\@wolf.restPoleR\=\[0.3\,-1\,0.3\] --variant v6 --set clarinet\@wolf.restPoleL\=\[-1.3\,-1\,0.2\]\;clarinet\@wolf.restPoleR\=\[0\,-1\,0\] --variant v7 --set clarinet\@wolf.restPoleL\=\[-0.8\,-1\,-0.2\]\;clarinet\@wolf.restPoleR\=\[1\,-1\,-0.3\] --variant v8 --set clarinet\@wolf.restPoleL\=\[-1\,-0.5\,-0.3\]\;clarinet\@wolf.restPoleR\=\[0.3\,-0.6\,-0.2\] --variant v9 --set clarinet\@wolf.restPoleL\=\[-1\,-1.5\,-0.2\]\;clarinet\@wolf.restPoleR\=\[0.6\,-1\,0.3\]
+
+Arm gate of 1 roles in 10 variants: 10 children, at most 5 at the same time, in 9 s. A cell gives the value and the verdict of a value that does not pass.
+
+- v0: clarinet@wolf.restPoleL=[-1.3,-1,-0.2];clarinet@wolf.restPoleR=[0.3,-1,0]
+- v1: clarinet@wolf.restPoleL=[-1,-1,0];clarinet@wolf.restPoleR=[0.3,-1,-0.2]
+- v2: clarinet@wolf.restPoleL=[-1,-1,-0.4];clarinet@wolf.restPoleR=[0.6,-1,-0.2]
+- v3: clarinet@wolf.restPoleL=[-0.6,-1,0];clarinet@wolf.restPoleR=[0,-1,-0.2]
+- v4: clarinet@wolf.restPoleL=[-0.6,-1,-0.4];clarinet@wolf.restPoleR=[0.6,-1,0]
+- v5: clarinet@wolf.restPoleL=[-1.6,-1,0];clarinet@wolf.restPoleR=[0.3,-1,0.3]
+- v6: clarinet@wolf.restPoleL=[-1.3,-1,0.2];clarinet@wolf.restPoleR=[0,-1,0]
+- v7: clarinet@wolf.restPoleL=[-0.8,-1,-0.2];clarinet@wolf.restPoleR=[1,-1,-0.3]
+- v8: clarinet@wolf.restPoleL=[-1,-0.5,-0.3];clarinet@wolf.restPoleR=[0.3,-0.6,-0.2]
+- v9: clarinet@wolf.restPoleL=[-1,-1.5,-0.2];clarinet@wolf.restPoleR=[0.6,-1,0.3]
+
+| Variant | Role | Arm | folds p95 (8) | twist p95 (55) | forearm twist p95 (80) | flat p5 (0.55) | paw twist p95 (170) | paw swing p95 (70) | paw jumps (0.5%) | stretch p95 (0.35) | grip turn p50 (45) | move twist max (176) | move turn max (3000) | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| v0 | clarinetist | L | 3 | 38 | 24 | 0.91 | 42 | 57 | 0.0% | 0.03 | 21 | 42 | 149 | PASS |
+| v0 | clarinetist | R | 5 | 44 | 18 | 0.75 | 23 | 40 | 0.0% | 0.02 | 6 | 23 | 88 | PASS |
+| v1 | clarinetist | L | 3 | 36 | 24 | 0.91 | 42 | 54 | 0.0% | 0.03 | 21 | 42 | 128 | PASS |
+| v1 | clarinetist | R | 5 | 51 | 18 | 0.84 | 43 | 50 | 0.0% | 0.03 | 6 | 43 | 141 | PASS |
+| v2 | clarinetist | L | 3 | 39 | 24 | 0.91 | 49 | 58 | 0.0% | 0.03 | 21 | 49 | 159 | PASS |
+| v2 | clarinetist | R | 5 | 50 | 18 | 0.84 | 41 | 49 | 0.0% | 0.03 | 6 | 41 | 140 | PASS |
+| v3 | clarinetist | L | 3 | 34 | 24 | 0.89 | 42 | 51 | 0.0% | 0.02 | 21 | 42 | 113 | PASS |
+| v3 | clarinetist | R | 5 | 53 | 20 | 0.81 | 52 | 53 | 0.0% | 0.04 | 6 | 52 | 181 | PASS |
+| v4 | clarinetist | L | 3 | 38 | 24 | 0.91 | 43 | 57 | 0.0% | 0.03 | 21 | 43 | 152 | PASS |
+| v4 | clarinetist | R | 5 | 46 | 18 | 0.79 | 26 | 44 | 0.0% | 0.02 | 6 | 26 | 107 | PASS |
+| v5 | clarinetist | L | 3 | 37 | 24 | 0.91 | 42 | 56 | 0.0% | 0.03 | 21 | 42 | 142 | PASS |
+| v5 | clarinetist | R | 5 | 36 | 19 | 0.62 | 23 | 29 | 0.0% | 0.02 | 6 | 23 | 47 | PASS |
+| v6 | clarinetist | L | 3 | 35 | 24 | 0.91 | 42 | 53 | 0.0% | 0.03 | 21 | 42 | 124 | PASS |
+| v6 | clarinetist | R | 5 | 34 | 20 | 0.59 | 23 | 27 | 0.0% | 0.01 | 6 | 23 | 41 | PASS |
+| v7 | clarinetist | L | 3 | 37 | 24 | 0.91 | 42 | 56 | 0.0% | 0.03 | 21 | 42 | 138 | PASS |
+| v7 | clarinetist | R | 5 | 51 | 18 | 0.86 | 46 | 51 | 0.0% | 0.03 | 6 | 46 | 154 | PASS |
+| v8 | clarinetist | L | 3 | 41 | 25 | 0.91 | 66 | 59 | 0.0% | 0.04 | 21 | 66 | 176 | PASS |
+| v8 | clarinetist | R | 5 | 54 | 21 | 0.88 | 54 | 53 | 0.0% | 0.04 | 6 | 54 | 168 | PASS |
+| v9 | clarinetist | L | 3 | 36 | 24 | 0.91 | 42 | 54 | 0.0% | 0.03 | 21 | 42 | 128 | PASS |
+| v9 | clarinetist | R | 5 | 40 | 18 | 0.69 | 23 | 35 | 0.0% | 0.02 | 6 | 23 | 71 | PASS |

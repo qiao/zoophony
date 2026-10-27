@@ -1,0 +1,5 @@
+
+clarinetist L: rest 7, play 5176, moves 42 (8127 samples)
+  rest twist min/p5/p50/p95/max -28 / -28 / -28 / -28 / -28, roll 48 / 48 / 48 / 48 / 48
+  play twist 41 / 41 / 41 / 41 / 41, roll -11 / -11 / -11 / -11 / -11
+  move twist (unwrapped) -28 / -28 / 19 / 41 / 41, roll -11 / -11 / 26 / 48 / 48

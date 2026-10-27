@@ -1,0 +1,21 @@
+
+> zoophony@0.0.0 arm-check /Users/xueqiaoxu/proj/zoophony/.claude/worktrees/sixth-wolf-bind
+> node tools/arm-check.ts clarinetist --jobs 4 --variant n1 --set clarinet\@wolf.restPoleL\=\[-1.5\,-1.4\,0\] --variant n2 --set clarinet\@wolf.restPoleL\=\[-1.4\,-1.4\,-0.05\] --variant n3 --set clarinet\@wolf.restPoleL\=\[-1.6\,-1.4\,0.05\] --variant n4 --set clarinet\@wolf.restPoleL\=\[-1.5\,-1.5\,-0.05\]
+
+Arm gate of 1 roles in 4 variants: 4 children, at most 4 at the same time, in 63 s. A cell gives the value and the verdict of a value that does not pass.
+
+- n1: clarinet@wolf.restPoleL=[-1.5,-1.4,0]
+- n2: clarinet@wolf.restPoleL=[-1.4,-1.4,-0.05]
+- n3: clarinet@wolf.restPoleL=[-1.6,-1.4,0.05]
+- n4: clarinet@wolf.restPoleL=[-1.5,-1.5,-0.05]
+
+| Variant | Role | Arm | folds p95 (8) | twist p95 (55) | forearm twist p95 (80) | flat p5 (0.55) | paw twist p95 (170) | paw swing p95 (70) | paw jumps (0.5%) | stretch p95 (0.35) | grip turn p50 (45) | move twist max (176) | move turn max (3000) | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| n1 | clarinetist | L | 2 | 17 | 17 | 0.92 | 41 | 54 | 0.0% | 0.03 | 21 | 41 | 130 | PASS |
+| n1 | clarinetist | R | 4 | 27 | 13 | 0.86 | 32 | 46 | 0.0% | 0.02 | 6 | 32 | 120 | PASS |
+| n2 | clarinetist | L | 2 | 17 | 17 | 0.92 | 41 | 54 | 0.0% | 0.03 | 21 | 41 | 131 | PASS |
+| n2 | clarinetist | R | 4 | 27 | 13 | 0.86 | 32 | 46 | 0.0% | 0.02 | 6 | 32 | 120 | PASS |
+| n3 | clarinetist | L | 2 | 17 | 17 | 0.92 | 41 | 54 | 0.0% | 0.03 | 21 | 41 | 130 | PASS |
+| n3 | clarinetist | R | 4 | 27 | 13 | 0.86 | 32 | 46 | 0.0% | 0.02 | 6 | 32 | 120 | PASS |
+| n4 | clarinetist | L | 2 | 17 | 17 | 0.92 | 41 | 54 | 0.0% | 0.03 | 21 | 41 | 131 | PASS |
+| n4 | clarinetist | R | 4 | 27 | 13 | 0.86 | 32 | 46 | 0.0% | 0.02 | 6 | 32 | 120 | PASS |

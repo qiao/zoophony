@@ -1,0 +1,69 @@
+
+> zoophony@0.0.0 arm-check /Users/xueqiaoxu/proj/zoophony/.claude/worktrees/sixth-wolf-bind
+> node tools/arm-check.ts clarinetist --glb scratch/rigA/variant-2.glb --demo beethoven-9 --jobs 5 --variant q1 --set clarinet\@wolf.restPoleR\=\[0.3\,-1\,-0.2\]\;clarinet\@wolf.restReachL\=0.000000\;clarinet\@wolf.restPoleL\=\[-1.3\,-1\,-0.2\] --variant q2 --set clarinet\@wolf.restPoleR\=\[0.3\,-1\,-0.2\]\;clarinet\@wolf.restReachL\=0.000000\;clarinet\@wolf.restPoleL\=\[-1.6\,-0.7\,0\] --variant q3 --set clarinet\@wolf.restPoleR\=\[0.3\,-1\,-0.2\]\;clarinet\@wolf.restReachL\=0.000000\;clarinet\@wolf.restPoleL\=\[-1.3\,-1.3\,0\] --variant q4 --set clarinet\@wolf.restPoleR\=\[0.3\,-1\,-0.2\]\;clarinet\@wolf.restReachL\=0.000000\;clarinet\@wolf.restPoleL\=\[-1.6\,-1\,0\] --variant q5 --set clarinet\@wolf.restPoleR\=\[0.3\,-1\,-0.2\]\;clarinet\@wolf.restReachL\=0.000000\;clarinet\@wolf.restPoleL\=\[-2\,-1\,0\] --variant q6 --set clarinet\@wolf.restPoleR\=\[0.3\,-1\,-0.2\]\;clarinet\@wolf.restReachL\=0.087266\;clarinet\@wolf.restPoleL\=\[-1.3\,-1\,-0.2\] --variant q7 --set clarinet\@wolf.restPoleR\=\[0.3\,-1\,-0.2\]\;clarinet\@wolf.restReachL\=0.087266\;clarinet\@wolf.restPoleL\=\[-1.6\,-0.7\,0\] --variant q8 --set clarinet\@wolf.restPoleR\=\[0.3\,-1\,-0.2\]\;clarinet\@wolf.restReachL\=0.087266\;clarinet\@wolf.restPoleL\=\[-1.3\,-1.3\,0\] --variant q9 --set clarinet\@wolf.restPoleR\=\[0.3\,-1\,-0.2\]\;clarinet\@wolf.restReachL\=0.087266\;clarinet\@wolf.restPoleL\=\[-1.6\,-1\,0\] --variant q10 --set clarinet\@wolf.restPoleR\=\[0.3\,-1\,-0.2\]\;clarinet\@wolf.restReachL\=0.087266\;clarinet\@wolf.restPoleL\=\[-2\,-1\,0\] --variant q11 --set clarinet\@wolf.restPoleR\=\[0.3\,-1\,-0.2\]\;clarinet\@wolf.restReachL\=0.174533\;clarinet\@wolf.restPoleL\=\[-1.3\,-1\,-0.2\] --variant q12 --set clarinet\@wolf.restPoleR\=\[0.3\,-1\,-0.2\]\;clarinet\@wolf.restReachL\=0.174533\;clarinet\@wolf.restPoleL\=\[-1.6\,-0.7\,0\] --variant q13 --set clarinet\@wolf.restPoleR\=\[0.3\,-1\,-0.2\]\;clarinet\@wolf.restReachL\=0.174533\;clarinet\@wolf.restPoleL\=\[-1.3\,-1.3\,0\] --variant q14 --set clarinet\@wolf.restPoleR\=\[0.3\,-1\,-0.2\]\;clarinet\@wolf.restReachL\=0.174533\;clarinet\@wolf.restPoleL\=\[-1.6\,-1\,0\] --variant q15 --set clarinet\@wolf.restPoleR\=\[0.3\,-1\,-0.2\]\;clarinet\@wolf.restReachL\=0.174533\;clarinet\@wolf.restPoleL\=\[-2\,-1\,0\] --variant q16 --set clarinet\@wolf.restPoleR\=\[0.3\,-1\,-0.2\]\;clarinet\@wolf.restReachL\=0.261799\;clarinet\@wolf.restPoleL\=\[-1.3\,-1\,-0.2\] --variant q17 --set clarinet\@wolf.restPoleR\=\[0.3\,-1\,-0.2\]\;clarinet\@wolf.restReachL\=0.261799\;clarinet\@wolf.restPoleL\=\[-1.6\,-0.7\,0\] --variant q18 --set clarinet\@wolf.restPoleR\=\[0.3\,-1\,-0.2\]\;clarinet\@wolf.restReachL\=0.261799\;clarinet\@wolf.restPoleL\=\[-1.3\,-1.3\,0\] --variant q19 --set clarinet\@wolf.restPoleR\=\[0.3\,-1\,-0.2\]\;clarinet\@wolf.restReachL\=0.261799\;clarinet\@wolf.restPoleL\=\[-1.6\,-1\,0\] --variant q20 --set clarinet\@wolf.restPoleR\=\[0.3\,-1\,-0.2\]\;clarinet\@wolf.restReachL\=0.261799\;clarinet\@wolf.restPoleL\=\[-2\,-1\,0\]
+
+Arm gate of 1 roles in 20 variants: 20 children, at most 5 at the same time, in 21 s. A cell gives the value and the verdict of a value that does not pass.
+
+- q1: clarinet@wolf.restPoleR=[0.3,-1,-0.2];clarinet@wolf.restReachL=0.000000;clarinet@wolf.restPoleL=[-1.3,-1,-0.2]
+- q2: clarinet@wolf.restPoleR=[0.3,-1,-0.2];clarinet@wolf.restReachL=0.000000;clarinet@wolf.restPoleL=[-1.6,-0.7,0]
+- q3: clarinet@wolf.restPoleR=[0.3,-1,-0.2];clarinet@wolf.restReachL=0.000000;clarinet@wolf.restPoleL=[-1.3,-1.3,0]
+- q4: clarinet@wolf.restPoleR=[0.3,-1,-0.2];clarinet@wolf.restReachL=0.000000;clarinet@wolf.restPoleL=[-1.6,-1,0]
+- q5: clarinet@wolf.restPoleR=[0.3,-1,-0.2];clarinet@wolf.restReachL=0.000000;clarinet@wolf.restPoleL=[-2,-1,0]
+- q6: clarinet@wolf.restPoleR=[0.3,-1,-0.2];clarinet@wolf.restReachL=0.087266;clarinet@wolf.restPoleL=[-1.3,-1,-0.2]
+- q7: clarinet@wolf.restPoleR=[0.3,-1,-0.2];clarinet@wolf.restReachL=0.087266;clarinet@wolf.restPoleL=[-1.6,-0.7,0]
+- q8: clarinet@wolf.restPoleR=[0.3,-1,-0.2];clarinet@wolf.restReachL=0.087266;clarinet@wolf.restPoleL=[-1.3,-1.3,0]
+- q9: clarinet@wolf.restPoleR=[0.3,-1,-0.2];clarinet@wolf.restReachL=0.087266;clarinet@wolf.restPoleL=[-1.6,-1,0]
+- q10: clarinet@wolf.restPoleR=[0.3,-1,-0.2];clarinet@wolf.restReachL=0.087266;clarinet@wolf.restPoleL=[-2,-1,0]
+- q11: clarinet@wolf.restPoleR=[0.3,-1,-0.2];clarinet@wolf.restReachL=0.174533;clarinet@wolf.restPoleL=[-1.3,-1,-0.2]
+- q12: clarinet@wolf.restPoleR=[0.3,-1,-0.2];clarinet@wolf.restReachL=0.174533;clarinet@wolf.restPoleL=[-1.6,-0.7,0]
+- q13: clarinet@wolf.restPoleR=[0.3,-1,-0.2];clarinet@wolf.restReachL=0.174533;clarinet@wolf.restPoleL=[-1.3,-1.3,0]
+- q14: clarinet@wolf.restPoleR=[0.3,-1,-0.2];clarinet@wolf.restReachL=0.174533;clarinet@wolf.restPoleL=[-1.6,-1,0]
+- q15: clarinet@wolf.restPoleR=[0.3,-1,-0.2];clarinet@wolf.restReachL=0.174533;clarinet@wolf.restPoleL=[-2,-1,0]
+- q16: clarinet@wolf.restPoleR=[0.3,-1,-0.2];clarinet@wolf.restReachL=0.261799;clarinet@wolf.restPoleL=[-1.3,-1,-0.2]
+- q17: clarinet@wolf.restPoleR=[0.3,-1,-0.2];clarinet@wolf.restReachL=0.261799;clarinet@wolf.restPoleL=[-1.6,-0.7,0]
+- q18: clarinet@wolf.restPoleR=[0.3,-1,-0.2];clarinet@wolf.restReachL=0.261799;clarinet@wolf.restPoleL=[-1.3,-1.3,0]
+- q19: clarinet@wolf.restPoleR=[0.3,-1,-0.2];clarinet@wolf.restReachL=0.261799;clarinet@wolf.restPoleL=[-1.6,-1,0]
+- q20: clarinet@wolf.restPoleR=[0.3,-1,-0.2];clarinet@wolf.restReachL=0.261799;clarinet@wolf.restPoleL=[-2,-1,0]
+
+| Variant | Role | Arm | folds p95 (8) | twist p95 (55) | forearm twist p95 (80) | flat p5 (0.55) | paw twist p95 (170) | paw swing p95 (70) | paw jumps (0.5%) | stretch p95 (0.35) | grip turn p50 (45) | move twist max (176) | move turn max (3000) | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| q1 | clarinetist | L | 2 | 17 | 17 | 0.91 | 42 | 51 | 0.0% | 0.04 | 20 | 42 | 139 | PASS |
+| q1 | clarinetist | R | 4 | 30 | 17 | 0.89 | 42 | 50 | 0.0% | 0.03 | 6 | 42 | 141 | PASS |
+| q2 | clarinetist | L | 2 | 18 | 18 | 0.91 | 47 | 52 | 0.0% | 0.04 | 20 | 47 | 144 | PASS |
+| q2 | clarinetist | R | 4 | 30 | 17 | 0.89 | 42 | 50 | 0.0% | 0.03 | 6 | 42 | 141 | PASS |
+| q3 | clarinetist | L | 3 | 14 | 17 | 0.90 | 41 | 49 | 0.0% | 0.04 | 20 | 41 | 120 | PASS |
+| q3 | clarinetist | R | 4 | 30 | 17 | 0.89 | 42 | 50 | 0.0% | 0.03 | 6 | 42 | 141 | PASS |
+| q4 | clarinetist | L | 2 | 16 | 17 | 0.91 | 41 | 51 | 0.0% | 0.04 | 20 | 41 | 135 | PASS |
+| q4 | clarinetist | R | 4 | 30 | 17 | 0.89 | 42 | 50 | 0.0% | 0.03 | 6 | 42 | 141 | PASS |
+| q5 | clarinetist | L | 2 | 17 | 17 | 0.91 | 44 | 52 | 0.0% | 0.04 | 20 | 44 | 141 | PASS |
+| q5 | clarinetist | R | 4 | 30 | 17 | 0.89 | 42 | 50 | 0.0% | 0.03 | 6 | 42 | 141 | PASS |
+| q6 | clarinetist | L | 2 | 17 | 17 | 0.92 | 42 | 53 | 0.0% | 0.04 | 20 | 42 | 142 | PASS |
+| q6 | clarinetist | R | 4 | 30 | 17 | 0.89 | 42 | 50 | 0.0% | 0.03 | 6 | 42 | 141 | PASS |
+| q7 | clarinetist | L | 2 | 18 | 18 | 0.92 | 46 | 53 | 0.0% | 0.04 | 20 | 46 | 146 | PASS |
+| q7 | clarinetist | R | 4 | 30 | 17 | 0.89 | 42 | 50 | 0.0% | 0.03 | 6 | 42 | 141 | PASS |
+| q8 | clarinetist | L | 2 | 15 | 17 | 0.92 | 41 | 50 | 0.0% | 0.04 | 20 | 41 | 122 | PASS |
+| q8 | clarinetist | R | 4 | 30 | 17 | 0.89 | 42 | 50 | 0.0% | 0.03 | 6 | 42 | 141 | PASS |
+| q9 | clarinetist | L | 2 | 17 | 17 | 0.92 | 41 | 52 | 0.0% | 0.04 | 20 | 41 | 136 | PASS |
+| q9 | clarinetist | R | 4 | 30 | 17 | 0.89 | 42 | 50 | 0.0% | 0.03 | 6 | 42 | 141 | PASS |
+| q10 | clarinetist | L | 2 | 17 | 17 | 0.92 | 43 | 53 | 0.0% | 0.04 | 20 | 43 | 142 | PASS |
+| q10 | clarinetist | R | 4 | 30 | 17 | 0.89 | 42 | 50 | 0.0% | 0.03 | 6 | 42 | 141 | PASS |
+| q11 | clarinetist | L | 2 | 18 | 17 | 0.92 | 42 | 54 | 0.0% | 0.04 | 20 | 42 | 144 | PASS |
+| q11 | clarinetist | R | 4 | 30 | 17 | 0.89 | 42 | 50 | 0.0% | 0.03 | 6 | 42 | 141 | PASS |
+| q12 | clarinetist | L | 2 | 18 | 18 | 0.92 | 46 | 55 | 0.0% | 0.04 | 20 | 46 | 147 | PASS |
+| q12 | clarinetist | R | 4 | 30 | 17 | 0.89 | 42 | 50 | 0.0% | 0.03 | 6 | 42 | 141 | PASS |
+| q13 | clarinetist | L | 2 | 15 | 17 | 0.92 | 41 | 51 | 0.0% | 0.03 | 20 | 41 | 124 | PASS |
+| q13 | clarinetist | R | 4 | 30 | 17 | 0.89 | 42 | 50 | 0.0% | 0.03 | 6 | 42 | 141 | PASS |
+| q14 | clarinetist | L | 2 | 17 | 17 | 0.92 | 41 | 54 | 0.0% | 0.04 | 20 | 41 | 138 | PASS |
+| q14 | clarinetist | R | 4 | 30 | 17 | 0.89 | 42 | 50 | 0.0% | 0.03 | 6 | 42 | 141 | PASS |
+| q15 | clarinetist | L | 2 | 18 | 17 | 0.92 | 43 | 54 | 0.0% | 0.04 | 20 | 43 | 144 | PASS |
+| q15 | clarinetist | R | 4 | 30 | 17 | 0.89 | 42 | 50 | 0.0% | 0.03 | 6 | 42 | 141 | PASS |
+| q16 | clarinetist | L | 2 | 18 | 17 | 0.92 | 42 | 56 | 0.0% | 0.04 | 20 | 42 | 146 | PASS |
+| q16 | clarinetist | R | 4 | 30 | 17 | 0.89 | 42 | 50 | 0.0% | 0.03 | 6 | 42 | 141 | PASS |
+| q17 | clarinetist | L | 2 | 18 | 18 | 0.92 | 46 | 56 | 0.0% | 0.04 | 20 | 46 | 149 | PASS |
+| q17 | clarinetist | R | 4 | 30 | 17 | 0.89 | 42 | 50 | 0.0% | 0.03 | 6 | 42 | 141 | PASS |
+| q18 | clarinetist | L | 2 | 16 | 17 | 0.92 | 41 | 53 | 0.0% | 0.03 | 20 | 41 | 126 | PASS |
+| q18 | clarinetist | R | 4 | 30 | 17 | 0.89 | 42 | 50 | 0.0% | 0.03 | 6 | 42 | 141 | PASS |
+| q19 | clarinetist | L | 2 | 17 | 17 | 0.92 | 41 | 55 | 0.0% | 0.03 | 20 | 41 | 140 | PASS |
+| q19 | clarinetist | R | 4 | 30 | 17 | 0.89 | 42 | 50 | 0.0% | 0.03 | 6 | 42 | 141 | PASS |
+| q20 | clarinetist | L | 2 | 18 | 17 | 0.92 | 43 | 56 | 0.0% | 0.04 | 20 | 43 | 146 | PASS |
+| q20 | clarinetist | R | 4 | 30 | 17 | 0.89 | 42 | 50 | 0.0% | 0.03 | 6 | 42 | 141 | PASS |
