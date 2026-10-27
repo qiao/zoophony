@@ -70,7 +70,8 @@ reads it (route 3 of `docs/agents/model-work.md`). The steps:
    go to the bind arms of the studio, and the bones of a tail of two bones go to the bind
    directions of the config, back through the open back of the chair. The skin of the
    long-armed source in this pose is the bind mesh: a linear blend, or with `bind.blend` of
-   the config a dual quaternion blend at the arm roots (`bind_skin()`). Where the pose turns
+   the config a dual quaternion blend at the arm roots, and with `bind.knee` at the knees
+   (`bind_skin()`). Where the pose turns
    faces over, as at the haunch, their vertices relax toward their neighbors. The log then gives the gap from the
    lowest point of the haunch behind the hips joint to the seat top, and above 5 cm a warning
    with a front edge of the chair that puts the seat under the haunch (`haunch_gap()`). With
@@ -2844,13 +2845,29 @@ def bind_skin(config, weights, matrices, points):
     by the angle a toward the joint, to about cos(a / 2) of its radius, and the dual quaternion
     blend keeps the radius. The app moves the bind mesh with linear blend skinning in each pose,
     and the corrective shapes give the source back in the clip `reference`
-    (`docs/research/2026-10-22-dq-bind.md`)."""
-    blend = config.get('bind', {}).get('blend', 'linear')
-    if blend == 'linear':
-        return skin(weights, matrices, points)
-    if blend != 'dq':
+    (`docs/research/2026-10-22-dq-bind.md`).
+
+    With `bind.knee` set to `dq`, each vertex with a weight on both the thigh and the shin of one
+    side takes `dual_skin()` too, whatever `bind.blend` is. The seated bind bends each knee by
+    about 85 degrees, so the linear blend put the front of the rebuilt knee of the polar bear on a
+    flat bevel at 0.83 of the round of the leg, and the knee was 0.120 units deep on its
+    bisector, against 0.148 in the source. A ring at the knee then turns by its share of the bend
+    and keeps its radius, so the knee front is round and the back of the knee folds into a
+    crease (`docs/research/2026-10-27-polar-legs-rebuild.md`)."""
+    rule = config.get('bind', {})
+    blend = rule.get('blend', 'linear')
+    if blend not in ('linear', 'dq'):
         raise SystemExit(f'bind.blend must be "linear" or "dq", not "{blend}".')
+    if rule.get('knee', 'linear') not in ('linear', 'dq'):
+        raise SystemExit(f'bind.knee must be "linear" or "dq", not "{rule["knee"]}".')
     out = skin(weights, matrices, points)
+    if rule.get('knee') == 'dq':
+        for side in 'LR':
+            thigh, shin = BONES.index(f'thigh_{side}'), BONES.index(f'shin_{side}')
+            knee = (weights[:, thigh] > 0) & (weights[:, shin] > 0)
+            out[knee] = dual_skin(weights[knee], matrices, points[knee])
+    if blend == 'linear':
+        return out
     upper = [BONES.index(f'upper_arm_{side}') for side in 'LR']
     lower = [BONES.index(f'{bone}_{side}') for bone in ARM[1:] for side in 'LR']
     low, high = config['bind'].get('ramp', [0.0, 0.0])
