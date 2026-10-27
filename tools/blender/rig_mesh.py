@@ -3199,9 +3199,11 @@ def bind_turns(config, heads, ends, rolls, turn=0.0):
     With a recline (`turn` degrees, `trunk_turn()`), each trunk bone of the shares of
     `studio.trunk` takes its share of it (`recline()`), the clavicles turn with the chest, and the
     ears with the head. Each arm bone turns the least way onto its bind direction after the turn
-    of its parent, so that the arm does not twist. The bones of a tail of two bones turn so onto
-    the directions of `tailBind`. With a recline, the tip of the tail turns until its end is at the
-    height of the upright bind. The other bones do not turn."""
+    of its parent, so that the arm does not twist. With `bindSupination`, the paw of a side then
+    turns about its bind forearm toward supination by its angle in degrees, and the fingers turn
+    with it (`paw_supination()`). The bones of a tail of two bones turn so onto the directions of
+    `tailBind`. With a recline, the tip of the tail turns until its end is at the height of the
+    upright bind. The other bones do not turn."""
     studio = config['studio']
     turns = {name: np.eye(3) for name in BONES}
     rule = studio.get('trunk')
@@ -3229,6 +3231,8 @@ def bind_turns(config, heads, ends, rolls, turn=0.0):
                 target = mirrored(target)
             now = parent @ unit(ends[name] - heads[name])
             turns[name] = swing(now, target) @ parent
+            if bone == 'hand':
+                turns[name] = paw_supination(studio, side, turns, heads) @ turns[name]
             parent = turns[name]
     if TAIL_TIP in BONES:
         # Each tail bone turns the least way onto its bind direction after the turn of its parent.
@@ -3257,6 +3261,21 @@ def bind_turns(config, heads, ends, rolls, turn=0.0):
         # The arm segments and the helpers turn by the rules of the app.
         turns.update(driven_turns(turns, heads))
     return turns
+
+
+def paw_supination(studio, side, turns, heads):
+    """Gives the turn of the bind paw of one side about its bind forearm, from the elbow to the
+    wrist, toward supination by the angle of the side in `bindSupination` (degrees, 0 with no
+    value). The forearm of the app turns with its elbow hinge, so the bind paw sets the zero of
+    the paw twist (`poseArm()` of `src/models/studio-rig.ts`): this turn moves the zero toward
+    supination by the angle, and the forearm segments share it in the bind (`driven_turns()`).
+    The studio axes have the left side at +x, so the left paw supinates by a negative turn
+    about its forearm, and the right paw by a positive turn."""
+    angle = studio.get('bindSupination', {}).get(side, 0)
+    if not angle:
+        return np.eye(3)
+    along = turns[f'forearm_{side}'] @ unit(heads[f'hand_{side}'] - heads[f'forearm_{side}'])
+    return axis_turn(along, np.radians(angle) * (-1 if side == 'L' else 1))
 
 
 def posed_heads(heads, turns):
