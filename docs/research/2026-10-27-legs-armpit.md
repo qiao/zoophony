@@ -7,11 +7,9 @@ root of the tree. "Main" is `8a58282b`. A probe of `main` runs in a tree of `git
 
 ## 1. The question
 
-The rounds `fifth-bears` and `fifth-deer` left two open faults. The polar bear pianist shows a
-short vertical groove on the front of the left shin, and light wedges on the back of the calf
-from az 150 to 180. From straight behind, the left armpit of the deer harpist shows dark under
-the raised arm. The goal is the cause of each fault with a measure, and a fix that no view shows
-worse than `main`.
+The rounds `fifth-bears` and `fifth-deer` left a groove on the left shin of the polar bear, light
+wedges on its calf backs from az 150 to 180, and a dark left armpit of the deer from behind. The
+goal is the cause of each fault with a measure, and a fix that no view shows worse than `main`.
 
 ## 2. The polar bear shin
 
@@ -34,11 +32,9 @@ the knee, and the wedges lie 0.1 to 0.15 units down the calf.
 
 ### The fix
 
-A bad diagonal within 0.15 units of the knee flips before the rings when the five edges of its
-quad get smoother in the bind (`leg_flips()`). The smoothing weight falls with the distance from
-the seam, to 0 at 0.105 units (`seam_relax()`), two back rings cut the calf 0.12 and 0.16 units
-below the knee, and the hips keep their share (`knee_relax()`). Each row runs with the tool of
-the round:
+The final config flips the bad diagonals within 0.15 units of the knee, fades the smoothing by
+the distance from the seam, cuts the calf with two back rings, and keeps the hips in place. Each
+row runs with the tool of the round (`leg_flips()`, `seam_relax()`, `knee_relax()`):
 
 | Variant | Calf hard L / R | Outer hard L / R | Knee edge L / R | Leg folds |
 |---|---:|---:|---:|---|
@@ -50,14 +46,13 @@ the round:
 | final with no calf rings | 12 / 5 | 12 / 4 | 0.096 / 0.112 | none |
 | final: distance 0.105, 12 rounds | 4 / 5 | 12 / 4 | 0.096 / 0.112 | none |
 
-The hard counts are the edges above 40° within 0.2 units of the knee, on the inner side lower
-than 0.08 units down the shin (calf) and on the outer side (`probes/zone_turns.py`,
-`zone-turns.txt`). The knee edge is the longest edge within 0.1 units of the knee
-(`knee-probes.txt`, which also gives no edge through the skin and no hard edge at the back of the
-knee). The leg folds are face samples of `pnpm rig-mesh polar-bear --check --set` over 4,940
-samples (`rig-check.txt`). There, a flip radius of 0.12, a reach of 0.09, and 16 or 20 rounds
-fold a face of the inner right thigh, and a reach of 0.12 moves the lowest sole vertex
-(`probes/lowest.py`), which moves the seat and all poses of the bear.
+The hard counts are the edges above 40° within 0.2 units of the knee: the calf on the inner side,
+and the knee and shin front (`probes/zone_turns.py`, `zone-turns.txt`). The knee edge is the
+longest edge within 0.1 units of the knee (`knee-probes.txt`: no edge through the skin, no hard
+edge at the back of the knee). The leg folds are face samples of `pnpm rig-mesh polar-bear --check
+--set` (`rig-check.txt`). A flip radius of 0.12, a reach of 0.09, or 16 or 20 rounds fold a face of
+the inner right thigh, and a reach of 0.12 moves the lowest sole vertex and thus each pose
+(`probes/lowest.py`).
 
 ### The gates
 
@@ -73,15 +68,11 @@ fold a face of the inner right thigh, and a reach of 0.12 moves the lowest sole 
 
 `main` is above the round in each image.
 
-- `knee-low.webp`: the ten low cameras of `knee-cams.json` (from `knee-cams.ts` of the round
-  `fifth-bears`) at 8 s of `boulanger-matin` and at rest (60 s). `knee-180.webp`: R180 and L180
-  at full size.
+- `knee-low.webp`: the ten cameras of `knee-cams.json` at 8 s of `boulanger-matin` and at rest
+  (60 s). `knee-180.webp`: R180 and L180 at full size.
 - `strip-L-30.webp`, `strip-R150.webp`, `strip-L-150.webp`: the play from 8 s to 15.5 s.
-- `legs-e20.webp`, `legs-e40.webp`: 2x crops of the legs at each moment of the pianist, from the
-  front, the back, each side, az150, and az-150 (`pnpm close-views pianist --sheet --box
-  0.1,0.5,0.8,0.5 --scale 2`). The front view looks into the piano case.
+- `legs-e20.webp`, `legs-e40.webp`: 2x crops of the legs at each moment, from six views
+  (`pnpm close-views pianist --sheet --box 0.1,0.5,0.8,0.5 --scale 2`).
 
-The groove is gone in each frame of the strip at L-30. The sharp wedges at L-150, R180, and L180
-are gone. At L180, one soft darker facet stays on the left calf: the fillet of the smoothing
-ends 0.035 units above the first calf ring (edge 2214 to 2251 turns 72°). A longer reach removed
-more of it, but moved the sole or folded the inner thigh.
+The groove and the sharp wedges are gone. At L180, one soft darker facet stays on the left calf,
+where the fillet of the smoothing ends above the first calf ring (edge 2214 to 2251, 72°).
