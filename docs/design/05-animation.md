@@ -329,7 +329,10 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
   the playing grip with a supination, as a real forearm turns (`mixTwist()`), and passes 180° from
   the bind on the way, where the forearm skin unwinds for a moment (4.4). The playing grip lies
   more than half a turn of supination from the bind of the mesh paw, so no rest grip with a
-  natural elbow avoids the pass (`docs/decisions/2026-10-27-violin-carry.md`). With the paw on
+  natural elbow avoids the pass (`docs/decisions/2026-10-27-violin-carry.md`). The rest and the
+  play fix both ends of the path of the twist, so an elbow path in the middle keeps the pass, and
+  a play elbow toward the middle flattened the skin of the arm
+  (`docs/decisions/2026-10-27-violin-unwind.md`). With the paw on
   the side of a pronation, the instrument turned the long way, nearly a full turn
   (`docs/decisions/2026-10-26-fifth-review-strings.md`).
 - **Cello between the knees.** The seated dog keeps the cello at its playing place, as a seated
