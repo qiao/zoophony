@@ -79,7 +79,8 @@ reads it (route 3 of `docs/agents/model-work.md`). The steps:
    the haunch and the root of the tail rise onto the seat top with a `sit` rule
    (`seat_lift()`), and the tip of a
    tail of two bones keeps the height of its end. With `crease`, the bind is smoothed across the
-   crease where the belly meets the top of each thigh (`crease_relax()`).
+   crease where the belly meets the top of each thigh (`crease_relax()`), and with `kneeCrease`
+   across the crease at the back of each knee (`knee_relax()`).
 7. Put a gloss shell over each eye: a fan from the middle of the eye to the edge of its dark
    faces, a little out of the surface. `pnpm studio-body` finds each eye by its fan, drops the
    fan, and puts the pea eye of the app at its place (design 4.5). The faces of the nose become
@@ -3224,6 +3225,33 @@ def crease_relax(bind, tris, weights, hip, rule):
     return out, int(seam.sum()), moved, largest
 
 
+def knee_relax(bind, tris, weights, heads, rule):
+    """Smooths the seated bind across the crease at the back of each knee (`seam_relax()`). The
+    bent knee meets the thigh and the shin at a sharp corner, and the faces at the corner turn more
+    than the crease angle of the app from each other, so each shows as a light or dark wedge. The
+    seam is each vertex of both a face of the thigh and a face of the shin of one side (main
+    bone), on the inner side of the knee: its place from the knee joint has a dot of at least
+    `inner` units with the unit sum of the directions from the knee to the hip joint and to the
+    ankle. A vertex moves by its share of the weight of the thigh and the shin of its side. Gives
+    the smoothed bind, the number of the seam vertices, the number of the moved vertices, and the
+    largest move."""
+    main = weights[tris].sum(axis=1).argmax(axis=1)
+    out, seams, moved, largest = bind, 0, 0, 0.0
+    for side in 'LR':
+        thigh, shin = BONES.index(f'thigh_{side}'), BONES.index(f'shin_{side}')
+        on_thigh = np.zeros(len(bind), bool)
+        on_shin = np.zeros(len(bind), bool)
+        on_thigh[tris[main == thigh].ravel()] = True
+        on_shin[tris[main == shin].ravel()] = True
+        knee = heads[f'shin_{side}']
+        inner = unit(unit(heads[f'thigh_{side}'] - knee) + unit(heads[f'foot_{side}'] - knee))
+        seam = on_thigh & on_shin & ((out - knee) @ inner >= rule['inner'])
+        free = np.clip(weights[:, thigh] + weights[:, shin], 0.0, 1.0)
+        out, count, most = seam_relax(out, tris, seam, free, rule)
+        seams, moved, largest = seams + int(seam.sum()), moved + count, max(largest, most)
+    return out, seams, moved, largest
+
+
 def seam_relax(bind, tris, seam, free, rule):
     """Smooths the bind around a seam: the region is the vertices of `seam` and `rings` rings of
     their neighbors. Each vertex of the region moves `share` of the way to the middle of its
@@ -4632,6 +4660,13 @@ def main():
                                                   config['crease'])
         dots = turn_dots(long_verts, bind, tris, weights, matrices)
         log(f'crease: {seam} seam vertices, {moved} vertices move, at most {largest:.4f} u '
+            f'({largest * meters * 100:.2f} cm). {int((dots < 0).sum())} faces turn over'
+            f'{turned_on(dots, main_bone)}')
+    if config.get('kneeCrease', {}).get('rounds', 0) > 0:
+        bind, seam, moved, largest = knee_relax(bind, tris, weights, bind_heads,
+                                                config['kneeCrease'])
+        dots = turn_dots(long_verts, bind, tris, weights, matrices)
+        log(f'knee crease: {seam} seam vertices, {moved} vertices move, at most {largest:.4f} u '
             f'({largest * meters * 100:.2f} cm). {int((dots < 0).sum())} faces turn over'
             f'{turned_on(dots, main_bone)}')
     if 'sit' in config:
