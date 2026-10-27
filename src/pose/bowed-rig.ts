@@ -169,7 +169,8 @@ export interface BowedHold {
   /**
    * The turn of the head down while the player plays, in radians, so that the jaw lies on the
    * chin rest, as a violinist rests the jaw on it (`docs/reference/string-technique.md`, section
-   * 1.10). 0 keeps the head level.
+   * 1.10). 0 keeps the head level, and a turn below 0 lifts the head, so that a long jaw lies on a
+   * viola that sits near the neck.
    */
   readonly headDrop: number;
   /**
@@ -785,27 +786,25 @@ export const BOWED_HOLDS = {
 } as const satisfies Readonly<Record<BowedInstrument, BowedHold>>;
 
 /**
- * The hold of the viola under the chin, for the cat mesh (design 4.6, 5.3): the viola hold of
- * {@link BOWED_HOLDS}, with the viola 0.05 H further right and 0.21 H further back, toward the
- * neck, so that the left paw reaches the nut, as the user asked for the arms of the reach of the
- * red fox (2026-10-16-mesh-cat decisions). At the place of the viola hold, the paw reached the
- * fingerboard from 0.29 of its length (`pnpm hold-reach cat --instrument viola`). The viola is
- * also 0.04 H lower than the viola hold, so that the jaw lies on the chin rest: 0.05 H lower put
- * the head 1.2 cm into the viola. The middle line of the viola points 45° to the left of the front,
- * as a real player holds it (`docs/reference/string-technique.md`, section 1.10), 25° nearer to the
- * front than the viola hold (2026-10-25-string-angle decisions). The cat plays a 1/2 viola, 0.87 of
- * the viola of the app (`SpeciesParams.violaScale`), and its left shoulder bone turns 20° forward
- * in the play (`reachL`), so that the shoulder joint comes forward, inside the forward move
- * of the shoulder of real violinists, and the left paw reaches the nut: with the viola of the app
- * and a turn of 30°, the paw reached the fingerboard from 0.16 of its length. The viola sits
- * 0.06 H higher than at 70° (0.05 H, -0.031 H, 0.12 H from the viola hold), and the jaw lies on the
- * chin rest. With the arms at the length of the cat mesh (2026-10-26-third-review decisions), the
- * left upper arm went 2.0 cm into the body in the play with the shoulder turn 15°, the left elbow
- * (-0.75, -1, -0.75), and the viola 0.1405 H back; now it goes 1.1 cm at most. The left forearm
- * meets the viola from below, 2.2 cm to 2.4 cm deep with each hold value of the trials, as the
- * forearm of the rabbit (2.5 cm). The bow lies square across the strings
- * (`slant` 0), as a real bow: with the slant of -20° of the viola hold, the right paw swung 76° on
- * the wrist in the lift (limit 70).
+ * The hold of the viola under the chin, for the cat mesh (design 4.6, 5.3). The arms of the cat
+ * are 1.10 H long, and its jaw lies in front of its chest under the long muzzle, so the tail end
+ * of the viola lies about 0.14 m in front of the left shoulder joint (2026-10-27-cat-fox2
+ * decisions). Thus the cat plays a viola of about 10 inches, 0.74 of the viola of the app
+ * (`SpeciesParams.violaScale`), as a violin shop sizes a viola for the arm less the muzzle, and
+ * holds it nearer to the body than the viola hold of {@link BOWED_HOLDS}: 0.05 H further right,
+ * 0.14 H higher, and 0.25 H further back (`playShift`), turned 10° further to the left than 45°,
+ * near the angle of a real player (`docs/reference/string-technique.md`, section 1.10), and tilted
+ * 5° forward (`playTurn`). The left paw then reaches the fingerboard from the nut to its end, and
+ * the bow paw the hair from the frog to 5 mm before the end of the free hair at the tip
+ * (`pnpm hold-reach cat --instrument viola`). The head lifts 15° in the play (`headDrop` below 0),
+ * so that the jaw lies on the chin rest of the higher viola: with the head level, the jaw went
+ * 2.0 cm into the viola. The left shoulder bone turns 35° forward in the play (`reachL`), inside
+ * the forward move of the shoulder of real violinists: with 30°, the left arm stretched 11% to the
+ * nut, at the margin of the arm gate. With the 1/2 viola (0.87) at the place of the long arms,
+ * the shorter arm reached the fingerboard from 0.69 and the bow 0.26 m of 0.44 m. With the viola
+ * 4 cm back, the bow reached the tip, but the viola went 2.7 cm into the chest (1.9 cm now, limit
+ * 2.0). The bow lies square across the strings (`slant` 0), as a real bow: with the slant of -20°
+ * of the viola hold, the right paw swung 76° on the wrist in the lift (limit 70).
  *
  * The deeper chest of the cat form of 2026-10-17 (2026-10-16-cat-form decisions) took the room of
  * the left elbow: with the left elbow pole of the chin hold, the left upper arm went 5.5 cm into
@@ -816,12 +815,16 @@ export const BOWED_HOLDS = {
  * the bow passes through the middle of the paw since 2026-10-17 (`SpeciesParams.bowGrip`), and the
  * hand sits about 4 cm further out on the bow, so the right elbow of the play points a little
  * further out than the elbow of the chin hold. The right elbow of the play points out to the side,
- * level, and a little forward, (2, 0, -0.5), so that it comes near the height of the hand, as the
+ * a little down, and forward, (2, -0.3, -0.7), so that it comes near the height of the hand, as the
  * elbow of a real violist at the frog (user, 2026-10-26: "the cat's arm is bent in an unatural
- * way", 2026-10-26-second-review decisions). With (1.2, -0.5, -1), the upper arm hung down the side
- * of the body, and the forearm folded up to the chin. With (1.1, -1, -1) of 2026-10-17 the back of
- * the rebuilt upper arm went 3.8 cm into the body (2026-10-25-cat-arms decisions). At the tip, the right elbow points down, out, and forward, (1, -1, -1), as the elbow
- * of the rabbit: with the elbow up of the chin hold, (0.5, 1, -1), a dark wedge fold opened under
+ * way", 2026-10-26-second-review decisions). With the shorter arm and the elbow level, (2, 0, -0.5),
+ * the paw twist of the bow arm passed the margin of the arm gate. With (1.2, -0.5, -1), the upper
+ * arm hung down the side of the body, and the forearm folded up to the chin. With (1.1, -1, -1) of
+ * 2026-10-17 the back of the rebuilt upper arm went 3.8 cm into the body (2026-10-25-cat-arms
+ * decisions). At the tip, the right elbow points down, out, and forward, (1.5, -1, -1), further out
+ * than the elbow of the rabbit, because the shorter arm reaches the tip nearly straight across the
+ * round belly: with (1, -1, -1), the right upper arm went 2.7 cm into the belly at the tip (2.4 cm
+ * now). With the elbow up of the chin hold, (0.5, 1, -1), a dark wedge fold opened under
  * the right armpit at the tip (manager review of 2026-10-24), the right paw turned 116° on its
  * forearm (90° now), and the narrowest ring of the right arm kept 0.14 of its axis (0.49 now,
  * 2026-10-24-violin-review decisions).
@@ -888,9 +891,9 @@ export const BOWED_HOLDS = {
  * A cat soloist who stands hangs the bow from the right paw with the tip down, a little forward and
  * out, and turns it through the front in the lift and the lowering (`HANGING_BOW`).
  *
- * The string planes of the cat are 11° apart, below the 17° of the chin hold: with the stick
- * leaned 30°, the bow arm reaches the full hair up to 11° (0.030 m to 0.475 m in the steps of the
- * search), and at 12° only to 0.470 m (2026-10-17-bow-arm decisions).
+ * The string planes of the cat are 7° apart, below the 17° of the chin hold: with the shorter arm
+ * and the stick leaned 30°, the bow arm reaches the hair to 5 mm before its end with 7°, and to
+ * 2 cm before it with 11° (2026-10-27-cat-fox2 decisions).
  *
  * The left elbow turns toward the body by 2° for each lower string of the finger: with the 5° of
  * the chin hold, the left upper arm went 1.5 cm into the deep chest in the play (0.3 cm on `main`),
@@ -924,17 +927,18 @@ export const BOWED_HOLDS = {
  */
 const CAT_HOLD = {
   ...BOWED_HOLDS.viola,
-  stringTurn: 11 * MathUtils.DEG2RAD,
-  playShift: [0.05, -0.031, 0.12],
-  playTurn: violinTurn(-25, 0),
-  reachL: 20 * MathUtils.DEG2RAD,
+  stringTurn: 7 * MathUtils.DEG2RAD,
+  playShift: [0.05, 0.0869, 0.2084],
+  playTurn: [-0.0416, -0.1304, 0.0131, 0.9905],
+  reachL: 35 * MathUtils.DEG2RAD,
+  headDrop: -15 * MathUtils.DEG2RAD,
   slant: 0,
   tiltL: 45 * MathUtils.DEG2RAD,
   poleL: [-1, -1, -0.75],
   elbowPerString: 2 * MathUtils.DEG2RAD,
   highTilt: 20 * MathUtils.DEG2RAD,
-  poleR: [2, 0, -0.5],
-  poleTipR: [1, -1, -1],
+  poleR: [2, -0.3, -0.7],
+  poleTipR: [1.5, -1, -1],
   restPoleR: [0.8, -1, 0.3],
   restPoleL: [-1.2, -1, 0.1],
   restPlace: 0.55,

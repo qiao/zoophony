@@ -230,10 +230,12 @@ violin, by 0.32 mm on the cello, and by 0.52 mm on the double bass (derived from
   middle, by 4.8 mm [80].
 - **The size of the viola.** Violas have no fixed size. A shop gives the size as the length of the
   body: 380 mm to 400 mm for a full viola, 330 mm to 340 mm for a 3/4 viola, and 280 mm to 320 mm
-  for a 1/2 viola [82]. A chart in inches goes from 10 to 16.5 inches. It pairs 12 inches with an
-  arm of 46 cm and 13 inches with an arm of 51 cm, and adults "typically choose between 15, 15.5,
-  and 16+ inch sizes" [81]. The shop measures the left arm extended to the front, from the start
-  of the shoulder to the middle of the open palm [82].
+  for a 1/2 viola [82]. A chart in inches goes from 10 to 16.5 inches. It pairs 10 inches with an
+  arm of 36 cm, 11 inches with 38 cm, 12 inches with 46 cm, and 13 inches with 51 cm, and adults
+  "typically choose between 15, 15.5, and 16+ inch sizes" [81]. The chart measures the left arm
+  extended to the side, "from the base of your neck, where it meets your left shoulder, to the
+  center of your left palm" [81]. The shop measures the left arm extended to the front, from the
+  start of the shoulder to the middle of the open palm [82].
 
 ## 2. The right arm and the bow
 
@@ -464,11 +466,17 @@ A round that changes the motion updates the items.
   (`BowedHold.reachL`, `shoulderTurnL()` of `pose/bowed.ts`), as the left shoulder of a
   violinist moves forward [80]: the shoulder joint moves 2.9 cm on the rabbit and 1.1 cm on the
   red fox, so that the short left arms reach the nut. At 45°, the bow paw of the rabbit at the
-  frog went into its jaw. The viola of the cat points 45° to the left (70° before, 74° on the line
-  between the farthest ends). The cat plays a 1/2 viola, 0.87 of the viola of the app, with a body
-  of 304 mm (`SpeciesParams.violaScale`, the 280 mm to 320 mm of [82], 12 inches of [81]), and its
-  shoulder joint moves 1.9 cm forward: with the viola of the app (350 mm, near 14 inches), a
-  shoulder turn of 30° still left the nut 0.16 of the fingerboard out of reach. The jaw lies on
+  frog went into its jaw. The viola of the cat points about 48° to the left on the line from the
+  tail end to the scroll, and 6° down to the scroll. The cat plays a viola of about 10 inches,
+  0.74 of the viola of the app, with a body of 259 mm (`SpeciesParams.violaScale`). The chart of
+  [81] pairs 10 inches with an arm of 36 cm and 11 inches with 38 cm. The arm of the cat is 41 cm
+  from the shoulder joint to the middle of the palm, but its chin rest lies under the long jaw,
+  about 12 cm further from the shoulder along the viola than on a person, so it takes the
+  smallest size of the chart. Its left shoulder bone turns 35° forward, and its head lifts 15°, so
+  that the jaw lies on the chin rest of the viola near the neck. The left paw reaches the nut, and
+  the bow paw the hair to 5 mm before the end of the free hair. With the 1/2 viola of 0.87 and the
+  arms of 1.30 H before 2026-10-27, the paw reached the fingerboard from 0.33 and the bow 0.355 m
+  of 0.441 m (`docs/research/2026-10-27-cat-fox2.md`). The jaw lies on
   the chin rest: the head touches the instrument in each play sample of the rabbit and the red
   fox, and in most play samples of the cat, in `angle-probe.ts` of
   `docs/research/2026-10-25-string-angle/`. The bow of the cat lies square across the strings
@@ -488,8 +496,9 @@ A round that changes the motion updates the items.
   to 18° of a violinist in motion capture, and 25° on the contrabass. No source gives the angle of
   the viola and the cello, so they take the angle of the violin. Each angle is the real angle, or
   the largest angle below it with which the bow arm still reaches the full hair (`bowRangeOf()`).
-  The bodies of the mesh rigs stay below. The viola of the cat turns 11°: with the stick leaned
-  30°, its arm reaches the full hair up to 11°. The rabbit turns 10°, and the red fox 9° with the
+  The bodies of the mesh rigs stay below. The viola of the cat turns 7°: with the shorter arm and
+  the stick leaned 30°, the bow reaches the hair to 5 mm before its end with 7°, and to 2 cm
+  before it with 11°. The rabbit turns 10°, and the red fox 9° with the
   stick leaned 15°: larger turns fold the skin of their right arms in more play samples
   (`pnpm hold-fit`), and put the bow paw of the rabbit into the violin at the frog on the E string.
   The cello of the dog turns 6°: with its short arms, a larger turn put the paw into the right rim

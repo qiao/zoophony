@@ -487,11 +487,13 @@ The code constants of each family hold the times, the angles, and the lengths of
       neck and the fingers come down on the strings from above
       (`docs/reference/string-technique.md`, section 1.9). With the tilt of the chin hold, the
       paw turned far on its forearm, and the skin of the wrist pinched into a twisted band
-      (`docs/decisions/2026-10-20-cat-left-arm.md`). The viola points 45° to the left, as a real
-      player holds it, and sits so that the jaw lies on the chin rest. The cat plays a 1/2 viola
-      (`SpeciesParams.violaScale`), a real size for its arms, and its left shoulder comes forward
-      in the play, because the viola of the app at 45° put the nut out of the reach of the left
-      paw (`docs/decisions/2026-10-25-string-angle.md`). The bow lies square across the strings.
+      (`docs/decisions/2026-10-20-cat-left-arm.md`). The viola points near the angle of a real
+      player and sits near the neck, with the tail end beside the left shoulder, so that the
+      shorter arms reach the nut and the tip, and the head lifts, so that the long jaw lies on the
+      chin rest. The cat plays a viola of the smallest size of a size chart
+      (`SpeciesParams.violaScale`), the size for its arm less its muzzle, and its left shoulder
+      comes forward in the play (`docs/decisions/2026-10-27-cat-fox2.md`). The bow lies square
+      across the strings.
       The right elbow of the play points
       out, forward, and less down than the chin hold, as a violist at the frog, so that the
       rebuilt upper arm stays off the trunk (`docs/decisions/2026-10-25-cat-arms.md`).

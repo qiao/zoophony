@@ -1332,10 +1332,11 @@ its hold moves it to the body (`endPinLength()`). A violin shop sizes a violin s
 arm extended, the scroll lies in the middle of the palm (`pnpm hold-reach`). The user chose the
 instrument sizes and the arms of the mesh bodies, and the holds fit them. The rabbit plays a
 violin of 0.83, because the user asked for only a little stretch of the long arm faces of its mesh
-(`docs/decisions/2026-10-23-rabbit-arms.md`). The red fox plays almost the violin of the app, and
-the cat the viola of the app. Their arms are shorter
-than the rule needs, so their holds put the instrument nearer to the neck, and the left paw still
-reaches the nut (5.3, `docs/decisions/2026-10-16-mesh-cat.md`). The dog plays a 1/2 cello, and its
+(`docs/decisions/2026-10-23-rabbit-arms.md`). The red fox plays almost the violin of the app. Its
+arms are shorter than the rule needs, so its hold puts the violin nearer to the neck, and the left
+paw still reaches the nut (5.3). The cat plays a small viola for its shorter arms, as a size chart
+pairs a viola with an arm, and its hold puts it near the neck
+(`docs/decisions/2026-10-27-cat-fox2.md`). The dog plays a 1/2 cello, and its
 left paw reaches the whole fingerboard (`docs/decisions/2026-10-17-dog-arms.md`). The hippo plays
 a smaller contrabass (`bassScale`) in front of its belly. Its left paw reaches nearly the whole
 fingerboard with a forward turn of the left shoulder, and its bow paw the part of the hair away
