@@ -625,11 +625,16 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       properly at rest: the left paw capped the mouthpiece end, the bell hung 12 cm in front of
       the seat, and each paw slid 15 cm along the tube in each move. Done: the bell rests against
       the inner right knee, and both paws keep their grips of the play.
-- [ ] Wolf (`2026-10-27-wolf-knee.md`): the arm gate fails its margins against `876ba389` on the
+- [x] Wolf (`2026-10-27-wolf-knee.md`): the arm gate fails its margins against `876ba389` on the
       left arm at rest (paw twist 152°, 89° before, limit 170°) and on the right flat (0.75,
-      0.82 before). Each rest with the old twists capped the mouthpiece end. Next: scan a bind
-      turn of the left wolf paw with the arm gate, as the round `left-paw-bind` did for the
-      violins (`2026-10-27-left-paw-bind.md`).
+      0.82 before). Each rest with the old twists capped the mouthpiece end. Done: the bind
+      elbows turn 45° forward, the bind paws 66° and 57° toward supination, and the rest elbows
+      point down and out of the belly. The gate has no `FAIL` against `876ba389` and `main`
+      (`2026-10-27-wolf-bind.md`).
+- [ ] Wolf (`2026-10-27-wolf-bind.md`): the left wrist bends 54° at rest, 1° under its margin
+      limit against `876ba389` (40° there). A rest aim of 0.8 gave 51° with a full grasp, but
+      each move turned the paws around the tube. Next: scan a rest aim across the tube apart
+      from the roll (`aimSide`), with the gate and `pnpm wind-grip`.
 - [x] Bear rig (`2026-10-26-arm-fixes.md`): the left shoulder bridge folds 8 tiny faces at p95
       in the play (4 on the old rig, limit 8), and the right move twist max is 87 (81). Done: the
       head keeps the rule weights, and four shoulder faces take the mean of their painted weights
