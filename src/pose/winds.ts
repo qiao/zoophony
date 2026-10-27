@@ -428,12 +428,19 @@ export const FOX_FLUTE_BACK = 9;
  * line with the shoulder.
  *
  * Each palm faces the flute, and the fingers curl over it (`faceTube`, `gripCurl`), as a real
- * flutist curves the fingers over the keys (`docs/reference/wind-technique.md` 2.4): the left paw
- * near the lip plate with the palm toward the player, and the right paw out to the right. Each grip
- * moves off the tube (`gripShiftL`, `gripShiftR`), so that the finger tips lie on the flute. Before
+ * flutist curves the fingers over the keys (`docs/reference/wind-technique.md` 2.4). The left paw
+ * holds the flute near the lip plate from its front and a little below, with the back of the paw
+ * to the audience: its grip moves from the grip of the instrument, 2.5 cm below the axis, to the
+ * front of the tube (`gripShiftL`), and the paw points half up across the flute (`aimSide`), so
+ * that its fingers come over the top onto the keys. It also faces the flute in the play, although
+ * it leaves its grip at rest. Before 2026-10-27, it hung 5.5 cm below the flute with its finger
+ * tips 2.7 cm off it (user, 2026-10-27: "the fox doesn't seem to be holding the instrument
+ * properly", `2026-10-27-cat-fox` decisions). The right paw holds the body of the flute from
+ * behind and above, past the axis, with its fingers over the front (`gripShiftR`): in front of the
+ * flute, it turned 180° on its forearm in the lift and the lowering, and its paw swing reached 96°
+ * (limit 70°). Before
  * the rebuilt arms of 2026-10-25, the paws held the flute with the back of the paw, because the
- * right paw turned 142° on its forearm and flipped. With the arm segments, both paws grasp it in
- * each play sample (`2026-10-25-fox-arms` decisions).
+ * right paw turned 142° on its forearm and flipped (`2026-10-25-fox-arms` decisions).
  *
  * In the rest pose, the flute stands nearly upright at the right side with the foot joint down on
  * the top of the right thigh, as a real flutist rests it vertically on the right leg with the
@@ -474,7 +481,8 @@ const FOX_FLUTE = {
   },
   faceTube: ['palm', 'palm'],
   aimAcross: 1,
-  gripShiftL: [-0.04, -0.2, 0.06],
+  aimSide: [0.5, 0],
+  gripShiftL: [-0.04, 0, 0.04],
   gripShiftR: [0, 0.1, -0.14],
   restGripShiftR: [-0.45, -0.13, -0.08],
   gripCurl: curls(115, 106),

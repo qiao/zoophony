@@ -383,8 +383,11 @@ export const ACCEPTED_GRIPS: ReadonlyMap<string, Readonly<Record<Side, number>>>
   // docs/research/2026-10-25-wind-elbows/).
   ['oboist', { L: -85, R: -90 }],
   // The paws of the woodwinds of the tan fox face its tube (faceTube of pose/winds.ts,
-  // docs/decisions/2026-10-23-night-fixes.md).
-  ['flutist', { L: -10, R: -30 }],
+  // docs/decisions/2026-10-23-night-fixes.md). The left paw holds the flute from its front, with
+  // its fingers over the top, and faces it in the play (user, 2026-10-27: "the fox doesn't seem to
+  // be holding the instrument properly", docs/decisions/2026-10-27-cat-fox.md, and the 2x paw
+  // crops of docs/research/2026-10-27-cat-fox/). It turned -10° on its forearm below the flute.
+  ['flutist', { L: -87, R: -30 }],
   ['trumpeter', { L: -99, R: -98 }],
   // The rhino with the rebuilt arms, the bind elbow bent forward, and the tuba elbows down and out
   // (docs/decisions/2026-10-26-fifth-review-rhino.md, and the 2x paw crops of

@@ -562,8 +562,11 @@ The code constants of each family hold the times, the angles, and the lengths of
   - The tan fox holds the flute as a real flutist (`FOX_FLUTE` of `SPECIES_WIND_HOLDS`, Debost,
     Flute Talk, May/June 1996): the head turns to the left, the flute lies about square to the
     face, and the shoulders stay square and low. The lip plate sits under the long muzzle
-    (`WindHold.lipShift`). Both palms face the flute, and the fingers curl over it: the left paw
-    near the lip plate with the palm toward the player, and the right paw out to the right. At
+    (`WindHold.lipShift`). Both palms face the flute, and the fingers curl over it. The left paw
+    holds it near the lip plate from its front and a little below, with the back of the paw to the
+    audience, and points half up across it (`WindHold.aimSide`), so that the fingers come over the
+    top onto the keys. It leaves its grip at rest, and faces the flute in the play too. The right
+    paw holds the body of the flute from behind and above, with its fingers over the front. At
     rest, the flute stands nearly upright with the foot joint on the top of the right thigh, in
     the closed right paw on the upper body of the flute, as a real flutist rests it vertically on
     the right leg (George, The Instrumentalist, December 2018), and the left paw hangs (5.2).
