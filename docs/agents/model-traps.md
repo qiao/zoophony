@@ -144,9 +144,9 @@ group of your work before you plan it. A probe that a trap names is in its resea
   depth of the instrument into the band. A hand choice that alternates the hands in a scale
   makes each head pass the other at one height, and the shafts touch (`pnpm clip-probe`).
 - A woodwind rest on the grips of the play keeps the hold through each move, but a paw low on
-  the tube twists its forearm more, and the arm gate fails its margins against the base: the
-  left wolf paw twisted 152° on its grip of the play against 89° at the top of the clarinet
-  (`docs/research/2026-10-27-wolf-knee.md`). Gate the rest places before you choose one.
+  the tube twists far from the bind: the left wolf paw twisted 152° and each upper arm rolled
+  about 100°. Move both zeros with the bind elbow and the bind paws, and gate the rest elbows for
+  the depths and the paw swing (`docs/research/2026-10-27-wolf-bind.md`).
 - Read the spare reach of each grip after each move of a rest place of a wind hold. `pnpm hold-fit`
   gives it, also with `--scan`, and a grip below 0 is a missed goal.
 - A bow that rests upright and plays across the strings turns its tip from up to the left. A direct

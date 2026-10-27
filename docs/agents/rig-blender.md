@@ -153,7 +153,9 @@ interface StudioArmSegments {
   about the bind upper arm (`studio.bindArms`), and keep the wrist bend in the frame of the palm,
   else the paw swing of the gate changes. The upper arm also turns with the hinge, so this turn
   moves the zero of the upper arm roll too: on the violins, the left play roll would go from about
-  0° to -100°. To move only the paw twist, use `studio.bindSupination`.
+  0° to -100°. To move only the paw twist, use `studio.bindSupination`. A rest far from the play
+  can use the roll: 45° on the wolf halved the rest twists of both upper arms
+  (`docs/research/2026-10-27-wolf-bind.md`).
 - **The legs.** Blender weights on the hips, the spine, and the chest folded a V on the lower back
   over the bench, and cut a slit under each arm. Keep the rule weights there with `paintedLower`.
 - **The preview.** glTF and three.js have no B-Bones and use linear skinning with 4 weights for
