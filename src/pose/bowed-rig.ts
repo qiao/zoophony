@@ -859,9 +859,12 @@ export const BOWED_HOLDS = {
  * rests as a violinist.
  *
  * In the lift and the lowering, the viola hangs from the left paw, and the paw turns with it, as
- * on the rabbit (`carryLift()` of `pose/bowed.ts`). The wrist moves 0.25 H up and 0.2 H to the
- * front in the middle (`liftReach`). In the middle of the moves, the left elbow points out and a
- * little down, as at rest (`liftPoleL`). With (-0.45, -1, -0.6), the left upper arm went 1.7 cm into
+ * on the rabbit (`carryLift()` of `pose/bowed.ts`). The wrist moves 0.14 H out, 0.29 H up, and
+ * 0.19 H to the front in the middle (`liftReach`), so that the viola near the jaw goes at most
+ * 2.0 cm into the body in a lowering: with 0.25 H up and 0.2 H to the front, it went 2.1 cm in.
+ * With 0.2 H to the front, the right claws went deeper into the viola, and with 0.23 H, 2.4 cm
+ * (2026-10-27-violin-unwind decisions). In the middle of the moves, the left elbow points out and
+ * a little down, as at rest (`liftPoleL`). With (-0.45, -1, -0.6), the left upper arm went 1.7 cm into
  * the body in the lift. In the middle, the bow points forward and a little out and up,
  * (0.4, 0.3, -1), and the grip moves 0.45 H out, 0.35 H up, and 0.05 H to the front, so that the
  * bow arm passes outside the round belly with the elbow bent from 74° to 98°: with 0.3 H out and
@@ -931,7 +934,7 @@ const CAT_HOLD = {
     top: [-0.5, 0, -0.87],
     lap: { along: 0.95, offset: [0.12, 0.05, 0.03] },
   },
-  liftReach: [0, 0.25, -0.2],
+  liftReach: [-0.14, 0.29, -0.19],
   restCurlL: 90 * MathUtils.DEG2RAD,
   restPawTurnL: 42 * MathUtils.DEG2RAD,
   restYawL: 10 * MathUtils.DEG2RAD,

@@ -515,11 +515,12 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       its forearm (`PAW_TURN`), and the forearm crosses the neck at rest and runs along it in the
       play. Done: the rest paw takes its own turn in the plane of its palm near the turn of the
       play, and the grip changes by 22° to 27° (`2026-10-27-violin-carry.md`).
-- [ ] Rabbit, red fox, and cat (`2026-10-26-fifth-review-strings.md`): the carried instrument
+- [x] Rabbit, red fox, and cat (`2026-10-26-fifth-review-strings.md`): the carried instrument
       goes up to 2.2 cm into the body near the jaw in some moves (limit 2.0, up to 1.9 cm on
       `57849ac5`), because it hangs from the paw there. Each other wrist via of the scan went
       deeper. With the rest grip of round `fifth-strings2`, up to 2.1 cm (red fox lift, cat
-      lowering).
+      lowering). Done: the wrist vias of the red fox and the cat move out, and the instrument
+      goes at most 1.9 cm in, with no pair deeper (`2026-10-27-violin-unwind.md`).
 - [ ] Cat (`2026-10-26-fifth-review-strings.md`): the round belly keeps both elbows 35° to 48°
       from the vertical at rest. Lower elbows went 2.2 cm to 4.1 cm into the belly (limit 1.5).
 - [x] Cat (`2026-10-26-fifth-review-strings.md`): at rest, the left paw goes 0.8 cm into the

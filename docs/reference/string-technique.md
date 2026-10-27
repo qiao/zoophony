@@ -533,8 +533,8 @@ A round that changes the motion updates the items.
   `models/studio-rig.ts`). The playing grip of the app lies 215° to 234° of supination from the
   bind of the mesh paw, which is pronated, so each rest grip with a natural elbow lies on the other
   side of 180° (`docs/decisions/2026-10-27-violin-carry.md`). In the middle of the move, the wrist
-  moves off its line (`BowedHold.liftReach`), so that the violin of the red fox near the jaw goes
-  at most 2.0 cm into the body (`docs/decisions/2026-10-27-violin-unwind.md`). Up to 2026-10-25,
+  moves off its line (`BowedHold.liftReach`), so that the instrument near the jaw goes at most
+  2.0 cm into the body (`docs/decisions/2026-10-27-violin-unwind.md`). Up to 2026-10-25,
   the instrument turned upright with the top plate to the chest in the middle of the move, and
   rolled a full turn around its long axis (`docs/decisions/2026-10-26-violin-lift.md`). From 2026-10-26 to the round
   `fifth-strings`, it took its own short turn while the paw pronated, so the two turned in opposite
