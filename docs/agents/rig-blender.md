@@ -1,12 +1,10 @@
 # Arm rigs in Blender
 
-This module of `AGENTS.md` gives the method that rebuilds the arms of a mesh rig in the live
-Blender, so that the arms bend and twist like real arms. The polar bear pianist uses it on `main`
-(`docs/research/2026-10-24-polar-bear-arms.md`). The Rigify rabbit of the branch `rigify-rabbit`
-tested it first (`docs/research/2026-10-24-rigify-rabbit.md` on that branch, sections 8 and 9).
-Use it when the arms of a route 3 body show a spiral crease, a sharp elbow, a collapsed inner
-elbow, slivers, or slits. Read route 3 of [`model-work.md`](model-work.md) and
-[`model-traps.md`](model-traps.md) first.
+This module of `AGENTS.md` gives the method that rebuilds the arms and the legs of a mesh rig in
+Blender, so that they bend and twist like real limbs. The polar bear pianist uses it on `main`
+(`docs/research/2026-10-24-polar-bear-arms.md`). Use it when the arms of a route 3 body show a
+spiral crease, a sharp elbow, slivers, or slits, or the seated legs a wedge. Read route 3 of
+[`model-work.md`](model-work.md) and [`model-traps.md`](model-traps.md) first.
 
 ## Why the old rigs twisted
 
@@ -28,10 +26,10 @@ Three causes add up. Fix all three, because each fix alone leaves a fault.
   and look at an image after each step. Write no weight algorithm of your own. A replay script
   records the session (user, 2026-10-24: "aren't you supposed to only use blender mcp?" and "I was
   expecting you to just create the armature in blender, do the weight painting, etc").
-- Change only the faces of the arms, from the shoulder line to the wrist. Keep the faces of the
-  paws, the trunk, the legs, and the head. The new surface lies on the old arm. The user approved
-  this for the rabbit and the polar bear. Ask before you do it on a new species, because the rule
-  of no split of 2026-10-23 holds for the others (`docs/decisions/2026-10-23-rhino-apose.md`).
+- Change only the faces of the arms, from the shoulder line to the wrist, or of the legs, from
+  the haunch line to the ankle. The new surface lies on the old limb. The user approved the arms
+  for the rabbit and the polar bear, and the manager the legs of the polar bear. Ask before you
+  do it on a new species: the rule of no split of 2026-10-23 holds for the others.
 - Keep the source file of the user. Write the new source next to it, such as
   `assets/models/<s>/<s>-arms.glb`, with a README note.
 - Do not stretch the arms unless the user asks. Fit the instrument or the hold instead.
@@ -81,6 +79,23 @@ Three causes add up. Fix all three, because each fix alone leaves a fault.
    poses after each fix: the arm down, forward, an elbow at 100°, and a forearm turn of 90°.
 9. Write the weights file, and the replay script `tools/blender/<s>_arms.py`. A headless run of
    the script must give the same mesh and weights, byte for byte.
+
+## Legs
+
+Long source faces from the haunch to the heel make the seated leg a wedge. Rebuild such a leg
+with the same route (`tools/blender/polar_bear_legs.py`):
+
+- Cut at the haunch line below the crotch, where each leg is a closed column, and above the
+  foot. Keep the end rings two ring steps from the cuts, else bridge faces turn over.
+- Build the tube before the leg factor: the rig stretches the legs along their bones only, so
+  the rings keep their right angles.
+- Collapse only a loop edge that is the shortest edge of its thin face: longer collapses ran
+  around the loop and knotted the haunch. Give both tubes one ring direction.
+- Keep the rule weights with a knee ramp (`paintedLower`, `weights.knee`), so that each ring takes
+  one share, and give the knees the dual quaternion blend (`bind.knee`): the linear blend makes
+  a flat bevel on the knee front. Smooth the back of the knee in few rounds (`kneeCrease`).
+- Give the kept vertices the bone heat of the old mesh (`heatSource`), else the crotch, the seat,
+  and the trunk folds change.
 
 ## The bones
 
