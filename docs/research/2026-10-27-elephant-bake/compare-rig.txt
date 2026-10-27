@@ -1,0 +1,25 @@
+mesh 0 prim 0 COLOR_0 144 values same max 0
+mesh 0 prim 0 POSITION 144 values same max 0
+mesh 0 prim 0 indices 216 values same max 0
+mesh 0 prim 0 corners POSITION same 216 of 216
+mesh 0 prim 0 corners COLOR_0 same 216 of 216
+mesh 1 prim 0 COLOR_0 count 21021 21414
+mesh 1 prim 0 JOINTS_0 count 28028 28552
+mesh 1 prim 0 POSITION count 21021 21414
+mesh 1 prim 0 WEIGHTS_0 count 28028 28552
+mesh 1 prim 0 indices 11688 values diff max 3.11e+03
+mesh 1 prim 0 corners POSITION same 11688 of 11688
+mesh 1 prim 0 corners COLOR_0 same 21 of 11688
+mesh 1 prim 0 COLOR_0 changes at x -0.312..0.312 y 0.031..1.000 z -0.274..0.263
+mesh 1 prim 0 COLOR_0 change of a corner: median 0.0044 p95 0.0256 max 0.2407, over 0.1 102
+mesh 1 prim 0 corners JOINTS_0 same 11688 of 11688
+mesh 1 prim 0 corners WEIGHTS_0 same 11688 of 11688
+mesh 1 prim 1 COLOR_0 51 values same max 0
+mesh 1 prim 1 JOINTS_0 68 values same max 0
+mesh 1 prim 1 POSITION 51 values same max 0
+mesh 1 prim 1 WEIGHTS_0 68 values same max 0
+mesh 1 prim 1 indices 45 values same max 0
+mesh 1 prim 1 corners POSITION same 45 of 45
+mesh 1 prim 1 corners COLOR_0 same 45 of 45
+mesh 1 prim 1 corners JOINTS_0 same 45 of 45
+mesh 1 prim 1 corners WEIGHTS_0 same 45 of 45

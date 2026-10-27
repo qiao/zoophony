@@ -1,0 +1,31 @@
+Arm gate of 1 roles against main in 47 s. A cell gives the value, the base in parentheses, and the verdict of a value that does not pass.
+
+| Role | Arm | folds p95 (8) | twist p95 (55) | forearm twist p95 (80) | flat p5 (0.55) | paw twist p95 (170) | paw swing p95 (70) | paw jumps (0.5%) | stretch p95 (0.35) | grip turn p50 (45) | move twist max (176) | move turn max (3000) | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| timpanist | L | 6 (6) | 21 (21) | 8 (8) | 0.88 (0.88) | 7 (7) | 37 (37) | 0.0% (0.0%) | 0.01 (0.01) | 6 (6) | 7 (7) | 7 (7) | PASS |
+| timpanist | R | 3 (3) | 22 (22) | 9 (9) | 0.86 (0.86) | 20 (20) | 28 (28) | 0.0% (0.0%) | 0.03 (0.03) | 6 (6) | 15 (15) | 38 (38) | PASS |
+
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| timpanist | L | folds p95 | rest | 4 | 4 | 6 | 100.0% | 6 at beethoven-8-4.mid rest | 6 | 8 | 6 | PASS |
+| timpanist | L | twist p95 | rest | 4 | 20 | 21 | 100.0% | 21 at beethoven-1.mid rest | 21 | 55 | 21 | PASS |
+| timpanist | L | forearm twist p95 | rest | 4 | 5 | 8 | 100.0% | 8 at beethoven-1.mid rest | 8 | 80 | 8 | PASS |
+| timpanist | L | flat p5 | play | 7728 | 0.88 | 0.88 | 100.0% | 0.87 at beethoven-8-4.mid 270.59 s | 0.88 | 0.55 | 0.88 | PASS |
+| timpanist | L | paw twist p95 | rest | 4 | 3 | 7 | 100.0% | 7 at beethoven-1.mid rest | 7 | 170 | 7 | PASS |
+| timpanist | L | paw swing p95 | play | 7728 | 29 | 37 | 100.0% | 49 at beethoven-1.mid 283.65 s | 37 | 70 | 37 | PASS |
+| timpanist | L | paw jumps | rest | 4 | 0 | 0 | 0.0% | 0 at beethoven-1.mid rest | 0.0% | 0.5% | 0.0% | PASS |
+| timpanist | L | stretch p95 | play | 7728 | 0.00 | 0.01 | 99.9% | 0.05 at beethoven-8-4.mid 25.59 s | 0.01 | 0.35 | 0.01 | PASS |
+| timpanist | L | grip turn p50 | play | 7728 | 6 | 16 | 100.0% | 47 at beethoven-1.mid 44.65 s | 6 | 45 | 6 | PASS |
+| timpanist | L | move twist max | move | 4644 | 3 | 6 | 100.0% | 7 at beethoven-1.mid lower 98.11 s, wall 0.66 s | 7 | 176 | 7 | PASS |
+| timpanist | L | move turn max | move | 4644 | 2 | 5 | 74.0% | 7 at beethoven-1.mid lift 196.22 s, wall 0.85 s | 7 | 3000 | 7 | PASS |
+| timpanist | R | folds p95 | play | 7728 | 2 | 3 | 100.0% | 3 at beethoven-8-4.mid 26.84 s | 3 | 8 | 3 | PASS |
+| timpanist | R | twist p95 | rest | 4 | 20 | 22 | 100.0% | 22 at beethoven-1.mid rest | 22 | 55 | 22 | PASS |
+| timpanist | R | forearm twist p95 | play | 7728 | 7 | 9 | 100.0% | 14 at beethoven-8-4.mid 703.09 s | 9 | 80 | 9 | PASS |
+| timpanist | R | flat p5 | play | 7728 | 0.87 | 0.86 | 100.0% | 0.84 at beethoven-8-4.mid 363.09 s | 0.86 | 0.55 | 0.86 | PASS |
+| timpanist | R | paw twist p95 | play | 7728 | 14 | 20 | 100.0% | 33 at beethoven-8-4.mid 703.09 s | 20 | 170 | 20 | PASS |
+| timpanist | R | paw swing p95 | play | 7728 | 24 | 28 | 100.0% | 44 at beethoven-1.mid 265.90 s | 28 | 70 | 28 | PASS |
+| timpanist | R | paw jumps | rest | 4 | 0 | 0 | 0.0% | 0 at beethoven-1.mid rest | 0.0% | 0.5% | 0.0% | PASS |
+| timpanist | R | stretch p95 | play | 7728 | 0.00 | 0.03 | 99.9% | 0.08 at beethoven-8-4.mid 280.59 s | 0.03 | 0.35 | 0.03 | PASS |
+| timpanist | R | grip turn p50 | play | 7728 | 6 | 16 | 100.0% | 29 at beethoven-1.mid 265.90 s | 6 | 45 | 6 | PASS |
+| timpanist | R | move twist max | move | 4644 | 14 | 15 | 100.0% | 15 at beethoven-9.mid lower 52.77 s, wall 0.33 s | 15 | 176 | 15 | PASS |
+| timpanist | R | move turn max | move | 4644 | 2 | 6 | 76.2% | 38 at beethoven-9.mid lower 52.77 s, wall 1.33 s | 38 | 3000 | 38 | PASS |
