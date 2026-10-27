@@ -61,10 +61,23 @@ prints only a one-line usage text.
 | `pnpm snapshot` | Saves the play frame of the default demo (1440 × 900, 3.5 s after a seek to 30 s) and a close view of each gallery model into `docs/snapshots/<commit date>-<short hash>/`. |
 | `pnpm sheet-check <sheet> <dir>` | Compares a sheet page of `views.html` with its sheet in `docs/reference/` (design 7.1). With a matte of `tools/sheet-mattes/`, it also prints the silhouette IoU of each view. |
 | `pnpm choir-check <dir>` | Puts the gallery penguin beside a penguin of each of the two newest reference images (design 4.4). |
-| `pnpm close-views <mode> <dir> [--url <url>] [--glb <file>] [--set <changes>]... [--base <ref>]` | Writes images and a grid into `<dir>`. The modes: `<role>` (the moments and views of `ROLE_VIEWS`, `--moments` with a share of a move such as `lift30`, and `--views <names or azimuths>`, one grid for each `--probe`, or 3x face crops with `--target head`), `lineup <species,...>`, `species <species,...>`, `play`, and `batch` (the image set of a round). `<role> --lineup` gives a row of the base, the tree, and each `--with` role for each view (front, back, left, right by default), at the first moment and rest, with `--crop <n>` crops of `--box`: 45 s with `--base`. `play` renders `--demo` or `--midi` at each `--time`, or at the song times of `--strip <from>:<step>:<count>`, for each `--camera` (a name, a drag, or JSON), `--cinematic`, `--shot <seat\|species>`, or `--at <seat\|species[:instrument]>` with `--azimuth`, `--zoom`, and `--elevation`, at `--size <w>x<h>`. `--base` adds the commit: a grid, the pairs of `--pairs` and `--crop`, or a sheet of strip pairs. `--glb` and `--set` build a variant, each `--set` into `set-<n>/`. A batch: 90 s to 260 s. A strip of 16 frames with `--base`: 47 s, or 25 s from the cache. |
+| `pnpm close-views <mode> <dir> [--url <url>] [--glb <file>] [--set <changes>]... [--base <ref>]` | Writes images and a grid into `<dir>`. The modes: `<role>` (the moments and views of `ROLE_VIEWS`, `--moments` with a share of a move such as `lift30`, and `--views <names or azimuths>`, one grid for each `--probe`, or 3x face crops with `--target head`), `lineup <species,...>`, `species <species,...>`, `play`, and `batch` (the image set of a round). `<role> --lineup` gives a row of the base, the tree, and each `--with` role for each view (front, back, left, right by default), at the first moment and rest, with `--crop <n>` crops of `--box`: 45 s with `--base`. `<role> --base <ref> --sheet` writes `<role>-sheet-<view>.png` and `.webp`: the moments as columns, the base row above the working tree row (`base` and `round`), each cell cut to `--box` (2x crops with `--scale 2`): 25 s. `play` renders `--demo` or `--midi` at each `--time`, or at the song times of `--strip <from>:<step>:<count>`, for each `--camera` (a name, a drag, or JSON) or each labelled camera of `--camera-file <json>` (below), `--cinematic`, `--shot <seat\|species>`, or `--at <seat\|species[:instrument]>` with `--azimuth`, `--zoom`, and `--elevation`, at `--size <w>x<h>`. `--base` adds the commit: a grid, the pairs of `--pairs` and `--crop`, or a sheet of strip pairs. `--glb` and `--set` build a variant, each `--set` into `set-<n>/`. A batch: 90 s to 260 s. A strip of 16 frames with `--base`: 47 s, or 25 s from the cache. |
 | `pnpm close-views audit <dir> [--roles <role,...>] [--url <url>] [--base <ref>]` | The audit sheet of the seams: each moment of `ROLE_VIEWS` of each role (all roles with no `--roles`) from the back, az150, az-150, the front, and each side, at the camera heights 20° and 40°, as 2x crops of the arms and the upper trunk, the commit of `--base` above the tree. One build of each tree serves all roles. It writes `<dir>/<role>-e20.png` and `<role>-e40.png`, and the cells in `<dir>/<role>/e<height>/`. All 23 roles with no base: 27 minutes, about twice that with `--base`. |
 | `pnpm look-lab <dir> [--url <url>]`, `pnpm look-variants <file> --out <dir>` | Measure frames of `close-views play` against `orchestra-latest.png`: one tree, or each variant. 40 s each. |
 | `pnpm keyboard` | Checks each control with the keyboard alone at 1440 × 900 and 390 × 844 (design 9.5, step 6), and fails on a failed check. |
+
+A camera file of `close-views play --camera-file` maps a label to a camera of `--camera`: an
+object of a camera in JSON, or a text such as `violins` or `45,-60,12`. The label names the frame
+file and the cell, such as `play-knee-R-az60.png`. These two cameras look at the knees of the
+polar bear in `boulanger-matin` at 8 s (`knee-cams.ts` of `docs/research/2026-10-26-fifth-bears/`
+gives more):
+
+```json
+{
+  "knee-R-az60": { "position": [-2.728, 0.08, 1.57], "target": [-3.724, 0.319, 1.48], "fov": 30 },
+  "knee-L-az-60": { "position": [-4.582, 0.08, 0.265], "target": [-4.161, 0.319, 1.172], "fov": 30 }
+}
+```
 
 ## Sound
 
