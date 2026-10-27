@@ -222,14 +222,25 @@ export interface BowedHold {
    */
   readonly restCurlL: number;
   /**
+   * The turn of the left paw of a violin or a viola in the plane of its palm at rest, in radians,
+   * in place of the turn of the retarget toward the forearm (`pawTurnL` of `AnimalPose`, design
+   * 4.4, 5.2). The paw holds the neck in the playing grip (`restHandAt()` of `pose/bowed.ts`), and
+   * this turn brings its grip near the grip that the viewer sees in the play, where the retarget
+   * turns the paw toward a forearm along the neck. The paw then carries the instrument in the lift
+   * and the lowering (`carryLift()`). `null` mixes the rest place and the playing place of the
+   * instrument directly, and the paw takes the playing grip at the rest place with the turn of the
+   * retarget, as the cello and the contrabass.
+   */
+  readonly restPawTurnL: number | null;
+  /**
    * The turn of the rest grip of the left paw around the normal of the top plate, through the
    * middle of the neck, from the playing grip at the rest place, in radians (`restHandAt()` of
-   * `pose/bowed.ts`, design 5.2). At rest, the normal points to the front, about along the
-   * forearm, so the turn twists the paw on its forearm toward its playing twist, and the neck lies
-   * across the paw at a slant. `null` keeps the instrument on the lap with no rest grip of its own:
-   * the paw takes the playing grip at the rest place, as the cello and the contrabass.
+   * `pose/bowed.ts`, design 5.2). At rest, the normal points about along the forearm, so the turn
+   * twists the paw on its forearm and sets the path of the twist in the moves. It also turns the
+   * neck in the paw, so it adds to the change of the grip from the rest to the play. 0 keeps the
+   * playing grip.
    */
-  readonly restTurnL: number | null;
+  readonly restYawL: number;
   /**
    * The move of the paw of the rest grip from the neck, along the normal of its palm, in meters
    * (`restHandAt()` of `pose/bowed.ts`), so that the palm lies on the neck and does not go into
@@ -363,7 +374,8 @@ const CHIN_HOLD = {
   },
   liftReach: [0, 0, 0],
   restCurlL: 0,
-  restTurnL: null,
+  restPawTurnL: null,
+  restYawL: 0,
   restGapL: 0,
   liftPoleL: null,
   restAtSide: false,
@@ -429,7 +441,8 @@ const FLOOR_HOLD = {
   rest: null,
   liftReach: [0, 0, 0],
   restCurlL: 0,
-  restTurnL: null,
+  restPawTurnL: null,
+  restYawL: 0,
   restGapL: 0,
   liftPoleL: null,
   restAtSide: false,
@@ -559,10 +572,14 @@ const HANGING_BOW = {
  * (`liftReach`): with 0.35 H up and 0.2 H to the front, the violin went 2.8 cm into the body in a
  * lowering, and with no move to the front, the bow went 3.6 cm into the body
  * (2026-10-26-fifth-review-strings decisions). At rest, the paw holds the neck in its rest grip
- * (`restHandAt()` of `pose/bowed.ts`): the playing grip at the rest place, turned 30° around the
- * normal of the top plate (`restTurnL`), with the fingers curled 60° (`restCurlL`), and 5 mm off
- * the neck (`restGapL`), so that the paw goes 0.4 cm into the violin (0.7 cm with no move off the
- * neck). In the middle of the move, the elbow points out and a little down, as at rest
+ * (`restHandAt()` of `pose/bowed.ts`): the playing grip at the rest place, with the fingers curled
+ * 60° (`restCurlL`), 5 mm off the neck (`restGapL`), and turned -5° around the normal of the top
+ * plate (`restYawL`), and the paw takes a turn of 20° in the plane of its palm (`restPawTurnL`),
+ * near the turn of 34° of the play, so that the grip in the paw changes by 22° in a move (56° with
+ * the turn of 30° around the normal), and the paw goes 0.2 cm into the violin. With no turn around
+ * the normal, the wrist skin flattened in the lift (flat p5 0.70 against 0.76), and with a turn of
+ * 25° in the plane of the palm, the violin went 2.0 cm into the body in a lift (1.8 cm,
+ * 2026-10-27-violin-carry decisions). In the middle of the move, the elbow points out and a little down, as at rest
  * (`liftPoleL`): down and to the front, (0, -1, -0.5), the left upper arm went 2.5 cm into the
  * body in the lift. The left rest elbow points down and a little out and back, (-0.6, -1, 0.3),
  * so that the left arm bends at the side: with the elbow out, (-1, -0.6, 0), the arm reached up
@@ -621,7 +638,8 @@ const SHOULDER_HOLD = {
   rest: { ...LAP_VIOLIN, lap: { along: 1, offset: [-0.1, 0.1, 0] } },
   liftReach: [0.15, 0.15, -0.15],
   restCurlL: 60 * MathUtils.DEG2RAD,
-  restTurnL: 30 * MathUtils.DEG2RAD,
+  restPawTurnL: 20 * MathUtils.DEG2RAD,
+  restYawL: -5 * MathUtils.DEG2RAD,
   restGapL: 0.005,
   liftPoleL: [-1, -0.6, 0],
   restBow: {
@@ -668,7 +686,7 @@ const SHOULDER_HOLD = {
  * stands on the left thigh at 0.8 of the way to the knee, 0.18 H down and 0.2 H forward. With the
  * thighs 25° down of 2026-10-17, the place of 2026-10-16 (0.65 of the way, 0.24 H down, and 0.3 H
  * forward) put the lower end 13.8 cm above the thigh (2026-10-17-fox-form decisions). The left
- * paw holds the violin at 0.4 of the fingerboard (`restPlace`), so that it closes around the
+ * paw holds the violin at 0.37 of the fingerboard (`restPlace`), so that it closes around the
  * neck: at 0.2, the paw lay over the scroll (2026-10-26-third-review decisions). The long right arm of the fox reaches the right thigh only nearly straight,
  * and its line from the shoulder to a paw on the top of the thigh passes through the side of the
  * belly: with the grip 0.15 H out at 0.65 of the way, the right upper arm went 6.2 cm into the
@@ -688,8 +706,11 @@ const SHOULDER_HOLD = {
  * skin of the right arm flattened (flat 0.73 against 0.78). The left rest elbow points down and a
  * little out and back, (-0.6, -1, 0.3), as on the rabbit: out, (-1, -0.6, 0), the arm looked long
  * and bent (2026-10-26-third-review decisions). The left paw holds the neck at rest in the rest
- * grip of the rabbit, 5 mm toward the neck (`restGapL`), so that the paw goes 0.5 cm into the
- * violin (0.8 cm with no move). In the lift and the lowering, the violin hangs from the left paw,
+ * grip of the rabbit, 5 mm toward the neck (`restGapL`), with no turn around the normal of the top
+ * plate and a turn of 25° in the plane of its palm (`restPawTurnL`), so that the grip in the paw
+ * changes by 27° in a move (79° before), and the paw goes 0.5 cm into the violin. At 0.4 of the
+ * fingerboard with a turn of 35°, the forearm went 0.2 cm into the violin at rest
+ * (2026-10-27-violin-carry decisions). In the lift and the lowering, the violin hangs from the left paw,
  * as on the rabbit, and the wrist moves 0.1 H to the front in the middle (`liftReach`): with
  * 0.1 H up and 0.2 H to the front, the violin went 2.6 cm into the body in a lift
  * (2026-10-26-fifth-review-strings decisions). The bow takes the via of the rabbit: with the hair
@@ -723,11 +744,12 @@ const FOX_HOLD = {
   pizzicatoTip: [0.3, 0.5, 1],
   restPoleL: [-0.6, -1, 0.3],
   restPoleR: [0.5, -1, -0.2],
-  restPlace: 0.4,
+  restPlace: 0.37,
   rest: { ...LAP_VIOLIN, lap: { along: 0.8, offset: [0, -0.18, -0.2] } },
   liftReach: [0, 0, -0.1],
   restCurlL: 60 * MathUtils.DEG2RAD,
-  restTurnL: 30 * MathUtils.DEG2RAD,
+  restPawTurnL: 25 * MathUtils.DEG2RAD,
+  restYawL: 0,
   restGapL: -0.005,
   liftPoleL: null,
   restBow: {
@@ -814,9 +836,13 @@ export const BOWED_HOLDS = {
  * (2026-10-26-fifth-review-strings decisions): with the viola 0.1 H up and 0.1 H forward and the
  * grip at 0.4, the left arm reached out nearly straight, and with the elbow further down, the left
  * upper arm went 2.2 cm to 3.7 cm into the belly (limit 1.5). With 0.2 H in, the viola went 2.6 cm
- * into the body. The left paw holds the neck in the rest grip of the rabbit, turned 45° and curled
- * 90°, and 3 mm off the neck, so that the paw goes 0.8 cm into the viola (1.1 cm with 75° of
- * curl).
+ * into the body. The left paw holds the neck in the rest grip of the rabbit, curled 90°, 11 mm off
+ * the neck, and turned 10° around the normal of the top plate, and the paw takes a turn of 42° in
+ * the plane of its palm (`restPawTurnL`), so that the grip in the paw changes by 25° in a move (73°
+ * with the turn of 45° around the normal), the paw goes 0.0 cm into the viola (0.8 cm before), and
+ * the claws 0.3 cm. With 3 mm off the neck, the claws went 0.9 cm in, and with a turn of 12°
+ * around the normal, the wrist skin flattened in the lift (flat p5 0.70 against 0.75,
+ * 2026-10-27-violin-carry decisions).
  *
  * The grip of the bow rests at the front of the lap, 0.4 H out, 0.4 H up, and 0.05 H to the front
  * at 0.6 of the way to the knee, with the tip a little forward, (0.15, 1, -0.45), and the right
@@ -906,8 +932,9 @@ const CAT_HOLD = {
   },
   liftReach: [0, 0.25, -0.2],
   restCurlL: 90 * MathUtils.DEG2RAD,
-  restTurnL: 45 * MathUtils.DEG2RAD,
-  restGapL: 0.003,
+  restPawTurnL: 42 * MathUtils.DEG2RAD,
+  restYawL: 10 * MathUtils.DEG2RAD,
+  restGapL: 0.011,
   liftPoleL: [-1.2, -0.6, 0],
   restBow: {
     lap: { along: 0.6, offset: [0.4, 0.4, -0.05] },
@@ -1600,10 +1627,10 @@ function standingRest(
   instrumentAt(rig, frames, 0, place);
   stringsAt(rig, place, strings);
   const hand = { wrist: new Vector3(), rotation: new Quaternion() };
-  if (rig.hold.restTurnL === null) {
-    stopHandAt(rig, place, strings, rig.hold.restPlace, 0, 0, MIDDLE_FINGER, hand);
-  } else {
+  if (rig.hold.restPawTurnL !== null) {
     restHandAt(rig, place, strings, hand);
+  } else {
+    stopHandAt(rig, place, strings, rig.hold.restPlace, 0, 0, MIDDLE_FINGER, hand);
   }
   const wristL = new Vector3(...rig.armL.bind.shoulder).add(new Vector3(...hangL.wrist));
 

@@ -361,7 +361,14 @@ function poseAnimal(
       body.lift = -hold.headDrop * weight;
       writeBody(pose, player, scratch);
       bowStateAt(note.strokes, note.starts, noteTime, bow);
-      poseBowed(note.rig, scratch.torso, bow, weight, pose.rotations, pose.instrumentOffset);
+      pose.pawTurnL = poseBowed(
+        note.rig,
+        scratch.torso,
+        bow,
+        weight,
+        pose.rotations,
+        pose.instrumentOffset,
+      );
       pose.twistFadeL = carryFade(hold, weight);
       break;
     }

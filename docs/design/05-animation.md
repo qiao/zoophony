@@ -299,11 +299,13 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
   `docs/decisions/2026-10-16-bow-rest.md`, `docs/decisions/2026-10-24-violin-rest.md`). A real
   violist rests as a violinist. Each elbow bends at rest and hangs near the side, as the arms of a
   seated player. The left paw holds the neck in a rest grip (`restHandAt()` of `pose/bowed.ts`):
-  the playing grip at the rest place (`BowedHold.restPlace`), turned a little around the normal of
-  the top plate (`BowedHold.restTurnL`), with the fingers closed around the neck
-  (`BowedHold.restCurlL`), and a few millimeters off the neck (`BowedHold.restGapL`), so that the
-  paw holds the neck and does not go into the instrument (user, 2026-10-26: "in rest mode the
-  violin / viola are clipping with their hand"). With the grip near the nut, the paw lay over the
+  the playing grip at the rest place (`BowedHold.restPlace`), with the fingers closed around the
+  neck (`BowedHold.restCurlL`), a few millimeters off the neck (`BowedHold.restGapL`), and turned a
+  little around the normal of the top plate (`BowedHold.restYawL`), so that the paw holds the neck
+  and does not go into the instrument (user, 2026-10-26: "in rest mode the violin / viola are
+  clipping with their hand"). The paw that the viewer sees takes its own turn in the plane of its
+  palm (`BowedHold.restPawTurnL`, `pawTurnL` of `AnimalPose`, 4.4), near the turn of the play, so
+  that the hold of the neck at rest is near the hold of the play. With the grip near the nut, the paw lay over the
   scroll (`docs/decisions/2026-10-26-third-review.md`). The bow paws rest low at the front of the
   lap or the lower belly, with the elbow hanging and a straight wrist (user, 2026-10-26: "All
   violin / viola players in rest mode should have their bow arm/wrist relaxed and have their bow
@@ -316,17 +318,18 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
 - **The instrument turns with the paw.** In the lift and the lowering, the left paw carries the
   instrument, as a player brings it up by its neck, and the instrument hangs from the paw that the
   viewer sees (`carryLift()` of `pose/bowed.ts`). Thus the instrument turns with the paw, in the
-  same direction, as one rigid object in a hand, and only its grip changes, on the short path from
-  the rest grip to the playing grip (user, 2026-10-26: "the violin/viola are rotating in the
-  different direction than their player's wrist/arm"). The wrist moves on a line from its rest
-  place to its playing place, with a move off the line in the middle (`BowedHold.liftReach`). The
-  paw turns on its forearm from the rest grip to the playing grip with a supination, as a real
-  forearm turns (`mixTwist()`), and passes 180° from the bind on the way (4.4). The grip that the
-  viewer sees changes a little, because the retarget turns each paw toward its forearm
-  (`PAW_TURN`): at rest the forearm crosses the neck, and in the play it runs along the neck. With
-  the instrument on its own short turn and the paw on the side of a pronation, the two turned in
-  opposite directions. With the paw on the side of a pronation and the instrument in the paw, the
-  instrument turned the long way, nearly a full turn
+  same direction, as one rigid object in a hand (user, 2026-10-26: "the violin/viola are rotating
+  in the different direction than their player's wrist/arm"), and its grip in the paw changes
+  little, as a player keeps the hold of the neck. The retarget turns each paw toward its forearm
+  (`PAW_TURN`, 4.4), and the forearm crosses the neck at rest and runs along it in the play. So
+  the rest paw takes a turn near the turn of the play, and the retarget turn comes back over the
+  move. The wrist moves on a line from its rest place to its playing place, with a move off the
+  line in the middle (`BowedHold.liftReach`). The paw turns on its forearm from the rest grip to
+  the playing grip with a supination, as a real forearm turns (`mixTwist()`), and passes 180° from
+  the bind on the way, where the forearm skin unwinds for a moment (4.4). The playing grip lies
+  more than half a turn of supination from the bind of the mesh paw, so no rest grip with a
+  natural elbow avoids the pass (`docs/decisions/2026-10-27-violin-carry.md`). With the paw on
+  the side of a pronation, the instrument turned the long way, nearly a full turn
   (`docs/decisions/2026-10-26-fifth-review-strings.md`).
 - **Cello between the knees.** The seated dog keeps the cello at its playing place, as a seated
   cellist does (`BowedHold.rest` null), and holds the bow over the right knee with the tip up and

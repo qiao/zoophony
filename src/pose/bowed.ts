@@ -523,17 +523,18 @@ export function stopHandAt(
 
 /**
  * Places the left paw in its rest grip on the neck of a violin or a viola (design 5.2): the
- * playing grip of the middle finger at the rest place (`BowedHold.restPlace`), with the fingers
- * closed around the neck by `BowedHold.restCurlL`, and turned around the normal of the top plate
- * through the middle of the neck by `BowedHold.restTurnL`, and off the neck by
- * `BowedHold.restGapL`. Thus the paw holds the neck from the
- * side of the high strings, with the palm against the neck and the fingers across its front, and
- * the paw does not go into the instrument.
+ * playing grip of the middle finger in the first position, at the rest place
+ * (`BowedHold.restPlace`), with the fingers closed around the neck by `BowedHold.restCurlL`, off
+ * the neck by `BowedHold.restGapL`, and turned a little around the normal of the top plate through
+ * the middle of the neck by `BowedHold.restYawL`. The paw that the viewer sees then turns at the
+ * wrist in the plane of its palm by `BowedHold.restPawTurnL` in place of the turn of the retarget
+ * (`carryLift()`, design 4.4), as the paw of the play turns toward a forearm along the neck. Thus
+ * the paw holds the neck from the side of the high strings, near the grip of the play.
  *
  * @param rig The points of the player.
  * @param place The place of the instrument.
  * @param strings The strings at their posed place.
- * @param out The hand to write.
+ * @param out The hand of the player to write.
  * @returns `out`, with the wrist and the rotation of the hand.
  */
 export function restHandAt(
@@ -545,24 +546,23 @@ export function restHandAt(
   const hold = rig.hold;
   stopHandAt(rig, place, strings, hold.restPlace, hold.restCurlL, 0, MIDDLE_FINGER, out);
   // The bind hand palm faces +x: the paw moves to the back of the hand, off the neck.
-  out.wrist.addScaledVector(palmNormal.set(1, 0, 0).applyQuaternion(out.rotation), -hold.restGapL);
-  const turnAngle = hold.restTurnL ?? 0;
-  if (turnAngle === 0) {
-    return out;
+  palmNormal.set(1, 0, 0).applyQuaternion(out.rotation);
+  out.wrist.addScaledVector(palmNormal, -hold.restGapL);
+  if (hold.restYawL !== 0) {
+    onInstrument(
+      rig,
+      place,
+      stopPoint.fromArray(rig.nut).addScaledVector(neck.fromArray(rig.neck), hold.restPlace),
+    );
+    rollPivot
+      .copy(strings.top)
+      .normalize()
+      .multiplyScalar(-BOWED_HANDS.neckDepth * neck.length())
+      .add(stopPoint);
+    handTurn.setFromAxisAngle(rollAxis.copy(strings.top).normalize(), hold.restYawL);
+    out.wrist.sub(rollPivot).applyQuaternion(handTurn).add(rollPivot);
+    out.rotation.premultiply(handTurn);
   }
-  onInstrument(
-    rig,
-    place,
-    stopPoint.fromArray(rig.nut).addScaledVector(neck.fromArray(rig.neck), hold.restPlace),
-  );
-  rollPivot
-    .copy(strings.top)
-    .normalize()
-    .multiplyScalar(-BOWED_HANDS.neckDepth * neck.length())
-    .add(stopPoint);
-  handTurn.setFromAxisAngle(rollAxis.copy(strings.top).normalize(), turnAngle);
-  out.wrist.sub(rollPivot).applyQuaternion(handTurn).add(rollPivot);
-  out.rotation.premultiply(handTurn);
   return out;
 }
 
@@ -906,7 +906,11 @@ const elbowToward = new Vector3();
  * @param out The direction to write, in the axes of the chest.
  * @returns `out`.
  */
-function leftElbow(hold: BowedHold, state: BowState, out: Vector3): Vector3 {
+function leftElbow(
+  hold: BowedHold,
+  state: Pick<BowState, 'stopString' | 'fingerboard'>,
+  out: Vector3,
+): Vector3 {
   out.fromArray(hold.poleL);
   const [from, to] = HIGH_ELBOW;
   const angle =
@@ -970,7 +974,7 @@ const toInstrument = new Quaternion();
  *
  * @param place The place of the instrument.
  * @param wrist The wrist of the paw.
- * @param seen The world rotation of the paw that the viewer sees ({@link seenPaw}).
+ * @param seen The world rotation of the paw that the viewer sees ({@link turnedPaw}).
  * @param out The grip to write.
  * @returns `out`.
  */
@@ -1000,6 +1004,7 @@ const gripTurn = new Quaternion();
 const gripWrist = new Vector3();
 const carryPoint = new Vector3();
 const carryRestPole = new Vector3();
+const carryFore = new Vector3();
 const playFinger = { reach: 0, stopString: MIDDLE_FINGER.stopString } satisfies StopFinger;
 const playPoleL = new Vector3();
 
@@ -1046,7 +1051,7 @@ function armFrame(
 
 /**
  * Gives the turn of the left paw in the frame of its arm ({@link armFrame}), with the arm solved to
- * the wrist of the paw, and the paw that the viewer sees ({@link seenPaw}).
+ * the wrist of the paw. It leaves the solved arm in the module value `carryArm`.
  *
  * @param rig The points of the player.
  * @param frames The posed frames of the torso.
@@ -1054,7 +1059,6 @@ function armFrame(
  * @param poleIn The direction of the left elbow, in the axes of the chest.
  * @param hand The paw.
  * @param out The quaternion to write.
- * @param seen The quaternion to write with the paw that the viewer sees.
  * @returns `out`.
  */
 function handInArm(
@@ -1064,42 +1068,47 @@ function handInArm(
   poleIn: Vector3,
   hand: StopHand,
   out: Quaternion,
-  seen: Quaternion,
 ): Quaternion {
   const chest = frames.chest;
   shoulderTurnL(rig, weight, carryTurn);
   const shoulder = poseShoulder(rig.armL, chest, rig.chestBind, carryTurn, carryShoulder);
   carryPole.copy(poleIn).applyQuaternion(chest.rotation);
   solveArm(rig.armL.bind, shoulder.position, shoulder.rotation, hand.wrist, carryPole, carryArm);
-  seenPaw(carryArm.elbow, carryArm.wrist, hand.rotation, seen);
   armFrame(rig, shoulder.position, carryArm.elbow, carryArm.wrist, out);
   return out.invert().multiply(hand.rotation);
 }
 
-const seenFore = new Vector3();
-const seenTurn = new Quaternion();
-const seenRest = new Quaternion();
-const seenPlay = new Quaternion();
-const seenMix = new Quaternion();
+/**
+ * Gives the turn of the left paw toward its forearm that the studio retarget gives the paw of the
+ * arm in the module value `carryArm` (`palmTurnAngle()` of `models/studio-rig.ts`, design 4.4).
+ *
+ * @param hand The world rotation of the hand of the player.
+ * @returns The turn, in radians.
+ */
+function retargetTurn(hand: Quaternion): number {
+  carryFore.subVectors(carryArm.wrist, carryArm.elbow).normalize();
+  return palmTurnAngle('L', hand, carryFore);
+}
+
+const pawTurn = new Quaternion();
 const X_AXIS = new Vector3(1, 0, 0);
 
 /**
- * Gives the left paw that the viewer sees: the hand of the player turned in the plane of its palm
- * toward the forearm, as the studio retarget turns it (`palmTurnAngle()` of
- * `models/studio-rig.ts`). The instrument hangs from this paw, so that its grip in the paw that
- * the viewer sees changes only by the change of the grip.
+ * Gives the left paw that the viewer sees: the hand of the player turned in the plane of its palm,
+ * as the studio retarget turns it (design 4.4). The instrument hangs from this paw.
  *
- * @param elbow The posed elbow joint.
- * @param wrist The posed wrist joint.
  * @param hand The world rotation of the hand of the player.
+ * @param angle The turn of the paw in the plane of its palm, in radians.
  * @param out The quaternion to write.
  * @returns `out`.
  */
-function seenPaw(elbow: Vector3, wrist: Vector3, hand: Quaternion, out: Quaternion): Quaternion {
-  seenFore.subVectors(wrist, elbow).normalize();
-  const angle = palmTurnAngle('L', hand, seenFore);
-  return out.copy(hand).multiply(seenTurn.setFromAxisAngle(X_AXIS, angle));
+function turnedPaw(hand: Quaternion, angle: number, out: Quaternion): Quaternion {
+  return out.copy(hand).multiply(pawTurn.setFromAxisAngle(X_AXIS, angle));
 }
+
+const seenRest = new Quaternion();
+const seenPlay = new Quaternion();
+const seenMix = new Quaternion();
 
 /**
  * The share of the move at each end of the lift and of the lowering in which the unwind of the
@@ -1119,21 +1128,26 @@ const CARRY_FADE_EDGE = 0.1;
  * @returns The share, from 0 to 1.
  */
 export function carryFade(hold: BowedHold, weight: number): number {
-  if (hold.restTurnL === null || !hold.rest || weight <= 0 || weight >= 1) {
+  if (hold.restPawTurnL === null || !hold.rest || weight <= 0 || weight >= 1) {
     return 0;
   }
   return smoothstep(Math.min(weight, 1 - weight) / CARRY_FADE_EDGE);
 }
 
 /**
- * Lets the left paw of a violin or a viola hold the neck at rest in its rest grip
+ * Lets the left paw of a violin or a viola hold the neck at rest in the playing grip
  * ({@link restHandAt}) and carry the instrument from the lap to the jaw and back (design 5.2), as
  * a player lifts the instrument by its neck. The paw leads, and the instrument hangs from the paw
- * that the viewer sees ({@link seenPaw}): it turns with the paw, in the same direction, as one
- * rigid object in a hand, and only its grip changes, on the short path from the rest grip to the
- * playing grip. The wrist moves on a line from its rest place to its playing place, plus
- * `4 × weight × (1 - weight)` times `BowedHold.liftReach`. The turn of the paw on its forearm goes
- * from the rest grip to the playing grip with a supination ({@link mixTwist}), as a real forearm
+ * that the viewer sees ({@link turnedPaw}): it turns with the paw, in the same direction, as one
+ * rigid object in a hand. At rest, the paw takes its own turn in the plane of its palm
+ * (`BowedHold.restPawTurnL`) in place of the turn of the retarget toward the forearm, near the
+ * turn of the play, so that the grip in the paw changes little. In the move, the paw takes the turn
+ * of the retarget plus the rest difference times `(1 - weight)²`: with the difference times
+ * `1 - weight`, the claws of the cat went 2.4 cm into the viola in a lowering (1.8 cm on
+ * `8a58282b`). The grip in the paw goes on the short path from the rest grip to the playing grip
+ * of the note. The wrist moves on a line from its rest place to its playing
+ * place, plus `4 × weight × (1 - weight)` times `BowedHold.liftReach`. The twist of the paw on its
+ * forearm goes from the rest to the play with a supination ({@link mixTwist}), as a real forearm
  * turns, and passes 180° from the bind on the way ({@link carryFade}).
  *
  * @param rig The points of the player.
@@ -1144,8 +1158,8 @@ export function carryFade(hold: BowedHold, weight: number): number {
  * @param elbow The left elbow at this weight, in the axes of the chest.
  * @param place The place of the instrument to write.
  * @param out The left hand to write.
- * @returns True when the paw holds the instrument in this way, false for an instrument with no
- *   rest grip or at the play.
+ * @returns The turn of the left paw in the plane of its palm (`pawTurnL` of `AnimalPose`), or
+ *   `null` for an instrument that the paw does not carry and at the play.
  */
 function carryLift(
   rig: RigPoints,
@@ -1156,13 +1170,14 @@ function carryLift(
   elbow: Vector3,
   place: InstrumentPlace,
   out: StopHand,
-): boolean {
+): number | null {
   const hold = rig.hold;
-  if (hold.restTurnL === null || !hold.rest || weight >= 1) {
-    return false;
+  const restTurn = hold.restPawTurnL;
+  if (restTurn === null || !hold.rest || weight >= 1) {
+    return null;
   }
 
-  // The rest: the instrument on the lap, and the paw in its rest grip.
+  // The rest: the instrument on the lap, and the paw in the playing grip with its own turn.
   instrumentAt(rig, frames, 0, liftRest);
   stringsAt(rig, liftRest, carryStrings);
   restHandAt(rig, liftRest, carryStrings, restHand);
@@ -1170,10 +1185,10 @@ function carryLift(
     copyPlace(liftRest, place);
     out.wrist.copy(restHand.wrist);
     out.rotation.copy(restHand.rotation);
-    return true;
+    return restTurn;
   }
 
-  // The play: the instrument under the jaw, and the paw in its playing grip.
+  // The play: the instrument under the jaw, and the paw in the playing grip of the note.
   instrumentAt(rig, frames, 1, liftPlay);
   stringsAt(rig, liftPlay, carryStrings);
   playFinger.reach = state.reach;
@@ -1189,9 +1204,14 @@ function carryLift(
     playHand,
   );
 
-  // The paw at this weight: the wrist on its path, and the turn on the forearm mixed.
-  handInArm(rig, frames, 0, carryRestPole.fromArray(rig.restPoleL), restHand, handInRest, seenRest);
-  handInArm(rig, frames, 1, leftElbow(hold, state, playPoleL), playHand, handInPlay, seenPlay);
+  // The paw at this weight: the wrist on its path, and the twist and the turn mixed.
+  handInArm(rig, frames, 0, carryRestPole.fromArray(rig.restPoleL), restHand, handInRest);
+  // The rest turn of the paw differs from the turn of the retarget at rest by this angle.
+  const restOffset = restTurn - retargetTurn(restHand.rotation);
+  turnedPaw(restHand.rotation, restTurn, seenRest);
+  handInArm(rig, frames, 1, leftElbow(hold, state, playPoleL), playHand, handInPlay);
+  const playAngle = retargetTurn(playHand.rotation);
+  turnedPaw(playHand.rotation, playAngle, seenPlay);
   mixTwist(rig, handInRest, handInPlay, weight, handInMix);
   out.wrist
     .lerpVectors(restHand.wrist, playHand.wrist, weight)
@@ -1207,10 +1227,11 @@ function carryLift(
   armFrame(rig, shoulder.position, carryArm.elbow, carryArm.wrist, out.rotation).multiply(
     handInMix,
   );
-  seenPaw(carryArm.elbow, carryArm.wrist, out.rotation, seenMix);
+  const angle = retargetTurn(out.rotation) + restOffset * (1 - weight) ** 2;
+  turnedPaw(out.rotation, angle, seenMix);
 
   // The instrument hangs from the paw that the viewer sees, with the grip mixed from the rest grip
-  // to the playing grip.
+  // to the playing grip of the note.
   gripOf(liftRest, restHand.wrist, seenRest, gripRest);
   gripOf(liftPlay, playHand.wrist, seenPlay, gripPlay);
   mixRotation(gripRest.turn, gripPlay.turn, weight, gripTurn);
@@ -1220,7 +1241,7 @@ function carryLift(
   const parent = rig.parent === BONES.chest ? frames.chest : frames.root;
   place.local.copy(parent.rotation).invert().multiply(place.rotation);
   placeOffset(rig, frames, place);
-  return true;
+  return angle;
 }
 
 /**
@@ -1296,7 +1317,7 @@ function mixTwist(
  * @returns The curl, in radians.
  */
 function restCurlOf(hold: BowedHold): number {
-  return hold.restTurnL === null ? 0 : hold.restCurlL;
+  return hold.restPawTurnL === null ? 0 : hold.restCurlL;
 }
 
 /**
@@ -1324,6 +1345,9 @@ function restCurlOf(hold: BowedHold): number {
  * @param rotations The rotations of the pose to write.
  * @param offset The instrument offset of the pose to write: the move of the violin and the viola
  *   to the lap.
+ * @returns The turn of the left paw in the plane of its palm that the retarget takes in place of
+ *   its own turn (`pawTurnL` of `AnimalPose`): the turn of the playing grip of a carried violin or
+ *   viola at rest and in the lift and the lowering ({@link carryLift}), else `null`.
  */
 export function poseBowed(
   rig: BowedRig,
@@ -1332,7 +1356,7 @@ export function poseBowed(
   weight: number,
   rotations: Float32Array,
   offset: [number, number, number],
-): void {
+): number | null {
   const h = BOWED_HANDS;
   const chest = frames.chest;
   const { place, strings, bow, hand: heldHand } = places;
@@ -1344,7 +1368,8 @@ export function poseBowed(
   const stop = stopAt(rig.hold, note, weight);
   leftElbow(rig.hold, state, poleL);
   leftPole(rig, weight, poleL);
-  const carried = carryLift(rig, frames, state, weight, note, poleL, place, handL);
+  const pawTurnL = carryLift(rig, frames, state, weight, note, poleL, place, handL);
+  const carried = pawTurnL !== null;
   // In a move, the bow goes to the strings of the instrument on its short path from the rest to
   // the play: on the strings of the carried instrument, the bow arm went 6.3 cm into the body of
   // the cat in a lowering. The two paths meet at the play.
@@ -1533,4 +1558,5 @@ export function poseBowed(
   const playCurl = h.curlL + h.pressL * state.press * state.gesture;
   writeCurl(rig.armL, restCurl + (playCurl - restCurl) * weight, rotations);
   writeCurl(rig.armR, h.curlR, rotations);
+  return pawTurnL;
 }

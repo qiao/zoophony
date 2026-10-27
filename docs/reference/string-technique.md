@@ -519,10 +519,15 @@ A round that changes the motion updates the items.
 - **The lift and the lowering of the rabbit, the red fox, and the cat.** No source of this file
   gives the path of the violin or the viola from the lap to the chin. The left paw carries the
   instrument as a player brings it up by its neck, and the instrument hangs from the paw: it turns
-  with the paw, in the same direction, and only its grip changes, from the rest grip to the
-  playing grip (`carryLift()` of `pose/bowed.ts`). The paw supinates on its forearm on the way, as a
-  real forearm turns, and passes 180° from the bind of the mesh, where the forearm skin unwinds
-  for a moment (`skinTwist()` of `models/studio-rig.ts`). Up to 2026-10-25, the instrument turned
+  with the paw, in the same direction, and keeps nearly its place in the paw, as the player keeps
+  the hold of the neck (`carryLift()` of `pose/bowed.ts`). At rest, the paw takes a turn in the
+  plane of its palm near the turn of the play (`BowedHold.restPawTurnL`), so the grip in the paw
+  changes by 22° to 27° in a move (56° to 79° before the round `fifth-strings2`). The paw
+  supinates on its forearm on the way, as a real forearm turns, and passes 180° from the bind of
+  the mesh, where the forearm skin unwinds for a moment (`skinTwist()` of
+  `models/studio-rig.ts`). The playing grip of the app lies 215° to 234° of supination from the
+  bind of the mesh paw, which is pronated, so each rest grip with a natural elbow lies on the other
+  side of 180° (`docs/decisions/2026-10-27-violin-carry.md`). Up to 2026-10-25, the instrument turned
   upright with the top plate to the chest in the middle of the move, and rolled a full turn around
   its long axis (`docs/decisions/2026-10-26-violin-lift.md`). From 2026-10-26 to the round
   `fifth-strings`, it took its own short turn while the paw pronated, so the two turned in opposite
@@ -530,9 +535,11 @@ A round that changes the motion updates the items.
   beside the body in the middle of the move (`docs/decisions/2026-10-26-violin-lift.md`).
 - **The violin and the viola at rest** (section 2.9). The rabbit, the red fox, and the cat rest the
   instrument upright on the left knee, and the left paw holds its neck in a rest grip: the playing
-  grip at the rest place, turned a little around the normal of the top plate, with the fingers
-  closed around the neck, and a few millimeters off it, so that the paw holds the neck and goes at
-  most 0.8 cm into the instrument (`restHandAt()` of `pose/bowed.ts`). The left elbow hangs near
+  grip at the rest place, with the fingers closed around the neck, a few millimeters off it, and
+  turned at most 10° around the normal of the top plate, so that the paw holds the neck and goes at
+  most 0.5 cm into the instrument (`restHandAt()` of `pose/bowed.ts`). The paw keeps a turn in the
+  plane of its palm near the turn of the play (`BowedHold.restPawTurnL`), so that it holds the
+  neck at rest nearly as in the play. The left elbow hangs near
   the side (`BowedHold.restPoleL`). The top plate of the violin faces the front, and the top plate
   of the viola the front and 30° to the left: with the top to the front, the bow paw of the cat
   turned up to 7,437°/s in a lowering (`docs/decisions/2026-10-24-violin-review.md`). The bow paw

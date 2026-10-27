@@ -502,18 +502,21 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       than on `57849ac5` within each limit (move turn up to 2,197°/s). A playing grip near the
       supination of a real violinist (about 90° in place of 156°) removes it. A play elbow nearer to
       the middle flattened the play skin (flat 0.31 on the cat).
-- [ ] Rabbit, red fox, and cat (`2026-10-26-fifth-review-strings.md`): the grip that the viewer sees
+- [x] Rabbit, red fox, and cat (`2026-10-26-fifth-review-strings.md`): the grip that the viewer sees
       changes by 56° to 79° in the moves (target 30°), because the retarget turns each paw toward
       its forearm (`PAW_TURN`), and the forearm crosses the neck at rest and runs along it in the
-      play.
+      play. Done: the rest paw takes its own turn in the plane of its palm near the turn of the
+      play, and the grip changes by 22° to 27° (`2026-10-27-violin-carry.md`).
 - [ ] Rabbit, red fox, and cat (`2026-10-26-fifth-review-strings.md`): the carried instrument
       goes up to 2.2 cm into the body near the jaw in some moves (limit 2.0, up to 1.9 cm on
       `57849ac5`), because it hangs from the paw there. Each other wrist via of the scan went
       deeper.
 - [ ] Cat (`2026-10-26-fifth-review-strings.md`): the round belly keeps both elbows 35° to 48°
       from the vertical at rest. Lower elbows went 2.2 cm to 4.1 cm into the belly (limit 1.5).
-- [ ] Cat (`2026-10-26-fifth-review-strings.md`): at rest, the left paw goes 0.8 cm into the
+- [x] Cat (`2026-10-26-fifth-review-strings.md`): at rest, the left paw goes 0.8 cm into the
       viola (target about 0.5 cm, 0.8 cm on `57849ac5`). The claws went from 1.0 cm to 0.3 cm.
+      Done: with the rest grip of the play, 11 mm off the neck, the paw stays out of the viola
+      (0.0 cm), and the claws go 0.3 cm in (`2026-10-27-violin-carry.md`).
 - [x] Bear and polar bear (`2026-10-26-fifth-review-bears.md`): the user saw a black area under
       the bear armpit and bulky polar bear knees. Done: the bear arm bake comes before the flatten
       (65 black faces before, 0 now), and rings cut the long faces of each polar bear knee.
