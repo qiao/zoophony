@@ -177,6 +177,9 @@ interface StudioArmSegments {
   color, give the arm roots `rootNormals` before a rebuild. A bind that bends the elbow splits
   the inner elbow the same way: give it `rootNormals.elbow`. On the beaver and the rhino, the
   rebuilt arms kept the slots and failed the gate (`docs/research/2026-10-25-beaver-rhino-arms.md`).
+  When the true face normals match the smooth normals (`probes/armpit-normals.ts` of
+  `docs/research/2026-10-27-legs-armpit/`), the black corner is the underside of the arm in the
+  gallery light: smooth only its outline (`smooth`), and look at it in the stage light.
 - **The clavicle of a thick arm.** Automatic weights give the clavicle most of the root of a
   thick arm. Its faces then stay with the shoulder, and the root folds.
 - **The paw and the wrist helper.** On a short paw, automatic weights give about half of the paw
