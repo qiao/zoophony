@@ -29,7 +29,6 @@ function bindPose(): WritablePose {
     rootOffset: [0, 0, 0],
     slideOffset: [0, 0, 0],
     instrumentOffset: [0, 0, 0],
-    twistFadeL: 0,
     pawTurnL: null,
     blink: 0,
   };

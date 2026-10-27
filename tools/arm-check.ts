@@ -134,13 +134,27 @@ import type { Transport } from '../src/pose/types.ts';
 const SIDES = ['L', 'R'] as const;
 
 /**
- * Gives the twist that the twist bone and the segments of a forearm share (`skinTwist()` of
- * `src/models/studio-rig.ts`), or the twist itself in the tree of an older commit, which has no
- * such function and shares the whole twist.
+ * The unwind of the left forearm twist near 180° in the trees of 2026-10-26 and 2026-10-27, up to
+ * the supinated bind of the left paws (`docs/decisions/2026-10-27-left-paw-bind.md`). A gate of
+ * such a base reads it, so that the base keeps its own measure.
  */
-// SAFETY: the module of an older tree has no `skinTwist`, so the field can be missing.
-const sharedTwist: (twist: number, fade: number) => number =
-  (studioRig as Partial<Pick<typeof studioRig, 'skinTwist'>>).skinTwist ?? ((twist) => twist);
+interface UnwindTree {
+  /** Gives the twist that the twist bone and the segments of a forearm share (`skinTwist()`). */
+  readonly skinTwist?: (twist: number, fade: number) => number;
+}
+
+/** The share of the unwind in a pose of such a tree (`twistFadeL` of `AnimalPose`). */
+interface UnwindPose {
+  /** The share of the unwind of the left forearm, from 0 to 1. */
+  readonly twistFadeL?: number;
+}
+
+/**
+ * Gives the twist that the twist bone and the segments of a forearm share: the twist itself, or
+ * the twist with the unwind in the tree of a commit that has it ({@link UnwindTree}).
+ */
+// SAFETY: only the module of an older tree has `skinTwist`, so the field can be missing.
+const sharedTwist = (studioRig as UnwindTree).skinTwist ?? ((twist: number) => twist);
 
 /** The measures of the gate. */
 export const MEASURES = [
@@ -1247,7 +1261,7 @@ export function demoMoves(duration: number): Move[] {
  * with no count-in limit, as the set `lift` of `probeFolds()`: a short count-in only makes it
  * faster. A lowering starts from the play pose at its pause point, after the hold. Each sample of
  * each arm gives two values: `moveTwist`, the size of the paw twist on the forearm that the twist
- * bone and the segments of the forearm share (`skinTwist()` of `models/studio-rig.ts`), and
+ * bone and the segments of the forearm share ({@link sharedTwist}), and
  * `moveTurn`, the turn rate of the wrist from the sample before, in degrees per second: the
  * larger turn of the twist bone of the forearm on the forearm and of the paw on the twist bone. A
  * shared twist past 180° makes the twist bone, which takes half of it, jump by 180°.
@@ -1313,7 +1327,8 @@ export function probeMoves(role: RoleSource, demos: readonly DemoFile[]): Sample
               : 0;
             const values = store.values[side];
             // The twist that the twist bone and the segments of the forearm share.
-            const fade = side === 'L' ? (pose.twistFadeL ?? 0) : 0;
+            // SAFETY: only the pose of an older tree has `twistFadeL`, so the field can be missing.
+            const fade = side === 'L' ? ((pose as UnwindPose).twistFadeL ?? 0) : 0;
             const shared = sharedTwist(twistAngle(paw, foreBind), fade);
             values.moveTwist.push(Math.abs((shared * 180) / Math.PI));
             values.moveTurn.push(rate);

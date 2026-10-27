@@ -21,13 +21,6 @@ export interface AnimalPose {
    */
   readonly instrumentOffset?: readonly [number, number, number];
   /**
-   * The share of the unwind of the twist of the left forearm near 180°, from 0 to 1 (4.4, 5.2):
-   * in the lift and the lowering of a violin or a viola, the left paw supinates through 180° on
-   * its forearm, and the twist bone and the segments of the forearm unwind there
-   * (`skinTwist()` of `models/studio-rig.ts`). A pose with no value takes 0.
-   */
-  readonly twistFadeL?: number;
-  /**
    * The turn of the left paw in the plane of its palm, in radians, in place of the turn of the
    * retarget toward the forearm (`PAW_TURN` of `models/studio-rig.ts`, 4.4), or `null` for that
    * turn. A violin or a viola at rest and in the lift and the lowering keeps the turn of the

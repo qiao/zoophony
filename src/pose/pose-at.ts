@@ -3,7 +3,7 @@ import { MathUtils, Quaternion, Vector3 } from 'three';
 import type { InstrumentId } from '../models/instruments/types.ts';
 import { boneIndex } from '../models/rig.ts';
 import { lastAtOrBefore } from './blend.ts';
-import { carryFade, poseBowed } from './bowed.ts';
+import { poseBowed } from './bowed.ts';
 import { createIdleState, idleAt } from './idle.ts';
 import { poseConductor } from './conductor.ts';
 import type { ConductorState } from './conductor.ts';
@@ -43,7 +43,6 @@ export interface WritablePose extends AnimalPose {
   rootOffset: [number, number, number];
   slideOffset: [number, number, number];
   readonly instrumentOffset: [number, number, number];
-  twistFadeL: number;
   pawTurnL: number | null;
   blink: number;
 }
@@ -93,7 +92,6 @@ function createPose(): WritablePose {
     rootOffset: [0, 0, 0],
     slideOffset: [0, 0, 0],
     instrumentOffset: [0, 0, 0],
-    twistFadeL: 0,
     pawTurnL: null,
     blink: 0,
   };
@@ -330,7 +328,6 @@ function poseAnimal(
   pose.rotations.set(BIND_ROTATIONS);
   pose.rootOffset.fill(0);
   pose.instrumentOffset.fill(0);
-  pose.twistFadeL = 0;
   pose.pawTurnL = null;
   const note = player.note;
   // The conductor does not sway with the beat (design 5.4).
@@ -369,7 +366,6 @@ function poseAnimal(
         pose.rotations,
         pose.instrumentOffset,
       );
-      pose.twistFadeL = carryFade(hold, weight);
       break;
     }
     case 'woodwind':

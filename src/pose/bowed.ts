@@ -1111,30 +1111,6 @@ const seenPlay = new Quaternion();
 const seenMix = new Quaternion();
 
 /**
- * The share of the move at each end of the lift and of the lowering in which the unwind of the
- * twist of the left forearm fades in and out ({@link carryFade}).
- */
-const CARRY_FADE_EDGE = 0.1;
-
-/**
- * Gives the share of the unwind of the twist of the left forearm near 180° in a lift or a
- * lowering of a violin or a viola (`twistFadeL` of `AnimalPose`, design 5.2): 1 in the middle of
- * the move, and 0 at the rest and at the play, with a smooth change in the edges of the move
- * ({@link CARRY_FADE_EDGE}). Thus the rest and the play keep their skin, and the left paw passes
- * 180° on its forearm with no jump of the twist bone.
- *
- * @param hold The hold of the instrument.
- * @param weight The eased weight of the playing pose: 0 is the rest pose.
- * @returns The share, from 0 to 1.
- */
-export function carryFade(hold: BowedHold, weight: number): number {
-  if (hold.restPawTurnL === null || !hold.rest || weight <= 0 || weight >= 1) {
-    return 0;
-  }
-  return smoothstep(Math.min(weight, 1 - weight) / CARRY_FADE_EDGE);
-}
-
-/**
  * Lets the left paw of a violin or a viola hold the neck at rest in the playing grip
  * ({@link restHandAt}) and carry the instrument from the lap to the jaw and back (design 5.2), as
  * a player lifts the instrument by its neck. The paw leads, and the instrument hangs from the paw
@@ -1148,7 +1124,8 @@ export function carryFade(hold: BowedHold, weight: number): number {
  * of the note. The wrist moves on a line from its rest place to its playing
  * place, plus `4 × weight × (1 - weight)` times `BowedHold.liftReach`. The twist of the paw on its
  * forearm goes from the rest to the play with a supination ({@link mixTwist}), as a real forearm
- * turns, and passes 180° from the bind on the way ({@link carryFade}).
+ * turns. The bind of the left paw of these bodies is supinated (design 4.4), so the twist of the
+ * studio paw stays on one side of 180° on the way.
  *
  * @param rig The points of the player.
  * @param frames The posed frames of the torso.

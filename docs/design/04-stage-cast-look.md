@@ -372,8 +372,7 @@ segments by half a turn in one frame. The bind paw sets the zero of the twist, b
 turns with its elbow hinge. In the lift and the lowering of a violin or a viola, the left paw
 supinates more than half a turn (5.2), so the rig turns the bind left paw of these meshes about its
 forearm toward supination (`studio.bindSupination` of the rig config): the rest and the play then
-lie on one side of 180°. A band before 180° in which the bones unwind (`TWIST_FADE_BAND` of
-`models/studio-rig.ts`) is still in the code, and no move reaches it. The skin then turns
+lie on one side of 180°, and the segments share the whole twist in each move. The skin then turns
 in small steps along the arm, and the elbow and the wrist keep their volume. The arms of such a
 mesh are quad tubes (rings at a right angle to the bones), and the weights come from Blender
 (`paintedWeights`), with the rule weights on the bones of `paintedLower`. A segment rig replaces
