@@ -84,7 +84,8 @@ reads it (route 3 of `docs/agents/model-work.md`). The steps:
    tail of two bones keeps the height of its end. With `crease`, the bind is smoothed across the
    crease where the belly meets the top of each thigh (`crease_relax()`), and with `kneeCrease`
    across the crease at the back of each knee (`knee_relax()`). With `kneeCrease.fair`, the calf
-   back is then faired along the vertex normals (`calf_fair()`).
+   back is then faired along the vertex normals (`calf_fair()`), and with `kneeCrease.front`,
+   the front of each bent knee is rounded across the leg bones (`knee_front()`).
 7. Put a gloss shell over each eye: a fan from the middle of the eye to the edge of its dark
    faces, a little out of the surface. `pnpm studio-body` finds each eye by its fan, drops the
    fan, and puts the pea eye of the app at its place (design 4.5). The faces of the nose become
@@ -1419,16 +1420,22 @@ def root_rim(verts, tris, heads, rule, weights):
     source (-z), and on the leg bones of its side for at least half of its weight is in the rim
     too. The rings of the calf cut long thin faces of the source into slivers, and the smoothing
     of the crease (`kneeCrease`) turns a sliver more than the crease angle from its neighbors, so
-    it shades as a dark facet on the calf. Gives a mask of the faces."""
+    it shades as a dark facet on the calf. With `kneeFront`, each face whose middle lies within
+    that radius of a knee joint, in front of it in the source (+z), and on the leg bones of its
+    side for at least half of its weight is in the rim too: the thin faces of the knee rings
+    meet at more than the crease angle on the bent knee front, so they shaded as hard lines
+    across the knee after the rounding of `kneeCrease.front`. Gives a mask of the faces."""
     mids = verts[tris].mean(axis=1)
     out = np.zeros(len(tris), bool)
     for side in 'LR':
+        joint = np.asarray(heads[f'shin_{side}'], float)
+        legs = [BONES.index(f'{b}_{side}') for b in LEG]
+        share = weights[:, legs].sum(axis=1)[tris].mean(axis=1)
+        near = np.linalg.norm(mids - joint, axis=1)
         if 'knee' in rule:
-            joint = np.asarray(heads[f'shin_{side}'], float)
-            legs = [BONES.index(f'{b}_{side}') for b in LEG]
-            share = weights[:, legs].sum(axis=1)[tris].mean(axis=1)
-            out |= ((np.linalg.norm(mids - joint, axis=1) < rule['knee'])
-                    & (mids[:, 2] < joint[2]) & (share >= 0.5))
+            out |= (near < rule['knee']) & (mids[:, 2] < joint[2]) & (share >= 0.5)
+        if 'kneeFront' in rule:
+            out |= (near < rule['kneeFront']) & (mids[:, 2] >= joint[2]) & (share >= 0.5)
         near = np.zeros(len(tris), bool)
         for bone, key in (('upper_arm', 'radius'), ('forearm', 'elbow')):
             joint = np.asarray(heads[f'{bone}_{side}'], float)
@@ -3455,6 +3462,67 @@ def knee_relax(bind, tris, weights, heads, rule):
     return out, seams, moved, largest, faired, most_fair
 
 
+def bone_distance(points, knee, hip, ankle):
+    """Gives the nearest point of the bent leg line (the thigh from the knee joint to the hip
+    joint, and the shin from the knee joint to the ankle) to each point, and the distance to it."""
+    best_point, best = None, None
+    for end in (hip, ankle):
+        seg = end - knee
+        t = np.clip(((points - knee) @ seg) / (seg @ seg), 0.0, 1.0)
+        near = knee + t[:, None] * seg
+        dist = np.linalg.norm(points - near, axis=1)
+        if best is None:
+            best_point, best = near, dist
+        else:
+            closer = dist < best
+            best_point = np.where(closer[:, None], near, best_point)
+            best = np.where(closer, dist, best)
+    return best_point, best
+
+
+def knee_front(bind, tris, weights, heads, rule):
+    """Rounds the front of each bent knee of the seated bind (design 4.4). The linear blend of the
+    thigh and the shin moves a vertex of the knee front with the weights of both bones onto the
+    chord between their two places, so the knee front became a flat bevel between the top of the
+    thigh and the front of the shin, with hard ridges at its edges: a block with a sharp edge
+    (user, 2026-10-27: "the polar bear's knee is still more bulky than expected"). Each vertex on
+    the outer side of the knee (its place from the knee joint has a dot below 0 with the unit sum
+    of the directions to the hip joint and to the ankle) within `radius` units of the knee joint
+    moves along the line from the nearest point of the leg bones (`bone_distance()`), so that its
+    distance from them goes `share` of the way to the mean distance of its neighbors, in each of
+    `rounds` rounds, times its share of the thigh and the shin less its share of the hips, and a
+    half cosine that falls from 1 at the joint to 0 at `radius`. Thus the dent of the bevel
+    fills, the ridges at its edges sink, and no vertex slides along the skin. Gives the rounded
+    bind, the number of the moved vertices, and the largest move."""
+    neighbors = [set() for _ in range(len(bind))]
+    for a, b, c in tris:
+        neighbors[a].update((b, c))
+        neighbors[b].update((a, c))
+        neighbors[c].update((a, b))
+    hips = BONES.index('hips')
+    out = bind.copy()
+    count = 0
+    for side in 'LR':
+        thigh, shin = BONES.index(f'thigh_{side}'), BONES.index(f'shin_{side}')
+        knee, hip, ankle = (np.asarray(heads[f'{b}_{side}'], float)
+                            for b in ('shin', 'thigh', 'foot'))
+        inner = unit(unit(hip - knee) + unit(ankle - knee))
+        free = np.clip(weights[:, thigh] + weights[:, shin] - weights[:, hips], 0.0, 1.0)
+        dist = np.linalg.norm(out - knee, axis=1)
+        ids = np.nonzero(((out - knee) @ inner < 0) & (dist < rule['radius']) & (free > 0))[0]
+        weight = rule['share'] * free[ids] * 0.5 * (1.0 + np.cos(np.pi * dist[ids] / rule['radius']))
+        rings = [np.array(sorted(neighbors[i])) for i in ids]
+        for _ in range(rule['rounds']):
+            near, rho = bone_distance(out, knee, hip, ankle)
+            target = np.array([rho[r].mean() for r in rings])
+            goal = rho[ids] + weight * (target - rho[ids])
+            ways = (out[ids] - near[ids]) / np.maximum(rho[ids], 1e-9)[:, None]
+            out[ids] = near[ids] + ways * goal[:, None]
+        count += len(ids)
+    moves = np.linalg.norm(out - bind, axis=1)
+    return out, count, float(moves.max(initial=0.0))
+
+
 def calf_fair(bind, out, tris, knee, shin_axis, back, free, rule):
     """Fairs the calf back of one side along the vertex normals after the smoothing of the knee
     crease (design 4.4). The smoothing slides the calf vertices along the skin toward the knee,
@@ -4927,6 +4995,13 @@ def main():
         if faired:
             log(f'calf fair: {faired} vertices move along their normals, at most '
                 f'{most_fair:.4f} u ({most_fair * meters * 100:.2f} cm)')
+        if 'front' in config['kneeCrease']:
+            bind, rounded, most_round = knee_front(bind, tris, weights, bind_heads,
+                                                   config['kneeCrease']['front'])
+            dots = turn_dots(long_verts, bind, tris, weights, matrices)
+            log(f'knee front: {rounded} vertices move across the leg bones, at most '
+                f'{most_round:.4f} u ({most_round * meters * 100:.2f} cm). '
+                f'{int((dots < 0).sum())} faces turn over{turned_on(dots, main_bone)}')
     if 'sit' in config:
         # The gap of the final bind: the recline, the lift, and the crease move the haunch after
         # the sit.
@@ -5113,7 +5188,7 @@ def main():
             raise SystemExit('A face of the rim of the cut is not fur.')
         extras['rim'] = sorted(int(t) for t in module_faces(order, materials)[found])
         log(f'rim: {len(found)} skin faces around the caps of the body, the shoulder joints, the '
-            f'elbow joints, or behind the knee joints take the normals of the skin in the app')
+            f'elbow joints, or at the knee joints take the normals of the skin in the app')
     if raised:
         # One rule writes one pose, as the files before the list of rules did, so that their bytes
         # stay.
