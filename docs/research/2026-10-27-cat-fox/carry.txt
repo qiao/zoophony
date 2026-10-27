@@ -1,0 +1,6 @@
+base: cached (main, 9e33f632a4b4)
+Carry of the instrument in the left paw on the working tree, with main (876ba389) in parentheses: 14.3 s. A fast step turns both faster than 20°/s, at steps of 0.01 s.
+
+| Role | Moves | Steps >90° of the fast steps | Largest angle | Turn in the paw: path | Turn in the paw: net | Move of the largest angle |
+|---|---|---|---|---|---|---|
+| violist | 84 (84) | 0 of 7623 (0 of 7611) | 17° (17°) | 28° (27°) | 25° (25°) | bach-bwv1048 lower 327.3 s |

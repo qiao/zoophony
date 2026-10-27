@@ -1,0 +1,24 @@
+Rig variants of the cat: pnpm rig-mesh cat --check --roles violist --set <changes> --keep <dir>.
+The arm copies come from probes/cat_arms_v.py: v1 {seam.rings: [], seam.ruled: 0} clean,
+vA {slim: [1.0, 0.85]}, vB {anchor.share: 0}, vC {seam.rings: [0.5]} clean, vD {} clean,
+vG1 {seam.rings: [0.5], seam.ruled: 0}, vG2 {seam.ruled: 0}, vG3 {seam.rings: [0.5]},
+vS88 {factor: 0.88} with the joints of the shorter arm. 'clean' adds the clean steps of fox_arms.py.
+
+| Rig changes | Triangles | Reach L m | violist play folds | bones with the most folded face samples |
+|---|---|---|---|---|
+| main | 4317 | 0.479 | 100.0% | spine1 339007, clavicle_R 37043, neck 16482 |
+| source=v1 | 4104 | 0.479 | 100.0% | chest 57944, neck 19551, upper_arm_R 2525 |
+| source=vA | 4317 | 0.479 | 100.0% | spine1 231686, clavicle_R 93880, upper_arm_seg2_R 7465 |
+| source=vB | 4317 | 0.479 | 100.0% | spine1 342708, clavicle_R 37447, clavicle_L 17479 |
+| source=vC | 4162 | 0.479 | 100.0% | chest 40798, upper_arm_R 18283, neck 1414 |
+| source=vD | 4218 | 0.479 | 100.0% | chest 88211, spine1 29085, neck 1414 |
+| studio.bindArms.upper_arm=[0.702,-0.451,0.551] | 4317 | 0.479 | 100.0% | spine1 259803, clavicle_R 35987, neck 19547 |
+| studio.bindArms.upper_arm=[0.62,-0.62,0.48] | 4317 | 0.479 | 100.0% | spine1 298178, chest 36194, clavicle_R 34780 |
+| armSegments.rootSegment=true | 4317 | 0.479 | 100.0% | spine1 323316, clavicle_R 35819, neck 17528 |
+| rootNormals={"radius":0.1} | 4317 | 0.479 | 100.0% | spine1 339007, clavicle_R 37043, neck 16482 |
+| source=vG1;rootNormals={"radius":0.1} | 4253 | 0.479 | 100.0% | spine1 102666, clavicle_R 46730, upper_arm_seg2_R 36475 |
+| source=vG2;rootNormals={"radius":0.1} | 4317 | 0.479 | 100.0% | spine1 353879, clavicle_R 36901, clavicle_L 18509 |
+| source=vG3;rootNormals={"radius":0.1} | 4253 | 0.479 | 100.0% | spine1 91957, clavicle_R 81092, neck 34606 |
+| studio.bindArms.upper_arm=[0.702,-0.451,0.551];rootNormals={"radius":0.1} | 4317 | 0.479 | 100.0% | spine1 259803, clavicle_R 35987, neck 19547 |
+| source=vS88;joints.forearm_L.head=[0.12688,0.5392,0.0544];joints.forearm_twist_L.head=[0.16032,0.4908,0.06496];joints.hand_L.head=[0.19376,0.4424,0.07552];joints.fingers_L.head=[0.21976,0.4054,0.07752];joints.fingers_L.tail=[0.22576,0.3754,0.08352] | 4317 | 0.426 | 100.0% | spine1 452224, neck 35444, clavicle_R 28964 |
+| source=vS88;joints.forearm_L.head=[0.12688,0.5392,0.0544];joints.forearm_twist_L.head=[0.16032,0.4908,0.06496];joints.hand_L.head=[0.19376,0.4424,0.07552];joints.fingers_L.head=[0.21976,0.4054,0.07752];joints.fingers_L.tail=[0.22576,0.3754,0.08352];studio.bindArms.upper_arm=[0.62,-0.62,0.48] | 4317 | 0.426 | 100.0% | spine1 311502, chest 54586, neck 35444 |

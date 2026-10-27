@@ -1,0 +1,11 @@
+face 1453 middle -0.156, 0.869, -0.007 | v806: spine1 0.62 chest 0.25 upper_arm_seg1_L 0.08 upper_arm_seg2_L 0.05 | v807: spine1 0.57 chest 0.27 upper_arm_seg1_L 0.09 clavicle_L 0.07 | v808: spine1 0.33 chest 0.23 upper_arm_seg1_L 0.23 upper_arm_seg2_L 0.21
+face 1454 middle -0.174, 0.873, -0.022 | v807: spine1 0.57 chest 0.27 upper_arm_seg1_L 0.09 clavicle_L 0.07 | v809: upper_arm_L 0.27 upper_arm_seg1_L 0.25 upper_arm_seg2_L 0.24 chest 0.24 | v808: spine1 0.33 chest 0.23 upper_arm_seg1_L 0.23 upper_arm_seg2_L 0.21
+face 1455 middle -0.201, 0.867, -0.051 | v809: upper_arm_L 0.27 upper_arm_seg1_L 0.25 upper_arm_seg2_L 0.24 chest 0.24 | v810: upper_arm_seg2_L 0.35 upper_arm_seg3_L 0.27 upper_arm_seg1_L 0.24 upper_arm_L 0.15 | v808: spine1 0.33 chest 0.23 upper_arm_seg1_L 0.23 upper_arm_seg2_L 0.21
+face 1456 middle -0.190, 0.856, -0.044 | v811: spine1 0.34 chest 0.24 upper_arm_seg1_L 0.23 upper_arm_seg2_L 0.20 | v808: spine1 0.33 chest 0.23 upper_arm_seg1_L 0.23 upper_arm_seg2_L 0.21 | v810: upper_arm_seg2_L 0.35 upper_arm_seg3_L 0.27 upper_arm_seg1_L 0.24 upper_arm_L 0.15
+face 1457 middle -0.201, 0.850, -0.062 | v811: spine1 0.34 chest 0.24 upper_arm_seg1_L 0.23 upper_arm_seg2_L 0.20 | v810: upper_arm_seg2_L 0.35 upper_arm_seg3_L 0.27 upper_arm_seg1_L 0.24 upper_arm_L 0.15 | v812: upper_arm_seg2_L 0.33 upper_arm_seg3_L 0.26 upper_arm_seg1_L 0.24 spine1 0.16
+face 2510 middle -0.150, 0.857, -0.010 | v1442: spine1 0.62 chest 0.24 upper_arm_seg1_L 0.08 upper_arm_seg2_L 0.05 | v806: spine1 0.62 chest 0.25 upper_arm_seg1_L 0.08 upper_arm_seg2_L 0.05 | v811: spine1 0.34 chest 0.24 upper_arm_seg1_L 0.23 upper_arm_seg2_L 0.20
+face 2511 middle -0.162, 0.858, -0.016 | v806: spine1 0.62 chest 0.25 upper_arm_seg1_L 0.08 upper_arm_seg2_L 0.05 | v808: spine1 0.33 chest 0.23 upper_arm_seg1_L 0.23 upper_arm_seg2_L 0.21 | v811: spine1 0.34 chest 0.24 upper_arm_seg1_L 0.23 upper_arm_seg2_L 0.20
+face 2506 middle -0.143, 0.859, 0.015 | v799: spine1 1.00 | v801: spine1 1.00 | v798: spine1 1.00
+face 1427 middle -0.148, 0.828, -0.032 | v793: spine1 1.00 | v756: spine1 1.00 | v757: spine1 1.00
+face 1429 middle -0.147, 0.839, -0.017 | v795: spine1 1.00 | v794: spine1 1.00 | v793: spine1 1.00
+face 1433 middle -0.145, 0.849, -0.005 | v798: spine1 1.00 | v797: spine1 1.00 | v796: spine1 1.00
