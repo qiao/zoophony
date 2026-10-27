@@ -549,9 +549,13 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       was a long source diagonal across the knee front, which now flips before the rings, and the
       wedges came from the crease smoothing, whose weight now falls with the distance from the
       seam over two more calf rings (`2026-10-27-legs-armpit.md`).
-- [ ] Polar bear (`2026-10-27-legs-armpit.md`): at L180, one soft darker facet stays on the left
+- [x] Polar bear (`2026-10-27-legs-armpit.md`): at L180, one soft darker facet stays on the left
       calf, where the fillet of the crease smoothing ends above the first calf ring (edge 2214 to
       2251 turns 72°). A longer reach moved the sole or folded a face of the inner thigh.
+      Done: the smoothing slid sliver corners of the calf rings apart. The back of the calf is
+      faired along the normals, and the faces behind the knees take the skin normals. The facet
+      and its groove are gone, with the poses, the folds, and the arm gate of `main`
+      (`2026-10-27-rigs3.md`).
 - [x] Bear rig (`2026-10-26-arm-fixes.md`): the left shoulder bridge folds 8 tiny faces at p95
       in the play (4 on the old rig, limit 8), and the right move twist max is 87 (81). Done: the
       head keeps the rule weights, and four shoulder faces take the mean of their painted weights

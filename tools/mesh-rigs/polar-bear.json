@@ -19,6 +19,10 @@
     "tail"
   ],
   "paintedNote": "The weights of the trunk, the head, and the arms are the automatic weights of Blender with the Weight Paint fixes of tools/blender/polar_bear_arms.py. The vertices on the bones of paintedLower (the hips, the trunk up to the chest, the legs, and the tail) keep the rule weights. Blender weights on the legs sank the tail into the haunch and folded faces on the bench (branch rigify-polar-bear). Blender weights on spine and spine1 folded a V of faces on the lower back over the bench, and on the chest they cut a slit into the side of the trunk under each arm in the play.",
+  "rootNormals": {
+    "knee": 0.2,
+    "note": "The faces behind each knee joint of the source, within knee units of it, and on the leg bones for at least half of their weight, take the normals of the skin with no crease angle in the app (root_rim() of tools/blender/rig_mesh.py): the back of each knee and the calf down to the heel. The rings of the calf cut long thin source faces into slivers, and the smoothing of the crease (kneeCrease) turned a sliver more than the crease angle of the app (40 degrees) from its neighbors, so it showed as a soft dark facet on the left calf from straight behind (user, 2026-10-26: \"the polar bear's knees are more bulky than it should be\"). No vertex moves. With the skin normals alone, a soft groove stayed at that place, so the calf is also faired (kneeCrease.fair) (docs/research/2026-10-27-rigs3.md)."
+  },
   "armSegments": {
     "helper": 0.03,
     "note": "Each upper arm and each forearm has 4 deform segments, and each elbow and wrist a helper bone of this length in units, which spans the three rings of its joint in the bind. The app turns them from the joints of the pose (poseArm() of src/models/studio-rig.ts). They replace upperTwist."
@@ -559,7 +563,15 @@
     "rounds": 12,
     "share": 0.5,
     "inner": 0.0,
-    "note": "The faces at the corner of each bent knee turned more than the crease angle of the app (40 degrees) from each other, so each showed as a light wedge at the back of the knee. The seam is each vertex of both a thigh face and a shin face on the inner side of the knee. Each vertex within reach units of the seam in the bind moves half of the way to the middle of its neighbors in each of 12 rounds, times a weight that falls from 1 on the seam to 0 at reach (knee_relax() and seam_relax() of tools/blender/rig_mesh.py). The hips keep their share, so the crotch, near the knee on the short leg, keeps its place. With 2 rings of neighbors in place of reach, a long calf face carried the full move of the seam down the calf, and the faces at the end of the region showed as light wedges on the calf back from az 150 to 180. A reach of 0.12 moved the lowest sole vertex and thus the seat of the body, and 0.09, 16 rounds, or 20 rounds folded a face of the inner right thigh (docs/research/2026-10-27-legs-armpit.md)."
+    "note": "The faces at the corner of each bent knee turned more than the crease angle of the app (40 degrees) from each other, so each showed as a light wedge at the back of the knee. The seam is each vertex of both a thigh face and a shin face on the inner side of the knee. Each vertex within reach units of the seam in the bind moves half of the way to the middle of its neighbors in each of 12 rounds, times a weight that falls from 1 on the seam to 0 at reach (knee_relax() and seam_relax() of tools/blender/rig_mesh.py). The hips keep their share, so the crotch, near the knee on the short leg, keeps its place. With 2 rings of neighbors in place of reach, a long calf face carried the full move of the seam down the calf, and the faces at the end of the region showed as light wedges on the calf back from az 150 to 180. A reach of 0.12 moved the lowest sole vertex and thus the seat of the body, and 0.09, 16 rounds, or 20 rounds folded a face of the inner right thigh (docs/research/2026-10-27-legs-armpit.md).",
+    "fair": {
+      "from": 0.03,
+      "to": 0.17,
+      "radius": 0.09,
+      "rounds": 24,
+      "share": 0.5,
+      "note": "After the smoothing, each vertex at the back of the calf, from 0.03 to 0.17 units down the shin from the knee joint and within 0.09 units of the shin axis, moves half of the normal part of the way to the middle of its neighbors in each of 24 rounds, times a half sine over the band (calf_fair() of tools/blender/rig_mesh.py). The smoothing slid the calf vertices along the skin toward the knee by up to 10 cm, and the sliver corners of the calf rings slid apart: a soft dark facet and a groove on the left calf from straight behind. The fair moves no vertex along the skin. A band to 0.2 moved corners of the heel and thus the pedal foot of each pose, a band to 0.16 kept 8 hard calf edges, and the vertices of the inner thigh beyond 0.09 units of the shin axis folded a face between the thighs in each play sample. A test of the inner side of the knee in place of the back of the calf moved the front of the ankle and changed the paw top. 36 or 48 rounds turned a calf edge further (docs/research/2026-10-27-rigs3.md)."
+    }
   },
   "sit": {
     "gap": 0,

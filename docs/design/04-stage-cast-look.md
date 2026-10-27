@@ -466,7 +466,12 @@ mesh are quad tubes (rings at a right angle to the bones), and the weights come 
     from each other. Its weight falls with the distance from the seam (`reach`), because a weight
     by rings of neighbors carried the move down each long calf face, and the tilted faces showed
     as light wedges. More back rings cut the calf, so that the weight fades over short faces. The
-    hips keep their share, because the crotch of a short leg lies near the knee.
+    hips keep their share, because the crotch of a short leg lies near the knee. The smoothing
+    slides the calf vertices along the skin toward the knee, and the rings cut long thin calf
+    faces into slivers whose corners slide apart into a groove with a dark facet. So the back of
+    the calf is then faired along the vertex normals, in a band near the shin axis that ends
+    above the heel (`kneeCrease.fair`), and the faces behind each knee take the normals of the
+    skin with no crease angle (`rootNormals.knee`).
     `pnpm rig-mesh --check` gives the gaps of the tail to the floor and to the
     chair over one sway period (`tools/tail-gap.ts`).
   - Weights and shapes. Bone heat gives the weights, and rules and rings of new vertices at the

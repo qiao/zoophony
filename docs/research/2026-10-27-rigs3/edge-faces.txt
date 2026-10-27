@@ -1,0 +1,21 @@
+edge 2214-2251: faces [4454, 4509], turn 72.2 (before 3.7)
+  v2214: move  22.4 mm, along shin  0.123, inner  0.121, thigh 0.00 shin 0.77
+  v2222: move  25.2 mm, along shin  0.123, inner  0.121, thigh 0.00 shin 0.78
+  v2251: move   6.8 mm, along shin  0.161, inner  0.145, thigh 0.00 shin 0.61
+  v2253: move  12.5 mm, along shin  0.161, inner  0.144, thigh 0.00 shin 0.60
+  face 4454: [2214, 2253, 2251] corners [10.4, 114.0, 55.6] edges [0.027, 0.006, 0.029]
+  face 4509: [2222, 2214, 2251] corners [139.8, 26.4, 13.8] edges [0.011, 0.029, 0.02]
+edge 1143-2215: faces [2532, 4455], turn 56.3 (before 17.7)
+  v1143: move 100.6 mm, along shin  0.071, inner  0.091, thigh 0.00 shin 0.98
+  v2194: move  61.3 mm, along shin  0.085, inner  0.093, thigh 0.00 shin 0.95
+  v2214: move  22.4 mm, along shin  0.123, inner  0.121, thigh 0.00 shin 0.77
+  v2215: move  23.3 mm, along shin  0.123, inner  0.119, thigh 0.00 shin 0.76
+  face 2532: [1143, 2215, 2214] corners [5.1, 51.6, 123.3] edges [0.065, 0.007, 0.061]
+  face 4455: [2215, 1143, 2194] corners [32.1, 12.7, 135.2] edges [0.065, 0.049, 0.02]
+edge 2222-2251: faces [4508, 4509], turn 49.3 (before 1.9)
+  v2214: move  22.4 mm, along shin  0.123, inner  0.121, thigh 0.00 shin 0.77
+  v2222: move  25.2 mm, along shin  0.123, inner  0.121, thigh 0.00 shin 0.78
+  v2251: move   6.8 mm, along shin  0.161, inner  0.145, thigh 0.00 shin 0.61
+  v2252: move   8.8 mm, along shin  0.161, inner  0.146, thigh 0.00 shin 0.61
+  face 4508: [2252, 2222, 2251] corners [117.5, 7.8, 54.8] edges [0.019, 0.02, 0.003]
+  face 4509: [2222, 2214, 2251] corners [139.8, 26.4, 13.8] edges [0.011, 0.029, 0.02]

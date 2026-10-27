@@ -351,5 +351,5 @@ The decision files:
 - [`2026-10-27-elephant-bake.md`](decisions/2026-10-27-elephant-bake.md): the bake of the elephant arm skin before the flatten, and the palette and the gray dark faces that stay.
 - [`2026-10-26-fifth-review-deer.md`](decisions/2026-10-26-fifth-review-deer.md): the rebuilt quad arms of the deer with a side wall and a cap plane at the shoulder, arm segments, the skin normals of the arm roots, and a bind upper arm nearer to the hanging arm.
 - [`2026-10-27-legs-armpit.md`](decisions/2026-10-27-legs-armpit.md): the flips of the bad diagonals of the polar bear knees, the crease smoothing by the distance from the seam over two more calf rings, the hips that keep their place, and the smoothed back end of the left deer armpit.
-- [`2026-10-27-rigs3.md`](decisions/2026-10-27-rigs3.md): the flip of the sheared quad at the right inner elbow of the deer.
+- [`2026-10-27-rigs3.md`](decisions/2026-10-27-rigs3.md): the flip of the sheared quad at the right inner elbow of the deer, and the fair and the skin normals of the back of the polar bear calves.
 - [`2026-10-23-rabbit-arms.md`](decisions/2026-10-23-rabbit-arms.md): the A-pose rabbit mesh with its own faces, a short arm stretch, a violin of 0.83, its elbows and rest grip, and the open shards of its arms.

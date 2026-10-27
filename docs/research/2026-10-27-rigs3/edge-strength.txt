@@ -1,0 +1,19 @@
+# edge_strength.py at L180, box 620,600,880,900 of the 1440 x 900 frame, boulanger-matin
+## skin normals alone (rootNormals.knee 0.2), 8 s
+L180   main : p95  1.14, p99  1.75, p99.9  3.80, above 12:  0.00%
+L180   round: p95  1.06, p99  1.39, p99.9  1.88, above 12:  0.00%
+## fair alone (inner side test, to 0.2), 8 s
+L180   main : p95  1.12, p99  1.72, p99.9  3.65, above 12:  0.00%
+L180   round: p95  1.03, p99  1.32, p99.9  2.01, above 12:  0.00%
+## fair (inner side test, to 0.2) and the skin normals, 8 s
+L180   main : p95  1.12, p99  1.72, p99.9  3.65, above 12:  0.00%
+L180   round: p95  0.99, p99  1.22, p99.9  1.47, above 12:  0.00%
+## final with the inner side test and the radius 0.09, 8 s
+L180   main : p95  1.12, p99  1.72, p99.9  3.65, above 12:  0.00%
+L180   round: p95  1.01, p99  1.26, p99.9  1.56, above 12:  0.00%
+## final, 8 s
+L180   main : p95  1.12, p99  1.71, p99.9  3.76, above 12:  0.00%
+L180   round: p95  0.99, p99  1.22, p99.9  1.50, above 12:  0.00%
+## final, 60 s
+L180   main : p95  1.12, p99  1.70, p99.9  3.77, above 12:  0.00%
+L180   round: p95  1.01, p99  1.25, p99.9  1.55, above 12:  0.00%

@@ -1,0 +1,171 @@
+== base: pass
+steps-base   13-knee_relax   inner: edges 473, hard 10, max  77.0, rms 15.5 | outer: edges 104, hard 12, max  78.7, rms 25.1 | calf hard 4 max  72.2 sum>30  157.2
+steps-base-R 13-knee_relax   inner: edges 402, hard 6, max  79.5, rms 15.0 | outer: edges 105, hard 4, max  47.8, rms 19.1 | calf hard 5 max  79.5 sum>30  164.4
+13-knee_relax      2214-2251:  72.2  2222-2251:  49.3  1143-2215:  56.3
+scratch/b/steps-base [(1550, 0.183172), (1317, 0.184176), (1541, 0.184179)]
+== ring16-0.14: c['refine']['rings'][6]['offset'] = 0.14
+steps-ring16-0.14 13-knee_relax   inner: edges 490, hard 9, max  77.0, rms 15.1 | outer: edges 104, hard 12, max  78.7, rms 25.1 | calf hard 3 max  74.8 sum>30  126.7
+steps-ring16-0.14-R 13-knee_relax   inner: edges 428, hard 3, max  72.7, rms 14.5 | outer: edges 105, hard 4, max  47.8, rms 19.1 | calf hard 2 max  72.7 sum>30  122.0
+13-knee_relax      2214-2251: -  2222-2251:   4.3  1143-2215:  48.7
+scratch/b/steps-ring16-0.14 [(1550, 0.183172), (1317, 0.184176), (1541, 0.184179)]
+== ring16-0.15: c['refine']['rings'][6]['offset'] = 0.15
+steps-ring16-0.15 13-knee_relax   inner: edges 494, hard 9, max  77.0, rms 15.1 | outer: edges 104, hard 12, max  78.7, rms 25.1 | calf hard 3 max  73.5 sum>30  135.5
+steps-ring16-0.15-R 13-knee_relax   inner: edges 441, hard 4, max  73.4, rms 14.3 | outer: edges 105, hard 4, max  47.8, rms 19.1 | calf hard 3 max  73.4 sum>30  129.8
+13-knee_relax      2214-2251:  73.5  2222-2251:  44.4  1143-2215:  51.6
+scratch/b/steps-ring16-0.15 [(1550, 0.183172), (1317, 0.184176), (1541, 0.184179)]
+== ring16-0.17: c['refine']['rings'][6]['offset'] = 0.17
+steps-ring16-0.17 13-knee_relax   inner: edges 410, hard 9, max  89.5, rms 16.5 | outer: edges 104, hard 12, max  78.7, rms 25.1 | calf hard 3 max  89.5 sum>30  166.2
+steps-ring16-0.17-R 13-knee_relax   inner: edges 387, hard 8, max  98.0, rms 15.8 | outer: edges 105, hard 4, max  47.8, rms 19.1 | calf hard 7 max  98.0 sum>30  245.2
+13-knee_relax      2214-2251: -  2222-2251: -  1143-2215:  15.5
+scratch/b/steps-ring16-0.17 [(1550, 0.183172), (1317, 0.184176), (1541, 0.184297)]
+== ring16-0.18: c['refine']['rings'][6]['offset'] = 0.18
+steps-ring16-0.18 13-knee_relax   inner: edges 403, hard 9, max  89.3, rms 16.6 | outer: edges 104, hard 12, max  78.7, rms 25.1 | calf hard 3 max  89.3 sum>30  167.2
+steps-ring16-0.18-R 13-knee_relax   inner: edges 369, hard 6, max  93.6, rms 16.0 | outer: edges 105, hard 4, max  47.8, rms 19.1 | calf hard 5 max  93.6 sum>30  213.2
+13-knee_relax      2214-2251: -  2222-2251: -  1143-2215:  15.7
+scratch/b/steps-ring16-0.18 [(1550, 0.183172), (1317, 0.184176), (1541, 0.184179)]
+== ring-add-0.14: r = dict(c['refine']['rings'][6]); r['offset'] = 0.14; c['refine']['rings'].append(r)
+steps-ring-add-0.14 13-knee_relax   inner: edges 605, hard 11, max  77.0, rms 14.1 | outer: edges 104, hard 12, max  78.7, rms 25.1 | calf hard 5 max  66.1 sum>30  170.6
+steps-ring-add-0.14-R 13-knee_relax   inner: edges 479, hard 5, max  67.8, rms 13.6 | outer: edges 105, hard 4, max  47.8, rms 19.1 | calf hard 4 max  67.8 sum>30  112.9
+13-knee_relax      2214-2251: -  2222-2251: -  1143-2215:  49.8
+scratch/b/steps-ring-add-0.14 [(1550, 0.183172), (1317, 0.184176), (1541, 0.184179)]
+== ring-add-0.19: r = dict(c['refine']['rings'][6]); r['offset'] = 0.19; c['refine']['rings'].append(r)
+steps-ring-add-0.19 13-knee_relax   inner: edges 476, hard 10, max  77.0, rms 15.4 | outer: edges 104, hard 12, max  78.7, rms 25.1 | calf hard 4 max  72.2 sum>30  157.2
+steps-ring-add-0.19-R 13-knee_relax   inner: edges 406, hard 6, max  79.5, rms 14.9 | outer: edges 105, hard 4, max  47.8, rms 19.1 | calf hard 5 max  79.5 sum>30  164.0
+13-knee_relax      2214-2251:  72.2  2222-2251:  49.3  1143-2215:  56.3
+scratch/b/steps-ring-add-0.19 [(1550, 0.183172), (1317, 0.184176), (1541, 0.184179)]
+== ring-add-0.2: r = dict(c['refine']['rings'][6]); r['offset'] = 0.2; c['refine']['rings'].append(r)
+steps-ring-add-0.2 13-knee_relax   inner: edges 473, hard 10, max  77.0, rms 15.5 | outer: edges 104, hard 12, max  78.7, rms 25.1 | calf hard 4 max  72.2 sum>30  157.2
+steps-ring-add-0.2-R 13-knee_relax   inner: edges 402, hard 6, max  79.5, rms 15.0 | outer: edges 105, hard 4, max  47.8, rms 19.1 | calf hard 5 max  79.5 sum>30  164.4
+13-knee_relax      2214-2251:  72.2  2222-2251:  49.3  1143-2215:  56.3
+scratch/b/steps-ring-add-0.2 [(1550, 0.183172), (1317, 0.184176), (1541, 0.184179)]
+== legflip-0.17: c['refine']['legFlip']['radius'] = 0.17
+steps-legflip-0.17 13-knee_relax   inner: edges 470, hard 11, max  77.5, rms 15.7 | outer: edges 105, hard 14, max  84.5, rms 26.0 | calf hard 5 max  72.2 sum>30  181.8
+steps-legflip-0.17-R 13-knee_relax   inner: edges 401, hard 7, max  79.5, rms 15.2 | outer: edges 106, hard 3, max  49.7, rms 17.7 | calf hard 5 max  79.5 sum>30  164.7
+13-knee_relax      2214-2251:  72.2  2222-2251:  49.3  1143-2215:  56.3
+scratch/b/steps-legflip-0.17 [(1550, 0.183172), (1317, 0.184176), (1541, 0.184179)]
+== legflip-0.2: c['refine']['legFlip']['radius'] = 0.2
+steps-legflip-0.2 13-knee_relax   inner: edges 462, hard 10, max  78.7, rms 15.9 | outer: edges 105, hard 14, max  85.2, rms 26.1 | calf hard 5 max  72.2 sum>30  173.2
+steps-legflip-0.2-R 13-knee_relax   inner: edges 398, hard 7, max  76.8, rms 15.2 | outer: edges 107, hard 3, max  48.5, rms 18.3 | calf hard 4 max  76.8 sum>30  148.9
+13-knee_relax      2214-2251: -  2222-2251:  12.6  1143-2215:  56.4
+scratch/b/steps-legflip-0.2 [(1550, 0.183172), (1317, 0.184176), (1541, 0.184179)]
+== legflip-0.22: c['refine']['legFlip']['radius'] = 0.22
+steps-legflip-0.22 13-knee_relax   inner: edges 470, hard 10, max  78.7, rms 15.7 | outer: edges 105, hard 14, max  85.2, rms 26.1 | calf hard 5 max  72.2 sum>30  176.1
+steps-legflip-0.22-R 13-knee_relax   inner: edges 400, hard 7, max  76.5, rms 15.1 | outer: edges 107, hard 3, max  49.4, rms 18.3 | calf hard 4 max  76.5 sum>30  147.9
+13-knee_relax      2214-2251: -  2222-2251: -  1143-2215:  56.4
+scratch/b/steps-legflip-0.22 [(1550, 0.183172), (1317, 0.184176), (1541, 0.184179)]
+== the flip of the bad source diagonal 1143-1308
+bind new faces keep the side: [True, True]
+bind turns before [17.9, 2.1, 4.0, 21.8, 11.5] max 21.8 ss 948
+bind turns after  [11.1, 3.0, 32.8, 14.0, 15.6] max 32.8 ss 1647
+uvs saved: False
+== move-fade: fade_proto.py 0.05 10
+largest change from step 13: 0.03415973647187771 u
+p-move-fade  13-knee_relax   inner: edges 464, hard 22, max  77.7, rms 18.0 | outer: edges 107, hard 12, max  96.3, rms 28.1 | calf hard 16 max  77.7 sum>30  455.6
+p-move-fade-R 13-knee_relax   inner: edges 395, hard 15, max  84.6, rms 18.2 | outer: edges 107, hard 10, max  82.9, rms 23.8 | calf hard 14 max  84.6 sum>30  433.7
+13-knee_relax      2214-2251:  64.4  2222-2251:   6.2  1143-2215:  56.3
+scratch/b/p-move-fade [(1550, 0.183172), (1317, 0.184176), (1541, 0.184179)]
+== band-bump: band_proto.py 0.07 0.13 6 0.5 bump
+160 band vertices, largest move from step 13 56.6 mm
+p-band-bump  13-knee_relax   inner: edges 480, hard 9, max  77.0, rms 15.4 | outer: edges 103, hard 8, max  62.1, rms 23.0 | calf hard 4 max  72.5 sum>30  162.0
+p-band-bump-R 13-knee_relax   inner: edges 413, hard 7, max  79.5, rms 14.6 | outer: edges 104, hard 8, max  75.5, rms 21.7 | calf hard 6 max  79.5 sum>30  180.5
+13-knee_relax      2214-2251:  72.5  2222-2251:  49.1  1143-2215:  56.3
+scratch/b/p-band-bump [(1339, 0.185549), (1557, 0.185556), (1550, 0.185797)]
+== stop-0.12-0.16: stop_proto.py 0.12 0.16
+largest change from step 13 21.8 mm
+p-stop-0.12-0.16 13-knee_relax   inner: edges 473, hard 9, max  77.0, rms 15.8 | outer: edges 104, hard 12, max  78.7, rms 25.1 | calf hard 3 max  73.0 sum>30  173.0
+p-stop-0.12-0.16-R 13-knee_relax   inner: edges 401, hard 5, max  84.6, rms 15.5 | outer: edges 105, hard 4, max  47.8, rms 19.1 | calf hard 4 max  84.6 sum>30  180.7
+13-knee_relax      2214-2251:  70.7  2222-2251:  73.0  1143-2215:  61.7
+scratch/b/p-stop-0.12-0.16 [(1550, 0.183172), (1317, 0.184176), (1541, 0.184179)]
+== stop-0.08-0.12: stop_proto.py 0.08 0.12
+largest change from step 13 33.0 mm
+p-stop-0.08-0.12 13-knee_relax   inner: edges 473, hard 11, max  77.0, rms 15.4 | outer: edges 104, hard 12, max  78.7, rms 25.2 | calf hard 5 max  56.6 sum>30  159.3
+p-stop-0.08-0.12-R 13-knee_relax   inner: edges 401, hard 16, max  81.8, rms 17.1 | outer: edges 105, hard 4, max  47.8, rms 19.1 | calf hard 15 max  81.8 sum>30  452.2
+13-knee_relax      2214-2251:   3.7  2222-2251:   1.9  1143-2215:  28.9
+scratch/b/p-stop-0.08-0.12 [(1550, 0.183172), (1317, 0.184176), (1541, 0.184179)]
+== slide-none: slide_proto.py none
+largest move of the smoothing 62.8 mm (step 13: 176.9 mm)
+p-slide-none 13-knee_relax   inner: edges 471, hard 24, max 173.5, rms 26.1 | outer: edges 116, hard 21, max 173.2, rms 39.6 | calf hard 14 max 173.5 sum>30 1116.3
+p-slide-none-R 13-knee_relax   inner: edges 402, hard 18, max 179.0, rms 25.6 | outer: edges 121, hard 14, max 174.4, rms 38.0 | calf hard 12 max 179.0 sum>30  867.5
+13-knee_relax      2214-2251:  18.1  2222-2251:   3.0  1143-2215:  39.0
+scratch/b/p-slide-none [(1550, 0.183172), (1317, 0.184176), (1541, 0.184179)]
+== slide-fall: slide_proto.py fall
+largest move of the smoothing 176.3 mm (step 13: 176.9 mm)
+p-slide-fall 13-knee_relax   inner: edges 468, hard 10, max  77.0, rms 15.4 | outer: edges 109, hard 13, max  95.8, rms 27.8 | calf hard 4 max  73.3 sum>30  152.8
+p-slide-fall-R 13-knee_relax   inner: edges 398, hard 6, max  82.1, rms 15.1 | outer: edges 108, hard 7, max  66.0, rms 20.9 | calf hard 5 max  82.1 sum>30  158.8
+13-knee_relax      2214-2251:  73.3  2222-2251:  54.9  1143-2215:  56.7
+scratch/b/p-slide-fall [(1550, 0.183172), (1317, 0.184176), (1541, 0.184179)]
+== slide-0.5: slide_proto.py 0.5
+largest move of the smoothing 140.9 mm (step 13: 176.9 mm)
+p-slide-0.5  13-knee_relax   inner: edges 472, hard 10, max  77.0, rms 15.1 | outer: edges 109, hard 12, max  82.2, rms 25.8 | calf hard 4 max  67.4 sum>30  139.2
+p-slide-0.5-R 13-knee_relax   inner: edges 399, hard 5, max  85.5, rms 14.7 | outer: edges 110, hard 4, max  56.8, rms 19.4 | calf hard 4 max  85.5 sum>30  128.6
+13-knee_relax      2214-2251:  67.4  2222-2251:  50.0  1143-2215:  46.1
+scratch/b/p-slide-0.5 [(1550, 0.183172), (1317, 0.184176), (1541, 0.184179)]
+== reach-0.12: slide_proto.py 1 0.12 12
+largest move of the smoothing 177.2 mm (step 13: 176.9 mm)
+p-reach-0.12 13-knee_relax   inner: edges 477, hard 10, max  77.0, rms 15.2 | outer: edges 100, hard 11, max  65.1, rms 23.5 | calf hard 4 max  69.6 sum>30  148.4
+p-reach-0.12-R 13-knee_relax   inner: edges 407, hard 5, max  77.7, rms 14.6 | outer: edges 100, hard 2, max  41.2, rms 18.2 | calf hard 4 max  77.7 sum>30  153.1
+13-knee_relax      2214-2251:  69.6  2222-2251:  45.4  1143-2215:  53.2
+scratch/b/p-reach-0.12 [(1550, 0.183182), (1541, 0.184335), (1317, 0.184344)]
+== reach-0.13: slide_proto.py 1 0.13 12
+largest move of the smoothing 177.3 mm (step 13: 176.9 mm)
+p-reach-0.13 13-knee_relax   inner: edges 479, hard 11, max  77.0, rms 15.0 | outer: edges 98, hard 11, max  58.0, rms 22.9 | calf hard 5 max  67.7 sum>30  140.8
+p-reach-0.13-R 13-knee_relax   inner: edges 408, hard 4, max  76.7, rms 14.4 | outer: edges 99, hard 1, max  41.6, rms 17.9 | calf hard 3 max  76.7 sum>30  143.4
+13-knee_relax      2214-2251:  67.7  2222-2251:  43.7  1143-2215:  51.8
+scratch/b/p-reach-0.13 [(1550, 0.183372), (1317, 0.18461), (1541, 0.184942)]
+== reach-0.15: slide_proto.py 1 0.15 12
+largest move of the smoothing 177.5 mm (step 13: 176.9 mm)
+p-reach-0.15 13-knee_relax   inner: edges 484, hard 11, max  77.0, rms 14.8 | outer: edges 98, hard 9, max  53.4, rms 22.0 | calf hard 5 max  64.3 sum>30  132.3
+p-reach-0.15-R 13-knee_relax   inner: edges 411, hard 4, max  75.3, rms 14.1 | outer: edges 97, hard 1, max  42.3, rms 17.4 | calf hard 3 max  75.3 sum>30  125.1
+13-knee_relax      2214-2251:  64.3  2222-2251:  41.3  1143-2215:  49.9
+scratch/b/p-reach-0.15 [(1550, 0.184147), (1317, 0.185205), (1339, 0.185279)]
+== cluster-0.005: cluster_proto.py 0.005
+25 groups of 63 vertices; largest change from step 13 24.0 mm
+p-cluster-0.005 13-knee_relax   inner: edges 471, hard 13, max  77.6, rms 16.3 | outer: edges 106, hard 11, max  78.7, rms 24.6 | calf hard 6 max  77.6 sum>30  212.9
+p-cluster-0.005-R 13-knee_relax   inner: edges 402, hard 6, max  77.4, rms 14.8 | outer: edges 105, hard 4, max  47.8, rms 19.6 | calf hard 5 max  77.4 sum>30  148.5
+13-knee_relax      2214-2251:   5.0  2222-2251:   3.3  1143-2215:  26.5
+scratch/b/p-cluster-0.005 [(1550, 0.183172), (1317, 0.184176), (1541, 0.184179)]
+== cluster-0.012: cluster_proto.py 0.012
+57 groups of 177 vertices; largest change from step 13 38.6 mm
+p-cluster-0.012 13-knee_relax   inner: edges 472, hard 19, max  91.5, rms 17.9 | outer: edges 105, hard 10, max  78.3, rms 25.8 | calf hard 10 max  91.5 sum>30  330.5
+p-cluster-0.012-R 13-knee_relax   inner: edges 403, hard 15, max  86.9, rms 17.9 | outer: edges 104, hard 4, max  53.1, rms 22.3 | calf hard 11 max  86.9 sum>30  342.0
+13-knee_relax      2214-2251:   4.4  2222-2251:   2.9  1143-2215:  27.5
+scratch/b/p-cluster-0.012 [(1550, 0.183172), (1317, 0.184176), (1541, 0.184179)]
+== shin-reach-0.07: shin_proto.py 1
+largest move of the smoothing 175.5 mm (step 13: 176.9 mm)
+p-shin-reach-0.07 13-knee_relax   inner: edges 465, hard 14, max  77.0, rms 17.2 | outer: edges 112, hard 10, max  78.7, rms 24.1 | calf hard 8 max  75.6 sum>30  317.0
+p-shin-reach-0.07-R 13-knee_relax   inner: edges 398, hard 10, max  87.0, rms 16.2 | outer: edges 108, hard 3, max  47.7, rms 19.4 | calf hard 9 max  87.0 sum>30  270.6
+13-knee_relax      2214-2251:  74.2  2222-2251:  75.6  1143-2215:  74.1
+scratch/b/p-shin-reach-0.07 [(1550, 0.183172), (1317, 0.184176), (1541, 0.184179)]
+== taubin: kind_proto.py 1 0.105 24
+largest move of the smoothing 88.0 mm (step 13: 176.9 mm)
+p-taubin     13-knee_relax   inner: edges 467, hard 26, max  92.1, rms 20.2 | outer: edges 121, hard 12, max  90.2, rms 27.0 | calf hard 13 max  92.1 sum>30  476.8
+p-taubin-R   13-knee_relax   inner: edges 393, hard 22, max 136.4, rms 19.7 | outer: edges 128, hard 14, max  78.5, rms 23.8 | calf hard 16 max 136.4 sum>30  517.5
+13-knee_relax      2214-2251:  20.4  2222-2251:   1.1  1143-2215:  63.7
+scratch/b/p-taubin [(1550, 0.183172), (1317, 0.184176), (1541, 0.184179)]
+== fair-inner-0.2-24: fair_proto.py 0.03 0.2 24 0.5
+278 vertices, largest move 35.2 mm
+p-fair-inner-0.2-24 13-knee_relax   inner: edges 475, hard 8, max  77.0, rms 13.6 | outer: edges 104, hard 12, max  78.7, rms 25.2 | calf hard 3 max  47.7 sum>30   85.5
+p-fair-inner-0.2-24-R 13-knee_relax   inner: edges 400, hard 5, max  51.6, rms 13.1 | outer: edges 105, hard 4, max  47.8, rms 19.2 | calf hard 4 max  49.3 sum>30   86.0
+13-knee_relax      2214-2251:  34.9  2222-2251:  15.5  1143-2215:  30.1
+scratch/b/p-fair-inner-0.2-24 [(1550, 0.183172), (1317, 0.184176), (1541, 0.184179)]
+== fair-inner-0.2-48: fair_proto.py 0.03 0.2 48 0.5
+278 vertices, largest move 45.4 mm
+p-fair-inner-0.2-48 13-knee_relax   inner: edges 473, hard 8, max  77.0, rms 13.6 | outer: edges 104, hard 12, max  78.7, rms 25.2 | calf hard 3 max  69.8 sum>30  118.4
+p-fair-inner-0.2-48-R 13-knee_relax   inner: edges 399, hard 5, max  51.6, rms 12.8 | outer: edges 105, hard 4, max  47.8, rms 19.2 | calf hard 4 max  49.3 sum>30   79.7
+13-knee_relax      2214-2251:  27.0  2222-2251:  12.9  1143-2215:  26.5
+scratch/b/p-fair-inner-0.2-48 [(1550, 0.183172), (1317, 0.184176), (1541, 0.184179)]
+== fair-0.2: c['kneeCrease']['fair'] = {'from': 0.03, 'to': 0.2, 'radius': 9, 'rounds': 24, 'share': 0.5}
+steps-fair-0.2 13-knee_relax   inner: edges 475, hard 5, max  77.0, rms 13.0 | outer: edges 104, hard 12, max  78.7, rms 25.1 | calf hard 0 max  38.2 sum>30   38.2
+steps-fair-0.2-R 13-knee_relax   inner: edges 400, hard 4, max  74.1, rms 13.3 | outer: edges 105, hard 4, max  47.8, rms 19.1 | calf hard 3 max  74.1 sum>30   87.7
+13-knee_relax      2214-2251:  34.9  2222-2251:  15.5  1143-2215:  29.9
+scratch/b/steps-fair-0.2 [(1550, 0.183172), (1317, 0.184176), (1541, 0.184179)]
+== fair-0.16: c['kneeCrease']['fair'] = {'from': 0.03, 'to': 0.16, 'radius': 0.09, 'rounds': 24, 'share': 0.5}
+steps-fair-0.16 13-knee_relax   inner: edges 473, hard 15, max  77.0, rms 15.8 | outer: edges 104, hard 12, max  78.7, rms 25.1 | calf hard 10 max  69.9 sum>30  245.7
+steps-fair-0.16-R 13-knee_relax   inner: edges 402, hard 1, max  51.6, rms 13.4 | outer: edges 105, hard 4, max  47.8, rms 19.1 | calf hard 0 max  37.8 sum>30   38.5
+13-knee_relax      2214-2251:  43.2  2222-2251:   3.8  1143-2215:  24.1
+scratch/b/steps-fair-0.16 [(1550, 0.183172), (1317, 0.184176), (1541, 0.184179)]
+== final: c['kneeCrease']['fair'] = {'from': 0.03, 'to': 0.17, 'radius': 0.09, 'rounds': 24, 'share': 0.5}
+steps-final  13-knee_relax   inner: edges 473, hard 8, max  77.0, rms 14.3 | outer: edges 104, hard 12, max  78.7, rms 25.1 | calf hard 3 max  54.8 sum>30   90.5
+steps-final-R 13-knee_relax   inner: edges 402, hard 1, max  51.6, rms 13.1 | outer: edges 105, hard 4, max  47.8, rms 19.1 | calf hard 0 max  36.4 sum>30   24.0
+13-knee_relax      2214-2251:  38.3  2222-2251:   4.4  1143-2215:  26.5
+scratch/b/steps-final [(1550, 0.183172), (1317, 0.184176), (1541, 0.184179)]
