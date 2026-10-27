@@ -1651,10 +1651,14 @@ function poseSide(
   }
   grip.sub(pivotBind.fromArray(rig.pivot)).applyQuaternion(rotation).add(pivot);
   poseShoulder(side.arm, chest, rig.chestBind, turn, shoulder);
-  // A paw that leaves its grip at rest keeps the aim and the roll of its shoulder: with the roll,
-  // the mix from its rest paw flipped to the other side of its forearm in the middle of the move.
+  // A paw that leaves its grip at rest takes the aim and the roll of its grip by the weight of
+  // the playing pose alone, so that it faces its tube in the play and keeps the aim and the roll
+  // of its shoulder at rest: with the roll of the grip at rest, the mix from its rest paw flipped
+  // to the other side of its forearm in the middle of the move. With no roll in the play, the left
+  // flute paw of the tan fox pointed at the flute from below and missed it (user, 2026-10-27: "the
+  // fox doesn't seem to be holding the instrument properly").
   const face = rig.hold.faceTube[side.arm.side === 'L' ? 0 : 1];
-  if (face !== 'none' && !free) {
+  if (face !== 'none') {
     tubeAxis.fromArray(side.tube.axis).applyQuaternion(rotation);
     // The palm faces from its grip to the axis of its tube. The axis of a woodwind passes through
     // the mouthpiece. The up axis of the bone is no such direction: the oboe and the clarinet hang
@@ -1666,7 +1670,7 @@ function poseSide(
     tubePoint.sub(pivotBind).applyQuaternion(rotation).add(pivot);
     tubeSide.subVectors(tubePoint, grip).projectOnPlane(tubeAxis).normalize();
     // The share of the aim and the roll of the play: a hold can keep them in the rest pose.
-    const aim = rig.hold.restAim + (1 - rig.hold.restAim) * weight;
+    const aim = free ? weight : rig.hold.restAim + (1 - rig.hold.restAim) * weight;
     aimAcross(shoulder, grip, tubeAxis, rig.hold.aimAcross * aim, aimPoint);
     const sideShare = rig.hold.aimSide[side.arm.side === 'L' ? 0 : 1];
     if (sideShare > 0) {
