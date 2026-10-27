@@ -526,10 +526,14 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       near the knee plane cut only the front of each knee, two rings cut the back where the thigh
       and the calf meet, and a smoothing rounds the crease. No edge passes through the skin there,
       and no face of the legs folds (`knee-stripes.md` of `docs/research/2026-10-26-fifth-bears/`).
-- [ ] Polar bear (`2026-10-26-fifth-review-bears.md`): a short vertical groove stays on the front
-      of the left shin, and light wedges on the calf back from az 150 to 180. `main` shows both,
-      from long faces of the source shin, so the knee rings do not make them. A ring on the shin
-      or a cut of the source faces can remove them.
+- [x] Polar bear (`2026-10-26-fifth-review-bears.md`): a short vertical groove stays on the front
+      of the left shin, and light wedges on the calf back from az 150 to 180. Done: the groove
+      was a long source diagonal across the knee front, which now flips before the rings, and the
+      wedges came from the crease smoothing, whose weight now falls with the distance from the
+      seam over two more calf rings (`2026-10-27-legs-armpit.md`).
+- [ ] Polar bear (`2026-10-27-legs-armpit.md`): at L180, one soft darker facet stays on the left
+      calf, where the fillet of the crease smoothing ends above the first calf ring (edge 2214 to
+      2251 turns 72°). A longer reach moved the sole or folded a face of the inner thigh.
 - [x] Bear rig (`2026-10-26-arm-fixes.md`): the left shoulder bridge folds 8 tiny faces at p95
       in the play (4 on the old rig, limit 8), and the right move twist max is 87 (81). Done: the
       head keeps the rule weights, and four shoulder faces take the mean of their painted weights

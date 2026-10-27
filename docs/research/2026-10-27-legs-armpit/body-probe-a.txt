@@ -1,0 +1,10 @@
+base main, new: the working tree
+bodies equal: 90 of 95
+players equal: 22 of 23
+pose sets equal: 1492 of 1492
+body polar-bear chair: mesh differs (positions, colors, bones, blendBones, blendWeights, finishes, correctives, normals), joints same
+body polar-bear stool: mesh differs (positions, colors, bones, blendBones, blendWeights, finishes, correctives, normals), joints same
+body polar-bear high-stool: mesh differs (positions, colors, bones, blendBones, blendWeights, finishes, correctives, normals), joints same
+body polar-bear bench: mesh differs (positions, colors, bones, blendBones, blendWeights, finishes, correctives, normals), joints same
+body polar-bear stand: mesh differs (positions, colors, bones, blendBones, blendWeights, finishes, correctives, normals), joints same
+player piano/polar-bear/piano: mesh differs (positions, colors, bones, blendBones, blendWeights, finishes, correctives, normals), moved bones: none

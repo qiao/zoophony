@@ -453,13 +453,21 @@ mesh are quad tubes (rings at a right angle to the bones), and the weights come 
     in the seated bind, and the knee reads as an angular block over a slab. Rings of new vertices
     at the knee cut such faces (`refine.rings` with the joint `shin`), and each new vertex takes
     the knee and haunch rules at its height, so that the seated leg reads as a thigh, a round
-    knee, and a shin. At the back of the bent knee, the bind puts each vertex nearer to the knee
+    knee, and a shin. A source quad near the knee can have its long diagonal as the edge: the bent
+    knee keeps that edge a straight chord, the quad folds along it into a groove or a ridge, and a
+    ring vertex on the chord stays on it. So such an edge flips to the other diagonal before the
+    rings when the flip makes the bind smoother (`refine.legFlip`). At the back of the bent knee,
+    the bind puts each vertex nearer to the knee
     plane than the radius of the leg inside the leg, and its faces fold through the skin as
     stacked light stripes. So the rings near the knee plane cut only the front arc of the knee
     (`toward`, `within`), and the rings of the back arc stand where the thigh and the calf meet
     in the bind. A smoothing of the seam of the thigh and the shin faces at the back of each knee
     (`kneeCrease`) rounds the corner, so that its faces do not turn more than the crease angle
-    from each other. `pnpm rig-mesh --check` gives the gaps of the tail to the floor and to the
+    from each other. Its weight falls with the distance from the seam (`reach`), because a weight
+    by rings of neighbors carried the move down each long calf face, and the tilted faces showed
+    as light wedges. More back rings cut the calf, so that the weight fades over short faces. The
+    hips keep their share, because the crotch of a short leg lies near the knee.
+    `pnpm rig-mesh --check` gives the gaps of the tail to the floor and to the
     chair over one sway period (`tools/tail-gap.ts`).
   - Weights and shapes. Bone heat gives the weights, and rules and rings of new vertices at the
     joints (`refine.rings`) keep the faces from a fold. The corrective shapes give the source back

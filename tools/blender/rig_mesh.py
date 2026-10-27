@@ -3332,10 +3332,12 @@ def knee_relax(bind, tris, weights, heads, rule):
     seam is each vertex of both a face of the thigh and a face of the shin of one side (main
     bone), on the inner side of the knee: its place from the knee joint has a dot of at least
     `inner` units with the unit sum of the directions from the knee to the hip joint and to the
-    ankle. A vertex moves by its share of the weight of the thigh and the shin of its side. Gives
-    the smoothed bind, the number of the seam vertices, the number of the moved vertices, and the
-    largest move."""
+    ankle. A vertex moves by its share of the weight of the thigh and the shin of its side, less
+    its share of the hips: on a short leg, the crotch lies near the knee, and a move of its thin
+    faces folded them. Gives the smoothed bind, the number of the seam vertices, the number of
+    the moved vertices, and the largest move."""
     main = weights[tris].sum(axis=1).argmax(axis=1)
+    hips = BONES.index('hips')
     out, seams, moved, largest = bind, 0, 0, 0.0
     for side in 'LR':
         thigh, shin = BONES.index(f'thigh_{side}'), BONES.index(f'shin_{side}')
@@ -3346,7 +3348,7 @@ def knee_relax(bind, tris, weights, heads, rule):
         knee = heads[f'shin_{side}']
         inner = unit(unit(heads[f'thigh_{side}'] - knee) + unit(heads[f'foot_{side}'] - knee))
         seam = on_thigh & on_shin & ((out - knee) @ inner >= rule['inner'])
-        free = np.clip(weights[:, thigh] + weights[:, shin], 0.0, 1.0)
+        free = np.clip(weights[:, thigh] + weights[:, shin] - weights[:, hips], 0.0, 1.0)
         out, count, most = seam_relax(out, tris, seam, free, rule)
         seams, moved, largest = seams + int(seam.sum()), moved + count, max(largest, most)
     return out, seams, moved, largest
