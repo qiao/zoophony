@@ -317,7 +317,10 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
   (`BowedHold.liftReach`). The instrument takes the short turn from the rest to the play: a turn
   through an upright instrument with the top plate to the chest rolled it a full turn around its
   long axis (`docs/decisions/2026-10-26-violin-lift.md`). At rest, the left paw holds the neck with
-  a straight wrist and a natural twist (`BowedHold.restTwistL`), and in the move it changes to the
+  a straight wrist and a twist (`BowedHold.restTwistL`) that closes it around the neck from the inner
+  side, with the fingers across the front of the neck below the pegbox: with a larger twist, the
+  palm faced the body and the fingers lay over the strings, and with none, the paw flipped in the
+  move (`docs/decisions/2026-10-26-fourth-review.md`). In the move, it changes to the
   playing grip: the twist and the bend of the wrist go on a line from their rest values to their
   playing values (`carryLift()` of `pose/bowed.ts`). The playing grip on the upright rest needs
   more forearm turn than a real forearm has. Near the chin, the instrument goes smoothly back to

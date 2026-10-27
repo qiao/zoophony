@@ -230,8 +230,9 @@ export interface BowedHold {
    * The twist of the left paw on its forearm in the rest pose, in radians, with a straight wrist
    * (design 5.2): at rest, the paw holds the neck with this natural twist, and in the lift it
    * changes to the playing grip (`carryLift()` of `pose/bowed.ts`). Thus the instrument takes the
-   * short turn from the rest to the play, and the forearm does not wring past 180°. `null` keeps
-   * the playing grip on the neck at rest.
+   * short turn from the rest to the play, and the forearm does not wring past 180°. The twist sets
+   * the side of the neck that the palm faces, and a twist near the opposite of the playing twist
+   * flips the paw in the move. `null` keeps the playing grip on the neck at rest.
    */
   readonly restTwistL: number | null;
   /**
@@ -555,8 +556,11 @@ const HANGING_BOW = {
  * lowering, and with 0.3 H to the front, the bow paw turned 2,295°/s in a lift. The violin hangs
  * from the paw and
  * takes the short turn to the play. At rest, the paw holds the neck with a straight wrist and a
- * twist of 1.5 rad (`restTwistL`), and it changes to the playing grip in the move: a middle turn
- * with the top plate to the body rolled the violin a full turn (user, 2026-10-25,
+ * twist of 0.5 rad (`restTwistL`), so that it closes around the neck from the inner side, with the
+ * fingers across the front of the neck: with 1.5 rad, the palm faced the body and the fingers lay
+ * over the strings, and with 0, the twist of the move reached 180° and the paw flipped (user,
+ * 2026-10-26, 2026-10-26-fourth-review decisions). The paw changes to the playing grip in the
+ * move: a middle turn with the top plate to the body rolled the violin a full turn (user, 2026-10-25,
  * 2026-10-26-violin-lift decisions). With the tail end on the path, the paw went 1.09 H to the
  * front, and the elbow straightened to 180°. With no move to the front, the violin went 3.2 cm
  * into the belly in a lowering. In the middle, the elbow points out and a little down, as at rest
@@ -615,7 +619,7 @@ const SHOULDER_HOLD = {
   rest: { ...LAP_VIOLIN, lap: { along: 1, offset: [-0.1, 0.1, 0] } },
   liftReach: [0, 0.35, -0.2],
   liftPlace: 0,
-  restTwistL: 1.5,
+  restTwistL: 0.5,
   liftPoleL: [-1, -0.6, 0],
   restBow: {
     lap: { along: 1, offset: [0.4, 0.85, -0.3] },
@@ -716,7 +720,7 @@ const FOX_HOLD = {
   rest: { ...LAP_VIOLIN, lap: { along: 0.8, offset: [0, -0.18, -0.2] } },
   liftReach: [0, 0.1, -0.2],
   liftPlace: null,
-  restTwistL: 1.5,
+  restTwistL: 0.5,
   liftPoleL: null,
   restBow: {
     lap: { along: 0.8, offset: [0.35, 0.45, -0.2] },
@@ -929,7 +933,7 @@ const CAT_HOLD = {
   },
   liftReach: [0, 0.25, -0.2],
   liftPlace: 0,
-  restTwistL: 1.5,
+  restTwistL: 0.5,
   liftPoleL: [-1.2, -0.6, 0],
   restBow: {
     lap: { along: 0.5, offset: [0.35, 0.25, -0.2] },

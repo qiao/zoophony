@@ -522,8 +522,9 @@ A round that changes the motion updates the items.
   the top plate to the chest in the middle of the move (`liftTurn`), and that path rolled it a
   full turn around its long axis (user: "the violins / violas are rotated by nearly 360 degress",
   `docs/decisions/2026-10-26-violin-lift.md`). At rest, the left paw holds the neck with a
-  straight wrist and a natural twist (`BowedHold.restTwistL`), and in the move it changes to the
-  playing grip (`carryLift()` of `pose/bowed.ts`). The left paw of the rabbit and the cat carries
+  straight wrist and a twist that closes it around the neck from the inner side, the fingers
+  across the front of the neck (`BowedHold.restTwistL`, `docs/decisions/2026-10-26-fourth-review.md`),
+  and in the move it changes to the playing grip (`carryLift()` of `pose/bowed.ts`). The left paw of the rabbit and the cat carries
   the instrument by the nut (`BowedHold.liftPlace`), as a player brings the violin up by its neck,
   and the bow tip points forward beside the body in the middle of the move
   (`docs/decisions/2026-10-26-violin-lift.md`).
