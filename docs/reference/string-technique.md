@@ -391,6 +391,11 @@ and at the highest rates the wrist and the elbow move in phase [56 (abstract)].
   the scroll forward and the bridge facing out [73]. No source of this file gives the side of the
   top plate in the seated rest. The image of the user shows a seated violinist with the top plate
   to the front (`docs/research/2026-10-16-bow-rest.md`).
+- **The horizontal hold.** A violinist or a violist can hold the instrument in the "banjo"
+  position, horizontally on the lap, and pluck the strings with the right thumb. This hold is
+  rarely used, and it is a hold to play [83]. In a time of shoulder pain, one orchestral violinist
+  put the instrument on his lap and let the left arm hang free [74]. No source of this file gives
+  a rest with the scroll to the side.
 
 ## 3. Use in the app
 
@@ -856,3 +861,5 @@ Each source opened on 2026-10-17, except where a fact has a mark of section "Sou
 82. Corilon Violins, "Finding a student violin in the proper size", the size chart of the violins
     and the violas. Opened on 2026-10-25.
     https://www.corilon.com/gb/library/practical-advice/finding-a-student-violin-in-the-proper-size
+83. Wikipedia, "Pizzicato", the "banjo" position of the violin and the viola. Opened on
+    2026-10-27. https://en.wikipedia.org/wiki/Pizzicato
