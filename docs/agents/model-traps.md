@@ -7,6 +7,14 @@ group of your work before you plan it. A probe that a trap names is in its resea
 
 - The player hands turn freely at the wrist, but the studio skin bends well only near its clips. The
   retarget turns each paw in the plane of its palm toward the forearm (`PAW_TURN`).
+- A carried prop hangs from the paw that the viewer sees, and `PAW_TURN` aligns that paw with the
+  forearm, so a forearm across the neck at rest and along it in the play turned the violin 56° to
+  79° in the paw. Give the rest paw its own turn (`pawTurnL` of `AnimalPose`) around the wrist, and
+  read the grip with `pnpm carry-check`. A turn around the strings bent the rest wrist 83° to 109°.
+- The bind paw of a mesh is pronated about 55°, so a far supinated hold, such as the violin grip
+  (215° to 234° from the bind), passes 180° of skin twist from any natural rest. Read the rest and
+  play twists from the bind first (`carry-geo.ts`, `pole-scan.sh` of
+  `docs/research/2026-10-27-violin-carry/`).
 - The `palm` of a rig config sets the roll of the arm bones. The claws curl toward the palm, so read
   the palm from their curl. The flat side of a paw can lie 90° from it. A palm 90° off twisted
   each paw of the bear 122° at rest (`palm.txt` of `docs/research/2026-10-22-mesh-bear/`).
