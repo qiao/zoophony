@@ -606,6 +606,13 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       round of the leg on the bisector, so from a low front angle the knee keeps a soft flat
       top. A quad ring at the knee, as the arm rebuilds have (`rig-blender.md`), gives the
       corner a true arc.
+- [ ] Polar bear (`2026-10-27-wolf-knee.md`, section 11): the user said that the seated knee is
+      still much bulkier than expected and not anatomical. Long source faces join the underside
+      of the haunch to the heel, so the seated leg is a wedge with no hollow behind the knee: the
+      knee is 0.28 units deep against 0.16 in the source. A taper, a carve, and back rings
+      failed or folded the back of the knee. Next: rebuild each leg as a quad tube in Blender
+      with rings that taper the thigh to 0.65 at the knee (ANSUR II) and a knee ring
+      (`rig-blender.md`).
 - [x] Wolf (`2026-10-27-wolf-knee.md`): the user said that the wolf does not hold the clarinet
       properly at rest: the left paw capped the mouthpiece end, the bell hung 12 cm in front of
       the seat, and each paw slid 15 cm along the tube in each move. Done: the bell rests against

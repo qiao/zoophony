@@ -1,0 +1,9 @@
+steps-round  14-knee_front   inner: edges 500, hard 7, max  85.6, rms 13.8 | outer: edges 212, hard 2, max  54.1, rms 13.7 | calf hard 3 max  54.9 sum>30   81.7
+steps-round-R 14-knee_front   inner: edges 440, hard 3, max  62.5, rms 13.1 | outer: edges 264, hard 1, max  41.2, rms 12.4 | calf hard 0 max  36.4 sum>30   22.4
+steps-bk2    14-knee_front   inner: edges 680, hard 9, max  83.4, rms 12.4 | outer: edges 213, hard 2, max  50.8, rms 13.9 | calf hard 2 max  55.9 sum>30   51.4
+steps-bk2-R  14-knee_front   inner: edges 619, hard 15, max 174.0, rms 22.6 | outer: edges 275, hard 1, max  41.0, rms 12.0 | calf hard 0 max  36.1 sum>30   15.9
+steps-bk5    14-knee_front   inner: edges 631, hard 8, max  76.6, rms 12.8 | outer: edges 221, hard 5, max  59.8, rms 15.9 | calf hard 2 max  43.9 sum>30   37.2
+steps-bk5-R  14-knee_front   inner: edges 607, hard 6, max  80.5, rms 12.4 | outer: edges 287, hard 1, max  46.6, rms 13.3 | calf hard 1 max  43.9 sum>30   40.9
+steps-ta2    14-knee_front   inner: edges 517, hard 4, max  85.4, rms 13.7 | outer: edges 221, hard 3, max  45.1, rms 15.0 | calf hard 0 max  37.9 sum>30   33.1
+steps-cb1    14-knee_front   inner: edges 642, hard 9, max  84.9, rms 13.4 | outer: edges 239, hard 18, max 121.2, rms 23.0 | calf hard 1 max  42.7 sum>30   32.9
+steps-cb1-R  14-knee_front   inner: edges 602, hard 6, max  71.4, rms 12.8 | outer: edges 275, hard 1, max  40.2, rms 12.9 | calf hard 1 max  43.6 sum>30   46.7
