@@ -566,7 +566,9 @@ The code constants of each family hold the times, the angles, and the lengths of
     holds it near the lip plate from its front and a little below, with the back of the paw to the
     audience, and points half up across it (`WindHold.aimSide`), so that the fingers come over the
     top onto the keys. It leaves its grip at rest, and faces the flute in the play too. The right
-    paw holds the body of the flute from behind and above, with its fingers over the front. At
+    paw holds the body of the flute as the right hand of a flutist: its middle lies behind the
+    flute and a little below, it points up past the back of the flute, and its fingers curl over
+    the top onto the keys, with the elbow down and out (`docs/reference/wind-technique.md` 2.4). At
     rest, the flute stands nearly upright with the foot joint on the top of the right thigh, in
     the closed right paw on the upper body of the flute, as a real flutist rests it vertically on
     the right leg (George, The Instrumentalist, December 2018), and the left paw hangs (5.2).

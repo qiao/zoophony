@@ -427,8 +427,8 @@ export const FOX_FLUTE_BACK = 9;
  * writes, and the flute lies 9° back from square to the face, 8° down to the right
  * ({@link FOX_FLUTE_BACK}). The lip plate sits 0.05 H below the mouth, under the long muzzle: at
  * the mouth, the jaw touched the flute. The shoulders stay square and low, with no forward turn of
- * the right shoulder. The left elbow points down and out, and the right elbow out to the side, in
- * line with the shoulder.
+ * the right shoulder. The left elbow points down and out, and the right elbow down, out, and a
+ * little forward, as a seated flutist lets the arms hang (`docs/reference/wind-technique.md` 2.4).
  *
  * Each palm faces the flute, and the fingers curl over it (`faceTube`, `gripCurl`), as a real
  * flutist curves the fingers over the keys (`docs/reference/wind-technique.md` 2.4). The left paw
@@ -438,12 +438,18 @@ export const FOX_FLUTE_BACK = 9;
  * that its fingers come over the top onto the keys. It also faces the flute in the play, although
  * it leaves its grip at rest. Before 2026-10-27, it hung 5.5 cm below the flute with its finger
  * tips 2.7 cm off it (user, 2026-10-27: "the fox doesn't seem to be holding the instrument
- * properly", `2026-10-27-cat-fox` decisions). The right paw holds the body of the flute from
- * behind and above, past the axis, with its fingers over the front (`gripShiftR`): in front of the
- * flute, it turned 180° on its forearm in the lift and the lowering, and its paw swing reached 96°
- * (limit 70°). Before
- * the rebuilt arms of 2026-10-25, the paws held the flute with the back of the paw, because the
- * right paw turned 142° on its forearm and flipped (`2026-10-25-fox-arms` decisions).
+ * properly", `2026-10-27-cat-fox` decisions). The right paw holds the body of the flute as the
+ * right hand of a flutist: its middle lies behind the flute and a little below, its palm faces the
+ * flute, and it points up past the back of the flute (`aimSide` below 0), so that the curled
+ * fingers come over the top onto the keys, and the thumb side lies under the flute
+ * (`gripShiftR`). Before, the paw lay on the top of the flute from behind and above (user,
+ * 2026-10-27: "the fox doesn't seem to be holding the instrument properly", `2026-10-27-cat-fox2`
+ * decisions). With the paw below the flute and the side aim to the front, the flute lay in the
+ * palm as in a left hand, and the paw turned 180° on its forearm in the lift and the lowering.
+ * With the right elbow out to the side, the paw swing reached 45° (30° before), and with the
+ * elbow a little back, the right upper arm went 1.5 cm into the body in the moves. Before the rebuilt
+ * arms of 2026-10-25, the paws held the flute with the back of the paw, because the right paw
+ * turned 142° on its forearm and flipped (`2026-10-25-fox-arms` decisions).
  *
  * In the rest pose, the flute stands nearly upright at the right side with the foot joint down on
  * the top of the right thigh, as a real flutist rests it vertically on the right leg with the
@@ -471,7 +477,7 @@ const FOX_FLUTE = {
   lipShift: [0, -0.05, 0],
   play: fluteTurn(FOX_HEAD_TURN - FOX_FLUTE_BACK, 8),
   poleL: [-1, -1, -0.3],
-  poleR: [1, -0.8, 0],
+  poleR: [1, -1.4, -0.3],
   rest: holdTurn(0, -15, fluteTurn(0, 80, [0, 0, -1])),
   restShift: [0.8, -0.958, 0.5],
   restPoleL: [-0.4, -1, 0.38],
@@ -484,9 +490,9 @@ const FOX_FLUTE = {
   },
   faceTube: ['palm', 'palm'],
   aimAcross: 1,
-  aimSide: [0.5, 0],
+  aimSide: [0.5, -0.5],
   gripShiftL: [-0.04, 0, 0.04],
-  gripShiftR: [0, 0.1, -0.14],
+  gripShiftR: [0, 0, -0.14],
   restGripShiftR: [-0.45, -0.13, -0.08],
   gripCurl: curls(115, 106),
   gripAround: true,
