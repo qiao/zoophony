@@ -1,0 +1,178 @@
+
+> zoophony@0.0.0 arm-check /Users/xueqiaoxu/proj/zoophony/.claude/worktrees/fifth-strings3
+> node tools/arm-check.ts violinist fox-violinist violist --base main --jobs 6 --variant A --set violin\@rabbit.poleL\=\[1\,-0.5\,-1\]\;violin\@fox-red.poleL\=\[1\,-0.5\,-1\]\;viola\@cat.poleL\=\[1\,-0.5\,-1\]\;violin\@rabbit.tiltL\=0\;violin\@fox-red.tiltL\=0\;viola\@cat.tiltL\=0.26 --variant B --set violin\@rabbit.poleL\=\[1\,0\,-1\]\;violin\@fox-red.poleL\=\[1\,0\,-1\]\;viola\@cat.poleL\=\[1\,0\,-1\]\;violin\@rabbit.tiltL\=0.52\;violin\@fox-red.tiltL\=0.52\;viola\@cat.tiltL\=0.79 --variant C --set violin\@rabbit.poleL\=\[1\,0\,-1\]\;violin\@fox-red.poleL\=\[1\,0\,-1\]\;viola\@cat.poleL\=\[1\,0\,-1\]\;violin\@rabbit.tiltL\=0.26\;violin\@fox-red.tiltL\=0.26\;viola\@cat.tiltL\=0.26 --variant D --set violin\@rabbit.poleL\=\[1\,0.3\,-1\]\;violin\@fox-red.poleL\=\[1\,0.3\,-1\]\;viola\@cat.poleL\=\[1\,0.3\,-1\]\;violin\@rabbit.tiltL\=0.52\;violin\@fox-red.tiltL\=0.52\;viola\@cat.tiltL\=0.79 --variant E --set violin\@rabbit.poleL\=\[0.5\,0.3\,-1\]\;violin\@fox-red.poleL\=\[0.5\,0.3\,-1\]\;viola\@cat.poleL\=\[0.5\,0.3\,-1\]\;violin\@rabbit.tiltL\=0.52\;violin\@fox-red.tiltL\=0.52\;viola\@cat.tiltL\=0.79 --variant F --set violin\@rabbit.poleL\=\[1\,-0.5\,-1\]\;violin\@fox-red.poleL\=\[1\,-0.5\,-1\]\;viola\@cat.poleL\=\[1\,-0.5\,-1\]\;violin\@rabbit.tiltL\=0.26\;violin\@fox-red.tiltL\=0.26\;viola\@cat.tiltL\=0.52
+
+base: cached (main, 0d1254e8fbb9)
+base: cached (main, 0d1254e8fbb9)
+base: cached (main, 0d1254e8fbb9)
+base: cached (main, 0d1254e8fbb9)
+base: cached (main, 0d1254e8fbb9)
+base: cached (main, 8b8d162285f4)
+base: cached (main, 8b8d162285f4)
+base: cached (main, 8b8d162285f4)
+base: cached (main, 8b8d162285f4)
+base: cached (main, 8b8d162285f4)
+base: cached (main, b4035652d0a8)
+base: cached (main, b4035652d0a8)
+base: cached (main, b4035652d0a8)
+base: cached (main, b4035652d0a8)
+base: cached (main, b4035652d0a8)
+Arm gate of 3 roles in 6 variants against main: 18 children, at most 6 at the same time, in 391 s. A cell gives the value, the base in parentheses, and the verdict of a value that does not pass.
+
+- A: violin@rabbit.poleL=[1,-0.5,-1];violin@fox-red.poleL=[1,-0.5,-1];viola@cat.poleL=[1,-0.5,-1];violin@rabbit.tiltL=0;violin@fox-red.tiltL=0;viola@cat.tiltL=0.26
+- B: violin@rabbit.poleL=[1,0,-1];violin@fox-red.poleL=[1,0,-1];viola@cat.poleL=[1,0,-1];violin@rabbit.tiltL=0.52;violin@fox-red.tiltL=0.52;viola@cat.tiltL=0.79
+- C: violin@rabbit.poleL=[1,0,-1];violin@fox-red.poleL=[1,0,-1];viola@cat.poleL=[1,0,-1];violin@rabbit.tiltL=0.26;violin@fox-red.tiltL=0.26;viola@cat.tiltL=0.26
+- D: violin@rabbit.poleL=[1,0.3,-1];violin@fox-red.poleL=[1,0.3,-1];viola@cat.poleL=[1,0.3,-1];violin@rabbit.tiltL=0.52;violin@fox-red.tiltL=0.52;viola@cat.tiltL=0.79
+- E: violin@rabbit.poleL=[0.5,0.3,-1];violin@fox-red.poleL=[0.5,0.3,-1];viola@cat.poleL=[0.5,0.3,-1];violin@rabbit.tiltL=0.52;violin@fox-red.tiltL=0.52;viola@cat.tiltL=0.79
+- F: violin@rabbit.poleL=[1,-0.5,-1];violin@fox-red.poleL=[1,-0.5,-1];viola@cat.poleL=[1,-0.5,-1];violin@rabbit.tiltL=0.26;violin@fox-red.tiltL=0.26;viola@cat.tiltL=0.52
+
+| Variant | Role | Arm | folds p95 (8) | twist p95 (55) | forearm twist p95 (80) | flat p5 (0.55) | paw twist p95 (170) | paw swing p95 (70) | paw jumps (0.5%) | stretch p95 (0.35) | grip turn p50 (45) | move twist max (176) | move turn max (3000) | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| A | violinist | L | 10 (7) FAIL | 27 (15) FAIL | 79 (80) | 0.81 (0.73) | 124 (165) | 54 (30) FAIL | 0.0% (0.0%) | 0.05 (0.11) | 108 (17) FAIL | 124 (162) | 181 (1410) | FAIL |
+| A | violinist | R | 5 (5) | 23 (23) | 48 (48) | 0.84 (0.84) | 128 (128) | 36 (36) | 0.0% (0.0%) | 0.08 (0.08) | 19 (19) | 137 (137) | 447 (447) | PASS |
+| A | fox-violinist | L | 5 (1) FAIL | 61 (36) FAIL | 92 (67) FAIL | 0.68 (0.82) FAIL | 140 (161) | 54 (38) FAIL | 0.0% (0.0%) | 0.06 (0.08) | 84 (3) FAIL | 140 (153) | 228 (1487) | FAIL |
+| A | fox-violinist | R | 3 (3) | 41 (41) | 49 (49) | 0.82 (0.82) | 136 (136) | 56 (56) | 0.0% (0.0%) | 0.05 (0.05) | 11 (11) | 145 (145) | 280 (280) | PASS |
+| A | violist | L | 4 (4) | 34 (25) | 74 (66) | 0.36 (0.72) FAIL | 129 (164) | 43 (51) | 0.0% (0.0%) | 0.07 (0.09) | 88 (22) FAIL | 144 (153) | 182 (2067) | FAIL |
+| A | violist | R | 3 (3) | 39 (39) | 49 (49) | 0.84 (0.84) | 123 (123) | 36 (36) | 0.0% (0.0%) | 0.03 (0.03) | 30 (30) | 136 (136) | 392 (392) | PASS |
+| B | violinist | L | 11 (7) FAIL | 32 (15) FAIL | 88 (80) FAIL | 0.77 (0.73) | 132 (165) | 42 (30) | 0.0% (0.0%) | 0.05 (0.11) | 99 (17) FAIL | 133 (162) | 194 (1410) | FAIL |
+| B | violinist | R | 5 (5) | 23 (23) | 48 (48) | 0.84 (0.84) | 128 (128) | 36 (36) | 0.0% (0.0%) | 0.08 (0.08) | 19 (19) | 137 (137) | 447 (447) | PASS |
+| B | fox-violinist | L | 10 (1) FAIL | 75 (36) FAIL | 102 (67) FAIL | 0.63 (0.82) FAIL | 148 (161) | 50 (38) | 0.0% (0.0%) | 0.06 (0.08) | 76 (3) FAIL | 149 (153) | 250 (1487) | FAIL |
+| B | fox-violinist | R | 3 (3) | 41 (41) | 49 (49) | 0.82 (0.82) | 136 (136) | 56 (56) | 0.0% (0.0%) | 0.05 (0.05) | 11 (11) | 145 (145) | 280 (280) | PASS |
+| B | violist | L | 6 (4) | 44 (25) FAIL | 80 (66) FAIL | 0.26 (0.72) FAIL | 137 (164) | 49 (51) | 0.0% (0.0%) | 0.06 (0.09) | 82 (22) FAIL | 150 (153) | 225 (2067) | FAIL |
+| B | violist | R | 3 (3) | 39 (39) | 49 (49) | 0.84 (0.84) | 123 (123) | 36 (36) | 0.0% (0.0%) | 0.03 (0.03) | 30 (30) | 136 (136) | 392 (392) | PASS |
+| C | violinist | L | 12 (7) FAIL | 32 (15) FAIL | 82 (80) FAIL | 0.78 (0.73) | 119 (165) | 49 (30) FAIL | 0.0% (0.0%) | 0.05 (0.11) | 112 (17) FAIL | 120 (162) | 198 (1410) | FAIL |
+| C | violinist | R | 5 (5) | 23 (23) | 48 (48) | 0.84 (0.84) | 128 (128) | 36 (36) | 0.0% (0.0%) | 0.08 (0.08) | 19 (19) | 137 (137) | 447 (447) | PASS |
+| C | fox-violinist | L | 10 (1) FAIL | 74 (36) FAIL | 95 (67) FAIL | 0.64 (0.82) FAIL | 135 (161) | 54 (38) FAIL | 0.0% (0.0%) | 0.06 (0.08) | 89 (3) FAIL | 136 (153) | 246 (1487) | FAIL |
+| C | fox-violinist | R | 3 (3) | 41 (41) | 49 (49) | 0.82 (0.82) | 136 (136) | 56 (56) | 0.0% (0.0%) | 0.05 (0.05) | 11 (11) | 145 (145) | 280 (280) | PASS |
+| C | violist | L | 6 (4) | 44 (25) FAIL | 68 (66) | 0.29 (0.72) FAIL | 111 (164) | 47 (51) | 0.0% (0.0%) | 0.07 (0.09) | 108 (22) FAIL | 125 (153) | 218 (2067) | FAIL |
+| C | violist | R | 3 (3) | 39 (39) | 49 (49) | 0.84 (0.84) | 123 (123) | 36 (36) | 0.0% (0.0%) | 0.03 (0.03) | 30 (30) | 136 (136) | 392 (392) | PASS |
+| D | violinist | L | 12 (7) FAIL | 36 (15) FAIL | 86 (80) FAIL | 0.76 (0.73) | 124 (165) | 49 (30) FAIL | 0.0% (0.0%) | 0.05 (0.11) | 110 (17) FAIL | 125 (162) | 221 (1410) | FAIL |
+| D | violinist | R | 5 (5) | 23 (23) | 48 (48) | 0.84 (0.84) | 128 (128) | 36 (36) | 0.0% (0.0%) | 0.08 (0.08) | 19 (19) | 137 (137) | 447 (447) | PASS |
+| D | fox-violinist | L | 14 (1) FAIL | 84 (36) FAIL | 100 (67) FAIL | 0.62 (0.82) FAIL | 138 (161) | 55 (38) FAIL | 0.0% (0.0%) | 0.06 (0.08) | 87 (3) FAIL | 139 (153) | 274 (1487) | FAIL |
+| D | fox-violinist | R | 3 (3) | 41 (41) | 49 (49) | 0.82 (0.82) | 136 (136) | 56 (56) | 0.0% (0.0%) | 0.05 (0.05) | 11 (11) | 145 (145) | 280 (280) | PASS |
+| D | violist | L | 9 (4) FAIL | 53 (25) FAIL | 77 (66) | 0.25 (0.72) FAIL | 126 (164) | 54 (51) | 0.0% (0.0%) | 0.07 (0.09) | 93 (22) FAIL | 139 (153) | 253 (2067) | FAIL |
+| D | violist | R | 3 (3) | 39 (39) | 49 (49) | 0.84 (0.84) | 123 (123) | 36 (36) | 0.0% (0.0%) | 0.03 (0.03) | 30 (30) | 136 (136) | 392 (392) | PASS |
+| E | violinist | L | 12 (7) FAIL | 37 (15) FAIL | 86 (80) FAIL | 0.76 (0.73) | 121 (165) | 50 (30) FAIL | 0.0% (0.0%) | 0.05 (0.11) | 114 (17) FAIL | 122 (162) | 224 (1410) | FAIL |
+| E | violinist | R | 5 (5) | 23 (23) | 48 (48) | 0.84 (0.84) | 128 (128) | 36 (36) | 0.0% (0.0%) | 0.08 (0.08) | 19 (19) | 137 (137) | 447 (447) | PASS |
+| E | fox-violinist | L | 14 (1) FAIL | 88 (36) FAIL | 98 (67) FAIL | 0.62 (0.82) FAIL | 132 (161) | 58 (38) FAIL | 0.0% (0.0%) | 0.06 (0.08) | 93 (3) FAIL | 133 (153) | 286 (1487) | FAIL |
+| E | fox-violinist | R | 3 (3) | 41 (41) | 49 (49) | 0.82 (0.82) | 136 (136) | 56 (56) | 0.0% (0.0%) | 0.05 (0.05) | 11 (11) | 145 (145) | 280 (280) | PASS |
+| E | violist | L | 9 (4) FAIL | 63 (25) FAIL | 74 (66) | 0.24 (0.72) FAIL | 116 (164) | 60 (51) | 0.0% (0.0%) | 0.07 (0.09) | 104 (22) FAIL | 153 (153) | 3364 (2067) FAIL | FAIL |
+| E | violist | R | 3 (3) | 39 (39) | 49 (49) | 0.84 (0.84) | 123 (123) | 36 (36) | 0.0% (0.0%) | 0.03 (0.03) | 30 (30) | 136 (136) | 392 (392) | PASS |
+| F | violinist | L | 11 (7) FAIL | 27 (15) FAIL | 85 (80) FAIL | 0.80 (0.73) | 137 (165) | 42 (30) | 0.0% (0.0%) | 0.05 (0.11) | 94 (17) FAIL | 137 (162) | 148 (1410) | FAIL |
+| F | violinist | R | 5 (5) | 23 (23) | 48 (48) | 0.84 (0.84) | 128 (128) | 36 (36) | 0.0% (0.0%) | 0.08 (0.08) | 19 (19) | 137 (137) | 447 (447) | PASS |
+| F | fox-violinist | L | 6 (1) FAIL | 62 (36) FAIL | 99 (67) FAIL | 0.67 (0.82) FAIL | 153 (161) | 46 (38) | 0.0% (0.0%) | 0.06 (0.08) | 71 (3) FAIL | 153 (153) | 203 (1487) | FAIL |
+| F | fox-violinist | R | 3 (3) | 41 (41) | 49 (49) | 0.82 (0.82) | 136 (136) | 56 (56) | 0.0% (0.0%) | 0.05 (0.05) | 11 (11) | 145 (145) | 280 (280) | PASS |
+| F | violist | L | 4 (4) | 34 (25) | 80 (66) | 0.34 (0.72) FAIL | 142 (164) | 37 (51) | 0.0% (0.0%) | 0.06 (0.09) | 75 (22) FAIL | 156 (153) | 180 (2067) | FAIL |
+| F | violist | R | 3 (3) | 39 (39) | 49 (49) | 0.84 (0.84) | 123 (123) | 36 (36) | 0.0% (0.0%) | 0.03 (0.03) | 30 (30) | 136 (136) | 392 (392) | PASS |
+
+Variant A:
+
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| violinist | L | folds p95 | play | 17788 | 2 | 10 | 100.0% | 16 at boulanger-matin.mid 150.38 s | 10 | 8 | 7 | FAIL |
+| violinist | L | twist p95 | play | 17788 | 25 | 27 | 100.0% | 27 at beethoven-8-4.mid 184.09 s | 27 | 55 | 15 | FAIL |
+| violinist | L | paw swing p95 | play | 17788 | 48 | 54 | 100.0% | 63 at brahms-2.mid 676.63 s | 54 | 70 | 30 | FAIL |
+| violinist | L | grip turn p50 | play | 17788 | 108 | 112 | 100.0% | 115 at brahms-2.mid 608.88 s | 108 | 45 | 17 | FAIL |
+| fox-violinist | L | folds p95 | play | 17788 | 4 | 5 | 100.0% | 12 at boulanger-matin.mid 277.88 s | 5 | 8 | 1 | FAIL |
+| fox-violinist | L | twist p95 | lift | 434 | 60 | 61 | 100.0% | 61 at beethoven-8.mid wall 2.3 s | 61 | 55 | 36 | FAIL |
+| fox-violinist | L | forearm twist p95 | play | 17788 | 90 | 92 | 100.0% | 93 at mozart-k417.mid 142.70 s | 92 | 80 | 67 | FAIL |
+| fox-violinist | L | flat p5 | lift | 434 | 0.72 | 0.68 | 100.0% | 0.66 at beethoven-9.mid wall 0.5 s | 0.68 | 0.55 | 0.82 | FAIL |
+| fox-violinist | L | paw swing p95 | play | 17788 | 51 | 54 | 100.0% | 64 at boulanger-matin.mid 277.88 s | 54 | 70 | 38 | FAIL |
+| fox-violinist | L | grip turn p50 | play | 17788 | 84 | 88 | 100.0% | 90 at bach-bwv1048.mid 136.25 s | 84 | 45 | 3 | FAIL |
+| violist | L | flat p5 | lift | 434 | 0.38 | 0.36 | 100.0% | 0.35 at boulanger-matin.mid wall 3.0 s | 0.36 | 0.55 | 0.72 | FAIL |
+| violist | L | grip turn p50 | play | 17788 | 88 | 91 | 100.0% | 94 at boulanger-matin.mid 173.88 s | 88 | 45 | 22 | FAIL |
+
+Variant B:
+
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| violinist | L | folds p95 | play | 17788 | 3 | 11 | 100.0% | 22 at boulanger-matin.mid 150.13 s | 11 | 8 | 7 | FAIL |
+| violinist | L | twist p95 | play | 17788 | 31 | 32 | 100.0% | 32 at beethoven-8-4.mid 184.09 s | 32 | 55 | 15 | FAIL |
+| violinist | L | forearm twist p95 | play | 17788 | 86 | 88 | 100.0% | 89 at beethoven-9.mid 20.59 s | 88 | 80 | 80 | FAIL |
+| violinist | L | grip turn p50 | play | 17788 | 99 | 102 | 100.0% | 104 at mozart-k315.mid 42.90 s | 99 | 45 | 17 | FAIL |
+| fox-violinist | L | folds p95 | lift | 434 | 6 | 10 | 100.0% | 10 at beethoven-9.mid wall 0.8 s | 10 | 8 | 1 | FAIL |
+| fox-violinist | L | twist p95 | lift | 434 | 74 | 75 | 100.0% | 75 at beethoven-9.mid wall 2.3 s | 75 | 55 | 36 | FAIL |
+| fox-violinist | L | forearm twist p95 | lift | 434 | 100 | 102 | 100.0% | 102 at beethoven-8.mid wall 1.4 s | 102 | 80 | 67 | FAIL |
+| fox-violinist | L | flat p5 | lift | 434 | 0.68 | 0.63 | 100.0% | 0.63 at beethoven-9.mid wall 2.3 s | 0.63 | 0.55 | 0.82 | FAIL |
+| fox-violinist | L | grip turn p50 | play | 17788 | 76 | 80 | 100.0% | 82 at bach-bwv1048.mid 136.25 s | 76 | 45 | 3 | FAIL |
+| violist | L | twist p95 | play | 17788 | 43 | 44 | 100.0% | 45 at boulanger-matin.mid 175.38 s | 44 | 55 | 25 | FAIL |
+| violist | L | forearm twist p95 | lift | 434 | 77 | 80 | 100.0% | 81 at beethoven-9.mid wall 1.9 s | 80 | 80 | 66 | FAIL |
+| violist | L | flat p5 | lift | 434 | 0.28 | 0.26 | 100.0% | 0.26 at boulanger-matin.mid wall 2.1 s | 0.26 | 0.55 | 0.72 | FAIL |
+| violist | L | grip turn p50 | play | 17788 | 82 | 87 | 100.0% | 89 at boulanger-matin.mid 173.88 s | 82 | 45 | 22 | FAIL |
+
+Variant C:
+
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| violinist | L | folds p95 | play | 17788 | 3 | 12 | 100.0% | 22 at boulanger-matin.mid 150.13 s | 12 | 8 | 7 | FAIL |
+| violinist | L | twist p95 | play | 17788 | 31 | 32 | 100.0% | 32 at beethoven-8-4.mid 184.09 s | 32 | 55 | 15 | FAIL |
+| violinist | L | forearm twist p95 | play | 17788 | 80 | 82 | 100.0% | 83 at brahms-2.mid 286.88 s | 82 | 80 | 80 | FAIL |
+| violinist | L | paw swing p95 | play | 17788 | 45 | 49 | 100.0% | 52 at brahms-2.mid 476.13 s | 49 | 70 | 30 | FAIL |
+| violinist | L | grip turn p50 | play | 17788 | 112 | 116 | 100.0% | 117 at mozart-k315.mid 42.90 s | 112 | 45 | 17 | FAIL |
+| fox-violinist | L | folds p95 | lift | 434 | 6 | 10 | 100.0% | 10 at beethoven-9.mid wall 0.8 s | 10 | 8 | 1 | FAIL |
+| fox-violinist | L | twist p95 | lift | 434 | 74 | 74 | 100.0% | 74 at beethoven-9.mid wall 2.3 s | 74 | 55 | 36 | FAIL |
+| fox-violinist | L | forearm twist p95 | lift | 434 | 93 | 95 | 100.0% | 95 at beethoven-8.mid wall 2.8 s | 95 | 80 | 67 | FAIL |
+| fox-violinist | L | flat p5 | lift | 434 | 0.68 | 0.64 | 100.0% | 0.64 at beethoven-9.mid wall 0.5 s | 0.64 | 0.55 | 0.82 | FAIL |
+| fox-violinist | L | paw swing p95 | lift | 434 | 51 | 54 | 100.0% | 54 at beethoven-9.mid wall 1.7 s | 54 | 70 | 38 | FAIL |
+| fox-violinist | L | grip turn p50 | play | 17788 | 89 | 94 | 100.0% | 96 at bach-bwv1048.mid 136.25 s | 89 | 45 | 3 | FAIL |
+| violist | L | twist p95 | play | 17788 | 44 | 44 | 100.0% | 45 at boulanger-matin.mid 175.38 s | 44 | 55 | 25 | FAIL |
+| violist | L | flat p5 | lift | 434 | 0.31 | 0.29 | 100.0% | 0.27 at boulanger-matin.mid wall 2.1 s | 0.29 | 0.55 | 0.72 | FAIL |
+| violist | L | grip turn p50 | play | 17788 | 108 | 113 | 100.0% | 116 at boulanger-matin.mid 173.88 s | 108 | 45 | 22 | FAIL |
+
+Variant D:
+
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| violinist | L | folds p95 | play | 17788 | 3 | 12 | 100.0% | 23 at boulanger-matin.mid 150.13 s | 12 | 8 | 7 | FAIL |
+| violinist | L | twist p95 | play | 17788 | 35 | 36 | 100.0% | 36 at mozart-k315.mid 42.90 s | 36 | 55 | 15 | FAIL |
+| violinist | L | forearm twist p95 | play | 17788 | 84 | 86 | 100.0% | 88 at brahms-2.mid 544.13 s | 86 | 80 | 80 | FAIL |
+| violinist | L | paw swing p95 | play | 17788 | 43 | 49 | 100.0% | 50 at brahms-2.mid 60.38 s | 49 | 70 | 30 | FAIL |
+| violinist | L | grip turn p50 | play | 17788 | 110 | 115 | 100.0% | 116 at mozart-k315.mid 42.90 s | 110 | 45 | 17 | FAIL |
+| fox-violinist | L | folds p95 | lift | 434 | 11 | 14 | 100.0% | 14 at beethoven-9.mid wall 0.8 s | 14 | 8 | 1 | FAIL |
+| fox-violinist | L | twist p95 | play | 17788 | 83 | 84 | 100.0% | 85 at beethoven-9.mid 146.34 s | 84 | 55 | 36 | FAIL |
+| fox-violinist | L | forearm twist p95 | lift | 434 | 98 | 100 | 100.0% | 100 at beethoven-8.mid wall 1.0 s | 100 | 80 | 67 | FAIL |
+| fox-violinist | L | flat p5 | lift | 434 | 0.66 | 0.62 | 100.0% | 0.62 at beethoven-9.mid wall 2.3 s | 0.62 | 0.55 | 0.82 | FAIL |
+| fox-violinist | L | paw swing p95 | play | 17788 | 52 | 55 | 100.0% | 62 at boulanger-matin.mid 278.88 s | 55 | 70 | 38 | FAIL |
+| fox-violinist | L | grip turn p50 | play | 17788 | 87 | 93 | 100.0% | 94 at bach-bwv1048.mid 136.25 s | 87 | 45 | 3 | FAIL |
+| violist | L | folds p95 | play | 17788 | 8 | 9 | 100.0% | 11 at boulanger-matin.mid 277.88 s | 9 | 8 | 4 | FAIL |
+| violist | L | twist p95 | play | 17788 | 52 | 53 | 100.0% | 54 at boulanger-matin.mid 175.38 s | 53 | 55 | 25 | FAIL |
+| violist | L | flat p5 | lift | 434 | 0.26 | 0.25 | 100.0% | 0.25 at boulanger-matin.mid wall 2.1 s | 0.25 | 0.55 | 0.72 | FAIL |
+| violist | L | grip turn p50 | play | 17788 | 93 | 99 | 100.0% | 102 at boulanger-matin.mid 173.88 s | 93 | 45 | 22 | FAIL |
+
+Variant E:
+
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| violinist | L | folds p95 | play | 17788 | 3 | 12 | 100.0% | 24 at boulanger-matin.mid 150.38 s | 12 | 8 | 7 | FAIL |
+| violinist | L | twist p95 | play | 17788 | 36 | 37 | 100.0% | 37 at mozart-k315.mid 42.90 s | 37 | 55 | 15 | FAIL |
+| violinist | L | forearm twist p95 | lift | 434 | 83 | 86 | 100.0% | 86 at mozart-k417.mid wall 2.3 s | 86 | 80 | 80 | FAIL |
+| violinist | L | paw swing p95 | play | 17788 | 45 | 50 | 100.0% | 51 at brahms-2.mid 60.38 s | 50 | 70 | 30 | FAIL |
+| violinist | L | grip turn p50 | play | 17788 | 114 | 118 | 100.0% | 120 at mozart-k315.mid 42.90 s | 114 | 45 | 17 | FAIL |
+| fox-violinist | L | folds p95 | lift | 434 | 12 | 14 | 100.0% | 14 at beethoven-9.mid wall 0.8 s | 14 | 8 | 1 | FAIL |
+| fox-violinist | L | twist p95 | play | 17788 | 87 | 88 | 100.0% | 90 at beethoven-9.mid 146.34 s | 88 | 55 | 36 | FAIL |
+| fox-violinist | L | forearm twist p95 | lift | 434 | 96 | 98 | 100.0% | 98 at beethoven-8.mid wall 2.2 s | 98 | 80 | 67 | FAIL |
+| fox-violinist | L | flat p5 | lift | 434 | 0.66 | 0.62 | 100.0% | 0.61 at beethoven-9.mid wall 2.3 s | 0.62 | 0.55 | 0.82 | FAIL |
+| fox-violinist | L | paw swing p95 | play | 17788 | 54 | 58 | 100.0% | 66 at boulanger-matin.mid 278.88 s | 58 | 70 | 38 | FAIL |
+| fox-violinist | L | grip turn p50 | play | 17788 | 93 | 99 | 100.0% | 100 at bach-bwv1048.mid 136.25 s | 93 | 45 | 3 | FAIL |
+| violist | L | folds p95 | play | 17788 | 9 | 9 | 100.0% | 16 at boulanger-matin.mid 277.88 s | 9 | 8 | 4 | FAIL |
+| violist | L | twist p95 | lift | 434 | 60 | 63 | 100.0% | 66 at bach-bwv1047.mid wall 0.7 s | 63 | 55 | 25 | FAIL |
+| violist | L | flat p5 | play | 17788 | 0.25 | 0.24 | 100.0% | 0.24 at boulanger-matin.mid 29.63 s | 0.24 | 0.55 | 0.72 | FAIL |
+| violist | L | grip turn p50 | play | 17788 | 104 | 110 | 100.0% | 114 at boulanger-matin.mid 173.88 s | 104 | 45 | 22 | FAIL |
+| violist | L | move turn max | move | 16254 | 14 | 146 | 85.6% | 3364 at beethoven-9.mid lift 105.53 s, wall 0.36 s | 3364 | 3000 | 2067 | FAIL |
+
+Variant F:
+
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| violinist | L | folds p95 | play | 17788 | 3 | 11 | 100.0% | 14 at boulanger-matin.mid 150.13 s | 11 | 8 | 7 | FAIL |
+| violinist | L | twist p95 | play | 17788 | 25 | 27 | 100.0% | 27 at beethoven-8-4.mid 184.09 s | 27 | 55 | 15 | FAIL |
+| violinist | L | forearm twist p95 | play | 17788 | 84 | 85 | 100.0% | 86 at brahms-2.mid 287.13 s | 85 | 80 | 80 | FAIL |
+| violinist | L | grip turn p50 | play | 17788 | 94 | 98 | 100.0% | 101 at brahms-2.mid 608.88 s | 94 | 45 | 17 | FAIL |
+| fox-violinist | L | folds p95 | lift | 434 | 4 | 6 | 100.0% | 6 at beethoven-9.mid wall 0.7 s | 6 | 8 | 1 | FAIL |
+| fox-violinist | L | twist p95 | lift | 434 | 61 | 62 | 100.0% | 62 at beethoven-8.mid wall 2.3 s | 62 | 55 | 36 | FAIL |
+| fox-violinist | L | forearm twist p95 | play | 17788 | 97 | 99 | 100.0% | 100 at mozart-k417.mid 142.70 s | 99 | 80 | 67 | FAIL |
+| fox-violinist | L | flat p5 | lift | 434 | 0.71 | 0.67 | 100.0% | 0.67 at beethoven-9.mid wall 0.5 s | 0.67 | 0.55 | 0.82 | FAIL |
+| fox-violinist | L | grip turn p50 | play | 17788 | 71 | 74 | 100.0% | 76 at bach-bwv1048.mid 136.25 s | 71 | 45 | 3 | FAIL |
+| violist | L | flat p5 | lift | 434 | 0.36 | 0.34 | 100.0% | 0.33 at beethoven-9.mid wall 3.0 s | 0.34 | 0.55 | 0.72 | FAIL |
+| violist | L | grip turn p50 | play | 17788 | 75 | 79 | 100.0% | 82 at boulanger-matin.mid 173.88 s | 75 | 45 | 22 | FAIL |
+ ELIFECYCLE  Command failed with exit code 1.

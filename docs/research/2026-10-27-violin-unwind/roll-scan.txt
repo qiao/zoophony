@@ -1,0 +1,28 @@
+roll 0
+violinist      twist -91 -> 145 wraps 1 max|t| 179 maxStep 3 inst path 125 direct 117 bend 36 -> 7 maxBend 36
+fox-violinist  twist -93 -> 138 wraps 1 max|t| 179 maxStep 3 inst path 126 direct 119 bend 48 -> 0 maxBend 48
+violist        twist -94 -> 126 wraps 1 max|t| 179 maxStep 3 inst path 157 direct 141 bend 48 -> 47 maxBend 53
+roll 30
+violinist      twist -111 -> 145 wraps 1 max|t| 180 maxStep 5 inst path 129 direct 91 bend 87 -> 7 maxBend 87
+fox-violinist  twist -117 -> 138 wraps 1 max|t| 179 maxStep 4 inst path 133 direct 93 bend 89 -> 0 maxBend 90
+violist        twist -134 -> 126 wraps 1 max|t| 179 maxStep 3 inst path 130 direct 117 bend 96 -> 47 maxBend 96
+roll 60
+violinist      twist -147 -> 145 wraps 1 max|t| 179 maxStep 3 inst path 141 direct 67 bend 90 -> 7 maxBend 91
+fox-violinist  twist -156 -> 138 wraps 1 max|t| 180 maxStep 5 inst path 165 direct 70 bend 91 -> 0 maxBend 91
+violist        twist 172 -> 126 wraps 0 max|t| 176 maxStep 4 inst path 147 direct 96 bend 104 -> 47 maxBend 104
+roll 75
+violinist      twist -168 -> 145 wraps 1 max|t| 180 maxStep 1 inst path 96 direct 57 bend 89 -> 7 maxBend 89
+fox-violinist  twist -178 -> 138 wraps 1 max|t| 180 maxStep 2 inst path 116 direct 60 bend 89 -> 0 maxBend 89
+violist        twist 142 -> 126 wraps 0 max|t| 162 maxStep 4 inst path 128 direct 87 bend 103 -> 47 maxBend 103
+roll 90
+violinist      twist 169 -> 145 wraps 0 max|t| 169 maxStep 1 inst path 102 direct 50 bend 87 -> 7 maxBend 87
+fox-violinist  twist 159 -> 138 wraps 0 max|t| 159 maxStep 1 inst path 109 direct 52 bend 86 -> 0 maxBend 86
+violist        twist 114 -> 126 wraps 1 max|t| 177 maxStep 48 inst path 627 direct 79 bend 100 -> 47 maxBend 100
+roll 105
+violinist      twist 145 -> 145 wraps 1 max|t| 179 maxStep 28 inst path 507 direct 46 bend 84 -> 7 maxBend 84
+fox-violinist  twist 136 -> 138 wraps 1 max|t| 177 maxStep 27 inst path 533 direct 48 bend 82 -> 0 maxBend 82
+violist        twist 90 -> 126 wraps 1 max|t| 177 maxStep 40 inst path 591 direct 72 bend 95 -> 47 maxBend 95
+roll 120
+violinist      twist 122 -> 145 wraps 1 max|t| 179 maxStep 22 inst path 484 direct 47 bend 80 -> 7 maxBend 80
+fox-violinist  twist 113 -> 138 wraps 1 max|t| 179 maxStep 24 inst path 510 direct 48 bend 78 -> 0 maxBend 78
+violist        twist 70 -> 126 wraps 1 max|t| 179 maxStep 42 inst path 572 direct 69 bend 89 -> 47 maxBend 89

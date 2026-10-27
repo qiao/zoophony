@@ -1,0 +1,69 @@
+
+> zoophony@0.0.0 arm-check /Users/xueqiaoxu/proj/zoophony/.claude/worktrees/fifth-strings3
+> node tools/arm-check.ts violist --explain flat --set viola\@cat.poleL\=\[1\,-0.5\,-1\]\;viola\@cat.tiltL\=0.26
+
+The working tree takes the hold changes viola@cat.poleL=[1,-0.5,-1];viola@cat.tiltL=0.26.
+Explain of flat p5 of the violist over 14 demos at a step of 0.25 s: bach-bwv1047.mid, bach-bwv1048.mid, bach-bwv1050.mid, beethoven-1.mid, beethoven-8-4.mid, beethoven-8.mid, beethoven-9.mid, boulanger-matin.mid, brahms-2.mid, mendelssohn-op61.mid, mozart-k191.mid, mozart-k315.mid, mozart-k417.mid, mozart-k525.mid.
+The flat share is the narrow axis of the flattest ring as a share of its narrow axis in the bind pose, as the gate counts it. "From the rest" divides by the narrow axis of the ring in the rest sample of the same demo.
+
+| Arm | Set | Samples | p5 from the rest | p5 from the bind (gate) | Worst from the rest | Worst from the bind |
+|---|---|---:|---:|---:|---|---|
+| L | rest | 14 | 1.000 | 0.723 | 1.000, bach-bwv1047.mid rest | 0.723, bach-bwv1047.mid rest |
+| L | play | 17788 | 0.363 | 0.362 | 0.304, mozart-k191.mid 223.30 s | 0.303, mozart-k191.mid 223.30 s |
+| L | lift | 434 | 0.360 | 0.358 | 0.347, boulanger-matin.mid wall 3.0 s | 0.345, boulanger-matin.mid wall 3.0 s |
+| R | rest | 14 | 1.000 | 0.842 | 1.000, bach-bwv1047.mid rest | 0.842, bach-bwv1047.mid rest |
+| R | play | 17788 | 0.910 | 0.883 | 0.857, boulanger-matin.mid 247.13 s | 0.822, brahms-2.mid 206.63 s |
+| R | lift | 434 | 0.910 | 0.843 | 0.882, boulanger-matin.mid wall 0.4 s | 0.842, bach-bwv1047.mid wall 0.1 s |
+
+The part of the rest sample of each demo that shrinks most from the bind. The gate reads the bind, so a rest that moves changes only the values "from the rest".
+
+| Arm | Rest sample | Part | Rest from the bind |
+|---|---|---|---:|
+| L | bach-bwv1047.mid rest | ring upper, upper_arm_L | 0.723 |
+| L | bach-bwv1048.mid rest | ring upper, upper_arm_L | 0.723 |
+| L | bach-bwv1050.mid rest | ring upper, upper_arm_L | 0.728 |
+| L | beethoven-1.mid rest | ring upper, upper_arm_L | 0.728 |
+| L | beethoven-8-4.mid rest | ring upper, upper_arm_L | 0.728 |
+| L | beethoven-8.mid rest | ring upper, upper_arm_L | 0.728 |
+| L | beethoven-9.mid rest | ring upper, upper_arm_L | 0.728 |
+| L | boulanger-matin.mid rest | ring upper, upper_arm_L | 0.728 |
+| L | brahms-2.mid rest | ring upper, upper_arm_L | 0.728 |
+| L | mendelssohn-op61.mid rest | ring upper, upper_arm_L | 0.728 |
+| L | mozart-k191.mid rest | ring upper, upper_arm_L | 0.728 |
+| L | mozart-k315.mid rest | ring upper, upper_arm_L | 0.728 |
+| L | mozart-k417.mid rest | ring upper, upper_arm_L | 0.728 |
+| L | mozart-k525.mid rest | ring upper, upper_arm_L | 0.728 |
+| R | bach-bwv1047.mid rest | ring upper, upper_arm_R | 0.842 |
+| R | bach-bwv1048.mid rest | ring upper, upper_arm_R | 0.842 |
+| R | bach-bwv1050.mid rest | ring upper, upper_arm_R | 0.843 |
+| R | beethoven-1.mid rest | ring upper, upper_arm_R | 0.843 |
+| R | beethoven-8-4.mid rest | ring upper, upper_arm_R | 0.843 |
+| R | beethoven-8.mid rest | ring upper, upper_arm_R | 0.843 |
+| R | beethoven-9.mid rest | ring upper, upper_arm_R | 0.843 |
+| R | boulanger-matin.mid rest | ring upper, upper_arm_R | 0.843 |
+| R | brahms-2.mid rest | ring upper, upper_arm_R | 0.843 |
+| R | mendelssohn-op61.mid rest | ring upper, upper_arm_R | 0.843 |
+| R | mozart-k191.mid rest | ring upper, upper_arm_R | 0.843 |
+| R | mozart-k315.mid rest | ring upper, upper_arm_R | 0.843 |
+| R | mozart-k417.mid rest | ring upper, upper_arm_R | 0.843 |
+| R | mozart-k525.mid rest | ring upper, upper_arm_R | 0.843 |
+
+The worst sample of the L arm for the gate: mozart-k191.mid 223.30 s (play), 0.304 from the rest, 0.303 from the bind.
+
+| Ring | Bone | Sample cm | Rest cm | Bind cm | From the rest | From the bind | Rest from the bind |
+|---|---|---:|---:|---:|---:|---:|---:|
+| shoulder | upper_arm_L | 0.24 | 0.80 | 0.80 | 0.304 | 0.303 | 0.995 |
+| upper | upper_arm_L | 1.94 | 2.62 | 3.60 | 0.739 | 0.538 | 0.728 |
+| elbow | upper_arm_L | 3.14 | 3.45 | 3.67 | 0.912 | 0.858 | 0.940 |
+| forearm | forearm_L | 3.13 | 3.37 | 3.49 | 0.927 | 0.895 | 0.965 |
+| wrist | forearm_L | 2.50 | 2.52 | 2.70 | 0.990 | 0.923 | 0.932 |
+
+The worst sample of the R arm for the gate: brahms-2.mid 206.63 s (play), 0.975 from the rest, 0.822 from the bind.
+
+| Ring | Bone | Sample cm | Rest cm | Bind cm | From the rest | From the bind | Rest from the bind |
+|---|---|---:|---:|---:|---:|---:|---:|
+| upper | upper_arm_R | 2.73 | 2.80 | 3.32 | 0.975 | 0.822 | 0.843 |
+| forearm | forearm_R | 3.33 | 3.31 | 3.48 | 1.006 | 0.957 | 0.951 |
+| wrist | forearm_R | 2.67 | 2.72 | 2.72 | 0.980 | 0.981 | 1.001 |
+| elbow | upper_arm_R | 3.58 | 3.63 | 3.61 | 0.986 | 0.992 | 1.006 |
+| shoulder | upper_arm_R | 0.98 | 0.98 | 0.93 | 1.005 | 1.061 | 1.056 |

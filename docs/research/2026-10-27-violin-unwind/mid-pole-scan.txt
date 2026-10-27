@@ -1,0 +1,20 @@
+liftPoleL null
+violinist      twist -91 -> 145 wraps 1 max|t| 179 maxStep 3 inst path 119 direct 117 bend 36 -> 7 maxBend 36
+fox-violinist  twist -93 -> 138 wraps 1 max|t| 179 maxStep 3 inst path 126 direct 119 bend 48 -> 0 maxBend 48
+violist        twist -94 -> 126 wraps 1 max|t| 179 maxStep 3 inst path 155 direct 141 bend 48 -> 47 maxBend 53
+liftPoleL [1,-0.6,-1]
+violinist      twist -91 -> 145 wraps 1 max|t| 179 maxStep 3 inst path 211 direct 117 bend 36 -> 7 maxBend 36
+fox-violinist  twist -93 -> 138 wraps 1 max|t| 179 maxStep 3 inst path 246 direct 119 bend 48 -> 0 maxBend 48
+violist        twist -94 -> 126 wraps 1 max|t| 179 maxStep 3 inst path 227 direct 141 bend 48 -> 47 maxBend 53
+liftPoleL [-1,0,0]
+violinist      twist -91 -> 145 wraps 1 max|t| 179 maxStep 3 inst path 156 direct 117 bend 36 -> 7 maxBend 36
+fox-violinist  twist -93 -> 138 wraps 1 max|t| 179 maxStep 3 inst path 170 direct 119 bend 48 -> 0 maxBend 48
+violist        twist -94 -> 126 wraps 1 max|t| 179 maxStep 3 inst path 172 direct 141 bend 48 -> 47 maxBend 53
+liftPoleL [0,1,-1]
+violinist      twist -91 -> 145 wraps 1 max|t| 179 maxStep 3 inst path 346 direct 117 bend 36 -> 7 maxBend 36
+fox-violinist  twist -93 -> 138 wraps 1 max|t| 179 maxStep 3 inst path 327 direct 119 bend 48 -> 0 maxBend 48
+violist        twist -94 -> 126 wraps 1 max|t| 179 maxStep 3 inst path 342 direct 141 bend 48 -> 47 maxBend 53
+liftPoleL [-1,-1,1]
+violinist      twist -91 -> 145 wraps 1 max|t| 179 maxStep 3 inst path 121 direct 117 bend 36 -> 7 maxBend 36
+fox-violinist  twist -93 -> 138 wraps 1 max|t| 179 maxStep 3 inst path 124 direct 119 bend 48 -> 0 maxBend 48
+violist        twist -94 -> 126 wraps 1 max|t| 179 maxStep 3 inst path 157 direct 141 bend 48 -> 47 maxBend 53
