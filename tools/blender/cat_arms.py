@@ -71,7 +71,9 @@ CAT = {
     'config': 'tools/mesh-rigs/cat.json',
     'source': 'assets/models/cat/cat.glb',
     'folder': 'assets/models/cat',
-    'factor': 1.1496,
+    # The arms keep the length of the mesh of the user (factor 1). With 1.1496, the reach of the red
+    # fox, the user said "the cats arms are too long" (2026-10-26-third-review decisions).
+    'factor': 1.0,
     'slim': (0.85, 0.85),
     'cut': {'shoulder': 0.0, 'tilt': 0.0, 'wrist': 0.1},
     'zone': {'x': 0.07, 'radius': 0.08},
@@ -83,7 +85,9 @@ CAT = {
     'seam': {'x': 0.08, 'lean': 0.1, 'low': 0.45, 'reach': 0.06, 'edge': 0.6, 'armpit': 0.6,
              'lift': -0.004, 'rings': (0.15, 0.45), 'ruled': 1, 'ramp': 10, 'round': 3,
              'wrap': 0.012},
-    'anchor': {'share': 0.2, 'reach': 0.05, 'crease': True},
+    # With the shorter arms of factor 1 and the share 0.2, the upper ring of each upper arm narrowed
+    # to 0.66 of its bind width at rest (0.73 before), and with 0.35 the right arm twisted more.
+    'anchor': {'share': 0.1, 'reach': 0.05, 'crease': True},
 }
 va.ANIMALS['cat'] = CAT
 

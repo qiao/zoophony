@@ -12,17 +12,18 @@ also makes an armpit: a cut along the seam where the arm meets the trunk, a side
 under the arm, and a quad tube from the shoulder to the wrist, whose flat inner side lies on the
 side wall and meets it only at the armpit line. `tools/blender/cat_arms.py` replays the Blender
 session that made both files, byte for byte. The faces of the paws, the trunk, the legs, and the
-head are the faces of the user. The longer and thinner arms are the arms that the rig made before
-(`armFactor` 1.1496 and `armGirth` 0.85 of 2026-10-17), because a rig with arm segments does not
-stretch the arms. `pnpm rig-mesh cat` writes `cat.rig.glb` from it (`tools/mesh-rigs/cat.json`),
+head are the faces of the user. The arms keep the length of the arms of the user, with the
+cross-section 0.85 of the source (`armGirth` 0.85 of 2026-10-17), because a rig with arm segments
+does not stretch the arms. From 2026-10-25 to 2026-10-26 they were 1.1496 times longer, and the
+user said "the cats arms are too long". `pnpm rig-mesh cat` writes `cat.rig.glb` from it (`tools/mesh-rigs/cat.json`),
 and `pnpm studio-body cat` writes `src/models/studio/cat.ts`.
 
 | Item | Value |
 |---|---|
-| `cat-arms.glb` | 1,182,704 bytes, SHA-256 `0ab8dff8ff1e2bb5c6630af27c8213b884f71982d5ad90477296efeb29af5aa8` |
+| `cat-arms.glb` | 1,182,740 bytes, SHA-256 `9060ccf3393549e8bdc9031b2927c2f8a339dc90d71a8141e18caaff0e9d28b8` |
 | Mesh | 2,161 vertices after a weld at 1e-5, 4,317 triangles (3,121 in the source): on each arm a tube of 16 rings of 16 vertices, joined to the shoulder socket and to the paw with Bridge Edge Loops, and a side wall of 27 faces under each arm |
 | Material | One material with one base color JPEG of 4096 × 4608 pixels: the atlas of the source, and a strip of 512 pixels on top with the fur color of the source arms, baked onto the new faces. The side walls and the flat inner sides of the arms take one gray fur texel of the trunk beside the seam. No metallic-roughness texture |
-| `cat-weights.json` | 483,708 bytes, SHA-256 `ce38d77b17c54cd4bb45fee3825c80ab1d35f7d8c86f6ecd4feb288ab5138eaa` |
+| `cat-weights.json` | 483,677 bytes, SHA-256 `282390c357b4fd83d8236c9bd9a768f8ade9f7e39ab082a39d71130a41209e7a` |
 | Weights | The automatic weights of Blender with the Weight Paint fixes of the session, on the studio bones and the arm segments and helpers (`armSegments` of the config), for `paintedWeights` of the config |
 | License | Derived from the mesh of the user, who holds its rights |
 
