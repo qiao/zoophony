@@ -235,10 +235,20 @@ interface BoneOffsets {
   readonly instrument: Vec3;
   /** The offset of the `slide` bone, in the axes of its parent, the `instrument` bone. */
   readonly slide: Vec3;
+  /**
+   * The share of the unwind of the twist of the left forearm near 180° (`twistFadeL` of
+   * `AnimalPose`, {@link skinTwist}), from 0 to 1.
+   */
+  readonly twistFadeL: number;
 }
 
 /** The offsets of a pose that moves no bone from its bind place. */
-export const NO_OFFSETS: BoneOffsets = { root: [0, 0, 0], instrument: [0, 0, 0], slide: [0, 0, 0] };
+export const NO_OFFSETS: BoneOffsets = {
+  root: [0, 0, 0],
+  instrument: [0, 0, 0],
+  slide: [0, 0, 0],
+  twistFadeL: 0,
+};
 
 /** The offsets that a pose of a player holds (`AnimalPose` of `pose/types.ts`, design 5.1). */
 interface PoseOffsets {
@@ -248,6 +258,8 @@ interface PoseOffsets {
   readonly instrumentOffset?: Vec3;
   /** The offset of the `slide` bone. */
   readonly slideOffset: Vec3;
+  /** The share of the unwind of the twist of the left forearm near 180°, or none for 0. */
+  readonly twistFadeL?: number;
 }
 
 /**
@@ -261,6 +273,7 @@ export function studioOffsets(pose: PoseOffsets): BoneOffsets {
     root: pose.rootOffset,
     instrument: pose.instrumentOffset ?? NO_OFFSETS.instrument,
     slide: pose.slideOffset,
+    twistFadeL: pose.twistFadeL ?? 0,
   };
 }
 
@@ -1105,7 +1118,7 @@ export function poseStudioBones(
   const raises = rig.body.raises ?? [];
   out.correctives.fill(0, RAISED);
   for (const arm of [rig.arms.L, rig.arms.R]) {
-    poseArm(rig, arm, pose, out);
+    poseArm(rig, arm, pose, offsets.twistFadeL, out);
     // The corrective weight: the place of the upper arm on the way from the bind pose of the
     // studio to the pose of the sheet, in the axes of the chest.
     current.copy(upper).applyQuaternion(chestInverse);
@@ -1189,6 +1202,35 @@ export function palmTurnAngle(side: Side, hand: Quaternion, forearm: Vector3): n
 }
 
 /**
+ * The width of the band below 180° of the twist of the paw on the forearm in which the twist bone
+ * and the segments of a left forearm unwind in a move ({@link skinTwist}), in radians.
+ */
+export const TWIST_FADE_BAND = (30 * Math.PI) / 180;
+
+/**
+ * Gives the twist that the twist bone and the segments of a forearm share (design 4.4). Each bone
+ * takes a share of the twist of the paw from -180° to 180°, so a paw that passes 180° turns them
+ * by half a turn in one frame. In a move of a violin or a viola, the left paw supinates from its
+ * rest grip to its playing grip through 180° (`twistFadeL` of `AnimalPose`): there, the twist that
+ * they share goes to 0 in the last {@link TWIST_FADE_BAND} before 180°, so that each bone turns
+ * with no jump, and the wrist takes the twist for a moment.
+ *
+ * @param twist The twist of the paw on the forearm, from -π to π.
+ * @param fade The share of the unwind, from 0 (none) to 1.
+ * @returns The twist to share, in radians.
+ */
+export function skinTwist(twist: number, fade: number): number {
+  if (fade <= 0) {
+    return twist;
+  }
+  const t = Math.min(
+    1,
+    Math.max(0, (Math.abs(twist) - (Math.PI - TWIST_FADE_BAND)) / TWIST_FADE_BAND),
+  );
+  return twist * (1 - fade * t * t * (3 - 2 * t));
+}
+
+/**
  * Writes the bones of one arm of a studio body: the upper arm, the forearm, the twist bone, the
  * paw, and the fingers. It leaves the module vector `upper` at the posed direction of the upper
  * arm.
@@ -1196,9 +1238,16 @@ export function palmTurnAngle(side: Side, hand: Quaternion, forearm: Vector3): n
  * @param rig The studio rig.
  * @param arm The arm.
  * @param pose The local rotations of the bones of the player.
+ * @param twistFadeL The share of the unwind of the twist of the left forearm ({@link skinTwist}).
  * @param out The pose to write.
  */
-function poseArm(rig: StudioRig, arm: StudioArm, pose: Float32Array, out: StudioPose): void {
+function poseArm(
+  rig: StudioRig,
+  arm: StudioArm,
+  pose: Float32Array,
+  twistFadeL: number,
+  out: StudioPose,
+): void {
   const h = rig.body.heads;
   shoulder.copy(places[arm.drivers.upper] ?? shoulder);
   elbow.copy(places[arm.drivers.fore] ?? elbow);
@@ -1231,7 +1280,8 @@ function poseArm(rig: StudioRig, arm: StudioArm, pose: Float32Array, out: Studio
   fingersTurn.copy(handTurn).multiply(curlTurn);
   relative.copy(foreTurn).invert().multiply(handTurn);
   const fullTwist = twistAngle(relative, foreBind);
-  twistTurn.setFromAxisAngle(foreBind, TWIST_SHARE * fullTwist).premultiply(foreTurn);
+  const skinned = skinTwist(fullTwist, arm.side === 'L' ? twistFadeL : 0);
+  twistTurn.setFromAxisAngle(foreBind, TWIST_SHARE * skinned).premultiply(foreTurn);
 
   const side = arm.side;
   writeMatrix(
@@ -1276,7 +1326,7 @@ function poseArm(rig: StudioRig, arm: StudioArm, pose: Float32Array, out: Studio
     head,
   );
   if (arm.segments) {
-    poseSegments(rig, arm.segments, side, fullTwist, out);
+    poseSegments(rig, arm.segments, side, skinned, fullTwist, out);
   }
 }
 
@@ -1292,6 +1342,7 @@ function poseArm(rig: StudioRig, arm: StudioArm, pose: Float32Array, out: Studio
  * @param rig The studio rig.
  * @param segments The bones of the arm.
  * @param side The side of the arm.
+ * @param skinned The twist that the segments of the forearm share ({@link skinTwist}).
  * @param fullTwist The twist from the forearm to the paw around the bind axis of the forearm.
  * @param out The pose to write.
  */
@@ -1299,6 +1350,7 @@ function poseSegments(
   rig: StudioRig,
   segments: StudioArmSegments,
   side: Side,
+  skinned: number,
   fullTwist: number,
   out: StudioPose,
 ): void {
@@ -1314,7 +1366,7 @@ function poseSegments(
       bind.fromArray(h[`upper_arm_${side}`]),
       shoulder,
     );
-    segmentTurn.setFromAxisAngle(foreBind, share * fullTwist).premultiply(foreTurn);
+    segmentTurn.setFromAxisAngle(foreBind, share * skinned).premultiply(foreTurn);
     writeMatrix(
       out.matrices,
       segments.fore[k] ?? 0,

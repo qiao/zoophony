@@ -20,6 +20,13 @@ export interface AnimalPose {
    * to the bind position of the bone. A pose with no move can leave it out.
    */
   readonly instrumentOffset?: readonly [number, number, number];
+  /**
+   * The share of the unwind of the twist of the left forearm near 180°, from 0 to 1 (4.4, 5.2):
+   * in the lift and the lowering of a violin or a viola, the left paw supinates through 180° on
+   * its forearm, and the twist bone and the segments of the forearm unwind there
+   * (`skinTwist()` of `models/studio-rig.ts`). A pose with no value takes 0.
+   */
+  readonly twistFadeL?: number;
   /** 0 is open eyes, 1 is closed eyes. The eye bones scale on y by `max(0.05, 1 - blink)`. */
   readonly blink: number;
 }

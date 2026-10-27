@@ -366,7 +366,12 @@ on the upper arm and on the forearm, and a helper bone at the elbow and at the w
 the arm hangs on them, and the upper arm, the forearm, and the forearm twist bone only drive them.
 The app turns them from the joints of the pose, so each song keeps the live pose (`poseArm()`).
 Each segment takes its share of the roll of the upper arm from the chest, or of the twist from the
-forearm to the paw, at its middle. Each helper turns halfway across its joint. The skin then turns
+forearm to the paw, at its middle. Each helper turns halfway across its joint. The twist from the
+forearm to the paw lies from -180° to 180°, so a paw that passes 180° turns the twist bone and the
+segments by half a turn in one frame. In the lift and the lowering of a violin or a viola, the
+left paw passes 180° (5.2), so the pose asks the retarget to let them unwind in the last 30° before
+180° (`twistFadeL` of `AnimalPose`, `skinTwist()` of `models/studio-rig.ts`): each bone turns
+with no jump, and the wrist takes the twist for a moment. The rest and the play keep the shares. The skin then turns
 in small steps along the arm, and the elbow and the wrist keep their volume. The arms of such a
 mesh are quad tubes (rings at a right angle to the bones), and the weights come from Blender
 (`paintedWeights`), with the rule weights on the bones of `paintedLower`. A segment rig replaces
