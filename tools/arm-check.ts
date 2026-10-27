@@ -358,8 +358,11 @@ export const ACCEPTED_GRIPS: ReadonlyMap<string, Readonly<Record<Side, number>>>
   // docs/decisions/2026-10-23-night-fixes.md).
   ['flutist', { L: -120, R: -30 }],
   ['trumpeter', { L: -99, R: -98 }],
-  // The rhino of the A-pose mesh (docs/decisions/2026-10-23-rhino-apose.md).
-  ['tubist', { L: -129, R: -148 }],
+  // The rhino with the rebuilt arms, the bind elbow bent forward, and the tuba elbows down and out
+  // (docs/decisions/2026-10-26-fifth-review-rhino.md, and the 2x paw crops of
+  // docs/research/2026-10-26-fifth-rhino/). The bind sets the zero of the paw twist, so the medians
+  // of the same grips moved from -129 and -148.
+  ['tubist', { L: -87, R: -32 }],
   ['singer', { L: -79, R: -79 }],
   ['bass-drummer', { L: -102, R: 21 }],
   // The wrist lifts the tip of the stick or the mallet over its spot between strikes
