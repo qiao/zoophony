@@ -144,7 +144,10 @@ const OWN_MALLETS: RoleGrip['parts'] = { L: ['malletL'], R: ['malletR'] };
 const ROLES = {
   clarinetist: wind('clarinetist', 'wolf', 'clarinet', { L: [-1, 0, 0], R: [1, 0, 0] }),
   oboist: wind('oboist', 'mouse', 'oboe', { L: [-1, 0, 0], R: [1, 0, 0] }),
-  flutist: wind('flutist', 'fox-tan', 'flute', {}),
+  // A flutist holds the flute with the backs of both hands to the audience: the base of the left
+  // index finger and the right thumb under the flute, and the fingers over the keys on its top
+  // (wind-technique 2.4). So the middle of each paw is in front of the flute and a little below.
+  flutist: wind('flutist', 'fox-tan', 'flute', { L: [0, -0.5, 1], R: [0, -0.3, 1] }),
   bassoonist: wind('bassoonist', 'beaver', 'bassoon', { L: [-1, 0, 0], R: [1, 0, 0] }),
   trombonist: wind('trombonist', 'panda', 'trombone', { L: [0, 0, -1], R: [0, 0, 1] }, 'slide'),
   // The left paw wraps the valve casings from the left, and the right paw lies above the valves
