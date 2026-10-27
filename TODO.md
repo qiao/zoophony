@@ -503,6 +503,9 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       same geometry and weights (`2026-10-27-elephant-bake.md`).
 - [ ] Bear (`2026-10-26-fifth-review-bears.md`): in the gallery light, each arm casts a black
       shadow on the trunk under the armpit. The scene light is an open decision of the user.
+- [ ] Elephant (`2026-10-27-elephant-bake.md`): in the gallery light, each arm casts a black band
+      of shadow on the trunk beside the belly, as on the bear. The probe with no shadow shows the
+      skin there (`armpit-probes.webp`). It waits for the same decision of the scene light.
 - [x] Polar bear (`2026-10-26-fifth-review-bears.md`): stacked light stripes at the back of each
       knee, and a face of the right shin that folds in 0.6% of the play samples. Done: the rings
       near the knee plane cut only the front of each knee, two rings cut the back where the thigh
