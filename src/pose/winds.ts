@@ -628,22 +628,19 @@ const MOUSE_OBOE_FORWARD = 10;
  * the roll to the tube has no direction, and the paw turned over. With 60° on the right, the right
  * arm folded 9 faces at rest (limit 8, `2026-10-25-grips` decisions).
  *
- * In the rest, the oboe stands upright in front of the belly, 0.45 H below the mouth and 1 cm from
- * the belly, as a real oboist holds it vertical in a short rest. With the shorter arms and the oboe
- * 0.3 H below the mouth, the elbows bent further, and the arms folded 10 and 11 faces at rest
- * (2026-10-26-short-arms decisions). Both paws close on its middle:
- * the left paw across the body at a grip nearer to the reed (`restGripShiftL`), with the left
- * elbow out to the side, and the right paw just below it (`restGripShiftR`), with the right elbow
- * out and down. The rest grips are 13.2 cm (left) and 15.6 cm (right) down the oboe from the reed,
- * as on the oboe of 0.62: on the smaller oboe with the rest grips of that oboe, the right arm
- * folded 11 faces at rest. Each rest grip moves across the tube toward the shoulder of its paw as
- * in the play, so that the paw keeps its side of the tube, and the lift does not turn it over. With the elbow out, down, and back of 2026-10-25, the right arm folded 11 faces at
- * rest with the palm to the tube. With the right paw at its grip of the play, near the bell, the
- * right forearm went 3.4 cm into the belly (`pnpm pose-depth oboist`). Both
- * paws keep the aim and the roll of the play (`restAim`): with the roll of the shoulder, the left
- * paw turned 177° on its forearm at rest and flipped in the lowering. Before, the oboe stood about
- * 10 cm in front of the right side of the belly, because on the arms before 2026-10-25, an oboe on
- * the belly folded the right arm 11 to 17 faces at rest (`docs/research/2026-10-25-wind-arms.md`).
+ * In the rest, the oboe stands upright in front of the belly, 0.25 H below the mouth, as a real
+ * oboist holds it vertical in a short rest. Both paws stay on their grips of the play, the left paw
+ * on the upper joint and the right paw on the lower joint, with a gap of 5.7 cm between them, so
+ * that the lift and the lowering move the oboe with the paws, and no paw slides along the tube.
+ * Before, both paws closed on its middle on rest grips of their own, and the paws overlapped by
+ * 4.5 cm along the tube and slid 4.5 cm and 5.4 cm in each move (user, 2026-10-27: "for the mouse,
+ * in rest mode, their two hands are overlapping"). With the grips of the play, the oboe 0.45 H
+ * below the mouth put an arm 1.3 cm to 1.9 cm into the body
+ * (`docs/research/2026-10-27-wolf-mouse-rests.md`). Both paws keep the aim and the roll of the
+ * play (`restAim`): with the roll of the shoulder, the left paw turned 177° on its forearm at rest
+ * and flipped in the lowering. The left elbow points out, down, and forward, and the right elbow
+ * out and down (`restPoleL`, `restPoleR`). With the rest elbows before, the left paw turned 158°
+ * on its forearm at rest and the right paw 125°, against 143° and 121° on the rest grips before.
  *
  * The big head puts the mouth about 0.13 m above the shoulder joints, so the grips are near the
  * height of the shoulders. While the mouse plays, the right elbow points down, out, and forward,
@@ -655,18 +652,15 @@ const MOUSE_OBOE_FORWARD = 10;
  * (`docs/reference/wind-technique.md` 2.3): the left upper arm hangs about 33° below the level,
  * and the left paw keeps its grip on the upper joint. With the elbow out and a little down, as at
  * rest, the left upper arm stood 3.5° below the level, and from ±35° and from the back the left
- * arm read as a raised wing. At rest, the left elbow points out, a little down, and a little
- * forward (`restPoleL`), the one of 5 rest elbows that folds 8 faces or fewer on the shorter arms:
- * with the rest elbow down too, the left arm folded 9 faces at rest (limit 8,
- * `docs/research/2026-10-25-wind-elbows.md`). The shoulder turns are those of {@link WIND_HOLDS}.
+ * arm read as a raised wing. The shoulder turns are those of {@link WIND_HOLDS}.
  */
 const MOUSE_OBOE = {
   ...WIND_HOLDS.oboe,
   lipShift: [0, -0.04, 0.23],
   rest: holdTurn(-30, 0),
-  restShift: [0.1, -0.45, 0.1],
-  restPoleL: [-1, -0.1, -0.2],
-  restPoleR: [1, -0.5, 0],
+  restShift: [0.1, -0.25, 0],
+  restPoleL: [-1.5, -1, -1],
+  restPoleR: [1, -1, 0],
   play: holdTurn(MOUSE_OBOE_FORWARD, 0),
   poleL: [-0.5, -1, 0],
   poleR: [0.5, -1, -0.5],
@@ -675,8 +669,6 @@ const MOUSE_OBOE = {
   aimSide: [0, 0],
   gripShiftL: [0.05, 0.06, -0.05],
   gripShiftR: [0.15, 0.06, -0.05],
-  restGripShiftL: [0.173, 0.05, -0.05],
-  restGripShiftR: [-0.05, 0.06, -0.05],
   restAim: 1,
   gripCurl: curls(100, 110),
 } as const satisfies WindHold;

@@ -13,7 +13,6 @@ can reverse each decision. Then update its section, and remove its row.
 | Decision | Section |
 |---|---|
 | The left oboe elbow points down and a little out in the play, and the upper arm hangs 32.5° below the level, in place of 3.5° (`poleL` of `MOUSE_OBOE`). Real oboists let the arms hang loosely, with the elbows a little free from the body. | 5.3 |
-| The left oboe elbow stays out and a little down at rest (`restPoleL`). With the rest elbow down too, the left arm folded 9 faces at rest (limit 8). | 5.3 |
 | The user: "their palm are facing outwards and thumbs downwards". The right trombone paw holds the low part of the brace from the right side of the panda, with the palm to the left and the thumb up (`gripShiftR` of `PANDA_TROMBONE`). | 5.3 |
 | The right trombone elbow points down, a little out, and a little forward, in the play and at rest (`poleR`, `restPoleR`). With the elbow out, the side palm turned the paw 166° on its forearm. | 5.3 |
 | The slide reach drops from 0.17 m to 0.105 m, 18% of a real slide, because the right paw lies at the far side of the brace. A right shoulder turn of 55° gives 0.125 m and a flatter upper arm, so the shoulder keeps 45°. | 5.3 |
