@@ -123,7 +123,7 @@ carry the instrument at most 1.9 cm into the body near the jaw (2.1 cm), with no
 The sheets, each with `main` above the round: `lift-<role>-<view>.webp` and
 `lower-<role>-<view>.webp` (steps of 10% from the front, the left, az-35, and az150),
 `fine-lift-<role>-<view>.webp` and `fine-lower-<role>-<view>.webp` (steps of 2% from the left and
-az-35), `rest-above-<role>.webp` (the rest from 40° above in 7 views), and `play-<role>.webp`
+az-35, for the red fox and the cat: the rabbit has no change), `rest-above-<role>.webp` (the rest from 40° above in 7 views), and `play-<role>.webp`
 (`frog` and `tip` from the front, the back, the left, and the right). The rest and the play are
 the images of `main` within render noise (a mean pixel change of 0.3 to 1.6 of 255, as on the
 rabbit, which has no change). `try-rest-roll.webp`, `try-mid-pole.webp`, and `try-play-cat.webp`
