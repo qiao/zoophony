@@ -346,11 +346,19 @@
       0.16
     ],
     "fingers": 0.5,
+    "knee": {
+      "height": [
+        0.12,
+        0.2
+      ],
+      "note": "Each vertex splits its weight of the thigh and the shin by its height: the thigh share grows from 0 at the lower height to 1 at the upper height, around the knee joint at 0.15. Bone heat on the short thick legs gave the shin the front of the knee and the underside of the thigh up to the haunch, and these vertices stayed upright with the shin when the seated thigh turned forward: the knee stood as a hump above the thigh, and a slab ran from the heel to the haunch (user, 2026-10-26: \"the polar bear's knee is unexpectedly bulky\"). The bands 0.13 to 0.18 and 0.14 to 0.17 gave the same form with a harder crease at the knee."
+    },
     "haunch": {
       "height": [
-        0.17,
-        0.28
-      ]
+        0.2,
+        0.3
+      ],
+      "note": "The part of the thigh weight that goes to the hips grows from 0 at the lower height to 1 at the upper height, so that the rump stays on the bench and the thigh turns forward. With the ramp of 0.17 to 0.28, the hips held most of the thigh, and the seated thigh bent only near the knee. With this ramp, the thigh turns as one tube from the haunch to the knee, and the bench is 2.7 cm lower."
     },
     "note": "Beyond the plane of armSplit (armFree), only the free arm follows the arm bones. Above headFrom, each vertex follows the head only. armTop starts above the top of the level arms of the T-pose (y 0.79): from y 0.68, it gave the top of each arm to the neck, and those faces folded in each sample. Each ear follows its ear bone above earBase. The short tail is a ball on one bone (tailBall). The rig has no cut, no ring, and no split (user, 2026-10-23)."
   },
