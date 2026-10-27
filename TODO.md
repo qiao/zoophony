@@ -1767,8 +1767,24 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       an uneven grouping, such as 2+2+3.
 - [ ] Sway at the song end: the sway stops at the last pulse, so the file of the user does not
       sway in its last 0.5 s. The base stopped at the last beat.
-- [ ] `docs/agents/commands.md` has 3,385 words, above its limit of about 3,000. Cut it in a
+- [ ] `docs/agents/commands.md` has 4,740 words, above its limit of about 3,000. Cut it in a
       prose pass.
+- [ ] Tools of a rig round (retro of the fifth review, 2026-10-27):
+      - Mark in red the pixels of `close-views --sheet` that change by more than 40 between the
+        base and the round. The elephant round looked through 12 wide sheets by eye.
+      - Save the Blender variant runner of `docs/research/2026-10-26-fifth-deer/probes/`
+        (`variant.py`, `variants.sh`), or fold it into `pnpm arm-variants` above. The variant
+        loop was most of the deer round.
+      - Let `pnpm rig-mesh --check --keep` run `pnpm arm-check --glb` on each kept variant in
+        parallel jobs. The deer round ran them one after the other, 1 to 2 minutes each.
+      - Add the forearm turn from a neutral forearm (bind and pose) as a column of
+        `pnpm arm-check`. The bind-relative paw twist hid the bind offset of the rhino
+        (`docs/research/2026-10-26-fifth-rhino/probes/forearm-turn.ts`).
+      - Print the edges that pass through the skin and the hard edges near each knee in
+        `pnpm rig-mesh --check` (`crossings.py` and `hard_edges.py` of
+        `docs/research/2026-10-26-fifth-bears/`).
+      - Give `pnpm carry-check` a cache of the working tree, as `pose-depth` has. Each run
+        takes about 44 s now.
 
 Done when: the pose tests pass, and the pose and frame targets pass.
 
