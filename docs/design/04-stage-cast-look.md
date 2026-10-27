@@ -785,7 +785,9 @@ mesh are quad tubes (rings at a right angle to the bones), and the weights come 
   arm at the elbow axis of the studio. Each paw turns toward the forearm, up to a limit
   (`PAW_TURN`), because the skin of the studio bends well only near its clips. The turn fades out
   where the forearm passes behind the palm, because the side of the turn there jumps in one frame
-  (`docs/decisions/2026-10-26-violin-lift.md`). Each shape takes its
+  (`docs/decisions/2026-10-26-violin-lift.md`). A pose can give the left paw its own turn in
+  place of this turn (`pawTurnL` of `AnimalPose`), so that a carried violin keeps its place in
+  the paw (5.2). Each shape takes its
   weight from the pose alone (`raiseWeight()`), so the rule of stateless poses holds.
 - **Render.** The scene draws the body with four bones for each vertex and the shapes as morph
   targets. The colors hold the baked occlusion of the studio. The fur gets smooth normals within

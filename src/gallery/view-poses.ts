@@ -215,6 +215,8 @@ export function stillPose(pose: AnimalPose): AnimalPose {
     slideOffset: copy(pose.slideOffset),
     // The bowed pose moves the instrument while the player plays (design 5.3).
     instrumentOffset: copy(pose.instrumentOffset ?? [0, 0, 0]),
+    // The violin and the viola keep the turn of the playing grip in the left paw (design 5.2).
+    pawTurnL: pose.pawTurnL ?? null,
     blink: 0,
   };
 }

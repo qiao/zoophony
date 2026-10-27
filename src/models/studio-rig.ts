@@ -226,7 +226,8 @@ export interface StudioPose {
 
 /**
  * The offsets of a pose of the player that move bones from their bind places (design 5.1): the
- * root offset, and the offsets of the instrument bone and of the slide bone.
+ * root offset, and the offsets of the instrument bone and of the slide bone. Two values of the
+ * left arm also come with them: the unwind of the forearm twist and the turn of the paw.
  */
 interface BoneOffsets {
   /** The offset of the root bone, in the model axes. */
@@ -240,6 +241,11 @@ interface BoneOffsets {
    * `AnimalPose`, {@link skinTwist}), from 0 to 1.
    */
   readonly twistFadeL: number;
+  /**
+   * The turn of the left paw in the plane of its palm, in radians, in place of the turn toward
+   * the forearm ({@link PAW_TURN}), or `null` for that turn (`pawTurnL` of `AnimalPose`).
+   */
+  readonly pawTurnL: number | null;
 }
 
 /** The offsets of a pose that moves no bone from its bind place. */
@@ -248,6 +254,7 @@ export const NO_OFFSETS: BoneOffsets = {
   instrument: [0, 0, 0],
   slide: [0, 0, 0],
   twistFadeL: 0,
+  pawTurnL: null,
 };
 
 /** The offsets that a pose of a player holds (`AnimalPose` of `pose/types.ts`, design 5.1). */
@@ -260,6 +267,8 @@ interface PoseOffsets {
   readonly slideOffset: Vec3;
   /** The share of the unwind of the twist of the left forearm near 180°, or none for 0. */
   readonly twistFadeL?: number;
+  /** The turn of the left paw in the plane of its palm, or none for the turn of the retarget. */
+  readonly pawTurnL?: number | null;
 }
 
 /**
@@ -274,6 +283,7 @@ export function studioOffsets(pose: PoseOffsets): BoneOffsets {
     instrument: pose.instrumentOffset ?? NO_OFFSETS.instrument,
     slide: pose.slideOffset,
     twistFadeL: pose.twistFadeL ?? 0,
+    pawTurnL: pose.pawTurnL ?? null,
   };
 }
 
@@ -1040,7 +1050,8 @@ function upperRoll(armTurn: Quaternion, chestTurn: Quaternion, armBind: Vector3)
  * upper arm and the forearm turn with the elbow axis of the studio onto the plane of the arm, so
  * that the elbow bends as the studio built it. The paw takes the rotation of the hand of the
  * player, turned in the plane of its palm toward the forearm by up to {@link PAW_TURN} (the right
- * paw only toward the baton), and the forearm twist bone takes {@link TWIST_SHARE} of the twist
+ * paw only toward the baton), or by the turn of the pose for the left paw (`pawTurnL`), and the
+ * forearm twist bone takes {@link TWIST_SHARE} of the twist
  * from the forearm to the paw. The fingers of the studio curl around their own axis by the curl
  * of the fingers of the player. The arm-down shape of each arm takes its weight from the
  * direction of the upper arm between the bind pose of the studio and the pose of the sheet, as in
@@ -1118,7 +1129,7 @@ export function poseStudioBones(
   const raises = rig.body.raises ?? [];
   out.correctives.fill(0, RAISED);
   for (const arm of [rig.arms.L, rig.arms.R]) {
-    poseArm(rig, arm, pose, offsets.twistFadeL, out);
+    poseArm(rig, arm, pose, offsets, out);
     // The corrective weight: the place of the upper arm on the way from the bind pose of the
     // studio to the pose of the sheet, in the axes of the chest.
     current.copy(upper).applyQuaternion(chestInverse);
@@ -1238,14 +1249,15 @@ export function skinTwist(twist: number, fade: number): number {
  * @param rig The studio rig.
  * @param arm The arm.
  * @param pose The local rotations of the bones of the player.
- * @param twistFadeL The share of the unwind of the twist of the left forearm ({@link skinTwist}).
+ * @param offsets The offsets of the pose: the share of the unwind of the twist of the left forearm
+ *   ({@link skinTwist}), and the turn of the left paw in the plane of its palm.
  * @param out The pose to write.
  */
 function poseArm(
   rig: StudioRig,
   arm: StudioArm,
   pose: Float32Array,
-  twistFadeL: number,
+  offsets: BoneOffsets,
   out: StudioPose,
 ): void {
   const h = rig.body.heads;
@@ -1266,9 +1278,10 @@ function poseArm(
   alignFrames(upperBind, hingeBind, upper, hinge, upperTurn);
   alignFrames(foreBind, hingeBind, fore, hinge, foreTurn);
 
-  // The paw turns in the plane of its palm toward the forearm.
+  // The paw turns in the plane of its palm toward the forearm, or by the turn of the pose.
   const hand = rotations[arm.drivers.hand] ?? local;
-  palmTurn.setFromAxisAngle(X_AXIS, palmTurnAngle(arm.side, hand, fore));
+  const ownTurn = arm.side === 'L' ? offsets.pawTurnL : null;
+  palmTurn.setFromAxisAngle(X_AXIS, ownTurn ?? palmTurnAngle(arm.side, hand, fore));
   paw.fromArray(arm.paw);
   handTurn.copy(hand).multiply(palmTurn).multiply(paw);
 
@@ -1280,7 +1293,7 @@ function poseArm(
   fingersTurn.copy(handTurn).multiply(curlTurn);
   relative.copy(foreTurn).invert().multiply(handTurn);
   const fullTwist = twistAngle(relative, foreBind);
-  const skinned = skinTwist(fullTwist, arm.side === 'L' ? twistFadeL : 0);
+  const skinned = skinTwist(fullTwist, arm.side === 'L' ? offsets.twistFadeL : 0);
   twistTurn.setFromAxisAngle(foreBind, TWIST_SHARE * skinned).premultiply(foreTurn);
 
   const side = arm.side;

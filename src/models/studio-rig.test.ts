@@ -295,7 +295,13 @@ describe('poseStudioBones with the offsets of a pose (design 5.1)', () => {
       rig,
       skeleton,
       rotations,
-      { root: [0, 0, 0], instrument: [0.1, 0.2, 0.3], slide: [0, 0, -0.4], twistFadeL: 0 },
+      {
+        root: [0, 0, 0],
+        instrument: [0.1, 0.2, 0.3],
+        slide: [0, 0, -0.4],
+        twistFadeL: 0,
+        pawTurnL: null,
+      },
       1,
       createStudioPose(),
     );

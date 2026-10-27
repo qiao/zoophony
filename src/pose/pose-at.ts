@@ -44,6 +44,7 @@ export interface WritablePose extends AnimalPose {
   slideOffset: [number, number, number];
   readonly instrumentOffset: [number, number, number];
   twistFadeL: number;
+  pawTurnL: number | null;
   blink: number;
 }
 
@@ -93,6 +94,7 @@ function createPose(): WritablePose {
     slideOffset: [0, 0, 0],
     instrumentOffset: [0, 0, 0],
     twistFadeL: 0,
+    pawTurnL: null,
     blink: 0,
   };
 }
@@ -329,6 +331,7 @@ function poseAnimal(
   pose.rootOffset.fill(0);
   pose.instrumentOffset.fill(0);
   pose.twistFadeL = 0;
+  pose.pawTurnL = null;
   const note = player.note;
   // The conductor does not sway with the beat (design 5.4).
   const body = scratch.body;
