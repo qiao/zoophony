@@ -369,8 +369,8 @@ Each segment takes its share of the roll of the upper arm from the chest, or of 
 forearm to the paw, at its middle. Each helper turns halfway across its joint. The twist from the
 forearm to the paw lies from -180° to 180°, so a paw that passes 180° turns the twist bone and the
 segments by half a turn in one frame. In the lift and the lowering of a violin or a viola, the
-left paw passes 180° (5.2), so the pose asks the retarget to let them unwind in the last 30° before
-180° (`twistFadeL` of `AnimalPose`, `skinTwist()` of `models/studio-rig.ts`): each bone turns
+left paw passes 180° (5.2), so the pose asks the retarget to let them unwind in a band before 180°
+(`TWIST_FADE_BAND`, `twistFadeL` of `AnimalPose`, `skinTwist()` of `models/studio-rig.ts`): each bone turns
 with no jump, and the wrist takes the twist for a moment. The rest and the play keep the shares. The skin then turns
 in small steps along the arm, and the elbow and the wrist keep their volume. The arms of such a
 mesh are quad tubes (rings at a right angle to the bones), and the weights come from Blender

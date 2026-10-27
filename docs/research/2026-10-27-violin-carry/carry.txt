@@ -1,0 +1,12 @@
+
+> zoophony@0.0.0 carry-check /Users/xueqiaoxu/proj/zoophony/.claude/worktrees/fifth-strings2
+> node tools/carry-check.ts violinist\,fox-violinist\,violist --base main
+
+base: cached (main, 01b6cf46e9ea)
+Carry of the instrument in the left paw on the working tree, with main (7d54f482) in parentheses: 24.3 s. A fast step turns both faster than 20°/s, at steps of 0.01 s.
+
+| Role | Moves | Steps >90° of the fast steps | Largest angle | Turn in the paw: path | Turn in the paw: net | Move of the largest angle |
+|---|---|---|---|---|---|---|
+| violinist | 84 (84) | 0 of 8528 (0 of 8488) | 26° (42°) | 26° (62°) | 22° (56°) | bach-bwv1048 lower 327.3 s |
+| fox-violinist | 84 (84) | 0 of 8410 (0 of 8490) | 18° (27°) | 30° (84°) | 27° (79°) | beethoven-8-4 lift 239.6 s |
+| violist | 84 (84) | 0 of 7592 (0 of 7671) | 17° (36°) | 30° (76°) | 25° (73°) | mozart-k315 lift 170.0 s |

@@ -1214,9 +1214,13 @@ export function palmTurnAngle(side: Side, hand: Quaternion, forearm: Vector3): n
 
 /**
  * The width of the band below 180° of the twist of the paw on the forearm in which the twist bone
- * and the segments of a left forearm unwind in a move ({@link skinTwist}), in radians.
+ * and the segments of a left forearm unwind in a move ({@link skinTwist}), in radians. The rest grip
+ * of the violin and the viola lies near the playing grip, so the paw twists slowly through the band:
+ * with 30°, the wrist held the twist longer, and the skin of the rabbit went flat in the lift (flat
+ * p5 0.64 against 0.76). With 24°, the shared twist rose to 156° (151° with 30°,
+ * `docs/decisions/2026-10-27-violin-carry.md`).
  */
-export const TWIST_FADE_BAND = (30 * Math.PI) / 180;
+export const TWIST_FADE_BAND = (27 * Math.PI) / 180;
 
 /**
  * Gives the twist that the twist bone and the segments of a forearm share (design 4.4). Each bone

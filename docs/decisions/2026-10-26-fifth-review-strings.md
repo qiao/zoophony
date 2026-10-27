@@ -12,8 +12,6 @@ user can reverse each decision. Then update its section, and remove its row.
 | Decision | Section |
 |---|---|
 | The user: "the violin/viola are rotating in the different direction than their player's wrist/arm". The instrument hangs from the paw that the viewer sees and turns with it (`carryLift()`). No fast step turns the two in opposite senses (all on `57849ac5`). | 5.2 |
-| The left paw supinates from the rest grip to the playing grip (`mixTwist()`). The playing grip lies near 180° from the bind of the mesh, so the forearm segments unwind in the last 30° before 180° (`skinTwist()`). With a pronation, the instrument turned nearly a full turn. | 4.4, 5.2 |
-| The skin passes one twist step of 180° in each move, so the left arm in the moves is worse than on `57849ac5` on the gate, within each limit: lift flat p5 0.72 to 0.76, move turn up to 2,197°/s, move twist up to 151°. The play skin stays. | 5.2, 9.3 |
 | In a move, the bow goes to the strings of the instrument on its short path (`instrumentAt()`), and the carried instrument meets it at the play: on the carried strings, the cat right paw twisted 163° (136°). | 5.2 |
 | A play elbow nearer to the middle put the play grip on the other side of 180°, but the play skin folded and flattened (flat 0.31 on the cat). A twist zero of the move range twisted the play forearm 107° to 113° (limit 80). | 5.2 |
 | The cat viola rests 0.12 H further in and 0.03 H back on the knee, held at 0.55 of the fingerboard, with the left elbow (-1.2, -1, 0.1): the left elbow bends to 123° (143°). Further in, the viola went 2.6 cm into the body. | 5.2 |

@@ -1,0 +1,32 @@
+
+> zoophony@0.0.0 arm-check /Users/xueqiaoxu/proj/zoophony/.claude/worktrees/fifth-strings2
+> node tools/arm-check.ts violinist fox-violinist violist --base 57849ac5
+
+base: cached (57849ac5, 9d03ca6c204a)
+tree: cached (f11cbb1dd959)
+base: cached (57849ac5, 99576a4ad7c7)
+tree: cached (2712cd3d10fe)
+base: cached (57849ac5, 1fd7df7b63e2)
+tree: cached (5cf8d09f61f1)
+Arm gate of 3 roles against 57849ac5 in 0 s. A cell gives the value, the base in parentheses, and the verdict of a value that does not pass.
+
+| Role | Arm | folds p95 (8) | twist p95 (55) | forearm twist p95 (80) | flat p5 (0.55) | paw twist p95 (170) | paw swing p95 (70) | paw jumps (0.5%) | stretch p95 (0.35) | grip turn p50 (45) | move twist max (176) | move turn max (3000) | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| violinist | L | 7 (7) | 15 (18) | 80 (80) | 0.73 (0.86) FAIL | 165 (159) | 30 (27) | 0.0% (0.0%) | 0.11 (0.09) | 17 (17) | 162 (162) | 1410 (273) FAIL | FAIL |
+| violinist | R | 5 (5) | 23 (23) | 48 (48) | 0.84 (0.88) | 128 (128) | 36 (36) | 0.0% (0.0%) | 0.08 (0.07) | 19 (19) | 137 (137) | 447 (214) | PASS |
+| fox-violinist | L | 1 (0) | 36 (39) | 67 (67) | 0.82 (0.81) | 161 (147) | 38 (29) | 0.0% (0.0%) | 0.08 (0.07) | 3 (3) | 153 (147) FAIL | 1487 (271) FAIL | FAIL |
+| fox-violinist | R | 3 (3) | 41 (39) | 49 (49) | 0.82 (0.78) | 136 (135) | 56 (56) | 0.0% (0.0%) | 0.05 (0.07) | 11 (11) | 145 (144) | 280 (301) | PASS |
+| violist | L | 4 (3) | 25 (23) | 66 (65) | 0.72 (0.77) FAIL | 164 (129) FAIL | 51 (49) | 0.0% (0.0%) | 0.09 (0.08) | 22 (22) | 153 (131) FAIL | 2067 (290) FAIL | FAIL |
+| violist | R | 3 (3) | 39 (31) | 49 (49) | 0.84 (0.88) | 123 (123) | 36 (46) | 0.0% (0.0%) | 0.03 (0.06) | 30 (30) | 136 (136) | 392 (1151) | PASS |
+
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| violinist | L | flat p5 | lift | 434 | 0.88 | 0.73 | 100.0% | 0.26 at mozart-k191.mid wall 0.7 s | 0.73 | 0.55 | 0.86 | FAIL |
+| violinist | L | move turn max | move | 16254 | 17 | 666 | 89.2% | 1410 at beethoven-8.mid lift 146.82 s, wall 0.66 s | 1410 | 3000 | 273 | FAIL |
+| fox-violinist | L | move twist max | move | 16254 | 125 | 150 | 100.0% | 153 at boulanger-matin.mid lower 280.67 s, wall 0.44 s | 153 | 176 | 147 | FAIL |
+| fox-violinist | L | move turn max | move | 16254 | 25 | 700 | 88.0% | 1487 at bach-bwv1047.mid lift 185.00 s, wall 0.45 s | 1487 | 3000 | 271 | FAIL |
+| violist | L | flat p5 | lift | 434 | 0.82 | 0.72 | 100.0% | 0.24 at bach-bwv1047.mid wall 0.6 s | 0.72 | 0.55 | 0.77 | FAIL |
+| violist | L | paw twist p95 | lift | 434 | 125 | 164 | 100.0% | 180 at bach-bwv1047.mid wall 0.6 s | 164 | 170 | 129 | FAIL |
+| violist | L | move twist max | move | 16254 | 113 | 147 | 100.0% | 153 at mozart-k417.mid lower 67.73 s, wall 0.46 s | 153 | 176 | 131 | FAIL |
+| violist | L | move turn max | move | 16254 | 14 | 1023 | 87.1% | 2067 at bach-bwv1048.mid lift 109.10 s, wall 0.66 s | 2067 | 3000 | 290 | FAIL |
+ ELIFECYCLE  Command failed with exit code 1.

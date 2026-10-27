@@ -501,7 +501,12 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       (lift flat p5 0.72 to 0.76 against 0.81 to 0.86), and the moves of the arm gate are worse
       than on `57849ac5` within each limit (move turn up to 2,197°/s). A playing grip near the
       supination of a real violinist (about 90° in place of 156°) removes it. A play elbow nearer to
-      the middle flattened the play skin (flat 0.31 on the cat).
+      the middle flattened the play skin (flat 0.31 on the cat). Round `fifth-strings2`: no rest
+      grip with a natural elbow avoids the pass, because the play lies 215° to 234° of supination
+      from the bind of the mesh paw, and 12 rest elbows give rest twists of -177° to 28°. The band
+      is now 27°: lift flat p5 0.72 to 0.82, move turn up to 2,067°/s, and the forearm twist still
+      dips to 6° to 9° for about 0.1 s (`2026-10-27-violin-carry.md`). A new bind of the paw with
+      a supinated paw also removes it.
 - [x] Rabbit, red fox, and cat (`2026-10-26-fifth-review-strings.md`): the grip that the viewer sees
       changes by 56° to 79° in the moves (target 30°), because the retarget turns each paw toward
       its forearm (`PAW_TURN`), and the forearm crosses the neck at rest and runs along it in the
@@ -510,7 +515,8 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
 - [ ] Rabbit, red fox, and cat (`2026-10-26-fifth-review-strings.md`): the carried instrument
       goes up to 2.2 cm into the body near the jaw in some moves (limit 2.0, up to 1.9 cm on
       `57849ac5`), because it hangs from the paw there. Each other wrist via of the scan went
-      deeper.
+      deeper. With the rest grip of round `fifth-strings2`, up to 2.1 cm (red fox lift, cat
+      lowering).
 - [ ] Cat (`2026-10-26-fifth-review-strings.md`): the round belly keeps both elbows 35° to 48°
       from the vertical at rest. Lower elbows went 2.2 cm to 4.1 cm into the belly (limit 1.5).
 - [x] Cat (`2026-10-26-fifth-review-strings.md`): at rest, the left paw goes 0.8 cm into the
