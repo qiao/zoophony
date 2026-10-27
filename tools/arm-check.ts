@@ -311,9 +311,10 @@ export const JUMP_ANGLE = 90;
  * `eefece23`, whose arms the user accepted, in degrees, with the sign of the right arm turned so
  * that one sign is one turn of the forearm on both sides. The bind paw of a mesh body is no
  * neutral wrist, so no anatomy limit from the bind separates a wrung paw from a good one: the good
- * left paws of the violins turn 133° to 156° from the bind. The value `grip` is the turn of the
- * paw from its accepted grip. A hold round that changes a grip on purpose gives its new median
- * here, with the crops that the user accepted. A role with no entry has no value `grip`.
+ * left paws of the violins turned 133° to 156° from the pronated bind of their meshes. The value
+ * `grip` is the turn of the paw from its accepted grip. A hold round that changes a grip on purpose
+ * gives its new median here, with the crops that the user accepted. A new bind of a paw moves its
+ * entry by the turn of the bind. A role with no entry has no value `grip`.
  */
 export const ACCEPTED_GRIPS: ReadonlyMap<string, Readonly<Record<Side, number>>> = new Map<
   string,
@@ -325,12 +326,15 @@ export const ACCEPTED_GRIPS: ReadonlyMap<string, Readonly<Record<Side, number>>>
   // The T-pose polar bear mesh (docs/decisions/2026-10-24-polar-bear-tpose.md).
   ['pianist', { L: -23, R: -30 }],
   ['harpist', { L: -55, R: -101 }],
-  ['violinist', { L: 133, R: -86 }],
-  ['fox-violinist', { L: 140, R: -102 }],
+  // The bind left paw of the rabbit, the red fox, and the cat turns 100°, 110°, and 120° toward
+  // supination (docs/decisions/2026-10-27-left-paw-bind.md), so the left grips of the same holds
+  // moved from 133°, 140°, and 147° by these angles, and the left flute grip from -120°.
+  ['violinist', { L: -127, R: -86 }],
+  ['fox-violinist', { L: -110, R: -102 }],
   // The cat violist with the right elbow down at the tip, which rolls the right forearm
   // (docs/decisions/2026-10-24-violin-review.md), and the review of the 2x paw crops by the
   // manager on 2026-10-24.
-  ['violist', { L: 147, R: -62 }],
+  ['violist', { L: -93, R: -62 }],
   ['cellist', { L: -146, R: 12 }],
   // The hippo bow arm with the elbow out and a little up, so that the forearm slopes down to the
   // bow with a nearly straight wrist (user, 2026-10-25, docs/decisions/2026-10-26-arm-fixes.md).
@@ -366,7 +370,7 @@ export const ACCEPTED_GRIPS: ReadonlyMap<string, Readonly<Record<Side, number>>>
   ['oboist', { L: -85, R: -90 }],
   // The paws of the woodwinds of the tan fox face its tube (faceTube of pose/winds.ts,
   // docs/decisions/2026-10-23-night-fixes.md).
-  ['flutist', { L: -120, R: -30 }],
+  ['flutist', { L: -10, R: -30 }],
   ['trumpeter', { L: -99, R: -98 }],
   // The rhino with the rebuilt arms, the bind elbow bent forward, and the tuba elbows down and out
   // (docs/decisions/2026-10-26-fifth-review-rhino.md, and the 2x paw crops of
