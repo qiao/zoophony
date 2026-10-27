@@ -714,6 +714,8 @@ export function createBowPlaces(): BowPlaces {
 }
 
 const places = createBowPlaces();
+/** The instrument on its short path in a move, for the bow ({@link poseBowed}). */
+const bowInstrument = createPlace();
 const tilted: BowPlace = { grip: new Vector3(), rotation: new Quaternion() };
 const shoulderR = createFrame();
 const shoulderL = createFrame();
@@ -1343,8 +1345,12 @@ export function poseBowed(
   leftElbow(rig.hold, state, poleL);
   leftPole(rig, weight, poleL);
   const carried = carryLift(rig, frames, state, weight, note, poleL, place, handL);
-  turnToPlay(rig, frames, place);
-  soundingPointAt(rig, state.loudness, stringsAt(rig, place, strings));
+  // In a move, the bow goes to the strings of the instrument on its short path from the rest to
+  // the play: on the strings of the carried instrument, the bow arm went 6.3 cm into the body of
+  // the cat in a lowering. The two paths meet at the play.
+  const bowPlace = carried ? instrumentAt(rig, frames, weight, bowInstrument) : place;
+  turnToPlay(rig, frames, bowPlace);
+  soundingPointAt(rig, state.loudness, stringsAt(rig, bowPlace, strings));
   // The hand holds the bow with no tilt, and the fingers turn the stick by the tilt.
   const tilt = heldBowAt(rig, strings, state.string, state.bow, state.lift, tilted, bow);
 
@@ -1356,7 +1362,7 @@ export function poseBowed(
     tip,
     tipSide.crossVectors(tip, strings.axis).normalize(),
   ).multiply(bowAlign.fromArray(rig.bowAlign));
-  onInstrument(rig, place, pluckPalm.fromArray(rig.pluck))
+  onInstrument(rig, bowPlace, pluckPalm.fromArray(rig.pluck))
     .addScaledVector(strings.top, h.pluckHeight)
     .addScaledVector(strings.across, state.pluck * h.pluck * state.gesture - rig.hold.pluckSide);
   pluckBow.grip.copy(pluckPalm);

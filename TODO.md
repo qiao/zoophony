@@ -485,9 +485,10 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       changes by 56° to 79° in the moves (target 30°), because the retarget turns each paw toward
       its forearm (`PAW_TURN`), and the forearm crosses the neck at rest and runs along it in the
       play.
-- [ ] Cat (`2026-10-26-fifth-review-strings.md`): the right paw twists up to 163° on its forearm
-      in the moves (136° on `57849ac5`, limit 176), because the bow follows the new path of the
-      viola. Each via of the scan kept 158° to 166°.
+- [ ] Rabbit, red fox, and cat (`2026-10-26-fifth-review-strings.md`): the carried instrument
+      goes up to 2.2 cm into the body near the jaw in some moves (limit 2.0, up to 1.9 cm on
+      `57849ac5`), because it hangs from the paw there. Each other wrist via of the scan went
+      deeper.
 - [ ] Cat (`2026-10-26-fifth-review-strings.md`): the round belly keeps both elbows 35° to 48°
       from the vertical at rest. Lower elbows went 2.2 cm to 4.1 cm into the belly (limit 1.5).
 - [x] Bear rig (`2026-10-26-arm-fixes.md`): the left shoulder bridge folds 8 tiny faces at p95
