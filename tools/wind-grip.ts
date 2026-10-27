@@ -132,8 +132,10 @@ const OWN_MALLETS: RoleGrip['parts'] = { L: ['malletL'], R: ['malletR'] };
 
 /**
  * The roles that the tool measures: the woodwinds, the brass, the clip of the triangle, the
- * mallets, the sticks, and the beaters of the percussion players, and the left paw of the red fox
- * on the neck of the violin, the grip that the user accepts (user, 2026-10-24), for a compare. The places come from `docs/reference/wind-technique.md` and
+ * mallets, the sticks, and the beaters of the percussion players, the left paw of the red fox on
+ * the neck of the violin, the grip that the user accepts (user, 2026-10-24), for a compare, and the
+ * left paw of the cat on the neck of the viola, which holds it at rest too (user, 2026-10-27: "the
+ * cat is not "holding" the viola in rest mode"). The places come from `docs/reference/wind-technique.md` and
  * `docs/reference/percussion-technique.md`. A woodwind hand has its thumb behind the tube and its
  * fingers over the front, so the middle of the paw is at the side of the tube of its own arm, and
  * the palm faces the tube from that side. With the middle of the paw behind the tube, the palm
@@ -176,6 +178,19 @@ const ROLES = {
     sweep: 'violinist',
     species: 'fox-red',
     instrument: 'violin',
+    tube: neckOf,
+    paws: ['L'],
+    places: {},
+    placeAxes: 'chest',
+    parts: { L: ['instrument'], R: ['instrument'] },
+    shafts: [],
+  },
+  // The left paw of the cat on the neck of the viola, also at rest, where a seated violist holds
+  // the neck with the left hand (string-technique 2.9).
+  violist: {
+    sweep: 'violist',
+    species: 'cat',
+    instrument: 'viola',
     tube: neckOf,
     paws: ['L'],
     places: {},
