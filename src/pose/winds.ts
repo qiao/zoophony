@@ -120,7 +120,10 @@ export interface WindHold {
    * fingers wrap the front. With a grip behind the tube, a share of half turned the palm of a
    * woodwind paw to the audience and its thumb down the tube, so a woodwind paw takes a small
    * share and a grip at the side of its own shoulder (`docs/research/2026-10-25-wind-palms.md`).
-   * Only a paw that rolls to face its tube ({@link WindHold.faceTube}) takes it.
+   * A share below 0, from -1 to 0, turns the paw by its size toward the opposite side direction,
+   * so that a paw below and behind its tube points up past the back of the tube and its curled
+   * fingers come over the top, as the right hand of a flutist does. Only a paw that rolls to face
+   * its tube ({@link WindHold.faceTube}) takes it.
    */
   readonly aimSide: readonly [left: number, right: number];
   /**
@@ -1605,7 +1608,8 @@ const sideAcross = new Vector3();
  * @param front The unit direction from the grip to the tube.
  * @param sign The sign of the side direction ({@link WindSide.aimSign}), which continues the way
  *   of the paw from its shoulder across the body in the playing pose.
- * @param share The share of the side direction in the aim, from 0 to 1.
+ * @param share The share of the side direction in the aim, from -1 to 1. A share below 0 takes
+ *   the opposite side direction.
  * @param out The aim point, which the function moves.
  * @returns `out`.
  */
@@ -1619,7 +1623,7 @@ function aimSide(
 ): Vector3 {
   sideAim.subVectors(out, from.position).normalize();
   sideAcross.crossVectors(axis, front).normalize().multiplyScalar(sign);
-  sideAim.multiplyScalar(1 - share).addScaledVector(sideAcross, share);
+  sideAim.multiplyScalar(1 - Math.abs(share)).addScaledVector(sideAcross, share);
   return out.copy(from.position).add(sideAim);
 }
 
@@ -1683,7 +1687,7 @@ function poseSide(
     const aim = free ? weight : rig.hold.restAim + (1 - rig.hold.restAim) * weight;
     aimAcross(shoulder, grip, tubeAxis, rig.hold.aimAcross * aim, aimPoint);
     const sideShare = rig.hold.aimSide[side.arm.side === 'L' ? 0 : 1];
-    if (sideShare > 0) {
+    if (sideShare !== 0) {
       aimSide(shoulder, tubeAxis, tubeSide, side.aimSign, sideShare * aim, aimPoint);
     }
     handToward(shoulder, aimPoint, hand);
