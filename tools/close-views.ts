@@ -1043,6 +1043,12 @@ export interface CloseViewsArgs {
    * working tree, and each role of `--with`, one image for each moment.
    */
   readonly lineup: RoleLineup | null;
+  /**
+   * The box of each cell of `--sheet` ({@link cropOf}), {@link WHOLE_CELL} with no `--box`, or
+   * `null` for no sheet. A sheet is one image for each view, with the commit of `--base` above
+   * the working tree at each moment ({@link writeSheets}).
+   */
+  readonly sheet: CropBox | null;
 }
 
 /** The lineup of the close views of a role (`--lineup`). */
@@ -1065,6 +1071,9 @@ export const LINEUP_VIEWS: readonly string[] = ['front', 'back', 'left', 'right'
 
 /** The box of the crops of the lineup with no `--box`: the arms and the upper body at zoom 1.5. */
 export const LINEUP_BOX: CropBox = { x: 0.1, y: 0.25, width: 0.8, height: 0.5 };
+
+/** The box of the whole cell: a cell of `--sheet` with no `--box`, or a pair with no `--crop`. */
+export const WHOLE_CELL: CropBox = { x: 0, y: 0, width: 1, height: 1 };
 
 /** The views that each role has by name in `--views`, with their turns of the camera. */
 export const NAMED_VIEWS: readonly CloseViewAngle[] = [
@@ -1254,18 +1263,21 @@ export function scaleOf(value: string | null): number {
  * Reads the command line of the close views: `<role> <dir> [--target head] [--views <view|deg,...>]
  * [--moments <moment,...>] [--zoom <n>] [--elevation <deg>] [--scale <n>] [--probe <probe,...>]
  * [--url <url>] [--glb <file>] [--set <changes>] [--lineup [--with <role,...>] [--crop <n>] [--box
- * <x>,<y>,<w>,<h>]] [--base <ref> [--pairs <view|cell,...> [--crop <x>,<y>,<w>,<h>]]]`. With
- * `--lineup`, the views are {@link LINEUP_VIEWS} and the moments {@link lineupMoments} unless
- * `--views` and `--moments` give others. A moment `lift<n>` or `lower<n>` gives the share n / 100
- * of that move ({@link roleMoment}), such as `lift30`.
+ * <x>,<y>,<w>,<h>]] [--base <ref> [--pairs <view|cell,...> [--crop <x>,<y>,<w>,<h>]] [--sheet
+ * [--box <x>,<y>,<w>,<h>]]]`. With `--lineup`, the views are {@link LINEUP_VIEWS} and the moments
+ * {@link lineupMoments} unless `--views` and `--moments` give others. `--sheet` gives one sheet
+ * for each view ({@link writeSheets}), with the cells of `--scale` cut to the box of `--box`. A
+ * moment `lift<n>` or `lower<n>` gives the share n / 100 of that move ({@link roleMoment}), such
+ * as `lift30`.
  *
  * @param args The arguments after the script.
  * @returns The command line, or `null` when it is not correct.
  * @throws Error if a target, a zoom, an elevation, a scale, a probe, a pair, a view, a moment, a
- *   role of `--with`, or a crop does not fit, if `--pairs` comes with no `--base`, `--crop` with
- *   no `--pairs` or `--lineup`, or `--with`, `--box`, or a factor of `--crop` with no `--lineup`,
- *   if `--lineup` comes with `--probe`, `--target`, or `--pairs`, if `--set` comes more than one
- *   time, or if `--glb` or `--set` comes with `--url`.
+ *   role of `--with`, or a crop does not fit, if `--pairs` or `--sheet` comes with no `--base`,
+ *   `--crop` with no `--pairs` or `--lineup`, `--with` or a factor of `--crop` with no
+ *   `--lineup`, or `--box` with no `--lineup` or `--sheet`, if `--lineup` comes with `--probe`,
+ *   `--target`, `--pairs`, or `--sheet`, if `--set` comes more than one time, or if `--glb` or
+ *   `--set` comes with `--url`.
  */
 export function closeViewsArgs(args: readonly string[]): CloseViewsArgs | null {
   const role = roleOf(args[0]);
@@ -1286,6 +1298,7 @@ export function closeViewsArgs(args: readonly string[]): CloseViewsArgs | null {
   const withRoles = optionValue(args, '--with');
   const box = optionValue(args, '--box');
   const lineup = args.includes('--lineup');
+  const sheet = args.includes('--sheet');
   const given = [url, base, zoom, elevation, scale, pairs, crop, glb, holds, probe, target];
   if (
     !role ||
@@ -1296,11 +1309,19 @@ export function closeViewsArgs(args: readonly string[]): CloseViewsArgs | null {
     return null;
   }
   const factor = crop !== null && crop !== undefined && /^\d$/.test(crop) ? Number(crop) : null;
-  if (!lineup && (withRoles || box || factor !== null)) {
-    throw new Error('The options --with, --box, and --crop <n> need --lineup.');
+  if (!lineup && (withRoles || factor !== null)) {
+    throw new Error('The options --with and --crop <n> need --lineup.');
   }
-  if (lineup && (probe || target || pairs)) {
-    throw new Error('The option --lineup takes no --probe, --target, or --pairs.');
+  if (!lineup && !sheet && box) {
+    throw new Error('The option --box needs --lineup or --sheet.');
+  }
+  if (lineup && (probe || target || pairs || sheet)) {
+    throw new Error('The option --lineup takes no --probe, --target, --pairs, or --sheet.');
+  }
+  if (sheet && !base) {
+    throw new Error(
+      'The option --sheet needs --base, because the top row of each sheet is the base.',
+    );
   }
   if (factor !== null && (factor < 1 || factor > MAX_SCALE)) {
     throw new Error(`The option --crop of --lineup takes 1 to ${MAX_SCALE}, and not "${crop}".`);
@@ -1361,6 +1382,7 @@ export function closeViewsArgs(args: readonly string[]): CloseViewsArgs | null {
     lineup: lineup
       ? { roles: partners, crop: factor ?? 1, box: box ? cropOf(box) : LINEUP_BOX }
       : null,
+    sheet: sheet ? (box ? cropOf(box) : WHOLE_CELL) : null,
   };
 }
 
@@ -1565,7 +1587,7 @@ async function pairImage(
       {
         images: cells.map((cell) => `data:image/png;base64,${cell.toString('base64')}`),
         names: [...labels],
-        box: crop ?? { x: 0, y: 0, width: 1, height: 1 },
+        box: crop ?? WHOLE_CELL,
       },
     );
     return Buffer.from(dataUrl.slice(dataUrl.indexOf(',') + 1), 'base64');
@@ -1896,6 +1918,57 @@ async function writeLineups(
 }
 
 /**
+ * Writes the contact sheets of `--sheet`: one image for each view, as `<prefix>-<view>.png` and
+ * `.webp`. The columns are the moments in their order. The top row is the commit of `--base`, and
+ * the bottom row is the working tree. Each cell shows the box of `--sheet` at the pixels of the
+ * cell, with a label of its row (`base` or `round`), its moment, and its view.
+ *
+ * @param browser The browser.
+ * @param role The views and the moments of the role.
+ * @param rows The cells of the commit and of the working tree, each in the order of the grid: the
+ *   views of each moment.
+ * @param box The box of each cell, as shares of the cell.
+ * @param size The size of the cells, in CSS pixels.
+ * @param prefix The start of the file paths, such as `out/violist-sheet`.
+ * @throws Error if a row has fewer cells than the grid.
+ */
+async function writeSheets(
+  browser: Browser,
+  role: RoleViews,
+  rows: readonly [base: readonly Buffer[], round: readonly Buffer[]],
+  box: CropBox,
+  size: CellSize,
+  prefix: string,
+): Promise<void> {
+  const across = role.views.length;
+  const cropSize = {
+    width: Math.round(box.width * size.width),
+    height: Math.round(box.height * size.height),
+  };
+  const named = [
+    ['base', rows[0]],
+    ['round', rows[1]],
+  ] as const;
+  for (const [v, view] of role.views.entries()) {
+    const cells: Buffer[] = [];
+    const labels: string[] = [];
+    for (const [name, own] of named) {
+      for (const [m, moment] of role.moments.entries()) {
+        const cell = own[m * across + v];
+        if (!cell) {
+          throw new Error(`The ${name} row has no cell ${moment.name}-${view.name}.`);
+        }
+        cells.push(cell);
+        labels.push(`${name}: ${moment.name}, ${view.name}`);
+      }
+    }
+    const crops = box === WHOLE_CELL ? cells : await cropCells(browser, cells, box);
+    const sheet = await grid(browser, crops, labels, role.moments.length, cropSize);
+    await writeImage(browser, sheet, `${prefix}-${view.name}`);
+  }
+}
+
+/**
  * Renders the close view of a role into `<dir>`: each cell as `<role>-<moment>-<view>.png`, and
  * the grid of all cells as `<role>-views.png` and `.webp`. The renders of the commit write each
  * cell of the commit as `<role>-base-<moment>-<view>.png`, and the grid of the commit above the
@@ -1904,7 +1977,8 @@ async function writeLineups(
  * ({@link roleCell}). Each WebP grid has the cells of {@link CELL}, so that it keeps its byte
  * limit at each scale. Each cell of `--pairs` then gets `<role>-pair-<moment>-<view>.webp`: the
  * crop of `--crop` of the cell of the commit beside the same crop of the working tree
- * ({@link pairImage}). A probe of `--probe` renders the cells with the gallery query `probe`,
+ * ({@link pairImage}). `--sheet` then gives `<role>-sheet-<view>.png` and `.webp` for each view
+ * ({@link writeSheets}). A probe of `--probe` renders the cells with the gallery query `probe`,
  * and puts the probe after the role in each file name, such as `timpanist-normals-views.png`. The
  * face crops of `--target head` ({@link headViews}) put `head` after the role, such as
  * `clarinetist-head-views.png`.
@@ -1958,6 +2032,10 @@ async function probeViews(
 
   return async (other, label) => {
     const before = await renderViews(browser, other, role, out, `${name}-base-`, size, probe);
+    if (args.sheet) {
+      const sheetRows = [before.cells, views.cells] as const;
+      await writeSheets(browser, role, sheetRows, args.sheet, size, join(out, `${name}-sheet`));
+    }
     if (lineup) {
       const all = [{ label, cells: before.cells }, ...rows];
       await writeLineups(browser, role, all, lineup, size, join(out, `${name}-lineup`));
@@ -4944,7 +5022,7 @@ async function renderModes(
 
 /** The usage text of the tool. */
 const USAGE = [
-  `Usage: pnpm close-views <${CLOSE_ROLES.join('|')}> <output directory> [--target head] [--views <view|deg,...>] [--moments <moment,...>] [--zoom <n>] [--elevation <deg>] [--scale <n>] [--probe <${GALLERY_PROBES.join('|')},...>] [--url <url>] [--glb <file>] [--set <changes>] [--lineup [--with <role,...>] [--crop <n>] [--box <x>,<y>,<w>,<h>]] [--base <ref> [--pairs <view|cell,...> [--crop <x>,<y>,<w>,<h>]]]`,
+  `Usage: pnpm close-views <${CLOSE_ROLES.join('|')}> <output directory> [--target head] [--views <view|deg,...>] [--moments <moment,...>] [--zoom <n>] [--elevation <deg>] [--scale <n>] [--probe <${GALLERY_PROBES.join('|')},...>] [--url <url>] [--glb <file>] [--set <changes>] [--lineup [--with <role,...>] [--crop <n>] [--box <x>,<y>,<w>,<h>]] [--base <ref> [--pairs <view|cell,...> [--crop <x>,<y>,<w>,<h>]] [--sheet [--box <x>,<y>,<w>,<h>]]]`,
   '       pnpm close-views lineup <species,...> <output directory> [--url <url>] [--base <ref>]',
   `       pnpm close-views species <species,...> <output directory> [--views <${SPECIES_VIEWS.map((view) => view.name).join('|')},...>] [--moment <play|rest|lift<p>|lower<p>>] [--zoom <n>] [--elevation <deg>] [--url <url>] [--base <ref>]`,
   `       pnpm close-views play <output directory> [--demo <id> | --midi <path>] [--time <s>]... [--strip <from>:<step>:<count>] [--camera <${PLAY_CAMERAS.map((camera) => camera.name).join('|')}|<dx>,<dy>,<wheel>|<JSON>>]... [--camera-file <json>] [--cinematic] [--shot <seat|species>] [--at <seat|species> [--azimuth <deg>]... [--zoom <z>] [--elevation <deg>]] [--url <url>] [--base <ref>] [--set <changes>]... [--size <w>x<h>]`,
