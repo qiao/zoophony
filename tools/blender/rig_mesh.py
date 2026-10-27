@@ -59,9 +59,10 @@ reads it (route 3 of `docs/agents/model-work.md`). The steps:
    (`arm_slim()`, `fore_slim()`): the factor of the upper arm fades in from the shoulder joint,
    and the factor of the forearm fades out to the wrist, so that the shoulders and the paws keep
    their form.
-5. Change the faces of the arms so that they bend at the joints: a ring of new vertices at each
-   joint of the config splits the faces that it crosses, and the long edge of a face that is
-   thin in the seated bind pose flips. Each face then takes its color from the texture again.
+5. Change the faces of the arms and the legs so that they bend at the joints: a ring of new
+   vertices at each joint of the config splits the faces that it crosses, and the long edge of a
+   face that is thin in the seated bind pose flips. Each face then takes its color from the
+   texture again.
 6. Pose the skeleton in the seated bind pose: the legs turn by the seat of the config, the arms
    go to the bind arms of the studio, and the bones of a tail of two bones go to the bind
    directions of the config, back through the open back of the chair. The skin of the
@@ -2276,10 +2277,20 @@ def arm_part(heads, joint):
 def ring_radius(ring, heads, side):
     """Gives the radius of a ring at the joint of one side, in units: its `radius`, or else its
     `part` (by default `RING_PART`) of the arm part that ends at the joint (`arm_part()`), so that
-    the ring grows with the arm factor."""
+    the ring grows with the arm factor. A ring of a leg joint needs its `radius`."""
     if 'radius' in ring:
         return ring['radius']
+    if ring['joint'] in LEG:
+        raise SystemExit(f"The ring of the leg joint {ring['joint']} needs a radius.")
     return ring.get('part', RING_PART) * arm_part(heads, f"{ring['joint']}_{side}")
+
+
+def limb_bones(joint, side):
+    """Gives the bones of the limb of a ring joint on one side: the leg bones of `LEG` for a leg
+    joint, such as `shin` for the knee, and else the arm bones (`arm_bones()`)."""
+    if joint in LEG:
+        return [f'{b}_{side}' for b in LEG]
+    return arm_bones(side)
 
 
 def joint_plane(heads, ends, joint):
@@ -2290,16 +2301,18 @@ def joint_plane(heads, ends, joint):
 
 
 def ring_cuts(verts, tris, weights, heads, ends, ring, side):
-    """Finds the edges that a ring of one joint cuts: the plane of `joint_plane()`. An edge counts
-    when both corners lie within the radius of the ring (`ring_radius()`) of the joint, an arm bone
-    of the side moves one corner, it is at least `minEdge` long, and the plane cuts it at least
-    `ends` of its length from each corner. Gives the place of the cut along each edge, by the
-    sorted pair of its corners."""
+    """Finds the edges that a ring of one joint cuts: the plane of `joint_plane()`, moved `offset`
+    units along its normal (toward the child bone for a value above 0). An edge counts when both
+    corners lie within the radius of the ring (`ring_radius()`) of the joint, a bone of the limb
+    of the side (`limb_bones()`) moves one corner, it is at least `minEdge` long, and the plane
+    cuts it at least `ends` of its length from each corner. Gives the place of the cut along each
+    edge, by the sorted pair of its corners."""
     joint = f"{ring['joint']}_{side}"
     point, normal = joint_plane(heads, ends, joint)
     near = np.linalg.norm(verts - point, axis=1) <= ring_radius(ring, heads, side)
+    point = point + ring.get('offset', 0.0) * normal
     arm = np.zeros(len(verts), bool)
-    for name in arm_bones(side):
+    for name in limb_bones(ring['joint'], side):
         arm |= weights[:, BONES.index(name)] > 0
     height = (verts - point) @ normal
     cuts = {}
@@ -2372,25 +2385,67 @@ def split_triangle(t, mids, points):
     return [[u, p, q], [p, v, q], [v, w, q]]
 
 
-def refine(verts, tris, uvs, weights, heads, ends, matrices, config):
-    """Changes the faces of the arms so that they bend at the joints (design 4.4), by the rule
-    `refine` of the config: first a ring of new vertices at each joint of `rings` (`ring_cuts()`,
-    `split_faces()`), on the sides of its `sides` or on both sides, then the flips of the long
-    edges of the faces that are thin in the seated bind pose of `bind_skin()` (`flip_edges()`).
-    The cuts keep the surface, and each new vertex keeps four bones. Gives the new vertices, triangles, corner UVs, and weights, the number of flips, the
-    largest move of a flip, the number of cut edges, and the index of the face before the refine
-    of each face. A flip keeps the index of each of its two faces."""
+def ring_leg_weights(points, weights, rules):
+    """Gives the weights of the new vertices of a leg ring by the leg rules at their places in
+    the source, as `apply_rules()` gives them. A new vertex takes the mean weights of its edge,
+    so a vertex between a corner of the haunch on the hips and a corner of the calf on the shin
+    has no thigh weight, and it stays on the straight line between them in the seated bind. Each
+    new vertex instead splits its weight of the hips, the thigh, and the shin of its side by the
+    knee rule (`knee`) at its height, and the hips then take the share of the haunch rule
+    (`haunch`) of the thigh weight. With no knee rule, the weights stay the mean."""
+    if 'knee' not in rules:
+        return weights
+    w = weights.copy()
+    y = points[:, 1]
+    knee = smoothstep(y, *rules['knee']['height'])
+    haunch = smoothstep(y, *rules['haunch']['height'])
+    hips = BONES.index('hips')
+    for side, sign in (('L', 1.0), ('R', -1.0)):
+        mine = points[:, 0] * sign > 0
+        thigh, shin = BONES.index(f'thigh_{side}'), BONES.index(f'shin_{side}')
+        leg = w[mine, thigh] + w[mine, shin] + w[mine, hips]
+        upper = leg * knee[mine]
+        w[mine, shin] = leg - upper
+        w[mine, hips] = upper * haunch[mine]
+        w[mine, thigh] = upper - w[mine, hips]
+    return w
+
+
+def refine(verts, tris, uvs, weights, heads, ends, matrices, config, source):
+    """Changes the faces of the arms and the legs so that they bend at the joints (design 4.4),
+    by the rule `refine` of the config: first a ring of new vertices at each joint of `rings`
+    (`ring_cuts()`, `split_faces()`), on the sides of its `sides` or on both sides, then the flips
+    of the long edges of the faces that are thin in the seated bind pose of `bind_skin()`
+    (`flip_edges()`). Each ring splits the faces that the rings before it made, so that two rings
+    can cut one long edge. The cuts keep the surface, and each new vertex keeps four bones. A new
+    vertex of a leg ring takes the leg rules at its place in the source (`ring_leg_weights()`):
+    the source of the vertices, `source`, is the source before the stretch of the limbs. Gives
+    the new vertices, triangles, corner UVs, and weights, the number of flips, the largest move of
+    a flip, the number of cut edges, and the index of the face before the refine of each face. A
+    flip keeps the index of each of its two faces."""
     rule = config['refine']
-    cuts = {}
+    origin = np.arange(len(tris))
+    count = 0
     for ring in rule['rings']:
+        cuts = {}
         for side in ring.get('sides', 'LR'):
             cuts.update(ring_cuts(verts, tris, weights, heads, ends, ring, side))
-    verts, tris, uvs, weights, origin = split_faces(verts, tris, uvs, weights, cuts)
-    if cuts:
-        weights = limit(weights)
+        if cuts:
+            first = len(verts)
+            verts, tris, uvs, weights, step = split_faces(verts, tris, uvs, weights, cuts)
+            origin = origin[step]
+            # The thigh and the shin stretch by one factor (`segment_stretch()`), so a cut keeps
+            # nearly its place along the edge in the source.
+            source = np.concatenate([source] + [[(1 - t) * source[a] + t * source[b]]
+                                                for (a, b), t in sorted(cuts.items())])
+            if ring['joint'] in LEG:
+                weights[first:] = ring_leg_weights(source[first:], weights[first:],
+                                                   config['weights'])
+            weights = limit(weights)
+            count += len(cuts)
     tris, uvs, flips, largest = flip_edges(verts, bind_skin(config, weights, matrices, verts),
                                            tris, uvs, weights, rule['flip'])
-    return verts, tris, uvs, weights, flips, largest, len(cuts), origin
+    return verts, tris, uvs, weights, flips, largest, count, origin
 
 
 def shortest_edges(points, tris):
@@ -4403,7 +4458,8 @@ def main():
     # legs keep their faces, their vertices, and their weights. The arms of the upright bind give
     # the thin faces, so that a recline does not change the faces.
     long_verts, tris, uvs, weights, flips, largest, cuts, origin = refine(
-        long_verts, source_tris, uvs, weights, long_heads, long_ends, upright_matrices, config)
+        long_verts, source_tris, uvs, weights, long_heads, long_ends, upright_matrices, config,
+        verts)
     log(f'refine: {flips} flips, the largest move {largest * meters * 1000:.3f} mm, {cuts} cut '
         f'edges, {len(tris) - len(source_tris)} new faces')
     thin_rule = config['check']['thin'] if check else None
