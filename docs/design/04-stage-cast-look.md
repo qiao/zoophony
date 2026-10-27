@@ -618,7 +618,9 @@ mesh are quad tubes (rings at a right angle to the bones), and the weights come 
     over more faces. A tilted cut plane or a near wrist cut crossed the nearest ring and turned
     the bridge faces over. The inner front of each upper arm of the copy is a little flatter,
     because the thick arm turns down toward the round belly as one rigid part, and linear
-    skinning does not press its flesh. The foxes have such arms since 2026-10-25 (`tools/blender/fox_arms.py`),
+    skinning does not press its flesh. The flatten comes after the bake of the fur: the bake
+    casts its rays from a small distance out of the tube, so a tube moved into the source arm
+    gets black texels, which show as a black area under each armpit of the bear. The foxes have such arms since 2026-10-25 (`tools/blender/fox_arms.py`),
     with the arm factor 1.21 in the copy of the mesh, one rig for the red and the tan fox. The
     upper arm of the fox joins the trunk only near the shoulder, so its copy takes the seam cut
     and the side wall of the cat, with no ring of the shoulder: rings packed at the short socket

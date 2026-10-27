@@ -160,7 +160,10 @@ interface StudioArmSegments {
   rigid part: the weights cannot fix it, so make its inner side a little flatter with Translate
   and Proportional Editing (`step_flatten()` of `tools/blender/elephant_arms.py`,
   `docs/research/2026-10-25-thick-arm-depth.md`). Prove the cause of a depth first with
-  `probes/depth-cause.ts` of that report.
+  `probes/depth-cause.ts` of that report. Flatten after the bake: the bake rays start 0.006
+  units out of the tube, so a flatten before it gave the bear black texels under each armpit
+  (`STEPS` of `tools/blender/bear_arms.py`). Count the black faces with `dark_faces.py` of
+  `docs/research/2026-10-26-fifth-bears/`.
 - **The kept colors.** Blender weights can put the top of a paw on the `fingers` bone, so a tone
   rule that keeps the colors of the fingers (`colors.tone.keep`) shows the raw texture there.
 - **An arm joined to the trunk.** When the upper arm joins the trunk down to the elbow, cut along
