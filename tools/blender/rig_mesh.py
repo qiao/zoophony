@@ -26,6 +26,7 @@ reads it (route 3 of `docs/agents/model-work.md`). The steps:
    the normals of the skin too. With `rootNormals` of the config, the rim also takes the skin
    faces within its radius of each shoulder joint, and within its `elbow` radius of each elbow
    joint, and with `armShare` only the faces that the clavicle and the arm move (`root_rim()`).
+   With `knee`, it takes the leg faces within that radius behind each knee joint.
    With `turn`, a face whose corner takes a skin normal more than `turn` degrees from its own
    face in the final bind keeps the crease normals (`rim_turns()`).
 2. Give each face one color from the base color texture. A face of an eye keeps its dark color.
@@ -1411,10 +1412,22 @@ def root_rim(verts, tris, heads, rule, weights):
     clavicle and the arm bones of its side is at least that share. A trunk face whose corner
     joins the arm root takes the mean normal of the arm root faces at that corner, which point
     down and back in the bind, so a trunk face that the arm does not move shades as a dark patch
-    under the raised arm. Gives a mask of the faces."""
+    under the raised arm.
+
+    With `knee`, each face whose middle lies within that radius of a knee joint, behind it in the
+    source (-z), and on the leg bones of its side for at least half of its weight is in the rim
+    too. The rings of the calf cut long thin faces of the source into slivers, and the smoothing
+    of the crease (`kneeCrease`) turns a sliver more than the crease angle from its neighbors, so
+    it shades as a dark facet on the calf. Gives a mask of the faces."""
     mids = verts[tris].mean(axis=1)
     out = np.zeros(len(tris), bool)
     for side in 'LR':
+        if 'knee' in rule:
+            joint = np.asarray(heads[f'shin_{side}'], float)
+            legs = [BONES.index(f'{b}_{side}') for b in LEG]
+            share = weights[:, legs].sum(axis=1)[tris].mean(axis=1)
+            out |= ((np.linalg.norm(mids - joint, axis=1) < rule['knee'])
+                    & (mids[:, 2] < joint[2]) & (share >= 0.5))
         near = np.zeros(len(tris), bool)
         for bone, key in (('upper_arm', 'radius'), ('forearm', 'elbow')):
             joint = np.asarray(heads[f'{bone}_{side}'], float)
@@ -5024,8 +5037,8 @@ def main():
         if (materials[np.argsort(order)][found] != 'fur').any():
             raise SystemExit('A face of the rim of the cut is not fur.')
         extras['rim'] = sorted(int(t) for t in module_faces(order, materials)[found])
-        log(f'rim: {len(found)} skin faces around the caps of the body, the shoulder joints, or '
-            f'the elbow joints take the normals of the skin in the app')
+        log(f'rim: {len(found)} skin faces around the caps of the body, the shoulder joints, the '
+            f'elbow joints, or behind the knee joints take the normals of the skin in the app')
     if raised:
         # One rule writes one pose, as the files before the list of rules did, so that their bytes
         # stay.
