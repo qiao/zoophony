@@ -452,6 +452,16 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       18 vertices of the notches, as the user allowed.
 - [x] Rabbit (`2026-10-26-third-review.md`): the user saw the left lap or leg as cut at rest. Done:
       the lower end of the violin sank into the left knee; the violin now stands 0.1 H above it.
+- [x] Rabbit and polar bear (`2026-10-26-fourth-review.md`): the user saw a cut rabbit knee and a
+      bulky polar bear knee. Done: the hips held most of each thigh, and the shin of the bear held
+      the knee front; the thighs now keep their own weight (`weights.haunch`, `weights.knee`).
+- [x] Cat (`2026-10-26-fourth-review.md`): the bow arm bent as a wing at rest and reached straight
+      out in the moves. Done: the rest elbow hangs near the side, and the moves keep it bent.
+- [x] Rabbit, red fox, and cat (`2026-10-26-fourth-review.md`): at rest, the left paws lay over
+      the strings. Done: a rest twist of 0.5 rad closes each paw around the neck.
+- [ ] Cat (`2026-10-26-fourth-review.md`): at rest and in the moves, the right upper arm meets the
+      round belly 1.7 cm deep near the elbow (limit 1.5). A lower elbow goes deeper, and an elbow
+      further out bends the arm as a wing.
 - [x] Bear rig (`2026-10-26-arm-fixes.md`): the left shoulder bridge folds 8 tiny faces at p95
       in the play (4 on the old rig, limit 8), and the right move twist max is 87 (81). Done: the
       head keeps the rule weights, and four shoulder faces take the mean of their painted weights
