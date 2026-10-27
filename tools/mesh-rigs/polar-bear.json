@@ -372,7 +372,7 @@
       },
       {
         "joint": "shin",
-        "offset": -0.04,
+        "offset": -0.05,
         "radius": 0.25,
         "minEdge": 0.03,
         "ends": 0.2
@@ -385,7 +385,7 @@
         "ends": 0.2
       }
     ],
-    "ringsNote": "The source leg has faces that run from near the crotch to the ankle across the knee joint (35 faces on each leg, a longest edge of 0.185 units on the median). A face cannot bend, so in the seated bind it stayed one flat plane from the thigh to the shin: the knee read as a large angular block with hard ridges, and long faces from the calf to the haunch made a slab under the thigh (user, 2026-10-26: \"the polar bear's knees are more bulky than it should be\"). The weight bands of the knee and the haunch, and a seat with the thighs or the shins 10 degrees down, kept the slab. Three rings at the knee plane and 0.04 units above and below it, with a radius of 0.25 units, cut the faces from the haunch to the shin, and each new vertex takes the knee and haunch rules at its height (ring_leg_weights() of tools/blender/rig_mesh.py). With the radius 0.17, the slab under the thigh stayed. A cut keeps 0.2 of the edge at each end: with 0.1, two thin faces of the inner right thigh folded in the play.",
+    "ringsNote": "The source leg has faces that run from near the crotch to the ankle across the knee joint (35 faces on each leg, a longest edge of 0.185 units on the median). A face cannot bend, so in the seated bind it stayed one flat plane from the thigh to the shin: the knee read as a large angular block with hard ridges, and long faces from the calf to the haunch made a slab under the thigh (user, 2026-10-26: \"the polar bear's knees are more bulky than it should be\"). The weight bands of the knee and the haunch, and a seat with the thighs or the shins 10 degrees down, kept the slab. Three rings at the knee plane, 0.05 units above it, and 0.04 units below it, with a radius of 0.25 units, cut the faces from the haunch to the shin, and each new vertex takes the knee and haunch rules at its height (ring_leg_weights() of tools/blender/rig_mesh.py). With the radius 0.17, the slab under the thigh stayed. With rings 0.04 above and below, one face between the thighs folded in each play sample. A cut keeps 0.2 of the edge at each end: with 0.1, two thin faces of the inner right thigh folded in the play.",
     "flip": {
       "angle": 150,
       "normals": 60,
