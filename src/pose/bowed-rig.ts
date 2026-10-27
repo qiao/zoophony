@@ -911,7 +911,7 @@ const CAT_HOLD = {
     lap: { along: 0.6, offset: [0.4, 0.4, -0.05] },
     tip: [0.15, 1, -0.45],
     hair: [0, 0, -1],
-    via: { tip: [0.4, 0.3, -1], hair: [0, 0, -1], reach: [0.4, 0.2, -0.4] },
+    via: { tip: [0.4, 0.3, -1], hair: [0, 0, -1], reach: [0.3, 0.2, -0.15] },
   },
   standBow: HANGING_BOW,
 } as const satisfies BowedHold;
