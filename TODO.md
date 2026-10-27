@@ -491,6 +491,8 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       deeper.
 - [ ] Cat (`2026-10-26-fifth-review-strings.md`): the round belly keeps both elbows 35° to 48°
       from the vertical at rest. Lower elbows went 2.2 cm to 4.1 cm into the belly (limit 1.5).
+- [ ] Cat (`2026-10-26-fifth-review-strings.md`): at rest, the left paw goes 0.8 cm into the
+      viola (target about 0.5 cm, 0.8 cm on `57849ac5`). The claws went from 1.0 cm to 0.3 cm.
 - [x] Bear rig (`2026-10-26-arm-fixes.md`): the left shoulder bridge folds 8 tiny faces at p95
       in the play (4 on the old rig, limit 8), and the right move twist max is 87 (81). Done: the
       head keeps the rule weights, and four shoulder faces take the mean of their painted weights
