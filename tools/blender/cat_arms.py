@@ -71,9 +71,13 @@ CAT = {
     'config': 'tools/mesh-rigs/cat.json',
     'source': 'assets/models/cat/cat.glb',
     'folder': 'assets/models/cat',
-    # The arms keep the length of the mesh of the user (factor 1). With 1.1496, the reach of the red
-    # fox, the user said "the cats arms are too long" (2026-10-26-third-review decisions).
-    'factor': 1.0,
+    # The upper arm is 0.92 and the forearm 0.78 as long as on the mesh, 1.10 head heights from the
+    # shoulder joint to the wrist, and the forearm is 0.86 of the upper arm, as on a real arm: the
+    # user said "the cat's arm ... is longer than expected" (2026-10-27-cat-fox2 decisions). With
+    # 0.85 for both, the shorter upper arm moved the round part of the tube into the plane of the
+    # seam, and the middle of the upper arm went 22% narrower at rest. With 1 (1.30 H) and with
+    # 1.1496, the reach of the red fox, the arms were too long for the short trunk of the cat.
+    'factor': (0.92, 0.78),
     'slim': (0.85, 0.85),
     'cut': {'shoulder': 0.0, 'tilt': 0.0, 'wrist': 0.1},
     'zone': {'x': 0.07, 'radius': 0.08},

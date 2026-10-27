@@ -641,7 +641,11 @@ mesh are quad tubes (rings at a right angle to the bones), and the weights come 
     the shoulder. The trunk and the first ring of the shoulder keep the rule weights. The seated
     bind of its upper arm points nearer to the hanging arm of the mesh, as on the deer, and the
     faces around each arm root take the normals of the skin: with the far bind, the socket and the
-    armpit line folded into a crease at the back of the arm root. The
+    armpit line folded into a crease at the back of the arm root. Its arms are shorter than the
+    arms of the mesh, because the trunk of the cat is shorter than the trunk of the mesh and of
+    `cat-views.png`, and the user found the arm too long. Its forearm is shorter than its upper arm,
+    as on a real arm: a shorter upper arm moves the round part of the tube into the plane of the
+    seam, and the upper arm goes flat (`docs/decisions/2026-10-27-cat-fox2.md`). The
     elephant has such arms since 2026-10-25 (`tools/blender/elephant_arms.py`), with the length
     and the thickness of its mesh. Its arms are as thick as half of their length, so its cut
     planes stand at a right angle to the arm, the wrist cut lies further out on the paw, and the
