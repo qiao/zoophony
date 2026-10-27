@@ -324,6 +324,10 @@ group of your work before you plan it. A probe that a trap names is in its resea
   Even then, a round belly hides a short lap, and only longer legs show it. A leg factor raises
   the landmark of the standing shoulders, so raise its height by the factor of `keptHeight()`,
   else the whole body becomes smaller (`docs/research/2026-10-22-polar-legs.md`).
+- A seated thigh with no weight of its own leaves a cut or a hump at the knee: a `haunch` ramp
+  from the knee gives the hips the whole thigh, and bone heat on a short thick leg gives the shin
+  the knee front. Color the bind by the hips, the thigh, and the shin in Blender, start the ramp
+  above the knee, and split the leg across the knee (`weights.knee`, user, 2026-10-26).
 - A long thigh needs a seat of its own (`studio.legTurns`, `weights.haunch`). A large tail needs two
   bones (`tail_tip`).
 - Short thighs under a round belly, or thighs that slope down to a level seat, set the seat top

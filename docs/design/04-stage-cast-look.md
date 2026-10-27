@@ -440,7 +440,10 @@ mesh are quad tubes (rings at a right angle to the bones), and the weights come 
     (`bind.blend`) keeps the radius of a vertex between the trunk and the arm, but no body uses
     it: the dent at an arm root is the form of the bend from the hanging arm to the bind arm,
     and the blend does not shrink it (`docs/research/2026-10-22-dq-bind.md`). A body that stands
-    with no chair has no `sit`, so its haunch keeps its form. `pnpm rig-mesh --check` gives
+    with no chair has no `sit`, so its haunch keeps its form. The seated thigh turns with its own
+    weight: the hips take only the thigh near the hip joint (`weights.haunch`), and on a short
+    thick leg the weight of the thigh and the shin splits by height across the knee joint
+    (`weights.knee`), so that the knee bends as one clean corner. `pnpm rig-mesh --check` gives
     the gaps of the tail to the floor and to the chair over one sway period (`tools/tail-gap.ts`).
   - Weights and shapes. Bone heat gives the weights, and rules and rings of new vertices at the
     joints (`refine.rings`) keep the faces from a fold. The corrective shapes give the source back

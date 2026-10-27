@@ -39,7 +39,8 @@ reads it (route 3 of `docs/agents/model-work.md`). The steps:
    the clavicles over the top of the shoulders (`shoulderRamp`), the paw, the head and the
    shoulders, the ears, the lower beak on the jaw (`jaw`), a long nose in front of the chest
    (`noseFront`), the tail (a ball on one
-   tail bone, or a ramp along a tail of two bones), the haunch, one set of weights for the corners of each short thin face, and the weights of the
+   tail bone, or a ramp along a tail of two bones), the split of the thigh and the shin across
+   the knee (`knee`), the haunch, one set of weights for the corners of each short thin face, and the weights of the
    line for the middle corner of each long thin face. Each vertex
    keeps four bones, in steps of 1/255. With `smooth` of the config, the vertices inside a box
    first move toward the middle of their neighbors (`smooth_box()`), before the weights. The file
@@ -1952,6 +1953,19 @@ def apply_rules(verts, tris, weights, rules, heads, ends):
         moved = w[:, col[f'fingers_{side}']] * (1.0 - rules['fingers'])
         w[:, col[f'fingers_{side}']] -= moved
         w[:, col[f'hand_{side}']] += moved
+
+    # The knee (`knee`): bone heat on a short thick leg gives the shin the front of the knee and
+    # the underside of the thigh above the knee joint, and these vertices stay upright with the
+    # shin when the seated thigh turns forward. Each vertex splits its weight of the thigh and the
+    # shin of its side by its height: the thigh share grows from 0 at the lower height to 1 at the
+    # upper height, so that the knee bends on a band across the leg.
+    if 'knee' in rules:
+        share = smoothstep(y, *rules['knee']['height'])
+        for side in 'LR':
+            thigh, shin = col[f'thigh_{side}'], col[f'shin_{side}']
+            leg = w[:, thigh] + w[:, shin]
+            w[:, thigh] = leg * share
+            w[:, shin] = leg * (1.0 - share)
 
     # The haunch: the thigh weight above the leg goes to the hips.
     share = smoothstep(y, *rules['haunch']['height'])
