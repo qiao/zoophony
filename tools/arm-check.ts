@@ -785,7 +785,7 @@ const binds = new WeakMap<StudioRig, Readonly<Record<Side, ArmBind>>>();
  * @param rig The rig.
  * @returns The facts of each side.
  */
-function armBinds(rig: StudioRig): Readonly<Record<Side, ArmBind>> {
+export function armBinds(rig: StudioRig): Readonly<Record<Side, ArmBind>> {
   let found = binds.get(rig);
   if (!found) {
     found = { L: armBind(rig, 'L'), R: armBind(rig, 'R') };
