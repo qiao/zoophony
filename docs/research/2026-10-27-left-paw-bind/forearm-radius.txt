@@ -1,0 +1,4 @@
+violinist: bind mean 3.754 p5 2.654 | rest mean 4.188 p5 2.913 | play mean 3.807 p5 2.719 cm
+fox-violinist: bind mean 4.877 p5 3.487 | rest mean 5.656 p5 3.438 | play mean 5.001 p5 3.502 cm
+violist: bind mean 4.469 p5 3.234 | rest mean 4.992 p5 3.586 | play mean 4.385 p5 3.178 cm
+flutist: bind mean 4.877 p5 3.487 | rest mean 5.548 p5 3.770 | play mean 5.022 p5 3.430 cm

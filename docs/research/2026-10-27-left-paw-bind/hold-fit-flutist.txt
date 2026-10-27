@@ -1,0 +1,42 @@
+
+> zoophony@0.0.0 hold-fit /Users/xueqiaoxu/proj/zoophony/.claude/worktrees/fifth-bind
+> node tools/hold-fit.ts flutist --base main
+
+Hold fit of the flutist on main (67eeb20f) and on the working tree: 105.3 s.
+Demos of main (67eeb20f): bach-bwv1050, beethoven-8, boulanger-matin
+Demos of the working tree: bach-bwv1050, beethoven-8, boulanger-matin
+base (83.4 s):
+  faces that fold most: 265 100.0%, 64 99.9%, 3013 53.3%, 3569 51.2%, 155 23.0%
+  play: upper arms in body: 0.6 cm at song 85.80 s, wall 97.50 s (upperArmR 0.08), bach-bwv1050 flutist 17 (fox-tan, chair)
+  lift: paws in flute: 0.7 cm at song -1.20 s, wall 10.50 s (handR 1.13), bach-bwv1050 flutist 17 (fox-tan, chair)
+  rest: upper arms in body: 0.6 cm at song -1.70 s, wall 10.00 s (upperArmL 0.57), bach-bwv1050 flutist 17 (fox-tan, chair)
+  lower: paws in flute: 0.8 cm at song 280.67 s, wall 13.70 s (handR 1.14), boulanger-matin flutist 18 (fox-tan, chair)
+  play: instrument in body: 0.0 cm at song 0.00 s, wall 0.00 s, bach-bwv1050 flutist 17 (fox-tan, chair)
+  rest: paw L to body: 6.2 cm, bach-bwv1050 flutist 17 (fox-tan, chair)
+  rest: lower end to the skin: 1.8 cm, boulanger-matin player 18 (fox-tan, chair) wall 29.3 s
+  rest: lower end in the body: 0.0 cm, bach-bwv1050 player 17 (fox-tan, chair) wall 10 s
+  rest: instrument in the body: 0.0 cm, bach-bwv1050 player 17 (fox-tan, chair) wall 10 s
+
+| Variant | Play folds | Lift folds | Rest faces (by side) | play depth cm (limit) | lift depth cm (limit) | rest depth cm (limit) | lower depth cm (limit) | Note targets: worst mm (within 5 mm) | play turns: upper arm, paw (twist, swing) L / R | Instrument in body cm | Spare L cm play / rest | Spare R cm play / rest | Rest gap paw L cm | Rest reach L | Rest end gap cm (in body) |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| main (67eeb20f) | 100.0% (818/818) OVER | 100.0% (93/93) | 7 (L 1 / R 2 / other 4) | 0.6 upper arms>body (1.5) | 0.7 paws>flute (1.5) | 0.6 upper arms>body (1.5) | 0.8 paws>flute (1.5) | 0.0 (100.0%) | 48°, 118° (-115°, 34°) / 42°, 54° (46°, 29°) | 0.0 play | 11.7 / free | 9.1 / 11.9 | 6.2 | 0.996 | 1.8 (0.0) |
+| base | 100.0% (818/818) OVER | 100.0% (93/93) | 7 (L 1 / R 2 / other 4) | 0.6 upper arms>body (1.5) | 0.7 paws>flute (1.5) | 0.6 upper arms>body (1.5) | 0.8 paws>flute (1.5) | 0.0 (100.0%) | 48°, 34° (-5°, 34°) / 42°, 54° (46°, 29°) | 0.0 play | 11.7 / free | 9.1 / 11.9 | 6.2 | 0.996 | 1.8 (0.0) |
+
+The demo and the time of each deepest point of the table:
+| Variant | play deepest at | lift deepest at | rest deepest at | lower deepest at | Instrument in body at |
+|---|---|---|---|---|---|
+| main (67eeb20f) | bach-bwv1050 85.80 s | bach-bwv1050 wall 10.50 s | bach-bwv1050 wall 10.00 s | boulanger-matin wall 13.70 s | bach-bwv1050 0.00 s |
+| base | bach-bwv1050 85.80 s | bach-bwv1050 wall 10.50 s | bach-bwv1050 wall 10.00 s | boulanger-matin wall 13.70 s | bach-bwv1050 0.00 s |
+
+The depths of main (67eeb20f) and of the working tree with no change:
+H of each body, main (67eeb20f) -> working tree: fox-tan 0.323 m -> 0.323 m
+| Species | Set | Pair | main (67eeb20f) cm | main (67eeb20f) H | tree cm | tree H | Mark | tree at |
+|---|---|---|---:|---:|---:|---:|---|---|
+| fox-tan | play | paws in flute | 0.2 | 0.006 | 0.2 | 0.006 |  | bach-bwv1050 64.05 s |
+| fox-tan | play | upper arms in body | 0.6 | 0.019 | 0.6 | 0.019 |  | bach-bwv1050 85.80 s |
+| fox-tan | lift | paws in flute | 0.7 | 0.022 | 0.7 | 0.022 |  | bach-bwv1050 wall 10.50 s |
+| fox-tan | lift | upper arms in body | 0.6 | 0.019 | 0.6 | 0.019 |  | boulanger-matin wall 10.90 s |
+| fox-tan | rest | paws in flute | 0.3 | 0.009 | 0.3 | 0.009 |  | beethoven-8 wall 10.00 s |
+| fox-tan | rest | upper arms in body | 0.6 | 0.018 | 0.6 | 0.018 |  | bach-bwv1050 wall 10.00 s |
+| fox-tan | lower | paws in flute | 0.8 | 0.024 | 0.8 | 0.024 |  | boulanger-matin wall 13.70 s |
+| fox-tan | lower | upper arms in body | 0.6 | 0.019 | 0.6 | 0.019 |  | bach-bwv1050 wall 10.00 s |
