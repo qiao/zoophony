@@ -1,0 +1,10 @@
+scratch/a/e20/harpist-sheet-az150.png: pixels that differ by more than 8: 172, largest 100
+scratch/a/e20/harpist-sheet-az35.png: pixels that differ by more than 8: 1020, largest 103
+scratch/a/e20/harpist-sheet-back.png: pixels that differ by more than 8: 380, largest 58
+scratch/a/e20/harpist-sheet-front.png: pixels that differ by more than 8: 1050, largest 110
+scratch/a/e20/harpist-sheet-right.png: pixels that differ by more than 8: 1587, largest 110
+scratch/a/e40/harpist-sheet-az150.png: pixels that differ by more than 8: 527, largest 98
+scratch/a/e40/harpist-sheet-az35.png: pixels that differ by more than 8: 2677, largest 112
+scratch/a/e40/harpist-sheet-back.png: pixels that differ by more than 8: 895, largest 92
+scratch/a/e40/harpist-sheet-front.png: pixels that differ by more than 8: 3511, largest 113
+scratch/a/e40/harpist-sheet-right.png: pixels that differ by more than 8: 3406, largest 164

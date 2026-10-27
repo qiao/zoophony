@@ -418,6 +418,17 @@
   },
   "refine": {
     "rings": [],
+    "pointFlip": {
+      "points": [
+        [
+          -0.1303,
+          0.4169,
+          0.04085
+        ]
+      ],
+      "near": 0.003,
+      "note": "The edge at this point is the diagonal of one quad of the tube at the front of the right inner elbow (point_flips() of tools/blender/rig_mesh.py). In the source, the two corners across it sum to 159 degrees, but the bent elbow of the seated bind shears the quad, and they sum to 197 degrees: the diagonal becomes the long one. Its thin face then folded in 8.2% of the play samples of the harpist, when the elbow bent 40 to 60 degrees more than in the bind (user, 2026-10-26: \"the deer's upper arm are missing pieces (have dent)\"). With the other diagonal, it folds in no sample. The mean of the painted weights of its corners (rigidPainted) folded it in each sample (docs/research/2026-10-27-rigs3.md)."
+    },
     "flip": {
       "angle": 150,
       "normals": 60,

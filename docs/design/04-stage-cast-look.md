@@ -481,7 +481,11 @@ mesh are quad tubes (rings at a right angle to the bones), and the weights come 
     give its arm weight to the trunk (`weights.armBelow`), so that a lowered arm does not drag the
     thin faces of the trunk. A thin face across a joint can take the mean of the
     weights of its corners (`weights.rigid`), and thin faces that share corners take one mean
-    together, so that one face does not undo the other. When a grip far in front of a deep chest turns the upper arm so far that no rule removes
+    together, so that one face does not undo the other. A quad of a rebuilt arm tube can split
+    along its short diagonal in the source, while the bent elbow of the bind shears it, so that
+    the diagonal becomes the long one and its thin face folds when the elbow bends further. Its
+    edge flips to the other diagonal at a named point (`refine.pointFlip`), because the mean of
+    its weights folds the face in each pose. When a grip far in front of a deep chest turns the upper arm so far that no rule removes
     the fold at the front of the shoulder, the hold shares the turn with the shoulder bone (5.3).
     The `fingers` bone keeps its whole weight of bone heat (`weights.fingers` 1) on the bodies of
     the beaver, the badger, the panda, the monkey, and the rhino, so that a curl closes the paw

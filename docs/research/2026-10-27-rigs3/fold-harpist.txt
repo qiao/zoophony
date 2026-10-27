@@ -1,0 +1,11 @@
+
+> zoophony@0.0.0 fold-probe /Users/xueqiaoxu/proj/zoophony/.claude/worktrees/fifth-rigs3
+> node tools/fold-probe.ts harpist --base main
+
+Folded faces of the studio body of the harpist on main (13d9ecea) and on the working tree: 15.4 s.
+
+| Set | main (13d9ecea) | Working tree |
+|---|---:|---:|
+| rest | 0.0% (0/1), most 0 (L 0 / R 0 / other 0) | 0.0% (0/1), most 0 (L 0 / R 0 / other 0) |
+| play | 8.3% (94/1130), most 1 (L 0 / R 1 / other 0) | 0.1% (1/1130), most 1 (L 1 / R 0 / other 0) |
+| lift | 0.0% (0/31), most 0 (L 0 / R 0 / other 0) | 0.0% (0/31), most 0 (L 0 / R 0 / other 0) |

@@ -388,9 +388,12 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       Done: the dark corner is the underside of the arm root (no shadow, no fold, the normals of
       the faces), and a smoothing of the back end of the armpit line makes it smaller and its
       outline smoother. The stage light shows it soft (`2026-10-27-legs-armpit.md`).
-- [ ] Deer (`2026-10-27-legs-armpit.md`): one face of the right inner elbow folds in 8.2% of the
+- [x] Deer (`2026-10-27-legs-armpit.md`): one face of the right inner elbow folds in 8.2% of the
       play samples. The mean of its painted weights (`weights.rigidPainted`) folded it in each
       sample. Try a ring or a split of the face at the elbow of the rebuilt arm.
+      Done: the bent bind elbow sheared its quad, so its edge was the long diagonal. The edge
+      flips (`refine.pointFlip`), and the face folds in no sample of the rest, the play, the
+      lifts, and the lowerings (`2026-10-27-rigs3.md`).
 - [ ] Deer: the forearms come 2.8 cm into the harp in the play (1.8 cm on `main` before the round
       `fifth-deer`, limit 4.0 cm), and the paw swing of the left arm is 66° (limit 70°).
 - [x] Deer: the seated deer was lower than the parametric deer (skull top 1.125 m against 1.311 m).

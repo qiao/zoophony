@@ -1,0 +1,103 @@
+08:25:53 | INFO: Data are loaded, start creating Blender stuff
+08:25:53 | INFO: Blender create Mesh node deer
+08:25:53 | INFO: glTF import finished in 0.01s
+rig_mesh: source: 2079 vertices, 4152 triangles, scale 0.525653
+rig_mesh: smooth: 10 vertices in the box, the largest move 0.0179 u
+rig_mesh: bone heat: 0 vertices with no weight took the nearest bone
+rig_mesh: slivers: 91 faces below 10°, 33 groups of 134 vertices, the largest 11
+rig_mesh: lines: 123 middle corners of faces with a corner angle above 150°
+rig_mesh: weights: painted in Blender, the rules on the lower body (1441 vertices mostly on the rules)
+rig_mesh: rigid: the face at (0.0971, 0.5194, 0.0401) u takes the mean of the weights of its corners, the largest change 0.203
+rig_mesh: rigid: the face at (0.0941, 0.5163, 0.0399) u takes the mean of the weights of its corners, the largest change 0.193
+rig_mesh: rigid: the face at (0.0909, 0.5128, 0.0381) u takes the mean of the weights of its corners, the largest change 0.169
+rig_mesh: rigid: the face at (0.0966, 0.5293, 0.0405) u takes the mean of the weights of its corners, the largest change 0.302
+rig_mesh: rigid: the face at (0.1035, 0.5326, 0.0365) u takes the mean of the weights of its corners, the largest change 0.312
+rig_mesh: rigid: the face at (0.1085, 0.5371, 0.0314) u takes the mean of the weights of its corners, the largest change 0.323
+rig_mesh: rigid: the face at (-0.0831, 0.4846, 0.0190) u takes the mean of the weights of its corners, the largest change 0.085
+rig_mesh: arm L: reach 0.4579 m before, 0.4579 m after the factor 1 (target 0.4579 m)
+rig_mesh: arm R: reach 0.4579 m before, 0.4579 m after the factor 1 (target 0.4579 m)
+rig_mesh: trunk: the pelvis turns 1.32 degrees back, so that the hip angle opens 1 degrees, from 113.4 to 114.4 degrees. The shares of the turn: {'hips': 1, 'spine': 1, 'spine1': 0.75, 'chest': 0.5, 'neck': 0.25, 'head': 0}. The head turns 0.00 degrees
+SIDE L: elbow [0.14, 0.4225, 0.0125], 176 quads within 0.05
+  faces 3291/3292 edge 1679-1678: across bind 270.5 source 234.8, dist 0.0292, mid [0.1639, 0.4276, 0.0286], turns before max 42.4 ss 4064, after max 43.7 ss 3839
+  faces 3289/3290 edge 1694-1677: across bind 265.1 source 232.0, dist 0.0290, mid [0.1682, 0.4258, 0.0183], turns before max 77.8 ss 8598, after max 67.9 ss 5991 SMOOTHER
+  faces 3261/3262 edge 1680-1663: across bind 259.7 source 233.9, dist 0.0301, mid [0.1567, 0.4275, 0.037], turns before max 51.0 ss 4705, after max 56.9 ss 4588
+  faces 3233/3234 edge 1666-1649: across bind 257.1 source 232.8, dist 0.0297, mid [0.1383, 0.4383, 0.0376], turns before max 73.3 ss 13097, after max 63.8 ss 8113 SMOOTHER
+  faces 3231/3232 edge 1665-1648: across bind 256.7 source 233.3, dist 0.0291, mid [0.1473, 0.4414, 0.0333], turns before max 58.1 ss 9556, after max 70.9 ss 9377
+  faces 3235/3236 edge 1667-1650: across bind 255.1 source 237.1, dist 0.0299, mid [0.1288, 0.4341, 0.0377], turns before max 73.3 ss 13148, after max 55.9 ss 6702 SMOOTHER
+  faces 3287/3288 edge 1693-1676: across bind 247.7 source 227.6, dist 0.0276, mid [0.1673, 0.4219, 0.0081], turns before max 77.8 ss 9387, after max 41.9 ss 2519 SMOOTHER
+  faces 3237/3238 edge 1668-1651: across bind 242.9 source 234.2, dist 0.0297, mid [0.1204, 0.4295, 0.0337], turns before max 61.2 ss 7983, after max 35.5 ss 3056 SMOOTHER
+  faces 3229/3230 edge 1664-1647: across bind 236.6 source 224.3, dist 0.0286, mid [0.1546, 0.4431, 0.026], turns before max 51.0 ss 8786, after max 63.4 ss 9296
+  faces 3239/3240 edge 1669-1652: across bind 233.3 source 230.6, dist 0.0298, mid [0.1139, 0.4254, 0.0265], turns before max 44.2 ss 3701, after max 27.8 ss 1527 SMOOTHER
+  faces 3243/3244 edge 1671-1654: across bind 233.1 source 219.7, dist 0.0319, mid [0.1089, 0.4194, 0.0061], turns before max 52.1 ss 8482, after max 29.3 ss 2481 SMOOTHER
+  faces 3285/3286 edge 1692-1675: across bind 227.7 source 221.4, dist 0.0265, mid [0.1623, 0.4166, -0.0006], turns before max 34.7 ss 1920, after max 30.0 ss 1295 SMOOTHER
+  faces 3241/3242 edge 1670-1653: across bind 227.3 source 226.3, dist 0.0307, mid [0.1096, 0.4219, 0.0171], turns before max 52.1 ss 5034, after max 36.9 ss 2065 SMOOTHER
+  faces 3263/3264 edge 1681-1664: across bind 219.0 source 221.0, dist 0.0308, mid [0.1476, 0.4252, 0.0422], turns before max 43.1 ss 6496, after max 59.8 ss 4870
+  faces 3283/3284 edge 1691-1674: across bind 215.1 source 212.4, dist 0.0271, mid [0.155, 0.411, -0.0069], turns before max 36.5 ss 3394, after max 27.1 ss 1835 SMOOTHER
+  faces 3259/3260 edge 1663-1662: across bind 214.4 source 215.1, dist 0.0282, mid [0.1589, 0.443, 0.0165], turns before max 44.3 ss 7072, after max 58.7 ss 7026
+  faces 3205/3206 edge 1652-1635: across bind 206.0 source 157.9, dist 0.0388, mid [0.1171, 0.4445, 0.0347], turns before max 24.1 ss 1394, after max 26.9 ss 2028
+  faces 3209/3210 edge 1654-1637: across bind 205.0 source 164.3, dist 0.0399, mid [0.1034, 0.4371, 0.0187], turns before max 20.2 ss 727, after max 21.8 ss 863
+  faces 3245/3246 edge 1672-1655: across bind 203.8 source 211.8, dist 0.0318, mid [0.1132, 0.4192, -0.0044], turns before max 51.7 ss 6300, after max 30.8 ss 2620 SMOOTHER
+  faces 3213/3214 edge 1656-1639: across bind 203.5 source 180.1, dist 0.0418, mid [0.1036, 0.4339, -0.0047], turns before max 33.1 ss 3062, after max 26.0 ss 1939 SMOOTHER
+  faces 3281/3282 edge 1690-1673: across bind 201.3 source 201.5, dist 0.0281, mid [0.1454, 0.4057, -0.0094], turns before max 38.3 ss 4497, after max 26.3 ss 2095 SMOOTHER
+  faces 3207/3208 edge 1653-1636: across bind 199.4 source 158.8, dist 0.0391, mid [0.109, 0.4406, 0.0281], turns before max 13.9 ss 501, after max 25.0 ss 1108
+  faces 3211/3212 edge 1655-1638: across bind 199.3 source 173.2, dist 0.0412, mid [0.101, 0.4344, 0.0072], turns before max 28.5 ss 1771, after max 30.2 ss 1997
+  faces 3247/3248 edge 1673-1656: across bind 199.2 source 208.8, dist 0.0310, mid [0.1215, 0.4212, -0.0123], turns before max 31.6 ss 3257, after max 28.0 ss 2672 SMOOTHER
+  faces 3257/3258 edge 1678-1661: across bind 199.2 source 208.6, dist 0.0279, mid [0.1596, 0.4413, 0.0062], turns before max 41.0 ss 3517, after max 27.1 ss 2181 SMOOTHER
+SIDE R: elbow [-0.14, 0.4225, 0.0125], 176 quads within 0.05
+  faces 3765/3766 edge 1948-1931: across bind 244.2 source 199.6, dist 0.0376, mid [-0.1361, 0.4042, 0.0451], turns before max 30.9 ss 1460, after max 27.6 ss 1175 SMOOTHER
+  faces 3763/3764 edge 1947-1930: across bind 239.2 source 202.9, dist 0.0372, mid [-0.13, 0.3989, 0.0395], turns before max 25.1 ss 1128, after max 20.1 ss 653 SMOOTHER
+  faces 3767/3768 edge 1949-1932: across bind 237.9 source 193.7, dist 0.0382, mid [-0.1439, 0.409, 0.048], turns before max 30.9 ss 1478, after max 29.3 ss 1340 SMOOTHER
+  faces 3647/3648 edge 1889-1872: across bind 237.1 source 166.9, dist 0.0364, mid [-0.152, 0.4545, -0.0001], turns before max 42.9 ss 2991, after max 37.5 ss 2921 SMOOTHER
+  faces 3645/3646 edge 1888-1871: across bind 230.3 source 174.8, dist 0.0362, mid [-0.1533, 0.4561, 0.0102], turns before max 56.3 ss 4886, after max 58.4 ss 4877
+  faces 3769/3770 edge 1950-1933: across bind 227.0 source 185.9, dist 0.0384, mid [-0.1529, 0.413, 0.0474], turns before max 22.6 ss 1265, after max 27.2 ss 1663
+  faces 3761/3762 edge 1946-1929: across bind 224.7 source 201.0, dist 0.0376, mid [-0.1257, 0.3936, 0.0319], turns before max 34.5 ss 2086, after max 26.5 ss 1063 SMOOTHER
+  faces 3675/3676 edge 1887-1886: across bind 223.9 source 184.3, dist 0.0362, mid [-0.1507, 0.4562, 0.0204], turns before max 65.0 ss 5784, after max 64.1 ss 5767 SMOOTHER
+  faces 3673/3674 edge 1902-1885: across bind 210.1 source 193.3, dist 0.0366, mid [-0.1446, 0.4547, 0.0291], turns before max 59.5 ss 4276, after max 62.8 ss 4436
+  faces 3649/3650 edge 1890-1873: across bind 209.8 source 160.3, dist 0.0371, mid [-0.1474, 0.4518, -0.0091], turns before max 13.2 ss 388, after max 15.0 ss 447
+  faces 3651/3652 edge 1891-1874: across bind 203.7 source 158.7, dist 0.0387, mid [-0.1403, 0.4482, -0.0164], turns before max 23.0 ss 736, after max 26.6 ss 1054
+  faces 3759/3760 edge 1945-1928: across bind 198.9 source 194.4, dist 0.0385, mid [-0.1245, 0.3886, 0.0222], turns before max 34.5 ss 2592, after max 24.0 ss 1259 SMOOTHER
+  faces 3733/3734 edge 1932-1915: across bind 197.1 source 158.6, dist 0.0301, mid [-0.1308, 0.4168, 0.0406], turns before max 34.5 ss 1921, after max 27.4 ss 2113
+  faces 3653/3654 edge 1892-1875: across bind 196.0 source 160.8, dist 0.0405, mid [-0.1309, 0.4436, -0.0209], turns before max 30.0 ss 1629, after max 31.0 ss 1769
+  faces 3757/3758 edge 1944-1927: across bind 193.2 source 186.4, dist 0.0393, mid [-0.1279, 0.3851, 0.0117], turns before max 39.6 ss 2991, after max 35.1 ss 2249 SMOOTHER
+  faces 3771/3772 edge 1935-1934: across bind 193.0 source 178.7, dist 0.0384, mid [-0.1617, 0.4152, 0.0434], turns before max 27.8 ss 1767, after max 27.6 ss 1739 SMOOTHER
+  faces 3671/3672 edge 1901-1884: across bind 192.5 source 199.1, dist 0.0375, mid [-0.136, 0.452, 0.0352], turns before max 50.6 ss 4475, after max 60.8 ss 4602
+  faces 3731/3732 edge 1931-1914: across bind 191.8 source 164.4, dist 0.0294, mid [-0.124, 0.4118, 0.0347], turns before max 16.5 ss 559, after max 14.6 ss 474 SMOOTHER
+  faces 3729/3730 edge 1930-1913: across bind 188.8 source 165.3, dist 0.0296, mid [-0.1193, 0.4069, 0.0267], turns before max 16.4 ss 618, after max 19.5 ss 886
+  faces 3755/3756 edge 1943-1926: across bind 184.2 source 180.7, dist 0.0389, mid [-0.1361, 0.3849, 0.0032], turns before max 39.6 ss 2369, after max 36.0 ss 1841 SMOOTHER
+  faces 3655/3656 edge 1893-1876: across bind 182.7 source 162.3, dist 0.0416, mid [-0.1202, 0.4391, -0.0201], turns before max 30.0 ss 2073, after max 29.2 ss 1949 SMOOTHER
+  faces 3689/3692 edge 1894-1910: across bind 179.3 source 160.2, dist 0.0315, mid [-0.1171, 0.4203, -0.009], turns before max 24.2 ss 1726, after max 23.5 ss 1542 SMOOTHER
+  faces 3713/3716 edge 1906-1922: across bind 178.0 source 163.0, dist 0.0275, mid [-0.1658, 0.4192, 0.0037], turns before max 16.1 ss 319, after max 21.6 ss 609
+  faces 3735/3736 edge 1933-1916: across bind 176.8 source 151.3, dist 0.0308, mid [-0.1395, 0.4217, 0.0433], turns before max 59.6 ss 4268, after max 43.8 ss 3219 SMOOTHER
+  faces 3727/3728 edge 1929-1912: across bind 175.4 source 164.3, dist 0.0306, mid [-0.1174, 0.4024, 0.0171], turns before max 20.4 ss 1187, after max 29.1 ss 2334
+rig_mesh: refine: 9 flips, the largest move 1.396 mm, 0 cut edges, 0 new faces
+rig_mesh: eyes: 10 faces left, 10 faces right, nose: 48 faces
+rig_mesh: arm: 359 vertices in the free left arm beyond |x| = 0.09
+rig_mesh: bind: 21 faces turn over from the source, on the bones ['hips', 'thigh_L', 'thigh_R', 'upper_arm_seg0_L', 'upper_arm_seg0_R']
+rig_mesh: bind: after 9 rounds of relaxing, 0 faces turn over
+rig_mesh: seat: before the sit, the lowest point of the haunch behind the hips joint is 4.42 cm above the seat top 0.1920 u
+rig_mesh: sit: the tail moves down with the mean drop 0.0334 u of its root
+rig_mesh: sit: 60 vertices of the haunch move down, at most 0.0874 u (14.65 cm). The side view of the underside behind the hip joints is at most 11.15 cm above the seat before and 0.48 cm after. 7 faces turn over, on the bones hips 7
+rig_mesh: trunk: 0 vertices of the haunch and the tail rise toward the seat top 0.1920 u of the upright body, at most 0.0000 u (0.00 cm). The lowest point over the seat is 0.1922 u. After 11 rounds of relaxing, 0 faces turn over
+rig_mesh: crease: 20 seam vertices, 122 vertices move, at most 0.0411 u (6.89 cm). 2 faces turn over, on the bones hips 2
+rig_mesh: seat: the side view of the underside of the final bind behind the hip joints is at most 0.30 cm above the seat top
+rig_mesh: eye L: 10 dark faces, an edge of 8 points, a fan of 8 faces, 0.0038 u over the eye, 22 faces of the old eye
+rig_mesh: eye R: 10 dark faces, an edge of 12 points, a fan of 12 faces, 0.0034 u over the eye, 25 faces of the old eye
+rig_mesh: palette: 48 colors, the Oklab distance of a face from its color 0.0055 on the mean, 0.0252 at most
+rig_mesh: eye L: the 22 faces of the old eye take the color of 27% of the area of the faces around it
+rig_mesh: eye R: the 25 faces of the old eye take the color of 14% of the area of the faces around it
+rig_mesh: corrective: the smallest determinant of the skin is 0.4631 at the vertex 1250
+rig_mesh: corrective: the clip gives the source back within 3.01e-16 u (0.0000 mm)
+rig_mesh: shape arm_down_L: 433 vertices, largest move 0.0124 u
+rig_mesh: shape arm_down_R: 428 vertices, largest move 0.0218 u
+rig_mesh: shape legs_straight_L: 239 vertices, largest move 0.0840 u
+rig_mesh: shape legs_straight_R: 240 vertices, largest move 0.0820 u
+rig_mesh: chair: the tail goes 0.0659 u over the seat top at its lowest point over the seat
+rig_mesh: chair: front edge at z 0.025 u, the shins and the feet from z 0.0325 u
+rig_mesh: chair: seat top 0.1931 u, lowest point of the body 0.0480 u
+rig_mesh: triangles: 4172 (68 gloss)
+rig_mesh: rim: 479 skin faces around the caps of the body, the shoulder joints, or the elbow joints take the normals of the skin in the app
+rig_mesh: smooth: the head center of the holds moves back by 0.0000 u (0.00 cm), to the head before the smoothing
+rig_mesh: wrote scratch/a/probe-out.glb: 538284 bytes
+Blender 5.2.2 LTS (hash d13f752e3b9c built 2026-09-15 01:49:19)
+
+Blender quit
