@@ -352,6 +352,11 @@ group of your work before you plan it. A probe that a trap names is in its resea
   from the seam (`reach`): rings of neighbors carry the move down a long calf face, which shows as
   a light wedge. Count the hard edges within 0.2 units of the knee (`probes/zone_turns.py` of the
   research folder of 2026-10-27): a zone of 0.1 units missed these wedges.
+- The crease smoothing slides the calf vertices along the skin, and the sliver corners of the calf
+  rings slide apart into a dark facet and a groove. Fair the back of the calf along the normals,
+  near the shin axis and above the heel (`kneeCrease.fair`), and give the faces behind the knees
+  the skin normals (`rootNormals.knee`, `docs/research/2026-10-27-rigs3.md`). A fair of the move
+  field, rings, flips, and other reaches kept the kink.
 - A long thigh needs a seat of its own (`studio.legTurns`, `weights.haunch`). A large tail needs two
   bones (`tail_tip`).
 - Short thighs under a round belly, or thighs that slope down to a level seat, set the seat top
