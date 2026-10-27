@@ -13,7 +13,6 @@ its row.
 | Decision | Section |
 |---|---|
 | The direct diffuse light on the stage wood falls off behind the podium, by `0.22 + 0.78 × exp(-t²)`, with `t` the distance behind the podium center in units of `0.55 × S`. The players, the gloss, and the fill keep their light, so the fur keeps the values of the cast colors. The review proposed a narrower and weaker key light, but that light also lights the fur | 4.5 |
-| The row of low hall lamps has no lamp within 40° of the back of the hall. The lamps of that wall stood 13 m behind the stage, in the dark, and the default view showed them above the orchestra. The review proposed to fade the glows in the wide shots, but then the glows change with the shot | 4.5 |
 | The open piano shows a well: a rim wall of 0.08 of the outline, the soundboard `#5a3c22` 0.14 m below the top of the rim, a dark gold plate `#6b5226` across the front 0.22 m, 0.08 m below the top, and 16 strings `#a89064` of 0.016 m, 0.06 m below the top | 4.5 |
 | The lid of the piano keeps 35°. In the default view of the default demo at 25°, the lid at 45° hides 26% and 55% of the heads of two horn players behind the piano, and the lid at 35° hides 5.7% of one head | 4.6 |
 

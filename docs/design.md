@@ -358,4 +358,5 @@ The decision files:
 - [`2026-10-27-wolf-knee.md`](decisions/2026-10-27-wolf-knee.md): the clarinet rest of the wolf with the bell against the right knee and the paws on their grips of the play.
 - [`2026-10-27-wolf-bind.md`](decisions/2026-10-27-wolf-bind.md): the bind elbows of the wolf bent forward, the bind paws supinated on their forearms, and the rest elbows of the clarinet, so that the arm gate passes with the clarinet rest on the knee.
 - [`2026-10-27-polar-legs-rebuild.md`](decisions/2026-10-27-polar-legs-rebuild.md): the quad legs of the polar bear with the dual quaternion knees, the smoothed crease at the back of each knee, the bone heat of the copy before the rebuild, and the rigid faces of the right hip front.
+- [`2026-10-27-hall-back-lamps.md`](decisions/2026-10-27-hall-back-lamps.md): the low lamps of the hall all around the wall, also behind the stage.
 - [`2026-10-23-rabbit-arms.md`](decisions/2026-10-23-rabbit-arms.md): the A-pose rabbit mesh with its own faces, a short arm stretch, a violin of 0.83, its elbows and rest grip, and the open shards of its arms.

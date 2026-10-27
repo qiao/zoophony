@@ -92,22 +92,6 @@ describe('buildHall (design 4.5, hall)', () => {
     expect([...glows].toSorted((a, b) => a - b)).toEqual([HALL.glow.rail, HALL.glow.wall]);
   });
 
-  it('keeps the low lamps off the wall behind the stage, and at the sides', () => {
-    const lowY = -STAGE_THICKNESS + HALL.wallLamps.height * unit;
-    // The angle of each low lamp from the back of the hall (-z), seen from the ring center.
-    const fromBack = hall.lampList
-      .filter((lamp) => Math.abs(lamp.center[1] - lowY) < 1e-6)
-      .map((lamp) => Math.PI - Math.abs(Math.atan2(lamp.center[0], lamp.center[2] - centerZ)));
-    // The low lamps 13 m behind the stage floated above the orchestra in the default view. The
-    // lamps 42° and 54° from the back stood behind the composer line and the play button of the
-    // first screen in the view of orchestra-latest.png.
-    expect(Math.min(...fromBack)).toBeGreaterThanOrEqual(HALL.wallLamps.backGap);
-    expect(Math.min(...fromBack)).toBeGreaterThan((55 * Math.PI) / 180);
-    // The row goes on at the sides: the lamps of the default view at the edges of the image.
-    const step = HALL.wallLamps.spacing / (HALL.wallRadius * unit - HALL.wallLamps.size);
-    expect(fromBack.filter((angle) => angle < HALL.wallLamps.backGap + step)).toHaveLength(2);
-  });
-
   it('gives each lamp a glow that faces the camera and writes no depth', () => {
     const glows = createHall(side).children.find((child) => child instanceof Points);
     if (!(glows instanceof Points) || !(glows.material instanceof ShaderMaterial)) {
