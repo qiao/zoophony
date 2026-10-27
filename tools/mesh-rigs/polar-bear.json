@@ -351,7 +351,7 @@
         0.12,
         0.2
       ],
-      "note": "Each vertex splits its weight of the thigh and the shin by its height: the thigh share grows from 0 at the lower height to 1 at the upper height, around the knee joint at 0.15. Bone heat on the short thick legs gave the shin the front of the knee and the underside of the thigh up to the haunch, and these vertices stayed upright with the shin when the seated thigh turned forward: the knee stood as a hump above the thigh, and a slab ran from the heel to the haunch (user, 2026-10-26: \"the polar bear's knee is unexpectedly bulky\"). The bands 0.13 to 0.18 and 0.14 to 0.17 gave the same form with a harder crease at the knee."
+      "note": "Each vertex splits its weight of the thigh and the shin by its height: the thigh share grows from 0 at the lower height to 1 at the upper height, around the knee joint at 0.15. Bone heat on the short thick legs gave the shin the front of the knee and the underside of the thigh up to the haunch, and these vertices stayed upright with the shin when the seated thigh turned forward: the knee stood as a hump above the thigh (user, 2026-10-26: \"the polar bear's knee is unexpectedly bulky\"). The bands 0.13 to 0.18 and 0.14 to 0.17 gave the same form with a harder crease at the knee. The slab from the heel to the haunch stayed with each band, because long faces cross the knee: the rings of refine cut them."
     },
     "haunch": {
       "height": [
@@ -360,10 +360,32 @@
       ],
       "note": "The part of the thigh weight that goes to the hips grows from 0 at the lower height to 1 at the upper height, so that the rump stays on the bench and the thigh turns forward. With the ramp of 0.17 to 0.28, the hips held most of the thigh, and the seated thigh bent only near the knee. With this ramp, the thigh turns as one tube from the haunch to the knee, and the bench is 2.7 cm lower."
     },
-    "note": "Beyond the plane of armSplit (armFree), only the free arm follows the arm bones. Above headFrom, each vertex follows the head only. armTop starts above the top of the level arms of the T-pose (y 0.79): from y 0.68, it gave the top of each arm to the neck, and those faces folded in each sample. Each ear follows its ear bone above earBase. The short tail is a ball on one bone (tailBall). The rig has no cut, no ring, and no split (user, 2026-10-23)."
+    "note": "Beyond the plane of armSplit (armFree), only the free arm follows the arm bones. Above headFrom, each vertex follows the head only. armTop starts above the top of the level arms of the T-pose (y 0.79): from y 0.68, it gave the top of each arm to the neck, and those faces folded in each sample. Each ear follows its ear bone above earBase. The short tail is a ball on one bone (tailBall). The rig has no cut and no split of the arms (user, 2026-10-23). Rings of new vertices cut the long faces of the knees (refine.rings, user, 2026-10-26)."
   },
   "refine": {
-    "rings": [],
+    "rings": [
+      {
+        "joint": "shin",
+        "radius": 0.25,
+        "minEdge": 0.03,
+        "ends": 0.2
+      },
+      {
+        "joint": "shin",
+        "offset": -0.04,
+        "radius": 0.25,
+        "minEdge": 0.03,
+        "ends": 0.2
+      },
+      {
+        "joint": "shin",
+        "offset": 0.04,
+        "radius": 0.25,
+        "minEdge": 0.03,
+        "ends": 0.2
+      }
+    ],
+    "ringsNote": "The source leg has faces that run from near the crotch to the ankle across the knee joint (35 faces on each leg, a longest edge of 0.185 units on the median). A face cannot bend, so in the seated bind it stayed one flat plane from the thigh to the shin: the knee read as a large angular block with hard ridges, and long faces from the calf to the haunch made a slab under the thigh (user, 2026-10-26: \"the polar bear's knees are more bulky than it should be\"). The weight bands of the knee and the haunch, and a seat with the thighs or the shins 10 degrees down, kept the slab. Three rings at the knee plane and 0.04 units above and below it, with a radius of 0.25 units, cut the faces from the haunch to the shin, and each new vertex takes the knee and haunch rules at its height (ring_leg_weights() of tools/blender/rig_mesh.py). With the radius 0.17, the slab under the thigh stayed. A cut keeps 0.2 of the edge at each end: with 0.1, two thin faces of the inner right thigh folded in the play.",
     "flip": {
       "angle": 150,
       "normals": 60,
@@ -445,7 +467,7 @@
     "front": -0.017,
     "back": -0.2,
     "backHeight": 0.01,
-    "note": "The seat is the piano bench of the pianist (prop): it is level, and its top is the lowest point of the seated body over the seat, with no shin, foot, or tail. The front edge lies 1 cm behind the backs of the shins, so that the bench reaches under the thighs, and the back edge at the back of the haunch. The half width holds the haunch (x ±0.23). PIANO_BENCH of src/models/instruments/piano.ts takes this width and depth in meters."
+    "note": "The seat is the piano bench of the pianist (prop): it is level, and its top is the lowest point of the seated body over the seat, with no shin, foot, or tail. The front edge lies under the hip joints, where the thighs leave the haunch, and the back edge at the back of the haunch. The half width holds the haunch (x ±0.23). PIANO_BENCH of src/models/instruments/piano.ts takes this width and depth in meters."
   },
   "crease": {
     "rings": 2,
