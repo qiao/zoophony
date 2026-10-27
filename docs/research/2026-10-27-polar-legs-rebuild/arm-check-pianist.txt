@@ -1,0 +1,35 @@
+
+> zoophony@0.0.0 arm-check /Users/xueqiaoxu/proj/zoophony/.claude/worktrees/sixth-wolf-knee
+> node tools/arm-check.ts pianist --base main
+
+Arm gate of 1 roles against main in 42 s. A cell gives the value, the base in parentheses, and the verdict of a value that does not pass.
+
+| Role | Arm | folds p95 (8) | twist p95 (55) | forearm twist p95 (80) | flat p5 (0.55) | paw twist p95 (170) | paw swing p95 (70) | paw jumps (0.5%) | stretch p95 (0.35) | grip turn p50 (45) | move twist max (176) | move turn max (3000) | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| pianist | L | 19 (19) OPEN | 27 (27) | 8 (8) | 0.83 (0.83) | 23 (23) | 44 (44) | 0.0% (0.0%) | 0.05 (0.05) | 9 (9) | 32 (32) | 180 (180) | OPEN |
+| pianist | R | 15 (15) OPEN | 25 (25) | 8 (8) | 0.85 (0.85) | 24 (24) | 38 (38) | 0.0% (0.0%) | 0.04 (0.04) | 16 (16) | 33 (33) | 201 (201) | OPEN |
+
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| pianist | L | folds p95 | rest | 4 | 19 | 19 | 100.0% | 19 at bach-bwv1047.mid rest | 19 | 8 | 19 | OPEN |
+| pianist | L | twist p95 | rest | 4 | 27 | 27 | 100.0% | 27 at boulanger-matin.mid rest | 27 | 55 | 27 | PASS |
+| pianist | L | forearm twist p95 | play | 4812 | 6 | 8 | 100.0% | 11 at bach-bwv1050.mid 209.30 s | 8 | 80 | 8 | PASS |
+| pianist | L | flat p5 | play | 4812 | 0.94 | 0.83 | 100.0% | 0.71 at boulanger-matin.mid 108.13 s | 0.83 | 0.55 | 0.83 | PASS |
+| pianist | L | paw twist p95 | rest | 4 | 23 | 23 | 100.0% | 23 at bach-bwv1047.mid rest | 23 | 170 | 23 | PASS |
+| pianist | L | paw swing p95 | rest | 4 | 44 | 44 | 100.0% | 44 at boulanger-matin.mid rest | 44 | 70 | 44 | PASS |
+| pianist | L | paw jumps | rest | 4 | 0 | 0 | 0.0% | 0 at bach-bwv1047.mid rest | 0.0% | 0.5% | 0.0% | PASS |
+| pianist | L | stretch p95 | play | 4812 | 0.05 | 0.05 | 100.0% | 0.06 at bach-bwv1050.mid 171.30 s | 0.05 | 0.35 | 0.05 | PASS |
+| pianist | L | grip turn p50 | play | 4812 | 9 | 17 | 100.0% | 25 at bach-bwv1050.mid 209.30 s | 9 | 45 | 9 | PASS |
+| pianist | L | move twist max | move | 4644 | 22 | 28 | 100.0% | 32 at bach-bwv1048.mid lift 218.20 s, wall 0.46 s | 32 | 176 | 32 | PASS |
+| pianist | L | move turn max | move | 4644 | 7 | 111 | 88.9% | 180 at bach-bwv1047.mid lift 0.00 s, wall 0.27 s | 180 | 3000 | 180 | PASS |
+| pianist | R | folds p95 | rest | 4 | 15 | 15 | 100.0% | 15 at bach-bwv1047.mid rest | 15 | 8 | 15 | OPEN |
+| pianist | R | twist p95 | rest | 4 | 25 | 25 | 100.0% | 25 at boulanger-matin.mid rest | 25 | 55 | 25 | PASS |
+| pianist | R | forearm twist p95 | lift | 124 | 7 | 8 | 100.0% | 8 at boulanger-matin.mid wall 0.5 s | 8 | 80 | 8 | PASS |
+| pianist | R | flat p5 | lift | 124 | 0.88 | 0.85 | 100.0% | 0.85 at bach-bwv1047.mid wall 1.9 s | 0.85 | 0.55 | 0.85 | PASS |
+| pianist | R | paw twist p95 | lift | 124 | 10 | 24 | 100.0% | 25 at boulanger-matin.mid wall 0.5 s | 24 | 170 | 24 | PASS |
+| pianist | R | paw swing p95 | rest | 4 | 38 | 38 | 100.0% | 38 at boulanger-matin.mid rest | 38 | 70 | 38 | PASS |
+| pianist | R | paw jumps | rest | 4 | 0 | 0 | 0.0% | 0 at bach-bwv1047.mid rest | 0.0% | 0.5% | 0.0% | PASS |
+| pianist | R | stretch p95 | play | 4812 | 0.03 | 0.04 | 100.0% | 0.05 at bach-bwv1050.mid 289.55 s | 0.04 | 0.35 | 0.04 | PASS |
+| pianist | R | grip turn p50 | play | 4812 | 16 | 23 | 100.0% | 30 at bach-bwv1050.mid 20.80 s | 16 | 45 | 16 | PASS |
+| pianist | R | move twist max | move | 4644 | 21 | 30 | 100.0% | 33 at bach-bwv1048.mid lift 218.20 s, wall 0.45 s | 33 | 176 | 33 | PASS |
+| pianist | R | move turn max | move | 4644 | 7 | 103 | 89.0% | 201 at bach-bwv1047.mid lift 185.00 s, wall 0.23 s | 201 | 3000 | 201 | PASS |

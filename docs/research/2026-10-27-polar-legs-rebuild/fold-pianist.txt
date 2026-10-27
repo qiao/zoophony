@@ -1,0 +1,29 @@
+
+> zoophony@0.0.0 fold-probe /Users/xueqiaoxu/proj/zoophony/.claude/worktrees/sixth-wolf-knee
+> node tools/fold-probe.ts pianist --base main --faces 12
+
+base: cached (main, 8098158edd0e)
+Folded faces of the studio body of the pianist on main (826fe151) and on the working tree: 31.3 s.
+
+| Set | main (826fe151) | Working tree |
+|---|---:|---:|
+| rest | 100.0% (4/4), most 34 (L 19 / R 15 / other 0) | 100.0% (4/4), most 34 (L 19 / R 15 / other 0) |
+| play | 100.0% (4812/4812), most 32 (L 15 / R 17 / other 0) | 100.0% (4812/4812), most 32 (L 15 / R 17 / other 0) |
+| lift | 100.0% (124/124), most 34 (L 19 / R 15 / other 0) | 100.0% (124/124), most 34 (L 19 / R 15 / other 0) |
+
+The faces of main (826fe151) and of the working tree have other corners, so the faces pair one to one by the nearest middles within 0.01 m.
+
+| Face (tree) | Face (main (826fe151)) | main (826fe151): rest / play / lift | Working tree: rest / play / lift | Mark | Main bone | Worst sample, angle, bone of the fold |
+|---:|---:|---|---|---|---|---|
+| 1049 | 1049 | 100.0% / 100.0% / 100.0% | 100.0% / 100.0% / 100.0% |  | clavicle_R | boulanger-matin.mid 107.88 s, 167°, turn of upper_arm_seg0_R 150° |
+| 2695 | 2705 | 100.0% / 100.0% / 100.0% | 100.0% / 100.0% / 100.0% |  | clavicle_L | bach-bwv1047.mid rest, 165°, turn of upper_arm_seg0_L 12° |
+| 2700 | 2710 | 100.0% / 100.0% / 100.0% | 100.0% / 100.0% / 100.0% |  | clavicle_L | bach-bwv1050.mid wall 0.3 s, 127°, turn of upper_arm_seg1_L 31° |
+| 2701 | 2711 | 100.0% / 100.0% / 100.0% | 100.0% / 100.0% / 100.0% |  | clavicle_L | bach-bwv1048.mid 219.00 s, 179°, turn of upper_arm_seg1_L 162° |
+| 2694 | 2704 | 100.0% / 97.5% / 100.0% | 100.0% / 97.5% / 100.0% |  | clavicle_L | bach-bwv1050.mid 164.30 s, 179°, turn of upper_arm_seg1_L 67° |
+| 3928 | 3884 | 100.0% / 96.2% / 91.1% | 100.0% / 96.2% / 91.1% |  | upper_arm_seg0_L | boulanger-matin.mid rest, 159°, turn of upper_arm_seg1_L 14° |
+| 3513 | 3469 | 0.0% / 95.6% / 90.3% | 0.0% / 95.6% / 90.3% |  | upper_arm_seg3_L | bach-bwv1050.mid 218.30 s, 162°, turn of upper_arm_seg2_L 3° |
+| 2693 | 2703 | 100.0% / 94.3% / 100.0% | 100.0% / 94.3% / 100.0% |  | clavicle_L | bach-bwv1048.mid 317.00 s, 180°, turn of upper_arm_seg2_L 83° |
+| 3514 | 3470 | 0.0% / 93.7% / 90.3% | 0.0% / 93.7% / 90.3% |  | upper_arm_seg3_L | bach-bwv1050.mid 60.30 s, 139°, turn of upper_arm_seg2_L 7° |
+| 2699 | 2709 | 100.0% / 91.4% / 100.0% | 100.0% / 91.4% / 100.0% |  | clavicle_L | bach-bwv1047.mid rest, 143°, turn of upper_arm_seg0_L 12° |
+| 2707 | 2717 | 100.0% / 83.0% / 100.0% | 100.0% / 83.0% / 100.0% |  | clavicle_L | bach-bwv1050.mid 178.80 s, 125°, turn of upper_arm_seg0_L 13° |
+| 574 | 574 | 0.0% / 72.0% / 71.8% | 0.0% / 72.0% / 71.8% |  | forearm_seg0_R | bach-bwv1048.mid 33.25 s, 117°, turn of upper_arm_seg2_R 3° |
