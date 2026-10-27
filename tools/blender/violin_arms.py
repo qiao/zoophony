@@ -54,9 +54,9 @@ WELD = 1e-5
 #: inner rings of the forearm. `texture`: the size of the arm image in pixels. `faces`: the most
 #: faces that one arm can have between its cuts. `paint`: the places of the Weight Paint fixes.
 #: `bake` (optional): the cage extrusion and the most ray distance of the bake, 0.006 and 0.017
-#: by default. `factor`: the length factor of the upper arm and the forearm, and `slim`: the
-#: factors of their cross-sections, which `step_shape()` gives the mesh. The joints of the config
-#: are the joints of the longer arm, and its `armFactor` is 1, because the rig with arm segments
+#: by default. `factor`: the length factor of the upper arm and the forearm, or a pair of factors
+#: (upper arm, forearm), and `slim`: the factors of their cross-sections, which `step_shape()`
+#: gives the mesh. The joints of the config are the joints of the shaped arm, and its `armFactor` is 1, because the rig with arm segments
 #: does not stretch the arms (`armSegments` of `tools/blender/rig_mesh.py`).
 ANIMALS = {
     'rabbit': {
@@ -118,19 +118,29 @@ class Frame:
                        p[1] * self.height + self.floor))
 
 
+def arm_factors(factor):
+    """Gives the length factors (upper arm, forearm) of `factor`: one number for both, or a
+    pair."""
+    if isinstance(factor, (tuple, list)):
+        return float(factor[0]), float(factor[1])
+    return factor, factor
+
+
 def source_joints(joints, factor):
     """Gives the joints of the arms of the source mesh from the joints of the config, which are
-    the joints of the arms that `step_shape()` makes `factor` times longer: the elbow and the wrist
-    move back toward the shoulder joint, and the paw joints move with the wrist."""
+    the joints of the arms that `step_shape()` makes `factor` times longer (`arm_factors()`): the
+    elbow and the wrist move back toward the shoulder joint, and the paw joints move with the
+    wrist."""
+    upper, fore = arm_factors(factor)
     out = {name: dict(spec) for name, spec in joints.items()}
     s = Vector(joints['upper_arm_L']['head'])
     e2 = Vector(joints['forearm_L']['head'])
-    e = s + (e2 - s) / factor
+    e = s + (e2 - s) / upper
     w2 = Vector(joints['hand_L']['head'])
-    w = e + (w2 - e2) / factor
+    w = e + (w2 - e2) / fore
     t2 = Vector(joints['forearm_twist_L']['head'])
     out['forearm_L']['head'] = list(e)
-    out['forearm_twist_L']['head'] = list(e + (t2 - e2) / factor)
+    out['forearm_twist_L']['head'] = list(e + (t2 - e2) / fore)
     out['hand_L']['head'] = list(w)
     out['fingers_L']['head'] = list(Vector(joints['fingers_L']['head']) - (w2 - w))
     out['fingers_L']['tail'] = list(Vector(joints['fingers_L']['tail']) - (w2 - w))
@@ -681,12 +691,13 @@ def step_shape(s):
     First, the tube vertices move toward the arm axis: the upper arm takes `slim[0]` across its
     axis, with a fade from the shoulder joint over `ARM_GIRTH_FADE` of its length, and the forearm
     takes `slim[1]`, with a fade to the wrist (`arm_slim()` and `fore_slim()` of `rig_mesh.py`).
-    Then each arm becomes `factor` times longer along its bones, from the shoulder cut: a point
-    of the upper arm moves along the upper arm by its share of the stretch (`stretch_ramp()`), and
-    a point of the forearm also moves along the forearm by its share. The paw moves as one piece,
-    and the shoulder cut loop stays. The UVs and the custom normals stay.
+    Then each arm becomes `factor` times longer along its bones (`arm_factors()`), from the
+    shoulder cut: a point of the upper arm moves along the upper arm by its share of the stretch
+    of the upper arm (`stretch_ramp()`), and a point of the forearm also moves along the forearm by
+    its share of the stretch of the forearm. The paw moves as one piece, and the shoulder cut loop
+    stays. The UVs and the custom normals stay.
     """
-    factor, (slim_upper, slim_fore) = s.spec['factor'], s.spec['slim']
+    (upper, fore), (slim_upper, slim_fore) = arm_factors(s.spec['factor']), s.spec['slim']
     mesh = s.mesh
     bm = bmesh.new()
     bm.from_mesh(mesh.data)
@@ -720,8 +731,8 @@ def step_shape(s):
             cut = ((point - a).dot(normal) - (d - u * along).dot(normal)) / u.dot(normal)
             x = (along - cut) / (lu - cut)
             t = min(max((co - e).dot(f) / lf, 0.0), 1.0)
-            moves[p.index] = co + (u * (lu * (factor - 1) * stretch_ramp(x))
-                                   + f * (lf * (factor - 1) * t))
+            moves[p.index] = co + (u * (lu * (upper - 1) * stretch_ramp(x))
+                                   + f * (lf * (fore - 1) * t))
     bm.free()
     for i, co in moves.items():
         mesh.data.vertices[i].co = co
