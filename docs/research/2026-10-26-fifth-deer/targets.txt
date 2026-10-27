@@ -1,0 +1,14 @@
+
+> zoophony@0.0.0 pose-depth /Users/xueqiaoxu/proj/zoophony/.claude/worktrees/fifth-deer
+> node tools/pose-depth.ts harpist --targets
+
+Sweep of the harpist: 1 demo with the role (boulanger-matin), 1 row to sweep.
+Estimated time: about 1 s: 1 row of 0.7 s, from the last rows of this sweep, with a time for 1 of 1 demos.
+base (0.7 s):
+  boulanger-matin harpist 16 (deer)
+    target L: 0.00 mm at song 210.59 s
+    target R: 0.00 mm at song 160.98 s
+    targets: 100.0% of 350 within 5 mm, worst 0.00 mm
+| variant | targets within 5 mm % |
+|---|---|
+| base | 100.0 |

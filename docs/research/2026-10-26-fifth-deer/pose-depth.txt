@@ -1,0 +1,93 @@
+
+> zoophony@0.0.0 pose-depth /Users/xueqiaoxu/proj/zoophony/.claude/worktrees/fifth-deer
+> node tools/pose-depth.ts harpist --base main
+
+Sweep of the harpist: 1 demo with the role (boulanger-matin), 1 row to sweep.
+Estimated time: about 16 s: 1 row of 15.6 s, from the last rows of this sweep, with a time for 1 of 1 demos.
+Sweeps of main (4ce616c7) and of the working tree: 17.4 s.
+base (16.1 s):
+  boulanger-matin harpist 16 (deer)
+    play: paws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1130 samples over 1.5 cm (0.0%)
+    play: paws in harp: 0.8 cm at song 110.63 s, wall 122.25 s (handL 0.72); next note in 0.02 s; limit 1.5 cm; 0 of 1130 samples over 1.5 cm (0.0%)
+    play: paws in stool: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1130 samples over 1.5 cm (0.0%)
+    play: claws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1130 samples over 1.5 cm (0.0%)
+    play: claws in harp: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1130 samples over 1.5 cm (0.0%)
+    play: claws in stool: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1130 samples over 1.5 cm (0.0%)
+    play: forearms in body: 0.7 cm at song 245.38 s, wall 257.00 s (forearmL 0.45); next note in 0.39 s; limit 2.5 cm; 0 of 1130 samples over 2.5 cm (0.0%)
+    play: forearms in harp: 2.8 cm at song 124.13 s, wall 135.75 s (forearmR 0.55); next note in 0.06 s; limit 4.0 cm; 0 of 1130 samples over 4.0 cm (0.0%)
+    play: forearms in stool: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1130 samples over 1.5 cm (0.0%)
+    play: upper arms in body: 1.0 cm at song 191.88 s, wall 203.50 s (upperArmL 0.37); next note in 0.45 s; limit 3.5 cm; 0 of 1130 samples over 3.5 cm (0.0%)
+    play: upper arms in harp: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1130 samples over 1.5 cm (0.0%)
+    play: upper arms in stool: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1130 samples over 1.5 cm (0.0%)
+    play: legs in stool: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1130 samples over 1.5 cm (0.0%)
+    play: haunch in stool: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1130 samples over 1.5 cm (0.0%)
+    lift: paws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: paws in harp: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: paws in stool: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: claws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: claws in harp: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: claws in stool: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: forearms in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: forearms in harp: 2.5 cm at song 0.00 s, wall 12.90 s (forearmR 0.76); next note in 13.75 s; limit 4.0 cm; 0 of 31 samples over 4.0 cm (0.0%)
+    lift: forearms in stool: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: upper arms in body: 0.8 cm at song -0.82 s, wall 10.80 s (upperArmL 0.28); next note in 27.43 s; limit 3.5 cm; 0 of 31 samples over 3.5 cm (0.0%)
+    lift: upper arms in harp: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: upper arms in stool: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: legs in stool: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: haunch in stool: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    rest: paws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: paws in harp: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: paws in stool: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: claws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: claws in harp: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: claws in stool: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: forearms in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: forearms in harp: 0.7 cm at song -1.62 s, wall 10.00 s (forearmR 0.65); next note in 15.36 s; limit 4.0 cm; 0 of 1 samples over 4.0 cm (0.0%)
+    rest: forearms in stool: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: upper arms in body: 0.8 cm at song -1.62 s, wall 10.00 s (upperArmL 0.28); next note in 28.23 s; limit 3.5 cm; 0 of 1 samples over 3.5 cm (0.0%)
+    rest: upper arms in harp: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: upper arms in stool: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: legs in stool: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: haunch in stool: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    lower: paws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 90 samples over 1.5 cm (0.0%)
+    lower: paws in harp: 0.3 cm at song 278.71 s, wall 10.50 s (handR -0.02); next note in 1.74 s; limit 1.5 cm; 0 of 90 samples over 1.5 cm (0.0%)
+    lower: paws in stool: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 90 samples over 1.5 cm (0.0%)
+    lower: claws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 90 samples over 1.5 cm (0.0%)
+    lower: claws in harp: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 90 samples over 1.5 cm (0.0%)
+    lower: claws in stool: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 90 samples over 1.5 cm (0.0%)
+    lower: forearms in body: 0.5 cm at song 278.71 s, wall 10.50 s (forearmL 0.45); next note in 1.31 s; limit 2.5 cm; 0 of 90 samples over 2.5 cm (0.0%)
+    lower: forearms in harp: 2.0 cm at song 278.71 s, wall 13.70 s (forearmR 0.88); next note in 1.74 s; limit 4.0 cm; 0 of 90 samples over 4.0 cm (0.0%)
+    lower: forearms in stool: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 90 samples over 1.5 cm (0.0%)
+    lower: upper arms in body: 0.9 cm at song 249.54 s, wall 10.50 s (upperArmL 0.28); next note in 13.73 s; limit 3.5 cm; 0 of 90 samples over 3.5 cm (0.0%)
+    lower: upper arms in harp: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 90 samples over 1.5 cm (0.0%)
+    lower: upper arms in stool: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 90 samples over 1.5 cm (0.0%)
+    lower: legs in stool: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 90 samples over 1.5 cm (0.0%)
+    lower: haunch in stool: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 90 samples over 1.5 cm (0.0%)
+    target L: 0.00 mm at song 210.59 s
+    target R: 0.00 mm at song 160.98 s
+    targets: 100.0% of 350 within 5 mm, worst 0.00 mm
+| variant | play paws>harp cm | play forearms>body cm | play forearms>harp cm | play upper arms>body cm | lift forearms>harp cm | lift upper arms>body cm | rest forearms>harp cm | rest upper arms>body cm | lower paws>harp cm | lower forearms>body cm | lower forearms>harp cm | lower upper arms>body cm | targets within 5 mm % |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| base | 0.8 | 0.7 | 2.8 | 1.0 | 2.5 | 0.8 | 0.7 | 0.8 | 0.3 | 0.5 | 2.0 | 0.9 | 100.0 |
+
+The demo and the time of the sample of each value of the table:
+| variant | play paws>harp cm | play forearms>body cm | play forearms>harp cm | play upper arms>body cm | lift forearms>harp cm | lift upper arms>body cm | rest forearms>harp cm | rest upper arms>body cm | lower paws>harp cm | lower forearms>body cm | lower forearms>harp cm | lower upper arms>body cm |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| base | boulanger-matin 110.63 s | boulanger-matin 245.38 s | boulanger-matin 124.13 s | boulanger-matin 191.88 s | boulanger-matin wall 12.90 s | boulanger-matin wall 10.80 s | boulanger-matin wall 10.00 s | boulanger-matin wall 10.00 s | boulanger-matin wall 10.50 s | boulanger-matin wall 10.50 s | boulanger-matin wall 13.70 s | boulanger-matin wall 10.50 s |
+
+The depths of main (4ce616c7) and of the working tree with no change:
+H of each body, main (4ce616c7) -> working tree: deer 0.357 m -> 0.357 m
+| Species | Set | Pair | main (4ce616c7) cm | main (4ce616c7) H | tree cm | tree H | Mark | tree at |
+|---|---|---|---:|---:|---:|---:|---|---|
+| deer | play | paws in harp | 0.6 | 0.017 | 0.8 | 0.023 | GROWS | boulanger-matin 110.63 s |
+| deer | play | forearms in body | 0.0 | 0.000 | 0.7 | 0.019 | GROWS | boulanger-matin 245.38 s |
+| deer | play | forearms in harp | 1.8 | 0.051 | 2.8 | 0.078 | GROWS | boulanger-matin 124.13 s |
+| deer | play | upper arms in body | 3.2 | 0.091 | 1.0 | 0.029 |  | boulanger-matin 191.88 s |
+| deer | lift | forearms in harp | 0.8 | 0.024 | 2.5 | 0.069 | GROWS | boulanger-matin wall 12.90 s |
+| deer | lift | upper arms in body | 2.7 | 0.076 | 0.8 | 0.023 |  | boulanger-matin wall 10.80 s |
+| deer | rest | forearms in harp | 0.0 | 0.000 | 0.7 | 0.021 | GROWS | boulanger-matin wall 10.00 s |
+| deer | rest | upper arms in body | 2.4 | 0.068 | 0.8 | 0.022 |  | boulanger-matin wall 10.00 s |
+| deer | lower | paws in harp | 0.3 | 0.009 | 0.3 | 0.010 |  | boulanger-matin wall 10.50 s |
+| deer | lower | forearms in body | 0.0 | 0.000 | 0.5 | 0.014 | GROWS | boulanger-matin wall 10.50 s |
+| deer | lower | forearms in harp | 1.3 | 0.035 | 2.0 | 0.056 | GROWS | boulanger-matin wall 13.70 s |
+| deer | lower | upper arms in body | 2.9 | 0.080 | 0.9 | 0.024 |  | boulanger-matin wall 10.50 s |

@@ -1,0 +1,25 @@
+
+> zoophony@0.0.0 arm-shape /Users/xueqiaoxu/proj/zoophony/.claude/worktrees/fifth-deer
+> node tools/arm-shape.ts harpist --rings
+
+Arm skin of harpist over 1 demos: twist and roll in degrees, collapse and flat as shares of the bind, spikes of the shoulder and the armpit (edge growth > 1.8).
+
+| Set | Side | Samples | Bone roll | Twist p50 / p95 | Collapse p50 / p5 | Flat p50 / p5 | Spikes mean / max | Folds |
+|---|---|---|---|---|---|---|---|---|
+| rest | L | 1 | 47 | 17 / 17 | 0.96 / 0.96 | 0.76 / 0.76 | 1.0 / 1 | 0.0% |
+| rest | R | 1 | -56 | 21 / 21 | 0.93 / 0.93 | 0.86 / 0.86 | 0.0 / 0 | 0.0% |
+| play | L | 1130 | 43 | 15 / 17 | 0.96 / 0.96 | 0.76 / 0.72 | 1.0 / 2 | 21.9% |
+| play | R | 1130 | -52 | 21 / 22 | 0.94 / 0.94 | 0.88 / 0.84 | 0.0 / 0 | 21.9% |
+| lift | L | 31 | 40 | 13 / 17 | 0.96 / 0.96 | 0.75 / 0.75 | 1.0 / 1 | 0.0% |
+| lift | R | 31 | -54 | 20 / 21 | 0.94 / 0.93 | 0.84 / 0.84 | 0.0 / 0 | 0.0% |
+
+Median of each ring (roll / collapse / flat): shoulder, upper, elbow, forearm.
+
+| Set | Side | shoulder | upper | elbow | forearm |
+|---|---|---|---|---|---|
+| rest | L | 7 / 0.96 / 0.76 | 21 / 0.96 / 0.84 | 38 / 1.00 / 1.01 | -23 / 0.98 / 0.97 |
+| rest | R | -5 / 0.97 / 0.86 | -24 / 0.97 / 0.95 | -45 / 1.01 / 1.03 | 51 / 0.93 / 0.93 |
+| play | L | 6 / 0.97 / 0.76 | 20 / 0.97 / 0.84 | 35 / 1.00 / 1.02 | -26 / 0.97 / 0.97 |
+| play | R | -3 / 0.98 / 0.88 | -21 / 0.98 / 0.97 | -41 / 0.99 / 0.95 | 47 / 0.94 / 0.95 |
+| lift | L | 6 / 0.96 / 0.75 | 19 / 0.96 / 0.83 | 32 / 1.01 / 1.03 | -31 / 0.96 / 0.96 |
+| lift | R | -4 / 0.97 / 0.84 | -23 / 0.98 / 0.95 | -43 / 1.00 / 0.99 | 46 / 0.94 / 0.95 |

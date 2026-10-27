@@ -1,0 +1,108 @@
+Variants of the round fifth-deer. Each block names its command and gives the lines of its output.
+
+== Bridge faces that face into the arm after step_bridge (scratch/probes/bridge_check.py, a dot of the face normal with the radial direction below 0.2)
+cap share 0.0, tilt 0 (run2): bridge faces 46 facing in 25
+cap share 0.2, tilt 30 (chosen): bridge faces 45 facing in 0
+
+== pnpm rig-mesh deer --check (variants a): > node tools/rig-mesh.ts deer --check --set source\=scratch/var/a0/deer-arms.glb\;paintedWeights\=scratch/var/a0/deer-weights.json --set source\=scratch/var/r1/deer-arms.glb\;paintedWeights\=scratch/var/r1/deer-weights.json --set source\=scratch/var/nr/deer-arms.glb\;paintedWeights\=scratch/var/nr/deer-weights.json --set source\=scratch/var/t40/deer-arms.glb\;paintedWeights\=scratch/var/t40/deer-w
+ Variant  |  harpist play  |  harpist lift  |  harpist rest  |  harpist bones 
+--- | --- | --- | --- | ---
+ base  |  100.0%  |  100.0%  |  100.0%  |  upper_arm_seg0_L 5976, forearm_seg0_R 140, upper_arm_seg0_R 44 
+ Blender variant a0|  100.0%  |  100.0%  |  100.0%  |  upper_arm_seg0_L 5976, forearm_seg0_R 221, upper_arm_seg0_R 44 
+ Blender variant r1|  100.0%  |  100.0%  |  100.0%  |  upper_arm_seg0_L 6903, upper_arm_seg2_R 1112, forearm_seg0_R 140 
+ Blender variant nr|  100.0%  |  100.0%  |  100.0%  |  upper_arm_seg0_L 7304, upper_arm_seg2_R 6259, upper_arm_seg2_L 392 
+ Blender variant t40|  100.0%  |  100.0%  |  100.0%  |  upper_arm_seg0_L 5464, upper_arm_seg0_R 1121, forearm_seg0_R 140 
+
+== pnpm rig-mesh deer --check (variants b): > node tools/rig-mesh.ts deer --check --set weights.armSplit\=0.08 --set weights.armSplit\=0.11 --set armSegments.rootSegment\=false --set weights.rigidPainted\=\[\[0.0971\,0.5194\,0.0401\]\,\[0.0909\,0.5128\,0.0381\]\,\[0.0966\,0.5293\,0.0405\]\]
+ Variant  |  harpist play  |  harpist lift  |  harpist rest  |  harpist bones 
+--- | --- | --- | --- | ---
+ base  |  100.0%  |  100.0%  |  100.0%  |  upper_arm_seg0_L 5976, forearm_seg0_R 140, upper_arm_seg0_R 44 
+ weights.armSplit=0.08  |  100.0%  |  100.0%  |  100.0%  |  upper_arm_seg0_L 5976, forearm_seg0_R 140, upper_arm_seg0_R 5 
+ weights.armSplit=0.11  |  100.0%  |  100.0%  |  100.0%  |  upper_arm_seg0_L 5976, forearm_seg0_R 140, upper_arm_seg0_R 44 
+ armSegments.rootSegment=false  |  100.0%  |  100.0%  |  100.0%  |  upper_arm_L 9286, upper_arm_R 1105, forearm_seg0_R 140 
+ weights.rigidPainted=[[0.0971,0.5194,0.0401],[0.0909,0.5128,0.0381],[0.0966,0.5293,0.0405]]  |  51.2%  |  100.0%  |  100.0%  |  upper_arm_seg0_L 575, forearm_seg0_R 140, upper_arm_seg0_R 44 
+
+== pnpm rig-mesh deer --check (variants c): > node tools/rig-mesh.ts deer --check --set studio.bindArms.upper_arm\=\[0.639602\,-0.639602\,0.426401\] --set studio.bindArms.upper_arm\=\[0.702\,-0.451\,0.551\] --set studio.bindArms.upper_arm\=\[0.5\,-0.8\,0.33\]
+ Variant  |  harpist play  |  harpist lift  |  harpist rest  |  harpist bones 
+--- | --- | --- | --- | ---
+ base  |  100.0%  |  100.0%  |  100.0%  |  upper_arm_seg0_L 5976, forearm_seg0_R 140, upper_arm_seg0_R 44 
+ studio.bindArms.upper_arm=[0.639602,-0.639602,0.426401]  |  100.0%  |  100.0%  |  100.0%  |  upper_arm_seg0_L 4701, forearm_seg0_R 14, upper_arm_seg0_R 1 
+ studio.bindArms.upper_arm=[0.702,-0.451,0.551]  |  100.0%  |  100.0%  |  100.0%  |  upper_arm_seg0_L 4962, forearm_seg0_R 41 
+ studio.bindArms.upper_arm=[0.5,-0.8,0.33]  |  100.0%  |  100.0%  |  100.0%  |  upper_arm_seg0_L 4664 
+ Variant  |  Visible head m  |  Standing head top m  |  Seated head top m  |  Footprint m 
+
+== pnpm rig-mesh deer --check (variants d): > node tools/rig-mesh.ts deer --check --set source\=scratch/var/e49/deer-arms.glb\;paintedWeights\=scratch/var/e49/deer-weights.json --set source\=scratch/var/e48/deer-arms.glb\;paintedWeights\=scratch/var/e48/deer-weights.json --set source\=scratch/var/s15/deer-arms.glb\;paintedWeights\=scratch/var/s15/deer-weights.json --set source\=scratch/var/e49s15/deer-arms.glb\;paintedWeights\=scratch/var/e
+ Variant  |  harpist play  |  harpist lift  |  harpist rest  |  harpist bones 
+--- | --- | --- | --- | ---
+ base  |  100.0%  |  100.0%  |  100.0%  |  upper_arm_seg0_L 5976, forearm_seg0_R 140, upper_arm_seg0_R 44 
+ Blender variant e49|  100.0%  |  100.0%  |  100.0%  |  upper_arm_seg0_L 3526, clavicle_L 204, forearm_seg0_R 182 
+ Blender variant e48|  100.0%  |  100.0%  |  100.0%  |  upper_arm_seg0_L 8776, forearm_seg0_R 223, upper_arm_seg0_R 14 
+ Blender variant s15|  100.0%  |  100.0%  |  100.0%  |  upper_arm_seg0_L 4746, forearm_seg0_R 140, chest 33 
+ Blender variant e49s15|  100.0%  |  100.0%  |  100.0%  |  upper_arm_seg0_L 9493, forearm_seg0_R 182, upper_arm_seg0_R 9 
+
+== pnpm rig-mesh deer --check (variants e): > node tools/rig-mesh.ts deer --check --set weights.rigidPainted\=\[\[\[0.0971\,0.5194\,0.0401\]\,\[0.0941\,0.5163\,0.0399\]\,\[0.0909\,0.5128\,0.0381\]\,\[0.0966\,0.5293\,0.0405\]\,\[0.1035\,0.5326\,0.0365\]\,\[0.1085\,0.5371\,0.0314\]\]\,\[-0.0831\,0.4846\,0.019\]\] --set weights.rigidPainted\=\[\[\[0.0971\,0.5194\,0.0401\]\,\[0.0941\,0.5163\,0.0399\]\,\[0.0909\,0.5128\,0.0381\]\,\[0.0966\,0.529
+ Variant  |  harpist play  |  harpist lift  |  harpist rest  |  harpist bones 
+--- | --- | --- | --- | ---
+ base  |  100.0%  |  100.0%  |  100.0%  |  upper_arm_seg0_L 5976, forearm_seg0_R 140, upper_arm_seg0_R 44 
+ weights.rigidPainted=[[[0.0971,0.5194,0.0401],[0.0941,0.5163,0.0399],[0.0909,0.5128,0.0381],[0.0966,0.5293,0.0405],[0.1035,0.5326,0.0365],[0.1085,0.5371,0.0314]],[-0.0831,0.4846,0.019]]  |  100.0%  |  100.0%  |  100.0%  |  upper_arm_seg0_L 3486, forearm_seg0_R 140, upper_arm_seg0_R 5 
+ weights.rigidPainted=[[[0.0971,0.5194,0.0401],[0.0941,0.5163,0.0399],[0.0909,0.5128,0.0381],[0.0966,0.5293,0.0405]],[[0.1035,0.5326,0.0365],[0.1085,0.5371,0.0314]],[-0.0831,0.4846,0.019]]  |  85.3%  |  100.0%  |  100.0%  |  upper_arm_seg0_L 2362, forearm_seg0_R 140, upper_arm_seg0_R 5 
+ weights.rigidPainted=[[0.0971,0.5194,0.0401],[0.0941,0.5163,0.0399],[0.0909,0.5128,0.0381],[0.0966,0.5293,0.0405],[0.1035,0.5326,0.0365],[0.1085,0.5371,0.0314],[-0.0831,0.4846,0.019]]  |  15.7%  |  0.0%  |  0.0%  |  forearm_seg0_R 140, upper_arm_seg0_L 75, upper_arm_seg0_R 5 
+ Variant  |  Visible head m  |  Standing head top m  |  Seated head top m  |  Footprint m 
+
+== pnpm rig-mesh deer --check (variants f): > node tools/rig-mesh.ts deer --check --set 'source=scratch/var/a0/deer-arms.glb;paintedWeights=scratch/var/a0/deer-weights.json;rootNormals={"radius":0.08}' --set 'source=scratch/var/a2r3/deer-arms.glb;paintedWeights=scratch/var/a2r3/deer-weights.json;rootNormals={"radius":0.08}' --set 'source=scratch/var/a1r2/deer-arms.glb;paintedWeights=scratch/var/a1r2/deer-weights.json;rootNormals={"radius":0
+ Variant  |  harpist play  |  harpist lift  |  harpist rest  |  harpist bones 
+--- | --- | --- | --- | ---
+ base  |  15.7%  |  0.0%  |  0.0%  |  forearm_seg0_R 140, upper_arm_seg0_L 75, upper_arm_seg0_R 5 
+ Blender variant a0;rootNormals={"radius":0.08}  |  21.9%  |  0.0%  |  0.0%  |  forearm_seg0_R 221, upper_arm_seg0_L 75, upper_arm_seg0_R 5 
+ Blender variant a2r3;rootNormals={"radius":0.08}  |  21.9%  |  0.0%  |  0.0%  |  forearm_seg0_R 221, upper_arm_seg0_L 75, upper_arm_seg0_R 5 
+ Blender variant a1r2;rootNormals={"radius":0.08}  |  21.9%  |  0.0%  |  0.0%  |  forearm_seg0_R 221, upper_arm_seg0_L 75, upper_arm_seg0_R 5 
+ Variant  |  Visible head m  |  Standing head top m  |  Seated head top m  |  Footprint m 
+
+== pnpm rig-mesh deer --check (variants g): > node tools/rig-mesh.ts deer --check --set source\=scratch/var/r6/deer-arms.glb\;paintedWeights\=scratch/var/r6/deer-weights.json --set source\=scratch/var/bl2/deer-arms.glb\;paintedWeights\=scratch/var/bl2/deer-weights.json --set source\=scratch/var/e49b/deer-arms.glb\;paintedWeights\=scratch/var/e49b/deer-weights.json --keep scratch/var/keep-g
+ Variant  |  harpist play  |  harpist lift  |  harpist rest  |  harpist bones 
+--- | --- | --- | --- | ---
+ base  |  8.3%  |  0.0%  |  0.0%  |  forearm_seg0_R 93, upper_arm_seg0_L 1 
+ Blender variant r6|  8.3%  |  0.0%  |  0.0%  |  forearm_seg0_R 93, upper_arm_seg0_L 1 
+ Blender variant bl2|  8.6%  |  0.0%  |  0.0%  |  forearm_seg0_R 93, upper_arm_seg0_L 7 
+ Blender variant e49b|  12.1%  |  0.0%  |  0.0%  |  forearm_seg0_R 137 
+ Variant  |  Visible head m  |  Standing head top m  |  Seated head top m  |  Footprint m 
+
+== Blender variants (scratch/probes/variant.py, overrides of DEER)
+a0 anchor 0; r1 seam.ruled 1; nr seam.rings (); t40 cap 0.25 tilt 40; e49 edge 0.49 armpit 0.495; e48 edge 0.48 armpit 0.488; s15 cap share 0.15; e49s15 both; a2r3 anchor 0.2 reach 0.03 (chosen); a1r2 anchor 0.1 reach 0.02; r6 seam.round 6; bl2 seam.rings (0.35, 0.7); e49b edge 0.49 with a2r3
+
+== pnpm arm-check harpist --glb scratch/var/keep-f/variant-1.glb (scratch/var/keep-f/gate-1.log)
+| harpist | L | 1 | 18 | 28 | 0.72 | 75 | 62 | 0.0% | 0.03 | 13 | 68 | 104 | PASS |
+| harpist | R | 1 | 21 | 40 | 0.84 | 108 | 29 | 0.0% | 0.03 | 2 | 108 | 19 | PASS |
+== pnpm arm-check harpist --glb scratch/var/keep-f/variant-2.glb (scratch/var/keep-f/gate-2.log)
+| harpist | L | 1 | 17 | 28 | 0.72 | 75 | 62 | 0.0% | 0.03 | 13 | 68 | 104 | PASS |
+| harpist | R | 1 | 22 | 40 | 0.84 | 108 | 29 | 0.0% | 0.03 | 2 | 108 | 19 | PASS |
+== pnpm arm-check harpist --glb scratch/var/keep-f/variant-3.glb (scratch/var/keep-f/gate-3.log)
+| harpist | L | 1 | 17 | 28 | 0.72 | 75 | 62 | 0.0% | 0.03 | 13 | 68 | 104 | PASS |
+| harpist | R | 1 | 21 | 40 | 0.84 | 108 | 29 | 0.0% | 0.03 | 2 | 108 | 19 | PASS |
+== pnpm arm-check harpist --glb scratch/bind/variant-1.glb (scratch/bind/gate-1.log)
+| harpist | L | 0 | 35 | 28 | 0.78 | 73 | 67 | 0.0% | 0.03 | 13 | 65 | 106 | PASS |
+| harpist | R | 0 | 30 | 39 | 0.74 | 105 | 31 | 0.0% | 0.06 | 5 | 105 | 24 | PASS |
+== pnpm arm-check harpist --glb scratch/bind/variant-2.glb (scratch/bind/gate-2.log)
+| harpist | L | 0 | 45 | 27 | 0.77 | 71 | 69 | 0.0% | 0.03 | 12 | 62 | 107 | PASS |
+| harpist | R | 0 | 41 | 40 | 0.87 | 102 | 33 | 0.0% | 0.04 | 7 | 102 | 23 | PASS |
+== pnpm arm-check harpist --glb scratch/bind2/variant-1.glb (scratch/bind2/gate-1.log)
+| harpist | L | 4 | 44 | 27 | 0.77 | 71 | 69 | 0.0% | 0.03 | 12 | 62 | 107 | PASS |
+| harpist | R | 0 | 41 | 40 | 0.87 | 102 | 33 | 0.0% | 0.04 | 7 | 102 | 23 | PASS |
+== pnpm arm-check harpist --glb scratch/bind2/variant-2.glb (scratch/bind2/gate-2.log)
+| harpist | L | 0 | 39 | 27 | 0.77 | 72 | 69 | 0.0% | 0.03 | 13 | 63 | 107 | PASS |
+| harpist | R | 0 | 35 | 41 | 0.79 | 103 | 33 | 0.0% | 0.05 | 6 | 103 | 23 | PASS |
+== pnpm arm-check harpist --glb scratch/bind2/variant-3.glb (scratch/bind2/gate-3.log)
+| harpist | L | 0 | 51 | 27 | 0.77 | 70 | 70 | 0.0% | 0.03 | 12 | 61 | 107 | PASS |
+| harpist | R | 0 | 47 | 40 | 0.90 | 101 | 33 | 0.0% | 0.04 | 8 | 101 | 22 | PASS |
+== pnpm arm-check harpist --glb scratch/bind2/variant-4.glb (scratch/bind2/gate-4.log)
+| harpist | L | 0 | 45 | 27 | 0.77 | 71 | 69 | 0.0% | 0.03 | 12 | 62 | 107 | PASS |
+| harpist | R | 0 | 41 | 40 | 0.87 | 102 | 33 | 0.0% | 0.04 | 7 | 102 | 23 | PASS |
+== pnpm arm-check harpist --glb scratch/bind3/variant-1.glb (scratch/bind3/gate-1.log)
+| harpist | L | 0 | 26 | 28 | 0.79 | 75 | 66 | 0.0% | 0.03 | 13 | 66 | 105 | PASS |
+| harpist | R | 1 | 25 | 39 | 0.91 | 106 | 31 | 0.0% | 0.04 | 3 | 106 | 19 | PASS |
+== pnpm arm-check harpist --glb scratch/bind3/variant-2.glb (scratch/bind3/gate-2.log)
+| harpist | L | 0 | 36 | 28 | 0.78 | 73 | 68 | 0.0% | 0.03 | 13 | 64 | 106 | PASS |
+| harpist | R | 0 | 31 | 39 | 0.74 | 104 | 32 | 0.0% | 0.06 | 5 | 104 | 24 | PASS |
+== pnpm arm-check harpist --glb scratch/bind4/variant-1.glb (scratch/bind4/gate.log)
+| harpist | L | 6 | 26 | 28 | 0.77 | 75 | 66 | 0.0% | 0.03 | 13 | 66 | 105 | PASS |
+| harpist | R | 1 | 25 | 39 | 0.92 | 106 | 31 | 0.0% | 0.04 | 3 | 106 | 19 | PASS |
