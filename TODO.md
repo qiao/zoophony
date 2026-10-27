@@ -474,7 +474,7 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       at the outer side of the thigh. Done: low at the front of the lap with straight wrists.
 - [x] Cat (`2026-10-26-fifth-review-strings.md`): the bow arm bent as a wing at rest, and the bow
       arm went straight in the lowering. Done: the bow paw rests at the lap with the elbow at 111°,
-      and the moves keep it bent from 90° to 124°.
+      and the moves keep it bent from 74° to 98°.
 - [ ] Rabbit, red fox, and cat (`2026-10-26-fifth-review-strings.md`): in each move, the left
       forearm skin passes one twist step of 180°, so the wrist flattens for a moment near the jaw
       (lift flat p5 0.72 to 0.76 against 0.81 to 0.86), and the moves of the arm gate are worse

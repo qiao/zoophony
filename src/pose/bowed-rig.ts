@@ -836,9 +836,11 @@ export const BOWED_HOLDS = {
  * front in the middle (`liftReach`). In the middle of the moves, the left elbow points out and a
  * little down, as at rest (`liftPoleL`). With (-0.45, -1, -0.6), the left upper arm went 1.7 cm into
  * the body in the lift. In the middle, the bow points forward and a little out and up,
- * (0.4, 0.3, -1), and the grip moves 0.3 H out, 0.2 H up, and 0.15 H to the front, so that the bow
- * elbow stays bent from 90° to 124°: with 0.4 H to the front, the arm went straight (180°) in the
- * lowering (2026-10-26-fifth-review-strings decisions). With the tip up, (0, 1, -0.6), the bow stood
+ * (0.4, 0.3, -1), and the grip moves 0.45 H out, 0.35 H up, and 0.05 H to the front, so that the
+ * bow arm passes outside the round belly with the elbow bent from 74° to 98°: with 0.3 H out and
+ * 0.15 H to the front, the right upper arm went 7.2 cm into the belly in a lowering of `brahms-2`,
+ * and with 0.4 H to the front, the arm went straight (180°) (2026-10-26-fifth-review-strings
+ * decisions). With the tip up, (0, 1, -0.6), the bow stood
  * upright in front of the face (2026-10-26-violin-lift decisions). With the via of `UPRIGHT_BOW`
  * (the tip forward, the grip 0.3 H out and 0.1 H up), the bow lay across the belly and went 1.3 cm
  * into the viola and 2.7 cm into the arms (2026-10-24-violin-review decisions). With a move of
@@ -911,7 +913,7 @@ const CAT_HOLD = {
     lap: { along: 0.6, offset: [0.4, 0.4, -0.05] },
     tip: [0.15, 1, -0.45],
     hair: [0, 0, -1],
-    via: { tip: [0.4, 0.3, -1], hair: [0, 0, -1], reach: [0.3, 0.2, -0.15] },
+    via: { tip: [0.4, 0.3, -1], hair: [0, 0, -1], reach: [0.45, 0.35, -0.05] },
   },
   standBow: HANGING_BOW,
 } as const satisfies BowedHold;
