@@ -3202,6 +3202,20 @@ def crease_relax(bind, tris, weights, hip, rule):
     on_thigh[tris[np.isin(main, thighs)].ravel()] = True
     seam = (on_trunk & on_thigh & (bind[:, 2] > hip[2] - rule['back'])
             & (bind[:, 1] > hip[1] - rule['below']))
+    fixed = [BONES.index(f'{b}_{s}') for b in ('shin', 'foot', 'toes') for s in 'LR']
+    fixed += [BONES.index(n) for s in 'LR' for n in arm_bones(s)]
+    fixed += [BONES.index(b) for b in ('tail', TAIL_TIP) if b in BONES]
+    free = 1.0 - np.clip(weights[:, fixed].sum(axis=1), 0.0, 1.0)
+    out, moved, largest = seam_relax(bind, tris, seam, free, rule)
+    return out, int(seam.sum()), moved, largest
+
+
+def seam_relax(bind, tris, seam, free, rule):
+    """Smooths the bind around a seam: the region is the vertices of `seam` and `rings` rings of
+    their neighbors. Each vertex of the region moves `share` of the way to the middle of its
+    neighbors in each of `rounds` rounds, times a weight that falls from 1 on the seam to 0 beyond
+    the last ring, and times its `free` share (0 keeps its place). Gives the smoothed bind, the
+    number of the moved vertices, and the largest move."""
     neighbors = [set() for _ in range(len(bind))]
     for a, b, c in tris:
         neighbors[a].update((b, c))
@@ -3218,10 +3232,6 @@ def crease_relax(bind, tris, weights, hip, rule):
                     ring[j] = k
                     grown.append(j)
         front = grown
-    fixed = [BONES.index(f'{b}_{s}') for b in ('shin', 'foot', 'toes') for s in 'LR']
-    fixed += [BONES.index(n) for s in 'LR' for n in arm_bones(s)]
-    fixed += [BONES.index(b) for b in ('tail', TAIL_TIP) if b in BONES]
-    free = 1.0 - np.clip(weights[:, fixed].sum(axis=1), 0.0, 1.0)
     ids = np.nonzero(ring >= 0)[0]
     w = (1.0 - ring[ids] / (rule['rings'] + 1.0)) * free[ids] * rule['share']
     rings = [np.array(sorted(neighbors[i])) for i in ids]
@@ -3230,7 +3240,7 @@ def crease_relax(bind, tris, weights, hip, rule):
         mids = np.array([out[r].mean(axis=0) for r in rings])
         out[ids] += w[:, None] * (mids - out[ids])
     moves = np.linalg.norm(out - bind, axis=1)
-    return out, int(seam.sum()), int((moves > 1e-6).sum()), float(moves.max(initial=0.0))
+    return out, int((moves > 1e-6).sum()), float(moves.max(initial=0.0))
 
 
 def haunch_mask(weights):
