@@ -1,0 +1,72 @@
+== steps-main
+source: knee cut y 0.15: width 0.1335, depth 0.1509, front radius 0.0761, back 0.0748
+  front z at the middle of the leg by height from the knee: -0.06: 0.0350, -0.04: 0.0437, -0.02: 0.0524, +0.00: 0.0611, +0.02: 0.0687, +0.04: 0.0748, +0.06: 0.0788
+source stretched: knee cut y 0.211: width 0.1344, depth 0.1589, front radius 0.0758, back 0.0831
+  front z at the middle of the leg by height from the knee: -0.06: 0.0396, -0.04: 0.0467, -0.02: 0.0538, +0.00: 0.0608, +0.02: 0.0655, +0.04: 0.0701, +0.06: 0.0732
+bind 13-knee_relax: bend angle 95.0 deg, knee [0.1637 0.3908 0.1904]
+  bisector cut: width 0.1249, front reach 0.0508, back reach 0.1564
+  thigh cut 0.06 from the joint: width 0.1338, outer radius 0.0466
+  shin cut 0.06 from the joint: width 0.1314, outer radius 0.0472
+  side cut at -0.02 along the bend axis: front reach 0.0435, largest turn at one outline corner on the front 35.7 deg
+  side cut at +0.00 along the bend axis: front reach 0.0539, largest turn at one outline corner on the front 126.7 deg
+  side cut at +0.02 along the bend axis: front reach 0.0534, largest turn at one outline corner on the front 41.8 deg
+  thigh cut 0.03 from the joint: outer radius along its own normal 0.0678, inner 0.1991, width 0.1238
+  thigh cut 0.06 from the joint: outer radius along its own normal 0.0632, inner 0.1428, width 0.1338
+  thigh cut 0.09 from the joint: outer radius along its own normal 0.0583, inner 0.1247, width 0.1471
+  shin cut 0.03 from the joint: outer radius along its own normal 0.0655, inner 0.2133, width 0.1675
+  shin cut 0.06 from the joint: outer radius along its own normal 0.0640, inner 0.2772, width 0.1314
+  shin cut 0.09 from the joint: outer radius along its own normal 0.0625, inner 0.1550, width 0.1146
+== steps-round
+source: knee cut y 0.15: width 0.1335, depth 0.1509, front radius 0.0761, back 0.0748
+  front z at the middle of the leg by height from the knee: -0.06: 0.0350, -0.04: 0.0437, -0.02: 0.0524, +0.00: 0.0611, +0.02: 0.0687, +0.04: 0.0748, +0.06: 0.0788
+source stretched: knee cut y 0.211: width 0.1344, depth 0.1589, front radius 0.0758, back 0.0831
+  front z at the middle of the leg by height from the knee: -0.06: 0.0396, -0.04: 0.0467, -0.02: 0.0538, +0.00: 0.0608, +0.02: 0.0655, +0.04: 0.0701, +0.06: 0.0732
+bind 14-knee_front: bend angle 95.0 deg, knee [0.1637 0.3908 0.1904]
+  bisector cut: width 0.1253, front reach 0.0577, back reach 0.1562
+  thigh cut 0.06 from the joint: width 0.1365, outer radius 0.0477
+  shin cut 0.06 from the joint: width 0.1305, outer radius 0.0469
+  side cut at -0.02 along the bend axis: front reach 0.0499, largest turn at one outline corner on the front 33.3 deg
+  side cut at +0.00 along the bend axis: front reach 0.0362, largest turn at one outline corner on the front 175.9 deg
+  side cut at +0.02 along the bend axis: front reach 0.0581, largest turn at one outline corner on the front 37.0 deg
+  thigh cut 0.03 from the joint: outer radius along its own normal 0.0679, inner 0.1991, width 0.1296
+  thigh cut 0.06 from the joint: outer radius along its own normal 0.0647, inner 0.1427, width 0.1365
+  thigh cut 0.09 from the joint: outer radius along its own normal 0.0589, inner 0.1245, width 0.1478
+  shin cut 0.03 from the joint: outer radius along its own normal 0.0648, inner 0.2133, width 0.1658
+  shin cut 0.06 from the joint: outer radius along its own normal 0.0636, inner 0.2772, width 0.1305
+  shin cut 0.09 from the joint: outer radius along its own normal 0.0624, inner 0.1547, width 0.1147
+== steps-main-R
+source: knee cut y 0.15: width 0.1341, depth 0.1522, front radius 0.0757, back 0.0766
+  front z at the middle of the leg by height from the knee: -0.06: 0.0341, -0.04: 0.0410, -0.02: 0.0504, +0.00: 0.0607, +0.02: -0.0301, +0.04: -0.0262, +0.06: -0.0508
+source stretched: knee cut y 0.211: width 0.1344, depth 0.1602, front radius 0.0757, back 0.0844
+  front z at the middle of the leg by height from the knee: -0.06: 0.0368, -0.04: 0.0448, -0.02: 0.0528, +0.00: 0.0607, +0.02: 0.0657, +0.04: 0.0705, +0.06: -0.0262
+bind 13-knee_relax: bend angle 95.0 deg, knee [0.1637 0.3908 0.1904]
+  bisector cut: width 0.1262, front reach 0.0385, back reach 0.1568
+  thigh cut 0.06 from the joint: width 0.1387, outer radius 0.0487
+  shin cut 0.06 from the joint: width 0.1089, outer radius 0.0487
+  side cut at -0.02 along the bend axis: front reach 0.0362, largest turn at one outline corner on the front 26.6 deg
+  side cut at +0.00 along the bend axis: front reach 0.0475, largest turn at one outline corner on the front 148.8 deg
+  side cut at +0.02 along the bend axis: front reach 0.0467, largest turn at one outline corner on the front 40.3 deg
+  thigh cut 0.03 from the joint: outer radius along its own normal 0.0531, inner 0.1984, width 0.1262
+  thigh cut 0.06 from the joint: outer radius along its own normal 0.0661, inner 0.1425, width 0.1387
+  thigh cut 0.09 from the joint: outer radius along its own normal 0.0651, inner -0.0225, width 0.1095
+  shin cut 0.03 from the joint: outer radius along its own normal 0.0668, inner 0.1216, width 0.1015
+  shin cut 0.06 from the joint: outer radius along its own normal 0.0661, inner 0.2203, width 0.1089
+  shin cut 0.09 from the joint: outer radius along its own normal 0.0637, inner 0.1474, width 0.1124
+== steps-round-R
+source: knee cut y 0.15: width 0.1341, depth 0.1522, front radius 0.0757, back 0.0766
+  front z at the middle of the leg by height from the knee: -0.06: 0.0341, -0.04: 0.0410, -0.02: 0.0504, +0.00: 0.0607, +0.02: -0.0301, +0.04: -0.0262, +0.06: -0.0508
+source stretched: knee cut y 0.211: width 0.1344, depth 0.1602, front radius 0.0757, back 0.0844
+  front z at the middle of the leg by height from the knee: -0.06: 0.0368, -0.04: 0.0448, -0.02: 0.0528, +0.00: 0.0607, +0.02: 0.0657, +0.04: 0.0705, +0.06: -0.0262
+bind 14-knee_front: bend angle 95.0 deg, knee [0.1637 0.3908 0.1904]
+  bisector cut: width 0.1268, front reach 0.0574, back reach 0.1567
+  thigh cut 0.06 from the joint: width 0.1395, outer radius 0.0500
+  shin cut 0.06 from the joint: width 0.0151, outer radius 0.0315
+  side cut at -0.02 along the bend axis: front reach 0.0492, largest turn at one outline corner on the front 30.3 deg
+  side cut at +0.00 along the bend axis: front reach 0.0574, largest turn at one outline corner on the front 140.7 deg
+  side cut at +0.02 along the bend axis: front reach 0.0544, largest turn at one outline corner on the front 36.7 deg
+  thigh cut 0.03 from the joint: outer radius along its own normal 0.0608, inner 0.1984, width 0.1302
+  thigh cut 0.06 from the joint: outer radius along its own normal 0.0679, inner 0.1424, width 0.1395
+  thigh cut 0.09 from the joint: outer radius along its own normal 0.0652, inner 0.1240, width 0.1493
+  shin cut 0.03 from the joint: outer radius along its own normal 0.0680, inner 0.0119, width 0.0979
+  shin cut 0.06 from the joint: outer radius along its own normal 0.0427, inner 0.0065, width 0.0151
+  shin cut 0.09 from the joint: outer radius along its own normal 0.0637, inner 0.1472, width 0.1129

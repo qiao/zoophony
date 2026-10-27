@@ -364,6 +364,12 @@ group of your work before you plan it. A probe that a trap names is in its resea
   near the shin axis and above the heel (`kneeCrease.fair`), and give the faces behind the knees
   the skin normals (`rootNormals.knee`, `docs/research/2026-10-27-rigs3.md`). A fair of the move
   field, rings, flips, and other reaches kept the kink.
+- The linear blend puts each vertex of the bent knee front with the weights of the thigh and the
+  shin on the chord between their places: a flat bevel with hard ridges, which reads as a block.
+  Cut it with more front rings, round it across the leg bones (`kneeCrease.front`), and give its
+  faces the skin normals (`rootNormals.kneeFront`). A dual quaternion blend pushed one ring
+  vertex out into a sharper ridge, and a fair along the normals turned ring faces over
+  (`tries-knee.txt` of `docs/research/2026-10-27-wolf-knee/`).
 - A long thigh needs a seat of its own (`studio.legTurns`, `weights.haunch`). A large tail needs two
   bones (`tail_tip`).
 - Short thighs under a round belly, or thighs that slope down to a level seat, set the seat top

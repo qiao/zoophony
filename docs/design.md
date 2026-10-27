@@ -356,4 +356,5 @@ The decision files:
 - [`2026-10-27-rigs3.md`](decisions/2026-10-27-rigs3.md): the flip of the sheared quad at the right inner elbow of the deer, and the fair and the skin normals of the back of the polar bear calves.
 - [`2026-10-27-cat-fox.md`](decisions/2026-10-27-cat-fox.md): the cat bind upper arm nearer to the hanging arm with the skin normals of the arm roots, the rest viola nearer to the hip, and the tan fox paws that wrap the flute from the front.
 - [`2026-10-27-wolf-knee.md`](decisions/2026-10-27-wolf-knee.md): the clarinet rest of the wolf with the bell against the right knee and the paws on their grips of the play.
+- [`2026-10-27-wolf-knee.md`](decisions/2026-10-27-wolf-knee.md): the clarinet rest of the wolf with the bell against the right knee and the paws on their grips of the play, and the rounded front of the polar bear knees with the skin normals.
 - [`2026-10-23-rabbit-arms.md`](decisions/2026-10-23-rabbit-arms.md): the A-pose rabbit mesh with its own faces, a short arm stretch, a violin of 0.83, its elbows and rest grip, and the open shards of its arms.

@@ -472,7 +472,13 @@ mesh are quad tubes (rings at a right angle to the bones), and the weights come 
     faces into slivers whose corners slide apart into a groove with a dark facet. So the back of
     the calf is then faired along the vertex normals, in a band near the shin axis that ends
     above the heel (`kneeCrease.fair`), and the faces behind each knee take the normals of the
-    skin with no crease angle (`rootNormals.knee`).
+    skin with no crease angle (`rootNormals.knee`). At the front of the bent knee, the linear
+    blend puts each vertex with the weights of both the thigh and the shin on the chord between
+    their two places, so the knee front is a flat bevel inside the round of the leg, with hard
+    ridges at its edges: a block with a sharp edge. So more rings cut the knee front, each vertex
+    of the knee front moves across the leg bones toward the mean distance of its neighbors
+    (`kneeCrease.front`), and the faces in front of each knee take the normals of the skin too
+    (`rootNormals.kneeFront`). A real bent knee rounds over the front.
     `pnpm rig-mesh --check` gives the gaps of the tail to the floor and to the
     chair over one sway period (`tools/tail-gap.ts`).
   - Weights and shapes. Bone heat gives the weights, and rules and rings of new vertices at the

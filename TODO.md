@@ -597,6 +597,15 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       faired along the normals, and the faces behind the knees take the skin normals. The facet
       and its groove are gone, with the poses, the folds, and the arm gate of `main`
       (`2026-10-27-rigs3.md`).
+- [x] Polar bear (`2026-10-27-wolf-knee.md`): the user saw the top of the seated left knee as a
+      block with a sharp edge. The source knee is a round column. Done: the linear blend put
+      the knee front on a flat bevel with 12 hard edges (the largest 78.7°). The knee front is
+      now rounded across the leg bones over two more front rings (2 hard edges, 54.1°), and its
+      faces take the skin normals.
+- [ ] Polar bear (`2026-10-27-wolf-knee.md`): the knee front still lies about 1 cm inside the
+      round of the leg on the bisector, so from a low front angle the knee keeps a soft flat
+      top. A quad ring at the knee, as the arm rebuilds have (`rig-blender.md`), gives the
+      corner a true arc.
 - [x] Wolf (`2026-10-27-wolf-knee.md`): the user said that the wolf does not hold the clarinet
       properly at rest: the left paw capped the mouthpiece end, the bell hung 12 cm in front of
       the seat, and each paw slid 15 cm along the tube in each move. Done: the bell rests against
