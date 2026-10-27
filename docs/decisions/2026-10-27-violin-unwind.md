@@ -13,7 +13,6 @@ user can reverse each decision. Then update its section, and remove its row.
 |---|---|
 | The red fox wrist moves 0.1 H out and 0.15 H forward in the middle of a move (`liftReach`): the violin goes 1.9 cm into the body near the jaw (2.1 cm with 0.1 H forward, 2.6 cm with 0.1 H up and 0.2 H forward). | 5.2 |
 | The cat wrist moves 0.14 H out, 0.29 H up, and 0.19 H forward in the middle of a move (`liftReach`): the viola goes 1.9 cm into the body near the jaw (2.1 cm). With 0.2 H forward, the right claws went 1.5 cm into the viola (1.4 cm). | 5.2 |
-| The forearm skin still passes 180° once in each move. The rest and the play fix both ends of the twist path, so each path from the upright rest passes 180° (`path-probe.ts`). A new bind of the mesh paw with a supination removes it. | 4.4, 5.2 |
 | No rest roll: only a rest instrument turned 60° to 90° around its top normal, with the scroll to the left, has no pass. Its rest twist is 142° to 172°, and no source gives such a rest (`roll-scan.txt`). | 5.2 |
 | No elbow path in the middle: five poles of `liftPoleL` keep the pass, and the instrument turns 156° to 346° with the frame of the arm, against 117° to 141° (`mid-pole-scan.txt`). | 5.2 |
 | No play elbow toward the middle: the play twist moves to the side of a supination with no pass, but the cat shoulder ring keeps 0.24 to 0.50 (0.72), and the red fox forearm twists 92° to 102° (67°) (`play-gate-main.txt`). | 5.2 |

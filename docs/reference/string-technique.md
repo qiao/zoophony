@@ -528,11 +528,12 @@ A round that changes the motion updates the items.
   the hold of the neck (`carryLift()` of `pose/bowed.ts`). At rest, the paw takes a turn in the
   plane of its palm near the turn of the play (`BowedHold.restPawTurnL`), so the grip in the paw
   changes by 22° to 27° in a move (56° to 79° before the round `fifth-strings2`). The paw
-  supinates on its forearm on the way, as a real forearm turns, and passes 180° from the bind of
-  the mesh, where the forearm skin unwinds for a moment (`skinTwist()` of
-  `models/studio-rig.ts`). The playing grip of the app lies 215° to 234° of supination from the
-  bind of the mesh paw, which is pronated, so each rest grip with a natural elbow lies on the other
-  side of 180° (`docs/decisions/2026-10-27-violin-carry.md`). A rest roll of the instrument with
+  supinates on its forearm on the way, as a real forearm turns. The playing grip of the app lies
+  215° to 234° of supination from the paw of the mesh, which is pronated, so the bind of the left
+  paw is supinated 100° to 120° about its forearm. The rest and the play twists then lie on one
+  side of 180°, and the forearm skin follows the paw with no jump
+  (`docs/decisions/2026-10-27-left-paw-bind.md`). With the pronated bind, each rest grip with a
+  natural elbow lay on the other side of 180° (`docs/decisions/2026-10-27-violin-carry.md`). A rest roll of the instrument with
   the scroll to the side, the banjo hold of section 2.9, avoids the pass, but no source gives it as
   a rest, and the image of the user shows an upright rest
   (`docs/decisions/2026-10-27-violin-unwind.md`). In the middle of the move, the wrist

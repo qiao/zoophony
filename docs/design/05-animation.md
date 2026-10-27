@@ -266,9 +266,9 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
   frame. The bow of a string player takes the side of its mix from the bow at the play place of the
   instrument (`liftMix()` of `pose/bowed.ts`), and the baton turn of the conductor keeps at most
   `CONDUCTOR_HOLD.liftTwist` of twist (none since 2026-10-26). The arm gate measures each move at steps of 0.01 s
-  (`probeMoves()` of `tools/arm-check.ts`). The left paw of the violins and of the viola passes
-  180° on its forearm in each move, because its playing grip lies near 180° from the bind: the
-  twist bone and the segments of the forearm unwind there (4.4, `carryFade()` of `pose/bowed.ts`).
+  (`probeMoves()` of `tools/arm-check.ts`). The left paw of the violins and of the viola
+  supinates more than half a turn in each move, so its bind is supinated about the forearm (4.4),
+  and its twist stays on one side of 180°.
 - **Count-in.** The slowest lift ends before the downbeat. A shorter count-in in wall time
   scales all lifts by one factor (`liftScale()`). After a pause, the note and beat layers hold
   the song time of the pause point (`noteLayerTime()`). A pause in the count-in has no hold: the
@@ -326,12 +326,12 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
   move. The wrist moves on a line from its rest place to its playing place, with a move off the
   line in the middle that keeps the instrument out of the belly and the jaw
   (`BowedHold.liftReach`). The paw turns on its forearm from the rest grip to
-  the playing grip with a supination, as a real forearm turns (`mixTwist()`), and passes 180° from
-  the bind on the way, where the forearm skin unwinds for a moment (4.4). The playing grip lies
-  more than half a turn of supination from the bind of the mesh paw, so no rest grip with a
-  natural elbow avoids the pass (`docs/decisions/2026-10-27-violin-carry.md`). The rest and the
-  play fix both ends of the path of the twist, so an elbow path in the middle keeps the pass, and
-  a play elbow toward the middle flattened the skin of the arm
+  the playing grip with a supination, as a real forearm turns (`mixTwist()`). The playing grip lies
+  more than half a turn of supination from the pronated paw of the mesh, so the bind of the left
+  paw is supinated about its forearm (4.4, `docs/decisions/2026-10-27-left-paw-bind.md`): the rest
+  and the play twists lie on one side of 180°, and the forearm skin follows the paw with no jump.
+  The rest and the play fix both ends of the path of the twist, so with the pronated bind, no rest
+  grip, elbow path, or play elbow removed the pass of 180°
   (`docs/decisions/2026-10-27-violin-unwind.md`). With the paw on
   the side of a pronation, the instrument turned the long way, nearly a full turn
   (`docs/decisions/2026-10-26-fifth-review-strings.md`).

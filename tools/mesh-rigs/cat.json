@@ -67,6 +67,8 @@
       "forearm": [0.316246, 0.757051, 0.571719],
       "hand": [-0.078782, 0.677317, 0.731461]
     },
+    "bindSupination": { "L": 120 },
+    "bindSupinationNote": "The bind paw of the left arm turns 120 degrees about its bind forearm toward supination (paw_supination() of tools/blender/rig_mesh.py), and the forearm segments share the turn in the bind. The forearm of the app turns with its elbow hinge, so the bind paw sets the zero of the paw twist. With the bind arms alone, the left paw of the viola twisted -94 degrees at rest and 118 to 151 degrees in the play, and it supinated through 180 degrees in each lift and lowering, where the forearm skin unwound. With 120 degrees, it twists 26 degrees at rest and -122 to -89 degrees in the play. The forearm twist p95 of pnpm arm-check was 64, 60, 55, and 50 with 90, 100, 110, and 120 degrees (66 with no turn), and each turn removed the folds of the left paw in the play (docs/decisions/2026-10-27-left-paw-bind.md). With 90 degrees, the play twist reached -152 degrees. The right paw holds the bow and keeps the bind arms.",
     "tailCurl": {
       "points": [
         [0.05, -0.079, -0.02],
