@@ -324,7 +324,8 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
   (`PAW_TURN`, 4.4), and the forearm crosses the neck at rest and runs along it in the play. So
   the rest paw takes a turn near the turn of the play, and the retarget turn comes back over the
   move. The wrist moves on a line from its rest place to its playing place, with a move off the
-  line in the middle (`BowedHold.liftReach`). The paw turns on its forearm from the rest grip to
+  line in the middle that keeps the instrument out of the belly and the jaw
+  (`BowedHold.liftReach`). The paw turns on its forearm from the rest grip to
   the playing grip with a supination, as a real forearm turns (`mixTwist()`), and passes 180° from
   the bind on the way, where the forearm skin unwinds for a moment (4.4). The playing grip lies
   more than half a turn of supination from the bind of the mesh paw, so no rest grip with a

@@ -711,9 +711,10 @@ const SHOULDER_HOLD = {
  * changes by 27° in a move (79° before), and the paw goes 0.5 cm into the violin. At 0.4 of the
  * fingerboard with a turn of 35°, the forearm went 0.2 cm into the violin at rest
  * (2026-10-27-violin-carry decisions). In the lift and the lowering, the violin hangs from the left paw,
- * as on the rabbit, and the wrist moves 0.1 H to the front in the middle (`liftReach`): with
- * 0.1 H up and 0.2 H to the front, the violin went 2.6 cm into the body in a lift
- * (2026-10-26-fifth-review-strings decisions). The bow takes the via of the rabbit: with the hair
+ * as on the rabbit, and the wrist moves 0.1 H out and 0.15 H to the front in the middle
+ * (`liftReach`), so that the violin near the jaw goes 1.9 cm into the body: with 0.1 H to the
+ * front, it went 2.1 cm in, and with 0.1 H up and 0.2 H to the front, 2.6 cm
+ * (2026-10-27-violin-unwind decisions). The bow takes the via of the rabbit: with the hair
  * down, the right paw turned 17,038°/s in a lowering.
  *
  * The left elbow turns toward the body by 2° for each lower string of the finger: with the 5° of
@@ -746,7 +747,7 @@ const FOX_HOLD = {
   restPoleR: [0.5, -1, -0.2],
   restPlace: 0.37,
   rest: { ...LAP_VIOLIN, lap: { along: 0.8, offset: [0, -0.18, -0.2] } },
-  liftReach: [0, 0, -0.1],
+  liftReach: [-0.1, 0, -0.15],
   restCurlL: 60 * MathUtils.DEG2RAD,
   restPawTurnL: 25 * MathUtils.DEG2RAD,
   restYawL: 0,

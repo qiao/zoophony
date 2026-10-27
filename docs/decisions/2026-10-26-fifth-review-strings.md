@@ -18,4 +18,4 @@ user can reverse each decision. Then update its section, and remove its row.
 | The user: "bow hand close to their belly / lap". The bow paws rest low at the front of the lap with straight wrists (`restBow.lap`, `restPoleR`): the rabbit paw 0.33 H out (0.48 H), the cat paw 0.56 H above the hip (1.04 H), the cat elbow at 111° (76°). | 5.2 |
 | The round belly keeps each cat elbow 35° to 48° from the vertical: lower elbows went 2.2 cm to 4.1 cm into the belly. The red fox elbow points back, (0.5, -1, -0.2): with (0.4, -1, 0), its upper arm went 3.0 cm into the body. | 5.2 |
 | The cat bow via moves the grip 0.45 H out, 0.35 H up, and 0.05 H forward (`restBow.via.reach`): the bow elbow stays bent from 74° to 98°. With 0.4 H forward, it went straight, and with 0.3 H out, the arm went 7.2 cm into the belly. | 5.2 |
-| The wrist via is (0.15, 0.15, -0.15) H on the rabbit and (0, 0, -0.1) H on the red fox (`liftReach`): the old vias put the violin 2.8 cm and 2.6 cm into the body near the jaw. | 5.2 |
+| The wrist via is (0.15, 0.15, -0.15) H on the rabbit (`liftReach`): the old via put the violin 2.8 cm into the body near the jaw. | 5.2 |
