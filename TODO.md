@@ -493,6 +493,17 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       from the vertical at rest. Lower elbows went 2.2 cm to 4.1 cm into the belly (limit 1.5).
 - [ ] Cat (`2026-10-26-fifth-review-strings.md`): at rest, the left paw goes 0.8 cm into the
       viola (target about 0.5 cm, 0.8 cm on `57849ac5`). The claws went from 1.0 cm to 0.3 cm.
+- [x] Bear and polar bear (`2026-10-26-fifth-review-bears.md`): the user saw a black area under
+      the bear armpit and bulky polar bear knees. Done: the bear arm bake comes before the flatten
+      (65 black faces before, 0 now), and three rings cut the long faces of each polar bear knee.
+- [ ] Elephant (`2026-10-26-fifth-review-bears.md`): `elephant_arms.py` also flattens the upper
+      arms before the bake (0.009 units, bake rays from 0.006), and about 24 faces of the inner
+      upper arms take black texels (`dark-elephant.txt`). Put the flatten after the bake.
+- [ ] Bear (`2026-10-26-fifth-review-bears.md`): in the gallery light, each arm casts a black
+      shadow on the trunk under the armpit. The scene light is an open decision of the user.
+- [ ] Polar bear (`2026-10-26-fifth-review-bears.md`): a face of the right shin folds in 0.6% of
+      the play samples. A hard crease stays at the back of each knee, and a short vertical groove
+      on the front of the left shin, from long faces of the source shin.
 - [x] Bear rig (`2026-10-26-arm-fixes.md`): the left shoulder bridge folds 8 tiny faces at p95
       in the play (4 on the old rig, limit 8), and the right move twist max is 87 (81). Done: the
       head keeps the rule weights, and four shoulder faces take the mean of their painted weights
