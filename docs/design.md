@@ -288,7 +288,7 @@ The decision files:
 - [`2026-10-22-panda-armpit.md`](decisions/2026-10-22-panda-armpit.md): the back lips of the panda arm roots in the free arm, and two shapes of its right arm.
 - [`2026-10-22-arm-roots.md`](decisions/2026-10-22-arm-roots.md): the bear copy with raised shoulder balls, and the edit script of the arm roots.
 - [`2026-10-22-polar-legs.md`](decisions/2026-10-22-polar-legs.md): the longer legs of the rig of the polar bear mesh with its size kept.
-- [`2026-10-22-deer-dog-seams.md`](decisions/2026-10-22-deer-dog-seams.md): the deer copy with round inner arms and a cut of each arm seam above the back notch.
+- [`2026-10-22-deer-dog-seams.md`](decisions/2026-10-22-deer-dog-seams.md): the share of the tail of a vertex with no face after a cut (the deer rows went on 2026-10-27).
 - [`2026-10-22-dog-seams.md`](decisions/2026-10-22-dog-seams.md): the dog copy with round inner arms, a cut of each arm seam, a chest share of the inner arm root, and the open depth and gate items of the cellist.
 - [`2026-10-22-rhino-arm-2.md`](decisions/2026-10-22-rhino-arm-2.md): the rhino copy with a round tube for each arm and a fair fill of the trunk, the triangle budget of 4,600, the arm weights of the tubes, and the head floor of the rhino.
 - [`2026-10-22-rhino-arm-3.md`](decisions/2026-10-22-rhino-arm-3.md): the rhino copy with a round shoulder for each arm, a fine fill of the trunk with smooth colors, and the triangle and gzip budgets of a studio body.
@@ -348,4 +348,5 @@ The decision files:
 - [`2026-10-26-fifth-review-strings.md`](decisions/2026-10-26-fifth-review-strings.md): the violin and the viola that turn with the left paw in the moves, the forearm twist that unwinds near 180°, the rest grip of the left paw on the neck, and the bow paws low at the front of the lap.
 - [`2026-10-26-fifth-review-bears.md`](decisions/2026-10-26-fifth-review-bears.md): the bake of the bear arm fur before the flatten, the rings that cut the long faces of the polar bear knees on a front and a back arc, and the smoothed crease at the back of each knee.
 - [`2026-10-27-elephant-bake.md`](decisions/2026-10-27-elephant-bake.md): the bake of the elephant arm skin before the flatten, and the palette and the gray dark faces that stay.
+- [`2026-10-26-fifth-review-deer.md`](decisions/2026-10-26-fifth-review-deer.md): the rebuilt quad arms of the deer with a side wall and a cap plane at the shoulder, and arm segments.
 - [`2026-10-23-rabbit-arms.md`](decisions/2026-10-23-rabbit-arms.md): the A-pose rabbit mesh with its own faces, a short arm stretch, a violin of 0.83, its elbows and rest grip, and the open shards of its arms.

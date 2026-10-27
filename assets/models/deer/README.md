@@ -52,28 +52,31 @@ side of the animal), with the probes of `docs/research/2026-10-21-mesh-deer/`:
 
 ## deer-arms.glb
 
-`deer-arms.glb` is `deer.glb` with one local edit of the inner side of each arm, in Blender
-(batch). The user said on 2026-10-22: "note that many animals are having this issue now". The rig
-of the deer (`source` of `tools/mesh-rigs/deer.json`) reads this file. `deer.glb` stays the file
-of the user, byte for byte.
+`deer-arms.glb` is `deer.glb` with rebuilt arms, made in Blender (batch). The user said on
+2026-10-26: "the deer's upper arm are missing pieces (have dent)". The user allowed loop edges,
+retopology, and extra bones for the arm and wrist twist on 2026-10-24. The rig of the deer
+(`source` of `tools/mesh-rigs/deer.json`) reads this file, and the weights of the same session
+(`deer-weights.json`). `deer.glb` stays the file of the user, byte for byte.
 
 | Item | Value |
 |---|---|
-| File | `deer-arms.glb`, 16,530,456 bytes |
-| SHA-256 | `58281cbafd422434d4562ea5fe7c874618711adb4873d19a2ea37ce867ae2b5f` |
-| Writer | Khronos glTF Blender I/O of Blender 5.2.2, from an import of `deer.glb` |
+| File | `deer-arms.glb`, 1,003,056 bytes |
+| SHA-256 | `9e358b89a4fef024aee6d8b6a5d6489fbde450f5994e3b1de7318a48aed038e5` |
+| Weights | `deer-weights.json`, SHA-256 `d1bd654e29d2a01b3f922ba69677f434b64f8da481ab0fbc0cc07cc3d650e874` |
+| Writer | Khronos glTF Blender I/O v5.2.40, from an import of `deer.glb` |
 | License | As `deer.glb` |
 
-The edit: each arm of the source joins the side of the trunk from the shoulder down to near the
-elbow. The edit removes the faces that join each arm to the trunk below the cut top of the rig
-(18 on the left, 19 on the right), and closes the inner side of each arm with a round patch of
-11 new vertices (32 and 33 faces). The hole of the trunk stays open, and the cut of the rig
-closes it. No vertex of the source moves. The copy has 3,168 triangles. To make it again:
+The edit: each upper arm of the source joins the side of the trunk down to near the elbow. The
+session cuts each arm along the seam where it meets the trunk and under a cap plane at the
+shoulder, fills a side wall of the trunk under the arm, and replaces the faces of the arm from the
+socket to the wrist with a quad tube with a flat inner side on the wall. The arms are 1.25 times
+longer, the arm factor of the rig before. The faces of the paws, the trunk, the legs, and the head
+are the faces of the user. The arm image lies in a strip on top of the atlas, a JPEG at the
+quality 92. The copy has 4,152 triangles. The copy of 2026-10-22 with a round patch on the inner
+side of each arm is in the history of git. To make it again:
 
 ```bash
-blender -b --factory-startup --python docs/research/2026-10-22-deer-dog-seams/arm_patch.py -- \
-  tools/mesh-rigs/deer.json assets/models/deer/deer.glb assets/models/deer/deer-arms.glb \
-  '{"step":0.025,"freeR":false,"fade":[0.35,0.65]}'
+/Applications/Blender.app/Contents/MacOS/Blender -b --factory-startup -P tools/blender/deer_arms.py
 ```
 
-A run gives the same bytes (`docs/research/2026-10-22-deer-dog-seams.md`).
+A run gives the same bytes (`docs/research/2026-10-26-fifth-deer.md`).

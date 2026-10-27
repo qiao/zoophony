@@ -596,13 +596,11 @@ mesh are quad tubes (rings at a right angle to the bones), and the weights come 
     flat cap of the cut showed as a flat sheet at the bent elbow. So the rig reads a copy that
     removes the joining faces and closes each arm with a round patch over its arm run. The patch
     lies inside the plane of the arm split, and the free arm takes it as an island
-    (`weights.armIslands`). The cut then closes only the hole of the trunk. Each arm of the deer
-    joins the trunk from the shoulder down to near the elbow, and the arms that reach the harp
-    stretched the seam at the back of each root into dark shards. Its rig reads a copy with the
-    round patches (`deer-arms.glb`), and its cut ends above the shoulder joint and
-    above the top of the back notch, so that the long seam faces from the notch go. A cut with no
-    patch showed the flat arm cap as a dark sheet behind the raised arm. The dog takes the same
-    copy and cut (`dog-arms.glb`). Its patch pushes to the round form from near its top, so that
+    (`weights.armIslands`). The cut then closes only the hole of the trunk. The dog takes such a
+    copy and a cut (`dog-arms.glb`). Under the cut, the arm and the trunk are two shells: on the
+    deer, the back of each upper arm moved off the flat cap of the trunk in the play and showed a
+    notch (user, 2026-10-26: "the deer's upper arm are missing pieces (have dent)"), so the deer
+    has rebuilt arms (below). The patch of the dog pushes to the round form from near its top, so that
     the inner arm fills the dark pocket between the arm and the trunk at rest. Bone heat gives a
     free arm of a cut only arm weights, so the inner root of the bow arm swings into the chest.
     The inner root gives a share of its weight to the chest (`weights.armRoot`).
@@ -651,7 +649,14 @@ mesh are quad tubes (rings at a right angle to the bones), and the weights come 
     so that the upper arms stay out of the round belly when the elbows point down. The flatten
     comes after the bake of the fur, because the bake casts its rays from a small distance out of
     the tube. The paws of the rhino keep the rule weights of the rig, because the Blender weights
-    of the short paws folded their faces in the curl around the tubes.
+    of the short paws folded their faces in the curl around the tubes. The deer has such arms
+    since 2026-10-27 (`tools/blender/deer_arms.py`), with the arm factor 1.25 in the copy of the
+    mesh. Its upper arm joins the trunk down to near the elbow, so its copy takes the seam cut and
+    the side wall of the cat. Its shoulder is a broad round top that the plane of the seam leaves
+    only near the neck, so a cap plane across the upper arm, turned toward the trunk, keeps the
+    top of the shoulder on the trunk, and the socket is a loop around the arm root. The chest
+    anchor reaches only as far as the radius of the thin arm, so that the outer arm turns with the
+    arm bones.
     `pnpm arm-look` measures the
     crease of the arm skin against the source and the section of the upper arm, with limits from the red fox
     (`docs/decisions/2026-10-21-arm-form.md`).

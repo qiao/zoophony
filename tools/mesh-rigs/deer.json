@@ -1,6 +1,34 @@
 {
   "source": "assets/models/deer/deer-arms.glb",
-  "sourceNote": "The mesh of the user with one local edit (assets/models/deer/README.md). The user said on 2026-10-22: \"note that many animals are having this issue now\". Each arm of the source joins the side of the trunk from the shoulder down to 0.86 (left) and 0.94 (right) of the upper arm, and the raised harp arms stretched the faces of the seam at the back of each arm root into dark shards. The faces that join each arm to the trunk below the cut top go (18 on the left, 19 on the right), and a round patch of 11 new vertices closes the inner side of each arm (deer-arms.glb, SHA-256 58281cbafd422434d4562ea5fe7c874618711adb4873d19a2ea37ce867ae2b5f, docs/research/2026-10-22-deer-dog-seams/arm_patch.py with the options {\"step\":0.025,\"freeR\":false,\"fade\":[0.35,0.65]}). With only the cut, the flat cap of the arm showed as a dark sheet behind the raised right arm from the azimuth 150. The hole of the trunk stays open, and the cut closes it (docs/research/2026-10-22-deer-dog-seams.md).",
+  "sourceNote": "The mesh of the user (assets/models/deer/deer.glb, assets/models/deer/README.md), with new quad faces on each arm from the socket to the wrist, a side wall of the trunk under each arm, and arms 1.25 times longer. The user said on 2026-10-26: \"the deer's upper arm are missing pieces (have dent)\". The copy of 2026-10-22 cut each arm free of the trunk and closed it with a round patch, and the rig closed the trunk with flat caps, so the back of each upper arm moved off the trunk in the play and showed a notch. The user allowed loop edges, retopology, and extra bones for the arm and wrist twist on 2026-10-24. tools/blender/deer_arms.py replays the Blender session that made it: the seam cut of the cat under a cap plane at the shoulder (docs/research/2026-10-26-fifth-deer.md). The faces of the paws, the trunk, the legs, and the head are the faces of the user. The file of the user, deer.glb, stays unchanged.",
+  "paintedWeights": "assets/models/deer/deer-weights.json",
+  "paintedLower": [
+    "root",
+    "hips",
+    "spine",
+    "spine1",
+    "chest",
+    "neck",
+    "head",
+    "ear_L",
+    "ear_R",
+    "thigh_L",
+    "shin_L",
+    "foot_L",
+    "toes_L",
+    "thigh_R",
+    "shin_R",
+    "foot_R",
+    "toes_R",
+    "tail"
+  ],
+  "paintedNote": "The weights of the clavicles and the arms are the automatic weights of Blender with the Weight Paint fixes of tools/blender/deer_arms.py. The vertices on the bones of paintedLower (the trunk up to the chest, the neck, the head, the ears, the legs, and the tail) keep the rule weights, as on the cat and the fox: the seated bind of the app depends on them.",
+  "armSegments": {
+    "helper": 0.032,
+    "rootSegment": true,
+    "rootSegmentNote": "The rule weight of each upper arm goes to its first segment (segment_joints() and main() of tools/blender/rig_mesh.py), so that the trunk around the socket takes the roll of the first ring of the tube, as on the fox.",
+    "note": "Each upper arm and each forearm has 4 deform segments, and each elbow and wrist a helper bone of this length in units, which spans the rings of its joint in the bind. The app turns them from the joints of the pose (poseArm() of src/models/studio-rig.ts). The helper is twice the gap of the elbow rings (gap of tools/blender/deer_arms.py), as on the fox."
+  },
   "output": "assets/models/deer/deer.rig.glb",
   "name": "Deer",
   "weld": 1e-05,
@@ -9,8 +37,8 @@
     "reach": 0.4579,
     "note": "No reference image shows a deer, so the mesh takes the head top of the parametric deer of main (user, 2026-10-19, docs/decisions/2026-10-19-mouse-size.md): the standing skull top of the parametric deer with the harp, the highest vertex of the head bone within 0.03 m of the middle plane, below the antlers, is at 1.191 m (docs/research/2026-10-21-mesh-deer/landmark-probe.txt). The skull top of the mesh between the antlers is at 0.8523 u, the highest vertex in the middle strip of pnpm mesh-options. That gave 1.3974 m for each unit, the standing shoulder joints at 0.535 u (0.74761 m). Then the user said: \"the deer is too small, make it 1.2x bigger\" (docs/decisions/2026-10-21-mesh-deer.md): 1.6769 m for each unit, the standing shoulder joints at 0.535 u (0.897127 m), and the skull top at 1.429 m. The reach is the reach of the arm factor 1.25 below at that scale. With no --check, pnpm rig-mesh stops until the arm factor gives this reach."
   },
-  "armFactor": 1.25,
-  "armFactorNote": "The factor of the upper arm and the forearm, a choice of the manager while the user slept (docs/decisions/2026-10-21-mesh-deer.md). The arms of the mesh reach 0.312 m from the shoulder joint to the middle of the palm, and no harp place within that reach keeps the left forearm out of the chest: the palms of the bass strings lie in the chest or out of reach (docs/research/2026-10-21-mesh-deer.md, \"Arms and harp\"). The factor 1.25, the largest factor of the other meshes of the user without a choice of the user, reaches 0.3816 m. With the smaller harp of the deer (SpeciesParams.harpScale 0.65) at its place (HARP_PLACE), each palm meets the string of each note, and the arms keep out of the chest. The factor 1.15 reached each note only with the harp 4.5 cm nearer, and the forearms then went 3.9 cm into the chest.",
+  "armFactor": 1,
+  "armFactorNote": "The factor of the upper arm and the forearm in the rig: 1, because the rig with arm segments does not stretch the arms (armSegments of tools/blender/rig_mesh.py). The arms of deer-arms.glb are already 1.25 times longer than the arms of the user mesh (step_shape() of tools/blender/violin_arms.py, called by tools/blender/deer_arms.py), and the arm joints below are the joints of the longer arms, so the reach stays app.reach. The reasons for the factor 1.25, a choice of the manager while the user slept (docs/decisions/2026-10-21-mesh-deer.md): the arms of the mesh reach 0.312 m from the shoulder joint to the middle of the palm, and no harp place within that reach keeps the left forearm out of the chest (docs/research/2026-10-21-mesh-deer.md, \"Arms and harp\"). The factor 1.25 reaches 0.3816 m. With no --check, pnpm rig-mesh stops when the reach is more than 1% from app.reach.",
   "legFactor": 1,
   "legFactorNote": "The legs keep the length of the mesh (user rule: do not stretch the legs, change the chair).",
   "joints": {
@@ -114,41 +142,41 @@
     },
     "forearm_L": {
       "head": [
-        0.131,
-        0.445,
-        0.01
+        0.14,
+        0.4225,
+        0.0125
       ],
       "tail": "forearm_twist_L",
       "roll": "palm"
     },
     "forearm_twist_L": {
       "head": [
-        0.1505,
-        0.4025,
-        0.029
+        0.164375,
+        0.369375,
+        0.03625
       ],
       "tail": "hand_L",
       "roll": "palm"
     },
     "hand_L": {
       "head": [
-        0.17,
-        0.36,
-        0.048
+        0.18875,
+        0.31625,
+        0.06
       ],
       "tail": "fingers_L",
       "roll": "palm"
     },
     "fingers_L": {
       "head": [
-        0.172,
-        0.31,
-        0.052
+        0.19075,
+        0.26625,
+        0.064
       ],
       "tail": [
-        0.179,
-        0.2815,
-        0.0579
+        0.19775,
+        0.23775,
+        0.0699
       ],
       "roll": "palm"
     },
@@ -221,7 +249,7 @@
     -0.14,
     -0.609
   ],
-  "jointsNote": "The places are in the units and the axes of the studio in the pose of the source: 1 unit from the soles to the tips of the antlers, the soles at y = 0, +z forward, +x the left side. The right side mirrors the left side. The probes are in docs/research/2026-10-21-mesh-deer/: sections.py gives the cuts at each height (sections-y.txt, sections-x.txt, sections-z.txt), and measures.py the parts (measures.txt). The deer stands upright on short legs: the hooves below y 0.05 (the toes forward to z 0.035), the thin shins from 0.05 to 0.15, the thighs from 0.17 to the crotch at 0.245, the body from 0.25 to 0.60, the narrow neck at 0.62 to 0.66 (x ±0.056), the head from the chin at 0.67 with the muzzle to z 0.173, the ears out at the sides from x 0.12, and the antlers from the skull top at 0.85 to 1. The trunk joints lie about 0.02 behind the middle of the body cut. The thigh joint lies at the crotch on the middle of the leg cut, the knee where the thin shin meets the wider thigh (y 0.155), the ankle where the hoof starts (y 0.05), and the toes at the middle of the hoof. The cuts across the axis of the free arm (arm-axis.txt) give its middle line, (0.26, -0.94, 0.23) down the arm, which leaves the body at y 0.49. The shoulder joint lies on that line 0.04 above the root, the wrist at the narrowest cut, where the hoof of the hand starts (s 0.01), the elbow on the middle line halfway to the wrist, the forearm twist halfway between them, and the finger joint 0.03 before the tip of the hoof (paw.txt). The ear joint lies at the root of the ear on the side of the head, and its tail at the ear tip. The puff tail has one bone, from its root on the back of the haunch to its back. Each roll is the hint of the z axis of the bone, forward by default. The arm bones take the normal of the palm (palm): the smallest principal direction of the vertices of the left hoof beyond the wrist, inward and back (paw.txt).",
+  "jointsNote": "The places are in the units and the axes of the studio in the pose of the source: 1 unit from the soles to the tips of the antlers, the soles at y = 0, +z forward, +x the left side. The right side mirrors the left side. The probes are in docs/research/2026-10-21-mesh-deer/: sections.py gives the cuts at each height (sections-y.txt, sections-x.txt, sections-z.txt), and measures.py the parts (measures.txt). The deer stands upright on short legs: the hooves below y 0.05 (the toes forward to z 0.035), the thin shins from 0.05 to 0.15, the thighs from 0.17 to the crotch at 0.245, the body from 0.25 to 0.60, the narrow neck at 0.62 to 0.66 (x ±0.056), the head from the chin at 0.67 with the muzzle to z 0.173, the ears out at the sides from x 0.12, and the antlers from the skull top at 0.85 to 1. The trunk joints lie about 0.02 behind the middle of the body cut. The thigh joint lies at the crotch on the middle of the leg cut, the knee where the thin shin meets the wider thigh (y 0.155), the ankle where the hoof starts (y 0.05), and the toes at the middle of the hoof. The cuts across the axis of the free arm (arm-axis.txt) give its middle line, (0.26, -0.94, 0.23) down the arm, which leaves the body at y 0.49. The shoulder joint lies on that line 0.04 above the root, the wrist at the narrowest cut, where the hoof of the hand starts (s 0.01), the elbow on the middle line halfway to the wrist, the forearm twist halfway between them, and the finger joint 0.03 before the tip of the hoof (paw.txt). The ear joint lies at the root of the ear on the side of the head, and its tail at the ear tip. The puff tail has one bone, from its root on the back of the haunch to its back. Each roll is the hint of the z axis of the bone, forward by default. The arm bones take the normal of the palm (palm): the smallest principal direction of the vertices of the left hoof beyond the wrist, inward and back (paw.txt). Since 2026-10-27, the joints of the elbow, the forearm twist, the wrist, and the paw are the joints of the arms that are 1.25 times longer (deer_arms.py), and the joints of the source arms are in source_joints() of tools/blender/violin_arms.py.",
   "studio": {
     "legTurns": {
       "thigh": [
@@ -319,16 +347,6 @@
       0.066
     ],
     "fingers": 0.5,
-    "armIslands": true,
-    "armIslandsNote": "The round inner side of each arm of deer-arms.glb lies inside the plane armSplit, and only free arm vertices surround it. It follows the arm as the free arm beyond the plane (arm_islands() of tools/blender/rig_mesh.py).",
-    "rigid": [
-      [
-        -0.0973,
-        0.5467,
-        0.0333
-      ]
-    ],
-    "rigidNote": "The face of the patch at the front top of the right arm root, with the corner angles 172.7, 4.6, and 2.7 degrees, joins two corners on the arm (0.81 and 0.89 of arm weight) to the top of the run (0.28). It folded in each sample. With the mean weights of its corners, it folds in none, and the folds of the role fall to 0% at rest and 83.9% in the lift (docs/research/2026-10-22-deer-dog-seams.md).",
     "haunch": {
       "height": [
         0.185,
@@ -337,13 +355,6 @@
       "note": "The part of the thigh weight that goes to the hips grows from 0 at the lower height to 1 at the upper height, so that the buttocks stay on the hips. This is the rule of the dog, moved with the joints of the deer: it starts 0.03 units above the knee and ends 0.03 units above the thigh joint."
     },
     "note": "Beyond the plane |x| = armSplit, only the free arm follows the arm bones: the cuts show the arm apart from the body from x 0.09 out, and the free left arm has 139 vertices with no leg vertex (free-arm.txt). Above headFrom, each vertex follows the head only: the head starts at y 0.67. The ears and the antlers stay on the head: the ears stand out at the sides of the head at the height of the skull, so the height rule of earBase would also take the top of the head and the antlers, and earBase lies above the head, as for the dog and the panda. The tail ball holds the puff tail: the vertices within radius of center and behind the plane z = behind follow the tail bone only (sections-z.txt: the tail from z -0.10 to -0.173, y 0.29 to 0.42). clavicleFrom, armTop, and shoulderHead are the rules of the wolf, moved with the shoulder joint (y 0.535) and the neck (x ±0.056) of the deer."
-  },
-  "cut": {
-    "top": 0.575,
-    "fins": true,
-    "skinNormals": true,
-    "bodyNormals": "LR",
-    "note": "The user said on 2026-10-22: \"note that many animals are having this issue now\". The audit found dark shards at the back of both shoulders of the harpist: long thin faces of the seam from the trunk above the back notch (y 0.562) down to the back of the upper arm (y 0.46), which the arms that reach forward to the harp stretched. The cut ends above the shoulder joint (y 0.535) and above the top of the back notch, so that these faces go. At 0.56, face 980 of the left notch stayed and kept its shard. The copy of the mesh closed each arm with a round patch, so the cut closes only the hole of the trunk, with the caps of the body and the quad at the top (open_loop() of tools/blender/rig_mesh.py, docs/research/2026-10-22-deer-dog-seams.md)."
   },
   "refine": {
     "rings": [],

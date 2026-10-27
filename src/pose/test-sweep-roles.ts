@@ -150,8 +150,8 @@ const MONKEY_BODY_LOOPS = 5;
 const RHINO_BODY_LOOPS = 12;
 
 /**
- * The open loops of {@link BODY_BONES} of the deer mesh: the cuts to the two upper arms, and one
- * open edge pair of 1.5 cm at the left hoof (`loops-probe.txt` of
+ * The open loops of {@link BODY_BONES} of the deer mesh: the roots of the two rebuilt upper arms
+ * (`deer-arms.glb`), and one open edge pair of 1.5 cm at the left hoof (`loops-probe.txt` of
  * `docs/research/2026-10-21-mesh-deer/`).
  */
 const DEER_BODY_LOOPS = 3;
