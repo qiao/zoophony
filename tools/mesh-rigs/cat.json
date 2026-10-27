@@ -8,6 +8,10 @@
     "helper": 0.017,
     "note": "Each upper arm and each forearm has 4 deform segments, and each elbow and wrist a helper bone of this length in units, as on the rabbit. The app turns them from the joints of the pose (poseArm() of src/models/studio-rig.ts). They replace the shapes of raise and the rings of refine."
   },
+  "rootNormals": {
+    "radius": 0.1,
+    "note": "The skin faces whose middle lies within radius (units) of the head of an upper arm take the normals of the skin with no crease angle in the app (root_rim() of tools/blender/rig_mesh.py), as on the fox and the deer. The bind turns the arm root, and the crease angle 35 split the normals at the back of each arm root into hard dark lines from behind and to the left, at rest and in the play, with no dark color (user, 2026-10-27: \"the cat's arm has dent\", docs/research/2026-10-27-cat-fox.md)."
+  },
   "output": "assets/models/cat/cat.rig.glb",
   "name": "Cat",
   "weld": 1e-5,
