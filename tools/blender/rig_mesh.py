@@ -83,7 +83,8 @@ reads it (route 3 of `docs/agents/model-work.md`). The steps:
    (`seat_lift()`), and the tip of a
    tail of two bones keeps the height of its end. With `crease`, the bind is smoothed across the
    crease where the belly meets the top of each thigh (`crease_relax()`), and with `kneeCrease`
-   across the crease at the back of each knee (`knee_relax()`).
+   across the crease at the back of each knee (`knee_relax()`). With `kneeCrease.fair`, the calf
+   back is then faired along the vertex normals (`calf_fair()`).
 7. Put a gloss shell over each eye: a fan from the middle of the eye to the edge of its dark
    faces, a little out of the surface. `pnpm studio-body` finds each eye by its fan, drops the
    fan, and puts the pea eye of the app at its place (design 4.5). The faces of the nose become
@@ -3405,11 +3406,14 @@ def knee_relax(bind, tris, weights, heads, rule):
     `inner` units with the unit sum of the directions from the knee to the hip joint and to the
     ankle. A vertex moves by its share of the weight of the thigh and the shin of its side, less
     its share of the hips: on a short leg, the crotch lies near the knee, and a move of its thin
-    faces folded them. Gives the smoothed bind, the number of the seam vertices, the number of
-    the moved vertices, and the largest move."""
+    faces folded them. With `fair`, the calf back of each side is faired after the smoothing
+    (`calf_fair()`). Gives the smoothed bind, the number of the seam vertices, the number of
+    the moved vertices, the largest move, the number of the faired vertices, and the largest
+    move of the fair."""
     main = weights[tris].sum(axis=1).argmax(axis=1)
     hips = BONES.index('hips')
     out, seams, moved, largest = bind, 0, 0, 0.0
+    faired, most_fair = 0, 0.0
     for side in 'LR':
         thigh, shin = BONES.index(f'thigh_{side}'), BONES.index(f'shin_{side}')
         on_thigh = np.zeros(len(bind), bool)
@@ -3422,7 +3426,55 @@ def knee_relax(bind, tris, weights, heads, rule):
         free = np.clip(weights[:, thigh] + weights[:, shin] - weights[:, hips], 0.0, 1.0)
         out, count, most = seam_relax(out, tris, seam, free, rule)
         seams, moved, largest = seams + int(seam.sum()), moved + count, max(largest, most)
-    return out, seams, moved, largest
+        if 'fair' in rule:
+            shin_axis = unit(heads[f'foot_{side}'] - knee)
+            thigh_axis = unit(heads[f'thigh_{side}'] - knee)
+            back = unit(thigh_axis - (thigh_axis @ shin_axis) * shin_axis)
+            out, count, most = calf_fair(bind, out, tris, knee, shin_axis, back, free,
+                                         rule['fair'])
+            faired, most_fair = faired + count, max(most_fair, most)
+    return out, seams, moved, largest, faired, most_fair
+
+
+def calf_fair(bind, out, tris, knee, shin_axis, back, free, rule):
+    """Fairs the calf back of one side along the vertex normals after the smoothing of the knee
+    crease (design 4.4). The smoothing slides the calf vertices along the skin toward the knee,
+    and the rings of the calf cut the long thin source faces there into slivers, so a long valley
+    with a dark facet stayed on the calf. Each vertex of the back of the calf (its place across
+    the shin axis points to the side of `back`, the direction to the hip joint across the shin)
+    whose place in `bind` lies from `from` to `to` units down the shin from the knee joint, and
+    within `radius` units of the axis of the shin, moves `share` of the normal part of the way to the middle of its neighbors
+    in each of `rounds` rounds, times its `free` share and a half sine that is 1 in the middle of
+    the band and 0 at its ends. Thus the valley fills, no vertex slides along the skin, and the
+    shin front, the paw, and the inner thigh near the crotch keep their places. Gives the faired
+    bind, the number of the faired vertices, and the largest move."""
+    along = (bind - knee) @ shin_axis
+    side = (bind - knee) - np.outer(along, shin_axis)
+    across = np.linalg.norm(side, axis=1)
+    ids = np.nonzero((along > rule['from']) & (along < rule['to']) & (across < rule['radius'])
+                     & (side @ back > 0) & (free > 0))[0]
+    weight = rule['share'] * free[ids] * np.sin(
+        np.pi * (along[ids] - rule['from']) / (rule['to'] - rule['from']))
+    neighbors = [set() for _ in range(len(out))]
+    for a, b, c in tris:
+        neighbors[a].update((b, c))
+        neighbors[b].update((a, c))
+        neighbors[c].update((a, b))
+    rings = [np.array(sorted(neighbors[i])) for i in ids]
+    start = out
+    out = out.copy()
+    for _ in range(rule['rounds']):
+        corners = out[tris]
+        areas = np.cross(corners[:, 1] - corners[:, 0], corners[:, 2] - corners[:, 0])
+        normals = np.zeros_like(out)
+        for k in range(3):
+            np.add.at(normals, tris[:, k], areas)
+        normals = normals[ids] / np.maximum(np.linalg.norm(normals[ids], axis=1, keepdims=True),
+                                            1e-12)
+        mids = np.array([out[r].mean(axis=0) for r in rings])
+        out[ids] += weight[:, None] * ((mids - out[ids]) * normals).sum(axis=1)[:, None] * normals
+    moves = np.linalg.norm(out - start, axis=1)
+    return out, len(ids), float(moves.max(initial=0.0))
 
 
 def seam_relax(bind, tris, seam, free, rule):
@@ -4846,12 +4898,16 @@ def main():
             f'({largest * meters * 100:.2f} cm). {int((dots < 0).sum())} faces turn over'
             f'{turned_on(dots, main_bone)}')
     if config.get('kneeCrease', {}).get('rounds', 0) > 0:
-        bind, seam, moved, largest = knee_relax(bind, tris, weights, bind_heads,
-                                                config['kneeCrease'])
+        bind, seam, moved, largest, faired, most_fair = knee_relax(bind, tris, weights,
+                                                                   bind_heads,
+                                                                   config['kneeCrease'])
         dots = turn_dots(long_verts, bind, tris, weights, matrices)
         log(f'knee crease: {seam} seam vertices, {moved} vertices move, at most {largest:.4f} u '
             f'({largest * meters * 100:.2f} cm). {int((dots < 0).sum())} faces turn over'
             f'{turned_on(dots, main_bone)}')
+        if faired:
+            log(f'calf fair: {faired} vertices move along their normals, at most '
+                f'{most_fair:.4f} u ({most_fair * meters * 100:.2f} cm)')
     if 'sit' in config:
         # The gap of the final bind: the recline, the lift, and the crease move the haunch after
         # the sit.
