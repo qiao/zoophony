@@ -343,33 +343,22 @@ group of your work before you plan it. A probe that a trap names is in its resea
   from the knee gives the hips the whole thigh, and bone heat on a short thick leg gives the shin
   the knee front. Color the bind by the hips, the thigh, and the shin in Blender, start the ramp
   above the knee, and split the leg across the knee (`weights.knee`, user, 2026-10-26).
-- Long faces across the knee of a source leg stay flat planes in the seated bind: an angular block
-  at the knee and a slab from the calf to the haunch. No weight band or seat removes them. Count
-  them, and cut them with rings at the knee whose radius reaches the haunch (`refine.rings`,
-  `steps.py` and `knee_facets.py` of `docs/research/2026-10-26-fifth-bears/`).
-- A quad split along its long diagonal across the knee folds along that chord into a groove, and a
-  ring vertex on the chord stays on it. Flip such diagonals before the rings (`refine.legFlip`,
-  `probes/bad_diagonals.py` of `docs/research/2026-10-27-legs-armpit/`). Keep the flips near the
-  knee: a flip at the thigh top changed the belly crease relax and folded a face there.
-- The bind puts a ring vertex at the back of a bent knee inside the leg when it lies nearer to the
-  knee plane than the radius of the leg, and the skin folds into stacked light stripes. Cut the
-  front arc near the knee plane (`toward`, `within`), put the back rings where the thigh and the
-  calf meet in the bind, and smooth the crease (`kneeCrease`). Count the edges through the skin
-  (`crossings.py`, `knee-stripes.md` of the same folder). Weight the smoothing by the distance
-  from the seam (`reach`): rings of neighbors carry the move down a long calf face, which shows as
-  a light wedge. Count the hard edges within 0.2 units of the knee (`probes/zone_turns.py` of the
-  research folder of 2026-10-27): a zone of 0.1 units missed these wedges.
-- The crease smoothing slides the calf vertices along the skin, and the sliver corners of the calf
-  rings slide apart into a dark facet and a groove. Fair the back of the calf along the normals,
-  near the shin axis and above the heel (`kneeCrease.fair`), and give the faces behind the knees
-  the skin normals (`rootNormals.knee`, `docs/research/2026-10-27-rigs3.md`). A fair of the move
-  field, rings, flips, and other reaches kept the kink.
-- The linear blend puts each vertex of the bent knee front with the weights of the thigh and the
-  shin on the chord between their places: a flat bevel with hard ridges, which reads as a block.
-  Cut it with more front rings, round it across the leg bones (`kneeCrease.front`), and give its
-  faces the skin normals (`rootNormals.kneeFront`). A dual quaternion blend pushed one ring
-  vertex out into a sharper ridge, and a fair along the normals turned ring faces over
-  (`tries-knee.txt` of `docs/research/2026-10-27-wolf-knee/`).
+- Long faces across the knee of a source leg stay flat planes in the seated bind: a wedge from
+  the haunch to the heel with no hollow behind the knee. Rings, flips, a taper, and back rings
+  of the rig kept the wedge or folded the back of the knee. Rebuild the leg as a quad tube
+  ([`rig-blender.md`](rig-blender.md), Legs; `docs/research/2026-10-27-polar-legs-rebuild.md`).
+- The linear blend puts each vertex of a bent knee on the chord between its places on the thigh
+  and the shin: a flat bevel on the knee front with hard ridges, and a thin knee. Give the knees
+  the dual quaternion blend (`bind.knee`). Read the knee with `probes/leg_rays.py` of that report:
+  the front over the round of the leg, and the depth on the bisector against the source.
+- The bent knee folds the back of the tube into a crease whose faces turn far from each other.
+  Smooth the seam in few rounds (`kneeCrease`), and fair the calf back along the normals
+  (`kneeCrease.fair`): each round more narrows the knee. Count the hard edges within 0.2 units of
+  the knee (`probes/zone_turns.py`), behind it (`probes/hard_edges.py`), and the edges through the
+  skin (`probes/crossings.py`).
+- Bone heat spreads over the whole mesh, so new faces on the legs move the weights of the crotch,
+  the seat top, and the folds of the trunk. Give the kept vertices the bone heat of the mesh
+  before the rebuild (`heatSource`).
 - A long thigh needs a seat of its own (`studio.legTurns`, `weights.haunch`). A large tail needs two
   bones (`tail_tip`).
 - Short thighs under a round belly, or thighs that slope down to a level seat, set the seat top
