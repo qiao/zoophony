@@ -40,11 +40,14 @@ thin faces of the source arm folded into shards under the bent elbow. `tools/ble
 replays the Blender session that made both files, byte for byte. The faces
 of the paws, the trunk, the legs, and the head are the faces of the user. The new arm surface
 lies on the old one, with the arm length of the user. Only the inner side of each upper arm is a
-little flatter, so that it stays out of the round belly.
+little flatter, so that it stays out of the round belly. The flatten comes after the bake, so that
+each texel takes the fur of its own place on the source arm. On 2026-10-26 the user said: "there's
+black area under the bear's armpit". The flatten before the bake had moved the tube out of the
+reach of the bake rays, and the bake wrote black texels on 65 faces under the armpits.
 
 | Item | Value |
 |---|---|
-| `bear-arms.glb` | 876,804 bytes, SHA-256 `16c0b58b46a24f92b897f7bf5905cd42088de52737335cdf950ba70fdfcd0dbc` |
+| `bear-arms.glb` | 875,168 bytes, SHA-256 `34797f2db38ef45c5005ab35a6006ae8055699ff2466b13ba6405c3e17915522` |
 | Mesh | 1,928 vertices after a weld at 1e-5, 3,851 triangles (3,142 in the source): on each arm a tube of 13 rings of 16 vertices, joined to the trunk and the paw with Bridge Edge Loops |
 | Material | One material with one base color JPEG of 4096 × 4608 pixels: the atlas of the source, and a strip of 512 pixels on top with the fur color of the source arms, baked onto the new faces. No metallic-roughness texture |
 | `bear-weights.json` | 429,540 bytes, SHA-256 `d0eb24fa0340a7bb1de0f1b9fba62fb2543dd54b71a19f615baa3ae73990c2c6` |

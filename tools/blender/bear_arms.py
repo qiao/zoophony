@@ -9,10 +9,10 @@ bones for the arm and wrist twist on 2026-10-24. This script repeats the steps o
 1. Import the mesh of the user and Merge by Distance.
 2. Replace the faces of each arm from the shoulder line to the wrist with a quad tube, wrap it onto
    the source arm, bridge it to the trunk and to the paw, beautify the bridge triangles, and
-   collapse the thin faces at the cut loops. Then make the inner side of each upper arm a little
-   flatter (`step_flatten()` of `elephant_arms.py`), because the thick upper arm went into the
-   round belly when it came down.
-3. Give the new arm faces a UV layout, bake the fur color of the source arm, and transfer the
+   collapse the thin faces at the cut loops.
+3. Give the new arm faces a UV layout, and bake the fur color of the source arm. Then make the
+   inner side of each upper arm a little flatter (`step_flatten()` of `elephant_arms.py`),
+   because the thick upper arm went into the round belly when it came down. Then transfer the
    custom normals of the source surface.
 4. Keep the length and the cross-section of the arms (`factor` 1, `slim` 1), put the arm image in
    a strip of the atlas, and write `bear-arms.glb`.
@@ -167,13 +167,17 @@ def step_weights(s):
 
 
 #: The steps of the session: the steps of `wind_arms.py`, with the clean steps of the shoulder
-#: first, the flatter inner upper arms after the clean bridge, the paint fixes above, and the weights
-#: file above.
+#: first, the flatter inner upper arms after the bake, the paint fixes above, and the weights file
+#: above. The bake casts its rays from 0.006 units out of the tube (`step_bake()` of
+#: `violin_arms.py`). A flatten before the bake moved the tube up to 0.015 units into the source
+#: arm, the rays missed the source, and the bake wrote black under each armpit. After the bake, the
+#: flatten moves the vertices and keeps their texels.
 STEPS = tuple(
     out for step in wa.STEPS
     for out in {wa.step_weights: (step_weights,), wa.step_paint: (step_paint,),
                 wa.step_clean_cut: (shoulder_first(wa.step_clean_cut),),
-                wa.step_clean_bridge: (shoulder_first(wa.step_clean_bridge), ea.step_flatten)}
+                wa.step_clean_bridge: (shoulder_first(wa.step_clean_bridge),),
+                va.step_bake: (va.step_bake, ea.step_flatten)}
     .get(step, (step,)))
 
 
