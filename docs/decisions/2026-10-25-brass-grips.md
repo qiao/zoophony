@@ -19,5 +19,5 @@ can reverse each decision. Then update its section, and remove its row.
 | The trumpet stays 10° below the level. From the stage camera, the mouth shows above the right paw. | 5.3 |
 | Both trumpet paws keep the hold of the play at rest (`restAim` 1), and the left rest grip moves 0.04 H toward the bell (`restGripShiftL`), so that the finger tips of both paws stay on the casings. | 5.2, 5.3 |
 | The left tuba paw lies on the left side of the main branch, with the palm on the branch and the knuckles to the left (`gripShiftL`, `poleL`, `restPoleL`, `gripCurl` of `RHINO_TUBA`). At rest, the grip moves 0.02 H out from the branch (`restGripShiftL`), so that the left forearm stays out of the tuba. | 5.3 |
-| `ACCEPTED_GRIPS` keeps the entries of the trumpeter and the tubist: the new grips turn 17° and 33° (trumpeter) and 40° and 6° (tubist) from them, inside 45°. | 9.8 |
+| `ACCEPTED_GRIPS` keeps the entry of the trumpeter: the new grips turn 17° and 33° from it, inside 45°. The tubist: `2026-10-26-fifth-review-rhino.md`. | 9.8 |
 | `pnpm wind-grip` takes the place of the right trumpet paw above the valves (`ROLES` of `tools/wind-grip.ts`). | 9.8 |
