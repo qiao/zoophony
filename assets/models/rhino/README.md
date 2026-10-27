@@ -1,8 +1,8 @@
 # Rhino model
 
-This folder holds the rhino meshes that the user gave, and copies of the first mesh. The app does
-not serve them. The rig uses `rhino-apose.glb` since 2026-10-23. The other files stay as the record
-of the earlier rounds.
+This folder holds the rhino meshes that the user gave, and copies of them. The app does not serve
+them. The rig uses `rhino-apose-arms.glb`, a copy of `rhino-apose.glb` with rebuilt arms, since
+2026-10-27. The other files stay as the record of the earlier rounds.
 
 ## rhino-apose.glb
 
@@ -24,6 +24,38 @@ The weld at 1e-5 gives 1,547 vertices. The cuts are in `docs/research/2026-10-23
 
 ```bash
 shasum -a 256 assets/models/rhino/rhino-apose.glb
+```
+
+## rhino-apose-arms.glb
+
+`rhino-apose-arms.glb` is a copy of `rhino-apose.glb` with new arms, made on 2026-10-27. The rig
+config reads it, with the weights `rhino-apose-weights.json` of the same Blender session. The file
+of the user stays byte for byte.
+
+On 2026-10-26, the user said: "the rhino's arms are stretched / twisted in unnatural ways". The long
+thin faces of each forearm and the two bones of the forearm twisted the skin into a thin band. The
+user allowed loop edges, retopology, and extra bones for the arm and wrist twist on 2026-10-24.
+The copy replaces the faces of each arm from 0.4 of the upper arm to 0.3 of the paw with a quad
+tube of 13 rings of 16 vertices, wrapped onto the source arm and bridged to the trunk and to the
+paw. The arm faces take the fur color of the source arm (a bake into a strip of the atlas) and the
+normals of the source surface. The inner lower side of each upper arm and its shoulder loop move
+0.015 units toward the arm axis, so that the thick upper arm stays out of the round belly when the
+elbow points down. The faces of the paws, the trunk, the legs, and the head are the faces of the
+user (`docs/decisions/2026-10-26-fifth-review-rhino.md`).
+
+| Item | Value |
+|---|---|
+| File | `rhino-apose-arms.glb`, 1,026,520 bytes |
+| SHA-256 | `e28fa94124df8f76a9b41f859b5ea38c776c6d137c31f1ba92a0bc48a3676ad2` |
+| Contents | 1,947 vertices and 3,913 triangles after the weld, one material with a JPEG base color |
+| Weights | `rhino-apose-weights.json`: the automatic weights of Blender with the Weight Paint fixes, for each vertex in the units of the rig config |
+| Script | `tools/blender/rhino_arms.py`. A run gives the same bytes |
+
+To make the files again:
+
+```bash
+/Applications/Blender.app/Contents/MacOS/Blender -b --factory-startup -P tools/blender/rhino_arms.py
+shasum -a 256 assets/models/rhino/rhino-apose-arms.glb
 ```
 
 ## rhino.glb
