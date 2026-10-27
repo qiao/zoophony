@@ -637,7 +637,10 @@ mesh are quad tubes (rings at a right angle to the bones), and the weights come 
     the trunk down to the elbow, so its copy also gets an armpit (`tools/blender/cat_arms.py`): a
     cut along the seam where the arm meets the trunk, a side wall of the trunk under the arm, and
     a tube whose flat inner side lies on the wall and meets it only at the armpit line, high under
-    the shoulder. The trunk and the first ring of the shoulder keep the rule weights. The
+    the shoulder. The trunk and the first ring of the shoulder keep the rule weights. The seated
+    bind of its upper arm points nearer to the hanging arm of the mesh, as on the deer, and the
+    faces around each arm root take the normals of the skin: with the far bind, the socket and the
+    armpit line folded into a crease at the back of the arm root. The
     elephant has such arms since 2026-10-25 (`tools/blender/elephant_arms.py`), with the length
     and the thickness of its mesh. Its arms are as thick as half of their length, so its cut
     planes stand at a right angle to the arm, the wrist cut lies further out on the paw, and the
