@@ -29,13 +29,11 @@ target: a thigh that tapers to the knee, a knee no deeper than about the source 
    the foot. Collapse the thin faces at the loops (16 and 33 edges).
 4. UV, bake the fur color (Cycles, Selected to Active) before any other change, transfer the
    custom normals, and put the leg image beside the arm image in the strip of the atlas.
-5. Write `polar-bear-limbs.glb` and the weights file: the kept vertices keep their weights, the
-   529 new vertices take the automatic weights of Blender. Two runs give the same bytes.
+5. Write `polar-bear-limbs.glb` and the weights file. Two runs give the same bytes.
 
-The tube is built before the leg factor 1.6. `segment_stretch()` of `tools/blender/rig_mesh.py`
-moves each point only along its bone, so the rings keep their right angles and stand 0.012
-units apart in the bind. A stretch in Blender would move the joints of the config, the knee and
-haunch heights, and the landmark of the shoulders.
+The tube is built before the leg factor 1.6: `segment_stretch()` of `tools/blender/rig_mesh.py`
+moves each point only along its bone, so the rings keep their right angles. A stretch in Blender
+would move the joints, the rule heights, and the landmark of the shoulders.
 
 In the rig, the new leg vertices take the rule weights (`paintedLower`, the knee ramp 0.12 to
 0.2), so that each ring takes one share of the knee bend. Three new rules of
@@ -107,14 +105,17 @@ moved by up to 0.23 and the bench went 7 mm down.
 
 - `user-angle.webp`: the angle of the image of the user, `close-views play --at polar-bear
   --azimuth -75 --elevation 3 --zoom 1.4 --time 30`, at the play and at rest (`--pause`).
-- `close.webp`: L-60 and L-30 of `knee-cams.json` of `2026-10-27-legs-armpit/` with the L-60
-  of part B, the angles of the earlier images of the user, at the play and at rest.
-- `side-e10.webp`, `side-e20.webp`: `--at polar-bear --azimuth -90 --azimuth 90 --zoom 1.6`.
-- `knee-low-8.webp`, `knee-low-60.webp`: the ten knee cameras at 8 s and 60 s.
+- `close.webp`: L-60 and L-30 (`cams-close.json`), the angles of the earlier images of the
+  user, at 30 s and at rest.
+- `side-left.webp`: the left leg from its side at the elevations 10° and 20°
+  (`cams-side.json`). On the right side, the chair of the violinist stands 1.5 m from the leg,
+  so `legs-e<20|40>-right.webp` and the R cameras below show that side.
+- `knee-low-8.webp`, `knee-low-60.webp`: the ten cameras of `knee-cams.json` of
+  `2026-10-27-legs-armpit/` at 8 s and 60 s.
 - `strip-L-60.webp`: L-60 from 8 s to 15.5 s.
 - `legs-e20-<view>.webp`, `legs-e40-<view>.webp`: `pnpm close-views pianist --sheet --moments
-  chord,between,far-left,far-right,rest --views front,left,right,back,150,-150,-35,35 --box
-  0.1,0.5,0.8,0.5 --scale 2`.
+  chord,between,far-left,far-right,rest --views left,right,back,150,-150,-35,35 --box
+  0.1,0.5,0.8,0.5 --scale 2`. The piano hides the legs from the front: R30 and L-30 show it.
 - `source-rig.webp`: the source of main and of the round with the legs 1.6 times longer, and the
   seated binds (`probes/render_npz.py`, Workbench).
 
