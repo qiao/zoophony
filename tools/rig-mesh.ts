@@ -1,9 +1,9 @@
 import { spawn } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { copyFileSync, mkdtempSync, readFileSync } from 'node:fs';
+import { copyFileSync, mkdtempSync, readFileSync, statSync } from 'node:fs';
 import { mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
-import { dirname, join, relative } from 'node:path';
+import { dirname, join, relative, resolve } from 'node:path';
 
 import type { Bounds } from '../src/models/bounds.ts';
 import type { Side } from '../src/models/studio-format.ts';
@@ -1974,6 +1974,26 @@ async function baseForm(args: readonly string[]): Promise<FormJson | null> {
 }
 
 /**
+ * Checks that the source file of a config exists, before Blender starts. For a missing file,
+ * Blender prints only "Please select a file", and the rig fails with no clear cause.
+ *
+ * @param config The config.
+ * @param label The name of the config in the message, such as `tools/mesh-rigs/deer.json` or
+ *   `--set source=scratch/glb/deer.glb`.
+ * @returns The absolute path of the source file.
+ * @throws Error that names the path of the config and the absolute path, if no file exists there.
+ */
+export function checkSource(config: MeshRigConfig, label: string): string {
+  const path = resolve(ROOT, config.source);
+  if (!statSync(path, { throwIfNoEntry: false })?.isFile()) {
+    throw new Error(
+      `The source file "${config.source}" of ${label} does not exist at ${path}. A relative path of source starts at the root of the repository, such as scratch/glb/deer.glb.`,
+    );
+  }
+  return path;
+}
+
+/**
  * Gives the JSON text of the config of each row of `--check`: the text of the base as the tool
  * read it, then the text of each variant from it ({@link variantText}). The base and the variants
  * thus come from one read of the config file, and each variant fits before the first rig.
@@ -2136,13 +2156,13 @@ async function checkRig(
 
 /**
  * Checks the base and each variant of the config of an animal, one rig at a time, and prints the
- * table of the variants ({@link checkTable}). Each variant must fit ({@link variantText}) before
- * the first rig, and it keeps the meters for each unit of the base ({@link keptHeight}). The tool
- * names the new keys of each variant ({@link newKeys}) before the first rig. Before the
- * first rig, the form of the players on the commit {@link FORM_BASE} comes from a probe tree, and
- * the tables of the form and of the stage sides follow the table of the variants
- * ({@link formLines}). A variant whose rig or probe fails prints its message, and the next variant
- * runs.
+ * table of the variants ({@link checkTable}). Each variant must fit ({@link variantText}) and
+ * name a source file that exists ({@link checkSource}) before the first rig, and it keeps the
+ * meters for each unit of the base ({@link keptHeight}). The tool names the new keys of each
+ * variant ({@link newKeys}) before the first rig. Before the first rig, the form of the players
+ * on the commit {@link FORM_BASE} comes from a probe tree, and the tables of the form and of the
+ * stage sides follow the table of the variants ({@link formLines}). A variant whose rig or probe
+ * fails prints its message, and the next variant runs.
  *
  * @param animal The animal.
  * @param text The JSON text of the config, read one time at the start.
@@ -2154,8 +2174,8 @@ async function checkRig(
  * @param keep The folder of `--keep`, into which each rig goes as `base.glb`, `variant-1.glb`,
  *   and so on, each with its corners file, or `null`.
  * @returns True when each variant passed.
- * @throws Error if a variant does not fit, or if a role of `--roles` is not a role of the animal,
- *   before the first rig.
+ * @throws Error if a variant does not fit or names no source file that exists, or if a role of
+ *   `--roles` is not a role of the animal, before the first rig.
  */
 async function checkVariants(
   animal: string,
@@ -2166,6 +2186,9 @@ async function checkVariants(
   keep: string | null = null,
 ): Promise<boolean> {
   const texts = checkTexts(text, sets, ANIMALS.has(animal));
+  for (const [k, set] of sets.entries()) {
+    checkSource(parseConfig(texts[k + 1] ?? text), `--set ${set}`);
+  }
   for (const set of sets) {
     const added = newKeys(text, set);
     if (added.length > 0) {
@@ -2220,7 +2243,7 @@ async function checkVariants(
  * Rigs the mesh of the user of an animal into the format of a studio body (route 3 of
  * `docs/agents/model-work.md`):
  * `node tools/rig-mesh.ts <animal> [--preview <dir>] [--check [--set <changes>]...]`.
- * It checks the arm factor of `tools/mesh-rigs/<animal>.json`, and runs
+ * It checks the source file and the arm factor of `tools/mesh-rigs/<animal>.json`, and runs
  * `tools/blender/rig_mesh.py`, which writes the GLB file of the config. With `--preview`, the
  * script also writes the images of the rig into the folder. With `--check`, the rig goes into a
  * temporary folder, and the tool measures it with no write into the repository. Each `--set` of
@@ -2232,6 +2255,7 @@ async function main(): Promise<void> {
   const configPath = join(CONFIG_DIR, `${animal}.json`);
   const text = await readFile(configPath, 'utf8');
   const config = parseConfig(text);
+  checkSource(config, relative(ROOT, configPath));
   if (check) {
     if (!(await checkVariants(animal, text, sets, preview, probe, keep))) {
       process.exitCode = 1;
