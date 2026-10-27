@@ -1,0 +1,8 @@
+     4,415 B  dist/assets/OrbitControls-B-CDXut6.js
+    30,097 B  dist/demos/boulanger-matin.mid
+   804,916 B  total
+ 1,000,000 B  limit: pass
+Base 57849ac5 (57849ac5), built in a temporary folder:
+   801,256 B  total of the base
+   804,916 B  total of the working tree
+    +3,660 B  difference

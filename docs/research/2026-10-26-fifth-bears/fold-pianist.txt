@@ -1,0 +1,7 @@
+base: cached (57849ac5, 67f5454dc1d9)
+Folded faces of the studio body of the pianist on 57849ac5 (57849ac5) and on the working tree: 29.0 s.
+| Set | 57849ac5 (57849ac5) | Working tree |
+|---|---:|---:|
+| rest | 100.0% (4/4), most 34 (L 19 / R 15 / other 0) | 100.0% (4/4), most 34 (L 19 / R 15 / other 0) |
+| play | 100.0% (4812/4812), most 32 (L 15 / R 17 / other 0) | 100.0% (4812/4812), most 32 (L 15 / R 17 / other 0) |
+| lift | 100.0% (124/124), most 34 (L 19 / R 15 / other 0) | 100.0% (124/124), most 34 (L 19 / R 15 / other 0) |

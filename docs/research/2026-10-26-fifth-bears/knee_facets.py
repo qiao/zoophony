@@ -38,6 +38,6 @@ for d in sys.argv[1:]:
                 owner[key] = i
     angles = np.array(angles)
     print(f'{os.path.basename(d.rstrip("/"))}: faces {len(zone)}, longest edge {edges.max():.3f}, '
-          f'largest face {area.max() * 1e4:.1f} cm2-u, edges above 0.1: {(edges.max(axis=1) > 0.1).sum()} '
+          f'largest face {area.max() * 1e4:.1f} e-4 u2, edges above 0.1: {(edges.max(axis=1) > 0.1).sum()} '
           f'faces | ridge p90 {np.percentile(angles, 90):.1f} max {angles.max():.1f}, '
           f'above 40: {(angles > 40).sum()}')

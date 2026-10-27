@@ -1,0 +1,12 @@
+# leg_measure.py: base (main) and each variant
+base: thigh top/bottom/thick 25% 0.460/0.298/0.163, 50% 0.458/0.285/0.173, 75% 0.451/0.271/0.179 | knee rise -0.011 front 0.065 drop +0.013 | width thigh 0.155 knee 0.107 shin 0.129 shin depth 0.139
+k2: thigh top/bottom/thick 25% 0.461/0.297/0.163, 50% 0.459/0.285/0.175, 75% 0.448/0.271/0.177 | knee rise -0.017 front 0.060 drop +0.013 | width thigh 0.155 knee 0.106 shin 0.129 shin depth 0.137
+k4: thigh top/bottom/thick 25% 0.479/0.304/0.175, 50% 0.476/0.272/0.205, 75% 0.460/0.271/0.189 | knee rise -0.023 front 0.065 drop +0.000 | width thigh 0.155 knee 0.107 shin 0.129 shin depth 0.210
+k6: thigh top/bottom/thick 25% 0.460/0.304/0.155, 50% 0.461/0.272/0.188, 75% 0.455/0.285/0.171 | knee rise -0.008 front 0.055 drop -0.012 | width thigh 0.153 knee 0.112 shin 0.125 shin depth 0.184
+p1: thigh top/bottom/thick 25% 0.454/0.275/0.179, 50% 0.450/0.240/0.210, 75% 0.431/0.237/0.194 | knee rise -0.025 front 0.065 drop +0.003 | width thigh 0.154 knee 0.112 shin 0.123 shin depth 0.185
+p2: thigh top/bottom/thick 25% 0.460/0.298/0.162, 50% 0.459/0.277/0.182, 75% 0.453/0.280/0.173 | knee rise -0.009 front 0.070 drop -0.002 | width thigh 0.155 knee 0.114 shin 0.125 shin depth 0.187
+r3: thigh top/bottom/thick 25% 0.463/0.301/0.162, 50% 0.460/0.276/0.184, 75% 0.460/0.271/0.189 | knee rise +0.004 front 0.070 drop +0.004 | width thigh 0.158 knee 0.130 shin 0.121 shin depth 0.216
+r3n: thigh top/bottom/thick 25% 0.463/0.300/0.163, 50% 0.460/0.286/0.174, 75% 0.461/0.271/0.189 | knee rise +0.003 front 0.070 drop +0.015 | width thigh 0.156 knee 0.139 shin 0.119 shin depth 0.186
+r3w: thigh top/bottom/thick 25% 0.463/0.330/0.133, 50% 0.460/0.332/0.128, 75% 0.461/0.271/0.189 | knee rise +0.003 front 0.070 drop +0.061 | width thigh 0.158 knee 0.139 shin 0.119 shin depth 0.131
+e2: thigh top/bottom/thick 25% 0.463/0.330/0.133, 50% 0.460/0.332/0.128, 75% 0.461/0.271/0.189 | knee rise +0.003 front 0.070 drop +0.061 | width thigh 0.149 knee 0.139 shin 0.119 shin depth 0.130
+final: thigh top/bottom/thick 25% 0.463/0.323/0.140, 50% 0.460/0.321/0.139, 75% 0.459/0.271/0.188 | knee rise +0.009 front 0.070 drop +0.050 | width thigh 0.161 knee 0.137 shin 0.119 shin depth 0.173
