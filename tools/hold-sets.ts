@@ -123,8 +123,7 @@ const NULL_FIELDS: ReadonlyMap<string, HoldValue> = new Map<string, HoldValue>([
     } satisfies NonNullable<BowedHold['rest']>,
   ],
   ['liftPoleL', [0, 0, 0] satisfies NonNullable<BowedHold['liftPoleL']>],
-  ['liftPlace', 0 satisfies NonNullable<BowedHold['liftPlace']>],
-  ['restTwistL', 0 satisfies NonNullable<BowedHold['restTwistL']>],
+  ['restTurnL', 0 satisfies NonNullable<BowedHold['restTurnL']>],
   ['restBow.via', { tip: [0, 0, 0], hair: [0, 0, 0], reach: [0, 0, 0] } satisfies BowVia],
   [
     'standBow',
@@ -398,7 +397,7 @@ function parseTurn(text: string, path: string): Quat | null {
  * ({@link parseTurn}). A text takes a member of the union of its field ({@link TEXT_FIELDS}),
  * such as `timpani.hands=sides`. A value that is `null`, an object, or another list takes JSON
  * text, which fits the old value ({@link fitJson}). A field of {@link NULL_FIELDS} also takes
- * `null`, such as `violin@rabbit.liftPlace=null`.
+ * `null`, such as `violin@rabbit.liftPoleL=null`.
  *
  * @param old The old value.
  * @param text The text, such as `16deg`, `0,1,0`, `[0,1,0]`, `holdTurn(20,20)`, or

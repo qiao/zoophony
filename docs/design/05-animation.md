@@ -266,9 +266,9 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
   frame. The bow of a string player takes the side of its mix from the bow at the play place of the
   instrument (`liftMix()` of `pose/bowed.ts`), and the baton turn of the conductor keeps at most
   `CONDUCTOR_HOLD.liftTwist` of twist (none since 2026-10-26). The arm gate measures each move at steps of 0.01 s
-  (`probeMoves()` of `tools/arm-check.ts`). The rest twist of the left paw of the violins and of the
-  viola lies on the far side of 180° from its play twist, so their moves still pass 180° (open,
-  `docs/decisions/2026-10-21-wrist-lift.md`).
+  (`probeMoves()` of `tools/arm-check.ts`). The left paw of the violins and of the viola passes
+  180° on its forearm in each move, because its playing grip lies near 180° from the bind: the
+  twist bone and the segments of the forearm unwind there (4.4, `carryFade()` of `pose/bowed.ts`).
 - **Count-in.** The slowest lift ends before the downbeat. A shorter count-in in wall time
   scales all lifts by one factor (`liftScale()`). After a pause, the note and beat layers hold
   the song time of the pause point (`noteLayerTime()`). A pause in the count-in has no hold: the
@@ -295,37 +295,39 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
   of `pose/test-arm-clearance.ts`.
 - **Upright bow.** The seated rabbits, red foxes, and cats rest as a seated violinist: the
   violin or the viola upright on the left knee or thigh with the left arm to the neck, and the
-  bow upright at the right side with the frog in the right paw (5.3,
+  bow in the right paw with the frog at the front of the lap (5.3,
   `docs/decisions/2026-10-16-bow-rest.md`, `docs/decisions/2026-10-24-violin-rest.md`). A real
   violist rests as a violinist. Each elbow bends at rest and hangs near the side, as the arms of a
-  seated player, and the left paw closes around the neck at 0.4 of the fingerboard, below the
-  pegbox (`BowedHold.restPlace`): with the grip near the nut, the paw lay over the scroll, and
-  with the left elbow out to the side, the arms looked long (user, 2026-10-26,
-  `docs/decisions/2026-10-26-third-review.md`). The bow paws rest on the lap: the rabbit holds
-  the frog at the front of the lap with the elbow bent near the body and the bow upright beside
-  it, the cat over the lap with the elbow down and a little out around its round belly, and the
-  red fox on the front of the right thigh (`docs/decisions/2026-10-26-third-review.md`): with the
-  cat elbow out to the side, the arm bent as a wing (`docs/decisions/2026-10-26-fourth-review.md`).
-  With the paw on the top of the thigh, the short right arm of the rabbit folded
-  (`docs/decisions/2026-10-26-violin-lift.md`). In the lift and the lowering, the
-  bow tip turns through the front, forward and a little up, beside the body (`BowVia` of
-  `pose/bowed-rig.ts`): with the tip up, the bow stood in front of the face. The left paw of the
-  rabbit and of the cat carries the instrument by the nut (`BowedHold.liftPlace`), as a player
-  brings the violin up by its neck: by the end of the fingerboard, the heel of the paw went into
-  the instrument in the re-grip (`docs/decisions/2026-10-26-violin-lift.md`). The paw moves on a line
-  from its rest place to its playing place, with a move off the line in the middle
-  (`BowedHold.liftReach`). The instrument takes the short turn from the rest to the play: a turn
-  through an upright instrument with the top plate to the chest rolled it a full turn around its
-  long axis (`docs/decisions/2026-10-26-violin-lift.md`). At rest, the left paw holds the neck with
-  a straight wrist and a twist (`BowedHold.restTwistL`) that closes it around the neck from the inner
-  side, with the fingers across the front of the neck below the pegbox: with a larger twist, the
-  palm faced the body and the fingers lay over the strings, and with none, the paw flipped in the
-  move (`docs/decisions/2026-10-26-fourth-review.md`). In the move, it changes to the
-  playing grip: the twist and the bend of the wrist go on a line from their rest values to their
-  playing values (`carryLift()` of `pose/bowed.ts`). The playing grip on the upright rest needs
-  more forearm turn than a real forearm has. Near the chin, the instrument goes smoothly back to
-  the path of its tail end (`CARRY_FADE` of `pose/bowed.ts`), because a carry up to the chin brings
-  the tail end into the chest from below.
+  seated player. The left paw holds the neck in a rest grip (`restHandAt()` of `pose/bowed.ts`):
+  the playing grip at the rest place (`BowedHold.restPlace`), turned a little around the normal of
+  the top plate (`BowedHold.restTurnL`), with the fingers closed around the neck
+  (`BowedHold.restCurlL`), and a few millimeters off the neck (`BowedHold.restGapL`), so that the
+  paw holds the neck and does not go into the instrument (user, 2026-10-26: "in rest mode the
+  violin / viola are clipping with their hand"). With the grip near the nut, the paw lay over the
+  scroll (`docs/decisions/2026-10-26-third-review.md`). The bow paws rest low at the front of the
+  lap or the lower belly, with the elbow hanging and a straight wrist (user, 2026-10-26: "All
+  violin / viola players in rest mode should have their bow arm/wrist relaxed and have their bow
+  hand close to their belly / lap"). The round belly of the cat keeps each of its elbows a little
+  out, near the side of the belly, and its viola rests near the body
+  (`docs/decisions/2026-10-26-fifth-review-strings.md`). With the paw on the top of the thigh, the
+  short right arm of the rabbit folded (`docs/decisions/2026-10-26-violin-lift.md`). In the lift
+  and the lowering, the bow tip turns through the front, forward and a little up, beside the body
+  (`BowVia` of `pose/bowed-rig.ts`): with the tip up, the bow stood in front of the face.
+- **The instrument turns with the paw.** In the lift and the lowering, the left paw carries the
+  instrument, as a player brings it up by its neck, and the instrument hangs from the paw that the
+  viewer sees (`carryLift()` of `pose/bowed.ts`). Thus the instrument turns with the paw, in the
+  same direction, as one rigid object in a hand, and only its grip changes, on the short path from
+  the rest grip to the playing grip (user, 2026-10-26: "the violin/viola are rotating in the
+  different direction than their player's wrist/arm"). The wrist moves on a line from its rest
+  place to its playing place, with a move off the line in the middle (`BowedHold.liftReach`). The
+  paw turns on its forearm from the rest grip to the playing grip with a supination, as a real
+  forearm turns (`mixTwist()`), and passes 180° from the bind on the way (4.4). The grip that the
+  viewer sees changes a little, because the retarget turns each paw toward its forearm
+  (`PAW_TURN`): at rest the forearm crosses the neck, and in the play it runs along the neck. With
+  the instrument on its own short turn and the paw on the side of a pronation, the two turned in
+  opposite directions. With the paw on the side of a pronation and the instrument in the paw, the
+  instrument turned the long way, nearly a full turn
+  (`docs/decisions/2026-10-26-fifth-review-strings.md`).
 - **Cello between the knees.** The seated dog keeps the cello at its playing place, as a seated
   cellist does (`BowedHold.rest` null), and holds the bow over the right knee with the tip up and
   leaned out and forward, as a cellist stands the frog on the knee

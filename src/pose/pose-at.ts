@@ -3,7 +3,7 @@ import { MathUtils, Quaternion, Vector3 } from 'three';
 import type { InstrumentId } from '../models/instruments/types.ts';
 import { boneIndex } from '../models/rig.ts';
 import { lastAtOrBefore } from './blend.ts';
-import { poseBowed } from './bowed.ts';
+import { carryFade, poseBowed } from './bowed.ts';
 import { createIdleState, idleAt } from './idle.ts';
 import { poseConductor } from './conductor.ts';
 import type { ConductorState } from './conductor.ts';
@@ -359,6 +359,7 @@ function poseAnimal(
       writeBody(pose, player, scratch);
       bowStateAt(note.strokes, note.starts, noteTime, bow);
       poseBowed(note.rig, scratch.torso, bow, weight, pose.rotations, pose.instrumentOffset);
+      pose.twistFadeL = carryFade(hold, weight);
       break;
     }
     case 'woodwind':

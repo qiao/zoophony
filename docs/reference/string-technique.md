@@ -517,28 +517,28 @@ A round that changes the motion updates the items.
   player close around it. With the grip of the bind bow, the stick of the hippo passed under the
   paw (`docs/decisions/2026-10-24-bow-holds.md`).
 - **The lift and the lowering of the rabbit, the red fox, and the cat.** No source of this file
-  gives the path of the violin or the viola from the lap to the chin. The instrument takes the
-  short turn from the rest to the play, 117° to 140°. Up to 2026-10-25, it turned upright with
-  the top plate to the chest in the middle of the move (`liftTurn`), and that path rolled it a
-  full turn around its long axis (user: "the violins / violas are rotated by nearly 360 degress",
-  `docs/decisions/2026-10-26-violin-lift.md`). At rest, the left paw holds the neck with a
-  straight wrist and a twist that closes it around the neck from the inner side, the fingers
-  across the front of the neck (`BowedHold.restTwistL`, `docs/decisions/2026-10-26-fourth-review.md`),
-  and in the move it changes to the playing grip (`carryLift()` of `pose/bowed.ts`). The left paw of the rabbit and the cat carries
-  the instrument by the nut (`BowedHold.liftPlace`), as a player brings the violin up by its neck,
-  and the bow tip points forward beside the body in the middle of the move
-  (`docs/decisions/2026-10-26-violin-lift.md`).
+  gives the path of the violin or the viola from the lap to the chin. The left paw carries the
+  instrument as a player brings it up by its neck, and the instrument hangs from the paw: it turns
+  with the paw, in the same direction, and only its grip changes, from the rest grip to the
+  playing grip (`carryLift()` of `pose/bowed.ts`). The paw supinates on its forearm on the way, as a
+  real forearm turns, and passes 180° from the bind of the mesh, where the forearm skin unwinds
+  for a moment (`skinTwist()` of `models/studio-rig.ts`). Up to 2026-10-25, the instrument turned
+  upright with the top plate to the chest in the middle of the move, and rolled a full turn around
+  its long axis (`docs/decisions/2026-10-26-violin-lift.md`). From 2026-10-26 to the round
+  `fifth-strings`, it took its own short turn while the paw pronated, so the two turned in opposite
+  directions (`docs/decisions/2026-10-26-fifth-review-strings.md`). The bow tip points forward
+  beside the body in the middle of the move (`docs/decisions/2026-10-26-violin-lift.md`).
 - **The violin and the viola at rest** (section 2.9). The rabbit, the red fox, and the cat rest the
-  instrument upright on the left knee, and the left paw closes around its neck at 0.4 of the
-  fingerboard, with the elbow near the side (`BowedHold.restPlace` and `restPoleL`). With the grip
-  near the nut, the paw lay over the scroll (`docs/decisions/2026-10-26-third-review.md`). The top plate of the
-  violin faces the front, and the top plate of the viola the front and 30° to the left: with the top
-  to the front, the bow paw of the cat turned up to 7,437°/s in a lowering
-  (`docs/decisions/2026-10-24-violin-review.md`). The bow paw rests at the front of the lap, with
-  the elbow bent near the body and the bow upright, as the user asked on 2026-10-26
-  (`docs/decisions/2026-10-26-third-review.md`). The elbow of the cat hangs a little out around
-  its round belly: out to the side, the arm bent as a wing
-  (`docs/decisions/2026-10-26-fourth-review.md`).
+  instrument upright on the left knee, and the left paw holds its neck in a rest grip: the playing
+  grip at the rest place, turned a little around the normal of the top plate, with the fingers
+  closed around the neck, and a few millimeters off it, so that the paw holds the neck and goes at
+  most 0.8 cm into the instrument (`restHandAt()` of `pose/bowed.ts`). The left elbow hangs near
+  the side (`BowedHold.restPoleL`). The top plate of the violin faces the front, and the top plate
+  of the viola the front and 30° to the left: with the top to the front, the bow paw of the cat
+  turned up to 7,437°/s in a lowering (`docs/decisions/2026-10-24-violin-review.md`). The bow paw
+  rests low at the front of the lap or the lower belly, with the elbow hanging and a straight
+  wrist, as the user asked on 2026-10-26. The round belly of the cat keeps each of its elbows a
+  little out, near the side of the belly (`docs/decisions/2026-10-26-fifth-review-strings.md`).
 - **The string crossing leads the note** (section 2.3). `bowStateAt()` of `pose/strokes.ts` turns
   the bow to the string of the next note in at most 0.08 s, and in at most 0.3 of the time from
   the note start to the next note (`BOW_MOTION.crossSec` and `crossShare`). The turn ends 0.01 s
