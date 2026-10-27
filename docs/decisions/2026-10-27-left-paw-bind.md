@@ -1,0 +1,16 @@
+# Decisions of the bind of the left paw
+
+The Section column names a section of the design. [`design.md`](../design.md) gives the file of
+each section.
+
+On 2026-10-27, the round `fifth-bind` gave the rabbit, the red fox, and the cat a new bind of the
+left paw, so that the left forearm skin does not pass 180° of twist in the lift and the lowering
+of the violin and the viola. The report
+[`2026-10-27-left-paw-bind.md`](../research/2026-10-27-left-paw-bind.md) gives the measures. The
+user can reverse each decision. Then update its section, and remove its row.
+
+| Decision | Section |
+|---|---|
+| The user: "the violin/viola are rotating in the different direction than their player's wrist/arm". The bind left paw of the rabbit turns 100° about its bind forearm toward supination (`studio.bindSupination`), so that the rest twist (9°) and the play twist (-119° to -91°) lie on one side of 180°. | 4.4, 5.2 |
+| The bind paw turns about the forearm, and the forearm segments share the turn in the bind (`paw_supination()` of `tools/blender/rig_mesh.py`). A turn of the bind elbow about the upper arm, as on the rhino, also turns the zero of the upper arm roll: the play roll of the left upper arm goes from about 0° to about -100° (`bind-scan.txt`). | 4.4 |
+| The rabbit takes 100°: with 60° and 120°, the faces of the left wrist folded in the play as with no turn, and with 80°, the forearm twist p95 of the arm gate was 67 (58 with 100°). | 4.4 |
