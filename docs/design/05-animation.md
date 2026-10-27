@@ -382,8 +382,9 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
   3). Both paws stay on their grips of the play (`restAim` of `WOLF_CLARINET`), so the lift and
   the lowering move the clarinet with the paws, and no paw slides along the tube. The round belly
   fills the seat between the knees, so the seat between the legs of the source has no room for
-  the bell. At rest, the left elbow points out, down, and a little forward, so that the left
-  forearm stays out of the belly (`docs/decisions/2026-10-27-wolf-knee.md`).
+  the bell. At rest, the left elbow points out and down, and the right elbow down, a little out,
+  and a little forward, so that both forearms stay out of the belly, the left wrist bends less,
+  and the right upper arm keeps its round form (`docs/decisions/2026-10-27-wolf-bind.md`).
 - **Trombone at rest.** The seated and the standing panda take the rest of the trombone of
   `WIND_HOLDS`: the trombone moves off the mouth and stands upright at the right side, with the
   bell down, and both paws keep their grips. It does not rest on a leg

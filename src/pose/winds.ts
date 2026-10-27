@@ -882,11 +882,16 @@ const WOLF_CLARINET_FORWARD = 5;
  * seat between the knees, and the knees stand 25 cm apart, so the bell has no room on the seat
  * between the legs. Before 2026-10-27, the bell hung 12 cm in front of the seat between the knees,
  * the left paw capped the mouthpiece end, and each paw slid 15 cm along the tube in each move
- * (user, 2026-10-27: "the wolf is not holding the instrument properly in rest mode"). At rest, the
- * left elbow points out, down, and a little forward: with the elbow a little back, the left forearm
- * went 2.2 cm to 4.5 cm into the body, and with the elbow down and out, the left upper arm went
- * deeper than on the rest before. With the bell on the top of the right knee, the clarinet lay
- * across the lap, and the left forearm crossed the belly (`docs/research/2026-10-27-wolf-knee.md`).
+ * (user, 2026-10-27: "the wolf is not holding the instrument properly in rest mode"). With the bell
+ * on the top of the right knee, the clarinet lay across the lap, and the left forearm crossed the
+ * belly (`docs/research/2026-10-27-wolf-knee.md`).
+ *
+ * At rest, the left elbow points out and down, and the right elbow points down, a little out, and a
+ * little forward. With the left elbow out, down, and a little forward, the left wrist bent 57°
+ * (40° on the rest before), and with it further in or back, the left forearm went 1.3 cm to 4.0 cm
+ * into the belly. With the right elbow down and a little out, the right forearm went 1.7 cm into
+ * the belly in the lift on the rig with the bind elbow forward
+ * (`docs/research/2026-10-27-wolf-bind.md`).
  */
 const WOLF_CLARINET = {
   ...WIND_HOLDS.clarinet,
@@ -898,8 +903,8 @@ const WOLF_CLARINET = {
   restShift: [0.01, -0.81, -0.42],
   poleL: [-0.3, -1, 0],
   poleR: [0.3, -1, 0],
-  restPoleL: [-1.3, -1, -0.2],
-  restPoleR: [0.3, -1, 0],
+  restPoleL: [-1.5, -1.4, 0],
+  restPoleR: [0.5, -1, -0.1],
   faceTube: ['palm', 'palm'],
   aimAcross: 1,
   aimSide: [0.25, 0.25],
