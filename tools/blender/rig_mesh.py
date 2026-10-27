@@ -3353,29 +3353,39 @@ def knee_relax(bind, tris, weights, heads, rule):
 
 
 def seam_relax(bind, tris, seam, free, rule):
-    """Smooths the bind around a seam: the region is the vertices of `seam` and `rings` rings of
-    their neighbors. Each vertex of the region moves `share` of the way to the middle of its
-    neighbors in each of `rounds` rounds, times a weight that falls from 1 on the seam to 0 beyond
-    the last ring, and times its `free` share (0 keeps its place). Gives the smoothed bind, the
-    number of the moved vertices, and the largest move."""
+    """Smooths the bind around a seam. Each vertex of the region moves `share` of the way to the
+    middle of its neighbors in each of `rounds` rounds, times a weight and times its `free` share
+    (0 keeps its place). The region is the vertices of `seam` and `rings` rings of their
+    neighbors, and the weight falls from 1 on the seam to 0 beyond the last ring. With `reach`,
+    the region is each vertex within `reach` units of a seam vertex in the bind, and the weight
+    falls with that distance from 1 on the seam to 0 at `reach` (a half cosine), so that the far
+    corner of a long face keeps its place. Gives the smoothed bind, the number of the moved
+    vertices, and the largest move."""
     neighbors = [set() for _ in range(len(bind))]
     for a, b, c in tris:
         neighbors[a].update((b, c))
         neighbors[b].update((a, c))
         neighbors[c].update((a, b))
-    ring = np.full(len(bind), -1)
-    ring[seam] = 0
-    front = list(np.nonzero(seam)[0])
-    for k in range(1, rule['rings'] + 1):
-        grown = []
-        for i in front:
-            for j in neighbors[i]:
-                if ring[j] < 0:
-                    ring[j] = k
-                    grown.append(j)
-        front = grown
-    ids = np.nonzero(ring >= 0)[0]
-    w = (1.0 - ring[ids] / (rule['rings'] + 1.0)) * free[ids] * rule['share']
+    if 'reach' in rule:
+        points = bind[seam]
+        near = np.array([np.linalg.norm(points - p, axis=1).min() for p in bind])
+        ids = np.nonzero((near < rule['reach']) & (free > 0))[0]
+        fall = 0.5 * (1.0 + np.cos(np.pi * near[ids] / rule['reach']))
+    else:
+        ring = np.full(len(bind), -1)
+        ring[seam] = 0
+        front = list(np.nonzero(seam)[0])
+        for k in range(1, rule['rings'] + 1):
+            grown = []
+            for i in front:
+                for j in neighbors[i]:
+                    if ring[j] < 0:
+                        ring[j] = k
+                        grown.append(j)
+            front = grown
+        ids = np.nonzero(ring >= 0)[0]
+        fall = 1.0 - ring[ids] / (rule['rings'] + 1.0)
+    w = fall * free[ids] * rule['share']
     rings = [np.array(sorted(neighbors[i])) for i in ids]
     out = bind.copy()
     for _ in range(rule['rounds']):
