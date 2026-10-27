@@ -1,6 +1,32 @@
 {
-  "source": "assets/models/rhino/rhino-apose.glb",
-  "sourceNote": "The A-pose mesh of the user, byte for byte (assets/models/rhino/README.md, SHA-256 cbdd8959a90d1c064b2d3528b4237d141dc96e1a242828ec5c024acb47b30c62). The user said on 2026-10-23: \"replace the model for rhino and rabbit and also don't split the arm\". The arms hang about 45 degrees down and apart from the trunk below the shoulders, so the rig keeps each face of the mesh: no cut, no copy with new arms, and no split.",
+  "source": "assets/models/rhino/rhino-apose-arms.glb",
+  "sourceNote": "The A-pose mesh of the user, of 2026-10-23 (assets/models/rhino/README.md), with new quad faces on each arm from the shoulder line to the wrist. The user said on 2026-10-26: \"the rhino's arms are stretched / twisted in unnatural ways\". The long thin faces of the source forearm and the two bones of the forearm twisted the skin into a thin band. The user allowed loop edges, retopology, and extra bones for the arm and wrist twist on 2026-10-24. tools/blender/rhino_arms.py replays the Blender session that made it. The faces of the paws, the trunk, the legs, and the head are the faces of the user, and the inner lower side of each upper arm is a little flatter (docs/decisions/2026-10-26-fifth-review-rhino.md).",
+  "paintedWeights": "assets/models/rhino/rhino-apose-weights.json",
+  "paintedNote": "The weights of the clavicles and the arms are the automatic weights of Blender with the Weight Paint fixes of tools/blender/rhino_arms.py: the trunk under the armpits and the neck are off the arm bones and the clavicles, and the paws are off the wrist helper. The vertices on the bones of paintedLower (the trunk up to the chest, the neck, the head, the ears, the legs, the tail, and the paws) keep the rule weights. With Blender weights on the paws, the curl around the tubes folded 9 more faces of the paws.",
+  "paintedLower": [
+    "root",
+    "hips",
+    "spine",
+    "spine1",
+    "chest",
+    "neck",
+    "head",
+    "ear_L",
+    "ear_R",
+    "thigh_L",
+    "shin_L",
+    "foot_L",
+    "toes_L",
+    "thigh_R",
+    "shin_R",
+    "foot_R",
+    "toes_R",
+    "tail",
+    "hand_L",
+    "fingers_L",
+    "hand_R",
+    "fingers_R"
+  ],
   "output": "assets/models/rhino/rhino.rig.glb",
   "name": "Rhino",
   "weld": 1e-05,
@@ -13,9 +39,9 @@
   "armFactorNote": "The arms keep the length of the mesh: 0.374 m from the shoulder joint to the middle of the palm. The palm reaches the grips of the tuba with 3 mm to 47 mm to spare (pnpm hold-reach rhino --instrument tuba).",
   "legFactor": 1,
   "legFactorNote": "The legs keep the length of the mesh (user rule: do not stretch the legs). The rhino stands to play the tuba, so no seat asks for longer legs.",
-  "upperTwist": {
-    "share": 0.4,
-    "note": "The twist bone of each upper arm keeps 0.4 of the roll of the upper arm from the chest (StudioBody.upperTwist), the share of the old rhino and of the hippo. With the A-pose mesh, the arm gate gives a twist of 43 and 26 degrees, below the limit 55 (pnpm arm-check tubist)."
+  "armSegments": {
+    "helper": 0.052,
+    "note": "Each upper arm and each forearm has 4 deform segments, and each elbow and wrist a helper bone. The elbow helper is 0.052 units, twice the gap of the rings of the elbow (gap of tools/blender/rhino_arms.py). The app turns the bones from the joints of the pose (poseArm() of src/models/studio-rig.ts). They replace upperTwist: with two forearm bones, each one took 84 degrees of the turn of the left paw, and the skin collapsed."
   },
   "rootNormals": {
     "radius": 0.12,
