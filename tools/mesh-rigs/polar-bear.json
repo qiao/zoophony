@@ -1,7 +1,9 @@
 {
-  "source": "assets/models/polar-bear/polar-bear-arms.glb",
-  "sourceNote": "The T-pose polar bear mesh of the user, of 2026-10-24 (assets/models/polar-bear/README.md), with new quad faces on each arm from the shoulder line to the wrist. The user said: \"now apply similar techniques to the polars bear\", after the quad arms of the Rigify rabbit. tools/blender/polar_bear_arms.py replays the Blender session that made it. The faces of the paws, the trunk, the legs, and the head are the faces of the user.",
-  "paintedWeights": "assets/models/polar-bear/polar-bear-weights.json",
+  "source": "assets/models/polar-bear/polar-bear-limbs.glb",
+  "sourceNote": "The T-pose polar bear mesh of the user, of 2026-10-24 (assets/models/polar-bear/README.md), with new quad faces on each arm from the shoulder line to the wrist (polar-bear-arms.glb, tools/blender/polar_bear_arms.py) and on each leg from the haunch line below the crotch to the ankle (tools/blender/polar_bear_legs.py). The user said: \"now apply similar techniques to the polars bear\" (2026-10-24), and \"the bear's knee is still much bulkier than expected. it's not anatomically correct\" (2026-10-27): long faces of the user mesh ran from the haunch to the heel, so the seated leg was a wedge with no hollow behind the knee. The faces of the paws, the feet, the trunk, the haunch, and the head are the faces of the user.",
+  "paintedWeights": "assets/models/polar-bear/polar-bear-limbs-weights.json",
+  "heatSource": "assets/models/polar-bear/polar-bear-arms.glb",
+  "heatSourceNote": "Each vertex that the leg rebuild keeps takes the bone heat of this mesh, the copy before the rebuild, and only the new leg vertices take the bone heat of the source (kept_heat() of tools/blender/rig_mesh.py). Bone heat spreads over the whole mesh: with the heat of the new mesh, the weights of the crotch moved by up to 0.23, the seat top went 7 mm down, and a face of the left armpit and two faces of the right hip front folded in more samples (docs/research/2026-10-27-polar-legs-rebuild.md).",
   "paintedLower": [
     "root",
     "hips",
@@ -18,11 +20,11 @@
     "toes_R",
     "tail"
   ],
-  "paintedNote": "The weights of the trunk, the head, and the arms are the automatic weights of Blender with the Weight Paint fixes of tools/blender/polar_bear_arms.py. The vertices on the bones of paintedLower (the hips, the trunk up to the chest, the legs, and the tail) keep the rule weights. Blender weights on the legs sank the tail into the haunch and folded faces on the bench (branch rigify-polar-bear). Blender weights on spine and spine1 folded a V of faces on the lower back over the bench, and on the chest they cut a slit into the side of the trunk under each arm in the play.",
+  "paintedNote": "The weights of the trunk, the head, and the arms are the automatic weights of Blender with the Weight Paint fixes of tools/blender/polar_bear_arms.py, and the new vertices of the legs take the automatic weights of Blender (tools/blender/polar_bear_legs.py). The vertices on the bones of paintedLower (the hips, the trunk up to the chest, the legs, and the tail) keep the rule weights. Blender weights on the legs sank the tail into the haunch and folded faces on the bench (branch rigify-polar-bear). Blender weights on spine and spine1 folded a V of faces on the lower back over the bench, and on the chest they cut a slit into the side of the trunk under each arm in the play.",
   "rootNormals": {
     "knee": 0.2,
     "kneeFront": 0.1,
-    "note": "The faces behind each knee joint of the source, within knee units of it, and on the leg bones for at least half of their weight, take the normals of the skin with no crease angle in the app (root_rim() of tools/blender/rig_mesh.py): the back of each knee and the calf down to the heel. The rings of the calf cut long thin source faces into slivers, and the smoothing of the crease (kneeCrease) turned a sliver more than the crease angle of the app (40 degrees) from its neighbors, so it showed as a soft dark facet on the left calf from straight behind (user, 2026-10-26: \"the polar bear's knees are more bulky than it should be\"). No vertex moves. With the skin normals alone, a soft groove stayed at that place, so the calf is also faired (kneeCrease.fair) (docs/research/2026-10-27-rigs3.md). The faces in front of each knee joint, within kneeFront units of it, take the skin normals too: after the rounding of kneeCrease.front, the thin faces of the knee rings still met at more than the crease angle and shaded as short hard lines across the top of the knee (docs/research/2026-10-27-wolf-knee.md)."
+    "note": "The faces behind each knee joint of the source, within knee units of it, and in front of it, within kneeFront units, on the leg bones for at least half of their weight, take the normals of the skin with no crease angle in the app (root_rim() of tools/blender/rig_mesh.py). The bent knee folds the back of the knee into a crease, and the front of the right knee keeps short ring edges that turn up to 58 degrees, more than the crease angle of the app (40 degrees). With the skin normals, these edges shade soft. No vertex moves (docs/research/2026-10-27-polar-legs-rebuild.md)."
   },
   "armSegments": {
     "helper": 0.03,
@@ -356,7 +358,7 @@
         0.12,
         0.2
       ],
-      "note": "Each vertex splits its weight of the thigh and the shin by its height: the thigh share grows from 0 at the lower height to 1 at the upper height, around the knee joint at 0.15. Bone heat on the short thick legs gave the shin the front of the knee and the underside of the thigh up to the haunch, and these vertices stayed upright with the shin when the seated thigh turned forward: the knee stood as a hump above the thigh (user, 2026-10-26: \"the polar bear's knee is unexpectedly bulky\"). The bands 0.13 to 0.18 and 0.14 to 0.17 gave the same form with a harder crease at the knee. The slab from the heel to the haunch stayed with each band, because long faces cross the knee: the rings of refine cut them."
+      "note": "Each vertex splits its weight of the thigh and the shin by its height: the thigh share grows from 0 at the lower height to 1 at the upper height, around the knee joint at 0.15. Thus each ring of the quad tube of a leg takes one share, and the dual quaternion blend of the knee (bind.knee) turns it by that share of the knee bend. Bone heat on the short thick legs gave the shin the front of the knee and the underside of the thigh up to the haunch, so the knee stood as a hump above the thigh (user, 2026-10-26: \"the polar bear's knee is unexpectedly bulky\"). Ramps from 0.09 to 0.21 and from 0.07 to 0.23 bent the whole short thigh tube and filled the corner behind the knee (docs/research/2026-10-27-polar-legs-rebuild.md)."
     },
     "haunch": {
       "height": [
@@ -365,135 +367,24 @@
       ],
       "note": "The part of the thigh weight that goes to the hips grows from 0 at the lower height to 1 at the upper height, so that the rump stays on the bench and the thigh turns forward. With the ramp of 0.17 to 0.28, the hips held most of the thigh, and the seated thigh bent only near the knee. With this ramp, the thigh turns as one tube from the haunch to the knee, and the bench is 2.7 cm lower."
     },
-    "note": "Beyond the plane of armSplit (armFree), only the free arm follows the arm bones. Above headFrom, each vertex follows the head only. armTop starts above the top of the level arms of the T-pose (y 0.79): from y 0.68, it gave the top of each arm to the neck, and those faces folded in each sample. Each ear follows its ear bone above earBase. The short tail is a ball on one bone (tailBall). The rig has no cut and no split of the arms (user, 2026-10-23). Rings of new vertices cut the long faces of the knees (refine.rings, user, 2026-10-26)."
+    "rigid": [
+      [
+        [
+          -0.0942,
+          0.2634,
+          0.0897
+        ],
+        [
+          -0.1027,
+          0.2739,
+          0.0916
+        ]
+      ]
+    ],
+    "rigidNote": "The two thin faces of the front of the right hip, where the thigh meets the belly, take one mean of the weights of their 4 corners. One corner follows the right thigh for 0.75 and its neighbors follow the hips, so both faces folded in each play sample when the pedal leg turned. The rings of the old knee cut them before (docs/research/2026-10-27-polar-legs-rebuild.md).",
+    "note": "Beyond the plane of armSplit (armFree), only the free arm follows the arm bones. Above headFrom, each vertex follows the head only. armTop starts above the top of the level arms of the T-pose (y 0.79): from y 0.68, it gave the top of each arm to the neck, and those faces folded in each sample. Each ear follows its ear bone above earBase. The short tail is a ball on one bone (tailBall). The rig has no cut and no split of the arms (user, 2026-10-23). Each leg has quad faces from the haunch line to the ankle (source)."
   },
   "refine": {
-    "legFlip": {
-      "radius": 0.15,
-      "share": 0.5,
-      "move": 0.005,
-      "rounds": 4,
-      "note": "The source leg splits some quads near the knee along the long diagonal: two thin faces whose corners across the diagonal sum to more than 180 degrees. The seated bind keeps that diagonal a straight chord across the bent knee, so the quad folds along it. On the front of the left shin, the edge from above the knee to the middle of the shin (0.137 units, 290 degrees across) became a valley of 99 degrees, which showed as a short vertical groove below the knee (user, 2026-10-26: \"the polar bear's knees are more bulky than it should be\"). A ring vertex on the chord stays on it, so a ring does not remove the groove. Each such edge within radius units of the knee joint flips to the other diagonal before the rings, when the flip makes the five edges of the quad smoother in the bind (leg_flips() of tools/blender/rig_mesh.py, docs/research/2026-10-27-legs-armpit.md). With the radius 0.25, flips at the front of the thigh changed the belly crease relax, and faces at the crease of the belly and the thigh folded in the play. With 0.12, a face of the inner right thigh folded in each sample."
-    },
-    "rings": [
-      {
-        "joint": "shin",
-        "radius": 0.25,
-        "minEdge": 0.03,
-        "ends": 0.2,
-        "toward": [
-          0,
-          0,
-          1
-        ],
-        "within": 90
-      },
-      {
-        "joint": "shin",
-        "offset": -0.05,
-        "radius": 0.25,
-        "minEdge": 0.03,
-        "ends": 0.2,
-        "toward": [
-          0,
-          0,
-          1
-        ],
-        "within": 90
-      },
-      {
-        "joint": "shin",
-        "offset": 0.04,
-        "radius": 0.25,
-        "minEdge": 0.03,
-        "ends": 0.2,
-        "toward": [
-          0,
-          0,
-          1
-        ],
-        "within": 90
-      },
-      {
-        "joint": "shin",
-        "offset": -0.1,
-        "radius": 0.25,
-        "minEdge": 0.03,
-        "ends": 0.2,
-        "toward": [
-          0,
-          0,
-          -1
-        ],
-        "within": 90
-      },
-      {
-        "joint": "shin",
-        "offset": 0.08,
-        "radius": 0.25,
-        "minEdge": 0.03,
-        "ends": 0.2,
-        "toward": [
-          0,
-          0,
-          -1
-        ],
-        "within": 90
-      },
-      {
-        "joint": "shin",
-        "offset": 0.12,
-        "radius": 0.25,
-        "minEdge": 0.03,
-        "ends": 0.2,
-        "toward": [
-          0,
-          0,
-          -1
-        ],
-        "within": 90
-      },
-      {
-        "joint": "shin",
-        "offset": 0.16,
-        "radius": 0.25,
-        "minEdge": 0.03,
-        "ends": 0.2,
-        "toward": [
-          0,
-          0,
-          -1
-        ],
-        "within": 90
-      },
-      {
-        "joint": "shin",
-        "offset": 0.02,
-        "radius": 0.25,
-        "minEdge": 0.03,
-        "ends": 0.2,
-        "toward": [
-          0,
-          0,
-          1
-        ],
-        "within": 90
-      },
-      {
-        "joint": "shin",
-        "offset": -0.025,
-        "radius": 0.25,
-        "minEdge": 0.03,
-        "ends": 0.2,
-        "toward": [
-          0,
-          0,
-          1
-        ],
-        "within": 90
-      }
-    ],
-    "ringsNote": "The source leg has faces that run from near the crotch to the ankle across the knee joint (35 faces on each leg, a longest edge of 0.185 units on the median). A face cannot bend, so in the seated bind it stayed one flat plane from the thigh to the shin: the knee read as a large angular block with hard ridges, and long faces from the calf to the haunch made a slab under the thigh (user, 2026-10-26: \"the polar bear's knees are more bulky than it should be\"). The weight bands of the knee and the haunch, and a seat with the thighs or the shins 10 degrees down, kept the slab. Rings of new vertices cut these faces, and each new vertex takes the knee and haunch rules at its height (ring_leg_weights() of tools/blender/rig_mesh.py). Three rings cut the front half of each knee (toward +z, within 90 degrees): at the knee plane, 0.05 units above it, and 0.04 units below it. Two rings cut the back half: 0.1 units above the knee plane and 0.08 units below it. The bent knee puts each back vertex nearer to the knee plane than the radius of the leg inside the leg, so whole rings at the back folded the skin into stacked light stripes under the thigh. The back rings stand where the thigh and the shin meet in the bind, so their vertices stay on the skin. With a radius of 0.17, the slab under the thigh stayed. With the front rings 0.04 above and below, one face between the thighs folded in each play sample. A cut keeps 0.2 of the edge at each end: with 0.1, two thin faces of the inner right thigh folded in the play. Two more back rings cut the long faces of the calf back 0.12 and 0.16 units below the knee plane, so that the smoothing of the crease (kneeCrease) fades over short faces: on the long calf faces, it tilted each face whose top corner moved, and these faces showed as light wedges on the calf back from az 150 to 180 (docs/research/2026-10-27-legs-armpit.md). Two more front rings 0.02 units above and 0.025 units below the knee plane give the front of the bent knee more vertices, so that its rounding (kneeCrease.front) leaves 2 hard edges on the left knee in place of 4 (docs/research/2026-10-27-wolf-knee.md).",
     "flip": {
       "angle": 150,
       "normals": 60,
@@ -575,7 +466,7 @@
     "front": -0.017,
     "back": -0.2,
     "backHeight": 0.01,
-    "note": "The seat is the piano bench of the pianist (prop): it is level, and its top is the lowest point of the seated body over the seat, with no shin, foot, or tail. The front edge lies under the hip joints, where the thighs leave the haunch, and the back edge at the back of the haunch. The half width holds the haunch (x ±0.23). PIANO_BENCH of src/models/instruments/piano.ts takes this width and depth in meters."
+    "note": "The seat is the piano bench of the pianist (prop): it is level, and its top is the lowest point of the seated body over the seat, with no shin, foot, or tail. The front edge lies under the hip joints, where the thighs leave the haunch, and the back edge at the back of the haunch. The half width holds the haunch (x \u00b10.23). PIANO_BENCH of src/models/instruments/piano.ts takes this width and depth in meters."
   },
   "crease": {
     "rings": 2,
@@ -587,23 +478,17 @@
   },
   "kneeCrease": {
     "reach": 0.105,
-    "rounds": 12,
+    "rounds": 4,
     "share": 0.5,
     "inner": 0.0,
-    "note": "The faces at the corner of each bent knee turned more than the crease angle of the app (40 degrees) from each other, so each showed as a light wedge at the back of the knee. The seam is each vertex of both a thigh face and a shin face on the inner side of the knee. Each vertex within reach units of the seam in the bind moves half of the way to the middle of its neighbors in each of 12 rounds, times a weight that falls from 1 on the seam to 0 at reach (knee_relax() and seam_relax() of tools/blender/rig_mesh.py). The hips keep their share, so the crotch, near the knee on the short leg, keeps its place. With 2 rings of neighbors in place of reach, a long calf face carried the full move of the seam down the calf, and the faces at the end of the region showed as light wedges on the calf back from az 150 to 180. A reach of 0.12 moved the lowest sole vertex and thus the seat of the body, and 0.09, 16 rounds, or 20 rounds folded a face of the inner right thigh (docs/research/2026-10-27-legs-armpit.md).",
+    "note": "The bent knee folds the back of the quad tube of each leg into a crease, and the faces of the crease turned up to 169 degrees from each other. The seam is each vertex of both a thigh face and a shin face on the inner side of the knee. Each vertex within reach units of the seam in the bind moves half of the way to the middle of its neighbors in each of 4 rounds, times a weight that falls from 1 on the seam to 0 at reach (knee_relax() and seam_relax() of tools/blender/rig_mesh.py). The hips keep their share, so the crotch keeps its place. With no smoothing, 37 edges of the left knee and 48 of the right knee turned more than 40 degrees, and the crease showed as dark flaps. 12 rounds left 13 and 6 such edges, but made the knee 0.115 units wide, against 0.131 in the source. 4 rounds leave 16 and 8, with the knee 0.126 units wide (docs/research/2026-10-27-polar-legs-rebuild.md).",
     "fair": {
       "from": 0.03,
       "to": 0.17,
       "radius": 0.09,
       "rounds": 24,
       "share": 0.5,
-      "note": "After the smoothing, each vertex at the back of the calf, from 0.03 to 0.17 units down the shin from the knee joint and within 0.09 units of the shin axis, moves half of the normal part of the way to the middle of its neighbors in each of 24 rounds, times a half sine over the band (calf_fair() of tools/blender/rig_mesh.py). The smoothing slid the calf vertices along the skin toward the knee by up to 10 cm, and the sliver corners of the calf rings slid apart: a soft dark facet and a groove on the left calf from straight behind. The fair moves no vertex along the skin. A band to 0.2 moved corners of the heel and thus the pedal foot of each pose, a band to 0.16 kept 8 hard calf edges, and the vertices of the inner thigh beyond 0.09 units of the shin axis folded a face between the thighs in each play sample. A test of the inner side of the knee in place of the back of the calf moved the front of the ankle and changed the paw top. 36 or 48 rounds turned a calf edge further (docs/research/2026-10-27-rigs3.md)."
-    },
-    "front": {
-      "radius": 0.1,
-      "rounds": 12,
-      "share": 0.5,
-      "note": "Each vertex on the front of each bent knee, within 0.1 units of the knee joint in the bind, moves across the leg bones so that its distance from them goes half of the way to the mean distance of its neighbors, in each of 12 rounds, times its thigh and shin share less its hips share and a half cosine that falls to 0 at the radius (knee_front() of tools/blender/rig_mesh.py). The linear blend of the thigh and the shin put each vertex of the knee front with the weights of both bones on the chord between their two places, so the knee front was a flat bevel 2.0 cm (left) and 4.4 cm (right) inside the round of the leg along the bisector of the knee, between the top of the thigh and the front of the shin, with 12 edges over the crease angle of the app (the largest 78.7 degrees): a block with a sharp edge on the top of the knee (user, 2026-10-27: \"the polar bear's knee is still more bulky than expected. check the original mesh for reference\"). The source knee is a round column with no bump (docs/research/2026-10-27-wolf-knee.md). With the two more front rings of refine.rings, the rounding leaves 2 such edges on the left knee (the largest 54.1 degrees) and 1 on the right knee. A dual quaternion blend of the knee front turned the edge at the knee middle to 98 degrees, a fair along the vertex normals with 24 rounds turned faces of the rings over, and two more front rings left 8 hard edges."
+      "note": "After the smoothing, each vertex at the back of the calf, from 0.03 to 0.17 units down the shin from the knee joint and within 0.09 units of the shin axis, moves half of the normal part of the way to the middle of its neighbors in each of 24 rounds, times a half sine over the band (calf_fair() of tools/blender/rig_mesh.py). The fair moves no vertex along the skin. With no fair, the back of the left knee had 12 edges that turned more than 40 degrees (hard_edges.py), against 5 with the fair. A band to 0.2 moved corners of the heel and thus the pedal foot of each pose (docs/research/2026-10-27-rigs3.md, docs/research/2026-10-27-polar-legs-rebuild.md)."
     }
   },
   "sit": {
@@ -615,5 +500,9 @@
     "end": 0.0055,
     "most": 0.25,
     "note": "The values of the dog and the deer."
+  },
+  "bind": {
+    "knee": "dq",
+    "note": "Each vertex with a weight on both the thigh and the shin of one side takes the dual quaternion blend in the seated bind (bind_skin() of tools/blender/rig_mesh.py), so that each ring of the knee turns by its share of the bend and keeps its radius: the knee front rounds over the kneecap, and the back of the knee folds into a crease. The linear blend put the knee front on a flat bevel at 0.83 of the round of the leg, and the knee was 0.120 units deep on its bisector, against 0.148 in the source. The other vertices keep the linear blend, and the app moves the bind mesh with the linear blend (docs/research/2026-10-27-polar-legs-rebuild.md)."
   }
 }

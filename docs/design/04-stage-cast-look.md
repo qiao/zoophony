@@ -450,35 +450,24 @@ mesh are quad tubes (rings at a right angle to the bones), and the weights come 
     weight: the hips take only the thigh near the hip joint (`weights.haunch`), and on a short
     thick leg the weight of the thigh and the shin splits by height across the knee joint
     (`weights.knee`), so that the knee bends as one clean corner. A face that crosses the knee
-    cannot bend, so a long face of a source leg from the crotch to the ankle stays one flat plane
-    in the seated bind, and the knee reads as an angular block over a slab. Rings of new vertices
-    at the knee cut such faces (`refine.rings` with the joint `shin`), and each new vertex takes
-    the knee and haunch rules at its height, so that the seated leg reads as a thigh, a round
-    knee, and a shin. A source quad near the knee can have its long diagonal as the edge: the bent
-    knee keeps that edge a straight chord, the quad folds along it into a groove or a ridge, and a
-    ring vertex on the chord stays on it. So such an edge flips to the other diagonal before the
-    rings when the flip makes the bind smoother (`refine.legFlip`). At the back of the bent knee,
-    the bind puts each vertex nearer to the knee
-    plane than the radius of the leg inside the leg, and its faces fold through the skin as
-    stacked light stripes. So the rings near the knee plane cut only the front arc of the knee
-    (`toward`, `within`), and the rings of the back arc stand where the thigh and the calf meet
-    in the bind. A smoothing of the seam of the thigh and the shin faces at the back of each knee
-    (`kneeCrease`) rounds the corner, so that its faces do not turn more than the crease angle
-    from each other. Its weight falls with the distance from the seam (`reach`), because a weight
-    by rings of neighbors carried the move down each long calf face, and the tilted faces showed
-    as light wedges. More back rings cut the calf, so that the weight fades over short faces. The
-    hips keep their share, because the crotch of a short leg lies near the knee. The smoothing
-    slides the calf vertices along the skin toward the knee, and the rings cut long thin calf
-    faces into slivers whose corners slide apart into a groove with a dark facet. So the back of
-    the calf is then faired along the vertex normals, in a band near the shin axis that ends
-    above the heel (`kneeCrease.fair`), and the faces behind each knee take the normals of the
-    skin with no crease angle (`rootNormals.knee`). At the front of the bent knee, the linear
-    blend puts each vertex with the weights of both the thigh and the shin on the chord between
-    their two places, so the knee front is a flat bevel inside the round of the leg, with hard
-    ridges at its edges: a block with a sharp edge. So more rings cut the knee front, each vertex
-    of the knee front moves across the leg bones toward the mean distance of its neighbors
-    (`kneeCrease.front`), and the faces in front of each knee take the normals of the skin too
-    (`rootNormals.kneeFront`). A real bent knee rounds over the front.
+    cannot bend, so a long face of a source leg from the haunch to the heel stays one flat plane
+    in the seated bind, and the leg reads as a wedge with no hollow behind the knee. Such a leg
+    gets new quad faces in a copy of the mesh: a tube of rings at right angles to the bones, from
+    the line where the thigh leaves the haunch to the ankle (`docs/agents/rig-blender.md`). The
+    rig makes the legs longer after the copy, along the bones only, so each ring keeps its right
+    angle. The linear blend puts each vertex of the bent knee on the chord between its places on
+    the thigh and the shin, so the knee front is a flat bevel and the knee thins. With the dual
+    quaternion blend of the knees (`bind.knee`), each ring turns by its share of the bend and
+    keeps its radius: the front rounds over the kneecap, and the back of the knee folds into a
+    crease, as a real bent knee does. A smoothing of the seam of the thigh and the shin faces at
+    the back of each knee (`kneeCrease`) opens the crease, so that its faces do not turn more
+    than the crease angle from each other. Its weight falls with the distance from the seam
+    (`reach`), and the hips keep their share, because the crotch of a short leg lies near the
+    knee. The back of the calf is then faired along the vertex normals (`kneeCrease.fair`), and
+    the faces near each knee take the normals of the skin with no crease angle
+    (`rootNormals.knee`, `rootNormals.kneeFront`). Bone heat spreads over the whole mesh, so the
+    kept vertices of a rebuilt mesh take the bone heat of the mesh before the rebuild
+    (`heatSource`), and the trunk, the haunch, and the seat keep their weights.
     `pnpm rig-mesh --check` gives the gaps of the tail to the floor and to the
     chair over one sway period (`tools/tail-gap.ts`).
   - Weights and shapes. Bone heat gives the weights, and rules and rings of new vertices at the
