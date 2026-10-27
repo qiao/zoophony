@@ -1,0 +1,236 @@
+
+> zoophony@0.0.0 pose-depth /Users/xueqiaoxu/proj/zoophony/.claude/worktrees/fifth-rhino
+> node tools/pose-depth.ts tubist --demo boulanger-matin --set tuba\@rhino.gripShiftL\=\[0.07\,0.15\,0.05\]\;tuba\@rhino.restGripShiftL\=\[0.07\,0.14\,0.05\] --set tuba\@rhino.gripShiftL\=\[0.07\,0.145\,0.05\]\;tuba\@rhino.restGripShiftL\=\[0.07\,0.14\,0.05\] --set tuba\@rhino.gripShiftL\=\[0.07\,0.15\,0.03\]\;tuba\@rhino.restGripShiftL\=\[0.07\,0.14\,0.03\] --set tuba\@rhino.gripShiftL\=\[0.05\,0.15\,0.04\]\;tuba\@rhino.restGripShiftL\=\[0.05\,0.14\,0.04\]
+
+Sweep of the tubist: 1 demo with the role (boulanger-matin), 5 rows to sweep.
+Estimated time: about 2.2 minutes: 5 rows of 26.3 s, from the last rows of this sweep, with a time for 1 of 1 demos.
+base (25.0 s):
+  boulanger-matin tubist 39 (rhino, stand)
+    play: paws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1130 samples over 1.5 cm (0.0%)
+    play: paws in tuba: 2.3 cm at song 1.13 s, wall 12.75 s (handL 0.54); next note in 113.09 s; limit 2.2 cm OVER; 1130 of 1130 samples over 2.2 cm (100.0%)
+    play: claws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1130 samples over 1.5 cm (0.0%)
+    play: claws in tuba: 0.9 cm at song 271.63 s, wall 283.25 s (fingersR); next note in 0.41 s; limit 1.5 cm; 0 of 1130 samples over 1.5 cm (0.0%)
+    play: forearms in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1130 samples over 1.5 cm (0.0%)
+    play: forearms in tuba: 1.4 cm at song 171.13 s, wall 182.75 s (forearmL 1.10); next note in 67.16 s; limit 1.5 cm; 0 of 1130 samples over 1.5 cm (0.0%)
+    play: upper arms in body: 0.3 cm at song 194.13 s, wall 205.75 s (upperArmR 0.41); next note in 44.16 s; limit 1.5 cm; 0 of 1130 samples over 1.5 cm (0.0%)
+    play: upper arms in tuba: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1130 samples over 1.5 cm (0.0%)
+    play: instrument in body: 3.8 cm at song 55.13 s, wall 66.75 s (instrument); next note in 59.09 s; limit 2.0 cm OVER; 1130 of 1130 samples over 2.0 cm (100.0%)
+    lift: paws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: paws in tuba: 2.3 cm at song 0.00 s, wall 11.80 s (handL 0.54); next note in 114.22 s; limit 2.2 cm OVER; 24 of 31 samples over 2.2 cm (77.4%)
+    lift: claws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: claws in tuba: 1.0 cm at song -1.02 s, wall 10.60 s (fingersR); next note in 115.24 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: forearms in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: forearms in tuba: 1.5 cm at song -1.32 s, wall 10.30 s (forearmL 1.04); next note in 115.54 s; limit 1.5 cm OVER; 5 of 31 samples over 1.5 cm (16.1%)
+    lift: upper arms in body: 0.9 cm at song -1.62 s, wall 10.00 s (upperArmR 0.41); next note in 115.84 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: upper arms in tuba: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: instrument in body: 3.8 cm at song 0.00 s, wall 12.10 s (instrument); next note in 114.22 s; limit 2.0 cm OVER; 24 of 31 samples over 2.0 cm (77.4%)
+    rest: paws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: paws in tuba: 1.5 cm at song -1.62 s, wall 10.00 s (handL 0.53); next note in 115.84 s; limit 2.2 cm; 0 of 1 samples over 2.2 cm (0.0%)
+    rest: claws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: claws in tuba: 0.6 cm at song -1.62 s, wall 10.00 s (fingersR); next note in 115.84 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: forearms in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: forearms in tuba: 1.5 cm at song -1.62 s, wall 10.00 s (forearmL 1.02); next note in 115.84 s; limit 1.5 cm OVER; 1 of 1 samples over 1.5 cm (100.0%)
+    rest: upper arms in body: 0.9 cm at song -1.62 s, wall 10.00 s (upperArmR 0.41); next note in 115.84 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: upper arms in tuba: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: instrument in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 2.0 cm; 0 of 1 samples over 2.0 cm (0.0%)
+    lower: paws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 30 samples over 1.5 cm (0.0%)
+    lower: paws in tuba: 2.3 cm at song 280.67 s, wall 10.00 s (handL 0.54); after the last note; limit 2.2 cm OVER; 11 of 30 samples over 2.2 cm (36.7%)
+    lower: claws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 30 samples over 1.5 cm (0.0%)
+    lower: claws in tuba: 1.0 cm at song 280.67 s, wall 13.70 s (fingersR); after the last note; limit 1.5 cm; 0 of 30 samples over 1.5 cm (0.0%)
+    lower: forearms in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 30 samples over 1.5 cm (0.0%)
+    lower: forearms in tuba: 1.5 cm at song 280.67 s, wall 14.20 s (forearmL 1.03); after the last note; limit 1.5 cm OVER; 14 of 30 samples over 1.5 cm (46.7%)
+    lower: upper arms in body: 0.9 cm at song 280.67 s, wall 14.80 s (upperArmR 0.41); after the last note; limit 1.5 cm; 0 of 30 samples over 1.5 cm (0.0%)
+    lower: upper arms in tuba: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 30 samples over 1.5 cm (0.0%)
+    lower: instrument in body: 3.8 cm at song 280.67 s, wall 12.50 s (instrument); after the last note; limit 2.0 cm OVER; 11 of 30 samples over 2.0 cm (36.7%)
+    target L: 73.74 mm at song 248.34 s
+    target R: 74.99 mm at song 248.34 s
+    targets: 0.0% of 32 within 5 mm, worst 74.99 mm
+tuba@rhino.gripShiftL=[0.07,0.15,0.05];tuba@rhino.restGripShiftL=[0.07,0.14,0.05] (24.6 s):
+  boulanger-matin tubist 39 (rhino, stand)
+    play: paws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1130 samples over 1.5 cm (0.0%)
+    play: paws in tuba: 2.1 cm at song 171.13 s, wall 182.75 s (handL 0.54); next note in 67.16 s; limit 2.2 cm; 0 of 1130 samples over 2.2 cm (0.0%)
+    play: claws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1130 samples over 1.5 cm (0.0%)
+    play: claws in tuba: 0.9 cm at song 271.63 s, wall 283.25 s (fingersR); next note in 0.41 s; limit 1.5 cm; 0 of 1130 samples over 1.5 cm (0.0%)
+    play: forearms in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1130 samples over 1.5 cm (0.0%)
+    play: forearms in tuba: 1.2 cm at song 171.13 s, wall 182.75 s (forearmL 1.08); next note in 67.16 s; limit 1.5 cm; 0 of 1130 samples over 1.5 cm (0.0%)
+    play: upper arms in body: 0.3 cm at song 194.13 s, wall 205.75 s (upperArmR 0.41); next note in 44.16 s; limit 1.5 cm; 0 of 1130 samples over 1.5 cm (0.0%)
+    play: upper arms in tuba: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1130 samples over 1.5 cm (0.0%)
+    play: instrument in body: 3.8 cm at song 55.13 s, wall 66.75 s (instrument); next note in 59.09 s; limit 2.0 cm OVER; 1130 of 1130 samples over 2.0 cm (100.0%)
+    lift: paws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: paws in tuba: 2.1 cm at song 0.00 s, wall 11.80 s (handL 0.54); next note in 114.22 s; limit 2.2 cm; 0 of 31 samples over 2.2 cm (0.0%)
+    lift: claws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: claws in tuba: 1.0 cm at song -1.02 s, wall 10.60 s (fingersR); next note in 115.24 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: forearms in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: forearms in tuba: 1.5 cm at song -1.42 s, wall 10.20 s (forearmL 1.02); next note in 115.64 s; limit 1.5 cm OVER; 4 of 31 samples over 1.5 cm (12.9%)
+    lift: upper arms in body: 0.9 cm at song -1.62 s, wall 10.00 s (upperArmR 0.41); next note in 115.84 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: upper arms in tuba: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: instrument in body: 3.8 cm at song 0.00 s, wall 12.10 s (instrument); next note in 114.22 s; limit 2.0 cm OVER; 24 of 31 samples over 2.0 cm (77.4%)
+    rest: paws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: paws in tuba: 1.5 cm at song -1.62 s, wall 10.00 s (handL 0.53); next note in 115.84 s; limit 2.2 cm; 0 of 1 samples over 2.2 cm (0.0%)
+    rest: claws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: claws in tuba: 0.6 cm at song -1.62 s, wall 10.00 s (fingersR); next note in 115.84 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: forearms in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: forearms in tuba: 1.5 cm at song -1.62 s, wall 10.00 s (forearmL 1.02); next note in 115.84 s; limit 1.5 cm OVER; 1 of 1 samples over 1.5 cm (100.0%)
+    rest: upper arms in body: 0.9 cm at song -1.62 s, wall 10.00 s (upperArmR 0.41); next note in 115.84 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: upper arms in tuba: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: instrument in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 2.0 cm; 0 of 1 samples over 2.0 cm (0.0%)
+    lower: paws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 30 samples over 1.5 cm (0.0%)
+    lower: paws in tuba: 2.1 cm at song 280.67 s, wall 12.50 s (handL 0.54); after the last note; limit 2.2 cm; 0 of 30 samples over 2.2 cm (0.0%)
+    lower: claws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 30 samples over 1.5 cm (0.0%)
+    lower: claws in tuba: 1.0 cm at song 280.67 s, wall 13.70 s (fingersR); after the last note; limit 1.5 cm; 0 of 30 samples over 1.5 cm (0.0%)
+    lower: forearms in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 30 samples over 1.5 cm (0.0%)
+    lower: forearms in tuba: 1.5 cm at song 280.67 s, wall 14.20 s (forearmL 1.03); after the last note; limit 1.5 cm OVER; 13 of 30 samples over 1.5 cm (43.3%)
+    lower: upper arms in body: 0.9 cm at song 280.67 s, wall 14.80 s (upperArmR 0.41); after the last note; limit 1.5 cm; 0 of 30 samples over 1.5 cm (0.0%)
+    lower: upper arms in tuba: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 30 samples over 1.5 cm (0.0%)
+    lower: instrument in body: 3.8 cm at song 280.67 s, wall 12.50 s (instrument); after the last note; limit 2.0 cm OVER; 11 of 30 samples over 2.0 cm (36.7%)
+    target L: 71.92 mm at song 248.34 s
+    target R: 74.99 mm at song 248.34 s
+    targets: 0.0% of 32 within 5 mm, worst 74.99 mm
+tuba@rhino.gripShiftL=[0.07,0.145,0.05];tuba@rhino.restGripShiftL=[0.07,0.14,0.05] (24.8 s):
+  boulanger-matin tubist 39 (rhino, stand)
+    play: paws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1130 samples over 1.5 cm (0.0%)
+    play: paws in tuba: 1.9 cm at song 120.88 s, wall 132.50 s (handL 0.54); next note in 117.41 s; limit 2.2 cm; 0 of 1130 samples over 2.2 cm (0.0%)
+    play: claws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1130 samples over 1.5 cm (0.0%)
+    play: claws in tuba: 0.9 cm at song 271.63 s, wall 283.25 s (fingersR); next note in 0.41 s; limit 1.5 cm; 0 of 1130 samples over 1.5 cm (0.0%)
+    play: forearms in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1130 samples over 1.5 cm (0.0%)
+    play: forearms in tuba: 1.1 cm at song 171.13 s, wall 182.75 s (forearmL 1.08); next note in 67.16 s; limit 1.5 cm; 0 of 1130 samples over 1.5 cm (0.0%)
+    play: upper arms in body: 0.3 cm at song 194.13 s, wall 205.75 s (upperArmR 0.41); next note in 44.16 s; limit 1.5 cm; 0 of 1130 samples over 1.5 cm (0.0%)
+    play: upper arms in tuba: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1130 samples over 1.5 cm (0.0%)
+    play: instrument in body: 3.8 cm at song 55.13 s, wall 66.75 s (instrument); next note in 59.09 s; limit 2.0 cm OVER; 1130 of 1130 samples over 2.0 cm (100.0%)
+    lift: paws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: paws in tuba: 1.9 cm at song 0.00 s, wall 11.70 s (handL 0.54); next note in 114.22 s; limit 2.2 cm; 0 of 31 samples over 2.2 cm (0.0%)
+    lift: claws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: claws in tuba: 1.0 cm at song -1.02 s, wall 10.60 s (fingersR); next note in 115.24 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: forearms in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: forearms in tuba: 1.5 cm at song -1.42 s, wall 10.20 s (forearmL 1.02); next note in 115.64 s; limit 1.5 cm OVER; 3 of 31 samples over 1.5 cm (9.7%)
+    lift: upper arms in body: 0.9 cm at song -1.62 s, wall 10.00 s (upperArmR 0.41); next note in 115.84 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: upper arms in tuba: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: instrument in body: 3.8 cm at song 0.00 s, wall 12.10 s (instrument); next note in 114.22 s; limit 2.0 cm OVER; 24 of 31 samples over 2.0 cm (77.4%)
+    rest: paws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: paws in tuba: 1.5 cm at song -1.62 s, wall 10.00 s (handL 0.53); next note in 115.84 s; limit 2.2 cm; 0 of 1 samples over 2.2 cm (0.0%)
+    rest: claws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: claws in tuba: 0.6 cm at song -1.62 s, wall 10.00 s (fingersR); next note in 115.84 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: forearms in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: forearms in tuba: 1.5 cm at song -1.62 s, wall 10.00 s (forearmL 1.02); next note in 115.84 s; limit 1.5 cm OVER; 1 of 1 samples over 1.5 cm (100.0%)
+    rest: upper arms in body: 0.9 cm at song -1.62 s, wall 10.00 s (upperArmR 0.41); next note in 115.84 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: upper arms in tuba: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: instrument in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 2.0 cm; 0 of 1 samples over 2.0 cm (0.0%)
+    lower: paws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 30 samples over 1.5 cm (0.0%)
+    lower: paws in tuba: 1.9 cm at song 280.67 s, wall 12.50 s (handL 0.54); after the last note; limit 2.2 cm; 0 of 30 samples over 2.2 cm (0.0%)
+    lower: claws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 30 samples over 1.5 cm (0.0%)
+    lower: claws in tuba: 1.0 cm at song 280.67 s, wall 13.70 s (fingersR); after the last note; limit 1.5 cm; 0 of 30 samples over 1.5 cm (0.0%)
+    lower: forearms in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 30 samples over 1.5 cm (0.0%)
+    lower: forearms in tuba: 1.5 cm at song 280.67 s, wall 14.40 s (forearmL 1.02); after the last note; limit 1.5 cm OVER; 12 of 30 samples over 1.5 cm (40.0%)
+    lower: upper arms in body: 0.9 cm at song 280.67 s, wall 14.80 s (upperArmR 0.41); after the last note; limit 1.5 cm; 0 of 30 samples over 1.5 cm (0.0%)
+    lower: upper arms in tuba: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 30 samples over 1.5 cm (0.0%)
+    lower: instrument in body: 3.8 cm at song 280.67 s, wall 12.50 s (instrument); after the last note; limit 2.0 cm OVER; 11 of 30 samples over 2.0 cm (36.7%)
+    target L: 70.13 mm at song 248.34 s
+    target R: 74.99 mm at song 248.34 s
+    targets: 0.0% of 32 within 5 mm, worst 74.99 mm
+tuba@rhino.gripShiftL=[0.07,0.15,0.03];tuba@rhino.restGripShiftL=[0.07,0.14,0.03] (24.4 s):
+  boulanger-matin tubist 39 (rhino, stand)
+    play: paws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1130 samples over 1.5 cm (0.0%)
+    play: paws in tuba: 2.1 cm at song 273.38 s, wall 285.00 s (handL 0.53); next note in 0.33 s; limit 2.2 cm; 0 of 1130 samples over 2.2 cm (0.0%)
+    play: claws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1130 samples over 1.5 cm (0.0%)
+    play: claws in tuba: 0.9 cm at song 271.63 s, wall 283.25 s (fingersR); next note in 0.41 s; limit 1.5 cm; 0 of 1130 samples over 1.5 cm (0.0%)
+    play: forearms in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1130 samples over 1.5 cm (0.0%)
+    play: forearms in tuba: 1.0 cm at song 171.13 s, wall 182.75 s (forearmL 1.11); next note in 67.16 s; limit 1.5 cm; 0 of 1130 samples over 1.5 cm (0.0%)
+    play: upper arms in body: 0.3 cm at song 194.13 s, wall 205.75 s (upperArmR 0.41); next note in 44.16 s; limit 1.5 cm; 0 of 1130 samples over 1.5 cm (0.0%)
+    play: upper arms in tuba: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1130 samples over 1.5 cm (0.0%)
+    play: instrument in body: 3.8 cm at song 55.13 s, wall 66.75 s (instrument); next note in 59.09 s; limit 2.0 cm OVER; 1130 of 1130 samples over 2.0 cm (100.0%)
+    lift: paws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: paws in tuba: 2.1 cm at song 0.00 s, wall 11.80 s (handL 0.53); next note in 114.22 s; limit 2.2 cm; 0 of 31 samples over 2.2 cm (0.0%)
+    lift: claws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: claws in tuba: 1.0 cm at song -1.02 s, wall 10.60 s (fingersR); next note in 115.24 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: forearms in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: forearms in tuba: 1.4 cm at song -1.22 s, wall 10.40 s (forearmR 1.01); next note in 115.44 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: upper arms in body: 0.9 cm at song -1.62 s, wall 10.00 s (upperArmR 0.41); next note in 115.84 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: upper arms in tuba: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: instrument in body: 3.8 cm at song 0.00 s, wall 12.10 s (instrument); next note in 114.22 s; limit 2.0 cm OVER; 24 of 31 samples over 2.0 cm (77.4%)
+    rest: paws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: paws in tuba: 1.7 cm at song -1.62 s, wall 10.00 s (handL 0.54); next note in 115.84 s; limit 2.2 cm; 0 of 1 samples over 2.2 cm (0.0%)
+    rest: claws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: claws in tuba: 0.6 cm at song -1.62 s, wall 10.00 s (fingersR); next note in 115.84 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: forearms in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: forearms in tuba: 1.1 cm at song -1.62 s, wall 10.00 s (forearmL 1.04); next note in 115.84 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: upper arms in body: 0.9 cm at song -1.62 s, wall 10.00 s (upperArmR 0.41); next note in 115.84 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: upper arms in tuba: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: instrument in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 2.0 cm; 0 of 1 samples over 2.0 cm (0.0%)
+    lower: paws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 30 samples over 1.5 cm (0.0%)
+    lower: paws in tuba: 2.1 cm at song 280.67 s, wall 10.00 s (handL 0.53); after the last note; limit 2.2 cm; 0 of 30 samples over 2.2 cm (0.0%)
+    lower: claws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 30 samples over 1.5 cm (0.0%)
+    lower: claws in tuba: 1.0 cm at song 280.67 s, wall 13.70 s (fingersR); after the last note; limit 1.5 cm; 0 of 30 samples over 1.5 cm (0.0%)
+    lower: forearms in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 30 samples over 1.5 cm (0.0%)
+    lower: forearms in tuba: 1.5 cm at song 280.67 s, wall 14.00 s (forearmR 1.01); after the last note; limit 1.5 cm; 0 of 30 samples over 1.5 cm (0.0%)
+    lower: upper arms in body: 0.9 cm at song 280.67 s, wall 14.80 s (upperArmR 0.41); after the last note; limit 1.5 cm; 0 of 30 samples over 1.5 cm (0.0%)
+    lower: upper arms in tuba: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 30 samples over 1.5 cm (0.0%)
+    lower: instrument in body: 3.8 cm at song 280.67 s, wall 12.50 s (instrument); after the last note; limit 2.0 cm OVER; 11 of 30 samples over 2.0 cm (36.7%)
+    target L: 69.97 mm at song 248.34 s
+    target R: 74.99 mm at song 248.34 s
+    targets: 0.0% of 32 within 5 mm, worst 74.99 mm
+tuba@rhino.gripShiftL=[0.05,0.15,0.04];tuba@rhino.restGripShiftL=[0.05,0.14,0.04] (24.5 s):
+  boulanger-matin tubist 39 (rhino, stand)
+    play: paws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1130 samples over 1.5 cm (0.0%)
+    play: paws in tuba: 2.0 cm at song 258.88 s, wall 270.50 s (handL 0.54); next note in 6.91 s; limit 2.2 cm; 0 of 1130 samples over 2.2 cm (0.0%)
+    play: claws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1130 samples over 1.5 cm (0.0%)
+    play: claws in tuba: 0.9 cm at song 271.63 s, wall 283.25 s (fingersR); next note in 0.41 s; limit 1.5 cm; 0 of 1130 samples over 1.5 cm (0.0%)
+    play: forearms in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1130 samples over 1.5 cm (0.0%)
+    play: forearms in tuba: 1.1 cm at song 274.13 s, wall 285.75 s (forearmL 1.10); next note in 0.41 s; limit 1.5 cm; 0 of 1130 samples over 1.5 cm (0.0%)
+    play: upper arms in body: 0.3 cm at song 194.13 s, wall 205.75 s (upperArmR 0.41); next note in 44.16 s; limit 1.5 cm; 0 of 1130 samples over 1.5 cm (0.0%)
+    play: upper arms in tuba: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1130 samples over 1.5 cm (0.0%)
+    play: instrument in body: 3.8 cm at song 55.13 s, wall 66.75 s (instrument); next note in 59.09 s; limit 2.0 cm OVER; 1130 of 1130 samples over 2.0 cm (100.0%)
+    lift: paws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: paws in tuba: 2.0 cm at song 0.00 s, wall 11.80 s (handL 0.54); next note in 114.22 s; limit 2.2 cm; 0 of 31 samples over 2.2 cm (0.0%)
+    lift: claws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: claws in tuba: 1.0 cm at song -1.02 s, wall 10.60 s (fingersR); next note in 115.24 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: forearms in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: forearms in tuba: 1.4 cm at song -1.22 s, wall 10.40 s (forearmR 1.01); next note in 115.44 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: upper arms in body: 0.9 cm at song -1.62 s, wall 10.00 s (upperArmR 0.41); next note in 115.84 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: upper arms in tuba: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: instrument in body: 3.8 cm at song 0.00 s, wall 12.10 s (instrument); next note in 114.22 s; limit 2.0 cm OVER; 24 of 31 samples over 2.0 cm (77.4%)
+    rest: paws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: paws in tuba: 1.5 cm at song -1.62 s, wall 10.00 s (handL 0.53); next note in 115.84 s; limit 2.2 cm; 0 of 1 samples over 2.2 cm (0.0%)
+    rest: claws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: claws in tuba: 0.6 cm at song -1.62 s, wall 10.00 s (fingersR); next note in 115.84 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: forearms in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: forearms in tuba: 1.3 cm at song -1.62 s, wall 10.00 s (forearmL 1.02); next note in 115.84 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: upper arms in body: 0.9 cm at song -1.62 s, wall 10.00 s (upperArmR 0.41); next note in 115.84 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: upper arms in tuba: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: instrument in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 2.0 cm; 0 of 1 samples over 2.0 cm (0.0%)
+    lower: paws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 30 samples over 1.5 cm (0.0%)
+    lower: paws in tuba: 2.0 cm at song 280.67 s, wall 12.50 s (handL 0.54); after the last note; limit 2.2 cm; 0 of 30 samples over 2.2 cm (0.0%)
+    lower: claws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 30 samples over 1.5 cm (0.0%)
+    lower: claws in tuba: 1.0 cm at song 280.67 s, wall 13.70 s (fingersR); after the last note; limit 1.5 cm; 0 of 30 samples over 1.5 cm (0.0%)
+    lower: forearms in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 30 samples over 1.5 cm (0.0%)
+    lower: forearms in tuba: 1.5 cm at song 280.67 s, wall 14.00 s (forearmR 1.01); after the last note; limit 1.5 cm; 0 of 30 samples over 1.5 cm (0.0%)
+    lower: upper arms in body: 0.9 cm at song 280.67 s, wall 14.80 s (upperArmR 0.41); after the last note; limit 1.5 cm; 0 of 30 samples over 1.5 cm (0.0%)
+    lower: upper arms in tuba: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 30 samples over 1.5 cm (0.0%)
+    lower: instrument in body: 3.8 cm at song 280.67 s, wall 12.50 s (instrument); after the last note; limit 2.0 cm OVER; 11 of 30 samples over 2.0 cm (36.7%)
+    target L: 67.84 mm at song 248.34 s
+    target R: 74.99 mm at song 248.34 s
+    targets: 0.0% of 32 within 5 mm, worst 74.99 mm
+| variant | play paws>tuba cm | play claws>tuba cm | play forearms>tuba cm | play upper arms>body cm | play instrument>body cm | lift paws>tuba cm | lift claws>tuba cm | lift forearms>tuba cm | lift upper arms>body cm | lift instrument>body cm | rest paws>tuba cm | rest claws>tuba cm | rest forearms>tuba cm | rest upper arms>body cm | lower paws>tuba cm | lower claws>tuba cm | lower forearms>tuba cm | lower upper arms>body cm | lower instrument>body cm | target L mm | target R mm | targets within 5 mm % |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| base | 2.3 | 0.9 | 1.4 | 0.3 | 3.8 | 2.3 | 1.0 | 1.5 | 0.9 | 3.8 | 1.5 | 0.6 | 1.5 | 0.9 | 2.3 | 1.0 | 1.5 | 0.9 | 3.8 | 73.7 | 75.0 | 0.0 |
+| tuba@rhino.gripShiftL=[0.07,0.15,0.05];tuba@rhino.restGripShiftL=[0.07,0.14,0.05] | 2.1 | 0.9 | 1.2 | 0.3 | 3.8 | 2.1 | 1.0 | 1.5 | 0.9 | 3.8 | 1.5 | 0.6 | 1.5 | 0.9 | 2.1 | 1.0 | 1.5 | 0.9 | 3.8 | 71.9 | 75.0 | 0.0 |
+| tuba@rhino.gripShiftL=[0.07,0.145,0.05];tuba@rhino.restGripShiftL=[0.07,0.14,0.05] | 1.9 | 0.9 | 1.1 | 0.3 | 3.8 | 1.9 | 1.0 | 1.5 | 0.9 | 3.8 | 1.5 | 0.6 | 1.5 | 0.9 | 1.9 | 1.0 | 1.5 | 0.9 | 3.8 | 70.1 | 75.0 | 0.0 |
+| tuba@rhino.gripShiftL=[0.07,0.15,0.03];tuba@rhino.restGripShiftL=[0.07,0.14,0.03] | 2.1 | 0.9 | 1.0 | 0.3 | 3.8 | 2.1 | 1.0 | 1.4 | 0.9 | 3.8 | 1.7 | 0.6 | 1.1 | 0.9 | 2.1 | 1.0 | 1.5 | 0.9 | 3.8 | 70.0 | 75.0 | 0.0 |
+| tuba@rhino.gripShiftL=[0.05,0.15,0.04];tuba@rhino.restGripShiftL=[0.05,0.14,0.04] | 2.0 | 0.9 | 1.1 | 0.3 | 3.8 | 2.0 | 1.0 | 1.4 | 0.9 | 3.8 | 1.5 | 0.6 | 1.3 | 0.9 | 2.0 | 1.0 | 1.5 | 0.9 | 3.8 | 67.8 | 75.0 | 0.0 |
+
+The demo and the time of the sample of each value of the table:
+| variant | play paws>tuba cm | play claws>tuba cm | play forearms>tuba cm | play upper arms>body cm | play instrument>body cm | lift paws>tuba cm | lift claws>tuba cm | lift forearms>tuba cm | lift upper arms>body cm | lift instrument>body cm | rest paws>tuba cm | rest claws>tuba cm | rest forearms>tuba cm | rest upper arms>body cm | lower paws>tuba cm | lower claws>tuba cm | lower forearms>tuba cm | lower upper arms>body cm | lower instrument>body cm | target L mm | target R mm |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| base | boulanger-matin 1.13 s | boulanger-matin 271.63 s | boulanger-matin 171.13 s | boulanger-matin 194.13 s | boulanger-matin 55.13 s | boulanger-matin wall 11.80 s | boulanger-matin wall 10.60 s | boulanger-matin wall 10.30 s | boulanger-matin wall 10.00 s | boulanger-matin wall 12.10 s | boulanger-matin wall 10.00 s | boulanger-matin wall 10.00 s | boulanger-matin wall 10.00 s | boulanger-matin wall 10.00 s | boulanger-matin wall 10.00 s | boulanger-matin wall 13.70 s | boulanger-matin wall 14.20 s | boulanger-matin wall 14.80 s | boulanger-matin wall 12.50 s | boulanger-matin 248.34 s | boulanger-matin 248.34 s |
+| tuba@rhino.gripShiftL=[0.07,0.15,0.05];tuba@rhino.restGripShiftL=[0.07,0.14,0.05] | boulanger-matin 171.13 s | boulanger-matin 271.63 s | boulanger-matin 171.13 s | boulanger-matin 194.13 s | boulanger-matin 55.13 s | boulanger-matin wall 11.80 s | boulanger-matin wall 10.60 s | boulanger-matin wall 10.20 s | boulanger-matin wall 10.00 s | boulanger-matin wall 12.10 s | boulanger-matin wall 10.00 s | boulanger-matin wall 10.00 s | boulanger-matin wall 10.00 s | boulanger-matin wall 10.00 s | boulanger-matin wall 12.50 s | boulanger-matin wall 13.70 s | boulanger-matin wall 14.20 s | boulanger-matin wall 14.80 s | boulanger-matin wall 12.50 s | boulanger-matin 248.34 s | boulanger-matin 248.34 s |
+| tuba@rhino.gripShiftL=[0.07,0.145,0.05];tuba@rhino.restGripShiftL=[0.07,0.14,0.05] | boulanger-matin 120.88 s | boulanger-matin 271.63 s | boulanger-matin 171.13 s | boulanger-matin 194.13 s | boulanger-matin 55.13 s | boulanger-matin wall 11.70 s | boulanger-matin wall 10.60 s | boulanger-matin wall 10.20 s | boulanger-matin wall 10.00 s | boulanger-matin wall 12.10 s | boulanger-matin wall 10.00 s | boulanger-matin wall 10.00 s | boulanger-matin wall 10.00 s | boulanger-matin wall 10.00 s | boulanger-matin wall 12.50 s | boulanger-matin wall 13.70 s | boulanger-matin wall 14.40 s | boulanger-matin wall 14.80 s | boulanger-matin wall 12.50 s | boulanger-matin 248.34 s | boulanger-matin 248.34 s |
+| tuba@rhino.gripShiftL=[0.07,0.15,0.03];tuba@rhino.restGripShiftL=[0.07,0.14,0.03] | boulanger-matin 273.38 s | boulanger-matin 271.63 s | boulanger-matin 171.13 s | boulanger-matin 194.13 s | boulanger-matin 55.13 s | boulanger-matin wall 11.80 s | boulanger-matin wall 10.60 s | boulanger-matin wall 10.40 s | boulanger-matin wall 10.00 s | boulanger-matin wall 12.10 s | boulanger-matin wall 10.00 s | boulanger-matin wall 10.00 s | boulanger-matin wall 10.00 s | boulanger-matin wall 10.00 s | boulanger-matin wall 10.00 s | boulanger-matin wall 13.70 s | boulanger-matin wall 14.00 s | boulanger-matin wall 14.80 s | boulanger-matin wall 12.50 s | boulanger-matin 248.34 s | boulanger-matin 248.34 s |
+| tuba@rhino.gripShiftL=[0.05,0.15,0.04];tuba@rhino.restGripShiftL=[0.05,0.14,0.04] | boulanger-matin 258.88 s | boulanger-matin 271.63 s | boulanger-matin 274.13 s | boulanger-matin 194.13 s | boulanger-matin 55.13 s | boulanger-matin wall 11.80 s | boulanger-matin wall 10.60 s | boulanger-matin wall 10.40 s | boulanger-matin wall 10.00 s | boulanger-matin wall 12.10 s | boulanger-matin wall 10.00 s | boulanger-matin wall 10.00 s | boulanger-matin wall 10.00 s | boulanger-matin wall 10.00 s | boulanger-matin wall 12.50 s | boulanger-matin wall 13.70 s | boulanger-matin wall 14.00 s | boulanger-matin wall 14.80 s | boulanger-matin wall 12.50 s | boulanger-matin 248.34 s | boulanger-matin 248.34 s |
+
+The share of the samples over the goal of each pair (the limit, or --goal):
+| variant | play paws>tuba % | play instrument>body % | lift paws>tuba % | lift forearms>tuba % | lift instrument>body % | rest forearms>tuba % | lower paws>tuba % | lower forearms>tuba % | lower instrument>body % |
+|---|---|---|---|---|---|---|---|---|---|
+| base | 100.0 | 100.0 | 77.4 | 16.1 | 77.4 | 100.0 | 36.7 | 46.7 | 36.7 |
+| tuba@rhino.gripShiftL=[0.07,0.15,0.05];tuba@rhino.restGripShiftL=[0.07,0.14,0.05] | 0.0 | 100.0 | 0.0 | 12.9 | 77.4 | 100.0 | 0.0 | 43.3 | 36.7 |
+| tuba@rhino.gripShiftL=[0.07,0.145,0.05];tuba@rhino.restGripShiftL=[0.07,0.14,0.05] | 0.0 | 100.0 | 0.0 | 9.7 | 77.4 | 100.0 | 0.0 | 40.0 | 36.7 |
+| tuba@rhino.gripShiftL=[0.07,0.15,0.03];tuba@rhino.restGripShiftL=[0.07,0.14,0.03] | 0.0 | 100.0 | 0.0 | 0.0 | 77.4 | 0.0 | 0.0 | 0.0 | 36.7 |
+| tuba@rhino.gripShiftL=[0.05,0.15,0.04];tuba@rhino.restGripShiftL=[0.05,0.14,0.04] | 0.0 | 100.0 | 0.0 | 0.0 | 77.4 | 0.0 | 0.0 | 0.0 | 36.7 |

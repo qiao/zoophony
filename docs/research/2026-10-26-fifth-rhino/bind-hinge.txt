@@ -1,0 +1,24 @@
+source, forward bend: -14.8
+phi  -90: forearm [0.8915, 0.2198, -0.3961], bind palm angle -172.2
+phi  -75: forearm [0.8568, 0.4234, -0.2942], bind palm angle -156.5
+phi  -60: forearm [0.7899, 0.5936, -0.1543], bind palm angle -140.9
+phi  -45: forearm [0.6952, 0.7187, 0.0143], bind palm angle -125.5
+phi  -30: forearm [0.5793, 0.7902, 0.2], bind palm angle -110.4
+phi  -15: forearm [0.45, 0.8033, 0.3901], bind palm angle -95.4
+phi    0: forearm [0.3162, 0.7571, 0.5717], bind palm angle -80.6
+phi   15: forearm [0.187, 0.6546, 0.7325], bind palm angle -66.1
+phi   30: forearm [0.0712, 0.503, 0.8614], bind palm angle -51.7
+phi   45: forearm [-0.0234, 0.3125, 0.9496], bind palm angle -37.4
+phi   60: forearm [-0.0902, 0.0961, 0.9913], bind palm angle -23.1
+phi   75: forearm [-0.1248, -0.1314, 0.9834], bind palm angle -8.9
+phi   90: forearm [-0.1247, -0.3546, 0.9267], bind palm angle 5.3
+PHI 45 forearm [-0.023386, 0.312493, 0.949632] hand [-0.339594, 0.016098, 0.940434]
+PHI 60 forearm [-0.090231, 0.096104, 0.991273] hand [-0.358228, -0.23327, 0.904023]
+PHI 68 forearm [-0.112888, -0.02484, 0.993297] hand [-0.352468, -0.361824, 0.863047]
+PHI 75 forearm [-0.1248, -0.131426, 0.983439] hand [-0.338531, -0.469187, 0.815635]
+--- wrist bend kept in the frame of the palm
+old bend 25.0 deg, x -0.322 y -0.947
+PHI2 68 forearm [-0.112888, -0.02484, 0.993297] hand [-0.514147, 0.0639, 0.855318]
+  bind palm angle (hand palm vs forearm hinge) -15.4
+  old bind hand palm -80.5
+  with the turned hand: -20.4

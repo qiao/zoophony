@@ -1,0 +1,11 @@
+
+> zoophony@0.0.0 fold-probe /Users/xueqiaoxu/proj/zoophony/.claude/worktrees/fifth-rhino
+> node tools/fold-probe.ts tubist --base 57849ac5
+
+Folded faces of the studio body of the tubist on 57849ac5 (57849ac5) and on the working tree: 29.2 s.
+
+| Set | 57849ac5 (57849ac5) | Working tree |
+|---|---:|---:|
+| rest | 100.0% (2/2), most 14 (L 4 / R 2 / other 8) | 100.0% (2/2), most 11 (L 6 / R 1 / other 4) |
+| play | 100.0% (4147/4147), most 15 (L 4 / R 4 / other 7) | 100.0% (4147/4147), most 14 (L 6 / R 4 / other 4) |
+| lift | 100.0% (62/62), most 14 (L 4 / R 2 / other 8) | 100.0% (62/62), most 13 (L 6 / R 3 / other 4) |

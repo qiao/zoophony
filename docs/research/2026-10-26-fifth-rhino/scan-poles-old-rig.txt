@@ -1,0 +1,95 @@
+
+> zoophony@0.0.0 hold-fit /Users/xueqiaoxu/proj/zoophony/.claude/worktrees/fifth-rhino
+> node tools/hold-fit.ts tubist --set tuba\@rhino.poleL\=\[-0.5\,-1\,0\]\;tuba\@rhino.restPoleL\=\[-0.5\,-1\,0\] --set tuba\@rhino.poleL\=\[-0.25\,-1\,0\]\;tuba\@rhino.restPoleL\=\[-0.25\,-1\,0\] --set tuba\@rhino.poleL\=\[-0.5\,-1\,0.4\]\;tuba\@rhino.restPoleL\=\[-0.5\,-1\,0.4\] --set tuba\@rhino.poleL\=\[-0.5\,-1\,-0.4\]\;tuba\@rhino.restPoleL\=\[-0.5\,-1\,-0.4\] --set tuba\@rhino.poleR\=\[1\,-1\,-0.25\]\;tuba\@rhino.restPoleR\=\[1\,-1\,-0.25\] --set tuba\@rhino.poleR\=\[0.5\,-1\,0\]\;tuba\@rhino.restPoleR\=\[0.5\,-1\,0\] --set tuba\@rhino.poleR\=\[1\,-1\,0.3\]\;tuba\@rhino.restPoleR\=\[1\,-1\,0.3\] --set tuba\@rhino.poleR\=\[0.3\,-1\,-0.3\]\;tuba\@rhino.restPoleR\=\[0.3\,-1\,-0.3\]
+
+Hold fit of the tubist: play folds at a step of 1 s, the sweep of the tubist with the bodies of the role.
+Demos: boulanger-matin
+base (16.6 s):
+  faces that fold most: 205 100.0%, 206 100.0%, 266 100.0%, 429 100.0%, 559 100.0%
+  play: upper arms in body: 1.4 cm at song 42.13 s, wall 53.75 s (upperArmR -0.22), boulanger-matin tubist 39 (rhino, stand)
+  lift: upper arms in body: 1.5 cm at song -1.52 s, wall 10.10 s (upperArmR -0.28), boulanger-matin tubist 39 (rhino, stand)
+  rest: upper arms in body: 1.5 cm at song -1.62 s, wall 10.00 s (upperArmR -0.28), boulanger-matin tubist 39 (rhino, stand)
+  lower: upper arms in body: 1.5 cm at song 280.67 s, wall 14.80 s (upperArmR -0.28), boulanger-matin tubist 39 (rhino, stand)
+  play: instrument in body: 3.8 cm at song 55.13 s, wall 66.75 s (instrument), boulanger-matin tubist 39 (rhino, stand)
+tuba@rhino.poleL=[-0.5,-1,0];tuba@rhino.restPoleL=[-0.5,-1,0] (16.3 s):
+  faces that fold most: 205 100.0%, 206 100.0%, 266 100.0%, 429 100.0%, 559 100.0%
+  play: upper arms in body: 3.4 cm at song 127.88 s, wall 139.50 s (upperArmL 0.53), boulanger-matin tubist 39 (rhino, stand)
+  lift: upper arms in body: 3.4 cm at song -0.72 s, wall 10.90 s (upperArmL 0.53), boulanger-matin tubist 39 (rhino, stand)
+  rest: upper arms in body: 1.5 cm at song -1.62 s, wall 10.00 s (upperArmR -0.28), boulanger-matin tubist 39 (rhino, stand)
+  lower: upper arms in body: 3.4 cm at song 280.67 s, wall 11.00 s (upperArmL 0.53), boulanger-matin tubist 39 (rhino, stand)
+  play: instrument in body: 3.8 cm at song 55.13 s, wall 66.75 s (instrument), boulanger-matin tubist 39 (rhino, stand)
+tuba@rhino.poleL=[-0.25,-1,0];tuba@rhino.restPoleL=[-0.25,-1,0] (16.0 s):
+  faces that fold most: 205 100.0%, 206 100.0%, 266 100.0%, 429 100.0%, 559 100.0%
+  play: upper arms in body: 4.0 cm at song 194.13 s, wall 205.75 s (upperArmL 0.53), boulanger-matin tubist 39 (rhino, stand)
+  lift: upper arms in body: 4.0 cm at song -0.72 s, wall 10.90 s (upperArmL 0.53), boulanger-matin tubist 39 (rhino, stand)
+  rest: forearms in tuba: 1.7 cm at song -1.62 s, wall 10.00 s (forearmL 0.99), boulanger-matin tubist 39 (rhino, stand)
+  lower: upper arms in body: 4.0 cm at song 280.67 s, wall 11.00 s (upperArmL 0.53), boulanger-matin tubist 39 (rhino, stand)
+  play: instrument in body: 3.8 cm at song 55.13 s, wall 66.75 s (instrument), boulanger-matin tubist 39 (rhino, stand)
+tuba@rhino.poleL=[-0.5,-1,0.4];tuba@rhino.restPoleL=[-0.5,-1,0.4] (16.0 s):
+  faces that fold most: 205 100.0%, 206 100.0%, 266 100.0%, 429 100.0%, 559 100.0%
+  play: upper arms in body: 3.8 cm at song 194.13 s, wall 205.75 s (upperArmL 0.53), boulanger-matin tubist 39 (rhino, stand)
+  lift: upper arms in body: 3.8 cm at song -0.72 s, wall 10.90 s (upperArmL 0.53), boulanger-matin tubist 39 (rhino, stand)
+  rest: forearms in tuba: 1.5 cm at song -1.62 s, wall 10.00 s (forearmL 0.99), boulanger-matin tubist 39 (rhino, stand)
+  lower: upper arms in body: 3.8 cm at song 280.67 s, wall 11.00 s (upperArmL 0.53), boulanger-matin tubist 39 (rhino, stand)
+  play: instrument in body: 3.8 cm at song 55.13 s, wall 66.75 s (instrument), boulanger-matin tubist 39 (rhino, stand)
+tuba@rhino.poleL=[-0.5,-1,-0.4];tuba@rhino.restPoleL=[-0.5,-1,-0.4] (15.9 s):
+  faces that fold most: 205 100.0%, 206 100.0%, 266 100.0%, 429 100.0%, 559 100.0%
+  play: upper arms in body: 2.6 cm at song 194.13 s, wall 205.75 s (upperArmL 0.54), boulanger-matin tubist 39 (rhino, stand)
+  lift: upper arms in body: 2.6 cm at song -0.72 s, wall 10.90 s (upperArmL 0.54), boulanger-matin tubist 39 (rhino, stand)
+  rest: upper arms in body: 1.5 cm at song -1.62 s, wall 10.00 s (upperArmR -0.28), boulanger-matin tubist 39 (rhino, stand)
+  lower: upper arms in body: 2.6 cm at song 280.67 s, wall 11.00 s (upperArmL 0.54), boulanger-matin tubist 39 (rhino, stand)
+  play: instrument in body: 3.8 cm at song 55.13 s, wall 66.75 s (instrument), boulanger-matin tubist 39 (rhino, stand)
+tuba@rhino.poleR=[1,-1,-0.25];tuba@rhino.restPoleR=[1,-1,-0.25] (16.0 s):
+  faces that fold most: 205 100.0%, 206 100.0%, 266 100.0%, 429 100.0%, 559 100.0%
+  play: upper arms in body: 2.1 cm at song 61.63 s, wall 73.25 s (upperArmR -0.14), boulanger-matin tubist 39 (rhino, stand)
+  lift: upper arms in body: 2.1 cm at song -0.92 s, wall 10.70 s (upperArmR -0.15), boulanger-matin tubist 39 (rhino, stand)
+  rest: upper arms in body: 2.1 cm at song -1.62 s, wall 10.00 s (upperArmR -0.24), boulanger-matin tubist 39 (rhino, stand)
+  lower: upper arms in body: 2.1 cm at song 280.67 s, wall 11.00 s (upperArmR -0.14), boulanger-matin tubist 39 (rhino, stand)
+  play: instrument in body: 3.8 cm at song 55.13 s, wall 66.75 s (instrument), boulanger-matin tubist 39 (rhino, stand)
+tuba@rhino.poleR=[0.5,-1,0];tuba@rhino.restPoleR=[0.5,-1,0] (16.2 s):
+  faces that fold most: 205 100.0%, 206 100.0%, 266 100.0%, 429 100.0%, 559 100.0%
+  play: upper arms in body: 2.8 cm at song 127.88 s, wall 139.50 s (upperArmR 0.52), boulanger-matin tubist 39 (rhino, stand)
+  lift: upper arms in body: 2.8 cm at song -0.72 s, wall 10.90 s (upperArmR 0.52), boulanger-matin tubist 39 (rhino, stand)
+  rest: upper arms in body: 2.4 cm at song -1.62 s, wall 10.00 s (upperArmR 0.50), boulanger-matin tubist 39 (rhino, stand)
+  lower: upper arms in body: 2.8 cm at song 280.67 s, wall 11.00 s (upperArmR 0.52), boulanger-matin tubist 39 (rhino, stand)
+  play: instrument in body: 3.8 cm at song 55.13 s, wall 66.75 s (instrument), boulanger-matin tubist 39 (rhino, stand)
+tuba@rhino.poleR=[1,-1,0.3];tuba@rhino.restPoleR=[1,-1,0.3] (16.0 s):
+  faces that fold most: 205 100.0%, 206 100.0%, 266 100.0%, 429 100.0%, 559 100.0%
+  play: upper arms in body: 2.2 cm at song 88.88 s, wall 100.50 s (upperArmR -0.13), boulanger-matin tubist 39 (rhino, stand)
+  lift: upper arms in body: 2.2 cm at song -0.92 s, wall 10.70 s (upperArmR -0.14), boulanger-matin tubist 39 (rhino, stand)
+  rest: upper arms in body: 2.2 cm at song -1.62 s, wall 10.00 s (upperArmR -0.23), boulanger-matin tubist 39 (rhino, stand)
+  lower: upper arms in body: 2.2 cm at song 280.67 s, wall 11.00 s (upperArmR -0.13), boulanger-matin tubist 39 (rhino, stand)
+  play: instrument in body: 3.8 cm at song 55.13 s, wall 66.75 s (instrument), boulanger-matin tubist 39 (rhino, stand)
+tuba@rhino.poleR=[0.3,-1,-0.3];tuba@rhino.restPoleR=[0.3,-1,-0.3] (15.6 s):
+  faces that fold most: 205 100.0%, 206 100.0%, 266 100.0%, 285 100.0% new, 429 100.0%
+  play: upper arms in body: 3.2 cm at song 127.88 s, wall 139.50 s (upperArmR 0.52), boulanger-matin tubist 39 (rhino, stand)
+  lift: upper arms in body: 3.2 cm at song -0.72 s, wall 10.90 s (upperArmR 0.52), boulanger-matin tubist 39 (rhino, stand)
+  rest: upper arms in body: 2.5 cm at song -1.62 s, wall 10.00 s (upperArmR 0.50), boulanger-matin tubist 39 (rhino, stand)
+  lower: upper arms in body: 3.2 cm at song 280.67 s, wall 11.00 s (upperArmR 0.52), boulanger-matin tubist 39 (rhino, stand)
+  play: instrument in body: 3.8 cm at song 55.13 s, wall 66.75 s (instrument), boulanger-matin tubist 39 (rhino, stand)
+
+| Variant | Play folds | Lift folds | Rest faces (by side) | play depth cm (limit) | lift depth cm (limit) | rest depth cm (limit) | lower depth cm (limit) | Note targets: worst mm (within 5 mm) | play turns: upper arm, paw (twist, swing) L / R | Instrument in body cm | Spare L cm play / rest | Spare R cm play / rest |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| base | 100.0% (283/283) OVER | 100.0% (31/31) | 14 (L 4 / R 2 / other 8) | 1.4 upper arms>body (1.5) | 1.5 upper arms>body (1.5) | 1.5 upper arms>body (1.5) | 1.5 upper arms>body (1.5) | 75.6 (0.0%) | 80°, 169° (-169°, 28°) / 78°, 144° (142°, 30°) | 3.8 play OVER | 3.3 / 0.3 | 5.6 / 1.7 |
+| tuba@rhino.poleL=[-0.5,-1,0];tuba@rhino.restPoleL=[-0.5,-1,0] | 100.0% (283/283) OVER | 100.0% (31/31) | 13 (L 4 / R 2 / other 7) | 3.4 upper arms>body (1.5) OVER | 3.4 upper arms>body (1.5) OVER | 1.5 upper arms>body (1.5) | 3.4 upper arms>body (1.5) OVER | 75.6 (0.0%) | 70°, 141° (-140°, 27°) / 78°, 144° (142°, 30°) | 3.8 play OVER | 3.3 / 0.3 | 5.6 / 1.7 |
+| tuba@rhino.poleL=[-0.25,-1,0];tuba@rhino.restPoleL=[-0.25,-1,0] | 100.0% (283/283) OVER | 100.0% (31/31) | 13 (L 4 / R 2 / other 7) | 4.0 upper arms>body (1.5) OVER | 4.0 upper arms>body (1.5) OVER | 1.7 forearms>tuba (1.5) OVER | 4.0 upper arms>body (1.5) OVER | 75.6 (0.0%) | 68°, 127° (-125°, 25°) / 78°, 144° (142°, 30°) | 3.8 play OVER | 3.3 / 0.3 | 5.6 / 1.7 |
+| tuba@rhino.poleL=[-0.5,-1,0.4];tuba@rhino.restPoleL=[-0.5,-1,0.4] | 100.0% (283/283) OVER | 100.0% (31/31) | 13 (L 4 / R 2 / other 7) | 3.8 upper arms>body (1.5) OVER | 3.8 upper arms>body (1.5) OVER | 1.5 forearms>tuba (1.5) OVER | 3.8 upper arms>body (1.5) OVER | 75.6 (0.0%) | 69°, 134° (-133°, 26°) / 78°, 144° (142°, 30°) | 3.8 play OVER | 3.3 / 0.3 | 5.6 / 1.7 |
+| tuba@rhino.poleL=[-0.5,-1,-0.4];tuba@rhino.restPoleL=[-0.5,-1,-0.4] | 100.0% (283/283) OVER | 100.0% (31/31) | 13 (L 4 / R 2 / other 7) | 2.6 upper arms>body (1.5) OVER | 2.6 upper arms>body (1.5) OVER | 1.5 upper arms>body (1.5) | 2.6 upper arms>body (1.5) OVER | 75.6 (0.0%) | 73°, 151° (-150°, 27°) / 78°, 144° (142°, 30°) | 3.8 play OVER | 3.3 / 0.3 | 5.6 / 1.7 |
+| tuba@rhino.poleR=[1,-1,-0.25];tuba@rhino.restPoleR=[1,-1,-0.25] | 100.0% (283/283) OVER | 100.0% (31/31) | 15 (L 4 / R 2 / other 9) | 2.1 upper arms>body (1.5) OVER | 2.1 upper arms>body (1.5) OVER | 2.1 upper arms>body (1.5) OVER | 2.1 upper arms>body (1.5) OVER | 75.6 (0.0%) | 80°, 169° (-169°, 28°) / 66°, 109° (107°, 25°) | 3.8 play OVER | 3.3 / 0.3 | 5.6 / 1.7 |
+| tuba@rhino.poleR=[0.5,-1,0];tuba@rhino.restPoleR=[0.5,-1,0] | 100.0% (283/283) OVER | 100.0% (31/31) | 15 (L 4 / R 2 / other 9) | 2.8 upper arms>body (1.5) OVER | 2.8 upper arms>body (1.5) OVER | 2.4 upper arms>body (1.5) OVER | 2.8 upper arms>body (1.5) OVER | 75.6 (0.0%) | 80°, 169° (-169°, 28°) / 65°, 90° (87°, 24°) | 3.8 play OVER | 3.3 / 0.3 | 5.6 / 1.7 |
+| tuba@rhino.poleR=[1,-1,0.3];tuba@rhino.restPoleR=[1,-1,0.3] | 100.0% (283/283) OVER | 100.0% (31/31) | 15 (L 4 / R 2 / other 9) | 2.2 upper arms>body (1.5) OVER | 2.2 upper arms>body (1.5) OVER | 2.2 upper arms>body (1.5) OVER | 2.2 upper arms>body (1.5) OVER | 75.6 (0.0%) | 80°, 169° (-169°, 28°) / 65°, 103° (101°, 24°) | 3.8 play OVER | 3.3 / 0.3 | 5.6 / 1.7 |
+| tuba@rhino.poleR=[0.3,-1,-0.3];tuba@rhino.restPoleR=[0.3,-1,-0.3] | 100.0% (283/283) OVER | 100.0% (31/31) | 15 (L 4 / R 2 / other 9) | 3.2 upper arms>body (1.5) OVER | 3.2 upper arms>body (1.5) OVER | 2.5 upper arms>body (1.5) OVER | 3.2 upper arms>body (1.5) OVER | 75.6 (0.0%) | 80°, 169° (-169°, 28°) / 66°, 86° (83°, 25°) | 3.8 play OVER | 3.3 / 0.3 | 5.6 / 1.7 |
+
+The demo and the time of each deepest point of the table:
+| Variant | play deepest at | lift deepest at | rest deepest at | lower deepest at | Instrument in body at |
+|---|---|---|---|---|---|
+| base | boulanger-matin 42.13 s | boulanger-matin wall 10.10 s | boulanger-matin wall 10.00 s | boulanger-matin wall 14.80 s | boulanger-matin 55.13 s |
+| tuba@rhino.poleL=[-0.5,-1,0];tuba@rhino.restPoleL=[-0.5,-1,0] | boulanger-matin 127.88 s | boulanger-matin wall 10.90 s | boulanger-matin wall 10.00 s | boulanger-matin wall 11.00 s | boulanger-matin 55.13 s |
+| tuba@rhino.poleL=[-0.25,-1,0];tuba@rhino.restPoleL=[-0.25,-1,0] | boulanger-matin 194.13 s | boulanger-matin wall 10.90 s | boulanger-matin wall 10.00 s | boulanger-matin wall 11.00 s | boulanger-matin 55.13 s |
+| tuba@rhino.poleL=[-0.5,-1,0.4];tuba@rhino.restPoleL=[-0.5,-1,0.4] | boulanger-matin 194.13 s | boulanger-matin wall 10.90 s | boulanger-matin wall 10.00 s | boulanger-matin wall 11.00 s | boulanger-matin 55.13 s |
+| tuba@rhino.poleL=[-0.5,-1,-0.4];tuba@rhino.restPoleL=[-0.5,-1,-0.4] | boulanger-matin 194.13 s | boulanger-matin wall 10.90 s | boulanger-matin wall 10.00 s | boulanger-matin wall 11.00 s | boulanger-matin 55.13 s |
+| tuba@rhino.poleR=[1,-1,-0.25];tuba@rhino.restPoleR=[1,-1,-0.25] | boulanger-matin 61.63 s | boulanger-matin wall 10.70 s | boulanger-matin wall 10.00 s | boulanger-matin wall 11.00 s | boulanger-matin 55.13 s |
+| tuba@rhino.poleR=[0.5,-1,0];tuba@rhino.restPoleR=[0.5,-1,0] | boulanger-matin 127.88 s | boulanger-matin wall 10.90 s | boulanger-matin wall 10.00 s | boulanger-matin wall 11.00 s | boulanger-matin 55.13 s |
+| tuba@rhino.poleR=[1,-1,0.3];tuba@rhino.restPoleR=[1,-1,0.3] | boulanger-matin 88.88 s | boulanger-matin wall 10.70 s | boulanger-matin wall 10.00 s | boulanger-matin wall 11.00 s | boulanger-matin 55.13 s |
+| tuba@rhino.poleR=[0.3,-1,-0.3];tuba@rhino.restPoleR=[0.3,-1,-0.3] | boulanger-matin 127.88 s | boulanger-matin wall 10.90 s | boulanger-matin wall 10.00 s | boulanger-matin wall 11.00 s | boulanger-matin 55.13 s |
+pnpm hold-fit tubist --set "$P.poleL=[-0.5,-1,0];$P.restPoleL=[-0.5,-1,0]"     162.82s user 1.09s system 104% cpu 2:37.27 total

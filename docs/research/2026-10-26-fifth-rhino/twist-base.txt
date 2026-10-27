@@ -1,0 +1,15 @@
+| Link | Mean | Largest | Worst sample |
+|---|---:|---:|---|
+| L clavicle>utwist | 8.9 | 8.9 | play brahms-2.mid 83.63 s |
+| L utwist>upper | 41.4 | 41.4 | play brahms-2.mid 745.63 s |
+| L upper>fore | 0.0 | 0.0 | play brahms-2.mid 339.88 s |
+| L fore>ftwist | 84.4 | 84.4 | play brahms-2.mid 299.38 s |
+| L ftwist>hand | 84.4 | 84.4 | play brahms-2.mid 618.63 s |
+| R clavicle>utwist | 20.5 | 20.9 | rest brahms-2.mid rest |
+| R utwist>upper | 41.5 | 41.5 | play brahms-2.mid 66.88 s |
+| R upper>fore | 0.0 | 0.0 | play brahms-2.mid 185.88 s |
+| R fore>ftwist | 71.2 | 74.1 | rest boulanger-matin.mid rest |
+| R ftwist>hand | 71.2 | 74.1 | rest brahms-2.mid rest |
+L total twist: mean 219.1, largest 219.1
+R total twist: mean 204.5, largest 210.2
+node docs/research/2026-10-24-violin-arms/twist-steps.ts tubist 0.25  23.07s user 0.35s system 109% cpu 21.311 total

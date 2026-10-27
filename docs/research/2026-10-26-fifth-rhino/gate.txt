@@ -1,0 +1,45 @@
+
+> zoophony@0.0.0 arm-check /Users/xueqiaoxu/proj/zoophony/.claude/worktrees/fifth-rhino
+> node tools/arm-check.ts tubist --base 57849ac5 --views scratch/fifth-rhino/final/gate-views --views-all
+
+Arm gate of 1 roles against 57849ac5 in 38 s. A cell gives the value, the base in parentheses, and the verdict of a value that does not pass.
+
+| Role | Arm | folds p95 (8) | twist p95 (55) | forearm twist p95 (80) | flat p5 (0.55) | paw twist p95 (170) | paw swing p95 (70) | paw jumps (0.5%) | stretch p95 (0.35) | grip turn p50 (45) | move twist max (176) | move turn max (3000) | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| tubist | L | 5 (5) | 29 (35) | 34 (69) | 0.92 (0.61) | 87 (169) | 28 (28) | 0.0% (0.0%) | 0.07 (0.24) | 0 (82) | 87 (169) | 35 (38) | PASS |
+| tubist | R | 3 (4) | 25 (32) | 15 (62) | 0.94 (0.65) | 37 (148) | 24 (30) | 0.0% (0.0%) | 0.05 (0.15) | 0 (110) | 37 (148) | 14 (29) | PASS |
+
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| tubist | L | folds p95 | rest | 2 | 5 | 5 | 100.0% | 5 at boulanger-matin.mid rest | 5 | 8 | 5 | PASS |
+| tubist | L | twist p95 | rest | 2 | 29 | 29 | 100.0% | 29 at brahms-2.mid rest | 29 | 55 | 35 | PASS |
+| tubist | L | forearm twist p95 | play | 4147 | 34 | 34 | 100.0% | 34 at brahms-2.mid 666.88 s | 34 | 80 | 69 | PASS |
+| tubist | L | flat p5 | play | 4147 | 0.92 | 0.92 | 100.0% | 0.92 at brahms-2.mid 340.38 s | 0.92 | 0.55 | 0.61 | PASS |
+| tubist | L | paw twist p95 | play | 4147 | 87 | 87 | 100.0% | 87 at brahms-2.mid 599.38 s | 87 | 170 | 169 | PASS |
+| tubist | L | paw swing p95 | play | 4147 | 28 | 28 | 100.0% | 28 at brahms-2.mid 365.88 s | 28 | 70 | 28 | PASS |
+| tubist | L | paw jumps | rest | 2 | 0 | 0 | 0.0% | 0 at boulanger-matin.mid rest | 0.0% | 0.5% | 0.0% | PASS |
+| tubist | L | stretch p95 | play | 4147 | 0.07 | 0.07 | 100.0% | 0.07 at boulanger-matin.mid 236.38 s | 0.07 | 0.35 | 0.24 | PASS |
+| tubist | L | grip turn p50 | play | 4147 | 0 | 0 | 100.0% | 0 at brahms-2.mid 25.63 s | 0 | 45 | 82 | PASS |
+| tubist | L | move twist max | move | 2322 | 82 | 87 | 100.0% | 87 at brahms-2.mid lower 250.82 s, wall 0.04 s | 87 | 176 | 169 | PASS |
+| tubist | L | move turn max | move | 2322 | 9 | 32 | 89.1% | 35 at brahms-2.mid lift 0.00 s, wall 0.26 s | 35 | 3000 | 38 | PASS |
+| tubist | R | folds p95 | play | 4147 | 3 | 3 | 100.0% | 4 at boulanger-matin.mid 258.38 s | 3 | 8 | 4 | PASS |
+| tubist | R | twist p95 | rest | 2 | 25 | 25 | 100.0% | 25 at boulanger-matin.mid rest | 25 | 55 | 32 | PASS |
+| tubist | R | forearm twist p95 | rest | 2 | 15 | 15 | 100.0% | 15 at brahms-2.mid rest | 15 | 80 | 62 | PASS |
+| tubist | R | flat p5 | rest | 2 | 0.94 | 0.94 | 100.0% | 0.94 at brahms-2.mid rest | 0.94 | 0.55 | 0.65 | PASS |
+| tubist | R | paw twist p95 | rest | 2 | 37 | 37 | 100.0% | 37 at boulanger-matin.mid rest | 37 | 170 | 148 | PASS |
+| tubist | R | paw swing p95 | rest | 2 | 24 | 24 | 100.0% | 24 at brahms-2.mid rest | 24 | 70 | 30 | PASS |
+| tubist | R | paw jumps | rest | 2 | 0 | 0 | 0.0% | 0 at boulanger-matin.mid rest | 0.0% | 0.5% | 0.0% | PASS |
+| tubist | R | stretch p95 | play | 4147 | 0.05 | 0.05 | 100.0% | 0.05 at brahms-2.mid 401.13 s | 0.05 | 0.35 | 0.15 | PASS |
+| tubist | R | grip turn p50 | play | 4147 | 0 | 0 | 100.0% | 0 at brahms-2.mid 365.88 s | 0 | 45 | 110 | PASS |
+| tubist | R | move twist max | move | 2322 | 34 | 37 | 100.0% | 37 at boulanger-matin.mid lower 93.56 s, wall 2.22 s | 37 | 176 | 148 | PASS |
+| tubist | R | move turn max | move | 2322 | 5 | 11 | 91.5% | 14 at boulanger-matin.mid lift 0.00 s, wall 0.21 s | 14 | 3000 | 29 | PASS |
+A stand or another player hides an arm at the azimuths 0, 35, -35, 90, 60, 20, -20.
+tubist: worst L folds p95 at boulanger-matin 5.13 s into scratch/fifth-rhino/final/gate-views/tubist-boulanger-matin/time-5.13
+A stand or another player hides an arm at the azimuths 0, 35, -35, 90, 60, 20, -20.
+tubist: strike at boulanger-matin 116.81 s into scratch/fifth-rhino/final/gate-views/tubist-boulanger-matin/time-116.81
+A stand or another player hides an arm at the azimuths 0, 35, -35, 90, 60, 20, -20.
+tubist: rest at boulanger-matin 177.54 s into scratch/fifth-rhino/final/gate-views/tubist-boulanger-matin/time-177.54
+boulanger-matin: 3 frames from one build of each tree into scratch/fifth-rhino/final/gate-views/tubist-boulanger-matin
+scratch/fifth-rhino/final/gate-views/tubist-boulanger-matin-5.13-arms.webp: 8 pairs, the base on the left of each pair
+scratch/fifth-rhino/final/gate-views/tubist-boulanger-matin-116.81-arms.webp: 8 pairs, the base on the left of each pair
+scratch/fifth-rhino/final/gate-views/tubist-boulanger-matin-177.54-arms.webp: 8 pairs, the base on the left of each pair

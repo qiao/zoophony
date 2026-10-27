@@ -1,0 +1,8 @@
+bind L: -13.2
+bind R: -13.2
+rest L: n 2, min 61.0, median 61.0, max 61.0
+rest R: n 2, min 21.3, median 21.3, max 21.3
+play L: n 4147, min 67.2, median 67.2, max 67.2
+play R: n 4147, min 14.8, median 14.8, max 14.8
+lift L: n 62, min 61.0, median 67.2, max 67.2
+lift R: n 62, min 14.8, median 14.8, max 21.3
