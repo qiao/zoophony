@@ -602,17 +602,25 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       the knee front on a flat bevel with 12 hard edges (the largest 78.7°). The knee front is
       now rounded across the leg bones over two more front rings (2 hard edges, 54.1°), and its
       faces take the skin normals.
-- [ ] Polar bear (`2026-10-27-wolf-knee.md`): the knee front still lies about 1 cm inside the
+- [x] Polar bear (`2026-10-27-wolf-knee.md`): the knee front still lies about 1 cm inside the
       round of the leg on the bisector, so from a low front angle the knee keeps a soft flat
-      top. A quad ring at the knee, as the arm rebuilds have (`rig-blender.md`), gives the
-      corner a true arc.
-- [ ] Polar bear (`2026-10-27-wolf-knee.md`, section 11): the user said that the seated knee is
+      top. Done: the quad legs with the dual quaternion knees put the knee front at 0.98 of the
+      round of the leg (`2026-10-27-polar-legs-rebuild.md`).
+- [x] Polar bear (`2026-10-27-wolf-knee.md`, section 11): the user said that the seated knee is
       still much bulkier than expected and not anatomical. Long source faces join the underside
-      of the haunch to the heel, so the seated leg is a wedge with no hollow behind the knee: the
-      knee is 0.28 units deep against 0.16 in the source. A taper, a carve, and back rings
-      failed or folded the back of the knee. Next: rebuild each leg as a quad tube in Blender
-      with rings that taper the thigh to 0.65 at the knee (ANSUR II) and a knee ring
-      (`rig-blender.md`).
+      of the haunch to the heel, so the seated leg is a wedge with no hollow behind the knee.
+      Done: each leg is a quad tube (`polar_bear_legs.py`), and the knees take the dual
+      quaternion blend: the knee is 0.141 units deep on its bisector (0.148 in the source, 0.199
+      before), with a hollow behind it, and the folds of `main`
+      (`2026-10-27-polar-legs-rebuild.md`).
+- [ ] Polar bear (`2026-10-27-polar-legs-rebuild.md`): the seated thigh keeps a depth of about
+      0.14 units from the haunch to the knee, and the source tapers from 0.183 to 0.148. The
+      haunch above the cut keeps its faces. Next: a cut higher on the outer side of the hip,
+      with tilted top rings, so that the tube takes the thigh up to the haunch.
+- [ ] Polar bear (`2026-10-27-polar-legs-rebuild.md`): 4 edges of the crease of the left instep
+      and 4 edges of the cut loop at the crotch turn more than 40° in the bind (89.6° at most).
+      The instep crease is a crease of the user mesh. Next: check them in the stage light, and
+      give the faces the skin normals if they shade as lines.
 - [x] Wolf (`2026-10-27-wolf-knee.md`): the user said that the wolf does not hold the clarinet
       properly at rest: the left paw capped the mouthpiece end, the bell hung 12 cm in front of
       the seat, and each paw slid 15 cm along the tube in each move. Done: the bell rests against
