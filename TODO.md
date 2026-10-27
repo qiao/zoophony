@@ -367,11 +367,26 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
 - [ ] Add the chair as an obstacle to the sweeps of the seated roles, with the legs and the haunch as
       parts, as the sweep of the harpist has the stool (`SEATED_PARTS`, `seatSurface()` of
       `pose/test-sweep-roles.ts`). Then add the accepted contact of each haunch.
-- [ ] Deer: dark faces show under the right armpit in the play. The points at the shoulders in
+- [x] Deer: dark faces show under the right armpit in the play. The points at the shoulders in
       the back view are gone (round `deer-dog-seams`). Look at the zoomed views of `pnpm
-      close-views harpist`.
-- [ ] Deer: 2 to 14 faces of the arms fold in each sample of the harpist, under the limit of the
-      arm gate (`app/fold-probe.txt`). A fold round with rings or rigid weights.
+      close-views harpist`. Done: the rebuilt arms of round `fifth-deer`
+      (`2026-10-26-fifth-review-deer.md`).
+- [x] Deer: 2 to 14 faces of the arms fold in each sample of the harpist, under the limit of the
+      arm gate (`app/fold-probe.txt`). A fold round with rings or rigid weights. Done: 0% of the
+      rest and the lift samples fold, and 8.3% of the play with one face at the right inner elbow
+      (`docs/research/2026-10-26-fifth-deer.md`).
+- [x] Deer (user, 2026-10-26: "the deer's upper arm are missing pieces (have dent)"): the arm and
+      the trunk were two shells under the cut, and the back of each upper arm showed a notch.
+      Done: the rig reads a copy with the seam cut and the side wall of the cat, quad tube arms,
+      Blender weights, and arm segments (`tools/blender/deer_arms.py`).
+- [ ] Deer: the user reviews the rebuilt arms of round `fifth-deer` (`user-angle.webp` and
+      `arms-e40.webp` of `docs/research/2026-10-26-fifth-deer/`), and the bind upper arm 18° nearer
+      to the hanging arm.
+- [ ] Deer: from straight behind, the outline of the corner of the left armpit has small steps
+      where the bridge faces of the socket meet the side wall (`armpit-probes.webp` of the round
+      `fifth-deer`). Try a smooth of the bridge vertices at the back end of the armpit line.
+- [ ] Deer: the forearms come 2.8 cm into the harp in the play (1.8 cm on `main` before the round
+      `fifth-deer`, limit 4.0 cm), and the paw swing of the left arm is 66° (limit 70°).
 - [x] Deer: the seated deer was lower than the parametric deer (skull top 1.125 m against 1.311 m).
       The user made it 1.2 times as large: the seated skull top is 1.349 m (`2026-10-21-mesh-deer.md`).
 - [ ] Remove the parametric biped with its ears, snouts, and tails: no species has it since the
@@ -1660,9 +1675,10 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
             3.5 cm, 15.5% of the samples), 3.7 cm at rest, and 4.5 cm in the lowering, against
             3.2, 1.9, and 3.1 cm on the base. With the elbows out at the leaned harp, they are
             3.2, 2.4, and 2.9 cm (`pose-depth.txt` of `docs/research/2026-10-25-harp-lean/`).
-      - [ ] Deer marks after the cut: at az150, a dark area with a light jagged line on the back
+      - [x] Deer marks after the cut: at az150, a dark area with a light jagged line on the back
             of the right upper arm root, most at rest from 40°, and a small dark V under the left
-            root at az-150 (`deer-root-rest-e40.webp` of the round `deer-dog-seams`).
+            root at az-150 (`deer-root-rest-e40.webp` of the round `deer-dog-seams`). Done: the
+            deer has rebuilt arms with no cut (round `fifth-deer`).
       - [x] Deer arm gate: the right twist p95 rises from 40° to 55° (`FAIL`, limit 55°), because
             the free root turns with the bone and the measure starts at the chest. The twist along
             the upper arm falls from 17° to 6°. Accept it as a decision row, or let the twist of
