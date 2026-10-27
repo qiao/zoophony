@@ -509,7 +509,13 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       from the bind of the mesh paw, and 12 rest elbows give rest twists of -177° to 28°. The band
       is now 27°: lift flat p5 0.72 to 0.82, move turn up to 2,067°/s, and the forearm twist still
       dips to 6° to 9° for about 0.1 s (`2026-10-27-violin-carry.md`). A new bind of the paw with
-      a supinated paw also removes it.
+      a supinated paw also removes it. Round `fifth-strings3`: the rest and the play fix both ends
+      of the twist path, so each path from the upright rest passes 180°. A rest roll (only 60° to
+      90° with the scroll to the side avoids the pass), an elbow path in the middle, and a play
+      elbow toward the middle (cat shoulder ring flat 0.24 to 0.50, red fox forearm twist 92° to
+      102°) failed (`2026-10-27-violin-unwind.md`). Next: a new bind of the mesh paw, supinated
+      about 60° in Blender, for the rabbit, the red fox, and the cat. The rest twist then lies near
+      -31° and the play twist near -155°. Check the play skin with the arm gate first.
 - [x] Rabbit, red fox, and cat (`2026-10-26-fifth-review-strings.md`): the grip that the viewer sees
       changes by 56° to 79° in the moves (target 30°), because the retarget turns each paw toward
       its forearm (`PAW_TURN`), and the forearm crosses the neck at rest and runs along it in the
@@ -1817,6 +1823,9 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
         variant, about 3 minutes for each 20 frames.
       - Let `pnpm pose-depth` print, for each body, only the pairs that differ between its
         `--set` rows. The violin carry round wrote a parser to compare its variants.
+      - Give `pnpm pose-depth` an option `--sets lift,lower`, as `pnpm hold-fit` has. A wrist
+        via changes only the moves, and the violin unwind round swept the play with each row
+        (about 90 s of each row of 4 demos, with `--every 20` about 40 s).
 
 Done when: the pose tests pass, and the pose and frame targets pass.
 
