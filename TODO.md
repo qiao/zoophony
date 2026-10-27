@@ -464,6 +464,32 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
 - [ ] Cat (`2026-10-26-fourth-review.md`): at rest and in the moves, the right upper arm meets the
       round belly 1.7 cm deep near the elbow (limit 1.5). A lower elbow goes deeper, and an elbow
       further out bends the arm as a wing.
+- [x] Rabbit, red fox, and cat (`2026-10-26-fifth-review-strings.md`): the user saw the
+      instrument turn against the wrist in the lift and the lowering. Done: the instrument hangs
+      from the left paw and turns with it. No fast step turns the two in opposite senses.
+- [x] Rabbit, red fox, and cat (`2026-10-26-fifth-review-strings.md`): at rest, the left paw lay
+      over the neck and went into the instrument. Done: a rest grip on the neck. The paws go 0.4 cm
+      to 0.8 cm in.
+- [x] Rabbit, red fox, and cat (`2026-10-26-fifth-review-strings.md`): the bow paws rested high or
+      at the outer side of the thigh. Done: low at the front of the lap with straight wrists.
+- [x] Cat (`2026-10-26-fifth-review-strings.md`): the bow arm bent as a wing at rest, and the bow
+      arm went straight in the lowering. Done: the bow paw rests at the lap with the elbow at 111°,
+      and the moves keep it bent from 90° to 124°.
+- [ ] Rabbit, red fox, and cat (`2026-10-26-fifth-review-strings.md`): in each move, the left
+      forearm skin passes one twist step of 180°, so the wrist flattens for a moment near the jaw
+      (lift flat p5 0.72 to 0.76 against 0.81 to 0.86), and the moves of the arm gate are worse
+      than on `57849ac5` within each limit (move turn up to 2,197°/s). A playing grip near the
+      supination of a real violinist (about 90° in place of 156°) removes it. A play elbow nearer to
+      the middle flattened the play skin (flat 0.31 on the cat).
+- [ ] Rabbit, red fox, and cat (`2026-10-26-fifth-review-strings.md`): the grip that the viewer sees
+      changes by 56° to 79° in the moves (target 30°), because the retarget turns each paw toward
+      its forearm (`PAW_TURN`), and the forearm crosses the neck at rest and runs along it in the
+      play.
+- [ ] Cat (`2026-10-26-fifth-review-strings.md`): the right paw twists up to 163° on its forearm
+      in the moves (136° on `57849ac5`, limit 176), because the bow follows the new path of the
+      viola. Each via of the scan kept 158° to 166°.
+- [ ] Cat (`2026-10-26-fifth-review-strings.md`): the round belly keeps both elbows 35° to 48°
+      from the vertical at rest. Lower elbows went 2.2 cm to 4.1 cm into the belly (limit 1.5).
 - [x] Bear rig (`2026-10-26-arm-fixes.md`): the left shoulder bridge folds 8 tiny faces at p95
       in the play (4 on the old rig, limit 8), and the right move twist max is 87 (81). Done: the
       head keeps the rule weights, and four shoulder faces take the mean of their painted weights
