@@ -1256,7 +1256,8 @@ export function scaleOf(value: string | null): number {
  * [--url <url>] [--glb <file>] [--set <changes>] [--lineup [--with <role,...>] [--crop <n>] [--box
  * <x>,<y>,<w>,<h>]] [--base <ref> [--pairs <view|cell,...> [--crop <x>,<y>,<w>,<h>]]]`. With
  * `--lineup`, the views are {@link LINEUP_VIEWS} and the moments {@link lineupMoments} unless
- * `--views` and `--moments` give others.
+ * `--views` and `--moments` give others. A moment `lift<n>` or `lower<n>` gives the share n / 100
+ * of that move ({@link roleMoment}), such as `lift30`.
  *
  * @param args The arguments after the script.
  * @returns The command line, or `null` when it is not correct.
@@ -1309,7 +1310,7 @@ export function closeViewsArgs(args: readonly string[]): CloseViewsArgs | null {
   }
   const ownViews = ROLE_VIEWS[role];
   const momentNames = moments
-    ? moments.split(',').map((name) => namedItem(name, ownViews.moments, 'moment').name)
+    ? moments.split(',').map((name) => roleMoment(ownViews, name).name)
     : null;
   const partners = (withRoles?.split(',') ?? []).map((name) => {
     const other = roleOf(name);
@@ -1602,9 +1603,7 @@ export function roleCamera(
             azimuth: view.azimuth,
             elevation,
           })),
-    moments: names
-      ? names.flatMap((name) => aimed.moments.filter((m) => m.name === name))
-      : aimed.moments,
+    moments: names ? names.map((name) => roleMoment(aimed, name)) : aimed.moments,
     camera: zoom === null ? aimed.camera : { ...aimed.camera, zoom },
   };
 }
@@ -2310,6 +2309,29 @@ export function modeLine(
     i++;
   }
   return { words, options, flags: given };
+}
+
+/**
+ * Finds a moment of a role by its name. A name `lift<n>` or `lower<n>` that the role does not have,
+ * with `<n>` from 0 to 100, gives the share n / 100 of that move at the time of the moves of the
+ * role ({@link halfMoves}), so that `--moments` shows a whole move in steps.
+ *
+ * @param role The close view of the role.
+ * @param name The name of the moment.
+ * @returns The moment.
+ * @throws Error if the role has no moment of the name and the name is no share of a move of the
+ *   role.
+ */
+export function roleMoment(role: RoleViews, name: string): CloseMoment {
+  const own = role.moments.find((moment) => moment.name === name);
+  const found = /^(lift|lower)(\d{1,3})$/.exec(name);
+  const moves = role.moments.find((moment) => moment.move);
+  const share = Number(found?.[2]);
+  if (own || !found || !moves || share > 100) {
+    return own ?? namedItem(name, role.moments, 'moment');
+  }
+  const kind = found[1] === 'lift' ? 'lift' : 'lower';
+  return { name, time: moves.time, rest: false, move: { kind, share: share / 100 } };
 }
 
 /**
