@@ -666,7 +666,9 @@ mesh are quad tubes (rings at a right angle to the bones), and the weights come 
     anchor reaches only as far as the radius of the thin arm, so that the outer arm turns with the
     arm bones. The seated bind of its upper arm points further down than the bind of the other
     meshes, nearer to the hanging arm of the mesh: with the far bind, the faces of the socket
-    folded and the shoulder ring narrowed in the play.
+    folded and the shoulder ring narrowed in the play. The back end of its left armpit line is
+    smoothed (`smooth`), because the saw-tooth outline of the underside of the arm root showed as
+    a black notch from behind.
     `pnpm arm-look` measures the
     crease of the arm skin against the source and the section of the upper arm, with limits from the red fox
     (`docs/decisions/2026-10-21-arm-form.md`).

@@ -76,3 +76,42 @@ the inner right thigh, and a reach of 0.12 moves the lowest sole vertex and thus
 
 The groove and the sharp wedges are gone. At L180, one soft darker facet stays on the left calf,
 where the fillet of the smoothing ends above the first calf ring (edge 2214 to 2251, 72°).
+
+## 3. The deer armpit
+
+### The cause
+
+In `armpit-cause.webp` (3x crops of `main`: lit, no shadow, normals, colors), the black corner
+stays with no shadow, so it is no cast shadow. The colors probe gives the fur with a saw-tooth
+outline, and the normals probe a small patch of normals that face down and toward the trunk.
+
+`probes/armpit-normals.ts` compares the true normal of each face of the posed armpit with the
+smooth normal of the app (`armpit-normals.webp`: true, smooth, and their angle, `main` above the
+round). The true normals give the same patch, and the two differ by 24° to 26° on the mean
+(`armpit-normals-main.txt`). The fold probe gives no fold there. So the corner is the underside of
+the arm root, away from the key light. The gallery light has little fill below the arm, and the
+stage light shows the corner soft at the angle of the user (`user-angle.webp`, 184 s).
+
+### The fix
+
+A smoothing box over the ten source vertices of the saw-tooth, at the back end of the left armpit
+line (`smooth` of `deer.json`, at most 0.018 units), makes the notch smaller and its outline
+smoother (`armpit-probes.webp`). A box of 44 vertices folded the left socket
+(`rig-check-deer.txt`). The right inner elbow face folds in 8.2% of the play samples, as on
+`main`, and the mean of its painted weights folded it in each sample.
+
+| Gate | `main` | Round |
+|---|---|---|
+| `pnpm arm-check harpist --base main` | | each value of `main` but the left twist p95, 27° against 26°, all `PASS` (`arm-check-harpist.txt`) |
+| Folded face samples (`pnpm rig-mesh deer --check`) | 94 | 94 |
+| `pnpm body-probe --base main` | | the deer mesh, with the joints and the poses of `main` (`body-probe-b.txt`) |
+| `pnpm size --base main` | 819,139 B | 819,682 B with both parts (`size-b.txt`) |
+
+`arms-e20.webp` and `arms-e40.webp`: 2x crops of the arms at each moment from six views
+(`--box 0.2,0.28,0.6,0.42`). Only the back views change.
+
+## 4. The result
+
+The shin groove was a long source diagonal, and the calf wedges came from the crease smoothing.
+Both are gone, and one soft facet stays at L180. The dark deer armpit is the underside of the arm
+root in the gallery light, now with a smaller notch and a smoother outline.

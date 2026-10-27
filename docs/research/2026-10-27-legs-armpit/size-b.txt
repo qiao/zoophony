@@ -1,0 +1,5 @@
+ 1,000,000 B  limit: pass
+Base main (8a58282b), built in a temporary folder:
+   819,139 B  total of the base
+   819,682 B  total of the working tree
+      +543 B  difference

@@ -399,6 +399,23 @@
     },
     "note": "Beyond the plane |x| = armSplit, only the free arm follows the arm bones: the cuts show the arm apart from the body from x 0.09 out, and the free left arm has 139 vertices with no leg vertex (free-arm.txt). Above headFrom, each vertex follows the head only: the head starts at y 0.67. The ears and the antlers stay on the head: the ears stand out at the sides of the head at the height of the skull, so the height rule of earBase would also take the top of the head and the antlers, and earBase lies above the head, as for the dog and the panda. The tail ball holds the puff tail: the vertices within radius of center and behind the plane z = behind follow the tail bone only (sections-z.txt: the tail from z -0.10 to -0.173, y 0.29 to 0.42). clavicleFrom, armTop, and shoulderHead are the rules of the wolf, moved with the shoulder joint (y 0.535) and the neck (x ±0.056) of the deer."
   },
+  "smooth": {
+    "box": [
+      [
+        0.075,
+        0.455,
+        -0.03
+      ],
+      [
+        0.105,
+        0.48,
+        0.0
+      ]
+    ],
+    "share": 0.5,
+    "rounds": 4,
+    "note": "From straight behind, the corner of the left armpit under the raised arm showed a black notch with a saw-tooth outline in the gallery light. The faces there face down and toward the trunk: their smooth normals follow the face normals, and the notch stays with no shadow, so it is the underside of the arm root (docs/research/2026-10-27-legs-armpit.md). The ten vertices of the back end of the left armpit line (the source places of the outline) move half of the way to the middle of their neighbors in 4 rounds (smooth_box() of tools/blender/rig_mesh.py), so the notch is smaller and its outline smoother. A box up to y 0.51 and x 0.11 moved the vertices up to 0.017 units and folded the faces of the left socket in many play samples."
+  },
   "refine": {
     "rings": [],
     "flip": {

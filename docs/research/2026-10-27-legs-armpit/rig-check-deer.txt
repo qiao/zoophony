@@ -1,0 +1,14 @@
+# Fold lines of pnpm rig-mesh deer --check --set <smooth box> : the folded face samples of the harpist by the main bone over 1,162 samples.
+main -> forearm_seg0_R 93, upper_arm_seg0_L 1
+smooth={"box":[[0.07,0.45,-0.035],[0.11,0.51,0.025]],"share":0.5,"rounds":2}: -> upper_arm_seg0_L 2333, forearm_seg0_R 93   [smooth: 44 vertices in the box, the largest move 0.0172 u]
+smooth={"box":[[0.07,0.45,-0.035],[0.11,0.51,0.025]],"share":0.5,"rounds":4}: -> upper_arm_seg0_L 1963, forearm_seg0_R 93   [smooth: 44 vertices in the box, the largest move 0.0214 u]
+main -> forearm_seg0_R 93, upper_arm_seg0_L 1
+smooth={"box":[[0.075,0.455,-0.03],[0.105,0.48,0.0]],"share":0.25,"rounds":1}: -> forearm_seg0_R 93, upper_arm_seg0_L 1   [smooth: 10 vertices in the box, the largest move 0.0042 u]
+smooth={"box":[[0.075,0.455,-0.03],[0.105,0.48,0.0]],"share":0.5,"rounds":2}: -> forearm_seg0_R 93, upper_arm_seg0_L 1   [smooth: 10 vertices in the box, the largest move 0.0131 u]
+smooth={"box":[[0.075,0.455,-0.03],[0.11,0.5,0.0]],"share":0.25,"rounds":2}: -> forearm_seg0_R 93, upper_arm_seg0_L 3   [smooth: 17 vertices in the box, the largest move 0.0101 u]
+main -> forearm_seg0_R 93, upper_arm_seg0_L 1
+smooth={"box":[[0.075,0.455,-0.03],[0.105,0.48,0.0]],"share":0.5,"rounds":4}: -> forearm_seg0_R 93, upper_arm_seg0_L 1   [smooth: 10 vertices in the box, the largest move 0.0179 u]
+smooth={"box":[[0.075,0.45,-0.03],[0.105,0.48,0.005]],"share":0.5,"rounds":3}: -> forearm_seg0_R 93, upper_arm_seg0_L 3   [smooth: 11 vertices in the box, the largest move 0.0160 u]
+main -> forearm_seg0_R 93, upper_arm_seg0_L 1
+smooth={"box":[[0.075,0.455,-0.03],[0.105,0.48,0.0]],"share":0.5,"rounds":4}; weights.rigidPainted+=[-0.1312,0.4204,0.0408]: -> forearm_seg0_R 1135, upper_arm_seg0_L 1   [smooth: 10 vertices in the box, the largest move 0.0179 u]
+weights.rigidPainted+=[-0.1312,0.4204,0.0408]: -> forearm_seg0_R 1135, upper_arm_seg0_L 1
