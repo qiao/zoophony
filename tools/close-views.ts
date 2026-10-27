@@ -35,6 +35,7 @@ import type { Score } from '../src/score/types.ts';
 import { SHOT_SEED, prepareShots } from '../src/shots/prepare.ts';
 import type { CameraPose, Shot } from '../src/shots/types.ts';
 import { FIELD_OF_VIEW } from '../src/shots/view.ts';
+import { LOWER_MAX_SEC, REST_TIMES } from '../src/pose/rest.ts';
 import { chromiumArgs } from './chromium-args.ts';
 import { startCinematic } from './cinematic-mode.ts';
 import { glbModule, speciesAnimal } from './glb-swap.ts';
@@ -3040,6 +3041,12 @@ export interface PlayArgs {
    * frames of a seek. A strip freezes the song time of the page ({@link freezePlugin}).
    */
   readonly strip: readonly number[] | null;
+  /**
+   * True for `--pause`: the tool pauses the play at the time of the frame, and waits for the hold
+   * and the slowest lowering, so that the frame shows the rest pose in the stage light (design
+   * 5.2) ({@link pauseFrame}).
+   */
+  readonly pause: boolean;
 }
 
 /** The fields of a camera in JSON of the command line ({@link jsonCamera}), before the checks. */
@@ -3331,7 +3338,9 @@ export function playParts(args: PlayArgs): PlayArgs[] {
 
 /**
  * Reads the command line of the mode `play`:
- * `play <dir> [--demo <id> | --midi <path>] [--time <s>... | --strip <from>:<step>:<count>] [--camera <name>|<dx>,<dy>,<wheel>|<JSON>]... [--camera-file <json>] [--cinematic] [--shot <seat|species>] [--at <seat|species> [--azimuth <deg>]... [--zoom <z>] [--elevation <deg>]] [--url <url>] [--base <ref>] [--set <changes>]... [--size <w>x<h>]`.
+ * `play <dir> [--demo <id> | --midi <path>] [--time <s>... | --strip <from>:<step>:<count>] [--camera <name>|<dx>,<dy>,<wheel>|<JSON>]... [--camera-file <json>] [--cinematic] [--shot <seat|species>] [--at <seat|species> [--azimuth <deg>]... [--zoom <z>] [--elevation <deg>]] [--url <url>] [--base <ref>] [--set <changes>]... [--size <w>x<h>] [--pause]`.
+ * `--pause` pauses the play at the time of the frame, so that the frame shows the rest pose
+ * ({@link pauseFrame}).
  * With no `--camera`, the camera is `default`. `--camera-file` gives labelled cameras in place of
  * `--camera` ({@link cameraFile}). `--midi` renders a MIDI file of the user in place
  * of a demo ({@link openMidi}). `--strip` renders frames at exact song times from one page each
@@ -3352,7 +3361,8 @@ export function playParts(args: PlayArgs): PlayArgs[] {
  *   folder, `--camera` or `--camera-file` with `--cinematic` or `--shot`, `--camera-file` with
  *   `--camera`, a wrong camera file, `--time` with `--shot`, `--at` with `--camera`,
  *   `--camera-file`, `--cinematic`, `--shot`, or `--url`, `--set` with `--url` or `--base`, an
- *   option of `--at` with no `--at`, a wrong option, or a missing word.
+ *   option of `--at` with no `--at`, `--pause` with `--strip` or `--shot`, a wrong option, or a
+ *   missing word.
  */
 export function playArgs(args: readonly string[]): PlayArgs | null {
   if (args[0] !== 'play') {
@@ -3378,7 +3388,7 @@ export function playArgs(args: readonly string[]): PlayArgs | null {
       '--strip',
     ],
     ['--camera', '--azimuth', '--time', '--set'],
-    ['--cinematic'],
+    ['--cinematic', '--pause'],
   );
   const [out, ...extra] = line.words;
   if (!out || extra.length > 0) {
@@ -3436,6 +3446,12 @@ export function playArgs(args: readonly string[]): PlayArgs | null {
     throw new Error('The option --strip builds a site of its own, so --url does not go.');
   }
   const strip = stripText === null ? null : stripTimes(stripText, pieceLength(demo, midi));
+  const pause = line.flags.has('--pause');
+  if (pause && (stripText !== null || shotText !== null)) {
+    throw new Error(
+      'The option --pause renders the rest pose after a seek, so it takes no --strip or --shot.',
+    );
+  }
   if (holds.length > 0 && (url !== null || base !== null)) {
     throw new Error(
       'The option --set builds a site of its own and moves the player of --at, so --url and --base do not go.',
@@ -3461,6 +3477,7 @@ export function playArgs(args: readonly string[]): PlayArgs | null {
       holds,
       holdsIndex: null,
       strip: null,
+      pause,
     };
   }
   const [first = PLAY_TIME_SEC, ...others] = (
@@ -3499,6 +3516,7 @@ export function playArgs(args: readonly string[]): PlayArgs | null {
     holds,
     holdsIndex: null,
     strip,
+    pause,
   };
 }
 
@@ -4164,6 +4182,9 @@ async function playFrame(
     );
     // The bar fades out in 0.2 s.
     await page.waitForTimeout(300);
+    if (args.pause) {
+      await pauseFrame(page);
+    }
     const image = await page.screenshot({ type: 'png' });
     const clock = await page.$eval('.bar .time', (element) => element.textContent ?? '');
     // The toggle "Automatic camera" is on in Cinematic mode (design 2.5).
@@ -4177,6 +4198,25 @@ async function playFrame(
   } finally {
     await page.close();
   }
+}
+
+/**
+ * Pauses the play of a page and waits until each player is in the rest pose (design 5.2): the
+ * hold of {@link REST_TIMES} and the slowest lowering ({@link LOWER_MAX_SEC}). Then it hides the
+ * bar, which shows while the play pauses, so that the frame shows the stage alone.
+ *
+ * @param page The page of the app, which plays.
+ */
+async function pauseFrame(page: Page): Promise<void> {
+  // The hidden bar takes no pointer, so the click goes to the button itself.
+  await page.$eval('.bar .play', (button) => {
+    if (button instanceof HTMLButtonElement) {
+      button.click();
+    }
+  });
+  await page.waitForTimeout((REST_TIMES.hold + LOWER_MAX_SEC) * 1000 + 500);
+  await page.addStyleTag({ content: '.bar { visibility: hidden !important; }' });
+  await page.waitForTimeout(100);
 }
 
 /**
