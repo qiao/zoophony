@@ -373,8 +373,10 @@ export const ACCEPTED_GRIPS: ReadonlyMap<string, Readonly<Record<Side, number>>>
   // The wolf and the mouse close their paws around the tube, with the palms toward its axis and
   // the grips moved around it (user, 2026-10-24: "they are not even holding the instrument",
   // docs/decisions/2026-10-24-wind-grips.md, and the review of the 2x crops by the manager on
-  // 2026-10-24).
-  ['clarinetist', { L: -89, R: -71 }],
+  // 2026-10-24). The bind elbow and the bind paws of the wolf turn the left paw 109.5° and the
+  // right paw 100.5° toward supination (docs/decisions/2026-10-27-wolf-bind.md), so the grips
+  // moved from -89° and -71° by these angles.
+  ['clarinetist', { L: 20, R: 29 }],
   // The mouse holds the 40° oboe from the side of each paw, with the left paw on the upper joint
   // and the thumbs up the tube (user, 2026-10-25: "their palm are facing outwards and thumbs
   // downwards", docs/decisions/2026-10-25-wind-palms.md, and the review of the crops by the

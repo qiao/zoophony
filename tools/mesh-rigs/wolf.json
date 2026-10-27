@@ -338,16 +338,22 @@
         0.563161
       ],
       "forearm": [
-        0.316246,
-        0.757051,
-        0.571719
+        -0.023386,
+        0.312493,
+        0.949632
       ],
       "hand": [
-        -0.078782,
-        0.677317,
-        0.731461
+        -0.443922,
+        0.296269,
+        0.84567
       ]
     },
+    "bindArmsNote": "The bind forearm and the bind hand turn 45 degrees forward about the bind upper arm from the bind arms of the cat and the dog (forearm 0.316246, 0.757051, 0.571719, hand -0.078782, 0.677317, 0.731461), and the hand keeps its wrist bend of 25 degrees in the frame of the palm, as on the rhino (bind-hinge.py of docs/research/2026-10-27-wolf-bind/). The forearm of the app turns with its elbow hinge, so the bind elbow sets the zero of the roll of the upper arm. With the elbow bent up, the upper arms rolled 98 degrees (left) and -118 degrees (right) from the chest at the clarinet rest on the knee, and the arm gate read a left twist of 38 and a right flat share of 0.75 (24 and 0.82 before that rest). The turn moves both rolls 45 degrees toward 0, and the rolls of the play from 34 and -48 degrees to near 0. The turns 30, 45, and 60 degrees gave the left twists 25, 19, and 13 and the right twists 30, 23, and 19 with the rest elbows of main (docs/research/2026-10-27-wolf-bind.md). The turn also supinates each bind paw 43.5 degrees on its forearm, so bindSupination takes that much less.",
+    "bindSupination": {
+      "L": 66,
+      "R": 57
+    },
+    "bindSupinationNote": "The bind paw of each arm turns about its bind forearm toward supination, the left 66 degrees and the right 57 degrees (paw_supination() of tools/blender/rig_mesh.py), and the forearm segments share the turn in the bind. The forearm of the app turns with its elbow hinge, so the bind paw sets the zero of the paw twist. With the bind elbow of bindArms, which supinates each paw 43.5 degrees, each paw turns 109.5 degrees (left) and 100.5 degrees (right) from the bind with the elbow bent up. With that bind, the left paw twisted -152 degrees at rest on the knee and -68 degrees in the play, so the arm gate read a paw twist of 152 (89 before that rest, limit 170). With the turns, the left paw twists about -42 degrees at rest and 42 degrees in the play, and the right paw stays within 32 degrees. The earlier scan of each turn gave the twists 42 and 23 with 110 and 100 degrees, and -100 degrees on the right flipped the right paw at 17,996 degrees per second in a lowering (docs/research/2026-10-27-wolf-knee/bind-scan-L.txt, bind-scan-R.txt, gate-bind-*.txt).",
     "tailBind": {
       "tail": [
         0,
@@ -360,7 +366,7 @@
         -0.2425
       ]
     },
-    "note": "The studio has no wolf. legTurns gives the world turn of each left leg bone from the seated bind pose to the source, and the right side mirrors it. The posture is the seated posture of design 5.2: the thigh slopes 25 degrees down from the hip to the knee, the thighs turn 15 degrees out, and the shin is vertical (docs/research/2026-10-16-hip-open/leg_turns.py <config> 25 15 0). The shin of the scaled source slants 4.1 degrees forward (docs/research/2026-10-20-wolf-shape/leg-turns.txt). The foot and the toes keep the turn of the source, so that the soles stand flat on the floor. The trunk shares and the bind arms are the values of the cat, the dog, the panda, the hippo, the mouse, and the pig. tailBind gives the direction of each tail bone in the seated bind pose: the root goes back and down over the back of the seat, 40 degrees below the level, and the tip hangs down behind the seat, 76 degrees below the level. On the scaled source, the root at 45 degrees went 2.0 cm into the seat at rest, and at 40 degrees 0.6 cm (docs/research/2026-10-20-wolf-shape/tail-variants.txt)."
+    "note": "The studio has no wolf. legTurns gives the world turn of each left leg bone from the seated bind pose to the source, and the right side mirrors it. The posture is the seated posture of design 5.2: the thigh slopes 25 degrees down from the hip to the knee, the thighs turn 15 degrees out, and the shin is vertical (docs/research/2026-10-16-hip-open/leg_turns.py <config> 25 15 0). The shin of the scaled source slants 4.1 degrees forward (docs/research/2026-10-20-wolf-shape/leg-turns.txt). The foot and the toes keep the turn of the source, so that the soles stand flat on the floor. The trunk shares are the values of the cat, the dog, the panda, the hippo, the mouse, and the pig, and the bind arms start from their bind arms (bindArmsNote). tailBind gives the direction of each tail bone in the seated bind pose: the root goes back and down over the back of the seat, 40 degrees below the level, and the tip hangs down behind the seat, 76 degrees below the level. On the scaled source, the root at 45 degrees went 2.0 cm into the seat at rest, and at 40 degrees 0.6 cm (docs/research/2026-10-20-wolf-shape/tail-variants.txt)."
   },
   "weights": {
     "armSplit": 0.101758,

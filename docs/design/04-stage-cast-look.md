@@ -372,7 +372,9 @@ segments by half a turn in one frame. The bind paw sets the zero of the twist, b
 turns with its elbow hinge. In the lift and the lowering of a violin or a viola, the left paw
 supinates more than half a turn (5.2), so the rig turns the bind left paw of these meshes about its
 forearm toward supination (`studio.bindSupination` of the rig config): the rest and the play then
-lie on one side of 180°, and the segments share the whole twist in each move. The skin then turns
+lie on one side of 180°, and the segments share the whole twist in each move. The wolf turns both
+bind paws, because the clarinet rest on the knee pronates the left paw far from its play grip. The
+skin then turns
 in small steps along the arm, and the elbow and the wrist keep their volume. The arms of such a
 mesh are quad tubes (rings at a right angle to the bones), and the weights come from Blender
 (`paintedWeights`), with the rule weights on the bones of `paintedLower`. A segment rig replaces
@@ -588,7 +590,11 @@ mesh are quad tubes (rings at a right angle to the bones), and the weights come 
     the elbow hinge, so the bind arms also set the zero of the paw twist: the bind forearm of the
     rhino bends forward and not up, so that its bind paw sits on its forearm as the A-pose paw of
     the source with a forward elbow. With the elbow up, each tuba paw turned about 63° more on its
-    forearm (`docs/decisions/2026-10-26-fifth-review-rhino.md`). A hanging upper arm that is one solid with the
+    forearm (`docs/decisions/2026-10-26-fifth-review-rhino.md`). The upper arm turns with the
+    hinge too, so the bind elbow also sets the zero of the roll of the upper arm. The bind forearm
+    of the wolf bends 45° forward, because with the elbow up, each upper arm rolled about 100° at
+    the clarinet rest on the knee, and its skin twisted and went flat
+    (`docs/decisions/2026-10-27-wolf-bind.md`). A hanging upper arm that is one solid with the
     trunk has a plane of the split out of the crease where they meet, so the free arm is only the
     outer shell of the arm, closed by a flat cap: a thin plate with no armpit. The rig can fit a
     plane through the concave edges of that crease and free the whole arm out of it
