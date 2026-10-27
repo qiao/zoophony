@@ -532,6 +532,24 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       twist -146°, -164°, and -153° from the pronated bind of their meshes, near the limit of 170°.
       A supinated bind paw (`bindSupination`) can lower these twists. Scan the angle with
       `bind-scan.ts` of `docs/research/2026-10-27-left-paw-bind/` and the arm gate.
+- [x] Cat and tan fox (`2026-10-27-cat-fox.md`): the user said "the cat's arm has dent and is
+      longer than expected" and "the fox doesn't seem to be holding the instrument properly".
+      Done: the cat bind upper arm lies nearer to the hanging arm of the mesh, its arm roots take
+      the skin normals, and the rest viola stands nearer to the hip (rest elbow 116°, 131°
+      before). The left flute paw faces the flute in the play and holds it from its front, and it
+      grasps in each play sample (0% before).
+- [ ] Cat (`2026-10-27-cat-fox.md`): the arm keeps the length of the mesh, 1.30 H from the
+      shoulder joint to the wrist, against about 1.10 H on `cat-views.png`. With arms 0.88 as
+      long, the left paw reached the fingerboard only from 0.62 (0.33 now). Ask the user before a
+      shorter arm with a smaller viola or a nearer hold.
+- [ ] Cat (`2026-10-27-cat-fox.md`): the armpit line at the lower back of each arm root still
+      folds a little in the play. The socket of the fox, with no shoulder ring and Blender weights
+      on the first ring, tore the arm root open on the cat.
+- [ ] Tan fox (`2026-10-27-cat-fox.md`): the right flute paw holds the flute from behind and
+      above. In front of the flute, it turned 180° on its forearm in the moves (move turn up to
+      17,945°/s). The left paw fails the margin of the move twist of the gate (87°, `main` 67°,
+      margin 3°, limit 176°) and goes 0.4 cm into the flute (0.2 cm). The manager decides on the
+      2x paw crops (`flutist-e20-*.webp` of `docs/research/2026-10-27-cat-fox/`).
 - [x] Rabbit, red fox, and cat (`2026-10-26-fifth-review-strings.md`): the grip that the viewer sees
       changes by 56° to 79° in the moves (target 30°), because the retarget turns each paw toward
       its forearm (`PAW_TURN`), and the forearm crosses the neck at rest and runs along it in the
