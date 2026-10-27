@@ -656,7 +656,9 @@ mesh are quad tubes (rings at a right angle to the bones), and the weights come 
     only near the neck, so a cap plane across the upper arm, turned toward the trunk, keeps the
     top of the shoulder on the trunk, and the socket is a loop around the arm root. The chest
     anchor reaches only as far as the radius of the thin arm, so that the outer arm turns with the
-    arm bones.
+    arm bones. The seated bind of its upper arm points further down than the bind of the other
+    meshes, nearer to the hanging arm of the mesh: with the far bind, the faces of the socket
+    folded and the shoulder ring narrowed in the play.
     `pnpm arm-look` measures the
     crease of the arm skin against the source and the section of the upper arm, with limits from the red fox
     (`docs/decisions/2026-10-21-arm-form.md`).

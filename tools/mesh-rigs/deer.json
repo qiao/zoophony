@@ -294,9 +294,9 @@
     },
     "bindArms": {
       "upper_arm": [
-        0.813873,
-        -0.143043,
-        0.563161
+        0.702,
+        -0.451,
+        0.551
       ],
       "forearm": [
         0.316246,
@@ -309,6 +309,7 @@
         0.731461
       ]
     },
+    "bindArmsNote": "The bind upper arm points out, forward, and 27 degrees down, 18 degrees nearer to the hanging source arm (43 degrees from it) than the bind of the other meshes (0.813873, -0.143043, 0.563161). With that bind, the shoulder ring of the rebuilt left arm narrowed to 0.72 of its bind width in the play (flat p5 of pnpm arm-check, 0.79 on main), and six faces of the left socket folded in each sample. With this bind, the flat p5 is 0.79 and 0.91, and the folds p95 are 0 and 1. Binds nearer to the source arm raised the paw swing of the left arm to 69 and 70 degrees (limit 70) (docs/research/2026-10-26-fifth-deer.md).",
     "note": "The studio has no deer. legTurns gives the world turn of each left leg bone from the seated bind pose to the source, and the right side mirrors it. The trunk shares and the bind arms are the values of the fox, the cat, the dog, the panda, the hippo, the mouse, the pig, and the wolf. The tail has one bone, as the tail ball of the rabbit and the panda, so it needs no bind direction."
   },
   "weights": {

@@ -16,3 +16,5 @@ reverse each decision. Then update its section, and remove its row.
 | The tube has one ring between the socket and its first ring (`seam.rings`). The chest anchor is 0.2 within 0.03 units, the radius of the arm (`anchor`): with 0.4 within 0.06, the outer upper arm took 0.24 of the chest. | 4.4 |
 | Six faces in the crease of the left socket and one thin face under the right armpit take the mean painted weights of their corners (`weights.rigidPainted`). They folded in each sample of the harpist. | 4.4 |
 | The faces within 0.08 units of each shoulder joint take the skin normals (`rootNormals`). The crease angle split the normals at the back of the left arm root into dark slits. | 4.4 |
+| The bind upper arm points 27° down, 18° nearer to the hanging arm of the mesh (`studio.bindArms.upper_arm`). With the bind of the other meshes, the left shoulder ring narrowed to 0.72 of its bind width, a `FAIL` against 0.79 on `main`. | 4.4, 9.3 |
+| The first download grows by 8,662 B to 818,995 B (`pnpm size --base main`), for 963 more triangles of the arm tubes and the side walls, and 20 more bones. | 7.2 |
