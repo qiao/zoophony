@@ -188,6 +188,14 @@ interface StudioArmSegments {
   the back of the arm root. Collapse the thin bridge faces of the armpit line too, and give the
   tube near the walls a chest share of 0.4 (`tools/blender/fox_arms.py`,
   `docs/research/2026-10-25-fox-arms.md`).
+- **A broad round shoulder.** On the deer, the plane of the seam left the round top of the
+  shoulder only near the neck, so the hole took the whole top, and the bridge faces to the first
+  ring turned into the arm. A cap plane across the upper arm, turned toward the trunk until it
+  meets the plane of the seam near the armpit line, keeps the top on the trunk (`step_cut()` of
+  `tools/blender/deer_arms.py`). On a thin arm, keep the reach of the chest anchor within the
+  radius of the arm, else the outer arm takes a share of the chest. When the socket folds in each
+  sample, bind the upper arm nearer to the hanging arm of the mesh (`studio.bindArms`,
+  `docs/research/2026-10-26-fifth-deer.md`).
 - **A thick hanging arm on a round belly.** On the hippo, put the plane of the seam at the
   crease of the arm, inside the old `armSplit`, and keep the belly under the forearm on the trunk
   with a second plane (`seam.under`). Delete the thin ears of the hole before the wall, and
