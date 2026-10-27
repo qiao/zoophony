@@ -597,6 +597,15 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       faired along the normals, and the faces behind the knees take the skin normals. The facet
       and its groove are gone, with the poses, the folds, and the arm gate of `main`
       (`2026-10-27-rigs3.md`).
+- [x] Wolf (`2026-10-27-wolf-knee.md`): the user said that the wolf does not hold the clarinet
+      properly at rest: the left paw capped the mouthpiece end, the bell hung 12 cm in front of
+      the seat, and each paw slid 15 cm along the tube in each move. Done: the bell rests against
+      the inner right knee, and both paws keep their grips of the play.
+- [ ] Wolf (`2026-10-27-wolf-knee.md`): the arm gate fails its margins against `876ba389` on the
+      left arm at rest (paw twist 152°, 89° before, limit 170°) and on the right flat (0.75,
+      0.82 before). Each rest with the old twists capped the mouthpiece end. Next: scan a bind
+      turn of the left wolf paw with the arm gate, as the round `left-paw-bind` did for the
+      violins (`2026-10-27-left-paw-bind.md`).
 - [x] Bear rig (`2026-10-26-arm-fixes.md`): the left shoulder bridge folds 8 tiny faces at p95
       in the play (4 on the old rig, limit 8), and the right move twist max is 87 (81). Done: the
       head keeps the rule weights, and four shoulder faces take the mean of their painted weights

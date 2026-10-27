@@ -1,0 +1,52 @@
+
+> zoophony@0.0.0 arm-check /Users/xueqiaoxu/proj/zoophony/.claude/worktrees/sixth-wolf-knee
+> node tools/arm-check.ts clarinetist --base main --jobs 4 --variant y1 --set clarinet\@wolf.rest\=holdTurn\(-49\,8\)\;clarinet\@wolf.restShift\=\[0.057\,-0.776\,-0.284\]\;clarinet\@wolf.restPoleL\=\[-0.7\,-1\,0.2\]\;clarinet\@wolf.restGripShiftR\=\[-0.33\,0.19\,-0.11\]\;clarinet\@wolf.restGripShiftL\=\[-0.14\,0.14\,-0.11\] --variant y2 --set clarinet\@wolf.rest\=holdTurn\(-49\,8\)\;clarinet\@wolf.restShift\=\[0.057\,-0.776\,-0.284\]\;clarinet\@wolf.restPoleL\=\[-0.7\,-1\,0.2\]\;clarinet\@wolf.restGripShiftR\=\[-0.33\,0.19\,-0.11\]\;clarinet\@wolf.restGripShiftL\=\[-0.18\,0.14\,-0.11\] --variant y3 --set clarinet\@wolf.rest\=holdTurn\(-45\,8.5\)\;clarinet\@wolf.restShift\=\[0.045\,-0.738\,-0.183\]\;clarinet\@wolf.restPoleL\=\[-0.7\,-1\,0.2\]\;clarinet\@wolf.restGripShiftR\=\[-0.33\,0.19\,-0.11\]\;clarinet\@wolf.restGripShiftL\=\[-0.16\,0.14\,-0.11\] --variant y4 --set clarinet\@wolf.rest\=holdTurn\(-45\,8.5\)\;clarinet\@wolf.restShift\=\[0.045\,-0.738\,-0.183\]\;clarinet\@wolf.restPoleL\=\[-0.7\,-1\,0.2\]\;clarinet\@wolf.restGripShiftR\=\[-0.33\,0.19\,-0.11\]\;clarinet\@wolf.restGripShiftL\=\[-0.22\,0.14\,-0.11\]
+
+base: cached (main, 0ff9cde4f95d)
+base: cached (main, 0ff9cde4f95d)
+base: cached (main, 0ff9cde4f95d)
+base: cached (main, 0ff9cde4f95d)
+Arm gate of 1 roles in 4 variants against main: 4 children, at most 4 at the same time, in 111 s. A cell gives the value, the base in parentheses, and the verdict of a value that does not pass.
+
+- y1: clarinet@wolf.rest=holdTurn(-49,8);clarinet@wolf.restShift=[0.057,-0.776,-0.284];clarinet@wolf.restPoleL=[-0.7,-1,0.2];clarinet@wolf.restGripShiftR=[-0.33,0.19,-0.11];clarinet@wolf.restGripShiftL=[-0.14,0.14,-0.11]
+- y2: clarinet@wolf.rest=holdTurn(-49,8);clarinet@wolf.restShift=[0.057,-0.776,-0.284];clarinet@wolf.restPoleL=[-0.7,-1,0.2];clarinet@wolf.restGripShiftR=[-0.33,0.19,-0.11];clarinet@wolf.restGripShiftL=[-0.18,0.14,-0.11]
+- y3: clarinet@wolf.rest=holdTurn(-45,8.5);clarinet@wolf.restShift=[0.045,-0.738,-0.183];clarinet@wolf.restPoleL=[-0.7,-1,0.2];clarinet@wolf.restGripShiftR=[-0.33,0.19,-0.11];clarinet@wolf.restGripShiftL=[-0.16,0.14,-0.11]
+- y4: clarinet@wolf.rest=holdTurn(-45,8.5);clarinet@wolf.restShift=[0.045,-0.738,-0.183];clarinet@wolf.restPoleL=[-0.7,-1,0.2];clarinet@wolf.restGripShiftR=[-0.33,0.19,-0.11];clarinet@wolf.restGripShiftL=[-0.22,0.14,-0.11]
+
+| Variant | Role | Arm | folds p95 (8) | twist p95 (55) | forearm twist p95 (80) | flat p5 (0.55) | paw twist p95 (170) | paw swing p95 (70) | paw jumps (0.5%) | stretch p95 (0.35) | grip turn p50 (45) | move twist max (176) | move turn max (3000) | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| y1 | clarinetist | L | 2 (2) | 28 (24) | 37 (35) | 0.90 (0.91) | 95 (89) | 47 (40) | 0.0% (0.0%) | 0.02 (0.01) | 21 (21) | 95 (89) FAIL | 84 (62) | FAIL |
+| y1 | clarinetist | R | 5 (5) | 37 (35) | 36 (40) | 0.71 (0.82) FAIL | 93 (101) | 45 (46) | 0.0% (0.0%) | 0.03 (0.02) | 6 (6) | 93 (101) | 85 (86) | FAIL |
+| y2 | clarinetist | L | 2 (2) | 27 (24) | 36 (35) | 0.91 (0.91) | 93 (89) | 47 (40) | 0.0% (0.0%) | 0.02 (0.01) | 21 (21) | 93 (89) FAIL | 83 (62) | FAIL |
+| y2 | clarinetist | R | 5 (5) | 37 (35) | 36 (40) | 0.71 (0.82) FAIL | 93 (101) | 45 (46) | 0.0% (0.0%) | 0.03 (0.02) | 6 (6) | 93 (101) | 85 (86) | FAIL |
+| y3 | clarinetist | L | 3 (2) | 30 (24) | 34 (35) | 0.89 (0.91) | 88 (89) | 47 (40) | 0.0% (0.0%) | 0.02 (0.01) | 21 (21) | 88 (89) | 81 (62) | PASS |
+| y3 | clarinetist | R | 5 (5) | 40 (35) | 37 (40) | 0.70 (0.82) FAIL | 95 (101) | 48 (46) | 0.0% (0.0%) | 0.03 (0.02) | 6 (6) | 95 (101) | 84 (86) | FAIL |
+| y4 | clarinetist | L | 2 (2) | 28 (24) | 33 (35) | 0.90 (0.91) | 86 (89) | 46 (40) | 0.0% (0.0%) | 0.02 (0.01) | 21 (21) | 86 (89) | 78 (62) | PASS |
+| y4 | clarinetist | R | 5 (5) | 40 (35) | 37 (40) | 0.70 (0.82) FAIL | 95 (101) | 48 (46) | 0.0% (0.0%) | 0.03 (0.02) | 6 (6) | 95 (101) | 84 (86) | FAIL |
+
+Variant y1:
+
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| clarinetist | L | move twist max | move | 8127 | 75 | 95 | 100.0% | 95 at boulanger-matin.mid lower 93.56 s, wall 1.82 s | 95 | 176 | 89 | FAIL |
+| clarinetist | R | flat p5 | rest | 7 | 0.71 | 0.71 | 100.0% | 0.71 at beethoven-9.mid rest | 0.71 | 0.55 | 0.82 | FAIL |
+
+Variant y2:
+
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| clarinetist | L | move twist max | move | 8127 | 74 | 93 | 100.0% | 93 at beethoven-1.mid lower 98.11 s, wall 1.72 s | 93 | 176 | 89 | FAIL |
+| clarinetist | R | flat p5 | rest | 7 | 0.71 | 0.71 | 100.0% | 0.71 at beethoven-9.mid rest | 0.71 | 0.55 | 0.82 | FAIL |
+
+Variant y3:
+
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| clarinetist | R | flat p5 | rest | 7 | 0.70 | 0.70 | 100.0% | 0.70 at beethoven-9.mid rest | 0.70 | 0.55 | 0.82 | FAIL |
+
+Variant y4:
+
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| clarinetist | R | flat p5 | rest | 7 | 0.70 | 0.70 | 100.0% | 0.70 at beethoven-9.mid rest | 0.70 | 0.55 | 0.82 | FAIL |
+ ELIFECYCLE  Command failed with exit code 1.

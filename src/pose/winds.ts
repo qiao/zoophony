@@ -869,25 +869,24 @@ const WOLF_CLARINET_FORWARD = 5;
  * (`docs/research/2026-10-20-wolf-face/fit3.txt`).
  *
  * Both elbows point down and a little out, as a seated clarinetist lets the arms hang near the
- * body, in the play and in the rest. Of 4 elbow directions, this one gave the smallest paw turns
+ * body, in the play. Of 4 elbow directions, this one gave the smallest paw turns
  * on the forearms: with the elbows of {@link WIND_HOLDS}, the right paw turned 141° and the left
  * paw 123°, and with these elbows 71° and 89° (`docs/research/2026-10-20-wolf-mesh.md`).
  *
- * At rest, the bell stands on the front of the seat between the knees, and the clarinet leans
- * 20° forward from it, as a seated clarinetist puts the bell on the seat between the legs
- * (`docs/reference/wind-technique.md` 3). Both paws close on its upper half: the left paw at the
- * barrel and the right paw on the upper joint (`restGripShiftL`, `restGripShiftR`), and they keep
- * the aim and the roll of the play (`restAim`), so that the fingers close around the tube at rest
- * too. Before, the clarinet stood about 0.2 m in front of the knees and touched nothing. With the
- * paws on their grips of the play, which are low on the clarinet at rest, the forearms went 3.2 cm
- * into the belly, and 4.3 cm with the bell 7 cm further back. With the bell on the right knee, the
- * upper arms went 5.6 cm into the body. Each rest of the bell on the seat twisted the right upper
- * arm past the limit of the arm gate (twist p95 69°, limit 55°) on the arms of one bone, and the
- * rebuilt arms of 2026-10-25 spread the roll over 4 segments (29°). At rest, the left elbow points
- * down and out, and a little back. With the elbow further back, the left upper arm went 6 cm into
- * the body (`docs/research/2026-10-25-wind-arms.md`). Each rest grip keeps the moves toward the
- * axis and to the side of the play, so that the paw keeps its side of the tube at rest, and the
- * lift and the lowering do not turn it around the tube.
+ * At rest, the bell rests against the inner side of the right knee, the clarinet leans 30° forward
+ * and 10° toward the left shoulder, and both paws stay on their grips of the play, as a seated
+ * clarinetist rests the bell on the knee with the hands on the keys
+ * (`docs/reference/wind-technique.md` 3). Thus the lift and the lowering move the clarinet with the
+ * paws, and no paw slides along the tube. The paws keep the aim and the roll of the play
+ * (`restAim`), so that the fingers close around the tube at rest too. The round belly fills the
+ * seat between the knees, and the knees stand 25 cm apart, so the bell has no room on the seat
+ * between the legs. Before 2026-10-27, the bell hung 12 cm in front of the seat between the knees,
+ * the left paw capped the mouthpiece end, and each paw slid 15 cm along the tube in each move
+ * (user, 2026-10-27: "the wolf is not holding the instrument properly in rest mode"). At rest, the
+ * left elbow points out, down, and a little forward: with the elbow a little back, the left forearm
+ * went 2.2 cm to 4.5 cm into the body, and with the elbow down and out, the left upper arm went
+ * deeper than on the rest before. With the bell on the top of the right knee, the clarinet lay
+ * across the lap, and the left forearm crossed the belly (`docs/research/2026-10-27-wolf-knee.md`).
  */
 const WOLF_CLARINET = {
   ...WIND_HOLDS.clarinet,
@@ -895,19 +894,17 @@ const WOLF_CLARINET = {
   reachL: 20 * MathUtils.DEG2RAD,
   lipShift: [0, -0.18, 0.4],
   play: holdTurn(WOLF_CLARINET_FORWARD, 0),
-  rest: holdTurn(-45, 0),
-  restShift: [0, -0.77, -0.35],
+  rest: holdTurn(-55, 10),
+  restShift: [0.01, -0.81, -0.42],
   poleL: [-0.3, -1, 0],
   poleR: [0.3, -1, 0],
-  restPoleL: [-0.7, -1, 0.2],
+  restPoleL: [-1.3, -1, -0.2],
   restPoleR: [0.3, -1, 0],
   faceTube: ['palm', 'palm'],
   aimAcross: 1,
   aimSide: [0.25, 0.25],
   gripShiftL: [0.15, 0.14, -0.11],
   gripShiftR: [0.05, 0.19, -0.11],
-  restGripShiftL: [-0.22, 0.14, -0.11],
-  restGripShiftR: [-0.33, 0.19, -0.11],
   restAim: 1,
   gripCurl: curls(115, 115),
 } as const satisfies WindHold;
