@@ -448,8 +448,13 @@ mesh are quad tubes (rings at a right angle to the bones), and the weights come 
     with no chair has no `sit`, so its haunch keeps its form. The seated thigh turns with its own
     weight: the hips take only the thigh near the hip joint (`weights.haunch`), and on a short
     thick leg the weight of the thigh and the shin splits by height across the knee joint
-    (`weights.knee`), so that the knee bends as one clean corner. `pnpm rig-mesh --check` gives
-    the gaps of the tail to the floor and to the chair over one sway period (`tools/tail-gap.ts`).
+    (`weights.knee`), so that the knee bends as one clean corner. A face that crosses the knee
+    cannot bend, so a long face of a source leg from the crotch to the ankle stays one flat plane
+    in the seated bind, and the knee reads as an angular block over a slab. Rings of new vertices
+    at the knee cut such faces (`refine.rings` with the joint `shin`), and each new vertex takes
+    the knee and haunch rules at its height, so that the seated leg reads as a thigh, a round
+    knee, and a shin. `pnpm rig-mesh --check` gives the gaps of the tail to the floor and to the
+    chair over one sway period (`tools/tail-gap.ts`).
   - Weights and shapes. Bone heat gives the weights, and rules and rings of new vertices at the
     joints (`refine.rings`) keep the faces from a fold. The corrective shapes give the source back
     in the standing pose, and up to four shapes of `raise` relax the faces that turn over in a bent

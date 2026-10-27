@@ -328,6 +328,10 @@ group of your work before you plan it. A probe that a trap names is in its resea
   from the knee gives the hips the whole thigh, and bone heat on a short thick leg gives the shin
   the knee front. Color the bind by the hips, the thigh, and the shin in Blender, start the ramp
   above the knee, and split the leg across the knee (`weights.knee`, user, 2026-10-26).
+- Long faces across the knee of a source leg stay flat planes in the seated bind: an angular block
+  at the knee and a slab from the calf to the haunch. No weight band or seat removes them. Count
+  them, and cut them with rings at the knee whose radius reaches the haunch (`refine.rings`,
+  `steps.py` and `knee_facets.py` of `docs/research/2026-10-26-fifth-bears/`).
 - A long thigh needs a seat of its own (`studio.legTurns`, `weights.haunch`). A large tail needs two
   bones (`tail_tip`).
 - Short thighs under a round belly, or thighs that slope down to a level seat, set the seat top
