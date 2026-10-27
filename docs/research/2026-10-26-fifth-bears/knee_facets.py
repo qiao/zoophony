@@ -14,7 +14,7 @@ import sys
 import numpy as np
 
 for d in sys.argv[1:]:
-    step = sorted(glob.glob(os.path.join(d, '*crease_relax.npz')))[-1]
+    step = sorted(glob.glob(os.path.join(d, '[0-9]*.npz')))[-1]
     data = np.load(step)
     knee = np.load(os.path.join(d, 'heads-2.npz'))['shin_L']
     p, t = data['points'], data['tris']

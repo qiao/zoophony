@@ -75,4 +75,6 @@ hook('relax', 0)
 hook('sit', 0)
 hook('seat_lift', 0)
 hook('crease_relax', 0)
+if 'knee_relax' in ns:
+    hook('knee_relax', 0)
 ns['main']()
