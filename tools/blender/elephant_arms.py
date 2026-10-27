@@ -9,11 +9,11 @@ the elephant (`ELEPHANT`):
 1. Import the mesh of the user and Merge by Distance.
 2. Replace the faces of each arm from the shoulder line to the wrist with a quad tube, wrap it onto
    the source arm, bridge it to the trunk and to the paw, beautify the bridge triangles, and
-   collapse the thin faces at the cut loops and under each armpit (`cleanPit`). Then make the
+   collapse the thin faces at the cut loops and under each armpit (`cleanPit`).
+3. Give the new arm faces a UV layout, and bake the fur color of the source arm. Then make the
    inner front of each upper arm a little flatter (`step_flatten()`), because the thick upper arm
-   went 2.9 cm into the round belly in the ready pose of the timpani.
-3. Give the new arm faces a UV layout, bake the fur color of the source arm, and transfer the
-   custom normals of the source surface.
+   went 2.9 cm into the round belly in the ready pose of the timpani. Then transfer the custom
+   normals of the source surface.
 4. Keep the length and the cross-section of the arms (`factor` 1, `slim` 1), put the arm image in
    a strip of the atlas, and write `elephant-arms.glb`.
 5. Add the studio skeleton with the arm segments and the helpers, parent with automatic weights,
@@ -154,11 +154,14 @@ def step_weights(s):
 
 
 #: The steps of the session: the steps of `wind_arms.py`, with the flatter inner upper arms after
-#: the clean bridge, and the weights file above.
+#: the bake, and the weights file above. The bake casts its rays from 0.006 units out of the tube
+#: (`step_bake()` of `violin_arms.py`). A flatten before the bake moved the tube 0.009 units into
+#: the source arm, the rays missed the source, and the bake wrote black on the inner upper arms.
+#: After the bake, the flatten moves the vertices and keeps their texels.
 STEPS = tuple(
     out for step in wa.STEPS
     for out in {wa.step_weights: (step_weights,),
-                wa.step_clean_bridge: (wa.step_clean_bridge, step_flatten)}.get(step, (step,)))
+                va.step_bake: (va.step_bake, step_flatten)}.get(step, (step,)))
 
 
 def run_steps(s, first=0, last=len(STEPS)):

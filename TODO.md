@@ -496,9 +496,11 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
 - [x] Bear and polar bear (`2026-10-26-fifth-review-bears.md`): the user saw a black area under
       the bear armpit and bulky polar bear knees. Done: the bear arm bake comes before the flatten
       (65 black faces before, 0 now), and rings cut the long faces of each polar bear knee.
-- [ ] Elephant (`2026-10-26-fifth-review-bears.md`): `elephant_arms.py` also flattens the upper
+- [x] Elephant (`2026-10-26-fifth-review-bears.md`): `elephant_arms.py` also flattens the upper
       arms before the bake (0.009 units, bake rays from 0.006), and about 24 faces of the inner
-      upper arms take black texels (`dark-elephant.txt`). Put the flatten after the bake.
+      upper arms take black texels (`dark-elephant.txt`). Put the flatten after the bake. Done:
+      the elephant arm bake comes before the flatten (30 black faces before, 0 now), with the
+      same geometry and weights (`2026-10-27-elephant-bake.md`).
 - [ ] Bear (`2026-10-26-fifth-review-bears.md`): in the gallery light, each arm casts a black
       shadow on the trunk under the armpit. The scene light is an open decision of the user.
 - [x] Polar bear (`2026-10-26-fifth-review-bears.md`): stacked light stripes at the back of each

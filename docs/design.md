@@ -347,4 +347,5 @@ The decision files:
 - [`2026-10-26-fifth-review-rhino.md`](decisions/2026-10-26-fifth-review-rhino.md): the rebuilt quad arms of the rhino with arm segments, the bind elbow bent forward, and the tuba elbows down and out.
 - [`2026-10-26-fifth-review-strings.md`](decisions/2026-10-26-fifth-review-strings.md): the violin and the viola that turn with the left paw in the moves, the forearm twist that unwinds near 180°, the rest grip of the left paw on the neck, and the bow paws low at the front of the lap.
 - [`2026-10-26-fifth-review-bears.md`](decisions/2026-10-26-fifth-review-bears.md): the bake of the bear arm fur before the flatten, the rings that cut the long faces of the polar bear knees on a front and a back arc, and the smoothed crease at the back of each knee.
+- [`2026-10-27-elephant-bake.md`](decisions/2026-10-27-elephant-bake.md): the bake of the elephant arm skin before the flatten, and the palette and the gray dark faces that stay.
 - [`2026-10-23-rabbit-arms.md`](decisions/2026-10-23-rabbit-arms.md): the A-pose rabbit mesh with its own faces, a short arm stretch, a violin of 0.83, its elbows and rest grip, and the open shards of its arms.
