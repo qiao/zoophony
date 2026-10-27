@@ -332,11 +332,18 @@ group of your work before you plan it. A probe that a trap names is in its resea
   at the knee and a slab from the calf to the haunch. No weight band or seat removes them. Count
   them, and cut them with rings at the knee whose radius reaches the haunch (`refine.rings`,
   `steps.py` and `knee_facets.py` of `docs/research/2026-10-26-fifth-bears/`).
+- A quad split along its long diagonal across the knee folds along that chord into a groove, and a
+  ring vertex on the chord stays on it. Flip such diagonals before the rings (`refine.legFlip`,
+  `probes/bad_diagonals.py` of `docs/research/2026-10-27-legs-armpit/`). Keep the flips near the
+  knee: a flip at the thigh top changed the belly crease relax and folded a face there.
 - The bind puts a ring vertex at the back of a bent knee inside the leg when it lies nearer to the
   knee plane than the radius of the leg, and the skin folds into stacked light stripes. Cut the
   front arc near the knee plane (`toward`, `within`), put the back rings where the thigh and the
   calf meet in the bind, and smooth the crease (`kneeCrease`). Count the edges through the skin
-  (`crossings.py`, `knee-stripes.md` of the same folder).
+  (`crossings.py`, `knee-stripes.md` of the same folder). Weight the smoothing by the distance
+  from the seam (`reach`): rings of neighbors carry the move down a long calf face, which shows as
+  a light wedge. Count the hard edges within 0.2 units of the knee (`probes/zone_turns.py` of the
+  research folder of 2026-10-27): a zone of 0.1 units missed these wedges.
 - A long thigh needs a seat of its own (`studio.legTurns`, `weights.haunch`). A large tail needs two
   bones (`tail_tip`).
 - Short thighs under a round belly, or thighs that slope down to a level seat, set the seat top
