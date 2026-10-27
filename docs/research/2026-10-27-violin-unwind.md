@@ -77,7 +77,7 @@ five vias of the red fox (`via-fox.txt`):
 
 The cat via trades the viola near the jaw against the right claws and the bow in the viola,
 `pnpm pose-depth violist` on four demos with `--every 40 --json` (`via-cat.txt`, `via-cat.py`, in
-cm; the first row of each file is the tree at (-0.1, 0.3, -0.2)):
+cm). The first row of each file is the tree at (-0.1, 0.3, -0.2):
 
 | Cat via, H | Lower: instrument in body | Lower: right claws in viola | Lower: bow in viola |
 |---|---:|---:|---:|
