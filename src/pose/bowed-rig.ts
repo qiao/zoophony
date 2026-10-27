@@ -809,10 +809,16 @@ export const BOWED_HOLDS = {
  * (2026-10-26-third-review decisions), and with the elbow (-0.6, -1, 0.3) of
  * 2026-10-24, the left upper arm went 2.6 cm into the body by the smaller viola (1.5 cm now), and
  * with (-0.5, -1, 0.3) 1.9 cm by the viola of the app. A place further down the
- * upper bout put the left forearm 2.4 cm to 2.8 cm into the viola. The grip of the bow rests on
- * the lap near the hip, 0.3 H out, 0.6 H up, and 0.15 H to the front at 0.6 of the way to the
- * knee (0.35 H, 0.5 H, and 0.25 H at 0.7 for the longer arms before), with the tip a little forward, (0.3, 1, -0.4), and the right elbow points out and a little
- * down, (1, -0.6, 0), so that the arm bends near the body (user, 2026-10-26: "cat's bow hand should
+ * upper bout put the left forearm 2.4 cm to 2.8 cm into the viola. The grip of the bow rests
+ * over the lap, 0.35 H out, 0.25 H up, and 0.2 H to the front at 0.5 of the way to the knee, with
+ * the tip a little forward, (0.3, 1, -0.4), and the right elbow hangs down, a little out, and a
+ * little back, (0.65, -1, 0.2): the upper arm stands 35° from the vertical, with the elbow 7 cm
+ * out from the side of the round belly, and the forearm comes forward to the paw (user,
+ * 2026-10-26: "the cat's arm is bent in unusual ways", 2026-10-26-fourth-review decisions). With
+ * the grip 0.6 H up and the elbow out, (1, -0.6, 0), the elbow stood 14 cm out and the upper arm
+ * 59° from the vertical, as a wing. With the elbow further down, (0.5, -1, 0.3), the upper arm went
+ * 2.6 cm to 5.4 cm into the belly, and with the grip 0.45 H out, the paw floated beside the
+ * belly. A rest on the lap was the wish of the user too (2026-10-26: "cat's bow hand should
  * rest on/near its lap", 2026-10-26-third-review decisions). With the grip 0.5 H to the front at
  * 0.8 of the way, the arm reached nearly straight to the knee. With the tip of the rabbit,
  * (0.2, 1, -0.1), the right arm twisted 35° to 46° at rest (25° on `main`, 33° now, limit 55). With the
@@ -913,7 +919,7 @@ const CAT_HOLD = {
   highTilt: 20 * MathUtils.DEG2RAD,
   poleR: [2, 0, -0.5],
   poleTipR: [1, -1, -1],
-  restPoleR: [1, -0.6, 0],
+  restPoleR: [0.65, -1, 0.2],
   restPoleL: [-1.2, -1, 0.3],
   restPlace: 0.4,
   rest: {
@@ -926,7 +932,7 @@ const CAT_HOLD = {
   restTwistL: 1.5,
   liftPoleL: [-1.2, -0.6, 0],
   restBow: {
-    lap: { along: 0.6, offset: [0.3, 0.6, -0.15] },
+    lap: { along: 0.5, offset: [0.35, 0.25, -0.2] },
     tip: [0.3, 1, -0.4],
     hair: [0, 0, -1],
     via: { tip: [0.4, 0.3, -1], hair: [0, 0, -1], reach: [0.85, 0.3, -0.3] },

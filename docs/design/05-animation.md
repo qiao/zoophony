@@ -301,10 +301,12 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
   seated player, and the left paw closes around the neck at 0.4 of the fingerboard, below the
   pegbox (`BowedHold.restPlace`): with the grip near the nut, the paw lay over the scroll, and
   with the left elbow out to the side, the arms looked long (user, 2026-10-26,
-  `docs/decisions/2026-10-26-third-review.md`). The bow paws rest on the lap: the rabbit and the
-  cat hold the frog at the front of the lap with the elbow bent near the body and the bow upright
-  beside it, and the red fox on the front of the right thigh
-  (`docs/decisions/2026-10-26-third-review.md`). With the paw on the top of the thigh, the short right arm of the rabbit folded
+  `docs/decisions/2026-10-26-third-review.md`). The bow paws rest on the lap: the rabbit holds
+  the frog at the front of the lap with the elbow bent near the body and the bow upright beside
+  it, the cat over the lap with the elbow down and a little out around its round belly, and the
+  red fox on the front of the right thigh (`docs/decisions/2026-10-26-third-review.md`): with the
+  cat elbow out to the side, the arm bent as a wing (`docs/decisions/2026-10-26-fourth-review.md`).
+  With the paw on the top of the thigh, the short right arm of the rabbit folded
   (`docs/decisions/2026-10-26-violin-lift.md`). In the lift and the lowering, the
   bow tip turns through the front, forward and a little up, beside the body (`BowVia` of
   `pose/bowed-rig.ts`): with the tip up, the bow stood in front of the face. The left paw of the
