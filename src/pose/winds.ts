@@ -965,29 +965,31 @@ const MONKEY_TRUMPET = {
  * is longer (`SpeciesParams.tubaPipe`), the right shoulder turns 45° forward, and the left
  * shoulder 40°, as the shoulder blades of a real player slide forward. The lower end of the tuba
  * turns 25° to the right, so that the bell stands at the left of the horn on the muzzle. The
- * elbows point out and down, and the right elbow also a little forward and more out than down, as
- * the arms of a real player stay away from the rib cage (`docs/reference/wind-technique.md` 1.8). With
- * the right shoulder at 30° and the right elbow down and out, the right upper arm went 1.8 cm to
- * 2.0 cm into the body (`docs/decisions/2026-10-25-thick-arm-depth.md`). At rest, the tuba moves
- * off the mouth and its lower end turns 5° forward (`docs/research/2026-10-21-mesh-rhino.md`).
+ * elbows point down and out, a little more down than out (`poleL`, `poleR`, `restPoleL`,
+ * `restPoleR`), as the arms of a real player stay away from the rib cage
+ * (`docs/reference/wind-technique.md` 1.8) and each forearm stays in its range of turn. With the
+ * palms on their tubes, the elbows out turned the left forearm 84° and the right forearm 57° from
+ * neutral, near the end of the turn of a real forearm, and the skin of each forearm twisted
+ * (`docs/decisions/2026-10-26-fifth-review-rhino.md`). Now the left forearm turns 67° and the
+ * right forearm 15°. With the elbows straight down, the thick upper arms went into the round
+ * belly. At rest, the tuba moves off the mouth and its lower end turns 5° forward
+ * (`docs/research/2026-10-21-mesh-rhino.md`).
  *
  * The right palm faces the valve tops, and the left palm faces the main branch (`faceTube`,
  * `InstrumentGrips.tubeL` of `models/instruments/brass.ts`), as the left hand of a real tubist
  * grips the tubing at the side of a rotary tuba, with the knuckles to the left, while the right
- * hand works the valves (`docs/reference/wind-technique.md` 3). The left grip moves 0.16 H toward
+ * hand works the valves (`docs/reference/wind-technique.md` 3). The left grip moves 0.145 H toward
  * the main branch, 0.05 H around it away from the shoulder, and 0.07 H up (`gripShiftL`), so that
  * the left paw lies on the left side of the branch: its palm faces the branch, the back of the paw
  * faces out to the left, and the fingers point forward and down around the front of the branch.
- * The left elbow points out and down (`poleL`, `restPoleL`), and the left fingers curl 92°
- * (`gripCurl`). Before 2026-10-25, the left paw lay at the back left of the branch and pointed
- * at it, so its palm faced up, and the paw turned 96° from its accepted grip
- * (`docs/research/2026-10-25-brass-grips.md`). With the left elbow down, the thick left upper arm
- * went 2.5 cm to 3.3 cm into the body, and with the elbow further out, the paw turned more than
- * 170° on its forearm. At rest, the left grip moves 0.02 H out from the branch
- * (`restGripShiftL`): on the grip of the play, the left forearm went 1.6 cm into the tuba at
- * rest. Both paws keep the aim and the roll of the play at rest (`restAim`): with the roll of the
- * shoulder at rest, the left paw flipped in the lowering (the wrist turned 17960° each second).
- * The right fingers curl 80°. The right grip moves 0.15 H along the row of the valves
+ * The left fingers curl 92° (`gripCurl`). Before 2026-10-25, the left paw lay at the back left of
+ * the branch and pointed at it, so its palm faced up (`docs/research/2026-10-25-brass-grips.md`).
+ * With the lower left elbow, the grip of 0.16 H put the left paw 2.3 cm into the branch, and the
+ * grips of 0.13 H and less opened its finger tips off the branch. At rest, the left grip moves
+ * 0.14 H toward the branch (`restGripShiftL`): on the grip of the play, the left forearm went into
+ * the tuba at rest. Both paws keep the aim and the roll of the play at rest (`restAim`): with the
+ * roll of the shoulder at rest, the left paw flipped in the lowering (the wrist turned 17960° each
+ * second). The right fingers curl 80°. The right grip moves 0.15 H along the row of the valves
  * toward the front and 0.1 H toward the right shoulder (`gripShiftR`), so that the right paw lies
  * on the valve tops at the front right of the valve branch, where it shows from the front and from
  * the right front. On the grip of the instrument, the valve branch hid it from both views (manager
@@ -998,13 +1000,13 @@ const RHINO_TUBA = {
   reach: 45 * MathUtils.DEG2RAD,
   reachL: 40 * MathUtils.DEG2RAD,
   play: holdTurn(0, 25),
-  poleL: [-1, -0.75, 0],
-  poleR: [1, -0.2, -0.25],
+  poleL: [-0.75, -1, 0],
+  poleR: [0.75, -1, 0],
   rest: holdTurn(5, 20),
-  restPoleL: [-1, -0.75, 0],
-  restPoleR: [1, -0.2, -0.25],
+  restPoleL: [-0.75, -1, 0],
+  restPoleR: [0.75, -1, 0],
   faceTube: ['palm', 'palm'],
-  gripShiftL: [0.07, 0.16, 0.05],
+  gripShiftL: [0.07, 0.145, 0.05],
   gripShiftR: [-0.15, 0, -0.1],
   restGripShiftL: [0.07, 0.14, 0.05],
   restAim: 1,
