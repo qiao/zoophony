@@ -853,12 +853,13 @@ export const BOWED_HOLDS = {
  * lift (limit 70, 69° now), and with the elbow (-0.3, -1, -0.5) the left upper arm went 2.6 cm into
  * the body (2.2 cm now). In the
  * middle, the bow points forward and a little out and up, (0.4, 0.3, -1), and the grip moves 0.4 H
- * out, 0.3 H up, and 0.3 H to the front, so that the bow passes beside the viola with the elbow
- * bent: from the rest elbow of 2026-10-26-fourth-review, the right upper arm goes no deeper into
- * the body in the moves than at rest (1.7 cm). With 0.85 H out, the arm reached stiffly straight out
- * to the side (2026-10-26-fourth-review decisions). With 0.55 H out and the rest elbow out to the
- * side, the right upper arm went 3.1 cm into the body in a lowering, and with 0.45 H up the right
- * paw turned 1,102°/s. With the tip up,
+ * out, 0.2 H up, and 0.4 H to the front, so that the bow passes beside the viola with the elbow
+ * bent. From the rest elbow of 2026-10-26-fourth-review, the right upper arm goes no deeper into
+ * the body in the moves than at rest (1.7 cm). With 0.3 H up and 0.3 H to the front, the right paw
+ * swung 59° on the wrist in the lift (36° before), and with 0.85 H out, the arm reached stiffly
+ * straight out to the side (2026-10-26-fourth-review decisions). With 0.55 H out and the rest
+ * elbow out to the side, the right upper arm went 3.1 cm into the body in a lowering, and with
+ * 0.45 H up the right paw turned 1,102°/s. With the tip up,
  * (0, 1, -0.6), the bow stood upright in front of the face, and with the grip 0.45 H out, the right
  * upper arm went 2.5 cm into the body in a lowering (2026-10-26-violin-lift decisions). With
  * the via of `UPRIGHT_BOW` (the tip forward, the grip 0.3 H out and 0.1 H up), the bow lay across
@@ -942,7 +943,7 @@ const CAT_HOLD = {
     lap: { along: 0.5, offset: [0.35, 0.25, -0.2] },
     tip: [0.3, 1, -0.4],
     hair: [0, 0, -1],
-    via: { tip: [0.4, 0.3, -1], hair: [0, 0, -1], reach: [0.4, 0.3, -0.3] },
+    via: { tip: [0.4, 0.3, -1], hair: [0, 0, -1], reach: [0.4, 0.2, -0.4] },
   },
   standBow: HANGING_BOW,
 } as const satisfies BowedHold;
