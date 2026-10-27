@@ -239,7 +239,22 @@ function kindOf(value: ConfigValue): string {
 }
 
 /**
- * Parses the new value of a change of a config from its text, with the kind of the old value.
+ * Removes one pair of matching quotes around a text, such as the quotes of
+ * `--set 'source="a.glb"'`. The shell keeps such quotes inside a quoted argument, and Blender
+ * then finds no file of that name.
+ *
+ * @param text The text.
+ * @returns The text with no outer pair of `"` or `'`, or the text as it is.
+ */
+export function unquoted(text: string): string {
+  const first = text[0];
+  const quoted = text.length >= 2 && (first === '"' || first === "'") && text.at(-1) === first;
+  return quoted ? text.slice(1, -1) : text;
+}
+
+/**
+ * Parses the new value of a change of a config from its text, with the kind of the old value. A
+ * text value loses one pair of matching quotes ({@link unquoted}).
  *
  * @param text The text of the new value.
  * @param old The old value.
@@ -267,7 +282,7 @@ function parseConfigValue(text: string, old: ConfigValue, path: string): ConfigV
     return text === 'true';
   }
   if (kind === 'string') {
-    return text;
+    return unquoted(text);
   }
   if (Array.isArray(old) && old.length > 0 && old.every((v) => kindOf(v) === 'number')) {
     const list = text
