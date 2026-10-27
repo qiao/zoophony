@@ -301,17 +301,17 @@
         0.563161
       ],
       "forearm": [
-        0.316246,
-        0.757051,
-        0.571719
+        -0.112888,
+        -0.02484,
+        0.993297
       ],
       "hand": [
-        -0.078782,
-        0.677317,
-        0.731461
+        -0.514147,
+        0.0639,
+        0.855318
       ]
     },
-    "note": "The studio has no rhino. legTurns gives the world turn of each left leg bone from the seated bind pose to the source, and the right side mirrors it. The posture is the seated posture of design 5.2: the thigh slopes 25 degrees down from the hip to the knee, the thighs turn 15 degrees out, and the shin is vertical (docs/research/2026-10-16-hip-open/leg_turns.py <config> 25 15 0). The rhino stands to play the tuba in the app (the standing pose of the rig), so no player sits in this pose. The foot and the toes keep the turn of the source. The trunk shares and the bind arms are the values of the fox, the cat, the dog, the panda, the hippo, the mouse, the pig, the wolf, and the monkey."
+    "note": "The studio has no rhino. legTurns gives the world turn of each left leg bone from the seated bind pose to the source, and the right side mirrors it. The posture is the seated posture of design 5.2: the thigh slopes 25 degrees down from the hip to the knee, the thighs turn 15 degrees out, and the shin is vertical (docs/research/2026-10-16-hip-open/leg_turns.py <config> 25 15 0). The rhino stands to play the tuba in the app (the standing pose of the rig), so no player sits in this pose. The foot and the toes keep the turn of the source. The trunk shares and the bind upper arm are the values of the fox, the cat, the dog, the panda, the hippo, the mouse, the pig, the wolf, and the monkey. The bind forearm of these values turns 68 degrees about the bind upper arm, so that the elbow bends forward and not up, and the bind hand keeps its wrist bend of 25 degrees in the frame of the palm. The forearm of the app turns with the elbow hinge, so the bind sets the zero of the paw twist: with the elbow up, the bind paw sat 78 degrees pronated on its forearm, and each paw of the tuba hold turned 63 degrees more on its forearm. With the elbow forward, the bind paw sits 15 degrees pronated, as the A-pose paw of the source with a forward elbow (docs/decisions/2026-10-26-fifth-review-rhino.md)."
   },
   "weights": {
     "armSplit": 0.17,
