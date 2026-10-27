@@ -882,24 +882,23 @@ const WOLF_CLARINET_FORWARD = 5;
  * on the forearms: with the elbows of {@link WIND_HOLDS}, the right paw turned 141° and the left
  * paw 123°, and with these elbows 71° and 89° (`docs/research/2026-10-20-wolf-mesh.md`).
  *
- * At rest, the bell rests against the inner side of the right knee, the clarinet leans 30° forward
- * and 10° toward the left shoulder, and both paws stay on their grips of the play, as a seated
- * clarinetist rests the bell on the knee with the hands on the keys
- * (`docs/reference/wind-technique.md` 3). Thus the lift and the lowering move the clarinet with the
- * paws, and no paw slides along the tube. The paws keep the aim and the roll of the play
- * (`restAim`), so that the fingers close around the tube at rest too. The round belly fills the
- * seat between the knees, and the knees stand 25 cm apart, so the bell has no room on the seat
- * between the legs. Before 2026-10-27, the bell hung 12 cm in front of the seat between the knees,
- * the left paw capped the mouthpiece end, and each paw slid 15 cm along the tube in each move
- * (user, 2026-10-27: "the wolf is not holding the instrument properly in rest mode"). With the bell
- * on the top of the right knee, the clarinet lay across the lap, and the left forearm crossed the
- * belly (`docs/research/2026-10-27-wolf-knee.md`).
+ * At rest, the clarinet stands upright (user, 2026-10-27: "for the wolf, in rest mode, the
+ * instrument should be vertical"), in front of the belly between the knees, with the bell at the
+ * height of the knee tops, 4 cm to the right of the middle and 22 cm in front of the seat. Both
+ * paws stay on their grips of the play, as a seated clarinetist holds the clarinet upright with
+ * the hands on the keys (`docs/reference/wind-technique.md` 3). Thus the lift and the lowering move
+ * the clarinet with the paws, and no paw slides along the tube. The paws keep the aim and the roll
+ * of the play (`restAim`), so that the fingers close around the tube at rest too. The bell rests on
+ * nothing: the round belly reaches the seat front 9 cm to 12 cm above the seat, so an upright
+ * clarinet has no room on the seat, and on the top of the right knee, the left forearm went 7 cm to
+ * 12 cm into the belly with each left elbow. Nearer to the belly, the left forearm went 1.8 cm to
+ * 3.6 cm into it (`docs/research/2026-10-27-wolf-mouse-rests.md`). Before, the bell rested against
+ * the inner side of the right knee, and the clarinet leaned 30° forward and 10° to the left.
  *
  * At rest, the left elbow points out and down, and the right elbow points down, a little out, and a
- * little forward. With the left elbow out, down, and a little forward, the left wrist bent 57°
- * (40° on the rest before), and with it further in or back, the left forearm went 1.3 cm to 4.0 cm
- * into the belly. With the right elbow down and a little out, the right forearm went 1.7 cm into
- * the belly in the lift on the rig with the bind elbow forward
+ * little forward. With the left elbow further in or back, the left forearm went 1.3 cm to 4.0 cm
+ * into the belly on the rest at the right knee. With the right elbow down and a little out, the
+ * right forearm went 1.7 cm into the belly in the lift on the rig with the bind elbow forward
  * (`docs/research/2026-10-27-wolf-bind.md`).
  */
 const WOLF_CLARINET = {
@@ -908,8 +907,8 @@ const WOLF_CLARINET = {
   reachL: 20 * MathUtils.DEG2RAD,
   lipShift: [0, -0.18, 0.4],
   play: holdTurn(WOLF_CLARINET_FORWARD, 0),
-  rest: holdTurn(-55, 10),
-  restShift: [0.01, -0.81, -0.42],
+  rest: holdTurn(-25, 0),
+  restShift: [0.11, -0.56, -0.086],
   poleL: [-0.3, -1, 0],
   poleR: [0.3, -1, 0],
   restPoleL: [-1.5, -1.4, 0],

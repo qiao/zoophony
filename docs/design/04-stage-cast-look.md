@@ -373,7 +373,7 @@ turns with its elbow hinge. In the lift and the lowering of a violin or a viola,
 supinates more than half a turn (5.2), so the rig turns the bind left paw of these meshes about its
 forearm toward supination (`studio.bindSupination` of the rig config): the rest and the play then
 lie on one side of 180°, and the segments share the whole twist in each move. The wolf turns both
-bind paws, because the clarinet rest on the knee pronates the left paw far from its play grip. The
+bind paws, because the clarinet rest on the knee pronated the left paw far from its play grip. The
 skin then turns
 in small steps along the arm, and the elbow and the wrist keep their volume. The arms of such a
 mesh are quad tubes (rings at a right angle to the bones), and the weights come from Blender

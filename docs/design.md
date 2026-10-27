@@ -355,7 +355,10 @@ The decision files:
 - [`2026-10-27-legs-armpit.md`](decisions/2026-10-27-legs-armpit.md): the hips that keep their place in the knee smoothing of the polar bear, and the smoothed back end of the left deer armpit.
 - [`2026-10-27-rigs3.md`](decisions/2026-10-27-rigs3.md): the flip of the sheared quad at the right inner elbow of the deer.
 - [`2026-10-27-wolf-knee.md`](decisions/2026-10-27-wolf-knee.md): the clarinet rest of the wolf with the bell against the right knee and the paws on their grips of the play.
+- [`2026-10-27-cat-fox.md`](decisions/2026-10-27-cat-fox.md): the cat bind upper arm nearer to the hanging arm with the skin normals of the arm roots, the rest viola nearer to the hip, and the tan fox paws that wrap the flute from the front.
+- [`2026-10-27-wolf-knee.md`](decisions/2026-10-27-wolf-knee.md): the clarinet rest of the wolf with the paws on their grips of the play.
 - [`2026-10-27-wolf-bind.md`](decisions/2026-10-27-wolf-bind.md): the bind elbows of the wolf bent forward, the bind paws supinated on their forearms, and the rest elbows of the clarinet, so that the arm gate passes with the clarinet rest on the knee.
+- [`2026-10-27-wolf-mouse-rests.md`](decisions/2026-10-27-wolf-mouse-rests.md): the upright clarinet rest of the wolf in front of the belly between the knees, with the paws on their grips of the play.
 - [`2026-10-27-polar-legs-rebuild.md`](decisions/2026-10-27-polar-legs-rebuild.md): the quad legs of the polar bear with the dual quaternion knees, the smoothed crease at the back of each knee, the bone heat of the copy before the rebuild, and the rigid faces of the right hip front.
 - [`2026-10-27-hall-back-lamps.md`](decisions/2026-10-27-hall-back-lamps.md): the low lamps of the hall all around the wall, also behind the stage.
 - [`2026-10-27-cat-fox.md`](decisions/2026-10-27-cat-fox.md): the cat bind upper arm nearer to the hanging arm with the skin normals of the arm roots, the rest viola nearer to the hip, and the left tan fox paw that wraps the flute from the front.
