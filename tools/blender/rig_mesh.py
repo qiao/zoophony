@@ -61,9 +61,8 @@ reads it (route 3 of `docs/agents/model-work.md`). The steps:
    (`arm_slim()`, `fore_slim()`): the factor of the upper arm fades in from the shoulder joint,
    and the factor of the forearm fades out to the wrist, so that the shoulders and the paws keep
    their form.
-5. Change the faces of the arms and the legs so that they bend at the joints: with `legFlip`,
-   a bad diagonal of a leg near the knee flips first (`leg_flips()`), and with `pointFlip` the
-   edge at each of its points (`point_flips()`), then a ring of new
+5. Change the faces of the arms and the legs so that they bend at the joints: with `pointFlip`
+   the edge at each of its points flips first (`point_flips()`), then a ring of new
    vertices at each joint of the config splits the faces that it crosses, and the long edge of a
    face that is thin in the seated bind pose flips. Each face then takes its color from the
    texture again.
@@ -86,8 +85,7 @@ reads it (route 3 of `docs/agents/model-work.md`). The steps:
    tail of two bones keeps the height of its end. With `crease`, the bind is smoothed across the
    crease where the belly meets the top of each thigh (`crease_relax()`), and with `kneeCrease`
    across the crease at the back of each knee (`knee_relax()`). With `kneeCrease.fair`, the calf
-   back is then faired along the vertex normals (`calf_fair()`), and with `kneeCrease.front`,
-   the front of each bent knee is rounded across the leg bones (`knee_front()`).
+   back is then faired along the vertex normals (`calf_fair()`).
 7. Put a gloss shell over each eye: a fan from the middle of the eye to the edge of its dark
    faces, a little out of the surface. `pnpm studio-body` finds each eye by its fan, drops the
    fan, and puts the pea eye of the app at its place (design 4.5). The faces of the nose become
@@ -1444,13 +1442,11 @@ def root_rim(verts, tris, heads, rule, weights):
 
     With `knee`, each face whose middle lies within that radius of a knee joint, behind it in the
     source (-z), and on the leg bones of its side for at least half of its weight is in the rim
-    too. The rings of the calf cut long thin faces of the source into slivers, and the smoothing
-    of the crease (`kneeCrease`) turns a sliver more than the crease angle from its neighbors, so
-    it shades as a dark facet on the calf. With `kneeFront`, each face whose middle lies within
-    that radius of a knee joint, in front of it in the source (+z), and on the leg bones of its
-    side for at least half of its weight is in the rim too: the thin faces of the knee rings
-    meet at more than the crease angle on the bent knee front, so they shaded as hard lines
-    across the knee after the rounding of `kneeCrease.front`. Gives a mask of the faces."""
+    too: the bent knee folds the back of the leg into a crease whose faces turn more than the
+    crease angle from each other. With `kneeFront`, each face whose middle lies within that
+    radius of a knee joint, in front of it in the source (+z), and on the leg bones of its side
+    for at least half of its weight is in the rim too: short edges of the round front of the bent
+    knee can turn more than the crease angle. Gives a mask of the faces."""
     mids = verts[tris].mean(axis=1)
     out = np.zeros(len(tris), bool)
     for side in 'LR':
@@ -2449,126 +2445,6 @@ def split_triangle(t, mids, points):
     return [[u, p, q], [p, v, q], [v, w, q]]
 
 
-def ring_leg_weights(points, weights, rules):
-    """Gives the weights of the new vertices of a leg ring by the leg rules at their places in
-    the source, as `apply_rules()` gives them. A new vertex takes the mean weights of its edge,
-    so a vertex between a corner of the haunch on the hips and a corner of the calf on the shin
-    has no thigh weight, and it stays on the straight line between them in the seated bind. Each
-    new vertex instead splits its weight of the hips, the thigh, and the shin of its side by the
-    knee rule (`knee`) at its height, and the hips then take the share of the haunch rule
-    (`haunch`) of the thigh weight. With no knee rule, the weights stay the mean."""
-    if 'knee' not in rules:
-        return weights
-    w = weights.copy()
-    y = points[:, 1]
-    knee = smoothstep(y, *rules['knee']['height'])
-    haunch = smoothstep(y, *rules['haunch']['height'])
-    hips = BONES.index('hips')
-    for side, sign in (('L', 1.0), ('R', -1.0)):
-        mine = points[:, 0] * sign > 0
-        thigh, shin = BONES.index(f'thigh_{side}'), BONES.index(f'shin_{side}')
-        leg = w[mine, thigh] + w[mine, shin] + w[mine, hips]
-        upper = leg * knee[mine]
-        w[mine, shin] = leg - upper
-        w[mine, hips] = upper * haunch[mine]
-        w[mine, thigh] = upper - w[mine, hips]
-    return w
-
-
-def quad_turns(points, pair, outer):
-    """Gives the turns in degrees at the five edges of two faces that share an edge: between the
-    two faces (`pair`, two rows of corners), and between each face and its neighbor across each
-    of its other edges (`outer`: the corners of the neighbor face, by the sorted pair of the
-    corners of the edge)."""
-    pair = np.asarray(pair)
-    normals = face_normals(points, pair)
-    dots = [float(normals[0] @ normals[1])]
-    for i, face in enumerate(pair):
-        for k in range(3):
-            key = tuple(sorted((int(face[k]), int(face[(k + 1) % 3]))))
-            if key in outer:
-                dots.append(float(normals[i] @ face_normals(points, np.array([outer[key]]))[0]))
-    return np.degrees(np.arccos(np.clip(dots, -1.0, 1.0)))
-
-
-def leg_flips(verts, bind, tris, uvs, weights, heads, rule):
-    """Flips the bad diagonals of the legs before the rings (design 4.4). A source leg can split a
-    quad along its long diagonal into two thin faces whose corners across the diagonal sum to
-    more than 180 degrees. The seated bind keeps that diagonal a straight chord across the bent
-    knee, so the quad folds along it into a groove or a ridge, and a ring vertex on the chord
-    stays on it. An edge flips to the other diagonal when each corner of its two faces lies
-    within `radius` of the knee joint of a side, the leg bones of that side hold at least `share`
-    of each corner, the two corners across the edge sum to more than 180 degrees in the source,
-    the flip moves the surface of the source at most `move` units, the new faces keep the side of
-    the old faces in the source and in the bind, and no seam of the texture runs along the edge.
-    In the bind, the flip must also make the five edges of the quad smoother
-    (`quad_turns()`): their largest turn does not grow, and the sum of the squares of their turns
-    falls. The worst edges flip first, in `rounds` rounds. Gives the new triangles and corner
-    UVs, and the number of flips. A flip keeps the index of each of its two faces."""
-    tris, uvs = tris.copy(), uvs.copy()
-    flips = 0
-    for side in 'LR':
-        bones = [BONES.index(f'{b}_{side}') for b in LEG]
-        mine = (weights[:, bones].sum(axis=1) >= rule['share']) & (
-            np.linalg.norm(verts - heads[f'shin_{side}'], axis=1) <= rule['radius'])
-        for _ in range(rule.get('rounds', 4)):
-            faces_of = edge_faces(tris)
-            candidates = []
-            for (a, b), faces in faces_of.items():
-                if len(faces) != 2 or not mine[tris[faces]].all():
-                    continue
-                f, g = faces
-                t = [int(v) for v in tris[f]]
-                m = next(v for v in t if v not in (a, b))
-                # The face f is (m, a, b) in its order, so the face g holds (b, a, n).
-                a, b = t[(t.index(m) + 1) % 3], t[(t.index(m) + 2) % 3]
-                n = int(next(v for v in tris[g] if v not in (a, b)))
-                across = (corner_angle(verts[m], verts[a], verts[b])
-                          + corner_angle(verts[n], verts[a], verts[b]))
-                if across > 180.0:
-                    candidates.append((-across, a, b, m, n, f, g))
-            done = set()
-            changed = False
-            for _, a, b, m, n, f, g in sorted(candidates):
-                outer = {}
-                for key in ((a, m), (m, b), (b, n), (n, a)):
-                    key = tuple(sorted(key))
-                    others = [h for h in faces_of.get(key, []) if h not in (f, g)]
-                    if len(others) == 1:
-                        outer[key] = others[0]
-                # A flip of this round changes the corners of its faces and of their edges.
-                if done & ({f, g} | set(outer.values())):
-                    continue
-                outer = {key: tris[h] for key, h in outer.items()}
-                uv_f = {int(v): uvs[f][j] for j, v in enumerate(tris[f])}
-                uv_g = {int(v): uvs[g][j] for j, v in enumerate(tris[g])}
-                if any(np.abs(uv_f[v] - uv_g[v]).max() > 1e-6 for v in (a, b)):
-                    continue
-                if segment_gap(verts[a], verts[b], verts[m], verts[n]) > rule['move']:
-                    continue
-                new = np.array([[m, a, n], [m, n, b]])
-                fits = True
-                for points in (verts, bind):
-                    old = face_normals(points, tris[[f, g]]).sum(axis=0)
-                    fits &= bool((face_normals(points, new) @ old > 0).all())
-                if not fits:
-                    continue
-                before = quad_turns(bind, tris[[f, g]], outer)
-                after = quad_turns(bind, new, outer)
-                if after.max() > before.max() or (after ** 2).sum() >= (before ** 2).sum():
-                    continue
-                uv_g[m] = uv_f[m]
-                tris[f], tris[g] = new
-                uvs[f] = [uv_f[m], uv_f[a], uv_g[n]]
-                uvs[g] = [uv_f[m], uv_g[n], uv_f[b]]
-                done.update((f, g))
-                flips += 1
-                changed = True
-            if not changed:
-                break
-    return tris, uvs, flips
-
-
 def point_flips(source, bind, tris, uvs, rule):
     """Flips the edge nearest to each point of `points` to the other diagonal of its two faces
     (design 4.4). A quad of an arm tube can split along its short diagonal in the source, and the
@@ -2623,25 +2499,20 @@ def point_flips(source, bind, tris, uvs, rule):
 
 def refine(verts, tris, uvs, weights, heads, ends, matrices, config, source):
     """Changes the faces of the arms and the legs so that they bend at the joints (design 4.4),
-    by the rule `refine` of the config: first the flips of the bad diagonals of the legs of
-    `legFlip` (`leg_flips()`) and of the edges at the points of `pointFlip` (`point_flips()`),
-    then a ring of new vertices at each joint of `rings`, if the rule has any
+    by the rule `refine` of the config: first the flips of the edges at the points of `pointFlip`
+    (`point_flips()`), then a ring of new vertices at each joint of `rings`, if the rule has any
     (`ring_cuts()`, `split_faces()`), on the sides of its `sides` or on both sides, then the flips
     of the long edges of the faces that are thin in the seated bind pose of `bind_skin()`
     (`flip_edges()`). Each ring splits the faces that the rings before it made, so that two rings
-    can cut one long edge. The cuts keep the surface, and each new vertex keeps four bones. A new
-    vertex of a leg ring takes the leg rules at its place in the source (`ring_leg_weights()`):
-    the source of the vertices, `source`, is the source before the stretch of the limbs. Gives
+    can cut one long edge. The cuts keep the surface, and each new vertex keeps four bones. The
+    flips of `pointFlip` name their points in `source`, the source before the stretch of the
+    limbs. Gives
     the new vertices, triangles, corner UVs, and weights, the number of flips, the largest move of
     a flip, the number of cut edges, and the index of the face before the refine of each face. A
     flip keeps the index of each of its two faces."""
     rule = config['refine']
     origin = np.arange(len(tris))
     count = 0
-    if 'legFlip' in rule:
-        tris, uvs, legs = leg_flips(verts, bind_skin(config, weights, matrices, verts), tris, uvs,
-                                    weights, heads, rule['legFlip'])
-        log(f'leg flips: {legs} bad diagonals of the legs')
     if 'pointFlip' in rule:
         tris, uvs, named = point_flips(source, bind_skin(config, weights, matrices, verts), tris,
                                        uvs, rule['pointFlip'])
@@ -2651,16 +2522,8 @@ def refine(verts, tris, uvs, weights, heads, ends, matrices, config, source):
         for side in ring.get('sides', 'LR'):
             cuts.update(ring_cuts(verts, tris, weights, heads, ends, ring, side))
         if cuts:
-            first = len(verts)
             verts, tris, uvs, weights, step = split_faces(verts, tris, uvs, weights, cuts)
             origin = origin[step]
-            # The thigh and the shin stretch by one factor (`segment_stretch()`), so a cut keeps
-            # nearly its place along the edge in the source.
-            source = np.concatenate([source] + [[(1 - t) * source[a] + t * source[b]]
-                                                for (a, b), t in sorted(cuts.items())])
-            if ring['joint'] in LEG:
-                weights[first:] = ring_leg_weights(source[first:], weights[first:],
-                                                   config['weights'])
             weights = limit(weights)
             count += len(cuts)
     tris, uvs, flips, largest = flip_edges(verts, bind_skin(config, weights, matrices, verts),
@@ -3502,67 +3365,6 @@ def knee_relax(bind, tris, weights, heads, rule):
                                          rule['fair'])
             faired, most_fair = faired + count, max(most_fair, most)
     return out, seams, moved, largest, faired, most_fair
-
-
-def bone_distance(points, knee, hip, ankle):
-    """Gives the nearest point of the bent leg line (the thigh from the knee joint to the hip
-    joint, and the shin from the knee joint to the ankle) to each point, and the distance to it."""
-    best_point, best = None, None
-    for end in (hip, ankle):
-        seg = end - knee
-        t = np.clip(((points - knee) @ seg) / (seg @ seg), 0.0, 1.0)
-        near = knee + t[:, None] * seg
-        dist = np.linalg.norm(points - near, axis=1)
-        if best is None:
-            best_point, best = near, dist
-        else:
-            closer = dist < best
-            best_point = np.where(closer[:, None], near, best_point)
-            best = np.where(closer, dist, best)
-    return best_point, best
-
-
-def knee_front(bind, tris, weights, heads, rule):
-    """Rounds the front of each bent knee of the seated bind (design 4.4). The linear blend of the
-    thigh and the shin moves a vertex of the knee front with the weights of both bones onto the
-    chord between their two places, so the knee front became a flat bevel between the top of the
-    thigh and the front of the shin, with hard ridges at its edges: a block with a sharp edge
-    (user, 2026-10-27: "the polar bear's knee is still more bulky than expected"). Each vertex on
-    the outer side of the knee (its place from the knee joint has a dot below 0 with the unit sum
-    of the directions to the hip joint and to the ankle) within `radius` units of the knee joint
-    moves along the line from the nearest point of the leg bones (`bone_distance()`), so that its
-    distance from them goes `share` of the way to the mean distance of its neighbors, in each of
-    `rounds` rounds, times its share of the thigh and the shin less its share of the hips, and a
-    half cosine that falls from 1 at the joint to 0 at `radius`. Thus the dent of the bevel
-    fills, the ridges at its edges sink, and no vertex slides along the skin. Gives the rounded
-    bind, the number of the moved vertices, and the largest move."""
-    neighbors = [set() for _ in range(len(bind))]
-    for a, b, c in tris:
-        neighbors[a].update((b, c))
-        neighbors[b].update((a, c))
-        neighbors[c].update((a, b))
-    hips = BONES.index('hips')
-    out = bind.copy()
-    count = 0
-    for side in 'LR':
-        thigh, shin = BONES.index(f'thigh_{side}'), BONES.index(f'shin_{side}')
-        knee, hip, ankle = (np.asarray(heads[f'{b}_{side}'], float)
-                            for b in ('shin', 'thigh', 'foot'))
-        inner = unit(unit(hip - knee) + unit(ankle - knee))
-        free = np.clip(weights[:, thigh] + weights[:, shin] - weights[:, hips], 0.0, 1.0)
-        dist = np.linalg.norm(out - knee, axis=1)
-        ids = np.nonzero(((out - knee) @ inner < 0) & (dist < rule['radius']) & (free > 0))[0]
-        weight = rule['share'] * free[ids] * 0.5 * (1.0 + np.cos(np.pi * dist[ids] / rule['radius']))
-        rings = [np.array(sorted(neighbors[i])) for i in ids]
-        for _ in range(rule['rounds']):
-            near, rho = bone_distance(out, knee, hip, ankle)
-            target = np.array([rho[r].mean() for r in rings])
-            goal = rho[ids] + weight * (target - rho[ids])
-            ways = (out[ids] - near[ids]) / np.maximum(rho[ids], 1e-9)[:, None]
-            out[ids] = near[ids] + ways * goal[:, None]
-        count += len(ids)
-    moves = np.linalg.norm(out - bind, axis=1)
-    return out, count, float(moves.max(initial=0.0))
 
 
 def calf_fair(bind, out, tris, knee, shin_axis, back, free, rule):
@@ -5039,13 +4841,6 @@ def main():
         if faired:
             log(f'calf fair: {faired} vertices move along their normals, at most '
                 f'{most_fair:.4f} u ({most_fair * meters * 100:.2f} cm)')
-        if 'front' in config['kneeCrease']:
-            bind, rounded, most_round = knee_front(bind, tris, weights, bind_heads,
-                                                   config['kneeCrease']['front'])
-            dots = turn_dots(long_verts, bind, tris, weights, matrices)
-            log(f'knee front: {rounded} vertices move across the leg bones, at most '
-                f'{most_round:.4f} u ({most_round * meters * 100:.2f} cm). '
-                f'{int((dots < 0).sum())} faces turn over{turned_on(dots, main_bone)}')
     if 'sit' in config:
         # The gap of the final bind: the recline, the lift, and the crease move the haunch after
         # the sit.
