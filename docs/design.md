@@ -343,4 +343,5 @@ The decision files:
 - [`2026-10-26-arm-fixes.md`](decisions/2026-10-26-arm-fixes.md): the bow elbow of the hippo out and a little up, the smooth arm root normals of the pig, and the rebuilt quad arms of the bear with Blender weights and arm segments.
 - [`2026-10-26-second-review.md`](decisions/2026-10-26-second-review.md): the bow paws of the rabbit and the cat on the lap at rest, and the fixes of the second review of the user.
 - [`2026-10-26-third-review.md`](decisions/2026-10-26-third-review.md): the rest arms and grips of the violins and the viola, the armpits of the panda, and the fixes of the third review of the user.
+- [`2026-10-26-fourth-review.md`](decisions/2026-10-26-fourth-review.md): the seated knees of the rabbit and the polar bear, and the fixes of the fourth review of the user.
 - [`2026-10-23-rabbit-arms.md`](decisions/2026-10-23-rabbit-arms.md): the A-pose rabbit mesh with its own faces, a short arm stretch, a violin of 0.83, its elbows and rest grip, and the open shards of its arms.

@@ -340,10 +340,10 @@
     "fingersNote": "The fingers keep this share of their bone heat weight, and the hand takes the rest. With the full share, the curl of the fingers in the app turned over one face between the hand and the fingers of each paw in each play sample (pnpm fold-probe violinist).",
     "haunch": {
       "height": [
-        0.1,
-        0.15
+        0.12,
+        0.19
       ],
-      "note": "The part of the thigh weight that goes to the hips grows from 0 at the lower height to 1 at the upper height, so that the haunch stays on the seat and only the leg below it turns."
+      "note": "The part of the thigh weight that goes to the hips grows from 0 at the lower height to 1 at the upper height, so that the haunch stays on the seat and the thigh turns onto it. This is the ramp of the fox (0.16 to 0.27), scaled by the thigh of the rabbit (the knee at 0.1, the hip at 0.165): it starts 0.02 units above the knee and ends 0.025 units above the thigh joint. With the ramp from the knee (0.1 to 0.15), the hips held almost the whole thigh: in the seated bind, the shin moved 9 cm forward with the knee, the thigh stayed upright on the hips, and the faces between them sheared into a sharp V at the front of each knee (user, 2026-10-26: \"the rabbit's knee is cut\"). The seat is 0.9 cm higher."
     },
     "note": "Beyond the plane |x| = armSplit, only the free arm follows the arm bones: the cuts of sections.py x show the arm apart from the body from x 0.095 out. Inside that plane, the shoulder follows the upper arm and no lower bone of the arm. Above headFrom, each vertex except the ears follows the head only: the eyes, the nose, and the whiskers. Each ear vertex goes to its ear bone with a ramp over the heights of earBase. The tail ball follows the tail only: the vertices near its middle and behind the plane z = behind, where the cuts of sections.py z show the ball apart from the body (z -0.145)."
   },
