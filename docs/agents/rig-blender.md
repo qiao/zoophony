@@ -134,7 +134,9 @@ interface StudioArmSegments {
   - `paintedWeights` names the weights file of the Blender session.
   - `paintedLower` lists the bones whose vertices keep the rule weights of `rig-mesh`.
   - `armSegments.helper` gives the length of a helper bone in units. `armSegments` needs the arm
-    factor 1 and the linear bind.
+    factor 1 and the linear bind of the arm roots (`bind.blend`).
+  - `bind.arm` set to `dq` binds the lower arms of the sides of `bind.armSides` with the dual
+    quaternion blend (below).
   - `armSegments.rootSegment` gives the rule weight of each upper arm to its first segment, so
     that the trunk around the socket takes the roll of the first ring (the fox).
 
@@ -156,6 +158,11 @@ interface StudioArmSegments {
   0° to -100°. To move only the paw twist, use `studio.bindSupination`. A rest far from the play
   can use the roll: 45° on the wolf halved the rest twists of both upper arms
   (`docs/research/2026-10-27-wolf-bind.md`).
+- **The thin bind elbow.** The seated bind bends each elbow 62° to 92° and can turn a paw far.
+  On the cat, bone heat gave the elbow helper no weight, and Smooth spread three segments over
+  each forearm ring, so the linear blend left the elbow 0.86 and the forearm 0.84 as thick, and
+  the upper arm read as a bulge. Use `bind.arm`, but not on an arm that bends further than the
+  bind, as a bow arm: its round inner elbow folds (`docs/research/2026-10-27-cat-arm.md`).
 - **The legs.** Blender weights on the hips, the spine, and the chest folded a V on the lower back
   over the bench, and cut a slit under each arm. Keep the rule weights there with `paintedLower`.
 - **The preview.** glTF and three.js have no B-Bones and use linear skinning with 4 weights for
