@@ -668,7 +668,10 @@ mesh are quad tubes (rings at a right angle to the bones), and the weights come 
     config), so that the bottom of the oval goes into the thighs as one curve, and the front of
     the upper belly is a little flatter, most at the middle line and with no crease, where the
     bow upper arm lies in the play (`flat` of `step_belly()`,
-    `docs/decisions/2026-10-27-cat-lap.md`). The
+    `docs/decisions/2026-10-27-cat-lap.md`). The side wall under each arm has even faces and
+    rounds into the trunk, with no lips of the seam cut under it, so that a raised arm shows no
+    flat light patch and no crease there (`step_round_wall()`,
+    `docs/decisions/2026-10-28-cat-wall.md`). The
     elephant has such arms since 2026-10-25 (`tools/blender/elephant_arms.py`), with the length
     and the thickness of its mesh. Its arms are as thick as half of their length, so its cut
     planes stand at a right angle to the arm, the wrist cut lies further out on the paw, and the
