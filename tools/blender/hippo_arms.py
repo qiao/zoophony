@@ -9,13 +9,15 @@ the trunk: a small dark slit opened on the belly beside the right arm at rest. T
 through MCP, with an image after each step:
 
 1. Import the mesh of the user and Merge by Distance.
-2. Cut each arm along the seam where it meets the trunk and at the wrist, delete the thin ears at
-   the edge of the hole (`step_trim()`), fill a side wall of the trunk under the arm, triangulate
-   the trunk faces at the cut loops (`step_triangulate()`), collapse the thin faces at the cut
-   loops, and model a quad tube with a flat inner side on the wall.
+2. Cut each arm along the seam where it meets the trunk and at the wrist (parallel to the last ring
+   of the tube since 2026-10-28, `cut_planes()`), delete the thin ears at the edge of the hole
+   (`step_trim()`), fill a side wall of the trunk under the arm, triangulate the trunk faces at
+   the cut loops (`step_triangulate()`), collapse the thin faces at the cut loops, and model a
+   quad tube with a flat inner side on the wall.
 3. Shrinkwrap, Bridge Edge Loops, Beautify Faces, Collapse Edges on the thin bridge faces and on
-   the thin faces of the seam (`step_clean_seam()`), UV, the bake of the fur color, and the
-   transfer of the custom normals.
+   the thin faces of the seam (`step_clean_seam()`), Smooth Vertices on the band of each wrist
+   (`step_smooth_wrist()`, 2026-10-28), UV, the bake of the fur color, and the transfer of the
+   custom normals.
 4. Make each arm `factor` times longer (`armFactor` 1.5 of the rig config before), mend the UVs
    of the trunk faces that span two islands (`step_torn_uv()`), put the arm image in a strip of
    the atlas, give the inner side the fur color of the trunk, and write `hippo-arms.glb`.
@@ -239,6 +241,40 @@ def step_clean_seam(s):
     return count
 
 
+#: The rounds and the factor of Smooth Vertices of `step_smooth_wrist()`.
+WRIST_SMOOTH = (4, 0.5)
+
+
+def step_smooth_wrist(s):
+    """Smooths the band of each wrist (Smooth Vertices, `WRIST_SMOOTH`): the last ring of the tube
+    and the cut loop of the paw, after the clean of the bridge and of the seam.
+
+    With the wrist cut of `cut_planes()` alone, the bridge left a sharp corner on the palm side
+    of each wrist, and the tip of a down-bow pulled it out as a pale spike under the bow wrist.
+    The smooth moves only the vertices of the two loops. Gives the number of the smoothed
+    vertices.
+    """
+    import bmesh
+    bpy = va.bpy
+    mesh = s.mesh
+    bpy.context.view_layer.objects.active = mesh
+    bpy.ops.object.mode_set(mode='EDIT')
+    bm = bmesh.from_edit_mesh(mesh.data)
+    part = bm.verts.layers.int['arm_part']
+    ring = bm.verts.layers.int['arm_ring']
+    tubes = {ca.PART['tube'], ca.PART['tube'] + 10}
+    wrists = {ca.PART['wrist'], ca.PART['wrist'] + 10}
+    last = max(p[ring] for p in bm.verts if p[part] in tubes)
+    verts = [p for p in bm.verts if p[part] in wrists or (p[part] in tubes and p[ring] == last)]
+    rounds, factor = WRIST_SMOOTH
+    for _ in range(rounds):
+        bmesh.ops.smooth_vert(bm, verts=verts, factor=factor, use_axis_x=True, use_axis_y=True,
+                              use_axis_z=True)
+    bmesh.update_edit_mesh(mesh.data)
+    bpy.ops.object.mode_set(mode='OBJECT')
+    return len(verts)
+
+
 #: The share of the largest UV stretch of the faces away from the cuts above which
 #: `step_torn_uv()` mends the UVs of a face at a cut loop.
 TORN_UV = 1.5
@@ -393,7 +429,7 @@ STEPS = tuple(out for step in ca.STEPS
               for out in {ca.step_cut: (step_cut, step_trim),
                           ca.step_wall: (ca.step_wall, step_triangulate, fa.step_clean_cut),
                           ca.step_beautify: (ca.step_beautify, fa.step_clean_bridge,
-                                             step_clean_seam),
+                                             step_clean_seam, step_smooth_wrist),
                           ca.step_shape: (ca.step_shape, step_torn_uv),
                           ca.step_belly: (),
                           ca.step_paint: (ca.step_paint, step_tube_trunk, step_wrist,
