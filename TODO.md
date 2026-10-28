@@ -850,8 +850,8 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
 - [x] Arm replays: `fox_arms.py` and `deer_arms.py` stop with a KeyError at the belly step of
       `cat_arms.py` (2026-10-27), as `hippo_arms.py` did. Leave the step out of their steps maps,
       or skip it for an animal with no `belly` rule, and check the bytes of each replay.
-      Done (`2026-10-28-cat-wall.md`): the step skips an animal with no `belly` key, and the
-      fox, deer, and hippo replays give their files byte for byte (`replays.txt`).
+      Done (`2026-10-28-cat-wall.md`): the step skips an animal with no `belly` key, and all 11
+      arm replays give their files byte for byte (`replays.txt`).
 - [x] Bear rig (`2026-10-26-arm-fixes.md`): the left shoulder bridge folds 8 tiny faces at p95
       in the play (4 on the old rig, limit 8), and the right move twist max is 87 (81). Done: the
       head keeps the rule weights, and four shoulder faces take the mean of their painted weights
