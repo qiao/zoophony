@@ -1,0 +1,8 @@
+# python3 -I docs/research/2026-10-28-polar-legs/probes/table.py <out dir> main:main:1.6/3.208:0 v10:1.0:1.0:10 v12:1.2:1.2:10 v14:1.4:1.4:10
+# probe-variant.sh of each variant, and on main the same three probes. Lengths in cm, angles in degrees. The key top is 81.2 cm.
+| Body | Leg factor | Thigh in the bind | Bench top | Bench depth | Hip / knee joint | Thigh down / knee, play | Head top play / rest | Shoulder, play | Elbow - key L / R, play | Forearm, play | Lap, play | Notes within 5 mm | Play forearms / upper arms in the body | Rest paws in the body |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| main | 1.6/3.208 | 0° down | 38.2 | 35.1 | 50.1 / 50.1 | 0.0 / 90 | 145.6 / 153.5 | 106.7 | 7.3 / 5.2 | -3.6 | 15.2 | 3931 of 3931, worst 0.0 mm | 8.8 / 10.3 | 0.0 |
+| 1.0 | 1.0 | 10° down | 13.5 | 31.1 | 25.2 / 21.9 | 10.3 / 100 | 120.6 / 128.6 | 81.7 | -8.2 / -8.9 | +39.8 | 7.8 | 3931 of 3931, worst 0.0 mm | 3.9 / 6.9 | 4.5 |
+| 1.2 | 1.2 | 10° down | 16.6 | 32.1 | 28.8 / 24.9 | 10.3 / 100 | 124.2 / 132.2 | 85.3 | -7.2 / -8.1 | +36.6 | 12.5 | 3931 of 3931, worst 0.0 mm | 4.9 / 7.2 | 3.0 |
+| 1.4 | 1.4 | 10° down | 19.2 | 31.1 | 31.9 / 27.4 | 10.3 / 100 | 127.4 / 135.4 | 88.5 | -6.0 / -7.0 | +32.6 | 15.5 | 3931 of 3931, worst 0.0 mm | 5.8 / 7.7 | 1.3 |
