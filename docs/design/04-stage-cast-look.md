@@ -469,7 +469,12 @@ mesh are quad tubes (rings at a right angle to the bones), and the weights come 
     the faces near each knee take the normals of the skin with no crease angle
     (`rootNormals.knee`, `rootNormals.kneeFront`). Bone heat spreads over the whole mesh, so the
     kept vertices of a rebuilt mesh take the bone heat of the mesh before the rebuild
-    (`heatSource`), and the trunk, the haunch, and the seat keep their weights.
+    (`heatSource`), and the trunk, the haunch, and the seat keep their weights. The seated bind
+    also bends each elbow and can turn a paw far (`studio.bindSupination`), and the linear blend
+    thins the elbow and the forearm in the same way. With the dual quaternion blend of the lower
+    arms (`bind.arm`), the elbow and the forearm keep the round of the tube. An arm that bends
+    further than the bind in its poses, as a bow arm, keeps the linear blend (`bind.armSides`),
+    because its round inner elbow folds.
     `pnpm rig-mesh --check` gives the gaps of the tail to the floor and to the
     chair over one sway period (`tools/tail-gap.ts`).
   - Weights and shapes. Bone heat gives the weights, and rules and rings of new vertices at the
