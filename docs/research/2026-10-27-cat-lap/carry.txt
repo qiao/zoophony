@@ -2,7 +2,7 @@
 > zoophony@0.0.0 carry-check /Users/xueqiaoxu/proj/zoophony/.claude/worktrees/sixth-cat-lap
 > node tools/carry-check.ts violist --base main
 
-Carry of the instrument in the left paw on the working tree, with main (61889eec) in parentheses: 20.1 s. A fast step turns both faster than 20°/s, at steps of 0.01 s.
+Carry of the instrument in the left paw on the working tree, with main (da8b17e0) in parentheses: 22.2 s. A fast step turns both faster than 20°/s, at steps of 0.01 s.
 
 | Role | Moves | Steps >90° of the fast steps | Largest angle | Turn in the paw: path | Turn in the paw: net | Move of the largest angle |
 |---|---|---|---|---|---|---|
