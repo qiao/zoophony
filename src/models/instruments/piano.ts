@@ -46,11 +46,11 @@ export const PIANO_SCALE = 1.16;
 
 /**
  * The distance of the front of the keys in front of the floor point of the body of the pianist,
- * in head heights `H`, before a further 0.05 m (design 4.6). The keys stand as near as the
- * forearms of the polar bear pianist allow over its belly, so that its elbows bend about 100° with
- * an upright trunk (`docs/decisions/2026-10-24-pianist-pose.md`).
+ * in head heights `H`, before a further 0.05 m (design 4.6). The keys stand where the elbows of
+ * the polar bear pianist bend about 105° over its belly with the lean of its hold. At 1.0 H, they
+ * bent about 85° (`docs/decisions/2026-10-27-polar-bench.md`).
  */
-export const PIANO_FRONT_H = 1.16;
+export const PIANO_FRONT_H = 1.3;
 
 /**
  * The piano bench (design 4.5): a seat of 0.75 × 0.35 m at the height of a chair seat. Under a
@@ -524,9 +524,9 @@ export function buildPiano(): InstrumentModel {
   // The round belly of the studio polar bear reaches 0.45 m in front of the floor point, so the
   // keys of 2026-10-11 (0.55 H + 0.05 m, 0.26 m) went 15 cm into it. On the T-pose polar bear with
   // an upright trunk, the keys at 1.37 H stretched the elbows to 117° with the upper arms 28°
-  // forward. With the claws on the key tops (`HANDS_HOLDS.piano`), the keys at 1.16 H (0.44 m)
-  // bend the elbows about 102°, and the forearms go at most 7.9 cm into the belly, under the
-  // limit of 9 cm (`docs/research/2026-10-24-pianist-pose.md`).
+  // forward. With the claws on the key tops (`HANDS_HOLDS.piano`) and the lean of the high bench,
+  // the keys at `PIANO_FRONT_H` bend the elbows about 105°, and the forearms go at most 8.8 cm
+  // into the belly, under the limit of 9 cm (`docs/research/2026-10-27-polar-bench.md`).
   const instrument = piece.build(
     'instrument',
     hold('floor', [0, 0, -PIANO_FRONT_H], undefined, [0, 0, -0.05]),

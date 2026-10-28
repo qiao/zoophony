@@ -834,12 +834,15 @@ The code constants of each family hold the times, the angles, and the lengths of
     plays it. When a paw plays nearer to the other paw, the other paw moves out of its way with no
     sound, and both moves take the same time (`splitHands()`). Nearer paws went into each other.
   - The pianist sits as a professional pianist (`docs/reference/piano-technique.md`): the trunk
-    upright with a small lean, the forearms about level with the keys, the elbows bent a little
-    more than a right angle, and the shoulders low. The long trunk of the polar bear sits on short legs, so the piano is
-    larger than a real piano (`PIANO_SCALE`), and the keys reach its forearms. The keys stand as
-    near as the forearms allow over the round belly (`PIANO_FRONT_H`). The trunk leans to the side
-    toward the keys of the two paws, as a pianist leans toward the far keys (`sideLeanOf()`,
-    `docs/decisions/2026-10-24-pianist-pose.md`).
+    leans a little toward the keys, with the spine bent less than a neutral thorax allows, the
+    forearms about level with the keys, the elbows bent a little more than a right angle, and the
+    shoulders low. The long trunk of the polar bear has short arms, so the piano is larger than a
+    real piano (`PIANO_SCALE`), and the keys reach its forearms. On its high bench, the shoulders
+    turn down, and the elbows point out and down, so that the short upper arms bring the elbows
+    near the height of the keys (`docs/decisions/2026-10-27-polar-bench.md`). The keys stand where
+    the elbows bend a little more than a right angle over the round belly (`PIANO_FRONT_H`). The
+    trunk leans to the side toward the keys of the two paws, as a pianist leans toward the far keys
+    (`sideLeanOf()`, `docs/decisions/2026-10-24-pianist-pose.md`).
   - The piano palm faces down in front of the keys (`pianoKeyFront()`), because the paw of the
     polar bear is longer than a white key. The curled claws lie on the key tops at each strike.
   - In the play, the right heel of the pianist stays on the floor, and the ball of the foot lies

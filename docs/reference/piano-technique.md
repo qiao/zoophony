@@ -155,22 +155,22 @@ front of the trunk, and the trunk upright over the sit bones.
 
 The polar bear pianist of the app (`HANDS_HOLDS.piano` of `src/pose/hands.ts`, `PIANO_SCALE` and
 `PIANO_FRONT_H` of `src/models/instruments/piano.ts`) follows sections 1 to 7 with these
-differences. The research report
-[`2026-10-24-pianist-pose.md`](../research/2026-10-24-pianist-pose.md) gives the measures.
+differences. The research reports
+[`2026-10-24-pianist-pose.md`](../research/2026-10-24-pianist-pose.md) and
+[`2026-10-27-polar-bench.md`](../research/2026-10-27-polar-bench.md) give the measures.
 
-- **Height.** The long trunk of the bear sits on short legs. With hanging upper arms, its elbows
-  are about 15 cm above keys at 0.70 m. Its bench fits the legs of the rig, and a lower bench
-  puts the knees above the hips. Thus the piano is 1.16 times the size of a real piano, with the
-  key top at 0.81 m. The forearms are level with the keys (section 1). The elbow joint is about
-  7 cm above the key top, because the paw is thick.
-- **Trunk.** The spine leans 14° forward from the bind (section 3), and the head stays erect over
-  the music desk.
-- **Distance.** The keys stand 1.16 H in front of the floor point. The elbows bend about 102°
-  (section 1), and the upper arms are about 28° forward of the vertical, more than the
-  derived 0° to 20°, because the forearms must clear the round belly (section 4).
-- **Arms.** The elbows point out, a little down, and back, and stand about 36° out from the
-  trunk. Elbows that hang nearer went into the wide trunk. The shoulders turn down 6° in the
-  play (section 3).
+- **Height.** The long trunk of the bear has short arms. The piano is 1.16 times the size of a
+  real piano, with the key top at 0.81 m. The bear sits on a bench of 0.38 m with level thighs,
+  as on its reference sheet, so its shoulder joints stand about 0.3 m above the keys. The
+  forearms are about level with the keys (section 1). The elbow joint is about 6 cm above the
+  key top, because the paw is thick.
+- **Trunk.** The spine bends about 19° forward from the bind, under the 20° of a neutral thorax
+  (section 3). The shoulders turn down 20° in the play, so that the short upper arms bring the
+  elbows down to the keys.
+- **Distance.** The keys stand 1.3 H in front of the floor point. The elbows bend about 106°
+  (section 1), and the upper arms are about 19° forward of the vertical (section 4).
+- **Arms.** The elbows point out, down, and back, and stand about 27° to 30° out from the
+  trunk. Elbows that hang nearer went into the wide trunk (section 4).
 - **Wrists and paws.** The palm faces down, in line with the level forearm (section 5). The
   claws curl 30°, and their tips lie on the key tops at each strike, 3 to 5 cm past the front
   edge of the keys (section 5).
