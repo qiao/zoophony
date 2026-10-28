@@ -372,4 +372,5 @@ The decision files:
 - [`2026-10-27-badger-beater.md`](decisions/2026-10-27-badger-beater.md): the bass drum and its beater at the scale of the badger, the badger behind the drum with the beater along the head, and the stroke of the beater.
 - [`2026-10-28-fox-rabbit-crease.md`](decisions/2026-10-28-fox-rabbit-crease.md): the skin normals of the fox elbows and of the rabbit arm roots and elbows, so that the front key light shows no hard line, slit, or notch on the arms.
 - [`2026-10-28-hippo-arm.md`](decisions/2026-10-28-hippo-arm.md): the hippo wrist cut parallel to the last ring of the arm tube and the smoothed band of each wrist, so that the bow wrist shows no lip, slit, or spike.
+- [`2026-10-27-polar-wrist.md`](decisions/2026-10-27-polar-wrist.md): the polar bear wrist cut parallel to the last ring of the arm tube, the cleaned, smoothed, and snapped band of each wrist, and its skin normals, so that no crease shows around the wrist (user).
 - [`2026-10-23-rabbit-arms.md`](decisions/2026-10-23-rabbit-arms.md): the A-pose rabbit mesh with its own faces, a short arm stretch, a violin of 0.83, its elbows and rest grip, and the open shards of its arms.
