@@ -1,5 +1,5 @@
 // Measures the clarinet of the wolf at rest and in the moves (diagnosis only).
-// Usage: node docs/research/2026-10-27-wolf-knee/probes/wolf-rest.ts ['<set changes>'] [--moves]
+// Usage: node docs/research/2026-10-27-wolf-mouse-rests/probes/wolf-rest.ts ['<set changes>'] [--moves]
 //
 // For the rest sample and the lift and lowering shares: the clarinet tilt from the vertical, the
 // lean, the bell end against the seat top, the seat front, and the knees, and for each paw: the

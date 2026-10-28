@@ -1,5 +1,5 @@
 // Solves the rest of the wolf clarinet for a bell point and a lean (diagnosis only).
-// Usage: node docs/research/2026-10-27-wolf-knee/probes/wolf-solve.ts <bell x cm> <bell y above the seat cm> <bell z from the seat front cm> <fwd deg> <side deg> ['<more set changes>']
+// Usage: node docs/research/2026-10-27-wolf-mouse-rests/probes/wolf-solve.ts <bell x cm> <bell y above the seat cm> <bell z from the seat front cm> <fwd deg> <side deg> ['<more set changes>']
 // Lean: fwd > 0 puts the top in front of the bell, side > 0 puts the top to the right (+x) of the bell.
 // Prints the --set text of `rest` and `restShift`, then the measured bell.
 import { MathUtils, Quaternion, Vector3 } from 'three';
