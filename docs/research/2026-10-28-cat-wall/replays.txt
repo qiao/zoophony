@@ -1,0 +1,6 @@
+fox fox-arms.glb: same bytes
+fox fox-weights.json: same bytes
+deer deer-arms.glb: same bytes
+deer deer-weights.json: same bytes
+hippo hippo-arms.glb: same bytes
+hippo hippo-weights.json: same bytes

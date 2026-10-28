@@ -1,0 +1,72 @@
+main (8b5a37ea9, the cat of main), wall_probe.py on the copy:
+side L
+  wall faces: 27
+  wall height cm: 15.0
+  rim edges: 20
+  rim p50: 126.2
+  rim max: 178.8
+  rim over 30: 20
+  region faces: 115
+  thin faces (<10 deg): 15
+  smallest corners: [1.0, 1.5, 2.5, 2.8, 2.8, 4.8]
+  edges over 35 (crease): 42
+  edges over 30: 45
+  edges over 20: 53
+  largest edges: [178.8, 178.8, 175.8, 167.2, 166.3, 161.9, 160.0, 158.9]
+  flat side below the armpit: 22
+  flat side gaps: 2
+  flat side depth cm min, p10, p50: [0.12, 0.19, 0.65]
+side R
+  wall faces: 27
+  wall height cm: 14.8
+  rim edges: 20
+  rim p50: 124.1
+  rim max: 170.3
+  rim over 30: 20
+  region faces: 119
+  thin faces (<10 deg): 17
+  smallest corners: [1.7, 1.9, 2.0, 2.5, 2.7, 4.0]
+  edges over 35 (crease): 41
+  edges over 30: 45
+  edges over 20: 56
+  largest edges: [170.3, 169.6, 166.8, 166.6, 162.7, 160.6, 153.6, 144.1]
+  flat side below the armpit: 21
+  flat side gaps: 1
+  flat side depth cm min, p10, p50: [0.11, 0.21, 0.65]
+
+round, wall_probe.py on the copy:
+step_round_wall: {1: (22, 1, 54, 33, 0.006), -1: (18, 0, 50, 31, 0.0065)}
+side L
+  wall faces: 54
+  wall height cm: 13.0
+  rim edges: 15
+  rim p50: 17.1
+  rim max: 107.9
+  rim over 30: 4
+  region faces: 156
+  thin faces (<10 deg): 4
+  smallest corners: [4.4, 5.3, 7.5, 8.1, 15.8, 16.1]
+  edges over 35 (crease): 13
+  edges over 30: 19
+  edges over 20: 41
+  largest edges: [107.9, 69.9, 60.8, 59.3, 51.1, 48.6, 46.9, 46.2]
+  flat side below the armpit: 22
+  flat side gaps: 7
+  flat side depth cm min, p10, p50: [0.19, 0.22, 0.55]
+side R
+  wall faces: 50
+  wall height cm: 13.5
+  rim edges: 15
+  rim p50: 19.1
+  rim max: 84.0
+  rim over 30: 4
+  region faces: 147
+  thin faces (<10 deg): 4
+  smallest corners: [2.7, 7.2, 7.6, 9.4, 10.3, 10.3]
+  edges over 35 (crease): 14
+  edges over 30: 17
+  edges over 20: 35
+  largest edges: [102.4, 95.2, 86.8, 84.5, 84.0, 58.9, 50.2, 49.3]
+  flat side below the armpit: 21
+  flat side gaps: 6
+  flat side depth cm min, p10, p50: [0.26, 0.28, 0.5]
