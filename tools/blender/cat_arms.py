@@ -25,7 +25,9 @@ gives the cat a real armpit:
    and the side wall take the fur color of the trunk beside the seam. Before the atlas, the
    trunk moves to an even oval from the front and from the side (`step_belly()`). The user said
    "make the cat's belly more oval and smooth" on 2026-10-27. Then the side wall gets vertices
-   inside it and rounds into the trunk, with no lips at its lower tip (`step_round_wall()`).
+   inside it and rounds into the trunk, with no lips at its lower tip (`step_round_wall()`), and
+   the band between each armpit line and the flat inner side of the arm gets new triangles with
+   no thin face (`step_clean_pit()`).
 7. The studio skeleton with the arm segments and the helpers, automatic weights, and the Weight
    Paint fixes of `step_paint()`.
 8. Write the weights for `paintedWeights` of the config (`cat-weights.json`).
@@ -87,6 +89,12 @@ import violin_arms as va  # noqa: E402
 #: within `reach` units of a vertex of the wall. `rounds`: the rounds of Smooth Vertices. `deep`:
 #: the largest depth of a vertex of the wall in the trunk.
 #:
+#: `pit` (optional): the clean of the band between each armpit line and the flat inner side of
+#: the arm (`step_clean_pit()`). `near`: for the first and the second shoulder ring, the distance
+#: in units under which a vertex below the line merges into the next ring. `close`: the same on
+#: each side of the line, at its back half. `weld`: the distance under which a socket vertex
+#: merges into an end of the line or into its neighbor on the socket.
+#:
 #: The other keys are the keys of `violin_arms.ANIMALS`.
 CAT = {
     'config': 'tools/mesh-rigs/cat.json',
@@ -137,6 +145,14 @@ CAT = {
     # faces down to the hips, moved them up to 3 cm, and drew a V of hard edges under the wall.
     'wall': {'lip': 0.2, 'depth': 0.01, 'over': 0.02, 'grid': 0.016, 'rings': 2, 'reach': 0.03,
              'rounds': 6, 'deep': 0.006},
+    # The band between each armpit line and the flat inner side of the arm (`step_clean_pit()`).
+    # The user said "the cat's arm has lumps" on 2026-10-27. Before the clean, 27 faces near the
+    # ends of the lines had a corner under 12 degrees, and three corners of a face at the front
+    # end of the left line lay on one line. A merge on both sides of the whole line folded two
+    # new faces of the right arm root at rest, so `close` acts only at the back half of the line.
+    # With no merge of the socket vertices, the back of the left socket folded in 28.6% of the
+    # play (the thin faces there share one set of weights in `rigid_slivers()` of `rig_mesh.py`).
+    'pit': {'near': (0.0055, 0.003), 'close': 0.003, 'weld': 0.0025},
 }
 va.ANIMALS['cat'] = CAT
 
@@ -706,6 +722,177 @@ def arm_verts(s, bm, part, off):
 
 
 va.arm_verts = arm_verts
+
+
+def step_clean_pit(s):
+    """Cleans the band between each armpit line and the flat inner side of the arm (`pit`).
+
+    The first ring of the shoulder lies 0.15 of the way from the socket to the first ring of the
+    tube. On the flat inner side of the arm, that way is short, and `step_shape()` makes it
+    shorter, so the first ring lies 0.1 to 0.5 units-cm from the armpit line, and at the ends of
+    the line the second ring comes as near. Bridge Edge Loops joined the line to these vertices
+    with thin triangles, and at the front end of the left line three of their corners lay on one
+    line. In the play, these faces turned over when the skin near them moved, and a smoothing of
+    the root front showed them as a slit (user, 2026-10-27: "the cat's arm has lumps"). The step:
+
+    1. Ring by ring, a vertex of the first two shoulder rings merges into the vertex of the next
+       ring on its spoke (Merge at First): below the line within `near` units of it (one value
+       for each ring), and at the back half of the line within `close` units on each side of it.
+       The next ring keeps its place, its codes, and its later weights.
+    2. A socket vertex within `weld` units of an end of the line merges into the end, and a
+       socket edge shorter than `weld` units collapses to its middle (Collapse Edges): the cut
+       of the seam left such vertices, and each face with two of them is thin.
+    3. The faces with a vertex of the line and a vertex of the tube go, and a new strip of
+       triangles joins the line to the other side of the hole (`stitch_band()`).
+
+    The line keeps its vertices, so the side wall stays. Gives for each side the counts of the
+    merged rings vertices, of the merged socket vertices, and of the old and the new faces.
+    """
+    from mathutils.geometry import intersect_point_line
+    rule = s.spec.get('pit')
+    if rule is None:
+        return None
+    mesh = s.mesh
+    bpy.context.view_layer.objects.active = mesh
+    bpy.ops.object.mode_set(mode='EDIT')
+    bm = bmesh.from_edit_mesh(mesh.data)
+    part = bm.verts.layers.int['arm_part']
+    index = bm.verts.layers.int['arm_ring']
+    spoke = bm.verts.layers.int['arm_spoke']
+    out = {}
+    for side, off in ((1, 0), (-1, 10)):
+        tube, pit, socket = (PART[k] + off for k in ('tube', 'armpit', 'shoulder'))
+        # The line from its front end to its back end (the front is at -y).
+        line = sorted((p for p in bm.verts if p[part] == pit), key=lambda p: p.co.y)
+        height = sum(p.co.z for p in line) / len(line)
+
+        def distance(co):
+            best = math.inf
+            for a, b in zip(line, line[1:]):
+                _, t = intersect_point_line(co, a.co, b.co)
+                best = min(best, (co - a.co.lerp(b.co, min(1.0, max(0.0, t)))).length)
+            return best
+
+        def at_back(co):
+            nearest = min(line, key=lambda p: (p.co - co).length)
+            return line.index(nearest) >= len(line) // 2
+
+        # 1. The shoulder rings near the line.
+        merged = 0
+        for k, reach in enumerate(rule['near']):
+            near = [p for p in bm.verts if p.is_valid and p[part] == tube and p[index] == k
+                    and (p.co.z < height and distance(p.co) < s.units(reach)
+                         or distance(p.co) < s.units(rule['close']) and at_back(p.co))]
+            for p in near:
+                q = next(x.other_vert(p) for x in p.link_edges
+                         if x.other_vert(p)[part] == tube and x.other_vert(p)[index] == k + 1
+                         and x.other_vert(p)[spoke] == p[spoke])
+                merge_into(bm, q, p)
+                merged += 1
+        # 2. The socket vertices near the ends of the line and near each other.
+        welded = 0
+        for end in (line[0], line[-1]):
+            for p in [p for p in bm.verts if p.is_valid and p[part] == socket
+                      and (p.co - end.co).length < s.units(rule['weld'])]:
+                merge_into(bm, end, p)
+                welded += 1
+        short = [x for x in bm.edges if all(p[part] == socket for p in x.verts)
+                 and x.calc_length() < s.units(rule['weld'])]
+        bmesh.ops.collapse(bm, edges=short, uvs=True)
+        welded += len(short)
+        # 3. The new strip.
+        out[side] = (merged, welded, stitch_band(bm, part, pit, tube))
+    bmesh.update_edit_mesh(mesh.data)
+    bpy.ops.object.mode_set(mode='OBJECT')
+    return out
+
+
+def merge_into(bm, keep, gone):
+    """Merges the vertex `gone` into the vertex `keep` (Merge at First). `keep` keeps its place and
+    its codes (the integer layers of the vertices): the merge mixes them."""
+    layers = list(bm.verts.layers.int.values())
+    codes = [keep[layer] for layer in layers]
+    bmesh.ops.pointmerge(bm, verts=[keep, gone], merge_co=keep.co.copy())
+    for layer, code in zip(layers, codes):
+        keep[layer] = code
+
+
+def least_angle(tri):
+    """Gives the smallest corner angle of a triangle of three vertices, in radians."""
+    out = math.pi
+    for p, q, r in (tri, tri[1:] + tri[:1], tri[2:] + tri[:2]):
+        u, w = q.co - p.co, r.co - p.co
+        if u.length < 1e-12 or w.length < 1e-12:
+            return 0.0
+        out = min(out, u.angle(w))
+    return out
+
+
+def stitch_band(bm, part, pit, tube):
+    """Fills the band between an armpit line (the vertices with the code `pit`) and the tube again
+    (`step_clean_pit()`). The faces with a vertex of the line and a vertex of the tube go. Their
+    hole has the run of the line P0 ... Pn on one side and Q0 = P0, Q1, ..., Qm = Pn on the other.
+    From the edge P0 Q1 to the edge Pn Qm-1, each new triangle takes the next vertex of P or of
+    Q, as Bridge Edge Loops joins two loops of different counts. Of all such strips, the step
+    takes the strip whose smallest corner is the largest, then the largest sum of the smallest
+    corners of its triangles. A new face takes the zone of the side wall when its other corners
+    lie on the flat inner side of the arm, as Bridge Edge Loops gave it, and each corner the UV
+    of its vertex in the old band. Gives the counts of the old and the new faces."""
+    band = [f for f in bm.faces
+            if any(p[part] == pit for p in f.verts) and any(p[part] == tube for p in f.verts)]
+    uv = bm.loops.layers.uv.active
+    zone = bm.faces.layers.int['arm_zone']
+    flat = bm.verts.layers.int['arm_flat']
+    # The UVs of the bake win over the UVs of the zone of the wall.
+    uvs = {loop.vert: loop[uv].uv.copy() for f in band for loop in f.loops}
+    uvs.update({loop.vert: loop[uv].uv.copy() for f in band if f[zone] != 3
+                for loop in f.loops})
+    material = band[0].material_index
+    # The outline of the hole, in the order of the corners of the old faces.
+    after = {}
+    for f in band:
+        for loop in f.loops:
+            if sum(g in band for g in loop.edge.link_faces) == 1:
+                after[loop.vert] = loop.link_loop_next.vert
+    outline = [next(iter(after))]
+    while after[outline[-1]] is not outline[0]:
+        outline.append(after[outline[-1]])
+    if len(outline) != len(after):
+        raise RuntimeError('The band of the armpit line has more than one outline.')
+    k = next(i for i in range(len(outline))
+             if outline[i][part] == pit and outline[i - 1][part] != pit)
+    outline = outline[k:] + outline[:k]
+    n = next(i for i in range(len(outline)) if outline[i][part] != pit) - 1
+    line = outline[:n + 1]
+    other = (outline[n:] + outline[:1])[::-1]
+    m = len(other) - 1
+    bmesh.ops.delete(bm, geom=band, context='FACES')
+    # The best strip to each state (i, j), the edge Pi Qj: its smallest corner, the sum of the
+    # smallest corners, and its triangles.
+    best = {(0, 1): (math.inf, 0.0, ())}
+    for i in range(n + 1):
+        for j in range(1, m):
+            if (i, j) not in best:
+                continue
+            worst, total, tris = best[(i, j)]
+            steps = []
+            if i < n:
+                steps.append(((i + 1, j), (line[i], line[i + 1], other[j])))
+            if j < m - 1:
+                steps.append(((i, j + 1), (line[i], other[j + 1], other[j])))
+            for state, tri in steps:
+                angle = least_angle(tri)
+                score = (min(worst, angle), total + angle, tris + (tri,))
+                if state not in best or score[:2] > best[state][:2]:
+                    best[state] = score
+    made = [bm.faces.new(tri) for tri in best[(n, m - 1)][2]]
+    for f in made:
+        f.smooth = True
+        f[zone] = 3 if all(p[part] == pit or (p[part] == tube and p[flat]) for p in f.verts) else 0
+        f.material_index = material
+        for loop in f.loops:
+            loop[uv].uv = uvs[loop.vert]
+    return len(band), len(made)
 
 
 def step_uv(s):
@@ -1449,8 +1636,8 @@ def step_weights(s):
 
 STEPS = (va.import_mesh, step_cut, step_wall, step_tube, step_wrap, step_bridge, step_beautify,
          step_uv, step_bake, va.step_normals, step_shape, step_belly, step_round_wall,
-         va.step_atlas, step_inner_color, va.step_export, va.step_skeleton, va.step_bind,
-         step_tube_heat, step_paint, step_weights)
+         step_clean_pit, va.step_atlas, step_inner_color, va.step_export, va.step_skeleton,
+         va.step_bind, step_tube_heat, step_paint, step_weights)
 
 
 def main():
