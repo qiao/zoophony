@@ -78,6 +78,11 @@ export interface MeshRigConfig {
    * their size, and the body rises by the growth of the legs.
    */
   readonly legFactor?: number;
+  /**
+   * The factor of the length of the shin, the leg factor when it is not given. Then the leg factor
+   * gives only the length of the thigh.
+   */
+  readonly shinFactor?: number;
   /** The factor of the size of the head around the neck joint, 1 when it is not given. */
   readonly headFactor?: number;
   /**
@@ -176,6 +181,7 @@ export function parseConfig(text: string): MeshRigConfig {
   const numbers = [
     config.armFactor,
     config.legFactor ?? 1,
+    config.shinFactor ?? 1,
     config.headFactor ?? 1,
     config.neckFactor ?? 1,
     config.trunkFactor ?? 1,
@@ -190,7 +196,7 @@ export function parseConfig(text: string): MeshRigConfig {
   ];
   if (!numbers.every((n) => Number.isFinite(n) && n > 0)) {
     throw new Error(
-      'The arm factor, the leg factor, the head factor, the neck factor, the trunk factor, the girth factors, the arm girth factors, the proportions, app.shoulders, and app.reach must be positive numbers.',
+      'The arm factor, the leg factor, the shin factor, the head factor, the neck factor, the trunk factor, the girth factors, the arm girth factors, the proportions, app.shoulders, and app.reach must be positive numbers.',
     );
   }
   const keep = config.proportions?.keep;
@@ -738,16 +744,20 @@ function distance(a: Vec3, b: Vec3): number {
 
 /**
  * Gives the rise of the body of a rig by the growth of its legs, as `tools/blender/rig_mesh.py`
- * gives it: the thigh and the shin take the leg factor, the foot keeps its size, and the body
- * rises by the drop of the ankle, so that the soles stay on the floor.
+ * gives it: the thigh takes the leg factor, the shin takes the shin factor (the leg factor when
+ * the config gives none), the foot keeps its size, and the body rises by the drop of the ankle, so
+ * that the soles stay on the floor.
  *
  * @param config The config.
  * @returns The rise, in the units of the studio.
  */
 export function legRise(config: MeshRigConfig): number {
   const hip = jointHead(config, 'thigh_L');
+  const knee = jointHead(config, 'shin_L');
   const ankle = jointHead(config, 'foot_L');
-  return ((config.legFactor ?? 1) - 1) * (hip[1] - ankle[1]);
+  const thigh = config.legFactor ?? 1;
+  const shin = config.shinFactor ?? thigh;
+  return (thigh - 1) * (hip[1] - knee[1]) + (shin - 1) * (knee[1] - ankle[1]);
 }
 
 /**

@@ -2841,8 +2841,9 @@ def stretch(verts, weights, heads, ends, children, factors, rules):
     joint does not move with the upper arm. With a ramp (`weights.stretchRamp` of the config, in units), only the free arm
     beyond the plane |x| = `armSplit` stretches with the upper arm: the share of the stretch fades
     from 0 to 1 over the ramp on each side of the plane, so that the trunk beside and below the
-    armpit keeps its form. The thigh and the shin grow by `leg` along their axes, and the foot
-    moves with the ankle and keeps its size. The head and the ears grow by `head` around the neck
+    armpit keeps its form. The thigh and the shin grow by `leg` along their axes, the shin by
+    `shin` when the config gives `shinFactor`, and the foot moves with the ankle and keeps its
+    size. The head and the ears grow by `head` around the neck
     joint. The neck takes `neck` between its joints,
     and the head and the ears move along the neck by the move of the head joint, so that the neck
     of the rig is `neck` times the neck of the grown head. The trunk takes `trunk` between the hips
@@ -2899,18 +2900,20 @@ def stretch(verts, weights, heads, ends, children, factors, rules):
 
     rise = 0.0
     # The thigh and the shin stretch only between their joints (segment_stretch), so that the
-    # haunch above the hip and the sole below the ankle do not move with the stretch.
+    # haunch above the hip and the sole below the ankle do not move with the stretch. The shin
+    # takes its own factor when the config gives one.
     segments = {}
-    if factors['leg'] != 1:
-        factor = factors['leg']
+    if factors['leg'] != 1 or factors['shin'] != factors['leg']:
+        factor, shin = factors['leg'], factors['shin']
         for side in 'LR':
             hip = heads[f'thigh_{side}']
             knee = heads[f'shin_{side}']
             ankle = heads[f'foot_{side}']
             knee2 = hip + factor * (knee - hip)
-            ankle2 = knee2 + factor * (ankle - knee)
-            for name, origin, start, end in (('thigh', hip, hip, knee), ('shin', knee, knee2, ankle)):
-                segments[BONES.index(f'{name}_{side}')] = (origin, start, end, factor)
+            ankle2 = knee2 + shin * (ankle - knee)
+            for name, origin, start, end, f in (('thigh', hip, hip, knee, factor),
+                                                ('shin', knee, knee2, ankle, shin)):
+                segments[BONES.index(f'{name}_{side}')] = (origin, start, end, f)
             shift = ankle2 - ankle
             for name in ('foot', 'toes'):
                 matrices[BONES.index(f'{name}_{side}')] = move(np.eye(3), np.zeros(3), shift)
@@ -4681,6 +4684,7 @@ def main():
     # The long arms, the long legs, the large head, and the short trunk. The scale of the app comes
     # from the shoulder joints after the rise of the legs and the drop of the trunk.
     factors = {'arm': config['armFactor'], 'leg': config.get('legFactor', 1),
+               'shin': config.get('shinFactor', config.get('legFactor', 1)),
                'head': config.get('headFactor', 1), 'neck': config.get('neckFactor', 1),
                'trunk': config.get('trunkFactor', 1),
                'girth': config.get('girthFactor', [1, 1]),
@@ -4693,7 +4697,10 @@ def main():
         before, after = reach(heads, side) * meters, reach(long_heads, side) * meters
         log(f'arm {side}: reach {before:.4f} m before, {after:.4f} m after the factor '
             f"{config['armFactor']} (target {config['app']['reach']} m)")
-    if factors['leg'] != 1 or factors['head'] != 1:
+    if factors['shin'] != factors['leg']:
+        log(f"shins: the shin factor {factors['shin']} makes the shins longer than the thighs "
+            f"(leg factor {factors['leg']})")
+    if factors['leg'] != 1 or factors['shin'] != 1 or factors['head'] != 1:
         log(f"legs and head: the leg factor {factors['leg']} raises the body {rise:.4f} u, the "
             f"shoulder joint to {long_heads['upper_arm_L'][1]:.4f} u "
             f"({long_heads['upper_arm_L'][1] * meters:.4f} m), and the head factor "
