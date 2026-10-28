@@ -1,0 +1,239 @@
+
+> zoophony@0.0.0 hold-fit /Users/xueqiaoxu/proj/zoophony/.claude/worktrees/sixth-wolf-vertical
+> node tools/hold-fit.ts clarinetist --sets lift\,rest\,lower --set clarinet\@wolf.rest\=holdTurn\(-25\,0\)\;clarinet\@wolf.restShift\=\[0.377\,-0.552\,0.212\] --grid clarinet\@wolf.restPoleL.0\=-1.5\:0.5\:1 --grid clarinet\@wolf.restPoleL.1\=-1\:1\:1 --grid clarinet\@wolf.restPoleL.2\=-2\:0\:1
+
+Hold fit of the clarinetist: play folds at a step of 1 s, the sweep of the clarinetist with the bodies of the role.
+Demos: beethoven-8, boulanger-matin
+Sample sets: lift, rest, lower.
+Grids: 3 × 3 × 3 = 27 variants (the limit is 40), sorted by the play folds, then by the deepest point.
+base (4.5 s):
+  faces that fold most: 43 100.0%, 94 100.0%, 145 100.0%, 1477 100.0%, 3605 100.0%
+  lift: forearms in body: 1.1 cm at song -1.62 s, wall 10.00 s (forearmL 0.32), boulanger-matin clarinetist 24 (wolf, chair)
+  rest: forearms in body: 1.1 cm at song -1.62 s, wall 10.00 s (forearmL 0.32), boulanger-matin clarinetist 24 (wolf, chair)
+  lower: forearms in body: 1.1 cm at song 220.22 s, wall 15.30 s (forearmL 0.32), beethoven-8 clarinetist 20 (wolf, chair)
+  lower: instrument in body: 0.1 cm at song 220.22 s, wall 15.30 s (instrument), beethoven-8 clarinetist 20 (wolf, chair)
+clarinet@wolf.rest=holdTurn(-25,0);clarinet@wolf.restShift=[0.377,-0.552,0.212];clarinet@wolf.restPoleL.0=-1.5;clarinet@wolf.restPoleL.1=-1;clarinet@wolf.restPoleL.2=-2 (3.2 s):
+  faces that fold most: 94 100.0%, 145 100.0%, 1477 100.0%, 3605 100.0%, 43 92.2%
+  lift: forearms in body: 7.1 cm at song -1.62 s, wall 10.00 s (forearmL 0.96), boulanger-matin clarinetist 24 (wolf, chair)
+  rest: forearms in body: 7.1 cm at song -1.62 s, wall 10.00 s (forearmL 0.96), boulanger-matin clarinetist 24 (wolf, chair)
+  lower: forearms in body: 7.1 cm at song 220.22 s, wall 15.30 s (forearmL 0.96), beethoven-8 clarinetist 20 (wolf, chair)
+  lower: instrument in body: 0.1 cm at song 220.22 s, wall 15.30 s (instrument), beethoven-8 clarinetist 20 (wolf, chair)
+clarinet@wolf.rest=holdTurn(-25,0);clarinet@wolf.restShift=[0.377,-0.552,0.212];clarinet@wolf.restPoleL.0=-1.5;clarinet@wolf.restPoleL.1=-1;clarinet@wolf.restPoleL.2=-1 (3.1 s):
+  faces that fold most: 94 100.0%, 145 100.0%, 1477 100.0%, 3605 100.0%, 43 92.2%
+  lift: forearms in body: 7.4 cm at song -1.62 s, wall 10.00 s (forearmL 0.81), boulanger-matin clarinetist 24 (wolf, chair)
+  rest: forearms in body: 7.4 cm at song -1.62 s, wall 10.00 s (forearmL 0.81), boulanger-matin clarinetist 24 (wolf, chair)
+  lower: forearms in body: 7.4 cm at song 220.22 s, wall 15.30 s (forearmL 0.81), beethoven-8 clarinetist 20 (wolf, chair)
+  lower: instrument in body: 0.1 cm at song 220.22 s, wall 15.30 s (instrument), beethoven-8 clarinetist 20 (wolf, chair)
+clarinet@wolf.rest=holdTurn(-25,0);clarinet@wolf.restShift=[0.377,-0.552,0.212];clarinet@wolf.restPoleL.0=-1.5;clarinet@wolf.restPoleL.1=-1;clarinet@wolf.restPoleL.2=0 (3.1 s):
+  faces that fold most: 94 100.0%, 145 100.0%, 1477 100.0%, 3605 100.0%, 43 92.2%
+  lift: forearms in body: 9.7 cm at song -1.62 s, wall 10.00 s (forearmL 0.55), boulanger-matin clarinetist 24 (wolf, chair)
+  rest: forearms in body: 9.7 cm at song -1.62 s, wall 10.00 s (forearmL 0.55), boulanger-matin clarinetist 24 (wolf, chair)
+  lower: forearms in body: 9.7 cm at song 220.22 s, wall 15.30 s (forearmL 0.55), beethoven-8 clarinetist 20 (wolf, chair)
+  lower: instrument in body: 0.1 cm at song 220.22 s, wall 15.30 s (instrument), beethoven-8 clarinetist 20 (wolf, chair)
+clarinet@wolf.rest=holdTurn(-25,0);clarinet@wolf.restShift=[0.377,-0.552,0.212];clarinet@wolf.restPoleL.0=-1.5;clarinet@wolf.restPoleL.1=0;clarinet@wolf.restPoleL.2=-2 (3.0 s):
+  faces that fold most: 94 100.0%, 145 100.0%, 3605 100.0%, 43 92.2%, 1477 81.3%
+  lift: forearms in body: 7.2 cm at song -1.62 s, wall 10.00 s (forearmL 0.96), boulanger-matin clarinetist 24 (wolf, chair)
+  rest: forearms in body: 7.2 cm at song -1.62 s, wall 10.00 s (forearmL 0.96), boulanger-matin clarinetist 24 (wolf, chair)
+  lower: forearms in body: 7.2 cm at song 220.22 s, wall 15.30 s (forearmL 0.96), beethoven-8 clarinetist 20 (wolf, chair)
+  lower: instrument in body: 0.1 cm at song 220.22 s, wall 15.30 s (instrument), beethoven-8 clarinetist 20 (wolf, chair)
+clarinet@wolf.rest=holdTurn(-25,0);clarinet@wolf.restShift=[0.377,-0.552,0.212];clarinet@wolf.restPoleL.0=-1.5;clarinet@wolf.restPoleL.1=0;clarinet@wolf.restPoleL.2=-1 (3.2 s):
+  faces that fold most: 94 100.0%, 145 100.0%, 1477 100.0%, 3605 100.0%, 43 92.2%
+  lift: forearms in body: 7.1 cm at song -1.62 s, wall 10.00 s (forearmL 0.96), boulanger-matin clarinetist 24 (wolf, chair)
+  rest: forearms in body: 7.1 cm at song -1.62 s, wall 10.00 s (forearmL 0.96), boulanger-matin clarinetist 24 (wolf, chair)
+  lower: forearms in body: 7.1 cm at song 220.22 s, wall 15.30 s (forearmL 0.96), beethoven-8 clarinetist 20 (wolf, chair)
+  lower: instrument in body: 0.1 cm at song 220.22 s, wall 15.30 s (instrument), beethoven-8 clarinetist 20 (wolf, chair)
+clarinet@wolf.rest=holdTurn(-25,0);clarinet@wolf.restShift=[0.377,-0.552,0.212];clarinet@wolf.restPoleL.0=-1.5;clarinet@wolf.restPoleL.1=0;clarinet@wolf.restPoleL.2=0 (3.2 s):
+  faces that fold most: 94 100.0%, 145 100.0%, 1477 100.0%, 3605 100.0%, 43 92.2%
+  lift: forearms in body: 8.5 cm at song -1.62 s, wall 10.00 s (forearmL 0.55), boulanger-matin clarinetist 24 (wolf, chair)
+  rest: forearms in body: 8.5 cm at song -1.62 s, wall 10.00 s (forearmL 0.55), boulanger-matin clarinetist 24 (wolf, chair)
+  lower: forearms in body: 8.5 cm at song 220.22 s, wall 15.30 s (forearmL 0.55), beethoven-8 clarinetist 20 (wolf, chair)
+  lower: instrument in body: 0.1 cm at song 220.22 s, wall 15.30 s (instrument), beethoven-8 clarinetist 20 (wolf, chair)
+clarinet@wolf.rest=holdTurn(-25,0);clarinet@wolf.restShift=[0.377,-0.552,0.212];clarinet@wolf.restPoleL.0=-1.5;clarinet@wolf.restPoleL.1=1;clarinet@wolf.restPoleL.2=-2 (3.2 s):
+  faces that fold most: 94 100.0%, 145 100.0%, 3605 100.0%, 43 92.2%, 3426 81.3%
+  lift: forearms in body: 7.6 cm at song -1.62 s, wall 10.00 s (forearmL 1.01), boulanger-matin clarinetist 24 (wolf, chair)
+  rest: forearms in body: 7.6 cm at song -1.62 s, wall 10.00 s (forearmL 1.01), boulanger-matin clarinetist 24 (wolf, chair)
+  lower: forearms in body: 7.6 cm at song 220.22 s, wall 15.30 s (forearmL 1.01), beethoven-8 clarinetist 20 (wolf, chair)
+  lower: instrument in body: 0.1 cm at song 220.22 s, wall 15.30 s (instrument), beethoven-8 clarinetist 20 (wolf, chair)
+clarinet@wolf.rest=holdTurn(-25,0);clarinet@wolf.restShift=[0.377,-0.552,0.212];clarinet@wolf.restPoleL.0=-1.5;clarinet@wolf.restPoleL.1=1;clarinet@wolf.restPoleL.2=-1 (4.0 s):
+  faces that fold most: 94 100.0%, 145 100.0%, 3605 100.0%, 43 92.2%, 3426 81.3%
+  lift: forearms in body: 7.6 cm at song -1.62 s, wall 10.00 s (forearmL 1.01), boulanger-matin clarinetist 24 (wolf, chair)
+  rest: forearms in body: 7.6 cm at song -1.62 s, wall 10.00 s (forearmL 1.01), boulanger-matin clarinetist 24 (wolf, chair)
+  lower: forearms in body: 7.6 cm at song 220.22 s, wall 15.30 s (forearmL 1.01), beethoven-8 clarinetist 20 (wolf, chair)
+  lower: instrument in body: 0.1 cm at song 220.22 s, wall 15.30 s (instrument), beethoven-8 clarinetist 20 (wolf, chair)
+clarinet@wolf.rest=holdTurn(-25,0);clarinet@wolf.restShift=[0.377,-0.552,0.212];clarinet@wolf.restPoleL.0=-1.5;clarinet@wolf.restPoleL.1=1;clarinet@wolf.restPoleL.2=0 (3.3 s):
+  faces that fold most: 94 100.0%, 145 100.0%, 3605 100.0%, 43 92.2%, 1477 89.1%
+  lift: forearms in body: 7.3 cm at song -1.62 s, wall 10.00 s (forearmL 0.96), boulanger-matin clarinetist 24 (wolf, chair)
+  rest: forearms in body: 7.3 cm at song -1.62 s, wall 10.00 s (forearmL 0.96), boulanger-matin clarinetist 24 (wolf, chair)
+  lower: forearms in body: 7.3 cm at song 220.22 s, wall 15.30 s (forearmL 0.96), beethoven-8 clarinetist 20 (wolf, chair)
+  lower: instrument in body: 0.1 cm at song 220.22 s, wall 15.30 s (instrument), beethoven-8 clarinetist 20 (wolf, chair)
+clarinet@wolf.rest=holdTurn(-25,0);clarinet@wolf.restShift=[0.377,-0.552,0.212];clarinet@wolf.restPoleL.0=-0.5;clarinet@wolf.restPoleL.1=-1;clarinet@wolf.restPoleL.2=-2 (5.6 s):
+  faces that fold most: 94 100.0%, 145 100.0%, 1477 100.0%, 3605 100.0%, 43 92.2%
+  lift: forearms in body: 7.2 cm at song -1.62 s, wall 10.00 s (forearmL 0.96), boulanger-matin clarinetist 24 (wolf, chair)
+  rest: forearms in body: 7.2 cm at song -1.62 s, wall 10.00 s (forearmL 0.96), boulanger-matin clarinetist 24 (wolf, chair)
+  lower: forearms in body: 7.2 cm at song 220.22 s, wall 15.30 s (forearmL 0.96), beethoven-8 clarinetist 20 (wolf, chair)
+  lower: instrument in body: 0.1 cm at song 220.22 s, wall 15.30 s (instrument), beethoven-8 clarinetist 20 (wolf, chair)
+clarinet@wolf.rest=holdTurn(-25,0);clarinet@wolf.restShift=[0.377,-0.552,0.212];clarinet@wolf.restPoleL.0=-0.5;clarinet@wolf.restPoleL.1=-1;clarinet@wolf.restPoleL.2=-1 (4.6 s):
+  faces that fold most: 94 100.0%, 145 100.0%, 1477 100.0%, 3605 100.0%, 43 92.2%
+  lift: forearms in body: 7.1 cm at song -1.62 s, wall 10.00 s (forearmL 0.81), boulanger-matin clarinetist 24 (wolf, chair)
+  rest: forearms in body: 7.1 cm at song -1.62 s, wall 10.00 s (forearmL 0.81), boulanger-matin clarinetist 24 (wolf, chair)
+  lower: forearms in body: 7.1 cm at song 220.22 s, wall 15.30 s (forearmL 0.81), beethoven-8 clarinetist 20 (wolf, chair)
+  lower: instrument in body: 0.1 cm at song 220.22 s, wall 15.30 s (instrument), beethoven-8 clarinetist 20 (wolf, chair)
+clarinet@wolf.rest=holdTurn(-25,0);clarinet@wolf.restShift=[0.377,-0.552,0.212];clarinet@wolf.restPoleL.0=-0.5;clarinet@wolf.restPoleL.1=-1;clarinet@wolf.restPoleL.2=0 (5.0 s):
+  faces that fold most: 94 100.0%, 145 100.0%, 1477 100.0%, 3605 100.0%, 43 92.2%
+  lift: forearms in body: 10.5 cm at song -1.62 s, wall 10.00 s (forearmL 0.55), boulanger-matin clarinetist 24 (wolf, chair)
+  rest: forearms in body: 10.5 cm at song -1.62 s, wall 10.00 s (forearmL 0.55), boulanger-matin clarinetist 24 (wolf, chair)
+  lower: forearms in body: 10.5 cm at song 220.22 s, wall 15.30 s (forearmL 0.55), beethoven-8 clarinetist 20 (wolf, chair)
+  lower: instrument in body: 0.1 cm at song 220.22 s, wall 15.30 s (instrument), beethoven-8 clarinetist 20 (wolf, chair)
+clarinet@wolf.rest=holdTurn(-25,0);clarinet@wolf.restShift=[0.377,-0.552,0.212];clarinet@wolf.restPoleL.0=-0.5;clarinet@wolf.restPoleL.1=0;clarinet@wolf.restPoleL.2=-2 (3.4 s):
+  faces that fold most: 94 100.0%, 145 100.0%, 3605 100.0%, 43 92.2%, 1477 81.3%
+  lift: forearms in body: 7.5 cm at song -1.62 s, wall 10.00 s (forearmL 1.01), boulanger-matin clarinetist 24 (wolf, chair)
+  rest: forearms in body: 7.5 cm at song -1.62 s, wall 10.00 s (forearmL 1.01), boulanger-matin clarinetist 24 (wolf, chair)
+  lower: forearms in body: 7.5 cm at song 220.22 s, wall 15.30 s (forearmL 1.01), beethoven-8 clarinetist 20 (wolf, chair)
+  lower: instrument in body: 0.1 cm at song 220.22 s, wall 15.30 s (instrument), beethoven-8 clarinetist 20 (wolf, chair)
+clarinet@wolf.rest=holdTurn(-25,0);clarinet@wolf.restShift=[0.377,-0.552,0.212];clarinet@wolf.restPoleL.0=-0.5;clarinet@wolf.restPoleL.1=0;clarinet@wolf.restPoleL.2=-1 (3.3 s):
+  faces that fold most: 94 100.0%, 145 100.0%, 3605 100.0%, 43 92.2%, 1477 81.3%
+  lift: forearms in body: 7.3 cm at song -1.62 s, wall 10.00 s (forearmL 0.96), boulanger-matin clarinetist 24 (wolf, chair)
+  rest: forearms in body: 7.3 cm at song -1.62 s, wall 10.00 s (forearmL 0.96), boulanger-matin clarinetist 24 (wolf, chair)
+  lower: forearms in body: 7.3 cm at song 220.22 s, wall 15.30 s (forearmL 0.96), beethoven-8 clarinetist 20 (wolf, chair)
+  lower: instrument in body: 0.1 cm at song 220.22 s, wall 15.30 s (instrument), beethoven-8 clarinetist 20 (wolf, chair)
+clarinet@wolf.rest=holdTurn(-25,0);clarinet@wolf.restShift=[0.377,-0.552,0.212];clarinet@wolf.restPoleL.0=-0.5;clarinet@wolf.restPoleL.1=0;clarinet@wolf.restPoleL.2=0 (3.9 s):
+  faces that fold most: 94 100.0%, 145 100.0%, 1477 100.0%, 3605 100.0%, 43 92.2%
+  lift: forearms in body: 8.5 cm at song -1.62 s, wall 10.00 s (forearmL 0.55), boulanger-matin clarinetist 24 (wolf, chair)
+  rest: forearms in body: 8.5 cm at song -1.62 s, wall 10.00 s (forearmL 0.55), boulanger-matin clarinetist 24 (wolf, chair)
+  lower: forearms in body: 8.5 cm at song 220.22 s, wall 15.30 s (forearmL 0.55), beethoven-8 clarinetist 20 (wolf, chair)
+  lower: instrument in body: 0.1 cm at song 220.22 s, wall 15.30 s (instrument), beethoven-8 clarinetist 20 (wolf, chair)
+clarinet@wolf.rest=holdTurn(-25,0);clarinet@wolf.restShift=[0.377,-0.552,0.212];clarinet@wolf.restPoleL.0=-0.5;clarinet@wolf.restPoleL.1=1;clarinet@wolf.restPoleL.2=-2 (3.3 s):
+  faces that fold most: 94 100.0%, 145 100.0%, 3605 100.0%, 43 92.2%, 3426 82.8%
+  lift: forearms in body: 7.5 cm at song -1.62 s, wall 10.00 s (forearmL 1.02), boulanger-matin clarinetist 24 (wolf, chair)
+  rest: forearms in body: 7.5 cm at song -1.62 s, wall 10.00 s (forearmL 1.02), boulanger-matin clarinetist 24 (wolf, chair)
+  lower: forearms in body: 7.5 cm at song 220.22 s, wall 15.30 s (forearmL 1.02), beethoven-8 clarinetist 20 (wolf, chair)
+  lower: instrument in body: 0.1 cm at song 220.22 s, wall 15.30 s (instrument), beethoven-8 clarinetist 20 (wolf, chair)
+clarinet@wolf.rest=holdTurn(-25,0);clarinet@wolf.restShift=[0.377,-0.552,0.212];clarinet@wolf.restPoleL.0=-0.5;clarinet@wolf.restPoleL.1=1;clarinet@wolf.restPoleL.2=-1 (3.4 s):
+  faces that fold most: 94 100.0%, 145 100.0%, 3605 100.0%, 43 92.2%, 3426 81.3%
+  lift: forearms in body: 7.5 cm at song -1.62 s, wall 10.00 s (forearmL 1.03), boulanger-matin clarinetist 24 (wolf, chair)
+  rest: forearms in body: 7.5 cm at song -1.62 s, wall 10.00 s (forearmL 1.03), boulanger-matin clarinetist 24 (wolf, chair)
+  lower: forearms in body: 7.5 cm at song 220.22 s, wall 15.30 s (forearmL 1.03), beethoven-8 clarinetist 20 (wolf, chair)
+  lower: instrument in body: 0.1 cm at song 220.22 s, wall 15.30 s (instrument), beethoven-8 clarinetist 20 (wolf, chair)
+clarinet@wolf.rest=holdTurn(-25,0);clarinet@wolf.restShift=[0.377,-0.552,0.212];clarinet@wolf.restPoleL.0=-0.5;clarinet@wolf.restPoleL.1=1;clarinet@wolf.restPoleL.2=0 (3.9 s):
+  faces that fold most: 94 100.0%, 145 100.0%, 3605 100.0%, 43 92.2%, 3426 79.7%
+  lift: upper arms in body: 8.1 cm at song -2.10 s, wall 10.00 s (upperArmL 0.62), beethoven-8 clarinetist 20 (wolf, chair)
+  rest: upper arms in body: 8.1 cm at song -2.10 s, wall 10.00 s (upperArmL 0.62), beethoven-8 clarinetist 20 (wolf, chair)
+  lower: upper arms in body: 8.1 cm at song 220.22 s, wall 15.30 s (upperArmL 0.62), beethoven-8 clarinetist 20 (wolf, chair)
+  lower: instrument in body: 0.1 cm at song 220.22 s, wall 15.30 s (instrument), beethoven-8 clarinetist 20 (wolf, chair)
+clarinet@wolf.rest=holdTurn(-25,0);clarinet@wolf.restShift=[0.377,-0.552,0.212];clarinet@wolf.restPoleL.0=0.5;clarinet@wolf.restPoleL.1=-1;clarinet@wolf.restPoleL.2=-2 (3.3 s):
+  faces that fold most: 94 100.0%, 145 100.0%, 3605 100.0%, 43 92.2%, 1477 84.4%
+  lift: forearms in body: 7.4 cm at song -1.62 s, wall 10.00 s (forearmL 0.95), boulanger-matin clarinetist 24 (wolf, chair)
+  rest: forearms in body: 7.4 cm at song -1.62 s, wall 10.00 s (forearmL 0.95), boulanger-matin clarinetist 24 (wolf, chair)
+  lower: forearms in body: 7.4 cm at song 220.22 s, wall 15.30 s (forearmL 0.95), beethoven-8 clarinetist 20 (wolf, chair)
+  lower: instrument in body: 0.1 cm at song 220.22 s, wall 15.30 s (instrument), beethoven-8 clarinetist 20 (wolf, chair)
+clarinet@wolf.rest=holdTurn(-25,0);clarinet@wolf.restShift=[0.377,-0.552,0.212];clarinet@wolf.restPoleL.0=0.5;clarinet@wolf.restPoleL.1=-1;clarinet@wolf.restPoleL.2=-1 (3.2 s):
+  faces that fold most: 94 100.0%, 145 100.0%, 1477 100.0%, 3605 100.0%, 43 92.2%
+  lift: forearms in body: 7.2 cm at song -1.62 s, wall 10.00 s (forearmL 0.96), boulanger-matin clarinetist 24 (wolf, chair)
+  rest: forearms in body: 7.2 cm at song -1.62 s, wall 10.00 s (forearmL 0.96), boulanger-matin clarinetist 24 (wolf, chair)
+  lower: forearms in body: 7.2 cm at song 220.22 s, wall 15.30 s (forearmL 0.96), beethoven-8 clarinetist 20 (wolf, chair)
+  lower: instrument in body: 0.1 cm at song 220.22 s, wall 15.30 s (instrument), beethoven-8 clarinetist 20 (wolf, chair)
+clarinet@wolf.rest=holdTurn(-25,0);clarinet@wolf.restShift=[0.377,-0.552,0.212];clarinet@wolf.restPoleL.0=0.5;clarinet@wolf.restPoleL.1=-1;clarinet@wolf.restPoleL.2=0 (3.8 s):
+  faces that fold most: 94 100.0%, 145 100.0%, 1477 100.0%, 3605 100.0%, 43 92.2%
+  lift: forearms in body: 13.5 cm at song -1.62 s, wall 10.00 s (forearmL 0.44), boulanger-matin clarinetist 24 (wolf, chair)
+  rest: forearms in body: 13.5 cm at song -1.62 s, wall 10.00 s (forearmL 0.44), boulanger-matin clarinetist 24 (wolf, chair)
+  lower: forearms in body: 13.5 cm at song 220.22 s, wall 15.30 s (forearmL 0.44), beethoven-8 clarinetist 20 (wolf, chair)
+  lower: instrument in body: 0.1 cm at song 220.22 s, wall 15.30 s (instrument), beethoven-8 clarinetist 20 (wolf, chair)
+clarinet@wolf.rest=holdTurn(-25,0);clarinet@wolf.restShift=[0.377,-0.552,0.212];clarinet@wolf.restPoleL.0=0.5;clarinet@wolf.restPoleL.1=0;clarinet@wolf.restPoleL.2=-2 (3.3 s):
+  faces that fold most: 94 100.0%, 145 100.0%, 3605 100.0%, 43 92.2%, 1477 81.3%
+  lift: forearms in body: 7.6 cm at song -1.62 s, wall 10.00 s (forearmL 1.02), boulanger-matin clarinetist 24 (wolf, chair)
+  rest: forearms in body: 7.6 cm at song -1.62 s, wall 10.00 s (forearmL 1.02), boulanger-matin clarinetist 24 (wolf, chair)
+  lower: forearms in body: 7.6 cm at song 220.22 s, wall 15.30 s (forearmL 1.02), beethoven-8 clarinetist 20 (wolf, chair)
+  lower: instrument in body: 0.1 cm at song 220.22 s, wall 15.30 s (instrument), beethoven-8 clarinetist 20 (wolf, chair)
+clarinet@wolf.rest=holdTurn(-25,0);clarinet@wolf.restShift=[0.377,-0.552,0.212];clarinet@wolf.restPoleL.0=0.5;clarinet@wolf.restPoleL.1=0;clarinet@wolf.restPoleL.2=-1 (3.5 s):
+  faces that fold most: 94 100.0%, 145 100.0%, 3605 100.0%, 43 92.2%, 1477 81.3%
+  lift: forearms in body: 7.5 cm at song -1.62 s, wall 10.00 s (forearmL 1.03), boulanger-matin clarinetist 24 (wolf, chair)
+  rest: forearms in body: 7.5 cm at song -1.62 s, wall 10.00 s (forearmL 1.03), boulanger-matin clarinetist 24 (wolf, chair)
+  lower: forearms in body: 7.5 cm at song 220.22 s, wall 15.30 s (forearmL 1.03), beethoven-8 clarinetist 20 (wolf, chair)
+  lower: instrument in body: 0.1 cm at song 220.22 s, wall 15.30 s (instrument), beethoven-8 clarinetist 20 (wolf, chair)
+clarinet@wolf.rest=holdTurn(-25,0);clarinet@wolf.restShift=[0.377,-0.552,0.212];clarinet@wolf.restPoleL.0=0.5;clarinet@wolf.restPoleL.1=0;clarinet@wolf.restPoleL.2=0 (3.9 s):
+  faces that fold most: 94 100.0%, 145 100.0%, 3605 100.0%, 43 92.2%, 1477 87.5%
+  lift: forearms in body: 14.9 cm at song -1.80 s, wall 10.30 s (forearmL 0.17), beethoven-8 clarinetist 20 (wolf, chair)
+  rest: upper arms in body: 13.8 cm at song -1.62 s, wall 10.00 s (upperArmL 0.83), boulanger-matin clarinetist 24 (wolf, chair)
+  lower: upper arms in body: 15.1 cm at song 220.22 s, wall 13.90 s (upperArmL 1.23), beethoven-8 clarinetist 20 (wolf, chair)
+  lower: instrument in body: 0.1 cm at song 220.22 s, wall 15.30 s (instrument), beethoven-8 clarinetist 20 (wolf, chair)
+clarinet@wolf.rest=holdTurn(-25,0);clarinet@wolf.restShift=[0.377,-0.552,0.212];clarinet@wolf.restPoleL.0=0.5;clarinet@wolf.restPoleL.1=1;clarinet@wolf.restPoleL.2=-2 (3.4 s):
+  faces that fold most: 94 100.0%, 145 100.0%, 3605 100.0%, 43 92.2%, 3426 81.3%
+  lift: forearms in body: 7.4 cm at song -1.62 s, wall 10.00 s (forearmL 1.03), boulanger-matin clarinetist 24 (wolf, chair)
+  rest: forearms in body: 7.4 cm at song -1.62 s, wall 10.00 s (forearmL 1.03), boulanger-matin clarinetist 24 (wolf, chair)
+  lower: forearms in body: 7.4 cm at song 220.22 s, wall 15.30 s (forearmL 1.03), beethoven-8 clarinetist 20 (wolf, chair)
+  lower: instrument in body: 0.1 cm at song 220.22 s, wall 15.30 s (instrument), beethoven-8 clarinetist 20 (wolf, chair)
+clarinet@wolf.rest=holdTurn(-25,0);clarinet@wolf.restShift=[0.377,-0.552,0.212];clarinet@wolf.restPoleL.0=0.5;clarinet@wolf.restPoleL.1=1;clarinet@wolf.restPoleL.2=-1 (3.6 s):
+  faces that fold most: 94 100.0%, 145 100.0%, 3605 100.0%, 43 92.2%, 3426 81.3%
+  lift: forearms in body: 7.3 cm at song -1.62 s, wall 10.00 s (forearmL 1.04), boulanger-matin clarinetist 24 (wolf, chair)
+  rest: forearms in body: 7.3 cm at song -1.62 s, wall 10.00 s (forearmL 1.04), boulanger-matin clarinetist 24 (wolf, chair)
+  lower: forearms in body: 7.3 cm at song 220.22 s, wall 15.30 s (forearmL 1.04), beethoven-8 clarinetist 20 (wolf, chair)
+  lower: instrument in body: 0.1 cm at song 220.22 s, wall 15.30 s (instrument), beethoven-8 clarinetist 20 (wolf, chair)
+clarinet@wolf.rest=holdTurn(-25,0);clarinet@wolf.restShift=[0.377,-0.552,0.212];clarinet@wolf.restPoleL.0=0.5;clarinet@wolf.restPoleL.1=1;clarinet@wolf.restPoleL.2=0 (3.7 s):
+  faces that fold most: 94 100.0%, 145 100.0%, 3605 100.0%, 43 92.2%, 3426 82.8%
+  lift: upper arms in body: 15.1 cm at song -1.70 s, wall 10.40 s (upperArmL 1.20), beethoven-8 clarinetist 20 (wolf, chair)
+  rest: upper arms in body: 12.1 cm at song -1.62 s, wall 10.00 s (upperArmL 0.87), boulanger-matin clarinetist 24 (wolf, chair)
+  lower: upper arms in body: 15.1 cm at song 280.67 s, wall 13.50 s (upperArmL 1.18), boulanger-matin clarinetist 24 (wolf, chair)
+  lower: instrument in body: 0.1 cm at song 220.22 s, wall 15.30 s (instrument), beethoven-8 clarinetist 20 (wolf, chair)
+
+| Variant | Play folds | Lift folds | Rest faces (by side) | lift depth cm (limit) | rest depth cm (limit) | lower depth cm (limit) | Note targets: worst mm (within 5 mm) | rest turns: upper arm, paw (twist, swing) L / R | Instrument in body cm | Spare L cm play / rest | Spare R cm play / rest |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| base | - | 100.0% (62/62) | 8 (L 1 / R 4 / other 3) | 1.1 forearms>body (1.5) | 1.1 forearms>body (1.5) | 1.1 forearms>body (1.5) | 0.0 (100.0%) | 79°, 60° (-28°, 54°) / 96°, 56° (32°, 46°) | 0.1 lower | 15.9 / 11.8 | 12.5 / 11.1 |
+| clarinet@wolf.rest=holdTurn(-25,0);clarinet@wolf.restShift=[0.377,-0.552,0.212];clarinet@wolf.restPoleL.0=-0.5;clarinet@wolf.restPoleL.1=-1;clarinet@wolf.restPoleL.2=-1 | - | 100.0% (62/62) | 15 (L 1 / R 11 / other 3) | 7.1 forearms>body (1.5) OVER | 7.1 forearms>body (1.5) OVER | 7.1 forearms>body (1.5) OVER | 0.0 (100.0%) | 98°, 58° (-16°, 56°) / 110°, 118° (82°, 94°) | 0.1 lower | 15.9 / 13.8 | 12.5 / 13.6 |
+| clarinet@wolf.rest=holdTurn(-25,0);clarinet@wolf.restShift=[0.377,-0.552,0.212];clarinet@wolf.restPoleL.0=-1.5;clarinet@wolf.restPoleL.1=-1;clarinet@wolf.restPoleL.2=-2 | - | 100.0% (62/62) | 15 (L 1 / R 11 / other 3) | 7.1 forearms>body (1.5) OVER | 7.1 forearms>body (1.5) OVER | 7.1 forearms>body (1.5) OVER | 0.0 (100.0%) | 100°, 68° (-33°, 60°) / 110°, 118° (82°, 94°) | 0.1 lower | 15.9 / 13.8 | 12.5 / 13.6 |
+| clarinet@wolf.rest=holdTurn(-25,0);clarinet@wolf.restShift=[0.377,-0.552,0.212];clarinet@wolf.restPoleL.0=-1.5;clarinet@wolf.restPoleL.1=0;clarinet@wolf.restPoleL.2=-1 | - | 100.0% (62/62) | 15 (L 1 / R 11 / other 3) | 7.1 forearms>body (1.5) OVER | 7.1 forearms>body (1.5) OVER | 7.1 forearms>body (1.5) OVER | 0.0 (100.0%) | 100°, 70° (-37°, 61°) / 110°, 118° (82°, 94°) | 0.1 lower | 15.9 / 13.8 | 12.5 / 13.6 |
+| clarinet@wolf.rest=holdTurn(-25,0);clarinet@wolf.restShift=[0.377,-0.552,0.212];clarinet@wolf.restPoleL.0=0.5;clarinet@wolf.restPoleL.1=-1;clarinet@wolf.restPoleL.2=-1 | - | 100.0% (62/62) | 15 (L 1 / R 11 / other 3) | 7.2 forearms>body (1.5) OVER | 7.2 forearms>body (1.5) OVER | 7.2 forearms>body (1.5) OVER | 0.0 (100.0%) | 101°, 77° (-48°, 62°) / 110°, 118° (82°, 94°) | 0.1 lower | 15.9 / 13.8 | 12.5 / 13.6 |
+| clarinet@wolf.rest=holdTurn(-25,0);clarinet@wolf.restShift=[0.377,-0.552,0.212];clarinet@wolf.restPoleL.0=-0.5;clarinet@wolf.restPoleL.1=-1;clarinet@wolf.restPoleL.2=-2 | - | 100.0% (62/62) | 15 (L 1 / R 11 / other 3) | 7.2 forearms>body (1.5) OVER | 7.2 forearms>body (1.5) OVER | 7.2 forearms>body (1.5) OVER | 0.0 (100.0%) | 102°, 79° (-51°, 62°) / 110°, 118° (82°, 94°) | 0.1 lower | 15.9 / 13.8 | 12.5 / 13.6 |
+| clarinet@wolf.rest=holdTurn(-25,0);clarinet@wolf.restShift=[0.377,-0.552,0.212];clarinet@wolf.restPoleL.0=-1.5;clarinet@wolf.restPoleL.1=0;clarinet@wolf.restPoleL.2=-2 | - | 100.0% (62/62) | 14 (L 1 / R 11 / other 2) | 7.2 forearms>body (1.5) OVER | 7.2 forearms>body (1.5) OVER | 7.2 forearms>body (1.5) OVER | 0.0 (100.0%) | 104°, 87° (-65°, 62°) / 110°, 118° (82°, 94°) | 0.1 lower | 15.9 / 13.8 | 12.5 / 13.6 |
+| clarinet@wolf.rest=holdTurn(-25,0);clarinet@wolf.restShift=[0.377,-0.552,0.212];clarinet@wolf.restPoleL.0=-1.5;clarinet@wolf.restPoleL.1=1;clarinet@wolf.restPoleL.2=0 | - | 100.0% (62/62) | 14 (L 1 / R 11 / other 2) | 7.3 forearms>body (1.5) OVER | 7.3 forearms>body (1.5) OVER | 7.3 forearms>body (1.5) OVER | 0.0 (100.0%) | 104°, 89° (-67°, 62°) / 110°, 118° (82°, 94°) | 0.1 lower | 15.9 / 13.8 | 12.5 / 13.6 |
+| clarinet@wolf.rest=holdTurn(-25,0);clarinet@wolf.restShift=[0.377,-0.552,0.212];clarinet@wolf.restPoleL.0=0.5;clarinet@wolf.restPoleL.1=1;clarinet@wolf.restPoleL.2=-1 | - | 100.0% (62/62) | 16 (L 3 / R 11 / other 2) | 7.3 forearms>body (1.5) OVER | 7.3 forearms>body (1.5) OVER | 7.3 forearms>body (1.5) OVER | 0.0 (100.0%) | 135°, 144° (-143°, 23°) / 110°, 118° (82°, 94°) | 0.1 lower | 15.9 / 13.8 | 12.5 / 13.6 |
+| clarinet@wolf.rest=holdTurn(-25,0);clarinet@wolf.restShift=[0.377,-0.552,0.212];clarinet@wolf.restPoleL.0=-0.5;clarinet@wolf.restPoleL.1=0;clarinet@wolf.restPoleL.2=-1 | - | 100.0% (62/62) | 14 (L 1 / R 11 / other 2) | 7.3 forearms>body (1.5) OVER | 7.3 forearms>body (1.5) OVER | 7.3 forearms>body (1.5) OVER | 0.0 (100.0%) | 106°, 97° (-79°, 62°) / 110°, 118° (82°, 94°) | 0.1 lower | 15.9 / 13.8 | 12.5 / 13.6 |
+| clarinet@wolf.rest=holdTurn(-25,0);clarinet@wolf.restShift=[0.377,-0.552,0.212];clarinet@wolf.restPoleL.0=0.5;clarinet@wolf.restPoleL.1=-1;clarinet@wolf.restPoleL.2=-2 | - | 100.0% (62/62) | 14 (L 1 / R 11 / other 2) | 7.4 forearms>body (1.5) OVER | 7.4 forearms>body (1.5) OVER | 7.4 forearms>body (1.5) OVER | 0.0 (100.0%) | 106°, 99° (-82°, 61°) / 110°, 118° (82°, 94°) | 0.1 lower | 15.9 / 13.8 | 12.5 / 13.6 |
+| clarinet@wolf.rest=holdTurn(-25,0);clarinet@wolf.restShift=[0.377,-0.552,0.212];clarinet@wolf.restPoleL.0=-1.5;clarinet@wolf.restPoleL.1=-1;clarinet@wolf.restPoleL.2=-1 | - | 100.0% (62/62) | 16 (L 1 / R 11 / other 4) | 7.4 forearms>body (1.5) OVER | 7.4 forearms>body (1.5) OVER | 7.4 forearms>body (1.5) OVER | 0.0 (100.0%) | 98°, 52° (-5°, 52°) / 110°, 118° (82°, 94°) | 0.1 lower | 15.9 / 13.8 | 12.5 / 13.6 |
+| clarinet@wolf.rest=holdTurn(-25,0);clarinet@wolf.restShift=[0.377,-0.552,0.212];clarinet@wolf.restPoleL.0=0.5;clarinet@wolf.restPoleL.1=1;clarinet@wolf.restPoleL.2=-2 | - | 100.0% (62/62) | 14 (L 1 / R 11 / other 2) | 7.4 forearms>body (1.5) OVER | 7.4 forearms>body (1.5) OVER | 7.4 forearms>body (1.5) OVER | 0.0 (100.0%) | 125°, 134° (-131°, 36°) / 110°, 118° (82°, 94°) | 0.1 lower | 15.9 / 13.8 | 12.5 / 13.6 |
+| clarinet@wolf.rest=holdTurn(-25,0);clarinet@wolf.restShift=[0.377,-0.552,0.212];clarinet@wolf.restPoleL.0=-0.5;clarinet@wolf.restPoleL.1=1;clarinet@wolf.restPoleL.2=-1 | - | 100.0% (62/62) | 14 (L 1 / R 11 / other 2) | 7.5 forearms>body (1.5) OVER | 7.5 forearms>body (1.5) OVER | 7.5 forearms>body (1.5) OVER | 0.0 (100.0%) | 122°, 130° (-126°, 41°) / 110°, 118° (82°, 94°) | 0.1 lower | 15.9 / 13.8 | 12.5 / 13.6 |
+| clarinet@wolf.rest=holdTurn(-25,0);clarinet@wolf.restShift=[0.377,-0.552,0.212];clarinet@wolf.restPoleL.0=0.5;clarinet@wolf.restPoleL.1=0;clarinet@wolf.restPoleL.2=-1 | - | 100.0% (62/62) | 14 (L 1 / R 11 / other 2) | 7.5 forearms>body (1.5) OVER | 7.5 forearms>body (1.5) OVER | 7.5 forearms>body (1.5) OVER | 0.0 (100.0%) | 120°, 128° (-124°, 43°) / 110°, 118° (82°, 94°) | 0.1 lower | 15.9 / 13.8 | 12.5 / 13.6 |
+| clarinet@wolf.rest=holdTurn(-25,0);clarinet@wolf.restShift=[0.377,-0.552,0.212];clarinet@wolf.restPoleL.0=-0.5;clarinet@wolf.restPoleL.1=0;clarinet@wolf.restPoleL.2=-2 | - | 100.0% (62/62) | 14 (L 1 / R 11 / other 2) | 7.5 forearms>body (1.5) OVER | 7.5 forearms>body (1.5) OVER | 7.5 forearms>body (1.5) OVER | 0.0 (100.0%) | 108°, 110° (-97°, 60°) / 110°, 118° (82°, 94°) | 0.1 lower | 15.9 / 13.8 | 12.5 / 13.6 |
+| clarinet@wolf.rest=holdTurn(-25,0);clarinet@wolf.restShift=[0.377,-0.552,0.212];clarinet@wolf.restPoleL.0=-0.5;clarinet@wolf.restPoleL.1=1;clarinet@wolf.restPoleL.2=-2 | - | 100.0% (62/62) | 14 (L 1 / R 11 / other 2) | 7.5 forearms>body (1.5) OVER | 7.5 forearms>body (1.5) OVER | 7.5 forearms>body (1.5) OVER | 0.0 (100.0%) | 117°, 125° (-119°, 48°) / 110°, 118° (82°, 94°) | 0.1 lower | 15.9 / 13.8 | 12.5 / 13.6 |
+| clarinet@wolf.rest=holdTurn(-25,0);clarinet@wolf.restShift=[0.377,-0.552,0.212];clarinet@wolf.restPoleL.0=0.5;clarinet@wolf.restPoleL.1=0;clarinet@wolf.restPoleL.2=-2 | - | 100.0% (62/62) | 14 (L 1 / R 11 / other 2) | 7.6 forearms>body (1.5) OVER | 7.6 forearms>body (1.5) OVER | 7.6 forearms>body (1.5) OVER | 0.0 (100.0%) | 116°, 123° (-117°, 50°) / 110°, 118° (82°, 94°) | 0.1 lower | 15.9 / 13.8 | 12.5 / 13.6 |
+| clarinet@wolf.rest=holdTurn(-25,0);clarinet@wolf.restShift=[0.377,-0.552,0.212];clarinet@wolf.restPoleL.0=-1.5;clarinet@wolf.restPoleL.1=1;clarinet@wolf.restPoleL.2=-1 | - | 100.0% (62/62) | 14 (L 1 / R 11 / other 2) | 7.6 forearms>body (1.5) OVER | 7.6 forearms>body (1.5) OVER | 7.6 forearms>body (1.5) OVER | 0.0 (100.0%) | 109°, 114° (-102°, 60°) / 110°, 118° (82°, 94°) | 0.1 lower | 15.9 / 13.8 | 12.5 / 13.6 |
+| clarinet@wolf.rest=holdTurn(-25,0);clarinet@wolf.restShift=[0.377,-0.552,0.212];clarinet@wolf.restPoleL.0=-1.5;clarinet@wolf.restPoleL.1=1;clarinet@wolf.restPoleL.2=-2 | - | 100.0% (62/62) | 14 (L 1 / R 11 / other 2) | 7.6 forearms>body (1.5) OVER | 7.6 forearms>body (1.5) OVER | 7.6 forearms>body (1.5) OVER | 0.0 (100.0%) | 110°, 117° (-106°, 59°) / 110°, 118° (82°, 94°) | 0.1 lower | 15.9 / 13.8 | 12.5 / 13.6 |
+| clarinet@wolf.rest=holdTurn(-25,0);clarinet@wolf.restShift=[0.377,-0.552,0.212];clarinet@wolf.restPoleL.0=-0.5;clarinet@wolf.restPoleL.1=1;clarinet@wolf.restPoleL.2=0 | - | 100.0% (62/62) | 18 (L 5 / R 11 / other 2) | 8.1 upper arms>body (1.5) OVER | 8.1 upper arms>body (1.5) OVER | 8.1 upper arms>body (1.5) OVER | 0.0 (100.0%) | 147°, 156° (-156°, 10°) / 110°, 118° (82°, 94°) | 0.1 lower | 15.9 / 13.8 | 12.5 / 13.6 |
+| clarinet@wolf.rest=holdTurn(-25,0);clarinet@wolf.restShift=[0.377,-0.552,0.212];clarinet@wolf.restPoleL.0=-1.5;clarinet@wolf.restPoleL.1=0;clarinet@wolf.restPoleL.2=0 | - | 100.0% (62/62) | 18 (L 3 / R 11 / other 4) | 8.5 forearms>body (1.5) OVER | 8.5 forearms>body (1.5) OVER | 8.5 forearms>body (1.5) OVER | 0.0 (100.0%) | 98°, 45° (16°, 42°) / 110°, 118° (82°, 94°) | 0.1 lower | 15.9 / 13.8 | 12.5 / 13.6 |
+| clarinet@wolf.rest=holdTurn(-25,0);clarinet@wolf.restShift=[0.377,-0.552,0.212];clarinet@wolf.restPoleL.0=-0.5;clarinet@wolf.restPoleL.1=0;clarinet@wolf.restPoleL.2=0 | - | 100.0% (62/62) | 18 (L 3 / R 11 / other 4) | 8.5 forearms>body (1.5) OVER | 8.5 forearms>body (1.5) OVER | 8.5 forearms>body (1.5) OVER | 0.0 (100.0%) | 98°, 45° (16°, 42°) / 110°, 118° (82°, 94°) | 0.1 lower | 15.9 / 13.8 | 12.5 / 13.6 |
+| clarinet@wolf.rest=holdTurn(-25,0);clarinet@wolf.restShift=[0.377,-0.552,0.212];clarinet@wolf.restPoleL.0=-1.5;clarinet@wolf.restPoleL.1=-1;clarinet@wolf.restPoleL.2=0 | - | 100.0% (62/62) | 18 (L 3 / R 11 / other 4) | 9.7 forearms>body (1.5) OVER | 9.7 forearms>body (1.5) OVER | 9.7 forearms>body (1.5) OVER | 0.0 (100.0%) | 100°, 44° (26°, 36°) / 110°, 118° (82°, 94°) | 0.1 lower | 15.9 / 13.8 | 12.5 / 13.6 |
+| clarinet@wolf.rest=holdTurn(-25,0);clarinet@wolf.restShift=[0.377,-0.552,0.212];clarinet@wolf.restPoleL.0=-0.5;clarinet@wolf.restPoleL.1=-1;clarinet@wolf.restPoleL.2=0 | - | 100.0% (62/62) | 19 (L 4 / R 11 / other 4) | 10.5 forearms>body (1.5) OVER | 10.5 forearms>body (1.5) OVER | 10.5 forearms>body (1.5) OVER | 0.0 (100.0%) | 101°, 45° (31°, 33°) / 110°, 118° (82°, 94°) | 0.1 lower | 15.9 / 13.8 | 12.5 / 13.6 |
+| clarinet@wolf.rest=holdTurn(-25,0);clarinet@wolf.restShift=[0.377,-0.552,0.212];clarinet@wolf.restPoleL.0=0.5;clarinet@wolf.restPoleL.1=-1;clarinet@wolf.restPoleL.2=0 | - | 100.0% (62/62) | 17 (L 3 / R 11 / other 3) | 13.5 forearms>body (1.5) OVER | 13.5 forearms>body (1.5) OVER | 13.5 forearms>body (1.5) OVER | 0.0 (100.0%) | 107°, 54° (48°, 26°) / 110°, 118° (82°, 94°) | 0.1 lower | 15.9 / 13.8 | 12.5 / 13.6 |
+| clarinet@wolf.rest=holdTurn(-25,0);clarinet@wolf.restShift=[0.377,-0.552,0.212];clarinet@wolf.restPoleL.0=0.5;clarinet@wolf.restPoleL.1=0;clarinet@wolf.restPoleL.2=0 | - | 100.0% (62/62) | 25 (L 12 / R 11 / other 2) | 14.9 forearms>body (1.5) OVER | 13.8 upper arms>body (1.5) OVER | 15.1 upper arms>body (1.5) OVER | 0.0 (100.0%) | 172°, 180° (-180°, 25°) / 110°, 118° (82°, 94°) | 0.1 lower | 15.9 / 13.8 | 12.5 / 13.6 |
+| clarinet@wolf.rest=holdTurn(-25,0);clarinet@wolf.restShift=[0.377,-0.552,0.212];clarinet@wolf.restPoleL.0=0.5;clarinet@wolf.restPoleL.1=1;clarinet@wolf.restPoleL.2=0 | - | 100.0% (62/62) | 21 (L 8 / R 11 / other 2) | 15.1 upper arms>body (1.5) OVER | 12.1 upper arms>body (1.5) OVER | 15.1 upper arms>body (1.5) OVER | 0.0 (100.0%) | 161°, 169° (-169°, 14°) / 110°, 118° (82°, 94°) | 0.1 lower | 15.9 / 13.8 | 12.5 / 13.6 |
+
+The demo and the time of each deepest point of the table:
+| Variant | lift deepest at | rest deepest at | lower deepest at | Instrument in body at |
+|---|---|---|---|---|
+| base | boulanger-matin wall 10.00 s | boulanger-matin wall 10.00 s | beethoven-8 wall 15.30 s | beethoven-8 wall 15.30 s |
+| clarinet@wolf.rest=holdTurn(-25,0);clarinet@wolf.restShift=[0.377,-0.552,0.212];clarinet@wolf.restPoleL.0=-0.5;clarinet@wolf.restPoleL.1=-1;clarinet@wolf.restPoleL.2=-1 | boulanger-matin wall 10.00 s | boulanger-matin wall 10.00 s | beethoven-8 wall 15.30 s | beethoven-8 wall 15.30 s |
+| clarinet@wolf.rest=holdTurn(-25,0);clarinet@wolf.restShift=[0.377,-0.552,0.212];clarinet@wolf.restPoleL.0=-1.5;clarinet@wolf.restPoleL.1=-1;clarinet@wolf.restPoleL.2=-2 | boulanger-matin wall 10.00 s | boulanger-matin wall 10.00 s | beethoven-8 wall 15.30 s | beethoven-8 wall 15.30 s |
+| clarinet@wolf.rest=holdTurn(-25,0);clarinet@wolf.restShift=[0.377,-0.552,0.212];clarinet@wolf.restPoleL.0=-1.5;clarinet@wolf.restPoleL.1=0;clarinet@wolf.restPoleL.2=-1 | boulanger-matin wall 10.00 s | boulanger-matin wall 10.00 s | beethoven-8 wall 15.30 s | beethoven-8 wall 15.30 s |
+| clarinet@wolf.rest=holdTurn(-25,0);clarinet@wolf.restShift=[0.377,-0.552,0.212];clarinet@wolf.restPoleL.0=0.5;clarinet@wolf.restPoleL.1=-1;clarinet@wolf.restPoleL.2=-1 | boulanger-matin wall 10.00 s | boulanger-matin wall 10.00 s | beethoven-8 wall 15.30 s | beethoven-8 wall 15.30 s |
+| clarinet@wolf.rest=holdTurn(-25,0);clarinet@wolf.restShift=[0.377,-0.552,0.212];clarinet@wolf.restPoleL.0=-0.5;clarinet@wolf.restPoleL.1=-1;clarinet@wolf.restPoleL.2=-2 | boulanger-matin wall 10.00 s | boulanger-matin wall 10.00 s | beethoven-8 wall 15.30 s | beethoven-8 wall 15.30 s |
+| clarinet@wolf.rest=holdTurn(-25,0);clarinet@wolf.restShift=[0.377,-0.552,0.212];clarinet@wolf.restPoleL.0=-1.5;clarinet@wolf.restPoleL.1=0;clarinet@wolf.restPoleL.2=-2 | boulanger-matin wall 10.00 s | boulanger-matin wall 10.00 s | beethoven-8 wall 15.30 s | beethoven-8 wall 15.30 s |
+| clarinet@wolf.rest=holdTurn(-25,0);clarinet@wolf.restShift=[0.377,-0.552,0.212];clarinet@wolf.restPoleL.0=-1.5;clarinet@wolf.restPoleL.1=1;clarinet@wolf.restPoleL.2=0 | boulanger-matin wall 10.00 s | boulanger-matin wall 10.00 s | beethoven-8 wall 15.30 s | beethoven-8 wall 15.30 s |
+| clarinet@wolf.rest=holdTurn(-25,0);clarinet@wolf.restShift=[0.377,-0.552,0.212];clarinet@wolf.restPoleL.0=0.5;clarinet@wolf.restPoleL.1=1;clarinet@wolf.restPoleL.2=-1 | boulanger-matin wall 10.00 s | boulanger-matin wall 10.00 s | beethoven-8 wall 15.30 s | beethoven-8 wall 15.30 s |
+| clarinet@wolf.rest=holdTurn(-25,0);clarinet@wolf.restShift=[0.377,-0.552,0.212];clarinet@wolf.restPoleL.0=-0.5;clarinet@wolf.restPoleL.1=0;clarinet@wolf.restPoleL.2=-1 | boulanger-matin wall 10.00 s | boulanger-matin wall 10.00 s | beethoven-8 wall 15.30 s | beethoven-8 wall 15.30 s |
+| clarinet@wolf.rest=holdTurn(-25,0);clarinet@wolf.restShift=[0.377,-0.552,0.212];clarinet@wolf.restPoleL.0=0.5;clarinet@wolf.restPoleL.1=-1;clarinet@wolf.restPoleL.2=-2 | boulanger-matin wall 10.00 s | boulanger-matin wall 10.00 s | beethoven-8 wall 15.30 s | beethoven-8 wall 15.30 s |
+| clarinet@wolf.rest=holdTurn(-25,0);clarinet@wolf.restShift=[0.377,-0.552,0.212];clarinet@wolf.restPoleL.0=-1.5;clarinet@wolf.restPoleL.1=-1;clarinet@wolf.restPoleL.2=-1 | boulanger-matin wall 10.00 s | boulanger-matin wall 10.00 s | beethoven-8 wall 15.30 s | beethoven-8 wall 15.30 s |
+| clarinet@wolf.rest=holdTurn(-25,0);clarinet@wolf.restShift=[0.377,-0.552,0.212];clarinet@wolf.restPoleL.0=0.5;clarinet@wolf.restPoleL.1=1;clarinet@wolf.restPoleL.2=-2 | boulanger-matin wall 10.00 s | boulanger-matin wall 10.00 s | beethoven-8 wall 15.30 s | beethoven-8 wall 15.30 s |
+| clarinet@wolf.rest=holdTurn(-25,0);clarinet@wolf.restShift=[0.377,-0.552,0.212];clarinet@wolf.restPoleL.0=-0.5;clarinet@wolf.restPoleL.1=1;clarinet@wolf.restPoleL.2=-1 | boulanger-matin wall 10.00 s | boulanger-matin wall 10.00 s | beethoven-8 wall 15.30 s | beethoven-8 wall 15.30 s |
+| clarinet@wolf.rest=holdTurn(-25,0);clarinet@wolf.restShift=[0.377,-0.552,0.212];clarinet@wolf.restPoleL.0=0.5;clarinet@wolf.restPoleL.1=0;clarinet@wolf.restPoleL.2=-1 | boulanger-matin wall 10.00 s | boulanger-matin wall 10.00 s | beethoven-8 wall 15.30 s | beethoven-8 wall 15.30 s |
+| clarinet@wolf.rest=holdTurn(-25,0);clarinet@wolf.restShift=[0.377,-0.552,0.212];clarinet@wolf.restPoleL.0=-0.5;clarinet@wolf.restPoleL.1=0;clarinet@wolf.restPoleL.2=-2 | boulanger-matin wall 10.00 s | boulanger-matin wall 10.00 s | beethoven-8 wall 15.30 s | beethoven-8 wall 15.30 s |
+| clarinet@wolf.rest=holdTurn(-25,0);clarinet@wolf.restShift=[0.377,-0.552,0.212];clarinet@wolf.restPoleL.0=-0.5;clarinet@wolf.restPoleL.1=1;clarinet@wolf.restPoleL.2=-2 | boulanger-matin wall 10.00 s | boulanger-matin wall 10.00 s | beethoven-8 wall 15.30 s | beethoven-8 wall 15.30 s |
+| clarinet@wolf.rest=holdTurn(-25,0);clarinet@wolf.restShift=[0.377,-0.552,0.212];clarinet@wolf.restPoleL.0=0.5;clarinet@wolf.restPoleL.1=0;clarinet@wolf.restPoleL.2=-2 | boulanger-matin wall 10.00 s | boulanger-matin wall 10.00 s | beethoven-8 wall 15.30 s | beethoven-8 wall 15.30 s |
+| clarinet@wolf.rest=holdTurn(-25,0);clarinet@wolf.restShift=[0.377,-0.552,0.212];clarinet@wolf.restPoleL.0=-1.5;clarinet@wolf.restPoleL.1=1;clarinet@wolf.restPoleL.2=-1 | boulanger-matin wall 10.00 s | boulanger-matin wall 10.00 s | beethoven-8 wall 15.30 s | beethoven-8 wall 15.30 s |
+| clarinet@wolf.rest=holdTurn(-25,0);clarinet@wolf.restShift=[0.377,-0.552,0.212];clarinet@wolf.restPoleL.0=-1.5;clarinet@wolf.restPoleL.1=1;clarinet@wolf.restPoleL.2=-2 | boulanger-matin wall 10.00 s | boulanger-matin wall 10.00 s | beethoven-8 wall 15.30 s | beethoven-8 wall 15.30 s |
+| clarinet@wolf.rest=holdTurn(-25,0);clarinet@wolf.restShift=[0.377,-0.552,0.212];clarinet@wolf.restPoleL.0=-0.5;clarinet@wolf.restPoleL.1=1;clarinet@wolf.restPoleL.2=0 | beethoven-8 wall 10.00 s | beethoven-8 wall 10.00 s | beethoven-8 wall 15.30 s | beethoven-8 wall 15.30 s |
+| clarinet@wolf.rest=holdTurn(-25,0);clarinet@wolf.restShift=[0.377,-0.552,0.212];clarinet@wolf.restPoleL.0=-1.5;clarinet@wolf.restPoleL.1=0;clarinet@wolf.restPoleL.2=0 | boulanger-matin wall 10.00 s | boulanger-matin wall 10.00 s | beethoven-8 wall 15.30 s | beethoven-8 wall 15.30 s |
+| clarinet@wolf.rest=holdTurn(-25,0);clarinet@wolf.restShift=[0.377,-0.552,0.212];clarinet@wolf.restPoleL.0=-0.5;clarinet@wolf.restPoleL.1=0;clarinet@wolf.restPoleL.2=0 | boulanger-matin wall 10.00 s | boulanger-matin wall 10.00 s | beethoven-8 wall 15.30 s | beethoven-8 wall 15.30 s |
+| clarinet@wolf.rest=holdTurn(-25,0);clarinet@wolf.restShift=[0.377,-0.552,0.212];clarinet@wolf.restPoleL.0=-1.5;clarinet@wolf.restPoleL.1=-1;clarinet@wolf.restPoleL.2=0 | boulanger-matin wall 10.00 s | boulanger-matin wall 10.00 s | beethoven-8 wall 15.30 s | beethoven-8 wall 15.30 s |
+| clarinet@wolf.rest=holdTurn(-25,0);clarinet@wolf.restShift=[0.377,-0.552,0.212];clarinet@wolf.restPoleL.0=-0.5;clarinet@wolf.restPoleL.1=-1;clarinet@wolf.restPoleL.2=0 | boulanger-matin wall 10.00 s | boulanger-matin wall 10.00 s | beethoven-8 wall 15.30 s | beethoven-8 wall 15.30 s |
+| clarinet@wolf.rest=holdTurn(-25,0);clarinet@wolf.restShift=[0.377,-0.552,0.212];clarinet@wolf.restPoleL.0=0.5;clarinet@wolf.restPoleL.1=-1;clarinet@wolf.restPoleL.2=0 | boulanger-matin wall 10.00 s | boulanger-matin wall 10.00 s | beethoven-8 wall 15.30 s | beethoven-8 wall 15.30 s |
+| clarinet@wolf.rest=holdTurn(-25,0);clarinet@wolf.restShift=[0.377,-0.552,0.212];clarinet@wolf.restPoleL.0=0.5;clarinet@wolf.restPoleL.1=0;clarinet@wolf.restPoleL.2=0 | beethoven-8 wall 10.30 s | boulanger-matin wall 10.00 s | beethoven-8 wall 13.90 s | beethoven-8 wall 15.30 s |
+| clarinet@wolf.rest=holdTurn(-25,0);clarinet@wolf.restShift=[0.377,-0.552,0.212];clarinet@wolf.restPoleL.0=0.5;clarinet@wolf.restPoleL.1=1;clarinet@wolf.restPoleL.2=0 | beethoven-8 wall 10.40 s | boulanger-matin wall 10.00 s | boulanger-matin wall 13.50 s | beethoven-8 wall 15.30 s |

@@ -1,0 +1,41 @@
+
+> zoophony@0.0.0 hold-fit /Users/xueqiaoxu/proj/zoophony/.claude/worktrees/sixth-wolf-vertical
+> node tools/hold-fit.ts clarinetist --base main
+
+Hold fit of the clarinetist on main (e485e46f) and on the working tree: 46.3 s.
+Demos of main (e485e46f): beethoven-8, boulanger-matin
+Demos of the working tree: beethoven-8, boulanger-matin
+base (33.2 s):
+  faces that fold most: 43 100.0%, 94 100.0%, 145 100.0%, 1477 100.0%, 3605 100.0%
+  play: upper arms in body: 1.0 cm at song 0.38 s, wall 12.00 s (upperArmL 0.26), boulanger-matin clarinetist 24 (wolf, chair)
+  lift: upper arms in body: 1.0 cm at song 0.00 s, wall 12.00 s (upperArmL 0.26), boulanger-matin clarinetist 24 (wolf, chair)
+  rest: claws in clarinet: 0.7 cm at song -2.10 s, wall 10.00 s (fingersR), beethoven-8 clarinetist 20 (wolf, chair)
+  lower: upper arms in body: 1.0 cm at song 280.67 s, wall 12.00 s (upperArmL 0.26), boulanger-matin clarinetist 24 (wolf, chair)
+  play: instrument in body: 0.0 cm at song 0.00 s, wall 0.00 s, beethoven-8 clarinetist 20 (wolf, chair)
+
+| Variant | Play folds | Lift folds | Rest faces (by side) | play depth cm (limit) | lift depth cm (limit) | rest depth cm (limit) | lower depth cm (limit) | Note targets: worst mm (within 5 mm) | play turns: upper arm, paw (twist, swing) L / R | Instrument in body cm | Spare L cm play / rest | Spare R cm play / rest |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| main (e485e46f) | 100.0% (506/506) OVER | 100.0% (62/62) | 8 (L 1 / R 4 / other 3) | 1.0 upper arms>body (1.5) | 1.1 forearms>body (1.5) | 1.1 forearms>body (1.5) | 1.1 forearms>body (1.5) | 0.0 (100.0%) | 67°, 49° (41°, 27°) / 66°, 32° (-23°, 23°) | 0.1 lower | 15.9 / 11.8 | 12.5 / 11.1 |
+| base | 100.0% (506/506) OVER | 100.0% (62/62) | 8 (L 1 / R 4 / other 3) | 1.0 upper arms>body (1.5) | 1.0 upper arms>body (1.5) | 0.7 claws>clarinet (1.5) | 1.0 upper arms>body (1.5) | 0.0 (100.0%) | 67°, 49° (41°, 27°) / 66°, 32° (-23°, 23°) | 0.0 play | 15.9 / 15.4 | 12.5 / 9.8 |
+
+The demo and the time of each deepest point of the table:
+| Variant | play deepest at | lift deepest at | rest deepest at | lower deepest at | Instrument in body at |
+|---|---|---|---|---|---|
+| main (e485e46f) | boulanger-matin 0.38 s | boulanger-matin wall 10.00 s | boulanger-matin wall 10.00 s | beethoven-8 wall 15.30 s | beethoven-8 wall 15.30 s |
+| base | boulanger-matin 0.38 s | boulanger-matin wall 12.00 s | beethoven-8 wall 10.00 s | boulanger-matin wall 12.00 s | beethoven-8 0.00 s |
+
+The depths of main (e485e46f) and of the working tree with no change:
+H of each body, main (e485e46f) -> working tree: wolf 0.369 m -> 0.369 m
+| Species | Set | Pair | main (e485e46f) cm | main (e485e46f) H | tree cm | tree H | Mark | tree at |
+|---|---|---|---:|---:|---:|---:|---|---|
+| wolf | play | claws in clarinet | 0.8 | 0.022 | 0.8 | 0.022 |  | boulanger-matin 62.38 s |
+| wolf | play | upper arms in body | 1.0 | 0.027 | 1.0 | 0.027 |  | boulanger-matin 0.38 s |
+| wolf | lift | claws in clarinet | 0.9 | 0.024 | 1.0 | 0.026 |  | beethoven-8 wall 10.40 s |
+| wolf | lift | forearms in body | 1.1 | 0.030 | 0.5 | 0.014 |  | boulanger-matin wall 10.00 s |
+| wolf | lift | upper arms in body | 1.0 | 0.027 | 1.0 | 0.027 |  | boulanger-matin wall 12.00 s |
+| wolf | rest | claws in clarinet | 0.7 | 0.019 | 0.7 | 0.020 |  | beethoven-8 wall 10.00 s |
+| wolf | rest | forearms in body | 1.1 | 0.030 | 0.5 | 0.014 |  | boulanger-matin wall 10.00 s |
+| wolf | rest | upper arms in body | 0.6 | 0.017 | 0.5 | 0.014 |  | beethoven-8 wall 10.00 s |
+| wolf | lower | claws in clarinet | 0.9 | 0.026 | 1.0 | 0.026 |  | beethoven-8 wall 13.90 s |
+| wolf | lower | forearms in body | 1.1 | 0.030 | 0.5 | 0.014 |  | beethoven-8 wall 15.30 s |
+| wolf | lower | upper arms in body | 1.0 | 0.027 | 1.0 | 0.027 |  | boulanger-matin wall 12.00 s |

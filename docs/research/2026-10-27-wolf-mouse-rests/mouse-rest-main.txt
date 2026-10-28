@@ -1,0 +1,36 @@
+oboe@mouse.restShift=[0.1,-0.45,0.1];oboe@mouse.restPoleL=[-1,-0.1,-0.2];oboe@mouse.restPoleR=[1,-0.5,0];oboe@mouse.restGripShiftL=[0.173,0.05,-0.05];oboe@mouse.restGripShiftR=[-0.05,0.06,-0.05]
+bach-bwv1047.mid player 20 (chair), H 27.2 cm
+rest: tilt 0° (fwd 0°, side 0°) reed y 49.0 z -11.0 bell y 24.5 z -11.0
+   L: along 10.3..12.7..15.2 axis 0.9
+   R: along 10.6..13.7..15.9 axis 0.9
+   pair: overlap along 4.5 (gap -4.5), middles 1.0 apart, closest corners 0.1, paw in paw 0.4
+lift wall+0.18: tilt 4° (fwd -4°, side 0°) reed y 50.3 z -11.5 bell y 25.9 z -13.3
+   L: along 9.5..12.0..14.5 axis 0.9
+   R: along 11.3..14.4..16.5 axis 1.0
+   pair: overlap along 3.2 (gap -3.2), middles 2.3 apart, closest corners 0.1, paw in paw 0.4
+lift wall+0.36: tilt 19° (fwd -19°, side 0°) reed y 54.8 z -12.7 bell y 31.7 z -20.6
+   L: along 7.0..10.0..12.2 axis 1.1
+   R: along 13.3..16.4..18.5 axis 1.1
+   pair: overlap along -1.1 (gap 1.1), middles 6.4 apart, closest corners 1.7, paw in paw 0.0
+lift wall+0.54: tilt 33° (fwd -33°, side 0°) reed y 59.2 z -13.9 bell y 38.8 z -27.4
+   L: along 5.4..8.6..10.9 axis 1.2
+   R: along 15.4..18.4..20.6 axis 1.1
+   pair: overlap along -4.5 (gap 4.5), middles 9.8 apart, closest corners 5.1, paw in paw 0.0
+lift wall+0.72: tilt 39° (fwd -39°, side 0°) reed y 60.8 z -14.4 bell y 41.7 z -29.6
+   L: along 5.0..8.2..10.5 axis 1.2
+   R: along 16.1..19.1..21.3 axis 1.2
+   pair: overlap along -5.6 (gap 5.6), middles 11.0 apart, closest corners 6.2, paw in paw 0.0
+lift wall+0.90: tilt 38° (fwd -38°, side 0°) reed y 60.8 z -14.5 bell y 41.6 z -29.7
+   L: along 5.0..8.2..10.5 axis 1.2
+   R: along 16.1..19.1..21.3 axis 1.2
+   pair: overlap along -5.6 (gap 5.6), middles 11.0 apart, closest corners 6.2, paw in paw 0.0
+play 30 s: tilt 40° (fwd -40°, side -0°) reed y 61.4 z -13.3 bell y 42.7 z -29.2
+   L: along 5.0..8.2..10.5 axis 1.2
+   R: along 16.1..19.1..21.3 axis 1.0
+   pair: overlap along -5.6 (gap 5.6), middles 11.0 apart, closest corners 6.2, paw in paw 0.0
+bach-bwv1047.mid lift 0: L net 36 tilt 22 slide 4.5 | R net 2 tilt 2 slide 5.4
+bach-bwv1047.mid lower 93: L net 36 tilt 22 slide 4.5 | R net 2 tilt 2 slide 5.4
+bach-bwv1047.mid lift 93: L net 36 tilt 22 slide 4.5 | R net 2 tilt 2 slide 5.4
+bach-bwv1047.mid lower 185: L net 36 tilt 22 slide 4.5 | R net 2 tilt 2 slide 5.4
+bach-bwv1047.mid lift 185: L net 36 tilt 22 slide 4.5 | R net 2 tilt 2 slide 5.4
+bach-bwv1047.mid lower 278: L net 36 tilt 22 slide 4.5 | R net 2 tilt 2 slide 5.4

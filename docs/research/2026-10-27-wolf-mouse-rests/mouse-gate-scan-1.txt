@@ -1,0 +1,64 @@
+
+> zoophony@0.0.0 arm-check /Users/xueqiaoxu/proj/zoophony/.claude/worktrees/sixth-wolf-vertical
+> node tools/arm-check.ts oboist --base main --jobs 5 --variant m1 --set oboe\@mouse.restGripShiftL\=null\;oboe\@mouse.restGripShiftR\=null\;oboe\@mouse.restShift\=\[0.1\,-0.25\,-0.1\] --variant m2 --set oboe\@mouse.restGripShiftL\=null\;oboe\@mouse.restGripShiftR\=null\;oboe\@mouse.restShift\=\[0.1\,-0.25\,0\] --variant m3 --set oboe\@mouse.restGripShiftL\=null\;oboe\@mouse.restGripShiftR\=null\;oboe\@mouse.restShift\=\[0.1\,-0.35\,-0.1\] --variant m4 --set oboe\@mouse.restGripShiftL\=null\;oboe\@mouse.restGripShiftR\=null\;oboe\@mouse.restShift\=\[0.1\,-0.25\,-0.2\] --variant m5 --set oboe\@mouse.restGripShiftL\=null\;oboe\@mouse.restGripShiftR\=null\;oboe\@mouse.restShift\=\[0.1\,-0.35\,0\]
+
+base: cached (main, 70afcfabe5b9)
+base: cached (main, 70afcfabe5b9)
+base: cached (main, 70afcfabe5b9)
+base: cached (main, 70afcfabe5b9)
+Arm gate of 1 roles in 5 variants against main: 5 children, at most 5 at the same time, in 138 s. A cell gives the value, the base in parentheses, and the verdict of a value that does not pass.
+
+- m1: oboe@mouse.restGripShiftL=null;oboe@mouse.restGripShiftR=null;oboe@mouse.restShift=[0.1,-0.25,-0.1]
+- m2: oboe@mouse.restGripShiftL=null;oboe@mouse.restGripShiftR=null;oboe@mouse.restShift=[0.1,-0.25,0]
+- m3: oboe@mouse.restGripShiftL=null;oboe@mouse.restGripShiftR=null;oboe@mouse.restShift=[0.1,-0.35,-0.1]
+- m4: oboe@mouse.restGripShiftL=null;oboe@mouse.restGripShiftR=null;oboe@mouse.restShift=[0.1,-0.25,-0.2]
+- m5: oboe@mouse.restGripShiftL=null;oboe@mouse.restGripShiftR=null;oboe@mouse.restShift=[0.1,-0.35,0]
+
+| Variant | Role | Arm | folds p95 (8) | twist p95 (55) | forearm twist p95 (80) | flat p5 (0.55) | paw twist p95 (170) | paw swing p95 (70) | paw jumps (0.5%) | stretch p95 (0.35) | grip turn p50 (45) | move twist max (176) | move turn max (3000) | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| m1 | oboist | L | 4 (8) | 23 (33) | 58 (49) | 0.67 (0.63) | 160 (143) | 46 (44) | 0.0% (0.0%) | 0.04 (0.03) | 1 (1) | 160 (143) FAIL | 112 (107) | FAIL |
+| m1 | oboist | R | 7 (7) | 28 (31) | 44 (41) | 0.74 (0.74) | 128 (121) | 33 (39) | 0.0% (0.0%) | 0.03 (0.04) | 0 (0) | 128 (121) FAIL | 93 (109) | FAIL |
+| m2 | oboist | L | 4 (8) | 23 (33) | 57 (49) | 0.67 (0.63) | 158 (143) | 50 (44) | 0.0% (0.0%) | 0.04 (0.03) | 1 (1) | 158 (143) FAIL | 120 (107) | FAIL |
+| m2 | oboist | R | 7 (7) | 29 (31) | 43 (41) | 0.74 (0.74) | 125 (121) | 36 (39) | 0.0% (0.0%) | 0.04 (0.04) | 0 (0) | 125 (121) FAIL | 101 (109) | FAIL |
+| m3 | oboist | L | 4 (8) | 26 (33) | 55 (49) | 0.67 (0.63) | 157 (143) | 44 (44) | 0.0% (0.0%) | 0.03 (0.03) | 1 (1) | 157 (143) FAIL | 109 (107) | FAIL |
+| m3 | oboist | R | 8 (7) | 29 (31) | 44 (41) | 0.72 (0.74) | 128 (121) | 29 (39) | 0.0% (0.0%) | 0.02 (0.04) | 0 (0) | 128 (121) FAIL | 86 (109) | FAIL |
+| m4 | oboist | L | 4 (8) | 23 (33) | 59 (49) | 0.67 (0.63) | 161 (143) | 41 (44) | 0.0% (0.0%) | 0.04 (0.03) | 1 (1) | 161 (143) FAIL | 105 (107) | FAIL |
+| m4 | oboist | R | 7 (7) | 27 (31) | 44 (41) | 0.74 (0.74) | 131 (121) | 28 (39) | 0.0% (0.0%) | 0.02 (0.04) | 0 (0) | 131 (121) FAIL | 83 (109) | FAIL |
+| m5 | oboist | L | 4 (8) | 26 (33) | 53 (49) | 0.67 (0.63) | 154 (143) | 48 (44) | 0.0% (0.0%) | 0.04 (0.03) | 1 (1) | 154 (143) FAIL | 115 (107) | FAIL |
+| m5 | oboist | R | 8 (7) | 31 (31) | 43 (41) | 0.72 (0.74) | 125 (121) | 33 (39) | 0.0% (0.0%) | 0.03 (0.04) | 0 (0) | 125 (121) FAIL | 94 (109) | FAIL |
+
+Variant m1:
+
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| oboist | L | move twist max | move | 12771 | 116 | 160 | 100.0% | 160 at beethoven-1.mid lower 98.11 s, wall 1.51 s | 160 | 176 | 143 | FAIL |
+| oboist | R | move twist max | move | 12771 | 112 | 128 | 100.0% | 128 at beethoven-9.mid lower 52.77 s, wall 2.02 s | 128 | 176 | 121 | FAIL |
+
+Variant m2:
+
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| oboist | L | move twist max | move | 12771 | 114 | 158 | 100.0% | 158 at mozart-k315.mid lower 85.00 s, wall 1.84 s | 158 | 176 | 143 | FAIL |
+| oboist | R | move twist max | move | 12771 | 111 | 125 | 100.0% | 125 at beethoven-9.mid lower 52.77 s, wall 1.35 s | 125 | 176 | 121 | FAIL |
+
+Variant m3:
+
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| oboist | L | move twist max | move | 12771 | 115 | 157 | 100.0% | 157 at beethoven-9.mid lower 52.77 s, wall 1.38 s | 157 | 176 | 143 | FAIL |
+| oboist | R | move twist max | move | 12771 | 112 | 128 | 100.0% | 128 at bach-bwv1047.mid lift 0.00 s, wall 0.01 s | 128 | 176 | 121 | FAIL |
+
+Variant m4:
+
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| oboist | L | move twist max | move | 12771 | 117 | 161 | 100.0% | 161 at beethoven-1.mid lower 98.11 s, wall 1.51 s | 161 | 176 | 143 | FAIL |
+| oboist | R | move twist max | move | 12771 | 113 | 131 | 100.0% | 131 at beethoven-9.mid lower 52.77 s, wall 1.53 s | 131 | 176 | 121 | FAIL |
+
+Variant m5:
+
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| oboist | L | move twist max | move | 12771 | 113 | 154 | 100.0% | 154 at mozart-k191.mid lower 74.83 s, wall 1.74 s | 154 | 176 | 143 | FAIL |
+| oboist | R | move twist max | move | 12771 | 111 | 125 | 100.0% | 125 at beethoven-1.mid lower 98.11 s, wall 1.34 s | 125 | 176 | 121 | FAIL |
+ ELIFECYCLE  Command failed with exit code 1.

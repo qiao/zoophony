@@ -1,0 +1,50 @@
+clarinet@wolf.rest=holdTurn(-55,10);clarinet@wolf.restShift=[0.01,-0.81,-0.42]
+seat top 28.8 front z -11.7 width 42.0 depth 31.7; clarinet length 57.0
+rest: tilt 31° (fwd 30°, side -10°)
+   bell x 9.4 y-seat 2.9 z-front -6.5
+   top y-seat 53.4 z -34.5
+   knees x -18.7 18.7 y-seat 0.0 z-front -9.2
+   L: along 23.4 axis 3.0 palm 40° thumb along 5.1 behind -0.8 tipsAxis 1.7 cap -17.3
+   R: along 38.8 axis 4.0 palm 43° thumb along 4.5 behind -0.9 tipsAxis 1.1 cap -33.2
+lift wall+0.18: tilt 24° (fwd 23°, side -9°)
+   bell x 8.2 y-seat 3.5 z-front -10.5
+   top y-seat 56.7 z -32.8
+   knees x -18.7 18.7 y-seat 0.0 z-front -9.2
+   L: along 22.8 axis 3.0 palm 42° thumb along 5.2 behind -0.4 tipsAxis 1.6 cap -17.0
+   R: along 38.8 axis 4.0 palm 45° thumb along 4.5 behind -0.8 tipsAxis 1.0 cap -33.2
+lift wall+0.36: tilt 4° (fwd 1°, side -4°)
+   bell x 4.3 y-seat 10.7 z-front -26.2
+   top y-seat 67.8 z -27.3
+   knees x -18.7 18.7 y-seat 0.0 z-front -9.2
+   L: along 21.2 axis 3.2 palm 48° thumb along 5.5 behind 1.1 tipsAxis 1.4 cap -15.4
+   R: along 38.8 axis 3.9 palm 54° thumb along 4.5 behind -0.4 tipsAxis 1.3 cap -33.1
+lift wall+0.54: tilt 21° (fwd -21°, side -1°)
+   bell x 1.0 y-seat 24.4 z-front -42.3
+   top y-seat 78.8 z -21.9
+   knees x -18.7 18.7 y-seat 0.0 z-front -9.2
+   L: along 20.3 axis 3.6 palm 47° thumb along 5.6 behind 1.9 tipsAxis 1.4 cap -14.7
+   R: along 38.8 axis 3.8 palm 57° thumb along 4.5 behind -0.0 tipsAxis 1.5 cap -33.1
+lift wall+0.72: tilt 29° (fwd -29°, side 0°)
+   bell x 0.1 y-seat 31.1 z-front -47.3
+   top y-seat 82.7 z -20.1
+   knees x -18.7 18.7 y-seat 0.0 z-front -9.2
+   L: along 20.3 axis 3.7 palm 45° thumb along 5.6 behind 1.9 tipsAxis 1.4 cap -14.7
+   R: along 38.8 axis 3.9 palm 57° thumb along 4.5 behind 0.1 tipsAxis 1.5 cap -33.1
+lift wall+0.90: tilt 28° (fwd -28°, side 0°)
+   bell x 0.1 y-seat 31.0 z-front -47.3
+   top y-seat 82.7 z -20.2
+   knees x -18.7 18.7 y-seat 0.0 z-front -9.2
+   L: along 20.3 axis 3.7 palm 45° thumb along 5.6 behind 1.9 tipsAxis 1.4 cap -14.7
+   R: along 38.8 axis 3.9 palm 57° thumb along 4.5 behind 0.1 tipsAxis 1.5 cap -33.1
+play 30 s: tilt 29° (fwd -29°, side 0°)
+   bell x 0.1 y-seat 31.9 z-front -47.4
+   top y-seat 83.2 z -19.4
+   knees x -18.7 18.7 y-seat 0.0 z-front -9.2
+   L: along 20.3 axis 3.7 palm 45° thumb along 5.6 behind 1.9 tipsAxis 1.4 cap -14.7
+   R: along 38.8 axis 3.9 palm 57° thumb along 4.5 behind 0.1 tipsAxis 1.5 cap -33.1
+beethoven-1.mid lift 0: L fast 59 opp 0 angle 19 path 32 net 29 tilt 8 | R fast 59 opp 0 angle 17 path 12 net 11 tilt 11
+beethoven-1.mid lower 98: L fast 128 opp 0 angle 18 path 34 net 29 tilt 8 | R fast 127 opp 0 angle 15 path 14 net 11 tilt 11
+beethoven-1.mid lift 98: L fast 59 opp 0 angle 19 path 32 net 29 tilt 8 | R fast 59 opp 0 angle 17 path 12 net 11 tilt 11
+beethoven-1.mid lower 196: L fast 129 opp 0 angle 17 path 35 net 29 tilt 8 | R fast 129 opp 0 angle 14 path 14 net 11 tilt 11
+beethoven-1.mid lift 196: L fast 60 opp 0 angle 19 path 33 net 29 tilt 8 | R fast 60 opp 0 angle 16 path 12 net 11 tilt 11
+beethoven-1.mid lower 294: L fast 128 opp 0 angle 18 path 34 net 29 tilt 8 | R fast 127 opp 0 angle 15 path 14 net 11 tilt 11
