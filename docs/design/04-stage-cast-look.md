@@ -550,9 +550,9 @@ mesh are quad tubes (rings at a right angle to the bones), and the weights come 
     crease angle splits their normals into a black slot or a hard dark wedge under the raised
     arm, with no dark color on the faces. `rootNormals` adds the skin faces within a radius of
     each shoulder joint to the rim, so that the arm root shades as a soft armpit and the facets
-    elsewhere stay. The beaver, the rhino, and the hippo have it. A rim corner takes the mean
-    normal of all skin faces at its vertex, and the app moves that normal with the skin of the
-    vertex. A trunk face that shares a corner with the turned arm root, and a face at a notch
+    elsewhere stay. Each rig with a split at an arm root has it (`tools/mesh-rigs/`). A rim
+    corner takes the mean normal of all skin faces at its vertex, and the app moves that normal
+    with the skin of the vertex. A trunk face that shares a corner with the turned arm root, and a face at a notch
     vertex whose skin faces point in opposite directions, then shade from a normal that their
     surface does not have, as a soft dark patch under the raised arm. So the hippo keeps in the
     rim only the faces that the clavicle and the arm move (`rootNormals.armShare`), and no face
@@ -561,9 +561,12 @@ mesh are quad tubes (rings at a right angle to the bones), and the weights come 
     keeps the faces of its mesh (`docs/decisions/2026-10-25-beaver-rhino-arms.md`). A bind that bends
     the elbow splits the normals of the inner elbow in the same way, into short light and dark
     creases on the bent arm. `rootNormals.elbow` adds the skin faces within its radius of each
-    elbow joint to the rim. The elephant and the hippo have it, because the bind bends their
-    thick arms at the elbow (`docs/decisions/2026-10-25-elephant-hippo-creases.md`,
-    `docs/decisions/2026-10-25-hippo-arms.md`). A
+    elbow joint to the rim. The elephant, the hippo, the foxes, and the rabbit have it, because
+    the bind bends their elbows (`docs/decisions/2026-10-25-elephant-hippo-creases.md`,
+    `docs/decisions/2026-10-28-fox-rabbit-crease.md`). A split of the bind stays in each pose,
+    also at rest, where the arm-down shape gives back the form of the source and adds the moves
+    of its own split normals. The key light in front of the stage lights the fronts of the arm
+    roots and the inner elbows, so it shows such a split as a hard line, a slit, or a notch. A
     raised arm also casts the hard shadow of its faces into the crease between the arm and the
     trunk, and on white fur the shadow shows as black wedges with steps of the
     shadow map along the seam. The rig cannot change these shadows, so the soft shadow edge of the high tier (4.5) decides them. The thick arm of the rhino joins the side of the
