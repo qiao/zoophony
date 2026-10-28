@@ -675,10 +675,14 @@ helpers by the rules of the app.
     `docs/decisions/2026-10-27-cat-lap.md`). The side wall under each arm has even faces and
     rounds into the trunk, with no lips of the seam cut under it, so that a raised arm shows no
     flat light patch and no crease there (`step_round_wall()`,
-    `docs/decisions/2026-10-28-cat-wall.md`). The trunk weights keep the front of the left arm
-    root with the chest, so two shapes of `raise` take it a part of the way with the arm in the
-    poses of the play and of the rest, and the root keeps its trunk weights
-    (`docs/decisions/2026-10-28-cat-root.md`). The
+    `docs/decisions/2026-10-28-cat-wall.md`). The band between the left armpit line and the flat
+    inner side of the left arm has new triangles with no thin face, so that the skin there does
+    not turn over when the root moves (`step_clean_pit()`,
+    `docs/decisions/2026-10-28-cat-root2.md`).
+    The trunk weights keep the front of the left arm root with the chest, so three shapes of
+    `raise` take it a part of the way with the arm in the poses of the play, of the rest, and
+    between them, and the root keeps its trunk weights (`docs/decisions/2026-10-28-cat-root.md`,
+    `docs/decisions/2026-10-28-cat-root2.md`). The
     elephant has such arms since 2026-10-25 (`tools/blender/elephant_arms.py`), with the length
     and the thickness of its mesh. Its arms are as thick as half of their length, so its cut
     planes stand at a right angle to the arm, the wrist cut lies further out on the paw, and the
