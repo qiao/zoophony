@@ -107,8 +107,13 @@ CAT = {
     # The even oval of the trunk (`step_belly()`). The user said "make the cat's belly more oval
     # and smooth" on 2026-10-27. The front ends at the lap and at the neck, and the sides at the
     # hips and at the lower end of the side walls.
+    # The bow upper arm lies on the front corners of the upper belly at the tip on the lowest
+    # string, 30 to 50 degrees from the front at 0.7 to 0.82 of the line: the oval moved them
+    # 0.5 to 1.3 cm forward, and the arm went 2.3 cm in. With a flat move of 0.006 units, it goes
+    # 1.5 cm in, 0.004 gave 1.7 cm, and 0.008 gave 1.2 cm with sharper facets.
     'belly': {'front': (0.06, 0.92), 'sides': (0.12, 0.7), 'bend': 1e5, 'step': 0.002,
-             'round': {'share': 0.6, 'fade': (0.5, 0.8)}},
+             'round': {'share': 0.6, 'fade': (0.5, 0.8)},
+             'flat': {'f': (0.62, 0.9), 'angle': (10, 75), 'move': 0.006}},
 }
 va.ANIMALS['cat'] = CAT
 
