@@ -402,7 +402,7 @@ async function loadScreenshot(browser: Browser, base: string, shot: LoadShot): P
  *
  * @param page The page.
  */
-async function openDrawer(page: Page): Promise<void> {
+export async function openDrawer(page: Page): Promise<void> {
   if (await page.locator('.drawer').isVisible()) {
     return;
   }

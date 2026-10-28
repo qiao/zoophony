@@ -50,7 +50,7 @@ import {
   shortHash,
   withRefBuild,
 } from './ref-tree.ts';
-import { MAX_WEBP_BYTES, openShot, startSite, toWebp } from './screenshots.ts';
+import { MAX_WEBP_BYTES, openDrawer, openShot, startSite, toWebp } from './screenshots.ts';
 import type { Site } from './screenshots.ts';
 
 /** One view of a close view: the turn of the gallery camera around the animal. */
@@ -3099,6 +3099,25 @@ export function jsonCamera(text: string): PlayCamera {
 }
 
 /**
+ * Clicks "Reset view" (design 2.5). A phone layout keeps the button in the group "Playback" of the
+ * tab "Settings" of the drawer (design 2.8), so the click opens the drawer there first, and
+ * closes it after.
+ *
+ * @param page The page, during play.
+ */
+async function resetView(page: Page): Promise<void> {
+  const reset = page.getByRole('button', { name: 'Reset view' });
+  if (await reset.isVisible()) {
+    await reset.click();
+    return;
+  }
+  await openDrawer(page);
+  await page.click('#tab-settings');
+  await reset.click();
+  await page.click('.close-drawer');
+}
+
+/**
  * Reads a camera of the command line: a name of {@link PLAY_CAMERAS}, `<dx>,<dy>,<wheel>` with
  * the drag in CSS pixels and a whole number of wheel steps, or a camera in JSON
  * ({@link jsonCamera}). The name of a drag camera is `drag<dx>_<dy>_<wheel>`.
@@ -4094,13 +4113,14 @@ async function openPlay(
     }
     await page.click(FIRST_PLAY);
     await page.waitForTimeout(1500);
-    // The open drawer keeps the bar and covers the right side of the stage (design 2.8).
-    await page.click('.close-drawer');
+    // The open drawer keeps the bar and covers the right side of the stage (design 2.8). A phone
+    // layout starts with the drawer closed, so its button does not show.
+    await page.click('.close-drawer', { timeout: 2000 }).catch(() => undefined);
     if (args.midi !== null) {
       await openMidi(page, args.midi, frame);
     }
     if (!args.cinematic) {
-      await page.getByRole('button', { name: 'Reset view' }).click();
+      await resetView(page);
       if (camera.dx !== 0 || camera.dy !== 0) {
         await page.mouse.move(DRAG_START.x, DRAG_START.y);
         await page.mouse.down();
