@@ -530,6 +530,9 @@ The code constants of each family hold the times, the angles, and the lengths of
       neck, not over the upper bout (`BowedHold.stopEnd`,
       `docs/decisions/2026-10-21-hippo-bass-arms.md`). Its thick left paw tilts over the neck as the paw of the
       dog, so that the left arm keeps off the body (`docs/decisions/2026-10-19-hippo-chest.md`).
+      Its bow paw keeps the bend of its bind pose on the forearm (`BowedHold.pawKeepR`), so that
+      the skin of the thick wrist keeps its form and shows no lump under the paw
+      (`docs/decisions/2026-10-28-hippo-paw.md`).
       The left elbow points out, a little down, and forward. The right elbow points forward, out,
       and a little down, also in pizzicato, with the twist bone of the upper arm, because a raised
       or level elbow twists the thick upper arm of the mesh into a flat band, and a lower elbow
