@@ -107,6 +107,16 @@ export interface BowedHold {
    */
   readonly pawKeepR: number;
   /**
+   * The turn of the right hand around the grip on the stick, or `null` for no turn
+   * (`turnOnStick()` of `pose/bowed.ts`). The hand turns in the plane of its palm around the
+   * grip, so that the forearm keeps the angle `forearm` in that plane, in radians, with a turn of
+   * at most `most` radians to each side. The retarget then turns the paw toward the forearm by one
+   * angle (`PAW_TURN` of `models/studio-rig.ts`), so that the stick keeps its place in the paw.
+   * The bow keeps its place on the strings and turns in the paw, as the fingers of a player let
+   * the bow turn in the hand over a stroke (design 5.3).
+   */
+  readonly stickTurnR: { readonly forearm: number; readonly most: number } | null;
+  /**
    * The move of the instrument while the player plays, in head heights, in the axes of the parent
    * of the `instrument` bone. It makes room for the arms between the instrument and the body.
    */
@@ -358,6 +368,7 @@ const CHIN_HOLD = {
   followChange: 0,
   farSideR: Math.PI,
   pawKeepR: 0,
+  stickTurnR: null,
   playShift: [0, -0.05, -0.15],
   playTurn: IDENTITY,
   restPoleR: [1, -0.9, -0.5],
@@ -430,6 +441,7 @@ const FLOOR_HOLD = {
   followChange: 0.3,
   farSideR: Math.PI,
   pawKeepR: 0,
+  stickTurnR: null,
   playShift: [0, 0, -0.05],
   playTurn: IDENTITY,
   restPoleR: [1, -0.6, -0.5],

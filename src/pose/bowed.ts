@@ -415,6 +415,59 @@ export function gripHand(rig: RigPoints, bow: BowPlace, angle: number, out: BowH
   return out;
 }
 
+/** The number of steps in which the right hand turns on the stick ({@link turnOnStick}). */
+const STICK_PASSES = 3;
+
+const stickGrip = new Vector3();
+const stickStart = new Quaternion();
+const stickTurn = new Quaternion();
+const stickInverse = new Quaternion();
+const stickFore = new Vector3();
+const stickArm = createArmPose();
+
+/**
+ * Turns the right hand in the plane of its palm around the grip on the stick
+ * (`BowedHold.stickTurnR`), so that the solved forearm keeps one angle in the plane of the palm,
+ * with a turn of at most `most` to each side. The retarget turns the paw toward the forearm in
+ * that plane (`PAW_TURN` of `models/studio-rig.ts`), so the paw then keeps one turn on the hand,
+ * and the stick keeps its place in the paw. Each step solves the arm and turns the hand by the
+ * angle that is left. The move of the wrist moves the forearm a little, so three steps leave less
+ * than 0.3° (design 5.3).
+ *
+ * @param rig The points of the player.
+ * @param keep The angle of the forearm in the plane of the palm, and the largest turn.
+ * @param shoulder The posed right shoulder joint.
+ * @param parent The world rotation of the shoulder bone.
+ * @param pole The direction of the right elbow, in the model axes.
+ * @param hand The right hand on the bow. The function turns it in place.
+ * @returns The turn of the hand around the normal of its palm, in radians.
+ */
+function turnOnStick(
+  rig: RigPoints,
+  keep: { readonly forearm: number; readonly most: number },
+  shoulder: Vector3,
+  parent: Quaternion,
+  pole: Vector3,
+  hand: BowHand,
+): number {
+  stickGrip.fromArray(rig.grip).applyQuaternion(hand.rotation).add(hand.wrist);
+  stickStart.copy(hand.rotation);
+  let turn = 0;
+  for (let pass = 0; pass < STICK_PASSES; pass++) {
+    solveArm(rig.armR.bind, shoulder, parent, hand.wrist, pole, stickArm);
+    stickFore
+      .subVectors(stickArm.wrist, stickArm.elbow)
+      .applyQuaternion(stickInverse.copy(hand.rotation).invert());
+    // The forearm points from the elbow to the wrist, so the angle 0 puts it on the line of the
+    // paw, which points down (-y) from the wrist.
+    const angle = Math.atan2(-stickFore.z, -stickFore.y);
+    turn = MathUtils.clamp(turn + angle - keep.forearm, -keep.most, keep.most);
+    hand.rotation.copy(stickStart).multiply(stickTurn.setFromAxisAngle(X_AXIS, turn));
+    hand.wrist.copy(stickGrip).sub(gripOffset.fromArray(rig.grip).applyQuaternion(hand.rotation));
+  }
+  return turn;
+}
+
 /** The left hand that presses the strings. */
 interface StopHand {
   readonly wrist: Vector3;
@@ -733,6 +786,7 @@ const held: BowPlace = { grip: new Vector3(), rotation: new Quaternion() };
 const stickBind = new Vector3();
 const pluckPalm = new Vector3();
 const bowLocal = new Quaternion();
+const bowBack = new Quaternion();
 const backOfHand = new Vector3();
 const armLine = new Vector3();
 const aim = new Vector3();
@@ -1483,6 +1537,13 @@ export function poseBowed(
     );
   }
 
+  // The hand turns on the stick, so that the paw keeps its place on the stick.
+  const keep = rig.hold.stickTurnR;
+  const onStick =
+    keep === null
+      ? 0
+      : turnOnStick(rig, keep, shoulder.position, shoulder.rotation, pole, heldHand);
+
   poleR.copy(pole).applyQuaternion(chestInverse.copy(chest.rotation).invert()).toArray(poleTuple);
   writeArm(
     { arm: rig.armR, shoulder, wrist: heldHand.wrist, hand: heldHand.rotation, pole: poleTuple },
@@ -1491,15 +1552,16 @@ export function poseBowed(
   );
 
   // The bow turns back in the hand by the roll, so that its hair keeps its side, and the fingers
-  // turn it by the tilt while the bow plays.
-  setBoneRotation(
-    rotations,
-    BONES.bow,
-    bowLocal.setFromAxisAngle(
-      stickBind.fromArray(rig.stick),
-      tilt * weight * (1 - pizzicato) - angle,
-    ),
+  // turn it by the tilt while the bow plays. It also turns back by the turn of the hand on the
+  // stick, so that it keeps its place.
+  bowLocal.setFromAxisAngle(
+    stickBind.fromArray(rig.stick),
+    tilt * weight * (1 - pizzicato) - angle,
   );
+  if (onStick !== 0) {
+    bowLocal.premultiply(bowBack.setFromAxisAngle(X_AXIS, -onStick));
+  }
+  setBoneRotation(rotations, BONES.bow, bowLocal);
 
   // The left hand keeps the place of its hand frame on the fingerboard, in the part of the
   // fingerboard that the arm reaches, and moves with the vibrato. It turns toward the finger of
