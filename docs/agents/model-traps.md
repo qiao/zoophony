@@ -403,6 +403,12 @@ group of your work before you plan it. A probe that a trap names is in its resea
   turn of its outline steeper. Measure each step with `pnpm trunk-form` and `probes/belly.ts` of
   `docs/research/2026-10-27-cat-belly/`, and move the trunk of the copy onto arcs through the ends
   of the belly (`step_belly()` of `tools/blender/cat_arms.py`).
+- An arc of the belly front that starts at the thigh fronts pushes the bottom row of the belly
+  out, and the lap turns sharply. Smooth the bind up the belly front with a second crease pass
+  that fades out behind the hip joints and to the sides (`crease.lap`): wider rings for the
+  whole pass moved the seat top and the outer hips (`docs/research/2026-10-27-cat-lap.md`).
+- A flat zone of the trunk under an arm turns the edges beside the unmoved middle strip over the
+  crease angle. Measure the patch edges (`probes/belly.ts --edges`) before you take a flat move.
 - A choice of whole faces of 3 cm to 6 cm gives a color patch a waist or teeth. Mix the color of
   each face across the edge by the share of its area in the patch (`colors.belly`).
 - Ears at the height of the skull top and antlers above it fall in the height rule of `earBase`.
