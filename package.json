@@ -26,6 +26,7 @@
     "hold-fit": "node tools/hold-fit.ts",
     "wind-grip": "node tools/wind-grip.ts",
     "hold-scan": "node tools/hold-scan.ts",
+    "pair-scan": "node tools/pair-scan.ts",
     "raise-fit": "node tools/raise-fit.ts",
     "choir-check": "pnpm build && node tools/choir-check.ts",
     "body-probe": "node tools/body-probe.ts",
