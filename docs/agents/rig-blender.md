@@ -186,8 +186,10 @@ interface StudioArmSegments {
   elbow bends further, and the mean of its weights folds it in each pose. Flip the edge at its
   point (`refine.pointFlip`, `elbow_quads.py` of `docs/research/2026-10-27-rigs3/`).
 - **A thick arm.** On an arm as thick as half of its length, a cut plane with a tilt or a wrist
-  cut near the joint crosses the nearest ring, and the bridge turns faces over. A wide elbow gap
-  folds fewer faces. A thick upper arm that turns down to a round belly goes into it as one
+  cut near the joint crosses the nearest ring, and the bridge turns faces over. On a short paw
+  that turns far from the forearm, cut parallel to the last ring and smooth the band
+  (`step_smooth_wrist()` of `tools/blender/hippo_arms.py`): the lip faces keep their bind normal,
+  so no fold measure sees them. A wide elbow gap folds fewer faces. A thick upper arm that turns down to a round belly goes into it as one
   rigid part: the weights cannot fix it, so make its inner side a little flatter with Translate
   and Proportional Editing (`step_flatten()` of `tools/blender/elephant_arms.py`,
   `docs/research/2026-10-25-thick-arm-depth.md`). Prove the cause of a depth first with
