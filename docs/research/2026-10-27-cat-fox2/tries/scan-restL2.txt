@@ -1,0 +1,23 @@
+Hold scan of the violist: 1 demo(s), 12 play samples and the rest of each player, 19 variants in 5.9 s (0.31 s each).
+The score is the depth past the limit of each pair, summed in cm, plus 10 for each share of the fingerboard and of the hair lost against the base. Lower is better.
+| rank | score | variant | fingersL>viola cm | fingersR>viola cm | forearmL>viola cm | instrument>body cm | upperArmL>body cm | upperArmR>body cm | fingerboard | hair |
+|---|---|---|---|---|---|---|---|---|---|---|
+| 1 | 0.0 | viola@cat.restPoleL.0=-2.4;viola@cat.restPoleL.2=-0.6;viola@cat.restPoleL.1=-1 | 0.8 | 0.0 | 0.0 | 1.9 | 0.7 | 1.4 | 1.00 | 0.79 |
+| 2 | 0.0 | viola@cat.restPoleL.0=-2.4;viola@cat.restPoleL.2=-0.6;viola@cat.restPoleL.1=-0.6 | 0.8 | 0.0 | 0.0 | 1.9 | 0.3 | 1.4 | 1.00 | 0.79 |
+| 3 | 0.0 | viola@cat.restPoleL.0=-2.4;viola@cat.restPoleL.2=-0.4;viola@cat.restPoleL.1=-1 | 0.8 | 0.0 | 0.0 | 1.9 | 0.8 | 1.4 | 1.00 | 0.79 |
+| 4 | 0.0 | viola@cat.restPoleL.0=-2.4;viola@cat.restPoleL.2=-0.4;viola@cat.restPoleL.1=-0.6 | 0.8 | 0.0 | 0.0 | 1.9 | 0.5 | 1.4 | 1.00 | 0.79 |
+| 5 | 0.0 | viola@cat.restPoleL.0=-2.4;viola@cat.restPoleL.2=-0.2;viola@cat.restPoleL.1=-1 | 0.8 | 0.0 | 0.0 | 1.9 | 0.9 | 1.4 | 1.00 | 0.79 |
+| 6 | 0.0 | viola@cat.restPoleL.0=-2.4;viola@cat.restPoleL.2=-0.2;viola@cat.restPoleL.1=-0.6 | 0.8 | 0.0 | 0.0 | 1.9 | 0.6 | 1.4 | 1.00 | 0.79 |
+| 7 | 0.0 | viola@cat.restPoleL.0=-2;viola@cat.restPoleL.2=-0.6;viola@cat.restPoleL.1=-1 | 0.8 | 0.0 | 0.0 | 1.9 | 0.8 | 1.4 | 1.00 | 0.79 |
+| 8 | 0.0 | viola@cat.restPoleL.0=-2;viola@cat.restPoleL.2=-0.6;viola@cat.restPoleL.1=-0.6 | 0.8 | 0.0 | 0.0 | 1.9 | 0.4 | 1.4 | 1.00 | 0.79 |
+| 9 | 0.0 | viola@cat.restPoleL.0=-2;viola@cat.restPoleL.2=-0.4;viola@cat.restPoleL.1=-1 | 0.8 | 0.0 | 0.0 | 1.9 | 0.9 | 1.4 | 1.00 | 0.79 |
+| 10 | 0.0 | viola@cat.restPoleL.0=-2;viola@cat.restPoleL.2=-0.4;viola@cat.restPoleL.1=-0.6 | 0.8 | 0.0 | 0.0 | 1.9 | 0.5 | 1.4 | 1.00 | 0.79 |
+| 11 | 0.0 | viola@cat.restPoleL.0=-2;viola@cat.restPoleL.2=-0.2;viola@cat.restPoleL.1=-1 | 0.8 | 0.0 | 0.0 | 1.9 | 1.1 | 1.4 | 1.00 | 0.79 |
+| 12 | 0.0 | viola@cat.restPoleL.0=-2;viola@cat.restPoleL.2=-0.2;viola@cat.restPoleL.1=-0.6 | 0.8 | 0.0 | 0.0 | 1.9 | 0.6 | 1.4 | 1.00 | 0.79 |
+| 13 | 0.0 | viola@cat.restPoleL.0=-1.6;viola@cat.restPoleL.2=-0.6;viola@cat.restPoleL.1=-1 | 0.8 | 0.0 | 0.0 | 1.9 | 1.0 | 1.4 | 1.00 | 0.79 |
+| 14 | 0.0 | viola@cat.restPoleL.0=-1.6;viola@cat.restPoleL.2=-0.6;viola@cat.restPoleL.1=-0.6 | 0.8 | 0.0 | 0.0 | 1.9 | 0.4 | 1.4 | 1.00 | 0.79 |
+| 15 | 0.0 | viola@cat.restPoleL.0=-1.6;viola@cat.restPoleL.2=-0.4;viola@cat.restPoleL.1=-1 | 0.8 | 0.0 | 0.0 | 1.9 | 1.2 | 1.4 | 1.00 | 0.79 |
+| 16 | 0.0 | viola@cat.restPoleL.0=-1.6;viola@cat.restPoleL.2=-0.4;viola@cat.restPoleL.1=-0.6 | 0.8 | 0.0 | 0.0 | 1.9 | 0.6 | 1.4 | 1.00 | 0.79 |
+| 17 | 0.0 | viola@cat.restPoleL.0=-1.6;viola@cat.restPoleL.2=-0.2;viola@cat.restPoleL.1=-1 | 0.8 | 0.0 | 0.0 | 1.9 | 1.3 | 1.4 | 1.00 | 0.79 |
+| 18 | 0.0 | viola@cat.restPoleL.0=-1.6;viola@cat.restPoleL.2=-0.2;viola@cat.restPoleL.1=-0.6 | 0.8 | 0.0 | 0.0 | 1.9 | 0.8 | 1.4 | 1.00 | 0.79 |
+| 19 | 0.8 | base | 0.8 | 0.0 | 0.1 | 1.9 | 2.3 | 1.4 | 1.00 | 0.79 |

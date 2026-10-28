@@ -1,0 +1,64 @@
+Explain of flat p5 of the violist over 14 demos at a step of 0.25 s: bach-bwv1047.mid, bach-bwv1048.mid, bach-bwv1050.mid, beethoven-1.mid, beethoven-8-4.mid, beethoven-8.mid, beethoven-9.mid, boulanger-matin.mid, brahms-2.mid, mendelssohn-op61.mid, mozart-k191.mid, mozart-k315.mid, mozart-k417.mid, mozart-k525.mid.
+The flat share is the narrow axis of the flattest ring as a share of its narrow axis in the bind pose, as the gate counts it. "From the rest" divides by the narrow axis of the ring in the rest sample of the same demo.
+
+| Arm | Set | Samples | p5 from the rest | p5 from the bind (gate) | Worst from the rest | Worst from the bind |
+|---|---|---:|---:|---:|---|---|
+| L | rest | 14 | 1.000 | 0.819 | 1.000, bach-bwv1047.mid rest | 0.819, bach-bwv1047.mid rest |
+| L | play | 17788 | 0.828 | 0.847 | 0.754, mozart-k191.mid 223.30 s | 0.796, mozart-k191.mid 223.30 s |
+| L | lift | 434 | 0.826 | 0.825 | 0.826, boulanger-matin.mid wall 0.9 s | 0.819, bach-bwv1047.mid wall 0.1 s |
+| R | rest | 14 | 1.000 | 0.848 | 1.000, bach-bwv1047.mid rest | 0.848, bach-bwv1047.mid rest |
+| R | play | 17788 | 0.829 | 0.894 | 0.821, boulanger-matin.mid 255.38 s | 0.829, brahms-2.mid 206.63 s |
+| R | lift | 434 | 0.820 | 0.850 | 0.797, boulanger-matin.mid wall 0.6 s | 0.848, bach-bwv1047.mid wall 0.1 s |
+
+The part of the rest sample of each demo that shrinks most from the bind. The gate reads the bind, so a rest that moves changes only the values "from the rest".
+
+| Arm | Rest sample | Part | Rest from the bind |
+|---|---|---|---:|
+| L | bach-bwv1047.mid rest | ring upper, upper_arm_L | 0.819 |
+| L | bach-bwv1048.mid rest | ring upper, upper_arm_L | 0.819 |
+| L | bach-bwv1050.mid rest | ring upper, upper_arm_L | 0.825 |
+| L | beethoven-1.mid rest | ring upper, upper_arm_L | 0.825 |
+| L | beethoven-8-4.mid rest | ring upper, upper_arm_L | 0.825 |
+| L | beethoven-8.mid rest | ring upper, upper_arm_L | 0.825 |
+| L | beethoven-9.mid rest | ring upper, upper_arm_L | 0.825 |
+| L | boulanger-matin.mid rest | ring upper, upper_arm_L | 0.825 |
+| L | brahms-2.mid rest | ring upper, upper_arm_L | 0.825 |
+| L | mendelssohn-op61.mid rest | ring upper, upper_arm_L | 0.825 |
+| L | mozart-k191.mid rest | ring upper, upper_arm_L | 0.825 |
+| L | mozart-k315.mid rest | ring upper, upper_arm_L | 0.825 |
+| L | mozart-k417.mid rest | ring upper, upper_arm_L | 0.825 |
+| L | mozart-k525.mid rest | ring upper, upper_arm_L | 0.825 |
+| R | bach-bwv1047.mid rest | ring upper, upper_arm_R | 0.848 |
+| R | bach-bwv1048.mid rest | ring upper, upper_arm_R | 0.848 |
+| R | bach-bwv1050.mid rest | ring upper, upper_arm_R | 0.850 |
+| R | beethoven-1.mid rest | ring upper, upper_arm_R | 0.850 |
+| R | beethoven-8-4.mid rest | ring upper, upper_arm_R | 0.850 |
+| R | beethoven-8.mid rest | ring upper, upper_arm_R | 0.850 |
+| R | beethoven-9.mid rest | ring upper, upper_arm_R | 0.850 |
+| R | boulanger-matin.mid rest | ring upper, upper_arm_R | 0.850 |
+| R | brahms-2.mid rest | ring upper, upper_arm_R | 0.850 |
+| R | mendelssohn-op61.mid rest | ring upper, upper_arm_R | 0.850 |
+| R | mozart-k191.mid rest | ring upper, upper_arm_R | 0.850 |
+| R | mozart-k315.mid rest | ring upper, upper_arm_R | 0.850 |
+| R | mozart-k417.mid rest | ring upper, upper_arm_R | 0.850 |
+| R | mozart-k525.mid rest | ring upper, upper_arm_R | 0.850 |
+
+The worst sample of the L arm for the gate: mozart-k191.mid 223.30 s (play), 0.754 from the rest, 0.796 from the bind.
+
+| Ring | Bone | Sample cm | Rest cm | Bind cm | From the rest | From the bind | Rest from the bind |
+|---|---|---:|---:|---:|---:|---:|---:|
+| wrist | forearm_L | 2.03 | 2.69 | 2.55 | 0.754 | 0.796 | 1.056 |
+| upper | upper_arm_L | 2.75 | 2.72 | 3.30 | 1.010 | 0.833 | 0.825 |
+| forearm | forearm_L | 2.97 | 3.41 | 3.20 | 0.873 | 0.929 | 1.064 |
+| elbow | upper_arm_L | 3.28 | 3.53 | 3.30 | 0.929 | 0.995 | 1.071 |
+| shoulder | upper_arm_L | 0.46 | 0.46 | 0.39 | 0.997 | 1.189 | 1.192 |
+
+The worst sample of the R arm for the gate: brahms-2.mid 206.63 s (play), 0.859 from the rest, 0.829 from the bind.
+
+| Ring | Bone | Sample cm | Rest cm | Bind cm | From the rest | From the bind | Rest from the bind |
+|---|---|---:|---:|---:|---:|---:|---:|
+| upper | upper_arm_R | 2.63 | 2.70 | 3.17 | 0.976 | 0.829 | 0.850 |
+| forearm | forearm_R | 3.33 | 3.30 | 3.47 | 1.007 | 0.959 | 0.952 |
+| wrist | forearm_R | 2.60 | 2.69 | 2.70 | 0.965 | 0.961 | 0.996 |
+| elbow | upper_arm_R | 3.21 | 3.74 | 3.22 | 0.859 | 0.997 | 1.160 |
+| shoulder | upper_arm_R | 0.52 | 0.49 | 0.39 | 1.072 | 1.351 | 1.260 |

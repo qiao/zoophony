@@ -1,0 +1,60 @@
+base: cached (main, 8e1afd20570f)
+base: cached (main, 8e1afd20570f)
+base: cached (main, 8e1afd20570f)
+base: cached (main, 8e1afd20570f)
+base: cached (main, 8e1afd20570f)
+Arm gate of 1 roles in 5 variants against main: 5 children, at most 5 at the same time, in 173 s. A cell gives the value, the base in parentheses, and the verdict of a value that does not pass.
+
+- tree: no change
+- scale: cat.violaScale=0.74
+- scaleRL: cat.violaScale=0.74;viola@cat.reachL=0.524
+- scaleMove: cat.violaScale=0.74;viola@cat.playTurn=[-0.0416,-0.1304,0.0131,0.9905];viola@cat.playShift=[0.05,0.0574,0.2084]
+- noHead: cat.violaScale=0.74;viola@cat.reachL=0.524;viola@cat.playTurn=[-0.0416,-0.1304,0.0131,0.9905];viola@cat.playShift=[0.05,0.0574,0.2084]
+
+| Variant | Role | Arm | folds p95 (8) | twist p95 (55) | forearm twist p95 (80) | flat p5 (0.55) | paw twist p95 (170) | paw swing p95 (70) | paw jumps (0.5%) | stretch p95 (0.35) | grip turn p50 (45) | move twist max (176) | move turn max (3000) | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| tree | violist | L | 7 (3) FAIL | 32 (25) | 44 (48) | 0.77 (0.82) | 117 (116) | 48 (46) | 0.0% (0.0%) | 0.07 (0.06) | 22 (20) | 137 (116) FAIL | 216 (241) | FAIL |
+| tree | violist | R | 5 (3) | 38 (38) | 43 (47) | 0.86 (0.85) | 119 (120) | 34 (36) | 0.0% (0.0%) | 0.04 (0.04) | 28 (27) | 129 (132) | 393 (395) | PASS |
+| scale | violist | L | 6 (3) FAIL | 31 (25) | 43 (48) | 0.72 (0.82) FAIL | 114 (116) | 50 (46) | 0.0% (0.0%) | 0.07 (0.06) | 19 (20) | 115 (116) | 205 (241) | FAIL |
+| scale | violist | R | 4 (3) | 37 (38) | 45 (47) | 0.86 (0.85) | 121 (120) | 37 (36) | 0.0% (0.0%) | 0.04 (0.04) | 29 (27) | 131 (132) | 408 (395) | PASS |
+| scaleRL | violist | L | 6 (3) FAIL | 31 (25) | 43 (48) | 0.72 (0.82) FAIL | 113 (116) | 49 (46) | 0.0% (0.0%) | 0.07 (0.06) | 19 (20) | 114 (116) | 205 (241) | FAIL |
+| scaleRL | violist | R | 4 (3) | 37 (38) | 45 (47) | 0.86 (0.85) | 121 (120) | 37 (36) | 0.0% (0.0%) | 0.04 (0.04) | 29 (27) | 131 (132) | 408 (395) | PASS |
+| scaleMove | violist | L | 5 (3) | 28 (25) | 39 (48) | 0.72 (0.82) FAIL | 102 (116) | 48 (46) | 0.0% (0.0%) | 0.07 (0.06) | 5 (20) | 102 (116) | 200 (241) | FAIL |
+| scaleMove | violist | R | 7 (3) FAIL | 39 (38) | 50 (47) | 0.86 (0.85) | 130 (120) | 39 (36) | 0.0% (0.0%) | 0.05 (0.04) | 34 (27) | 132 (132) | 392 (395) | FAIL |
+| noHead | violist | L | 5 (3) | 28 (25) | 39 (48) | 0.72 (0.82) FAIL | 102 (116) | 48 (46) | 0.0% (0.0%) | 0.08 (0.06) | 5 (20) | 102 (116) | 200 (241) | FAIL |
+| noHead | violist | R | 7 (3) FAIL | 39 (38) | 50 (47) | 0.86 (0.85) | 130 (120) | 39 (36) | 0.0% (0.0%) | 0.05 (0.04) | 34 (27) | 132 (132) | 392 (395) | FAIL |
+
+Variant tree:
+
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| violist | L | folds p95 | lift | 434 | 2 | 7 | 100.0% | 8 at beethoven-8-4.mid wall 0.5 s | 7 | 8 | 3 | FAIL |
+| violist | L | move twist max | move | 16254 | 25 | 116 | 100.0% | 137 at mozart-k191.mid lower 224.50 s, wall 0.00 s | 137 | 176 | 116 | FAIL |
+
+Variant scale:
+
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| violist | L | folds p95 | lift | 434 | 2 | 6 | 100.0% | 7 at bach-bwv1047.mid wall 0.5 s | 6 | 8 | 3 | FAIL |
+| violist | L | flat p5 | rest | 14 | 0.73 | 0.72 | 100.0% | 0.72 at bach-bwv1047.mid rest | 0.72 | 0.55 | 0.82 | FAIL |
+
+Variant scaleRL:
+
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| violist | L | folds p95 | lift | 434 | 1 | 6 | 50.5% | 6 at bach-bwv1047.mid wall 0.5 s | 6 | 8 | 3 | FAIL |
+| violist | L | flat p5 | rest | 14 | 0.73 | 0.72 | 100.0% | 0.72 at bach-bwv1047.mid rest | 0.72 | 0.55 | 0.82 | FAIL |
+
+Variant scaleMove:
+
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| violist | L | flat p5 | rest | 14 | 0.73 | 0.72 | 100.0% | 0.72 at bach-bwv1047.mid rest | 0.72 | 0.55 | 0.82 | FAIL |
+| violist | R | folds p95 | play | 17788 | 3 | 7 | 100.0% | 8 at boulanger-matin.mid 34.13 s | 7 | 8 | 3 | FAIL |
+
+Variant noHead:
+
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| violist | L | flat p5 | rest | 14 | 0.73 | 0.72 | 100.0% | 0.72 at bach-bwv1047.mid rest | 0.72 | 0.55 | 0.82 | FAIL |
+| violist | R | folds p95 | play | 17788 | 3 | 7 | 100.0% | 8 at boulanger-matin.mid 34.13 s | 7 | 8 | 3 | FAIL |

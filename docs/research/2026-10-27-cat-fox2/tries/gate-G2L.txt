@@ -1,0 +1,28 @@
+base: cached (main, 2d375f76fff7)
+tree: cached (8dbccb2f40b1)
+base: cached (main, 2d375f76fff7)
+base: cached (main, 2d375f76fff7)
+base: cached (main, 2d375f76fff7)
+Arm gate of 1 roles in 4 variants against main: 4 children, at most 4 at the same time, in 70 s. A cell gives the value, the base in parentheses, and the verdict of a value that does not pass.
+
+- G2: flute@fox-tan.gripShiftR=[0,0,-0.14];flute@fox-tan.aimSide=[0.5,-0.5];flute@fox-tan.poleR=[0.8,-1.5,0.2]
+- poleL-1,-1.4,-0.3: flute@fox-tan.gripShiftR=[0,0,-0.14];flute@fox-tan.aimSide=[0.5,-0.5];flute@fox-tan.poleR=[0.8,-1.5,0.2];flute@fox-tan.poleL=[-1,-1.4,-0.3]
+- poleL-0.8,-1,0: flute@fox-tan.gripShiftR=[0,0,-0.14];flute@fox-tan.aimSide=[0.5,-0.5];flute@fox-tan.poleR=[0.8,-1.5,0.2];flute@fox-tan.poleL=[-0.8,-1,0]
+- poleL-1,-0.8,-0.6: flute@fox-tan.gripShiftR=[0,0,-0.14];flute@fox-tan.aimSide=[0.5,-0.5];flute@fox-tan.poleR=[0.8,-1.5,0.2];flute@fox-tan.poleL=[-1,-0.8,-0.6]
+
+| Variant | Role | Arm | folds p95 (8) | twist p95 (55) | forearm twist p95 (80) | flat p5 (0.55) | paw twist p95 (170) | paw swing p95 (70) | paw jumps (0.5%) | stretch p95 (0.35) | grip turn p50 (45) | move twist max (176) | move turn max (3000) | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| G2 | flutist | L | 3 (3) | 35 (35) | 40 (40) | 0.81 (0.81) | 87 (87) | 37 (37) | 0.0% (0.0%) | 0.08 (0.08) | 0 (0) | 87 (87) | 394 (394) | PASS |
+| G2 | flutist | R | 2 (3) | 42 (42) | 40 (46) | 0.84 (0.88) | 106 (122) | 38 (30) | 0.0% (0.0%) | 0.02 (0.02) | 0 (16) | 120 (132) | 387 (320) | PASS |
+| poleL-1,-1.4,-0.3 | flutist | L | 1 (3) | 35 (35) | 40 (40) | 0.81 (0.81) | 77 (87) | 38 (37) | 0.0% (0.0%) | 0.08 (0.08) | 10 (0) | 77 (87) | 392 (394) | PASS |
+| poleL-1,-1.4,-0.3 | flutist | R | 2 (3) | 42 (42) | 40 (46) | 0.84 (0.88) | 106 (122) | 38 (30) | 0.0% (0.0%) | 0.02 (0.02) | 0 (16) | 120 (132) | 387 (320) | PASS |
+| poleL-0.8,-1,0 | flutist | L | 2 (3) | 35 (35) | 40 (40) | 0.81 (0.81) | 81 (87) | 37 (37) | 0.0% (0.0%) | 0.08 (0.08) | 6 (0) | 81 (87) | 392 (394) | PASS |
+| poleL-0.8,-1,0 | flutist | R | 2 (3) | 42 (42) | 40 (46) | 0.84 (0.88) | 106 (122) | 38 (30) | 0.0% (0.0%) | 0.02 (0.02) | 0 (16) | 120 (132) | 387 (320) | PASS |
+| poleL-1,-0.8,-0.6 | flutist | L | 3 (3) | 35 (35) | 40 (40) | 0.81 (0.81) | 91 (87) | 37 (37) | 0.0% (0.0%) | 0.08 (0.08) | 4 (0) | 91 (87) FAIL | 396 (394) | FAIL |
+| poleL-1,-0.8,-0.6 | flutist | R | 2 (3) | 42 (42) | 40 (46) | 0.84 (0.88) | 106 (122) | 38 (30) | 0.0% (0.0%) | 0.02 (0.02) | 0 (16) | 120 (132) | 387 (320) | PASS |
+
+Variant poleL-1,-0.8,-0.6:
+
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| flutist | L | move twist max | move | 11610 | 66 | 91 | 100.0% | 91 at beethoven-9.mid lower 105.53 s, wall 0.07 s | 91 | 176 | 87 | FAIL |

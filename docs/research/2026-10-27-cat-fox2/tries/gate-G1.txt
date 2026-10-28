@@ -1,0 +1,32 @@
+base: cached (main, 2d375f76fff7)
+Arm gate of 1 roles against main in 66 s. A cell gives the value, the base in parentheses, and the verdict of a value that does not pass.
+
+| Role | Arm | folds p95 (8) | twist p95 (55) | forearm twist p95 (80) | flat p5 (0.55) | paw twist p95 (170) | paw swing p95 (70) | paw jumps (0.5%) | stretch p95 (0.35) | grip turn p50 (45) | move twist max (176) | move turn max (3000) | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| flutist | L | 3 (3) | 35 (35) | 40 (40) | 0.81 (0.81) | 87 (87) | 37 (37) | 0.0% (0.0%) | 0.08 (0.08) | 0 (0) | 87 (87) | 394 (394) | PASS |
+| flutist | R | 2 (3) | 42 (42) | 44 (46) | 0.88 (0.88) | 119 (122) | 45 (30) FAIL | 0.0% (0.0%) | 0.02 (0.02) | 16 (16) | 132 (132) | 407 (320) | FAIL |
+
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| flutist | L | folds p95 | play | 13744 | 3 | 3 | 100.0% | 3 at bach-bwv1047.mid -2.10 s | 3 | 8 | 3 | PASS |
+| flutist | L | twist p95 | rest | 10 | 34 | 35 | 100.0% | 35 at mozart-k315.mid rest | 35 | 55 | 35 | PASS |
+| flutist | L | forearm twist p95 | rest | 10 | 40 | 40 | 100.0% | 40 at beethoven-1.mid rest | 40 | 80 | 40 | PASS |
+| flutist | L | flat p5 | rest | 10 | 0.81 | 0.81 | 100.0% | 0.81 at bach-bwv1050.mid rest | 0.81 | 0.55 | 0.81 | PASS |
+| flutist | L | paw twist p95 | play | 13744 | 87 | 87 | 100.0% | 87 at beethoven-9.mid 138.59 s | 87 | 170 | 87 | PASS |
+| flutist | L | paw swing p95 | lift | 310 | 35 | 37 | 100.0% | 40 at bach-bwv1047.mid wall 0.4 s | 37 | 70 | 37 | PASS |
+| flutist | L | paw jumps | rest | 10 | 0 | 0 | 0.0% | 0 at bach-bwv1047.mid rest | 0.0% | 0.5% | 0.0% | PASS |
+| flutist | L | stretch p95 | lift | 310 | 0.08 | 0.08 | 96.8% | 0.08 at boulanger-matin.mid wall 0.5 s | 0.08 | 0.35 | 0.08 | PASS |
+| flutist | L | grip turn p50 | play | 13744 | 0 | 0 | 100.0% | 0 at mozart-k315.mid 2.40 s | 0 | 45 | 0 | PASS |
+| flutist | L | move twist max | move | 11610 | 66 | 87 | 100.0% | 87 at beethoven-1.mid lift 0.00 s, wall 0.95 s | 87 | 176 | 87 | PASS |
+| flutist | L | move turn max | move | 11610 | 15 | 218 | 88.2% | 394 at mendelssohn-op61.mid lift 98.94 s, wall 0.49 s | 394 | 3000 | 394 | PASS |
+| flutist | R | folds p95 | rest | 10 | 2 | 2 | 100.0% | 2 at bach-bwv1047.mid rest | 2 | 8 | 3 | PASS |
+| flutist | R | twist p95 | rest | 10 | 42 | 42 | 100.0% | 42 at boulanger-matin.mid rest | 42 | 55 | 42 | PASS |
+| flutist | R | forearm twist p95 | lift | 310 | 14 | 44 | 100.0% | 48 at mozart-k315.mid wall 0.5 s | 44 | 80 | 46 | PASS |
+| flutist | R | flat p5 | lift | 310 | 0.89 | 0.88 | 100.0% | 0.87 at boulanger-matin.mid wall 0.3 s | 0.88 | 0.55 | 0.88 | PASS |
+| flutist | R | paw twist p95 | lift | 310 | 46 | 119 | 100.0% | 132 at bach-bwv1047.mid wall 0.5 s | 119 | 170 | 122 | PASS |
+| flutist | R | paw swing p95 | play | 13744 | 45 | 45 | 100.0% | 45 at mozart-k315.mid 2.40 s | 45 | 70 | 30 | FAIL |
+| flutist | R | paw jumps | rest | 10 | 0 | 0 | 0.0% | 0 at bach-bwv1047.mid rest | 0.0% | 0.5% | 0.0% | PASS |
+| flutist | R | stretch p95 | play | 13744 | 0.02 | 0.02 | 100.0% | 0.02 at mozart-k315.mid 116.65 s | 0.02 | 0.35 | 0.02 | PASS |
+| flutist | R | grip turn p50 | play | 13744 | 16 | 16 | 100.0% | 16 at mozart-k315.mid 69.90 s | 16 | 45 | 16 | PASS |
+| flutist | R | move twist max | move | 11610 | 89 | 131 | 100.0% | 132 at boulanger-matin.mid lower 187.11 s, wall 0.78 s | 132 | 176 | 132 | PASS |
+| flutist | R | move turn max | move | 11610 | 14 | 201 | 87.8% | 407 at beethoven-8.mid lift 146.82 s, wall 0.54 s | 407 | 3000 | 320 | PASS |

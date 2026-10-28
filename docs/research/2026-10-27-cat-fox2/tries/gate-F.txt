@@ -1,0 +1,36 @@
+base: cached (main, 2d375f76fff7)
+Arm gate of 1 roles in 2 variants against main: 2 children, at most 4 at the same time, in 131 s. A cell gives the value, the base in parentheses, and the verdict of a value that does not pass.
+
+- F2: flute@fox-tan.gripShiftR=[0,0.02,-0.14];flute@fox-tan.aimSide=[0.5,0.45]
+- F1: flute@fox-tan.gripShiftR=[0,0,-0.14];flute@fox-tan.aimSide=[0.5,0.45]
+
+| Variant | Role | Arm | folds p95 (8) | twist p95 (55) | forearm twist p95 (80) | flat p5 (0.55) | paw twist p95 (170) | paw swing p95 (70) | paw jumps (0.5%) | stretch p95 (0.35) | grip turn p50 (45) | move twist max (176) | move turn max (3000) | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| F2 | flutist | L | 3 (3) | 35 (35) | 40 (40) | 0.81 (0.81) | 87 (87) | 37 (37) | 0.0% (0.0%) | 0.08 (0.08) | 0 (0) | 87 (87) | 394 (394) | PASS |
+| F2 | flutist | R | 2 (3) | 42 (42) | 73 (46) FAIL | 0.81 (0.88) FAIL | 154 (122) FAIL | 50 (30) FAIL | 0.0% (0.0%) | 0.04 (0.02) | 147 (16) FAIL | 180 (132) FAIL | 17927 (320) FAIL | FAIL |
+| F1 | flutist | L | 3 (3) | 35 (35) | 40 (40) | 0.81 (0.81) | 87 (87) | 37 (37) | 0.0% (0.0%) | 0.08 (0.08) | 0 (0) | 87 (87) | 394 (394) | PASS |
+| F1 | flutist | R | 2 (3) | 42 (42) | 73 (46) FAIL | 0.82 (0.88) FAIL | 156 (122) FAIL | 47 (30) FAIL | 0.0% (0.0%) | 0.04 (0.02) | 148 (16) FAIL | 180 (132) FAIL | 17926 (320) FAIL | FAIL |
+
+Variant F2:
+
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| flutist | R | forearm twist p95 | lift | 310 | 65 | 73 | 100.0% | 101 at boulanger-matin.mid wall 0.4 s | 73 | 80 | 46 | FAIL |
+| flutist | R | flat p5 | lift | 310 | 0.81 | 0.81 | 100.0% | 0.80 at boulanger-matin.mid wall 0.4 s | 0.81 | 0.55 | 0.88 | FAIL |
+| flutist | R | paw twist p95 | lift | 310 | 117 | 154 | 100.0% | 178 at boulanger-matin.mid wall 0.4 s | 154 | 170 | 122 | FAIL |
+| flutist | R | paw swing p95 | lift | 310 | 50 | 50 | 100.0% | 50 at bach-bwv1050.mid wall 2.1 s | 50 | 70 | 30 | FAIL |
+| flutist | R | grip turn p50 | play | 13744 | 147 | 147 | 100.0% | 147 at mozart-k315.mid 106.15 s | 147 | 45 | 16 | FAIL |
+| flutist | R | move twist max | move | 11610 | 117 | 167 | 100.0% | 180 at mozart-k315.mid lower 255.00 s, wall 0.70 s | 180 | 176 | 132 | FAIL |
+| flutist | R | move turn max | move | 11610 | 14 | 218 | 87.2% | 17927 at mozart-k315.mid lower 255.00 s, wall 0.71 s | 17927 | 3000 | 320 | FAIL |
+
+Variant F1:
+
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| flutist | R | forearm twist p95 | lift | 310 | 66 | 73 | 100.0% | 100 at boulanger-matin.mid wall 0.4 s | 73 | 80 | 46 | FAIL |
+| flutist | R | flat p5 | lift | 310 | 0.82 | 0.82 | 100.0% | 0.80 at boulanger-matin.mid wall 0.4 s | 0.82 | 0.55 | 0.88 | FAIL |
+| flutist | R | paw twist p95 | lift | 310 | 118 | 156 | 100.0% | 176 at boulanger-matin.mid wall 0.4 s | 156 | 170 | 122 | FAIL |
+| flutist | R | paw swing p95 | lift | 310 | 47 | 47 | 100.0% | 47 at bach-bwv1050.mid wall 2.1 s | 47 | 70 | 30 | FAIL |
+| flutist | R | grip turn p50 | play | 13744 | 148 | 149 | 100.0% | 149 at mozart-k315.mid 252.65 s | 148 | 45 | 16 | FAIL |
+| flutist | R | move twist max | move | 11610 | 118 | 167 | 100.0% | 180 at boulanger-matin.mid lower 187.11 s, wall 0.74 s | 180 | 176 | 132 | FAIL |
+| flutist | R | move turn max | move | 11610 | 14 | 211 | 87.1% | 17926 at mozart-k315.mid lower 85.00 s, wall 0.72 s | 17926 | 3000 | 320 | FAIL |

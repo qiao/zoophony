@@ -1,0 +1,9 @@
+
+bach-bwv1047.mid
+violist (cat, viola): the gaps and the distances in cm, the median of each set; "worst" names the sample with the largest axis distance
+| Set | Paw | Samples | Holds | Grasps | Gap | Axis | In | Tips | Palm ° | Place ° | Butt | Held | Exit ° | Fingers ° | Top | Drift | Along | Side (right, up, fwd) | Worst axis | Paws gap min | Body gap | End gap |
+|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|---|---:|---:|---:|
+| play | L | 140 | 100% | 0% | 0.0 | 6.0 | 0.0 | 0.0 | 68 | - | - | - | - | - | -2.4 | 2.9 | 3.0 | 1.6, -5.8, 0.3 | 6.1 at 275.90 s, wall 288.00 s | 8.1 | 0.0 | 14.5 |
+| lift | L | 31 | 100% | 16% | 0.0 | 6.1 | 0.0 | 0.0 | 67 | - | - | - | - | - | -2.4 | 2.8 | 3.1 | 1.6, -5.9, 0.3 | 6.1 at 0.00 s, wall 12.80 s | 9.9 | 0.0 | 14.5 |
+| rest | L | 1 | 100% | 100% | 0.0 | 3.6 | 0.8 | 0.0 | 52 | - | - | - | - | - | -15.4 | 3.0 | 6.2 | -2.9, 0.3, -2.2 | 3.6 at -2.10 s, wall 10.00 s | 30.0 | 0.2 | 8.7 |
+| lower | L | 30 | 100% | 57% | 0.0 | 3.8 | 0.8 | 0.0 | 55 | - | - | - | - | - | -10.5 | 3.0 | 5.8 | -2.9, -0.1, -2.2 | 6.0 at 277.50 s, wall 10.50 s | 9.2 | 0.2 | 12.7 |

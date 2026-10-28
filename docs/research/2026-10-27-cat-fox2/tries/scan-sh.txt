@@ -1,0 +1,21 @@
+Hold scan of the violist: 1 demo(s), 12 play samples and the rest of each player, 17 variants in 6.0 s (0.35 s each), moves of viola@cat.
+The score is the depth past the limit of each pair, summed in cm, plus 10 for each share of the fingerboard and of the hair lost against the base. Lower is better.
+| rank | score | variant | fingersL>viola cm | fingersR>viola cm | forearmL>body cm | forearmL>viola cm | forearmR>body cm | handL>viola cm | instrument>body cm | upperArmL>body cm | upperArmR>body cm | fingerboard | hair |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| 1 | 4.5 | base | 0.8 | 0.0 | 1.9 | 1.0 | 1.4 | 0.6 | 1.0 | 3.9 | 3.3 | 0.58 | 0.69 |
+| 2 | 4.5 | move.yaw=10;move.dz=0.03;move.dy=0.03;move.tilt=0;viola@cat.reach=0.524;viola@cat.headDrop=-0.262;viola@cat.reachL=0.349 | 0.8 | 0.1 | 1.9 | 0.0 | 1.4 | 0.0 | 1.7 | 3.9 | 3.3 | 0.92 | 0.76 |
+| 3 | 4.5 | move.yaw=10;move.dz=0.03;move.dy=0.03;move.tilt=0;viola@cat.reach=0.524;viola@cat.headDrop=-0.262;viola@cat.reachL=0.524 | 0.8 | 0.1 | 1.9 | 0.0 | 1.4 | 0.0 | 1.7 | 3.9 | 3.3 | 0.98 | 0.76 |
+| 4 | 4.5 | move.yaw=10;move.dz=0.03;move.dy=0.03;move.tilt=0;viola@cat.reach=0.699;viola@cat.headDrop=-0.262;viola@cat.reachL=0.349 | 0.8 | 0.1 | 1.9 | 0.0 | 1.4 | 0.0 | 1.7 | 3.9 | 3.3 | 0.92 | 0.79 |
+| 5 | 4.5 | move.yaw=10;move.dz=0.03;move.dy=0.03;move.tilt=0;viola@cat.reach=0.699;viola@cat.headDrop=-0.262;viola@cat.reachL=0.524 | 0.8 | 0.1 | 1.9 | 0.0 | 1.4 | 0.0 | 1.7 | 3.9 | 3.3 | 0.98 | 0.79 |
+| 6 | 4.5 | move.yaw=10;move.dz=0.03;move.dy=0.03;move.tilt=5;viola@cat.reach=0.524;viola@cat.headDrop=-0.262;viola@cat.reachL=0.349 | 0.9 | 0.1 | 1.9 | 0.0 | 1.4 | 0.0 | 1.5 | 3.9 | 3.3 | 0.96 | 0.79 |
+| 7 | 4.5 | move.yaw=10;move.dz=0.03;move.dy=0.03;move.tilt=5;viola@cat.reach=0.524;viola@cat.headDrop=-0.262;viola@cat.reachL=0.524 | 0.8 | 0.1 | 1.9 | 0.0 | 1.4 | 0.0 | 1.5 | 3.9 | 3.3 | 1.00 | 0.79 |
+| 8 | 4.5 | move.yaw=10;move.dz=0.03;move.dy=0.03;move.tilt=5;viola@cat.reach=0.699;viola@cat.headDrop=-0.262;viola@cat.reachL=0.349 | 0.9 | 0.0 | 1.9 | 0.0 | 1.4 | 0.0 | 1.5 | 3.9 | 3.3 | 0.96 | 0.81 |
+| 9 | 4.5 | move.yaw=10;move.dz=0.03;move.dy=0.03;move.tilt=5;viola@cat.reach=0.699;viola@cat.headDrop=-0.262;viola@cat.reachL=0.524 | 0.8 | 0.0 | 1.9 | 0.0 | 1.4 | 0.0 | 1.5 | 3.9 | 3.3 | 1.00 | 0.81 |
+| 10 | 5.0 | move.yaw=10;move.dz=0.03;move.dy=0.03;move.tilt=5;viola@cat.reach=0.524;viola@cat.headDrop=-0.14;viola@cat.reachL=0.349 | 0.9 | 0.1 | 1.9 | 0.0 | 1.4 | 0.0 | 2.5 | 3.9 | 3.3 | 0.96 | 0.79 |
+| 11 | 5.0 | move.yaw=10;move.dz=0.03;move.dy=0.03;move.tilt=5;viola@cat.reach=0.524;viola@cat.headDrop=-0.14;viola@cat.reachL=0.524 | 0.8 | 0.1 | 1.9 | 0.0 | 1.4 | 0.0 | 2.5 | 3.9 | 3.3 | 1.00 | 0.79 |
+| 12 | 5.0 | move.yaw=10;move.dz=0.03;move.dy=0.03;move.tilt=5;viola@cat.reach=0.699;viola@cat.headDrop=-0.14;viola@cat.reachL=0.349 | 0.9 | 0.0 | 1.9 | 0.0 | 1.4 | 0.0 | 2.5 | 3.9 | 3.3 | 0.96 | 0.81 |
+| 13 | 5.0 | move.yaw=10;move.dz=0.03;move.dy=0.03;move.tilt=5;viola@cat.reach=0.699;viola@cat.headDrop=-0.14;viola@cat.reachL=0.524 | 0.8 | 0.0 | 1.9 | 0.0 | 1.4 | 0.0 | 2.5 | 3.9 | 3.3 | 1.00 | 0.81 |
+| 14 | 5.4 | move.yaw=10;move.dz=0.03;move.dy=0.03;move.tilt=0;viola@cat.reach=0.524;viola@cat.headDrop=-0.14;viola@cat.reachL=0.349 | 0.8 | 0.1 | 1.9 | 0.0 | 1.4 | 0.0 | 2.9 | 3.9 | 3.3 | 0.92 | 0.76 |
+| 15 | 5.4 | move.yaw=10;move.dz=0.03;move.dy=0.03;move.tilt=0;viola@cat.reach=0.524;viola@cat.headDrop=-0.14;viola@cat.reachL=0.524 | 0.8 | 0.1 | 1.9 | 0.0 | 1.4 | 0.0 | 2.9 | 3.9 | 3.3 | 0.98 | 0.76 |
+| 16 | 5.4 | move.yaw=10;move.dz=0.03;move.dy=0.03;move.tilt=0;viola@cat.reach=0.699;viola@cat.headDrop=-0.14;viola@cat.reachL=0.349 | 0.8 | 0.1 | 1.9 | 0.0 | 1.4 | 0.0 | 2.9 | 3.9 | 3.3 | 0.92 | 0.79 |
+| 17 | 5.4 | move.yaw=10;move.dz=0.03;move.dy=0.03;move.tilt=0;viola@cat.reach=0.699;viola@cat.headDrop=-0.14;viola@cat.reachL=0.524 | 0.8 | 0.1 | 1.9 | 0.0 | 1.4 | 0.0 | 2.9 | 3.9 | 3.3 | 0.98 | 0.79 |

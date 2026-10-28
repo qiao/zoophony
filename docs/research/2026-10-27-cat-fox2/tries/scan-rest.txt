@@ -1,0 +1,23 @@
+Hold scan of the violist: 1 demo(s), 12 play samples and the rest of each player, 19 variants in 8.2 s (0.43 s each).
+The score is the depth past the limit of each pair, summed in cm, plus 10 for each share of the fingerboard and of the hair lost against the base. Lower is better.
+| rank | score | variant | fingersL>viola cm | fingersR>viola cm | forearmL>viola cm | forearmR>body cm | instrument>body cm | upperArmL>body cm | upperArmR>body cm | fingerboard | hair |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| 1 | 0.8 | viola@cat.restPoleR.0=0.8;viola@cat.restBow.lap.offset.1=0.6;viola@cat.restBow.lap.offset.0=0.4 | 0.8 | 0.0 | 0.1 | 0.0 | 1.9 | 2.3 | 1.4 | 1.00 | 0.79 |
+| 2 | 0.8 | viola@cat.restPoleR.0=0.8;viola@cat.restBow.lap.offset.1=0.6;viola@cat.restBow.lap.offset.0=0.6 | 0.8 | 0.0 | 0.1 | 0.0 | 1.9 | 2.3 | 1.4 | 1.00 | 0.79 |
+| 3 | 0.8 | viola@cat.restPoleR.0=0.8;viola@cat.restBow.lap.offset.1=0.8;viola@cat.restBow.lap.offset.0=0.4 | 0.8 | 0.0 | 0.1 | 0.0 | 1.9 | 2.3 | 1.4 | 1.00 | 0.79 |
+| 4 | 0.8 | viola@cat.restPoleR.0=0.8;viola@cat.restBow.lap.offset.1=0.8;viola@cat.restBow.lap.offset.0=0.6 | 0.8 | 0.0 | 0.1 | 0.0 | 1.9 | 2.3 | 1.4 | 1.00 | 0.79 |
+| 5 | 0.8 | viola@cat.restPoleR.0=1.2;viola@cat.restBow.lap.offset.1=0.6;viola@cat.restBow.lap.offset.0=0.4 | 0.8 | 0.0 | 0.1 | 0.0 | 1.9 | 2.3 | 1.4 | 1.00 | 0.79 |
+| 6 | 0.8 | viola@cat.restPoleR.0=1.2;viola@cat.restBow.lap.offset.1=0.6;viola@cat.restBow.lap.offset.0=0.6 | 0.8 | 0.0 | 0.1 | 0.0 | 1.9 | 2.3 | 1.4 | 1.00 | 0.79 |
+| 7 | 0.8 | viola@cat.restPoleR.0=1.2;viola@cat.restBow.lap.offset.1=0.8;viola@cat.restBow.lap.offset.0=0.4 | 0.8 | 0.0 | 0.1 | 0.0 | 1.9 | 2.3 | 1.4 | 1.00 | 0.79 |
+| 8 | 0.8 | viola@cat.restPoleR.0=1.2;viola@cat.restBow.lap.offset.1=0.8;viola@cat.restBow.lap.offset.0=0.6 | 0.8 | 0.0 | 0.1 | 0.0 | 1.9 | 2.3 | 1.4 | 1.00 | 0.79 |
+| 9 | 0.8 | viola@cat.restPoleR.0=1.6;viola@cat.restBow.lap.offset.1=0.6;viola@cat.restBow.lap.offset.0=0.4 | 0.8 | 0.0 | 0.1 | 0.0 | 1.9 | 2.3 | 1.4 | 1.00 | 0.79 |
+| 10 | 0.8 | viola@cat.restPoleR.0=1.6;viola@cat.restBow.lap.offset.1=0.6;viola@cat.restBow.lap.offset.0=0.6 | 0.8 | 0.0 | 0.1 | 0.0 | 1.9 | 2.3 | 1.4 | 1.00 | 0.79 |
+| 11 | 0.8 | viola@cat.restPoleR.0=1.6;viola@cat.restBow.lap.offset.1=0.8;viola@cat.restBow.lap.offset.0=0.4 | 0.8 | 0.0 | 0.1 | 0.0 | 1.9 | 2.3 | 1.4 | 1.00 | 0.79 |
+| 12 | 0.8 | viola@cat.restPoleR.0=1.6;viola@cat.restBow.lap.offset.1=0.8;viola@cat.restBow.lap.offset.0=0.6 | 0.8 | 0.0 | 0.1 | 0.0 | 1.9 | 2.3 | 1.4 | 1.00 | 0.79 |
+| 13 | 1.1 | viola@cat.restPoleR.0=1.6;viola@cat.restBow.lap.offset.1=0.4;viola@cat.restBow.lap.offset.0=0.4 | 0.8 | 0.0 | 0.1 | 0.0 | 1.9 | 2.3 | 1.8 | 1.00 | 0.79 |
+| 14 | 1.5 | viola@cat.restPoleR.0=1.2;viola@cat.restBow.lap.offset.1=0.4;viola@cat.restBow.lap.offset.0=0.4 | 0.8 | 0.0 | 0.1 | 0.0 | 1.9 | 2.3 | 2.2 | 1.00 | 0.79 |
+| 15 | 1.6 | viola@cat.restPoleR.0=0.8;viola@cat.restBow.lap.offset.1=0.4;viola@cat.restBow.lap.offset.0=0.6 | 0.8 | 0.0 | 0.1 | 0.0 | 1.9 | 2.3 | 2.4 | 1.00 | 0.79 |
+| 16 | 1.7 | viola@cat.restPoleR.0=1.6;viola@cat.restBow.lap.offset.1=0.4;viola@cat.restBow.lap.offset.0=0.6 | 0.8 | 0.0 | 0.1 | 0.0 | 1.9 | 2.3 | 2.4 | 1.00 | 0.79 |
+| 17 | 1.7 | viola@cat.restPoleR.0=1.2;viola@cat.restBow.lap.offset.1=0.4;viola@cat.restBow.lap.offset.0=0.6 | 0.8 | 0.0 | 0.1 | 0.0 | 1.9 | 2.3 | 2.5 | 1.00 | 0.79 |
+| 18 | 2.2 | base | 0.8 | 0.0 | 0.1 | 1.2 | 1.9 | 2.3 | 2.9 | 1.00 | 0.79 |
+| 19 | 2.2 | viola@cat.restPoleR.0=0.8;viola@cat.restBow.lap.offset.1=0.4;viola@cat.restBow.lap.offset.0=0.4 | 0.8 | 0.0 | 0.1 | 1.2 | 1.9 | 2.3 | 2.9 | 1.00 | 0.79 |
