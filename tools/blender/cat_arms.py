@@ -1062,6 +1062,7 @@ def step_round_wall(s):
         return None
     rule = s.spec['wall']
     mesh = s.mesh
+    s.anchor_target = anchor_target(s)
     bpy.context.view_layer.objects.active = mesh
     bpy.ops.object.mode_set(mode='EDIT')
     bm = bmesh.from_edit_mesh(mesh.data)
@@ -1295,21 +1296,12 @@ def step_paint(s):
     return len(island), anchored
 
 
-def anchor(s, island):
-    """Gives the tube vertices near each side wall a share of the chest weight (fix 5).
-
-    The upper arm of the user mesh lies against the trunk down to the elbow, so a turn of the arm
-    toward the trunk takes the inner side and the back of the tube into the trunk. A Vertex Weight
-    Proximity modifier gives each tube vertex a weight by its distance to the side walls: `share`
-    on the wall, falling to 0 at the distance `reach` (units). A Vertex Weight Mix modifier adds it
-    to the chest, and Normalize All takes it from the arm bones. Thus the skin of the armpit
-    follows the trunk in part, as a real armpit does. With `rings`, only the tube vertices of the
-    first `rings` rings take the share: on the short arm of the hippo, the forearm lies within
-    `reach` of the side wall too.
-    """
+def anchor_target(s):
+    """Gives a hidden copy of the faces that `anchor()` measures from: the side walls, and with
+    `anchor.crease` also the trunk faces along the seam below each socket. `step_round_wall()`
+    takes this copy before it makes the walls again, so that the anchor keeps the distances of the
+    seam fill."""
     mesh, rule = s.mesh, s.spec['anchor']
-    if rule['share'] <= 0:
-        return 0
     wall = mesh.copy()
     wall.data = mesh.data.copy()
     wall.name = wall.data.name = s.animal + '-walls'
@@ -1331,6 +1323,26 @@ def anchor(s, island):
     bmesh.ops.delete(bm, geom=[f for f in bm.faces if not target(f)], context='FACES')
     bm.to_mesh(wall.data)
     bm.free()
+    wall.hide_render = True
+    return wall
+
+
+def anchor(s, island):
+    """Gives the tube vertices near each side wall a share of the chest weight (fix 5).
+
+    The upper arm of the user mesh lies against the trunk down to the elbow, so a turn of the arm
+    toward the trunk takes the inner side and the back of the tube into the trunk. A Vertex Weight
+    Proximity modifier gives each tube vertex a weight by its distance to the side walls: `share`
+    on the wall, falling to 0 at the distance `reach` (units). A Vertex Weight Mix modifier adds it
+    to the chest, and Normalize All takes it from the arm bones. Thus the skin of the armpit
+    follows the trunk in part, as a real armpit does. With `rings`, only the tube vertices of the
+    first `rings` rings take the share: on the short arm of the hippo, the forearm lies within
+    `reach` of the side wall too.
+    """
+    mesh, rule = s.mesh, s.spec['anchor']
+    if rule['share'] <= 0:
+        return 0
+    wall = getattr(s, 'anchor_target', None) or anchor_target(s)
     wall.matrix_world = mesh.matrix_world
     part = [a.value for a in mesh.data.attributes['arm_part'].data]
     ring = [a.value for a in mesh.data.attributes['arm_ring'].data]
