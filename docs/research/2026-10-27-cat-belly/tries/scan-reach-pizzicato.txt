@@ -1,0 +1,13 @@
+
+> zoophony@0.0.0 pair-scan /Users/xueqiaoxu/proj/zoophony/.claude/worktrees/sixth-cat-belly
+> node tools/pair-scan.ts violist --pairs 'play:upper arms:body,play:forearms:body,lower:upper arms:body,play:claws:viola,play:upper arms:viola' --demo brahms-2 --demo boulanger-matin --every 4 --variant both\=viola\@cat.restPoleR\=\[0.9\,-1\,0.2\]\;viola\@cat.reach\=36deg --variant reach40\=viola\@cat.restPoleR\=\[0.9\,-1\,0.2\]\;viola\@cat.reach\=40deg --variant pz15\=viola\@cat.restPoleR\=\[0.9\,-1\,0.2\]\;viola\@cat.reach\=36deg\;viola\@cat.polePizzicato\=\[1.5\,-0.5\,-1\] --variant pz2\=viola\@cat.restPoleR\=\[0.9\,-1\,0.2\]\;viola\@cat.reach\=36deg\;viola\@cat.polePizzicato\=\[2\,-0.5\,-1\]
+
+| variant | play upper arms in body | play forearms in body | lower upper arms in body | play claws in viola | play upper arms in viola | fingerboard, hair |
+|---|---|---|---|---|---|---|
+| base | 2.79 (7.5%) brahms-2 581.38 | 0.76 (0.0%) brahms-2 207.38 | 2.79 (23.3%) boulanger-matin w12.00 | 2.13 (3.7%) boulanger-matin 114.38 | 0.06 (0.0%) boulanger-matin 265.38 | 0.00 to 1.00, 0.840 |
+| both | 2.28 (5.6%) brahms-2 585.38 | 0.39 (0.0%) brahms-2 207.38 | 2.28 (20.0%) boulanger-matin w12.00 | 2.15 (6.5%) boulanger-matin 112.38 | 0.00 (0.0%)  | 0.00 to 1.00, 0.840 |
+| reach40 | 1.97 (5.0%) brahms-2 412.38 | 0.20 (0.0%) brahms-2 207.38 | 1.96 (15.0%) boulanger-matin w12.00 | 2.15 (7.6%) brahms-2 388.38 | 0.00 (0.0%)  | 0.00 to 1.00, 0.840 |
+| pz15 | 2.22 (2.2%) brahms-2 412.38 | 0.39 (0.0%) brahms-2 207.38 | 1.68 (10.0%) brahms-2 w13.50 | 2.15 (6.5%) boulanger-matin 112.38 | 0.00 (0.0%)  | 0.00 to 1.00, 0.840 |
+| pz2 | 2.22 (1.6%) brahms-2 412.38 | 0.39 (0.0%) brahms-2 207.38 | 1.68 (3.3%) brahms-2 w13.50 | 2.15 (6.5%) boulanger-matin 112.38 | 0.00 (0.0%)  | 0.00 to 1.00, 0.840 |
+
+5 rows over 2 demo(s) in 139.5 s. A cell gives the deepest point in cm, the share of the samples over the limit of the pair, and the sample: the demo and the song time, or w and the wall time.

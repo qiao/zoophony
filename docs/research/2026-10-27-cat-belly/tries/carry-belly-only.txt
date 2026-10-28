@@ -1,0 +1,9 @@
+
+> zoophony@0.0.0 carry-check /Users/xueqiaoxu/proj/zoophony/.claude/worktrees/sixth-cat-belly
+> node tools/carry-check.ts violist --base main
+
+Carry of the instrument in the left paw on the working tree, with main (65b3aad8) in parentheses: 24.1 s. A fast step turns both faster than 20°/s, at steps of 0.01 s.
+
+| Role | Moves | Steps >90° of the fast steps | Largest angle | Turn in the paw: path | Turn in the paw: net | Move of the largest angle |
+|---|---|---|---|---|---|---|
+| violist | 84 (84) | 0 of 7660 (0 of 7660) | 18° (18°) | 32° (32°) | 30° (30°) | mozart-k191 lower 224.5 s |

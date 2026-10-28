@@ -1,0 +1,104 @@
+# Step 1: the user mesh. The arms join the trunk above f 0.70, so the side values there are the arms.
+glb assets/models/cat/cat.glb
+  left: hull 14.16 cm @50 dents 2 turn 120.6 deg @52 ellipse none
+  right: hull 14.26 cm @50 dents 1 turn 120.2 deg @52 ellipse none
+  front: hull 1.06 cm @52 dents 1 turn 13.6 deg @17 ellipse 1.75 cm @59
+  back: hull 6.10 cm @37 dents 1 turn 10.8 deg @20 ellipse none
+# Step 2: the arm copy, main
+glb assets/models/cat/cat-arms.glb
+  left: hull 2.21 cm @42 dents 1 turn 24.2 deg @50 ellipse none
+  right: hull 2.18 cm @42 dents 1 turn 25.4 deg @50 ellipse none
+  front: hull 1.06 cm @52 dents 1 turn 13.6 deg @17 ellipse 1.75 cm @59
+  back: hull 6.10 cm @37 dents 1 turn 10.8 deg @20 ellipse none
+# Step 2: the arm copy, round
+glb assets/models/cat/cat-arms.glb
+  left: hull 1.58 cm @42 dents 1 turn 13.0 deg @52 ellipse none
+  right: hull 1.53 cm @42 dents 1 turn 16.5 deg @50 ellipse none
+  front: hull 0.00 cm @22 dents 0 turn 18.4 deg @9 ellipse 0.31 cm @7
+  back: hull 6.10 cm @37 dents 1 turn 10.8 deg @20 ellipse none
+# Step 3: the seated bind of the app body, main
+bind (bach-bwv1047.mid)
+  left: hull 2.38 cm @29 dents 1 turn 34.4 deg @33 ellipse none
+  right: hull 1.33 cm @29 dents 1 turn 35.2 deg @33 ellipse none
+  front: hull 1.26 cm @35 dents 1 turn 21.0 deg @11 ellipse 2.07 cm @41
+  back: hull 3.97 cm @28 dents 1 turn 13.7 deg @28 ellipse none
+  patchL: hull 0.89 cm @30 dents 2 turn 29.6 deg @14 ellipse 2.33 cm @41
+  patchR: hull 1.04 cm @37 dents 2 turn 33.8 deg @14 ellipse 2.41 cm @41
+  softL: hull 1.81 cm @30 dents 3 turn 43.6 deg @24 ellipse 2.54 cm @41
+  softR: hull 1.16 cm @30 dents 2 turn 36.5 deg @38 ellipse 1.81 cm @41
+  patch facets: 68 edges, angle p50 14.8 p90 28.5 max 48.0 deg, over 25 deg 12
+# Step 3: the seated bind of the app body, round
+bind (bach-bwv1047.mid)
+  left: hull 1.72 cm @29 dents 1 turn 28.8 deg @33 ellipse none
+  right: hull 0.96 cm @33 dents 1 turn 29.7 deg @33 ellipse none
+  front: hull 0.00 cm @14 dents 0 turn 34.2 deg @6 ellipse 0.57 cm @5
+  back: hull 3.97 cm @28 dents 1 turn 13.9 deg @28 ellipse none
+  patchL: hull 5.21 cm @18 dents 4 turn 98.5 deg @14 ellipse 3.34 cm @18
+  patchR: hull 5.42 cm @16 dents 4 turn 104.8 deg @14 ellipse 3.23 cm @16
+  softL: hull 1.24 cm @30 dents 4 turn 37.9 deg @30 ellipse 1.10 cm @30
+  softR: hull 0.92 cm @30 dents 4 turn 39.4 deg @16 ellipse 0.72 cm @30
+  patch facets: 67 edges, angle p50 9.8 p90 33.2 max 48.0 deg, over 25 deg 15
+# Step 4: rest, main, worst of the samples
+1 samples
+  left: hull 2.39 cm, dents 1, turn 34.4 deg, ellipse 0.00 cm
+  right: hull 1.33 cm, dents 1, turn 35.2 deg, ellipse 0.00 cm
+  front: hull 1.18 cm, dents 1, turn 21.7 deg, ellipse 2.06 cm
+  softL: hull 1.86 cm, dents 3, turn 44.9 deg, ellipse 2.58 cm
+  softR: hull 1.28 cm, dents 2, turn 40.9 deg, ellipse 1.89 cm
+  facets: p90 28.5, max 48.2 deg
+# Step 4: rest, round, worst of the samples
+1 samples
+  left: hull 1.72 cm, dents 1, turn 28.6 deg, ellipse 0.00 cm
+  right: hull 0.97 cm, dents 1, turn 30.0 deg, ellipse 0.00 cm
+  front: hull 0.00 cm, dents 0, turn 34.2 deg, ellipse 0.66 cm
+  softL: hull 1.26 cm, dents 4, turn 40.0 deg, ellipse 1.13 cm
+  softR: hull 0.96 cm, dents 4, turn 39.4 deg, ellipse 0.74 cm
+  facets: p90 33.3, max 48.0 deg
+# Step 4: play@40, main, worst of the samples
+28 samples
+  left: hull 2.39 cm, dents 1, turn 34.4 deg, ellipse 0.00 cm
+  right: hull 1.33 cm, dents 1, turn 35.7 deg, ellipse 0.00 cm
+  front: hull 1.36 cm, dents 1, turn 21.9 deg, ellipse 2.09 cm
+  softL: hull 1.90 cm, dents 3, turn 47.7 deg, ellipse 2.63 cm
+  softR: hull 1.28 cm, dents 3, turn 41.4 deg, ellipse 1.89 cm
+  facets: p90 28.5, max 48.3 deg
+# Step 4: play@40, round, worst of the samples
+28 samples
+  left: hull 1.72 cm, dents 1, turn 28.8 deg, ellipse 0.00 cm
+  right: hull 0.99 cm, dents 1, turn 32.6 deg, ellipse 0.00 cm
+  front: hull 0.00 cm, dents 0, turn 34.2 deg, ellipse 0.68 cm
+  softL: hull 1.29 cm, dents 5, turn 42.3 deg, ellipse 1.18 cm
+  softR: hull 1.00 cm, dents 4, turn 44.5 deg, ellipse 0.75 cm
+  facets: p90 33.4, max 48.0 deg
+# Step 4: lift@6, main, worst of the samples
+6 samples
+  left: hull 2.39 cm, dents 1, turn 34.4 deg, ellipse 0.00 cm
+  right: hull 1.33 cm, dents 1, turn 35.2 deg, ellipse 0.00 cm
+  front: hull 1.36 cm, dents 1, turn 21.9 deg, ellipse 2.09 cm
+  softL: hull 1.86 cm, dents 3, turn 45.3 deg, ellipse 2.60 cm
+  softR: hull 1.31 cm, dents 3, turn 42.2 deg, ellipse 1.90 cm
+  facets: p90 28.5, max 48.3 deg
+# Step 4: lift@6, round, worst of the samples
+6 samples
+  left: hull 1.72 cm, dents 1, turn 28.8 deg, ellipse 0.00 cm
+  right: hull 0.98 cm, dents 1, turn 30.1 deg, ellipse 0.00 cm
+  front: hull 0.00 cm, dents 0, turn 34.2 deg, ellipse 0.68 cm
+  softL: hull 1.27 cm, dents 4, turn 40.6 deg, ellipse 1.14 cm
+  softR: hull 0.97 cm, dents 4, turn 43.7 deg, ellipse 0.75 cm
+  facets: p90 33.4, max 48.0 deg
+# Step 4: lower@4, main, worst of the samples
+8 samples
+  left: hull 2.39 cm, dents 1, turn 34.4 deg, ellipse 0.00 cm
+  right: hull 1.36 cm, dents 1, turn 35.2 deg, ellipse 0.00 cm
+  front: hull 1.32 cm, dents 1, turn 21.9 deg, ellipse 2.08 cm
+  softL: hull 1.86 cm, dents 3, turn 45.3 deg, ellipse 2.59 cm
+  softR: hull 1.31 cm, dents 3, turn 42.2 deg, ellipse 1.90 cm
+  facets: p90 28.5, max 48.3 deg
+# Step 4: lower@4, round, worst of the samples
+8 samples
+  left: hull 1.72 cm, dents 1, turn 28.8 deg, ellipse 0.00 cm
+  right: hull 0.98 cm, dents 1, turn 30.1 deg, ellipse 0.00 cm
+  front: hull 0.00 cm, dents 0, turn 34.2 deg, ellipse 0.68 cm
+  softL: hull 1.27 cm, dents 4, turn 40.6 deg, ellipse 1.14 cm
+  softR: hull 0.97 cm, dents 4, turn 42.3 deg, ellipse 0.75 cm
+  facets: p90 33.4, max 48.0 deg

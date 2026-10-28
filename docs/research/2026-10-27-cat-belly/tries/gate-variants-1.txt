@@ -1,0 +1,18 @@
+
+> zoophony@0.0.0 arm-check /Users/xueqiaoxu/proj/zoophony/.claude/worktrees/sixth-cat-belly
+> node tools/arm-check.ts violist --base main --variant r4 --set viola\@cat.restPoleR\=\[0.9\,-1\,0.2\] --variant reach36 --set viola\@cat.reach\=36deg --variant both --set viola\@cat.restPoleR\=\[0.9\,-1\,0.2\]\;viola\@cat.reach\=36deg
+
+Arm gate of 1 roles in 3 variants against main: 3 children, at most 4 at the same time, in 166 s. A cell gives the value, the base in parentheses, and the verdict of a value that does not pass.
+
+- r4: viola@cat.restPoleR=[0.9,-1,0.2]
+- reach36: viola@cat.reach=36deg
+- both: viola@cat.restPoleR=[0.9,-1,0.2];viola@cat.reach=36deg
+
+| Variant | Role | Arm | folds p95 (8) | twist p95 (55) | forearm twist p95 (80) | flat p5 (0.55) | paw twist p95 (170) | paw swing p95 (70) | paw jumps (0.5%) | stretch p95 (0.35) | grip turn p50 (45) | move twist max (176) | move turn max (3000) | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| r4 | violist | L | 4 (4) | 32 (32) | 38 (38) | 0.79 (0.79) | 100 (100) | 40 (40) | 0.0% (0.0%) | 0.11 (0.11) | 4 (4) | 101 (101) | 219 (219) | PASS |
+| r4 | violist | R | 3 (5) | 41 (36) | 47 (47) | 0.83 (0.83) | 123 (123) | 55 (57) | 0.0% (0.0%) | 0.04 (0.04) | 35 (35) | 134 (133) | 564 (566) | PASS |
+| reach36 | violist | L | 4 (4) | 32 (32) | 38 (38) | 0.79 (0.79) | 100 (100) | 40 (40) | 0.0% (0.0%) | 0.11 (0.11) | 4 (4) | 101 (101) | 219 (219) | PASS |
+| reach36 | violist | R | 6 (5) | 41 (36) | 48 (47) | 0.83 (0.83) | 124 (123) | 57 (57) | 0.0% (0.0%) | 0.04 (0.04) | 35 (35) | 133 (133) | 565 (566) | PASS |
+| both | violist | L | 4 (4) | 32 (32) | 38 (38) | 0.79 (0.79) | 100 (100) | 40 (40) | 0.0% (0.0%) | 0.11 (0.11) | 4 (4) | 101 (101) | 219 (219) | PASS |
+| both | violist | R | 6 (5) | 41 (36) | 48 (47) | 0.83 (0.83) | 124 (123) | 56 (57) | 0.0% (0.0%) | 0.04 (0.04) | 35 (35) | 134 (133) | 566 (566) | PASS |
