@@ -2,7 +2,7 @@ import { Group, HemisphereLight, MathUtils, SpotLight, Vector3 } from 'three';
 
 import type { ConductorPlace } from '../models/layout.ts';
 import type { Vec3 } from '../models/tuples.ts';
-import { keyLightPlace } from '../models/beam.ts';
+import { keyLightPlace, rimLightPlace, rimLightXs } from '../models/beam.ts';
 import { createBeam, setBeamTier } from './beam.ts';
 import { TIER_SETTINGS } from './quality.ts';
 import type { QualityTier } from './quality.ts';
@@ -112,6 +112,24 @@ export const BACK_ROW_LIGHT = {
   angle: 10 * MathUtils.DEG2RAD,
   /** The penumbra of the cone. */
   penumbra: 0.5,
+} as const;
+
+/**
+ * The rim lights (design 4.5): warm spotlights far behind the orchestra and high (`RIM_PLACE` of
+ * `models/beam.ts`), as the back lights on a truss of a concert film. They light the heads and
+ * the shoulders from behind, so the players stand out of the dark hall, and the haze shows the
+ * beam of each one. They cast no shadow, so the key light stays the only light that casts shadows
+ * on the stage.
+ */
+export const RIM_LIGHT = {
+  /** The color, in sRGB: the warm orange of the key light. */
+  color: '#ffca98',
+  /** The illuminance at the aim point, on a face that looks at the light, in lux. */
+  illuminance: 0,
+  /** The half angle of the cone. */
+  angle: 16 * MathUtils.DEG2RAD,
+  /** The full penumbra, for a soft pool of light. */
+  penumbra: 1,
 } as const;
 
 /**
@@ -275,12 +293,20 @@ const SIDE_NAME = 'side';
 /** The name of each back-row light in the group of {@link createLights}. */
 const BACK_ROW_NAME = 'back-row';
 
+/** The name of each rim light in the group of {@link createLights}. */
+const RIM_NAME = 'rim';
+
 /**
  * The names of the spotlights in the group of {@link createLights}, for the probes of the light
  * (`pnpm light-probe`). The names stay module constants, because exported constants grew the
  * first download by 5 B after gzip.
  */
-export const LIGHT_NAMES = { key: KEY_NAME, side: SIDE_NAME, backRow: BACK_ROW_NAME } as const;
+export const LIGHT_NAMES = {
+  key: KEY_NAME,
+  side: SIDE_NAME,
+  backRow: BACK_ROW_NAME,
+  rim: RIM_NAME,
+} as const;
 
 /**
  * Sets the shadow map size and the shadow blur of a spotlight (design 2.6). The renderer makes a
@@ -380,6 +406,26 @@ export function aimKeyLight(lights: Group, stageSide: number, x: number, z: numb
       child.target.position.set(x, 0, z);
       fitShadow(child, stageSide);
     }
+  }
+}
+
+/**
+ * Aims the rim lights at the feet of their beams (design 2.4, 4.5): each light turns to the point
+ * of the foot of the frame plus its own x, which a solo moves to the soloed players. The lights
+ * keep their places and their intensity, as the beams do.
+ *
+ * @param lights The group of {@link createLights}.
+ * @param stageSide The stage side `S`, in meters.
+ * @param x The x of the foot of the beam of a rim light on the stage axis, in meters.
+ * @param z The z of the foot, in meters.
+ */
+export function aimRimLights(lights: Group, stageSide: number, x: number, z: number): void {
+  const xs = rimLightXs(stageSide);
+  const rims = lights.children.filter(
+    (child): child is SpotLight => child instanceof SpotLight && child.name === RIM_NAME,
+  );
+  for (const [i, rim] of rims.entries()) {
+    rim.target.position.set(x + (xs[i] ?? 0), 0, z);
   }
 }
 
@@ -544,8 +590,8 @@ interface LightOptions {
 
 /**
  * Creates the lights of the stage: the key light, the fill light, the two side lights, the two
- * back-row lights, the visible beam, and the light on the face of the conductor (design 4.5). The
- * lights scale with the stage.
+ * back-row lights, the rim lights, the visible beams, and the light on the face of the conductor
+ * (design 4.5). The lights scale with the stage.
  *
  * @param stageSide The stage side `S`, in meters.
  * @param tier The quality tier. It sets the shadow map sizes and the shadow blur.
@@ -578,6 +624,14 @@ export function createLights(
     for (const light of crossPair(stageSide, BACK_ROW_LIGHT, BACK_ROW_NAME)) {
       group.add(light, light.target);
     }
+  }
+  for (const x of rimLightXs(stageSide)) {
+    const rim = RIM_LIGHT;
+    const light = spotlight(rim.color, rimLightPlace(stageSide, x), [x, 0, 0], rim.illuminance);
+    light.name = RIM_NAME;
+    light.angle = rim.angle;
+    light.penumbra = rim.penumbra;
+    group.add(light, light.target);
   }
 
   if (options.beam ?? true) {

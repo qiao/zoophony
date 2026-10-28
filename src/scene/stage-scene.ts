@@ -31,7 +31,13 @@ import { createHall, setHallCamera } from './hall.ts';
 import { BeamDepth, setBeamFrame } from './beam.ts';
 import { boneSpheres, fitPoseSphere } from './bounds.ts';
 import type { BoneSpheres } from './bounds.ts';
-import { aimKeyLight, createLights, keyLightPosition, setLightsTier } from './lights.ts';
+import {
+  aimKeyLight,
+  aimRimLights,
+  createLights,
+  keyLightPosition,
+  setLightsTier,
+} from './lights.ts';
 import { createPoolUniforms, defaultAim, setPoolAim } from './light-pool.ts';
 import type { LightAim } from './light-pool.ts';
 import { tierPixelRatio } from './quality.ts';
@@ -710,7 +716,8 @@ export class StageScene {
 
   /**
    * Eases the stage lights to the aim of the solo flags (design 2.4, 4.5): the pool, the hot spot,
-   * and the aim of the key light. The ease stops when the lights reach the aim.
+   * the aim of the key light, and the aim of the rim lights. The ease stops when the lights reach
+   * the aim.
    *
    * @param view The layout of the frame.
    * @param nowMs The time of the frame, in milliseconds.
@@ -733,6 +740,7 @@ export class StageScene {
     this.#aim = aim;
     setPoolAim(this.#pool, aim);
     aimKeyLight(view.lights, view.stageSide, aim.center[0], aim.center[1]);
+    aimRimLights(view.lights, view.stageSide, aim.beam[0], aim.beam[1]);
     return aim.beam;
   }
 

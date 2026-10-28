@@ -24,7 +24,7 @@ import {
 } from 'three';
 import type { Camera, Material, Object3D, PerspectiveCamera, Scene } from 'three';
 
-import { rimLightPlace } from '../models/beam.ts';
+import { rimLightPlace, rimLightXs } from '../models/beam.ts';
 import { plankHash } from '../models/stage.ts';
 import type { Vec3 } from '../models/tuples.ts';
 import type { StagePair } from './light-pool.ts';
@@ -144,11 +144,12 @@ export const BEAM_LOOK = {
  * @param stageSide The stage side `S`, in meters.
  * @param point The point, in the stage axes.
  * @param foot The center of the foot of the beam on the stage top, as (x, z), in meters.
+ * @param lightX The x of the rim light of the beam, in meters: 0 on the stage axis.
  * @returns The point in the axes of the beam.
  */
-export function beamAxes(stageSide: number, point: Vec3, foot: StagePair): Vec3 {
+export function beamAxes(stageSide: number, point: Vec3, foot: StagePair, lightX = 0): Vec3 {
   const [x, y, z] = point;
-  const [tipX, height, tipZ] = hazeTip(stageSide, foot);
+  const [tipX, height, tipZ] = hazeTip(stageSide, foot, lightX);
   const t = y / height;
   return [x - foot[0] * (1 - t) - tipX * t, y, z - foot[1] * (1 - t) - tipZ * t];
 }
@@ -484,10 +485,16 @@ const HAZE_BASE = -0.05;
  * @param stageSide The stage side `S`, in meters.
  * @param point The point, in the stage axes.
  * @param foot The center of the foot of the beam on the stage top ({@link beamAxes}).
+ * @param lightX The x of the rim light of the beam, in meters: 0 on the stage axis.
  * @returns True inside the haze cone, from the stage top up to the light.
  */
-export function insideHaze(stageSide: number, point: Vec3, foot: StagePair = [0, 0]): boolean {
-  const [x, y, z] = beamAxes(stageSide, point, foot);
+export function insideHaze(
+  stageSide: number,
+  point: Vec3,
+  foot: StagePair = [0, 0],
+  lightX = 0,
+): boolean {
+  const [x, y, z] = beamAxes(stageSide, point, foot, lightX);
   if (y < 0 || y >= BEAM_LOOK.tip * stageSide) {
     return false;
   }
@@ -573,15 +580,32 @@ function createMotes(stageSide: number, count: number): Points {
 }
 
 /**
- * Creates the visible beam (design 4.5): the cone of `models/beam.ts` with the haze shader, and the
- * dust motes of the tier.
+ * Creates the visible beams (design 4.5): one haze of {@link createHaze} for each rim light
+ * (`rimLightXs()` of `models/beam.ts`), in the order of the lights.
  *
  * @param stageSide The stage side `S`, in meters.
  * @param tier The quality tier. It sets the noise samples and the number of motes
  *   ({@link setBeamTier}).
- * @returns A group with the cone and the motes.
+ * @returns A group with a group of the cone and the motes for each rim light. With no rim light,
+ *   the group is empty, and the depth pass of the frame still gives the room haze its depth.
  */
 export function createBeam(stageSide: number, tier: QualityTier): Group {
+  const group = new Group();
+  for (const _ of rimLightXs(stageSide)) {
+    group.add(createHaze(stageSide, tier));
+  }
+  return group;
+}
+
+/**
+ * Creates the haze of one beam: the cone of `models/beam.ts` with the haze shader, and the dust
+ * motes of the tier.
+ *
+ * @param stageSide The stage side `S`, in meters.
+ * @param tier The quality tier.
+ * @returns A group with the cone and the motes.
+ */
+function createHaze(stageSide: number, tier: QualityTier): Group {
   const geometry = new LatheGeometry(
     hazeProfile(stageSide).map(([radius, y]) => new Vector2(radius, y)),
     48,
@@ -624,20 +648,32 @@ export function createBeam(stageSide: number, tier: QualityTier): Group {
   // The motes of the highest tier. A lower tier draws only a part of them.
   const most = Math.max(...Object.values(TIER_SETTINGS).map((settings) => settings.motes));
   const group = new Group().add(cone, createMotes(stageSide, most));
-  setBeamTier(group, tier);
+  setHazeTier(group, tier);
   return group;
 }
 
 /**
- * Sets the beam for a new quality tier (design 2.6): the samples of the haze along each view ray
+ * Sets the beams for a new quality tier (design 2.6): the samples of the haze along each view ray
  * and the number of dust motes. A tier with no motes hides them.
  *
  * @param beam The group of {@link createBeam}.
  * @param tier The quality tier.
  */
 export function setBeamTier(beam: Group, tier: QualityTier): void {
+  for (const haze of beam.children) {
+    setHazeTier(haze, tier);
+  }
+}
+
+/**
+ * Sets the haze of one beam for a new quality tier ({@link setBeamTier}).
+ *
+ * @param haze The group of {@link createHaze}.
+ * @param tier The quality tier.
+ */
+function setHazeTier(haze: Object3D, tier: QualityTier): void {
   const settings = TIER_SETTINGS[tier];
-  for (const child of beam.children) {
+  for (const child of haze.children) {
     if (child instanceof Mesh) {
       for (const material of shaderMaterials(child)) {
         if (material.defines['SAMPLES'] !== settings.beamSamples) {
@@ -772,23 +808,42 @@ interface BeamFrame {
   readonly timeSec: number;
   /** The depth of the scene of the frame. Its size is the size of the drawing buffer. */
   readonly depth: BeamDepth;
-  /** The center of the foot of the beam on the stage top ({@link beamAxes}). */
+  /**
+   * The center of the feet of the beams on the stage top ({@link beamAxes}): the foot of a beam of
+   * a rim light on the stage axis. Each beam adds the x of its rim light.
+   */
   readonly foot: StagePair;
 }
 
 /**
- * Sets the beam for the camera of a frame (design 2.4, 4.5, 5.6): the factor of the camera, the
- * foot of the beam, the side of the cone that the camera sees, the depth of the scene, and the
- * drift.
+ * Sets the beams for the camera of a frame (design 2.4, 4.5, 5.6): the factor of the camera, the
+ * foot of each beam, the side of the cone that the camera sees, the depth of the scene, and the
+ * drift. Each beam keeps the x of its rim light from the foot of the frame.
  *
  * @param beam The group of {@link createBeam}.
  * @param frame The state of the frame.
  */
 export function setBeamFrame(beam: Group, frame: BeamFrame): void {
-  const { stageSide, factor, camera, timeSec, depth, foot } = frame;
+  const xs = rimLightXs(frame.stageSide);
+  for (const [i, haze] of beam.children.entries()) {
+    const lightX = xs[i] ?? 0;
+    setHazeFrame(haze, frame, [frame.foot[0] + lightX, frame.foot[1]], lightX);
+  }
+}
+
+/**
+ * Sets the haze of one beam for the camera of a frame ({@link setBeamFrame}).
+ *
+ * @param haze The group of {@link createHaze}.
+ * @param frame The state of the frame.
+ * @param foot The center of the foot of this beam on the stage top.
+ * @param lightX The x of the rim light of this beam, in meters.
+ */
+function setHazeFrame(haze: Object3D, frame: BeamFrame, foot: StagePair, lightX: number): void {
+  const { stageSide, factor, camera, timeSec, depth } = frame;
   const [width, height] = depth.size;
-  const inside = insideHaze(stageSide, camera.position.toArray(), foot);
-  for (const child of beam.children) {
+  const inside = insideHaze(stageSide, camera.position.toArray(), foot, lightX);
+  for (const child of haze.children) {
     const materials = shaderMaterials(child);
     const first = materials[0];
     if (!first) {
@@ -812,11 +867,11 @@ export function setBeamFrame(beam: Group, frame: BeamFrame): void {
     }
     const apex = u['uApex']?.value;
     if (apex instanceof Vector2) {
-      const [tipX, , tipZ] = hazeTip(stageSide, foot);
+      const [tipX, , tipZ] = hazeTip(stageSide, foot, lightX);
       apex.set(tipX, tipZ);
     }
     if (child instanceof Mesh) {
-      leanCone(child, stageSide, foot);
+      leanCone(child, stageSide, foot, lightX);
       setValue(u, 'uStrength', (BEAM_LOOK.strength / stageSide) * factor);
       setValue(u, 'uInside', inside ? 1 : 0);
       // A camera in the haze cone sees the back faces. The depth of the scene ends each view ray,
@@ -845,10 +900,11 @@ export function setBeamFrame(beam: Group, frame: BeamFrame): void {
  * @param cone The mesh of the haze cone.
  * @param stageSide The stage side `S`, in meters.
  * @param foot The center of the foot of the beam on the stage top.
+ * @param lightX The x of the rim light of the beam, in meters.
  */
-function leanCone(cone: Mesh, stageSide: number, foot: StagePair): void {
+function leanCone(cone: Mesh, stageSide: number, foot: StagePair, lightX: number): void {
   const [fx, fz] = foot;
-  const [tipX, height, tipZ] = hazeTip(stageSide, foot);
+  const [tipX, height, tipZ] = hazeTip(stageSide, foot, lightX);
   const leanX = (tipX - fx) / height;
   const leanZ = (tipZ - fz) / height;
   cone.matrixAutoUpdate = false;

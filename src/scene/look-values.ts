@@ -15,7 +15,14 @@ import { FREE_LENS, LENS } from './focus.ts';
 import { GRADE } from './grade.ts';
 import { GLOW_LIGHT, HALL_COLORS, HALL_FLOOR, HALL_LIGHT } from './hall.ts';
 import { LIGHT_POOL } from './light-pool.ts';
-import { BACK_ROW_LIGHT, CONDUCTOR_LIGHT, FILL, KEY_LIGHT, SIDE_LIGHT } from './lights.ts';
+import {
+  BACK_ROW_LIGHT,
+  CONDUCTOR_LIGHT,
+  FILL,
+  KEY_LIGHT,
+  RIM_LIGHT,
+  SIDE_LIGHT,
+} from './lights.ts';
 import { POST_LOOK, ROOM_HAZE } from './post.ts';
 import { TIER_SETTINGS } from './quality.ts';
 import { STAGE_TONE } from './renderer.ts';
@@ -54,6 +61,7 @@ const LOOK_ROOTS = {
   LIGHT_POOL,
   OCCLUSION,
   POST_LOOK,
+  RIM_LIGHT,
   RIM_PLACE,
   ROOM_HAZE,
   SCENE_COLORS,

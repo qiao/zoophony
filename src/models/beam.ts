@@ -37,9 +37,10 @@ export function keyLightPlace(stageSide: number): Vec3 {
 }
 
 /**
- * The place of the rim light (design 4.5), seen from the stage center on the stage top: on the
- * stage axis, far behind the orchestra, and high. The visible beam leans from its foot on the
- * stage toward this place, so the beam stands upright in the frontal default view, as the fan of
+ * The place of the rim lights (design 4.5), seen from the stage center on the stage top: far
+ * behind the orchestra, and high, as the back lights on a truss of a concert film. Each rim light
+ * has a visible beam, which leans from its foot on the stage toward the light. A rim light stands
+ * at the x of its beam, so the beam stands upright in the frontal default view, as the fan of
  * `orchestra-latest.png` (user, 2026-10-18: "why is the beam not vertical?").
  */
 export const RIM_PLACE = {
@@ -47,7 +48,23 @@ export const RIM_PLACE = {
   distance: 2.45,
   /** The angle above the stage top, in radians. */
   elevation: 66 * MathUtils.DEG2RAD,
+  /** The number of rim lights, each with its beam. 0 gives no rim light and no beam. */
+  count: 1,
+  /** The distance between two neighbor rim lights, in stage sides. */
+  spread: 0.3,
 } as const;
+
+/**
+ * Gives the x of each rim light of a stage ({@link RIM_PLACE}): the lights stand in a row across
+ * the stage, centered on the stage axis.
+ *
+ * @param stageSide The stage side `S`, in meters.
+ * @returns The x of each light, in meters, from the left.
+ */
+export function rimLightXs(stageSide: number): number[] {
+  const { count, spread } = RIM_PLACE;
+  return Array.from({ length: count }, (_, i) => (i - (count - 1) / 2) * spread * stageSide);
+}
 
 /**
  * Gives the position of a rim light of a stage ({@link RIM_PLACE}). The stage axes have +x to
