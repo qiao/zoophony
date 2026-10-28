@@ -895,6 +895,8 @@ def step_belly(s):
     custom normals of the moved vertices stay: the rig reads no normal of the source.
     """
     import numpy as np
+    if 'belly' not in s.spec:
+        return None
     rule = s.spec['belly']
     data = s.mesh.data
     fr = s.fr
