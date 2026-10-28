@@ -536,8 +536,8 @@ The code constants of each family hold the times, the angles, and the lengths of
       around the grip in the middle of the paw, so that the forearm keeps one angle in that plane
       (`BowedHold.stickTurnR`). The paw then keeps one turn on the hand and a straight wrist, the
       stick stays in the middle of the paw, and the bow turns in the paw over a stroke, as the
-      fingers of a player let it turn. In pizzicato, the bow tip points up and forward, so that
-      the plucking hand keeps that angle too (`docs/decisions/2026-10-28-hippo-grip.md`).
+      fingers of a player let it turn. In pizzicato, the bow tip points up, square to the strings,
+      so that the plucking hand keeps that angle too (`docs/decisions/2026-10-28-hippo-grip.md`).
       The left elbow points out, a little down, and forward. The right elbow points forward, out,
       and a little down, also in pizzicato, with the twist bone of the upper arm, because a raised
       or level elbow twists the thick upper arm of the mesh into a flat band, and a lower elbow
