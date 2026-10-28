@@ -1337,10 +1337,11 @@ const SHOT_BEAM_OPACITY = {
 
 **Shot light.** On a film set, the crew lights each setup again. A close shot gets its own soft
 key, a kicker, a little more exposure, and a stronger vignette (4.5), and a solo shot turns its
-key into a follow-spot. The weights come from the kind of the shot, as the factor of the beam,
-and a blend blends them (`SHOT_LIGHT` and `SHOT_SPOT` of `shots/shot-light.ts`). `shotRig()`
-places the lamps from the camera alone, so a seek gives the light of the shot at once. Free mode
-reads the weight from the camera distance (2.5).
+key into a follow-spot. The soft key and the extra exposure fill only the shade side of the stage
+key light that the camera sees (4.5). The weights come from the kind of the shot, as the factor
+of the beam, and a blend blends them (`SHOT_LIGHT` and `SHOT_SPOT` of `shots/shot-light.ts`).
+`shotRig()` places the lamps from the camera alone, so a seek gives the light of the shot at once.
+Free mode reads the weight from the camera distance (2.5).
 
 **One frame.** `cameraAt()` does these steps:
 

@@ -1066,10 +1066,13 @@ lights, and `scene/solo-light.ts` the light of a solo.
 - **Shot light** (`scene/shot-light.ts`, 5.6). A close shot adds a soft key 35° from the axis of
   the camera toward the stage key light, so the lit side of the subject faces away from its
   shadow, and a kicker behind the subject on the side of the nearer stage light (`shotRig()`),
-  with a little more exposure and a stronger vignette. The lamps are a diffuse term in the material of
-  the players and the props, which runs only while a lamp has light, because two spotlights cost
-  each lit pixel of the scene in each shot (9.7). The subject then reads as in the close shots of
-  `scene.png`, and the wide shots keep the light of the stage.
+  with a little more exposure and a stronger vignette. The soft key and the extra exposure fill
+  only the part of the subject that the camera sees in the shade of the stage key light
+  (`shadeShare()`). The key light stands in front of the stage, so the cameras of most close shots
+  see the lit side, and more light on that side made the light fur clip. The lamps are a diffuse
+  term in the material of the players and the props, which runs only while a lamp has light,
+  because two spotlights cost each lit pixel of the scene in each shot (9.7). The subject then
+  reads as in the close shots of `scene.png`, and the wide shots keep the light of the stage.
 - **Room haze** (`ROOM_HAZE`, final pass). Thin warm air starts behind the point that the camera
   looks at and grows with the distance, brighter toward the rim light behind the stage, because
   haze scatters most light forward. The polished hall floor shows the gloss of the same light
