@@ -2287,6 +2287,9 @@ the mockup is out of scope.
       `docs/research/2026-10-27-key-front/`). The wide views clip as before.
 - [ ] The shot planner keeps one upright cone at the stage center (`insideBeam()`). With three
       beams (`RIM_PLACE.count` 3), a camera can stand in a side beam, which draws its back faces.
+- [ ] Give `pnpm close-views play` a `--look <JSON>` option that starts its own dev server, as
+      `look-variants` does (retro of the key light round, 2026-10-27). A variant sheet at any
+      camera then needs no dev server and no URL script made by hand.
 - [ ] Find the reads of the look roots at the load of a module with a saved check. Today
       `LOAD_TIME_PATHS` of `scene/look-values.ts` lists them by hand, so a new read at load gives
       an override with no effect and no error (`docs/decisions/2026-10-18-look-tools.md`).
