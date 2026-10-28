@@ -792,18 +792,20 @@ export const BOWED_HOLDS = {
  * decisions). Thus the cat plays a viola of about 10 inches, 0.74 of the viola of the app
  * (`SpeciesParams.violaScale`), as a violin shop sizes a viola for the arm less the muzzle, and
  * holds it nearer to the body than the viola hold of {@link BOWED_HOLDS}: 0.05 H further right,
- * 0.14 H higher, and 0.25 H further back (`playShift`), turned 10° further to the left than 45°,
+ * 0.14 H higher, and 0.23 H further back (`playShift`), turned 10° further to the left than 45°,
  * near the angle of a real player (`docs/reference/string-technique.md`, section 1.10), and tilted
- * 5° forward (`playTurn`). The left paw then reaches the fingerboard from the nut to its end, and
- * the bow paw the hair from the frog to the end of the free hair at the tip
- * (`pnpm hold-reach cat --instrument viola`). The head lifts 15° in the play (`headDrop` below 0),
- * so that the jaw lies on the chin rest of the higher viola: with the head level, the jaw went
- * 2.0 cm into the viola. The left shoulder bone turns 35° forward in the play (`reachL`), inside
- * the forward move of the shoulder of real violinists: with 30°, the left arm stretched 11% to the
- * nut, at the margin of the arm gate. With the 1/2 viola (0.87) at the place of the long arms,
- * the shorter arm reached the fingerboard from 0.69 and the bow 0.26 m of 0.44 m. With the viola
- * 4 cm back, the bow reached the tip, but the viola went 2.7 cm into the chest (1.9 cm now, limit
- * 2.0). The bow lies square across the strings (`slant` 0), as a real bow: with the slant of -20°
+ * 11° forward, so that it falls 10° to the scroll (`playTurn`). The left paw then reaches the
+ * fingerboard from the nut to its end, and the bow paw the hair from the frog to the end of the
+ * free hair at the tip (`pnpm hold-reach cat --instrument viola`). The head lifts 15° in the play
+ * (`headDrop` below 0), so that the jaw lies on the chin rest of the higher viola: with the head
+ * level, the jaw went 2.0 cm into the viola. The left shoulder bone turns 20° forward in the play
+ * (`reachL`), near the forward move of the shoulder of real violinists: with 35° and the viola
+ * tilted 5°, the back of the left arm root sank into pits of 14.5 cm³ in the play (4.8 cm³ now),
+ * and with 20° and that tilt, the paw reached the fingerboard only from 0.03 (2026-10-27-cat3
+ * decisions). With the 1/2 viola (0.87) at the place of the long arms, the shorter arm reached
+ * the fingerboard from 0.69 and the bow 0.26 m of 0.44 m. With the viola 4 cm back, the bow
+ * reached the tip, but the viola went 2.7 cm into the jaw and the chest (1.2 cm now, limit 2.0).
+ * The bow lies square across the strings (`slant` 0), as a real bow: with the slant of -20°
  * of the viola hold, the right paw swung 76° on the wrist in the lift (limit 70).
  *
  * The deeper chest of the cat form of 2026-10-17 (2026-10-16-cat-form decisions) took the room of
@@ -933,9 +935,9 @@ export const BOWED_HOLDS = {
 const CAT_HOLD = {
   ...BOWED_HOLDS.viola,
   stringTurn: 7 * MathUtils.DEG2RAD,
-  playShift: [0.05, 0.0869, 0.2084],
-  playTurn: [-0.0416, -0.1304, 0.0131, 0.9905],
-  reachL: 35 * MathUtils.DEG2RAD,
+  playShift: [0.05, 0.0869, 0.1937],
+  playTurn: [-0.0934, -0.1295, 0.0199, 0.987],
+  reachL: 20 * MathUtils.DEG2RAD,
   headDrop: -15 * MathUtils.DEG2RAD,
   slant: 0,
   tiltL: 45 * MathUtils.DEG2RAD,

@@ -497,7 +497,10 @@ The code constants of each family hold the times, the angles, and the lengths of
       shorter arms reach the nut and the tip, and the head lifts, so that the long jaw lies on the
       chin rest. The cat plays a viola of the smallest size of a size chart
       (`SpeciesParams.violaScale`), the size for its arm less its muzzle, and its left shoulder
-      comes forward in the play (`docs/decisions/2026-10-27-cat-fox2.md`). The bow lies square
+      comes forward in the play (`docs/decisions/2026-10-27-cat-fox2.md`). The viola falls a
+      little to the scroll, so that the left paw reaches the nut with a small shoulder turn: a
+      large turn sank the back of the left arm root into pits
+      (`docs/decisions/2026-10-27-cat3.md`). The bow lies square
       across the strings.
       The right elbow of the play points
       out, forward, and less down than the chin hold, as a violist at the frog, so that the

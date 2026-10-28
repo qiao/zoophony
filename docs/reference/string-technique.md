@@ -467,13 +467,15 @@ A round that changes the motion updates the items.
   violinist moves forward [80]: the shoulder joint moves 2.9 cm on the rabbit and 1.1 cm on the
   red fox, so that the short left arms reach the nut. At 45°, the bow paw of the rabbit at the
   frog went into its jaw. The viola of the cat points about 48° to the left on the line from the
-  tail end to the scroll, and 6° down to the scroll. The cat plays a viola of about 10 inches,
+  tail end to the scroll, and 10° down to the scroll. The cat plays a viola of about 10 inches,
   0.74 of the viola of the app, with a body of 259 mm (`SpeciesParams.violaScale`). The chart of
   [81] pairs 10 inches with an arm of 36 cm and 11 inches with 38 cm. The arm of the cat is 41 cm
   from the shoulder joint to the middle of the palm, but its chin rest lies under the long jaw,
   about 12 cm further from the shoulder along the viola than on a person, so it takes the
-  smallest size of the chart. Its left shoulder bone turns 35° forward, and its head lifts 15°, so
-  that the jaw lies on the chin rest of the viola near the neck. The left paw reaches the nut, and
+  smallest size of the chart. Its left shoulder bone turns 20° forward, and its head lifts 15°, so
+  that the jaw lies on the chin rest of the viola near the neck. With a turn of 35°, the back of
+  the left arm root sank into pits in the play, so the viola falls 10° to the scroll, and the paw
+  reaches the nut with the smaller turn (`docs/decisions/2026-10-27-cat3.md`). The left paw reaches the nut, and
   the bow paw the end of the free hair. With the 1/2 viola of 0.87 and the
   arms of 1.30 H before 2026-10-27, the paw reached the fingerboard from 0.33 and the bow 0.355 m
   of 0.441 m (`docs/research/2026-10-27-cat-fox2.md`). The jaw lies on

@@ -562,9 +562,10 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       upper arm goes 2.5 cm into the belly at the tip (1.1 cm before, 1.7% of the play over the
       limit), the viola 1.9 cm into the chest (1.0 cm), and the claws 2.1 cm into the viola in the
       lowering (1.2 cm). `pnpm pose-depth violist --base main` marks 15 pairs.
-- [ ] Cat (`2026-10-27-cat-fox2.md`): the pits at the back of the left arm root are larger in the
+- [x] Cat (`2026-10-27-cat-fox2.md`): the pits at the back of the left arm root are larger in the
       play (14.5 cm³, 4.7 cm³ before, `dent.txt`), with no hard edge. Look at the crops of the
-      user angle.
+      user angle. Done: the left shoulder turn of 35° made them. The shoulder turns 20°, the
+      viola falls 10° to the scroll, and the pits are 4.8 cm³ in the play (`2026-10-27-cat3.md`).
 - [x] Cat (`2026-10-27-cat-fox2.md`): the head lift of 15° turns face 4220 under the jaw over in
       each play sample. Done: the tips of the lower whiskers hung below the head line on the neck
       bone. They follow the head now, and faces 4220 and 4223 fold in no sample
