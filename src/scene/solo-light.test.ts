@@ -89,7 +89,7 @@ describe('soloAim (design 2.4, 4.5)', async () => {
     expect(aim.center[1]).toBeCloseTo((Math.min(...zs) + Math.max(...zs)) / 2, 9);
     expect(aim.spot).toEqual(aim.center);
     expect(aim.beam).toEqual(aim.center);
-    expect(aim.boost).toBe(LIGHT_POOL.spotBoost);
+    expect(aim.boost).toBe(SOLO_LIGHT.boost);
     // The players far from the pool keep less light than with no solo.
     expect(aim.floor).toBe(SOLO_LIGHT.floor);
     expect(aim.floor).toBeLessThan(LIGHT_POOL.floor);
@@ -128,7 +128,7 @@ describe('soloAim (design 2.4, 4.5)', async () => {
     const quartet = await demoLayout('mozart-k525.mid');
     expect(defaultAim(quartet.stageSide, null).boost).toBe(0);
     const aim = soloAim(quartet, soloOf(quartet, ['cello']));
-    expect(aim.boost).toBe(LIGHT_POOL.spotBoost);
+    expect(aim.boost).toBe(SOLO_LIGHT.boost);
   });
 });
 

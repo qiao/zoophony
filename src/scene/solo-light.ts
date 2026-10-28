@@ -1,5 +1,5 @@
 import type { SceneLayout } from '../models/layout.ts';
-import { LIGHT_POOL, defaultAim } from './light-pool.ts';
+import { defaultAim } from './light-pool.ts';
 import type { LightAim, StagePair } from './light-pool.ts';
 
 /**
@@ -29,6 +29,12 @@ export const SOLO_LIGHT = {
    * 85 to 39 and of the first violins from 80 to 27. With 0.4, they kept 50 and 38.
    */
   floor: 0.25,
+  /**
+   * The extra light of the key light at the center of the pool of a solo, as a part of its light:
+   * the hot spot on the soloed players. A soloed player stands at the center of the hot spot, and
+   * the key light from the front lights the white fur of its front.
+   */
+  boost: 0.85,
   /**
    * The time constant of the ease of the lights to a new aim, in seconds. The lights reach 95%
    * of the way in 3 time constants. With reduced motion, they move at once.
@@ -75,7 +81,7 @@ export function soloAim(layout: SceneLayout, soloed: readonly boolean[]): LightA
     reachBack: radius[1],
     spot: center,
     spotRadius: radius,
-    boost: LIGHT_POOL.spotBoost,
+    boost: SOLO_LIGHT.boost,
     floor: SOLO_LIGHT.floor,
     beam: center,
   };
