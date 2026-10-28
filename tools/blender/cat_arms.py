@@ -74,7 +74,9 @@ import violin_arms as va  # noqa: E402
 #: front in the side view. `sides`: the two ends of the even curve of each side in the front view,
 #: and `bend` the weight of its bends. `step`: the distance of the cuts along the line, in units.
 #: `round`: the share of the move of the belly front toward the half ellipse of its cut, and the
-#: shares of the half width where the move starts and ends its fade to the sides.
+#: shares of the half width where the move starts and ends its fade to the sides. `flat`
+#: (optional): the shares `f` of the line, the angles from the front, and the largest move in
+#: units of the flatter front corners of the upper belly.
 #:
 #: The other keys are the keys of `violin_arms.ANIMALS`.
 CAT = {
@@ -873,6 +875,11 @@ def step_belly(s):
        ellipse through the front and the two sides of its cut, so that the ridge rounds out. The
        share fades out toward the sides (`round.fade`, in shares of the half width), and over
        0.05 at each end of `front`.
+    5. With `flat`, each vertex of the front half of the trunk between the shares `flat.f` moves
+       toward the trunk line in its cut, by `flat.move` units times a sine squared over `flat.f`
+       and over the angle from the front (`flat.angle`, degrees). The middle line and the sides
+       keep their places, so the side view and the front view keep the oval, and the front
+       corners of the upper belly, where the bow upper arm lies in the play, get flatter.
 
     The ends keep their places, so the trunk joins the chest and the thighs with no step. The
     custom normals of the moved vertices stay: the rig reads no normal of the source.
@@ -928,6 +935,19 @@ def step_belly(s):
     ends = np.minimum(np.clip((f - a) / 0.05, 0, 1), np.clip((b - f) / 0.05, 0, 1))
     weight = share * (1.0 - np.clip((u - full) / (none - full), 0.0, 1.0)) * ends
     new_d = np.where(belly, new_d + weight * (ellipse - new_d), new_d)
+
+    if 'flat' in rule:
+        flat = rule['flat']
+        a, b = flat['f']
+        low, high = np.radians(flat['angle'])
+        turn = np.arctan2(np.abs(new_x), new_d)
+        along = np.clip((f - a) / (b - a), 0.0, 1.0)
+        around = np.clip((turn - low) / (high - low), 0.0, 1.0)
+        weight = np.where(trunk & ~walls & (new_d > 0), (np.sin(np.pi * along)
+                                                         * np.sin(np.pi * around)) ** 2, 0.0)
+        reach = np.hypot(new_d, new_x)
+        shrink = 1.0 - flat['move'] * weight / np.maximum(reach, 1e-9)
+        new_d, new_x = new_d * shrink, new_x * shrink
 
     moved = points + (new_d - d)[:, None] * forward + (new_x - x)[:, None] * left
     out = np.stack([moved[:, 0], -moved[:, 2], moved[:, 1]], 1) * fr.height + [0.0, 0.0, fr.floor]
