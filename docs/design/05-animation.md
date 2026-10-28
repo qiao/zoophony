@@ -856,10 +856,9 @@ The code constants of each family hold the times, the angles, and the lengths of
   - The pianist sits as a professional pianist (`docs/reference/piano-technique.md`): the trunk
     leans a little toward the keys, with the spine bent less than a neutral thorax allows, the
     forearms about level with the keys, the elbows bent a little more than a right angle, and the
-    shoulders low. The polar bear sits low on its short legs, so the piano has about the size of
-    a real grand piano (`PIANO_SCALE`), the spine leans only a little, and the elbows point out
-    and a little down: the elbows stand a little above the keys
-    (`docs/decisions/2026-10-28-polar-legs.md`). The keys stand near the bear (`PIANO_FRONT_H`):
+    shoulders low. The polar bear is large, so the piano is larger than a real grand piano
+    (`PIANO_SCALE`), the spine leans only a little, and the elbows point out and a little down:
+    the elbows stand a little above the keys (`docs/decisions/2026-10-28-polar-bench2.md`). The keys stand near the bear (`PIANO_FRONT_H`):
     farther keys made the right leg reach for the damper pedal and pull the haunch into the bench. The
     trunk leans to the side toward the keys of the two paws, as a pianist leans toward the far keys
     (`sideLeanOf()`, `docs/decisions/2026-10-24-pianist-pose.md`).

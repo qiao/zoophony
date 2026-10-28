@@ -813,16 +813,18 @@ helpers by the rules of the app.
   shoulder joints, so the landmark rises with them, and the longer legs do not make the trunk, the
   head, and the arms smaller (`docs/decisions/2026-10-22-polar-legs.md`). The user said that the
   polar bear pianist at the size of the studio polar bear was too tall
-  (`docs/decisions/2026-10-24-polar-bear-seat.md`). It keeps the scale of
-  `docs/decisions/2026-10-27-polar-bench.md`, and its legs near the mesh carry the body lower
-  (`docs/decisions/2026-10-28-polar-legs.md`).
+  (`docs/decisions/2026-10-24-polar-bear-seat.md`). It is 1.1 times the scale of
+  `docs/decisions/2026-10-27-polar-bench.md`, so that its legs near the mesh sit on a bench of a
+  natural height (`docs/decisions/2026-10-28-polar-bench2.md`).
 - **Seat.** A seated role binds its mesh seated, and the export puts its soles on the floor and its
   seat at the front edge of the seat of the app. The polar bear sits on the bench of its rig
-  (`chair.prop`) with the thighs a little down, vertical shins, and flat feet, as a real pianist
+  (`chair.prop`) with the thighs 25° down, vertical shins, and flat feet, as a real pianist
   sits. Thighs that slope far down hid under the round belly, and the bear read almost as
   standing (`docs/decisions/2026-10-24-polar-bear-tpose.md`). The thigh and the shin take one leg
   factor (`legFactor` of the rig), so that the legs keep the proportions of the mesh, and the
-  bench is as low as the legs need (user, `docs/decisions/2026-10-28-polar-legs.md`). The piano bench of the app fits the body, as
+  bench is as low as the legs need (user, `docs/decisions/2026-10-28-polar-legs.md`). A bench
+  that low folded the legs tight under the haunch, so the body is a little larger, and the bench
+  grows with it (user, `docs/decisions/2026-10-28-polar-bench2.md`). The piano bench of the app fits the body, as
   the chair does: it holds the whole haunch, and its front edge lies under the thighs where their
   underside leaves the seat top (`StudioBody.benchDepth`, `benchFitOf()` of `tools/studio-body.ts`,
   `docs/decisions/2026-10-27-polar-bench.md`). The rabbits, the foxes, the cats, the dogs, the pandas, the pigs, and the
@@ -1518,7 +1520,7 @@ of each instrument (`models/instruments/`) holds its sizes and the offsets of it
 | Cello                            | A body with an end pin, and a bow.                                                                                      | The end pin in front of the seat. The cello leans back to the chest, with the neck left of the head, as in `animals.webp`.                                                                                                  |
 | Contrabass                       | The cello at 1.6 scale.                                                                                                 | At the left side, in front of the seat.                                                                                                                                                                                     |
 | Harp                             | 24 strings that show the 47 strings of a concert harp. A box under the base when the harp stands high (`HARP_STAND`).   | Leaned back, with the top of the soundbox on the right shoulder, turned so that the column goes to the front left (`HARP_PLACE`).                                                                                           |
-| Piano                            | A case with an open lid, keys, and a desk, about the size of a real grand piano (`PIANO_SCALE`), so that the keys stand a little below the elbows of the polar bear on its low bench (5.3). The lid opens less than in `mockup.png`. A lyre comes down from the case under the keys to a box just above the floor, and three pedals come out of the box toward the player: the soft pedal, the sostenuto, and the damper pedal, in the sizes of a real grand piano (`PIANO_PEDALS`). | The keys stand in front of the floor point of the pianist (`PIANO_FRONT_H`), clear of the belly and the muzzle of the polar bear (5.3). |
+| Piano                            | A case with an open lid, keys, and a desk, larger than a real grand piano (`PIANO_SCALE`), so that the keys stand a little below the elbows of the large polar bear (5.3). The lid opens less than in `mockup.png`. A lyre comes down from the case under the keys to a box just above the floor, and three pedals come out of the box toward the player: the soft pedal, the sostenuto, and the damper pedal, in the sizes of a real grand piano (`PIANO_PEDALS`). | The keys stand in front of the floor point of the pianist (`PIANO_FRONT_H`), clear of the belly and the muzzle of the polar bear (5.3). |
 | Piano bench                      | A padded seat with round top edges on an apron and four tapered legs with brass feet, as the bench of `polar-bear-views.png` (`PIANO_BENCH`). Under a studio body, it fits the legs and the haunch (4.4, seat). | A static prop under the pianist.                                                                                                                                                                                            |
 | Choir folder                     | Two open covers with pages.                                                                                             | In both flippers, in front of the chest, with the pages to the eyes.                                                                                                                                                        |
 | Flute                            | A silver tube.                                                                                                          | The lip plate at the mouth. The flute points to the right.                                                                                                                                                                  |
