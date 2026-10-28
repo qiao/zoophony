@@ -641,6 +641,14 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       from 3,643 to 2,185 cm·° at rest, and the root at 0.45 of the upper arm is 4.64 cm in the
       play (4.48 cm, bind 5.26 cm). A soft fold stays where the chest meets the arm. A smoothing in the pose of the shape filled it, but turned over the
       thin faces at the front end of the armpit line: clean them in the copy first.
+      Partly done (`2026-10-28-cat-root2.md`): the band of the left armpit line has no thin face
+      (`step_clean_pit()`), a third shape covers the steps between the rest and the play, and
+      the follow reaches 0.05 units. The deepening goes from 694 to 441 cm·° in the play, from
+      2,185 to 1,391 cm·° at rest, and from 1,984 to 1,001 cm·° in the lift sample 5, with no new
+      folded face. A softer fold stays in the play and at rest (`user51-zoom.webp`,
+      `rest-zoom.webp`). A smoothing of the skin in the pose pulled the root front into a dark
+      pocket also after the clean. Next: a root ring with more vertices at the front, or a bind
+      arm nearer to the play.
 - [x] Cat (`2026-10-28-cat-wall.md`): with the round side walls, face 1594 at the front of the
       left armpit folds in each play sample (faces 1440, 2609, and 2610 1.5 to 2 cm from it did
       on `main`). Done (`2026-10-28-cat-root.md`): the shape of the raised left arm folds it in no
@@ -649,6 +657,12 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       up to 108°, and a small point shows from az 150 and az -150. Vertices 1607, 1609, and 1610
       at the front end of the left line lie on one line, so a smoothing near them turned their
       thin faces over (`2026-10-28-cat-root.md`).
+      Partly done (`2026-10-28-cat-root2.md`): near the ends of the left line, 4 faces have a
+      corner under 12° (13 before), and no three corners lie on one line. The right line keeps
+      its 14 thin faces: with the clean, the root ring of the bow arm went flatter in the play
+      (flat p5 0.75, 0.84 on `main`, a fail of the gate), and with the new strip alone, the
+      valleys in front of the right root deepened. A clean of the right band needs weights that
+      keep the root ring round, such as the weights of the copy before the clean on the tube.
 - [ ] Cat (`2026-10-27-cat-arm.md`): near the elbow, the left forearm is 0.89 of the tube in the
       play (4.65 cm, 5.2 cm), because the app turns the paw about 100° from the bind with the
       linear blend, over three forearm segments for each ring.
