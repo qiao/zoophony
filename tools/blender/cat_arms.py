@@ -76,7 +76,7 @@ import violin_arms as va  # noqa: E402
 #: `round`: the share of the move of the belly front toward the half ellipse of its cut, and the
 #: shares of the half width where the move starts and ends its fade to the sides. `flat`
 #: (optional): the shares `f` of the line, the angles from the front, and the largest move in
-#: units of the flatter front corners of the upper belly.
+#: units of the flatter front of the upper belly.
 #:
 #: The other keys are the keys of `violin_arms.ANIMALS`.
 CAT = {
@@ -109,11 +109,15 @@ CAT = {
     # hips and at the lower end of the side walls.
     # The bow upper arm lies on the front corners of the upper belly at the tip on the lowest
     # string, 30 to 50 degrees from the front at 0.7 to 0.82 of the line: the oval moved them
-    # 0.5 to 1.3 cm forward, and the arm went 2.3 cm in. With a flat move of 0.006 units, it goes
-    # 1.5 cm in, 0.004 gave 1.7 cm, and 0.008 gave 1.2 cm with sharper facets.
+    # 0.5 to 1.3 cm forward, and the arm went 2.3 cm in. The flat zone peaks at the middle line
+    # and falls off over the whole front, so the front of the upper belly gets flatter with no
+    # crease: the arm goes 2.1 cm in, and no edge of the patch turns more than 34.5 degrees. A
+    # zone of the corners only (10 to 75 degrees, 0.006 units) put the arm 1.5 cm in, but the
+    # edges beside the middle strip turned 42 degrees, and a light strip showed at rest. A move
+    # over 0.004 units left a gap of the side view to its hull.
     'belly': {'front': (0.06, 0.92), 'sides': (0.12, 0.7), 'bend': 1e5, 'step': 0.002,
              'round': {'share': 0.6, 'fade': (0.5, 0.8)},
-             'flat': {'f': (0.62, 0.9), 'angle': (10, 75), 'move': 0.006}},
+             'flat': {'f': (0.62, 0.9), 'angle': (-75, 75), 'move': 0.004}},
 }
 va.ANIMALS['cat'] = CAT
 
@@ -882,9 +886,10 @@ def step_belly(s):
        0.05 at each end of `front`.
     5. With `flat`, each vertex of the front half of the trunk between the shares `flat.f` moves
        toward the trunk line in its cut, by `flat.move` units times a sine squared over `flat.f`
-       and over the angle from the front (`flat.angle`, degrees). The middle line and the sides
-       keep their places, so the side view and the front view keep the oval, and the front
-       corners of the upper belly, where the bow upper arm lies in the play, get flatter.
+       and over the angle from the front (`flat.angle`, degrees). A range that holds the middle
+       line moves the whole front of the upper belly, most at the middle, so the cut gets
+       flatter with no crease beside the middle strip, where the bow upper arm lies in the
+       play. The sides keep their places, so the front view keeps the oval.
 
     The ends keep their places, so the trunk joins the chest and the thighs with no step. The
     custom normals of the moved vertices stay: the rig reads no normal of the source.

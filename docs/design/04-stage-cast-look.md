@@ -651,9 +651,10 @@ mesh are quad tubes (rings at a right angle to the bones), and the weights come 
     (`colors.belly`): the mesh has an upright chest over a low belly peak, and the short trunk
     of the rig and the seat showed a pinch and a lump (`docs/decisions/2026-10-27-cat-belly.md`).
     The seated bind smooths the lap a second time up the belly front (`crease.lap` of the
-    config), so that the bottom of the oval goes into the thighs as one curve, and the front
-    corners of the upper belly are a little flatter, where the bow upper arm lies in the play
-    (`flat` of `step_belly()`, `docs/decisions/2026-10-27-cat-lap.md`). The
+    config), so that the bottom of the oval goes into the thighs as one curve, and the front of
+    the upper belly is a little flatter, most at the middle line and with no crease, where the
+    bow upper arm lies in the play (`flat` of `step_belly()`,
+    `docs/decisions/2026-10-27-cat-lap.md`). The
     elephant has such arms since 2026-10-25 (`tools/blender/elephant_arms.py`), with the length
     and the thickness of its mesh. Its arms are as thick as half of their length, so its cut
     planes stand at a right angle to the arm, the wrist cut lies further out on the paw, and the

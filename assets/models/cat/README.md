@@ -24,17 +24,17 @@ The trunk of the copy is an even oval from the front and from the side. The user
 cat's belly more oval and smooth" on 2026-10-27. The belly front of `cat.glb` has an upright chest
 and a peak low on the belly, and its sides are a straight cone. The step `step_belly()` of the
 script moves the belly front onto an ellipse arc, each side onto an even curve, and the belly
-front part of the way to a half ellipse at each height, at most 0.016 units. The front corners
-of the upper belly, where the bow upper arm lies in the play, are a little flatter (`flat`,
-`docs/research/2026-10-27-cat-lap.md`). The faces and the colors of the trunk stay
+front part of the way to a half ellipse at each height, at most 0.016 units. The front of the
+upper belly, where the bow upper arm lies in the play, is a little flatter, most at the middle
+line (`flat`, `docs/research/2026-10-27-cat-lap.md`). The faces and the colors of the trunk stay
 (`docs/research/2026-10-27-cat-belly.md`).
 
 | Item | Value |
 |---|---|
-| `cat-arms.glb` | 1,182,704 bytes, SHA-256 `3b81a22e1dd9af56a08909dc47cf7e9cccfbc5fec2aee2a58cce812604d06fbe` |
+| `cat-arms.glb` | 1,182,704 bytes, SHA-256 `73aa8b34c3ec8a119270f057f8cbe090751539ff550010002be1f62075e5f6d2` |
 | Mesh | 2,161 vertices after a weld at 1e-5, 4,317 triangles (3,121 in the source): on each arm a tube of 16 rings of 16 vertices, joined to the shoulder socket and to the paw with Bridge Edge Loops, and a side wall of 27 faces under each arm |
 | Material | One material with one base color JPEG of 4096 × 4608 pixels: the atlas of the source, and a strip of 512 pixels on top with the fur color of the source arms, baked onto the new faces. The side walls and the flat inner sides of the arms take one gray fur texel of the trunk beside the seam. No metallic-roughness texture |
-| `cat-weights.json` | 483,793 bytes, SHA-256 `426671a218502c7683b08ae71f1cc3aed8dc4e527a3be00899504c08115efa8d` |
+| `cat-weights.json` | 483,760 bytes, SHA-256 `61f3e1d708dc24bbb935f6239a5e38fa19ab1b3bf6987039ee4071d60f8fed1a` |
 | Weights | The automatic weights of Blender with the Weight Paint fixes of the session, on the studio bones and the arm segments and helpers (`armSegments` of the config), for `paintedWeights` of the config |
 | License | Derived from the mesh of the user, who holds its rights |
 
