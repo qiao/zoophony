@@ -1031,7 +1031,9 @@ def step_round_wall(s):
 
     1. The lips go (Delete Faces): from the lower run, each trunk face whose normal makes a dot
        product of at most `lip` with the normal of the plane, and that lies within `depth` units
-       of the plane, with its neighbors of the same kind.
+       of the plane and below the armpit line, with its neighbors of the same kind. A lip face
+       over the armpit line at the front of the left arm made the outline cross itself, and the
+       fill left a hole of 6 edges there.
     2. Fill: a 2D Delaunay triangulation (`delaunay_2d_cdt()` of Blender) of the outline of the
        hole, projected on the plane, and of the points of a grid of the side `grid` units inside
        it. The new vertices lie on the plane.
@@ -1073,7 +1075,8 @@ def step_round_wall(s):
             if (g in lips or g[zone] != 0 or g.normal.dot(plane_no) > rule['lip']
                     or min((p.co - plane_co).dot(plane_no) for p in g.verts) < -s.units(
                         rule['depth'])
-                    or any(p[part] in tubes or p[part] == socket for p in g.verts)):
+                    or any(p[part] in tubes or p[part] == socket or p.co.z > height
+                           for p in g.verts)):
                 continue
             lips.add(g)
             stack += [h for x in g.edges for h in x.link_faces if h not in lips]
@@ -1097,6 +1100,8 @@ def step_round_wall(s):
         coords, _, tris, origins, _, _ = delaunay_2d_cdt(
             [Vector(c) for c in outline + points], [(k, (k + 1) % n) for k in range(n)],
             [list(range(n))], 1, 1e-9)
+        if any(len(origin) > 1 for origin in origins) or len(coords) != n + len(points):
+            raise RuntimeError('The outline of the wall crosses itself in the plane of the seam.')
         verts = {}
         for k, origin in enumerate(origins):
             if origin and origin[0] < n:
