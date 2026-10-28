@@ -447,8 +447,9 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       0.55 of its round shape, at its limit. From the front, the open lid now hides the head in
       the play.
 - [ ] Polar bear (`2026-10-24-pianist-pose.md`): from the front, the larger lid hides the bear
-      and its paws. At the far keys, the outer upper arm stands 42° to 47° out, and the upper arms
-      stand about 36° out and 28° forward around the round trunk (a pianist: 0° to 20° forward).
+      and its paws. At the far keys, the outer upper arm stands 36° to 41° out, and the upper arms
+      stand about 27° to 30° out and 19° forward around the round trunk (a pianist: 0° to 20°
+      forward, `2026-10-27-polar-bench.md`).
       The wrist touches the front edge of the keys up to 1.1 cm (limit 1.5 cm).
 - [x] Polar bear (audit 2026-10-25, fault 3): at rest, the paws hung in front of the chest at the
       height of the keys. Done: the paws rest in the lap on the lower belly
@@ -692,6 +693,22 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       and 4 edges of the cut loop at the crotch turn more than 40° in the bind (89.6° at most).
       The instep crease is a crease of the user mesh. Next: check them in the stage light, and
       give the faces the skin normals if they shade as lines.
+- [x] Polar bear (`2026-10-27-polar-bench.md`): the user asked: "should the polar bear's seat be
+      taller for it to be more natural?", and chose the bench of 0.38 m and the seated size of
+      before. Done: level thighs, vertical shins 3.208 times as long as on the mesh, flat feet,
+      a bench that holds the whole haunch in the form of the reference bench, and a hold that
+      brings the elbows to about 6 cm above the keys with each note target within 5 mm.
+- [ ] Polar bear (`2026-10-27-polar-bench.md`): the lean of the high bench puts the head top at
+      1.45 m in the play (1.50 m with the hold before), and the elbows that point down put the
+      upper arms 10.3 cm into the trunk at the worst sample (8.2 cm before) and the forearms
+      8.8 cm into the belly (limit 9 cm). Next: read the arm roots at 2x at that sample
+      (boulanger-matin 108.13 s), and ask the user about the head top if it reads small.
+- [ ] Polar bear wrist (user, 2026-10-27): "there's a crease around the bear's wrist". No face
+      at the wrist folds on `main` or after the bench round, so the crease is shading or form.
+      The baseline of the next round is in section 7 of `2026-10-27-polar-bench.md`.
+- [ ] Close views: the pianist has no lift or lowering moment in `ROLE_VIEWS`, so
+      `close-views pianist --moments lift50` fails. Next: give the role the moments of
+      `halfMoves()`, as the violinist has.
 - [x] Wolf (`2026-10-27-wolf-knee.md`): the user said that the wolf does not hold the clarinet
       properly at rest: the left paw capped the mouthpiece end, the bell hung 12 cm in front of
       the seat, and each paw slid 15 cm along the tube in each move. Done: the bell rests against
