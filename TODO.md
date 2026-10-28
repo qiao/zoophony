@@ -624,7 +624,7 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       `wind_arms.py`), and keep the flat inner side of the arm inside it (`wall-cuts.png`).
       Done (`2026-10-28-cat-wall.md`): the lips of the cut under each wall go, even faces fill
       the wall, and the trunk near it rounds into it. The outline of the cuts under the wall
-      turns at most 46° (154° to 180° before), and no light patch shows in the play.
+      turns at most 48° (142° to 180° before), and no light patch shows in the play.
 - [ ] Cat (`2026-10-27-cat-arm.md`): a dark crease lies at the front of the left arm root in the
       play, between the chest and the upper arm. The root of the tube holds 0.2 to 0.5 of chest
       weight (`anchor` and Smooth), so it narrows when the arm rises: 4.65 cm at 0.5 of the upper
@@ -635,6 +635,11 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       faces at the root at rest and in the play, and on the right arm a dark
       notch opened at rest. Each mix that folded no new face kept the crease. Next: a root
       weight that differs between the front and the inner side, or a bind arm nearer to the rest.
+- [ ] Cat (`2026-10-28-cat-wall.md`): with the round side walls, face 1336 at the front of the
+      left armpit folds in each play sample (faces 1440, 2609, and 2610 1.5 to 2 cm from it did
+      on `main`), face 523 at the right inner elbow in 3.7% of the lift, and face 730 at the
+      front of the right armpit in 1.5% of the play. At the ends of each armpit line, the wall
+      meets the trunk at up to 108°, and a small point shows from az 150 and az -150.
 - [ ] Cat (`2026-10-27-cat-arm.md`): near the elbow, the left forearm is 0.89 of the tube in the
       play (4.65 cm, 5.2 cm), because the app turns the paw about 100° from the bind with the
       linear blend, over three forearm segments for each ring.
