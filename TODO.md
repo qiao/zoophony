@@ -635,10 +635,20 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       faces at the root at rest and in the play, and on the right arm a dark
       notch opened at rest. Each mix that folded no new face kept the crease. Next: a root
       weight that differs between the front and the inner side, or a bind arm nearer to the rest.
-- [ ] Cat (`2026-10-28-cat-wall.md`): with the round side walls, face 1594 at the front of the
+      Partly done (`2026-10-28-cat-root.md`): two shapes of `raise` take the front of the left
+      root half of the way with the first upper arm segment in the play and at rest. The
+      deepening of the valleys in front of the root goes from 1,830 to 694 cm·° in the play and
+      from 3,643 to 2,185 cm·° at rest, and the root at 0.45 of the upper arm is 4.64 cm in the
+      play (4.48 cm, bind 5.26 cm). A soft fold stays where the chest meets the arm. A smoothing in the pose of the shape filled it, but turned over the
+      thin faces at the front end of the armpit line: clean them in the copy first.
+- [x] Cat (`2026-10-28-cat-wall.md`): with the round side walls, face 1594 at the front of the
       left armpit folds in each play sample (faces 1440, 2609, and 2610 1.5 to 2 cm from it did
-      on `main`). At the ends of each armpit line, the wall meets the trunk at up to 108°, and a
-      small point shows from az 150 and az -150.
+      on `main`). Done (`2026-10-28-cat-root.md`): the shape of the raised left arm folds it in no
+      sample, and against `95a99a39d` no new face folds.
+- [ ] Cat (`2026-10-28-cat-wall.md`): at the ends of each armpit line, the wall meets the trunk at
+      up to 108°, and a small point shows from az 150 and az -150. Vertices 1607, 1609, and 1610
+      at the front end of the left line lie on one line, so a smoothing near them turned their
+      thin faces over (`2026-10-28-cat-root.md`).
 - [ ] Cat (`2026-10-27-cat-arm.md`): near the elbow, the left forearm is 0.89 of the tube in the
       play (4.65 cm, 5.2 cm), because the app turns the paw about 100° from the bind with the
       linear blend, over three forearm segments for each ring.
