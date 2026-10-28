@@ -1,5 +1,15 @@
-import { QUALITY_OPTIONS, SECTION_SIZE_OPTIONS, SETTING_HELP } from '../app/settings.ts';
-import type { AutoLabels, QualitySetting, SettingOption } from '../app/settings.ts';
+import {
+  FRAME_RATE_OPTIONS,
+  QUALITY_OPTIONS,
+  SECTION_SIZE_OPTIONS,
+  SETTING_HELP,
+} from '../app/settings.ts';
+import type {
+  AutoLabels,
+  FrameRateSetting,
+  QualitySetting,
+  SettingOption,
+} from '../app/settings.ts';
 import type { SectionSize } from '../score/types.ts';
 import { createButton, createElement, setAttribute, setText } from './dom.ts';
 
@@ -74,10 +84,36 @@ function createSlot(label: string): HTMLElement {
 }
 
 /**
- * The settings of the drawer (design 2.3, 2.8): "Section size" and "Quality", each with a dim
- * line that explains its values. On a phone, the
- * "Playback" group at the top holds the speed menu, the volume slider, "Reset view", and full
- * screen of the bar, each with a visible label.
+ * Creates the group of one setting: the head line with the label and an optional value at the
+ * right, the control, and the dim line that explains its values (design 2.8).
+ *
+ * @param label The label of the setting.
+ * @param control The control.
+ * @param help The dim line.
+ * @param value The element of the value at the right of the label, or `null` for none.
+ * @returns The group.
+ */
+function createGroup(
+  label: string,
+  control: HTMLElement,
+  help: string,
+  value: HTMLElement | null = null,
+): HTMLElement {
+  const head = createElement('div', 'setting-head');
+  head.append(createElement('span', 'setting-label', label));
+  if (value) {
+    head.append(value);
+  }
+  const group = createElement('div', 'setting');
+  group.append(head, control, createElement('p', 'setting-help', help));
+  return group;
+}
+
+/**
+ * The settings of the drawer (design 2.3, 2.8): "Section size", "Quality", and "Frame rate", each
+ * with a dim line that explains its values. "Frame rate" shows the rate of the drawn frames at the
+ * right of its label. On a phone, the "Playback" group at the top holds the speed menu, the volume
+ * slider, "Reset view", and full screen of the bar, each with a visible label.
  */
 export class Settings {
   readonly element: HTMLElement;
@@ -85,16 +121,21 @@ export class Settings {
   readonly playback: PlaybackSlots;
   readonly #sectionSize: Segmented<SectionSize>;
   readonly #quality: Segmented<QualitySetting>;
+  readonly #frameRate: Segmented<FrameRateSetting>;
+  /** The counter of the drawn frames, at the right of the label "Frame rate". */
+  readonly #fps = createElement('span', 'setting-value');
 
   /**
-   * Creates the two segmented controls.
+   * Creates the three segmented controls.
    *
    * @param onSectionSize The action of a new section size.
    * @param onQuality The action of a new quality setting.
+   * @param onFrameRate The action of a new frame rate setting.
    */
   constructor(
     onSectionSize: (size: SectionSize) => void,
     onQuality: (quality: QualitySetting) => void,
+    onFrameRate: (frameRate: FrameRateSetting) => void,
   ) {
     this.element = createElement('div', 'settings');
     this.playback = {
@@ -110,14 +151,12 @@ export class Settings {
     playback.append(createElement('span', 'setting-label', 'Playback'), row);
     this.#sectionSize = new Segmented('Section size', SECTION_SIZE_OPTIONS, onSectionSize);
     this.#quality = new Segmented('Quality', QUALITY_OPTIONS, onQuality);
+    this.#frameRate = new Segmented('Frame rate', FRAME_RATE_OPTIONS, onFrameRate);
     this.element.append(
       playback,
-      createElement('span', 'setting-label', 'Section size'),
-      this.#sectionSize.element,
-      createElement('p', 'setting-help', SETTING_HELP.sectionSize),
-      createElement('span', 'setting-label', 'Quality'),
-      this.#quality.element,
-      createElement('p', 'setting-help', SETTING_HELP.quality),
+      createGroup('Section size', this.#sectionSize.element, SETTING_HELP.sectionSize),
+      createGroup('Quality', this.#quality.element, SETTING_HELP.quality),
+      createGroup('Frame rate', this.#frameRate.element, SETTING_HELP.frameRate, this.#fps),
     );
   }
 
@@ -126,10 +165,26 @@ export class Settings {
    *
    * @param sectionSize The setting "Section size".
    * @param quality The setting "Quality".
+   * @param frameRate The setting "Frame rate".
    * @param auto The labels of the buttons "Auto", from `autoLabels()`.
    */
-  show(sectionSize: SectionSize, quality: QualitySetting, auto: AutoLabels): void {
+  show(
+    sectionSize: SectionSize,
+    quality: QualitySetting,
+    frameRate: FrameRateSetting,
+    auto: AutoLabels,
+  ): void {
     this.#sectionSize.show(sectionSize, auto.sectionSize);
     this.#quality.show(quality, auto.quality);
+    this.#frameRate.show(frameRate, 'Auto');
+  }
+
+  /**
+   * Shows the rate of the drawn frames at the right of the label "Frame rate".
+   *
+   * @param fps The rate, from `measuredFrameRate()`, or `null` for no measure.
+   */
+  showFrameRate(fps: number | null): void {
+    setText(this.#fps, fps === null ? '' : `${Math.round(fps)} fps`);
   }
 }

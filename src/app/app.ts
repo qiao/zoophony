@@ -51,8 +51,16 @@ import { playerCounts, seatRows } from './seat-text.ts';
 import { followSeek, shownSongTime } from './seek.ts';
 import { stageCover } from './stage-cover.ts';
 import { PHONE_LAYOUT_QUERY } from './phone-layout.ts';
-import { autoLabels, followFrame, renderTier, watchTier } from './settings.ts';
-import type { QualitySetting, TierWatch } from './settings.ts';
+import {
+  FPS_WINDOW_MS,
+  autoLabels,
+  followFrame,
+  frameDue,
+  measuredFrameRate,
+  renderTier,
+  watchTier,
+} from './settings.ts';
+import type { FrameRateSetting, QualitySetting, TierWatch } from './settings.ts';
 import { songTimeValue, wholeSeconds } from './time-text.ts';
 import { STOPPED, followSongTime, seekPlayState, setPlaying, startPlay } from './transport.ts';
 import type { PlayState } from './transport.ts';
@@ -62,6 +70,9 @@ import type { PlayState } from './transport.ts';
  * each visit (design 5.3).
  */
 const POSE_SEED = 1;
+
+/** The time between two updates of the frame rate counter of the settings, in seconds. */
+const FPS_COUNTER_SEC = 0.5;
 
 /** The current piece: its score, its pose plan, the pose buffer of its frames, and its load. */
 interface Piece {
@@ -287,6 +298,14 @@ export class App {
   #sectionSize: SectionSize = 'auto';
   /** The value of the setting "Quality" (design 2.6). */
   #quality: QualitySetting = 'auto';
+  /** The value of the setting "Frame rate" (design 2.6). */
+  #frameRate: FrameRateSetting = 'auto';
+  /** The time of the last drawn frame, in milliseconds, or `null` before the first. */
+  #lastDrawMs: number | null = null;
+  /** The times of the drawn frames of the last {@link FPS_WINDOW_MS}, in milliseconds. */
+  #drawTimes: number[] = [];
+  /** The wall time of the last update of the frame rate counter, in seconds. */
+  #fpsShownAt = 0;
   /** The automatic tier, from the tier of the device at start (design 2.6). */
   #tierWatch: TierWatch;
   /** The wall time of the last pointer motion or tap, in seconds. */
@@ -376,6 +395,10 @@ export class App {
           this.#quality = quality;
           this.#applySettings();
         },
+        onFrameRate: (frameRate) => {
+          this.#frameRate = frameRate;
+          this.#applySettings();
+        },
         onRetry: () => {
           this.#message = null;
           if (this.#failedFile !== null) {
@@ -451,7 +474,7 @@ export class App {
   /** Shows the settings, and gives the renderer the tier of the quality setting (design 2.6). */
   #applySettings(): void {
     const auto = autoLabels(this.#piece?.score.orchestral ?? null, this.#tierWatch.tier);
-    this.#ui.settings.show(this.#sectionSize, this.#quality, auto);
+    this.#ui.settings.show(this.#sectionSize, this.#quality, this.#frameRate, auto);
     this.#scene.setTier(renderTier(this.#quality, this.#tierWatch));
   }
 
@@ -837,6 +860,27 @@ export class App {
   }
 
   /**
+   * Tells if a frame of the browser draws under the setting "Frame rate" (design 2.6), and keeps
+   * the times of the drawn frames for the counter of the settings.
+   *
+   * @param nowMs The time of the frame of the browser, in milliseconds.
+   * @returns True if the frame draws.
+   */
+  frameDue(nowMs: number): boolean {
+    const due = frameDue(nowMs, this.#lastDrawMs, this.#frameRate);
+    if (due === null) {
+      return false;
+    }
+    this.#lastDrawMs = due;
+    const times = this.#drawTimes;
+    times.push(nowMs);
+    while ((times[0] ?? nowMs) <= nowMs - FPS_WINDOW_MS) {
+      times.shift();
+    }
+    return true;
+  }
+
+  /**
    * Poses the players from the song time of the `Player`, updates the UI, and renders the scene
    * (design 5.1). Until the samples of the piece are ready, the song time is 0 and the players
    * keep the rest pose. In Cinematic mode, the camera of the shot of the song time shows (5.6).
@@ -987,6 +1031,11 @@ export class App {
         drawerOpen: ui.drawer.open,
       }),
     });
+    // The counter of the settings changes two times each second, so that it stays readable.
+    if (ui.drawer.open && wallTime - this.#fpsShownAt >= FPS_COUNTER_SEC) {
+      this.#fpsShownAt = wallTime;
+      ui.settings.showFrameRate(measuredFrameRate(this.#drawTimes));
+    }
     if (piece) {
       const started = status.playing || songSec > 0;
       ui.demoList.showLevels(meterLevels(piece.meter, songSec, this.#meterLevels), started);

@@ -1,6 +1,6 @@
 import type { DemoId } from '../app/demos.ts';
 import type { SeatFlag } from '../app/seat-flags.ts';
-import type { QualitySetting } from '../app/settings.ts';
+import type { FrameRateSetting, QualitySetting } from '../app/settings.ts';
 import type { SectionSize } from '../score/types.ts';
 import { CLOSE_CREDITS_LABEL, CREDITS_TEXT, licensesUrl } from '../app/credits.ts';
 import { REPOSITORY_LABEL } from '../app/page-title.ts';
@@ -39,6 +39,8 @@ interface UiActions extends BarActions {
   readonly onSectionSize: (size: SectionSize) => void;
   /** A click on a button of the setting "Quality". */
   readonly onQuality: (quality: QualitySetting) => void;
+  /** A click on a button of the setting "Frame rate". */
+  readonly onFrameRate: (frameRate: FrameRateSetting) => void;
   /** A click on "Try again" in the message of a failure. */
   readonly onRetry: () => void;
   /** A click on the close button of the message, or the Escape key in it. */
@@ -125,7 +127,7 @@ export class Ui {
       this.drawer.focusTab('seats');
     });
     this.drawer.addTab('seats', 'Seats', this.seatList.element);
-    this.settings = new Settings(actions.onSectionSize, actions.onQuality);
+    this.settings = new Settings(actions.onSectionSize, actions.onQuality, actions.onFrameRate);
     // The link "Credits" is a button, because it opens a dialog and goes to no page (design 2.8).
     this.creditsDialog = new ModalDialog(
       'credits-dialog',

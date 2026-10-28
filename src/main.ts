@@ -78,8 +78,11 @@ function start(canvas: HTMLCanvasElement, scene: StageScene): void {
   const resize = (): void => {
     scene.resize(canvas.clientWidth, canvas.clientHeight, window.devicePixelRatio);
   };
-  const frame = (): void => {
-    app.frame();
+  // The setting "Frame rate" can skip some frames of the browser (design 2.6).
+  const frame = (nowMs: number): void => {
+    if (app.frameDue(nowMs)) {
+      app.frame();
+    }
     requestAnimationFrame(frame);
   };
   window.addEventListener('resize', resize);

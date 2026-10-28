@@ -151,6 +151,11 @@ steps, and the final pass of the post effects (4.5).
   window at such a rate permits the same share of missed frames as a window at 60 Hz: its trimmed
   mean can be up to 1.08 times the capped interval (`slowWindow()`).
 - A manual setting overrides the automatic tier.
+- The setting "Frame rate" (user, 2026-10-27) draws a frame at each refresh of the display
+  ("Auto"), or caps the rate at 60 or 30 fps. With a cap, a frame of the browser draws when the
+  interval of the cap has passed, less a small tolerance, so the mean rate stays at the cap on a
+  display of any refresh rate (`frameDue()` in `app/settings.ts`). The automatic tier measures
+  only the drawn frames, and a steady 30 fps does not drop it.
 - The app needs WebGL2, with no WebGL1 fallback (`supportsWebgl2()` of `app/webgl.ts`). With no
   WebGL2, the full-page message of 2.8 replaces the stage and the UI.
 - Supported browsers: the current and the previous major versions of Chrome, Firefox, and Safari
@@ -261,9 +266,13 @@ is instant with reduced motion. Each text keeps the contrast 4.5:1 of WCAG AA ov
     notes do not stay where the song time stops at the last note-off. A dark fur gets a lighter
     glow that keeps 3:1 on the row (`ringColor()` in `app/seat-text.ts`). The dot keeps its
     layout space at all sizes. With reduced motion, it is small or full with no fade.
-  - Settings: "Section size" (Auto, One per part, Full) and "Quality" (Auto, High, Medium, Low).
-    The button "Auto" names its current value, such as "Auto (Full)". `SETTING_HELP` of
-    `app/settings.ts` gives the help line of each control. A change of the section size changes
+  - Settings: "Section size" (Auto, One per part, Full), "Quality" (Auto, High, Medium, Low), and
+    "Frame rate" (Auto, 60 fps, 30 fps, 2.6). The button "Auto" names its current value, such as
+    "Auto (Full)". `SETTING_HELP` of `app/settings.ts` gives the help line of each control. Each
+    setting is a group of its label, a control of the full width with each label on one line,
+    and its help line. A counter at the right of the label "Frame rate" shows the rate of the
+    drawn frames over the last second, and changes two times each second while the drawer is
+    open (`measuredFrameRate()`, user, 2026-10-27). A change of the section size changes
     only the player counts, so the music, the song time, and the flags stay.
   - Credits: the link "Credits" at the end of the tab "Settings" (user, 2026-10-07: "hide credits
     behind a link, which when clicked would popup a modal"; user, 2026-10-20: "move credit to
