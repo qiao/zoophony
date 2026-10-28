@@ -1,0 +1,23 @@
+base: cached (main, df15fc937f61)
+base: cached (main, df15fc937f61)
+base: cached (main, df15fc937f61)
+Arm gate of 1 roles in 3 variants against main: 3 children, at most 4 at the same time, in 162 s. A cell gives the value, the base in parentheses, and the verdict of a value that does not pass.
+
+- pv2: viola@cat.reachL=20deg;viola@cat.playTurn=[-0.0934,-0.1295,0.0199,0.987];viola@cat.playShift=[0.05,0.0869,0.1937];viola@cat.restBow.via.reach=[0.45,0.5,-0.2]
+- pv1: viola@cat.reachL=20deg;viola@cat.playTurn=[-0.0934,-0.1295,0.0199,0.987];viola@cat.playShift=[0.05,0.0869,0.1937];viola@cat.restBow.via.reach=[0.55,0.45,-0.1]
+- pv3: viola@cat.reachL=20deg;viola@cat.playTurn=[-0.0934,-0.1295,0.0199,0.987];viola@cat.playShift=[0.05,0.0869,0.1937];viola@cat.restBow.via.reach=[0.5,0.45,-0.15]
+
+| Variant | Role | Arm | folds p95 (8) | twist p95 (55) | forearm twist p95 (80) | flat p5 (0.55) | paw twist p95 (170) | paw swing p95 (70) | paw jumps (0.5%) | stretch p95 (0.35) | grip turn p50 (45) | move twist max (176) | move turn max (3000) | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| pv2 | violist | L | 4 (4) | 32 (32) | 38 (39) | 0.79 (0.79) | 100 (100) | 40 (39) | 0.0% (0.0%) | 0.11 (0.11) | 4 (3) | 101 (101) | 219 (216) | PASS |
+| pv2 | violist | R | 5 (5) | 36 (36) | 47 (46) | 0.82 (0.87) FAIL | 123 (120) | 60 (50) | 0.0% (0.0%) | 0.04 (0.04) | 35 (31) | 134 (133) | 675 (480) | FAIL |
+| pv1 | violist | L | 4 (4) | 32 (32) | 38 (39) | 0.79 (0.79) | 100 (100) | 40 (39) | 0.0% (0.0%) | 0.11 (0.11) | 4 (3) | 101 (101) | 219 (216) | PASS |
+| pv1 | violist | R | 5 (5) | 36 (36) | 47 (46) | 0.84 (0.87) | 123 (120) | 59 (50) | 0.0% (0.0%) | 0.04 (0.04) | 35 (31) | 133 (133) | 531 (480) | PASS |
+| pv3 | violist | L | 4 (4) | 32 (32) | 38 (39) | 0.79 (0.79) | 100 (100) | 40 (39) | 0.0% (0.0%) | 0.11 (0.11) | 4 (3) | 101 (101) | 219 (216) | PASS |
+| pv3 | violist | R | 5 (5) | 36 (36) | 47 (46) | 0.83 (0.87) | 123 (120) | 57 (50) | 0.0% (0.0%) | 0.04 (0.04) | 35 (31) | 133 (133) | 566 (480) | PASS |
+
+Variant pv2:
+
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| violist | R | flat p5 | lift | 434 | 0.89 | 0.82 | 100.0% | 0.70 at boulanger-matin.mid wall 0.4 s | 0.82 | 0.55 | 0.87 | FAIL |

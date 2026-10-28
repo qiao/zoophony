@@ -1,0 +1,16 @@
+The depths of main (93700a1e) and of the working tree with no change:
+H of each body, main (93700a1e) -> working tree: dog 0.328 m -> 0.328 m
+| Species | Set | Pair | main (93700a1e) cm | main (93700a1e) H | tree cm | tree H | Mark | tree at |
+|---|---|---|---:|---:|---:|---:|---|---|
+| dog | play | paws in cello | 1.6 | 0.050 | 1.6 | 0.050 |  | boulanger-matin 14.13 s |
+| dog | play | forearms in cello | 2.1 | 0.066 | 2.1 | 0.066 |  | boulanger-matin 106.13 s |
+| dog | play | upper arms in body | 2.5 | 0.077 | 2.5 | 0.077 |  | brahms-2 128.13 s |
+| dog | play | instrument in body | 1.0 | 0.032 | 1.0 | 0.032 |  | bach-bwv1047 274.40 s |
+| dog | lift | paws in cello | 1.0 | 0.031 | 1.0 | 0.031 |  | beethoven-8 wall 12.60 s |
+| dog | lift | upper arms in body | 2.8 | 0.084 | 2.8 | 0.084 |  | mozart-k525 wall 10.00 s |
+| dog | lift | instrument in body | 0.7 | 0.021 | 0.7 | 0.021 |  | bach-bwv1048 wall 11.50 s |
+| dog | rest | paws in cello | 1.0 | 0.031 | 1.0 | 0.031 |  | mozart-k525 wall 10.00 s |
+| dog | rest | upper arms in body | 2.8 | 0.084 | 2.8 | 0.084 |  | mozart-k525 wall 10.00 s |
+| dog | lower | paws in cello | 1.0 | 0.031 | 1.0 | 0.031 |  | beethoven-9 wall 13.00 s |
+| dog | lower | upper arms in body | 2.8 | 0.084 | 2.8 | 0.084 |  | bach-bwv1047 wall 14.80 s |
+| dog | lower | instrument in body | 0.6 | 0.019 | 0.6 | 0.019 |  | mozart-k417 wall 13.00 s |

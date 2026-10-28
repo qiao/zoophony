@@ -1,0 +1,21 @@
+The depths of main (93700a1e) and of the working tree with no change:
+H of each body, main (93700a1e) -> working tree: hippo 0.505 m -> 0.505 m
+| Species | Set | Pair | main (93700a1e) cm | main (93700a1e) H | tree cm | tree H | Mark | tree at |
+|---|---|---|---:|---:|---:|---:|---|---|
+| hippo | play | paws in contrabass | 1.7 | 0.033 | 1.7 | 0.033 |  | bach-bwv1050 263.80 s |
+| hippo | play | forearms in contrabass | 2.1 | 0.042 | 2.1 | 0.042 |  | bach-bwv1050 142.80 s |
+| hippo | play | upper arms in body | 2.8 | 0.056 | 2.8 | 0.056 |  | beethoven-8-4 620.59 s |
+| hippo | play | upper arms in contrabass | 1.5 | 0.030 | 1.5 | 0.030 |  | boulanger-matin 122.38 s |
+| hippo | play | instrument in body | 1.9 | 0.038 | 1.9 | 0.038 |  | brahms-2 672.88 s |
+| hippo | lift | paws in contrabass | 1.5 | 0.030 | 1.5 | 0.030 |  | beethoven-1 wall 12.00 s |
+| hippo | lift | forearms in contrabass | 1.5 | 0.030 | 1.5 | 0.030 |  | bach-bwv1050 wall 10.00 s |
+| hippo | lift | upper arms in body | 6.1 | 0.120 | 6.1 | 0.120 |  | bach-bwv1048 wall 10.00 s |
+| hippo | lift | instrument in body | 1.8 | 0.035 | 1.8 | 0.035 |  | bach-bwv1048 wall 10.90 s |
+| hippo | rest | paws in contrabass | 1.4 | 0.029 | 1.4 | 0.029 |  | bach-bwv1050 wall 10.00 s |
+| hippo | rest | forearms in contrabass | 1.5 | 0.030 | 1.5 | 0.030 |  | bach-bwv1050 wall 10.00 s |
+| hippo | rest | upper arms in body | 6.1 | 0.120 | 6.1 | 0.120 |  | bach-bwv1048 wall 10.00 s |
+| hippo | lower | paws in contrabass | 1.5 | 0.030 | 1.5 | 0.030 |  | bach-bwv1048 wall 12.50 s |
+| hippo | lower | forearms in contrabass | 1.5 | 0.030 | 1.5 | 0.030 |  | bach-bwv1048 wall 14.10 s |
+| hippo | lower | upper arms in body | 6.1 | 0.121 | 6.1 | 0.121 |  | bach-bwv1050 wall 15.30 s |
+| hippo | lower | upper arms in contrabass | 2.0 | 0.040 | 2.0 | 0.040 |  | boulanger-matin wall 13.30 s |
+| hippo | lower | instrument in body | 1.8 | 0.035 | 1.8 | 0.035 |  | bach-bwv1048 wall 11.00 s |
