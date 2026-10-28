@@ -1,0 +1,156 @@
+diff --git a/src/models/instruments/piano.ts b/src/models/instruments/piano.ts
+index b9ba9046..97b26660 100644
+--- a/src/models/instruments/piano.ts
++++ b/src/models/instruments/piano.ts
+@@ -4,7 +4,7 @@ import { toQuat } from '../tuples.ts';
+ import type { Vec3 } from '../tuples.ts';
+ import { MeshBuilder, transform } from '../mesh.ts';
+ import type { MeshData } from '../mesh.ts';
+-import { box, cylinder, prism, quad } from '../primitives.ts';
++import { box, cylinder, plate, prism, quad } from '../primitives.ts';
+ import type { OutlinePoint } from '../primitives.ts';
+ import { PieceBuilder, hold, pieceSize, placeCorners } from './piece.ts';
+ import type { InstrumentModel } from './types.ts';
+@@ -52,10 +52,17 @@ export const PIANO_SCALE = 1.16;
+  */
+ export const PIANO_FRONT_H = 1.16;
+ 
+-/** The piano bench: a seat of 0.75 × 0.35 m at the height of a chair seat (design 4.5). */
++/**
++ * The piano bench (design 4.5): a padded seat on an apron and four tapered legs with brass feet,
++ * as the bench of `polar-bear-views.png`, at the height of a chair seat. The front edge of the
++ * seat is `front` in front of the floor point of the player. A studio body sits with the front
++ * edge of the seat of its rig at `seatLine` in front of the floor point (`tools/studio-body.ts`).
++ */
+ export const PIANO_BENCH = {
+   width: 0.75,
+   depth: 0.35,
++  front: 0.175,
++  seatLine: 0.175,
+   seatHeight: 0.45,
+ } as const;
+ 
+@@ -545,8 +552,33 @@ export function buildPiano(): InstrumentModel {
+ }
+ 
+ /**
+- * Builds the piano bench: a seat on four legs (design 4.5, 4.6). The seat center is above the
+- * origin, and the player sits on it and faces -z.
++ * Gives the outline of a rectangle with cut corners, counterclockwise when seen from +y.
++ *
++ * @param width The size on x.
++ * @param depth The size on z.
++ * @param cut The length of each corner cut along each side.
++ * @returns The 8 points.
++ */
++function cutRectangle(width: number, depth: number, cut: number): OutlinePoint[] {
++  const x = width / 2;
++  const z = depth / 2;
++  return [
++    [x - cut, z],
++    [x, z - cut],
++    [x, -z + cut],
++    [x - cut, -z],
++    [-x + cut, -z],
++    [-x, -z + cut],
++    [-x, z - cut],
++    [-x + cut, z],
++  ];
++}
++
++/**
++ * Builds the piano bench (design 4.5, 4.6), as the bench of `polar-bear-views.png`: a padded
++ * seat with round top edges, an apron under it, and four square legs that taper down to brass
++ * feet. The front edge of the seat is {@link PIANO_BENCH} `front` in front of the origin, and the
++ * player sits on it and faces -z.
+  *
+  * @param seatHeight The height of the seat, in meters.
+  * @returns The mesh data, with all vertices on bone 0.
+@@ -555,19 +587,57 @@ export function buildPianoBench(seatHeight: number = PIANO_BENCH.seatHeight): Me
+   const b = { ...PIANO_BENCH, seatHeight };
+   const builder = new MeshBuilder();
+   const color = INSTRUMENT_COLORS.pianoCase;
+-  builder.add(box(b.width, 0.06, b.depth), {
++  const center = b.depth / 2 - b.front;
++  const pad = 0.26 * b.seatHeight;
++  const apron = 0.1 * b.seatHeight;
++  const outline = cutRectangle(b.width, b.depth, 0.03);
++  const padBottom = b.seatHeight - pad;
++  builder.add(
++    plate(outline, [
++      [1, padBottom],
++      [1, padBottom + 0.65 * pad],
++      [0.985, padBottom + 0.9 * pad],
++      [0.955, b.seatHeight],
++    ]),
++    { color, at: transform([0, 0, center]), finish: 'lacquer' },
++  );
++  const inset = 0.015;
++  builder.add(box(b.width - 2 * inset, apron, b.depth - 2 * inset), {
+     color,
+-    at: transform([0, b.seatHeight - 0.03, 0]),
++    at: transform([0, padBottom - apron / 2, center]),
+     finish: 'lacquer',
+   });
+-  const legHeight = b.seatHeight - 0.06;
++  const legTop = padBottom - apron;
++  const foot = 0.12 * b.seatHeight;
++  const legWidth = 0.065;
++  const half = legWidth / 2;
++  const square: OutlinePoint[] = [
++    [half, half],
++    [half, -half],
++    [-half, -half],
++    [-half, half],
++  ];
+   for (const x of [-1, 1]) {
+     for (const z of [-1, 1]) {
+-      builder.add(box(0.04, legHeight, 0.04), {
+-        color,
+-        finish: 'lacquer',
+-        at: transform([(x * (b.width - 0.06)) / 2, legHeight / 2, (z * (b.depth - 0.06)) / 2]),
+-      });
++      const at = transform([
++        (x * (b.width - 2 * inset - legWidth)) / 2,
++        0,
++        center + (z * (b.depth - 2 * inset - legWidth)) / 2,
++      ]);
++      builder.add(
++        plate(square, [
++          [0.8, foot],
++          [1, legTop],
++        ]),
++        { color, at, finish: 'lacquer' },
++      );
++      builder.add(
++        plate(square, [
++          [0.72, 0],
++          [0.8, foot],
++        ]),
++        { color: INSTRUMENT_COLORS.brass, at, finish: 'metal' },
++      );
+     }
+   }
+   return builder.build();
+diff --git a/tools/studio-body.ts b/tools/studio-body.ts
+index f89bc3d6..d63a8e56 100644
+--- a/tools/studio-body.ts
++++ b/tools/studio-body.ts
+@@ -2063,7 +2063,7 @@ function sceneFrame(
+   // The front edge of the seat of the app, in the axes of the studio: a chair keeps its back at
+   // the back of the chair of design 4.5, and a shorter seat ends further back. The body lies the
+   // move back behind it.
+-  const appFront = seat.name === 'chair' ? depth - CHAIR.seatDepth / 2 : depth / 2;
++  const appFront = seat.name === 'chair' ? depth - CHAIR.seatDepth / 2 : PIANO_BENCH.seatLine;
+   const frame = {
+     scale,
+     offset: new Vector3(0, -drop, (appFront - back) / scale - front),
+@@ -2149,7 +2149,7 @@ function seatHeightOf(glb: Glb, mesh: SourceMesh, frame: SceneFrame): number {
+   const halfX = (frame.chairWidth ?? seat.width) / 2 / frame.scale;
+   // The seat in the axes of the studio: a chair from its back at the back of the chair of design
+   // 4.5 to its front edge, and the bench around the origin.
+-  const back = frame.chairDepth === null ? -seat.depth / 2 : -CHAIR.seatDepth / 2;
++  const back = frame.chairDepth === null ? PIANO_BENCH.front - seat.depth : -CHAIR.seatDepth / 2;
+   const depth = frame.chairDepth ?? seat.depth;
+   let low = Infinity;
+   for (const vertex of mesh.vertices) {
