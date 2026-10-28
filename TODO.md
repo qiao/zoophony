@@ -648,10 +648,29 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       elbows turn 45° forward, the bind paws 66° and 57° toward supination, and the rest elbows
       point down and out of the belly. The gate has no `FAIL` against `876ba389` and `main`
       (`2026-10-27-wolf-bind.md`).
-- [ ] Wolf (`2026-10-27-wolf-bind.md`): the left wrist bends 54° at rest, 1° under its margin
+- [x] Wolf (`2026-10-27-wolf-bind.md`): the left wrist bends 54° at rest, 1° under its margin
       limit against `876ba389` (40° there). A rest aim of 0.8 gave 51° with a full grasp, but
-      each move turned the paws around the tube. Next: scan a rest aim across the tube apart
-      from the roll (`aimSide`), with the gate and `pnpm wind-grip`.
+      each move turned the paws around the tube. Done: the upright rest bends the left wrist
+      45° (p95), 10° under the margin (`2026-10-27-wolf-mouse-rests.md`).
+- [x] Wolf (`2026-10-27-wolf-mouse-rests.md`): the user said that the clarinet should be
+      vertical at rest. Done: the clarinet stands upright (0° from the front and the side) in
+      front of the belly, with the bell between the knees at their height, and both paws keep
+      their grips of the play. The gate has no `FAIL` against `main` and `876ba389`.
+- [ ] Wolf (`2026-10-27-wolf-mouse-rests.md`): the bell of the upright clarinet rests on
+      nothing, 22 cm in front of the seat. On the right knee top, the left forearm went 7 cm to
+      12 cm into the belly. Next: offer the user the bell on the right knee with the right paw
+      alone and the left paw on the left thigh (`restFreeL`), as a real clarinetist rests it.
+- [ ] Wolf (`2026-10-27-wolf-mouse-rests.md`): the clarinet axis turns up to 14° in the closed
+      left paw over a lift (8° on the rest at the knee). Next: read the left paw crops of the
+      lift at 2x, and scan the left rest elbow with `wolf-rest.ts --moves` if it shows.
+- [x] Mouse (`2026-10-27-wolf-mouse-rests.md`): the user said that the two paws overlap at rest.
+      Both paws closed on the middle of the oboe and overlapped by 4.5 cm along the tube. Done:
+      both paws keep their grips of the play at rest, with a gap of 5.7 cm, no paw in the other,
+      and a slide of 0.4 cm in a move (5 cm before).
+- [ ] Mouse (`2026-10-27-wolf-mouse-rests.md`): the left paw twists 134° on its forearm at rest,
+      and the left palm turns 58° from the oboe (grasp limit 60°), so the rest elbows have
+      little room. Next: supinate the bind left paw of the mouse (`studio.bindSupination`), as
+      for the wolf, and scan the rest elbows again.
 - [x] Bear rig (`2026-10-26-arm-fixes.md`): the left shoulder bridge folds 8 tiny faces at p95
       in the play (4 on the old rig, limit 8), and the right move twist max is 87 (81). Done: the
       head keeps the rule weights, and four shoulder faces take the mean of their painted weights
