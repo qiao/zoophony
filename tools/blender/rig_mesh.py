@@ -1983,6 +1983,28 @@ def taubin(points, tris, ids, share, rounds):
     return out
 
 
+def arm_smooth(verts, tris, weights, rule):
+    """Smooths the arm tubes of the source (`armSmooth`): `rounds` rounds of `taubin()` on each
+    vertex of the sides of `sides` with a weight on a bone of its side whose name starts with one
+    of `bones` (by default an upper arm, a forearm, or an elbow bone). Each vertex moves by that
+    weight, so that the paw and the trunk keep their form. The
+    rebuilt arms put dense rings onto the big flat faces of the mesh of the user, so each ring
+    took the sharp ridges between the faces, and the smooth normals of the app shaded each ridge as
+    a lump or a dent (user, 2026-10-28: "the hippo's arm has lumps / dents", "the wolf's arm has
+    unexpected dents / bends", "the cat's arm has unexpected lumps"). Gives the smoothed vertices,
+    the number of moved vertices, and the largest move."""
+    share = np.zeros(len(verts))
+    for side in rule.get('sides', 'LR'):
+        cols = [k for k, name in enumerate(BONES)
+                if name.endswith(f'_{side}')
+                and name.startswith(tuple(rule.get('bones', ('upper_arm', 'forearm', 'elbow'))))]
+        share += weights[:, cols].sum(axis=1)
+    share = np.clip(share, 0.0, 1.0)
+    ids = np.nonzero(share > 0)[0]
+    out = taubin(verts, tris, ids, share[ids], rule['rounds'])
+    return out, len(ids), float(np.linalg.norm(out - verts, axis=1).max(initial=0.0))
+
+
 def apply_rules(verts, tris, weights, rules, heads, ends):
     """Applies the weight rules of the config: the arms, the haunch on the hips, the tail, the ears
     on their bones, and the head only above the head line."""
@@ -4831,6 +4853,10 @@ def main():
         weights = straight_slivers(verts, source_tris,
                                    rigid_slivers(verts, source_tris, weights, rules), rules)
         weights = limit(rigid_faces(verts, source_tris, weights, rules))
+
+    if 'armSmooth' in config:
+        verts, count, largest = arm_smooth(verts, source_tris, weights, config['armSmooth'])
+        log(f'armSmooth: {count} vertices of the arm tubes, at most {largest:.4f} u')
 
     # The long arms, the long legs, the large head, and the short trunk. The scale of the app comes
     # from the shoulder joints after the rise of the legs and the drop of the trunk.
