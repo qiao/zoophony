@@ -60,17 +60,19 @@ near the elbow, so the session takes the route of the cat and the fox (`tools/bl
 `tools/blender/fox_arms.py`): a cut along the seam where the arm meets the trunk, a side wall of
 the trunk under the arm, and a tube with a flat inner side on the wall. The faces of the paws, the
 trunk, the legs, and the head are the faces of the user, except the thin faces at the cut loops,
-which collapse or go. The arms are 1.5 times longer from the socket, as the rig made them before
+which collapse or go. Since 2026-10-28, the wrist cut lies 0.25 of the paw from the wrist joint,
+parallel to the last ring of the tube, so that the bridge to the paw is an even band with no lip
+(`cut_planes()` of the script). The arms are 1.5 times longer from the socket, as the rig made them before
 (`armFactor` of the config), because a rig with arm segments does not stretch the arms.
 `pnpm rig-mesh hippo` writes `hippo.rig.glb`, and `pnpm studio-body hippo` writes
 `src/models/studio/hippo.ts`.
 
 | Item | Value |
 |---|---|
-| `hippo-arms.glb` | 923,940 bytes, SHA-256 `d36280c389d484c752a9f96532e7f4599273e770a33001e6eba0cc6c2fe036fc` |
-| Mesh | 1,824 vertices after a weld at 1e-5, 3,643 triangles (3,141 in the source): on each arm a tube of quad rings of 16 vertices, joined to the socket and the paw with Bridge Edge Loops, with Beautify Faces and Collapse Edges on the thin faces |
+| `hippo-arms.glb` | 922,360 bytes, SHA-256 `3109395cf0cb43214856b2840e8d74475780378ea5d971609e5c075160729018` |
+| Mesh | 1,804 vertices after a weld at 1e-5, 3,603 triangles (3,141 in the source): on each arm a tube of quad rings of 16 vertices, joined to the socket and the paw with Bridge Edge Loops, with Beautify Faces and Collapse Edges on the thin faces |
 | Material | One material with one base color JPEG: the atlas of the source, and a strip of 512 pixels on top with the skin color of the source arms, baked onto the new faces. The side walls and the flat inner sides take one skin color of the trunk. No metallic-roughness texture |
-| `hippo-weights.json` | 404,814 bytes, SHA-256 `b855f560af83399f9bb4dcf6827bacd52cd17481f04a8f3141eeddd0640e9f6c` |
+| `hippo-weights.json` | 400,611 bytes, SHA-256 `ab6c53dc052018e7c5652e42b1be57c1e07ae4334681f9b4e87963930c11b5d1` |
 | Weights | The automatic weights of Blender with the Weight Paint fixes of the session, on the studio bones and the arm segments and helpers (`armSegments` of the config), for `paintedWeights` of the config |
 | License | Derived from the mesh of the user, who holds its rights |
 
