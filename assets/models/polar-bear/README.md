@@ -63,7 +63,9 @@ haunch to the heel, so the seated leg was a wedge with no hollow behind the knee
 `tools/blender/polar_bear_legs.py` replays the Blender session that made both files, byte for
 byte. The faces of the feet, the trunk, the haunch, the arms, and the head stay. The new leg
 surface lies on the old one, with the leg length of the user: the rig makes the legs longer
-(`legFactor`).
+(`legFactor`). Since 2026-10-27, the rig makes the shins longer than the thighs (`shinFactor`),
+so that the level thighs sit on a bench of 0.38 m with the feet flat on the floor
+(`docs/decisions/2026-10-27-polar-bench.md`). The files of this folder do not change for it.
 
 | Item | Value |
 |---|---|
