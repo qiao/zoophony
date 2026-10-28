@@ -38,15 +38,18 @@ line to the wrist. On 2026-10-24 the user saw the rebuilt arms of the Rigify rab
 apply similar techniques to the polars bear". `tools/blender/polar_bear_arms.py` replays the
 Blender session that made both files, byte for byte. The faces of the paws, the trunk, the legs,
 and the head are the faces of the user. The new arm surface lies on the old one, with the arm
-length of the user. Since 2026-10-27, `tools/blender/polar_bear_legs.py` reads both files, and the
+length of the user. On 2026-10-27 the user said: "there's a crease around the bear's wrist". Since
+2026-10-28, the wrist cut stands parallel to the last ring of each tube, the thin faces of each
+wrist band collapse, and the band is smoothed and put back on the old surface
+(`docs/decisions/2026-10-27-polar-wrist.md`). Since 2026-10-27, `tools/blender/polar_bear_legs.py` reads both files, and the
 rig takes the bone heat of each kept vertex from this mesh (`heatSource` of the config).
 
 | Item | Value |
 |---|---|
-| `polar-bear-arms.glb` | 1,229,968 bytes, SHA-256 `b55c9fa91746797fe10b1901e97ff4c44e09575c4052a1aca5288165a09bf88c` |
-| Mesh | 2,073 vertices after a weld at 1e-5, 4,142 triangles (3,144 in the source): on each arm a tube of 15 rings of 16 vertices, joined to the trunk and the paw with Bridge Edge Loops |
+| `polar-bear-arms.glb` | 1,228,632 bytes, SHA-256 `1b8103ae58438f23dcae4bf3a3d6f53e43770c1e1fda930ea695a58454b6ac62` |
+| Mesh | 2,048 vertices after a weld at 1e-5, 4,092 triangles (3,144 in the source): on each arm a tube of 15 rings of 16 vertices, joined to the trunk and the paw with Bridge Edge Loops |
 | Material | One material with one base color JPEG of 4096 × 5120 pixels: the atlas of the source, and a strip of 1024 pixels on top with the fur color of the source arms, baked onto the new faces. No metallic-roughness texture |
-| `polar-bear-weights.json` | 461,707 bytes, SHA-256 `d70e0fac14002e1856bcbd9b75e33181f1bbc7abbfecdcad713fbf1f12ed7262` |
+| `polar-bear-weights.json` | 456,038 bytes, SHA-256 `58e5e7a56d643f4a3493f3ab1a3559288bd045fd271e3caf499a3f0b3df80ca7` |
 | Weights | The automatic weights of Blender with the Weight Paint fixes of the session, on the studio bones and the arm segments and helpers (`armSegments` of the config), for `paintedWeights` of the config |
 | License | Derived from the mesh of the user, who holds its rights |
 
@@ -68,10 +71,10 @@ shins 1.2 times as long (`legFactor`), so that the legs keep about the proportio
 
 | Item | Value |
 |---|---|
-| `polar-bear-limbs.glb` | 1,259,300 bytes, SHA-256 `9509e0f436d60309df62ee0d7383121f398f986da4f45d708c77bfe197780f32` |
-| Mesh | 2,555 vertices after a weld at 1e-5, 5,106 triangles (4,142 in `polar-bear-arms.glb`): on each leg a tube of 10 rings of 20 vertices, joined to the haunch and the foot with Bridge Edge Loops |
+| `polar-bear-limbs.glb` | 1,258,044 bytes, SHA-256 `49795e987c8215777b5229f8a1792240838bd5f72291c2f9407e43004505aa8a` |
+| Mesh | 2,530 vertices after a weld at 1e-5, 5,056 triangles (4,092 in `polar-bear-arms.glb`): on each leg a tube of 10 rings of 20 vertices, joined to the haunch and the foot with Bridge Edge Loops |
 | Material | One material with one base color JPEG of 4096 × 5120 pixels: the atlas of `polar-bear-arms.glb`, with the fur color of the source legs baked into the strip on top, beside the arm image |
-| `polar-bear-limbs-weights.json` | 568,677 bytes, SHA-256 `5e524b62caa6a743f2e9a8ee51b326d06264076765cb7b269dacf6c5ab79fa6c` |
+| `polar-bear-limbs-weights.json` | 563,009 bytes, SHA-256 `726946e540721eefa3426f56bc9a3c36c859576aee3b35154ba3683a0c893549` |
 | Weights | The weights of `polar-bear-weights.json` for each kept vertex, and the automatic weights of Blender for each new vertex, for `paintedWeights` of the config |
 | License | Derived from the mesh of the user, who holds its rights |
 
