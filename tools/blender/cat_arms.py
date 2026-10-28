@@ -1063,6 +1063,11 @@ def step_round_wall(s):
     rule = s.spec['wall']
     mesh = s.mesh
     s.anchor_target = anchor_target(s)
+    s.heat_source = mesh.copy()
+    s.heat_source.data = mesh.data.copy()
+    s.heat_source.name = s.heat_source.data.name = s.animal + '-heat'
+    bpy.context.scene.collection.objects.link(s.heat_source)
+    s.heat_source.hide_render = True
     bpy.context.view_layer.objects.active = mesh
     bpy.ops.object.mode_set(mode='EDIT')
     bm = bmesh.from_edit_mesh(mesh.data)
@@ -1239,6 +1244,58 @@ def step_inner_color(s):
     return len(inner), [round(float(c), 3) for c in median]
 
 
+def step_tube_heat(s):
+    """Gives the arm vertices the automatic weights of the copy before `step_round_wall()`.
+
+    The copy of `step_round_wall()` is parented to the rig with Automatic Weights as
+    `violin_arms.step_bind()` does, and a Data Transfer modifier (vertex groups, nearest vertex)
+    copies its weights to the vertices of the tubes and the paws, which lie at the same places.
+    Bone heat reads the whole mesh, so the round walls moved the weights of the arm roots, and
+    after Limit Total 4 and the Smooth of `step_paint()`, the root rings of both upper arms held
+    up to 0.11 more trunk weight and went 0.04 to 0.07 flatter in the play (the flat p5 of
+    `pnpm arm-check`). The replays of the other animals have no such copy, and this step leaves
+    their weights as they are. Gives the number of arm vertices.
+    """
+    source = getattr(s, 'heat_source', None)
+    if source is None:
+        return None
+    mesh = s.mesh
+    bpy.ops.object.select_all(action='DESELECT')
+    source.select_set(True)
+    s.rig.select_set(True)
+    bpy.context.view_layer.objects.active = s.rig
+    bpy.ops.object.parent_set(type='ARMATURE_AUTO')
+    va.paint_mode(source)
+    va.limit_and_normalize()
+    bpy.ops.object.mode_set(mode='OBJECT')
+    bm = bmesh.new()
+    bm.from_mesh(mesh.data)
+    layer = bm.verts.layers.int['arm_part']
+    island = sorted(p.index for side, off in ((1, 0), (-1, 10))
+                    for p in arm_verts(s, bm, layer, off))
+    bm.free()
+    group = mesh.vertex_groups.new(name='heat')
+    group.add(island, 1.0, 'REPLACE')
+    bpy.context.view_layer.objects.active = mesh
+    mod = mesh.modifiers.new('heat', 'DATA_TRANSFER')
+    mod.object = source
+    mod.use_vert_data = True
+    mod.data_types_verts = {'VGROUP_WEIGHTS'}
+    mod.vert_mapping = 'NEAREST'
+    mod.layers_vgroup_select_src = 'ALL'
+    mod.layers_vgroup_select_dst = 'NAME'
+    mod.vertex_group = group.name
+    va.apply_modifier(mesh, mod)
+    mesh.vertex_groups.remove(mesh.vertex_groups['heat'])
+    va.paint_mode(mesh, lambda p: p.index in set(island))
+    va.limit_and_normalize()
+    bpy.ops.object.mode_set(mode='OBJECT')
+    mesh.data.use_paint_mask_vertex = False
+    bpy.data.objects.remove(source, do_unlink=True)
+    s.heat_source = None
+    return len(island)
+
+
 def step_paint(s):
     """Paints the fixes with the Weight Paint tools, in this order. The places are in the units of
     the studio.
@@ -1393,7 +1450,7 @@ def step_weights(s):
 STEPS = (va.import_mesh, step_cut, step_wall, step_tube, step_wrap, step_bridge, step_beautify,
          step_uv, step_bake, va.step_normals, step_shape, step_belly, step_round_wall,
          va.step_atlas, step_inner_color, va.step_export, va.step_skeleton, va.step_bind,
-         step_paint, step_weights)
+         step_tube_heat, step_paint, step_weights)
 
 
 def main():
