@@ -805,6 +805,18 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       about 1 s. The paw grasps the shaft in 83% of the play samples (`pnpm wind-grip`).
 - [ ] Badger bass drum (`2026-10-27-badger-beater.md`): the left paw hangs and does not muffle
       the head in the rests, as section 5 of the percussion reference gives for marches.
+- [x] Hippo bow arm (`2026-10-28-hippo-arm.md`): the user said "also the hippo's arm is messed
+      up. fix it", with a close image of the bow arm from the right. Done: the wrist cut of the
+      copy crossed the last ring of the tube on the inner side of the wrist turn, and the bridge
+      made a lip with a slit, a pale band or a dark slit around the wrist. The cut now stands
+      parallel to the last ring, and a smooth evens the band of each wrist.
+- [ ] Hippo bow arm (`2026-10-28-hippo-arm.md`): in the play, the paw swings 25° to 31° off the
+      forearm (arm gate, p95), so the heel of the paw and the end of the forearm show as a lump
+      under the bow paw from the right and from az120. A scan of 8 elbow poles does not change
+      the swing. Next: a bow hold with a straighter wrist, by the place or the roll of the grip.
+- [ ] Arm replays: `fox_arms.py` and `deer_arms.py` stop with a KeyError at the belly step of
+      `cat_arms.py` (2026-10-27), as `hippo_arms.py` did. Leave the step out of their steps maps,
+      or skip it for an animal with no `belly` rule, and check the bytes of each replay.
 - [x] Bear rig (`2026-10-26-arm-fixes.md`): the left shoulder bridge folds 8 tiny faces at p95
       in the play (4 on the old rig, limit 8), and the right move twist max is 87 (81). Done: the
       head keeps the rule weights, and four shoulder faces take the mean of their painted weights
