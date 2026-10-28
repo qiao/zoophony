@@ -455,7 +455,8 @@ The code constants of each family hold the times, the angles, and the lengths of
   - **Playing pose.** The arms of the animals are a little short for their instruments (4.5). The
     right shoulder turns forward, and the stick leans toward the fingerboard
     (`BowedHold.bowTilt`), as the reference gives, so the bow arm reaches the full hair on all
-    strings with 97% of its length. The fingers curl around the stick, also at rest, and the stick
+    strings with 97% of its length. The search of the reached hair (`bowRangeOf()`) tests the end
+    of the free hair as its last place, so a bow that reaches the end plays to it. The fingers curl around the stick, also at rest, and the stick
     of the rabbit, the red fox, the cat, and the hippo passes through the middle of the closed paw
     (`bowGrip` of `models/species.ts`). The head keeps a gap from the neck of the cello and the contrabass,
     which passes the left of the head (4.6).

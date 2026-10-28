@@ -474,7 +474,7 @@ A round that changes the motion updates the items.
   about 12 cm further from the shoulder along the viola than on a person, so it takes the
   smallest size of the chart. Its left shoulder bone turns 35° forward, and its head lifts 15°, so
   that the jaw lies on the chin rest of the viola near the neck. The left paw reaches the nut, and
-  the bow paw the hair to 5 mm before the end of the free hair. With the 1/2 viola of 0.87 and the
+  the bow paw the end of the free hair. With the 1/2 viola of 0.87 and the
   arms of 1.30 H before 2026-10-27, the paw reached the fingerboard from 0.33 and the bow 0.355 m
   of 0.441 m (`docs/research/2026-10-27-cat-fox2.md`). The jaw lies on
   the chin rest: the head touches the instrument in each play sample of the rabbit and the red
@@ -496,9 +496,10 @@ A round that changes the motion updates the items.
   to 18° of a violinist in motion capture, and 25° on the contrabass. No source gives the angle of
   the viola and the cello, so they take the angle of the violin. Each angle is the real angle, or
   the largest angle below it with which the bow arm still reaches the full hair (`bowRangeOf()`).
-  The bodies of the mesh rigs stay below. The viola of the cat turns 7°: with the shorter arm and
-  the stick leaned 30°, the bow reaches the hair to 5 mm before its end with 7°, and to 2 cm
-  before it with 11°. The rabbit turns 10°, and the red fox 9° with the
+  The search of the reached hair tests the end of the free hair as its last place, so a bow that
+  reaches it plays to the end (`docs/decisions/2026-10-27-cat3.md`). The bodies of the mesh rigs
+  stay below. The viola of the cat turns 7°: with the shorter arm and the stick leaned 30°, the
+  bow reaches the end of the hair with 7°, and the hair to 2 cm before its end with 11°. The rabbit turns 10°, and the red fox 9° with the
   stick leaned 15°: larger turns fold the skin of their right arms in more play samples
   (`pnpm hold-fit`), and put the bow paw of the rabbit into the violin at the frog on the E string.
   The cello of the dog turns 6°: with its short arms, a larger turn put the paw into the right rim

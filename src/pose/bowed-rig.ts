@@ -795,7 +795,7 @@ export const BOWED_HOLDS = {
  * 0.14 H higher, and 0.25 H further back (`playShift`), turned 10° further to the left than 45°,
  * near the angle of a real player (`docs/reference/string-technique.md`, section 1.10), and tilted
  * 5° forward (`playTurn`). The left paw then reaches the fingerboard from the nut to its end, and
- * the bow paw the hair from the frog to 5 mm before the end of the free hair at the tip
+ * the bow paw the hair from the frog to the end of the free hair at the tip
  * (`pnpm hold-reach cat --instrument viola`). The head lifts 15° in the play (`headDrop` below 0),
  * so that the jaw lies on the chin rest of the higher viola: with the head level, the jaw went
  * 2.0 cm into the viola. The left shoulder bone turns 35° forward in the play (`reachL`), inside
@@ -897,8 +897,8 @@ export const BOWED_HOLDS = {
  * out, and turns it through the front in the lift and the lowering (`HANGING_BOW`).
  *
  * The string planes of the cat are 7° apart, below the 17° of the chin hold: with the shorter arm
- * and the stick leaned 30°, the bow arm reaches the hair to 5 mm before its end with 7°, and to
- * 2 cm before it with 11° (2026-10-27-cat-fox2 decisions).
+ * and the stick leaned 30°, the bow arm reaches the end of the hair with 7°, and the hair to 2 cm
+ * before its end with 11° (2026-10-27-cat-fox2 and 2026-10-27-cat3 decisions).
  *
  * The left elbow turns toward the body by 2° for each lower string of the finger: with the 5° of
  * the chin hold, the left upper arm went 1.5 cm into the deep chest in the play (0.3 cm on `main`),
@@ -1354,12 +1354,21 @@ export function bowRangeOf(rig: RigPoints): BowRange {
   const reach = rig.armR.reach;
   const free = rig.hold.freeHair;
   const frog = Math.max(free, rig.hold.frogHair);
-  const end = rig.hairLength - free + 1e-9;
+  const end = rig.hairLength - free;
+  // The places of the search: each step from the frog, and the end of the hair last, so that the
+  // search also tests the tip. With the steps alone, the hair of the cat ended 4.9 mm after the
+  // last step, and its bow stopped there although the arm reached the end.
+  const places: number[] = [];
+  for (let bow = frog; bow < end - 1e-9; bow += BOW_STEP) {
+    places.push(bow);
+  }
+  places.push(end);
   let best: [number, number] | null = null;
   let start = -1;
   let nearest = frog;
   let nearestDistance = Infinity;
-  for (let bow = frog; bow <= end; bow += BOW_STEP) {
+  let previous = frog;
+  for (const [k, bow] of places.entries()) {
     const distance = Math.max(
       wristAt(0, bow).distanceTo(shoulder.position),
       wristAt(3, bow).distanceTo(shoulder.position),
@@ -1372,13 +1381,14 @@ export function bowRangeOf(rig: RigPoints): BowRange {
     if (reached && start < 0) {
       start = bow;
     }
-    if (start >= 0 && (!reached || bow + BOW_STEP > end)) {
-      const stop = reached ? bow : bow - BOW_STEP;
+    if (start >= 0 && (!reached || k === places.length - 1)) {
+      const stop = reached ? bow : previous;
       if (!best || stop - start > best[1] - best[0]) {
         best = [start, stop];
       }
       start = -1;
     }
+    previous = bow;
   }
   return best ?? [Math.max(0, nearest - 0.02), nearest + 0.02];
 }
