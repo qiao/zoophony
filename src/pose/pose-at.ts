@@ -434,12 +434,14 @@ function poseAnimal(
           strikeStateAt(track, noteTime, state);
         }
       }
-      // The spine leans over the instrument (`PercussionHold.lean`). The body moves to the side
-      // behind the notes, and the instrument and the feet stay in place (`PercussionHold.side`).
-      // A positive sway leans to the left, and a positive share moves to the right. The neck and
-      // the head turn back by the side lean, so that the eyes stay level over the bars.
+      // The spine leans over the instrument (`PercussionHold.lean`), also in the rest pose of a
+      // player that stays ready at its instrument (`PercussionHold.ready`). The body moves to the
+      // side behind the notes, and the instrument and the feet stay in place
+      // (`PercussionHold.side`). A positive sway leans to the left, and a positive share moves to
+      // the right. The neck and the head turn back by the side lean, so that the eyes stay level
+      // over the bars.
       const { legs } = note.rig;
-      body.lean = note.rig.hold.lean * weight;
+      body.lean = note.rig.hold.lean * (note.rig.hold.ready ? 1 : weight);
       body.upright = body.lean;
       if (note.side && legs) {
         const share = sideMoveAt(note.side, noteTime) * weight;

@@ -151,8 +151,9 @@ interface PercussionHold {
   readonly pitchR: number;
   /**
    * True: the player holds its mallets over the instrument also in the rest pose, and the arms do
-   * not hang (design 5.2). The hanging paws of a player with short arms can reach into large
-   * kettles in front of it.
+   * not hang (design 5.2). The spine then keeps its lean over the instrument ({@link lean}) at
+   * rest too. The hanging paws of a player with short arms can reach into large kettles in front
+   * of it.
    */
   readonly ready: boolean;
   /**

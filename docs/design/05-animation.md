@@ -402,7 +402,9 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
   (`docs/decisions/2026-10-19-elephant-pose.md`).
 - **Percussion, standing.** The badger holds the beater of the bass drum at the drum and the
   triangle up also at rest (`PercussionHold.ready`), because the lift from the hanging arms swept
-  the beater through the body and swung the left paw far on its forearm. With the snare drum and
+  the beater through the body and swung the left paw far on its forearm. A ready player also
+  keeps the lean of its spine over the instrument at rest (`PercussionHold.lean`), so that its
+  arm does not stretch to the instrument at rest. With the snare drum and
   the suspended cymbal, the upper arms hang, and the paws hold the sticks or the mallets in the
   rest position of a real snare drummer between entrances: level and across the body in front of
   the waist, a little above the rim nearest to the body (`PercussionHold.set`,
