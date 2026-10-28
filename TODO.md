@@ -639,6 +639,21 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       (`2026-10-27-cat3.md`).
 - [ ] Tan fox (`2026-10-27-cat-fox2.md`): the left flute paw keeps the move twist of 87° (67°
       before round `sixth-cat-fox`). No left elbow that grasps the flute brings it to 70°.
+- [x] Red fox, tan fox, and rabbit (`2026-10-28-fox-rabbit-crease.md`): the user said "seeing
+      visible crease on fox and rabbit's arm", then "it may be existing fault. anyways, fix
+      them". Done: both creases were old splits of the smooth normals of the seated bind, which
+      the front key light shows. The fox elbows and the rabbit arm roots and
+      elbows take the skin normals (`rootNormals`): no hard edge over 16° stays at the arm roots
+      and the elbows (125 cm and 99 cm at rest before), with the poses and the gate of `main`.
+- [ ] Red fox and tan fox (`2026-10-28-fox-rabbit-crease.md`): at rest, the crook of the right
+      elbow keeps a soft fold of the skin, with no hard line, because the linear blend pinches the
+      bent inner elbow. The dual quaternion bind folds a bow arm that bends further than the bind.
+- [ ] Rabbit (`2026-10-28-fox-rabbit-crease.md`): at rest, a narrow groove runs between the front
+      of each upper arm and the trunk, with no hard line. It is the gap of the arm copy, which the
+      arm-down shape gives back (`rabbit-arms.glb`). A fill of the gap in the copy can close it.
+- [ ] Red fox and tan fox (`2026-10-28-fox-rabbit-crease.md`): thin dark V lines show on the white
+      chest under the front key: splits of the normals of the fur spikes of the user mesh, on
+      `main` too. Smooth them like the neck notches, or give them the skin normals.
 - [x] Rabbit, red fox, and cat (`2026-10-26-fifth-review-strings.md`): the grip that the viewer sees
       changes by 56° to 79° in the moves (target 30°), because the retarget turns each paw toward
       its forearm (`PAW_TURN`), and the forearm crosses the neck at rest and runs along it in the
