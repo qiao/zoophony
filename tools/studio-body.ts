@@ -1939,6 +1939,8 @@ interface SceneFrame {
    * of the chair of design 4.5 (`AnimalSettings.seatWidth`).
    */
   readonly chairWidth: number | null;
+  /** The reach of the piano bench under a body on a bench ({@link benchFitOf}), or `null`. */
+  readonly bench: BenchFit | null;
 }
 
 /**
@@ -2048,7 +2050,7 @@ function sceneFrame(
       : propBox(glb, (name) => name.startsWith('piano_key_')).max.y;
   const scale = settings.height / landmark;
   if (!settings.seated) {
-    return { scale, offset: new Vector3(), chairDepth: null, chairWidth: null };
+    return { scale, offset: new Vector3(), chairDepth: null, chairWidth: null, bench: null };
   }
 
   const drop = Math.min(...mesh.vertices.map((v) => v.position.y));
@@ -2056,19 +2058,26 @@ function sceneFrame(
   const box = propBox(glb, (name) => name === seat.name);
   const front = box.max.z;
   const back = seat.name === 'chair' ? (settings.seatBack ?? 0) : 0;
+  const bench = seat.name === 'bench' ? benchFitOf(mesh, box, scale) : null;
   const depth =
     seat.name === 'chair'
       ? chairDepthOf(mesh, box, scale, back, settings.backRoom ?? 0)
-      : seat.depth;
-  // The front edge of the seat of the app, in the axes of the studio: a chair keeps its back at
-  // the back of the chair of design 4.5, and a shorter seat ends further back. The body lies the
-  // move back behind it.
-  const appFront = seat.name === 'chair' ? depth - CHAIR.seatDepth / 2 : depth / 2;
+      : bench
+        ? round(bench.ahead + bench.behind)
+        : seat.depth;
+  // The front edge of the seat of the studio in the app, in the axes of the studio: a chair keeps
+  // its back at the back of the chair of design 4.5, and a shorter seat ends further back. The
+  // body lies the move back behind it. The bench stands around the floor point, and the body sits
+  // with the front edge of the seat of the studio the reach under the thighs behind its front
+  // edge.
+  const appFront =
+    seat.name === 'chair' ? depth - CHAIR.seatDepth / 2 : depth / 2 - (bench?.ahead ?? 0);
   const frame = {
     scale,
     offset: new Vector3(0, -drop, (appFront - back) / scale - front),
     chairDepth: seat.name === 'chair' ? round(depth) : null,
     chairWidth: seat.name === 'chair' ? (settings.seatWidth ?? null) : null,
+    bench,
   };
   if (settings.seat === undefined) {
     return frame;
@@ -2077,6 +2086,77 @@ function sceneFrame(
   const low = seatHeightOf(glb, mesh, frame);
   frame.offset.y += (settings.seat - low) / scale;
   return frame;
+}
+
+/** The room behind the haunch to the back edge of the piano bench, in meters. */
+const BENCH_BACK_ROOM = 0.02;
+
+/** The height of the haunch above the seat top that sets the back edge of the bench, in meters. */
+const BENCH_HAUNCH = 0.15;
+
+/** The step of the search for the front edge of the bench under the thighs, in meters. */
+const BENCH_STEP = 0.01;
+
+/**
+ * The depth below the seat top at which the underside of the thighs leaves the bench, in meters.
+ * The thighs press at most this far into the padded seat.
+ */
+const BENCH_SINK = 0.01;
+
+/** The reach of a piano bench under a seated studio body ({@link benchFitOf}), in meters. */
+interface BenchFit {
+  /** The reach of the front edge in front of the front edge of the seat of the studio. */
+  readonly ahead: number;
+  /** The reach of the back edge behind the front edge of the seat of the studio. */
+  readonly behind: number;
+}
+
+/**
+ * Finds the reach of the piano bench of the app under a body on a bench (design 4.4, 4.5), as the
+ * bench of `polar-bear-views.png` holds the whole haunch and a part of the level thighs. The seat
+ * top is the lowest point of the body over the seat of the studio. The back edge is
+ * {@link BENCH_BACK_ROOM} behind the last point of the haunch, from the seat top up to
+ * {@link BENCH_HAUNCH} above it. The front edge goes forward from the front edge of the seat of the
+ * studio, in steps of {@link BENCH_STEP}, while the underside of the thighs stays above
+ * {@link BENCH_SINK} below the seat top: further forward, a level thigh is thicker, and it would
+ * go deep into the seat. The haunch sets the seat top ({@link seatHeightOf}), so the thighs press
+ * a little into the pad. The tail does not count.
+ *
+ * @param mesh The welded mesh.
+ * @param seat The box of the seat of the studio, in the axes and the units of the studio.
+ * @param scale The meters for each unit.
+ * @returns The reach, in meters.
+ */
+function benchFitOf(mesh: SourceMesh, seat: Box3, scale: number): BenchFit {
+  const half = seat.max.x;
+  const body = mesh.vertices.filter((v) => !onTail(v) && Math.abs(v.position.x) <= half);
+  let top = Infinity;
+  for (const { position: p } of body) {
+    if (p.z >= seat.min.z && p.z <= seat.max.z) {
+      top = Math.min(top, p.y);
+    }
+  }
+  let last = Infinity;
+  let first = -Infinity;
+  for (const { position: p } of body) {
+    if (p.y >= top && p.y <= top + BENCH_HAUNCH / scale) {
+      last = Math.min(last, p.z);
+    }
+    first = Math.max(first, p.z);
+  }
+  const step = BENCH_STEP / scale;
+  let ahead = 0;
+  for (let z = seat.max.z; z < first; z += step) {
+    const low = body.reduce(
+      (least, { position: p }) => (p.z >= z && p.z < z + step ? Math.min(least, p.y) : least),
+      Infinity,
+    );
+    if (low < top - BENCH_SINK / scale) {
+      break;
+    }
+    ahead = (z + step - seat.max.z) * scale;
+  }
+  return { ahead, behind: (seat.max.z - last) * scale + BENCH_BACK_ROOM };
 }
 
 /**
@@ -2148,9 +2228,12 @@ function seatHeightOf(glb: Glb, mesh: SourceMesh, frame: SceneFrame): number {
   const seat = seatOf(glb);
   const halfX = (frame.chairWidth ?? seat.width) / 2 / frame.scale;
   // The seat in the axes of the studio: a chair from its back at the back of the chair of design
-  // 4.5 to its front edge, and the bench around the origin.
-  const back = frame.chairDepth === null ? -seat.depth / 2 : -CHAIR.seatDepth / 2;
-  const depth = frame.chairDepth ?? seat.depth;
+  // 4.5 to its front edge, and the bench around the origin. Under a body that fits it, the haunch
+  // sets the bench top: the part of the bench behind the front edge of the seat of the studio.
+  const fit = frame.bench;
+  const bench = fit ? fit.ahead + fit.behind : seat.depth;
+  const back = frame.chairDepth === null ? -bench / 2 : -CHAIR.seatDepth / 2;
+  const depth = frame.chairDepth ?? (fit ? fit.behind : bench);
   let low = Infinity;
   for (const vertex of mesh.vertices) {
     const p = vertex.position.clone().add(frame.offset);
@@ -2561,6 +2644,9 @@ export function studioBody(bytes: Uint8Array, source: string, settings: AnimalSe
   }
   if (frame.chairWidth !== null) {
     body = { ...body, chairWidth: frame.chairWidth };
+  }
+  if (frame.bench !== null) {
+    body = { ...body, benchDepth: round(frame.bench.ahead + frame.bench.behind) };
   }
   if (settings.palettes) {
     const bases = baseTriangles(ordered.faces, withoutEyes.faces);

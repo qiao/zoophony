@@ -97,7 +97,9 @@ export interface SeatHeights {
   /**
    * The depth of the seat of a chair or of the stool of the harp under a studio body, in meters
    * (`StudioBody.chairDepth`). The seat keeps the back of the chair, and its front edge is further
-   * back. The other seats, and the seats under the parametric biped, keep their own depth.
+   * back. The piano bench under a studio body takes its depth from the haunch and the thighs
+   * (`StudioBody.benchDepth`), around the floor point. The other seats, and the seats under the
+   * parametric biped, keep their own depth.
    */
   readonly seatDepth?: number;
   /**
@@ -253,6 +255,21 @@ function stoolHeights(species: SpeciesParams, seatHeight: number): SeatHeights {
 }
 
 /**
+ * Gives the heights of the piano bench under a body (design 4.5, props): the seat at the given
+ * height, and under a studio body the depth that fits its haunch and its thighs
+ * (`StudioBody.benchDepth`).
+ *
+ * @param species The species of the body.
+ * @param seatHeight The height of the seat above the floor, in meters.
+ * @returns The heights.
+ */
+function benchHeights(species: SpeciesParams, seatHeight: number): SeatHeights {
+  const studio: StudioBody | null = species.body ? STUDIO_BODIES[species.body] : null;
+  const seat = { seatHeight, footHeight: 0 };
+  return studio?.benchDepth === undefined ? seat : { ...seat, seatDepth: studio.benchDepth };
+}
+
+/**
  * Gives the heights of the seat of a body on a support (design 4.5, props). The chair fits the
  * legs of the species: its seat is the `seatHeight` of the skeleton above the floor. A species
  * with no chair (`SpeciesParams.noChair`) keeps these heights, and the app builds no chair. The
@@ -279,7 +296,7 @@ export function seatHeights(support: Support, species: SpeciesParams): SeatHeigh
     case 'high-stool':
       return { seatHeight: HIGH_STOOL.seatHeight, footHeight: HIGH_STOOL.seatHeight - legs };
     case 'bench':
-      return { seatHeight: studioLegs ? legs : PIANO_BENCH.seatHeight, footHeight: 0 };
+      return benchHeights(species, studioLegs ? legs : PIANO_BENCH.seatHeight);
     case 'stand':
     case 'riser':
       return null;
@@ -510,7 +527,7 @@ export function buildSupport(support: Support, seat: SeatHeights | null): MeshDa
     case 'high-stool':
       return buildStool(true, seat);
     case 'bench':
-      return buildPianoBench(seat.seatHeight);
+      return buildPianoBench(seat.seatHeight, seat.seatDepth);
     case 'stand':
     case 'riser':
       return null;

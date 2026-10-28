@@ -425,6 +425,13 @@ export interface StudioBody {
    */
   readonly chairWidth?: number;
   /**
+   * The depth of the piano bench under a body that sits on a bench, in meters: the bench reaches
+   * from just behind the haunch to where the underside of the thighs leaves the seat top
+   * (`benchFitOf()` of `tools/studio-body.ts`). A body with no depth sits on the bench of
+   * `PIANO_BENCH`.
+   */
+  readonly benchDepth?: number;
+  /**
    * The standing pose of a seated body that also stands. The packed mesh then holds the leg
    * corrective shapes after the arm corrective shapes. It is `null` for a body that keeps the
    * stance of its role.

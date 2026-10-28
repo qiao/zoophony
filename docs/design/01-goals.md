@@ -191,7 +191,8 @@ with close views of the head, a paw on the keys, and a foot pad. The user added 
   that the keys reach the forearms of the bear (`docs/decisions/2026-10-24-pianist-pose.md`).
 - The paws are wide, with black claws that rest on the keys. The foot pads are black.
 - The grand piano is black and glossy, with gold accents, a lid raised high on its prop, and a
-  padded black bench.
+  padded black bench on an apron and four tapered legs with gold feet. The whole haunch of the
+  bear sits on the bench (`docs/decisions/2026-10-27-polar-bench.md`).
 
 The reference image [`reference/bear-views.png`](../reference/bear-views.png) (1536 × 1024 px)
 shows the bear conductor from the front, the side, and the back, on a wooden podium. The user
