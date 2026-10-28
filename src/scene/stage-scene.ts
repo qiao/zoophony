@@ -688,7 +688,8 @@ export class StageScene {
 
   /**
    * Sets the light of the shot of a frame (design 4.5, 5.6): the lamps of a close shot around the
-   * target of the camera, which light the players and the props, and the extra exposure.
+   * target of the camera, which light the players and the props, and the extra exposure. The
+   * exposure takes the shade share of the rig, as the soft key does.
    *
    * @param view The layout of the frame. Its camera has the place of the frame.
    * @param light The weight of the light of a close shot, from 0 to 1.
@@ -698,7 +699,8 @@ export class StageScene {
     const camera = view.camera.camera;
     const rig = shotRig(camera.position.toArray(), view.camera.target, camera.fov, spot);
     setShotLight(this.#shot, rig, light, spot);
-    this.#renderer.toneMappingExposure = this.#exposure * 2 ** (SHOT_LOOK.exposure * light);
+    const stops = SHOT_LOOK.exposure * light * rig.shade;
+    this.#renderer.toneMappingExposure = this.#exposure * 2 ** stops;
   }
 
   /**

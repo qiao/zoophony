@@ -85,10 +85,11 @@ function writeLamp(uniforms: ShotUniforms, i: 0 | 1, place: ShotLamp, illuminanc
 }
 
 /**
- * Sets the light of the shot of a frame (design 4.5, 5.6).
+ * Sets the light of the shot of a frame (design 4.5, 5.6). The soft key takes the shade share of
+ * the rig: the part of the subject that the camera sees in the shade of the stage key light.
  *
  * @param uniforms The uniforms of {@link createShotUniforms}.
- * @param rig The places of the lamps, from `shotRig()`.
+ * @param rig The places of the lamps and the shade share, from `shotRig()`.
  * @param light The weight of the light of a close shot, from 0 to 1.
  * @param spot The weight of the follow-spot, from 0 to 1.
  */
@@ -99,7 +100,7 @@ export function setShotLight(
   spot: number,
 ): void {
   uniforms.uShotOn.value = light > 0 ? 1 : 0;
-  const key = SHOT_LOOK.key * (1 + (SHOT_LOOK.spot - 1) * spot);
+  const key = SHOT_LOOK.key * (1 + (SHOT_LOOK.spot - 1) * spot) * rig.shade;
   writeLamp(uniforms, 0, rig.key, key * light);
   writeLamp(uniforms, 1, rig.kicker, SHOT_LOOK.kicker * light);
 }

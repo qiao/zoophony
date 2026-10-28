@@ -94,6 +94,32 @@ export interface ShotRig {
   readonly key: ShotLamp;
   /** The kicker, behind the subject, on the side of the nearer stage light. */
   readonly kicker: ShotLamp;
+  /**
+   * The part of the subject that the camera sees in the shade of the stage key light, from 0
+   * (the camera stands at the key light) to 1 (the camera faces the key light). The soft key and
+   * the extra exposure of the shot take this part ({@link shadeShare}).
+   */
+  readonly shade: number;
+}
+
+/**
+ * Gives the part of a subject that a camera sees in the shade of the key light of the stage
+ * (`KEY_PLACE`), as the phase of a lit sphere: (1 - cos α) / 2, where α is the angle at the
+ * subject between the camera and the key light. The key light stands far from the stage, so its
+ * direction is the same for each subject. The key light stands in front of the stage, so the
+ * cameras of most close shots see the lit side of the subject: a soft key and more exposure on
+ * that side made the light fur clip (`docs/research/2026-10-27-key-look.md`).
+ *
+ * @param azimuth The azimuth of the camera around the subject, in radians.
+ * @param elevation The angle of the camera above the subject, in radians.
+ * @returns The part, from 0 to 1.
+ */
+export function shadeShare(azimuth: number, elevation: number): number {
+  const key = KEY_PLACE;
+  const cosine =
+    Math.cos(elevation) * Math.cos(key.elevation) * Math.cos(azimuth - key.azimuth) +
+    Math.sin(elevation) * Math.sin(key.elevation);
+  return (1 - cosine) / 2;
 }
 
 /**
@@ -147,12 +173,14 @@ function stageLightGap(azimuth: number): number {
  *    puts it nearer to a stage light: the rim lights behind the stage, or the key light for a
  *    camera behind the orchestra.
  * 3. Each cone covers the frame. The follow-spot of a solo shot rises and narrows the key.
+ * 4. The soft key and the extra exposure fill only the part of the subject that the camera sees
+ *    in the shade of the stage key light ({@link shadeShare}).
  *
  * @param position The camera position.
  * @param target The point that the camera looks at.
  * @param fov The vertical field of view of the camera, in degrees.
  * @param spot The weight of the follow-spot, from 0 to 1.
- * @returns The lamps.
+ * @returns The lamps and the shade share.
  */
 export function shotRig(position: Vec3, target: Vec3, fov: number, spot: number): ShotRig {
   const rig = SHOT_RIG;
@@ -179,5 +207,6 @@ export function shotRig(position: Vec3, target: Vec3, fov: number, spot: number)
       target,
       angle: cone,
     },
+    shade: shadeShare(azimuth, Math.atan2(dy, Math.hypot(dx, dz))),
   };
 }
