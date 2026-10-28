@@ -364,4 +364,5 @@ The decision files:
 - [`2026-10-27-cat3.md`](decisions/2026-10-27-cat3.md): the tips of the lower cat whiskers on the head, the search of the bow hair that tests the end of the hair, the cat viola that falls to the scroll with a smaller left shoulder turn, and the higher bow grip of the cat in the moves.
 - [`2026-10-27-cat-belly.md`](decisions/2026-10-27-cat-belly.md): the even oval trunk of the cat copy from the front and from the side, and the even oval light belly patch of the cat.
 - [`2026-10-27-key-front.md`](decisions/2026-10-27-key-front.md): the key light in front of the stage at the left, the weaker side and back-row lights, and the rim light behind the stage that motivates the beam, the room haze, and the floor gloss.
+- [`2026-10-27-key-look.md`](decisions/2026-10-27-key-look.md): the hot spot of the key light on the podium that lights the floor and the back of the conductor, and the weaker hot spot of a solo.
 - [`2026-10-23-rabbit-arms.md`](decisions/2026-10-23-rabbit-arms.md): the A-pose rabbit mesh with its own faces, a short arm stretch, a violin of 0.83, its elbows and rest grip, and the open shards of its arms.

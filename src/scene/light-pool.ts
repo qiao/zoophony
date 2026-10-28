@@ -34,10 +34,13 @@ export const LIGHT_POOL = {
   /** The part of the light that a place far from the pool keeps. It was 0.4 before the 0.45 pool. */
   floor: 0.28,
   /**
-   * The extra light of the key light at the podium center, as a part of its light. It grew from
-   * 0.7 with the smaller pool, so the middle of the pool keeps its light.
+   * The extra light of the key light at the podium center, as a part of its light: a special on
+   * the conductor and on the floor around the podium. With 0.85, the key light from the front gave
+   * the lit floor beside the podium a luma of 110 and 106 and the back of the conductor 36, against
+   * 191, 158, and 52 in `orchestra-latest.png` (`docs/research/2026-10-27-key-look.md`). A solo
+   * has a boost of its own (`SOLO_LIGHT` of `scene/solo-light.ts`).
    */
-  spotBoost: 0.85,
+  spotBoost: 2.5,
   /**
    * The radius of the hot spot of the key light across the stage (x), in stage sides. The pool
    * of `orchestra-latest.png` reaches from the piano to the cellos. The first hot spot had a

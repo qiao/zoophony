@@ -1048,7 +1048,9 @@ lights, and `scene/solo-light.ts` the light of a solo.
   light, as in `orchestra-latest.png`. The stage keeps the round pool, so the floor at the back
   stays dark. A hot spot brightens the key light around the podium. On the players and the
   props, it holds only the podium, as a special on the conductor, because the key light from the
-  front made the white fur of the front rows clip in close shots.
+  front made the white fur of the front rows clip in close shots. On the stage, it gives the floor
+  around the podium the bright pool of `orchestra-latest.png`. A solo has a weaker hot spot of its
+  own (`SOLO_LIGHT`), because the soloed players stand at its center.
 - The visible beam (`BEAM_LOOK`) is haze in a narrower cone than its rim light, because haze in
   the full cone veiled the orchestra. The beam comes from its rim light, so the light has a
   visible source: the haze cone leans from its foot toward the rim light, and its tip stands low
