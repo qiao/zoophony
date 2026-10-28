@@ -645,7 +645,12 @@ mesh are quad tubes (rings at a right angle to the bones), and the weights come 
     arms of the mesh, because the trunk of the cat is shorter than the trunk of the mesh and of
     `cat-views.png`, and the user found the arm too long. Its forearm is shorter than its upper arm,
     as on a real arm: a shorter upper arm moves the round part of the tube into the plane of the
-    seam, and the upper arm goes flat (`docs/decisions/2026-10-27-cat-fox2.md`). The
+    seam, and the upper arm goes flat (`docs/decisions/2026-10-27-cat-fox2.md`). The trunk of
+    its copy is an even oval from the front and from the side, as in `cat-views.png`
+    (`step_belly()` of the script), and its light belly patch is an even oval
+    (`colors.belly`): the mesh has an upright chest over a low belly peak, and the short trunk
+    of the rig and the seat showed a pinch and a lump (`docs/decisions/2026-10-27-cat-belly.md`).
+    The
     elephant has such arms since 2026-10-25 (`tools/blender/elephant_arms.py`), with the length
     and the thickness of its mesh. Its arms are as thick as half of their length, so its cut
     planes stand at a right angle to the arm, the wrist cut lies further out on the paw, and the
