@@ -569,6 +569,25 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       2.7 cm into the belly at the tip and 2.5 cm in pizzicato, and 1.2 cm at rest (0.9 cm before
       `sixth-cat-fox2`). Fit it after the round of the oval belly (user, 2026-10-27: "make the
       cat's belly more oval and smooth"), with the levers of section 4 of the report.
+      Partly done (`2026-10-27-cat-belly.md`): with the even oval belly, the right shoulder turn
+      of 36°, and the new pizzicato and rest elbows, the bow upper arm goes 2.3 cm into the belly
+      in the play (2.7 cm on `main`), 1.9 cm in the lowering after a pizzicato (2.7 cm), and
+      0.8 cm at rest (1.2 cm). Open: the play and the lowering over the limit of 1.5 cm, and the
+      right claws 2.2 cm into the viola at the frog. A shoulder turn of 38° folds 8 arm faces, and
+      a pizzicato elbow of (1.5, -0.5, -1) passes the margin of the move twist.
+- [ ] Cat (`2026-10-27-cat-belly.md`): the right shoulder turn of 36° folds the faces 820, 821,
+      832, and 1046 at the right clavicle and the neck under the chin in 81% to 100% of the play
+      (none with 30°, all with 33°). The most folded faces in a sample do not grow (28, 29 on
+      `main`). The manager decides on the crops, or a `raise` shape of the clavicle fixes them.
+- [ ] Cat (`2026-10-27-cat-belly.md`): the even oval belly meets the thigh tops with a turn of
+      34° in the side view (22° on `main`), because the arc starts steep at the lap. Look at the
+      side crops of `docs/research/2026-10-27-cat-belly/`, and lower the start of the arc or end
+      the lap crease of the seat (`crease` of `tools/mesh-rigs/cat.json`) if it shows.
+- [ ] Cat (`2026-10-27-cat-belly.md`): a ridge runs along the middle line of the chest: the
+      largest angle between light faces stays 48° at 0.65 to 0.76 of the trunk line. The round of
+      the belly front fades out at the ends of the arc.
+- [ ] Cat (`2026-10-27-cat-belly.md`): from the back, a dark band in a V lies on the lower back
+      above the seat, on `main` too (`belly-back.webp`). Find the faces and the light that make it.
 - [x] Cat (`2026-10-27-cat-fox2.md`): the pits at the back of the left arm root are larger in the
       play (14.5 cm³, 4.7 cm³ before, `dent.txt`), with no hard edge. Look at the crops of the
       user angle. Done: the left shoulder turn of 35° made them. The shoulder turns 20°, the
