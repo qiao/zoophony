@@ -490,7 +490,9 @@ helpers by the rules of the app.
     spread of the whole shape loses the relax of the other faces. `follow` of a rule moves the
     skin near its points a share of the way with the first segment of the upper arm in the pose
     of the rule, before the relax: the front of a joined arm root keeps its trunk weights at
-    rest, and a raised arm does not crush it into a crease. The clavicle weights can fade out toward the middle plane of the chest
+    rest, and a raised arm does not crush it into a crease. `follow.fill` then fills the
+    valleys of that skin in the pose and moves no vertex in, so the round front of the root
+    keeps its form. The clavicle weights can fade out toward the middle plane of the chest
     (`weights.clavicleMiddle`), so that a face on that plane does not take the weights of both
     clavicles, which a bow arm turns far apart. Below a cut of the armpit, a vertex of the trunk can
     give its arm weight to the trunk (`weights.armBelow`), so that a lowered arm does not drag the
@@ -682,7 +684,9 @@ helpers by the rules of the app.
     The trunk weights keep the front of the left arm root with the chest, so three shapes of
     `raise` take it a part of the way with the arm in the poses of the play, of the rest, and
     between them, and the root keeps its trunk weights (`docs/decisions/2026-10-28-cat-root.md`,
-    `docs/decisions/2026-10-28-cat-root2.md`). The
+    `docs/decisions/2026-10-28-cat-root2.md`). The shape of the play also fills the valleys of
+    the left root, and a fourth shape takes the front of the root of the bow arm along with the
+    bow arm in the play (`docs/decisions/2026-10-28-cat-root3.md`). The
     elephant has such arms since 2026-10-25 (`tools/blender/elephant_arms.py`), with the length
     and the thickness of its mesh. Its arms are as thick as half of their length, so its cut
     planes stand at a right angle to the arm, the wrist cut lies further out on the paw, and the
