@@ -1,0 +1,13 @@
+R: 51 paw vertices
+paw bone: along 0.906, palm -0.036, side 0.422 (25.0° off the forearm, 0.0° off the paw bone)
+wrist to paw middle: along 0.863, palm -0.014, side 0.506 (30.4° off the forearm, 5.6° off the paw bone)
+wrist to paw tip: along 0.909, palm 0.051, side 0.413 (24.6° off the forearm, 5.0° off the paw bone)
+forearm ring 0.3: off the bone line palm -0.0967, side 0.0295
+forearm ring 0.4: off the bone line palm -0.0065, side -0.0039
+forearm ring 0.5: off the bone line palm -0.0264, side -0.0030
+forearm ring 0.6: off the bone line palm -0.0142, side -0.0150
+forearm ring 0.7: off the bone line palm -0.0137, side -0.0105
+forearm ring 0.8: off the bone line palm -0.0661, side -0.0578
+wrist helper vertices middle from the joint: palm -0.0331, side 0.0186, along -0.0195
+paw middle from the joint: palm -0.0012, side 0.0421, along 0.0719
+s axis -0.827,-0.082,-0.557 p axis 0.466,-0.655,-0.595

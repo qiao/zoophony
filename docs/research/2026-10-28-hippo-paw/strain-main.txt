@@ -1,0 +1,3 @@
+grips tree sets contrabass@hippo.pawKeepR=0
+band vertices 118, edges 426
+sets contrabass@hippo.pawKeepR=0: samples 3216; shortest edge p50 0.73 p5 0.72 min 0.35; longest edge p50 1.91 p95 1.94 max 3.10

@@ -1,0 +1,26 @@
+main 361ccd823:
+bear: SAME (3 s): bear-arms.glb bear-weights.json
+cat: SAME (6 s): cat-arms.glb cat-weights.json
+deer: STOPS (exit 0, 3 s): KeyError: 'belly'
+elephant: SAME (3 s): elephant-arms.glb elephant-weights.json
+fox: STOPS (exit 0, 3 s): KeyError: 'belly'
+hippo: SAME (6 s): hippo-arms.glb hippo-weights.json
+polar-bear: SAME (4 s): polar-bear-arms.glb polar-bear-weights.json
+rhino: SAME (4 s): rhino-apose-arms.glb rhino-apose-weights.json
+rabbit: SAME (3 s): rabbit-arms.glb rabbit-weights.json
+mouse: SAME (3 s): mouse-arms.glb mouse-weights.json
+wolf: SAME (4 s): wolf-arms.glb wolf-weights.json
+
+the scripts of sixth-cat-wall 43749e565 (base main 361ccd823), against the files of that tree:
+bear: SAME (3 s): bear-arms.glb bear-weights.json
+cat: SAME (5 s): cat-arms.glb cat-weights.json
+deer: SAME (6 s): deer-arms.glb deer-weights.json
+elephant: SAME (3 s): elephant-arms.glb elephant-weights.json
+fox: SAME (6 s): fox-arms.glb fox-weights.json
+hippo: SAME (5 s): hippo-arms.glb hippo-weights.json
+polar-bear: SAME (4 s): polar-bear-arms.glb polar-bear-weights.json
+rhino: SAME (4 s): rhino-apose-arms.glb rhino-apose-weights.json
+rabbit: SAME (3 s): rabbit-arms.glb rabbit-weights.json
+mouse: SAME (3 s): mouse-arms.glb mouse-weights.json
+wolf: SAME (3 s): wolf-arms.glb wolf-weights.json
+fox-arms.glb, fox-weights.json, deer-arms.glb, deer-weights.json of that run: the same bytes as the files of main 361ccd823

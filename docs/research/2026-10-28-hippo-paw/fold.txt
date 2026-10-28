@@ -1,0 +1,11 @@
+
+> zoophony@0.0.0 fold-probe /Users/xueqiaoxu/proj/zoophony/.claude/worktrees/sixth-hippo-paw
+> node tools/fold-probe.ts bassist --base main
+
+Folded faces of the studio body of the bassist on main (361ccd823) and on the working tree: 60.9 s.
+
+| Set | main (361ccd823) | Working tree |
+|---|---:|---:|
+| rest | 0.0% (0/9), most 0 (L 0 / R 0 / other 0) | 0.0% (0/9), most 0 (L 0 / R 0 / other 0) |
+| play | 9.7% (1252/12912), most 3 (L 1 / R 1 / other 1) | 9.7% (1252/12912), most 3 (L 1 / R 1 / other 1) |
+| lift | 0.0% (0/279), most 0 (L 0 / R 0 / other 0) | 0.0% (0/279), most 0 (L 0 / R 0 / other 0) |
