@@ -412,8 +412,8 @@ mesh are quad tubes (rings at a right angle to the bones), and the weights come 
   off the middle plane (`noseWarning()`). A horn on the muzzle stands further forward than the
   lips, so the tip of the nose of the rhino comes only from the vertices below the horn
   (`noseTop` of `ANIMALS`), and the mouthpiece of its tuba goes to the lips. The head measures (the head height `H`, the head center, and the box of the pea eyes)
-  leave out a long nose below the chin, as the trunk of the elephant (`headFloor` of `ANIMALS`),
-  because the holds in `H` start at the head. Each pea eye faces out from the middle of the head
+  leave out a long nose below the chin, as the trunk of the elephant, or the tips of the whiskers
+  of the cat (`headFloor` of `ANIMALS`), because the holds in `H` start at the head. Each pea eye faces out from the middle of the head
   that shows. A large head box behind the eyes turns them up, and such eyes look up, so a body
   can turn its eyes level (`eyeLevel` of `ANIMALS`, the wolf). A pea eye is a share of the head
   height that shows, so a large head gets large eyes, and a body can scale its eyes (`eyeSize` of
@@ -724,7 +724,9 @@ mesh are quad tubes (rings at a right angle to the bones), and the weights come 
     head, and the head measures leave the antlers out (`headCeiling` of `ANIMALS`). The large ears of the
     elephant follow the head too, and its trunk and the tips of its tusks, which hang below the
     head line in front of the chest, follow the head only (`noseFront`), so that a turn of the
-    head does not bend the trunk at the chin. The thin tail of the elephant is a ball on one tail
+    head does not bend the trunk at the chin. The tips of the lower whiskers of the cat hang below
+    the head line in front of the chin, and they follow the head by the same rule, so that the head
+    lift of the viola does not bend them. The thin tail of the elephant is a ball on one tail
     bone, and so is the thin tail of the rhino, which hangs behind the haunch. The tall ears of the
     rhino stand on the top of the head and follow their ear bones. The penguin has no ears: its ear
     bones lie inside the crown, and no vertex follows them (`earBase`). Its beak opens: a copy

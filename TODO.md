@@ -564,7 +564,11 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       lowering (1.2 cm). `pnpm pose-depth violist --base main` marks 15 pairs.
 - [ ] Cat (`2026-10-27-cat-fox2.md`): the pits at the back of the left arm root are larger in the
       play (14.5 cm³, 4.7 cm³ before, `dent.txt`), with no hard edge. Look at the crops of the
-      user angle. The head lift of 15° turns face 4220 under the jaw over in each play sample.
+      user angle.
+- [x] Cat (`2026-10-27-cat-fox2.md`): the head lift of 15° turns face 4220 under the jaw over in
+      each play sample. Done: the tips of the lower whiskers hung below the head line on the neck
+      bone. They follow the head now, and faces 4220 and 4223 fold in no sample
+      (`2026-10-27-cat3.md`).
 - [ ] Tan fox (`2026-10-27-cat-fox2.md`): the left flute paw keeps the move twist of 87° (67°
       before round `sixth-cat-fox`). No left elbow that grasps the flute brings it to 70°.
 - [x] Rabbit, red fox, and cat (`2026-10-26-fifth-review-strings.md`): the grip that the viewer sees

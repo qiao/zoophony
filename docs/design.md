@@ -361,4 +361,5 @@ The decision files:
 - [`2026-10-27-hall-back-lamps.md`](decisions/2026-10-27-hall-back-lamps.md): the low lamps of the hall all around the wall, also behind the stage.
 - [`2026-10-27-cat-fox.md`](decisions/2026-10-27-cat-fox.md): the cat bind upper arm nearer to the hanging arm with the skin normals of the arm roots, the rest viola nearer to the hip, and the left tan fox paw that wraps the flute from the front.
 - [`2026-10-27-cat-fox2.md`](decisions/2026-10-27-cat-fox2.md): the cat arms of 1.10 H with a shorter forearm, the 10-inch viola near the neck, the cat rest paw that closes around the neck, and the right tan fox paw that holds the flute from behind and below as a right hand.
+- [`2026-10-27-cat3.md`](decisions/2026-10-27-cat3.md): the tips of the lower cat whiskers on the head.
 - [`2026-10-23-rabbit-arms.md`](decisions/2026-10-23-rabbit-arms.md): the A-pose rabbit mesh with its own faces, a short arm stretch, a violin of 0.83, its elbows and rest grip, and the open shards of its arms.

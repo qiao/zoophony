@@ -270,7 +270,9 @@ export const ANIMALS: ReadonlyMap<string, AnimalSettings> = new Map([
     },
   ],
   // The viola cat: decisions/2026-10-16-mesh-cat.md, 2026-10-16-cat-trunk.md, and
-  // 2026-10-16-cat-form.md. The wider haunch of the cat sits on a wider chair.
+  // 2026-10-16-cat-form.md. The wider haunch of the cat sits on a wider chair. The tips of the
+  // lower whiskers hang below the chin and follow the head (`noseFront` of the rig config), so
+  // the head measures start at the chin (2026-10-27-cat3 decisions).
   [
     'cat',
     {
@@ -282,6 +284,7 @@ export const ANIMALS: ReadonlyMap<string, AnimalSettings> = new Map([
       constant: 'STUDIO_CAT',
       crease: 35,
       glb: 'assets/models/cat/cat.rig.glb',
+      headFloor: 0.6885,
     },
   ],
   // The cello dog: decisions/2026-10-17-mesh-dog.md.
