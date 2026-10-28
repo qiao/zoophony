@@ -1,0 +1,21 @@
+# The three variants of phase 1 of the round sixth-polar-legs, made from main 9e11ffa3.
+# Each variant: the rig of `pnpm rig-mesh polar-bear --check --keep <dir> --set <set>`, and the
+# landmark height of the polar bear in ANIMALS of tools/studio-body.ts, so that the variant keeps
+# the meters for each unit of main (1.438901 m/u). `apply-variant.sh` puts one variant into the
+# tree. The bench of the app fits the body (benchFitOf()), and the hold is the hold of main.
+#
+# The thighs 10° down and 15° out, the shins vertical (leg_turns.py of
+# docs/research/2026-10-16-hip-open/ <config> 10 15 0):
+DOWN10='studio.legTurns.thigh=[0.631629,0.030588,-0.163661,0.757182]'
+#
+# name  set                                    ANIMALS height  bench of the rig
+v10     legFactor=1;shinFactor=1;$DOWN10       1.043203        0.135 m
+v12     legFactor=1.2;shinFactor=1.2;$DOWN10   1.105076        0.166 m
+v14     legFactor=1.4;shinFactor=1.4;$DOWN10   1.166948        0.192 m
+#
+# The bench of the rig for the other thigh slopes (rig-check-1.txt, rig-check-2.txt):
+# factor  level   10° down  20° down
+# 1.0     0.112   0.135     0.163
+# 1.2     0.133   0.166     0.197
+# 1.4     0.159   0.192     0.231
+# main: legFactor 1.6, shinFactor 3.208, level thighs, 0.382 m.
