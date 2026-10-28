@@ -825,11 +825,18 @@ export const BOWED_HOLDS = {
  * 2026-10-17 the back of the rebuilt upper arm went 3.8 cm into the body (2026-10-25-cat-arms
  * decisions). At the tip, the right elbow points down, out, and forward, (1.5, -1, -1), further out
  * than the elbow of the rabbit, because the shorter arm reaches the tip nearly straight across the
- * round belly: with (1, -1, -1), the right upper arm went 2.7 cm into the belly at the tip (2.4 cm
+ * round belly: with (1, -1, -1), the right upper arm went 2.7 cm into the belly at the tip (2.2 cm
  * now). With the elbow up of the chin hold, (0.5, 1, -1), a dark wedge fold opened under
  * the right armpit at the tip (manager review of 2026-10-24), the right paw turned 116° on its
  * forearm (90° now), and the narrowest ring of the right arm kept 0.14 of its axis (0.49 now,
- * 2026-10-24-violin-review decisions).
+ * 2026-10-24-violin-review decisions). The right shoulder bone turns 36° forward (`reach`, 30° in
+ * the viola hold), so that the nearly straight bow arm passes in front of the even oval belly of
+ * 2026-10-27: with 30°, the right upper arm went 2.9 cm into the belly in the play (2.2 cm now),
+ * and with 38° or 40°, the right arm folded 8 or 9 faces (p95, limit 8). In pizzicato, the right
+ * elbow points out, a little down, and forward, (1.2, -0.5, -1), a little further out than the
+ * chin hold, so that the upper arm keeps off the belly in the lowering after a pizzicato (2.0 cm,
+ * 2.8 cm before). With (1.5, -0.5, -1), the move twist of the arm gate passed its margin
+ * (2026-10-27-cat-belly decisions).
  *
  * The rest pose is the upright rest of the rabbit and the red fox, as the seated violinist of the
  * image of the user (2026-10-17-cat-bow and 2026-10-17-cat-look decisions): the viola stands
@@ -863,9 +870,10 @@ export const BOWED_HOLDS = {
  * The grip of the bow rests at the front of the lap, 0.4 H out, 0.6 H up, and 0.05 H to the front
  * at 0.6 of the way to the knee, with the tip a little forward, (0.15, 1, -0.45): 0.4 H up, the
  * shorter right forearm went 1.2 cm into the belly at rest (2026-10-27-cat-fox2 decisions). The right
- * elbow hangs down, out, and a little back, (0.8, -1, 0.3): the elbow bends to 111° near the side
- * of the round belly with a straight wrist (with (0.7, -1, 0.3) and the bind of 2026-10-27, the
- * right upper arm went 1.7 cm and the forearm 0.2 cm into the belly, 2026-10-27-cat-fox decisions),
+ * elbow hangs down, out, and a little back, (0.9, -1, 0.2): the elbow bends near the side of the
+ * round belly with a straight wrist (with (0.8, -1, 0.3) and the even oval belly, the right upper
+ * arm went 1.4 cm into the belly at rest, 0.8 cm now, 2026-10-27-cat-belly decisions, and with
+ * (0.7, -1, 0.3) and the bind of 2026-10-27, 1.7 cm, 2026-10-27-cat-fox decisions),
  * and the paw rests low near the hip, where before 2026-10-26 the paw stood high at the chest
  * with the elbow bent to 76° as a wing (user, 2026-10-26: "the cat's arms are bent in strange way",
  * 2026-10-26-fifth-review-strings decisions). The round belly keeps the upper arm 35° from the
@@ -949,7 +957,9 @@ const CAT_HOLD = {
   highTilt: 20 * MathUtils.DEG2RAD,
   poleR: [2, -0.3, -0.7],
   poleTipR: [1.5, -1, -1],
-  restPoleR: [0.8, -1, 0.3],
+  polePizzicato: [1.2, -0.5, -1],
+  reach: 36 * MathUtils.DEG2RAD,
+  restPoleR: [0.9, -1, 0.2],
   restPoleL: [-1.6, -1, -0.2],
   restPlace: 0.55,
   rest: {

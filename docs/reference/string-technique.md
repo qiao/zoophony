@@ -529,6 +529,9 @@ A round that changes the motion updates the items.
   the elbow of the rabbit and of the cat
   points down, out, and forward (`BowedHold.poleTipR`): the elbow of the cat pointed up there, and a
   dark wedge fold opened under its right armpit (`docs/decisions/2026-10-24-violin-review.md`).
+  The right shoulder of the cat turns 36° forward (`BowedHold.reach`), and its pizzicato elbow
+  points a little further out, so that the nearly straight bow arm keeps off its even oval belly
+  (`docs/decisions/2026-10-27-cat-belly.md`).
 - **The stick in the paw.** The stick passes through the middle of the closed right paw of the
   rabbit, the red fox, the cat, and the hippo (`SpeciesParams.bowGrip`), as the fingers of a real
   player close around it. With the grip of the bind bow, the stick of the hippo passed under the
