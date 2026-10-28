@@ -1,0 +1,135 @@
+--- main:tools/blender/polar_bear_arms.py	2026-10-28 05:45:00
++++ probes/variant-polar_bear_arms.py	2026-10-28 05:24:36
+@@ -130,13 +130,103 @@
+     return min(seg_distance(co, line[i], line[i + 1]) for i in range(3))
+ 
+ 
++VAR = {k: float(os.environ.get('PW_' + k, v)) for k, v in
++       (('PARALLEL', 1), ('SHARE', 0.25), ('CLEAN', 1), ('SMOOTH', 4), ('FACTOR', 0.5),
++        ('PROJECT', 0))}
++print('VARIANT', VAR)
++
++
+ def cut_planes(line):
+     """Gives the cut plane (point, normal) at the shoulder line and at the wrist."""
+     s, e, w, t = line
++    if VAR['PARALLEL']:
++        axis = ((w - e).normalized() + (t - w).normalized()).normalized()
++        return [(s.lerp(e, ARM_CUT['shoulder']), (e - s).normalized()),
++                (w + axis * ((t - w).length * VAR['SHARE']), axis)]
+     return [(s.lerp(e, ARM_CUT['shoulder']), (e - s).normalized()),
+             (w + (t - w) * ARM_CUT['wrist'], (t - w).normalized())]
++
++
++WRIST_CODES = (PART['wrist'], PART['wrist'] + 10)
++CUT_ANGLE = 12.0
++
++
++def clean_wrist_cut(bm, part):
++    loops = set(WRIST_CODES)
++    count = 0
++    for _ in range(200):
++        edge = None
++        for f in bm.faces:
++            along = [e for e in f.edges if all(p[part] in loops for p in e.verts)]
++            if not along or min(math.degrees(c.calc_angle()) for c in f.loops) >= CUT_ANGLE:
++                continue
++            short = min(f.edges, key=lambda e: e.calc_length())
++            if short in along:
++                edge = short
++                break
++        if edge is None:
++            break
++        bmesh.ops.collapse(bm, edges=[edge], uvs=True)
++        count += 1
++    return count
++
++
++def clean_wrist_bridge(bm, part):
++    loops = set(WRIST_CODES)
++    tubes = {PART['tube'], PART['tube'] + 10}
++    count = 0
++    for _ in range(200):
++        edge = None
++        for f in bm.faces:
++            codes = [p[part] for p in f.verts]
++            if (sum(c in loops for c in codes) != 2 or not any(c in tubes for c in codes)
++                    or min(math.degrees(c.calc_angle()) for c in f.loops) >= CUT_ANGLE):
++                continue
++            short = min(f.edges, key=lambda e: e.calc_length())
++            if all(p[part] in loops for p in short.verts):
++                edge = short
++                break
++        if edge is None:
++            break
++        bmesh.ops.collapse(bm, edges=[edge], uvs=True)
++        count += 1
++    return count
++
++
++def project_wrists(mesh, source):
++    from mathutils.bvhtree import BVHTree
++    deps = bpy.context.evaluated_depsgraph_get()
++    tree = BVHTree.FromObject(source, deps)
++    loops = set(WRIST_CODES)
++    tubes = {PART['tube'], PART['tube'] + 10}
++    bpy.context.view_layer.objects.active = mesh
++    bpy.ops.object.mode_set(mode='EDIT')
++    bm = bmesh.from_edit_mesh(mesh.data)
++    part = bm.verts.layers.int['arm_part']
++    verts = [p for p in bm.verts if p[part] in loops or (
++        p[part] in tubes and any(e.other_vert(p)[part] in loops for e in p.link_edges))]
++    most = 0.0
++    for p in verts:
++        hit = tree.find_nearest(p.co)
++        if hit[0] is not None:
++            most = max(most, (hit[0] - p.co).length)
++            p.co = p.co.lerp(hit[0], VAR["PROJECT"])
++    bmesh.update_edit_mesh(mesh.data)
++    bpy.ops.object.mode_set(mode='OBJECT')
++    print('PROJECT', len(verts), most)
+ 
+ 
++def smooth_wrist(bm, part):
++    loops = set(WRIST_CODES)
++    tubes = {PART['tube'], PART['tube'] + 10}
++    verts = [p for p in bm.verts if p[part] in loops or (
++        p[part] in tubes and any(e.other_vert(p)[part] in loops for e in p.link_edges))]
++    for _ in range(int(VAR['SMOOTH'])):
++        bmesh.ops.smooth_vert(bm, verts=verts, factor=VAR['FACTOR'], use_axis_x=True,
++                              use_axis_y=True, use_axis_z=True)
++    return len(verts)
++
++
+ def arm_stations(fr, line):
+     """Gives the center line point and the axis of each ring, from the shoulder to the wrist."""
+     s, e, w, t = line
+@@ -291,6 +381,8 @@
+     for side in (1, -1):
+         line = arm_line(fr, joints, side)
+         removed = cut_arm(bm, fr, line, side, part)
++        if VAR['CLEAN']:
++            print('CLEAN CUT', clean_wrist_cut(bm, part))
+         rings = build_tube(bm, source, fr, line, side, part, spoke)
+         out[side] = (removed, len(rings))
+     bmesh.update_edit_mesh(mesh.data)
+@@ -348,6 +440,10 @@
+             for f in res['faces']:
+                 f.smooth = True
+             made += len(res['faces'])
++    if VAR['CLEAN']:
++        print('CLEAN BRIDGE', clean_wrist_bridge(bm, part))
++    if VAR['SMOOTH'] > 0:
++        print('SMOOTH', smooth_wrist(bm, part))
+     bmesh.update_edit_mesh(mesh.data)
+     bpy.ops.object.mode_set(mode='OBJECT')
+     return made
+@@ -555,6 +651,8 @@
+     source.hide_set(False)
+     retopo_wrap(mesh, source)
+     retopo_bridge(mesh)
++    if VAR['PROJECT']:
++        project_wrists(mesh, source)
+     retopo_uv(mesh)
+     retopo_bake(mesh, source)
+     source.hide_set(False)
