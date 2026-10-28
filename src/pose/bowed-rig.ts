@@ -1151,9 +1151,17 @@ const DOG_HOLD = {
  * section 2.1). The bind bends the short paw 25° off the thick forearm, and the turn of the
  * retarget onto the line of the forearm bent the skin of the wrist 25° off that form: the edges
  * of the wrist stretched up to 1.9 times, and the heel of the paw showed as a lump under the bow
- * paw from the right. With the bend, they stretch up to 1.3 times. The stick stays in the closed
- * paw with the same grip (`SpeciesParams.bowGrip`). The measures are in the 2026-10-28-hippo-paw
- * decisions.
+ * paw from the right. With the bend, they stretch up to 1.3 times. The measures are in the
+ * 2026-10-28-hippo-paw decisions.
+ *
+ * The bow hand turns in the plane of its palm around the grip on the stick, so that the forearm
+ * keeps 45° in that plane (`stickTurnR`), and the paw keeps one turn on the hand. The grip lies in
+ * the middle of the closed paw (`SpeciesParams.bowGrip`), so the stick stays within 0.6 cm of it
+ * in the play, the lift, the rest, and the lowering. The bow turns in the paw over a stroke, as on
+ * `main` before. With the paw turned toward the forearm by the retarget alone, the forearm turned
+ * about 45° against the bow over a stroke, and the paw slid up to 2.4 cm off the stick. The turn
+ * goes up to 90°, because the lowering after a pizzicato turns the forearm up to 84° past 45°.
+ * The measures are in the 2026-10-28-hippo-grip decisions.
  */
 const HIPPO_HOLD = {
   ...BOWED_HOLDS.contrabass,
@@ -1175,6 +1183,7 @@ const HIPPO_HOLD = {
   stopEnd: 0.7,
   farSideR: 30 * MathUtils.DEG2RAD,
   pawKeepR: 1,
+  stickTurnR: { forearm: 45 * MathUtils.DEG2RAD, most: 90 * MathUtils.DEG2RAD },
   restPoleR: [0.6, -1, 0],
   restPoleL: [-1, -0.3, 0],
   restBow: {
