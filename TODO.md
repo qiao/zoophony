@@ -575,17 +575,36 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       0.8 cm at rest (1.2 cm). Open: the play and the lowering over the limit of 1.5 cm, and the
       right claws 2.2 cm into the viola at the frog. A shoulder turn of 38° folds 8 arm faces, and
       a pizzicato elbow of (1.5, -0.5, -1) passes the margin of the move twist.
+      Done (`2026-10-27-cat-lap.md`): the front corners of the upper belly are a little flatter,
+      and the pizzicato palm plucks from the side of the strings. The bow upper arm goes 1.5 cm
+      into the body in the play and 1.3 cm in the lowering, with no sample over the limit.
+- [ ] Cat (`2026-10-27-cat-lap.md`): the right claws go 2.2 cm into the viola at the frog on the
+      A string in the play and 2.1 cm at the end of the lift (limit 1.5 cm), as on `main`.
 - [ ] Cat (`2026-10-27-cat-belly.md`): the right shoulder turn of 36° folds the faces 820, 821,
       832, and 1046 at the right clavicle and the neck under the chin in 81% to 100% of the play
       (none with 30°, all with 33°). The most folded faces in a sample do not grow (28, 29 on
       `main`). The manager decides on the crops, or a `raise` shape of the clavicle fixes them.
-- [ ] Cat (`2026-10-27-cat-belly.md`): the even oval belly meets the thigh tops with a turn of
+      Partly done (`2026-10-27-cat-lap.md`): with `weights.armTop` 0.645 to 0.69, faces 820,
+      821, and 1046 fold in no sample. Open: face 832 at the front of the right armpit folds in
+      81% of the play. A rigid face folded three new faces, and arm segments allow no `raise`.
+- [x] Cat (`2026-10-27-cat-belly.md`): the even oval belly meets the thigh tops with a turn of
       34° in the side view (22° on `main`), because the arc starts steep at the lap. Look at the
       side crops of `docs/research/2026-10-27-cat-belly/`, and lower the start of the arc or end
       the lap crease of the seat (`crease` of `tools/mesh-rigs/cat.json`) if it shows.
+      Done (`2026-10-27-cat-lap.md`): a second smoothing of the seated bind reaches 4 rings up
+      the belly front (`crease.lap`). The largest turn of the front is 12° to 13.6°, and no lap
+      edge is over 35.5°.
 - [ ] Cat (`2026-10-27-cat-belly.md`): a ridge runs along the middle line of the chest: the
       largest angle between light faces stays 48° at 0.65 to 0.76 of the trunk line. The round of
       the belly front fades out at the ends of the arc.
+      Partly done (`2026-10-27-cat-lap.md`): the 48° edge lay on the middle line of the lower
+      belly (f 0.17 of the bind), and the lap smoothing removed it. Open: the flat zone of the
+      upper belly turns the edges beside the middle strip 42° and 37° at f 0.78 (34.5° on
+      `main`), over the crease angle of 35°, so a light middle strip shows at rest. A flatter
+      inner upper arm can take a part of the flat move (`probes/arm-flat-est.ts`).
+- [ ] Cat (`2026-10-27-cat-lap.md`): the right forearm goes 0.3 cm into the upper belly at
+      f 0.6 in one play sample of `brahms-2` (0.4 cm on `main`, limit 1.5 cm). A flat zone from
+      0.5 of the trunk line removed it, but the bow upper arm then went 1.53 cm in at the tip.
 - [ ] Cat (`2026-10-27-cat-belly.md`): from the back, a dark band in a V lies on the lower back
       above the seat, on `main` too (`belly-back.webp`). Find the faces and the light that make it.
 - [x] Cat (`2026-10-27-cat-fox2.md`): the pits at the back of the left arm root are larger in the
