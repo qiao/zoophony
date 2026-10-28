@@ -72,8 +72,8 @@ The UI has the style of a video player. The theme is dark only, because the scen
   the credits dialog. The keys do nothing in a text field, with Ctrl, Alt, or Meta, while the
   credits dialog is open, and when the focused control uses the key itself (`keyAction()` in
   `app/keys.ts`).
-- A solo moves the spotlight (user, 2026-10-07): the key light, its pool, and the visible beam move
-  to the soloed players, and back when no seat is soloed. The solo flags alone give the light, so
+- A solo moves the spotlight (user, 2026-10-07): the key light, its pool, the visible beams, and
+  their rim lights move to the soloed players, and back when no seat is soloed. The solo flags alone give the light, so
   a seek, a pause, and a mute keep it (4.5, 6.6).
 - A click on play starts a count-in of the conductor before the music: from the song start, a
   ready gesture and one preparatory beat, and after a pause, one preparatory beat (user,

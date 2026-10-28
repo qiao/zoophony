@@ -4,7 +4,8 @@ import type { LightAim, StagePair } from './light-pool.ts';
 
 /**
  * The light of a solo (design 2.4, 4.5). When the user solos one or more seats, the key light, its
- * pool, its hot spot, and the visible beam move to the players of these seats, and they move back
+ * pool, its hot spot, the visible beams, and their rim lights move to the players of these seats,
+ * and they move back
  * when no seat is soloed. The aim comes from the solo flags and the layout only, so a seek, a
  * pause, or a mute keeps it. The render loop eases the lights to the aim.
  */
@@ -40,7 +41,8 @@ export const SOLO_LIGHT = {
  * the pool and the hot spot of the key light have their center at the middle of the box of the
  * soloed players, and their radii cover the box with {@link SOLO_LIGHT}. A radius is at most the
  * radius of the pool with no solo. The pool loses its long reach toward the back, so the back rows
- * outside the pool step back too. The key light aims at the center, and the beam leans to it.
+ * outside the pool step back too. The key light aims at the center, and the beams and their rim
+ * lights turn to it.
  * With no soloed seat that has players, the aim is the aim with no solo.
  *
  * @param layout The layout of the score.

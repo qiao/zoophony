@@ -973,20 +973,43 @@ of its finish in the roughness map and the metalness map of the material.
 **Light and render**
 
 `scene/lights.ts` holds the lights, `scene/light-pool.ts` the pool of the stage lights,
-`scene/beam.ts` and `models/beam.ts` the visible beam, and `scene/solo-light.ts` the light of a
-solo.
+`scene/beam.ts` and `models/beam.ts` the visible beams and the places of the key light and the rim
+lights, and `scene/solo-light.ts` the light of a solo.
 
-- **Key light** (`KEY_PLACE` of `models/beam.ts`, user, 2026-10-18). One warm `SpotLight` far
-  behind the orchestra, a little to the right, and high is the key light, and the only light that
-  casts shadows on the stage. Its shadows fall to the front left, parallel and short, as in
-  `orchestra-latest.png`, the newest target. It acts as the back light of a concert film, and the
-  side lights act as its cross keys. Its soft penumbra keeps the stage sides dark, as in
-  `mockup.png`. Its intensity grows with the square of the distance to the aim point, so each
-  stage size gets the same light. A low, nearly neutral fill keeps the shadows deep, and one weak
-  light shows the face of the conductor.
-- **Side lights** (`SIDE_LIGHT`, user, 2026-10-18). Two high spotlights at the front corners light
-  the fronts of the players. The narrow cone of each one holds only the section on the far side,
-  so each body has a lit side and a shade side. They cast the shadows of the players on the
+```text
+          rim light (behind, high, no shadow) ── visible beam in the haze
+                          │
+   back   ┌───────────────v───────────────┐
+          │        players: lit rims      │  shadows fall to the back right
+          │     ◄ side light  side light ►│  (weak cross lights)
+   front  └───────────────────────────────┘
+                    ^
+                    │ key light (front left, high, the only shadow)
+                 audience and default camera
+```
+
+- **Key light** (`KEY_PLACE` of `models/beam.ts`, user, 2026-10-27). One warm `SpotLight` far in
+  front of the stage, high over the audience and to the left, is the key light, and the only
+  light that casts shadows on the stage. It acts as the front light of a concert hall: it lights
+  the faces, and the shadows of the players fall to the back right, parallel (user, 2026-10-27:
+  "make the key light go from front to back"). It stands to one side of the camera axis, so each
+  body keeps a lit side and a shade side, and the default view and a view from the front right
+  see the shadows beside the players. A front light lights the fronts by the cosine of its
+  elevation, so a high light keeps the white fur below the shoulder of the tone curve. Its soft
+  penumbra keeps the stage edges darker than the pool, as in `mockup.png`. Its intensity grows
+  with the square of the distance to the aim point, so each stage size gets the same light. A
+  low, nearly neutral fill keeps the shadows deep, and one weak light shows the face of the
+  conductor.
+- **Rim lights** (`RIM_LIGHT`, `RIM_PLACE`, user, 2026-10-27). Warm spotlights far behind the
+  orchestra and high, as the back lights on a truss of a concert film, light the heads and the
+  shoulders from behind, so the players stand out of the dark hall. They also give the floor of
+  the pool a part of its light. They cast no shadow, so the shadows keep one direction. Each rim
+  light has a visible beam, because haze scatters most light forward: a beam shows when it shines
+  toward the camera, and a beam of the key light would show only as a thin fog over the players.
+  The default has one rim light on the stage axis, as the one beam of the reference images.
+- **Side lights** (`SIDE_LIGHT`, user, 2026-10-18). Two high spotlights at the front corners are
+  weak cross lights beside the key light. The narrow cone of each one holds only the section on
+  the far side, so the key light keeps the lit side of each body. They cast the shadows of the
   players, such as an arm on the chest. The shadows of the players have a soft edge on the high
   tier (`TIER_SETTINGS`), because a hard edge showed black wedges and the steps of the map on
   white fur (user, 2026-10-21). The stage takes no shadow of them, and the low tier has
@@ -1001,7 +1024,8 @@ solo.
   little GPU time. The gallery has none.
 - **Light color** (user, 2026-10-18). The side lights are a warm white and the sky of the fill a
   neutral gray, so white, gray, and purple fur keep their colors, as in `orchestra-latest.png`.
-  The key light stays orange, because it gives the amber of the floor and the warm rims.
+  The key light and the rim lights stay orange, because they give the amber of the floor and the
+  warm rims.
 - **Bake of the static props** (`scene/stage-bake.ts`). The props and the stage do not move during
   a song, and the key light keeps its place, so each layout bakes their light on the stage top
   one time: the soft shadow of a large key light, and the part of the sky that the near props
@@ -1020,12 +1044,13 @@ solo.
   and the props, it reaches far toward the back (`LIGHT_POOL`), so the back rows keep most of the
   light, as in `orchestra-latest.png`. The stage keeps the round pool, so the floor at the back
   stays dark.
-- The visible beam (`BEAM_LOOK`) is haze in a narrower cone than the key light, because haze in
-  the full cone veiled the orchestra. The beam comes from the key light, so the light has a
-  visible source: the haze cone leans from its foot toward the key light, and its tip stands low
+- The visible beam (`BEAM_LOOK`) is haze in a narrower cone than its rim light, because haze in
+  the full cone veiled the orchestra. The beam comes from its rim light, so the light has a
+  visible source: the haze cone leans from its foot toward the rim light, and its tip stands low
   on that line (`hazeTip()`). The default view then sees the narrow top of the cone, and the beam
-  opens as a fan toward the stage, as in `orchestra-latest.png`. The tip takes the key light
-  turned onto the stage axis, so the beam stands upright in the frontal view (user, 2026-10-18). The shot planner keeps its own
+  opens as a fan toward the stage, as in `orchestra-latest.png`. Each rim light stands at the x of
+  its beam, so the beam stands upright in the frontal view (user, 2026-10-18). A row of rim
+  lights gives a row of beams (`RIM_PLACE.count`). The shot planner keeps its own
   upright cone around the stage center (`insideBeam()`, 5.6), which holds the haze near the
   stage. The beam fades toward the stage with no edge. A depth pass
   (`BeamDepth`) gives no haze to an item on the stage, so the beam shows between the players
@@ -1045,7 +1070,8 @@ solo.
   front of the subject gets no haze, so no player is veiled, and the black point stays. The depth
   pass of the beam has no hall, so the haze takes the distance to the hall floor for its pixels.
 - **Solo light** (`soloAim()`, user, 2026-10-07). When the user solos seats (2.4, 6.6), the key
-  light, its pool, and the beam turn to the soloed players, and ease back after the solo. The aim
+  light, its pool, the beams, and their rim lights turn to the soloed players, and ease back after
+  the solo. The aim
   comes from the solo flags and the layout alone. The pool of a solo is round on the players too,
   so the back rows outside it step back.
 - **Captured environment** (`captureEnvironment()`). Each layout renders its hall and its lit

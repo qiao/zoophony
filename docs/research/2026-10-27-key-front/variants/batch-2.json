@@ -1,0 +1,7 @@
+{
+  "f-el60-k7-s1-r3": { "KEY_LIGHT.aimToPodium": 0, "KEY_PLACE.elevation": "60deg", "KEY_LIGHT.illuminance": 7, "SIDE_LIGHT.illuminance": 1, "BACK_ROW_LIGHT.illuminance": 1.5, "RIM_LIGHT.illuminance": 3 },
+  "g-el66-k7-s0.8-r4": { "KEY_LIGHT.aimToPodium": 0, "KEY_PLACE.elevation": "66deg", "KEY_LIGHT.illuminance": 7, "SIDE_LIGHT.illuminance": 0.8, "BACK_ROW_LIGHT.illuminance": 1.2, "RIM_LIGHT.illuminance": 4 },
+  "h-el60-k6-s0.6-r5": { "KEY_LIGHT.aimToPodium": 0, "KEY_PLACE.elevation": "60deg", "KEY_LIGHT.illuminance": 6, "SIDE_LIGHT.illuminance": 0.6, "BACK_ROW_LIGHT.illuminance": 1.2, "RIM_LIGHT.illuminance": 5 },
+  "i-el72-k8-s0.8-r3": { "KEY_LIGHT.aimToPodium": 0, "KEY_PLACE.elevation": "72deg", "KEY_LIGHT.illuminance": 8, "SIDE_LIGHT.illuminance": 0.8, "BACK_ROW_LIGHT.illuminance": 1.2, "RIM_LIGHT.illuminance": 3 },
+  "j-el45-k5-s0.6-r5": { "KEY_LIGHT.aimToPodium": 0, "KEY_PLACE.elevation": "45deg", "KEY_LIGHT.illuminance": 5, "SIDE_LIGHT.illuminance": 0.6, "BACK_ROW_LIGHT.illuminance": 1.2, "RIM_LIGHT.illuminance": 5 }
+}

@@ -1,0 +1,23 @@
+# Commands of the round sixth-key-front (2026-10-27). Run each from the root of the tree.
+# The variant files of each batch are in variants/. Batches 1 to 3 had the key light at the
+# right of the stage axis (KEY_PLACE.azimuth > 0). The final key light stands at the left
+# (the mirror), because the user looks at the stage from the front right.
+
+# Direct light by row, before (main 6b58f6f2) and after.
+pnpm light-probe > light-probe-main.txt      # on main
+pnpm light-probe > light-probe-round.txt     # on the round
+
+# The key light at the points of the stage top, as a part of the stage center.
+cp docs/research/2026-10-27-key-front/pool-probe.ts scratch/pool-probe.ts
+node scratch/pool-probe.ts <angle deg> <aim> <azimuth deg> <elevation deg>   # pool.txt
+
+# Look variants (measures against orchestra-latest.png).
+pnpm look-lab scratch/v1/main-lab --base main             # look-main.md
+pnpm look-variants variants/batch-1.json --out scratch/v1 # batch-1.md
+pnpm look-variants variants/batch-2.json --out scratch/v2 # batch-2.md
+pnpm look-variants variants/batch-3.json --out scratch/v3 # batch-3.md
+pnpm look-variants variants/batch-4.json --out scratch/v4 # batch-4.md
+pnpm look-variants variants/final.json --out scratch/v5   # final.md
+
+# The skirt of the stage in the default view (main against batch 4).
+uv run --no-project --with pillow --with numpy python -I skirt.py <frames>

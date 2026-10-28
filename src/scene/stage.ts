@@ -55,9 +55,10 @@ export const STAGE_FINISH = {
 
 /**
  * The baked light of the sides of the stage (design 4.5, scene colors): the light of the lit floor
- * and of the hall on the skirt and on the raised lip of the edge. The key light stands behind the
- * orchestra and reaches neither, so with no baked light the skirt was black (a value of 4 against
- * 33 in `mockup.png`), and the edge had 40 against 74. The light is a part of the base color, and
+ * and of the hall on the skirt and on the raised lip of the edge. The key light reaches the skirt
+ * only at a flat angle and at the dark edge of its pool. With no baked light and the key light
+ * behind the orchestra, the skirt was black (a value of 4 against 33 in `mockup.png`), and the
+ * edge had 40 against 74. The light is a part of the base color, and
  * it falls off from the middle of the stage to its corners.
  */
 export const SIDE_GLOW = {

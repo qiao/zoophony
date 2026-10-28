@@ -66,23 +66,23 @@ describe('createLights', () => {
     const center = light(0, 0);
     const half = side / 2;
 
-    // The middles of the side edges and the front corners get much less, and the back corners get
-    // almost no light: the dark edges of mockup.png.
-    expect(light(-half, 0)).toBeLessThan(0.7 * center);
-    expect(light(half, 0)).toBeLessThan(0.7 * center);
-    expect(light(-half, half)).toBeLessThan(0.5 * center);
-    expect(light(half, half)).toBeLessThan(0.5 * center);
-    expect(light(half, -half)).toBeLessThan(0.03 * center);
-    expect(light(-half, -half)).toBeLessThan(0.03 * center);
-    // The aim is in front of the stage center, toward the conductor.
+    // The middles of the side edges get less, and the corners much less: the dark edges of
+    // mockup.png.
+    expect(light(-half, 0)).toBeLessThan(0.85 * center);
+    expect(light(half, 0)).toBeLessThan(0.85 * center);
+    expect(light(-half, half)).toBeLessThan(0.3 * center);
+    expect(light(half, half)).toBeLessThan(0.3 * center);
+    expect(light(half, -half)).toBeLessThan(0.5 * center);
+    expect(light(-half, -half)).toBeLessThan(0.5 * center);
+    // The aim is on the line from the stage center to the conductor.
     expect(spot.target.position.z).toBeCloseTo(conductor.position[2] * KEY_LIGHT.aimToPodium, 9);
   });
 
-  it('puts the key light far behind the orchestra and to the right, so the shadows fall to the front left', () => {
+  it('puts the key light far in front of the stage and to the left, so the shadows fall to the back right', () => {
     const spot = keyOf(lights);
     expect(spot.position.toArray()).toEqual(keyLightPosition(side));
-    expect(spot.position.z).toBeLessThan(spot.target.position.z - 0.5 * side);
-    expect(spot.position.x).toBeGreaterThan(0);
+    expect(spot.position.z).toBeGreaterThan(spot.target.position.z + 0.5 * side);
+    expect(spot.position.x).toBeLessThan(0);
     expect(spot.position.y).toBeGreaterThan(2 * side);
   });
 

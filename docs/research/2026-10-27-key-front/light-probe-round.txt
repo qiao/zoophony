@@ -1,0 +1,23 @@
+
+
+beethoven-9.mid: S 12.52 m, 45 players, first row 2.742 lux, hot spot on each spotlight with a shadow map (tier high)
+radius ~2.4 m  n  8  side 0.17  back-row 0.00  key 0.82  rim 0.01  total 1.00  2.742 lux  rabbit,fox-red,cat,dog
+radius ~3.6 m  n  6  side 0.14  back-row 0.00  key 0.60  rim 0.00  total 0.74  2.042 lux  rabbit,fox-red,cat,dog
+radius ~4.8 m  n  5  side 0.13  back-row 0.00  key 0.94  rim 0.00  total 1.07  2.938 lux  fox-tan,mouse
+radius ~7.2 m  n  9  side 0.10  back-row 0.00  key 0.75  rim 0.00  total 0.85  2.329 lux  wolf,beaver,pig,monkey
+radius ~8.4 m  n  9  side 0.05  back-row 0.16  key 0.70  rim 0.00  total 0.91  2.505 lux  hippo,panda,elephant,badger
+radius ~10.8 m  n  8  side 0.00  back-row 0.44  key 0.76  rim 0.00  total 1.20  3.292 lux  penguin
+brahms-2.mid: S 11.17 m, 35 players, first row 2.680 lux, hot spot on each spotlight with a shadow map (tier high)
+radius ~2.4 m  n  8  side 0.17  back-row 0.00  key 0.82  rim 0.01  total 1.00  2.680 lux  rabbit,fox-red,cat,dog
+radius ~3.6 m  n  6  side 0.13  back-row 0.00  key 0.60  rim 0.00  total 0.74  1.984 lux  rabbit,fox-red,cat,dog
+radius ~4.8 m  n  4  side 0.13  back-row 0.00  key 0.96  rim 0.00  total 1.09  2.916 lux  fox-tan,mouse
+radius ~7.2 m  n 10  side 0.08  back-row 0.07  key 0.75  rim 0.00  total 0.90  2.407 lux  wolf,beaver,pig,monkey
+radius ~8.4 m  n  7  side 0.02  back-row 0.29  key 0.71  rim 0.00  total 1.03  2.757 lux  hippo,panda,rhino,elephant
+boulanger-matin.mid: S 11.46 m, 42 players, first row 2.696 lux, hot spot on each spotlight with a shadow map (tier high)
+radius ~2.4 m  n  8  side 0.17  back-row 0.00  key 0.82  rim 0.01  total 1.00  2.696 lux  rabbit,fox-red,cat,dog
+radius ~3.6 m  n  6  side 0.14  back-row 0.00  key 0.72  rim 0.00  total 0.86  2.325 lux  rabbit,fox-red,cat,dog
+radius ~4.8 m  n  8  side 0.11  back-row 0.00  key 0.77  rim 0.05  total 0.93  2.496 lux  deer,polar-bear,fox-tan,mouse
+radius ~7.2 m  n 12  side 0.06  back-row 0.14  key 0.75  rim 0.00  total 0.95  2.566 lux  wolf,beaver,pig,monkey
+radius ~9.6 m  n  8  side 0.01  back-row 0.28  key 0.63  rim 0.00  total 0.93  2.497 lux  hippo,panda,rhino,badger
+BACK_ROW_LIGHT.illuminance 1.5
+   spill 0.0% back floor +18% of key, rim floor +64% of key | beethoven-9 spill 0.0% 2nd 0.85 back 0.91 (min 0.36) choir 1.20 | brahms-2 spill 0.0% 2nd 0.90 back 1.03 (min 0.76) | boulanger-matin spill 0.0% 2nd 0.95 back 0.93 (min 0.56)

@@ -1,0 +1,5 @@
+left mid 0.76  right mid 0.62  front left 0.24  front mid 0.85  front right 0.15  back right 0.38  back left 0.20  back mid 0.62  (angle 19, aim 0, azimuth -35, elevation 60)
+left mid 0.69  right mid 0.63  front left 0.48  front mid 1.08  front right 0.35  back right 0.25  back left 0.04  back mid 0.45  (angle 19, aim 0.3, azimuth -35, elevation 60)
+left mid 0.60  right mid 0.54  front left 0.02  front mid 0.69  front right 0.01  back right 0.28  back left 0.05  back mid 0.56  (angle 17, aim 0, azimuth -35, elevation 60)
+left mid 0.85  right mid 0.62  front left 0.66  front mid 1.05  front right 0.14  back right 0.46  back left 0.21  back mid 0.62  (angle 19, aim 0, azimuth -35, elevation 45)
+left mid 0.70  right mid 0.63  front left 0.14  front mid 0.74  front right 0.16  back right 0.29  back left 0.19  back mid 0.62  (angle 19, aim 0, azimuth -35, elevation 72)

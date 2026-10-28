@@ -2273,6 +2273,18 @@ the mockup is out of scope.
       Options: smaller maps, or a new map only every second frame.
       2026-10-21: maps of 512 save only 0.07 ms of the GPU p95, because the vertex work of the
       skinned players is the cost (`docs/research/2026-10-21-frame-performance.md`, section 6).
+- [x] Move the key light to the front (user, 2026-10-27: "make the key light go from front to
+      back"): 35° left of the front axis and 60° high, with the shadows to the back right, weaker
+      side and back-row lights, and a rim light behind the stage that motivates the beam, the
+      room haze, and the floor gloss. Measures: `docs/research/2026-10-27-key-front.md`.
+- [ ] Ask the user to pick the beams and the height of the key light from `variants.webp` of
+      `docs/research/2026-10-27-key-front/`: one beam (default), no beam, or three beams, and the
+      key light at 60° (default), 72° (short shadows), or 45° (long shadows).
+- [ ] The white fur of the front left rabbit has a luma of 193 with the front key light, against
+      150 on the key light from behind and 163 in `orchestra-latest.png` (camera `orchestra`). It
+      does not clip. The key light at 72° gives 169, with short shadows.
+- [ ] The shot planner keeps one upright cone at the stage center (`insideBeam()`). With three
+      beams (`RIM_PLACE.count` 3), a camera can stand in a side beam, which draws its back faces.
 - [ ] Find the reads of the look roots at the load of a module with a saved check. Today
       `LOAD_TIME_PATHS` of `scene/look-values.ts` lists them by hand, so a new read at load gives
       an override with no effect and no error (`docs/decisions/2026-10-18-look-tools.md`).

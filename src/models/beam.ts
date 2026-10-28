@@ -4,24 +4,35 @@ import type { Vec3 } from './tuples.ts';
 
 /**
  * The place of the key light (design 4.5), seen from the stage center on the stage top. The key
- * light is the spotlight of the stage, and the visible beam comes from it. It stands far behind
- * the orchestra, a little to the right, and high, so its shadows fall to the front left, parallel
- * and short, as in `orchestra-latest.png`. A key light 1.4 S from the stage center on the stage
- * axis cast shadows that fanned out from the middle, and on the right side they pointed to the
- * front right (user, 2026-10-18).
+ * light is the spotlight of the stage, and the only light that casts shadows. It stands far in
+ * front of the stage, high over the audience, and to the left, as the front light of a concert
+ * hall. It lights the faces, and the shadows of the players fall to the back right of the stage,
+ * parallel (user, 2026-10-27: "make the key light go from front to back"). A far light
+ * keeps the shadows parallel: a key light 1.4 S from the stage center cast shadows that fanned
+ * out from the middle (user, 2026-10-18).
  */
 export const KEY_PLACE = {
   /** The distance from the stage center, in stage sides. */
   distance: 2.45,
-  /** The turn from the back of the stage axis toward the right side, in radians. */
-  azimuth: 18 * MathUtils.DEG2RAD,
-  /** The angle above the stage top, in radians. */
-  elevation: 66 * MathUtils.DEG2RAD,
+  /**
+   * The turn from the front of the stage axis toward the right side, in radians: a negative turn
+   * goes to the left. The light stands to one side of the default camera, so each body keeps a
+   * lit side and a shade side, and the shadows fall beside the players. With 20°, the fronts were
+   * flat and the players hid most of their shadows. The user looks at the stage from the front
+   * right too, so the light stands at the left, far from that camera.
+   */
+  azimuth: -35 * MathUtils.DEG2RAD,
+  /**
+   * The angle above the stage top, in radians. A front light lights the fronts of the players by
+   * the cosine of this angle and the floor by its sine, so a higher light keeps the white fur
+   * below the shoulder of the tone curve. A shadow is 0.58 times as long as its player.
+   */
+  elevation: 60 * MathUtils.DEG2RAD,
 } as const;
 
 /**
  * Gives the position of the key light of a stage ({@link KEY_PLACE}). The stage axes have +x to
- * the right, +y up, and +z to the audience, so the back of the stage is at -z.
+ * the right, +y up, and +z to the audience, so the front of the stage is at +z.
  *
  * @param stageSide The stage side `S`, in meters.
  * @returns The position, in meters.
@@ -32,7 +43,7 @@ export function keyLightPlace(stageSide: number): Vec3 {
   return [
     flat * Math.sin(azimuth),
     distance * stageSide * Math.sin(elevation),
-    -flat * Math.cos(azimuth),
+    flat * Math.cos(azimuth),
   ];
 }
 

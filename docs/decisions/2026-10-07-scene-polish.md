@@ -17,7 +17,6 @@ row. Then update the section that holds it, and remove its row.
 | The planks are a dark walnut `#4b3220` with a tone of ±20% for each plank. Under the light that brings white fur to the values of the mockup, the planks `#76523a` were 150 to 206 in the pool | 4.5 |
 | The wood keeps 0.55 of the direct gloss of the lights, and its roughness is 0.38. The full gloss made a pale spot in front of the podium | 4.5 |
 | The skirt and the chamfer of the stage get a baked light of 0.8 and 0.25 of their base color, with a fade to the corners. The key light from behind reaches neither of them | 4.5 |
-| The hall floor reflects the key light as a Blinn-Phong highlight (exponent 60, 0.015 of the key color) in its shader, with no scene light | 4.5 |
 | A row of low lamps stands on the hall wall, `0.06 × h` above the floor and 3.4 m apart, because the default view sees the wall only below the balconies. Each lamp of the hall gets a soft glow disc that faces the camera, in one draw call of points | 4.5 |
 | The haze of the beam fills a cone with the apex of the light and a radius of `0.25 × S` at the stage. Its density is 0.04 up to 0.12 of the light height and full from 0.45, the strength is 4.0, the concentration is at most 3 times, and the color is `#ffcf9e`. The old beam added a value of 4 to the hall in the default view | 4.5 |
 | The dead code of the fur sheen is gone (user decision of 2026-10-07: no fur for now). It never reached a pixel | 4.5 |

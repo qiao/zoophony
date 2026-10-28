@@ -1,0 +1,7 @@
+{
+  "b-one-beam": {},
+  "a-no-beam": { "RIM_PLACE.count": 0 },
+  "c-three-beams": { "RIM_PLACE.count": 3, "RIM_PLACE.spread": 0.28, "RIM_LIGHT.illuminance": 2, "BEAM_LOOK.column": 0.2, "BEAM_LOOK.tipRadius": 0.045, "BEAM_LOOK.strength": 4 },
+  "h-high-key-72": { "KEY_PLACE.elevation": "72deg" },
+  "l-low-key-45": { "KEY_PLACE.elevation": "45deg", "KEY_LIGHT.illuminance": 5.5 }
+}

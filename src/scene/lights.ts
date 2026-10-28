@@ -9,43 +9,45 @@ import type { QualityTier } from './quality.ts';
 
 /**
  * The key light (design 4.5): the stage spotlight, and the only light that casts shadows on the
- * stage. It stands far behind the orchestra, a little to the right, and high (`KEY_PLACE` of
- * `models/beam.ts`), so that the shadows fall to the front left, parallel and short, as in
- * `orchestra-latest.png`. It aims between the stage center and the podium, so its gloss on the
- * planks lies on both sides of the podium. The visible beam comes from it.
+ * stage. It stands far in front of the stage, high over the audience and to the left
+ * (`KEY_PLACE` of `models/beam.ts`), as the front light of a concert hall. It lights the faces,
+ * and the shadows fall to the back right, parallel (user, 2026-10-27).
  */
 export const KEY_LIGHT = {
   /** Warm orange. In `mockup.png`, the white rabbits show a hue of about 20. */
   color: '#ffca98',
   /**
-   * The aim, as a part of the way from the stage center to the podium center. The key light far
-   * at the back lights the back row less than a near light, so the aim is nearer to the stage
-   * center than the first 0.5, and the back row gets about half of the light of the pool center.
+   * The aim, as a part of the way from the stage center to the podium center. The front rows are
+   * nearer to the light, so the aim is the stage center: the back row gets about 0.7 of the key
+   * light of the first row, against 0.55 with the aim at 0.3 (`pnpm light-probe`).
    */
-  aimToPodium: 0.3,
+  aimToPodium: 0,
   /**
    * The half angle of the cone. three.js dims the cone from `angle × (1 - penumbra)` to `angle`.
    * With the full penumbra, the light falls off from the axis on. The light stands about 2.5 S
    * from its aim, and the angle keeps the dark stage edges of `mockup.png`: the middles of the
-   * side edges get about 0.6 of the light of the pool center, the front corners about 0.4, and
-   * the back corners almost none. A cone of 21.6°, as wide as the first key light of 34° at
-   * 1.47 S, lit the side edges with 0.67 to 0.77.
+   * side edges get 0.6 to 0.8 of the light of the stage center, the front corners 0.15 to 0.25,
+   * and the back corners 0.2 to 0.4 (`pool-probe.ts` of `docs/research/2026-10-27-key-front/`).
    */
   angle: 19 * MathUtils.DEG2RAD,
   /** The full penumbra, for a soft pool of light. */
   penumbra: 1,
-  /** The illuminance at the aim point, on a face that looks at the light, in lux. */
-  illuminance: 9,
+  /**
+   * The illuminance at the aim point, on a face that looks at the light, in lux. The light from
+   * behind gave 9, but a front light also lights the fronts that the camera sees. With 9 at 55°,
+   * the white fur of the front left rabbit had a luma of 218 against 150 on the old setup and 163
+   * in `orchestra-latest.png`.
+   */
+  illuminance: 6.5,
 } as const;
 
 /**
  * The side lights (design 4.5): two warm spotlights from the front corners of the hall, high at
  * the sides. Each one crosses the stage and lights the section on the other side, because the
- * players of a section face the conductor in the middle. Thus the fronts of the players are
- * bright, and the back of the conductor gets the light at a low angle and stays a darker brown,
- * as in `mockup.png`. The light at the left is the mirror of the light at the right. The first
- * lights were a rim light behind the orchestra and a front light above the audience. The key
- * light from behind now draws the rims.
+ * players of a section face the conductor in the middle. They are weak cross lights beside the
+ * key light from the front, so the section at the left also gets light on its fronts. The light
+ * at the left is the mirror of the light at the right. The rim lights ({@link RIM_LIGHT}) draw
+ * the rims.
  *
  * The cone is narrow and the light is high, so the section below the light stays outside the
  * cone. A wide, low cone of 28° lit that section from the camera side too, about as bright as the
@@ -59,18 +61,22 @@ export const KEY_LIGHT = {
  */
 export const SIDE_LIGHT = {
   /**
-   * The color, in sRGB: a warm white. The side lights give most of the light on the fronts of the
-   * players, and the orange `#ffd2a0` gave the white fur a saturation of 0.47 against 0.30 in
-   * `orchestra-latest.png`, so each species turned orange-brown (`pnpm look-lab`). The key light
-   * keeps its orange, because it gives the amber of the floor.
+   * The color, in sRGB: a warm white, so white and gray fur keep their colors. The orange
+   * `#ffd2a0` gave the white fur a saturation of 0.47 against 0.30 in `orchestra-latest.png`, so
+   * each species turned orange-brown (`pnpm look-lab`). The key light keeps its orange, because
+   * it gives the amber of the floor.
    */
   color: '#ffe6d2',
   /** The position of the light at the right, in stage sides. */
   position: [1.1, 1.4, 0.7],
   /** The aim of the light at the right, in stage sides: the middle of the section at the left. */
   target: [-0.3, 0, 0.1],
-  /** The illuminance at the aim point, on a face that looks at the light, in lux. */
-  illuminance: 2.7,
+  /**
+   * The illuminance at the aim point, on a face that looks at the light, in lux. The key light
+   * from the front gives most of the light on the fronts now, so 2.7 lux made the white fur too
+   * bright. With 0.6, the white fur of the front left rabbit has a luma of 188.
+   */
+  illuminance: 0.5,
   /** The half angle of the cone. */
   angle: 14 * MathUtils.DEG2RAD,
   /** The penumbra of the cone. */
@@ -99,12 +105,12 @@ export const BACK_ROW_LIGHT = {
    */
   target: [-0.35, 0.15, -0.5],
   /**
-   * The illuminance at the aim point, on a face that looks at the light, in lux. After the lower
-   * exposure and the narrower pool of 2026-10-21, 2.25 gave the white fur of the back rows 0.90
-   * of the p90 of the front rows, and 2.9 gives 0.92 (0.98 in `orchestra-latest.png`). The floor
-   * behind the back rows keeps its light.
+   * The illuminance at the aim point, on a face that looks at the light, in lux. The key light
+   * from the front gives the back row about 0.7 of the light of the first row, so 1.5 lux in
+   * place of 2.9 keeps the white fur of the back rows at 0.90 of the p90 of the front rows (0.98
+   * in `orchestra-latest.png`).
    */
-  illuminance: 2.9,
+  illuminance: 1.5,
   /**
    * The half angle of the cone. The cone holds the back rows and the choir, and the front rows stay
    * outside it. A cone of 14° lit the second row from the back more than the first row.
@@ -124,8 +130,12 @@ export const BACK_ROW_LIGHT = {
 export const RIM_LIGHT = {
   /** The color, in sRGB: the warm orange of the key light. */
   color: '#ffca98',
-  /** The illuminance at the aim point, on a face that looks at the light, in lux. */
-  illuminance: 0,
+  /**
+   * The illuminance at the aim point, on a face that looks at the light, in lux. The light also
+   * gives the floor in the pool a part of its light, as the light from behind did. With 4.5 and
+   * 6, the lit floor had a luma of 110 and 113 against 118 with the key light from behind.
+   */
+  illuminance: 5,
   /** The half angle of the cone. */
   angle: 16 * MathUtils.DEG2RAD,
   /** The full penumbra, for a soft pool of light. */

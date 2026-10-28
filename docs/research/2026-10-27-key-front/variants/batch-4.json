@@ -1,0 +1,6 @@
+{
+  "d1-k6.5-s0.6-r4.5": { "KEY_LIGHT.aimToPodium": 0, "KEY_PLACE.azimuth": "35deg", "KEY_PLACE.elevation": "60deg", "KEY_LIGHT.illuminance": 6.5, "SIDE_LIGHT.illuminance": 0.6, "BACK_ROW_LIGHT.illuminance": 1.5, "RIM_LIGHT.illuminance": 4.5 },
+  "d2-k6.5-s0.4-r6": { "KEY_LIGHT.aimToPodium": 0, "KEY_PLACE.azimuth": "35deg", "KEY_PLACE.elevation": "60deg", "KEY_LIGHT.illuminance": 6.5, "SIDE_LIGHT.illuminance": 0.4, "BACK_ROW_LIGHT.illuminance": 1.5, "RIM_LIGHT.illuminance": 6 },
+  "a0-no-beam": { "KEY_LIGHT.aimToPodium": 0, "KEY_PLACE.azimuth": "35deg", "KEY_PLACE.elevation": "60deg", "KEY_LIGHT.illuminance": 6.5, "SIDE_LIGHT.illuminance": 0.6, "BACK_ROW_LIGHT.illuminance": 1.5, "RIM_LIGHT.illuminance": 4.5, "RIM_PLACE.count": 0 },
+  "c3-three-beams": { "KEY_LIGHT.aimToPodium": 0, "KEY_PLACE.azimuth": "35deg", "KEY_PLACE.elevation": "60deg", "KEY_LIGHT.illuminance": 6.5, "SIDE_LIGHT.illuminance": 0.6, "BACK_ROW_LIGHT.illuminance": 1.5, "RIM_LIGHT.illuminance": 2, "RIM_PLACE.count": 3, "RIM_PLACE.spread": 0.28, "BEAM_LOOK.column": 0.2, "BEAM_LOOK.tipRadius": 0.045, "BEAM_LOOK.strength": 4 }
+}
