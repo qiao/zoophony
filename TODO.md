@@ -759,6 +759,22 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       and the left palm turns 58° from the oboe (grasp limit 60°), so the rest elbows have
       little room. Next: supinate the bind left paw of the mouse (`studio.bindSupination`), as
       for the wolf, and scan the rest elbows again.
+- [x] Badger bass drum (`2026-10-27-badger-beater.md`): the user said "the badger is not holding
+      the drumstick properly". Done: the drum and the beater take the scale of the badger, the
+      badger stands behind the drum, and the right paw holds the beater one third up from the butt
+      at the near rim, along the head, 13 cm from the trunk. The head of the beater leaves the
+      drum head 5 cm between strikes and up to 12 cm before a strike.
+- [ ] Badger bass drum (`2026-10-27-badger-beater.md`): from the front, the drum hides the right
+      arm and the beater, as a real drum hides its player. Show the user the front and the stage
+      images, and ask if the badger must show more from the front.
+- [ ] Badger sticks (`2026-10-27-badger-beater.md`): the snare sticks, the yarn mallets, and the
+      xylophone mallets of the badger keep about real lengths (34 cm), longer than the scaled
+      bass drum beater (25.8 cm). Ask the user if the scale of the badger applies to them too.
+- [ ] Badger bass drum (`2026-10-27-badger-beater.md`): between strikes, the paw keeps its turn
+      in the world while the body sways, so its twist on the forearm moves from -15° to 5° in
+      about 1 s. The paw grasps the shaft in 83% of the play samples (`pnpm wind-grip`).
+- [ ] Badger bass drum (`2026-10-27-badger-beater.md`): the left paw hangs and does not muffle
+      the head in the rests, as section 5 of the percussion reference gives for marches.
 - [x] Bear rig (`2026-10-26-arm-fixes.md`): the left shoulder bridge folds 8 tiny faces at p95
       in the play (4 on the old rig, limit 8), and the right move twist max is 87 (81). Done: the
       head keeps the rule weights, and four shoulder faces take the mean of their painted weights
