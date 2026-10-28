@@ -1095,20 +1095,21 @@ const DOG_HOLD = {
  * with 12°, the bow arm reached 4 cm of the hair at the new place, and the right arm went 5.1 cm
  * into the contrabass. The bow plays no hair within 0.25 m of the frog (`frogHair`): the short bow
  * arm reaches the frog only straight, and then the right upper arm went 5.2 cm into the right rim
- * of the upper bout. The right elbow points out, a little up, and forward, and level at the
- * tip, so that the forearm slopes down to the bow and the wrist stays nearly straight, as on a real
+ * of the upper bout. The right elbow points out, a little up, and forward, also at the tip, so
+ * that the forearm slopes down to the bow and the wrist stays nearly straight, as on a real
  * bassist. With the elbow forward, out, and a little down, the forearm lay level across the belly
  * and the paw bent down onto the bow like a hook (user, 2026-10-25: "the rhino's arm is bent
  * unnaturally", of the hippo, 2026-10-26-arm-fixes decisions), and the right upper arm went
- * 4.1 cm into the body (2.8 cm now). The left elbow points out
- * to the left, a little down, and forward. The user chose lower elbows with the twist bone of the
- * upper arm (the 2026-10-19-arm-skin decisions): with the level elbow, the right upper arm rolled
- * 86° on the median of the play, and the shoulder skin twisted into a flat band. With the left
- * elbow up and back, the left upper arm turned 80° (the 2026-10-19-hippo-arms decisions). The left
- * elbow turns up 2° for each lower string, as on the cello of the dog: with 10°, the thick left
- * upper arm went 7.0 cm into the contrabass (6.4 cm with 2°). The left paw tilts 55° over the neck,
- * as the paw of the dog: with the 30° of the floor hold, the left arm went 6.9 cm into the body
- * (5.6 cm with 55°).
+ * 4.1 cm into the body. With the elbow level at the tip and the grip in the middle of the paw,
+ * it went 3.0 cm into the body (2.6 cm now, 2026-10-28-hippo-grip decisions). The left elbow
+ * points out to the left, a little down, and forward. The user chose lower elbows with the twist
+ * bone of the upper arm (the 2026-10-19-arm-skin decisions): with the level elbow, the right upper
+ * arm rolled 86° on the median of the play, and the shoulder skin twisted into a flat band. With
+ * the left elbow up and back, the left upper arm turned 80° (the 2026-10-19-hippo-arms decisions).
+ * The left elbow turns up 2° for each lower string, as on the cello of the dog: with 10°, the thick
+ * left upper arm went 7.0 cm into the contrabass (6.4 cm with 2°). The left paw tilts 55° over the
+ * neck, as the paw of the dog: with the 30° of the floor hold, the left arm went 6.9 cm into the
+ * body (5.6 cm with 55°).
  *
  * In pizzicato, the right paw comes up from the side, 0.18 m right of the strings (`pluckSide`),
  * as a real bassist rests the thumb on the edge of the fingerboard
@@ -1179,7 +1180,7 @@ const HIPPO_HOLD = {
   poleL: [-1, -0.3, -0.7],
   elbowPerString: 2 * MathUtils.DEG2RAD,
   poleR: [2, 0.3, -1],
-  poleTipR: [2, 0, -1],
+  poleTipR: [2, 0.3, -1],
   polePizzicato: [3, 0.3, -1],
   pizzicatoTip: [0.5, 1, -1],
   pluckSide: 0.18,
