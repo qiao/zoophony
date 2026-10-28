@@ -149,13 +149,24 @@ describe('hazeProfile (design 4.5)', () => {
 });
 
 /**
+ * Gives the parts of the beams of `createBeam()`: the cone and the motes of the haze of each rim
+ * light, in the order of the lights.
+ *
+ * @param beam The group of `createBeam()`.
+ * @returns The cones and the motes.
+ */
+function hazeParts(beam: Object3D): Object3D[] {
+  return beam.children.flatMap((haze) => haze.children);
+}
+
+/**
  * Gives the materials of the two sides of the haze cone of a beam.
  *
  * @param beam The group of `createBeam()`.
  * @returns The material of the back faces, then of the front faces.
  */
 function coneSides(beam: Object3D): ShaderMaterial[] {
-  const cone = beam.children.find((child) => child instanceof Mesh);
+  const cone = hazeParts(beam).find((child) => child instanceof Mesh);
   if (!(cone instanceof Mesh) || !Array.isArray(cone.material)) {
     throw new Error('The beam has no cone with two sides.');
   }
@@ -165,7 +176,7 @@ function coneSides(beam: Object3D): ShaderMaterial[] {
 describe('createBeam (design 2.6, 4.5)', () => {
   it('gives the high tier dust motes and the most noise samples', () => {
     const beam = createBeam(11.19, 'high');
-    const motes = beam.children.find((child) => child instanceof Points);
+    const motes = hazeParts(beam).find((child) => child instanceof Points);
     const sides = coneSides(beam);
     expect(sides.map((side) => side.side)).toEqual([BackSide, FrontSide]);
     for (const side of sides) {
@@ -181,7 +192,7 @@ describe('createBeam (design 2.6, 4.5)', () => {
     // 350 bright motes read as a field of stars in the column (user report of 2026-10-06).
     expect(TIER_SETTINGS.high.motes).toBeLessThanOrEqual(150);
     expect(BEAM_LOOK.moteStrength).toBeLessThanOrEqual(1);
-    const motes = createBeam(11.19, 'high').children.find((child) => child instanceof Points);
+    const motes = hazeParts(createBeam(11.19, 'high')).find((child) => child instanceof Points);
     if (!(motes?.material instanceof ShaderMaterial)) {
       throw new Error('The beam has no motes.');
     }
@@ -190,7 +201,7 @@ describe('createBeam (design 2.6, 4.5)', () => {
 
   it('hides the dust motes on the low tier', () => {
     const beam = createBeam(11.19, 'low');
-    const motes = beam.children.find((child) => child instanceof Points);
+    const motes = hazeParts(beam).find((child) => child instanceof Points);
     expect(motes?.visible).toBe(false);
   });
 });
@@ -199,7 +210,7 @@ describe('setBeamTier (design 2.6)', () => {
   it('changes the haze samples and the dust motes after the layout', () => {
     const beam = createBeam(11.19, 'high');
     const sides = coneSides(beam);
-    const motes = beam.children.find((child) => child instanceof Points);
+    const motes = hazeParts(beam).find((child) => child instanceof Points);
     if (!motes) {
       throw new Error('The beam has no motes.');
     }
@@ -301,7 +312,7 @@ describe('setBeamFrame (design 4.5, 5.6)', () => {
   const depth = new BeamDepth();
   depth.setSize(1440, 900);
   const material = (kind: typeof Mesh | typeof Points): ShaderMaterial => {
-    const child = beam.children.find((c) => c instanceof kind);
+    const child = hazeParts(beam).find((c) => c instanceof kind);
     if (!child || !(child instanceof Mesh || child instanceof Points)) {
       throw new Error('The beam has no such part.');
     }
@@ -352,7 +363,7 @@ describe('setBeamFrame (design 4.5, 5.6)', () => {
       expect(uniforms(kind)['uFoot']?.value).toEqual(new Vector2(3.9, 3.2));
     }
     // The axis of the mesh goes from the foot on the stage top to the light.
-    const cone = beam.children.find((child) => child instanceof Mesh);
+    const cone = hazeParts(beam).find((child) => child instanceof Mesh);
     if (!cone) {
       throw new Error('The beam has no cone.');
     }
