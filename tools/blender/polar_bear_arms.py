@@ -9,8 +9,8 @@ with an image after each step, and this script repeats them in the same order:
    the shoulder line and at the wrist (parallel to the last ring of the tube, since 2026-10-28),
    Delete Faces, Collapse Edges of the thin faces at each wrist cut loop, a tube of
    `len(stations)` rings of `RING_VERTS`, Shrinkwrap onto the source arm, Bridge Edge Loops to the
-   trunk and to the paw, and Collapse Edges of the thin wrist bridge faces. The faces of the paws,
-   the trunk, the legs, and the head stay.
+   trunk and to the paw, Collapse Edges of the thin wrist bridge faces, and Smooth Vertices on the
+   band of each wrist. The faces of the paws, the trunk, the legs, and the head stay.
 3. Give the new arm faces a UV layout, bake the fur color of the source arm onto them (Cycles,
    Selected to Active), and transfer the custom normals of the source surface (Data Transfer).
 4. Put the arm image in a strip below the atlas, so that the mesh keeps one material, and write
@@ -404,8 +404,9 @@ def retopo_bridge(mesh):
 
     The first ring bridges to the cut loop of the shoulder line, and the last ring to the cut loop
     of the paw. The loops have more vertices than the rings, so the bridge makes triangles. The
-    thin triangles of each wrist bridge then collapse (`clean_wrist_bridge()`). Gives the number
-    of the bridge faces and of the collapsed edges.
+    thin triangles of each wrist bridge then collapse (`clean_wrist_bridge()`), and the band of
+    each wrist is smoothed (`smooth_wrists()`). Gives the number of the bridge faces, of the
+    collapsed edges, and of the smoothed vertices.
     """
     bpy.context.view_layer.objects.active = mesh
     bpy.ops.object.mode_set(mode='EDIT')
@@ -432,9 +433,40 @@ def retopo_bridge(mesh):
                 f.smooth = True
             made += len(res['faces'])
     collapsed = clean_wrist_bridge(bm, part)
+    smoothed = smooth_wrists(bm, part)
     bmesh.update_edit_mesh(mesh.data)
     bpy.ops.object.mode_set(mode='OBJECT')
-    return made, collapsed
+    return made, collapsed, smoothed
+
+
+#: The rounds and the factor of Smooth Vertices of `smooth_wrists()`, as on the hippo
+#: (`WRIST_SMOOTH` of `hippo_arms.py`).
+WRIST_SMOOTH = (4, 0.5)
+
+
+def wrist_band(bm, part):
+    """Gives the vertices of the band of both wrists: the cut loop of each paw, and the last ring
+    of each tube, whose vertices join the loop by an edge."""
+    loops = {PART['wrist'], PART['wrist'] + 10}
+    tubes = {PART['tube'], PART['tube'] + 10}
+    return [p for p in bm.verts if p[part] in loops or (
+        p[part] in tubes and any(e.other_vert(p)[part] in loops for e in p.link_edges))]
+
+
+def smooth_wrists(bm, part):
+    """Smooths the band of each wrist (Smooth Vertices, `WRIST_SMOOTH`): the last ring of the tube
+    and the cut loop of the paw, after the clean of the bridge.
+
+    The ring is round, and the cut loop has the form of the paw, so the bridge between them keeps
+    small steps and sharp corners. The smooth moves only the vertices of the two loops. Gives the
+    number of the smoothed vertices.
+    """
+    verts = wrist_band(bm, part)
+    rounds, factor = WRIST_SMOOTH
+    for _ in range(rounds):
+        bmesh.ops.smooth_vert(bm, verts=verts, factor=factor, use_axis_x=True, use_axis_y=True,
+                              use_axis_z=True)
+    return len(verts)
 
 
 # The UV seam of each tube runs along this spoke: the lower side of the arm in the T-pose.
