@@ -6,9 +6,10 @@ with an image after each step, and this script repeats them in the same order:
 
 1. Import the T-pose mesh of the user (`polar-bear-tpose.glb`) and Merge by Distance.
 2. Replace the faces of each arm from the shoulder line to the wrist with a quad tube: Bisect at
-   the shoulder line and at the wrist, Delete Faces, a tube of `len(stations)` rings of
-   `RING_VERTS`, Shrinkwrap onto the source arm, and Bridge Edge Loops to the trunk and to the paw.
-   The faces of the paws, the trunk, the legs, and the head stay.
+   the shoulder line and at the wrist (parallel to the last ring of the tube, since 2026-10-28),
+   Delete Faces, a tube of `len(stations)` rings of `RING_VERTS`, Shrinkwrap onto the source arm,
+   and Bridge Edge Loops to the trunk and to the paw. The faces of the paws, the trunk, the legs,
+   and the head stay.
 3. Give the new arm faces a UV layout, bake the fur color of the source arm onto them (Cycles,
    Selected to Active), and transfer the custom normals of the source surface (Data Transfer).
 4. Put the arm image in a strip below the atlas, so that the mesh keeps one material, and write
@@ -97,9 +98,10 @@ def seg_distance(p, a, b):
 # The retopology of the arms. The user approved quad arms for the Rigify rabbit, and asked for the
 # same on the polar bear on 2026-10-24. The cuts, in the units of the studio: the shoulder line at
 # the share `shoulder` of the upper arm from the shoulder joint (x 0.154, where the T-pose arm is
-# free of the trunk), and the wrist at the share `wrist` of the paw from the wrist joint. The
-# faces of the trunk, the head, the legs, and the paws stay.
-ARM_CUT = {'shoulder': 0.15, 'wrist': 0.1}
+# free of the trunk), and the wrist at the share `wrist` of the paw from the wrist joint, along the
+# axis of the last ring of the tube (`cut_planes()`). The faces of the trunk, the head, the legs,
+# and the paws stay.
+ARM_CUT = {'shoulder': 0.15, 'wrist': 0.25}
 
 # The quad tube: `RING_VERTS` vertices in each ring. Rings at the shares `UPPER_RINGS` of the upper
 # arm, three rings at the elbow (the joint and `JOINT_GAP` units to each side), and `FORE_RINGS`
@@ -131,10 +133,22 @@ def arm_distance(line, co):
 
 
 def cut_planes(line):
-    """Gives the cut plane (point, normal) at the shoulder line and at the wrist."""
+    """Gives the cut plane (point, normal) at the shoulder line and at the wrist.
+
+    The wrist plane stands parallel to the last ring of the tube: the ring stands at the wrist
+    joint at a right angle to the line halfway between the forearm and the paw
+    (`arm_stations()`). The paw of the T-pose turns about 14 degrees down from the forearm. The
+    plane of 2026-10-24 stood at a right angle to the paw, 0.1 of the paw from the joint, so the
+    band from the ring to the cut loop was 15 mm wide on the top of the wrist and 2 mm on the
+    palm side. Its thin faces turned sharp in the seated bind and showed as a crease around the
+    wrist (user, 2026-10-27: "there's a crease around the bear's wrist",
+    `docs/decisions/2026-10-27-polar-wrist.md`). With the two planes parallel, the band is about
+    as wide all around.
+    """
     s, e, w, t = line
+    axis = ((w - e).normalized() + (t - w).normalized()).normalized()
     return [(s.lerp(e, ARM_CUT['shoulder']), (e - s).normalized()),
-            (w + (t - w) * ARM_CUT['wrist'], (t - w).normalized())]
+            (w + axis * ((t - w).length * ARM_CUT['wrist']), axis)]
 
 
 def arm_stations(fr, line):
