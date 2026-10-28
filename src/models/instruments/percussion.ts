@@ -194,6 +194,21 @@ export const SNARE_DRUM = {
 } as const;
 
 /**
+ * The size of the badger against a person, for the bass drum and its beater: the head top of the
+ * standing badger mesh (1.038 m) over the mean height of an adult, 1.683 m, the mean of the men
+ * (175.3 cm) and the women (161.3 cm) of the US survey of 2015 to 2018 (CDC, Vital and Health
+ * Statistics series 3, no. 46, tables 9 and 11). A real size times this scale gives the size for
+ * the badger (`docs/decisions/2026-10-27-badger-beater.md`).
+ */
+const BADGER_SCALE = 1.038 / 1.683;
+
+/**
+ * The length of the shaft of the bass drum beater behind its grip, in meters
+ * (`BASS_DRUM.malletButt`).
+ */
+const BEATER_BUTT = 0.095;
+
+/**
  * The bass drum on its stand, in meters (design 4.6): at the front left of the player, with its
  * right head turned toward the player.
  */
@@ -203,8 +218,13 @@ export const BASS_DRUM = {
    * left paw of the badger mesh went 5.7 cm into the shell (`docs/decisions/2026-10-20-mesh-badger.md`).
    */
   center: [-0.28, 0.5, -0.45],
-  radius: 0.35,
-  depth: 0.32,
+  /**
+   * The radius of the heads: a concert bass drum of 36 by 16 inches (Yamaha CB-7036) at the
+   * {@link BADGER_SCALE}. Real concert bass drums are 32 to 40 inches wide.
+   */
+  radius: 0.4572 * BADGER_SCALE,
+  /** The depth of the shell, from the same drum at the {@link BADGER_SCALE}. */
+  depth: 0.4064 * BADGER_SCALE,
   /** The turn of the axis of the drum around the vertical from the x axis, in degrees. */
   turn: -30,
   /**
@@ -218,18 +238,20 @@ export const BASS_DRUM = {
   /** The grip of each mallet in the closed paw ({@link PAW_SPOT}). */
   malletSpot: PAW_SPOT,
   /**
-   * The length of the shaft behind its grip, in meters ({@link MALLET_BUTT}): the butt end
-   * sticks out 2 cm behind the paw, as a real player holds 13 mm to 25 mm behind the hand
-   * (`docs/reference/percussion-technique.md` 1). With 4 cm, it stayed in the paw.
+   * The length of the shaft behind its grip, in meters ({@link MALLET_BUTT}): the middle of the
+   * closed paw holds the beater about one third up from the butt, as a real player holds it
+   * (`docs/reference/percussion-technique.md` 5), and the butt end sticks out about 8 cm behind
+   * the paw.
    */
   // SAFETY: the literal widens to a number, so that a hold tool can set it in memory.
-  malletButt: 0.06 as number,
-  /** The length of the beater from the grip to the middle of its head. */
-  // SAFETY: the literal widens to a number, so that a hold tool can set it in memory.
-  mallet: 0.32 as number,
-  /** The radius of the head of the beater. */
-  // SAFETY: the literal widens to a number, so that a hold tool can set it in memory.
-  ball: 0.055 as number,
+  malletButt: BEATER_BUTT as number,
+  /**
+   * The length of the beater from the grip to the middle of its head. The whole beater is 25.8 cm
+   * long: a concert beater of 419 mm (Vic Firth BD3) at the {@link BADGER_SCALE}.
+   */
+  mallet: (0.419 - 0.0349) * BADGER_SCALE - BEATER_BUTT,
+  /** The radius of the head of the beater: the head of 69.8 mm of the same beater at the scale. */
+  ball: 0.0349 * BADGER_SCALE,
 } as const;
 
 /** The tambourine on its stand, in meters (design 4.6). */
@@ -626,10 +648,11 @@ export function buildBassDrum(): InstrumentModel {
   );
   const normal = toVec3(axis);
   drum(piece, center, normal, radius, depth, INSTRUMENT_COLORS.drumShell);
-  // The stand: a frame under the drum, from the floor to the shell.
+  // The stand: a frame under the drum, from the floor to the shell. Its legs and its cross bar
+  // scale with the heads.
   const across = new Vector3(axis.z, 0, -axis.x).normalize();
   for (const side of [-1, 1]) {
-    const foot = new Vector3(center[0], 0, center[2]).addScaledVector(across, side * 0.2);
+    const foot = new Vector3(center[0], 0, center[2]).addScaledVector(across, side * 0.57 * radius);
     piece.rod(
       toVec3(foot),
       toVec3(foot.clone().add(new Vector3(0, center[1] - radius + 0.02, 0))),
@@ -641,8 +664,8 @@ export function buildBassDrum(): InstrumentModel {
   // The cross bar turns with the drum, so its corners reach 0.022 m from its middle.
   const barMiddle = new Vector3(center[0], 0.025, center[2]);
   piece.bar(
-    toVec3(barMiddle.clone().addScaledVector(across, -0.25)),
-    toVec3(barMiddle.clone().addScaledVector(across, 0.25)),
+    toVec3(barMiddle.clone().addScaledVector(across, -0.71 * radius)),
+    toVec3(barMiddle.clone().addScaledVector(across, 0.71 * radius)),
     0.03,
     0.03,
     INSTRUMENT_COLORS.hardware,

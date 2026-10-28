@@ -1449,7 +1449,10 @@ each note and the upper flippers keep off the sides of the body (`CHOIR_FOLDER`,
 `docs/decisions/2026-10-21-mesh-penguin.md`).
 The badger keeps the short arms of its mesh, so its drums and the tambourine stand nearer to it,
 and its paws reach each strike of the bass drum, the snare drum, the triangle, and the tambourine
-(`BASS_DRUM`, `SNARE_DRUM`, `TAMBOURINE`). Its arms do not hold hand cymbals of a real size out of
+(`BASS_DRUM`, `SNARE_DRUM`, `TAMBOURINE`). The bass drum and its beater take the scale of the
+badger: a concert drum of 36 by 16 inches and a concert beater of 419 mm, times the head top of the
+badger over the mean height of an adult (`docs/decisions/2026-10-27-badger-beater.md`). Its arms
+do not hold hand cymbals of a real size out of
 its round body, so it plays a suspended cymbal on a stand in front of it, as an orchestra plays a
 part "with mallet" (`SpeciesParams.cymbalForm`, `SUSPENDED_CYMBAL`,
 `docs/decisions/2026-10-20-badger-cymbals.md`). Its arms do not reach the outer bars of the
