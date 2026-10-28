@@ -116,9 +116,10 @@ reads it (route 3 of `docs/agents/model-work.md`). The steps:
    With `spread`, the move of single vertices of the shape spreads over their neighbors
    (`spread_shape()`). With `follow`, the skin near its points first moves a share of the way
    with the upper arm in the pose of the rule, as the front of a joined arm root does when the
-   arm rises. A rig with `armSegments` turns its segments and helpers in the pose of a rule.
-   With `upperTwist` of the config, the solve of each shape gives each upper arm the twist bone of
-   the app (`upper_twist()`), and the file names the share for `pnpm studio-body`.
+   arm rises, and with `follow.fill` its valleys then fill (`fill_valleys()`). A rig with
+   `armSegments` turns its segments and helpers in the pose of a rule. With `upperTwist` of the
+   config, the solve of each shape gives each upper arm the twist bone of the app
+   (`upper_twist()`), and the file names the share for `pnpm studio-body`.
 9. Write the GLB file with the code of this script: the materials `fur`, `gloss`, and `chair`,
    the skinned mesh with its morph targets, the skeleton, the clip `reference` with one key, a
    chair under the seated body, and the facts that `pnpm studio-body` reads in the extras of the
@@ -4265,7 +4266,10 @@ def raise_shape(rule, bind, tris, weights, heads, down, sheet, earlier=(), upper
     gives them (`near_share()`), before the relax, also when they hang on other bones. On a
     joined arm root, the trunk weights keep the front of the root with the chest, so a raised arm
     crushes it into a dark crease. The shape moves the root with the arm only near the pose of
-    the rule, so the root keeps the trunk weights at rest."""
+    the rule, so the root keeps the trunk weights at rest. With `follow.fill`, the skin within
+    the reach of the points then fills its valleys and moves no vertex in (`fill_valleys()`), so
+    that the soft fold between the chest and the arm fills and the round front of the root
+    keeps its form."""
     side = rule['side']
     turns = {name: np.eye(3) for name in BONES}
     wrist = rule.get('bone') == 'hand'
@@ -4330,6 +4334,11 @@ def raise_shape(rule, bind, tris, weights, heads, down, sheet, earlier=(), upper
         start = posed + share[:, None] * (base @ m[:, :3].T + m[:, 3] - posed)
         log(f"raise {side}: {int((share > 0).sum())} vertices follow the bone {bone}, at most "
             f'{share.max():.2f} of the way')
+        if 'fill' in rule['follow']:
+            start, lift = fill_valleys(start, tris, near_share(source, rule['follow']),
+                                       rule['follow']['fill'])
+            log(f'raise {side}: the valley fill moves {int((lift > 0).sum())} vertices out, at '
+                f'most {lift.max(initial=0.0):.4f} u')
     relaxed, rounds = relax(bind, start, tris, weights, matrices, moving=region,
                             below=rule['below'])
     after = np.nonzero(turn_dots(bind, relaxed, tris, weights, matrices) < 0)[0]
@@ -4343,6 +4352,34 @@ def raise_shape(rule, bind, tris, weights, heads, down, sheet, earlier=(), upper
     shape = np.zeros_like(bind)
     shape[moved] = np.linalg.solve(a[moved], (relaxed - b)[moved][:, :, None])[:, :, 0] - base[moved]
     return shape, down_weight, before, after, rounds, int(moved.sum())
+
+
+def fill_valleys(points, tris, share, rule):
+    """Fills the valleys of a posed skin (`follow.fill` of a rule of `raise`), and moves no vertex
+    in. In each of `rounds` rounds, a vertex that lies under the middle of its neighbors along its
+    normal (the area sum of the normals of its faces) moves out along that normal by `step` of
+    that depth, times its `share`. A vertex on a ridge keeps its place, so the round front of an
+    arm root does not shrink: a smoothing of the skin in the pose pulled it into a dark pocket.
+    Gives the new places and the length of the move of each vertex."""
+    neighbors = [set() for _ in range(len(points))]
+    for a, b, c in tris:
+        neighbors[a].update((b, c))
+        neighbors[b].update((a, c))
+        neighbors[c].update((a, b))
+    ids = np.nonzero(share > 0)[0]
+    rings = [np.array(sorted(neighbors[i]), int) for i in ids]
+    out = points.copy()
+    for _ in range(rule['rounds']):
+        n = np.cross(out[tris[:, 1]] - out[tris[:, 0]], out[tris[:, 2]] - out[tris[:, 0]])
+        normals = np.zeros_like(out)
+        for k in range(3):
+            np.add.at(normals, tris[:, k], n)
+        normals = normals[ids] / np.maximum(np.linalg.norm(normals[ids], axis=1, keepdims=True),
+                                            1e-12)
+        mids = np.array([out[r].mean(axis=0) for r in rings])
+        depth = np.maximum(np.einsum('ij,ij->i', mids - out[ids], normals), 0.0)
+        out[ids] += (rule['step'] * share[ids] * depth)[:, None] * normals
+    return out, np.linalg.norm(out - points, axis=1)
 
 
 def near_share(points, rule):
