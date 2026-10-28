@@ -63,7 +63,10 @@ trunk, the legs, and the head are the faces of the user, except the thin faces a
 which collapse or go. Since 2026-10-28, the wrist cut lies 0.25 of the paw from the wrist joint,
 parallel to the last ring of the tube, and Smooth Vertices evens the band of each wrist, so that
 the bridge to the paw has no lip and no spike (`cut_planes()` and `step_smooth_wrist()` of the
-script). The arms are 1.5 times longer from the socket, as the rig made them before
+script). Each paw keeps the bend of the source, about 25° off the forearm in the plane of the
+palm, and the bow paw keeps this bend in the play (`pawKeepR` of `HIPPO_HOLD`,
+`docs/decisions/2026-10-28-hippo-paw.md`), so that the thick wrist shows no lump. The arms are
+1.5 times longer from the socket, as the rig made them before
 (`armFactor` of the config), because a rig with arm segments does not stretch the arms.
 `pnpm rig-mesh hippo` writes `hippo.rig.glb`, and `pnpm studio-body hippo` writes
 `src/models/studio/hippo.ts`.
