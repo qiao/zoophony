@@ -750,9 +750,22 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       1.0 cm and the forearms up to 1.5 cm into the front of the case in the lift and the
       lowering (limit 1.5 cm, 0 cm before). In the bind, 3 faces of the left shin and thigh turn
       over after the groin crease (0 before).
-- [ ] Polar bear wrist (user, 2026-10-27): "there's a crease around the bear's wrist". No face
-      at the wrist folds on `main` or after the bench round, so the crease is shading or form.
-      The baseline of the next round is in section 7 of `2026-10-27-polar-bench.md`.
+- [x] Polar bear wrist (user, 2026-10-27): "there's a crease around the bear's wrist". Done: the
+      wrist band of the arm copy had 46 thin faces and was 2 mm wide on the palm side. The cut
+      stands parallel to the last ring, the band is cleaned, smoothed, and snapped back onto the
+      arm, and it takes the skin normals: no hard line at the wrists in any sample
+      (`2026-10-27-polar-wrist.md`).
+- [ ] Polar bear wrist (`2026-10-27-polar-wrist.md`): one edge of the left wrist band, on the
+      palm side of the paw, stays concave up to 82° in the play (88° before), at a groove of the
+      paw of the user mesh. It shades soft with the skin normals. Next: check it from below in
+      the stage light, and fair the groove in the copy if it shows.
+- [ ] Polar bear paws (`2026-10-27-polar-wrist.md`): the automatic weights give each paw about
+      0.35 of the wrist helper and 0.1 to 0.25 of the last forearm segment, so the paw turns
+      only about two thirds of the hand turn. Next: take the wrist helper off the paws, as
+      `step_wrist()` of `hippo_arms.py` does, and check the wrist bend and the claws on the keys.
+- [ ] Polar bear copy (`2026-10-27-polar-wrist.md`): `polar_bear_legs.py` stops when the JPEG of
+      the arm image leaks above 0.02 into the free columns of the strip, as a try with no wrist
+      smooth did. Next: skip a border of 8 columns in the check of `atlas_strip()`.
 - [ ] Close views: the pianist has no lift or lowering moment in `ROLE_VIEWS`, so
       `close-views pianist --moments lift50` fails. Next: give the role the moments of
       `halfMoves()`, as the violinist has.
