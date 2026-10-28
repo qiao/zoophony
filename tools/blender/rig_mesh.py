@@ -83,7 +83,8 @@ reads it (route 3 of `docs/agents/model-work.md`). The steps:
    the haunch and the root of the tail rise onto the seat top with a `sit` rule
    (`seat_lift()`), and the tip of a
    tail of two bones keeps the height of its end. With `crease`, the bind is smoothed across the
-   crease where the belly meets the top of each thigh (`crease_relax()`), and with `kneeCrease`
+   crease where the belly meets the top of each thigh (`crease_relax()`), with `crease.lap` a
+   second time up the belly front, and with `kneeCrease`
    across the crease at the back of each knee (`knee_relax()`). With `kneeCrease.fair`, the calf
    back is then faired along the vertex normals (`calf_fair()`).
 7. Put a gloss shell over each eye: a fan from the middle of the eye to the edge of its dark
@@ -3365,9 +3366,13 @@ def crease_relax(bind, tris, weights, hip, rule):
     units). The region is the seam and `rings` rings of its neighbors. Each vertex of the region
     moves `share` of the way to the middle of its neighbors in each of `rounds` rounds, times a
     weight that falls from 1 on the seam to 0 beyond the last ring, and less its share of the
-    weight of the shins, the feet, the arms, and the tail, which keep their places. The corrective
-    shapes give the source back, so the standing body keeps its form. Gives the smoothed bind, the
-    number of the seam vertices, the number of the moved vertices, and the largest move."""
+    weight of the shins, the feet, the arms, and the tail, which keep their places. With `lap`, a
+    second smoothing from the same seam, with the `rings`, `rounds`, and `share` of `lap`, reaches
+    up the belly front: its weight falls to 0 over `lap.fade` units behind the hip joints and
+    beyond `lap.side` units from the middle plane, so that the haunch on the seat and the outer
+    hips keep the first smoothing. The corrective shapes give the source back, so the standing
+    body keeps its form. Gives the smoothed bind, the number of the seam vertices, the number of
+    the moved vertices, and the largest move."""
     main = weights[tris].sum(axis=1).argmax(axis=1)
     trunk = [BONES.index(b) for b in ('hips', 'spine', 'spine1')]
     thighs = [BONES.index(f'thigh_{s}') for s in 'LR']
@@ -3382,6 +3387,14 @@ def crease_relax(bind, tris, weights, hip, rule):
     fixed += [BONES.index(b) for b in ('tail', TAIL_TIP) if b in BONES]
     free = 1.0 - np.clip(weights[:, fixed].sum(axis=1), 0.0, 1.0)
     out, moved, largest = seam_relax(bind, tris, seam, free, rule)
+    if 'lap' in rule:
+        lap = rule['lap']
+        fade = lap['fade']
+        near = (free * np.clip((bind[:, 2] - hip[2] + fade) / fade, 0.0, 1.0)
+                * np.clip((lap['side'] + fade - np.abs(bind[:, 0])) / fade, 0.0, 1.0))
+        out = seam_relax(out, tris, seam, near, lap)[0]
+        moves = np.linalg.norm(out - bind, axis=1)
+        moved, largest = int((moves > 1e-6).sum()), float(moves.max(initial=0.0))
     return out, int(seam.sum()), moved, largest
 
 
