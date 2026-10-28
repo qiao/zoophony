@@ -45,10 +45,10 @@ keeps the linear blend, because it bends further than the bind in the play.
 
 | Item | Value |
 |---|---|
-| `cat-arms.glb` | 1,181,108 bytes, SHA-256 `cc66753f5ea4cd8a0ad0227c1d564a7c49264177c3a7e58e9e113b6dab746e5f` |
-| Mesh | 2,157 vertices after a weld at 1e-5, 4,306 triangles (3,121 in the source): on each arm a tube of 16 rings of 16 vertices, joined to the shoulder socket and to the paw with Bridge Edge Loops, and a side wall of 53 (left) and 50 (right) faces under each arm |
+| `cat-arms.glb` | 1,181,196 bytes, SHA-256 `01de8939281fd334532ffa5917b043a0223d757258c08481f079de784d8c8a59` |
+| Mesh | 2,158 vertices after a weld at 1e-5, 4,311 triangles (3,121 in the source): on each arm a tube of 16 rings of 16 vertices, joined to the shoulder socket and to the paw with Bridge Edge Loops, and a side wall of 55 (left) and 50 (right) faces under each arm |
 | Material | One material with one base color JPEG of 4096 × 4608 pixels: the atlas of the source, and a strip of 512 pixels on top with the fur color of the source arms, baked onto the new faces. The side walls and the flat inner sides of the arms take one gray fur texel of the trunk beside the seam. No metallic-roughness texture |
-| `cat-weights.json` | 482,789 bytes, SHA-256 `d93edb9c70f94b6fd034dc1cd4e27efa2fcd6d90f4961b3fa3a3a3da8d651438` |
+| `cat-weights.json` | 483,017 bytes, SHA-256 `6a5735b44a71ab178e2340f56c74ae51e904f0dd9b50408953e28bd8da78d0eb` |
 | Weights | The automatic weights of Blender with the Weight Paint fixes of the session, on the studio bones and the arm segments and helpers (`armSegments` of the config), for `paintedWeights` of the config |
 | License | Derived from the mesh of the user, who holds its rights |
 
