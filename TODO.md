@@ -866,10 +866,20 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       bind paw, which the retarget took away, so the thick wrist bent 25° off its form. The bow
       paw now keeps the bind bend (`HIPPO_HOLD.pawKeepR`): swing 2, wrist edges stretch 1.3
       times (1.9 before).
-- [ ] Hippo bow paw (`2026-10-28-hippo-paw.md`): the stick runs up to 2.4 cm from the middle of
+- [x] Hippo bow paw (`2026-10-28-hippo-paw.md`): the stick runs up to 2.4 cm from the middle of
       the closed paw in the lowering (1.75 cm on the old paw). The forearm turns about 45° against
       the bow over a stroke, and the paw slides on the stick with it. A grip that turns with the
       wrist needs an own turn of the bow paw.
+      Done (`2026-10-28-hippo-grip.md`): the bow hand turns around the grip in the middle of the
+      paw, so that the forearm keeps 45° in the plane of the palm (`HIPPO_HOLD.stickTurnR`). The
+      stick stays within 0.35 cm of the middle of the paw (2.43 cm before), and the pizzicato bow
+      tip points up and forward, so the paw swing of the play is at most 5° (41.6° before).
+- [ ] Hippo stop in pizzicato (`2026-10-28-hippo-grip.md`): in the lowering after a pizzicato,
+      the path of the bow from the pluck to the rest turns the forearm up to 85° off its angle in
+      the plane of the palm. The bow then turns 85° in the paw in about 0.6 s, and the paw swings
+      up to 22° toward the palm. Give this move a path of the bow that keeps the forearm near 45°
+      (`liftMix()` and `BowVia` of `pose/bowed.ts`), and follow it with `probes/move-probe.ts` of
+      `docs/research/2026-10-28-hippo-grip/`.
 - [x] Arm replays: `fox_arms.py` and `deer_arms.py` stop with a KeyError at the belly step of
       `cat_arms.py` (2026-10-27), as `hippo_arms.py` did. Leave the step out of their steps maps,
       or skip it for an animal with no `belly` rule, and check the bytes of each replay.
