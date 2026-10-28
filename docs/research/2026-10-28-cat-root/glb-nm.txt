@@ -1,0 +1,7 @@
+edge uses 4 at x -0.117 h 0.702 z 0.204
+edge uses 4 at x -0.040 h 0.761 z 0.198
+edge uses 4 at x -0.040 h 0.773 z 0.199
+edge uses 3 at x -0.014 h 0.779 z 0.212
+edge uses 4 at x 0.038 h 0.755 z 0.197
+edge uses 4 at x 0.062 h 0.777 z 0.198
+degenerate tris 0
