@@ -48,8 +48,8 @@ keeps the linear blend, because it bends further than the bind in the play.
 | `cat-arms.glb` | 1,181,012 bytes, SHA-256 `ebb8f560b974bd009e160520adcef33d8a40164ad24de3fafc591a5a0be2940c` |
 | Mesh | 2,156 vertices after a weld at 1e-5, 4,307 triangles (3,121 in the source): on each arm a tube of 16 rings of 16 vertices, joined to the shoulder socket and to the paw with Bridge Edge Loops, and a side wall of 54 (left) and 50 (right) faces under each arm |
 | Material | One material with one base color JPEG of 4096 × 4608 pixels: the atlas of the source, and a strip of 512 pixels on top with the fur color of the source arms, baked onto the new faces. The side walls and the flat inner sides of the arms take one gray fur texel of the trunk beside the seam. No metallic-roughness texture |
-| `cat-weights.json` | 482,556 bytes, SHA-256 `45d55c1239dd824fe577f55087af17d0e2072c1a4fdb7716252133a951e7de56` |
-| Weights | The automatic weights of Blender with the Weight Paint fixes of the session, on the studio bones and the arm segments and helpers (`armSegments` of the config), for `paintedWeights` of the config |
+| `cat-weights.json` | 482,534 bytes, SHA-256 `a5fc44d1c98c1f3a555686ff0fc5f91869d02613f905320824ea1f6e7b6af389` |
+| Weights | The automatic weights of Blender with the Weight Paint fixes of the session, on the studio bones and the arm segments and helpers (`armSegments` of the config), for `paintedWeights` of the config. The arms take the automatic weights of the copy before the round side walls (`step_tube_heat()`) |
 | License | Derived from the mesh of the user, who holds its rights |
 
 ```bash
