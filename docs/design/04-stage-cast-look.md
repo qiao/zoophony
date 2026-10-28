@@ -747,7 +747,10 @@ helpers by the rules of the app.
     (`docs/decisions/2026-10-20-wolf-face.md`).
   - Tail. `tail_tip` gives a tail of two bones (`OPTIONAL_STUDIO_BONES`), and `studio.tailCurl`
     bends the seated tail: the cat curls it on the seat, and the dog hangs it down behind the seat
-    (`docs/decisions/2026-10-17-dog-tail.md`). A curled tail does not sway (5.1). The long thin tail
+    (`docs/decisions/2026-10-17-dog-tail.md`). Each tail vertex keeps its place and its offset
+    along the middle line of the source tail, and a few rounds of smoothing round the curled tube,
+    so that it keeps the round form of the source (`docs/decisions/2026-10-28-tails.md`). A curled
+    tail does not sway (5.1). The long thin tail
     of the mouse lies on the floor in a loop, so its two bones turn rigidly
     (`studio.tailBind`): the seated tail goes back from the haunch and keeps its loop flat on the
     floor behind the body, because a curve bent the loop into a sheet. The broad flat tail of the
