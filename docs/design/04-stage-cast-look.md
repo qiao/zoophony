@@ -1043,7 +1043,9 @@ lights, and `scene/solo-light.ts` the light of a solo.
   in `orchestra-latest.png` (user, 2026-10-21). On the players
   and the props, it reaches far toward the back (`LIGHT_POOL`), so the back rows keep most of the
   light, as in `orchestra-latest.png`. The stage keeps the round pool, so the floor at the back
-  stays dark.
+  stays dark. A hot spot brightens the key light around the podium. On the players and the
+  props, it holds only the podium, as a special on the conductor, because the key light from the
+  front made the white fur of the front rows clip in close shots.
 - The visible beam (`BEAM_LOOK`) is haze in a narrower cone than its rim light, because haze in
   the full cone veiled the orchestra. The beam comes from its rim light, so the light has a
   visible source: the haze cone leans from its foot toward the rim light, and its tip stands low

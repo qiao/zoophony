@@ -9,9 +9,9 @@ import type { Vec3 } from '../models/tuples.ts';
  * orchestra, and it falls off to the sides, the front corners, and the back of the stage, as in
  * `mockup.png`. On the players and the props, it reaches farther toward the back (`reachBack`),
  * because the back rows of `orchestra-latest.png`, the newest target, are almost as bright as the
- * front rows. The key light also has a hot spot on the podium. The fill light and the reflections
- * do not change. Without the pool, the side lights lit the players at the sides as brightly as the
- * players in the middle.
+ * front rows. The key light also has a hot spot around the podium, which is narrower on the
+ * players. The fill light and the reflections do not change. Without the pool, the side lights lit the players at the sides as
+ * brightly as the players in the middle.
  */
 export const LIGHT_POOL = {
   /** The center of the pool, as a part of the way from the stage center to the podium. */
@@ -46,6 +46,14 @@ export const LIGHT_POOL = {
   spotRadiusX: 0.4,
   /** The radius of the hot spot of the key light along the stage (z), in stage sides. */
   spotRadiusZ: 0.2,
+  /**
+   * The radii of the hot spot on the players and the props, as a part of its radii on the stage:
+   * a special on the conductor. The key light from the front lights the fronts of the players,
+   * and the full hot spot made the white fur of the front rows clip in close shots (15% of its
+   * pixels). With no hot spot, the back of the conductor had a luma of 24 against 52 in
+   * `orchestra-latest.png`.
+   */
+  playerSpot: 0.3,
 } as const;
 
 /** A place or a size on the stage top, as (x, z), in meters. */
@@ -160,7 +168,8 @@ type PoolSurface = 'stage' | 'players';
 /**
  * The GLSL of the pool factor and the hot spot, before the lights. `vViewPosition` holds the
  * position of the pixel in view space, so the rotation of the view matrix and the camera position
- * give its world position. `REACH_BACK` marks the line of the long reach of the players.
+ * give its world position. `REACH_BACK` marks the line of the long reach of the players, and
+ * `PLAYER_SPOT` the line of their narrow hot spot.
  */
 const POOL_GLSL = /* glsl */ `
 vec3 lightPoolWorld = ( vec4( - vViewPosition, 0.0 ) * viewMatrix ).xyz + cameraPosition;
@@ -168,6 +177,7 @@ vec2 lightPoolStep = lightPoolWorld.xz - uLightPool.xy;
 vec2 lightPoolD = lightPoolStep * uLightPool.zw;
 REACH_BACK
 vec2 lightPoolS = ( lightPoolWorld.xz - uLightPoolSpot.xy ) * uLightPoolSpot.zw;
+PLAYER_SPOT
 float lightPool = uLightPoolLevels.x + ( 1.0 - uLightPoolLevels.x ) * exp( -dot( lightPoolD, lightPoolD ) );
 float lightPoolHot = 1.0 + uLightPoolLevels.y * exp( -dot( lightPoolS, lightPoolS ) );
 `;
@@ -212,11 +222,19 @@ export function poolFactor(aim: LightAim, x: number, z: number, surface: PoolSur
  * @param aim The aim of the stage lights.
  * @param x The x of the place, in meters.
  * @param z The z of the place, in meters.
+ * @param surface The surface: the players and the props take the narrow hot spot of
+ *   {@link LIGHT_POOL}.playerSpot.
  * @returns The factor, from 1 to 1 + the boost of the aim.
  */
-export function hotSpotFactor(aim: LightAim, x: number, z: number): number {
-  const dx = (x - aim.spot[0]) / aim.spotRadius[0];
-  const dz = (z - aim.spot[1]) / aim.spotRadius[1];
+export function hotSpotFactor(
+  aim: LightAim,
+  x: number,
+  z: number,
+  surface: PoolSurface = 'stage',
+): number {
+  const scale = surface === 'players' ? LIGHT_POOL.playerSpot : 1;
+  const dx = (x - aim.spot[0]) / (aim.spotRadius[0] * scale);
+  const dz = (z - aim.spot[1]) / (aim.spotRadius[1] * scale);
   return 1 + aim.boost * Math.exp(-(dx * dx + dz * dz));
 }
 
@@ -225,8 +243,9 @@ export function hotSpotFactor(aim: LightAim, x: number, z: number): number {
  * spotlight by the pool factor at the world position of the pixel, and the light of the key light
  * also by the hot spot ({@link LIGHT_POOL}). The pool factor is 1 at the pool center, with a
  * Gaussian fall-off to the floor value. On the players and the props, the fall-off behind the
- * center has the radius `reachBack` of {@link LightAim}. The factor of the hot spot is 1 + the
- * boost at its center, with a Gaussian fall-off to 1. Call it in `onBeforeCompile`.
+ * center has the radius `reachBack` of {@link LightAim}, and the hot spot is narrower. The factor
+ * of the hot spot is 1 + the boost at its center, with a Gaussian fall-off to 1. Call it in
+ * `onBeforeCompile`.
  *
  * @param shader The shader of the material.
  * @param uniforms The uniforms of the pool.
@@ -248,7 +267,11 @@ export function addLightPool(
   shader.uniforms['uLightPoolSpot'] = uniforms.uLightPoolSpot;
   shader.uniforms['uLightPoolLevels'] = uniforms.uLightPoolLevels;
   shader.uniforms['uLightPoolBack'] = uniforms.uLightPoolBack;
-  const pool = POOL_GLSL.replace('REACH_BACK', surface === 'players' ? REACH_BACK_GLSL : '');
+  const players = surface === 'players';
+  const pool = POOL_GLSL.replace('REACH_BACK', players ? REACH_BACK_GLSL : '').replace(
+    'PLAYER_SPOT',
+    players ? `lightPoolS /= ${LIGHT_POOL.playerSpot.toFixed(4)};` : '',
+  );
   shader.fragmentShader = shader.fragmentShader
     .replace(
       '#include <common>',

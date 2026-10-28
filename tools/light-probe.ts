@@ -22,7 +22,8 @@
  * - `--tier` sets the tier of `createLights()`: `high` by default. The shader multiplies each
  *   spotlight with a shadow map by the hot spot of the key light (`SPOT_POOL_GLSL` of
  *   `src/scene/light-pool.ts`): the key light on each tier, and the side lights on the high and
- *   the medium tier. `--no-hot` leaves the hot spot out, as the first probes of 2026-10-18 did.
+ *   the medium tier. The players take a narrower hot spot (`LIGHT_POOL.playerSpot`). `--no-hot`
+ *   leaves the hot spot out, as the first probes of 2026-10-18 did.
  *
  * The math comes from the scene: `createLights()`, `defaultAim()`, `poolFactor()`,
  * `hotSpotFactor()`, and `spotIlluminance()`. The light on the face of the conductor is not in
@@ -130,7 +131,8 @@ function stageLights(layout: SceneLayout, options: ProbeLight) {
   const group = createLights(layout.stageSide, options.tier, layout.conductor, { beam: false });
   const spots = group.children.filter((child): child is SpotLight => child instanceof SpotLight);
   const aim = defaultAim(layout.stageSide, layout.conductor ? layout.podium : null);
-  const hot = (x: number, z: number): number => (options.hot ? hotSpotFactor(aim, x, z) : 1);
+  const hot = (x: number, z: number, surface: 'stage' | 'players' = 'stage'): number =>
+    options.hot ? hotSpotFactor(aim, x, z, surface) : 1;
   return { spots, aim, hot };
 }
 
@@ -152,7 +154,7 @@ export function playerLights(layout: SceneLayout, options: ProbeLight): PlayerLi
       [x, y + CHEST, z],
       front,
       poolFactor(aim, x, z, 'players'),
-      hot(x, z),
+      hot(x, z, 'players'),
     );
     return {
       row: Math.round(Math.hypot(x - px, z - pz) / ROW_STEP),

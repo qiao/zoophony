@@ -2264,6 +2264,8 @@ the mockup is out of scope.
       row gets about 1.3 times the light of the low tier, and the back row only 0.63 to 0.77 of the
       first row (`docs/research/2026-10-18-back-light.md`). A hot spot on the key light alone dims
       the front rows of the high tier.
+      2026-10-27: the players take a hot spot of 0.3 of its radii, on the podium alone, and the
+      side lights give 0.5 lux (`docs/research/2026-10-27-key-front.md`).
 - [ ] The floor at the back of the stage has a luma p50 of 52, against 39 before the back-row
       lights and 41 in `orchestra-latest.png` (`docs/research/2026-10-18-back-light.md`).
 - [ ] Measure the frame cost of the two back-row lights in the performance sweep: two more
