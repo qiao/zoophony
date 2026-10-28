@@ -875,8 +875,8 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       stick stays within 0.35 cm of the middle of the paw (2.43 cm before), and the pizzicato bow
       tip points up and forward, so the paw swing of the play is at most 5° (41.6° before).
 - [ ] Hippo stop in pizzicato (`2026-10-28-hippo-grip.md`): in the lowering after a pizzicato,
-      the path of the bow from the pluck to the rest turns the forearm up to 85° off its angle in
-      the plane of the palm. The bow then turns 85° in the paw in about 0.6 s, and the paw swings
+      the path of the bow from the pluck to the rest turns the forearm up to 79° off its angle in
+      the plane of the palm. The bow then turns 79° in the paw in about 0.6 s, and the paw swings
       up to 22° toward the palm. Give this move a path of the bow that keeps the forearm near 45°
       (`liftMix()` and `BowVia` of `pose/bowed.ts`), and follow it with `probes/move-probe.ts` of
       `docs/research/2026-10-28-hippo-grip/`.
