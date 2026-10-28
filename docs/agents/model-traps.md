@@ -396,6 +396,9 @@ group of your work before you plan it. A probe that a trap names is in its resea
   `noseTop` of `ANIMALS`.
 - The elephant trunk takes bone heat from the chest and sets the chin of the head measures. Use
   `noseFront` and `headFloor` of `ANIMALS`.
+- Whisker tips that hang below the head line take the neck weights, so a head lift bends them,
+  and thin faces fold in each sample. Give them to the head with `noseFront`, with a plane in
+  front of the belly, and keep `H` with `headFloor` (`docs/research/2026-10-27-cat3.md`).
 - Ears at the height of the skull top and antlers above it fall in the height rule of `earBase`.
   Keep both on the head, and leave the antlers out of the head measures (`headCeiling` of
   `ANIMALS`), else H and the pea eyes grow with the antlers.
