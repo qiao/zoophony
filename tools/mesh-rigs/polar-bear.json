@@ -490,7 +490,7 @@
     "front": -0.017,
     "back": -0.2,
     "backHeight": 0.01,
-    "note": "The seat is the piano bench of the pianist (prop): it is level, and its top is the lowest point of the seated body over the seat, with no shin, foot, or tail. The front edge lies under the hip joints, where the thighs leave the haunch, and the back edge at the back of the haunch. The half width holds the haunch (x \u00b10.23). The bench of the app fits the body: it holds the haunch, and its front edge lies under the level thighs (benchFitOf() of tools/studio-body.ts, StudioBody.benchDepth)."
+    "note": "The seat is the piano bench of the pianist (prop): it is level, and its top is the lowest point of the seated body over the seat, with no shin, foot, or tail. The front edge lies under the hip joints, where the thighs leave the haunch, and the back edge at the back of the haunch. The half width holds the haunch (x \u00b10.23). The bench of the app fits the body: it holds the haunch, and its front edge lies under the thighs (benchFitOf() of tools/studio-body.ts, StudioBody.benchDepth)."
   },
   "crease": {
     "rings": 2,
