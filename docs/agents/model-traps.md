@@ -182,6 +182,11 @@ group of your work before you plan it. A probe that a trap names is in its resea
 - The grip place along the stick moves the wrist and twists the upper arm. Scan the place with the
   folds (`grip-cands.ts` and `fold-scan.ts` of `docs/research/2026-10-17-grip-all/`), and move each
   rest grip by the move of the hand on the bow.
+- The retarget turns the paw toward its forearm, so the paw slides on the stick when the forearm
+  turns against the bow over a stroke (about 45° on the hippo). Turn the hand around a grip in the
+  middle of the paw (`BowedHold.stickTurnR`), and read the gap and the stick angle in each sample
+  and in a stop in pizzicato with `probes/grip-probe.ts` and `probes/move-probe.ts` of
+  `docs/research/2026-10-28-hippo-grip/`.
 - On a mesh with a long wrist, such as the red fox, the wrist skin moves the middle of the paw, most
   in pizzicato. Read the gap of each sample in order (`gap-seq.ts`), and turn the bow of that moment
   (`pizzicatoTip`).
