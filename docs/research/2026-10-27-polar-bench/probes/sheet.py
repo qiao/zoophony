@@ -17,6 +17,10 @@ root, ref_path, out = sys.argv[1], sys.argv[2], sys.argv[3]
 os.makedirs(out, exist_ok=True)
 VARIANTS = [('main', 'v38', True), ('bench 0.30 m', 'v30', False), ('bench 0.34 m', 'v34', False),
             ('bench 0.38 m', 'v38', False)]
+if os.environ.get('VARIANTS'):
+    # name:folder:base, separated by commas, such as main:final:1,round:final:0.
+    VARIANTS = [(n, f, b == '1') for n, f, b in
+                (v.split(':') for v in os.environ['VARIANTS'].split(','))]
 STAGE = [('left', 'at-polar-bear-az-90'), ('back', 'at-polar-bear-az180'),
          ('image 47 angle', 'at-polar-bear-az-80')]
 ROLE = [('front', 'role-front', 'front'), ('front 35', 'role', 'az35')]

@@ -1,0 +1,41 @@
+base main, new: the working tree
+bodies equal: 90 of 95
+players equal: 22 of 23
+pose sets equal: 1427 of 1492
+body polar-bear chair: mesh differs (positions, colors, correctives, normals), joints differ
+body polar-bear stool: mesh differs (positions, colors, correctives, normals), joints differ
+body polar-bear high-stool: mesh differs (positions, colors, correctives, normals), joints differ
+body polar-bear bench: mesh differs (positions, colors, correctives, normals), joints differ
+body polar-bear stand: mesh differs (positions, colors, correctives, normals), joints differ
+player piano/polar-bear/piano: mesh differs (positions, colors, correctives, normals), moved bones: hips spine chest neck head jaw eyeL eyeR earL earR tail1 tail2 trunk1 trunk2 trunk3 shoulderL upperArmL forearmL handL fingersL shoulderR upperArmR forearmR handR fingersR thighL shinL footL thighR shinR footR instrument bow malletL malletR baton slide
+pose bach-bwv1047 14 viola/cat/viola: play from sample 30 of 560 (song 12.40 s, wall 24.50 s)
+pose bach-bwv1047 17 cello/dog/cello: play from sample 25 of 560 (song 9.90 s, wall 22.00 s)
+pose bach-bwv1047 18 piano/polar-bear/piano: rest from sample 1 of 4 (song -2.10 s, wall 10.00 s), lift from sample 1 of 40 (song -2.10 s, wall 10.00 s), play from sample 1 of 560 (song -2.10 s, wall 10.00 s), lower from sample 1 of 58 (song 138.75 s, wall 10.00 s)
+pose bach-bwv1047 conductor/bear/baton: lift from sample 9 of 40 (song -1.30 s, wall 10.80 s), play from sample 3 of 560 (song -1.10 s, wall 11.00 s)
+pose bach-bwv1048 18 contrabass/hippo/contrabass: rest from sample 2 of 4 (song -1.50 s, wall 11.00 s), lift from sample 11 of 40 (song -0.50 s, wall 11.00 s), play from sample 3 of 658 (song -0.50 s, wall 11.00 s), lower from sample 3 of 58 (song 163.65 s, wall 11.00 s)
+pose bach-bwv1048 19 contrabass/hippo/contrabass: play from sample 66 of 658 (song 31.00 s, wall 42.50 s)
+pose bach-bwv1048 20 piano/polar-bear/piano: rest from sample 1 of 4 (song -1.50 s, wall 10.00 s), lift from sample 1 of 40 (song -1.50 s, wall 10.00 s), play from sample 1 of 658 (song -1.50 s, wall 10.00 s), lower from sample 1 of 58 (song 163.65 s, wall 10.00 s)
+pose bach-bwv1048 conductor/bear/baton: lift from sample 8 of 40 (song -0.80 s, wall 10.70 s), play from sample 3 of 658 (song -0.50 s, wall 11.00 s)
+pose bach-bwv1050 14 contrabass/hippo/contrabass: play from sample 30 of 624 (song 12.80 s, wall 24.50 s)
+pose bach-bwv1050 15 contrabass/hippo/contrabass: rest from sample 1 of 4 (song -1.70 s, wall 10.00 s), lift from sample 1 of 40 (song -1.70 s, wall 10.00 s), play from sample 1 of 624 (song -1.70 s, wall 10.00 s), lower from sample 1 of 58 (song 155.00 s, wall 10.00 s)
+pose bach-bwv1050 16 piano/polar-bear/piano: rest from sample 1 of 4 (song -1.70 s, wall 10.00 s), lift from sample 1 of 40 (song -1.70 s, wall 10.00 s), play from sample 1 of 624 (song -1.70 s, wall 10.00 s), lower from sample 1 of 58 (song 155.00 s, wall 10.00 s)
+pose bach-bwv1050 conductor/bear/baton: play from sample 7 of 624 (song 1.30 s, wall 13.00 s)
+pose boulanger-matin 2 violin/rabbit/violin: play from sample 21 of 565 (song 8.38 s, wall 20.00 s)
+pose boulanger-matin 3 violin/rabbit/violin: lift from sample 37 of 40 (song 0.00 s, wall 13.60 s), play from sample 9 of 565 (song 2.38 s, wall 14.00 s), lower from sample 13 of 58 (song 140.33 s, wall 13.60 s)
+pose boulanger-matin 6 violin/fox-red/violin: play from sample 27 of 565 (song 11.38 s, wall 23.00 s)
+pose boulanger-matin 7 violin/fox-red/violin: play from sample 11 of 565 (song 3.38 s, wall 15.00 s), lower from sample 23 of 58 (song 140.33 s, wall 14.60 s)
+pose boulanger-matin 14 contrabass/hippo/contrabass: play from sample 30 of 565 (song 12.88 s, wall 24.50 s)
+pose boulanger-matin 15 contrabass/hippo/contrabass: rest from sample 1 of 4 (song -1.62 s, wall 10.00 s), lift from sample 1 of 40 (song -1.62 s, wall 10.00 s), play from sample 1 of 565 (song -1.62 s, wall 10.00 s), lower from sample 1 of 58 (song 140.33 s, wall 10.00 s)
+pose boulanger-matin 16 harp/deer/harp: play from sample 12 of 565 (song 3.88 s, wall 15.50 s)
+pose boulanger-matin 17 piano/polar-bear/piano: rest from sample 1 of 4 (song -1.62 s, wall 10.00 s), lift from sample 1 of 40 (song -1.62 s, wall 10.00 s), play from sample 1 of 565 (song -1.62 s, wall 10.00 s), lower from sample 1 of 58 (song 140.33 s, wall 10.00 s)
+pose boulanger-matin 18 flute/fox-tan/flute: rest from sample 2 of 4 (song -1.62 s, wall 11.00 s)
+pose boulanger-matin 23 oboe/mouse/oboe: rest from sample 1 of 4 (song -1.62 s, wall 10.00 s), lift from sample 1 of 40 (song -1.62 s, wall 10.00 s)
+pose boulanger-matin 24 clarinet/wolf/clarinet: rest from sample 3 of 4 (song -1.62 s, wall 12.00 s), lower from sample 9 of 58 (song 140.33 s, wall 13.20 s)
+pose boulanger-matin 25 clarinet/wolf/clarinet: lower from sample 13 of 58 (song 140.33 s, wall 13.60 s)
+pose boulanger-matin 27 bassoon/beaver/bassoon: lower from sample 22 of 58 (song 140.33 s, wall 14.50 s)
+pose boulanger-matin 28 bassoon/beaver/bassoon: lower from sample 18 of 58 (song 140.33 s, wall 14.10 s)
+pose boulanger-matin 32 horn/pig/horn: rest from sample 2 of 4 (song -1.62 s, wall 11.00 s), lift from sample 6 of 40 (song -1.12 s, wall 10.50 s)
+pose boulanger-matin 34 trumpet/monkey/trumpet: rest from sample 3 of 4 (song -1.62 s, wall 12.00 s), lower from sample 10 of 58 (song 140.33 s, wall 13.30 s)
+pose boulanger-matin 40 percussion/badger/cymbals: play from sample 20 of 565 (song 7.88 s, wall 19.50 s)
+pose boulanger-matin 41 percussion/badger/small-percussion: lift from sample 39 of 40 (song 0.00 s, wall 13.80 s), play from sample 9 of 565 (song 2.38 s, wall 14.00 s), lower from sample 15 of 58 (song 140.33 s, wall 13.80 s)
+pose boulanger-matin conductor/bear/baton: lift from sample 8 of 40 (song -0.92 s, wall 10.70 s), play from sample 3 of 565 (song -0.62 s, wall 11.00 s), lower from sample 30 of 58 (song 280.67 s, wall 10.00 s)

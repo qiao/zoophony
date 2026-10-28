@@ -1,0 +1,51 @@
+# pnpm rig-mesh polar-bear --check (the rig lines and the tables)
+rig_mesh: arm L: reach 0.4635 m before, 0.4635 m after the factor 1 (target 0.46347 m)
+rig_mesh: arm R: reach 0.4635 m before, 0.4635 m after the factor 1 (target 0.46347 m)
+rig_mesh: shins: the shin factor 3.208 makes the shins longer than the thighs (leg factor 1.6)
+rig_mesh: legs and head: the leg factor 1.6 raises the body 0.2657 u, the shoulder joint to 0.9907 u (1.4255 m), and the head factor 1 grows the head around the neck joint
+rig_mesh: trunk: the pelvis turns 1.23 degrees back, so that the hip angle opens 1 degrees, from 92.9 to 93.9 degrees. The shares of the turn: {'hips': 1, 'spine': 1, 'spine1': 0.75, 'chest': 0.5, 'neck': 0.25, 'head': 0}. The head turns 0.00 degrees
+rig_mesh: colors: 148 of 5106 faces (2.9%) are dark outside the eye and nose boxes, with the dark limit 0.0074
+rig_mesh: seat: before the sit, the lowest point of the haunch behind the hips joint is 0.01 cm below the seat top 0.4642 u
+rig_mesh: sit: 117 vertices of the haunch move down, at most 0.1954 u (28.12 cm). The side view of the underside behind the hip joints is at most 18.72 cm above the seat before and 0.00 cm after. 47 faces turn over, on the bones hips 34, spine 4, tail 7, thigh_L 2
+rig_mesh: trunk: 126 vertices of the haunch and the tail rise toward the seat top 0.4642 u of the upright body, at most 0.0046 u (0.66 cm). The lowest point over the seat is 0.4634 u. After 60 rounds of relaxing, 3 faces turn over, on the bones hips 3
+rig_mesh: crease: 31 seam vertices, 186 vertices move, at most 0.0591 u (8.50 cm). 0 faces turn over
+rig_mesh: knee crease: 32 seam vertices, 432 vertices move, at most 0.0509 u (7.32 cm). 0 faces turn over
+rig_mesh: seat: the side view of the underside of the final bind behind the hip joints is at most 7.51 cm above the seat top
+rig_mesh: chair: the tail goes 0.0379 u over the seat top at its lowest point over the seat
+rig_mesh: chair: front edge at z -0.017 u, the shins and the feet from z 0.1317 u
+rig_mesh: chair: seat top 0.4634 u, lowest point of the body 0.1976 u
+Scale 1.438901 m for each unit. Head height H 0.295 m. Seat height 0.382 m, 0.382 m with no seat of ANIMALS (the seat of the legs). Chair depth none.
+| Set | Samples | With a fold | Share | Most faces (by the side of the main bone) | Worst sample |
+|---|---:|---:|---:|---:|---|
+| rest | 4 | 4 | 100.0% | 34 (L 19 / R 15 / other 0) | bach-bwv1047.mid rest |
+| play | 4812 | 4812 | 100.0% | 34 (L 17 / R 17 / other 0) | bach-bwv1047.mid -0.10 s |
+| lift | 124 | 124 | 100.0% | 34 (L 19 / R 15 / other 0) | bach-bwv1047.mid wall 0.0 s |
+| all | 4940 | 4940 | 100.0% | 34 (L 19 / R 15 / other 0) | bach-bwv1047.mid rest |
+| Variant | Triangles | Mesh gzip B | Scale m/u | Seat m | Leg seat m | Chair m | Reach L m | Reach R m | Standing mm | pianist play | pianist lift | pianist rest | pianist bones |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| base | 5106 | 32573 | 1.4389 | 0.382 | 0.382 | none | 0.463 | 0.463 | 0.257 | 100.0% | 100.0% | 100.0% | clavicle_L 48214, clavicle_R 18755, upper_arm_seg0_R 10679 |
+| Variant | Player | Seat m | Visible head m | Standing head top m | Seated head top m | Footprint m |
+|---|---|---|---|---|---|---|
+| main | polar-bear piano | 0.230 | 0.353 | 1.546 | 1.546 | 1.637 by 3.137 |
+| base | polar-bear piano | 0.382 (+0.153) | 0.311 (-0.042) | 1.536 (-0.009) | 1.536 (-0.009) | 1.637 (+0.000) by 3.019 (-0.118) |
+| Variant | Player | Head center m | Head height m | Nose m | Instrument box m |
+|---|---|---|---|---|---|
+| main | polar-bear piano | (0.000, 1.378, -0.257) | 0.336 | (0.005, 1.393, -0.481) | (-0.825, 0.000, -2.962) to (0.812, 2.052, -0.642) |
+| base | polar-bear piano | (0.000, 1.389, -0.138) (119.8 mm MOVED) | 0.295 (-40.2 mm MOVED) | (0.005, 1.402, -0.335) (146.4 mm MOVED) | (-0.825, 0.000, -2.844) to (0.812, 2.052, -0.524) (118.1 mm MOVED) |
+| Demo | main m | base |
+|---|---|---|
+| bach-bwv1047.mid | 10.585 | 10.565 (-0.2%) |
+| bach-bwv1048.mid | 10.497 | 10.497 (+0.0%) |
+| bach-bwv1050.mid | 9.276 | 9.236 (-0.4%) |
+| beethoven-1.mid | 9.904 | 9.904 (+0.0%) |
+| beethoven-8-4.mid | 10.323 | 10.323 (+0.0%) |
+| beethoven-8.mid | 9.779 | 9.779 (+0.0%) |
+| beethoven-9.mid | 12.520 | 12.520 (+0.0%) |
+| boulanger-matin.mid | 11.464 | 11.404 (-0.5%) |
+| brahms-2.mid | 11.173 | 11.173 (+0.0%) |
+| mendelssohn-op61.mid | 9.920 | 9.920 (+0.0%) |
+| mozart-k191.mid | 8.488 | 8.488 (+0.0%) |
+| mozart-k315.mid | 8.946 | 8.946 (+0.0%) |
+| mozart-k417.mid | 8.325 | 8.325 (+0.0%) |
+| mozart-k525.mid | 6.787 | 6.787 (+0.0%) |
+| Largest change | | -0.5% boulanger-matin.mid |
