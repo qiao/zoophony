@@ -715,11 +715,26 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       before. Done: level thighs, vertical shins 3.208 times as long as on the mesh, flat feet,
       a bench that holds the whole haunch in the form of the reference bench, and a hold that
       brings the elbows to about 6 cm above the keys with each note target within 5 mm.
-- [ ] Polar bear (`2026-10-27-polar-bench.md`): the lean of the high bench puts the head top at
-      1.45 m in the play (1.50 m with the hold before), and the elbows that point down put the
-      upper arms 10.3 cm into the trunk at the worst sample (8.2 cm before) and the forearms
-      8.8 cm into the belly (limit 9 cm). Next: read the arm roots at 2x at that sample
-      (boulanger-matin 108.13 s), and ask the user about the head top if it reads small.
+- [x] Polar bear (`2026-10-27-polar-bench.md`): the lean of the high bench put the head top at
+      1.45 m in the play, and the upper arms 10.3 cm and the forearms 8.8 cm into the trunk.
+      Done: the low bench and the lean of 6° put them 6.8 cm and 6.3 cm into the trunk
+      (`2026-10-28-polar-legs.md`).
+- [x] Polar bear (`2026-10-28-polar-legs.md`): the user said: "the polar bear's leg is too long,
+      making it like a human instead of polar bear". Done: the thighs and the shins are 1.2 times
+      as long as on the mesh, the thighs slope 10° down on a bench of 0.166 m, the piano is 1.03
+      times a real piano with the keys at 0.72 m, and the elbows stand 4 to 6 cm above the keys
+      with level forearms. The arm gate passes, and each note target is within 5 mm.
+- [ ] Polar bear (`2026-10-28-polar-legs.md`): the bear sits lower: the head top is 1.31 m in the
+      play (1.46 m before), and in the default view of `bach-bwv1050` the red fox violinists hide
+      more of it. Next: ask the user if the bear reads too small at the piano.
+- [ ] Polar bear (`2026-10-28-polar-legs.md`): the smaller piano moves rows of the four demos with
+      a piano, violins up to 1.40 m in `bach-bwv1050` and 0.99 m in `boulanger-matin`. The rows
+      keep their gaps. Next: ask the user about the new rows, or give the piano shorter legs at
+      the scale 1.16, which keeps the layout.
+- [ ] Polar bear (`2026-10-28-polar-legs.md`): with the wrists 0.2 H up in the lift, the paws go
+      1.0 cm and the forearms up to 1.5 cm into the front of the case in the lift and the
+      lowering (limit 1.5 cm, 0 cm before). In the bind, 3 faces of the left shin and thigh turn
+      over after the groin crease (0 before).
 - [ ] Polar bear wrist (user, 2026-10-27): "there's a crease around the bear's wrist". No face
       at the wrist folds on `main` or after the bench round, so the crease is shading or form.
       The baseline of the next round is in section 7 of `2026-10-27-polar-bench.md`.
