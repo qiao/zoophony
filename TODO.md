@@ -2305,6 +2305,10 @@ the mockup is out of scope.
 - [ ] Give `pnpm close-views play` a `--look <JSON>` option that starts its own dev server, as
       `look-variants` does (retro of the key light round, 2026-10-27). A variant sheet at any
       camera then needs no dev server and no URL script made by hand.
+- [ ] Give `pnpm look-variants` a `--shots <subjects>` option that renders the close shot of each
+      variant on its own dev server and prints the clip measure of `clip.py` (retro of the round
+      `sixth-key-look`, 2026-10-27). That round used `shot-variants.sh` of
+      `docs/research/2026-10-27-key-look/`, made by hand, for six runs.
 - [ ] Find the reads of the look roots at the load of a module with a saved check. Today
       `LOAD_TIME_PATHS` of `scene/look-values.ts` lists them by hand, so a new read at load gives
       an override with no effect and no error (`docs/decisions/2026-10-18-look-tools.md`).
