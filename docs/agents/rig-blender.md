@@ -62,9 +62,9 @@ Three causes add up. Fix all three, because each fix alone leaves a fault.
 3. Cut each arm: Bisect at the shoulder line, where the arm is free of the trunk, and at the
    wrist. Delete the faces between the cuts.
 4. Build a quad tube of 15 rings of 16 vertices: 5 on the upper arm, 3 at the elbow, 8 on the
-   forearm, and 2 at the wrist. The cut loop of the paw is the third wrist ring. Each ring stands
-   at a right angle to its bone. The rings of a joint stand about 1.5 cm apart on a thin arm, and
-   about 3 cm on a thick arm.
+   forearm, and 2 at the wrist. The cut loop of the paw, parallel to the last ring, is the third
+   wrist ring. Each ring stands at a right angle to its bone. The rings of a joint stand about
+   1.5 cm apart on a thin arm, and about 3 cm on a thick arm.
 5. Shrinkwrap the tube onto a hidden copy of the old arm, then apply it. Join the tube to the
    trunk and to the paw with Bridge Edge Loops.
 6. Give the new faces a UV layout, and bake the fur color of the old arm onto them (Cycles,
@@ -197,6 +197,11 @@ interface StudioArmSegments {
   units out of the tube, so a flatten before it gave the bear black texels under each armpit
   (`STEPS` of `tools/blender/bear_arms.py`). Count the black faces with `dark_faces.py` of
   `docs/research/2026-10-26-fifth-bears/`.
+- **The wrist band.** A wrist cut at a right angle to the paw leaves the band thin on the inner
+  side of the paw turn, also for a turn of 14°: the polar bear band was 2 mm wide on the palm
+  side, with 46 faces below 12°, and its sharp edges split the normals of the bind into a crease
+  around the wrist. Cut parallel to the last ring, collapse the thin faces, smooth the band, snap
+  it back onto the arm, and give it `rootNormals.wrist` (`tools/blender/polar_bear_arms.py`).
 - **The kept colors.** Blender weights can put the top of a paw on the `fingers` bone, so a tone
   rule that keeps the colors of the fingers (`colors.tone.keep`) shows the raw texture there.
 - **An arm joined to the trunk.** When the upper arm joins the trunk down to the elbow, cut along
