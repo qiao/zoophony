@@ -1,0 +1,26 @@
+
+> zoophony@0.0.0 size /Users/xueqiaoxu/proj/zoophony/.claude/worktrees/sixth-cat-arm
+> node tools/size.ts --base main
+
+First download after gzip (design 7.2):
+     2,986 B  dist/index.html
+    50,837 B  dist/assets/index-BC74snIf.js
+     5,637 B  dist/assets/index-UjuH_JDs.css
+       392 B  dist/assets/modulepreload-polyfill-P2Xu9kJm.js
+       978 B  dist/assets/preload-helper-CmwdZ4On.js
+       136 B  dist/assets/fetch-ok-CaAbW7On.js
+   720,951 B  dist/assets/renderer-BKqdsLIn.js
+       250 B  dist/assets/drum-map--rjToQku.js
+     6,238 B  dist/assets/layout-scene-DWTuN5uz.js
+     7,143 B  dist/assets/score-CkWITP8q.js
+       258 B  dist/assets/synth-C2pyjh8y.js
+       933 B  dist/assets/soundfont-info-C6WyTrmI.js
+     1,220 B  dist/assets/demos-K8bpQi2S.js
+     4,417 B  dist/assets/OrbitControls-CG-v8-uf.js
+    30,097 B  dist/demos/boulanger-matin.mid
+   832,473 B  total
+ 1,000,000 B  limit: pass
+Base main (9e11ffa3), built in a temporary folder:
+   832,129 B  total of the base
+   832,473 B  total of the working tree
+      +344 B  difference

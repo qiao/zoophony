@@ -1,0 +1,7 @@
+# The left arm rings with no bind paw supination (studio.bindSupination.L=0), against main.
+state                                        u0.50  u0.60  u0.70  u0.80  u0.85  e0.50  f0.25  f0.35  f0.50  f0.65  f0.80  f0.95   min ratio
+copy.txt                                      4.88   5.05   5.21   5.31   5.33   5.23   5.20   5.24   4.97   4.60   4.17   3.85   1.00 f0.25
+base/bind.txt                                 4.93   5.18   5.21   4.95   4.79   4.49   4.37   4.53   4.50   4.25   3.78   3.67   0.84 f0.25
+bind-sup0.txt                                 4.93   5.18   5.22   5.01   4.88   4.79   4.82   5.00   4.92   4.64   4.07   3.83   0.92 u0.85
+base/boulanger-matin-play-30.txt              4.65   5.07   5.16   4.87   4.73   4.40   4.24   4.37   4.33   4.15   3.50   3.64   0.82 f0.25
+play30-sup0.txt                               4.65   5.08   5.13   4.93   4.75   4.73   4.23   4.34   4.25   4.02   3.43   3.56   0.81 f0.25

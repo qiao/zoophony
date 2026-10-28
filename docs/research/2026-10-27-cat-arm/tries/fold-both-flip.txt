@@ -1,0 +1,54 @@
+
+> zoophony@0.0.0 fold-probe /Users/xueqiaoxu/proj/zoophony/.claude/worktrees/sixth-cat-arm
+> node tools/fold-probe.ts violist --base main --faces 40
+
+Folded faces of the studio body of the violist on main (9e11ffa3) and on the working tree: 75.4 s.
+
+| Set | main (9e11ffa3) | Working tree |
+|---|---:|---:|
+| rest | 100.0% (14/14), most 7 (L 2 / R 1 / other 4) | 100.0% (14/14), most 7 (L 2 / R 1 / other 4) |
+| play | 100.0% (17788/17788), most 25 (L 0 / R 7 / other 18) | 100.0% (17788/17788), most 25 (L 0 / R 7 / other 18) |
+| lift | 100.0% (434/434), most 20 (L 0 / R 6 / other 14) | 100.0% (434/434), most 20 (L 0 / R 6 / other 14) |
+
+The faces of main (9e11ffa3) and of the working tree have other corners, so the faces pair one to one by the nearest middles within 0.01 m.
+
+| Face (tree) | Face (main (9e11ffa3)) | main (9e11ffa3): rest / play / lift | Working tree: rest / play / lift | Mark | Main bone | Worst sample, angle, bone of the fold |
+|---:|---:|---|---|---|---|---|
+| 3622 | 3619 | 100.0% / 100.0% / 98.4% | 100.0% / 100.0% / 98.4% |  | spine1 | bach-bwv1050.mid 176.80 s, 180°, turn of clavicle_L 7° |
+| 780 | 780 | 0.0% / 100.0% / 86.9% | 0.0% / 100.0% / 86.9% |  | spine1 | beethoven-9.mid 128.59 s, 169°, turn of clavicle_R 169° |
+| 783 | 783 | 0.0% / 100.0% / 86.9% | 0.0% / 100.0% / 86.9% |  | spine1 | brahms-2.mid 99.13 s, 151°, turn of clavicle_R 157° |
+| 2609 | 2594 | 0.0% / 100.0% / 82.5% | 0.0% / 100.0% / 82.5% |  | spine1 | mozart-k315.mid 147.15 s, 120°, turn of clavicle_L 84° |
+| 831 | 831 | 0.0% / 100.0% / 80.4% | 0.0% / 100.0% / 80.4% |  | clavicle_R | bach-bwv1047.mid wall 0.7 s, 167°, turn of clavicle_R 163° |
+| 1440 | 1440 | 0.0% / 100.0% / 80.4% | 0.0% / 100.0% / 80.4% |  | spine1 | brahms-2.mid 13.38 s, 117°, turn of clavicle_L 78° |
+| 2610 | 2595 | 0.0% / 100.0% / 80.4% | 0.0% / 100.0% / 80.4% |  | spine1 | mozart-k315.mid 24.15 s, 116°, turn of clavicle_L 79° |
+| 830 | 830 | 0.0% / 100.0% / 77.2% | 0.0% / 100.0% / 77.2% |  | neck | beethoven-8-4.mid 591.34 s, 152°, turn of clavicle_R 130° |
+| 690 | 689 | 0.0% / 100.0% / 74.0% | 0.0% / 100.0% / 74.0% |  | spine1 | brahms-2.mid 204.88 s, 129°, turn of upper_arm_R 22° |
+| 691 | 690 | 0.0% / 100.0% / 74.0% | 0.0% / 100.0% / 74.0% |  | spine1 | brahms-2.mid 130.38 s, 135°, turn of upper_arm_seg1_R 15° |
+| 728 | 729 | 0.0% / 92.7% / 53.5% | 0.0% / 92.7% / 53.5% |  | spine1 | boulanger-matin.mid 177.38 s, 139°, turn of upper_arm_seg2_R 15° |
+| 689 | 688 | 0.0% / 91.5% / 47.5% | 0.0% / 91.5% / 47.5% |  | chest | mozart-k417.mid 67.70 s, 131°, turn of clavicle_R 36° |
+| 2060 | 2060 | 100.0% / 83.9% / 69.8% | 100.0% / 83.9% / 69.8% |  | spine1 | boulanger-matin.mid 277.88 s, 113°, turn of upper_arm_L 17° |
+| 832 | 832 | 0.0% / 82.2% / 15.4% | 0.0% / 82.2% / 15.4% |  | clavicle_R | brahms-2.mid 412.38 s, 96°, turn of clavicle_R 56° |
+| 692 | 691 | 0.0% / 74.4% / 74.2% | 0.0% / 74.4% / 74.2% |  | spine1 | beethoven-8-4.mid 238.84 s, 115°, turn of upper_arm_seg2_R 6° |
+| 663 | 661 | 0.0% / 57.0% / 74.0% | 0.0% / 57.0% / 74.0% |  | upper_arm_seg2_R | beethoven-8.mid 138.15 s, 162°, turn of upper_arm_seg2_R 6° |
+| 727 | 728 | 0.0% / 55.4% / 0.0% | 0.0% / 55.4% / 0.0% |  | spine1 | bach-bwv1047.mid 125.15 s, 166°, turn of clavicle_R 18° |
+| 700 | 699 | 0.0% / 47.0% / 74.2% | 0.0% / 47.0% / 74.2% |  | spine1 | beethoven-8.mid 138.15 s, 158°, turn of upper_arm_seg2_R 9° |
+| 718 | 719 | 0.0% / 22.2% / 61.5% | 0.0% / 22.2% / 61.5% |  | clavicle_R | beethoven-8-4.mid 534.34 s, 168°, turn of upper_arm_R 159° |
+| 713 | 714 | 0.0% / 21.7% / 62.4% | 0.0% / 21.7% / 62.4% |  | clavicle_R | beethoven-8.mid 138.15 s, 100°, turn of clavicle_R 107° |
+| 719 | 720 | 0.0% / 15.5% / 37.3% | 0.0% / 15.5% / 37.3% |  | clavicle_R | beethoven-8-4.mid 534.59 s, 163°, turn of upper_arm_R 167° |
+| 687 | 686 | 0.0% / 10.3% / 0.0% | 0.0% / 10.3% / 0.0% |  | upper_arm_R | mozart-k417.mid 127.70 s, 123°, turn of upper_arm_R 51° |
+| 764 | 705 | 0.0% / 5.8% / 12.2% | 0.0% / 5.8% / 12.2% |  | spine1 | beethoven-8.mid 138.15 s, 111°, turn of upper_arm_seg2_R 11° |
+| 488 | - | 0.0% / 0.0% / 0.0% | 0.0% / 3.5% / 0.7% | new | forearm_seg0_R | bach-bwv1047.mid 164.15 s, 93°, turn of forearm_seg2_R 30° |
+| 702 | 701 | 0.0% / 3.4% / 0.0% | 0.0% / 3.4% / 0.0% |  | spine1 | brahms-2.mid 130.38 s, 145°, turn of upper_arm_seg1_R 21° |
+| 703 | 702 | 0.0% / 2.5% / 0.0% | 0.0% / 2.5% / 0.0% |  | spine1 | brahms-2.mid 130.38 s, 124°, turn of upper_arm_seg2_R 6° |
+| 695 | 694 | 0.0% / 2.3% / 0.0% | 0.0% / 2.3% / 0.0% |  | spine1 | beethoven-8.mid 138.15 s, 97°, turn of upper_arm_seg2_R 6° |
+| 717 | 718 | 0.0% / 0.9% / 0.0% | 0.0% / 0.9% / 0.0% |  | clavicle_R | brahms-2.mid 130.38 s, 107°, turn of upper_arm_R 119° |
+| 2048 | 2048 | 100.0% / 0.1% / 13.6% | 100.0% / 0.1% / 13.6% |  | chest | beethoven-8.mid wall 0.2 s, 177°, turn of upper_arm_L 74° |
+| 765 | 765 | 0.0% / 0.5% / 0.0% | 0.0% / 0.5% / 0.0% |  | spine1 | beethoven-8.mid 138.15 s, 96°, turn of upper_arm_seg2_R 2° |
+| 2046 | 2046 | 100.0% / 0.0% / 10.4% | 100.0% / 0.0% / 10.4% |  | upper_arm_seg2_L | bach-bwv1047.mid rest, 173°, turn of upper_arm_L 132° |
+| 2047 | 2047 | 100.0% / 0.0% / 10.4% | 100.0% / 0.0% / 10.4% |  | chest | bach-bwv1048.mid wall 0.3 s, 173°, turn of upper_arm_L 168° |
+| 656 | 654 | 100.0% / 0.0% / 7.1% | 100.0% / 0.0% / 7.1% |  | upper_arm_seg2_R | bach-bwv1047.mid wall 0.1 s, 110°, turn of upper_arm_R 61° |
+| 4015 | 4004 | 100.0% / 0.0% / 6.9% | 100.0% / 0.0% / 7.1% |  | fingers_L | bach-bwv1047.mid wall 0.1 s, 103°, turn of fingers_L 34° |
+| 2061 | 2061 | 0.0% / 0.0% / 2.5% | 0.0% / 0.0% / 2.5% |  | spine1 | brahms-2.mid wall 0.5 s, 96°, turn of upper_arm_seg1_L 9° |
+| 721 | 722 | 0.0% / 0.0% / 0.0% | 0.0% / 0.0% / 0.0% |  | clavicle_R | beethoven-8-4.mid 534.34 s, 92°, turn of upper_arm_R 78° |
+| 1984 | 1984 | 0.0% / 0.0% / 0.5% | 0.0% / 0.0% / 0.5% |  | clavicle_L | brahms-2.mid wall 0.5 s, 102°, turn of upper_arm_L 98° |
+| 1985 | 1985 | 0.0% / 0.0% / 0.2% | 0.0% / 0.0% / 0.2% |  | clavicle_L | brahms-2.mid wall 0.5 s, 92°, turn of upper_arm_L 81° |
