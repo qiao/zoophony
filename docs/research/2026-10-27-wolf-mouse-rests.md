@@ -47,7 +47,7 @@ place that passes. `probes/wolf-rest.ts` measures it (`wolf-rest-round.txt`,
 | Tilt from the vertical (forward, side) | 31° (30°, -10°) | 0° (0°, 0°) |
 | Bell (x, height above the seat, in front of the seat), cm | 9.4, 2.9, 6.5 | 4.2, 5.7, 22.0 |
 | Grasp of each paw in each set (`pnpm wind-grip`, `wolf-wind-grip.txt`) | 100% | 100% |
-| Deepest part at rest (`pnpm hold-fit --base main`, `wolf-hold-fit.txt`) | forearms 1.1 cm | claws in the clarinet 0.7 cm, no `GROWS` |
+| Arms in the body at rest (`pnpm hold-fit --base main`, `wolf-hold-fit.txt`) | forearms 1.1 cm, upper arms 0.6 cm | forearms 0.5 cm, upper arms 0.5 cm, no `GROWS` |
 | Net turn of the clarinet in the left / right paw over a move | 29° / 11° | 26° / 1° |
 | Tilt of the clarinet axis in the left / right paw over a move | 8° / 11° | 14° / 3° |
 
@@ -126,18 +126,23 @@ boulanger-matin --base main` gives the values of `main` (`clip-probe.txt`).
 
 ## 8. The images
 
-`main` is above the round in each sheet.
+`main` is above the round in each sheet. `<view>` is front, back, left, right, az-35, az35,
+az150, or az-150.
 
 - `clarinetist-e20-<view>.webp`, `clarinetist-e40-<view>.webp`: `pnpm close-views clarinetist
   <dir> --base main --sheet --moments note,between,rest,lift20,lift40,lift60,lift80,lower20,lower40,lower60,lower80,stand
   --views front,back,left,right,-35,35,150,-150 --box 0.15,0.3,0.7,0.62 --scale 2` at the
   elevations 20 and 40.
-- `clarinetist-e0-<view>.webp`: the rest at the elevation 0 from four sides.
-- `clarinetist-paws-<view>.webp`: 2x crops of the paws at rest, lift40, and lower60.
+- `clarinetist-e0-<view>.webp`: the rest at the elevation 0 from four sides (`--box
+  0.1,0.1,0.8,0.85`).
+- `clarinetist-paws-<view>.webp`: the paws at rest, lift40, and lower60 from four sides, cut from
+  `pnpm close-views clarinetist <dir> --base main --moments rest,lift40,lower60 --views
+  front,back,left,right --scale 2 --elevation 10` by `probes/paw-pairs.py`.
 - `wolf-stage-rest.webp`: `pnpm close-views play <dir> --at wolf --azimuth -30 --azimuth 30
-  --time 30 --zoom 1.6 --base main --pause`, the angle of the image of the user.
-- The same sets of the mouse: `oboist-e20-<view>.webp`, `oboist-e40-<view>.webp`,
-  `oboist-paws-<view>.webp`, and `mouse-stage-rest.webp` (`--at mouse`).
+  --time 30 --zoom 1.6 --base main --pause`. The angle -30 is the angle of the image of the user.
+- The same sets of the mouse: `oboist-e20-<view>.webp`, `oboist-e40-<view>.webp` (`--box
+  0.1,0.1,0.8,0.7`), `oboist-e0-<view>.webp`, `oboist-paws-<view>.webp`, and
+  `mouse-stage-rest.webp` (`--at mouse`).
 
 ## 9. The result
 
