@@ -617,15 +617,24 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       the upper arm read as a bulge. The left lower arm takes the dual quaternion bind
       (`bind.arm`): in the play, the elbow is 5.15 cm (4.40 cm) and the forearm 4.65 cm (4.24 cm),
       tube 5.2 cm. The bow arm keeps the linear blend, at 0.93 of the tube.
-- [ ] Cat (`2026-10-27-cat-arm.md`): the side wall under each arm is a flat plate on the plane of
+- [x] Cat (`2026-10-27-cat-arm.md`): the side wall under each arm is a flat plate on the plane of
       the seam, 15 cm high, with corners of about 45° to the trunk and thin faces of the seam cut
       at its lower tip. The raised arm of the play shows it as a light patch with a crease. Round
       it into the trunk in the copy, clean the thin faces (`step_clean_cut()` of
       `wind_arms.py`), and keep the flat inner side of the arm inside it (`wall-cuts.png`).
+      Done (`2026-10-28-cat-wall.md`): the lips of the cut under each wall go, even faces fill
+      the wall, and the trunk near it rounds into it. The outline of the cuts under the wall
+      turns at most 46° (154° to 180° before), and no light patch shows in the play.
 - [ ] Cat (`2026-10-27-cat-arm.md`): a dark crease lies at the front of the left arm root in the
       play, between the chest and the upper arm. The root of the tube holds 0.2 to 0.5 of chest
       weight (`anchor` and Smooth), so it narrows when the arm rises: 4.65 cm at 0.5 of the upper
       arm in the play, 4.93 cm in the bind (`weights-main.txt`).
+      Tried (`2026-10-28-cat-wall.md`): the Smooth of `step_paint()` gives the second and the
+      third ring of each tube 0.6 and 0.28 of the trunk bones from the socket ring. A Smooth of
+      the arm bones alone kept the root 4.91 cm in the play (bind 5.00 cm), but folded 11 new
+      faces at the root at rest and in the play, and on the right arm a dark
+      notch opened at rest. Each mix that folded no new face kept the crease. Next: a root
+      weight that differs between the front and the inner side, or a bind arm nearer to the rest.
 - [ ] Cat (`2026-10-27-cat-arm.md`): near the elbow, the left forearm is 0.89 of the tube in the
       play (4.65 cm, 5.2 cm), because the app turns the paw about 100° from the bind with the
       linear blend, over three forearm segments for each ring.
@@ -833,9 +842,11 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       the closed paw in the lowering (1.75 cm on the old paw). The forearm turns about 45° against
       the bow over a stroke, and the paw slides on the stick with it. A grip that turns with the
       wrist needs an own turn of the bow paw.
-- [ ] Arm replays: `fox_arms.py` and `deer_arms.py` stop with a KeyError at the belly step of
+- [x] Arm replays: `fox_arms.py` and `deer_arms.py` stop with a KeyError at the belly step of
       `cat_arms.py` (2026-10-27), as `hippo_arms.py` did. Leave the step out of their steps maps,
       or skip it for an animal with no `belly` rule, and check the bytes of each replay.
+      Done (`2026-10-28-cat-wall.md`): the step skips an animal with no `belly` key, and the
+      fox, deer, and hippo replays give their files byte for byte (`replays.txt`).
 - [x] Bear rig (`2026-10-26-arm-fixes.md`): the left shoulder bridge folds 8 tiny faces at p95
       in the play (4 on the old rig, limit 8), and the right move twist max is 87 (81). Done: the
       head keeps the rule weights, and four shoulder faces take the mean of their painted weights
