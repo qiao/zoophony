@@ -2255,6 +2255,8 @@ the mockup is out of scope.
 - [ ] The lit floor in the pool is darker than in `orchestra-latest.png` after variant B: a luma
       of 152 against 179 in the user view, and 119 against 191 left of the podium in the camera
       `orchestra`. Ask the user if the planks should go back to their color, with the narrow pool.
+      2026-10-27: the hot spot of the front key light on the podium gives 138 and 133 beside the
+      podium, against 191 and 158 (`docs/research/2026-10-27-key-look.md`).
 - [ ] The white fur of the back rows has 0.92 of the p90 of the front rows, against 0.98 in
       `orchestra-latest.png` (`pnpm look-lab`, camera `default`).
 - [ ] The chair mask of the look lab ("chair, front left") holds 4 pixels after the lower
@@ -2282,9 +2284,22 @@ the mockup is out of scope.
 - [ ] Ask the user to pick the beams and the height of the key light from `variants.webp` of
       `docs/research/2026-10-27-key-front/`: one beam (default), no beam, or three beams, and the
       key light at 60° (default), 72° (short shadows), or 45° (long shadows).
-- [ ] The front key light lights the faces of the front rows: the rabbit close shot clips a channel
+- [x] The front key light lights the faces of the front rows: the rabbit close shot clips a channel
       on 5.3% of its light fur, against 2.4% on the key light from behind (`clip.txt` of
       `docs/research/2026-10-27-key-front/`). The wide views clip as before.
+      2026-10-27: the soft key and the extra exposure of a close shot take the shade share of the
+      key light, and the key light gives 5.8 lux: the rabbit shot clips 2.0%, and the wide views
+      1.7% and 2.8% (`docs/research/2026-10-27-key-look.md`).
+- [x] Give the lit floor and the back of the conductor at least their light with the key light
+      from behind (110 and 106 against 118 and 131, 36 against 43): the hot spot of the key light
+      on the podium has a boost of 2.5, and a solo keeps 0.85. The floor has 138 and 133, and the
+      conductor 52 (`docs/research/2026-10-27-key-look.md`).
+- [ ] The polar bear close shot clips a channel on 0.6% of its light fur, against 0.1% with the key
+      light from behind: the camera stands behind the pianist, and the key light and the kicker
+      light the tops of its shoulders and arms (`docs/research/2026-10-27-key-look.md`).
+- [ ] The paused test "goes into the material of the players only with a pool" of
+      `src/scene/light-pool.test.ts` fails on `main`: its test shader has no
+      `#include <lights_fragment_end>`, which `addPlayerFill()` of `scene/geometry.ts` needs.
 - [ ] The shot planner keeps one upright cone at the stage center (`insideBeam()`). With three
       beams (`RIM_PLACE.count` 3), a camera can stand in a side beam, which draws its back faces.
 - [ ] Give `pnpm close-views play` a `--look <JSON>` option that starts its own dev server, as
