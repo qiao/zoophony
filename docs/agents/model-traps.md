@@ -7,6 +7,11 @@ group of your work before you plan it. A probe that a trap names is in its resea
 
 - The player hands turn freely at the wrist, but the studio skin bends well only near its clips. The
   retarget turns each paw in the plane of its palm toward the forearm (`PAW_TURN`).
+- The seated bind bends each studio paw about 25° off its forearm in the plane of the palm, and
+  `PAW_TURN` takes the bend away, so the paw swing of the gate reads about 25° for a straight
+  wrist. On a thick wrist, keep the bend (`BowedHold.pawKeepR`), and read the wrist edge strain
+  with `probes/wrist-strain.ts` of `docs/research/2026-10-28-hippo-paw/`. A grip place or roll
+  does not bend the seen wrist.
 - A carried prop hangs from the paw that the viewer sees, and `PAW_TURN` aligns that paw with the
   forearm, so a forearm across the neck at rest and along it in the play turned the violin 56° to
   79° in the paw. Give the rest paw its own turn (`pawTurnL` of `AnimalPose`) around the wrist, and
