@@ -1146,9 +1146,10 @@ const DOG_HOLD = {
  * into the body. With the elbow further out, the arm segments rolled the hanging upper arm so far
  * that the skin twisted 41° along it (29° with this elbow, the arm gate). With the elbow further
  * in or forward, the right forearm went 1.6 cm to 4.8 cm into the belly. The grip in the middle
- * of the paw holds the paw 2.5 cm nearer to the frog, so the rest grip lies 0.1 H lower: 0.05 H
- * lower, two faces of the inner right elbow folded in each rest sample (2026-10-28-hippo-grip
- * decisions). In the lift and the lowering, the tip turns through the front, as the upright bow of the violinists,
+ * of the paw holds the paw 2.5 cm nearer to the frog, so the rest grip lies 0.1 H further out:
+ * at the place before, two faces of the inner right elbow folded in each rest sample, and with
+ * the grip 0.1 H lower, the right upper arm went 6.2 cm into the body at rest (6.1 cm before,
+ * 5.7 cm now, 2026-10-28-hippo-grip decisions). In the lift and the lowering, the tip turns through the front, as the upright bow of the violinists,
  * with the grip 0.3 H out, 0.3 H up, and 0.6 H to the front: with no move up, the bow paw turned
  * 2,959°/s at the most in the lowering (1,877°/s on 2026-10-21 before the move of the contrabass).
  *
@@ -1193,7 +1194,7 @@ const HIPPO_HOLD = {
   restPoleR: [0.6, -1, 0],
   restPoleL: [-1, -0.3, 0],
   restBow: {
-    lap: { along: 1, offset: [0.7, 0.9, -0.4] },
+    lap: { along: 1, offset: [0.8, 1, -0.4] },
     tip: HANGING_BOW.tip,
     hair: HANGING_BOW.hair,
     via: { ...UPRIGHT_BOW.via, reach: [0.3, 0.3, -0.6] },
