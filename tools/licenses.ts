@@ -150,6 +150,28 @@ export async function githubMarkEntry(root: string): Promise<LicenseEntry> {
 }
 
 /**
+ * Makes the license entry of the font of the wordmark in the logo (design 2.8, 7.3). The logo
+ * holds the outlines of the word in Fraunces as an SVG path, so the text is the license of
+ * `assets/fraunces/LICENSE.txt`.
+ *
+ * @param root The folder of the root package.json.
+ * @returns The entry.
+ */
+export async function frauncesEntry(root: string): Promise<LicenseEntry> {
+  const license = await readFile(join(root, 'assets', 'fraunces', 'LICENSE.txt'), 'utf8');
+  return {
+    title: 'Fraunces 1.0, by Undercase Type',
+    license: 'OFL-1.1',
+    source: 'https://github.com/undercasetype/Fraunces',
+    text: [
+      'The logo shows the name of the app as the outlines of this font. The app holds no font file.',
+      '',
+      license,
+    ].join('\n'),
+  };
+}
+
+/**
  * Reads the license entries of the sources of the SoundFont (design 6.2, 7.3): GeneralUser GS,
  * VSCO 2 CE, and VCSL.
  *
@@ -203,6 +225,7 @@ export async function licenseEntries(root: string): Promise<LicenseEntry[]> {
   entries.push(...(await soundFontEntries(root)));
   entries.push(hallEntry());
   entries.push(await githubMarkEntry(root));
+  entries.push(await frauncesEntry(root));
   return entries;
 }
 

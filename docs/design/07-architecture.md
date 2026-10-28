@@ -343,7 +343,8 @@ the measures of the load.
 The build writes a third-party license file for Three.js (MIT), spessasynth_core (Apache-2.0),
 stb-vorbis (Apache-2.0), the three sources of the SoundFont (6.2): GeneralUser GS (GeneralUser
 GS License v2.0), VSCO 2 CE (CC0 1.0), and VCSL (CC0 1.0), and the hall impulse response (CC BY
-4.0), and the GitHub mark of the link to the repository (MIT, from Primer Octicons, 2.8). The
+4.0), the GitHub mark of the link to the repository (MIT, from Primer Octicons, 2.8), and the
+font Fraunces of the wordmark in the logo (SIL Open Font License 1.1, 2.8). The
 credits dialog links to it, and also lists the source of each demo (8.1).
 
 `pnpm build` runs `tools/licenses.ts` after the Vite build. The script writes
