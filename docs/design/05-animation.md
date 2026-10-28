@@ -300,10 +300,11 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
   violist rests as a violinist. Each elbow bends at rest and hangs near the side, as the arms of a
   seated player. The left paw holds the neck in a rest grip (`restHandAt()` of `pose/bowed.ts`):
   the playing grip at the rest place (`BowedHold.restPlace`), with the fingers closed around the
-  neck (`BowedHold.restCurlL`), a few millimeters off the neck (`BowedHold.restGapL`), and turned a
-  little around the normal of the top plate (`BowedHold.restYawL`), so that the paw holds the neck
-  and does not go into the instrument (user, 2026-10-26: "in rest mode the violin / viola are
-  clipping with their hand"). The paw that the viewer sees takes its own turn in the plane of its
+  neck (`BowedHold.restCurlL`), on the neck or a few millimeters off it (`BowedHold.restGapL`),
+  and turned a little around the normal of the top plate (`BowedHold.restYawL`), so that the paw
+  holds the neck and does not go into the instrument (user, 2026-10-26: "in rest mode the violin /
+  viola are clipping with their hand"). The neck runs through the closed paw: a paw beside the
+  neck holds nothing (user, 2026-10-27: "the cat is not "holding" the viola in rest mode"). The paw that the viewer sees takes its own turn in the plane of its
   palm (`BowedHold.restPawTurnL`, `pawTurnL` of `AnimalPose`, 4.4), near the turn of the play, so
   that the hold of the neck at rest is near the hold of the play. With the grip near the nut, the paw lay over the
   scroll (`docs/decisions/2026-10-26-third-review.md`). The bow paws rest low at the front of the

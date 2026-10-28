@@ -831,12 +831,14 @@ export const BOWED_HOLDS = {
  *
  * The rest pose is the upright rest of the rabbit and the red fox, as the seated violinist of the
  * image of the user (2026-10-17-cat-bow and 2026-10-17-cat-look decisions): the viola stands
- * upright on the top of the left thigh near the knee, 0.8 of the way from the hip, and 0.12 H in
- * from it, 0.05 H up, and 0.06 H to the front, near the short arms of the cat mesh, and the bow
+ * upright on the top of the left thigh, 0.6 of the way from the hip to the knee, and 0.12 H in
+ * from it, 0.05 H up, and 0.06 H to the front, near the shorter arms of 2026-10-27, and the bow
  * rests in the right paw at the front of the lap. The left paw holds the viola at 0.55 of the
- * fingerboard from the nut (`restPlace`), and the left elbow points down, out, and a little back,
- * (-1.2, -1, 0.1), so that the left elbow bends to 116° near the side of the round belly, as a
- * seated violist holds the resting instrument with the elbow bent. With the viola 0.95 of the way
+ * fingerboard from the nut (`restPlace`), and the left elbow points down, out, and a little
+ * forward, (-1.6, -1, -0.2), so that the left elbow bends near the side of the round belly, as a
+ * seated violist holds the resting instrument with the elbow bent. With the viola 0.8 of the way
+ * and the elbow (-1.2, -1, 0.1) of the longer arms, the shorter left upper arm went 2.3 cm into
+ * the belly at rest, and its middle went flat (2026-10-27-cat-fox2 decisions). With 0.95 of the way
  * and 0.03 H back, on the front of the knee, the elbow opened to 131° and the arm reached far
  * forward (user, 2026-10-27: "the cat's arm has dent and is longer than expected",
  * 2026-10-27-cat-fox decisions). With the viola 0.03 H back at 0.8 of the way, the elbow bent to
@@ -845,21 +847,24 @@ export const BOWED_HOLDS = {
  * (2026-10-24-violin-rest decisions). With the viola 0.1 H up and 0.1 H forward and the grip at
  * 0.4, the left arm reached out nearly straight, and with the elbow further down, the left upper
  * arm went 2.2 cm to 3.7 cm into the belly (limit 1.5). With 0.2 H in, the viola went 2.6 cm into
- * the body (2026-10-26-fifth-review-strings decisions). The left paw holds the neck in the rest
- * grip of the rabbit, curled 90°, 11 mm off the neck, and turned 10° around the normal of the top
- * plate, and the paw takes a turn of 42° in
- * the plane of its palm (`restPawTurnL`), so that the grip in the paw changes by 25° in a move (73°
- * with the turn of 45° around the normal), the paw goes 0.0 cm into the viola (0.8 cm before), and
- * the claws 0.3 cm. With 3 mm off the neck, the claws went 0.9 cm in, and with a turn of 12°
- * around the normal, the wrist skin flattened in the lift (flat p5 0.70 against 0.75,
- * 2026-10-27-violin-carry decisions).
+ * the body (2026-10-26-fifth-review-strings decisions). The left paw closes around the neck in the
+ * rest grip, as a seated violist holds the neck with the left hand
+ * (`docs/reference/string-technique.md`, section 2.9): the playing grip at the rest place, curled
+ * 115°, with the palm on the neck (`restGapL` 0), and turned 10° around the normal of the top
+ * plate, and the paw takes a turn of 42° in the plane of its palm (`restPawTurnL`), so that the
+ * grip in the paw changes by 29° in a move. The neck then runs through the closed paw, and the
+ * paw goes 0.4 cm into the viola. Curled 90° and 11 mm off the neck, the paw closed beside the
+ * neck as a fist (user, 2026-10-27: "the cat is not "holding" the viola in rest mode",
+ * 2026-10-27-cat-fox2 decisions). With a turn of 12° around the normal, the wrist skin flattened
+ * in the lift (flat p5 0.70 against 0.75, 2026-10-27-violin-carry decisions).
  *
- * The grip of the bow rests at the front of the lap, 0.4 H out, 0.4 H up, and 0.05 H to the front
- * at 0.6 of the way to the knee, with the tip a little forward, (0.15, 1, -0.45), and the right
+ * The grip of the bow rests at the front of the lap, 0.4 H out, 0.6 H up, and 0.05 H to the front
+ * at 0.6 of the way to the knee, with the tip a little forward, (0.15, 1, -0.45): 0.4 H up, the
+ * shorter right forearm went 1.2 cm into the belly at rest (2026-10-27-cat-fox2 decisions). The right
  * elbow hangs down, out, and a little back, (0.8, -1, 0.3): the elbow bends to 111° near the side
  * of the round belly with a straight wrist (with (0.7, -1, 0.3) and the bind of 2026-10-27, the
  * right upper arm went 1.7 cm and the forearm 0.2 cm into the belly, 2026-10-27-cat-fox decisions),
- * and the paw rests 0.56 H above the hip (1.04 H before), where the paw stood high at the chest
+ * and the paw rests low near the hip, where before 2026-10-26 the paw stood high at the chest
  * with the elbow bent to 76° as a wing (user, 2026-10-26: "the cat's arms are bent in strange way",
  * 2026-10-26-fifth-review-strings decisions). The round belly keeps the upper arm 35° from the
  * vertical: with the elbow further down and in, (0.3, -1, 0.1), the right upper arm went 4.1 cm and
@@ -940,21 +945,21 @@ const CAT_HOLD = {
   poleR: [2, -0.3, -0.7],
   poleTipR: [1.5, -1, -1],
   restPoleR: [0.8, -1, 0.3],
-  restPoleL: [-1.2, -1, 0.1],
+  restPoleL: [-1.6, -1, -0.2],
   restPlace: 0.55,
   rest: {
     axis: LAP_VIOLIN.axis,
     top: [-0.5, 0, -0.87],
-    lap: { along: 0.8, offset: [0.12, 0.05, -0.06] },
+    lap: { along: 0.6, offset: [0.12, 0.05, -0.06] },
   },
   liftReach: [-0.14, 0.29, -0.19],
-  restCurlL: 90 * MathUtils.DEG2RAD,
+  restCurlL: 115 * MathUtils.DEG2RAD,
   restPawTurnL: 42 * MathUtils.DEG2RAD,
   restYawL: 10 * MathUtils.DEG2RAD,
-  restGapL: 0.011,
+  restGapL: 0,
   liftPoleL: [-1.2, -0.6, 0],
   restBow: {
-    lap: { along: 0.6, offset: [0.4, 0.4, -0.05] },
+    lap: { along: 0.6, offset: [0.4, 0.6, -0.05] },
     tip: [0.15, 1, -0.45],
     hair: [0, 0, -1],
     via: { tip: [0.4, 0.3, -1], hair: [0, 0, -1], reach: [0.45, 0.35, -0.1] },

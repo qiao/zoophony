@@ -555,12 +555,14 @@ A round that changes the motion updates the items.
   beside the body in the middle of the move (`docs/decisions/2026-10-26-violin-lift.md`).
 - **The violin and the viola at rest** (section 2.9). The rabbit and the red fox rest the
   instrument upright on the left knee, and the cat rests the viola upright on the top of the left
-  thigh near the knee, so that its left elbow bends to about 116° (131° on the knee, user,
-  2026-10-27: "the cat's arm has dent and is longer than expected",
-  `docs/decisions/2026-10-27-cat-fox.md`). The left paw holds the neck in a rest grip: the playing
-  grip at the rest place, with the fingers closed around the neck, a few millimeters off it, and
-  turned at most 10° around the normal of the top plate, so that the paw holds the neck and goes at
-  most 0.5 cm into the instrument (`restHandAt()` of `pose/bowed.ts`). The paw keeps a turn in the
+  thigh, nearer to the hip for its shorter arms, so that its left elbow bends
+  (`docs/decisions/2026-10-27-cat-fox2.md`). The left paw holds the neck in a rest grip: the
+  playing grip at the rest place, with the fingers closed around the neck, on it or a few
+  millimeters off it, and turned at most 10° around the normal of the top plate, so that the paw
+  holds the neck and goes at most 0.5 cm into the instrument (`restHandAt()` of `pose/bowed.ts`).
+  The cat closes its paw further, with the palm on the neck, so that the neck runs through the
+  closed paw: 11 mm off the neck, its paw closed beside the neck as a fist (user, 2026-10-27: "the
+  cat is not "holding" the viola in rest mode"). The paw keeps a turn in the
   plane of its palm near the turn of the play (`BowedHold.restPawTurnL`), so that it holds the
   neck at rest nearly as in the play. The left elbow hangs near
   the side (`BowedHold.restPoleL`). The top plate of the violin faces the front, and the top plate
