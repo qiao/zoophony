@@ -5,7 +5,7 @@ import type { Vec3 } from '../tuples.ts';
 import { MeshBuilder, transform } from '../mesh.ts';
 import type { MeshData } from '../mesh.ts';
 import { box, cylinder, plate, prism, quad } from '../primitives.ts';
-import type { OutlinePoint, PlateLevel } from '../primitives.ts';
+import type { OutlinePoint } from '../primitives.ts';
 import { PieceBuilder, hold, pieceSize, placeCorners } from './piece.ts';
 import type { InstrumentModel } from './types.ts';
 
@@ -69,8 +69,6 @@ export const PIANO_BENCH = {
   leg: 0.065,
   /** The inset of the apron and the legs from the edges of the seat. */
   inset: 0.015,
-  /** The cut of each corner of the seat. */
-  corner: 0.03,
 } as const;
 
 /** A pedal of the grand piano, from the left of the player. */
@@ -559,32 +557,39 @@ export function buildPiano(): InstrumentModel {
 }
 
 /**
- * Gives the outline of a rectangle with cut corners, counterclockwise when seen from +y.
+ * Gives the four sides of a square post that tapers along y, with no caps: the caps of the legs
+ * of the bench lie under the apron and on the floor.
  *
- * @param width The size on x.
- * @param depth The size on z.
- * @param cut The length of each corner cut along each side, above 0.
- * @returns The 8 points.
+ * @param bottom The height of the bottom.
+ * @param top The height of the top.
+ * @param lower The half width at the bottom.
+ * @param upper The half width at the top.
+ * @returns 8 triangles.
  */
-function cutRectangle(width: number, depth: number, cut: number): OutlinePoint[] {
-  const x = width / 2;
-  const z = depth / 2;
-  return [
-    [x - cut, z],
-    [x, z - cut],
-    [x, -z + cut],
-    [x - cut, -z],
-    [-x + cut, -z],
-    [-x, -z + cut],
-    [-x, z - cut],
-    [-x + cut, z],
+function postSides(bottom: number, top: number, lower: number, upper: number): number[] {
+  const ring = (half: number, y: number): Vec3[] => [
+    [half, y, half],
+    [half, y, -half],
+    [-half, y, -half],
+    [-half, y, half],
   ];
+  const low = ring(lower, bottom);
+  const high = ring(upper, top);
+  const out: number[] = [];
+  for (let i = 0; i < 4; i++) {
+    const j = (i + 1) % 4;
+    out.push(
+      ...quad(low[i] ?? [0, 0, 0], low[j] ?? [0, 0, 0], high[j] ?? [0, 0, 0], high[i] ?? [0, 0, 0]),
+    );
+  }
+  return out;
 }
 
 /**
  * Builds the piano bench (design 4.5, 4.6), as the bench of `polar-bear-views.png`: a padded
  * seat with round top edges, an apron under it, and four square legs that taper down to brass
- * feet. The seat center is above the origin, and the player sits on it and faces -z.
+ * feet, in 100 triangles. The seat center is above the origin, and the player sits on it and
+ * faces -z.
  *
  * @param seatHeight The height of the seat, in meters.
  * @param depth The depth of the seat, in meters.
@@ -600,12 +605,19 @@ export function buildPianoBench(
   const pad = b.pad * seatHeight;
   const apron = b.apron * seatHeight;
   const padBottom = seatHeight - pad;
+  const halfX = b.width / 2;
+  const halfZ = depth / 2;
+  const seat: OutlinePoint[] = [
+    [halfX, halfZ],
+    [halfX, -halfZ],
+    [-halfX, -halfZ],
+    [-halfX, halfZ],
+  ];
   builder.add(
-    plate(cutRectangle(b.width, depth, b.corner), [
+    plate(seat, [
       [1, padBottom],
-      [1, padBottom + 0.65 * pad],
-      [0.985, padBottom + 0.9 * pad],
-      [0.955, seatHeight],
+      [1, padBottom + 0.7 * pad],
+      [0.96, seatHeight],
     ]),
     { color, finish: 'lacquer' },
   );
@@ -617,12 +629,6 @@ export function buildPianoBench(
   const legTop = padBottom - apron;
   const foot = b.foot * seatHeight;
   const half = b.leg / 2;
-  const square: OutlinePoint[] = [
-    [half, half],
-    [half, -half],
-    [-half, -half],
-    [-half, half],
-  ];
   for (const x of [-1, 1]) {
     for (const z of [-1, 1]) {
       const at = transform([
@@ -630,16 +636,8 @@ export function buildPianoBench(
         0,
         (z * (depth - 2 * b.inset - b.leg)) / 2,
       ]);
-      const legLevels: PlateLevel[] = [
-        [0.8, foot],
-        [1, legTop],
-      ];
-      builder.add(plate(square, legLevels), { color, at, finish: 'lacquer' });
-      const footLevels: PlateLevel[] = [
-        [0.72, 0],
-        [0.8, foot],
-      ];
-      builder.add(plate(square, footLevels), {
+      builder.add(postSides(foot, legTop, 0.8 * half, half), { color, at, finish: 'lacquer' });
+      builder.add(postSides(0, foot, 0.72 * half, 0.8 * half), {
         color: INSTRUMENT_COLORS.brass,
         at,
         finish: 'metal',
