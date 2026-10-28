@@ -13,7 +13,7 @@ its row.
 
 | Decision | Section |
 |---|---|
-| The user: "it may be existing fault". Both creases are splits of the smooth normals of the seated bind, since the rebuilt arms of 2026-10-24 (rabbit) and 2026-10-25 (fox). The bind round of 2026-10-27 did not change them, and the front key light shows them. | 4.4 |
+| The user: "it may be existing fault". Both creases split the smooth normals of the seated bind: the fox elbows since their rebuilt arms (2026-10-25), the rabbit arm roots in each rig since 2026-10-23. The bind round did not change them. The front key light shows them. | 4.4 |
 | The fox faces within 0.07 units of each elbow joint take the skin normals (`rootNormals.elbow` of `tools/mesh-rigs/fox.json`). The red fox and the tan fox share it. With 0.06, an edge of the right inner elbow kept a jump of 60° in the play. | 4.4 |
 | The rabbit faces within 0.12 units of each shoulder joint and 0.06 units of each elbow joint take the skin normals (`rootNormals` of `tools/mesh-rigs/rabbit.json`). With 0.08 and 0.10, hard edges of 18 cm and 3 cm stayed at the arm roots. | 4.4 |
 | A rabbit face stays in that rim only with at least 0.3 of clavicle and arm weight (`rootNormals.armShare`), as on the hippo, so that the chest and the back keep their facets. | 4.4 |
