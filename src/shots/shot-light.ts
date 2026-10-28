@@ -1,4 +1,5 @@
 import { smoothstep } from '../pose/rest.ts';
+import { KEY_PLACE } from '../models/beam.ts';
 import type { Vec3 } from '../models/tuples.ts';
 import type { ShotKind } from './types.ts';
 import { defaultDistance } from './view.ts';
@@ -91,7 +92,7 @@ export interface ShotLamp {
 export interface ShotRig {
   /** The soft key, 35° from the axis of the camera, toward the side of the stage key light. */
   readonly key: ShotLamp;
-  /** The kicker, behind the subject on the same side as the key. */
+  /** The kicker, behind the subject, on the side of the nearer stage light. */
   readonly kicker: ShotLamp;
 }
 
@@ -114,12 +115,37 @@ function around(target: Vec3, azimuth: number, elevation: number, distance: numb
 }
 
 /**
+ * Gives the angle between two azimuths.
+ *
+ * @param a The first azimuth, in radians.
+ * @param b The second azimuth, in radians.
+ * @returns The angle, from 0 to π.
+ */
+function azimuthGap(a: number, b: number): number {
+  return Math.abs(Math.atan2(Math.sin(a - b), Math.cos(a - b)));
+}
+
+/**
+ * Gives the angle from the azimuth of a lamp to the nearer stage light: the key light in front of
+ * the stage (`KEY_PLACE`) or the rim lights behind it, at the azimuth π.
+ *
+ * @param azimuth The azimuth of the lamp, in radians.
+ * @returns The angle, from 0 to π.
+ */
+function stageLightGap(azimuth: number): number {
+  return Math.min(azimuthGap(azimuth, KEY_PLACE.azimuth), azimuthGap(azimuth, Math.PI));
+}
+
+/**
  * Places the lamps of the light of a shot around the target of a camera (design 4.5, 5.6). Pure:
  * the lamps come only from the camera, so a seek gives the light of the shot at once.
  *
- * 1. The key turns 35° from the axis of the camera, toward the back of the stage, where the
- *    stage key light stands, so both lights come from one side.
- * 2. The kicker stands 140° from the axis of the camera on the same side, behind the subject.
+ * 1. The key turns 35° from the axis of the camera toward the key light of the stage, which
+ *    stands in front of the stage and to the left (`KEY_PLACE`). The lit side of the subject then
+ *    faces away from its shadow on the stage.
+ * 2. The kicker stands 140° from the axis of the camera, behind the subject, on the side that
+ *    puts it nearer to a stage light: the rim lights behind the stage, or the key light for a
+ *    camera behind the orchestra.
  * 3. Each cone covers the frame. The follow-spot of a solo shot rises and narrows the key.
  *
  * @param position The camera position.
@@ -134,8 +160,10 @@ export function shotRig(position: Vec3, target: Vec3, fov: number, spot: number)
   const dy = position[1] - target[1];
   const dz = position[2] - target[2];
   const azimuth = Math.atan2(dx, dz);
-  // The back of the stage is at the azimuth ±π, so the turn goes away from 0.
-  const side = azimuth >= 0 ? 1 : -1;
+  // The key turns toward the key light of the stage, the short way around.
+  const side = Math.sin(KEY_PLACE.azimuth - azimuth) >= 0 ? 1 : -1;
+  const kickSide =
+    stageLightGap(azimuth + rig.kickerTurn) <= stageLightGap(azimuth - rig.kickerTurn) ? 1 : -1;
   const [near, far] = rig.distance;
   const distance = Math.min(far, Math.max(near, Math.hypot(dx, dy, dz)));
   const cone = (fov * Math.PI * rig.cone) / 180;
@@ -147,7 +175,7 @@ export function shotRig(position: Vec3, target: Vec3, fov: number, spot: number)
       angle: cone * (1 + (rig.spotCone - 1) * spot),
     },
     kicker: {
-      position: around(target, azimuth + side * rig.kickerTurn, rig.kickerElevation, distance),
+      position: around(target, azimuth + kickSide * rig.kickerTurn, rig.kickerElevation, distance),
       target,
       angle: cone,
     },

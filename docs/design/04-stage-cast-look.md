@@ -1057,8 +1057,9 @@ lights, and `scene/solo-light.ts` the light of a solo.
   (user, 2026-10-06). The camera dims the beam in a close shot (`shots/beam-opacity.ts`, 5.6),
   because the additive beam washed out the image. Dust motes drift in the haze by the tier.
 - **Shot light** (`scene/shot-light.ts`, 5.6). A close shot adds a soft key 35° from the axis of
-  the camera and a kicker behind the subject, both on the side of the stage key light, with a
-  little more exposure and a stronger vignette. The lamps are a diffuse term in the material of
+  the camera toward the stage key light, so the lit side of the subject faces away from its
+  shadow, and a kicker behind the subject on the side of the nearer stage light (`shotRig()`),
+  with a little more exposure and a stronger vignette. The lamps are a diffuse term in the material of
   the players and the props, which runs only while a lamp has light, because two spotlights cost
   each lit pixel of the scene in each shot (9.7). The subject then reads as in the close shots of
   `scene.png`, and the wide shots keep the light of the stage.

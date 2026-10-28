@@ -15,7 +15,7 @@ export const SHOT_LOOK = {
   key: 1.5,
   /** The illuminance of the follow-spot at the target, as a factor of the key. */
   spot: 1.3,
-  /** The color of the kicker, in sRGB: the color of the key light of the stage. */
+  /** The color of the kicker, in sRGB: the color of the key light and the rim lights. */
   kickerColor: '#ffca98',
   /** The illuminance of the kicker at the target, in lux. */
   kicker: 2.5,
