@@ -399,6 +399,12 @@ group of your work before you plan it. A probe that a trap names is in its resea
 - Whisker tips that hang below the head line take the neck weights, so a head lift bends them,
   and thin faces fold in each sample. Give them to the head with `noseFront`, with a plane in
   front of the belly, and keep `H` with `headFloor` (`docs/research/2026-10-27-cat3.md`).
+- A pinch or a lump of the seated trunk can start in the user mesh: the trunk factor makes each
+  turn of its outline steeper. Measure each step with `pnpm trunk-form` and `probes/belly.ts` of
+  `docs/research/2026-10-27-cat-belly/`, and move the trunk of the copy onto arcs through the ends
+  of the belly (`step_belly()` of `tools/blender/cat_arms.py`).
+- A choice of whole faces of 3 cm to 6 cm gives a color patch a waist or teeth. Mix the color of
+  each face across the edge by the share of its area in the patch (`colors.belly`).
 - Ears at the height of the skull top and antlers above it fall in the height rule of `earBase`.
   Keep both on the head, and leave the antlers out of the head measures (`headCeiling` of
   `ANIMALS`), else H and the pea eyes grow with the antlers.
