@@ -286,7 +286,10 @@ asked for the studio bear and the studio polar bear again after their meshes, wi
 (`docs/decisions/2026-10-23-bear-tpose.md`, `docs/decisions/2026-10-24-polar-bear-tpose.md`).
 The arms of the polar bear then got quad faces and Blender weights
 (`docs/decisions/2026-10-24-polar-bear-arms.md`), and the arms of the bear too
-(`docs/decisions/2026-10-26-arm-fixes.md`).
+(`docs/decisions/2026-10-26-arm-fixes.md`). The wrist cut of the polar bear copy stands parallel
+to the last ring of each tube, and the thin faces of each wrist band collapse before the band is
+smoothed and put back on the arm: a cut at a right angle to the turned paw left a band of thin
+faces that showed as a crease around the wrist (`docs/decisions/2026-10-27-polar-wrist.md`).
 
 Each body follows these rules:
 
@@ -563,7 +566,10 @@ mesh are quad tubes (rings at a right angle to the bones), and the weights come 
     creases on the bent arm. `rootNormals.elbow` adds the skin faces within its radius of each
     elbow joint to the rim. The elephant, the hippo, the foxes, and the rabbit have it, because
     the bind bends their elbows (`docs/decisions/2026-10-25-elephant-hippo-creases.md`,
-    `docs/decisions/2026-10-28-fox-rabbit-crease.md`). A split of the bind stays in each pose,
+    `docs/decisions/2026-10-28-fox-rabbit-crease.md`). The bind also turns each paw from its
+    forearm, so `rootNormals.wrist` adds the arm faces of a band from before each wrist joint to
+    past it on the paw, and the claws past the band keep their facets. The polar bear has it
+    (`docs/decisions/2026-10-27-polar-wrist.md`). A split of the bind stays in each pose,
     also at rest, where the arm-down shape gives back the form of the source and adds the moves
     of its own split normals. The key light in front of the stage lights the fronts of the arm
     roots and the inner elbows, so it shows such a split as a hard line, a slit, or a notch. A
