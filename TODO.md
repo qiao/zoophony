@@ -2056,6 +2056,18 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       - Let `--at` of `pnpm close-views play` and `--views` of `pnpm arm-check` take the
         conductor (`--at conductor` aims at the podium). The bear round wrote a JSON camera and
         its own crop and strip scripts, and lost a set of 8 strips: about 20 minutes.
+- [ ] Tools of a mesh round (retro of the rounds of the night of 2026-10-28):
+      - Give `pnpm close-views play` the `--glb` option of the role mode, so that a rig variant
+        renders at the camera of a user image with no swap of the rig and the module in the tree.
+        The polar legs, polar wrist, hippo, and fox and rabbit rounds each asked for it: each
+        swap blocked the probes of `main` for 6 to 8 minutes.
+      - Let `--set` change `PIANO_SCALE` and `PIANO_FRONT_H` in memory, as it does for the hold
+        values (polar legs round: the scans edited `src/` with perl).
+      - Save the crease probe of the fox and rabbit round (`probes/crease.ts`, about 30 s for
+        each try) and the loop and non-manifold check of the cat wall round (`body-loops.ts`,
+        `glb_nm.py`, about 2 s) as repository tools with `--base`.
+      - Let `pnpm arm-check` print the bind bend of each paw beside the paw swing: a straight
+        paw read as a 25° bend in the hippo arm round.
 - [ ] Tools of a mesh edit (retro of the arm form rounds 3 and 4, 2026-10-21):
       - Add `pnpm arm-variants <animal> --edit <script> --opts <json>...`. For each option set,
         it makes the copy, rigs it with `rig-mesh --check --keep`, runs `pnpm studio-body`, and
