@@ -1,0 +1,18 @@
+
+> zoophony@0.0.0 pair-scan /Users/xueqiaoxu/proj/zoophony/.claude/worktrees/sixth-cat-lap
+> node tools/pair-scan.ts violist --pairs 'play:upper arms:body,lower:upper arms:body,play:claws:viola' --at brahms-2\@412.63 --at brahms-2\@404.88 --at boulanger-matin\@12.00 --variant r40\=viola\@cat.reach\=40deg --variant fh6\=viola\@cat.freeHair\=0.06 --variant st4\=viola\@cat.stringTurn\=4deg --variant st10\=viola\@cat.stringTurn\=10deg --variant bt20\=viola\@cat.bowTilt\=20deg --variant bt40\=viola\@cat.bowTilt\=40deg --variant pp5\=viola\@cat.pluckPlace\=0.5 --variant ps5\=viola\@cat.pluckSide\=0.05
+
+| variant | play upper arms in body | lower upper arms in body | play claws in viola | fingerboard, hair |
+|---|---|---|---|---|
+| base | 2.34 (100.0%) brahms-2 412.63 | 1.95 (100.0%) boulanger-matin w12.00 | 0.67 (0.0%) brahms-2 412.63 | 0.00 to 1.00, 0.840 |
+| r40 | 2.07 (100.0%) brahms-2 412.63 | 1.62 (100.0%) boulanger-matin w12.00 | 0.67 (0.0%) brahms-2 412.63 | 0.00 to 1.00, 0.840 |
+| fh6 | 1.62 (100.0%) brahms-2 412.63 | 1.95 (100.0%) boulanger-matin w12.00 | 0.67 (0.0%) brahms-2 412.63 | 0.00 to 1.00, 0.680 |
+| st4 | 2.13 (100.0%) brahms-2 412.63 | 1.95 (100.0%) boulanger-matin w12.00 | 0.67 (0.0%) brahms-2 412.63 | 0.00 to 1.00, 0.840 |
+| st10 | 2.64 (100.0%) brahms-2 412.63 | 1.95 (100.0%) boulanger-matin w12.00 | 0.67 (0.0%) brahms-2 412.63 | 0.00 to 1.00, 0.840 |
+| bt20 | 2.25 (100.0%) brahms-2 412.63 | 1.95 (100.0%) boulanger-matin w12.00 | 0.67 (0.0%) brahms-2 412.63 | 0.00 to 1.00, 0.840 |
+| bt40 | 2.41 (100.0%) brahms-2 412.63 | 1.95 (100.0%) boulanger-matin w12.00 | 0.67 (0.0%) brahms-2 412.63 | 0.00 to 1.00, 0.840 |
+| pp5 | 2.34 (100.0%) brahms-2 412.63 | 2.79 (100.0%) boulanger-matin w12.00 | 0.67 (0.0%) brahms-2 412.63 | 0.00 to 1.00, 0.840 |
+| ps5 | 2.34 (100.0%) brahms-2 412.63 | 1.83 (100.0%) boulanger-matin w12.00 | 0.67 (0.0%) brahms-2 412.63 | 0.00 to 1.00, 0.840 |
+
+9 rows over 14 demo(s) in 111.0 s. A cell gives the deepest point in cm, the share of the samples over the limit of the pair, and the sample: the demo and the song time, or w and the wall time.
+pnpm pair-scan violist --pairs  --at brahms-2@412.63 --at brahms-2@404.88 --a  119.39s user 1.62s system 108% cpu 1:51.80 total

@@ -1,0 +1,39 @@
+diff --git a/tools/blender/cat_arms.py b/tools/blender/cat_arms.py
+index afec472f..d6b765b5 100644
+--- a/tools/blender/cat_arms.py
++++ b/tools/blender/cat_arms.py
+@@ -800,10 +800,11 @@ def trunk_cuts(f, d, x, tris, levels):
+     return out
+ 
+ 
+-def pinned_arc(ts, ws, ends):
++def pinned_arc(ts, ws, ends, slope=None):
+     """Fits the arc of an ellipse `w = w0 + sqrt(a + b t + c t^2)` (c < 0) to an outline, through
+     the outline at the two ends: the least squares over the outline between the ends, with `w0`
+-    on a grid. Gives the arc as a function of `t`."""
++    on a grid. With `slope`, the arc also leaves the lower end with that slope `dw/dt`, so that
++    it does not start steep there. Gives the arc as a function of `t`."""
+     import numpy as np
+     ta, tb = ends
+     wa, wb = np.interp(ta, ts, ws), np.interp(tb, ts, ws)
+@@ -817,6 +818,10 @@ def pinned_arc(ts, ws, ends):
+         rest = (ws[inside] - w0) ** 2 - rows @ base
+         along = rows @ free
+         coef = base + (along @ rest) / (along @ along) * free
++        if slope is not None:
++            # The slope of the arc at `ta` is (b + 2 c ta) / (2 (wa - w0)).
++            low = np.array([0.0, 1.0, 2.0 * ta])
++            coef = base + (2.0 * slope * (wa - w0) - low @ base) / (low @ free) * free
+         if coef[2] >= 0:
+             continue
+         err = np.sum((w0 + np.sqrt(np.maximum(0.0, rows @ coef)) - ws[inside]) ** 2)
+@@ -904,7 +909,8 @@ def step_belly(s):
+     walls = np.isin(part, TRUNK_PARTS[1:])
+ 
+     a, b = rule['front']
+-    goal_front = np.where((ts > a) & (ts < b), pinned_arc(ts, front, (a, b))(ts), front)
++    slope = rule['lap'] * length if 'lap' in rule else None
++    goal_front = np.where((ts > a) & (ts < b), pinned_arc(ts, front, (a, b), slope)(ts), front)
+     a, b = rule['sides']
+     goal_sides = {sign: np.where((ts > a) & (ts < b),
+                                  pinned_smooth(ts, sides[sign], (a, b), rule['bend'])(ts),

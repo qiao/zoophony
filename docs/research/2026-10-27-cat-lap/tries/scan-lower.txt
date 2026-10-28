@@ -1,0 +1,15 @@
+
+> zoophony@0.0.0 pair-scan /Users/xueqiaoxu/proj/zoophony/.claude/worktrees/sixth-cat-lap
+> node tools/pair-scan.ts violist --pairs 'lower:upper arms:body,lift:upper arms:body,rest:upper arms:body,lower:claws:viola' --demo boulanger-matin --demo brahms-2 --demo bach-bwv1047 --variant ps5\=viola\@cat.pluckSide\=0.05 --variant ps10\=viola\@cat.pluckSide\=0.1 --variant via7\=viola\@cat.restBow.via.reach\=\[0.7\,0.45\,-0.15\] --variant viaF\=viola\@cat.restBow.via.reach\=\[0.5\,0.45\,-0.35\] --variant viaU\=viola\@cat.restBow.via.reach\=\[0.5\,0.6\,-0.15\]
+
+| variant | lower upper arms in body | lift upper arms in body | rest upper arms in body | lower claws in viola | fingerboard, hair |
+|---|---|---|---|---|---|
+| base | 2.11 (10.0%) boulanger-matin w12.00 | 0.84 (0.0%) bach-bwv1047 w10.10 | 0.84 (0.0%) bach-bwv1047 w10.00 | 1.08 (0.0%) brahms-2 w13.50 | 0.00 to 1.00, 0.840 |
+| ps5 | 1.89 (10.0%) boulanger-matin w12.00 | 0.84 (0.0%) bach-bwv1047 w10.10 | 0.84 (0.0%) bach-bwv1047 w10.00 | 1.08 (0.0%) brahms-2 w13.50 | 0.00 to 1.00, 0.840 |
+| ps10 | 1.31 (0.0%) boulanger-matin w12.00 | 0.84 (0.0%) bach-bwv1047 w10.10 | 0.84 (0.0%) bach-bwv1047 w10.00 | 1.08 (0.0%) brahms-2 w13.50 | 0.00 to 1.00, 0.840 |
+| via7 | 2.11 (10.0%) boulanger-matin w12.00 | 0.84 (0.0%) bach-bwv1047 w10.10 | 0.84 (0.0%) bach-bwv1047 w10.00 | 1.08 (0.0%) brahms-2 w13.50 | 0.00 to 1.00, 0.840 |
+| viaF | 2.31 (13.3%) brahms-2 w13.50 | 0.89 (0.0%) bach-bwv1047 w10.20 | 0.84 (0.0%) bach-bwv1047 w10.00 | 1.08 (0.0%) brahms-2 w13.50 | 0.00 to 1.00, 0.840 |
+| viaU | 2.11 (10.0%) boulanger-matin w12.00 | 0.84 (0.0%) bach-bwv1047 w10.10 | 0.84 (0.0%) bach-bwv1047 w10.00 | 1.08 (0.0%) brahms-2 w13.50 | 0.00 to 1.00, 0.840 |
+
+6 rows over 3 demo(s) in 44.0 s. A cell gives the deepest point in cm, the share of the samples over the limit of the pair, and the sample: the demo and the song time, or w and the wall time.
+pnpm pair-scan violist --pairs  --demo boulanger-matin --demo brahms-2 --demo  47.23s user 0.68s system 107% cpu 44.614 total

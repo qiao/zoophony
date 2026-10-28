@@ -1,0 +1,21 @@
+
+> zoophony@0.0.0 arm-check /Users/xueqiaoxu/proj/zoophony/.claude/worktrees/sixth-cat-lap
+> node tools/arm-check.ts violist --base main --variant ps10 --set viola\@cat.pluckSide\=0.1 --variant ps8 --set viola\@cat.pluckSide\=0.08 --variant ps8pz13 --set viola\@cat.pluckSide\=0.08\;viola\@cat.polePizzicato\=\[1.3\,-0.45\,-1\]
+
+base: cached (main, 2cf299ea79b5)
+base: cached (main, 2cf299ea79b5)
+base: cached (main, 2cf299ea79b5)
+Arm gate of 1 roles in 3 variants against main: 3 children, at most 4 at the same time, in 161 s. A cell gives the value, the base in parentheses, and the verdict of a value that does not pass.
+
+- ps10: viola@cat.pluckSide=0.1
+- ps8: viola@cat.pluckSide=0.08
+- ps8pz13: viola@cat.pluckSide=0.08;viola@cat.polePizzicato=[1.3,-0.45,-1]
+
+| Variant | Role | Arm | folds p95 (8) | twist p95 (55) | forearm twist p95 (80) | flat p5 (0.55) | paw twist p95 (170) | paw swing p95 (70) | paw jumps (0.5%) | stretch p95 (0.35) | grip turn p50 (45) | move twist max (176) | move turn max (3000) | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| ps10 | violist | L | 4 (4) | 33 (32) | 38 (38) | 0.79 (0.79) | 100 (100) | 40 (40) | 0.0% (0.0%) | 0.11 (0.11) | 4 (4) | 101 (101) | 219 (219) | PASS |
+| ps10 | violist | R | 4 (6) | 42 (42) | 48 (48) | 0.83 (0.83) | 124 (124) | 55 (56) | 0.0% (0.0%) | 0.04 (0.04) | 35 (35) | 134 (134) | 555 (566) | PASS |
+| ps8 | violist | L | 4 (4) | 33 (32) | 38 (38) | 0.79 (0.79) | 100 (100) | 40 (40) | 0.0% (0.0%) | 0.11 (0.11) | 4 (4) | 101 (101) | 219 (219) | PASS |
+| ps8 | violist | R | 5 (6) | 42 (42) | 48 (48) | 0.83 (0.83) | 124 (124) | 55 (56) | 0.0% (0.0%) | 0.04 (0.04) | 35 (35) | 134 (134) | 555 (566) | PASS |
+| ps8pz13 | violist | L | 4 (4) | 33 (32) | 38 (38) | 0.79 (0.79) | 100 (100) | 40 (40) | 0.0% (0.0%) | 0.11 (0.11) | 4 (4) | 101 (101) | 219 (219) | PASS |
+| ps8pz13 | violist | R | 5 (6) | 42 (42) | 48 (48) | 0.83 (0.83) | 124 (124) | 55 (56) | 0.0% (0.0%) | 0.04 (0.04) | 35 (35) | 134 (134) | 555 (566) | PASS |

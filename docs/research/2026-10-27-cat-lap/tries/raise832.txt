@@ -1,0 +1,65 @@
+
+> zoophony@0.0.0 raise-fit /Users/xueqiaoxu/proj/zoophony/.claude/worktrees/sixth-cat-lap
+> node tools/raise-fit.ts violist --faces 832 --side R --json scratch/raise832.json
+
+Faces 832 of the violist, arm R, sets play: 4454 samples, 3560 with a fold (79.9%).
+
+| Key | Mean turn (studio axes) | From the bind | Mean spread of the folds |
+|---|---|---:|---:|
+| clavicle | [0, 0.309, 0, 0.9511] | 36.0° | 0.0° |
+| upper | [0.2159, 0.4002, -0.4713, 0.7557] | 81.8° | 10.0° |
+| elbow | [-0.0892, 0.03, -0.0891, 0.9916] | 14.9° | 5.3° |
+| wrist | [-0.0787, 0.4178, 0.6269, 0.6529] | 98.5° | 12.8° |
+
+The weight of the shape in each sample set, by the angle of the key upper from the turn of the rule. A cell gives the samples with a weight above 0.5 (with a fold of the faces in parentheses), the samples with a weight above 0, and the samples with a fold of the faces. The first row is the proposed fade.
+
+| Fade | rest | play | lift |
+|---|---|---|---|
+| 25° to 35° | 0 (0) / 0 / 0 of 14 | 4344 (3550) / 4413 / 3560 of 4454 | 335 (67) / 338 / 67 of 434 |
+| 5° to 10° | 0 (0) / 0 / 0 of 14 | 1506 (1506) / 1978 / 3560 of 4454 | 0 (0) / 0 / 67 of 434 |
+| 5° to 25° | 0 (0) / 0 / 0 of 14 | 2769 (2748) / 4173 / 3560 of 4454 | 15 (14) / 334 / 67 of 434 |
+| 10° to 20° | 0 (0) / 0 / 0 of 14 | 2769 (2748) / 3466 / 3560 of 4454 | 15 (14) / 158 / 67 of 434 |
+| 10° to 35° | 0 (0) / 0 / 0 of 14 | 3905 (3412) / 4413 / 3560 of 4454 | 241 (67) / 338 / 67 of 434 |
+| 20° to 40° | 0 (0) / 0 / 0 of 14 | 4344 (3550) / 4423 / 3560 of 4454 | 335 (67) / 349 / 67 of 434 |
+| 30° to 50° | 0 (0) / 0 / 0 of 14 | 4423 (3560) / 4454 / 3560 of 4454 | 349 (67) / 363 / 67 of 434 |
+
+The mean turn of the paw from the forearm is [-0.0787, 0.4178, 0.6269, 0.6529]. A rule of a raised arm or a bent elbow can add it as turns.hand, so that its pose bends the wrist as in the samples.
+
+The entry of raise:
+
+{
+  "side": "R",
+  "turns": {
+    "clavicle": [
+      0,
+      0.309,
+      0,
+      0.9511
+    ],
+    "upper_arm": [
+      0.2159,
+      0.4002,
+      -0.4713,
+      0.7557
+    ],
+    "forearm": [
+      -0.0892,
+      0.03,
+      -0.0891,
+      0.9916
+    ]
+  },
+  "fade": [
+    25,
+    35
+  ],
+  "below": 0,
+  "note": "The shape of the raised arm R of the violist (pnpm raise-fit). Faces 832 fold in 3560 of 4454 samples of the sets play, and the key upper turns 81.8 degrees from the bind in their mean."
+}
+
+Shapes: tools/mesh-rigs/cat.json has 0 rules of raise, and a body has at most 4 (STUDIO_RAISES, RAISE_LIMIT of tools/blender/rig_mesh.py), so 4 are free.
+
+Wrote the entry to scratch/raise832.json. Check it with: pnpm rig-mesh cat --check --set 'raise+=@scratch/raise832.json'
+
+Run time 26.1 s.
+pnpm raise-fit violist --faces 832 --side R --json scratch/raise832.json  28.68s user 0.40s system 109% cpu 26.582 total
