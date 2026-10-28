@@ -2801,13 +2801,14 @@ def bind_skin(config, weights, matrices, points):
     and keeps its radius, so the knee front is round and the back of the knee folds into a
     crease (`docs/research/2026-10-27-polar-legs-rebuild.md`).
 
-    With `bind.arm` set to `dq`, each vertex with a weight on a lower bone of an arm of one side
-    (the forearm and its segments, the elbow and wrist helpers, the paw, and the fingers) takes
-    `dual_skin()` too, whatever `bind.blend` is. The seated bind of the cat bends each elbow by
-    about 79 degrees and turns the left paw 120 degrees (`bindSupination`), so the linear blend
-    put the elbow at 0.86 and the forearm at 0.84 of the radius of the source tube, and the upper
-    arm read as a bulge between a thin elbow and a thin forearm
-    (`docs/research/2026-10-27-cat-arm.md`)."""
+    With `bind.arm` set to `dq`, each vertex with a weight on a lower bone of an arm of a side of
+    `bind.armSides` (both sides by default) takes `dual_skin()` too, whatever `bind.blend` is:
+    the forearm and its segments, the elbow and wrist helpers, the paw, and the fingers. The
+    seated bind of the cat bends each elbow by about 79 degrees and turns the left paw 120 degrees
+    (`bindSupination`), so the linear blend put the elbow at 0.86 and the forearm at 0.84 of the
+    radius of the source tube, and the upper arm read as a bulge between a thin elbow and a thin
+    forearm. The ring of an inner elbow then keeps its radius, so an arm that bends further than
+    the bind folds the inner elbow (`docs/research/2026-10-27-cat-arm.md`)."""
     rule = config.get('bind', {})
     blend = rule.get('blend', 'linear')
     if blend not in ('linear', 'dq'):
@@ -2816,8 +2817,11 @@ def bind_skin(config, weights, matrices, points):
         if rule.get(key, 'linear') not in ('linear', 'dq'):
             raise SystemExit(f'bind.{key} must be "linear" or "dq", not "{rule[key]}".')
     out = skin(weights, matrices, points)
+    sides = rule.get('armSides', 'LR')
+    if any(side not in ('L', 'R') for side in sides):
+        raise SystemExit(f'bind.armSides takes the sides L and R, not "{sides}".')
     if rule.get('arm') == 'dq':
-        for side in 'LR':
+        for side in sides:
             lower = [BONES.index(name) for name in arm_bones(side)
                      if not name.startswith('upper_arm')]
             low = weights[:, lower].sum(axis=1) > 0
