@@ -612,6 +612,23 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       0.5 of the trunk line removed it, but the bow upper arm then went 1.53 cm in at the tip.
 - [ ] Cat (`2026-10-27-cat-belly.md`): from the back, a dark band in a V lies on the lower back
       above the seat, on `main` too (`belly-back.webp`). Find the faces and the light that make it.
+- [x] Cat (`2026-10-27-cat-arm.md`): the user said "the cat's arm has lumps". Done: the linear
+      blend of the seated bind (elbow 79°, left paw 120°) left the elbow and the forearm thin, so
+      the upper arm read as a bulge. The left lower arm takes the dual quaternion bind
+      (`bind.arm`): in the play, the elbow is 5.15 cm (4.40 cm) and the forearm 4.65 cm (4.24 cm),
+      tube 5.2 cm. The bow arm keeps the linear blend, at 0.93 of the tube.
+- [ ] Cat (`2026-10-27-cat-arm.md`): the side wall under each arm is a flat plate on the plane of
+      the seam, 15 cm high, with corners of about 45° to the trunk and thin faces of the seam cut
+      at its lower tip. The raised arm of the play shows it as a light patch with a crease. Round
+      it into the trunk in the copy, clean the thin faces (`step_clean_cut()` of
+      `wind_arms.py`), and keep the flat inner side of the arm inside it (`wall-cuts.png`).
+- [ ] Cat (`2026-10-27-cat-arm.md`): a dark crease lies at the front of the left arm root in the
+      play, between the chest and the upper arm. The root of the tube holds 0.2 to 0.5 of chest
+      weight (`anchor` and Smooth), so it narrows when the arm rises: 4.65 cm at 0.5 of the upper
+      arm in the play, 4.93 cm in the bind (`weights-main.txt`).
+- [ ] Cat (`2026-10-27-cat-arm.md`): near the elbow, the left forearm is 0.89 of the tube in the
+      play (4.65 cm, 5.2 cm), because the app turns the paw about 100° from the bind with the
+      linear blend, over three forearm segments for each ring.
 - [x] Cat (`2026-10-27-cat-fox2.md`): the pits at the back of the left arm root are larger in the
       play (14.5 cm³, 4.7 cm³ before, `dent.txt`), with no hard edge. Look at the crops of the
       user angle. Done: the left shoulder turn of 35° made them. The shoulder turns 20°, the
