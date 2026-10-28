@@ -687,7 +687,7 @@ A round that changes the motion updates the items.
 - **Pizzicato** (section 2.8). The right paw of the hippo comes up from the side and plucks 0.18 m
   right of the strings (`BowedHold.pluckSide`), as a real bassist rests the thumb on the edge of
   the fingerboard [72]. The right elbow points out to the right, so that the straight arm passes
-  outside the rim of the upper bout. The bow tip points up, forward, and a little out
+  outside the rim of the upper bout. The bow tip points up, square to the strings
   (`BowedHold.pizzicatoTip`), so that the forearm comes to the hand at 45° in the plane of the
   palm, as in the play: with the tip to the left, the paw swung up to 41° off the forearm
   (`docs/decisions/2026-10-28-hippo-grip.md`). No source of this file gives the place of the bow
