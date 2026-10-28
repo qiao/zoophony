@@ -100,8 +100,10 @@ reads it (route 3 of `docs/agents/model-work.md`). The steps:
    the same way (`dark_faces_near()`). With `colors.tone`, the plain fur moves in Oklab
    (`tone()`). With `colors.border`, each dark face of a box whose texture is mostly light takes
    the color of the nearest light face (`border_faces()`). Then `colors.patch` makes each eye
-   patch round (`patch_shape()`), and `colors.smile` draws a smile line in the dark of the
-   patches, or in its own `color` (`smile_line()`). Last, `colors.shift` moves the faces of a colored fur in Oklch
+   patch round (`patch_shape()`), `colors.belly` makes a light belly patch an even oval by the
+   share of the area of each face in the oval (`belly_patch()`), and `colors.smile` draws a smile
+   line in the dark of the patches, or in its own `color` (`smile_line()`). Last, `colors.shift`
+   moves the faces of a colored fur in Oklch
    (`shift_colors()`). The faces go in the order of a walk over their shared edges.
 8. Find the corrective shapes: the move of each vertex in the bind pose that the skin of the clip
    `reference` takes to the source place. The arm vertices give `arm_down_L` and `arm_down_R`,
@@ -777,6 +779,61 @@ def patch_shape(corners, colors, fur, rule):
         out[f] = colors[light[np.argmin(np.linalg.norm(centers[light] - centers[f], axis=1))]]
     kept, counts = np.unique(colors[in_patch & dark & inside], axis=0, return_counts=True)
     return out, np.nonzero(changed)[0], kept[np.argmax(counts)]
+
+
+def belly_patch(corners, hips, neck, colors, fur, trunk, rule):
+    """Makes the light belly patch an even oval (`colors.belly` of the config). `corners` gives
+    the corners of each face in the stretched body, and `hips` and `neck` the joints of the trunk
+    line there. A place on the trunk takes the share `f` of the line from the hips joint to the
+    neck joint, and its distance `x` from the middle plane in units. The oval lies in the plane
+    (x, f) around the share `center`, with the half width `radii[0]` in units, and the half
+    heights `radii[1]` below and `radii[2]` above the center in shares. Each fur face of the trunk
+    (`trunk`) in front of the line, with its center between the shares of `range`, takes part,
+    by the share of its area in the oval (`sample_grid()`):
+
+    - a face wholly in the oval keeps a light color (Oklab lightness `light` or more), or takes
+      the color of the nearest light face in the oval;
+    - a face wholly out of the oval keeps a darker color, or takes the color of the nearest
+      darker face out of the oval;
+    - a face across the edge of the oval takes the mix of those two colors by its share.
+
+    The faces of the mesh are 3 cm to 6 cm across, so a choice of whole faces gives the outline
+    teeth or a waist, and the mix gives an even edge. The texture of the cat gives a patch with a
+    waist below the chest, and the seat shows it as a pinch
+    (`docs/research/2026-10-27-cat-belly.md`). Gives the new colors and the changed faces."""
+    centers = corners.mean(axis=1)
+    up = neck - hips
+    length = np.linalg.norm(up)
+    up = up / length
+    forward = np.array([0.0, 0.0, 1.0]) - up[2] * up
+    forward /= np.linalg.norm(forward)
+    left = np.cross(up, forward)
+    grid = sample_grid(8)
+    points = np.einsum('sk,fkd->fsd', grid, corners)
+    rel = points - hips
+    f = rel @ up / length - rule['center']
+    q = ((rel @ left) / rule['radii'][0]) ** 2 + (f / np.where(f < 0, *rule['radii'][1:])) ** 2
+    share = (q <= 1.0).mean(axis=1)
+    rel = centers - hips
+    low, high = rule['range']
+    f = rel @ up / length
+    part = fur & trunk & (rel @ forward > 0) & (f >= low) & (f <= high)
+    light = oklab(colors)[:, 0] >= rule['light']
+    lights = np.nonzero(part & (share == 1.0) & light)[0]
+    darks = np.nonzero(part & (share == 0.0) & ~light)[0]
+
+    def nearest(pool, face):
+        return colors[pool[np.argmin(np.linalg.norm(centers[pool] - centers[face], axis=1))]]
+
+    out = colors.copy()
+    changed = []
+    for face in np.nonzero(part)[0]:
+        if share[face] == 1.0 and light[face] or share[face] == 0.0 and not light[face]:
+            continue
+        out[face] = (share[face] * nearest(lights, face)
+                     + (1.0 - share[face]) * nearest(darks, face))
+        changed.append(face)
+    return out, np.array(changed, int)
 
 
 def smile_line(corners, normals, colors, fur, rule, color):
@@ -4904,6 +4961,16 @@ def main():
         log(f'patch: {len(changed)} dark faces of the eye patches ({sides} left, '
             f'{len(changed) - sides} right) take the color of the nearest light fur face. The '
             f'patches keep the color {np.round(patch_dark, 4).tolist()}')
+    if 'belly' in config['colors']:
+        main_trunk = weights[tris].sum(axis=1).argmax(axis=1)
+        trunk_all = np.concatenate([
+            np.isin(main_trunk, [BONES.index(b) for b in ('hips', 'spine', 'spine1', 'chest')]),
+            np.zeros(len(tris_all) - len(tris), bool)])
+        colors_all, changed = belly_patch(src_all[tris_all], long_heads['hips'],
+                                          long_heads['neck'], colors_all, fur_all, trunk_all,
+                                          config['colors']['belly'])
+        log(f'belly: {len(changed)} faces take the color of the oval patch by the share of '
+            f'their area in it')
     if 'smile' in config['colors']:
         smile = config['colors']['smile']
         if 'color' not in smile and 'patch' not in config['colors']:
