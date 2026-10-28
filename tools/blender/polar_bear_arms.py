@@ -255,10 +255,10 @@ def clean_wrist_cut(bm, part, side):
     """Collapses the thin faces at the wrist cut loop of one side (Collapse Edges), before the tube.
 
     The Bisect splits each face that the plane crosses. Near a corner or along an edge, it leaves
-    loop vertices close together: the cut of 2026-10-24 had three loop vertices within 1 degree
-    around the arm in two places. While a face at the loop has a corner below `CUT_ANGLE` and its
-    shortest edge lies along the loop, that edge collapses to its middle. Gives the number of
-    collapsed edges.
+    loop vertices close together: on the left cut of 2026-10-24, loop vertices lay 1 degree or
+    less apart around the arm at three places. While a face at the loop has a corner below
+    `CUT_ANGLE` and its shortest edge lies along the loop, that edge collapses to its middle. Gives
+    the number of collapsed edges.
     """
     loop = PART['wrist'] + (0 if side > 0 else 10)
     count = 0
