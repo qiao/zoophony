@@ -1133,6 +1133,15 @@ const DOG_HOLD = {
  * the lift and the lowering, the tip turns through the front, as the upright bow of the violinists,
  * with the grip 0.3 H out, 0.3 H up, and 0.6 H to the front: with no move up, the bow paw turned
  * 2,959°/s at the most in the lowering (1,877°/s on 2026-10-21 before the move of the contrabass).
+ *
+ * The bow paw keeps the bend of its bind pose on the forearm (`pawKeepR` 1), as a bassist holds
+ * the French bow "as if the hand is resting by the side" (`docs/reference/string-technique.md`,
+ * section 2.1). The bind bends the short paw 25° off the thick forearm, and the turn of the
+ * retarget onto the line of the forearm bent the skin of the wrist 25° off that form: the edges
+ * of the wrist stretched up to 1.9 times, and the heel of the paw showed as a lump under the bow
+ * paw from the right. With the bend, they stretch up to 1.3 times. The stick stays in the closed
+ * paw with the same grip (`SpeciesParams.bowGrip`). The measures are in the 2026-10-28-hippo-paw
+ * decisions.
  */
 const HIPPO_HOLD = {
   ...BOWED_HOLDS.contrabass,
@@ -1153,6 +1162,7 @@ const HIPPO_HOLD = {
   pluckSide: 0.18,
   stopEnd: 0.7,
   farSideR: 30 * MathUtils.DEG2RAD,
+  pawKeepR: 1,
   restPoleR: [0.6, -1, 0],
   restPoleL: [-1, -0.3, 0],
   restBow: {
