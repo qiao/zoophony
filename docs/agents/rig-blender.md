@@ -214,7 +214,10 @@ interface StudioArmSegments {
   moved the arm root weights and flattened the root ring in the gate: take the arm weights from
   the copy before the wall (`step_tube_heat()`). The Smooth of the tube gives its second ring 0.6
   of the trunk, so the root narrows in a raised arm, but with none it folds at rest
-  (`docs/research/2026-10-28-cat-wall.md`).
+  (`docs/research/2026-10-28-cat-wall.md`). A shape of `raise` with `follow` takes the front of
+  the root half of the way with the arm in the play and keeps the trunk weights at rest. A
+  smoothing of the skin in its pose turned over the thin faces at the end of the armpit line
+  (`docs/research/2026-10-28-cat-root.md`).
 - **A slot that is shading.** A black slot, a hard wedge, or a notch at an arm root or an inner
   elbow can come from the normals: the seated bind bends the arm, and the crease angle splits
   the normals there. The split stays at rest, where the arm-down shape adds the moves of its own
