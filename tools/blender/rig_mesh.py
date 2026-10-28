@@ -1920,7 +1920,7 @@ def tail_line(src, share, bones, bins=10):
     return samples, tangents, lengths
 
 
-def tail_curl(src, bind, weights, heads, ends, root, rule):
+def tail_curl(src, bind, tris, weights, heads, ends, root, rule):
     """Curls the tail of the seated bind along a curve (`studio.tailCurl`), as a sitting cat
     curls its tail on the seat. Each tail vertex keeps its place along the middle line of the tail
     of the source (`tail_line()`) and its offset from the line, and moves to the same place along
@@ -1930,8 +1930,9 @@ def tail_curl(src, bind, weights, heads, ends, root, rule):
     smoothstep of its tail share over them, so that the root of the tail stays with the haunch. The corrective shapes give the source back, so the standing
     body keeps the tail of the source. With `thin` (a factor and two places along the line, in
     units from the root), the offset from the line shrinks to the factor by the smoothstep of the
-    place over the two places, so that a thick tail of the source becomes thin on the seat. Gives
-    the moved bind mesh and the count of moved vertices."""
+    place over the two places, so that a thick tail of the source becomes thin on the seat. With
+    `smooth`, that number of rounds of `tail_smooth()` round the curled tube. Gives the moved bind
+    mesh and the count of moved vertices."""
     share = weights[:, BONES.index('tail')] + weights[:, BONES.index(TAIL_TIP)]
     ids = np.nonzero(share > 0)[0]
     bones = np.asarray([heads['tail'], heads[TAIL_TIP], ends[TAIL_TIP]], float)
@@ -1956,7 +1957,29 @@ def tail_curl(src, bind, weights, heads, ends, root, rule):
         share = smoothstep(share, *rule['blend'])
     out = bind.copy()
     out[ids] = bind[ids] + share[ids, None] * (curled - bind[ids])
+    if 'smooth' in rule:
+        out = tail_smooth(out, tris, ids, share[ids], rule['smooth'])
     return out, len(ids)
+
+
+def tail_smooth(points, tris, ids, share, rounds):
+    """Smooths the curled tail (`studio.tailCurl.smooth`) by the method of Taubin (1995): in each
+    round, each tail vertex moves a half of the way to the middle of its neighbors, then 0.53 of
+    the way back, so that the tube keeps its width. Each vertex moves by its share of the curl, so
+    that the root keeps the haunch. The bend of the curl and the tip of the source tail made a
+    corner and a knob on the seat. Gives the smoothed points."""
+    neighbors = [set() for _ in range(len(points))]
+    for a, b, c in tris:
+        neighbors[a].update((b, c))
+        neighbors[b].update((a, c))
+        neighbors[c].update((a, b))
+    rings = [np.array(sorted(neighbors[i])) for i in ids]
+    out = points.copy()
+    for _ in range(rounds):
+        for factor in (0.5, -0.53):
+            mids = np.array([out[r].mean(axis=0) for r in rings])
+            out[ids] += (factor * share)[:, None] * (mids - out[ids])
+    return out
 
 
 def apply_rules(verts, tris, weights, rules, heads, ends):
@@ -4968,7 +4991,7 @@ def main():
     # the seat. A reclined trunk then turns from it (`studio.trunk`).
     bind = bind_skin(config, weights, upright_matrices, long_verts)
     if 'tailCurl' in config['studio']:
-        bind, count = tail_curl(long_verts, bind, weights, long_heads, long_ends,
+        bind, count = tail_curl(long_verts, bind, tris, weights, long_heads, long_ends,
                                 upright_heads['tail'], config['studio']['tailCurl'])
         log(f'tail: {count} vertices curl along the curve of tailCurl')
     dots = turn_dots(long_verts, bind, tris, weights, upright_matrices)
