@@ -202,11 +202,13 @@ interface StudioArmSegments {
   meets it only at a high armpit line (`tools/blender/cat_arms.py`). Put the flat side a little
   inside the wall and round its edges, else dark slits open at the arm root. Keep the rule weights
   on the trunk and the first shoulder ring (`docs/research/2026-10-25-cat-arms.md`).
-- **A slot that is shading.** A black slot or a hard dark wedge under a raised arm can come from
-  the normals: the seated bind turns the hanging arm up, and the crease angle splits the normals
-  of the arm root. Render `--probe colors,normals` of `pnpm close-views` first. With no dark
-  color, give the arm roots `rootNormals` before a rebuild. A bind that bends the elbow splits
-  the inner elbow the same way: give it `rootNormals.elbow`. On the beaver and the rhino, the
+- **A slot that is shading.** A black slot, a hard wedge, or a notch at an arm root or an inner
+  elbow can come from the normals: the seated bind bends the arm, and the crease angle splits
+  the normals there. The split stays at rest, where the arm-down shape adds the moves of its own
+  split normals, and the front key lights it. Render `--probe colors,normals` of
+  `pnpm close-views`, and read the jumps with `probes/crease.ts` of
+  `docs/research/2026-10-28-fox-rabbit-crease/`. With no dark color, give the arm roots
+  `rootNormals` and the elbows `rootNormals.elbow` before a rebuild. On the beaver and the rhino, the
   rebuilt arms kept the slots and failed the gate (`docs/research/2026-10-25-beaver-rhino-arms.md`).
   When the true face normals match the smooth normals (`probes/armpit-normals.ts` of
   `docs/research/2026-10-27-legs-armpit/`), the black corner is the underside of the arm in the
