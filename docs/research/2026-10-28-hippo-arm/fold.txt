@@ -1,0 +1,22 @@
+
+> zoophony@0.0.0 fold-probe /Users/xueqiaoxu/proj/zoophony/.claude/worktrees/sixth-hippo-arm
+> node tools/fold-probe.ts bassist --base main --faces 6
+
+Folded faces of the studio body of the bassist on main (5c5f38059) and on the working tree: 78.5 s.
+
+| Set | main (5c5f38059) | Working tree |
+|---|---:|---:|
+| rest | 0.0% (0/9), most 0 (L 0 / R 0 / other 0) | 0.0% (0/9), most 0 (L 0 / R 0 / other 0) |
+| play | 10.0% (1291/12912), most 4 (L 1 / R 2 / other 1) | 9.7% (1252/12912), most 3 (L 1 / R 1 / other 1) |
+| lift | 0.0% (0/279), most 0 (L 0 / R 0 / other 0) | 0.0% (0/279), most 0 (L 0 / R 0 / other 0) |
+
+The faces of main (5c5f38059) and of the working tree have other corners, so the faces pair one to one by the nearest middles within 0.01 m.
+
+| Face (tree) | Face (main (5c5f38059)) | main (5c5f38059): rest / play / lift | Working tree: rest / play / lift | Mark | Main bone | Worst sample, angle, bone of the fold |
+|---:|---:|---|---|---|---|---|
+| 630 | 588 | 0.0% / 5.2% / 0.0% | 0.0% / 5.2% / 0.0% |  | upper_arm_seg0_R | boulanger-matin.mid 270.13 s, 108°, turn of upper_arm_seg0_R 154° |
+| 1426 | 1474 | 0.0% / 4.9% / 0.0% | 0.0% / 4.6% / 0.0% |  | forearm_seg1_L | boulanger-matin.mid 61.63 s, 176°, turn of forearm_seg1_L 147° |
+| 883 | 659 | 0.0% / 4.3% / 0.0% | 0.0% / 4.3% / 0.0% |  | chest | boulanger-matin.mid 270.13 s, 96°, turn of clavicle_R 59° |
+| 2170 | 2259 | 0.0% / 0.2% / 0.0% | 0.0% / 0.2% / 0.0% |  | forearm_seg0_L | beethoven-8-4.mid 172.59 s, 97°, turn of forearm_seg1_L 74° |
+| - | 171 | 0.0% / 4.7% / 0.0% | 0.0% / 0.0% / 0.0% | gone | forearm_seg3_R | boulanger-matin.mid 210.88 s, 101°, turn of forearm_seg3_R 133° |
+exit 0

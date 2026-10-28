@@ -1,0 +1,18 @@
+demos 9, play samples 6458, wrist vertices 144, bridge faces 38
+largest out move of a wrist vertex (mm): p50 6.5, p95 7.2, max 8.0
+worst fold angle of a bridge face: p50 29, p95 32, max 34; samples over 60: 0.0%, over 90: 0.0%
+worst fold angle of a wrist region face (304 faces): p50 45, p95 46, max 48; samples over 60: 0.0%
+  face 868: 48 at brahms-2.mid 575.38 s
+  face 1716: 40 at beethoven-8-4.mid 667.59 s
+  face 1526: 34 at brahms-2.mid 658.38 s
+  face 2458: 33 at beethoven-8-4.mid 667.59 s
+  face 1436: 29 at beethoven-8-4.mid 666.09 s
+  face 830: 27 at beethoven-8-4.mid 667.59 s
+  face 1536: 26 at beethoven-8-4.mid 667.59 s
+  face 2239: 26 at brahms-2.mid 99.38 s
+  vertex 820: 8.0 mm at beethoven-9.mid 63.59 s
+  vertex 468: 5.4 mm at beethoven-9.mid 63.59 s
+  vertex 983: 4.7 mm at beethoven-9.mid 63.59 s
+  vertex 976: 3.9 mm at beethoven-9.mid 63.59 s
+  vertex 469: 3.7 mm at beethoven-1.mid 119.90 s
+  vertex 493: 3.6 mm at beethoven-8-4.mid 621.09 s

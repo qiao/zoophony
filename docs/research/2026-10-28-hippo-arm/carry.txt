@@ -1,0 +1,7 @@
+
+> zoophony@0.0.0 carry-check /Users/xueqiaoxu/proj/zoophony/.claude/worktrees/sixth-hippo-arm
+> node tools/carry-check.ts bassist --base main
+
+The roles bassist are not roles with a carried instrument, or come two times. The roles are: violinist, fox-violinist, violist.
+ ELIFECYCLE  Command failed with exit code 1.
+exit 1
