@@ -27,6 +27,12 @@
     "helper": 0.017,
     "note": "Each upper arm and each forearm has 4 deform segments, and each elbow and wrist a helper bone of this length in units, which spans the three rings of its joint in the bind. The app turns them from the joints of the pose (poseArm() of src/models/studio-rig.ts). They replace upperTwist and the ring at each elbow."
   },
+  "rootNormals": {
+    "radius": 0.12,
+    "note": "The skin faces whose middle lies within radius (units, 17.8 cm) of the head of an upper arm take the normals of the skin with no crease angle in the app (root_rim() of tools/blender/rig_mesh.py), as on the fox and the cat. The seated bind turns each hanging arm up, so the faces of the arm root meet at up to 121 degrees, and the crease angle split their normals. At rest, the arm-down shape gives the arm root the form of the copy again, but the split stays: a hard line ran down the seam between the front of each upper arm and the trunk, with a sharp corner at its top, and a short dark slit lay beside the left arm root. The user saw it under the front key (user, 2026-10-28: \"seeing visible crease on fox and rabbit's arm\"). With 0.08, a hard edge of 18 cm stayed at the left root, and with 0.1, an edge of 3 cm at the right root in the play (docs/research/2026-10-28-fox-rabbit-crease.md).",
+    "elbow": 0.06,
+    "elbowNote": "The faces within 0.06 units (8.9 cm) of each elbow joint take the skin normals too, as on the fox: the bind bends each elbow, and the crease angle split the normals of the inner elbows into hard lines of 46 cm (left) and 61 cm (right) at rest. With 0.05, edges of 10 cm to 13 cm at the right inner elbow stayed hard."
+  },
   "output": "assets/models/rabbit/rabbit-apose.rig.glb",
   "name": "Rabbit",
   "weld": 1e-05,
