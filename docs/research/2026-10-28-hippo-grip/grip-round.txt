@@ -1,0 +1,72 @@
+grips tree sets none
+all n=1276: plane past 70° 0.0%, gap over 1 cm 0.0%
+  gap p5 0.02 p50 0.02 p95 0.04 min 0.01 max 0.35
+  depth p5 1.97 p50 2.09 p95 2.19 min 1.80 max 2.21
+  plane p5 44.93 p50 45.03 p95 45.11 min 44.86 max 45.21
+  turn p5 44.93 p50 45.03 p95 45.11 min 44.86 max 45.21
+  swing p5 0.38 p50 0.85 p95 2.20 min 0.11 max 21.80
+  stick p5 -61.77 p50 -41.38 p95 -21.87 min -124.24 max -19.88
+play n=1090: plane past 70° 0.0%, gap over 1 cm 0.0%
+  gap p5 0.02 p50 0.02 p95 0.03 min 0.01 max 0.05
+  depth p5 1.99 p50 2.10 p95 2.19 min 1.97 max 2.21
+  plane p5 44.92 p50 45.05 p95 45.11 min 44.86 max 45.20
+  turn p5 44.92 p50 45.05 p95 45.11 min 44.86 max 45.20
+  swing p5 0.38 p50 0.87 p95 2.20 min 0.19 max 4.83
+  stick p5 -61.47 p50 -39.68 p95 -21.78 min -67.69 max -19.88
+bowing n=895: plane past 70° 0.0%, gap over 1 cm 0.0%
+  gap p5 0.02 p50 0.02 p95 0.02 min 0.01 max 0.05
+  depth p5 1.98 p50 2.08 p95 2.11 min 1.97 max 2.19
+  plane p5 44.92 p50 45.03 p95 45.11 min 44.86 max 45.20
+  turn p5 44.92 p50 45.03 p95 45.11 min 44.86 max 45.20
+  swing p5 0.36 p50 0.95 p95 2.32 min 0.19 max 4.83
+  stick p5 -61.96 p50 -42.38 p95 -29.00 min -67.69 max -21.28
+pizzicato n=195: plane past 70° 0.0%, gap over 1 cm 0.0%
+  gap p5 0.03 p50 0.03 p95 0.03 min 0.02 max 0.03
+  depth p5 2.13 p50 2.18 p95 2.20 min 2.10 max 2.21
+  plane p5 45.07 p50 45.07 p95 45.07 min 45.06 max 45.09
+  turn p5 45.07 p50 45.07 p95 45.07 min 45.06 max 45.09
+  swing p5 0.75 p50 0.83 p95 0.90 min 0.64 max 0.94
+  stick p5 -25.39 p50 -22.66 p95 -21.22 min -28.83 max -19.88
+lift n=93: plane past 70° 0.0%, gap over 1 cm 0.0%
+  gap p5 0.02 p50 0.02 p95 0.29 min 0.01 max 0.29
+  depth p5 1.94 p50 2.03 p95 2.08 min 1.93 max 2.11
+  plane p5 44.96 p50 45.00 p95 45.01 min 44.96 max 45.07
+  turn p5 44.96 p50 45.00 p95 45.01 min 44.96 max 45.07
+  swing p5 0.36 p50 0.70 p95 1.23 min 0.36 max 1.91
+  stick p5 -59.75 p50 -47.37 p95 -41.64 min -64.04 max -33.67
+rest n=3: plane past 70° 0.0%, gap over 1 cm 0.0%
+  gap p5 0.29 p50 0.29 p95 0.29 min 0.29 max 0.29
+  depth p5 1.94 p50 1.94 p95 1.94 min 1.94 max 1.94
+  plane p5 45.01 p50 45.01 p95 45.01 min 45.01 max 45.01
+  turn p5 45.01 p50 45.01 p95 45.01 min 45.01 max 45.01
+  swing p5 0.74 p50 0.74 p95 0.74 min 0.74 max 0.74
+  stick p5 -45.76 p50 -45.76 p95 -45.76 min -45.76 max -45.76
+lower n=90: plane past 70° 0.0%, gap over 1 cm 0.0%
+  gap p5 0.01 p50 0.04 p95 0.29 min 0.01 max 0.35
+  depth p5 1.93 p50 2.05 p95 2.18 min 1.80 max 2.21
+  plane p5 44.96 p50 45.01 p95 45.11 min 44.95 max 45.21
+  turn p5 44.96 p50 45.01 p95 45.11 min 44.95 max 45.21
+  swing p5 0.72 p50 0.84 p95 8.17 min 0.11 max 21.80
+  stick p5 -94.11 p50 -45.81 p95 -22.78 min -124.24 max -20.14
+worst gaps:
+  boulanger-matin lower song 280.67 wall 13.60: gap 0.35 depth 1.95 plane 44.97 turn 44.97 swing 21.80 along -0.66
+  boulanger-matin lower song 280.67 wall 13.70: gap 0.32 depth 1.80 plane 44.96 turn 44.96 swing 20.53 along -0.54
+  beethoven-8 lift song -1.90 wall 10.20: gap 0.29 depth 1.93 plane 44.97 turn 44.97 swing 0.72 along 0.77
+  boulanger-matin lower song 280.67 wall 14.60: gap 0.29 depth 1.94 plane 45.00 turn 45.00 swing 0.71 along 0.40
+  bach-bwv1050 lift song -1.50 wall 10.20: gap 0.29 depth 1.93 plane 44.97 turn 44.97 swing 0.72 along 0.76
+  boulanger-matin lift song -1.42 wall 10.20: gap 0.29 depth 1.93 plane 44.97 turn 44.97 swing 0.72 along 0.76
+worst swings:
+  boulanger-matin lower song 280.67 wall 13.60: gap 0.35 depth 1.95 plane 44.97 turn 44.97 swing 21.80 along -0.66
+  boulanger-matin lower song 280.67 wall 13.70: gap 0.32 depth 1.80 plane 44.96 turn 44.96 swing 20.53 along -0.54
+  boulanger-matin lower song 280.67 wall 13.50: gap 0.25 depth 2.13 plane 44.98 turn 44.98 swing 14.94 along -0.71
+  boulanger-matin lower song 280.67 wall 14.00: gap 0.22 depth 1.97 plane 44.96 turn 44.96 swing 12.95 along 0.10
+  boulanger-matin lower song 280.67 wall 13.90: gap 0.14 depth 1.92 plane 44.96 turn 44.96 swing 8.17 along -0.14
+  bach-bwv1050 lower song 310.00 wall 13.30: gap 0.09 depth 2.15 plane 45.21 turn 45.21 swing 6.91 along 0.94
+play by the place on the bow (along):
+  0.3-0.4 n=1: plane p5 45.02 p50 45.02 p95 45.02; gap p50 0.01 max 0.01
+  0.4-0.5 n=1: plane p5 45.01 p50 45.01 p95 45.01; gap p50 0.01 max 0.01
+  0.5-0.6 n=20: plane p5 44.97 p50 45.02 p95 45.05; gap p50 0.02 max 0.02
+  0.6-0.7 n=598: plane p5 44.92 p50 45.02 p95 45.08; gap p50 0.02 max 0.02
+  0.7-0.8 n=157: plane p5 44.92 p50 45.02 p95 45.10; gap p50 0.02 max 0.03
+  0.8-0.9 n=75: plane p5 44.99 p50 45.11 p95 45.18; gap p50 0.02 max 0.05
+  0.9-1.0 n=43: plane p5 45.05 p50 45.10 p95 45.16; gap p50 0.02 max 0.05

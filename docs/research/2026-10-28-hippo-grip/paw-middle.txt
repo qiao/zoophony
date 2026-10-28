@@ -1,0 +1,12 @@
+grips tree sets none
+samples 1276, head height 0.5053 m
+paw middle from the wrist, hand axes: 0.73, -2.42, -4.63 cm
+spread of the middle: p50 0.33 p95 1.76 max 2.92 cm
+grip on the stick from the wrist: 0.36, -2.91, -2.10 cm
+bowGrip.at 0.0072, 0.0004, -0.0415 -> 0.0144, 0.0102, -0.0916
+grips tree sets none
+samples 1276, head height 0.5053 m
+paw middle from the wrist, hand axes: 0.70, -2.74, -4.52 cm
+spread of the middle: p50 0.02 p95 0.07 max 0.31 cm
+grip on the stick from the wrist: 0.73, -2.42, -4.63 cm
+bowGrip.at 0.0144, 0.0102, -0.0916 -> 0.0139, 0.0037, -0.0894
