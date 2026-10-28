@@ -199,6 +199,8 @@ const rollSide = new Vector3();
 const rollUp = new Vector3();
 const shaftInHand = new Vector3();
 const strikeTurn = new Quaternion();
+const strikeHand = new Quaternion();
+const rollTurn = new Quaternion();
 const strikeDirection = new Vector3();
 const inward = new Vector3();
 const Z_AXIS = new Vector3(0, 0, 1);
@@ -442,38 +444,83 @@ function setHand(
 }
 
 /**
+ * Writes the world rotation of a hand whose mallet points along a direction, with the top of the
+ * mallet up or toward the shoulder joint (`PercussionHold.top`).
+ *
+ * @param side The hand with a mallet.
+ * @param direction The unit direction of the mallet, from the grip to the head.
+ * @param at The head of the mallet.
+ * @param joint The posed shoulder joint of the side.
+ * @param out Gets the world rotation of the hand from the bind pose.
+ * @returns `out`.
+ */
+function topTurn(
+  side: Extract<PercussionSide, { kind: 'mallet' }>,
+  direction: Vector3,
+  at: Vector3,
+  joint: Vector3,
+  out: Quaternion,
+): Quaternion {
+  if (side.top === 'shoulder') {
+    top.subVectors(joint, at).normalize();
+  } else {
+    top.set(0, 1, 0);
+  }
+  top.addScaledVector(direction, -top.dot(direction));
+  if (top.length() > 1e-6) {
+    top.normalize();
+  } else {
+    top.set(0, 0, 1);
+  }
+  return setFromBasis(out, direction, top).multiply(inverse.fromArray(side.inverse));
+}
+
+/**
  * Writes the wrist and the world rotation of a hand with a mallet (design 5.3). The head is at
  * the height of the strike state above its target, and the mallet points from the home of the
- * hand to the head. The top of the mallet points up or toward the shoulder joint
- * (`PercussionHold.top`). The function writes the module vectors `wrist` and `turn`, and it
- * changes `point`.
+ * hand to the head, so that the mallet turns around the home in the stroke. The top of the mallet
+ * points up or toward the shoulder joint (`PercussionHold.top`). With `PercussionHold.strikeRoll`,
+ * the paw also turns around the shaft until it has no side bend on the forearm at the strike
+ * ({@link gripRoll}), and keeps that roll through the stroke. The forearm of the strike comes
+ * from the two-bone solution to the wrist, two times, because the wrist follows the roll. The
+ * function writes the module vectors `wrist` and `turn`, and it changes `point`.
  *
  * @param side The hand with a mallet.
  * @param point The target of the mallet head. The function writes the head into it.
  * @param hand The strike state of the hand.
  * @param joint The posed shoulder joint of the side.
+ * @param pole The direction to which the elbow points, in the model axes.
  */
 function malletHand(
   side: Extract<PercussionSide, { kind: 'mallet' }>,
   point: Vector3,
   hand: StrikeState,
   joint: Vector3,
+  pole: Vector3,
 ): void {
+  const { arm } = side;
+  wristBind.fromArray(arm.bind.wrist);
+  rollTurn.identity();
+  if (side.strikeRoll) {
+    strikeDirection.copy(point).sub(offset.fromArray(side.home)).normalize();
+    topTurn(side, strikeDirection, point, joint, strikeTurn);
+    shoulderBind.fromArray(arm.bind.shoulder);
+    elbowBind.fromArray(arm.bind.elbow);
+    const upper = elbowBind.distanceTo(shoulderBind);
+    const lower = wristBind.distanceTo(elbowBind);
+    for (let pass = 0; pass < 2; pass++) {
+      strikeHand.copy(strikeTurn).multiply(rollTurn);
+      offset.fromArray(side.head).sub(wristBind).applyQuaternion(strikeHand);
+      wrist.copy(point).sub(offset);
+      solveTwoBone(joint, wrist, upper, lower, pole, joints);
+      forearm.subVectors(joints.wrist, joints.elbow).normalize();
+      gripRoll(side, strikeDirection, forearm, rollTurn.copy(strikeTurn));
+    }
+  }
   point.addScaledVector(offset.fromArray(hand.normal), hand.height);
   along.copy(point).sub(offset.fromArray(side.home)).normalize();
-  if (side.top === 'shoulder') {
-    top.subVectors(joint, point).normalize();
-  } else {
-    top.set(0, 1, 0);
-  }
-  top.addScaledVector(along, -top.dot(along));
-  if (top.length() > 1e-6) {
-    top.normalize();
-  } else {
-    top.set(0, 0, 1);
-  }
-  setFromBasis(turn, along, top).multiply(inverse.fromArray(side.inverse));
-  offset.fromArray(side.head).sub(wristBind.fromArray(side.arm.bind.wrist)).applyQuaternion(turn);
+  topTurn(side, along, point, joint, turn).multiply(rollTurn);
+  offset.fromArray(side.head).sub(wristBind).applyQuaternion(turn);
   wrist.copy(point).sub(offset);
 }
 
@@ -510,13 +557,13 @@ function poseHand(
   const play = side.kind === 'free' ? 0 : rig.hold.ready ? 1 : weight;
 
   head.fromArray(hand.point);
+  turnedPole.fromArray(pole).applyQuaternion(chest.rotation);
   if (side.kind === 'mallet' && side.across) {
     const rest = rig.hold.sizes.rest;
     const share = MathUtils.clamp(rest > 0 ? hand.height / rest : 0, 0, side.across.peak);
-    turnedPole.fromArray(pole).applyQuaternion(chest.rotation);
     acrossHand(side, head, share, shoulder.position, turnedPole);
   } else if (side.kind === 'mallet') {
-    malletHand(side, head, hand, shoulder.position);
+    malletHand(side, head, hand, shoulder.position, turnedPole);
   } else if (side.kind === 'plate') {
     head.addScaledVector(offset.fromArray(hand.normal), side.sign * hand.height);
     turn.fromArray(side.turn);
