@@ -825,7 +825,7 @@ export const BOWED_HOLDS = {
  * 2026-10-17 the back of the rebuilt upper arm went 3.8 cm into the body (2026-10-25-cat-arms
  * decisions). At the tip, the right elbow points down, out, and forward, (1.5, -1, -1), further out
  * than the elbow of the rabbit, because the shorter arm reaches the tip nearly straight across the
- * round belly: with (1, -1, -1), the right upper arm went 2.7 cm into the belly at the tip (1.5 cm
+ * round belly: with (1, -1, -1), the right upper arm went 2.7 cm into the belly at the tip (2.1 cm
  * now). With the elbow up of the chin hold, (0.5, 1, -1), a dark wedge fold opened under
  * the right armpit at the tip (manager review of 2026-10-24), the right paw turned 116° on its
  * forearm (90° now), and the narrowest ring of the right arm kept 0.14 of its axis (0.49 now,
@@ -833,15 +833,15 @@ export const BOWED_HOLDS = {
  * the viola hold), so that the nearly straight bow arm passes in front of the even oval belly of
  * 2026-10-27: with 30°, the right upper arm went 2.9 cm into the belly in the play, and with 40°,
  * new faces at the back of the right shoulder folded in each play sample (2026-10-27-cat-belly
- * and 2026-10-27-cat-lap decisions). The front corners of the upper belly are a little flatter
- * where the upper arm lies (`flat` of `tools/blender/cat_arms.py`). In pizzicato, the right
- * elbow points out, a little down, and forward, (1.2, -0.5, -1), a little further out than the
- * chin hold, and the right palm plucks 0.1 m from the strings toward the frog side (`pluckSide`),
- * as the hand of a real player comes up from the side: with the palm over the strings, the
- * middle of the upper arm went 2.1 cm into the top of the chest under the chin in a pizzicato
- * and in the lowering after it (1.3 cm in the lowering now). With 0.05 m, it went 1.9 cm in,
- * and with the elbow (1.3, -0.35, -1) or (1.5, -0.5, -1), the move twist of the arm gate passed
- * its margin (2026-10-27-cat-belly and 2026-10-27-cat-lap decisions).
+ * and 2026-10-27-cat-lap decisions). The front of the upper belly is a little flatter, most at
+ * the middle line, where the upper arm lies (`flat` of `tools/blender/cat_arms.py`). In
+ * pizzicato, the right elbow points out, a little down, and forward, (1.2, -0.5, -1), a little
+ * further out than the chin hold, and the right palm plucks 0.1 m from the strings toward the
+ * frog side (`pluckSide`), as the hand of a real player comes up from the side: with the palm
+ * over the strings, the middle of the upper arm went 2.1 cm into the top of the chest under the
+ * chin in a pizzicato and in the lowering after it (1.3 cm in the lowering now). With 0.05 m, it
+ * went 1.9 cm in, and with the elbow (1.3, -0.35, -1) or (1.5, -0.5, -1), the move twist of the
+ * arm gate passed its margin (2026-10-27-cat-belly and 2026-10-27-cat-lap decisions).
  *
  * The rest pose is the upright rest of the rabbit and the red fox, as the seated violinist of the
  * image of the user (2026-10-17-cat-bow and 2026-10-17-cat-look decisions): the viola stands
