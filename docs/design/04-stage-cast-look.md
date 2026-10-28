@@ -685,10 +685,13 @@ mesh are quad tubes (rings at a right angle to the bones), and the weights come 
     and the thin ears of the hole go before the wall. The rule weights serve only the trunk and
     the socket, so the plane of the arm split lies out of the whole trunk. The arm vertices hang
     on no lower trunk bone, so that the back of the arm root turns with the arm, and the paws hang
-    on no wrist helper, so that they turn with the hands. The rhino has such arms since 2026-10-27
-    (`tools/blender/rhino_arms.py`), with the settings of the elephant for a thick arm and the
-    length of its mesh, because long faces and two bones along each forearm twisted its skin into
-    a thin band. The inner lower side of each upper arm and its shoulder loop are a little flatter,
+    on no wrist helper, so that they turn with the hands. The short paw turns far from the
+    forearm on a thick wrist, so the wrist cut stands parallel to the last ring of the tube, and a
+    smooth evens the band of the wrist: a cut at a right angle to the paw crossed the ring, and the
+    bridge made a lip with a slit (`docs/decisions/2026-10-28-hippo-arm.md`). The rhino has such
+    arms since 2026-10-27 (`tools/blender/rhino_arms.py`), with the settings of the elephant for a
+    thick arm and the length of its mesh, because long faces and two bones along each forearm
+    twisted its skin into a thin band. The inner lower side of each upper arm and its shoulder loop are a little flatter,
     so that the upper arms stay out of the round belly when the elbows point down. The flatten
     comes after the bake of the fur, because the bake casts its rays from a small distance out of
     the tube. The paws of the rhino keep the rule weights of the rig, because the Blender weights
