@@ -147,7 +147,8 @@ describe('createLights', () => {
 
   it('puts the visible beam in the light group (scene/beam.ts)', () => {
     const beam = lights.children.find((child) => child instanceof Group);
-    expect(beam?.children.some((child) => child instanceof Mesh)).toBe(true);
+    const parts = beam?.children.flatMap((haze) => haze.children) ?? [];
+    expect(parts.some((child) => child instanceof Mesh)).toBe(true);
   });
 
   it('leaves out the beam and its motes for the gallery (review of step 8, H3)', () => {
@@ -183,7 +184,8 @@ describe('aimKeyLight (design 2.4, 4.5)', () => {
     expect(spot.shadow.camera.projectionMatrix.equals(projection)).toBe(false);
     const distance = place.distanceTo(new Vector3(3.9, 0, 3.2));
     const texel = (2 * distance * Math.tan(spot.angle * spot.shadow.focus)) / 2048;
-    expect(spot.shadow.normalBias).toBeCloseTo(5 * texel, 9);
+    // The blur radius of the high tier, plus two texels.
+    expect(spot.shadow.normalBias).toBeCloseTo((TIER_SETTINGS.high.shadowRadius + 2) * texel, 9);
   });
 });
 
@@ -214,9 +216,11 @@ describe('the light on the face of the conductor (design 4.5, UX audit FI1)', ()
   const face = conductor.position[1] + 1.2;
 
   it('aims a weak spotlight with no shadow at the face of the bear, from the orchestra side', () => {
-    // The key light, the two side lights, and the light of the conductor.
-    expect(spots).toHaveLength(4);
-    const light = spots.find((spot) => !spot.castShadow && spot.target.position.y > 1);
+    // The key light, the two side lights, the two back-row lights, the rim light, and the light of
+    // the conductor.
+    expect(spots).toHaveLength(7);
+    // The other spotlights have names (`LIGHT_NAMES`).
+    const light = spots.find((spot) => !spot.castShadow && spot.name === '');
     if (!light) {
       throw new Error('No light for the conductor.');
     }
@@ -238,7 +242,7 @@ describe('the light on the face of the conductor (design 4.5, UX audit FI1)', ()
 
   it('has no light for the conductor in a view with no conductor', () => {
     const lights = createLights(11.19, 'high', null);
-    expect(lights.children.filter((child) => child instanceof SpotLight)).toHaveLength(3);
+    expect(lights.children.filter((child) => child instanceof SpotLight)).toHaveLength(6);
   });
 });
 
@@ -247,7 +251,7 @@ describe('setLightsTier (design 2.6)', () => {
     const lights = createLights(6.6, 'high', null);
     const spot = lights.children.find((child) => child instanceof SpotLight);
     expect(spot?.shadow.mapSize.toArray()).toEqual([2048, 2048]);
-    expect(spot?.shadow.radius).toBe(3);
+    expect(spot?.shadow.radius).toBe(TIER_SETTINGS.high.shadowRadius);
     setLightsTier(lights, 'low');
     expect(spot?.shadow.mapSize.toArray()).toEqual([512, 512]);
     expect(spot?.shadow.radius).toBe(1);
@@ -259,12 +263,14 @@ describe('setLightsTier (design 2.6)', () => {
     const changed = createLights(6.6, 'high', null);
     setLightsTier(changed, 'low');
     const beam = changed.children.find((child) => child instanceof Group);
-    const cone = beam?.children.find((child) => child instanceof Mesh);
-    if (!(cone instanceof Mesh) || !(cone.material instanceof ShaderMaterial)) {
+    const parts = beam?.children.flatMap((haze) => haze.children) ?? [];
+    const cone = parts.find((child) => child instanceof Mesh);
+    const side = cone instanceof Mesh && Array.isArray(cone.material) ? cone.material[0] : null;
+    if (!(side instanceof ShaderMaterial)) {
       throw new Error('The beam has no cone.');
     }
-    expect(cone.material.defines['SAMPLES']).toBe(TIER_SETTINGS.low.beamSamples);
-    expect(beam?.children.find((child) => child instanceof Points)?.visible).toBe(false);
+    expect(side.defines['SAMPLES']).toBe(TIER_SETTINGS.low.beamSamples);
+    expect(parts.find((child) => child instanceof Points)?.visible).toBe(false);
   });
 });
 
@@ -276,8 +282,8 @@ describe('the shadow bias (design 2.6, 4.5, UX audit 2026-10-05, SC5)', () => {
     const distance = spot.position.distanceTo(spot.target.position);
     const texel = (2 * distance * Math.tan(spot.angle * spot.shadow.focus)) / 2048;
 
-    // The blur radius of the high tier is 3 texels, plus two texels.
-    expect(spot.shadow.normalBias).toBeCloseTo(5 * texel, 9);
+    // The blur radius of the high tier, plus two texels.
+    expect(spot.shadow.normalBias).toBeCloseTo((TIER_SETTINGS.high.shadowRadius + 2) * texel, 9);
     expect(spot.shadow.normalBias).toBeGreaterThan(0.04);
     // The medium tier: a texel of 2 times the size and a radius of 1. The low tier: 4 times.
     setLightsTier(lights, 'medium');
