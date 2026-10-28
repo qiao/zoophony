@@ -208,7 +208,11 @@ interface StudioArmSegments {
   the seam, fill a side wall under the arm, and give the tube a flat inner side on the wall that
   meets it only at a high armpit line (`tools/blender/cat_arms.py`). Put the flat side a little
   inside the wall and round its edges, else dark slits open at the arm root. Keep the rule weights
-  on the trunk and the first shoulder ring (`docs/research/2026-10-25-cat-arms.md`).
+  on the trunk and the first shoulder ring (`docs/research/2026-10-25-cat-arms.md`). The Bisect
+  leaves lips under the wall that a raised arm shows as a crease: delete them, and fill the wall
+  again with even faces (`step_round_wall()`). The Smooth of the tube gives its second ring 0.6
+  of the trunk, so the root narrows in a raised arm, but with none it folds at rest
+  (`docs/research/2026-10-28-cat-wall.md`).
 - **A slot that is shading.** A black slot, a hard wedge, or a notch at an arm root or an inner
   elbow can come from the normals: the seated bind bends the arm, and the crease angle splits
   the normals there. The split stays at rest, where the arm-down shape adds the moves of its own
