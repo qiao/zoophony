@@ -25,13 +25,86 @@ export const QUALITY_OPTIONS = [
   { value: 'low', label: 'Low' },
 ] as const satisfies readonly SettingOption<QualitySetting>[];
 
+/**
+ * The value of the setting "Frame rate": a frame at each refresh of the display, or a cap of 60
+ * or 30 frames each second (design 2.6).
+ */
+export type FrameRateSetting = 'auto' | '60' | '30';
+
+/** The buttons of the setting "Frame rate", in order (design 2.6, 2.8). */
+export const FRAME_RATE_OPTIONS = [
+  { value: 'auto', label: 'Auto' },
+  { value: '60', label: '60 fps' },
+  { value: '30', label: '30 fps' },
+] as const satisfies readonly SettingOption<FrameRateSetting>[];
+
 /** The dim line below each setting, which explains its values (design 2.8). */
 export const SETTING_HELP = {
   sectionSize:
     'The number of animals in the strings and the choir. Auto gives full sections to an orchestral file.',
   quality:
     'A lower quality makes the motion smoother on a slow device. Auto lowers the quality when the frames are slow.',
+  frameRate:
+    'Auto draws a frame at each refresh of the display. A cap of 60 or 30 fps uses less power.',
 } as const;
+
+/**
+ * The part of the interval of a cap by which a frame of the browser can come early and still
+ * draw. The browser gives its frames at the refresh of the display, with a small jitter.
+ */
+const CAP_TOLERANCE = 0.1;
+
+/**
+ * Tells if a frame of the browser draws under the setting "Frame rate" (design 2.6). With a cap,
+ * a frame draws when the interval of the cap, less a small tolerance, has passed since the last
+ * drawn frame. The time of a drawn frame is the time of the last one plus the interval, so the
+ * mean rate stays at the cap on a display of any refresh rate.
+ *
+ * @param nowMs The time of the frame of the browser, in milliseconds.
+ * @param lastMs The time of the last drawn frame, in milliseconds, or `null` before the first.
+ * @param setting The setting "Frame rate".
+ * @returns The time of the last drawn frame after this frame, or `null` if this frame does not
+ *   draw.
+ */
+export function frameDue(
+  nowMs: number,
+  lastMs: number | null,
+  setting: FrameRateSetting,
+): number | null {
+  if (setting === 'auto' || lastMs === null) {
+    return nowMs;
+  }
+  const interval = 1000 / Number(setting);
+  const elapsed = nowMs - lastMs;
+  if (elapsed < interval * (1 - CAP_TOLERANCE)) {
+    return null;
+  }
+  // After a long stop of the frames, for example in a hidden tab, the count starts again.
+  return elapsed < 2 * interval ? lastMs + interval : nowMs;
+}
+
+/** The time over which the counter of the settings measures the frame rate, in milliseconds. */
+export const FPS_WINDOW_MS = 1000;
+
+/**
+ * Gives the rate of the drawn frames for the counter of the settings (design 2.8): the frames in
+ * the last {@link FPS_WINDOW_MS}, over the time from the first to the last of them.
+ *
+ * @param times The times of the drawn frames, in milliseconds, in order.
+ * @returns The rate in frames each second, or `null` with fewer than two frames in the window.
+ */
+export function measuredFrameRate(times: readonly number[]): number | null {
+  const last = times.at(-1);
+  if (last === undefined) {
+    return null;
+  }
+  const recent = times.filter((time) => time > last - FPS_WINDOW_MS);
+  const first = recent[0];
+  if (first === undefined || recent.length < 2 || last === first) {
+    return null;
+  }
+  return ((recent.length - 1) * 1000) / (last - first);
+}
 
 /** The labels of the two buttons "Auto", with the value that each one selects now. */
 export interface AutoLabels {
