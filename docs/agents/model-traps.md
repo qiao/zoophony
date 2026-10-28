@@ -229,7 +229,12 @@ group of your work before you plan it. A probe that a trap names is in its resea
   a bent joint. The `sliver` and `line` rules remove some folds. `weights.rigid` gives a thin face
   across a joint the mean of its weights, at the source middles of `pnpm fold-probe --faces`. Give
   two thin faces that share corners one item, else the second undoes the first. A body has at most
-  four shapes (`RAISE_LIMIT`).
+  four shapes (`RAISE_LIMIT`). The `sliver` rule gives all thin faces that share corners one set of
+  weights, so a new or a removed thin face can change the weights of a vertex 4 cm away: on the
+  cat, a clean of the armpit line moved the clavicle weight of a socket vertex from 0.47 to 0.24,
+  and a face there folded in 29% of the play.
+  Compare the weights of the copy and of the module with `main` by place
+  (`probes/pdiff.py` and `probes/wdiff.py` of `docs/research/2026-10-28-cat-root2/`).
 - A raised arm pulls the skin where a hanging arm touches the trunk into long dark faces under the
   armpit. Fades, shapes, splits, and vertex moves keep them dark or fold them. When short or thin
   faces join a hanging arm to the trunk, only a cut at the seam fixes them (`cut`,
