@@ -93,7 +93,8 @@ import violin_arms as va  # noqa: E402
 #: the arm (`step_clean_pit()`). `near`: for the first and the second shoulder ring, the distance
 #: in units under which a vertex below the line merges into the next ring. `close`: the same on
 #: each side of the line, at its back half. `weld`: the distance under which a socket vertex
-#: merges into an end of the line or into its neighbor on the socket.
+#: merges into an end of the line or into its neighbor on the socket. `sides`: the sides of the
+#: clean, `L` and `R` (the left and the right arm of the animal).
 #:
 #: The other keys are the keys of `violin_arms.ANIMALS`.
 CAT = {
@@ -152,7 +153,10 @@ CAT = {
     # new faces of the right arm root at rest, so `close` acts only at the back half of the line.
     # With no merge of the socket vertices, the back of the left socket folded in 28.6% of the
     # play (the thin faces there share one set of weights in `rigid_slivers()` of `rig_mesh.py`).
-    'pit': {'near': (0.0055, 0.003), 'close': 0.003, 'weld': 0.0025},
+    # The right side keeps its band: with the clean, the root ring of the bow arm went flatter in
+    # the play (flat p5 of `pnpm arm-check` 0.75, 0.84 before, a fail), and with the strip only,
+    # the valleys in front of the right root were deeper in the play.
+    'pit': {'near': (0.0055, 0.003), 'close': 0.003, 'weld': 0.0025, 'sides': 'L'},
 }
 va.ANIMALS['cat'] = CAT
 
@@ -745,8 +749,9 @@ def step_clean_pit(s):
     3. The faces with a vertex of the line and a vertex of the tube go, and a new strip of
        triangles joins the line to the other side of the hole (`stitch_band()`).
 
-    The line keeps its vertices, so the side wall stays. Gives for each side the counts of the
-    merged rings vertices, of the merged socket vertices, and of the old and the new faces.
+    The line keeps its vertices, so the side wall stays. The step cleans the sides of `sides`.
+    Gives for each side the counts of the merged ring vertices, of the merged socket vertices,
+    and of the old and the new faces.
     """
     from mathutils.geometry import intersect_point_line
     rule = s.spec.get('pit')
@@ -761,6 +766,8 @@ def step_clean_pit(s):
     spoke = bm.verts.layers.int['arm_spoke']
     out = {}
     for side, off in ((1, 0), (-1, 10)):
+        if 'LR'[off // 10] not in rule['sides']:
+            continue
         tube, pit, socket = (PART[k] + off for k in ('tube', 'armpit', 'shoulder'))
         # The line from its front end to its back end (the front is at -y).
         line = sorted((p for p in bm.verts if p[part] == pit), key=lambda p: p.co.y)
