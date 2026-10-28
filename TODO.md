@@ -547,7 +547,9 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       the hair to 5 mm before its end (`2026-10-27-cat-fox2.md`).
 - [ ] Cat (`2026-10-27-cat-fox.md`): the armpit line at the lower back of each arm root still
       folds a little in the play. The socket of the fox, with no shoulder ring and Blender weights
-      on the first ring, tore the arm root open on the cat.
+      on the first ring, tore the arm root open on the cat. Since `2026-10-27-cat3.md`, the faces
+      729, 688, and 728 at the right armpit line fold in 9 to 14 more points of the play samples
+      (`fold.txt` of `docs/research/2026-10-27-cat3/`).
 - [x] Tan fox (`2026-10-27-cat-fox.md`): the right flute paw holds the flute from behind and
       above. In front of the flute, it turned 180° on its forearm in the moves (move turn up to
       17,945°/s). The left paw fails the margin of the move twist of the gate (87°, `main` 67°,
@@ -562,6 +564,11 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       upper arm goes 2.5 cm into the belly at the tip (1.1 cm before, 1.7% of the play over the
       limit), the viola 1.9 cm into the chest (1.0 cm), and the claws 2.1 cm into the viola in the
       lowering (1.2 cm). `pnpm pose-depth violist --base main` marks 15 pairs.
+      Partly done (`2026-10-27-cat3.md`): the jaw goes 1.2 cm into the chin rest, the claws 1.1 cm
+      into the viola in the lowering, and the bow reaches the tip. Open: the bow upper arm goes
+      2.7 cm into the belly at the tip and 2.5 cm in pizzicato, and 1.2 cm at rest (0.9 cm before
+      `sixth-cat-fox2`). Fit it after the round of the oval belly (user, 2026-10-27: "make the
+      cat's belly more oval and smooth"), with the levers of section 4 of the report.
 - [x] Cat (`2026-10-27-cat-fox2.md`): the pits at the back of the left arm root are larger in the
       play (14.5 cm³, 4.7 cm³ before, `dent.txt`), with no hard edge. Look at the crops of the
       user angle. Done: the left shoulder turn of 35° made them. The shoulder turns 20°, the
