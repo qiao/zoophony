@@ -1,0 +1,4 @@
+{
+  "k6-b2.4": { "KEY_LIGHT.illuminance": 6.0, "LIGHT_POOL.spotBoost": 2.4 },
+  "k5.8-b2.5": { "KEY_LIGHT.illuminance": 5.8, "LIGHT_POOL.spotBoost": 2.5 }
+}

@@ -1,0 +1,25 @@
+
+> zoophony@0.0.0 light-probe /Users/xueqiaoxu/proj/zoophony/.claude/worktrees/sixth-key-look
+> node tools/light-probe.ts
+
+beethoven-9.mid: S 12.52 m, 45 players, first row 1.995 lux, hot spot on each spotlight with a shadow map (tier high)
+radius ~2.4 m  n  8  side 0.17  back-row 0.00  key 0.82  rim 0.01  total 1.00  1.995 lux  rabbit,fox-red,cat,dog
+radius ~3.6 m  n  6  side 0.16  back-row 0.00  key 0.72  rim 0.00  total 0.88  1.755 lux  rabbit,fox-red,cat,dog
+radius ~4.8 m  n  5  side 0.18  back-row 0.00  key 1.27  rim 0.00  total 1.45  2.893 lux  fox-tan,mouse
+radius ~7.2 m  n  9  side 0.13  back-row 0.00  key 1.03  rim 0.00  total 1.16  2.320 lux  wolf,beaver,pig,monkey
+radius ~8.4 m  n  9  side 0.08  back-row 0.22  key 0.96  rim 0.00  total 1.26  2.505 lux  hippo,panda,elephant,badger
+radius ~10.8 m  n  8  side 0.00  back-row 0.60  key 1.05  rim 0.00  total 1.65  3.292 lux  penguin
+brahms-2.mid: S 11.17 m, 35 players, first row 2.045 lux, hot spot on each spotlight with a shadow map (tier high)
+radius ~2.4 m  n  8  side 0.16  back-row 0.00  key 0.83  rim 0.01  total 1.00  2.045 lux  rabbit,fox-red,cat,dog
+radius ~3.6 m  n  6  side 0.16  back-row 0.00  key 0.72  rim 0.00  total 0.87  1.784 lux  rabbit,fox-red,cat,dog
+radius ~4.8 m  n  4  side 0.17  back-row 0.00  key 1.25  rim 0.00  total 1.42  2.903 lux  fox-tan,mouse
+radius ~7.2 m  n 10  side 0.10  back-row 0.09  key 0.99  rim 0.00  total 1.18  2.406 lux  wolf,beaver,pig,monkey
+radius ~8.4 m  n  7  side 0.03  back-row 0.38  key 0.94  rim 0.00  total 1.35  2.757 lux  hippo,panda,rhino,elephant
+boulanger-matin.mid: S 11.46 m, 42 players, first row 2.034 lux, hot spot on each spotlight with a shadow map (tier high)
+radius ~2.4 m  n  8  side 0.16  back-row 0.00  key 0.83  rim 0.01  total 1.00  2.034 lux  rabbit,fox-red,cat,dog
+radius ~3.6 m  n  6  side 0.16  back-row 0.00  key 0.87  rim 0.00  total 1.03  2.096 lux  rabbit,fox-red,cat,dog
+radius ~4.8 m  n  8  side 0.14  back-row 0.00  key 0.98  rim 0.07  total 1.19  2.422 lux  deer,polar-bear,fox-tan,mouse
+radius ~7.2 m  n 12  side 0.08  back-row 0.19  key 0.99  rim 0.00  total 1.26  2.566 lux  wolf,beaver,pig,monkey
+radius ~9.6 m  n  8  side 0.02  back-row 0.37  key 0.84  rim 0.00  total 1.23  2.497 lux  hippo,panda,rhino,badger
+BACK_ROW_LIGHT.illuminance 1.5
+   spill 0.0% back floor +18% of key, rim floor +64% of key | beethoven-9 spill 0.0% 2nd 1.16 back 1.26 (min 0.50) choir 1.65 | brahms-2 spill 0.0% 2nd 1.18 back 1.35 (min 0.99) | boulanger-matin spill 0.0% 2nd 1.26 back 1.23 (min 0.74)

@@ -1,0 +1,8 @@
+{
+  "main": {},
+  "no-shot-key": { "SHOT_LOOK.key": 0 },
+  "no-kicker": { "SHOT_LOOK.kicker": 0 },
+  "no-shot-exposure": { "SHOT_LOOK.exposure": 0 },
+  "key-0.8": { "KEY_LIGHT.illuminance": 5.2 },
+  "no-stage-key": { "KEY_LIGHT.illuminance": 0 }
+}
