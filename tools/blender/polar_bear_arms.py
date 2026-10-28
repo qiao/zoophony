@@ -7,9 +7,10 @@ with an image after each step, and this script repeats them in the same order:
 1. Import the T-pose mesh of the user (`polar-bear-tpose.glb`) and Merge by Distance.
 2. Replace the faces of each arm from the shoulder line to the wrist with a quad tube: Bisect at
    the shoulder line and at the wrist (parallel to the last ring of the tube, since 2026-10-28),
-   Delete Faces, a tube of `len(stations)` rings of `RING_VERTS`, Shrinkwrap onto the source arm,
-   and Bridge Edge Loops to the trunk and to the paw. The faces of the paws, the trunk, the legs,
-   and the head stay.
+   Delete Faces, Collapse Edges of the thin faces at each wrist cut loop, a tube of
+   `len(stations)` rings of `RING_VERTS`, Shrinkwrap onto the source arm, Bridge Edge Loops to the
+   trunk and to the paw, and Collapse Edges of the thin wrist bridge faces. The faces of the paws,
+   the trunk, the legs, and the head stay.
 3. Give the new arm faces a UV layout, bake the fur color of the source arm onto them (Cycles,
    Selected to Active), and transfer the custom normals of the source surface (Data Transfer).
 4. Put the arm image in a strip below the atlas, so that the mesh keeps one material, and write
@@ -242,6 +243,70 @@ def cut_arm(bm, fr, line, side, part):
     return len(arm)
 
 
+#: The smallest corner of a face at a wrist cut loop or of a wrist bridge face, in degrees: a
+#: thinner face collapses its shortest loop edge (`clean_wrist_cut()`, `clean_wrist_bridge()`), as
+#: `clean_cut()` and `clean_bridge()` of `polar_bear_legs.py` do. At the wrist of the bear, 20
+#: degrees broke the paw into a dark notch (`bear_arms.py`).
+CUT_ANGLE = 12.0
+
+
+def clean_wrist_cut(bm, part, side):
+    """Collapses the thin faces at the wrist cut loop of one side (Collapse Edges), before the tube.
+
+    The Bisect splits each face that the plane crosses. Near a corner or along an edge, it leaves
+    loop vertices close together: the cut of 2026-10-24 had three loop vertices within 1 degree
+    around the arm in two places. While a face at the loop has a corner below `CUT_ANGLE` and its
+    shortest edge lies along the loop, that edge collapses to its middle. Gives the number of
+    collapsed edges.
+    """
+    loop = PART['wrist'] + (0 if side > 0 else 10)
+    count = 0
+    for _ in range(200):
+        edge = None
+        for f in bm.faces:
+            along = [e for e in f.edges if all(p[part] == loop for p in e.verts)]
+            if not along or min(math.degrees(c.calc_angle()) for c in f.loops) >= CUT_ANGLE:
+                continue
+            short = min(f.edges, key=lambda e: e.calc_length())
+            if short in along:
+                edge = short
+                break
+        if edge is None:
+            break
+        bmesh.ops.collapse(bm, edges=[edge], uvs=True)
+        count += 1
+    return count
+
+
+def clean_wrist_bridge(bm, part):
+    """Collapses the thin bridge triangles of each wrist (Collapse Edges), after the bridge.
+
+    The cut loop of a wrist has about twice as many vertices as the ring, so some bridge triangles
+    have two loop vertices close together and a corner below `CUT_ANGLE`. When their edge along
+    the loop is their shortest edge, it collapses to its middle. Gives the number of collapsed
+    edges.
+    """
+    loops = {PART['wrist'], PART['wrist'] + 10}
+    tubes = {PART['tube'], PART['tube'] + 10}
+    count = 0
+    for _ in range(200):
+        edge = None
+        for f in bm.faces:
+            codes = [p[part] for p in f.verts]
+            if (sum(c in loops for c in codes) != 2 or not any(c in tubes for c in codes)
+                    or min(math.degrees(c.calc_angle()) for c in f.loops) >= CUT_ANGLE):
+                continue
+            short = min(f.edges, key=lambda e: e.calc_length())
+            if all(p[part] in loops for p in short.verts):
+                edge = short
+                break
+        if edge is None:
+            break
+        bmesh.ops.collapse(bm, edges=[edge], uvs=True)
+        count += 1
+    return count
+
+
 def build_tube(bm, source, fr, line, side, part, spoke):
     """Models the quad tube of one arm: one ring of `RING_VERTS` vertices at each station.
 
@@ -290,7 +355,8 @@ def apply_modifier(mesh, mod):
 
 
 def retopo_cut_and_tube(mesh, fr, joints):
-    """Keeps a hidden copy of the source mesh, cuts both arms, and models both tubes."""
+    """Keeps a hidden copy of the source mesh, cuts both arms, collapses the thin faces at the
+    wrist cut loops, and models both tubes."""
     source = mesh.copy()
     source.data = mesh.data.copy()
     source.name = source.data.name = 'polar-bear-source'
@@ -305,8 +371,9 @@ def retopo_cut_and_tube(mesh, fr, joints):
     for side in (1, -1):
         line = arm_line(fr, joints, side)
         removed = cut_arm(bm, fr, line, side, part)
+        collapsed = clean_wrist_cut(bm, part, side)
         rings = build_tube(bm, source, fr, line, side, part, spoke)
-        out[side] = (removed, len(rings))
+        out[side] = (removed, collapsed, len(rings))
     bmesh.update_edit_mesh(mesh.data)
     bpy.ops.object.mode_set(mode='OBJECT')
     source.hide_set(True)
@@ -336,7 +403,9 @@ def retopo_bridge(mesh):
     """Joins each tube to the trunk and to the paw with Bridge Edge Loops.
 
     The first ring bridges to the cut loop of the shoulder line, and the last ring to the cut loop
-    of the paw. The loops have more vertices than the rings, so the bridge makes triangles.
+    of the paw. The loops have more vertices than the rings, so the bridge makes triangles. The
+    thin triangles of each wrist bridge then collapse (`clean_wrist_bridge()`). Gives the number
+    of the bridge faces and of the collapsed edges.
     """
     bpy.context.view_layer.objects.active = mesh
     bpy.ops.object.mode_set(mode='EDIT')
@@ -362,9 +431,10 @@ def retopo_bridge(mesh):
             for f in res['faces']:
                 f.smooth = True
             made += len(res['faces'])
+    collapsed = clean_wrist_bridge(bm, part)
     bmesh.update_edit_mesh(mesh.data)
     bpy.ops.object.mode_set(mode='OBJECT')
-    return made
+    return made, collapsed
 
 
 # The UV seam of each tube runs along this spoke: the lower side of the arm in the T-pose.
