@@ -100,7 +100,8 @@ The wrist bend of the pose does not change (`posture.txt` of `probes/posture.ts`
 
 The weights change only on the forearms and the paws, from |x| 0.36 units out
 (`weights-diff.txt`). The change of `rig_mesh.py` adds an optional key, so no other species
-changes (`body-probe.txt`).
+changes (`body-probe.txt`): `pnpm rig-mesh fox`, `rabbit`, and `hippo`, whose configs have
+`rootNormals`, write their rig files of `main` byte for byte.
 
 ## 6. The images
 
