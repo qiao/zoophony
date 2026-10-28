@@ -114,7 +114,8 @@ reads it (route 3 of `docs/agents/model-work.md`). The steps:
    that relaxes the faces which the skin turns over in the pose of the rule (`raise_shape()`).
    `raise` holds one rule, or a list of up to four rules for a raised arm or a bent wrist.
    With `spread`, the move of single vertices of the shape spreads over their neighbors
-   (`spread_shape()`).
+   (`spread_shape()`). A rig with `armSegments` turns its segments and helpers in the pose of a
+   rule.
    With `upperTwist` of the config, the solve of each shape gives each upper arm the twist bone of
    the app (`upper_twist()`), and the file names the share for `pnpm studio-body`.
 9. Write the GLB file with the code of this script: the materials `fur`, `gloss`, and `chair`,
@@ -1147,6 +1148,18 @@ def arm_bones(side):
 #: The parent of each arm segment and helper.
 SEGMENT_PARENTS = segment_parents()
 PARENTS.update(SEGMENT_PARENTS)
+
+#: The arm segments and the helpers that hold the skin of each arm bone that the shape of a rule of
+#: `raise` relaxes (`raise_shape()`), with no side: the upper arm segments, the forearm segments
+#: and the elbow helper, and the wrist helper with the forearm twist bone and the paw.
+SEGMENTS_OF = {
+    'clavicle': (),
+    'upper_arm': tuple(f'upper_arm_seg{k}' for k in range(ARM_SEGMENTS)),
+    'forearm': tuple(f'forearm_seg{k}' for k in range(ARM_SEGMENTS)) + ('elbow',),
+    'forearm_twist': ('wrist',),
+    'hand': ('wrist',),
+    'fingers': (),
+}
 
 
 def bone_heat(verts, tris, heads, ends, rolls):
@@ -4239,7 +4252,11 @@ def raise_shape(rule, bind, tris, weights, heads, down, sheet, earlier=(), upper
 
     With a share `upper_share` (`upperTwist` of the config), `weights` holds the twist bones of the
     upper arms after the bones (`upper_twist()`), and the twist bones turn as in the app
-    (`twist_matrices()`). The twist bone of the side moves with the upper arm."""
+    (`twist_matrices()`). The twist bone of the side moves with the upper arm.
+
+    With `armSegments` of the config, the arm segments and the helpers turn from the body bones by
+    the rules of the app (`driven_turns()`), and a relaxed bone also relaxes the vertices of its
+    segments and helpers (`SEGMENTS_OF`)."""
     side = rule['side']
     turns = {name: np.eye(3) for name in BONES}
     wrist = rule.get('bone') == 'hand'
@@ -4264,6 +4281,9 @@ def raise_shape(rule, bind, tris, weights, heads, down, sheet, earlier=(), upper
             turns[f'forearm_twist_{side}'] = fore @ twist
             turns[f'hand_{side}'] = fore @ hand
             turns[f'fingers_{side}'] = fore @ hand
+    segmented = any(name in SEGMENT_PARENTS for name in BONES)
+    if segmented:
+        turns.update(driven_turns(turns, heads))
     posed_at = posed_heads(heads, turns)
     matrices = [move(turns[n], heads[n], posed_at[n]) for n in BONES]
     if upper_share is not None:
@@ -4285,6 +4305,8 @@ def raise_shape(rule, bind, tris, weights, heads, down, sheet, earlier=(), upper
     region = np.zeros(len(bind), dtype=bool)
     for bone in moving:
         region |= weights[:, BONES.index(f'{bone}_{side}')] > 0
+        for part in SEGMENTS_OF[bone] if segmented else ():
+            region |= weights[:, BONES.index(f'{part}_{side}')] > 0
     if upper_share is not None and 'upper_arm' in moving:
         region |= weights[:, len(BONES) + 'LR'.index(side)] > 0
     for _ in range(rule.get('grow', 0)):
@@ -4674,9 +4696,8 @@ def main():
         if 'armSegments' in config:
             # The arm segments and the helpers join the bones after the body bones
             # (`segment_bones()`), as the optional bones of `STUDIO_BONES` do.
-            for key in ('upperTwist', 'raise'):
-                if key in config:
-                    raise SystemExit(f'armSegments replaces {key}: remove it from the config.')
+            if 'upperTwist' in config:
+                raise SystemExit('armSegments replaces upperTwist: remove it from the config.')
             if config['armFactor'] != 1 or config.get('bind', {}).get('blend', 'linear') != 'linear':
                 raise SystemExit('armSegments needs the arm factor 1 and the linear bind.')
             BONES = BONES + segment_bones()

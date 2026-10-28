@@ -381,7 +381,8 @@ skin then turns
 in small steps along the arm, and the elbow and the wrist keep their volume. The arms of such a
 mesh are quad tubes (rings at a right angle to the bones), and the weights come from Blender
 (`paintedWeights`), with the rule weights on the bones of `paintedLower`. A segment rig replaces
-`upperTwist` and the shapes of `raise`.
+`upperTwist`. It can take the shapes of `raise`: the pose of a rule turns the segments and the
+helpers by the rules of the app.
 
 ```text
  lowpoly-studio/animals/polar-bear/out/polar-bear.glb
