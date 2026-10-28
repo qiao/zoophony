@@ -1,0 +1,13 @@
+diff --git a/src/scene/stage-scene.ts b/src/scene/stage-scene.ts
+index 6688ac49..76c32843 100644
+--- a/src/scene/stage-scene.ts
++++ b/src/scene/stage-scene.ts
+@@ -301,7 +301,7 @@ export class StageScene {
+   readonly #shot = createShotUniforms();
+   /** The rim lights of the current layout in the materials (design 4.5). */
+   readonly #rim = createRimUniforms();
+-  readonly #materials = createMaterials(this.#pool, this.#shot, this.#rim);
++  readonly #materials = createMaterials(this.#pool, this.#shot, null);
+   /** The copies of the shared material for each program variant of the players. */
+   readonly #variants = new VariantMaterials(this.#materials);
+   #view: LayoutView | null = null;

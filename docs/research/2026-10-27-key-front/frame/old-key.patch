@@ -1,0 +1,42 @@
+diff --git a/src/models/beam.ts b/src/models/beam.ts
+index 92cbd529..9b1e3be6 100644
+--- a/src/models/beam.ts
++++ b/src/models/beam.ts
+@@ -21,13 +21,13 @@ export const KEY_PLACE = {
+    * flat and the players hid most of their shadows. The user looks at the stage from the front
+    * right too, so the light stands at the left, far from that camera.
+    */
+-  azimuth: -35 * MathUtils.DEG2RAD,
++  azimuth: 162 * MathUtils.DEG2RAD,
+   /**
+    * The angle above the stage top, in radians. A front light lights the fronts of the players by
+    * the cosine of this angle and the floor by its sine, so a higher light keeps the white fur
+    * below the shoulder of the tone curve. A shadow is 0.58 times as long as its player.
+    */
+-  elevation: 60 * MathUtils.DEG2RAD,
++  elevation: 66 * MathUtils.DEG2RAD,
+ } as const;
+ 
+ /**
+diff --git a/src/scene/lights.ts b/src/scene/lights.ts
+index 07a190ae..ba8fa782 100644
+--- a/src/scene/lights.ts
++++ b/src/scene/lights.ts
+@@ -21,7 +21,7 @@ export const KEY_LIGHT = {
+    * nearer to the light, so the aim is the stage center: the back row gets about 0.7 of the key
+    * light of the first row, against 0.55 with the aim at 0.3 (`pnpm light-probe`).
+    */
+-  aimToPodium: 0,
++  aimToPodium: 0.3,
+   /**
+    * The half angle of the cone. three.js dims the cone from `angle × (1 - penumbra)` to `angle`.
+    * With the full penumbra, the light falls off from the axis on. The light stands about 2.5 S
+@@ -38,7 +38,7 @@ export const KEY_LIGHT = {
+    * the white fur of the front left rabbit had a luma of 218 against 150 on the old setup and 163
+    * in `orchestra-latest.png`.
+    */
+-  illuminance: 6.5,
++  illuminance: 9,
+ } as const;
+ 
+ /**

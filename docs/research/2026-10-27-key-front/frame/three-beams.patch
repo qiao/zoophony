@@ -1,0 +1,60 @@
+diff --git a/src/models/beam.ts b/src/models/beam.ts
+index 92cbd529..e93c727d 100644
+--- a/src/models/beam.ts
++++ b/src/models/beam.ts
+@@ -60,9 +60,9 @@ export const RIM_PLACE = {
+   /** The angle above the stage top, in radians. */
+   elevation: 66 * MathUtils.DEG2RAD,
+   /** The number of rim lights, each with its beam. 0 gives no rim light and no beam. */
+-  count: 1,
++  count: 3,
+   /** The distance between two neighbor rim lights, in stage sides. */
+-  spread: 0.3,
++  spread: 0.28,
+ } as const;
+ 
+ /**
+diff --git a/src/scene/beam.ts b/src/scene/beam.ts
+index 9876ba8f..88c2dad7 100644
+--- a/src/scene/beam.ts
++++ b/src/scene/beam.ts
+@@ -47,7 +47,7 @@ export const BEAM_LOOK = {
+    * exposure of 0.7 (`STAGE_TONE`) dims the beam too, and 4.8 grew to 5.6 so that the beam stays
+    * the visible source of the pool of light (user, 2026-10-21).
+    */
+-  strength: 5.6,
++  strength: 4,
+   /** The density at the outline, as a part of the density on the axis. The edge stays soft. */
+   edge: 0,
+   /**
+@@ -65,7 +65,7 @@ export const BEAM_LOOK = {
+    * the beam spreads out where it meets the back of the stage. With 0.3 S and a tip of 1.0 S, the
+    * beam did not spread out, and with 0.5 S its bottom was too wide (user, 2026-10-18).
+    */
+-  column: 0.38,
++  column: 0.2,
+   /**
+    * The height of the tip of the haze cone, in stage sides. The tip lies on the line from the foot
+    * of the beam to its rim light, so the beam points at the rim light. The rim light stands far
+@@ -80,7 +80,7 @@ export const BEAM_LOOK = {
+    * beam was too narrow (user, 2026-10-18). With 0.08 S, the beam is about 0.18 of the stage width
+    * at the top of the default view.
+    */
+-  tipRadius: 0.08,
++  tipRadius: 0.045,
+   /**
+    * The density in the haze at the stage. The density grows with the concentration of the light,
+    * where the haze cone is narrow: (column / radius)^0.8, at most
+diff --git a/src/scene/lights.ts b/src/scene/lights.ts
+index 95554816..c80f99f3 100644
+--- a/src/scene/lights.ts
++++ b/src/scene/lights.ts
+@@ -135,7 +135,7 @@ export const RIM_LIGHT = {
+    * gives the floor in the pool a part of its light, as the light from behind did. With 4.5 and
+    * 6, the lit floor had a luma of 110 and 113 against 118 with the key light from behind.
+    */
+-  illuminance: 5,
++  illuminance: 2,
+   /** The half angle of the cone. */
+   angle: 16 * MathUtils.DEG2RAD,
+   /** The full penumbra, for a soft pool of light. */

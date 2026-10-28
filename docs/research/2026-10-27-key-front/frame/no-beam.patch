@@ -1,0 +1,13 @@
+diff --git a/src/models/beam.ts b/src/models/beam.ts
+index 92cbd529..4ba9c3ea 100644
+--- a/src/models/beam.ts
++++ b/src/models/beam.ts
+@@ -60,7 +60,7 @@ export const RIM_PLACE = {
+   /** The angle above the stage top, in radians. */
+   elevation: 66 * MathUtils.DEG2RAD,
+   /** The number of rim lights, each with its beam. 0 gives no rim light and no beam. */
+-  count: 1,
++  count: 0,
+   /** The distance between two neighbor rim lights, in stage sides. */
+   spread: 0.3,
+ } as const;

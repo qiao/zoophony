@@ -1,0 +1,51 @@
+measure-lock: frame-compare waits until the load average of 1 minute is below 12 (now 28.59).
+measure-lock: frame-compare holds the lock.
+
+> zoophony@0.0.0 frame /private/var/folders/54/0kcjqfln35d4bzyptzpj1nlm0000gn/T/frame-compare-60u6hv
+> node tools/split-soundfont.ts && node tools/patch-demos.ts && node tools/write-perf-60.ts && node tools/measure-frame.ts
+
+Wrote 274 preset files (53,834,004 B) and sf/index.json.
+Wrote 14 demo files to public/demos/.
+perf/perf-60.mid: 34193 B
+CPU use 46% over 5 s is above 40%: the main-thread phase waits.
+CPU use 42% over 5 s is above 40%: the main-thread phase waits.
+CPU use 42% over 5 s is above 40%: the main-thread phase waits.
+CPU use 53% over 5 s is above 40%: the main-thread phase waits.
+CPU use 47% over 5 s is above 40%: the main-thread phase waits.
+CPU use 42% over 5 s is above 40%: the main-thread phase waits.
+CPU use 46% over 5 s is above 40%: the main-thread phase waits.
+CPU use 59% over 5 s is above 40%: the main-thread phase waits.
+CPU use 41% over 5 s is above 40%: the main-thread phase waits.
+CPU use 50% over 5 s is above 40%: the main-thread phase waits.
+CPU use 51% over 5 s is above 40%: the main-thread phase waits.
+CPU use 42% over 5 s is above 40%: the main-thread phase waits.
+CPU use 41% over 5 s is above 40%: the main-thread phase waits.
+Frame measure of perf-60 (60 players), cinematic, 1440 × 900 at the device scale 2
+Chrome 156.0.8078.48, headless, ANGLE (Apple, ANGLE Metal Renderer: Apple M1 Max, Unspecified Version)
+Drawing buffer of the stage: 2880 × 1800 pixels.
+CPU use over 5 s before the main-thread phase: 36% of all cores. Limit 40%.
+Load average (1 min, for information): main-thread phase 6.8, GPU phase 5.8, end 6.2.
+The Chrome trace started at the song time 33.0 s and ended at 43.0 s, after a seek to 32 s.
+Frame rate: 60.0 fps with the cap, 130.2 fps with no cap.
+Disjoint timer results (dropped): 0.
+GPU performance states in the Metal trace: Minimum 4 ms, Maximum 3426 ms (99.9% "Maximum"). The "Maximum" rows cover 94.2% of the span of the GPU intervals.
+Other processes used the GPU in 0% of the Metal trace.
+The messages of xctrace at the start and at the end of the record came at the song times 18.6 s and 22.9 s, after a seek to 16 s. These times bracket the Metal trace.
+Self-check of the GPU row: 395 WebGL frames in 3.621 s of the Metal trace, against 395 from the 792 canvas writes of the trace, with 2 at its ends (0.0%). Merged frames: 0.
+The page drew 110.4 fps in the middle of the record: 400 frames (-1.2%), for information.
+Dropped by the filter in each frame: canvas buffers 0.000 ms (0 buffers), other buffers 0.122 ms (241 buffers).
+Guard of the GPU phase (at least 90% "Maximum", "Maximum" rows over at least 60% of the span, at most 10% other GPU work), 1 record(s): valid.
+Console warnings and errors of the pages: none.
+
+| Measure | Frames | p50 (ms) | p95 (ms) | Max (ms) | Within 4 ms | Target |
+|---|---|---|---|---|---|---|
+| Main thread: tasks of each frame (Chrome trace, 60 fps) | 599 | 3.77 | 4.82 | 6.13 | 69.4% | fail |
+| GPU: WebGL frames in the Metal trace (no frame cap) | 395 | 7.91 | 8.08 | 11.91 | 0.0% | fail |
+| GPU: timer query (no frame cap) | 1303 | 13.99 | 17.88 | 18.80 | 0.0% | information |
+| GPU: timer query (60 fps, clock of the GPU) | 601 | 16.02 | 19.73 | 25.51 | 0.0% | information |
+| Frame callback (performance.now, 60 fps) | 601 | 3.70 | 4.60 | 11.40 | 78.2% | information |
+
+Run time: 222 s.
+The frame target of design 9.7 fails.
+ ELIFECYCLE  Command failed with exit code 1.
+measure-lock: frame-compare frees the lock (exit code 1).

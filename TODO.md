@@ -2282,9 +2282,9 @@ the mockup is out of scope.
 - [ ] Ask the user to pick the beams and the height of the key light from `variants.webp` of
       `docs/research/2026-10-27-key-front/`: one beam (default), no beam, or three beams, and the
       key light at 60° (default), 72° (short shadows), or 45° (long shadows).
-- [ ] The white fur of the front left rabbit has a luma of 193 with the front key light, against
-      150 on the key light from behind and 163 in `orchestra-latest.png` (camera `orchestra`). It
-      does not clip. The key light at 72° gives 169, with short shadows.
+- [ ] The front key light lights the faces of the front rows: the rabbit close shot clips a channel
+      on 5.3% of its light fur, against 2.4% on the key light from behind (`clip.txt` of
+      `docs/research/2026-10-27-key-front/`). The wide views clip as before.
 - [ ] The shot planner keeps one upright cone at the stage center (`insideBeam()`). With three
       beams (`RIM_PLACE.count` 3), a camera can stand in a side beam, which draws its back faces.
 - [ ] Find the reads of the look roots at the load of a module with a saved check. Today
