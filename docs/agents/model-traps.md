@@ -69,6 +69,12 @@ group of your work before you plan it. A probe that a trap names is in its resea
   and measure it with `shaft-frame.ts` of `docs/research/2026-10-25-percussion-grip/`. A roll
   that removes the side bend flips where the shaft passes the forearm line: count the jumps with
   `jumps.ts` of the same folder.
+- A strike roll (`PercussionHold.strikeRoll`) removes no side bend when the forearm comes nearer
+  to the shaft than the shaft to the fingers in the bind pose, and a long reach puts the forearm
+  along the shaft: the bass drum beater left the fist along the claws. Lean the spine or point
+  the elbow in, and scan the tilt with `pnpm wind-grip --set` and the gate with `--base main`
+  variants, because the move twist and the stretch fail at small margins
+  (`docs/research/2026-10-27-badger-beater.md`).
 - The rule `weights.fingers` 0.5 of a rig keeps no paw vertex mainly on the fingers, so a curl
   closes little. Give a role that closes its paw around a tube the whole weights (1), and count
   them with `glb_fingers.py` of the same folder.
