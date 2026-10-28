@@ -194,7 +194,15 @@
     "share": 0.5,
     "back": 0.1,
     "below": 0.03,
-    "note": "The seated bind is smoothed across the crease where the belly meets the top of each thigh (crease_relax() of tools/blender/rig_mesh.py), with the values of the fox and the rabbit (docs/decisions/2026-10-16-hip-open.md). The seam has 15 vertices, 117 vertices move, at most 5.26 cm, and no face turns over (rig-mesh-check-cat-final.log). The corrective shapes give the source back, so the standing body keeps its form."
+    "lap": {
+      "rings": 4,
+      "rounds": 6,
+      "share": 0.5,
+      "side": 0.07,
+      "fade": 0.04
+    },
+    "note": "The seated bind is smoothed across the crease where the belly meets the top of each thigh (crease_relax() of tools/blender/rig_mesh.py), with the values of the fox and the rabbit (docs/decisions/2026-10-16-hip-open.md). The seam has 15 vertices, 117 vertices move, at most 5.26 cm, and no face turns over (rig-mesh-check-cat-final.log). The corrective shapes give the source back, so the standing body keeps its form.",
+    "lapNote": "The even oval belly met the thighs with a turn of 34 degrees between the cuts of pnpm trunk-form at the bottom of the oval (22 degrees before the oval). The second smoothing of lap reaches 4 rings up the belly front, and it fades out over 0.04 units behind the hip joints and beyond 0.07 units from the middle plane, so that the seat top and the outer hips keep their places. The turn is 12 to 13 degrees, the front keeps a gap of 0 to its hull, and no edge of the lap is over 35.5 degrees (48 before). With 8 rounds, the front had a gap of 0.05 cm to its hull. With 6 rings, a face of spine1 turned over. With 4 rings and no fade, the seat top fell 2 mm and the outer hips moved up to 8.7 cm (docs/research/2026-10-27-cat-lap.md)."
   },
   "sit": {
     "gap": 0,
