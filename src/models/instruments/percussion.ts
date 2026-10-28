@@ -224,6 +224,12 @@ export const BASS_DRUM = {
    */
   // SAFETY: the literal widens to a number, so that a hold tool can set it in memory.
   malletButt: 0.06 as number,
+  /** The length of the beater from the grip to the middle of its head. */
+  // SAFETY: the literal widens to a number, so that a hold tool can set it in memory.
+  mallet: 0.32 as number,
+  /** The radius of the head of the beater. */
+  // SAFETY: the literal widens to a number, so that a hold tool can set it in memory.
+  ball: 0.055 as number,
 } as const;
 
 /** The tambourine on its stand, in meters (design 4.6). */
@@ -643,8 +649,8 @@ export function buildBassDrum(): InstrumentModel {
   );
   const beater = mallet(
     'malletR',
-    0.32,
-    0.055,
+    BASS_DRUM.mallet,
+    BASS_DRUM.ball,
     INSTRUMENT_COLORS.drumHead,
     undefined,
     undefined,
