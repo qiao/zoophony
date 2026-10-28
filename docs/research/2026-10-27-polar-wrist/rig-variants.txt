@@ -1,0 +1,36 @@
+| Variant | Triangles | Mesh gzip B | Scale m/u | Seat m | Leg seat m | Chair m | Reach L m | Reach R m | Standing mm | pianist play | pianist lift | pianist rest | pianist bones |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| base | 5106 | 32400 | 1.4389 | 0.166 | 0.166 | none | 0.463 | 0.463 | 0.284 | 100.0% | 100.0% | 100.0% | clavicle_L 50784, upper_arm_seg0_L 9809, upper_arm_seg3_L 9428 |
+| source=scratch/v/p25/polar-bear-limbs.glb;paintedWeights=scratch/v/p25/polar-bear-limbs-weights.json;heatSource=scratch/v/p25/polar-bear-arms.glb | 5056 | 32121 | 1.4389 | 0.166 | 0.166 | none | 0.463 | 0.463 | 0.284 | 100.0% | 100.0% | 100.0% | clavicle_L 50784, upper_arm_seg0_L 9809, upper_arm_seg3_L 9428 |
+| source=scratch/v/p15/polar-bear-limbs.glb;paintedWeights=scratch/v/p15/polar-bear-limbs-weights.json;heatSource=scratch/v/p15/polar-bear-arms.glb | 5082 | 32159 | 1.4389 | 0.166 | 0.166 | none | 0.463 | 0.463 | 0.284 | 100.0% | 100.0% | 100.0% | clavicle_L 50784, upper_arm_seg0_L 9809, upper_arm_seg3_L 9428 |
+| source=scratch/v/p10/polar-bear-limbs.glb;paintedWeights=scratch/v/p10/polar-bear-limbs-weights.json;heatSource=scratch/v/p10/polar-bear-arms.glb | 5094 | 32266 | 1.4389 | 0.166 | 0.166 | none | 0.463 | 0.463 | 0.284 | 100.0% | 100.0% | 100.0% | clavicle_L 50784, upper_arm_seg0_L 9809, upper_arm_seg3_L 9428 |
+| source=scratch/v/perp/polar-bear-limbs.glb;paintedWeights=scratch/v/perp/polar-bear-limbs-weights.json;heatSource=scratch/v/perp/polar-bear-arms.glb | 5076 | 32215 | 1.4389 | 0.166 | 0.166 | none | 0.463 | 0.463 | 0.284 | 100.0% | 100.0% | 100.0% | clavicle_L 50784, upper_arm_seg0_L 9809, upper_arm_seg3_L 9428 |
+| source=scratch/v/p25nc/polar-bear-limbs.glb;paintedWeights=scratch/v/p25nc/polar-bear-limbs-weights.json;heatSource=scratch/v/p25nc/polar-bear-arms.glb | 5107 | 32258 | 1.4389 | 0.166 | 0.166 | none | 0.463 | 0.463 | 0.284 | 100.0% | 100.0% | 100.0% | clavicle_L 50784, upper_arm_seg0_L 9809, upper_arm_seg3_L 9428 |
+
+| Variant | Triangles | Mesh gzip B | Scale m/u | Seat m | Leg seat m | Chair m | Reach L m | Reach R m | Standing mm | pianist play | pianist lift | pianist rest | pianist bones |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| base | 5106 | 32400 | 1.4389 | 0.166 | 0.166 | none | 0.463 | 0.463 | 0.284 | 100.0% | 100.0% | 100.0% | clavicle_L 50784, upper_arm_seg0_L 9809, upper_arm_seg3_L 9428 |
+| rootNormals={"knee":0.2,"kneeFront":0.1,"wrist":[0.02,0.02]} | 5106 | 32400 | 1.4389 | 0.166 | 0.166 | none | 0.463 | 0.463 | 0.284 | 100.0% | 100.0% | 100.0% | clavicle_L 50784, upper_arm_seg0_L 9809, upper_arm_seg3_L 9428 |
+| source=scratch/v/p25/polar-bear-limbs.glb;paintedWeights=scratch/v/p25/polar-bear-limbs-weights.json;heatSource=scratch/v/p25/polar-bear-arms.glb;rootNormals={"knee":0.2,"kneeFront":0.1,"wrist":[0.02,0.02]} | 5056 | 32121 | 1.4389 | 0.166 | 0.166 | none | 0.463 | 0.463 | 0.284 | 100.0% | 100.0% | 100.0% | clavicle_L 50784, upper_arm_seg0_L 9809, upper_arm_seg3_L 9428 |
+| source=scratch/v/p25/polar-bear-limbs.glb;paintedWeights=scratch/v/p25/polar-bear-limbs-weights.json;heatSource=scratch/v/p25/polar-bear-arms.glb;rootNormals={"knee":0.2,"kneeFront":0.1,"wrist":[0.03,0.025]} | 5056 | 32121 | 1.4389 | 0.166 | 0.166 | none | 0.463 | 0.463 | 0.284 | 100.0% | 100.0% | 100.0% | clavicle_L 50784, upper_arm_seg0_L 9809, upper_arm_seg3_L 9428 |
+
+Form of the players against main (each value with its difference from main):
+
+| Variant | Triangles | Mesh gzip B | Scale m/u | Seat m | Leg seat m | Chair m | Reach L m | Reach R m | Standing mm | pianist play | pianist lift | pianist rest | pianist bones |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| base | 5106 | 32400 | 1.4389 | 0.166 | 0.166 | none | 0.463 | 0.463 | 0.284 | 100.0% | 100.0% | 100.0% | clavicle_L 50784, upper_arm_seg0_L 9809, upper_arm_seg3_L 9428 |
+| source=scratch/v/p25pj/polar-bear-limbs.glb;paintedWeights=scratch/v/p25pj/polar-bear-limbs-weights.json;heatSource=scratch/v/p25pj/polar-bear-arms.glb | 5056 | 32208 | 1.4389 | 0.166 | 0.166 | none | 0.463 | 0.463 | 0.284 | 100.0% | 100.0% | 100.0% | clavicle_L 50784, upper_arm_seg0_L 9809, upper_arm_seg3_L 9428 |
+| source=scratch/v/p25pj/polar-bear-limbs.glb;paintedWeights=scratch/v/p25pj/polar-bear-limbs-weights.json;heatSource=scratch/v/p25pj/polar-bear-arms.glb;rootNormals={"knee":0.2,"kneeFront":0.1,"wrist":[0.03,0.025]} | 5056 | 32208 | 1.4389 | 0.166 | 0.166 | none | 0.463 | 0.463 | 0.284 | 100.0% | 100.0% | 100.0% | clavicle_L 50784, upper_arm_seg0_L 9809, upper_arm_seg3_L 9428 |
+
+Form of the players against main (each value with its difference from main):
+
+| Variant | Player | Seat m | Visible head m | Standing head top m | Seated head top m | Footprint m |
+| Variant | Triangles | Mesh gzip B | Scale m/u | Seat m | Leg seat m | Chair m | Reach L m | Reach R m | Standing mm | pianist play | pianist lift | pianist rest | pianist bones |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| base | 5106 | 32400 | 1.4389 | 0.166 | 0.166 | none | 0.463 | 0.463 | 0.284 | 100.0% | 100.0% | 100.0% | clavicle_L 50784, upper_arm_seg0_L 9809, upper_arm_seg3_L 9428 |
+| source=scratch/v/p25ph/polar-bear-limbs.glb;paintedWeights=scratch/v/p25ph/polar-bear-limbs-weights.json;heatSource=scratch/v/p25ph/polar-bear-arms.glb;rootNormals={"knee":0.2,"kneeFront":0.1,"wrist":[0.03,0.025]} | 5056 | 32172 | 1.4389 | 0.166 | 0.166 | none | 0.463 | 0.463 | 0.284 | 100.0% | 100.0% | 100.0% | clavicle_L 50784, upper_arm_seg0_L 9809, upper_arm_seg3_L 9428 |
+
+Form of the players against main (each value with its difference from main):
+
+| Variant | Player | Seat m | Visible head m | Standing head top m | Seated head top m | Footprint m |
+|---|---|---|---|---|---|---|

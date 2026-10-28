@@ -1,0 +1,4 @@
+new 2530, old 2555, at the same place 2444, moved or new 86
+largest weight change of a kept vertex: 0.1226, vertices over 0.01: 180, over 0.05: 41
+changed vertices: x -0.481..0.482 y 0.696..0.778 z -0.076..0.029
+|x| of changed vertices: min 0.360, p10 0.389, median 0.451

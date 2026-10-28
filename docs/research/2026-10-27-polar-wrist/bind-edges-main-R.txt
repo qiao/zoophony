@@ -1,0 +1,45 @@
+side R: inner bend dir -0.92,-0.17,-0.36, palm 0.37,-0.66,-0.65, wrist turn in the bind 25.9 deg
+clock of the inner bend: -91
+| Edge | Faces | Bind angle | Kind | Normal jump | t mm | clock | r mm | length mm | weights a / b |
+|---|---|---:|---|---:|---:|---:|---:|---:|---|
+| 20-21 | 21, 22 | 86 | concave | 77 | 26 | 119 | 49 | 11 | hand 0.40, wrist 0.32, forearm_seg3 0.16, fingers 0.13 / hand 0.42, wrist 0.32, fingers 0.13, forearm_seg3 0.13 |
+| 23-21 | 23, 24 | 123 | concave | 118 | 27 | 109 | 49 | 9 | hand 0.40, wrist 0.35, forearm_seg3 0.16, fingers 0.10 / hand 0.42, wrist 0.32, fingers 0.13, forearm_seg3 0.13 |
+| 69-20 | 95, 96 | 76 | concave | 82 | 15 | 124 | 54 | 18 | hand 0.35, wrist 0.32, forearm_seg3 0.29, fingers 0.04 / hand 0.40, wrist 0.32, forearm_seg3 0.16, fingers 0.13 |
+| 69-70 | 96, 97 | 85 | convex | 88 | 18 | 126 | 63 | 28 | hand 0.35, wrist 0.32, forearm_seg3 0.29, fingers 0.04 / hand 0.38, wrist 0.35, forearm_seg3 0.19, fingers 0.07 |
+| 71-70 | 97, 98 | 27 | concave | 8 | 18 | 121 | 65 | 28 | hand 0.36, wrist 0.35, forearm_seg3 0.24, fingers 0.05 / hand 0.38, wrist 0.35, forearm_seg3 0.19, fingers 0.07 |
+| 72-70 | 98, 99 | 78 | convex | 78 | 28 | 127 | 69 | 5 | hand 0.39, wrist 0.36, forearm_seg3 0.18, fingers 0.07 / hand 0.38, wrist 0.35, forearm_seg3 0.19, fingers 0.07 |
+| 72-73 | 100, 101 | 55 | convex | 54 | 28 | 123 | 69 | 5 | hand 0.39, wrist 0.36, forearm_seg3 0.18, fingers 0.07 / hand 0.40, wrist 0.36, forearm_seg3 0.17, fingers 0.08 |
+| 74-73 | 101, 102 | 51 | convex | 62 | 22 | 117 | 67 | 20 | hand 0.38, wrist 0.36, forearm_seg3 0.20, fingers 0.07 / hand 0.40, wrist 0.36, forearm_seg3 0.17, fingers 0.08 |
+| 75-23 | 103, 104 | 39 | concave | 0 | 17 | 104 | 55 | 17 | hand 0.34, wrist 0.34, forearm_seg3 0.26, fingers 0.06 / hand 0.40, wrist 0.35, forearm_seg3 0.16, fingers 0.10 |
+| 70-20 | 96, 113 | 47 | convex | 47 | 27 | 127 | 59 | 20 | hand 0.38, wrist 0.35, forearm_seg3 0.19, fingers 0.07 / hand 0.40, wrist 0.32, forearm_seg3 0.16, fingers 0.13 |
+| 76-23 | 104, 115 | 27 | concave | 0 | 25 | 101 | 50 | 6 | hand 0.40, wrist 0.33, forearm_seg3 0.15, fingers 0.12 / hand 0.40, wrist 0.35, forearm_seg3 0.16, fingers 0.10 |
+| 85-44 | 134, 135 | 27 | convex | 0 | 8 | 1 | 52 | 14 | wrist 0.56, hand 0.29, forearm_seg3 0.11, fingers 0.04 / wrist 0.49, hand 0.37, fingers 0.07, forearm_seg3 0.06 |
+| 126-129 | 213, 214 | 28 | convex | 0 | -10 | 153 | 53 | 10 | forearm_seg3 0.45, hand 0.25, wrist 0.25, forearm_seg2 0.05 / forearm_seg3 0.53, wrist 0.20, hand 0.19, forearm_seg2 0.07 |
+| 132-128 | 221, 222 | 29 | convex | 0 | -7 | 135 | 58 | 19 | forearm_seg3 0.56, forearm_seg2 0.16, wrist 0.15, hand 0.13 / forearm_seg3 0.48, wrist 0.23, hand 0.22, forearm_seg2 0.07 |
+| 134-128 | 223, 224 | 38 | concave | 5 | -17 | 123 | 58 | 25 | forearm_seg3 0.42, wrist 0.27, hand 0.25, forearm_seg2 0.07 / forearm_seg3 0.48, wrist 0.23, hand 0.22, forearm_seg2 0.07 |
+| 135-128 | 224, 225 | 35 | convex | 17 | -15 | 131 | 59 | 10 | forearm_seg3 0.40, hand 0.28, wrist 0.27, forearm_seg2 0.05 / forearm_seg3 0.48, wrist 0.23, hand 0.22, forearm_seg2 0.07 |
+| 134-137 | 230, 231 | 26 | convex | 6 | -15 | 108 | 62 | 12 | forearm_seg3 0.42, wrist 0.27, hand 0.25, forearm_seg2 0.07 / forearm_seg3 0.38, wrist 0.30, hand 0.27, forearm_seg2 0.05 |
+| 137-71 | 229, 234 | 39 | convex | 0 | -2 | 109 | 63 | 21 | forearm_seg3 0.38, wrist 0.30, hand 0.27, forearm_seg2 0.05 / hand 0.36, wrist 0.35, forearm_seg3 0.24, fingers 0.05 |
+| 74-75 | 103, 235 | 53 | convex | 62 | 12 | 108 | 62 | 12 | hand 0.38, wrist 0.36, forearm_seg3 0.20, fingers 0.07 / hand 0.34, wrist 0.34, forearm_seg3 0.26, fingers 0.06 |
+| 75-71 | 234, 235 | 31 | concave | 11 | 8 | 109 | 61 | 11 | hand 0.34, wrist 0.34, forearm_seg3 0.26, fingers 0.06 / hand 0.36, wrist 0.35, forearm_seg3 0.24, fingers 0.05 |
+| 74-71 | 235, 236 | 26 | convex | 0 | 11 | 112 | 64 | 9 | hand 0.38, wrist 0.36, forearm_seg3 0.20, fingers 0.07 / hand 0.36, wrist 0.35, forearm_seg3 0.24, fingers 0.05 |
+| 71-72 | 98, 236 | 53 | convex | 27 | 17 | 119 | 66 | 25 | hand 0.36, wrist 0.35, forearm_seg3 0.24, fingers 0.05 / hand 0.39, wrist 0.36, forearm_seg3 0.18, fingers 0.07 |
+| 138-139 | 232, 238 | 36 | convex | 3 | -16 | 94 | 62 | 8 | forearm_seg3 0.44, wrist 0.28, hand 0.22, forearm_seg2 0.07 / forearm_seg3 0.38, wrist 0.31, hand 0.26, forearm_seg2 0.04 |
+| 142-84 | 245, 246 | 27 | convex | 0 | -34 | 1 | 59 | 23 | wrist 0.33, forearm_seg2 0.31, forearm_seg3 0.29, forearm_seg1 0.07 / wrist 0.50, forearm_seg3 0.22, forearm_seg2 0.15, hand 0.13 |
+| 84-85 | 129, 248 | 26 | convex | 0 | -10 | 4 | 55 | 27 | wrist 0.50, forearm_seg3 0.22, forearm_seg2 0.15, hand 0.13 / wrist 0.56, hand 0.29, forearm_seg3 0.11, fingers 0.04 |
+| 118-119 | 199, 294 | 29 | convex | 0 | -7 | -129 | 59 | 16 | wrist 0.35, forearm_seg3 0.32, hand 0.28, fingers 0.04 / forearm_seg3 0.44, wrist 0.30, hand 0.21, forearm_seg2 0.05 |
+| 161-119 | 294, 295 | 27 | concave | 0 | -11 | -124 | 60 | 26 | wrist 0.36, forearm_seg3 0.31, hand 0.28, forearm_seg2 0.05 / forearm_seg3 0.44, wrist 0.30, hand 0.21, forearm_seg2 0.05 |
+| 167-133 | 305, 306 | 33 | convex | 0 | -28 | 114 | 61 | 30 | forearm_seg3 0.50, forearm_seg2 0.31, wrist 0.11, forearm_seg1 0.08 / forearm_seg3 0.53, wrist 0.18, forearm_seg2 0.16, hand 0.13 |
+| 133-134 | 223, 308 | 34 | convex | 0 | -4 | 112 | 62 | 21 | forearm_seg3 0.53, wrist 0.18, forearm_seg2 0.16, hand 0.13 / forearm_seg3 0.42, wrist 0.27, hand 0.25, forearm_seg2 0.07 |
+| 169-138 | 309, 310 | 36 | convex | 0 | -3 | 90 | 61 | 23 | forearm_seg3 0.51, wrist 0.21, forearm_seg2 0.16, hand 0.12 / forearm_seg3 0.44, wrist 0.28, hand 0.22, forearm_seg2 0.07 |
+| 183-182 | 334, 335 | 35 | convex | 8 | -13 | -94 | 68 | 13 | wrist 0.41, hand 0.34, forearm_seg3 0.22, forearm_seg2 0.04 / wrist 0.40, hand 0.37, forearm_seg3 0.18, fingers 0.05 |
+| 182-158 | 333, 336 | 26 | convex | 0 | -8 | -99 | 72 | 6 | wrist 0.40, hand 0.37, forearm_seg3 0.18, fingers 0.05 / wrist 0.39, hand 0.38, forearm_seg3 0.15, fingers 0.08 |
+| 186-135 | 341, 342 | 38 | convex | 0 | -13 | 126 | 60 | 2 | forearm_seg3 0.36, hand 0.29, wrist 0.29, forearm_seg2 0.05 / forearm_seg3 0.40, hand 0.28, wrist 0.27, forearm_seg2 0.05 |
+| 146-147 | 254, 347 | 26 | convex | 0 | -4 | -46 | 55 | 13 | wrist 0.52, hand 0.33, forearm_seg3 0.12, fingers 0.04 / wrist 0.47, hand 0.38, forearm_seg3 0.09, fingers 0.06 |
+| 185-161 | 348, 349 | 38 | convex | 3 | -11 | -112 | 67 | 7 | wrist 0.39, hand 0.34, forearm_seg3 0.22, fingers 0.05 / wrist 0.36, forearm_seg3 0.31, hand 0.28, forearm_seg2 0.05 |
+| 184-185 | 338, 350 | 38 | convex | 0 | -10 | -106 | 70 | 10 | wrist 0.40, hand 0.36, forearm_seg3 0.19, fingers 0.05 / wrist 0.39, hand 0.34, forearm_seg3 0.22, fingers 0.05 |
+| 183-161 | 349, 352 | 34 | concave | 8 | -14 | -102 | 65 | 27 | wrist 0.41, hand 0.34, forearm_seg3 0.22, forearm_seg2 0.04 / wrist 0.36, forearm_seg3 0.31, hand 0.28, forearm_seg2 0.05 |
+| 161-188 | 351, 352 | 37 | convex | 13 | -21 | -113 | 66 | 16 | wrist 0.36, forearm_seg3 0.31, hand 0.28, forearm_seg2 0.05 / forearm_seg3 0.39, wrist 0.30, hand 0.16, forearm_seg2 0.15 |
+| 183-189 | 353, 354 | 33 | convex | 3 | -24 | -89 | 65 | 18 | wrist 0.41, hand 0.34, forearm_seg3 0.22, forearm_seg2 0.04 / wrist 0.36, forearm_seg3 0.31, hand 0.18, forearm_seg2 0.15 |
+| 178-179 | 327, 391 | 28 | convex | 5 | -22 | -65 | 61 | 21 | wrist 0.42, forearm_seg3 0.26, hand 0.17, forearm_seg2 0.15 / wrist 0.46, hand 0.32, forearm_seg3 0.18, forearm_seg2 0.04 |
+| 216-188 | 410, 411 | 31 | convex | 0 | -39 | -113 | 66 | 20 | forearm_seg3 0.41, forearm_seg2 0.31, wrist 0.20, hand 0.07 / forearm_seg3 0.39, wrist 0.30, hand 0.16, forearm_seg2 0.15 |
