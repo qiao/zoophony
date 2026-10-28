@@ -53,6 +53,12 @@ project makes the studio body of the rabbit from it (`tools/mesh-rigs/rabbit.jso
 shasum -a 256 assets/models/rabbit/rabbit-arms.glb assets/models/rabbit/rabbit-weights.json
 ```
 
+The rig gives the faces near each shoulder joint and each elbow joint the normals of the skin
+with no crease angle (`rootNormals` of the config). The seated bind raises the hanging arms and
+bends the elbows, so the crease angle split the normals there. The front key light showed the
+split as a slit at the front of each arm root, also at rest (user, 2026-10-28,
+`docs/research/2026-10-28-fox-rabbit-crease.md`).
+
 ## rabbit.glb
 
 `rabbit.glb` is the source of the body of the rabbit of 2026-10-10 (design 4.4). `pnpm rig-body rabbit` makes

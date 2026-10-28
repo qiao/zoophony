@@ -76,3 +76,9 @@ stretch the arms. The red fox and the tan fox share the rig. `pnpm rig-mesh fox`
 ```bash
 shasum -a 256 assets/models/fox/fox-arms.glb assets/models/fox/fox-weights.json
 ```
+
+The rig gives the faces near each shoulder joint and each elbow joint the normals of the skin
+with no crease angle (`rootNormals` of the config). The seated bind bends the elbows, so the
+crease angle split the normals of each inner elbow. The front key light showed the split as a
+notch in the crook of the right elbow of both foxes at rest (user, 2026-10-28,
+`docs/research/2026-10-28-fox-rabbit-crease.md`).
