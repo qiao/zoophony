@@ -217,16 +217,17 @@ export const ANIMALS: ReadonlyMap<string, AnimalSettings> = new Map([
     },
   ],
   // The polar bear pianist: the T-pose mesh of the user (decisions/2026-10-24-polar-bear-tpose.md).
-  // The landmark is its standing shoulder joints after the leg factor (0.768 u at 1.4389 m for each
+  // The landmark is its standing shoulder joints after the leg factor (0.790 u at 1.5828 m for each
   // unit). The user said that the bear was too tall (decisions/2026-10-24-polar-bear-seat.md), and
-  // chose the scale of 2026-10-27 (decisions/2026-10-27-polar-bench.md). The legs near the mesh keep
-  // that scale (decisions/2026-10-28-polar-legs.md). The crease angle and the blend are those of
-  // the bear, and the user asked for the eye size of the bear.
+  // chose the scale of 2026-10-27 (decisions/2026-10-27-polar-bench.md). The body is 1.1 times that
+  // scale, so that the bench that fits the legs of the mesh is taller
+  // (decisions/2026-10-28-polar-bench2.md). The crease angle and the blend are those of the bear,
+  // and the user asked for the eye size of the bear.
   [
     'polar-bear',
     {
       landmark: 'shoulders',
-      height: 1.105076,
+      height: 1.2496,
       seated: true,
       soloist: false,
       constant: 'STUDIO_POLAR_BEAR',

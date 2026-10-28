@@ -38,14 +38,14 @@
   "name": "Polar Bear",
   "weld": 1e-05,
   "app": {
-    "shoulders": 1.105076,
-    "reach": 0.46347,
-    "note": "The scale of the bench round of 2026-10-27: 1.4389 m for each unit, 0.8803 of the scale of the polar bear of 2026-10-24 (docs/decisions/2026-10-27-polar-bench.md). The leg factor raises the standing shoulder joints from 0.725 u to 0.768 u, and the landmark rises with them, so that the trunk, the head, and the arms keep their meters (docs/decisions/2026-10-28-polar-legs.md). The reach is the reach of the arm factor below."
+    "shoulders": 1.2496,
+    "reach": 0.50982,
+    "note": "The scale of the bench round of 2026-10-27 times 1.1: 1.5828 m for each unit. The user said on 2026-10-28: \"can the polar bear's bench be taller so that it's leg is more natural? note that you can update the size of the polar bear if needed as long as it looks natural.\" With the factor 1.1, the head top is 1.53 m in the play, near the 1.50 m that the user chose on 2026-10-27 (docs/decisions/2026-10-27-polar-bench.md), and the bench grows with the body. The leg factor raises the standing shoulder joints from 0.725 u to 0.790 u, and the landmark rises with them. The reach is the reach of the arm factor below (docs/decisions/2026-10-28-polar-bench2.md)."
   },
   "armFactor": 1,
   "armFactorNote": "The arms keep the length of the mesh (user rule: keep the limbs of a mesh of the user, and fit the props).",
-  "legFactor": 1.2,
-  "legFactorNote": "The thighs and the shins are 1.2 times as long as on the mesh, so that the legs keep about the proportions of the mesh: the shin is 0.67 of the thigh. The user said on 2026-10-28: \"the polar bear's leg is too long, making it like a human instead of polar bear. Find the original mesh for the polar bear and do not make deviate too far from it. You can reduce the height of the bench if needed.\" The thighs were 1.6 and the shins 3.208 times as long, for a bench of 0.38 m. Of the factors 1.0, 1.2, and 1.4, the manager chose 1.2: with the thighs 10 degrees down, the bench is 0.166 m (docs/decisions/2026-10-28-polar-legs.md).",
+  "legFactor": 1.3,
+  "legFactorNote": "The thighs and the shins are 1.3 times as long as on the mesh, so that the legs keep the proportions of the mesh: the shin is 0.67 of the thigh. The user said on 2026-10-28: \"the polar bear's leg is too long, making it like a human instead of polar bear. Find the original mesh for the polar bear and do not make deviate too far from it.\" The thighs were 1.6 and the shins 3.208 times as long then, for a bench of 0.38 m. The manager chose 1.2 with the thighs 10 degrees down and a bench of 0.166 m (docs/decisions/2026-10-28-polar-legs.md). Later the user said: \"can the polar bear's bench be taller so that it's leg is more natural?\" On that low bench, the legs folded tight under the big haunch. With 1.3, the thighs 25 degrees down, and the body 1.1 times as large, the bench is 0.255 m. With 1.3 and the thighs 20 degrees down, the bench of the rig was 0.215 m at the scale before, and with 1.4 and 25 degrees 0.251 m (docs/decisions/2026-10-28-polar-bench2.md).",
   "joints": {
     "root": {
       "head": [
@@ -258,10 +258,10 @@
   "studio": {
     "legTurns": {
       "thigh": [
-        0.631629,
-        0.030588,
-        -0.163661,
-        0.757182
+        0.532593,
+        0.0255,
+        -0.130398,
+        0.835878
       ],
       "shin": [
         0.115266,
@@ -310,7 +310,7 @@
         0.731461
       ]
     },
-    "note": "legTurns gives the world turn of each left leg bone from the seated bind pose to the source, and the right side mirrors it: the thighs 10 degrees down and 15 degrees out, and the shins vertical, so that the knee angle from the side is 100 degrees, and the feet stand flat (leg_turns.py of docs/research/2026-10-16-hip-open/ 10 15 0, docs/decisions/2026-10-28-polar-legs.md). With level thighs, the bench was 3.3 cm lower, and 5 faces of the knees turned over in the bind. With the thighs 30 degrees out, the knees did not show more from the camera of the stage, and the rest folded more faces. The trunk shares and the bind arms are the values of the other meshes. A forward lean of the bind (open -12 or -18) folded both arms in each play sample, so the trunk keeps the seat of the source, and the play lean of the hold leans the spine (docs/research/2026-10-22-polar-seat.md)."
+    "note": "legTurns gives the world turn of each left leg bone from the seated bind pose to the source, and the right side mirrors it: the thighs 25 degrees down and 15 degrees out, and the shins vertical, so that the knee angle from the side is 115 degrees, as in the seat of design 5.2, and the feet stand flat (leg_turns.py of docs/research/2026-10-16-hip-open/ 25 15 0, docs/decisions/2026-10-28-polar-bench2.md). With the thighs 10 degrees down, the legs folded tight under the haunch on a bench of 0.166 m. With level thighs, the bench was 3.3 cm lower still, and 5 faces of the knees turned over in the bind. With the thighs 30 degrees out, the knees did not show more from the camera of the stage, and the rest folded more faces. The trunk shares and the bind arms are the values of the other meshes. A forward lean of the bind (open -12 or -18) folded both arms in each play sample, so the trunk keeps the seat of the source, and the play lean of the hold leans the spine (docs/research/2026-10-22-polar-seat.md)."
   },
   "weights": {
     "armSplit": 0.145,

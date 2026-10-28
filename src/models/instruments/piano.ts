@@ -35,14 +35,15 @@ export const PIANO = {
 } as const;
 
 /**
- * The scale of the whole piano around the origin of the piano axes: about the size of a real
- * grand piano, with the keys at 0.72 m. The polar bear pianist sits on a low bench with the legs
- * of its mesh, so its shoulders stand low. At this scale, its elbows stand 4 to 6 cm above the
- * keys, and its forearms are level, as a real pianist sits (`docs/reference/piano-technique.md`).
- * At 1.16, the scale of the high bench of 2026-10-27, the elbows stood below the keys
- * (`docs/research/2026-10-28-polar-legs.md`).
+ * The scale of the whole piano around the origin of the piano axes: 1.22 times a real grand
+ * piano, with the keys at 0.85 m, because the polar bear pianist is a large animal on a bench
+ * that fits its legs. The keys stand about 0.6 m above the bench top, as on the low bench before.
+ * At this scale, its elbows stand 5 to 9 cm above the keys, and its forearms slope about 5° down
+ * to the keys, as a real pianist sits (`docs/reference/piano-technique.md`). At 1.13, the elbows
+ * stood 10 to 13 cm above the keys, and the forearms sloped 17° down
+ * (`docs/research/2026-10-28-polar-bench2.md`).
  */
-export const PIANO_SCALE = 1.03;
+export const PIANO_SCALE = 1.22;
 
 /**
  * The distance of the front of the keys in front of the floor point of the body of the pianist,
