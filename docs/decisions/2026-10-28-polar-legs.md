@@ -13,7 +13,7 @@ images. The user can reverse each decision. Then update its section, and remove 
 
 | Decision | Section |
 |---|---|
-| The thighs and the shins take the leg factor 1.2 (`legFactor`, no `shinFactor`), so that the shin keeps 0.67 of the thigh, as on the mesh. On `main`, the shin was 1.35 of the thigh. This replaces the factor rows of `2026-10-22-polar-legs.md` and `2026-10-27-polar-bench.md`. | 4.4 |
+| The thighs and the shins take one leg factor, 1.2 (`legFactor`), so that the shin keeps 0.67 of the thigh, as on the mesh. On `main`, the shin was 1.35 of the thigh. This replaces the factor rows of `2026-10-22-polar-legs.md` and `2026-10-27-polar-bench.md`. | 4.4 |
 | The thighs slope 10° down, the shins stand vertical, and the feet stand flat (`studio.legTurns`): the bench top is 0.166 m. Level thighs gave 0.133 m and 5 turned knee faces in the bind. This replaces the bench row of `2026-10-27-polar-bench.md`. | 1, 4.4 |
 | The body keeps the scale of `main`, 1.4389 m for each unit. The head top is 1.31 m in the play and 1.32 m at rest. This replaces the size row of `2026-10-27-polar-bench.md`. | 1, 4.4 |
 | The calf fair covers 0.012 to 0.065 units down the shin (`kneeCrease.fair`): the band of `main` reached past the ankle of the short shin. | 4.4 |
