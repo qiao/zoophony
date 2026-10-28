@@ -60,13 +60,16 @@ va = ca.va
 #: (0.022 folded more), and the weights take 4 rounds of Smooth (`seam.ramp`): 10 rounds spread
 #: the weights of the short arm over four segments at the elbow. Only the rings of the upper arm
 #: take the chest share of the anchor (`anchor.rings`): the forearm lies near the side wall too.
+#: The wrist cut lies 0.25 of the paw from the wrist joint, parallel to the last ring
+#: (`cut_planes()`): with 0.15, 0.2, and 0.3, the cut left a thin face on a paw or at a socket
+#: that folded in each play sample (`docs/research/2026-10-28-hippo-arm.md`).
 HIPPO = {
     'config': 'tools/mesh-rigs/hippo.json',
     'source': 'assets/models/hippo/hippo.glb',
     'folder': 'assets/models/hippo',
     'factor': 1.5,
     'slim': (1.0, 1.0),
-    'cut': {'shoulder': 0.0, 'tilt': 0.0, 'wrist': 0.2},
+    'cut': {'shoulder': 0.0, 'tilt': 0.0, 'wrist': 0.25},
     'zone': {'x': 0.22, 'radius': 0.09},
     'gap': 0.026,
     'upper': (0.45, 0.6),
@@ -84,6 +87,39 @@ HIPPO = {
     'handRings': 1,
 }
 va.ANIMALS['hippo'] = HIPPO
+
+
+#: The cut planes of `violin_arms.py`, which `cut_planes()` changes for the hippo.
+CUT_PLANES = va.cut_planes
+
+
+def cut_planes(s, line, side):
+    """Gives the cut planes of `violin_arms.cut_planes()`, with the wrist plane at a right angle to
+    the axis of the last ring of the tube.
+
+    The last ring stands at the wrist joint at a right angle to the line halfway between the
+    forearm and the paw (`violin_arms.arm_stations()`). The plane of the wrist cut of
+    `violin_arms.py` stands at a right angle to the paw. The paw of the hippo is short and turns
+    about 35 degrees from the forearm, and the wrist is about 0.06 units thick, so that plane
+    crossed the plane of the last ring on the inner side of the turn. The bridge from the ring to
+    the cut loop then went back toward the elbow, as a lip with a dark slit under it, and the play
+    showed it as a pale band or a dark slit around the wrist (user, 2026-10-28: "also the hippo's
+    arm is messed up"). With the two planes parallel, the bridge is an even band of the width
+    `cut.wrist` of the paw.
+    """
+    shoulder, _ = CUT_PLANES(s, line, side)
+    _, e, w, t = line
+    axis = ((w - e).normalized() + (t - w).normalized()).normalized()
+    return [shoulder, (w + axis * ((t - w).length * s.spec['cut']['wrist']), axis)]
+
+
+def step_cut(s):
+    """Cuts each arm as `cat_arms.step_cut()` does, with the wrist plane of `cut_planes()`."""
+    va.cut_planes = cut_planes
+    try:
+        return ca.step_cut(s)
+    finally:
+        va.cut_planes = CUT_PLANES
 
 
 #: The tip corner, in degrees, below which `step_trim()` deletes an ear of the hole of the seam.
@@ -354,7 +390,7 @@ def step_weights(s):
 #: (`cat_arms.step_belly()`, 2026-10-27) is not a step of the hippo session: the hippo has no
 #: `belly` rule, and the step stopped the replay with a KeyError.
 STEPS = tuple(out for step in ca.STEPS
-              for out in {ca.step_cut: (ca.step_cut, step_trim),
+              for out in {ca.step_cut: (step_cut, step_trim),
                           ca.step_wall: (ca.step_wall, step_triangulate, fa.step_clean_cut),
                           ca.step_beautify: (ca.step_beautify, fa.step_clean_bridge,
                                              step_clean_seam),
