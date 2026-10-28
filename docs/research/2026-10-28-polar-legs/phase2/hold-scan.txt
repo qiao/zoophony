@@ -1,0 +1,50 @@
+# docs/research/2026-10-28-polar-legs/probes/hold-scan.sh '<PIANO_SCALE>/<PIANO_FRONT_H>...' '<hold json>'...
+# On the leg factor 1.2 with the thighs 10 degrees down. Each JSON changes values of the hold of
+# main (lean 23, shoulderDrop 20, poles (±1, -1.6, 0.4)). The line gives the play medians of
+# bach-bwv1047 (seat-probe.ts): the shoulder joints, the elbow joints above the key top (L/R), the
+# forearm rise from the elbow to the wrist (below 0 down to the keys), the head gap to the case
+# (median and min), the haunch gap (below 0 into the bench), and the head top, in cm and degrees.
+#
+# 1. The lean and the shoulder turn at the piano of main (1.16/1.3). The first runs printed to the
+#    console only, and these lines are their output.
+scale 1.16 keys 81.2 | {} | shoulder 85.3 | elbow -7.2/-8.1 | forearm +36.6 (max +42.5) | head gap 11.2 (min 9.9) | haunch -3.9 | head top 124.2 | reach max 0.834 | rest elbow -8.5
+scale 1.16 keys 81.2 | {"lean":12} | shoulder 87.2 | elbow -3.8/-4.9 | forearm +26.3 (max +31.2) | head gap 23.7 (min 22.1) | haunch -3.9 | head top 129.4 | reach max 0.970 | rest elbow -8.5
+scale 1.16 keys 81.2 | {"lean":12,"shoulderDrop":8} | shoulder 90.3 | elbow -2.5/-4.0 | forearm +22.8 (max +27.9) | head gap 23.7 (min 22.1) | haunch -3.9 | head top 129.4 | reach max 0.970 | rest elbow -8.5
+scale 1.16 keys 81.2 | {"lean":6,"shoulderDrop":4} | shoulder 91.7 | elbow 1.4/0.4 | forearm +11.0 (max +16.8) | head gap 31.4 (min 29.6) | haunch -3.9 | head top 131.2 | reach max 0.970 | rest elbow -8.5
+scale 1.16 keys 81.2 | {"lean":6,"shoulderDrop":4,"sideLeanMax":0} | shoulder 91.8 | elbow -0.1/3.3 | forearm +9.2 (max +16.0) | head gap 31.5 (min 29.7) | haunch -3.9 | head top 131.3 | reach max 0.970 | rest elbow -8.5
+scale 1.16 keys 81.2 | {"lean":0,"shoulderDrop":4,"sideLeanMax":0} | shoulder 91.7 | elbow 3.1/3.5 | forearm +5.4 (max +6.2) | head gap 37.4 (min 36.1) | haunch -3.9 | head top 132.3 | reach max 0.970 | rest elbow -8.5
+#
+# 2. The distance of the keys (PIANO_FRONT_H) at the scale of main.
+scale 1.16 front 1.3 keys 81.2 | {"lean":6,"shoulderDrop":4} | shoulder 91.7 | elbow 1.4/0.4 | forearm +11.0 (max +16.8) | head gap 31.4 (min 29.6) | haunch -3.9 | head top 131.2 | reach max 0.970 | rest elbow -8.5
+scale 1.16 front 1.1 keys 81.2 | {"lean":6,"shoulderDrop":4} | shoulder 91.7 | elbow -2.3/-4.0 | forearm +22.6 (max +27.3) | head gap 25.7 (min 23.7) | haunch -2.5 | head top 131.2 | reach max 0.964 | rest elbow -8.5
+scale 1.16 front 0.9 keys 81.2 | {"lean":6,"shoulderDrop":4} | shoulder 91.7 | elbow -4.6/-6.6 | forearm +30.0 (max +34.7) | head gap 19.9 (min 17.9) | haunch -0.9 | head top 131.2 | reach max 0.859 | rest elbow -8.5
+#
+# 3. The scale of the piano and the distance of the keys (scan1.txt of the run).
+scale 1.0 front 0.9 keys 70.0 | {"lean":6,"shoulderDrop":4} | shoulder 91.7 | elbow 3.5/1.1 | forearm +7.1 (max +10.6) | head gap 25.5 (min 23.2) | haunch -0.9 | head top 131.2 | reach max 0.860 | rest elbow 2.7
+scale 1.0 front 0.9 keys 70.0 | {"lean":10,"shoulderDrop":8} | shoulder 90.5 | elbow 1.8/-0.5 | forearm +11.7 (max +15.8) | head gap 20.4 (min 18.1) | haunch -0.9 | head top 130.1 | reach max 0.792 | rest elbow 2.7
+scale 1.0 front 1.0 keys 70.0 | {"lean":6,"shoulderDrop":4} | shoulder 91.7 | elbow 4.3/2.0 | forearm +4.7 (max +8.1) | head gap 27.7 (min 25.4) | haunch -0.9 | head top 131.2 | reach max 0.911 | rest elbow 2.7
+scale 1.0 front 1.0 keys 70.0 | {"lean":10,"shoulderDrop":8} | shoulder 90.5 | elbow 2.3/0.0 | forearm +10.2 (max +13.8) | head gap 22.5 (min 20.2) | haunch -0.9 | head top 130.1 | reach max 0.842 | rest elbow 2.7
+scale 1.0 front 1.1 keys 70.0 | {"lean":6,"shoulderDrop":4} | shoulder 91.7 | elbow 5.5/3.3 | forearm +1.2 (max +4.6) | head gap 30.0 (min 27.7) | haunch -2.5 | head top 131.2 | reach max 0.965 | rest elbow 2.7
+scale 1.0 front 1.1 keys 70.0 | {"lean":10,"shoulderDrop":8} | shoulder 90.5 | elbow 3.1/1.0 | forearm +7.8 (max +11.3) | head gap 24.7 (min 22.4) | haunch -2.5 | head top 130.1 | reach max 0.894 | rest elbow 2.7
+scale 1.04 front 0.9 keys 72.8 | {"lean":6,"shoulderDrop":4} | shoulder 91.7 | elbow 1.2/-1.2 | forearm +13.4 (max +17.1) | head gap 23.5 (min 21.2) | haunch -0.9 | head top 131.2 | reach max 0.851 | rest elbow -0.1
+scale 1.04 front 0.9 keys 72.8 | {"lean":10,"shoulderDrop":8} | shoulder 90.5 | elbow -0.5/-2.8 | forearm +18.0 (max +22.5) | head gap 18.2 (min 15.9) | haunch -0.9 | head top 130.1 | reach max 0.784 | rest elbow -0.1
+scale 1.04 front 1.0 keys 72.8 | {"lean":6,"shoulderDrop":4} | shoulder 91.7 | elbow 2.1/-0.2 | forearm +10.7 (max +14.4) | head gap 25.9 (min 23.6) | haunch -0.9 | head top 131.2 | reach max 0.903 | rest elbow -0.1
+scale 1.04 front 1.0 keys 72.8 | {"lean":10,"shoulderDrop":8} | shoulder 90.5 | elbow 0.1/-2.1 | forearm +16.2 (max +20.1) | head gap 20.5 (min 18.2) | haunch -0.9 | head top 130.1 | reach max 0.834 | rest elbow -0.1
+scale 1.04 front 1.1 keys 72.8 | {"lean":6,"shoulderDrop":4} | shoulder 91.7 | elbow 3.3/1.2 | forearm +7.3 (max +10.9) | head gap 28.4 (min 26.1) | haunch -2.5 | head top 131.2 | reach max 0.956 | rest elbow -0.1
+scale 1.04 front 1.1 keys 72.8 | {"lean":10,"shoulderDrop":8} | shoulder 90.5 | elbow 1.0/-1.1 | forearm +13.6 (max +17.4) | head gap 22.9 (min 20.6) | haunch -2.5 | head top 130.1 | reach max 0.887 | rest elbow -0.1
+scale 1.08 front 0.9 keys 75.6 | {"lean":6,"shoulderDrop":4} | shoulder 91.7 | elbow -0.9/-3.2 | forearm +19.3 (max +23.2) | head gap 22.0 (min 19.6) | haunch -0.9 | head top 131.2 | reach max 0.847 | rest elbow -2.9
+scale 1.08 front 0.9 keys 75.6 | {"lean":10,"shoulderDrop":8} | shoulder 90.5 | elbow -2.6/-4.8 | forearm +24.1 (max +28.9) | head gap 16.5 (min 14.1) | haunch -0.9 | head top 130.1 | reach max 0.782 | rest elbow -2.9
+scale 1.08 front 1.0 keys 75.6 | {"lean":6,"shoulderDrop":4} | shoulder 91.7 | elbow -0.0/-2.2 | forearm +16.4 (max +20.3) | head gap 24.5 (min 22.1) | haunch -0.9 | head top 131.2 | reach max 0.899 | rest elbow -2.9
+scale 1.08 front 1.0 keys 75.6 | {"lean":10,"shoulderDrop":8} | shoulder 90.5 | elbow -1.9/-4.0 | forearm +22.0 (max +26.2) | head gap 18.9 (min 16.5) | haunch -0.9 | head top 130.1 | reach max 0.833 | rest elbow -2.9
+scale 1.08 front 1.1 keys 75.6 | {"lean":6,"shoulderDrop":4} | shoulder 91.7 | elbow 1.2/-0.8 | forearm +12.9 (max +16.7) | head gap 27.0 (min 24.7) | haunch -2.5 | head top 131.2 | reach max 0.953 | rest elbow -2.9
+scale 1.08 front 1.1 keys 75.6 | {"lean":10,"shoulderDrop":8} | shoulder 90.5 | elbow -1.0/-3.0 | forearm +19.1 (max +23.2) | head gap 21.4 (min 19.1) | haunch -2.5 | head top 130.1 | reach max 0.885 | rest elbow -2.9
+#
+# 4. The elbows of the play at the smaller pianos (scan2.txt of the run).
+scale 1.0 front 1.0 keys 70.0 | {"lean":6,"shoulderDrop":4,"poleL":[-1,-1,0.4],"poleR":[1,-1,0.4]} | shoulder 91.7 | elbow 5.8/3.7 | forearm +0.5 (max +4.2) | head gap 27.7 (min 25.4) | haunch -0.9 | head top 131.2 | reach max 0.911 | rest elbow 2.7
+scale 1.0 front 1.0 keys 70.0 | {"lean":6,"shoulderDrop":4,"poleL":[-1,-0.6,0.4],"poleR":[1,-0.6,0.4]} | shoulder 91.7 | elbow 7.6/5.8 | forearm -5.0 (max -0.7) | head gap 27.7 (min 25.4) | haunch -0.9 | head top 131.2 | reach max 0.911 | rest elbow 2.7
+scale 1.0 front 1.0 keys 70.0 | {"lean":6,"shoulderDrop":4,"poleL":[-1,-0.3,0.3],"poleR":[1,-0.3,0.3]} | shoulder 91.7 | elbow 10.0/8.5 | forearm -12.0 (max -7.4) | head gap 27.7 (min 25.4) | haunch -0.9 | head top 131.2 | reach max 0.911 | rest elbow 2.7
+scale 1.0 front 1.0 keys 70.0 | {"lean":6,"shoulderDrop":0,"poleL":[-1,-0.6,0.4],"poleR":[1,-0.6,0.4]} | shoulder 92.7 | elbow 8.3/6.5 | forearm -7.0 (max -2.7) | head gap 27.7 (min 25.4) | haunch -0.9 | head top 131.2 | reach max 0.922 | rest elbow 2.7
+scale 1.03 front 1.0 keys 72.1 | {"lean":6,"shoulderDrop":4,"poleL":[-1,-1,0.4],"poleR":[1,-1,0.4]} | shoulder 91.7 | elbow 4.3/2.1 | forearm +4.6 (max +8.5) | head gap 26.3 (min 24.0) | haunch -0.9 | head top 131.2 | reach max 0.904 | rest elbow 0.6
+scale 1.03 front 1.0 keys 72.1 | {"lean":6,"shoulderDrop":4,"poleL":[-1,-0.6,0.4],"poleR":[1,-0.6,0.4]} | shoulder 91.7 | elbow 6.3/4.5 | forearm -1.4 (max +3.1) | head gap 26.3 (min 24.0) | haunch -0.9 | head top 131.2 | reach max 0.904 | rest elbow 0.6
+scale 1.03 front 1.0 keys 72.1 | {"lean":6,"shoulderDrop":4,"poleL":[-1,-0.3,0.3],"poleR":[1,-0.3,0.3]} | shoulder 91.7 | elbow 9.0/7.3 | forearm -8.9 (max -4.1) | head gap 26.3 (min 24.0) | haunch -0.9 | head top 131.2 | reach max 0.904 | rest elbow 0.6
+scale 1.03 front 1.0 keys 72.1 | {"lean":6,"shoulderDrop":0,"poleL":[-1,-0.6,0.4],"poleR":[1,-0.6,0.4]} | shoulder 92.7 | elbow 7.0/5.2 | forearm -3.3 (max +1.3) | head gap 26.3 (min 24.0) | haunch -0.9 | head top 131.2 | reach max 0.914 | rest elbow 0.6

@@ -1,0 +1,65 @@
+# The arm gate of the pianist with variants of the hold, on the leg factor 1.2, PIANO_SCALE 1.03,
+# and PIANO_FRONT_H 1.0:
+#   pnpm arm-check pianist --base main --jobs 8 --variant <name> --set '<changes>'...
+# The hold of the tree in each batch: lean 6°, shoulderDrop 4°, play elbows (±1, -0.6, 0.4), rest
+# offsets (0.03, 0.08, -0.48) and (-0.03, 0.21, -0.55) H, rest elbows (±1, -0.3, 0.77), and restArc
+# (0, 0.4, 0.25). Each variant changes the values of its set. The full outputs of the six batches
+# went with a clean of the scratch folder, so this file keeps the summary rows that the runs
+# printed: the folds p95 (limit 8, margin 2) with its sample set, and the move twist max (limit
+# 176, margin 3). A cell gives the value and the base of main in parentheses. The other values of
+# the gate passed in each variant.
+#
+# R = piano.restL.lap.offset=0.03,0.08,-0.6;piano.restR.lap.offset=-0.03,0.21,-0.67
+# P(y) = piano.poleL=-1,y,0.4;piano.poleR=1,y,0.4
+# Q(y,z) = piano.restL.pole=-1,y,z;piano.restR.pole=1,y,z
+# A(y) = piano.restArc=0,y,0.25
+#
+# | Variant | Set | Folds L | Folds R | Move twist L | Move twist R | Verdict |
+# |---|---|---|---|---|---|---|
+# | tree | (the hold of the batches) | 24 (19) rest FAIL | 17 (15) rest OPEN | 40 (26) FAIL | 42 (27) FAIL | FAIL |
+# | restMain | rest offsets of main | 23 (19) lift FAIL | 17 (15) rest OPEN | 37 (26) FAIL | 39 (27) FAIL | FAIL |
+# | restLow | rest offsets y 0.0 / 0.13 | 22 (19) rest FAIL | 16 (15) rest OPEN | 38 (26) FAIL | 41 (27) FAIL | FAIL |
+# | poleMain | P(-1.6) | 25 (19) play FAIL | 20 (15) lift FAIL | 29 (26) FAIL | 32 (27) FAIL | FAIL |
+# | pole1 | P(-1.0) | 24 (19) rest FAIL | 17 (15) rest OPEN | 34 (26) FAIL | 37 (27) FAIL | FAIL |
+# | lean12 | lean 12° | 24 (19) rest FAIL | 17 (15) rest OPEN | 41 (26) FAIL | 43 (27) FAIL | FAIL |
+# | restPole | Q(-0.6, 0.6) | 24 (19) rest FAIL | 18 (15) rest FAIL | 34 (26) FAIL | 36 (27) FAIL | FAIL |
+# | fing3 | rest fingers (±0.3, 0, -1) | 24 (19) rest FAIL | 17 (15) rest OPEN | 39 (26) FAIL | 42 (27) FAIL | FAIL |
+# | fing8 | rest fingers (±0.8, 0, -1) | 24 (19) rest FAIL | 16 (15) rest OPEN | 40 (26) FAIL | 42 (27) FAIL | FAIL |
+# | arc2 | A(0.2) | 24 (19) rest FAIL | 17 (15) rest OPEN | 35 (26) FAIL | 36 (27) FAIL | FAIL |
+# | arc6 | A(0.6) | 24 (19) rest FAIL | 17 (15) rest OPEN | 48 (26) FAIL | 50 (27) FAIL | FAIL |
+# | arcF | restArc (0, 0.4, 0.45) | 24 (19) rest FAIL | 17 (15) rest OPEN | 41 (26) FAIL | 43 (27) FAIL | FAIL |
+# | pole12 | P(-1.2) | 25 (19) play FAIL | 18 (15) lift FAIL | 32 (26) FAIL | 35 (27) FAIL | FAIL |
+# | restUp | rest offsets y 0.18 / 0.31 | 24 (19) rest FAIL | 14 (15) rest OPEN | 42 (26) FAIL | 44 (27) FAIL | FAIL |
+# | restIn | rest offsets x ±0.08 | 25 (19) rest FAIL | 18 (15) rest FAIL | 39 (26) FAIL | 42 (27) FAIL | FAIL |
+# | c1 | P(-1.6), A(0.2) | 25 (19) play FAIL | 20 (15) lift FAIL | 25 (26) | 27 (27) | FAIL |
+# | c2 | P(-1.2), A(0.2) | 25 (19) play FAIL | 18 (15) lift FAIL | 27 (26) | 29 (27) | FAIL |
+# | c3 | P(-1.2), A(0.1) | 25 (19) play FAIL | 18 (15) lift FAIL | 26 (26) | 28 (27) | FAIL |
+# | c4 | restArc (0, 0, 0.25) | 24 (19) rest FAIL | 17 (15) rest OPEN | 34 (26) FAIL | 35 (27) FAIL | FAIL |
+# | c5 | A(0.1) | 24 (19) rest FAIL | 17 (15) rest OPEN | 34 (26) FAIL | 35 (27) FAIL | FAIL |
+# | c6 | R | 21 (19) rest OPEN | 11 (15) rest OPEN | 40 (26) FAIL | 42 (27) FAIL | FAIL |
+# | c7 | Q(-0.3, 0.4) | 25 (19) rest FAIL | 12 (15) rest OPEN | 40 (26) FAIL | 42 (27) FAIL | FAIL |
+# | c8 | rest elbows (±0.6, -0.3, 0.77) | 25 (19) rest FAIL | 18 (15) rest FAIL | 36 (26) FAIL | 38 (27) FAIL | FAIL |
+# | d1 | R, A(0.1), P(-0.8) | 22 (19) play FAIL | 14 (15) lift OPEN | 32 (26) FAIL | 33 (27) FAIL | FAIL |
+# | d2 | R, A(0.2), P(-0.8) | 22 (19) play FAIL | 14 (15) lift OPEN | 32 (26) FAIL | 34 (27) FAIL | FAIL |
+# | d3 | R, A(0.1), P(-1.0) | 24 (19) play FAIL | 17 (15) lift OPEN | 29 (26) FAIL | 31 (27) FAIL | FAIL |
+# | d4 | R, A(0.2), P(-1.0) | 24 (19) play FAIL | 17 (15) lift OPEN | 30 (26) FAIL | 32 (27) FAIL | FAIL |
+# | d5 | R, A(0.2), P(-0.6) | 21 (19) rest OPEN | 11 (15) rest OPEN | 36 (26) FAIL | 37 (27) FAIL | FAIL |
+# | d6 | R, A(0.1), P(-1.0), Q(-0.5, 0.6) | 24 (19) play FAIL | 17 (15) lift OPEN | 26 (26) | 27 (27) | FAIL |
+# | d7 | R, A(0.2), P(-1.2) | 25 (19) play FAIL | 18 (15) lift FAIL | 29 (26) | 31 (27) FAIL | FAIL |
+# | d8 | R, restArc (0, 0.2, 0.35), P(-1.0) | 24 (19) play FAIL | 17 (15) lift OPEN | 32 (26) FAIL | 34 (27) FAIL | FAIL |
+# | e1 | R, A(0.2), P(-0.6), Q(-0.5, 0.6) | 22 (19) rest FAIL | 12 (15) rest OPEN | 33 (26) FAIL | 34 (27) FAIL | FAIL |
+# | e2 | R, A(0.1), P(-0.6), Q(-0.5, 0.6) | 22 (19) rest FAIL | 12 (15) rest OPEN | 32 (26) FAIL | 33 (27) FAIL | FAIL |
+# | e3 | R, A(0.2), P(-0.6), Q(-0.6, 0.4) | 21 (19) rest OPEN | 12 (15) rest OPEN | 31 (26) FAIL | 33 (27) FAIL | FAIL |
+# | e4 | R, A(0.1), P(-0.6), Q(-0.6, 0.4) | 21 (19) rest OPEN | 12 (15) rest OPEN | 31 (26) FAIL | 32 (27) FAIL | FAIL |
+# | e5 | R, A(0.2), P(-0.7), Q(-0.6, 0.4) | 21 (19) rest OPEN | 12 (15) rest OPEN | 29 (26) | 31 (27) FAIL | FAIL |
+# | e6 | R, P(-0.6), Q(-0.6, 0.4) | 21 (19) rest OPEN | 12 (15) rest OPEN | 34 (26) FAIL | 36 (27) FAIL | FAIL |
+# | e7 | R, A(0.2), P(-0.6), Q(-0.7, 0.3) | 21 (19) rest OPEN | 12 (15) rest OPEN | 30 (26) FAIL | 31 (27) FAIL | FAIL |
+# | e8 | R, A(0.2), P(-0.6), Q(-0.5, 0.4) | 20 (19) rest OPEN | 11 (15) lift OPEN | 33 (26) FAIL | 34 (27) FAIL | FAIL |
+# | f1 | R, A(0.2), P(-0.7), Q(-0.7, 0.3) | 21 (19) rest OPEN | 12 (15) rest OPEN | 28 (26) | 29 (27) | OPEN |
+# | f2 (chosen) | R, A(0.2), P(-0.7), Q(-0.8, 0.2) | 21 (19) rest OPEN | 13 (15) rest OPEN | 27 (26) | 28 (27) | OPEN |
+# | f3 | R, A(0.1), P(-0.7), Q(-0.7, 0.3) | 21 (19) rest OPEN | 12 (15) rest OPEN | 28 (26) | 29 (27) | OPEN |
+# | f4 | R, A(0.2), P(-0.75), Q(-0.7, 0.3) | 21 (19) rest OPEN | 14 (15) lift OPEN | 27 (26) | 28 (27) | OPEN |
+# | f5 | R, A(0.2), P(-0.7), Q(-0.9, 0.3) | 23 (19) rest FAIL | 13 (15) rest OPEN | 26 (26) | 27 (27) | FAIL |
+# | f6 | R, restArc (0, 0.15, 0.25), P(-0.7), Q(-0.7, 0.3) | 21 (19) rest OPEN | 12 (15) rest OPEN | 28 (26) | 29 (27) | OPEN |
+# | f7 | R, A(0.2), P(-0.7), Q(-0.7, 0.4) | 22 (19) rest FAIL | 13 (15) rest OPEN | 28 (26) | 29 (27) | FAIL |
+# | f8 | R, restArc (0, 0.15, 0.25), P(-0.75), Q(-0.8, 0.3) | 23 (19) rest FAIL | 14 (15) lift OPEN | 25 (26) | 27 (27) | FAIL |

@@ -1,0 +1,17 @@
+# node docs/research/2026-10-28-polar-legs/probes/layout-moves.ts <root> <json> on main (81e6462b) and on the tree, then layout-compare.py
+| Demo | Players | Moved over 1 mm | Largest move of another player | Pianist move |
+|---|---|---|---|---|
+| bach-bwv1047.mid | 22 | 22 | 17.8 cm (oboe/mouse/7/0) | 17.5 cm |
+| bach-bwv1048.mid | 21 | 3 | 16.1 cm (contrabass/hippo/5/0) | 16.2 cm |
+| bach-bwv1050.mid | 18 | 18 | 139.6 cm (violin/rabbit/0/2) | 18.8 cm |
+| beethoven-1.mid | 29 | 0 | 0.0 cm (violin/rabbit/0/0) | 0.0 cm |
+| beethoven-8-4.mid | 29 | 0 | 0.0 cm (violin/rabbit/0/0) | 0.0 cm |
+| beethoven-8.mid | 26 | 0 | 0.0 cm (violin/rabbit/0/0) | 0.0 cm |
+| beethoven-9.mid | 45 | 0 | 0.0 cm (violin/rabbit/0/0) | 0.0 cm |
+| boulanger-matin.mid | 42 | 42 | 99.3 cm (violin/rabbit/0/3) | 17.2 cm |
+| brahms-2.mid | 35 | 0 | 0.0 cm (violin/rabbit/0/0) | 0.0 cm |
+| mendelssohn-op61.mid | 25 | 0 | 0.0 cm (violin/rabbit/0/0) | 0.0 cm |
+| mozart-k191.mid | 20 | 0 | 0.0 cm (violin/rabbit/0/0) | 0.0 cm |
+| mozart-k315.mid | 19 | 0 | 0.0 cm (violin/rabbit/0/0) | 0.0 cm |
+| mozart-k417.mid | 19 | 0 | 0.0 cm (violin/rabbit/0/0) | 0.0 cm |
+| mozart-k525.mid | 9 | 0 | 0.0 cm (violin/rabbit/0/0) | 0.0 cm |

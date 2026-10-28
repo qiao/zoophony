@@ -1,0 +1,57 @@
+# docs/research/2026-10-28-polar-legs/probes/knee-variants.sh <dir> 'cur=' 'fair-scaled=kneeCrease.fair.from=0.012 kneeCrease.fair.to=0.065' 'no-fair=kneeCrease.fair=DEL' 'both-scaled=kneeCrease.reach=0.06 kneeCrease.fair.from=0.012 kneeCrease.fair.to=0.065'
+# on the config with the leg factor 1.2 and the thighs 10 degrees down. -R is the right leg.
+== cur: 
+   knee crease: 31 seam vertices, 574 vertices move, at most 0.0424 u (7.86 cm). 1 faces turn over, on the bones shin_L 1
+   calf fair: 231 vertices move along their normals, at most 0.0175 u (3.26 cm)
+   chair: seat top 0.2383 u, lowest point of the body 0.1231 u
+scratch/knee/cur 13-knee_relax: thigh 0.5 0.163 x 0.241 | thigh 0.7 0.144 x 0.129 | knee 0.126 x 0.133 | shin 0.5 0.113 x 0.110 | shin 0.8 0.107 x 0.106
+    knee front 0.072 (ratio 1.09), back 0.061, knee depth on the bisector 0.133
+scratch/knee/cur-R 13-knee_relax: thigh 0.5 0.162 x 0.238 | thigh 0.7 0.142 x 0.130 | knee 0.127 x 0.135 | shin 0.5 0.110 x 0.111 | shin 0.8 0.105 x 0.108
+    knee front 0.073 (ratio 1.04), back 0.062, knee depth on the bisector 0.135
+cur          13-knee_relax   inner: edges 737, hard 24, max 100.0, rms 18.1 | outer: edges 308, hard 2, max  55.3, rms 13.5 | calf hard 6 max  98.2 sum>30  330.2
+cur-R        13-knee_relax   inner: edges 711, hard 28, max  91.3, rms 17.0 | outer: edges 307, hard 7, max  88.8, rms 15.6 | calf hard 10 max  91.3 sum>30  276.2
+cur 13-knee_relax left: back faces 209, hard edges 10 (0.186 u), pleat faces 2
+cur-R 13-knee_relax left: back faces 215, hard edges 7 (0.120 u), pleat faces 2
+cur 13-knee_relax: zone faces 422, edges 683, edges through the skin 0
+cur-R 13-knee_relax: zone faces 416, edges 673, edges through the skin 0
+== fair-scaled: kneeCrease.fair.from=0.012 kneeCrease.fair.to=0.065
+   knee crease: 31 seam vertices, 574 vertices move, at most 0.0424 u (7.86 cm). 1 faces turn over, on the bones shin_L 1
+   calf fair: 200 vertices move along their normals, at most 0.0119 u (2.22 cm)
+   chair: seat top 0.2383 u, lowest point of the body 0.1231 u
+scratch/knee/fair-scaled 13-knee_relax: thigh 0.5 0.163 x 0.258 | thigh 0.7 0.144 x 0.128 | knee 0.126 x 0.131 | shin 0.5 0.113 x 0.106 | shin 0.8 0.112 x 0.113
+    knee front 0.072 (ratio 1.09), back 0.059, knee depth on the bisector 0.131
+scratch/knee/fair-scaled-R 13-knee_relax: thigh 0.5 0.162 x 0.256 | thigh 0.7 0.142 x 0.127 | knee 0.127 x 0.132 | shin 0.5 0.109 x 0.107 | shin 0.8 0.109 x 0.115
+    knee front 0.073 (ratio 1.04), back 0.059, knee depth on the bisector 0.132
+fair-scaled  13-knee_relax   inner: edges 737, hard 24, max  98.2, rms 17.9 | outer: edges 308, hard 2, max  55.3, rms 13.6 | calf hard 7 max  98.2 sum>30  299.6
+fair-scaled-R 13-knee_relax   inner: edges 711, hard 11, max  47.5, rms 16.1 | outer: edges 307, hard 7, max  88.8, rms 15.6 | calf hard 1 max  43.1 sum>30   47.5
+fair-scaled 13-knee_relax left: back faces 207, hard edges 11 (0.187 u), pleat faces 3
+fair-scaled-R 13-knee_relax left: back faces 213, hard edges 3 (0.046 u), pleat faces 6
+fair-scaled 13-knee_relax: zone faces 418, edges 678, edges through the skin 0
+fair-scaled-R 13-knee_relax: zone faces 415, edges 671, edges through the skin 0
+== no-fair: kneeCrease.fair=DEL
+   knee crease: 31 seam vertices, 574 vertices move, at most 0.0424 u (7.86 cm). 2 faces turn over, on the bones shin_L 2
+   chair: seat top 0.2383 u, lowest point of the body 0.1231 u
+scratch/knee/no-fair 13-knee_relax: thigh 0.5 0.163 x 0.258 | thigh 0.7 0.144 x 0.133 | knee 0.126 x 0.136 | shin 0.5 0.115 x 0.118 | shin 0.8 0.112 x 0.115
+    knee front 0.072 (ratio 1.09), back 0.064, knee depth on the bisector 0.136
+scratch/knee/no-fair-R 13-knee_relax: thigh 0.5 0.162 x 0.256 | thigh 0.7 0.142 x 0.134 | knee 0.127 x 0.141 | shin 0.5 0.114 x 0.118 | shin 0.8 0.110 x 0.118
+    knee front 0.073 (ratio 1.04), back 0.069, knee depth on the bisector 0.141
+no-fair      13-knee_relax   inner: edges 737, hard 26, max 137.4, rms 19.1 | outer: edges 308, hard 2, max  55.3, rms 13.5 | calf hard 7 max  98.2 sum>30  287.7
+no-fair-R    13-knee_relax   inner: edges 711, hard 17, max 118.8, rms 16.5 | outer: edges 307, hard 7, max  88.8, rms 15.6 | calf hard 1 max  43.1 sum>30   47.5
+no-fair 13-knee_relax left: back faces 209, hard edges 13 (0.247 u), pleat faces 6
+no-fair-R 13-knee_relax left: back faces 212, hard edges 11 (0.191 u), pleat faces 6
+no-fair 13-knee_relax: zone faces 418, edges 678, edges through the skin 0
+no-fair-R 13-knee_relax: zone faces 415, edges 671, edges through the skin 0
+== both-scaled: kneeCrease.reach=0.06 kneeCrease.fair.from=0.012 kneeCrease.fair.to=0.065
+   knee crease: 31 seam vertices, 379 vertices move, at most 0.0333 u (6.19 cm). 2 faces turn over, on the bones shin_L 1, thigh_R 1
+   calf fair: 200 vertices move along their normals, at most 0.0115 u (2.14 cm)
+   chair: seat top 0.2383 u, lowest point of the body 0.1231 u
+scratch/knee/both-scaled 13-knee_relax: thigh 0.5 0.164 x 0.267 | thigh 0.7 0.145 x 0.130 | knee 0.127 x 0.132 | shin 0.5 0.115 x 0.107 | shin 0.8 0.113 x 0.113
+    knee front 0.072 (ratio 1.09), back 0.060, knee depth on the bisector 0.132
+scratch/knee/both-scaled-R 13-knee_relax: thigh 0.5 0.163 x 0.268 | thigh 0.7 0.143 x 0.129 | knee 0.128 x 0.132 | shin 0.5 0.111 x 0.108 | shin 0.8 0.111 x 0.117
+    knee front 0.073 (ratio 1.05), back 0.059, knee depth on the bisector 0.132
+both-scaled  13-knee_relax   inner: edges 731, hard 33, max  98.2, rms 18.8 | outer: edges 314, hard 2, max  55.4, rms 13.8 | calf hard 10 max  98.2 sum>30  365.3
+both-scaled-R 13-knee_relax   inner: edges 710, hard 17, max  58.8, rms 17.1 | outer: edges 308, hard 7, max  88.8, rms 15.8 | calf hard 5 max  58.8 sum>30  156.9
+both-scaled 13-knee_relax left: back faces 209, hard edges 12 (0.207 u), pleat faces 11
+both-scaled-R 13-knee_relax left: back faces 214, hard edges 3 (0.054 u), pleat faces 12
+both-scaled 13-knee_relax: zone faces 422, edges 685, edges through the skin 0
+both-scaled-R 13-knee_relax: zone faces 417, edges 676, edges through the skin 0
