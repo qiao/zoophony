@@ -11,11 +11,11 @@ The report [`2026-10-27-polar-bench.md`](../research/2026-10-27-polar-bench.md) 
 measures and the images. The rows replace the seat, bench, size, and pose rows that they name.
 The user can reverse each decision. Then update its section, and remove its row.
 
+On 2026-10-28, the user said that the legs were too long. The bench, factor, and size rows went
+to [`2026-10-28-polar-legs.md`](2026-10-28-polar-legs.md).
+
 | Decision | Section |
 |---|---|
-| The user: "0.38". The bench top is 0.38 m, at 0.28 of the seated head top, as on `polar-bear-views.png`. The thighs lie level on the bench, the shins stand vertical, and the feet stand flat on the floor (`studio.legTurns`). This replaces the bench rows of `2026-10-14-polar-bench.md`, `2026-10-24-pianist-pose.md`, and `2026-10-27-polar-legs-rebuild.md`. | 1, 4.4 |
-| The shins take their own factor 3.208 (`shinFactor`), and the thighs keep the leg factor 1.6. The knee keeps its form. This replaces the factor row of `2026-10-22-polar-legs.md`. | 4.4 |
-| The user: "keep". The scale is 0.88 of the scale before (1.4389 m for each unit): with the hold before the round, the head top stays at 1.50 m in the play. This replaces the size row of `2026-10-24-polar-bear-seat.md`. | 1, 4.4 |
 | With the level thighs, 2 faces of the hips turned over in the seated bind. 12 rounds of the groin crease and 8 rounds of the haunch smoothing turn none over (`crease.rounds`, `sit.smooth`). | 4.4 |
 | The spine leans 23°, the shoulders turn down 20°, the elbows point out and down (±1, -1.6, 0.4), and the keys stand 1.3 H away (`HANDS_HOLDS.piano`, `PIANO_FRONT_H`). The elbows are about 6 cm above the keys (13 cm with the hold before). This replaces the lean, key, and pole rows of `2026-10-24-pianist-pose.md`. | 5.3 |
 | The spine bends 19° in the play, under the 20° of a neutral thorax. A lean of 22° missed a far left note by 7 mm, and a shoulder turn of 26° folded more faces of the left arm than before. | 5.3 |

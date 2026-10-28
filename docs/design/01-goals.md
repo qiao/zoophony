@@ -187,11 +187,12 @@ with close views of the head, a paw on the keys, and a foot pad. The user added 
   black nose on a long muzzle, a thick neck, and a round back. Against keys of a real piano
   (0.70 m), the side view puts the head top of the seated bear at 1.40 m and the shoulder joints
   at about 1.0 m. The label "180 cm" of the image ends above the head top, so it does not give
-  the size (`docs/decisions/2026-10-24-polar-bear-seat.md`). The piano of the app is larger, so
-  that the keys reach the forearms of the bear (`docs/decisions/2026-10-24-pianist-pose.md`), and
-  the app measures the bear against its head top. The bench top stands at 0.28 of the seated head
-  top. The thighs lie level on the bench, the long shins stand vertical, and the feet stand flat
-  on the floor (`docs/decisions/2026-10-27-polar-bench.md`).
+  the size (`docs/decisions/2026-10-24-polar-bear-seat.md`). The legs keep about the proportions
+  of the mesh of the user, because longer legs made the bear look like a human (user,
+  2026-10-28). Thus the bear sits on a lower bench than in the image, with the thighs a little
+  down, the shins vertical, and the feet flat on the floor
+  (`docs/decisions/2026-10-28-polar-legs.md`). The piano of the app is larger, so that the keys
+  reach the forearms of the bear (`docs/decisions/2026-10-24-pianist-pose.md`).
 - The paws are wide, with black claws that rest on the keys. The foot pads are black.
 - The grand piano is black and glossy, with gold accents, a lid raised high on its prop, and a
   padded black bench on an apron and four tapered legs with gold feet. The whole haunch of the

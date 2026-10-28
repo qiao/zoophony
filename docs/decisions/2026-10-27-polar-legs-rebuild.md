@@ -15,7 +15,7 @@ row.
 | Decision | Section |
 |---|---|
 | The user: "it's not anatomically correct". Each leg gets a quad tube from the haunch line below the crotch to the ankle in a copy of the mesh (`polar-bear-limbs.glb`, `tools/blender/polar_bear_legs.py`): long source faces from the haunch to the heel made the seated leg a wedge. | 4.4 |
-| The tube is built on the legs of the user, before `legFactor` 1.6: the rig stretches the legs only along their bones, so the rings keep their right angles, and the joints and the rules keep the units of the source. | 4.4 |
+| The tube is built on the legs of the user, before the leg factor (`legFactor`): the rig stretches the legs only along their bones, so the rings keep their right angles, and the joints and the rules keep the units of the source. | 4.4 |
 | The knees take the dual quaternion blend in the seated bind (`bind.knee`): with the linear blend, the knee front was a bevel at 0.83 of the round of the leg, and the knee 0.120 units deep, against 0.148 in the source. | 4.4 |
 | The new leg vertices take the rule weights with the knee ramp 0.12 to 0.2 (`paintedLower`, `weights.knee`): the automatic weights of Blender gave a knee front at 0.81 of the round and a seat 8 mm lower, and wider ramps bent the whole thigh tube. | 4.4 |
 | The back of each knee is smoothed in 4 rounds, and the calf back is faired (`kneeCrease`): with no smoothing, 43 and 45 edges turned more than 40°, and 12 rounds made the knee 0.115 units wide, against 0.131 in the source. | 4.4 |

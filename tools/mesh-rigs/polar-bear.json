@@ -34,16 +34,14 @@
   "name": "Polar Bear",
   "weld": 1e-05,
   "app": {
-    "shoulders": 1.42549,
+    "shoulders": 1.105076,
     "reach": 0.46347,
-    "note": "0.8803 of the scale of the polar bear of 2026-10-24 (1.63455 m for each unit then, 1.4389 m now). On 2026-10-27 the bench went up to 0.38 m, and the user chose to keep the seated size: the head top of 1.50 m in the play of the hold before the higher bench (docs/decisions/2026-10-27-polar-bench.md). The leg factor and the shin factor raise the standing shoulder joints from 0.725 u, and the landmark rises with them, so that the trunk, the head, and the arms keep their meters. The reach is the reach of the arm factor below."
+    "note": "The scale of the bench round of 2026-10-27: 1.4389 m for each unit, 0.8803 of the scale of the polar bear of 2026-10-24 (docs/decisions/2026-10-27-polar-bench.md). The leg factor raises the standing shoulder joints from 0.725 u to 0.768 u, and the landmark rises with them, so that the trunk, the head, and the arms keep their meters (docs/decisions/2026-10-28-polar-legs.md). The reach is the reach of the arm factor below."
   },
   "armFactor": 1,
   "armFactorNote": "The arms keep the length of the mesh (user rule: keep the limbs of a mesh of the user, and fit the props).",
-  "legFactor": 1.6,
-  "legFactorNote": "The user chose longer legs with the size kept for the polar bear mesh on 2026-10-22 (\"Longer legs, keep size\"), because with short legs the round belly hid the lap on the bench, and the seated bear read almost as standing (docs/research/2026-10-22-polar-legs.md). The T-pose mesh has short legs too, so it keeps the factor 1.6.",
-  "shinFactor": 3.208,
-  "shinFactorNote": "The shins are 3.208 times as long as on the mesh, and the thighs keep the leg factor 1.6. With level thighs, vertical shins, and flat feet, the bench top is 0.38 m, as the side view of polar-bear-views.png shows against the head top. The user chose this bench of three variants (0.30, 0.34, 0.38 m) on 2026-10-27 (docs/research/2026-10-27-polar-bench.md). The knee keeps its form: the stretch moves the points of the shin along the bone only.",
+  "legFactor": 1.2,
+  "legFactorNote": "The thighs and the shins are 1.2 times as long as on the mesh, so that the legs keep about the proportions of the mesh: the shin is 0.67 of the thigh. The user said on 2026-10-28: \"the polar bear's leg is too long, making it like a human instead of polar bear. Find the original mesh for the polar bear and do not make deviate too far from it. You can reduce the height of the bench if needed.\" The thighs were 1.6 and the shins 3.208 times as long, for a bench of 0.38 m. Of the factors 1.0, 1.2, and 1.4, the manager chose 1.2: with the thighs 10 degrees down, the bench is 0.166 m (docs/decisions/2026-10-28-polar-legs.md).",
   "joints": {
     "root": {
       "head": [
@@ -256,10 +254,10 @@
   "studio": {
     "legTurns": {
       "thigh": [
-        0.691458,
-        0.033721,
-        -0.185276,
-        0.69744
+        0.631629,
+        0.030588,
+        -0.163661,
+        0.757182
       ],
       "shin": [
         0.115266,
@@ -308,7 +306,7 @@
         0.731461
       ]
     },
-    "note": "legTurns gives the world turn of each left leg bone from the seated bind pose to the source, and the right side mirrors it: the thighs level and 15 degrees out, and the shins vertical, so that the knee angle from the side is 90 degrees, as the side view of polar-bear-views.png shows (leg_turns.py of docs/research/2026-10-16-hip-open/ 0 15 0, docs/decisions/2026-10-27-polar-bench.md). With the thighs 30 degrees out, the knees did not show more from the camera of the stage, and the rest folded more faces. The trunk shares and the bind arms are the values of the other meshes. A forward lean of the bind (open -12 or -18) folded both arms in each play sample, so the trunk keeps the seat of the source, and the play lean of the hold leans the spine (docs/research/2026-10-22-polar-seat.md)."
+    "note": "legTurns gives the world turn of each left leg bone from the seated bind pose to the source, and the right side mirrors it: the thighs 10 degrees down and 15 degrees out, and the shins vertical, so that the knee angle from the side is 100 degrees, and the feet stand flat (leg_turns.py of docs/research/2026-10-16-hip-open/ 10 15 0, docs/decisions/2026-10-28-polar-legs.md). With level thighs, the bench was 3.3 cm lower, and 5 faces of the knees turned over in the bind. With the thighs 30 degrees out, the knees did not show more from the camera of the stage, and the rest folded more faces. The trunk shares and the bind arms are the values of the other meshes. A forward lean of the bind (open -12 or -18) folded both arms in each play sample, so the trunk keeps the seat of the source, and the play lean of the hold leans the spine (docs/research/2026-10-22-polar-seat.md)."
   },
   "weights": {
     "armSplit": 0.145,
@@ -381,9 +379,33 @@
           0.2739,
           0.0916
         ]
+      ],
+      [
+        [
+          -0.0799,
+          0.2421,
+          0.0827
+        ],
+        [
+          -0.0953,
+          0.2315,
+          0.084
+        ]
+      ],
+      [
+        [
+          -0.0459,
+          0.2193,
+          0.0574
+        ],
+        [
+          -0.0538,
+          0.2073,
+          0.0592
+        ]
       ]
     ],
-    "rigidNote": "The two thin faces of the front of the right hip, where the thigh meets the belly, take one mean of the weights of their 4 corners. One corner follows the right thigh for 0.75 and its neighbors follow the hips, so both faces folded in each play sample when the pedal leg turned. The rings of the old knee cut them before (docs/research/2026-10-27-polar-legs-rebuild.md).",
+    "rigidNote": "Each pair of thin faces of the front of the right hip, where the thigh meets the belly, takes one mean of the weights of its corners. One corner follows the right thigh for up to 0.87 and its neighbors follow the hips, so the faces folded in each play sample when the pedal leg turned. The first pair folded when the knee rings no longer cut it (docs/research/2026-10-27-polar-legs-rebuild.md). The other two pairs folded in each play sample with the legs of the factor 1.2 and the keys 1.0 H away, and with one mean, none folds (docs/research/2026-10-28-polar-legs.md).",
     "note": "Beyond the plane of armSplit (armFree), only the free arm follows the arm bones. Above headFrom, each vertex follows the head only. armTop starts above the top of the level arms of the T-pose (y 0.79): from y 0.68, it gave the top of each arm to the neck, and those faces folded in each sample. Each ear follows its ear bone above earBase. The short tail is a ball on one bone (tailBall). The rig has no cut and no split of the arms (user, 2026-10-23). Each leg has quad faces from the haunch line to the ankle (source)."
   },
   "refine": {
@@ -485,12 +507,12 @@
     "inner": 0.0,
     "note": "The bent knee folds the back of the quad tube of each leg into a crease, and the faces of the crease turned up to 169 degrees from each other. The seam is each vertex of both a thigh face and a shin face on the inner side of the knee. Each vertex within reach units of the seam in the bind moves half of the way to the middle of its neighbors in each of 4 rounds, times a weight that falls from 1 on the seam to 0 at reach (knee_relax() and seam_relax() of tools/blender/rig_mesh.py). The hips keep their share, so the crotch keeps its place. With no smoothing, 37 edges of the left knee and 48 of the right knee turned more than 40 degrees, and the crease showed as dark flaps. 12 rounds left 13 and 6 such edges, but made the knee 0.115 units wide, against 0.131 in the source. 4 rounds leave 16 and 8, with the knee 0.126 units wide (docs/research/2026-10-27-polar-legs-rebuild.md).",
     "fair": {
-      "from": 0.03,
-      "to": 0.17,
+      "from": 0.012,
+      "to": 0.065,
       "radius": 0.09,
       "rounds": 24,
       "share": 0.5,
-      "note": "After the smoothing, each vertex at the back of the calf, from 0.03 to 0.17 units down the shin from the knee joint and within 0.09 units of the shin axis, moves half of the normal part of the way to the middle of its neighbors in each of 24 rounds, times a half sine over the band (calf_fair() of tools/blender/rig_mesh.py). The fair moves no vertex along the skin. With no fair, the back of the left knee had 12 edges that turned more than 40 degrees (hard_edges.py), against 5 with the fair. A band to 0.2 moved corners of the heel and thus the pedal foot of each pose (docs/research/2026-10-27-rigs3.md, docs/research/2026-10-27-polar-legs-rebuild.md)."
+      "note": "After the smoothing, each vertex at the back of the calf, from 0.012 to 0.065 units down the shin from the knee joint and within 0.09 units of the shin axis, moves half of the normal part of the way to the middle of its neighbors in each of 24 rounds, times a half sine over the band (calf_fair() of tools/blender/rig_mesh.py). The fair moves no vertex along the skin. The band is the share of the shin of the band of the long shin of 2026-10-27 (0.03 to 0.17 units): the shin of the leg factor 1.2 is 0.105 units long, and that band reached past the ankle. With the band of before, 28 inner edges of the right knee turned more than 40 degrees, and 11 with this band (knee-variants.txt of docs/research/2026-10-28-polar-legs/phase2/). A band past the ankle moved corners of the heel and thus the pedal foot of each pose (docs/research/2026-10-27-rigs3.md)."
     }
   },
   "sit": {

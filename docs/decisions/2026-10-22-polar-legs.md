@@ -11,6 +11,6 @@ rows by the measures and the user rules. The report
 [`2026-10-22-polar-legs.md`](../research/2026-10-22-polar-legs.md) gives the measures. Later the same day the user asked for the studio polar bear again ([`2026-10-22-studio-bears.md`](2026-10-22-studio-bears.md)), so the rows of the app went. The rows below hold for the rig config `tools/mesh-rigs/polar-bear.json`, which the app does not read now. The user
 can reverse each decision. Then update its section, and remove its row.
 
-| Decision | Section |
-|---|---|
-| The user chose "Longer legs, keep size (Recommended)" (2026-10-22): the thighs and the shins about 1.6 times as long, the feet at their size, and the bear at its size, so that the bench is higher and the lap shows (`legFactor` of `tools/mesh-rigs/polar-bear.json`). | 4.4 |
+On 2026-10-28, the leg factor 1.2 of [`2026-10-28-polar-legs.md`](2026-10-28-polar-legs.md)
+replaced the row of this file: the user said that the long legs made the bear look like a human.
+The file holds no row now.
