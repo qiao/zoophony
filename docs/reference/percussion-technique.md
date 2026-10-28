@@ -253,7 +253,7 @@ shoulder joint to the palm (`docs/decisions/2026-10-20-mesh-badger.md`).
   side of the thumb, as section 1 gives (`PAW_SPOT`, `PAW_TILT` of
   `src/models/instruments/percussion.ts`). The shaft lies 60° from the line of the paw in the
   bind pose, the xylophone mallet and the triangle beater 30° to 33°, and the bass drum beater
-  41°. The app differs on the xylophone: the paws hang low in front of the belly,
+  38°. The app differs on the xylophone: the paws hang low in front of the belly,
   and each mallet runs near the line of its forearm, so the shaft leaves the closed paw under the
   curled claws. The butt end sticks out 0.8 cm to 3.2 cm behind the paw,
   where section 1 gives 13 mm to 25 mm. The triangle beater has a longer butt
@@ -273,7 +273,7 @@ shoulder joint to the palm (`docs/decisions/2026-10-20-mesh-badger.md`).
   about one third in from the rim [16]. Between strikes, the head of the beater rests 5 cm off
   the drum head, and before a strike it lifts up to about 13 cm along the normal of the drum
   head: the paw and the forearm turn around the elbow, as the stroke of the wrist and the forearm
-  of section 5. The app differs: the spine leans 9° over the drum, so that the short arm can bend,
+  of section 5. The app differs: the spine leans 7° over the drum, so that the short arm can bend,
   and the drum hides the right arm from the front. The left arm hangs, because a single note
   often needs no muffling (section 5).
 - **The snare drum.** The head stands 0.46 m high, at about the height of the wrists, and 0.45 m in

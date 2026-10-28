@@ -296,10 +296,12 @@ export const PERCUSSION_HOLDS = {
   // to about 13 cm before a strike (sizes). The paw keeps the roll of the strike around the shaft,
   // so that the shaft leaves the fist at the side of the thumb (strikeRoll). The upper arm hangs
   // near the side, with the elbow down and a little in and back: with the elbow out, the forearm
-  // came within 26° of the shaft, and the shaft left the fist along the claws. The spine leans 9°
-  // over the drum, so that the elbow can bend: with no lean, the wrist reached 0.97 of the arm.
-  // The paw holds the beater at the drum also at rest (ready). The left arm hangs, because a
-  // single note often needs no muffling (2026-10-27-badger-beater decisions).
+  // came within 26° of the shaft, and the shaft left the fist along the claws. The spine leans 7°
+  // over the drum, so that the elbow can bend: with no lean, the wrist reached 0.97 of the arm,
+  // and the paw grasped the shaft in 10% of the play. With 9°, the elbow skin stretched 0.13 of
+  // the upper arm from the rest. The paw holds the beater at the drum and the spine keeps its lean
+  // also at rest (ready). The left arm hangs, because a single note often needs no muffling
+  // (2026-10-27-badger-beater decisions).
   'bass-drum': {
     hands: 'right',
     sizes: { lift: 0.13, rest: 0.05 },
@@ -308,7 +310,7 @@ export const PERCUSSION_HOLDS = {
     // touches the head at the note start.
     offsetR: [0.0215, -0.03, 0.18],
     poleL: POLE_L,
-    poleR: [-0.5, -0.5, 0.4],
+    poleR: [-0.6, -0.5, 0.4],
     rim: 0,
     home: [0.56, -0.389, -0.146],
     top: 'up',
@@ -320,7 +322,7 @@ export const PERCUSSION_HOLDS = {
     gap: 0,
     pass: 0,
     reach: Infinity,
-    lean: 0.15,
+    lean: 0.12,
     side: null,
     curl: GRIP_CURL,
     strikeRoll: true,
