@@ -1,0 +1,22 @@
+    edge 41.7 deg at x 5.7 t 39.4 d 17.6 cm (f 0.78)
+    edge 36.9 deg at x -0.0 t 33.0 d 21.1 cm (f 0.65)
+    edge 36.7 deg at x -5.9 t 39.4 d 17.5 cm (f 0.78)
+    edge 35.7 deg at x -0.2 t 38.6 d 19.8 cm (f 0.76)
+    edge 29.0 deg at x 0.0 t 26.3 d 21.4 cm (f 0.52)
+    edge 28.0 deg at x 0.0 t 19.0 d 20.8 cm (f 0.37)
+    edge 26.5 deg at x -7.0 t 27.0 d 19.5 cm (f 0.53)
+    edge 26.0 deg at x 6.9 t 27.1 d 19.5 cm (f 0.54)
+    edge 24.4 deg at x -12.6 t 34.8 d 11.0 cm (f 0.69)
+    edge 23.6 deg at x -8.3 t 35.8 d 16.3 cm (f 0.71)
+    edge 23.5 deg at x 5.8 t 33.6 d 19.1 cm (f 0.66)
+    edge 23.0 deg at x -6.0 t 33.5 d 19.0 cm (f 0.66)
+bind (bach-bwv1047.mid)
+  left: hull 4.31 cm @34 dents 1 turn 57.1 deg @40 ellipse none
+  right: hull 3.75 cm @34 dents 1 turn 62.9 deg @40 ellipse none
+  front: hull 0.00 cm @6 dents 0 turn 9.8 deg @7 ellipse 0.40 cm @31
+  back: hull 4.42 cm @28 dents 1 turn 12.4 deg @28 ellipse none
+  patchL: hull 6.47 cm @17 dents 3 turn 112.6 deg @17 ellipse 4.08 cm @17
+  patchR: hull 6.50 cm @17 dents 3 turn 114.4 deg @17 ellipse 4.36 cm @17
+  softL: hull 1.27 cm @37 dents 4 turn 36.9 deg @37 ellipse 1.59 cm @43
+  softR: hull 1.26 cm @37 dents 4 turn 37.8 deg @35 ellipse 1.31 cm @43
+  patch facets: 74 edges, angle p50 10.0 p90 26.0 max 41.7 deg, over 25 deg 8

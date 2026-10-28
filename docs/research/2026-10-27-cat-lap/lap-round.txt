@@ -1,0 +1,19 @@
+bind (bach-bwv1047.mid): 62 edges, over 35° 2, over 25° 10, max 35.5°, crease sum 358 cm deg
+    35.5° len 6.5 cm at x -8.6 f 0.055 d 17.9 cm (hips | hips)
+    35.4° len 4.1 cm at x 2.3 f -0.096 d 10.4 cm (hips | hips)
+    34.6° len 5.4 cm at x 7.8 f -0.023 d 16.9 cm (hips | thigh_L)
+    33.8° len 7.6 cm at x -2.8 f -0.020 d 13.8 cm (hips | hips)
+    33.5° len 5.5 cm at x -8.0 f -0.040 d 17.0 cm (hips | thigh_R)
+    29.7° len 5.5 cm at x 8.2 f 0.065 d 17.8 cm (hips | hips)
+    28.8° len 5.4 cm at x -5.9 f 0.072 d 16.9 cm (hips | hips)
+    28.8° len 3.7 cm at x 2.6 f -0.045 d 13.1 cm (hips | hips)
+    27.5° len 4.4 cm at x 3.5 f 0.013 d 15.4 cm (hips | hips)
+    26.7° len 5.9 cm at x 7.6 f -0.097 d 18.0 cm (thigh_L | thigh_L)
+play song -1.62 wall 10.00: 62 edges, over 35° 2, over 25° 10, max 35.5°, crease sum 358 cm deg
+play song 98.38 wall 110.00: 62 edges, over 35° 2, over 25° 10, max 35.5°, crease sum 358 cm deg
+play song 198.38 wall 210.00: 62 edges, over 35° 2, over 25° 10, max 35.5°, crease sum 358 cm deg
+play song 298.38 wall 310.00: 62 edges, over 35° 2, over 25° 10, max 35.5°, crease sum 358 cm deg
+play song 398.38 wall 410.00: 62 edges, over 35° 2, over 25° 10, max 35.5°, crease sum 358 cm deg
+play song 498.38 wall 510.00: 62 edges, over 35° 2, over 25° 10, max 35.5°, crease sum 358 cm deg
+play song 598.38 wall 610.00: 62 edges, over 35° 2, over 25° 10, max 35.5°, crease sum 358 cm deg
+play song 698.38 wall 710.00: 62 edges, over 35° 2, over 25° 10, max 35.5°, crease sum 358 cm deg

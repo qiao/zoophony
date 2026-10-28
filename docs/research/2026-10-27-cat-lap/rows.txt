@@ -1,0 +1,4 @@
+# The forward distance d of the belly bottom rows of the cat copy, source cm, and the turns of the middle line (probes/dump_belly.py, probes/rows.py src:<npz> <npz>).
+dump                              769  781/938  767/949      768      792  777/937      770      784      771   mid turns 769 768 770 784
+copy before step_belly                  14.00    15.21    16.31    16.87    15.35    17.91    19.71    20.68    19.73    17.4  10.9  14.2  12.8
+main, after step_belly                  14.00    16.28    16.89    17.18    16.04    17.29    18.33    19.13    19.34    14.8  25.3   3.5   3.6

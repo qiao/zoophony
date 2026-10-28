@@ -1,0 +1,20 @@
+brahms-2:play:412.63: 10 corners over 3 mm
+  vertex 322 depth 2.34 cm -> body tri 989 at f 0.776 x -10.8 d 12.3 cm (bone 2), arm share 0.59
+  vertex 323 depth 2.13 cm -> body tri 989 at f 0.764 x -11.5 d 11.4 cm (bone 2), arm share 0.58
+  vertex 321 depth 1.97 cm -> body tri 987 at f 0.794 x -9.7 d 13.5 cm (bone 3), arm share 0.60
+  vertex 320 depth 1.89 cm -> body tri 840 at f 0.814 x -8.2 d 15.1 cm (bone 3), arm share 0.61
+boulanger-matin:lower:12.00: 5 corners over 3 mm
+  vertex 323 depth 1.95 cm -> body tri 1047 at f 0.926 x -5.7 d 14.3 cm (bone 4), arm share 0.58
+  vertex 322 depth 1.85 cm -> body tri 1047 at f 0.938 x -4.8 d 14.1 cm (bone 4), arm share 0.59
+  vertex 324 depth 1.46 cm -> body tri 838 at f 0.910 x -7.9 d 13.6 cm (bone 3), arm share 0.57
+  vertex 321 depth 1.41 cm -> body tri 1047 at f 0.956 x -4.2 d 13.5 cm (bone 4), arm share 0.60
+brahms-2:play:581.38: 5 corners over 3 mm
+  vertex 323 depth 1.95 cm -> body tri 1047 at f 0.924 x -5.8 d 14.3 cm (bone 4), arm share 0.58
+  vertex 322 depth 1.84 cm -> body tri 1047 at f 0.936 x -4.9 d 14.2 cm (bone 4), arm share 0.59
+  vertex 324 depth 1.44 cm -> body tri 838 at f 0.909 x -8.0 d 13.6 cm (bone 3), arm share 0.57
+  vertex 321 depth 1.38 cm -> body tri 1047 at f 0.954 x -4.3 d 13.6 cm (bone 4), arm share 0.60
+brahms-2:play:207.38: 5 corners over 3 mm
+  vertex 237 depth 0.39 cm -> body tri 992 at f 0.633 x -11.4 d 14.9 cm (bone 2), arm share 0.96
+  vertex 219 depth 0.38 cm -> body tri 992 at f 0.630 x -10.1 d 16.1 cm (bone 2), arm share 0.98
+  vertex 221 depth 0.35 cm -> body tri 992 at f 0.605 x -9.1 d 17.2 cm (bone 2), arm share 1.06
+  vertex 239 depth 0.26 cm -> body tri 992 at f 0.597 x -10.9 d 15.6 cm (bone 2), arm share 1.06
