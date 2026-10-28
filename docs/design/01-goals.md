@@ -190,9 +190,9 @@ with close views of the head, a paw on the keys, and a foot pad. The user added 
   the size (`docs/decisions/2026-10-24-polar-bear-seat.md`). The legs keep about the proportions
   of the mesh of the user, because longer legs made the bear look like a human (user,
   2026-10-28). Thus the bear sits on a lower bench than in the image, with the thighs a little
-  down, the shins vertical, and the feet flat on the floor
-  (`docs/decisions/2026-10-28-polar-legs.md`). The piano of the app is larger, so that the keys
-  reach the forearms of the bear (`docs/decisions/2026-10-24-pianist-pose.md`).
+  down, the shins vertical, and the feet flat on the floor. The piano has about the size of a real
+  grand piano, so that the elbows stand a little above the keys
+  (`docs/decisions/2026-10-28-polar-legs.md`).
 - The paws are wide, with black claws that rest on the keys. The foot pads are black.
 - The grand piano is black and glossy, with gold accents, a lid raised high on its prop, and a
   padded black bench on an apron and four tapered legs with gold feet. The whole haunch of the

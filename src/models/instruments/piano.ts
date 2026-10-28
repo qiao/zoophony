@@ -35,22 +35,23 @@ export const PIANO = {
 } as const;
 
 /**
- * The scale of the whole piano around the origin of the piano axes. The polar bear pianist has a
- * long trunk on short legs, so its hanging upper arms put its elbows far above keys of the real
- * height. A larger piano brings the keys up to the forearms, as a real pianist sits with the
- * forearms level with the keys (`docs/reference/piano-technique.md`). At 1.12, the forearms
- * sloped 8° down to the keys, and at 1.16 they are level
- * (`docs/research/2026-10-24-pianist-pose.md`).
+ * The scale of the whole piano around the origin of the piano axes: about the size of a real
+ * grand piano, with the keys at 0.72 m. The polar bear pianist sits on a low bench with the legs
+ * of its mesh, so its shoulders stand low. At this scale, its elbows stand 4 to 6 cm above the
+ * keys, and its forearms are level, as a real pianist sits (`docs/reference/piano-technique.md`).
+ * At 1.16, the scale of the high bench of 2026-10-27, the elbows stood below the keys
+ * (`docs/research/2026-10-28-polar-legs.md`).
  */
-export const PIANO_SCALE = 1.16;
+export const PIANO_SCALE = 1.03;
 
 /**
  * The distance of the front of the keys in front of the floor point of the body of the pianist,
- * in head heights `H`, before a further 0.05 m (design 4.6). The keys stand where the elbows of
- * the polar bear pianist bend about 105° over its belly with the lean of its hold. At 1.0 H, they
- * bent about 85° (`docs/decisions/2026-10-27-polar-bench.md`).
+ * in head heights `H`, before a further 0.05 m (design 4.6). The keys and the pedals stand near
+ * the polar bear pianist, so that its short right leg reaches the damper pedal. At 1.3 H, the
+ * thigh of the pedal leg pulled the haunch 3.9 cm into the bench, and at 1.0 H 0.9 cm, as at rest
+ * (`docs/research/2026-10-28-polar-legs.md`).
  */
-export const PIANO_FRONT_H = 1.3;
+export const PIANO_FRONT_H = 1.0;
 
 /**
  * The piano bench (design 4.5): a seat of 0.75 × 0.35 m at the height of a chair seat. Under a

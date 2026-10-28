@@ -132,16 +132,15 @@ export const HANDS_HOLDS = {
   // stopped about 2 cm above the keys at their front edge, and with 0.04 m in front, the right
   // claws stood up to 9 mm above the keys (`docs/research/2026-10-24-pianist-pose/key-gap.ts`).
   // The pose follows a professional pianist (`docs/reference/piano-technique.md`): the trunk leans
-  // a little from the hips, with the spine bent less than the 20° of a neutral thorax, the forearms
-  // are about level with the keys, the elbows bend about 105°, and the shoulders stay low
-  // (`shoulderDrop`). The larger piano (`PIANO_SCALE`) makes this pose fit the long trunk and the
-  // short arms. On the bench of 0.38 m, the short upper arms put the elbows 13 cm above the keys
-  // with the hold of before. The lean of 23°, the shoulder turn of 20°, and the elbows that point
-  // out and down bring them to about 6 cm, with a wrist bend no larger than before
-  // (`docs/research/2026-10-27-polar-bench.md`). A lean of 22° missed a far left note by 7 mm, and
-  // a shoulder turn of 26° folded more faces of the left arm. The lean of 28° of 2026-10-24 reached
-  // the keys with the head over the music desk (`docs/research/2026-10-24-pianist-pose.md`). The
-  // trunk leans toward the keys of the two paws (`sideLean`), as a pianist leans toward the far
+  // a little from the hips, the forearms are about level with the keys, the elbows stand a little
+  // above the keys, and the shoulders stay low (`shoulderDrop`). The polar bear sits on a low bench
+  // with the legs of its mesh, so its shoulders stand about 0.2 m above the keys of a real grand
+  // piano (`PIANO_SCALE`). The lean of 6°, the shoulder turn of 4°, and the elbows that point out
+  // and a little down put the elbows 4 to 6 cm above the keys, with level forearms. The lean of
+  // 23° and the shoulder turn of 20° of the high bench put the elbows 7 to 8 cm below the keys, and
+  // the forearms rose 37° to the paws (`docs/research/2026-10-28-polar-legs.md`). Elbows that point
+  // further down folded more faces of the left shoulder in the play, and elbows that point further
+  // out twisted the paws more in the lift (`pnpm arm-check pianist`). The trunk leans toward the keys of the two paws (`sideLean`), as a pianist leans toward the far
   // keys. A lean up to 16° raised the far right forearm 12° to the paw. Elbows that point further
   // down put the upper arms deeper into the round trunk (`pnpm pose-depth pianist`). The paws reach
   // from A0 to B♭4 with the left paw and from C4 to C8 with the right paw (`pose/hands.test.ts`),
@@ -149,7 +148,8 @@ export const HANDS_HOLDS = {
   // lap and the keys (`restArc`): with the paws in the lap, the arc 0.1 H forward put the paws
   // of the T-pose polar bear 2.6 cm into its body when they lowered, and 0.25 H 0.8 cm or less.
   // With the paws in the lap, an arc of 0.5 H out stood the upper arms 61° out from the trunk in
-  // the lift. With no arc out, they stand out at most as far as in a play.
+  // the lift. With no arc out, they stand out at most as far as in a play. On the low bench, an arc
+  // 0.4 H up twisted the paws up to 42° on the forearms in the lift, and 0.2 H up 28°.
   piano: {
     action: 'strike',
     keyPoint: pianoKeyFront,
@@ -159,12 +159,12 @@ export const HANDS_HOLDS = {
     faceR: [0, -1, 0],
     aimL: null,
     aimR: null,
-    lean: 23 * MathUtils.DEG2RAD,
+    lean: 6 * MathUtils.DEG2RAD,
     restLean: 8 * MathUtils.DEG2RAD,
     restHeadLift: 8 * MathUtils.DEG2RAD,
     sideLean: 60 * MathUtils.DEG2RAD,
     sideLeanMax: 10 * MathUtils.DEG2RAD,
-    shoulderDrop: 20 * MathUtils.DEG2RAD,
+    shoulderDrop: 4 * MathUtils.DEG2RAD,
     reach: { leftHighest: 70, rightLowest: 60 },
     // The wide paws of the polar bear point in along the forearms, so they went up to 4.7 cm into
     // each other when the palms were nearer than 33 cm, 24 semitones in the middle of the keys.
@@ -172,39 +172,38 @@ export const HANDS_HOLDS = {
     // (`docs/research/2026-10-21-pirates-clip.md`). At 25 and more, the right paw turned more
     // than 15° further from its accepted grip than on `main` (`pnpm arm-check pianist`).
     apart: 24,
-    poleL: [-1, -1.6, 0.4],
-    poleR: [1, -1.6, 0.4],
+    poleL: [-1, -0.7, 0.4],
+    poleR: [1, -0.7, 0.4],
     curl: 30 * MathUtils.DEG2RAD,
     curlClosed: 30 * MathUtils.DEG2RAD,
-    restArc: [0, 0.4, 0.25],
+    restArc: [0, 0.2, 0.25],
     // The rest pose is the rest position of a pianist before a performance: the trunk sits tall
     // with a slight lean toward the piano, the head is up, and the hands rest in the lap
     // (`docs/research/2026-10-13-pianist-lap.md`). The rest lean is the lean of the `ready` clip
     // of the studio (`clip_ready()` of `lowpoly-studio/roles/pianist/clips.py`). The head lifts
     // against it (`restHeadLift`), so the gaze is level and the face shows over the lid. The
-    // round belly of the T-pose polar bear covers its thighs up to 0.45 m in front of the hips, and
-    // the short arms reach no part of the thighs past it: the top of the thigh stands about 0.7 m
-    // from the shoulder joint, and the arm reaches 0.49 m. So the paws lie in the lap on the lower
-    // belly, where it meets the thighs, as low as the arms reach, with the palms down and the
-    // fingers forward and in, and the elbows bend by the sides
-    // (`docs/decisions/2026-10-25-timpani-piano-rest.md`). Paws 0.27 H higher hung in front of the
-    // chest at the height of the keys. Lower paws, or elbows that point down or forward, folded up
-    // to 6 more faces at the right shoulder (`pnpm arm-check`, limit 8). The right paw lies 2 cm
-    // higher than the left paw for this reason. With the trunk of the studio rest clip, the bear
+    // round belly of the T-pose polar bear covers its short thighs, so the paws lie in the lap in
+    // front of the lower belly, over the thighs, with the palms down and the fingers forward and
+    // in. On the low bench, paws on the belly went 3 cm into it, and the left shoulder folded more
+    // faces than on the high bench. Paws 0.6 H in front of the lap point keep off the belly, and
+    // rest elbows that point out and down, near the elbows of the play, keep the paws from a twist
+    // in the lift (`docs/decisions/2026-10-28-polar-legs.md`). The right paw lies higher than the
+    // left paw: a lower right paw folded up to 6 more faces at the right shoulder (`pnpm arm-check`,
+    // limit 8). With the trunk of the studio rest clip, the bear
     // slumped forward over its knees, and the paws hung beside them (user report of 2026-10-13).
     restL: {
       kind: 'lap',
-      lap: { along: 0.45, offset: [0.03, -0.05, -0.38] },
+      lap: { along: 0.45, offset: [0.03, 0.08, -0.6] },
       palm: [0.15, -1, 0.1],
       fingers: [0.5, 0, -1],
-      pole: [-1, -0.3, 0.77],
+      pole: [-1, -0.8, 0.2],
     },
     restR: {
       kind: 'lap',
-      lap: { along: 0.45, offset: [-0.03, 0.08, -0.45] },
+      lap: { along: 0.45, offset: [-0.03, 0.21, -0.67] },
       palm: [-0.15, -1, 0.1],
       fingers: [-0.5, 0, -1],
-      pole: [1, -0.3, 0.77],
+      pole: [1, -0.8, 0.2],
     },
   },
   // The pose follows a harpist (`docs/reference/harp-technique.md`): the left hand plays the bass
