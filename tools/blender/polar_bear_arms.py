@@ -9,8 +9,9 @@ with an image after each step, and this script repeats them in the same order:
    the shoulder line and at the wrist (parallel to the last ring of the tube, since 2026-10-28),
    Delete Faces, Collapse Edges of the thin faces at each wrist cut loop, a tube of
    `len(stations)` rings of `RING_VERTS`, Shrinkwrap onto the source arm, Bridge Edge Loops to the
-   trunk and to the paw, Collapse Edges of the thin wrist bridge faces, and Smooth Vertices on the
-   band of each wrist. The faces of the paws, the trunk, the legs, and the head stay.
+   trunk and to the paw, Collapse Edges of the thin wrist bridge faces, Smooth Vertices on the band
+   of each wrist, and a Shrinkwrap of the band back onto the source arm. The faces of the paws, the
+   trunk, the legs, and the head stay.
 3. Give the new arm faces a UV layout, bake the fur color of the source arm onto them (Cycles,
    Selected to Active), and transfer the custom normals of the source surface (Data Transfer).
 4. Put the arm image in a strip below the atlas, so that the mesh keeps one material, and write
@@ -469,6 +470,32 @@ def smooth_wrists(bm, part):
     return len(verts)
 
 
+def retopo_snap_wrists(mesh, source):
+    """Puts the smoothed band of each wrist back on the surface of the source arm (Shrinkwrap,
+    Nearest Surface Point), after `smooth_wrists()`.
+
+    The smooth pulls each vertex of the band toward the middle of its neighbors, so the wrist lost
+    about 4 mm of its radius, and the outline of the paw showed a waist at rest. The snap keeps the
+    spacing of the smooth along the surface and gives the band the form of the user mesh. Gives
+    the number of the snapped vertices.
+    """
+    bpy.context.view_layer.objects.active = mesh
+    bpy.ops.object.mode_set(mode='EDIT')
+    bm = bmesh.from_edit_mesh(mesh.data)
+    bm.verts.index_update()
+    ids = [p.index for p in wrist_band(bm, bm.verts.layers.int['arm_part'])]
+    bpy.ops.object.mode_set(mode='OBJECT')
+    group = mesh.vertex_groups.new(name='wrist-band')
+    group.add(ids, 1.0, 'REPLACE')
+    mod = mesh.modifiers.new('snap', 'SHRINKWRAP')
+    mod.target = source
+    mod.wrap_method = 'NEAREST_SURFACEPOINT'
+    mod.vertex_group = group.name
+    apply_modifier(mesh, mod)
+    mesh.vertex_groups.remove(mesh.vertex_groups['wrist-band'])
+    return len(ids)
+
+
 # The UV seam of each tube runs along this spoke: the lower side of the arm in the T-pose.
 SEAM_SPOKE = RING_VERTS // 2
 
@@ -663,14 +690,16 @@ def prepare_material(mesh):
 def retopo_arms(mesh, fr, joints):
     """Replaces the faces of both arms with quad tubes, as a modeller does by hand.
 
-    The steps: cut and model the tubes, Shrinkwrap, Bridge Edge Loops, a new UV layout with its own
-    material, a bake of the fur color, a transfer of the custom normals, and the strip of the arm
-    image in the atlas. The source copy then goes.
+    The steps: cut and model the tubes, Shrinkwrap, Bridge Edge Loops with the clean and the smooth
+    of the wrists, the snap of the wrists, a new UV layout with its own material, a bake of the fur
+    color, a transfer of the custom normals, and the strip of the arm image in the atlas. The
+    source copy then goes. Gives the counts of the steps.
     """
     source, out = retopo_cut_and_tube(mesh, fr, joints)
     source.hide_set(False)
     retopo_wrap(mesh, source)
-    retopo_bridge(mesh)
+    out['bridge'] = retopo_bridge(mesh)
+    out['snapped'] = retopo_snap_wrists(mesh, source)
     retopo_uv(mesh)
     retopo_bake(mesh, source)
     source.hide_set(False)
@@ -899,7 +928,8 @@ def main():
         bpy.data.objects.remove(o, do_unlink=True)
     mesh = import_mesh()
     fr = Frame(mesh)
-    retopo_arms(mesh, fr, config['joints'])
+    out = retopo_arms(mesh, fr, config['joints'])
+    print('polar_bear_arms: %s' % json.dumps({str(k): v for k, v in out.items()}))
     size = export_source(mesh, os.path.join(out_dir, 'polar-bear-arms.glb'))
     rig = add_skeleton(fr, config)
     bind(mesh, rig)
