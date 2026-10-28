@@ -1,0 +1,37 @@
+
+> zoophony@0.0.0 arm-check /private/tmp/claude-501/-Users-xueqiaoxu-proj-zoophony/51e57e32-cee6-44dc-94fc-af50332f7a46/scratchpad/r3/try
+> node tools/arm-check.ts violist --base main
+
+base: cached (main, 2a7db5114ecc)
+Arm gate of 1 roles against main in 84 s. A cell gives the value, the base in parentheses, and the verdict of a value that does not pass.
+
+| Role | Arm | folds p95 (8) | twist p95 (55) | forearm twist p95 (80) | flat p5 (0.55) | paw twist p95 (170) | paw swing p95 (70) | paw jumps (0.5%) | stretch p95 (0.35) | grip turn p50 (45) | move twist max (176) | move turn max (3000) | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| violist | L | 1 (1) | 40 (40) | 37 (37) | 0.79 (0.79) | 100 (100) | 40 (40) | 0.0% (0.0%) | 0.11 (0.11) | 4 (4) | 101 (101) | 219 (219) | PASS |
+| violist | R | 7 (4) FAIL | 43 (41) | 48 (48) | 0.79 (0.84) | 124 (124) | 55 (55) | 0.0% (0.0%) | 0.04 (0.04) | 35 (35) | 134 (134) | 555 (555) | FAIL |
+
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| violist | L | folds p95 | rest | 14 | 1 | 1 | 100.0% | 1 at bach-bwv1047.mid rest | 1 | 8 | 1 | PASS |
+| violist | L | twist p95 | rest | 14 | 38 | 40 | 100.0% | 40 at bach-bwv1047.mid rest | 40 | 55 | 40 | PASS |
+| violist | L | forearm twist p95 | play | 17788 | 35 | 37 | 100.0% | 37 at brahms-2.mid 606.88 s | 37 | 80 | 37 | PASS |
+| violist | L | flat p5 | rest | 14 | 0.79 | 0.79 | 100.0% | 0.79 at bach-bwv1047.mid rest | 0.79 | 0.55 | 0.79 | PASS |
+| violist | L | paw twist p95 | play | 17788 | 97 | 100 | 100.0% | 102 at brahms-2.mid 606.88 s | 100 | 170 | 100 | PASS |
+| violist | L | paw swing p95 | lift | 434 | 36 | 40 | 100.0% | 40 at boulanger-matin.mid wall 0.9 s | 40 | 70 | 40 | PASS |
+| violist | L | paw jumps | rest | 14 | 0 | 0 | 0.0% | 0 at bach-bwv1047.mid rest | 0.0% | 0.5% | 0.0% | PASS |
+| violist | L | stretch p95 | lift | 434 | 0.11 | 0.11 | 96.8% | 0.11 at boulanger-matin.mid wall 1.4 s | 0.11 | 0.35 | 0.11 | PASS |
+| violist | L | grip turn p50 | play | 17788 | 4 | 7 | 100.0% | 32 at boulanger-matin.mid 277.88 s | 4 | 45 | 4 | PASS |
+| violist | L | move twist max | move | 16254 | 20 | 99 | 100.0% | 101 at mozart-k417.mid lift 67.73 s, wall 1.15 s | 101 | 176 | 101 | PASS |
+| violist | L | move turn max | move | 16254 | 10 | 156 | 85.9% | 219 at bach-bwv1048.mid lift 109.10 s, wall 0.46 s | 219 | 3000 | 219 | PASS |
+| violist | R | folds p95 | play | 17788 | 2 | 7 | 100.0% | 9 at beethoven-8.mid 138.15 s | 7 | 8 | 4 | FAIL |
+| violist | R | twist p95 | play | 17788 | 34 | 43 | 100.0% | 46 at brahms-2.mid 302.63 s | 43 | 55 | 41 | PASS |
+| violist | R | forearm twist p95 | lift | 434 | 41 | 48 | 100.0% | 53 at boulanger-matin.mid wall 0.6 s | 48 | 80 | 48 | PASS |
+| violist | R | flat p5 | play | 17788 | 0.84 | 0.79 | 100.0% | 0.72 at brahms-2.mid 206.63 s | 0.79 | 0.55 | 0.84 | PASS |
+| violist | R | paw twist p95 | lift | 434 | 110 | 124 | 100.0% | 132 at boulanger-matin.mid wall 0.6 s | 124 | 170 | 124 | PASS |
+| violist | R | paw swing p95 | lift | 434 | 42 | 55 | 100.0% | 81 at boulanger-matin.mid wall 0.4 s | 55 | 70 | 55 | PASS |
+| violist | R | paw jumps | rest | 14 | 0 | 0 | 0.0% | 0 at bach-bwv1047.mid rest | 0.0% | 0.5% | 0.0% | PASS |
+| violist | R | stretch p95 | lift | 434 | 0.04 | 0.04 | 96.8% | 0.04 at boulanger-matin.mid wall 0.4 s | 0.04 | 0.35 | 0.04 | PASS |
+| violist | R | grip turn p50 | play | 17788 | 35 | 62 | 100.0% | 74 at bach-bwv1048.mid 265.50 s | 35 | 45 | 35 | PASS |
+| violist | R | move twist max | move | 16254 | 96 | 123 | 100.0% | 134 at bach-bwv1050.mid lower 310.00 s, wall 0.61 s | 134 | 176 | 134 | PASS |
+| violist | R | move turn max | move | 16254 | 12 | 355 | 85.6% | 555 at beethoven-8.mid lift 146.82 s, wall 0.32 s | 555 | 3000 | 555 | PASS |
+ ELIFECYCLE  Command failed with exit code 1.

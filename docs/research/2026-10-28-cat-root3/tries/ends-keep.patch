@@ -1,0 +1,99 @@
+--- tools/blender/cat_arms.py	2026-10-28 14:34:21
++++ /private/tmp/claude-501/-Users-xueqiaoxu-proj-zoophony/51e57e32-cee6-44dc-94fc-af50332f7a46/scratchpad/r3/tries/ca-c4k5.py	2026-10-28 14:07:53
+@@ -158,7 +158,8 @@
+     # The right side keeps its band: with the clean, the root ring of the bow arm went flatter in
+     # the play (flat p5 of `pnpm arm-check` 0.75, 0.84 before, a fail), and with the strip only,
+     # the valleys in front of the right root were deeper in the play.
+-    'pit': {'near': (0.0055, 0.003), 'close': 0.003, 'weld': 0.0025, 'sides': 'L'},
++    'pit': {'near': (0.0055, 0.003), 'close': 0.003, 'weld': 0.0025, 'sides': 'LR', 'keep': 'R', 'slide': 0.5},
++    'ends': {'reach': 0.02, 'rounds': 8, 'most': 0.004},
+ }
+ va.ANIMALS['cat'] = CAT
+ 
+@@ -795,14 +796,18 @@
+             close = [p for p in bm.verts if p.is_valid and p[part] == tube and p[index] == k
+                      and p not in below and distance(p.co) < s.units(rule['close'])
+                      and at_back(p.co)]
+-            for p in below + close:
++            keep = 'LR'[off // 10] in rule.get('keep', '')
++            for p in below + ([] if keep else close):
+                 if p in below:
+                     q = next(x.other_vert(p) for x in p.link_edges
+                              if x.other_vert(p)[part] == tube and x.other_vert(p)[index] == k + 1
+                              and x.other_vert(p)[spoke] == p[spoke])
+                 else:
+                     q = min(line, key=lambda v: (v.co - p.co).length)
+-                merge_into(bm, q, p)
++                if keep:
++                    p.co = p.co.lerp(q.co, rule['slide'])
++                else:
++                    merge_into(bm, q, p)
+                 merged += 1
+         # 2. The socket vertices near the ends of the line and near each other.
+         welded = 0
+@@ -822,6 +827,56 @@
+     return out
+ 
+ 
++def step_round_ends(s):
++    """Rounds the skin near the ends of each armpit line (`ends`).
++
++    The line lies on the plane of the seam, but `step_round_wall()` sinks the side wall and the
++    trunk near it into the trunk, and the front of the root, the socket and the first shoulder
++    ring, stays near the plane. At each end of the line, the skin thus made a small fin with
++    edges of 90 to 178 degrees, which showed as a point from az 150 and az -150, and as a notch
++    at the front of the arm root at rest (user, 2026-10-27: "the cat's arm has lumps"). Each
++    vertex within `reach` units of an end moves toward the middle of its neighbors (Smooth
++    Vertices), `rounds` times, with the factor 0.5 times a share that falls from 1 at the end to
++    0 at `reach` units. The tube from its first ring of Blender weights (`seam.ruled`) keeps its
++    place, so the arm keeps its round and its bone heat. Gives for each side the count of the
++    moved vertices and the largest move in units."""
++    rule = s.spec.get('ends')
++    if rule is None:
++        return None
++    mesh = s.mesh
++    bpy.context.view_layer.objects.active = mesh
++    bpy.ops.object.mode_set(mode='EDIT')
++    bm = bmesh.from_edit_mesh(mesh.data)
++    part = bm.verts.layers.int['arm_part']
++    index = bm.verts.layers.int['arm_ring']
++    reach = s.units(rule['reach'])
++    out = {}
++    for side, off in ((1, 0), (-1, 10)):
++        line = sorted((p for p in bm.verts if p[part] == PART['armpit'] + off),
++                      key=lambda p: p.co.y)
++        share = {}
++        for end in (line[0], line[-1]):
++            for p in bm.verts:
++                d = (p.co - end.co).length
++                if d < reach and p[part] != 0 and not (p[part] == PART['tube'] + off
++                                                       and p[index] >= s.spec['seam']['ruled']):
++                    share[p] = max(share.get(p, 0.0), 1.0 - d / reach)
++        start = {p: p.co.copy() for p in share}
++        for _ in range(rule['rounds']):
++            new = {}
++            for p, w in share.items():
++                ring = [x.other_vert(p).co for x in p.link_edges]
++                new[p] = p.co.lerp(sum(ring, Vector()) / len(ring), 0.5 * w)
++            for p, co in new.items():
++                move = co - start[p]
++                p.co = start[p] + move * min(1.0, s.units(rule['most']) / max(move.length, 1e-12))
++        out['LR'[off // 10]] = (len(share), round(max((p.co - start[p]).length for p in share)
++                                                  / s.fr.height, 5))
++    bmesh.update_edit_mesh(mesh.data)
++    bpy.ops.object.mode_set(mode='OBJECT')
++    return out
++
++
+ def merge_into(bm, keep, gone):
+     """Merges the vertex `gone` into the vertex `keep` (Merge at First). `keep` keeps its place and
+     its codes (the integer layers of the vertices): the merge mixes them."""
+@@ -1651,7 +1706,7 @@
+ 
+ STEPS = (va.import_mesh, step_cut, step_wall, step_tube, step_wrap, step_bridge, step_beautify,
+          step_uv, step_bake, va.step_normals, step_shape, step_belly, step_round_wall,
+-         step_clean_pit, va.step_atlas, step_inner_color, va.step_export, va.step_skeleton,
++         step_clean_pit, step_round_ends, va.step_atlas, step_inner_color, va.step_export, va.step_skeleton,
+          va.step_bind, step_tube_heat, step_paint, step_weights)
+ 
+ 

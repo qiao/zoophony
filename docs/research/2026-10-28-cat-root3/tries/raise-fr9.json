@@ -1,0 +1,260 @@
+[
+  {
+    "side": "L",
+    "turns": {
+      "clavicle": [
+        0,
+        -0.1736,
+        0,
+        0.9848
+      ],
+      "upper_arm": [
+        0.1825,
+        -0.2037,
+        0.0973,
+        0.9569
+      ],
+      "forearm": [
+        0.083,
+        0.0279,
+        -0.0829,
+        0.9927
+      ]
+    },
+    "fade": [
+      15,
+      30
+    ],
+    "below": 0,
+    "follow": {
+      "points": [
+        [
+          0.0876,
+          0.6098,
+          0.1007
+        ],
+        [
+          0.0911,
+          0.6188,
+          0.1029
+        ],
+        [
+          0.0854,
+          0.6236,
+          0.1067
+        ],
+        [
+          0.0958,
+          0.6265,
+          0.0978
+        ],
+        [
+          0.1004,
+          0.6015,
+          0.0963
+        ],
+        [
+          0.0855,
+          0.616,
+          0.1065
+        ],
+        [
+          0.0869,
+          0.6366,
+          0.1045
+        ],
+        [
+          0.0833,
+          0.6313,
+          0.1133
+        ]
+      ],
+      "reach": [
+        0.02,
+        0.05
+      ],
+      "share": 0.5,
+      "fill": {
+        "rounds": 12,
+        "step": 0.5,
+        "reach": [
+          0.04,
+          0.09
+        ]
+      }
+    },
+    "note": "The shape of the raised left arm of the play (pnpm raise-fit violist --faces 1594 --side L): the upper arm turns 33.7 degrees from the bind in the mean of the play, with a spread of 2.7 degrees, and the clavicle 20 degrees. The user said \"the cat's arm has lumps\" on 2026-10-27. The trunk weights keep the front of the left arm root with the chest, so the raised arm of the play crushed it into a dark crease, and face 1594 at the front of the armpit folded in each play sample. In the pose of the rule, each vertex within reach of the points (8 places at the front of the root, in units of the source) moves half of the way to the place that the first segment of the upper arm gives it (follow), with a share that falls to 0 from 0.02 to 0.05 units. With 0.015 to 0.04 units, the valleys in front of the root deepened 565 cm deg from the bind in the play at 30 s and 1,577 cm deg at rest (488 and 1,387 cm deg now, docs/research/2026-10-28-cat-root2.md). The shape has its full weight within 15 degrees of the turn of the rule and none from 30 degrees: with 10 and 20 degrees, face 1594 still folded in 2.5% of the lift. At rest the shape has no weight, so the root keeps the trunk weights: with no trunk weight, 11 faces folded at the root at rest and in the play, and the right root had a notch at rest (docs/research/2026-10-28-cat-wall.md). A share of 0.75 left a light notch at the lower end of the crease, a follow of the clavicle made the crease narrower and harder, and a smoothing of the skin in the pose of the rule turned over the thin faces at the front end of the armpit line, which showed as a slit (docs/research/2026-10-28-cat-root.md). After the clean of that band (step_clean_pit() of tools/blender/cat_arms.py), the smoothing still pulled the root front into a dark pocket (docs/research/2026-10-28-cat-root2.md)."
+  },
+  {
+    "side": "L",
+    "turns": {
+      "clavicle": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "upper_arm": [
+        0.455,
+        -0.3102,
+        0.2693,
+        0.7901
+      ],
+      "forearm": [
+        0.0517,
+        0.0174,
+        -0.0516,
+        0.9972
+      ]
+    },
+    "fade": [
+      10,
+      20
+    ],
+    "below": 0,
+    "follow": {
+      "points": [
+        [
+          0.0876,
+          0.6098,
+          0.1007
+        ],
+        [
+          0.0911,
+          0.6188,
+          0.1029
+        ],
+        [
+          0.0854,
+          0.6236,
+          0.1067
+        ],
+        [
+          0.0958,
+          0.6265,
+          0.0978
+        ],
+        [
+          0.1004,
+          0.6015,
+          0.0963
+        ],
+        [
+          0.0855,
+          0.616,
+          0.1065
+        ],
+        [
+          0.0869,
+          0.6366,
+          0.1045
+        ],
+        [
+          0.0833,
+          0.6313,
+          0.1133
+        ]
+      ],
+      "reach": [
+        0.02,
+        0.05
+      ],
+      "share": 0.5,
+      "fill": {
+        "rounds": 12,
+        "step": 0.5,
+        "reach": [
+          0.04,
+          0.09
+        ]
+      }
+    },
+    "note": "The shape of the left arm at rest (pnpm raise-fit violist --faces 2255,2241,2242,2243 --side L --sets rest): the upper arm turns 75.6 degrees from the bind in the mean of the rest, with a spread of 0.9 degrees, and the clavicle does not turn. At rest the arm hangs down past the front of the root, which keeps the trunk weights, so a dark notch showed at the front of the root from az -35 to az -90, and faces 2241 to 2243, 2255, and 3845 folded in each rest sample. In the pose of the rule, the same points as in the shape of the play, with the same reach, move half of the way with the first upper arm segment. The notch is softer, and the rest folds 3 faces at most (7 before) with no new face (docs/research/2026-10-28-cat-root.md)."
+  },
+  {
+    "side": "L",
+    "turns": {
+      "clavicle": [
+        0,
+        -0.0651,
+        0,
+        0.9979
+      ],
+      "upper_arm": [
+        0.2106,
+        -0.247,
+        0.3318,
+        0.8858
+      ],
+      "forearm": [
+        0.2084,
+        0.0701,
+        -0.2082,
+        0.9531
+      ]
+    },
+    "fade": [
+      10,
+      25
+    ],
+    "below": 0,
+    "follow": {
+      "points": [
+        [
+          0.0876,
+          0.6098,
+          0.1007
+        ],
+        [
+          0.0911,
+          0.6188,
+          0.1029
+        ],
+        [
+          0.0854,
+          0.6236,
+          0.1067
+        ],
+        [
+          0.0958,
+          0.6265,
+          0.0978
+        ],
+        [
+          0.1004,
+          0.6015,
+          0.0963
+        ],
+        [
+          0.0855,
+          0.616,
+          0.1065
+        ],
+        [
+          0.0869,
+          0.6366,
+          0.1045
+        ],
+        [
+          0.0833,
+          0.6313,
+          0.1133
+        ]
+      ],
+      "reach": [
+        0.02,
+        0.05
+      ],
+      "share": 0.5,
+      "fill": {
+        "rounds": 12,
+        "step": 0.5,
+        "reach": [
+          0.04,
+          0.09
+        ]
+      }
+    },
+    "note": "The shape of the left arm between the rest and the play (pnpm raise-fit violist --faces 2488,2487,3118 --side L --sets lift, on the build with the clean of both armpit bands): the upper arm turns 55.3 degrees from the bind in the mean of the folds of the lift, with a spread of 8.2 degrees, and the clavicle 7.5 degrees. The user said \"the cat's arm has lumps\" on 2026-10-27. On the way from the rest to the play and back, the upper arm passes 30 to 45 degrees from the turns of the other two shapes, so they had no weight there, and the front of the root kept the crease of the trunk weights: in the lift sample 5 of boulanger-matin, the valleys in front of the root deepened 1,864 cm deg from the bind. In the pose of the rule, the same points as in the other shapes, with the same reach, move half of the way with the first upper arm segment. The shape has its full weight within 10 degrees of its turn and none from 25 degrees: with 10 to 20 degrees, the lowering samples 11 to 13 took 0.38 to 0.61 of the shape of a fit of an earlier build of the round, and now 0.70 to 0.96 (docs/research/2026-10-28-cat-root2.md)."
+  }
+]
