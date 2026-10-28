@@ -432,11 +432,13 @@ export const SPECIES = {
    * chair that fits them. Its head height is the head of the studio body, and the seat height is
    * the seat of the studio body, in H.
    *
-   * The stick of the bow passes through the middle of the closed right paw, 23° from square toward
-   * the wrist, along the line nearest to the middles of the turned paw (user, 2026-10-24: "also how
-   * the hippo is holding the bow", `docs/research/2026-10-24-bow-holds/stick-line.ts`). The paw
-   * keeps the stick within 0.72 cm in the play, the lift, and the lowering. With the grip of
-   * `BOW_GRIP`, the stick passed under the paw, and the claws pointed down past it.
+   * The stick of the bow passes through the closed right paw, 23° from square toward the wrist,
+   * along the line nearest to the middles of the turned paw (user, 2026-10-24: "also how
+   * the hippo is holding the bow", `docs/research/2026-10-24-bow-holds/stick-line.ts`). With the
+   * grip of `BOW_GRIP`, the stick passed under the paw, and the claws pointed down past it. The
+   * bow paw keeps the bend of its bind on the forearm (`pawKeepR` of the hold), and the stick runs
+   * at least 1.4 cm deep in the closed paw and at most 2.4 cm from its middle in the play, the
+   * lift, and the lowering (2026-10-28-hippo-paw decisions).
    */
   hippo: {
     body: 'studio-hippo',
