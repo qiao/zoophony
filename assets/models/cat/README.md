@@ -36,6 +36,14 @@ wall. The raised arm of the play showed them as a light patch with a crease, and
 lips, fills the hole again with even faces, and smooths the wall and the trunk near it along the
 normal of the plane of the seam (`docs/research/2026-10-28-cat-wall.md`).
 
+The band between the left armpit line and the flat inner side of the left arm has no thin face.
+The first shoulder ring lay 0.1 to 0.5 units-cm from the line there, so Bridge Edge Loops made
+thin triangles, and three corners of a face at the front end of the line lay on one line. The
+step `step_clean_pit()` merges the shoulder ring vertices near the line into the next ring and
+the socket vertices near the line ends, and fills the band again with a strip of triangles. The
+line and the side wall stay. The right arm keeps its band, because the clean made the root ring
+of the bow arm flatter in the play (`docs/research/2026-10-28-cat-root2.md`).
+
 The tube of each arm is an even round from the shoulder to the paw. The seated bind of
 `pnpm rig-mesh cat` bends each elbow 79° and turns the left paw 120°, so it binds the left lower
 arm with the dual quaternion blend (`bind.arm` of the config): the elbow and the forearm keep the
@@ -48,15 +56,16 @@ raised left arm of the play crushed it into a dark crease, and the user said "th
 lumps" on 2026-10-27. The rig gives the left arm a shape of `raise` with the turns of the play:
 in its pose, the front of the root moves half of the way with the first segment of the upper arm
 (`follow` of the config). A second shape does the same with the turns of the rest, where the
-hanging arm left a dark notch at the root. The root keeps its trunk weights, because with none
-it folded (`docs/research/2026-10-28-cat-root.md`).
+hanging arm left a dark notch at the root, and a third shape with the turns between the rest and
+the play. The root keeps its trunk weights, because with none it folded
+(`docs/research/2026-10-28-cat-root.md`, `docs/research/2026-10-28-cat-root2.md`).
 
 | Item | Value |
 |---|---|
-| `cat-arms.glb` | 1,181,012 bytes, SHA-256 `ebb8f560b974bd009e160520adcef33d8a40164ad24de3fafc591a5a0be2940c` |
-| Mesh | 2,156 vertices after a weld at 1e-5, 4,307 triangles (3,121 in the source): on each arm a tube of 16 rings of 16 vertices, joined to the shoulder socket and to the paw with Bridge Edge Loops, and a side wall of 54 (left) and 50 (right) faces under each arm |
+| `cat-arms.glb` | 1,180,540 bytes, SHA-256 `ecfe907e75fac79a56df2e5aa98e82b95217ff78f0d17cddb95e880552d90d76` |
+| Mesh | 2,146 vertices after a weld at 1e-5, 4,287 triangles (3,121 in the source): on each arm a tube of 16 rings of 16 vertices, joined to the shoulder socket and to the paw with Bridge Edge Loops, and a side wall of 54 (left) and 50 (right) faces under each arm. Near the left armpit line, 8 vertices of the first two shoulder rings merged into the next ring or into the line |
 | Material | One material with one base color JPEG of 4096 × 4608 pixels: the atlas of the source, and a strip of 512 pixels on top with the fur color of the source arms, baked onto the new faces. The side walls and the flat inner sides of the arms take one gray fur texel of the trunk beside the seam. No metallic-roughness texture |
-| `cat-weights.json` | 482,534 bytes, SHA-256 `a5fc44d1c98c1f3a555686ff0fc5f91869d02613f905320824ea1f6e7b6af389` |
+| `cat-weights.json` | 480,430 bytes, SHA-256 `588d9b38b0dff053118adf037f9c87521a1504fc48df949043622062a486155e` |
 | Weights | The automatic weights of Blender with the Weight Paint fixes of the session, on the studio bones and the arm segments and helpers (`armSegments` of the config), for `paintedWeights` of the config. The arms take the automatic weights of the copy before the round side walls (`step_tube_heat()`) |
 | License | Derived from the mesh of the user, who holds its rights |
 
