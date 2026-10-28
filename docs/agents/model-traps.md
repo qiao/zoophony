@@ -407,8 +407,10 @@ group of your work before you plan it. A probe that a trap names is in its resea
   out, and the lap turns sharply. Smooth the bind up the belly front with a second crease pass
   that fades out behind the hip joints and to the sides (`crease.lap`): wider rings for the
   whole pass moved the seat top and the outer hips (`docs/research/2026-10-27-cat-lap.md`).
-- A flat zone of the trunk under an arm turns the edges beside the unmoved middle strip over the
-  crease angle. Measure the patch edges (`probes/belly.ts --edges`) before you take a flat move.
+- A flat zone of the trunk corners under an arm turns the edges beside the unmoved middle strip
+  over the crease angle, and a light strip shows. Let the zone peak at the middle line and fall
+  off over the whole front, and read the patch edges (`probes/flatloop.sh` of
+  `docs/research/2026-10-27-cat-lap/`) before the depth.
 - A choice of whole faces of 3 cm to 6 cm gives a color patch a waist or teeth. Mix the color of
   each face across the edge by the share of its area in the patch (`colors.belly`).
 - Ears at the height of the skull top and antlers above it fall in the height rule of `earBase`.
