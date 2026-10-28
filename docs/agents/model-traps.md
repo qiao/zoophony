@@ -141,6 +141,12 @@ group of your work before you plan it. A probe that a trap names is in its resea
 - A higher bench puts the shoulders of short arms high over the keys, and nearer keys do not
   lower the elbows. Lower the shoulders with the lean and `shoulderDrop`, and point the elbows
   down (`hold-scan.txt` of `docs/research/2026-10-27-polar-bench/`).
+- A damper pedal far in front of short legs makes the right leg reach, and its thigh weights pull
+  the haunch into the bench. Read the haunch gap of the play (`probes/seat-probe.ts` of
+  `docs/research/2026-10-28-polar-legs/`), and move the keys nearer.
+- Rest elbows that point far from the play elbows twist the paws in the lift, and the arm gate
+  fails the move twist. Point the rest elbows near the play elbows (`phase2/arm-variants.txt` of
+  `docs/research/2026-10-28-polar-legs/`).
 - Short arms in front of a deep instrument stop at their full reach mostly along the forward
   direction, so a side move of the body gains little. Read the wrist reach at each strike
   (`dbg.ts` of `docs/research/2026-10-25-xylophone-sway/`), and lean the spine forward
@@ -347,9 +353,14 @@ group of your work before you plan it. A probe that a trap names is in its resea
 - Short thick legs under a round body, as on the polar bear mesh, make a thigh from a hip joint
   at the crotch shorter than it is thick, so the seated legs read as straight. Put the hip joints
   in the haunch and the knees at the bottom of the body (`docs/research/2026-10-22-polar-seat.md`).
-  Even then, a round belly hides a short lap, and only longer legs show it. A leg factor raises
+  Even then, a round belly hides a short lap. A leg factor raises
   the landmark of the standing shoulders, so raise its height by the factor of `keptHeight()`,
   else the whole body becomes smaller (`docs/research/2026-10-22-polar-legs.md`).
+- A bench from a reference sheet needs a check of the leg proportions of the mesh. The bench of
+  `polar-bear-views.png` made the polar bear shins 3.2 times as long as on the mesh, and the user
+  said that the bear looked like a human. Measure the legs of the mesh first (`probes/leg_table.py` of
+  `docs/research/2026-10-28-polar-legs/`), keep its shin to thigh ratio, and fit the bench and the
+  keys to the legs.
 - A seated thigh with no weight of its own leaves a cut or a hump at the knee: a `haunch` ramp
   from the knee gives the hips the whole thigh, and bone heat on a short thick leg gives the shin
   the knee front. Color the bind by the hips, the thigh, and the shin in Blender, start the ramp
