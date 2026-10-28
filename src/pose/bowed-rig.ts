@@ -99,6 +99,14 @@ export interface BowedHold {
    */
   readonly farSideR: number;
   /**
+   * The share of the bend of the bind paw that the right paw keeps on its forearm while it holds
+   * the bow, from 0 to 1 (`pawKeepR` of `AnimalPose`, `poseStudioBones()` of
+   * `models/studio-rig.ts`): 0 turns the paw onto the line of the forearm, as the retarget does
+   * for each paw, and 1 keeps the paw on the forearm as in the bind pose, so that the skin of the
+   * wrist keeps the form of the bind (design 4.4).
+   */
+  readonly pawKeepR: number;
+  /**
    * The move of the instrument while the player plays, in head heights, in the axes of the parent
    * of the `instrument` bone. It makes room for the arms between the instrument and the body.
    */
@@ -349,6 +357,7 @@ const CHIN_HOLD = {
   polePizzicato: [1, -0.5, -1],
   followChange: 0,
   farSideR: Math.PI,
+  pawKeepR: 0,
   playShift: [0, -0.05, -0.15],
   playTurn: IDENTITY,
   restPoleR: [1, -0.9, -0.5],
@@ -420,6 +429,7 @@ const FLOOR_HOLD = {
   polePizzicato: [1, 0, 0],
   followChange: 0.3,
   farSideR: Math.PI,
+  pawKeepR: 0,
   playShift: [0, 0, -0.05],
   playTurn: IDENTITY,
   restPoleR: [1, -0.6, -0.5],

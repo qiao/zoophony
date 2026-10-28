@@ -44,6 +44,7 @@ export interface WritablePose extends AnimalPose {
   slideOffset: [number, number, number];
   readonly instrumentOffset: [number, number, number];
   pawTurnL: number | null;
+  pawKeepR: number;
   blink: number;
 }
 
@@ -93,6 +94,7 @@ function createPose(): WritablePose {
     slideOffset: [0, 0, 0],
     instrumentOffset: [0, 0, 0],
     pawTurnL: null,
+    pawKeepR: 0,
     blink: 0,
   };
 }
@@ -329,6 +331,7 @@ function poseAnimal(
   pose.rootOffset.fill(0);
   pose.instrumentOffset.fill(0);
   pose.pawTurnL = null;
+  pose.pawKeepR = 0;
   const note = player.note;
   // The conductor does not sway with the beat (design 5.4).
   const body = scratch.body;
@@ -358,6 +361,7 @@ function poseAnimal(
       body.lift = -hold.headDrop * weight;
       writeBody(pose, player, scratch);
       bowStateAt(note.strokes, note.starts, noteTime, bow);
+      pose.pawKeepR = hold.pawKeepR;
       pose.pawTurnL = poseBowed(
         note.rig,
         scratch.torso,
