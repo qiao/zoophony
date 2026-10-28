@@ -1170,7 +1170,7 @@ const DOG_HOLD = {
  * in the play, the lift, the rest, and the lowering. The bow turns in the paw over a stroke, as on
  * `main` before. With the paw turned toward the forearm by the retarget alone, the forearm turned
  * about 45° against the bow over a stroke, and the paw slid up to 2.4 cm off the stick. The turn
- * goes up to 90°, because the lowering after a pizzicato turns the forearm up to 85° past 45°.
+ * goes up to 90°, because the lowering after a pizzicato turns the forearm up to 79° past 45°.
  * The measures are in the 2026-10-28-hippo-grip decisions.
  */
 const HIPPO_HOLD = {
