@@ -21,3 +21,18 @@ pnpm look-variants variants/final.json --out scratch/v5   # final.md
 
 # The skirt of the stage in the default view (main against batch 4).
 uv run --no-project --with pillow --with numpy python -I skirt.py <frames>
+
+# The hot spot on the players (after the final set): none, then 0.2, 0.3, and 0.45 of its radii.
+pnpm look-variants variants/no-hot-spot.json --out scratch/v6  # no-hot-spot.md
+pnpm look-variants variants/hot-spot.json --out scratch/v7     # hot-spot.md
+
+# The validation sets: main above the round (scratch/val.sh), then the white fur of each frame.
+pnpm close-views play <dir> --demo boulanger-matin --time 33.5 --camera default \
+  --camera -120,10,3 --camera -105,-30,4 --base main          # images/wide-boulanger.webp
+pnpm close-views play <dir> --demo beethoven-9 --time 40 ... --base main   # wide-beethoven.webp
+pnpm close-views play <dir> --demo <id> --camera default --size 390x844 --base main  # phone-*
+pnpm close-views play <dir> --demo boulanger-matin --shot rabbit|dog|hippo --base main  # shot-*
+uv run --no-project --with pillow --with numpy python -I clip.py <frames>   # clip.txt
+
+# The variant sheet: frames of a dev server with ?look=<variant> (close-views play --url).
+uv run --no-project --with pillow python -I sheet.py variants.webp 560 <frames> <label>=<dir>...

@@ -1,0 +1,10 @@
+shot-rabbit/play-base-shot-rabbit.png: fur px 175418, p50 184, p90 220, any channel 255: 2.4%
+shot-rabbit/play-shot-rabbit.png: fur px 138719, p50 195, p90 221, any channel 255: 5.3%
+shot-dog/play-base-shot-dog.png: fur px 135419, p50 173, p90 228, any channel 255: 10.6%
+shot-dog/play-shot-dog.png: fur px 82093, p50 178, p90 227, any channel 255: 9.8%
+shot-hippo/play-base-shot-hippo.png: fur px 46526, p50 142, p90 196, any channel 255: 0.0%
+shot-hippo/play-shot-hippo.png: fur px 54232, p50 140, p90 199, any channel 255: 0.1%
+boulanger/play-base-default.png: fur px 78261, p50 159, p90 211, any channel 255: 1.7%
+boulanger/play-default.png: fur px 69143, p50 159, p90 212, any channel 255: 1.9%
+beethoven/play-base-default.png: fur px 68654, p50 166, p90 225, any channel 255: 3.0%
+beethoven/play-default.png: fur px 57083, p50 166, p90 224, any channel 255: 3.3%
