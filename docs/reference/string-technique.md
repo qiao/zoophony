@@ -687,7 +687,11 @@ A round that changes the motion updates the items.
 - **Pizzicato** (section 2.8). The right paw of the hippo comes up from the side and plucks 0.18 m
   right of the strings (`BowedHold.pluckSide`), as a real bassist rests the thumb on the edge of
   the fingerboard [72]. The right elbow points out to the right, so that the straight arm passes
-  outside the rim of the upper bout. The app differs: the paw lies further right than a real hand,
+  outside the rim of the upper bout. The bow tip points up, forward, and a little out
+  (`BowedHold.pizzicatoTip`), so that the forearm comes to the hand at 45° in the plane of the
+  palm, as in the play: with the tip to the left, the paw swung up to 41° off the forearm
+  (`docs/decisions/2026-10-28-hippo-grip.md`). No source of this file gives the place of the bow
+  in the hand in pizzicato. The app differs: the paw lies further right than a real hand,
   because the right shoulder is 0.16 m behind the back of the contrabass.
 - **The part of the bow.** The short bow arm reaches the frog only straight, and then it crosses
   the rim of the upper bout. So the hippo plays no hair within 0.25 m of the frog
@@ -703,7 +707,13 @@ A round that changes the motion updates the items.
   The paw keeps the bend of its bind pose on the forearm (`BowedHold.pawKeepR`), as the French
   bow is held "as if the hand is resting by the side" (section 2.1): the turn onto the line of
   the forearm bent the thick wrist 25° off its form, into a lump under the paw
-  (`docs/decisions/2026-10-28-hippo-paw.md`). No source gives the bow hand of a player with such
+  (`docs/decisions/2026-10-28-hippo-paw.md`). The hand turns in the plane of its palm around the
+  grip in the middle of the closed paw, so that the forearm keeps 45° in that plane
+  (`BowedHold.stickTurnR`). The paw thus keeps one place on the stick and a straight wrist, and
+  the bow turns in the paw by about 15° to each side over a stroke, as the fingers of a player let
+  the bow turn. With the paw turned toward the forearm alone, the forearm turned about 45° against
+  the bow over a stroke, and the paw slid up to 2.4 cm off the stick
+  (`docs/decisions/2026-10-28-hippo-grip.md`). No source gives the bow hand of a player with such
   short arms.
 - **The rest.** The contrabass stays at its playing place, and the left paw holds the neck. The
   right paw hangs beside the belly with the bow tip down, because the knee of the hippo is under
