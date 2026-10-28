@@ -24,7 +24,7 @@ import {
 } from 'three';
 import type { Camera, Material, Object3D, PerspectiveCamera, Scene } from 'three';
 
-import { keyLightPlace } from '../models/beam.ts';
+import { rimLightPlace } from '../models/beam.ts';
 import { plankHash } from '../models/stage.ts';
 import type { Vec3 } from '../models/tuples.ts';
 import type { StagePair } from './light-pool.ts';
@@ -68,7 +68,7 @@ export const BEAM_LOOK = {
   column: 0.38,
   /**
    * The height of the tip of the haze cone, in stage sides. The tip lies on the line from the foot
-   * of the beam to the key light, so the beam points at the key light. The key light stands far
+   * of the beam to its rim light, so the beam points at the rim light. The rim light stands far
    * away, and a haze cone up to it showed only a long, almost parallel part in the default view.
    * A lower tip shows the narrow top of the cone in the frame, so the beam opens as a fan toward
    * the stage, as in `orchestra-latest.png` (user, 2026-10-18: "the bottom of the beam is still
@@ -136,7 +136,7 @@ export const BEAM_LOOK = {
 
 /**
  * Gives a point in the axes of the beam (design 2.4, 4.5). The beam leans from the tip of the
- * haze ({@link hazeTip}), on the line to the key light, to its foot on the stage top, which a solo
+ * haze ({@link hazeTip}), on the line to its rim light, to its foot on the stage top, which a solo
  * moves to the soloed players. Each height keeps its circle of the cone, and the center of the
  * circle moves on the line from the foot to the tip. In the axes of the beam, the cone stands straight around the y axis, so
  * the formulas of the haze hold there. The shaders of the beam use the same formula.
@@ -155,22 +155,20 @@ export function beamAxes(stageSide: number, point: Vec3, foot: StagePair): Vec3 
 
 /**
  * Gives the tip of the haze cone (design 4.5): the point at the height {@link BEAM_LOOK}.tip on
- * the line from the foot of the beam to the key light (`keyLightPlace()`), with the key light
- * turned onto the stage axis at the same distance and height. The beam then leans only toward
- * the back, so it stands upright in the frontal default view, as the fan of
- * `orchestra-latest.png`. The key light itself stands to the right, for the shadows, and it is
- * outside the frame (user, 2026-10-18: "why is the beam not vertical?").
+ * the line from the foot of the beam to its rim light (`rimLightPlace()`). The rim light
+ * stands behind the stage at the x of the beam, so the beam leans only toward the back, and it
+ * stands upright in the frontal default view, as the fan of `orchestra-latest.png`.
  *
  * @param stageSide The stage side `S`, in meters.
  * @param foot The center of the foot of the beam on the stage top, as (x, z), in meters.
+ * @param lightX The x of the rim light of the beam, in meters: 0 on the stage axis.
  * @returns The tip, in meters.
  */
-export function hazeTip(stageSide: number, foot: StagePair): Vec3 {
-  const [lightX, lightY, lightZ] = keyLightPlace(stageSide);
-  const back = -Math.hypot(lightX, lightZ);
+export function hazeTip(stageSide: number, foot: StagePair, lightX = 0): Vec3 {
+  const [, lightY, lightZ] = rimLightPlace(stageSide, lightX);
   const height = BEAM_LOOK.tip * stageSide;
   const t = height / lightY;
-  return [foot[0] * (1 - t), height, foot[1] + (back - foot[1]) * t];
+  return [foot[0] + (lightX - foot[0]) * t, height, foot[1] + (lightZ - foot[1]) * t];
 }
 
 /**

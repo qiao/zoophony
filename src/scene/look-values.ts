@@ -1,6 +1,6 @@
 import { MathUtils } from 'three';
 
-import { KEY_PLACE } from '../models/beam.ts';
+import { KEY_PLACE, RIM_PLACE } from '../models/beam.ts';
 import type { PlayerPlace } from '../models/layout.ts';
 import { INSTRUMENT_COLORS, SCENE_COLORS, SPECIES_COLORS } from '../models/colors.ts';
 import { FINISHES, srgb } from '../models/mesh.ts';
@@ -54,6 +54,7 @@ const LOOK_ROOTS = {
   LIGHT_POOL,
   OCCLUSION,
   POST_LOOK,
+  RIM_PLACE,
   ROOM_HAZE,
   SCENE_COLORS,
   SHOT_BEAM_OPACITY,

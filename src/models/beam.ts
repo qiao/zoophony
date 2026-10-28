@@ -37,6 +37,36 @@ export function keyLightPlace(stageSide: number): Vec3 {
 }
 
 /**
+ * The place of the rim light (design 4.5), seen from the stage center on the stage top: on the
+ * stage axis, far behind the orchestra, and high. The visible beam leans from its foot on the
+ * stage toward this place, so the beam stands upright in the frontal default view, as the fan of
+ * `orchestra-latest.png` (user, 2026-10-18: "why is the beam not vertical?").
+ */
+export const RIM_PLACE = {
+  /** The distance from the stage center, in stage sides. */
+  distance: 2.45,
+  /** The angle above the stage top, in radians. */
+  elevation: 66 * MathUtils.DEG2RAD,
+} as const;
+
+/**
+ * Gives the position of a rim light of a stage ({@link RIM_PLACE}). The stage axes have +x to
+ * the right, +y up, and +z to the audience, so the back of the stage is at -z.
+ *
+ * @param stageSide The stage side `S`, in meters.
+ * @param x The x of the light, in meters: 0 on the stage axis.
+ * @returns The position, in meters.
+ */
+export function rimLightPlace(stageSide: number, x = 0): Vec3 {
+  const { distance, elevation } = RIM_PLACE;
+  return [
+    x,
+    distance * stageSide * Math.sin(elevation),
+    -distance * stageSide * Math.cos(elevation),
+  ];
+}
+
+/**
  * The height of the cone that the shot planner keeps clear of cameras, in stage sides (design
  * 5.6). The cone stands upright on the stage center and holds the haze of the visible beam near
  * the stage, also when the beam leans to the key light.
