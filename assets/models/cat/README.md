@@ -58,7 +58,11 @@ in its pose, the front of the root moves half of the way with the first segment 
 (`follow` of the config). A second shape does the same with the turns of the rest, where the
 hanging arm left a dark notch at the root, and a third shape with the turns between the rest and
 the play. The root keeps its trunk weights, because with none it folded
-(`docs/research/2026-10-28-cat-root.md`, `docs/research/2026-10-28-cat-root2.md`).
+(`docs/research/2026-10-28-cat-root.md`, `docs/research/2026-10-28-cat-root2.md`). In the pose
+of the shape of the play, the skin near the root front then fills its valleys and moves no vertex
+in (`follow.fill`), so the soft fold there is lighter. A fourth shape does the same as the
+follow of the left shapes for the bow arm in the play, where its root front folded into deep
+valleys (`docs/research/2026-10-28-cat-root3.md`).
 
 | Item | Value |
 |---|---|
