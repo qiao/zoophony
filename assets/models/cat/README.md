@@ -29,6 +29,13 @@ upper belly, where the bow upper arm lies in the play, is a little flatter, most
 line (`flat`, `docs/research/2026-10-27-cat-lap.md`). The faces and the colors of the trunk stay
 (`docs/research/2026-10-27-cat-belly.md`).
 
+The tube of each arm is an even round from the shoulder to the paw. The seated bind of
+`pnpm rig-mesh cat` bends each elbow 79° and turns the left paw 120°, so it binds the left lower
+arm with the dual quaternion blend (`bind.arm` of the config): the elbow and the forearm keep the
+round of the tube. With the linear blend, they were 0.86 and 0.84 as thick, and the user said
+"the cat's arm has lumps" on 2026-10-27 (`docs/research/2026-10-27-cat-arm.md`). The bow arm
+keeps the linear blend, because it bends further than the bind in the play.
+
 | Item | Value |
 |---|---|
 | `cat-arms.glb` | 1,182,704 bytes, SHA-256 `73aa8b34c3ec8a119270f057f8cbe090751539ff550010002be1f62075e5f6d2` |
