@@ -221,6 +221,8 @@ interface StudioArmSegments {
   the next ring and stitch the band again (`step_clean_pit()`). `bmesh.ops.pointmerge` keeps the
   first vertex but mixes the codes and the weights of both, so restore them. A smoothing of the
   skin in the pose of a shape makes a dark pocket (`docs/research/2026-10-28-cat-root2.md`).
+  Fill only the valleys, with a small step (`follow.fill`): a fill twice as strong folded a face
+  in 45% of the play (`docs/research/2026-10-28-cat-root3.md`).
 - **A slot that is shading.** A black slot, a hard wedge, or a notch at an arm root or an inner
   elbow can come from the normals: the seated bind bends the arm, and the crease angle splits
   the normals there. The split stays at rest, where the arm-down shape adds the moves of its own
