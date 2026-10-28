@@ -1503,9 +1503,9 @@ In the bind pose, each mallet, stick, beater, and the triangle lies in the hangi
 of the palm, and points forward. The baton lies along the fingers, 15° toward the thumb, because
 a conductor holds it along the index finger with its grip in the palm, so that it extends the hand
 (`BATON_ALONG`, `docs/research/2026-10-22-mesh-bear.md`). The timpani mallets, the snare sticks, the
-xylophone mallets, and the triangle beater slant down toward the line of the forearm, as a real
-player holds the shaft along the thumb (`malletTilt` of `TIMPANI`, `SNARE_DRUM`, `XYLOPHONE`, and
-`TRIANGLE`). No vertex of a player model is below the floor.
+xylophone mallets, the bass drum beater, and the triangle beater slant down toward the line of the
+forearm, as a real player holds the shaft along the thumb (`malletTilt` of `TIMPANI`,
+`SNARE_DRUM`, `XYLOPHONE`, `BASS_DRUM`, and `TRIANGLE`). No vertex of a player model is below the floor.
 
 **Instrument data**
 

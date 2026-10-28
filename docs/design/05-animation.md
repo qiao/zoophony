@@ -43,7 +43,7 @@ Each new role and each new hold adds its row to this table in the same commit.
 | Trombone, panda | Chair, stands as a soloist | Play: pBone, "How To Hold A Trombone", and Western Carolina University, "Slide Technique" (`docs/research/2026-10-18-panda-mesh.md`). Left shoulder: Human Kinetics (`docs/research/2026-10-18-panda-folds.md`). Technique: `docs/reference/wind-technique.md` | The left paw holds the weight at the grip near the mouthpiece, with the left shoulder forward, and the right paw moves the slide with the pitch. The slide points forward and a little down, turned to the right toward the right shoulder as far as the reach of the slide travel needs | The trombone moves off the mouth and stands upright at the right side | `PANDA_PLAY`, `PANDA_TROMBONE`, `pose/winds.ts` | 5.2, 5.3 woodwinds and brass, `2026-10-18-mesh-panda.md`, `2026-10-18-trombone-fit.md`, `2026-10-25-grips.md` | `pnpm close-views trombonist <dir>` |
 | Tuba, rhino | Stands in each seat, in the standing pose of its mesh, as a tubist on a strap | Technique: `docs/reference/wind-technique.md` 3 (`docs/research/2026-10-21-mesh-rhino.md`) | The tuba with a longer lead pipe stands under the muzzle in front of the chest, with the bell at the left of the horn and the head. The left paw holds the left side of the main branch with the knuckles to the left, the right paw presses the valves from their front right, where it shows from the front, and the elbows point down and out, so that each forearm stays in its range of turn | The tuba moves off the mouth and its lower end turns forward, and both paws keep their grips | `RHINO_TUBA` of `SPECIES_WIND_HOLDS`, `pose/winds.ts` | 5.2, 5.3 woodwinds and brass, `2026-10-21-mesh-rhino.md`, `2026-10-25-grips.md` | `pnpm close-views tubist <dir>` |
 | Timpani, elephant | Stands | The reference images (`docs/research/2026-10-19-elephant-pose.md`) | Each mallet strikes the front kettle of its side, 0.25 m in from the near rim. Between strikes, it points forward and a little in, with the head a few cm above its spot, and the wrist lifts it higher before a strike. The trunk hangs in the gap between the two front kettles | The mallets keep the set position of between strikes over the kettles | `PERCUSSION_HOLDS.timpani`, `TIMPANI`, `pose/percussion-rig.ts` | 5.2, 5.3 percussion, `2026-10-19-elephant-pose.md`, `2026-10-25-timpani-piano-rest.md` | `pnpm close-views timpanist <dir>` |
-| Bass drum, badger | Stands behind the drum | `docs/reference/percussion-technique.md` 5 | The beater in the right paw strikes 12 cm below the middle of the right head, and leaves the side of the fist at the angle of no paw twist between strikes | The beater stays over the drum, and the left arm hangs | `PERCUSSION_HOLDS['bass-drum']`, `BASS_DRUM`, `pose/percussion-rig.ts` | 5.3 percussion, `2026-10-20-mesh-badger.md` | `pnpm close-views bass-drummer <dir>` |
+| Bass drum, badger | Stands behind the drum, with its heads to the left and to the right | `docs/reference/percussion-technique.md` 5 | The right paw holds the beater at the near rim of the right head, along the head, and the beater strikes off the middle. Between strikes, the head of the beater leaves the drum head | The beater stays at the drum, and the left arm hangs | `PERCUSSION_HOLDS['bass-drum']`, `BASS_DRUM`, `pose/percussion-rig.ts` | 5.3 percussion, `2026-10-27-badger-beater.md` | `pnpm close-views bass-drummer <dir>` |
 | Snare drum, badger | Stands | `docs/reference/percussion-technique.md` 6 | The drum stands at the height of the wrists, and the sticks leave the front of the fists in a V of about 66°, almost level, with the paws in turn | The arms hang | `PERCUSSION_HOLDS['snare-drum']`, `SNARE_DRUM`, `pose/percussion-rig.ts` | 5.3 percussion, `2026-10-20-mesh-badger.md` | `pnpm close-views snare-drummer <dir>` |
 | Cymbals, badger | Stands | `docs/reference/percussion-technique.md` 7 | A suspended cymbal on a stand: the yarn mallets leave the front of the fists, as the snare sticks, and the paws strike in turn near the edge, opposite each other | The arms hang | `SUSPENDED_CYMBAL_HOLD`, `SUSPENDED_CYMBAL`, `pose/percussion-rig.ts` | 5.3 percussion, `2026-10-20-badger-cymbals.md` | `pnpm close-views cymbalist <dir>` |
 | Small percussion, badger | Stands | `docs/reference/percussion-technique.md` 8 | The left paw holds the triangle by its clip at the height of the mouth, and the beater in the right paw strikes it, or the tambourine on its stand at the front right | The left paw keeps the triangle up, and the beater stays near it | `PERCUSSION_HOLDS['small-percussion']`, `PERCUSSION_PLACES`, `TAMBOURINE`, `TRIANGLE`, `pose/percussion-rig.ts` | 5.3 percussion, `2026-10-20-mesh-badger.md`, `2026-10-25-grips.md` | `pnpm close-views percussionist <dir>` |
@@ -400,7 +400,7 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
   with the mallets up, as between two strikes (`PercussionHold.ready`). The hanging paws reached
   into the large kettles in front of it. The trunk hangs in the gap at the front of the kettles
   (`docs/decisions/2026-10-19-elephant-pose.md`).
-- **Percussion, standing.** The badger holds the beater of the bass drum over the drum and the
+- **Percussion, standing.** The badger holds the beater of the bass drum at the drum and the
   triangle up also at rest (`PercussionHold.ready`), because the lift from the hanging arms swept
   the beater through the body and swung the left paw far on its forearm. With the snare drum and
   the suspended cymbal, the upper arms hang, and the paws hold the sticks or the mallets in the
@@ -721,7 +721,9 @@ The code constants of each family hold the times, the angles, and the lengths of
     shaft in the visible paw. So the snare, the cymbal, the bass drum, and the timpani paws turn
     around the shaft until the paw has no side bend at the strike, and keep that roll of the
     mallet through the stroke (`gripRoll()`, `PercussionHold.strikeRoll`): the shaft then keeps
-    its place in the paw. A roll for each moment of a stroke turned the paws too fast. The other
+    its place in the paw. A roll for each moment of a stroke turned the paws too fast. No roll
+    removes the side bend when the forearm comes nearer to the shaft than the shaft to the
+    fingers in the bind pose, so a hold keeps the forearm at least that far from the shaft. The other
     holds keep the forearm in the plane of the palm, and their mallets stand near the angle of
     the shaft from the fingers away from the forearm, so the side bend stays small. On the
     xylophone, the short arms hold each mallet near the line of the forearm, so the shaft leaves
@@ -776,10 +778,18 @@ The code constants of each family hold the times, the angles, and the lengths of
     so its instruments stand nearer than for the parametric badger (4.6), and its upper arms touch
     the side of the body. The holds follow real players
     (`docs/reference/percussion-technique.md` 5 to 9, `docs/decisions/2026-10-20-mesh-badger.md`):
-    - The bass drum player stands behind the drum, and the beater strikes below the middle of the
-      head, off the middle, as a real player strikes. Between strikes, the beater keeps the angle
-      of no twist of the paw on the forearm (`across`). The paw holds the beater over the drum also
-      at rest (`ready`), so that the beater does not sweep through the body in the lift.
+    - The bass drum player stands behind the drum, with the heads to its left and to its right, as
+      a real player stands, and the right paw holds the beater at the near rim of the right head,
+      out from the trunk. The beater lies along the head at the strike, a little down from the
+      level, and strikes off the middle, about one third in from the rim, as a real player
+      strikes. The beater points from its home near the elbow to its head (`across` is `null`),
+      so between strikes and before a strike, the head of the beater leaves the drum head along
+      its normal, and the paw and the forearm turn with it, as the stroke of the wrist and the
+      forearm of a real player. The paw keeps the roll of the strike (`strikeRoll`). The upper
+      arm hangs near the side with the elbow down, a little in and back, and the spine leans a
+      little over the drum, so that the short arm can bend. The paw holds the beater at the drum
+      also at rest (`ready`). The drum hides the right arm from the front, as a real drum hides
+      its player (`docs/decisions/2026-10-27-badger-beater.md`).
     - The snare drum stands at the height of the wrists, near enough for the short arms. The
       sticks leave the front of the fists at the side of the thumbs (`PAW_TILT`), and point
       from homes out from the shoulders, so that they make a V at a strike and are almost level,

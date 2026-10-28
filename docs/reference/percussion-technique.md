@@ -97,6 +97,12 @@ from the V).
   [14]. A single note often needs no muffling [13].
 - The frame tilts the drum from vertical to horizontal. Rolls take a tilt of about 45°, but the
   drum does not lie flat [14] [28].
+- In the photos of the set-up and the grip, the hand holds the mallet at the near rim of the
+  head, with the mallet along the head toward its middle, and the back of the hand away from the
+  head [13 (photo)].
+- An orchestral bass drum is roughly 40 inches (1.02 m) wide [28]. A concert model of Yamaha is
+  36 by 16 inches [43 (a search summary only)]. A concert beater for the orchestra is 419 mm
+  long, with a head of 69.8 mm [44].
 
 ## 6. The snare drum
 
@@ -247,17 +253,29 @@ shoulder joint to the palm (`docs/decisions/2026-10-20-mesh-badger.md`).
   side of the thumb, as section 1 gives (`PAW_SPOT`, `PAW_TILT` of
   `src/models/instruments/percussion.ts`). The shaft lies 60° from the line of the paw in the
   bind pose, the xylophone mallet and the triangle beater 30° to 33°, and the bass drum beater
-  90°, as a hammer. The app differs on the xylophone: the paws hang low in front of the belly,
+  41°. The app differs on the xylophone: the paws hang low in front of the belly,
   and each mallet runs near the line of its forearm, so the shaft leaves the closed paw under the
   curled claws. The butt end sticks out 0.8 cm to 3.2 cm behind the paw,
-  where section 1 gives 13 mm to 25 mm. The bass drum beater and the triangle beater have a
-  longer butt (`BASS_DRUM.malletButt`, `TRIANGLE.malletButt`), so that 2 cm sticks out. The
+  where section 1 gives 13 mm to 25 mm. The triangle beater has a longer butt
+  (`TRIANGLE.malletButt`), so that 2 cm sticks out. The middle of the paw holds the bass drum
+  beater one third up from the butt, as section 5 gives, so about 7 cm sticks out. The
   xylophone paws keep their mallets at rest, with the heads up and forward.
 
-- **The bass drum.** The badger stands behind the drum at its front left, and the beater in the
-  right paw strikes 12 cm below the middle of the head, as section 5 gives. The left arm hangs,
-  because a single note often needs no muffling (section 5). The beater leaves the side of the
-  fist: no source gives where it leaves the fist.
+- **The bass drum.** The drum and the beater have the size of real ones at the scale of the
+  badger (its head top over the mean height of an adult, 0.617): a drum of 36 by 16 inches,
+  0.56 m wide, and a beater of 419 mm (Vic Firth BD3), 25.8 cm long with a head of 4.3 cm
+  [43] [44] [45]. The heads face left and right, and the badger stands behind the drum, as section 5
+  gives: the shell stands in front of its belly, and the right head 0.26 m to the right of its
+  middle. The right paw holds the beater at the near rim of the right head, one third up from
+  the butt, with the thumb side up, in the grip of the snare drum, as section 5 gives. At the
+  strike, the beater lies along the head, 10° down from the level, as the photos of [13] show,
+  and the head of the beater strikes 18 cm from the middle, 3 cm below it and toward the player,
+  about one third in from the rim [16]. Between strikes, the head of the beater rests 5 cm off
+  the drum head, and before a strike it lifts up to about 13 cm along the normal of the drum
+  head: the paw and the forearm turn around the elbow, as the stroke of the wrist and the forearm
+  of section 5. The app differs: the spine leans 9° over the drum, so that the short arm can bend,
+  and the drum hides the right arm from the front. The left arm hangs, because a single note
+  often needs no muffling (section 5).
 - **The snare drum.** The head stands 0.46 m high, at about the height of the wrists, and 0.45 m in
   front. The sticks leave the front of the fists and make a V of about 66°, 9° down at a strike,
   as section 6 gives. Between strikes, each stick keeps its strike direction seen from above,
@@ -334,8 +352,8 @@ shoulder joint to the palm (`docs/decisions/2026-10-20-mesh-badger.md`).
 
 ## 11. Sources
 
-Sources 1 to 12 opened on 2026-10-19, sources 13 to 33 on 2026-10-20, and sources 36 to 42 on
-2026-10-25, except where a fact has a mark of section "Source marks" or a source says "a search
+Sources 1 to 12 opened on 2026-10-19, sources 13 to 33 on 2026-10-20, sources 36 to 42 on
+2026-10-25, and sources 43 to 45 on 2026-10-28, except where a fact has a mark of section "Source marks" or a source says "a search
 summary only".
 
 1. "3 Timpani Grips", The Instrumentalist, December 2014.
@@ -419,3 +437,10 @@ summary only".
     https://apps.texasbandmasters.org/archives/pdfs/bmr/2015-04-meyer.pdf
 42. R. Adams, "A Conductor's Guide to Percussion: Timpani Methods", Mr. A Music Place, 2014.
     https://mramusicplace.net/2014/08/06/a-conductors-guide-to-percussion-timpani-methods/
+43. Yamaha, "CB-7000 Series Concert Bass Drums" (a search summary only: the page refused the
+    fetch). https://uk.yamaha.com/en/musical-instruments/percussion/products/bass-drums/cb-7000/
+44. Thomann, "Vic Firth BD3 Soundpower Mallet".
+    https://www.thomann.co.uk/vic_firth_bd3_soundpower_mallet.htm
+45. C. D. Fryar and others, "Anthropometric Reference Data for Children and Adults: United
+    States, 2015–2018", Vital and Health Statistics series 3, no. 46, NCHS, 2021, tables 9 and 11.
+    https://stacks.cdc.gov/view/cdc/100478

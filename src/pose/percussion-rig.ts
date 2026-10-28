@@ -285,22 +285,33 @@ export const PERCUSSION_HOLDS = {
     // (2026-10-25-timpani-piano-rest decisions).
     strikeRoll: true,
   },
-  // The badger strikes the bass drum below the middle of the head, as a real player strikes off
-  // the middle. The beater leaves the side of the fist at the angle of no twist of the paw on the
-  // forearm between strikes (across), with the elbow out and a little down, and the paw holds it
-  // over the drum also at rest (ready), so that the beater does not sweep through the body in the
-  // lift (2026-10-20-mesh-badger decisions).
+  // The badger stands behind the drum, and the right paw holds the beater at the near rim of the
+  // right head, with the beater along the head, 10° down from the level, as a real player holds it
+  // parallel to the head (docs/reference/percussion-technique.md 5). The beater strikes 18 cm from
+  // the middle of the head, 3 cm below it and toward the player, about one third in from the rim.
+  // The beater points from its home, near the elbow, so the head of the beater leaves the drum head
+  // along its normal, and the paw and the forearm turn with it, as the stroke of the wrist and the
+  // forearm of a real player. The head rests 5 cm off the drum head between strikes, and lifts up
+  // to about 13 cm before a strike (sizes). The paw keeps the roll of the strike around the shaft,
+  // so that the shaft leaves the fist at the side of the thumb (strikeRoll). The upper arm hangs
+  // near the side, with the elbow down and a little in and back: with the elbow out, the forearm
+  // came within 26° of the shaft, and the shaft left the fist along the claws. The spine leans 9°
+  // over the drum, so that the elbow can bend: with no lean, the wrist reached 0.97 of the arm.
+  // The paw holds the beater at the drum also at rest (ready). The left arm hangs, because a
+  // single note often needs no muffling (2026-10-27-badger-beater decisions).
   'bass-drum': {
     hands: 'right',
-    sizes: { lift: 0.12, rest: 0.05 },
+    sizes: { lift: 0.13, rest: 0.05 },
     offsetL: [0, 0, 0],
-    offsetR: [0, -0.12, 0],
+    // The middle of the head of the beater one radius of its head off the drum head, so that it
+    // touches the head at the note start.
+    offsetR: [0.0215, -0.03, 0.18],
     poleL: POLE_L,
-    poleR: [1, -0.5, 0],
+    poleR: [-0.5, -0.5, 0.4],
     rim: 0,
-    home: MALLET_HOME,
+    home: [0.56, -0.389, -0.146],
     top: 'up',
-    across: { rest: -1.4, lift: 0.6, pitch: null, peak: 1 },
+    across: null,
     pitchR: 1,
     ready: true,
     set: null,
@@ -308,7 +319,7 @@ export const PERCUSSION_HOLDS = {
     gap: 0,
     pass: 0,
     reach: Infinity,
-    lean: 0,
+    lean: 0.15,
     side: null,
     curl: GRIP_CURL,
     strikeRoll: true,

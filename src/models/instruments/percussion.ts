@@ -209,15 +209,19 @@ const BADGER_SCALE = 1.038 / 1.683;
 const BEATER_BUTT = 0.095;
 
 /**
- * The bass drum on its stand, in meters (design 4.6): at the front left of the player, with its
- * right head turned toward the player.
+ * The bass drum on its stand, in meters (design 4.6): in front of the player, with its heads to
+ * the left and to the right. The player stands behind the drum, and the beater in the right paw
+ * strikes the right head, as a real player does (`docs/reference/percussion-technique.md` 5).
  */
 export const BASS_DRUM = {
   /**
-   * The middle of the drum, from the floor under the player. At (-0.22, 0.52, -0.42), the hanging
-   * left paw of the badger mesh went 5.7 cm into the shell (`docs/decisions/2026-10-20-mesh-badger.md`).
+   * The middle of the drum, from the floor under the player. The right head stands 0.26 m to the
+   * right of the middle of the player, so that the right paw holds the beater at its near rim, out
+   * from the trunk, and the shell stands in front of the belly, about 4 cm from it in the lean of
+   * the play. With the head 0.21 m to the right, the elbow pointed in to keep the shaft out of the
+   * fingers, and the upper arm went 4.7 cm into the body.
    */
-  center: [-0.28, 0.5, -0.45],
+  center: [0.1347, 0.48, -0.49],
   /**
    * The radius of the heads: a concert bass drum of 36 by 16 inches (Yamaha CB-7036) at the
    * {@link BADGER_SCALE}. Real concert bass drums are 32 to 40 inches wide.
@@ -225,16 +229,20 @@ export const BASS_DRUM = {
   radius: 0.4572 * BADGER_SCALE,
   /** The depth of the shell, from the same drum at the {@link BADGER_SCALE}. */
   depth: 0.4064 * BADGER_SCALE,
-  /** The turn of the axis of the drum around the vertical from the x axis, in degrees. */
-  turn: -30,
+  /**
+   * The turn of the axis of the drum around the vertical from the x axis, in degrees: 0 puts the
+   * heads to the left and to the right of the player.
+   */
+  turn: 0,
   /**
    * The angle of the beater below the level in the bind pose, toward the fingers of the hanging
-   * paw, in radians: 0 holds it at 90° to the fingers, out of the side of the fist at the thumb.
-   * With {@link PAW_TILT}, the beater crossed the hanging left paw in 44.5% of the samples of
-   * beethoven-9 (`docs/research/2026-10-25-percussion-grip.md`).
+   * paw, in radians: the shaft runs 41° from the fingers and leaves the fist at the side of the
+   * thumb, in the grip of the legato stroke of the snare drum
+   * (`docs/reference/percussion-technique.md` 5). At 1.0, the shaft left the fist 59° to 61° from
+   * the thumb side, at the limit of the grasp of `pnpm wind-grip`.
    */
   // SAFETY: the literal widens to a number, so that a hold tool can set it in memory.
-  malletTilt: 0 as number,
+  malletTilt: 0.85 as number,
   /** The grip of each mallet in the closed paw ({@link PAW_SPOT}). */
   malletSpot: PAW_SPOT,
   /**
@@ -635,8 +643,8 @@ function tripod(piece: PieceBuilder, base: Vec3, top: Vec3, spread: number): voi
 }
 
 /**
- * Builds the bass drum on its stand, and one beater (design 4.6). The drum stands at the front
- * left of the player, and its right head faces the player.
+ * Builds the bass drum on its stand, and one beater (design 4.6). The drum stands in front of the
+ * player, with its heads to the left and to the right.
  *
  * @returns The model.
  */

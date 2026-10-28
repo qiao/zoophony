@@ -18,9 +18,8 @@ measures. The user can reverse each decision. Then update its section, and remov
 | Face: the face reads calm to happy. The smile shows at 60°, and the white stripe and the eye stripes show from the stage camera (`faces.webp`), so no face rule changes it. | 4.4 |
 | Four thin faces take rigid weights (`weights.rigid`), and two shapes relax the raised right arm of the bass drum and the raised left arm of the triangle (`raise`). | 4.4 |
 | No demo has a snare drum or a xylophone, so the probes also read a percussion test score with each part (`tools/probe-demos.ts`). It is no demo. | 9.3 |
-| The sweeps accept the upper arms 2.5 cm in the side of the body, where the mesh arm lies, and the bass drum beater 5 cm in the head, the middle of its ball (`BADGER_UPPER_ARMS`). | 9.3 |
+| The sweeps accept the upper arms 2.5 cm in the side of the body, where the mesh arm lies (`BADGER_UPPER_ARMS`). | 9.3 |
 | The first download grows by 29,644 B to 713,403 B (`pnpm size --base 24e47a7e`). The deer is the new sample body of the parametric tests (`models/test-body.ts`). | 7.2, 9.3 |
-| Bass drum: the drum moves 6 cm left and 3 cm back (`BASS_DRUM.center`), and the beater strikes 12 cm below the middle, as real players strike off the middle. The beater keeps the angle of no paw twist, and stays over the drum at rest. | 4.6, 5.3 |
 | Snare drum: the drum moves to 0.45 m in front and 0.46 m high (`SNARE_DRUM`), within reach. The sticks leave the front of the fists (`malletTilt`) in a V of 66°, 9° down, as the matched grip. | 4.6, 5.3 |
 | Small percussion: the left paw holds the triangle at the mouth, as near to eye level as it reaches, also at rest (`triangleClip`, `triangleHand`). The tambourine stand moves within reach (`TAMBOURINE.mount`). | 4.6, 5.3 |
 | Stop, open: the arms reach at most 85% of the xylophone strikes (factor 1.25, bars 0.22 m in front), so the xylophone keeps its place. Its mallets take the snare grip, for the arm gate. | 4.6, 5.3 |

@@ -1547,18 +1547,11 @@ const BADGER_UPPER_ARMS: readonly AcceptedDepth[] = ['play', 'lift', 'rest', 'lo
 );
 
 /** The sweep of the badger with the bass drum and its beater in the right paw. */
-const BASS_DRUMMER_SWEEP: RoleSweep = percussionSweep('bass-drummer', 'bass-drum', [
-  ...BADGER_UPPER_ARMS,
-  ...['play', 'lift'].map((samples) => ({
-    part: 'held',
-    into: 'instrument',
-    samples,
-    depth: 0.05,
-    reason:
-      'The middle of the ball of the beater, 5.5 cm in radius, lies on the head of the bass drum at the note start (design 5.3).',
-    decision: BADGER_DECISIONS,
-  })),
-]);
+const BASS_DRUMMER_SWEEP: RoleSweep = percussionSweep(
+  'bass-drummer',
+  'bass-drum',
+  BADGER_UPPER_ARMS,
+);
 
 /** The sweep of the badger with the snare drum and a stick in each paw. */
 const SNARE_DRUMMER_SWEEP: RoleSweep = percussionSweep(
