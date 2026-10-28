@@ -1115,10 +1115,13 @@ const DOG_HOLD = {
  * (`docs/reference/string-technique.md`, section 2.8). The right shoulder lies 0.16 m behind the
  * back of the contrabass, so the arm reaches the strings nearly straight: with the palm above the
  * strings, the arm went through the right rim of the upper bout, 7.7 cm deep. The elbow points out
- * to the right, a little up, and forward, and the bow tip points up, left, and forward: with the
- * elbow out and level, the forearm went 1.7 cm into the rim in 3% of the samples of
- * `boulanger-matin`, and with the elbow of the bow, the paw twisted 153° in the lowering after a
- * pizzicato (110° before, the arm gate).
+ * to the right, a little up, and forward: with the elbow out and level, the forearm went 1.7 cm
+ * into the rim in 3% of the samples of `boulanger-matin`, and with the elbow of the bow, the paw
+ * twisted 153° in the lowering after a pizzicato (110° before, the arm gate). The bow tip points
+ * up, forward, and a little out to the right, so that the forearm comes to the hand at about 45°
+ * in the plane of the palm, as in the play: with the tip up, left, and forward, it came at 100°
+ * to 109°, past the limit of `PAW_TURN` of `models/studio-rig.ts`, and the paw swung up to 41°
+ * off the forearm (2026-10-28-hippo-grip decisions).
  *
  * The left paw stops the strings only up to 0.7 of the fingerboard from the nut (`stopEnd`): the
  * left shoulder lies behind the upper bout, so a paw over the bout put the thick left forearm
@@ -1178,7 +1181,7 @@ const HIPPO_HOLD = {
   poleR: [2, 0.3, -1],
   poleTipR: [2, 0, -1],
   polePizzicato: [3, 0.3, -1],
-  pizzicatoTip: [-1, 1, -1],
+  pizzicatoTip: [0.5, 1, -1],
   pluckSide: 0.18,
   stopEnd: 0.7,
   farSideR: 30 * MathUtils.DEG2RAD,
