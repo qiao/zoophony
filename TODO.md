@@ -823,10 +823,16 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       copy crossed the last ring of the tube on the inner side of the wrist turn, and the bridge
       made a lip with a slit, a pale band or a dark slit around the wrist. The cut now stands
       parallel to the last ring, and a smooth evens the band of each wrist.
-- [ ] Hippo bow arm (`2026-10-28-hippo-arm.md`): in the play, the paw swings 25° to 31° off the
+- [x] Hippo bow arm (`2026-10-28-hippo-paw.md`): in the play, the paw swings 25° to 31° off the
       forearm (arm gate, p95), so the heel of the paw and the end of the forearm show as a lump
-      under the bow paw from the right and from az120. A scan of 8 elbow poles does not change
-      the swing. Next: a bow hold with a straighter wrist, by the place or the roll of the grip.
+      under the bow paw from the right and from az120. Done: the swing of 25° was the bend of the
+      bind paw, which the retarget took away, so the thick wrist bent 25° off its form. The bow
+      paw now keeps the bind bend (`HIPPO_HOLD.pawKeepR`): swing 2, wrist edges stretch 1.3
+      times (1.9 before).
+- [ ] Hippo bow paw (`2026-10-28-hippo-paw.md`): the stick runs up to 2.4 cm from the middle of
+      the closed paw in the lowering (1.75 cm on the old paw). The forearm turns about 45° against
+      the bow over a stroke, and the paw slides on the stick with it. A grip that turns with the
+      wrist needs an own turn of the bow paw.
 - [ ] Arm replays: `fox_arms.py` and `deer_arms.py` stop with a KeyError at the belly step of
       `cat_arms.py` (2026-10-27), as `hippo_arms.py` did. Leave the step out of their steps maps,
       or skip it for an animal with no `belly` rule, and check the bytes of each replay.
