@@ -510,7 +510,9 @@ The code constants of each family hold the times, the angles, and the lengths of
       rebuilt upper arm stays off the trunk (`docs/decisions/2026-10-25-cat-arms.md`). The right
       shoulder turns further forward than in the viola hold, and the pizzicato and rest elbows
       point a little further out, so that the bow arm keeps off the even oval belly
-      (`docs/decisions/2026-10-27-cat-belly.md`).
+      (`docs/decisions/2026-10-27-cat-belly.md`). In pizzicato, its right palm plucks from the
+      side of the strings, so that the upper arm keeps off the top of the chest
+      (`docs/decisions/2026-10-27-cat-lap.md`).
     - The dog holds the cello between its knees as real cellists do (`DOG_HOLD`,
       `docs/reference/string-technique.md`, section 2.7), leaned back and to the left as the user
       chose (`docs/decisions/2026-10-17-dog-rest.md`). The short arms reach the strings only nearly

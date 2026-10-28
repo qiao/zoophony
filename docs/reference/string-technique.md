@@ -511,7 +511,10 @@ A round that changes the motion updates the items.
   the rabbit plays no hair within 0.11 m of the frog (`BowedHold.frogHair`), because at the frog
   the violin at 50° brought the bow paw to the jaw. The rabbit and the red fox pluck over the end
   of the fingerboard (`BowedHold.pluckPlace` 0), because a pluck near the bow put the right
-  forearm into the body (`docs/decisions/2026-10-25-string-angle.md`). No source of this file
+  forearm into the body (`docs/decisions/2026-10-25-string-angle.md`). The cat plucks with the
+  palm 0.1 m from the strings toward the frog side (`BowedHold.pluckSide`), as a bass hand comes
+  up from the side (section 2.8), because its short bow arm went into the top of its round chest
+  with the palm over the strings (`docs/decisions/2026-10-27-cat-lap.md`). No source of this file
   gives the place of a violin pizzicato.
   The app had 9° (7° on the contrabass) before. The arm levels come from the
   geometry: the bow plane of the string turns the hand, and the arm follows it, higher for the
