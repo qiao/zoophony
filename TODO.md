@@ -538,18 +538,35 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       the skin normals, and the rest viola stands nearer to the hip (rest elbow 116°, 131°
       before). The left flute paw faces the flute in the play and holds it from its front, and it
       grasps in each play sample (0% before).
-- [ ] Cat (`2026-10-27-cat-fox.md`): the arm keeps the length of the mesh, 1.30 H from the
+- [x] Cat (`2026-10-27-cat-fox.md`): the arm keeps the length of the mesh, 1.30 H from the
       shoulder joint to the wrist, against about 1.10 H on `cat-views.png`. With arms 0.88 as
       long, the left paw reached the fingerboard only from 0.62 (0.33 now). Ask the user before a
-      shorter arm with a smaller viola or a nearer hold.
+      shorter arm with a smaller viola or a nearer hold. Done: in H the mesh arm matches the
+      sheet, but the cat trunk is 0.69 of the mesh. The arm is 1.10 H (upper arm 0.92, forearm
+      0.78), the cat plays a 10-inch viola near the neck, the paw reaches the nut, and the bow
+      the hair to 5 mm before its end (`2026-10-27-cat-fox2.md`).
 - [ ] Cat (`2026-10-27-cat-fox.md`): the armpit line at the lower back of each arm root still
       folds a little in the play. The socket of the fox, with no shoulder ring and Blender weights
       on the first ring, tore the arm root open on the cat.
-- [ ] Tan fox (`2026-10-27-cat-fox.md`): the right flute paw holds the flute from behind and
+- [x] Tan fox (`2026-10-27-cat-fox.md`): the right flute paw holds the flute from behind and
       above. In front of the flute, it turned 180° on its forearm in the moves (move turn up to
       17,945°/s). The left paw fails the margin of the move twist of the gate (87°, `main` 67°,
       margin 3°, limit 176°) and goes 0.4 cm into the flute (0.2 cm). The manager decides on the
       2x paw crops (`flutist-e20-*.webp` of `docs/research/2026-10-27-cat-fox/`).
+      Done: the right paw holds the flute as a right hand, behind it and a little below, with
+      the fingers over the top, and grasps in each sample with no flip (`2026-10-27-cat-fox2.md`).
+- [x] Cat (`2026-10-27-cat-fox2.md`): the user said "the cat is not "holding" the viola in rest
+      mode". Done: the left rest paw closes around the neck (92% of the directions around the
+      neck, 42% before), and goes 0.4 cm into the viola.
+- [ ] Cat (`2026-10-27-cat-fox2.md`): with the shorter arm and the viola near the neck, the bow
+      upper arm goes 2.5 cm into the belly at the tip (1.1 cm before, 1.7% of the play over the
+      limit), the viola 1.9 cm into the chest (1.0 cm), and the claws 2.1 cm into the viola in the
+      lowering (1.2 cm). `pnpm pose-depth violist --base main` marks 15 pairs.
+- [ ] Cat (`2026-10-27-cat-fox2.md`): the pits at the back of the left arm root are larger in the
+      play (14.5 cm³, 4.7 cm³ before, `dent.txt`), with no hard edge. Look at the crops of the
+      user angle. The head lift of 15° turns face 4220 under the jaw over in each play sample.
+- [ ] Tan fox (`2026-10-27-cat-fox2.md`): the left flute paw keeps the move twist of 87° (67°
+      before round `sixth-cat-fox`). No left elbow that grasps the flute brings it to 70°.
 - [x] Rabbit, red fox, and cat (`2026-10-26-fifth-review-strings.md`): the grip that the viewer sees
       changes by 56° to 79° in the moves (target 30°), because the retarget turns each paw toward
       its forearm (`PAW_TURN`), and the forearm crosses the neck at rest and runs along it in the
