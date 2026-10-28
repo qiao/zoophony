@@ -79,12 +79,13 @@ import violin_arms as va  # noqa: E402
 #: (optional): the shares `f` of the line, the angles from the front, and the largest move in
 #: units of the flatter front of the upper belly.
 #:
-#: `wall` (optional): the round side wall (`step_round_wall()`). `lip` and `depth`: a trunk face
-#: at the lower run of the old wall is a lip when the dot product of its normal with the normal of
-#: the plane of the seam is at most `lip`, and it lies within `depth` units of the plane. `grid`:
-#: the side of the triangles of the new wall in units. `rings` and `reach`: the rings of trunk
-#: vertices around the wall that move, within `reach` units of a vertex of the wall. `rounds`: the
-#: rounds of Smooth Vertices. `deep`: the largest depth of a vertex of the wall in the trunk.
+#: `wall` (optional): the round side wall (`step_round_wall()`). `lip`, `depth`, and `over`: a
+#: trunk face at the lower run of the old wall is a lip when the dot product of its normal with
+#: the normal of the plane of the seam is at most `lip`, it lies within `depth` units of the
+#: plane, and at most `over` units over the armpit line. `grid`: the side of the triangles of the
+#: new wall in units. `rings` and `reach`: the rings of trunk vertices around the wall that move,
+#: within `reach` units of a vertex of the wall. `rounds`: the rounds of Smooth Vertices. `deep`:
+#: the largest depth of a vertex of the wall in the trunk.
 #:
 #: The other keys are the keys of `violin_arms.ANIMALS`.
 CAT = {
@@ -132,8 +133,8 @@ CAT = {
     # out of the trunk (4 and 3 with 0.002, 2 and 1 before the round). With no `reach`, the
     # trunk rings took long faces down to the hips, moved them up to 3 cm, and drew a V of hard
     # edges under the wall in the play.
-    'wall': {'lip': 0.2, 'depth': 0.01, 'grid': 0.016, 'rings': 2, 'reach': 0.03, 'rounds': 6,
-             'deep': 0.002},
+    'wall': {'lip': 0.2, 'depth': 0.01, 'over': 0.02, 'grid': 0.016, 'rings': 2, 'reach': 0.03,
+             'rounds': 6, 'deep': 0.002},
 }
 va.ANIMALS['cat'] = CAT
 
@@ -1031,12 +1032,14 @@ def step_round_wall(s):
 
     1. The lips go (Delete Faces): from the lower run, each trunk face whose normal makes a dot
        product of at most `lip` with the normal of the plane, and that lies within `depth` units
-       of the plane and below the armpit line, with its neighbors of the same kind. A lip face
-       over the armpit line at the front of the left arm made the outline cross itself, and the
-       fill left a hole of 6 edges there.
+       of the plane and at most `over` units over the armpit line, with its neighbors of the same
+       kind.
     2. Fill: a 2D Delaunay triangulation (`delaunay_2d_cdt()` of Blender) of the outline of the
        hole, projected on the plane, and of the points of a grid of the side `grid` units inside
-       it. The new vertices lie on the plane.
+       it. The new vertices lie on the plane. In the plane, a point of the outline over the
+       armpit line takes the height of the line: a lip at the front of the left arm rose 2 cm
+       over it, the outline crossed itself, and the fill left a hole of 6 edges. The step stops
+       when the fill adds or merges a point of the outline.
     3. Smooth Vertices along the normal of the plane only, `rounds` times with the factor 0.5:
        the new wall, its outline, and `rings` rings of trunk vertices below the armpit line
        move, and the armpit line stays. A vertex of the wall goes at most `deep` units into the
@@ -1075,8 +1078,8 @@ def step_round_wall(s):
             if (g in lips or g[zone] != 0 or g.normal.dot(plane_no) > rule['lip']
                     or min((p.co - plane_co).dot(plane_no) for p in g.verts) < -s.units(
                         rule['depth'])
-                    or any(p[part] in tubes or p[part] == socket or p.co.z > height
-                           for p in g.verts)):
+                    or any(p[part] in tubes or p[part] == socket
+                           or p.co.z > height + s.units(rule['over']) for p in g.verts)):
                 continue
             lips.add(g)
             stack += [h for x in g.edges for h in x.link_faces if h not in lips]
@@ -1095,6 +1098,9 @@ def step_round_wall(s):
             up = -up
         across = up.cross(plane_no).normalized()
         outline = [((p.co - plane_co).dot(across), (p.co - plane_co).dot(up)) for p in loop]
+        top = min(v for (u, v), p in zip(outline, loop) if p[part] == PART['armpit'] + off)
+        outline = [(u, v if p[part] == PART['armpit'] + off else min(v, top - 1e-4))
+                   for (u, v), p in zip(outline, loop)]
         points = wall_grid(outline, s.units(rule['grid']))
         n = len(outline)
         coords, _, tris, origins, _, _ = delaunay_2d_cdt(
