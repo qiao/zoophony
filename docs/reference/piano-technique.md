@@ -156,19 +156,19 @@ front of the trunk, and the trunk upright over the sit bones.
 The polar bear pianist of the app (`HANDS_HOLDS.piano` of `src/pose/hands.ts`, `PIANO_SCALE` and
 `PIANO_FRONT_H` of `src/models/instruments/piano.ts`) follows sections 1 to 7 with these
 differences. The research reports
-[`2026-10-24-pianist-pose.md`](../research/2026-10-24-pianist-pose.md) and
-[`2026-10-27-polar-bench.md`](../research/2026-10-27-polar-bench.md) give the measures.
+[`2026-10-24-pianist-pose.md`](../research/2026-10-24-pianist-pose.md),
+[`2026-10-28-polar-legs.md`](../research/2026-10-28-polar-legs.md), and
+[`2026-10-28-polar-bench2.md`](../research/2026-10-28-polar-bench2.md) give the measures.
 
-- **Height.** The long trunk of the bear has short arms. The piano is 1.16 times the size of a
-  real piano, with the key top at 0.81 m. The bear sits on a bench of 0.38 m with level thighs,
-  as on its reference sheet, so its shoulder joints stand about 0.3 m above the keys. The
-  forearms are about level with the keys (section 1). The elbow joint is about 6 cm above the
-  key top, because the paw is thick.
-- **Trunk.** The spine bends about 19° forward from the bind, under the 20° of a neutral thorax
-  (section 3). The shoulders turn down 20° in the play, so that the short upper arms bring the
-  elbows down to the keys.
-- **Distance.** The keys stand 1.3 H in front of the floor point. The elbows bend about 106°
-  (section 1), and the upper arms are about 19° forward of the vertical (section 4).
+- **Height.** The bear is large, and its legs keep the proportions of its mesh. It sits on a
+  bench of 0.255 m with the thighs 25° down, so its hip joints stand 0.40 m and its shoulder
+  joints about 1.09 m above the floor. The piano is 1.22 times the size of a real piano, with the
+  key top at 0.85 m. The elbow joints stand about 6 to 8 cm above the key top, because the paw is
+  thick, and the forearms slope about 5° down to the keys (section 1).
+- **Trunk.** The spine leans 6° toward the keys, under the 20° of a neutral thorax (section 3),
+  and the shoulders turn down 4° in the play.
+- **Distance.** The keys stand 1.0 H in front of the floor point. Farther keys made the right leg
+  reach for the damper pedal and pull the haunch into the bench.
 - **Arms.** The elbows point out, down, and back, and stand about 27° to 30° out from the
   trunk. Elbows that hang nearer went into the wide trunk (section 4).
 - **Wrists and paws.** The palm faces down, in line with the level forearm (section 5). The
