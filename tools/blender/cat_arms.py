@@ -22,7 +22,9 @@ gives the cat a real armpit:
    the paw. Beautify Faces runs on the bridge triangles.
 6. UV, bake, normals, the shape of the app body, the atlas, and the export, as in
    `violin_arms.py`. Smooth Vertices rounds the two edges of the flat inner side. The inner side
-   and the side wall take the fur color of the trunk beside the seam.
+   and the side wall take the fur color of the trunk beside the seam. Before the atlas, the
+   trunk moves to an even oval from the front and from the side (`step_belly()`). The user said
+   "make the cat's belly more oval and smooth" on 2026-10-27.
 7. The studio skeleton with the arm segments and the helpers, automatic weights, and the Weight
    Paint fixes of `step_paint()`.
 8. Write the weights for `paintedWeights` of the config (`cat-weights.json`).
@@ -65,8 +67,16 @@ import violin_arms as va  # noqa: E402
 #:   number of rounds of Smooth on the weights of the tube. `round`: the rounds of Smooth Vertices
 #:   on the edges of the flat side. `wrap`: the limit of the Shrinkwrap.
 #:
-#: `anchor`: the share of the chest on the tube near the side walls (`anchor()`). The other keys are
-#: the keys of `violin_arms.ANIMALS`.
+#: `anchor`: the share of the chest on the tube near the side walls (`anchor()`).
+#:
+#: `belly`: the even oval of the trunk (`step_belly()`), in shares `f` of the line from the hips
+#: joint to the neck joint of the config. `front`: the two ends of the ellipse arc of the belly
+#: front in the side view. `sides`: the two ends of the even curve of each side in the front view,
+#: and `bend` the weight of its bends. `step`: the distance of the cuts along the line, in units.
+#: `round`: the share of the move of the belly front toward the half ellipse of its cut, and the
+#: shares of the half width where the move starts and ends its fade to the sides.
+#:
+#: The other keys are the keys of `violin_arms.ANIMALS`.
 CAT = {
     'config': 'tools/mesh-rigs/cat.json',
     'source': 'assets/models/cat/cat.glb',
@@ -92,6 +102,11 @@ CAT = {
     # With the shorter arms of factor 1 and the share 0.2, the upper ring of each upper arm narrowed
     # to 0.66 of its bind width at rest (0.73 before), and with 0.35 the right arm twisted more.
     'anchor': {'share': 0.1, 'reach': 0.05, 'crease': True},
+    # The even oval of the trunk (`step_belly()`). The user said "make the cat's belly more oval
+    # and smooth" on 2026-10-27. The front ends at the lap and at the neck, and the sides at the
+    # hips and at the lower end of the side walls.
+    'belly': {'front': (0.06, 0.92), 'sides': (0.12, 0.7), 'bend': 1e5, 'step': 0.002,
+             'round': {'share': 0.6, 'fade': (0.5, 0.8)}},
 }
 va.ANIMALS['cat'] = CAT
 
@@ -709,6 +724,221 @@ def round_corners(s, bm):
     return len(corner)
 
 
+#: The codes of `arm_part` on the surface of the trunk: the faces of the source, and the side
+#: walls with their armpit lines. The tube, the shoulder rings, and the paw cut stay.
+TRUNK_PARTS = (0, PART['wall'], PART['wall'] + 10, PART['armpit'], PART['armpit'] + 10)
+
+
+def trunk_frame(s, points):
+    """Gives the place of points of the studio along the line from the hips joint to the neck
+    joint of the config, as a share `f` of the line, and their distances from the line forward
+    (`d`) and to the left (`x`), in units. Gives also the length of the line, and the unit
+    directions forward and to the left."""
+    import numpy as np
+    joints = s.config['joints']
+    hips = np.array(joints['hips']['head'], float)
+    up = np.array(joints['neck']['head'], float) - hips
+    length = float(np.linalg.norm(up))
+    up /= length
+    forward = np.array([0.0, 0.0, 1.0]) - up[2] * up
+    forward /= np.linalg.norm(forward)
+    left = np.cross(up, forward)
+    rel = points - hips
+    return rel @ up / length, rel @ forward, rel @ left, length, forward, left
+
+
+def trunk_cuts(f, d, x, tris, levels):
+    """Cuts the mesh across the line of `trunk_frame()` at each share of `levels`, and keeps the
+    loop of each cut that holds the line: a ray from the line to the left crosses it an odd
+    number of times. The arm tubes and the paws are other loops below the armpit. Gives for each
+    level the front (the largest `d`), the left side (the largest `x`), and the right side (the
+    largest `-x`) of that loop, and the vertices of its faces."""
+    import numpy as np
+    out = []
+    for level in levels:
+        side = f[tris] > level
+        cut = np.nonzero(side.any(axis=1) & ~side.all(axis=1))[0]
+        parent = {}
+
+        def root(k):
+            while parent[k] != k:
+                parent[k] = parent[parent[k]]
+                k = parent[k]
+            return k
+
+        segments = []
+        for t in cut:
+            ends = []
+            for i in range(3):
+                a, b = int(tris[t, i]), int(tris[t, (i + 1) % 3])
+                if side[t, i] != side[t, (i + 1) % 3]:
+                    r = (f[a] - level) / (f[a] - f[b])
+                    key = (min(a, b), max(a, b))
+                    parent.setdefault(key, key)
+                    ends.append((key, (x[a] + (x[b] - x[a]) * r, d[a] + (d[b] - d[a]) * r)))
+            if len(ends) == 2:
+                parent[root(ends[1][0])] = root(ends[0][0])
+                segments.append((t, ends[0][1], ends[1][1], ends[0][0]))
+        groups = {}
+        for t, p, q, key in segments:
+            groups.setdefault(root(key), []).append((t, p, q))
+        best = None
+        for group in groups.values():
+            crossings = 0
+            for _, (x1, d1), (x2, d2) in group:
+                if (d1 > 0) != (d2 > 0) and x1 + (0 - d1) * (x2 - x1) / (d2 - d1) > 0:
+                    crossings += 1
+            if crossings % 2 == 1 and (best is None or len(group) > len(best)):
+                best = group
+        if best is None:
+            out.append(None)
+            continue
+        xs = [v for _, p, q in best for v in (p[0], q[0])]
+        ds = [v for _, p, q in best for v in (p[1], q[1])]
+        verts = {int(v) for t, _, _ in best for v in tris[t]}
+        out.append((max(ds), max(xs), -min(xs), verts))
+    return out
+
+
+def pinned_arc(ts, ws, ends):
+    """Fits the arc of an ellipse `w = w0 + sqrt(a + b t + c t^2)` (c < 0) to an outline, through
+    the outline at the two ends: the least squares over the outline between the ends, with `w0`
+    on a grid. Gives the arc as a function of `t`."""
+    import numpy as np
+    ta, tb = ends
+    wa, wb = np.interp(ta, ts, ws), np.interp(tb, ts, ws)
+    inside = (ts >= ta) & (ts <= tb)
+    rows = np.stack([np.ones(inside.sum()), ts[inside], ts[inside] ** 2], 1)
+    ends_rows = np.array([[1.0, ta, ta ** 2], [1.0, tb, tb ** 2]])
+    free = np.linalg.svd(ends_rows)[2][-1]
+    best = None
+    for w0 in np.linspace(-3.0 * ws[inside].mean(), 0.95 * min(wa, wb), 400):
+        base = np.linalg.lstsq(ends_rows, [(wa - w0) ** 2, (wb - w0) ** 2], rcond=None)[0]
+        rest = (ws[inside] - w0) ** 2 - rows @ base
+        along = rows @ free
+        coef = base + (along @ rest) / (along @ along) * free
+        if coef[2] >= 0:
+            continue
+        err = np.sum((w0 + np.sqrt(np.maximum(0.0, rows @ coef)) - ws[inside]) ** 2)
+        if best is None or err < best[0]:
+            best = (err, w0, coef)
+    _, w0, coef = best
+    return lambda t: w0 + np.sqrt(np.maximum(0.0, coef[0] + coef[1] * t + coef[2] * t * t))
+
+
+def pinned_smooth(ts, ws, ends, bend):
+    """Gives an even curve near an outline between two ends, through the outline at the ends:
+    the least squares of the distance to the outline plus `bend` times the squares of the second
+    differences, on the cuts between the ends (a Whittaker smoother). A corner or a notch of the
+    outline becomes a smooth turn. Gives the curve as a function of `t`."""
+    import numpy as np
+    ta, tb = ends
+    inside = (ts >= ta) & (ts <= tb)
+    grid = np.concatenate([[ta], ts[inside], [tb]])
+    values = np.interp(grid, ts, ws)
+    n = len(grid)
+    second = np.zeros((n - 2, n))
+    for i in range(n - 2):
+        second[i, i:i + 3] = (1.0, -2.0, 1.0)
+    system = np.eye(n) + bend * second.T @ second
+    target = values.copy()
+    for k in (0, n - 1):
+        system[k] = 0.0
+        system[k, k] = 1.0
+    curve = np.linalg.solve(system, target)
+    return lambda t: np.interp(t, grid, curve)
+
+
+def step_belly(s):
+    """Makes the trunk an even oval from the front and from the side (`belly`).
+
+    The trunk of the user mesh is not an even oval. In the side view, the chest is upright, and
+    the belly leans out below it to a peak at 0.33 of the trunk line, with a steep step at its
+    lower end. In the front view, the sides are a straight cone with a corner at the hips and a
+    notch below each side wall. Along the middle line, the belly has a ridge. The trunk factor of
+    the rig (`trunkFactor` 0.686) makes each turn steeper, and the seat shows them as a pinch at
+    the waist and a lump below it (`docs/research/2026-10-27-cat-belly.md`).
+
+    1. Each cut across the trunk line (`trunk_cuts()`) gives the front and the two sides of the
+       trunk at its height.
+    2. The new front is the arc of an ellipse through the front at the two ends of `front`
+       (`pinned_arc()`), and each new side an even curve through the side at the two ends of
+       `sides` (`pinned_smooth()`). A side has a waist under the arm, so no ellipse arc fits it.
+    3. Each vertex of the trunk surface (`TRUNK_PARTS`) between the ends moves: in the front
+       half, its distance forward from the line takes the factor of the front at its height,
+       and on each side, its distance from the middle plane takes the factor of its side. So
+       each cut grows or shrinks as a whole, the facets keep their relief, and the back half
+       keeps its depth. The side walls take no side move, so they stay in the plane of the seam.
+    4. Each vertex of the belly front moves the share `round.share` of the way to the half
+       ellipse through the front and the two sides of its cut, so that the ridge rounds out. The
+       share fades out toward the sides (`round.fade`, in shares of the half width), and over
+       0.05 at each end of `front`.
+
+    The ends keep their places, so the trunk joins the chest and the thighs with no step. The
+    custom normals of the moved vertices stay: the rig reads no normal of the source.
+    """
+    import numpy as np
+    rule = s.spec['belly']
+    data = s.mesh.data
+    fr = s.fr
+    co = np.array([v.co[:] for v in data.vertices])
+    points = np.stack([co[:, 0], co[:, 2] - fr.floor, -co[:, 1]], 1) / fr.height
+    f, d, x, length, forward, left = trunk_frame(s, points)
+    data.calc_loop_triangles()
+    tris = np.array([t.vertices[:] for t in data.loop_triangles], np.int64)
+
+    step = rule['step'] / length
+    low = min(rule['front'][0], rule['sides'][0])
+    high = max(rule['front'][1], rule['sides'][1])
+    levels = np.arange(low - 2 * step, high + 2 * step, step)
+    cuts = trunk_cuts(f, d, x, tris, levels)
+    kept = [k for k, c in enumerate(cuts) if c is not None]
+    ts = levels[kept]
+    front = np.array([cuts[k][0] for k in kept])
+    sides = {1: np.array([cuts[k][1] for k in kept]), -1: np.array([cuts[k][2] for k in kept])}
+    part = np.array([a.value for a in data.attributes['arm_part'].data])
+    trunk = np.zeros(len(points), bool)
+    for k in kept:
+        trunk[list(cuts[k][3])] = True
+    trunk &= np.isin(part, TRUNK_PARTS)
+    walls = np.isin(part, TRUNK_PARTS[1:])
+
+    a, b = rule['front']
+    goal_front = np.where((ts > a) & (ts < b), pinned_arc(ts, front, (a, b))(ts), front)
+    a, b = rule['sides']
+    goal_sides = {sign: np.where((ts > a) & (ts < b),
+                                 pinned_smooth(ts, sides[sign], (a, b), rule['bend'])(ts),
+                                 sides[sign]) for sign in (1, -1)}
+
+    a, b = rule['front']
+    belly = trunk & (f > a) & (f < b) & (d > 0)
+    new_d = np.where(belly, d * np.interp(f, ts, goal_front) / np.interp(f, ts, front), d)
+    a, b = rule['sides']
+    new_x = x.copy()
+    for sign in (1, -1):
+        on = trunk & ~walls & (f > a) & (f < b) & (sign * x > 0)
+        new_x[on] = x[on] * (np.interp(f[on], ts, goal_sides[sign])
+                             / np.interp(f[on], ts, sides[sign]))
+
+    share, (full, none) = rule['round']['share'], rule['round']['fade']
+    a, b = rule['front']
+    width = np.where(new_x >= 0, np.interp(f, ts, goal_sides[1]), np.interp(f, ts, goal_sides[-1]))
+    u = np.abs(new_x) / np.maximum(width, 1e-9)
+    ellipse = np.interp(f, ts, goal_front) * np.sqrt(np.clip(1.0 - u * u, 0.0, 1.0))
+    ends = np.minimum(np.clip((f - a) / 0.05, 0, 1), np.clip((b - f) / 0.05, 0, 1))
+    weight = share * (1.0 - np.clip((u - full) / (none - full), 0.0, 1.0)) * ends
+    new_d = np.where(belly, new_d + weight * (ellipse - new_d), new_d)
+
+    moved = points + (new_d - d)[:, None] * forward + (new_x - x)[:, None] * left
+    out = np.stack([moved[:, 0], -moved[:, 2], moved[:, 1]], 1) * fr.height + [0.0, 0.0, fr.floor]
+    for v, p in zip(data.vertices, out):
+        v.co = Vector(p)
+    data.update()
+    shift = np.linalg.norm(moved - points, axis=1)
+    look(s, '6-belly', [s.mesh], center=(0.0, 0.42, 0.05), scale=0.45)
+    return int((shift > 1e-12).sum()), round(float(shift.max()), 5)
+
+
 def step_inner_color(s):
     """Gives the side walls and the flat inner side of each upper arm one fur color of the trunk.
 
@@ -899,7 +1129,7 @@ def step_weights(s):
 
 
 STEPS = (va.import_mesh, step_cut, step_wall, step_tube, step_wrap, step_bridge, step_beautify,
-         step_uv, step_bake, va.step_normals, step_shape, va.step_atlas, step_inner_color,
+         step_uv, step_bake, va.step_normals, step_shape, step_belly, va.step_atlas, step_inner_color,
          va.step_export, va.step_skeleton, va.step_bind, step_paint, step_weights)
 
 

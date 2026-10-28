@@ -20,12 +20,19 @@ From 2026-10-25 to 2026-10-26 they were 1.1496 times longer, and the user said "
 too long". `pnpm rig-mesh cat` writes `cat.rig.glb` from it (`tools/mesh-rigs/cat.json`),
 and `pnpm studio-body cat` writes `src/models/studio/cat.ts`.
 
+The trunk of the copy is an even oval from the front and from the side. The user said "make the
+cat's belly more oval and smooth" on 2026-10-27. The belly front of `cat.glb` has an upright chest
+and a peak low on the belly, and its sides are a straight cone. The step `step_belly()` of the
+script moves the belly front onto an ellipse arc, each side onto an even curve, and the belly
+front part of the way to a half ellipse at each height, at most 0.016 units. The faces and the
+colors of the trunk stay (`docs/research/2026-10-27-cat-belly.md`).
+
 | Item | Value |
 |---|---|
-| `cat-arms.glb` | 1,182,704 bytes, SHA-256 `feac2f1db347cc0ba1d1e19aed0f05ef0ed4f08124af97b1fe0fc6a5a3553f91` |
+| `cat-arms.glb` | 1,182,704 bytes, SHA-256 `7a56a1783047e9aea155bcee9fea01b1ec8106a147a84a05a93a9b393243b3c8` |
 | Mesh | 2,161 vertices after a weld at 1e-5, 4,317 triangles (3,121 in the source): on each arm a tube of 16 rings of 16 vertices, joined to the shoulder socket and to the paw with Bridge Edge Loops, and a side wall of 27 faces under each arm |
 | Material | One material with one base color JPEG of 4096 × 4608 pixels: the atlas of the source, and a strip of 512 pixels on top with the fur color of the source arms, baked onto the new faces. The side walls and the flat inner sides of the arms take one gray fur texel of the trunk beside the seam. No metallic-roughness texture |
-| `cat-weights.json` | 483,727 bytes, SHA-256 `51be81fd7141713207a71f27cac162b85ad980b8470370dc6178fd2a5aff1991` |
+| `cat-weights.json` | 483,810 bytes, SHA-256 `ab7710d1e882bb0a01583c1fcc61df413d2cf6743ada69512040cb9de83bb354` |
 | Weights | The automatic weights of Blender with the Weight Paint fixes of the session, on the studio bones and the arm segments and helpers (`armSegments` of the config), for `paintedWeights` of the config |
 | License | Derived from the mesh of the user, who holds its rights |
 
