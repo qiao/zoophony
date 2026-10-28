@@ -139,7 +139,8 @@ az150, or az-150.
   `pnpm close-views clarinetist <dir> --base main --moments rest,lift40,lower60 --views
   front,back,left,right --scale 2 --elevation 10` by `probes/paw-pairs.py`.
 - `wolf-stage-rest.webp`: `pnpm close-views play <dir> --at wolf --azimuth -30 --azimuth 30
-  --time 30 --zoom 1.6 --base main --pause`. The angle -30 is the angle of the image of the user.
+  --time 30 --zoom 1.6 --base main --pause`, joined by `probes/stage-pair.py`. The angle -30 is
+  the angle of the image of the user.
 - The same sets of the mouse: `oboist-e20-<view>.webp`, `oboist-e40-<view>.webp` (`--box
   0.1,0.1,0.8,0.7`), `oboist-e0-<view>.webp`, `oboist-paws-<view>.webp`, and
   `mouse-stage-rest.webp` (`--at mouse`).
