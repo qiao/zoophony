@@ -2466,9 +2466,11 @@ the mockup is out of scope.
       back"): 35° left of the front axis and 60° high, with the shadows to the back right, weaker
       side and back-row lights, and a rim light behind the stage that motivates the beam, the
       room haze, and the floor gloss. Measures: `docs/research/2026-10-27-key-front.md`.
-- [ ] Ask the user to pick the beams and the height of the key light from `variants.webp` of
-      `docs/research/2026-10-27-key-front/`: one beam (default), no beam, or three beams, and the
-      key light at 60° (default), 72° (short shadows), or 45° (long shadows).
+- [x] Pick the beams and the height of the key light from `variants.webp` of
+      `docs/research/2026-10-27-key-front/`. The manager chose one beam and the key light at 60°
+      (2026-10-28), because each reference image has one beam and the shadows show beside the
+      players in both user views (rows of `docs/decisions/2026-10-27-key-front.md`). The user
+      asked for no questions, and can reverse it: no beam, three beams, 72°, or 45°.
 - [x] The front key light lights the faces of the front rows: the rabbit close shot clips a channel
       on 5.3% of its light fur, against 2.4% on the key light from behind (`clip.txt` of
       `docs/research/2026-10-27-key-front/`). The wide views clip as before.
