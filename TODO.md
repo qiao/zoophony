@@ -649,6 +649,14 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       `rest-zoom.webp`). A smoothing of the skin in the pose pulled the root front into a dark
       pocket also after the clean. Next: a root ring with more vertices at the front, or a bind
       arm nearer to the play.
+      Partly done (`2026-10-28-cat-root3.md`): the shape of the play fills the valleys of the
+      root front and moves no vertex in (`follow.fill`). The valleys in front of the root at 30 s
+      of the play are 828 cm·° (1,154), and the crease at az -72 is lighter. Face 2826 below the
+      root folds in 0.1% of the play. The notch at rest stays: the copy has a fin at the front
+      end of the left armpit line, where the socket and the first shoulder ring lie on the plane
+      of the seam and the trunk in front of them curves in (`fin-copy.webp`). A smoothing of the
+      line ends in the copy folded new faces. Next: put the socket front and the first ring
+      front onto the trunk surface in the copy, before the weights.
 - [x] Cat (`2026-10-28-cat-wall.md`): with the round side walls, face 1594 at the front of the
       left armpit folds in each play sample (faces 1440, 2609, and 2610 1.5 to 2 cm from it did
       on `main`). Done (`2026-10-28-cat-root.md`): the shape of the raised left arm folds it in no
@@ -663,6 +671,12 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       (flat p5 0.75, 0.84 on `main`, a fail of the gate), and with the new strip alone, the
       valleys in front of the right root deepened. A clean of the right band needs weights that
       keep the root ring round, such as the weights of the copy before the clean on the tube.
+      Partly done (`2026-10-28-cat-root3.md`): a fourth shape of `raise` takes the root front of
+      the bow arm along in the play. Faces 772 and 775 fold in 10% of the play (100%), the
+      right valleys at 30 s are 3,158 cm·° (4,991), and the point from az 150 is smaller. Faces
+      815 and 721 at the right shoulder top fold in under 0.05% of the play. The 14 thin faces
+      stay: a clean that keeps the ring and slides its near vertices to the next ring, and a
+      smoothing of the line ends, each folded new faces in each play sample.
 - [ ] Cat (`2026-10-27-cat-arm.md`): near the elbow, the left forearm is 0.89 of the tube in the
       play (4.65 cm, 5.2 cm), because the app turns the paw about 100° from the bind with the
       linear blend, over three forearm segments for each ring.
