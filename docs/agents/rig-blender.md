@@ -210,7 +210,9 @@ interface StudioArmSegments {
   inside the wall and round its edges, else dark slits open at the arm root. Keep the rule weights
   on the trunk and the first shoulder ring (`docs/research/2026-10-25-cat-arms.md`). The Bisect
   leaves lips under the wall that a raised arm shows as a crease: delete them, and fill the wall
-  again with even faces (`step_round_wall()`). The Smooth of the tube gives its second ring 0.6
+  again with even faces (`step_round_wall()`). Bone heat reads the whole mesh, so the new wall
+  moved the arm root weights and flattened the root ring in the gate: take the arm weights from
+  the copy before the wall (`step_tube_heat()`). The Smooth of the tube gives its second ring 0.6
   of the trunk, so the root narrows in a raised arm, but with none it folds at rest
   (`docs/research/2026-10-28-cat-wall.md`).
 - **A slot that is shading.** A black slot, a hard wedge, or a notch at an arm root or an inner
