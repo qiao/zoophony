@@ -1,0 +1,6 @@
+Demo bach-bwv1047.mid, 489 note samples. Scale 1.582774 m/u, H 32.5 cm, key top 85.4 cm.
+| Sample | Head gap | Bench top | Bench depth | Hip | Knee L | Ankle | Thigh ° down | Shin ° | Knee ° | Haunch behind bench back | Haunch gap | Sole | Flat | Head top | Knee top | Lap | Shoulder | Elbow − key L / R | Forearm ° | Reach share max |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| rest | 32.2 | 25.5 | 27.3 | 40.0 | 28.7 | 10.8 | 25.8 | 0.0 | 116 | -1.4 | 0.1 | -0.0 | 4% | 153.9 | 47.8 | 5.6 | 110.5 | 4.0 / 4.7 | -11.9 | 0.769 |
+| play median | 29.8 | 25.5 | 27.3 | 40.0 | 28.7 | 10.8 | 25.8 | 0.0 | 116 | -1.7 | -0.1 | 0.1 | 7% | 152.7 | 48.0 | 13.0 | 109.3 | 8.4 / 5.6 | -5.3 | 0.826 |
+| play max | 27.2 | 25.5 | 27.3 | 40.0 | 28.7 | 10.8 | 25.8 | 0.0 | 116 | -1.6 | -0.2 | 0.1 | 7% | 154.1 | 48.4 | 13.1 | 109.4 | 10.7 / 11.1 | -0.1 | 0.952 |
