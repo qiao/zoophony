@@ -729,7 +729,9 @@ body.is-building #stage {
   color: var(--text-dim);
 }
 
+/* A tab shows its hover only in its color, so that no tab looks like the current tab. */
 .tab:hover {
+  background: transparent;
   color: var(--text);
 }
 
@@ -1084,20 +1086,28 @@ body.is-building #stage {
   outline-offset: 2px;
 }
 
+/* A segmented control fills the width of the settings, and each label stays on one line. The
+   buttons share the free width, so a long label such as "Auto (Medium)" gets more room. */
 .segmented {
-  display: inline-flex;
+  display: flex;
+  width: 100%;
   border: 1px solid var(--line);
   border-radius: var(--radius-button);
   overflow: hidden;
-  margin: 4px 0 12px;
 }
 
 .segmented button {
+  flex: 1 1 auto;
   border-radius: 0;
-  padding: 0 12px;
+  padding: 0 10px;
   min-width: 0;
   min-height: var(--target-compact);
   font-size: 13px;
+  white-space: nowrap;
+}
+
+.segmented button + button {
+  border-left: 1px solid var(--line-faint);
 }
 
 .segmented button[aria-pressed='true'] {
@@ -1105,9 +1115,12 @@ body.is-building #stage {
   color: var(--on-accent);
 }
 
-/* The settings line up with the text of the tabs and the demo rows. */
+/* The settings line up with the text of the tabs and the demo rows. Each setting is a group with
+   the same gaps: 8 px from the head line to the control, and 8 px to the dim line. */
 .settings {
-  padding: 0 10px;
+  display: grid;
+  gap: 20px;
+  padding: 8px 10px 0;
 }
 
 .setting-label {
@@ -1116,11 +1129,32 @@ body.is-building #stage {
   color: var(--text-dim);
 }
 
+/* The head line of a setting: the label at the left, and a value such as the frame rate counter
+   at the right. */
+.setting-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.setting .setting-label {
+  font-weight: 500;
+  color: var(--text);
+}
+
+.setting-value {
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-dim);
+}
+
 /* The dim line below a setting, which explains its values (design 2.8). */
 .setting-help {
-  margin: -6px 2px 12px;
+  margin: 8px 2px 0;
   font-size: 12px;
-  line-height: 16px;
+  line-height: 17px;
   color: var(--text-dim);
 }
 
@@ -1343,7 +1377,7 @@ body.is-building #stage {
 /* The line of the link "Credits" at the end of the tab "Settings": small and dim text with no
    box (design 2.8). */
 .credits-line {
-  margin: 16px 0 0;
+  margin: 24px 0 0;
   padding: 8px 10px 0;
   border-top: 1px solid var(--line-faint);
 }
