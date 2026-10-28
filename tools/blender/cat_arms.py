@@ -129,12 +129,14 @@ CAT = {
              'flat': {'f': (0.62, 0.9), 'angle': (-75, 75), 'move': 0.004}},
     # The round side wall under each arm (`step_round_wall()`). The user said "the cat's arm has
     # lumps" on 2026-10-27, and the play showed the flat wall as a light patch with a crease at
-    # its lower tip. With `deep` 0.004, 7 and 5 vertices of the flat inner side of the arms lay
-    # out of the trunk (4 and 3 with 0.002, 2 and 1 before the round). With no `reach`, the
-    # trunk rings took long faces down to the hips, moved them up to 3 cm, and drew a V of hard
-    # edges under the wall in the play.
+    # its lower tip. With `deep` 0.002, the left upper arm went 1.7 cm into the new wall in the
+    # play, the lift, and the lowering (1.0 to 1.2 cm before the round), because the fill took the
+    # room of the lips. With 0.01, the right wall folded at 175 degrees. With 0.006, 7 and 6
+    # vertices of the flat inner side of the arms lie out of the trunk in the copy (2 and 1
+    # before the round), and no slit shows at rest. With no `reach`, the trunk rings took long
+    # faces down to the hips, moved them up to 3 cm, and drew a V of hard edges under the wall.
     'wall': {'lip': 0.2, 'depth': 0.01, 'over': 0.02, 'grid': 0.016, 'rings': 2, 'reach': 0.03,
-             'rounds': 6, 'deep': 0.002},
+             'rounds': 6, 'deep': 0.006},
 }
 va.ANIMALS['cat'] = CAT
 
@@ -1045,8 +1047,8 @@ def step_round_wall(s):
     3. Smooth Vertices along the normal of the plane only, `rounds` times with the factor 0.5:
        the new wall, its outline, and `rings` rings of trunk vertices below the armpit line
        move, and the armpit line stays. A vertex of the wall goes at most `deep` units into the
-       trunk, so that the flat inner side of the arm stays inside the wall. A move along the
-       plane would drag the vertices across the wall.
+       trunk: the wall sinks where the lips were, but stays over the flat inner side of the arm.
+       A move along the plane would drag the vertices across the wall.
 
     The replays of the other animals that take the steps of this script have no `wall`, and
     this step leaves their meshes as they are. Gives for each side the counts of the lips, of the
