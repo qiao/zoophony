@@ -114,8 +114,9 @@ reads it (route 3 of `docs/agents/model-work.md`). The steps:
    that relaxes the faces which the skin turns over in the pose of the rule (`raise_shape()`).
    `raise` holds one rule, or a list of up to four rules for a raised arm or a bent wrist.
    With `spread`, the move of single vertices of the shape spreads over their neighbors
-   (`spread_shape()`). A rig with `armSegments` turns its segments and helpers in the pose of a
-   rule.
+   (`spread_shape()`). With `follow`, the skin near its points first moves a share of the way
+   with the upper arm in the pose of the rule, as the front of a joined arm root does when the
+   arm rises. A rig with `armSegments` turns its segments and helpers in the pose of a rule.
    With `upperTwist` of the config, the solve of each shape gives each upper arm the twist bone of
    the app (`upper_twist()`), and the file names the share for `pnpm studio-body`.
 9. Write the GLB file with the code of this script: the materials `fur`, `gloss`, and `chair`,
@@ -4213,7 +4214,8 @@ def twist_matrices(turns, heads, posed_at, share):
     return out
 
 
-def raise_shape(rule, bind, tris, weights, heads, down, sheet, earlier=(), upper_share=None):
+def raise_shape(rule, bind, tris, weights, heads, down, sheet, earlier=(), upper_share=None,
+                source=None):
     """Finds the corrective shape of a raised arm (`raise` of the config): the move of each vertex
     in the bind pose that relaxes the faces which the skin turns over in the pose of the rule. In
     that pose, the clavicle and the upper arm of the side take the world turns of the rule from
@@ -4256,7 +4258,14 @@ def raise_shape(rule, bind, tris, weights, heads, down, sheet, earlier=(), upper
 
     With `armSegments` of the config, the arm segments and the helpers turn from the body bones by
     the rules of the app (`driven_turns()`), and a relaxed bone also relaxes the vertices of its
-    segments and helpers (`SEGMENTS_OF`)."""
+    segments and helpers (`SEGMENTS_OF`).
+
+    With `follow`, the vertices near its points (the places of the source, `source`) move in the
+    pose of the rule a share of the way to the place that the first segment of the upper arm
+    gives them (`near_share()`), before the relax, also when they hang on other bones. On a
+    joined arm root, the trunk weights keep the front of the root with the chest, so a raised arm
+    crushes it into a dark crease. The shape moves the root with the arm only near the pose of
+    the rule, so the root keeps the trunk weights at rest."""
     side = rule['side']
     turns = {name: np.eye(3) for name in BONES}
     wrist = rule.get('bone') == 'hand'
@@ -4312,7 +4321,16 @@ def raise_shape(rule, bind, tris, weights, heads, down, sheet, earlier=(), upper
     for _ in range(rule.get('grow', 0)):
         region[tris[region[tris].any(axis=1)].ravel()] = True
     before = np.nonzero(turn_dots(bind, posed, tris, weights, matrices) < 0)[0]
-    relaxed, rounds = relax(bind, posed, tris, weights, matrices, moving=region,
+    start = posed
+    if 'follow' in rule:
+        # The first segment of the upper arm, or the upper arm of a rig with no segments.
+        bone = f'upper_arm_seg0_{side}' if segmented else f'upper_arm_{side}'
+        m = matrices[BONES.index(bone)]
+        share = rule['follow']['share'] * near_share(source, rule['follow'])
+        start = posed + share[:, None] * (base @ m[:, :3].T + m[:, 3] - posed)
+        log(f"raise {side}: {int((share > 0).sum())} vertices follow the bone {bone}, at most "
+            f'{share.max():.2f} of the way')
+    relaxed, rounds = relax(bind, start, tris, weights, matrices, moving=region,
                             below=rule['below'])
     after = np.nonzero(turn_dots(bind, relaxed, tris, weights, matrices) < 0)[0]
 
@@ -4325,6 +4343,16 @@ def raise_shape(rule, bind, tris, weights, heads, down, sheet, earlier=(), upper
     shape = np.zeros_like(bind)
     shape[moved] = np.linalg.solve(a[moved], (relaxed - b)[moved][:, :, None])[:, :, 0] - base[moved]
     return shape, down_weight, before, after, rounds, int(moved.sum())
+
+
+def near_share(points, rule):
+    """Gives the share of each vertex of the source (`points`, source units) by its distance to
+    the nearest point of `rule['points']`: 1 within `reach[0]` units, falling to 0 at `reach[1]`
+    units."""
+    seeds = np.asarray(rule['points'], float).reshape(-1, 3)
+    near = np.linalg.norm(points[:, None, :] - seeds[None, :, :], axis=2).min(axis=1)
+    full, none = rule['reach']
+    return np.clip((none - near) / (none - full), 0.0, 1.0)
 
 
 def spread_shape(shape, points, tris, rule):
@@ -5117,7 +5145,7 @@ def main():
         sheet = long_heads[f'forearm_{side}'] - long_heads[f'upper_arm_{side}']
         shape, down_weight, before, after, rounds, count = raise_shape(
             rule, bind_all, tris_all, twist_weights, bind_heads, shapes[f'arm_down_{side}'],
-            sheet, earlier, upper_share)
+            sheet, earlier, upper_share, src_all)
         if 'spread' in rule:
             shape, seeds = spread_shape(shape, src_all, tris_all, rule['spread'])
             log(f'raise {target}: the move of the vertices {seeds} spreads over '

@@ -487,7 +487,10 @@ helpers by the rules of the app.
     arm. The relax can move one vertex several cm to turn back one face, and the step to its
     neighbors then shows as a crease line in each pose with the shape. `spread` of a rule spreads
     the move of that vertex over a ring of its neighbors. A
-    spread of the whole shape loses the relax of the other faces. The clavicle weights can fade out toward the middle plane of the chest
+    spread of the whole shape loses the relax of the other faces. `follow` of a rule moves the
+    skin near its points a share of the way with the first segment of the upper arm in the pose
+    of the rule, before the relax: the front of a joined arm root keeps its trunk weights at
+    rest, and a raised arm does not crush it into a crease. The clavicle weights can fade out toward the middle plane of the chest
     (`weights.clavicleMiddle`), so that a face on that plane does not take the weights of both
     clavicles, which a bow arm turns far apart. Below a cut of the armpit, a vertex of the trunk can
     give its arm weight to the trunk (`weights.armBelow`), so that a lowered arm does not drag the
