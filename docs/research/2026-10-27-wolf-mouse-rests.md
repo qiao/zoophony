@@ -3,8 +3,10 @@
 Date 2026-10-27. Round `sixth-wolf-vertical`. Decisions:
 [`2026-10-27-wolf-mouse-rests.md`](../decisions/2026-10-27-wolf-mouse-rests.md). The probes and
 their outputs are in [`2026-10-27-wolf-mouse-rests/`](2026-10-27-wolf-mouse-rests/). Each command
-runs from the root of the tree. "Main" is `b3f9d65e`, and `e485e46f` after the rebase (a change
-of the hall lamps only). `876ba389` is the commit before the clarinet rest on the knee.
+runs from the root of the tree. "Main" is `b3f9d65e`, `e485e46f` after the first rebase (a
+change of the hall lamps), and `6b58f6f2` after the second (the cat and fox round). The second
+rebase moves no wolf or mouse pose (`pnpm body-probe --base 672facbd`, `body-probe-rebase.txt`).
+`876ba389` is the commit before the clarinet rest on the knee.
 
 ## 1. The wolf: the question
 
@@ -33,9 +35,9 @@ clarinet takes `holdTurn(-25,0)`. Each try ran `pnpm hold-fit clarinetist --sets
 | Top of the right knee: (16, 7, 9), (14, 6, 11) | left forearm 12.3 cm and 10.0 cm in the belly | `wolf-try-1.txt` |
 | (14, 6, 11) with 27 left rest elbows | left forearm at least 7.1 cm in, right paw twist 82°, right swing 94° | `wolf-grid-knee-poleL.txt` |
 | In front of the inner right knee: (8, 3, 15) | left forearm 6.1 cm in | `wolf-try-1.txt` |
-| Middle, low: (0 to 4, 3 to 8, 18 to 22) | right forearm 2.1 cm to 3.4 cm in | `wolf-try-1.txt` |
+| Middle, low: (0 to 4, 3 to 8, 18 to 22) | a forearm 2.1 cm to 3.4 cm in | `wolf-try-1.txt` |
 | Middle, x -4 to 6, height 3 to 13, 22 to 30 in front | most places 0.6 cm to 1.0 cm | `wolf-grid-place*.txt` |
-| (4, 5.7, 18 to 20), nearer to the belly | left forearm 1.8 cm to 3.6 cm in | `wolf-grid-place-nearer.txt` |
+| (4 to 6, 4 to 6, 18 to 20), nearer to the belly | left forearm 1.8 cm to 3.6 cm in | `wolf-grid-place-nearer.txt` |
 | Four places of the middle in the arm gate | each passes against `876ba389` | `wolf-gate-scan.txt` |
 
 The chosen place (4, 5.7, 22), `restShift` [0.11, -0.56, -0.086], is the lowest and nearest
