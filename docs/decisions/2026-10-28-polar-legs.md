@@ -11,16 +11,15 @@ and lifted the keys of 0.81 m. The report
 [`2026-10-28-polar-legs.md`](../research/2026-10-28-polar-legs.md) gives the measures and the
 images. The user can reverse each decision. Then update its section, and remove its row.
 
+Later that day, the user asked for a taller bench. The factor, bench, size, and piano rows went to
+[`2026-10-28-polar-bench2.md`](2026-10-28-polar-bench2.md).
+
 | Decision | Section |
 |---|---|
-| The thighs and the shins take one leg factor, 1.2 (`legFactor`), so that the shin keeps 0.67 of the thigh, as on the mesh. On `main`, the shin was 1.35 of the thigh. This replaces the factor rows of `2026-10-22-polar-legs.md` and `2026-10-27-polar-bench.md`. | 4.4 |
-| The thighs slope 10° down, the shins stand vertical, and the feet stand flat (`studio.legTurns`): the bench top is 0.166 m. Level thighs gave 0.133 m and 5 turned knee faces in the bind. This replaces the bench row of `2026-10-27-polar-bench.md`. | 1, 4.4 |
-| The body keeps the scale of `main`, 1.4389 m for each unit. The head top is 1.31 m in the play and 1.32 m at rest. This replaces the size row of `2026-10-27-polar-bench.md`. | 1, 4.4 |
 | The calf fair covers 0.012 to 0.065 units down the shin (`kneeCrease.fair`): the band of `main` reached past the ankle of the short shin. | 4.4 |
 | Two more pairs of thin faces of the right groin take one mean of their weights (`weights.rigid`): with the short legs and the near pedal, they folded in each play sample. | 4.4 |
-| The manager: the piano is 1.03 times a real piano (`PIANO_SCALE`), with the keys at 0.72 m: the elbows stand 4 to 6 cm above the keys, and the forearms are level. This replaces the scale and conflict rows of `2026-10-24-pianist-pose.md` and `2026-10-27-polar-bench.md`. | 1, 4.6, 5.3 |
 | The keys stand 1.0 H and 0.05 m in front of the floor point (`PIANO_FRONT_H`). At 1.3 H, the pedal leg pulled the haunch 3.9 cm into the bench. | 4.6, 5.3 |
 | The spine leans 6°, the shoulders turn down 4°, and the elbows point out and a little down, (±1, −0.7, 0.4). This replaces the hold rows of `2026-10-27-polar-bench.md`. | 5.3 |
 | At rest, the paws lie 0.6 H and 0.67 H in front of the lap point and 0.08 H and 0.21 H above it, with the elbows out and down, (±1, −0.8, 0.2). The wrists go 0.2 H up in the lift (`restArc`). This replaces the rest row of `2026-10-25-timpani-piano-rest.md`. | 5.3 |
 | The smaller piano moves rows of the four demos with a piano: violins up to 1.40 m in `bach-bwv1050` and 0.99 m in `boulanger-matin`, and each player up to 0.18 m in the other two (`phase2/layout.txt` of the report). This replaces the layout row of `2026-10-24-pianist-pose.md`. | 4.2 |
-| Conflict: design 1 puts the bench top at 0.28 of the seated head top, as `polar-bear-views.png` does. The newest words of the user win: the legs of the mesh give 0.13. | 1 |
+| Conflict: design 1 puts the bench top at 0.28 of the seated head top, as `polar-bear-views.png` does. The newest words of the user win: the legs near the mesh give 0.17 since `2026-10-28-polar-bench2.md` (0.13 before). | 1 |
