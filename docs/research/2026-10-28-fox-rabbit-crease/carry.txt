@@ -1,0 +1,12 @@
+== pnpm carry-check violinist,fox-violinist --base main
+
+> zoophony@0.0.0 carry-check /Users/xueqiaoxu/proj/zoophony/.claude/worktrees/sixth-fox-rabbit-crease
+> node tools/carry-check.ts violinist\,fox-violinist --base main
+
+Carry of the instrument in the left paw on the working tree, with main (3003f8da0) in parentheses: 30.5 s. A fast step turns both faster than 20°/s, at steps of 0.01 s.
+
+| Role | Moves | Steps >90° of the fast steps | Largest angle | Turn in the paw: path | Turn in the paw: net | Move of the largest angle |
+|---|---|---|---|---|---|---|
+| violinist | 84 (84) | 0 of 8528 (0 of 8528) | 26° (26°) | 25° (25°) | 22° (22°) | bach-bwv1048 lower 327.3 s |
+| fox-violinist | 84 (84) | 0 of 8428 (0 of 8428) | 18° (18°) | 30° (30°) | 27° (27°) | beethoven-8-4 lift 239.6 s |
+exit 0

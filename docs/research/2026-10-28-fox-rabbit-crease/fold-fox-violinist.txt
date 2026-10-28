@@ -1,0 +1,13 @@
+== pnpm fold-probe fox-violinist --base main
+
+> zoophony@0.0.0 fold-probe /Users/xueqiaoxu/proj/zoophony/.claude/worktrees/sixth-fox-rabbit-crease
+> node tools/fold-probe.ts fox-violinist --base main
+
+Folded faces of the studio body of the fox-violinist on main (3003f8da0) and on the working tree: 65.4 s.
+
+| Set | main (3003f8da0) | Working tree |
+|---|---:|---:|
+| rest | 100.0% (14/14), most 5 (L 1 / R 1 / other 3) | 100.0% (14/14), most 5 (L 1 / R 1 / other 3) |
+| play | 100.0% (17788/17788), most 11 (L 2 / R 8 / other 1) | 100.0% (17788/17788), most 11 (L 2 / R 8 / other 1) |
+| lift | 100.0% (434/434), most 7 (L 1 / R 3 / other 3) | 100.0% (434/434), most 7 (L 1 / R 3 / other 3) |
+exit 0

@@ -1,0 +1,31 @@
+rest shapes: 1.00, 1.00
+Hard lines of flutist: jump over 15°, root 0.12 m, elbow 0.08 m, step 1 s, demos 15
+| Set | Region | n | hard cm p50 / p95 | jump·cm p50 / p95 | worst jump p50 / max | concave °·cm p50 / p95 |
+|---|---|---:|---|---|---|---|
+| rest | root L | 10 | 0.0 / 0.0 | 0 / 0 | 0 / 0 | 4336 / 4338 |
+| rest | root R | 10 | 0.0 / 0.0 | 0 / 0 | 0 / 0 | 5883 / 5883 |
+| rest | elbow L | 10 | 8.1 / 8.1 | 131 / 131 | 16 / 16 | 167 / 167 |
+| rest | elbow R | 10 | 0.0 / 0.0 | 0 / 0 | 0 / 0 | 2262 / 2262 |
+| play | root L | 3441 | 0.0 / 0.0 | 0 / 0 | 0 / 0 | 7371 / 7409 |
+| play | root R | 3441 | 0.0 / 0.0 | 0 / 0 | 0 / 0 | 4653 / 4783 |
+| play | elbow L | 3441 | 0.0 / 0.0 | 0 / 0 | 0 / 0 | 1882 / 1885 |
+| play | elbow R | 3441 | 0.0 / 0.0 | 0 / 0 | 0 / 0 | 1485 / 1501 |
+| lift | root L | 310 | 0.0 / 0.0 | 0 / 0 | 0 / 0 | 7369 / 7408 |
+| lift | root R | 310 | 0.0 / 0.0 | 0 / 0 | 0 / 0 | 4652 / 5876 |
+| lift | elbow L | 310 | 0.0 / 8.1 | 0 / 130 | 0 / 16 | 1882 / 1885 |
+| lift | elbow R | 310 | 0.0 / 0.0 | 0 / 0 | 0 / 0 | 1485 / 2261 |
+
+| Edge (a-b) | Faces | Region | Bind angle | Worst jump | Worst sample | Hard samples by set |
+|---|---|---|---:|---:|---|---|
+| 514-515 | 910, 939 | elbow L | 36 | 16 | rest bach-bwv1050.mid rest | rest 90%, play 0%, lift 8% |
+| 514-512 | 908, 909 | elbow L | 25 | 16 | rest boulanger-matin.mid rest | rest 90%, play 0%, lift 8% |
+| 513-514 | 908, 938 | elbow L | 4 | 14 | rest boulanger-matin.mid rest | rest 0%, play 0%, lift 0% |
+| 514-511 | 909, 910 | elbow L | 7 | 10 | rest bach-bwv1050.mid rest | rest 0%, play 0%, lift 0% |
+| 512-511 | 906, 909 | elbow L | 1 | 8 | rest boulanger-matin.mid rest | rest 0%, play 0%, lift 0% |
+| 513-512 | 907, 908 | elbow L | 10 | 8 | lift bach-bwv1047.mid wall 0.1 s | rest 0%, play 0%, lift 0% |
+| 515-535 | 934, 939 | elbow L | 2 | 6 | rest boulanger-matin.mid rest | rest 0%, play 0%, lift 0% |
+| 515-534 | 933, 934 | elbow L | 16 | 6 | rest bach-bwv1050.mid rest | rest 0%, play 0%, lift 0% |
+| 535-514 | 938, 939 | elbow L | 9 | 3 | rest boulanger-matin.mid rest | rest 0%, play 0%, lift 0% |
+| 951-534 | 1706, 1707 | elbow L | 19 | 2 | rest bach-bwv1050.mid rest | rest 0%, play 0%, lift 0% |
+| 536-534 | 935, 1837 | elbow L | 17 | 1 | rest boulanger-matin.mid rest | rest 0%, play 0%, lift 0% |
+| 534-1030 | 1706, 1837 | elbow L | 8 | 1 | rest bach-bwv1047.mid rest | rest 0%, play 0%, lift 0% |

@@ -1,0 +1,13 @@
+== pnpm fold-probe flutist --base main
+
+> zoophony@0.0.0 fold-probe /Users/xueqiaoxu/proj/zoophony/.claude/worktrees/sixth-fox-rabbit-crease
+> node tools/fold-probe.ts flutist --base main
+
+Folded faces of the studio body of the flutist on main (3003f8da0) and on the working tree: 60.8 s.
+
+| Set | main (3003f8da0) | Working tree |
+|---|---:|---:|
+| rest | 100.0% (10/10), most 7 (L 1 / R 2 / other 4) | 100.0% (10/10), most 7 (L 1 / R 2 / other 4) |
+| play | 100.0% (13744/13744), most 7 (L 4 / R 2 / other 1) | 100.0% (13744/13744), most 7 (L 4 / R 2 / other 1) |
+| lift | 100.0% (310/310), most 8 (L 3 / R 3 / other 2) | 100.0% (310/310), most 8 (L 3 / R 3 / other 2) |
+exit 0

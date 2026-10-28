@@ -1,0 +1,41 @@
+The tries of the round. Each rig: pnpm rig-mesh <animal> --check --set <change> --keep <dir>
+(rig-fox-elbow.log: fox 0.04, 0.06, 0.08; rig-fox-07.log: fox 0.07; rig-rabbit-root.log:
+rabbit 0.08, 0.10, 0.12, 0.10 with elbow 0.05; rig-rabbit2.log: rabbit 0.12 with elbow 0.06;
+rig-rabbit3.log: rabbit 0.12 with elbow 0.06 and turn 60, and with armShare 0.3).
+Each row: node scratch/crease.ts <role> --sets rest,play[,lift] --step 2 --glb <dir>/variant-<k>.glb
+The values: hard cm p50 of the region (edges with a normal jump over 15 degrees), and the
+largest jump in degrees, at rest and in the play.
+
+| Rig | Region | Rest hard cm, worst | Play hard cm p50 / p95, worst |
+|---|---|---|---|
+| fox main | elbow L | 86.2, 62 | 58.6 / 61.3, 66 |
+| fox main | elbow R | 124.9, 151 | 105.8 / 116.4, 143 |
+| fox elbow 0.04 | elbow L | 67.8, 62 | 49.9 / 50.1, 66 |
+| fox elbow 0.04 | elbow R | 100.4, 151 | 100.4 / 108.8, 143 |
+| fox elbow 0.06 | elbow L | 8.0, 16 | 3.0 / 3.0, 20 |
+| fox elbow 0.06 | elbow R | 0.0, 11 | 2.7 / 2.8, 60 (edge 277-276, faces 533 and 569, 68% of the play) |
+| fox elbow 0.07 (kept) | elbow L | 8.0, 16 | 0.0 / 0.0, 0 |
+| fox elbow 0.07 (kept) | elbow R | 0.0, 0 | 0.0 / 0.0, 0 |
+| fox elbow 0.08 | elbow L | 8.0, 16 | 0.0 / 0.0, 0 |
+| fox elbow 0.08 | elbow R | 0.0, 0 | 0.0 / 0.0, 0 |
+| rabbit main | root L | 93.8, 117 | 90.1 / 96.6, 115 |
+| rabbit main | root R | 98.8, 109 | 105.5 / 116.8, 113 |
+| rabbit main | elbow L | 46.2, 76 | 33.0 / 34.9, 91 |
+| rabbit main | elbow R | 61.2, 78 | 57.8 / 65.0, 102 |
+| rabbit root 0.08 | root L | 17.6, 38 | 12.7 / 18.5, 39 |
+| rabbit root 0.08 | root R | 4.1, 20 | 4.9 / 6.9, 20 |
+| rabbit root 0.10 | root L | 0.0, 2 | 0.0 / 0.0, 2 |
+| rabbit root 0.10 | root R | 0.0, 0 | 2.8 / 2.8, 33 |
+| rabbit root 0.12 | root L, root R | 0.0, 0 | 0.0 / 0.0, 0 |
+| rabbit root 0.12 | elbow L | 21.8, 76 | 12.7 / 20.3, 91 |
+| rabbit root 0.12 | elbow R | 38.9, 46 | 36.9 / 43.6, 68 |
+| rabbit root 0.10, elbow 0.05 | elbow L | 0.0, 10 | 0.0 / 0.0, 10 |
+| rabbit root 0.10, elbow 0.05 | elbow R | 10.3, 20 | 12.0 / 13.5, 68 (faces 376 and 377 in each sample) |
+| rabbit root 0.12, elbow 0.06 | each region | 0.0, 2 | 0.0 / 0.0, 68 (faces near the right paw in 1% of the play) |
+| rabbit root 0.12, elbow 0.06, turn 60 | root L | 10.5, 61 | 14.6 / 14.9, 59 |
+| rabbit root 0.12, elbow 0.06, turn 60 | root R | 37.5, 79 | 48.1 / 50.3, 80 |
+| rabbit root 0.12, elbow 0.06, armShare 0.3 (kept) | root L | 0.0, 11 | 0.0 / 0.0, 12 |
+| rabbit root 0.12, elbow 0.06, armShare 0.3 (kept) | root R | 0.0, 3 | 0.0 / 0.0, 11 |
+
+Each rig check gives the same triangles, packed mesh, seat, reach, standing error, fold shares,
+form, hold anchors, and stage sides as the base: the rim changes only the normals.

@@ -1,0 +1,60 @@
+ref 83a6dfa48 (83a6dfa48 fix(models): supinate the bind of the red fox left paw)
+Hard lines of fox-violinist: jump over 15°, root 0.12 m, elbow 0.08 m, step 2 s, demos 15
+| Set | Region | n | hard cm p50 / p95 | jump·cm p50 / p95 | worst jump p50 / max | concave °·cm p50 / p95 |
+|---|---|---:|---|---|---|---|
+| rest | root L | 14 | 0.0 / 0.0 | 0 / 0 | 0 / 0 | 3998 / 3998 |
+| rest | root R | 14 | 0.0 / 0.0 | 0 / 0 | 0 / 0 | 4421 / 4421 |
+| rest | elbow L | 14 | 86.2 / 86.2 | 2676 / 2676 | 62 / 62 | 1212 / 1212 |
+| rest | elbow R | 14 | 124.9 / 124.9 | 5094 / 5094 | 151 / 151 | 1316 / 1316 |
+| play | root L | 2232 | 0.0 / 0.0 | 0 / 0 | 0 / 0 | 5000 / 5361 |
+| play | root R | 2232 | 0.0 / 0.0 | 0 / 0 | 0 / 0 | 5338 / 6433 |
+| play | elbow L | 2232 | 58.6 / 61.3 | 1992 / 2004 | 54 / 66 | 1166 / 1334 |
+| play | elbow R | 2232 | 105.8 / 116.4 | 3188 / 3552 | 69 / 143 | 2727 / 3378 |
+ref ce7bfd6c5 (ce7bfd6c5 fix(models): give the fox arm roots the normals of the skin)
+Hard lines of fox-violinist: jump over 15°, root 0.12 m, elbow 0.08 m, step 2 s, demos 15
+| Set | Region | n | hard cm p50 / p95 | jump·cm p50 / p95 | worst jump p50 / max | concave °·cm p50 / p95 |
+|---|---|---:|---|---|---|---|
+| rest | root L | 14 | 0.0 / 0.0 | 0 / 0 | 0 / 0 | 4286 / 4286 |
+| rest | root R | 14 | 0.0 / 0.0 | 0 / 0 | 0 / 0 | 5842 / 5842 |
+| rest | elbow L | 14 | 97.6 / 97.6 | 2772 / 2772 | 66 / 66 | 588 / 588 |
+| rest | elbow R | 14 | 126.8 / 126.8 | 5238 / 5238 | 123 / 123 | 1469 / 1469 |
+| play | root L | 2232 | 0.0 / 0.0 | 0 / 0 | 0 / 0 | 4445 / 4586 |
+| play | root R | 2232 | 0.0 / 0.0 | 0 / 0 | 0 / 0 | 6212 / 7604 |
+| play | elbow L | 2232 | 83.0 / 83.4 | 2454 / 2470 | 54 / 90 | 1398 / 1489 |
+| play | elbow R | 2232 | 105.1 / 114.0 | 3181 / 3403 | 65 / 89 | 2796 / 3411 |
+ref 1fa31a967 (1fa31a967 feat(models): give the foxes rebuilt arms with arm segments)
+Hard lines of fox-violinist: jump over 15°, root 0.12 m, elbow 0.08 m, step 2 s, demos 15
+| Set | Region | n | hard cm p50 / p95 | jump·cm p50 / p95 | worst jump p50 / max | concave °·cm p50 / p95 |
+|---|---|---:|---|---|---|---|
+| rest | root L | 14 | 191.8 / 191.8 | 14294 / 14294 | 171 / 171 | 4286 / 4286 |
+| rest | root R | 14 | 256.4 / 256.4 | 20003 / 20003 | 178 / 178 | 6203 / 6203 |
+| rest | elbow L | 14 | 97.6 / 97.6 | 2772 / 2772 | 66 / 66 | 588 / 588 |
+| rest | elbow R | 14 | 127.7 / 127.7 | 5584 / 5584 | 123 / 123 | 1139 / 1139 |
+| play | root L | 2232 | 181.2 / 181.8 | 12943 / 13128 | 171 / 171 | 4445 / 4586 |
+| play | root R | 2232 | 212.1 / 221.9 | 14796 / 15238 | 177 / 177 | 6212 / 7604 |
+| play | elbow L | 2232 | 83.0 / 83.4 | 2454 / 2470 | 54 / 90 | 1398 / 1489 |
+| play | elbow R | 2232 | 105.1 / 114.0 | 3191 / 3399 | 65 / 89 | 2796 / 3411 |
+ref 1fa31a967~1 (ff9b7f642 feat(tools): add the replay script of the fox arm session)
+Hard lines of fox-violinist: jump over 15°, root 0.12 m, elbow 0.08 m, step 2 s, demos 15
+| Set | Region | n | hard cm p50 / p95 | jump·cm p50 / p95 | worst jump p50 / max | concave °·cm p50 / p95 |
+|---|---|---:|---|---|---|---|
+| rest | root L | 14 | 157.6 / 157.6 | 11661 / 11661 | 164 / 164 | 4729 / 4729 |
+| rest | root R | 14 | 193.8 / 193.8 | 13907 / 13907 | 170 / 170 | 5012 / 5012 |
+| rest | elbow L | 14 | 73.0 / 73.0 | 3986 / 3986 | 103 / 103 | 885 / 885 |
+| rest | elbow R | 14 | 63.0 / 63.0 | 2526 / 2526 | 78 / 78 | 1776 / 1776 |
+| play | root L | 2232 | 165.8 / 166.5 | 10604 / 10733 | 161 / 164 | 4032 / 4047 |
+| play | root R | 2232 | 182.4 / 219.2 | 10944 / 13018 | 173 / 175 | 7688 / 8427 |
+| play | elbow L | 2232 | 51.6 / 62.3 | 2301 / 2488 | 103 / 103 | 1429 / 1474 |
+| play | elbow R | 2232 | 39.1 / 45.1 | 1938 / 2017 | 85 / 87 | 2112 / 2205 |
+ref 5ccd82c1d (5ccd82c1d fix(models): supinate the bind of the rabbit left paw)
+Hard lines of fox-violinist: jump over 15°, root 0.12 m, elbow 0.08 m, step 2 s, demos 15
+| Set | Region | n | hard cm p50 / p95 | jump·cm p50 / p95 | worst jump p50 / max | concave °·cm p50 / p95 |
+|---|---|---:|---|---|---|---|
+| rest | root L | 14 | 0.0 / 0.0 | 0 / 0 | 0 / 0 | 3998 / 3998 |
+| rest | root R | 14 | 0.0 / 0.0 | 0 / 0 | 0 / 0 | 4421 / 4421 |
+| rest | elbow L | 14 | 88.4 / 88.4 | 2610 / 2610 | 66 / 66 | 1088 / 1088 |
+| rest | elbow R | 14 | 124.9 / 124.9 | 5094 / 5094 | 151 / 151 | 1316 / 1316 |
+| play | root L | 2232 | 0.0 / 0.0 | 0 / 0 | 0 / 0 | 5000 / 5361 |
+| play | root R | 2232 | 0.0 / 0.0 | 0 / 0 | 0 / 0 | 5338 / 6433 |
+| play | elbow L | 2232 | 84.9 / 85.3 | 2497 / 2502 | 52 / 67 | 1614 / 1626 |
+| play | elbow R | 2232 | 105.8 / 116.4 | 3188 / 3552 | 69 / 143 | 2727 / 3378 |

@@ -1,0 +1,32 @@
+ref main (3003f8da0 docs(todo): close the polar legs and add their open items)
+rest shapes: 1.00, 1.00
+Hard lines of fox-violinist: jump over 15°, root 0.12 m, elbow 0.08 m, step 1 s, demos 15
+| Set | Region | n | hard cm p50 / p95 | jump·cm p50 / p95 | worst jump p50 / max | concave °·cm p50 / p95 |
+|---|---|---:|---|---|---|---|
+| rest | root L | 14 | 0.0 / 0.0 | 0 / 0 | 0 / 0 | 3998 / 3998 |
+| rest | root R | 14 | 0.0 / 0.0 | 0 / 0 | 0 / 0 | 4421 / 4421 |
+| rest | elbow L | 14 | 86.2 / 86.2 | 2676 / 2676 | 62 / 62 | 1212 / 1212 |
+| rest | elbow R | 14 | 124.9 / 124.9 | 5094 / 5094 | 151 / 151 | 1316 / 1316 |
+| play | root L | 4454 | 0.0 / 0.0 | 0 / 0 | 0 / 0 | 5000 / 5361 |
+| play | root R | 4454 | 0.0 / 0.0 | 0 / 0 | 0 / 0 | 5333 / 6423 |
+| play | elbow L | 4454 | 60.2 / 61.3 | 1993 / 2004 | 54 / 66 | 1167 / 1334 |
+| play | elbow R | 4454 | 105.7 / 116.6 | 3188 / 3563 | 70 / 144 | 2703 / 3379 |
+| lift | root L | 434 | 0.0 / 0.0 | 0 / 0 | 0 / 0 | 4976 / 5157 |
+| lift | root R | 434 | 0.0 / 0.0 | 0 / 0 | 0 / 0 | 6242 / 6432 |
+| lift | elbow L | 434 | 58.7 / 86.1 | 1995 / 2675 | 54 / 62 | 1161 / 1627 |
+| lift | elbow R | 434 | 109.7 / 124.9 | 3197 / 5094 | 61 / 162 | 3141 / 3378 |
+
+| Edge (a-b) | Faces | Region | Bind angle | Worst jump | Worst sample | Hard samples by set |
+|---|---|---|---:|---:|---|---|
+| 277-276 | 533, 569 | elbow R | 1 | 162 | lift mozart-k525.mid wall 0.4 s | rest 0%, play 36%, lift 13% |
+| 259-277 | 533, 534 | elbow R | 1 | 152 | lift mozart-k525.mid wall 0.4 s | rest 100%, play 32%, lift 23% |
+| 258-276 | 531, 532 | elbow R | 58 | 130 | lift mozart-k525.mid wall 0.4 s | rest 100%, play 100%, lift 100% |
+| 245-263 | 505, 506 | elbow R | 25 | 124 | lift mozart-k525.mid wall 0.3 s | rest 100%, play 99%, lift 100% |
+| 245-262 | 504, 505 | elbow R | 48 | 124 | lift mozart-k525.mid wall 0.3 s | rest 100%, play 100%, lift 100% |
+| 259-258 | 497, 532 | elbow R | 8 | 95 | lift mozart-k525.mid wall 0.4 s | rest 100%, play 62%, lift 24% |
+| 263-262 | 505, 540 | elbow R | 5 | 86 | lift mozart-k525.mid wall 0.4 s | rest 100%, play 57%, lift 23% |
+| 268-286 | 551, 552 | elbow R | 37 | 76 | play mozart-k417.mid 160.20 s | rest 0%, play 98%, lift 77% |
+| 244-261 | 502, 503 | elbow R | 59 | 72 | lift boulanger-matin.mid wall 0.3 s | rest 100%, play 100%, lift 100% |
+| 276-275 | 531, 567 | elbow R | 38 | 72 | lift mozart-k525.mid wall 0.6 s | rest 0%, play 98%, lift 84% |
+| 259-276 | 532, 533 | elbow R | 46 | 66 | lift beethoven-8.mid wall 0.4 s | rest 100%, play 96%, lift 100% |
+| 1621-1775 | 3444, 3445 | elbow L | 46 | 66 | play boulanger-matin.mid 279.38 s | rest 0%, play 100%, lift 78% |

@@ -1,0 +1,8 @@
+== scratch/reg.sh main fox-violinist --sets rest --demo mozart-k525 --top 400, the hard edges at rest by region
+elbowL hard edges 26 largest bind angle 54
+elbowR hard edges 40 largest bind angle 66
+== scratch/reg.sh main violinist --sets rest --demo mozart-k525 --top 400, the hard edges at rest by region
+elbowL hard edges 22 largest bind angle 106
+elbowR hard edges 25 largest bind angle 99
+rootL hard edges 28 largest bind angle 121
+rootR hard edges 30 largest bind angle 110
