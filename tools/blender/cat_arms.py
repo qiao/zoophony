@@ -24,7 +24,8 @@ gives the cat a real armpit:
    `violin_arms.py`. Smooth Vertices rounds the two edges of the flat inner side. The inner side
    and the side wall take the fur color of the trunk beside the seam. Before the atlas, the
    trunk moves to an even oval from the front and from the side (`step_belly()`). The user said
-   "make the cat's belly more oval and smooth" on 2026-10-27.
+   "make the cat's belly more oval and smooth" on 2026-10-27. Then the side wall gets vertices
+   inside it and rounds into the trunk, with no lips at its lower tip (`step_round_wall()`).
 7. The studio skeleton with the arm segments and the helpers, automatic weights, and the Weight
    Paint fixes of `step_paint()`.
 8. Write the weights for `paintedWeights` of the config (`cat-weights.json`).
@@ -78,6 +79,13 @@ import violin_arms as va  # noqa: E402
 #: (optional): the shares `f` of the line, the angles from the front, and the largest move in
 #: units of the flatter front of the upper belly.
 #:
+#: `wall` (optional): the round side wall (`step_round_wall()`). `lip` and `depth`: a trunk face
+#: at the lower run of the old wall is a lip when the dot product of its normal with the normal of
+#: the plane of the seam is at most `lip`, and it lies within `depth` units of the plane. `grid`:
+#: the side of the triangles of the new wall in units. `rings` and `reach`: the rings of trunk
+#: vertices around the wall that move, within `reach` units of a vertex of the wall. `rounds`: the
+#: rounds of Smooth Vertices. `deep`: the largest depth of a vertex of the wall in the trunk.
+#:
 #: The other keys are the keys of `violin_arms.ANIMALS`.
 CAT = {
     'config': 'tools/mesh-rigs/cat.json',
@@ -118,6 +126,14 @@ CAT = {
     'belly': {'front': (0.06, 0.92), 'sides': (0.12, 0.7), 'bend': 1e5, 'step': 0.002,
              'round': {'share': 0.6, 'fade': (0.5, 0.8)},
              'flat': {'f': (0.62, 0.9), 'angle': (-75, 75), 'move': 0.004}},
+    # The round side wall under each arm (`step_round_wall()`). The user said "the cat's arm has
+    # lumps" on 2026-10-27, and the play showed the flat wall as a light patch with a crease at
+    # its lower tip. With `deep` 0.004, 7 and 5 vertices of the flat inner side of the arms lay
+    # out of the trunk (4 and 3 with 0.002, 2 and 1 before the round). With no `reach`, the
+    # trunk rings took long faces down to the hips, moved them up to 3 cm, and drew a V of hard
+    # edges under the wall in the play.
+    'wall': {'lip': 0.2, 'depth': 0.01, 'grid': 0.016, 'rings': 2, 'reach': 0.03, 'rounds': 6,
+             'deep': 0.002},
 }
 va.ANIMALS['cat'] = CAT
 
@@ -971,6 +987,169 @@ def step_belly(s):
     return int((shift > 1e-12).sum()), round(float(shift.max()), 5)
 
 
+def wall_grid(outline, step):
+    """Gives the points of a grid of triangles of the side `step` inside a closed outline (a list
+    of 2D points), each at least 0.55 `step` from the outline."""
+    def inside(u, v):
+        hit = False
+        for k in range(len(outline)):
+            (u1, v1), (u2, v2) = outline[k - 1], outline[k]
+            if (v1 > v) != (v2 > v) and u < u1 + (v - v1) * (u2 - u1) / (v2 - v1):
+                hit = not hit
+        return hit
+
+    def gap(u, v):
+        best = math.inf
+        for k in range(len(outline)):
+            a, b = Vector(outline[k - 1]), Vector(outline[k])
+            ab = b - a
+            t = max(0.0, min(1.0, (Vector((u, v)) - a).dot(ab) / max(ab.length_squared, 1e-18)))
+            best = min(best, (Vector((u, v)) - (a + ab * t)).length)
+        return best
+    us = [u for u, _ in outline]
+    vs = [v for _, v in outline]
+    points, row, v = [], 0, min(vs) + step * 0.5
+    while v < max(vs):
+        u = min(us) + (step * 0.5 if row % 2 else 0.0)
+        while u < max(us):
+            if inside(u, v) and gap(u, v) > 0.55 * step:
+                points.append((u, v))
+            u += step
+        v += step * math.sqrt(0.75)
+        row += 1
+    return points
+
+
+def step_round_wall(s):
+    """Rounds the side wall of each arm into the trunk (`wall`).
+
+    The fill of `step_wall()` is a flat plate on the plane of the seam: a fan of long thin faces
+    with no vertex inside. The Bisect of the seam also left lips at its lower run: small trunk
+    faces that turn back under the plate. In the play, the raised arm showed the plate as a light
+    patch and the lips as a crease at its lower tip (user, 2026-10-27: "the cat's arm has
+    lumps"). This step makes the wall again:
+
+    1. The lips go (Delete Faces): from the lower run, each trunk face whose normal makes a dot
+       product of at most `lip` with the normal of the plane, and that lies within `depth` units
+       of the plane, with its neighbors of the same kind.
+    2. Fill: a 2D Delaunay triangulation (`delaunay_2d_cdt()` of Blender) of the outline of the
+       hole, projected on the plane, and of the points of a grid of the side `grid` units inside
+       it. The new vertices lie on the plane.
+    3. Smooth Vertices along the normal of the plane only, `rounds` times with the factor 0.5:
+       the new wall, its outline, and `rings` rings of trunk vertices below the armpit line
+       move, and the armpit line stays. A vertex of the wall goes at most `deep` units into the
+       trunk, so that the flat inner side of the arm stays inside the wall. A move along the
+       plane would drag the vertices across the wall.
+
+    The replays of the other animals that take the steps of this script have no `wall`, and
+    this step leaves their meshes as they are. Gives for each side the counts of the lips, of the
+    new faces, and of the moving vertices, and the largest move in units.
+    """
+    from mathutils.geometry import delaunay_2d_cdt
+    from mathutils.kdtree import KDTree
+    import numpy as np
+    if 'wall' not in s.spec:
+        return None
+    rule = s.spec['wall']
+    mesh = s.mesh
+    bpy.context.view_layer.objects.active = mesh
+    bpy.ops.object.mode_set(mode='EDIT')
+    bm = bmesh.from_edit_mesh(mesh.data)
+    part = bm.verts.layers.int['arm_part']
+    zone = bm.faces.layers.int['arm_zone']
+    tubes = (PART['tube'], PART['tube'] + 10)
+    height = s.fr.floor + s.units(s.spec['seam']['armpit'])
+    out = {}
+    for side, off in ((1, 0), (-1, 10)):
+        wall_code, socket = PART['wall'] + off, PART['shoulder'] + off
+        plane_co, plane_no = seam_plane(s, side)
+        old = [f for f in bm.faces if f[zone] == 3 and f.calc_center_median().x * side > 0
+               and not any(p[part] in tubes for p in f.verts)]
+        # 1. The lips.
+        lips = set()
+        stack = [g for f in old for x in f.edges for g in x.link_faces if g[zone] == 0]
+        while stack:
+            g = stack.pop()
+            if (g in lips or g[zone] != 0 or g.normal.dot(plane_no) > rule['lip']
+                    or min((p.co - plane_co).dot(plane_no) for p in g.verts) < -s.units(
+                        rule['depth'])
+                    or any(p[part] in tubes or p[part] == socket for p in g.verts)):
+                continue
+            lips.add(g)
+            stack += [h for x in g.edges for h in x.link_faces if h not in lips]
+        for g in lips:
+            for p in g.verts:
+                if p[part] == 0:
+                    p[part] = wall_code
+        old += list(lips)
+        border = [x for x in {x for f in old for x in f.edges}
+                  if sum(g in old for g in x.link_faces) == 1]
+        loop = walk(border)
+        bmesh.ops.delete(bm, geom=old, context='FACES')
+        # 2. The fill.
+        up = plane_no.cross(Vector((0.0, -1.0, 0.0))).normalized()
+        if up.z < 0:
+            up = -up
+        across = up.cross(plane_no).normalized()
+        outline = [((p.co - plane_co).dot(across), (p.co - plane_co).dot(up)) for p in loop]
+        points = wall_grid(outline, s.units(rule['grid']))
+        n = len(outline)
+        coords, _, tris, origins, _, _ = delaunay_2d_cdt(
+            [Vector(c) for c in outline + points], [(k, (k + 1) % n) for k in range(n)],
+            [list(range(n))], 1, 1e-9)
+        verts = {}
+        for k, origin in enumerate(origins):
+            if origin and origin[0] < n:
+                verts[k] = loop[origin[0]]
+            else:
+                p = bm.verts.new(plane_co + across * coords[k][0] + up * coords[k][1])
+                p[part] = wall_code
+                verts[k] = p
+        faces = []
+        for tri in tris:
+            f = bm.faces.new([verts[k] for k in tri])
+            f[zone] = 3
+            f.smooth = True
+            f.normal_update()
+            if f.normal.dot(plane_no) < 0:
+                f.normal_flip()
+            faces.append(f)
+        # 3. Smooth Vertices along the normal of the plane.
+        moving = {p for f in faces for p in f.verts if p[part] == wall_code}
+        tree = KDTree(len(moving))
+        for k, p in enumerate(moving):
+            tree.insert(p.co, k)
+        tree.balance()
+        ring = set(moving)
+        for _ in range(rule['rings']):
+            ring = {q for p in ring for x in p.link_edges for q in [x.other_vert(p)]
+                    if q[part] == 0 and q not in moving and q.co.z < height
+                    and tree.find(q.co)[2] < s.units(rule['reach'])}
+            moving |= ring
+        moving = sorted(moving, key=lambda p: p.index)
+        normal = np.array(plane_no[:])
+        start = np.array([p.co[:] for p in moving])
+        depth = (start - np.array(plane_co[:])) @ normal
+        wall = np.array([p[part] == wall_code for p in moving])
+        lift = np.zeros(len(moving))
+        for _ in range(rule['rounds']):
+            for p, co in zip(moving, start + np.outer(lift, normal)):
+                p.co = Vector(co)
+            mean = np.array([sum((x.other_vert(p).co for x in p.link_edges), Vector())
+                             / len(p.link_edges) for p in moving])
+            lift += 0.5 * ((mean - start) @ normal - lift)
+            lift = np.where(wall, np.maximum(lift, -s.units(rule['deep']) - depth), lift)
+            lift = np.minimum(lift, -depth)
+        for p, co in zip(moving, start + np.outer(lift, normal)):
+            p.co = Vector(co)
+        out[side] = (len(lips), len(faces), len(moving),
+                     round(float(np.abs(lift).max() / s.fr.height), 4))
+    bmesh.update_edit_mesh(mesh.data)
+    bpy.ops.object.mode_set(mode='OBJECT')
+    look(s, '6-wall', [mesh], center=(0.1, 0.53, 0.05), scale=0.2)
+    return out
+
+
 def step_inner_color(s):
     """Gives the side walls and the flat inner side of each upper arm one fur color of the trunk.
 
@@ -1161,8 +1340,9 @@ def step_weights(s):
 
 
 STEPS = (va.import_mesh, step_cut, step_wall, step_tube, step_wrap, step_bridge, step_beautify,
-         step_uv, step_bake, va.step_normals, step_shape, step_belly, va.step_atlas, step_inner_color,
-         va.step_export, va.step_skeleton, va.step_bind, step_paint, step_weights)
+         step_uv, step_bake, va.step_normals, step_shape, step_belly, step_round_wall,
+         va.step_atlas, step_inner_color, va.step_export, va.step_skeleton, va.step_bind,
+         step_paint, step_weights)
 
 
 def main():
