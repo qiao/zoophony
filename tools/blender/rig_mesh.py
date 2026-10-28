@@ -70,8 +70,8 @@ reads it (route 3 of `docs/agents/model-work.md`). The steps:
    go to the bind arms of the studio, and the bones of a tail of two bones go to the bind
    directions of the config, back through the open back of the chair. The skin of the
    long-armed source in this pose is the bind mesh: a linear blend, or with `bind.blend` of
-   the config a dual quaternion blend at the arm roots, and with `bind.knee` at the knees
-   (`bind_skin()`). Where the pose turns
+   the config a dual quaternion blend at the arm roots, with `bind.knee` at the knees, and with
+   `bind.arm` on the lower arms (`bind_skin()`). Where the pose turns
    faces over, as at the haunch, their vertices relax toward their neighbors. The log then gives the gap from the
    lowest point of the haunch behind the hips joint to the seat top, and above 5 cm a warning
    with a front edge of the chair that puts the seat under the haunch (`haunch_gap()`). With
@@ -2799,14 +2799,29 @@ def bind_skin(config, weights, matrices, points):
     flat bevel at 0.83 of the round of the leg, and the knee was 0.120 units deep on its
     bisector, against 0.148 in the source. A ring at the knee then turns by its share of the bend
     and keeps its radius, so the knee front is round and the back of the knee folds into a
-    crease (`docs/research/2026-10-27-polar-legs-rebuild.md`)."""
+    crease (`docs/research/2026-10-27-polar-legs-rebuild.md`).
+
+    With `bind.arm` set to `dq`, each vertex with a weight on a lower bone of an arm of one side
+    (the forearm and its segments, the elbow and wrist helpers, the paw, and the fingers) takes
+    `dual_skin()` too, whatever `bind.blend` is. The seated bind of the cat bends each elbow by
+    about 79 degrees and turns the left paw 120 degrees (`bindSupination`), so the linear blend
+    put the elbow at 0.86 and the forearm at 0.84 of the radius of the source tube, and the upper
+    arm read as a bulge between a thin elbow and a thin forearm
+    (`docs/research/2026-10-27-cat-arm.md`)."""
     rule = config.get('bind', {})
     blend = rule.get('blend', 'linear')
     if blend not in ('linear', 'dq'):
         raise SystemExit(f'bind.blend must be "linear" or "dq", not "{blend}".')
-    if rule.get('knee', 'linear') not in ('linear', 'dq'):
-        raise SystemExit(f'bind.knee must be "linear" or "dq", not "{rule["knee"]}".')
+    for key in ('knee', 'arm'):
+        if rule.get(key, 'linear') not in ('linear', 'dq'):
+            raise SystemExit(f'bind.{key} must be "linear" or "dq", not "{rule[key]}".')
     out = skin(weights, matrices, points)
+    if rule.get('arm') == 'dq':
+        for side in 'LR':
+            lower = [BONES.index(name) for name in arm_bones(side)
+                     if not name.startswith('upper_arm')]
+            low = weights[:, lower].sum(axis=1) > 0
+            out[low] = dual_skin(weights[low], matrices, points[low])
     if rule.get('knee') == 'dq':
         for side in 'LR':
             thigh, shin = BONES.index(f'thigh_{side}'), BONES.index(f'shin_{side}')
