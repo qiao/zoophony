@@ -1033,13 +1033,15 @@ def step_round_wall(s):
     1. The lips go (Delete Faces): from the lower run, each trunk face whose normal makes a dot
        product of at most `lip` with the normal of the plane, and that lies within `depth` units
        of the plane and at most `over` units over the armpit line, with its neighbors of the same
-       kind.
+       kind. A vertex of the outline more than 0.002 units over the armpit line merges into the
+       nearer of its neighbors on the outline (Merge at Last). At the front of the left arm, such
+       a vertex rose 2 cm over the line: the outline crossed itself, and the fill left a hole of
+       6 edges, or folded a face over a quad of the trunk.
     2. Fill: a 2D Delaunay triangulation (`delaunay_2d_cdt()` of Blender) of the outline of the
        hole, projected on the plane, and of the points of a grid of the side `grid` units inside
-       it. The new vertices lie on the plane. In the plane, a point of the outline over the
-       armpit line takes the height of the line: a lip at the front of the left arm rose 2 cm
-       over it, the outline crossed itself, and the fill left a hole of 6 edges. The step stops
-       when the fill adds or merges a point of the outline.
+       it. The new vertices lie on the plane, and in the plane, a point of the outline over the
+       armpit line takes the height of the line. The step stops when the fill adds or merges a
+       point of the outline.
     3. Smooth Vertices along the normal of the plane only, `rounds` times with the factor 0.5:
        the new wall, its outline, and `rings` rings of trunk vertices below the armpit line
        move, and the armpit line stays. A vertex of the wall goes at most `deep` units into the
@@ -1048,7 +1050,8 @@ def step_round_wall(s):
 
     The replays of the other animals that take the steps of this script have no `wall`, and
     this step leaves their meshes as they are. Gives for each side the counts of the lips, of the
-    new faces, and of the moving vertices, and the largest move in units.
+    merged vertices, of the new faces, and of the moving vertices, and the largest move in
+    units.
     """
     from mathutils.geometry import delaunay_2d_cdt
     from mathutils.kdtree import KDTree
@@ -1092,6 +1095,29 @@ def step_round_wall(s):
                   if sum(g in old for g in x.link_faces) == 1]
         loop = walk(border)
         bmesh.ops.delete(bm, geom=old, context='FACES')
+        # A trunk vertex of the outline over the armpit line merges into the nearer of its two
+        # neighbors on the outline (Merge at Last), so that the outline has no spike over the
+        # line.
+        pit = PART['armpit'] + off
+        merged = 0
+        for k, p in enumerate(loop):
+            if (not p.is_valid or p[part] in (pit, socket)
+                    or p.co.z <= height + s.units(0.002)):
+                continue
+            near = min((q for q in (loop[k - 1], loop[(k + 1) % len(loop)]) if q.is_valid),
+                       key=lambda q: (q.co - p.co).length)
+            bmesh.ops.pointmerge(bm, verts=[p, near], merge_co=near.co.copy())
+            merged += 1
+        if merged:
+            start = next(p for p in loop if p.is_valid and p[part] == pit)
+            loop, prev = [start], None
+            while True:
+                nxt = next(x.other_vert(loop[-1]) for x in loop[-1].link_edges
+                           if x.is_boundary and x.other_vert(loop[-1]) is not prev)
+                if nxt is start:
+                    break
+                prev = loop[-1]
+                loop.append(nxt)
         # 2. The fill.
         up = plane_no.cross(Vector((0.0, -1.0, 0.0))).normalized()
         if up.z < 0:
@@ -1153,7 +1179,7 @@ def step_round_wall(s):
             lift = np.minimum(lift, -depth)
         for p, co in zip(moving, start + np.outer(lift, normal)):
             p.co = Vector(co)
-        out[side] = (len(lips), len(faces), len(moving),
+        out[side] = (len(lips), merged, len(faces), len(moving),
                      round(float(np.abs(lift).max() / s.fr.height), 4))
     bmesh.update_edit_mesh(mesh.data)
     bpy.ops.object.mode_set(mode='OBJECT')
