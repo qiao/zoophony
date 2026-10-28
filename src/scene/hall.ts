@@ -54,14 +54,22 @@ export const HALL = {
    * The low lamps on the wall: their height above the floor, in hall units, their size, and their
    * spacing, in meters. The default view sees the wall behind the stage only up to about 1.2 m
    * above the floor, below the balconies, so with no low lamps it showed no lamp of the hall. In
-   * `mockup.png`, warm lamps glow at the edges of the image. The row goes all around the hall,
-   * also on the wall behind the stage (user, 2026-10-27: "add lights to the back of the stage as
-   * well").
+   * `mockup.png`, warm lamps glow at the edges of the image.
    */
   wallLamps: {
     height: 0.06,
     size: 0.12,
     spacing: 3.4,
+    /**
+     * The row has no lamp within this angle of the back (-z), seen from the ring center. The hall
+     * is 13 m behind a stage of 11 m, so the default view showed the low lamps behind the stage
+     * 120 to 170 px above its back edge, in the dark, as lights that float above the orchestra.
+     * `mockup.png` and `orchestra-latest.png` have no lamp there. With 40°, the higher default
+     * view of `orchestra-latest.png` put the lamps 42° and 54° from the back behind the composer
+     * line and at the edge of the play button of the first screen. The lamps at the sides stay
+     * at the edges of the image.
+     */
+    backGap: (60 * Math.PI) / 180,
   },
   /**
    * The radius of the soft glow around a lamp, in meters: on a rail and on the wall. The glow is a
@@ -361,6 +369,10 @@ export function buildHall(stageSide: number): HallData {
   const lowCount = Math.round((2 * Math.PI * lowRadius) / low.spacing);
   for (let j = 0; j < lowCount; j++) {
     const angle = ((j + 0.5) / lowCount) * Math.PI * 2;
+    // The angle π points to the back of the hall, behind the stage.
+    if (Math.abs(angle - Math.PI) < low.backGap) {
+      continue;
+    }
     const center: Vec3 = [
       lowRadius * Math.sin(angle),
       floorY + low.height * unit,

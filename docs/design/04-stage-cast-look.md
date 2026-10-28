@@ -1098,11 +1098,12 @@ lights, and `scene/solo-light.ts` the light of a solo.
 **Hall**
 
 The concert hall (`scene/hall.ts`, `HALL`) scales with the stage side, with a minimum. Walls with
-two balcony tiers and lamps stand around the stage, as in `scene.png` (1). The low lamps go all
-around the hall, also on the wall behind the stage (user, 2026-10-27). Each lamp has a soft glow
-disc (`createGlows()`). The shell and the floor take no light, and hold a baked light, because
-the lights cost GPU time on large surfaces. All faces point into the hall, so the near balconies
-do not stand in front of the stage.
+two balcony tiers and lamps stand around the stage, as in `scene.png` (1). The low lamps have a
+gap at the back (`HALL.wallLamps.backGap`), because lamps there floated above the orchestra and
+near the title of the first screen (2.8), and the user removed them (2026-10-27). Each lamp has a soft glow disc (`createGlows()`). The
+shell and the floor take no light, and hold a baked light, because the lights cost GPU time on
+large surfaces. All faces point into the hall, so the near balconies do not stand in front of the
+stage.
 
 **Post effects**
 
