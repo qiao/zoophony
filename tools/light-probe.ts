@@ -8,10 +8,10 @@
  *
  * For each demo (by default Beethoven 9, Brahms 2, and Boulanger), it gives the light on the front
  * of each player at the height of the chest, with the pool factor, by row around the podium, as a
- * part of the first row. It gives each kind of light (the side lights, the back-row lights, and the
- * key light), the mean of the back row, the second row from the back, and the choir, the light on
- * the floor behind the back row against the key light, and the spill of the back-row lights on the
- * first row.
+ * part of the first row. It gives each kind of light (the side lights, the back-row lights, the key
+ * light, and the rim lights), the mean of the back row, the second row from the back, and the
+ * choir, the light of the back-row lights and of the rim lights on the floor behind the back row
+ * against the key light, and the spill of the back-row lights on the first row.
  *
  * - `--look <JSON>` changes the values first, as the query `look` of the dev server
  *   (`LOOK_ROOTS` of `src/scene/look-values.ts`), such as `{"BACK_ROW_LIGHT.illuminance": 2.81}`.
@@ -58,6 +58,8 @@ export interface PlayerLight {
   readonly side: number;
   /** The light of the two back-row lights. */
   readonly back: number;
+  /** The light of the rim lights. */
+  readonly rim: number;
   /** The species of the player. */
   readonly species: string;
   /** True for a singer on the risers. */
@@ -80,6 +82,8 @@ interface KindLight {
   readonly side: number;
   /** The back-row lights. */
   readonly back: number;
+  /** The rim lights. */
+  readonly rim: number;
 }
 
 /**
@@ -99,7 +103,7 @@ function kindLight(
   pool: number,
   hot: number,
 ): KindLight {
-  let [key, side, back] = [0, 0, 0];
+  let [key, side, back, rim] = [0, 0, 0, 0];
   for (const spot of spots) {
     const light = pool * (spot.castShadow ? hot : 1) * spotIlluminance(spot, point, normal);
     if (spot.name === LIGHT_NAMES.key) {
@@ -108,9 +112,11 @@ function kindLight(
       side += light;
     } else if (spot.name === LIGHT_NAMES.backRow) {
       back += light;
+    } else if (spot.name === LIGHT_NAMES.rim) {
+      rim += light;
     }
   }
-  return { key, side, back };
+  return { key, side, back, rim };
 }
 
 /**
@@ -174,7 +180,7 @@ export function floorLight(
   const { spots, aim, hot } = stageLights(layout, options);
   const side = layout.stageSide;
   const lastZ = Math.min(...layout.players.map((p) => p.position[2]));
-  const sum = { key: 0, side: 0, back: 0, points: 0 };
+  const sum = { key: 0, side: 0, back: 0, rim: 0, points: 0 };
   for (let x = -0.4 * side; x <= 0.4 * side; x += 0.5) {
     for (let z = -side / 2 + 0.2; z < lastZ - 0.6; z += 0.25) {
       const light = kindLight(
@@ -187,11 +193,18 @@ export function floorLight(
       sum.key += light.key;
       sum.side += light.side;
       sum.back += light.back;
+      sum.rim += light.rim;
       sum.points += 1;
     }
   }
   const n = Math.max(1, sum.points);
-  return { key: sum.key / n, side: sum.side / n, back: sum.back / n, points: sum.points };
+  return {
+    key: sum.key / n,
+    side: sum.side / n,
+    back: sum.back / n,
+    rim: sum.rim / n,
+    points: sum.points,
+  };
 }
 
 /** The players of one row, with the mean light of each kind. */
@@ -224,13 +237,18 @@ export function rowLights(players: readonly PlayerLight[]): RowLight[] {
     .map(([row, list]) => ({
       row,
       players: list,
-      mean: { key: mean(list, 'key'), side: mean(list, 'side'), back: mean(list, 'back') },
+      mean: {
+        key: mean(list, 'key'),
+        side: mean(list, 'side'),
+        back: mean(list, 'back'),
+        rim: mean(list, 'rim'),
+      },
       choir: list.every((p) => p.riser),
     }));
 }
 
 /** The total light of a kind light. */
-const total = (light: KindLight): number => light.key + light.side + light.back;
+const total = (light: KindLight): number => light.key + light.side + light.back + light.rim;
 
 /** The measures of one demo that decide the back-row lights. */
 export interface DemoMeasures {
@@ -248,6 +266,8 @@ export interface DemoMeasures {
   readonly spill: number;
   /** The light of the back-row lights on the floor behind the back row, as a part of the key. */
   readonly floor: number;
+  /** The light of the rim lights on the floor behind the back row, as a part of the key. */
+  readonly rimFloor: number;
 }
 
 /**
@@ -276,6 +296,7 @@ export function demoMeasures(rows: readonly RowLight[], floor: KindLight): DemoM
     choir: choir.length > 0 ? choir.reduce((s, p) => s + total(p), 0) / choir.length / base : null,
     spill: first.mean.back / (first.mean.key + first.mean.side),
     floor: floor.key > 0 ? floor.back / floor.key : 0,
+    rimFloor: floor.key > 0 ? floor.rim / floor.key : 0,
   };
 }
 
@@ -294,15 +315,15 @@ export function rowLines(
   rows: readonly RowLight[],
   hot: string,
 ): string[] {
-  const base = total(rows[0]?.mean ?? { key: 0, side: 0, back: 0 });
+  const base = total(rows[0]?.mean ?? { key: 0, side: 0, back: 0, rim: 0 });
   const lines = [
     `${file}: S ${layout.stageSide.toFixed(2)} m, ${layout.players.length} players, first row ${base.toFixed(3)} lux, ${hot}`,
   ];
   for (const r of rows) {
-    const { key, side, back } = r.mean;
+    const { key, side, back, rim } = r.mean;
     const species = [...new Set(r.players.map((p) => p.species))].join(',');
     lines.push(
-      `radius ~${(r.row * ROW_STEP).toFixed(1)} m  n ${String(r.players.length).padStart(2)}  side ${(side / base).toFixed(2)}  back-row ${(back / base).toFixed(2)}  key ${(key / base).toFixed(2)}  total ${((key + side + back) / base).toFixed(2)}  ${(key + side + back).toFixed(3)} lux  ${species}`,
+      `radius ~${(r.row * ROW_STEP).toFixed(1)} m  n ${String(r.players.length).padStart(2)}  side ${(side / base).toFixed(2)}  back-row ${(back / base).toFixed(2)}  key ${(key / base).toFixed(2)}  rim ${(rim / base).toFixed(2)}  total ${(total(r.mean) / base).toFixed(2)}  ${total(r.mean).toFixed(3)} lux  ${species}`,
     );
   }
   return lines;
@@ -320,12 +341,13 @@ export function measuresLine(names: readonly string[], measures: readonly DemoMe
   const pct = (v: number): string => `${(v * 100).toFixed(1)}%`;
   const spill = Math.max(...measures.map((m) => m.spill));
   const floor = Math.max(...measures.map((m) => m.floor));
+  const rimFloor = Math.max(...measures.map((m) => m.rimFloor));
   const demos = measures.map((m, i) => {
     const second = m.second === null ? '' : ` 2nd ${m.second.toFixed(2)}`;
     const choir = m.choir === null ? '' : ` choir ${m.choir.toFixed(2)}`;
     return `${names[i]} spill ${pct(m.spill)}${second} back ${m.back.toFixed(2)} (min ${m.backMin.toFixed(2)})${choir}`;
   });
-  return `spill ${pct(spill)} back floor +${(floor * 100).toFixed(0)}% of key | ${demos.join(' | ')}`;
+  return `spill ${pct(spill)} back floor +${(floor * 100).toFixed(0)}% of key, rim floor +${(rimFloor * 100).toFixed(0)}% of key | ${demos.join(' | ')}`;
 }
 
 /** The command line. */
