@@ -132,6 +132,9 @@ group of your work before you plan it. A probe that a trap names is in its resea
   lid. A higher bench lowers the keys against the shoulders and loses reach. Scan the arm factor
   with the front of the keys, the lean, and the gap of the head to the lid (`scan2.sh` of
   `docs/research/2026-10-22-mesh-polar-bear/`), and point the elbows out and level.
+- A higher bench puts the shoulders of short arms high over the keys, and nearer keys do not
+  lower the elbows. Lower the shoulders with the lean and `shoulderDrop`, and point the elbows
+  down (`hold-scan.txt` of `docs/research/2026-10-27-polar-bench/`).
 - Short arms in front of a deep instrument stop at their full reach mostly along the forward
   direction, so a side move of the body gains little. Read the wrist reach at each strike
   (`dbg.ts` of `docs/research/2026-10-25-xylophone-sway/`), and lean the spine forward
