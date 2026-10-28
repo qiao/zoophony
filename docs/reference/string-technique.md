@@ -699,8 +699,12 @@ A round that changes the motion updates the items.
   the backward line of the stick. On the E and the A strings, it lies near the far side of the
   stick, where the roll changes from one end of its range to the other end, and the paw turned by
   about 200° at a change of the string. The hold of the hippo moves that side to an angle that no
-  elbow of its play takes (`BowedHold.farSideR`), so the paw keeps one end of the range there. No
-  source gives the bow hand of a player with such short arms.
+  elbow of its play takes (`BowedHold.farSideR`), so the paw keeps one end of the range there.
+  The paw keeps the bend of its bind pose on the forearm (`BowedHold.pawKeepR`), as the French
+  bow is held "as if the hand is resting by the side" (section 2.1): the turn onto the line of
+  the forearm bent the thick wrist 25° off its form, into a lump under the paw
+  (`docs/decisions/2026-10-28-hippo-paw.md`). No source gives the bow hand of a player with such
+  short arms.
 - **The rest.** The contrabass stays at its playing place, and the left paw holds the neck. The
   right paw hangs beside the belly with the bow tip down, because the knee of the hippo is under
   its belly. No source gives the rest of an orchestral bassist.
