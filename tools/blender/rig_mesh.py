@@ -1851,24 +1851,6 @@ def curve_samples(points, steps=40):
     return out, np.concatenate([[0.0], np.cumsum(np.linalg.norm(np.diff(out, axis=0), axis=1))])
 
 
-def line_samples(points, step=0.001):
-    """Gives the samples of a line of segments at about `step` units, with the direction of the
-    segment of each sample, and the length along the line at each sample."""
-    out, dirs, lengths, start = [], [], [], 0.0
-    for a, b in zip(points, points[1:]):
-        length = float(np.linalg.norm(b - a))
-        count = max(int(np.ceil(length / step)), 1)
-        for k in range(count):
-            out.append(a + (b - a) * k / count)
-            dirs.append((b - a) / length)
-            lengths.append(start + length * k / count)
-        start += length
-    out.append(points[-1])
-    dirs.append(dirs[-1])
-    lengths.append(start)
-    return np.asarray(out), np.asarray(dirs), np.asarray(lengths)
-
-
 def moving_frames(samples, tangents, normal):
     """Gives the rotation-minimizing frame of each sample of a curve, by the double reflection of
     Wang, Jüttler, Zheng, and Liu (2008): the columns are the normal, the binormal, and the
@@ -1918,11 +1900,31 @@ def curl_directions(rule, heads, ends):
     return {'tail': unit(at[0]), TAIL_TIP: unit(at[1] - head)}
 
 
+def tail_line(src, share, bones, bins=10):
+    """Gives the middle line of the tail of the source: a Catmull-Rom curve from the root of the
+    tail through the middle of each of `bins` slices of the vertices only on the tail bones, cut
+    along the line of the bones (from the root over the bend to the tip). The tails of the
+    meshes are curved tubes. With the line of the bones, the vertices near the bend took the
+    frame of one bone or the other, and the vertices outside the bend went to the point of the
+    bend, so the curled tail folded and went flat there (user, 2026-10-28: "the cat's tail has
+    malformed meshes", "the dog's tail is unnatural"). Gives the samples, their tangents, and the
+    length at each sample."""
+    pure = src[share > 0.99]
+    place, _ = polyline_place(pure, bones)
+    edges = np.linspace(0.0, float(place.max()), bins + 1)
+    middles = [pure[(place >= a) & (place <= b)].mean(axis=0)
+               for a, b in zip(edges, edges[1:]) if ((place >= a) & (place <= b)).sum() >= 3]
+    samples, lengths = curve_samples(np.vstack([bones[:1], middles]))
+    tangents = np.gradient(samples, axis=0)
+    tangents /= np.linalg.norm(tangents, axis=1)[:, None]
+    return samples, tangents, lengths
+
+
 def tail_curl(src, bind, weights, heads, ends, root, rule):
     """Curls the tail of the seated bind along a curve (`studio.tailCurl`), as a sitting cat
-    curls its tail on the seat. Each tail vertex keeps its place along the line of the tail of the
-    source (from the root over the bend to the tip) and its offset from the line, and moves to
-    the same place along the curve, with the offset turned by the moving frames of the two lines
+    curls its tail on the seat. Each tail vertex keeps its place along the middle line of the tail
+    of the source (`tail_line()`) and its offset from the line, and moves to the same place along
+    the curve, with the offset turned by the moving frames of the two lines
     (`moving_frames()`). A vertex with a part of its weight on the tail moves by that part, so
     that the root has no hard edge. With `blend` (two shares of the tail), a vertex moves by the
     smoothstep of its tail share over them, so that the root of the tail stays with the haunch. The corrective shapes give the source back, so the standing
@@ -1932,15 +1934,15 @@ def tail_curl(src, bind, weights, heads, ends, root, rule):
     the moved bind mesh and the count of moved vertices."""
     share = weights[:, BONES.index('tail')] + weights[:, BONES.index(TAIL_TIP)]
     ids = np.nonzero(share > 0)[0]
-    line = np.asarray([heads['tail'], heads[TAIL_TIP], ends[TAIL_TIP]], float)
-    s_points, s_dirs, s_lengths = line_samples(line)
+    bones = np.asarray([heads['tail'], heads[TAIL_TIP], ends[TAIL_TIP]], float)
+    s_points, s_dirs, s_lengths = tail_line(src, share, bones)
     c_points, c_dirs, c_lengths = curl_line(rule, root)
     # The first normal of the curve is the first normal of the line, turned the least way onto
     # the first tangent of the curve.
     first = np.array([1.0, 0.0, 0.0])
     s_frames = moving_frames(s_points, s_dirs, first)
     c_frames = moving_frames(c_points, c_dirs, swing(s_dirs[0], c_dirs[0]) @ first)
-    place, _ = polyline_place(src[ids], line)
+    place, _ = polyline_place(src[ids], s_points)
     s_at = np.clip(np.searchsorted(s_lengths, place, side='right') - 1, 0, len(s_lengths) - 1)
     c_at = np.clip(np.searchsorted(c_lengths, place, side='right') - 1, 0, len(c_lengths) - 1)
     near = s_points[s_at] + s_dirs[s_at] * (place - s_lengths[s_at])[:, None]
