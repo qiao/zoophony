@@ -178,10 +178,17 @@ svg {
 }
 
 .title .logo svg {
-  width: 20px;
-  height: 20px;
+  width: 21px;
+  height: 21px;
   fill: currentColor;
   stroke: none;
+}
+
+/* The wordmark in Fraunces (design 2.8). Its view box goes from the top of the "h" to the bottom
+   of the "p" and the "y", so a height of 22 px gives the letters of a font size of about 22 px. */
+.title .logo .wordmark {
+  width: auto;
+  height: 22px;
 }
 
 /* The link to the repository on GitHub stands after the name in the logo line (design 2.8). Its
@@ -1648,8 +1655,12 @@ body:has(.first-screen:not([hidden])):has(.drawer:not([hidden])) .messages {
   }
 
   .title .logo svg {
-    width: 16px;
-    height: 16px;
+    width: 17px;
+    height: 17px;
+  }
+
+  .title .logo .wordmark {
+    height: 18px;
   }
 
   .title .github {

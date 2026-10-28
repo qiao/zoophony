@@ -1,18 +1,18 @@
 import { APP_NAME, REPOSITORY_LABEL, REPOSITORY_URL } from '../app/page-title.ts';
 import { createElement, setText } from './dom.ts';
-import { createIcon } from './icons.ts';
+import { createIcon, createWordmark } from './icons.ts';
 import { LINE_MARGIN, LOGO_BACKDROP_LIMIT, TEXT_BACKDROP_LIMIT } from './title-shade.ts';
 import type { TitleLine } from './title-shade.ts';
 
 /**
- * Creates the logo of the mockup (design 2.8): the gold paw and the name "Zoophony". It is plain
- * content, no control. A screen reader reads the name and skips the paw.
+ * Creates the logo (design 2.8): the gold paw and the wordmark "Zoophony". It is plain content, no
+ * control. A screen reader reads the name of the wordmark and skips the paw.
  *
  * @returns The logo element.
  */
 function createLogo(): HTMLElement {
   const logo = createElement('div', 'logo');
-  logo.append(createIcon('paw'), createElement('span', '', APP_NAME));
+  logo.append(createIcon('paw'), createWordmark(APP_NAME));
   return logo;
 }
 
