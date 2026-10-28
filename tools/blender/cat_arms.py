@@ -91,8 +91,8 @@ import violin_arms as va  # noqa: E402
 #:
 #: `pit` (optional): the clean of the band between each armpit line and the flat inner side of
 #: the arm (`step_clean_pit()`). `near`: for the first and the second shoulder ring, the distance
-#: in units under which a vertex below the line merges into the next ring. `close`: the same on
-#: each side of the line, at its back half. `weld`: the distance under which a socket vertex
+#: in units under which a vertex below the line merges into the next ring. `close`: the distance
+#: under which a vertex above the line, at its back half, merges into the line. `weld`: the distance under which a socket vertex
 #: merges into an end of the line or into its neighbor on the socket. `sides`: the sides of the
 #: clean, `L` and `R` (the left and the right arm of the animal).
 #:
@@ -151,6 +151,8 @@ CAT = {
     # ends of the lines had a corner under 12 degrees, and three corners of a face at the front
     # end of the left line lay on one line. A merge on both sides of the whole line folded two
     # new faces of the right arm root at rest, so `close` acts only at the back half of the line.
+    # A merge of such a vertex into the next ring left a small dark point at the back end of the
+    # left line from az -110 in the play, and with no merge, a dark slit showed there.
     # With no merge of the socket vertices, the back of the left socket folded in 28.6% of the
     # play (the thin faces there share one set of weights in `rigid_slivers()` of `rig_mesh.py`).
     # The right side keeps its band: with the clean, the root ring of the bow arm went flatter in
@@ -739,10 +741,11 @@ def step_clean_pit(s):
     line. In the play, these faces turned over when the skin near them moved, and a smoothing of
     the root front showed them as a slit (user, 2026-10-27: "the cat's arm has lumps"). The step:
 
-    1. Ring by ring, a vertex of the first two shoulder rings merges into the vertex of the next
-       ring on its spoke (Merge at First): below the line within `near` units of it (one value
-       for each ring), and at the back half of the line within `close` units on each side of it.
-       The next ring keeps its place, its codes, and its later weights.
+    1. Ring by ring, a vertex of the first two shoulder rings below the line and within `near`
+       units of it (one value for each ring) merges into the vertex of the next ring on its
+       spoke (Merge at First). At the back half of the line, a vertex above the line and within
+       `close` units of it merges into the nearest vertex of the line. The kept vertex keeps its
+       place, its codes, and its later weights.
     2. A socket vertex within `weld` units of an end of the line merges into the end, and a
        socket edge shorter than `weld` units collapses to its middle (Collapse Edges): the cut
        of the seam left such vertices, and each face with two of them is thin.
@@ -787,13 +790,18 @@ def step_clean_pit(s):
         # 1. The shoulder rings near the line.
         merged = 0
         for k, reach in enumerate(rule['near']):
-            near = [p for p in bm.verts if p.is_valid and p[part] == tube and p[index] == k
-                    and (p.co.z < height and distance(p.co) < s.units(reach)
-                         or distance(p.co) < s.units(rule['close']) and at_back(p.co))]
-            for p in near:
-                q = next(x.other_vert(p) for x in p.link_edges
-                         if x.other_vert(p)[part] == tube and x.other_vert(p)[index] == k + 1
-                         and x.other_vert(p)[spoke] == p[spoke])
+            below = [p for p in bm.verts if p.is_valid and p[part] == tube and p[index] == k
+                     and p.co.z < height and distance(p.co) < s.units(reach)]
+            close = [p for p in bm.verts if p.is_valid and p[part] == tube and p[index] == k
+                     and p not in below and distance(p.co) < s.units(rule['close'])
+                     and at_back(p.co)]
+            for p in below + close:
+                if p in below:
+                    q = next(x.other_vert(p) for x in p.link_edges
+                             if x.other_vert(p)[part] == tube and x.other_vert(p)[index] == k + 1
+                             and x.other_vert(p)[spoke] == p[spoke])
+                else:
+                    q = min(line, key=lambda v: (v.co - p.co).length)
                 merge_into(bm, q, p)
                 merged += 1
         # 2. The socket vertices near the ends of the line and near each other.
