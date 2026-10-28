@@ -36,9 +36,12 @@ export const KEY_LIGHT = {
    * The illuminance at the aim point, on a face that looks at the light, in lux. The light from
    * behind gave 9, but a front light also lights the fronts that the camera sees. With 9 at 55°,
    * the white fur of the front left rabbit had a luma of 218 against 150 on the old setup and 163
-   * in `orchestra-latest.png`.
+   * in `orchestra-latest.png`. With 6.5 and a hot spot boost of 2.1 on the podium (`LIGHT_POOL`),
+   * the light fur of the rabbit close shot clipped a channel on 3.1% of its pixels, against 2.3%
+   * with the light from behind: the bright floor also lights the players through the captured
+   * environment (`docs/research/2026-10-27-key-look.md`).
    */
-  illuminance: 6.5,
+  illuminance: 5.8,
 } as const;
 
 /**
