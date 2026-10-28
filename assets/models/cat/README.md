@@ -29,6 +29,13 @@ upper belly, where the bow upper arm lies in the play, is a little flatter, most
 line (`flat`, `docs/research/2026-10-27-cat-lap.md`). The faces and the colors of the trunk stay
 (`docs/research/2026-10-27-cat-belly.md`).
 
+The side wall under each arm rounds into the trunk. The fill of the seam was a flat fan of 27
+long thin faces, and the cut left lips under it: small trunk faces that turned back under the
+wall. The raised arm of the play showed them as a light patch with a crease, and the user said
+"the cat's arm has lumps" on 2026-10-27. The step `step_round_wall()` of the script deletes the
+lips, fills the hole again with even faces, and smooths the wall and the trunk near it along the
+normal of the plane of the seam (`docs/research/2026-10-28-cat-wall.md`).
+
 The tube of each arm is an even round from the shoulder to the paw. The seated bind of
 `pnpm rig-mesh cat` bends each elbow 79° and turns the left paw 120°, so it binds the left lower
 arm with the dual quaternion blend (`bind.arm` of the config): the elbow and the forearm keep the
@@ -38,10 +45,10 @@ keeps the linear blend, because it bends further than the bind in the play.
 
 | Item | Value |
 |---|---|
-| `cat-arms.glb` | 1,182,704 bytes, SHA-256 `73aa8b34c3ec8a119270f057f8cbe090751539ff550010002be1f62075e5f6d2` |
-| Mesh | 2,161 vertices after a weld at 1e-5, 4,317 triangles (3,121 in the source): on each arm a tube of 16 rings of 16 vertices, joined to the shoulder socket and to the paw with Bridge Edge Loops, and a side wall of 27 faces under each arm |
+| `cat-arms.glb` | 1,181,108 bytes, SHA-256 `cc66753f5ea4cd8a0ad0227c1d564a7c49264177c3a7e58e9e113b6dab746e5f` |
+| Mesh | 2,157 vertices after a weld at 1e-5, 4,306 triangles (3,121 in the source): on each arm a tube of 16 rings of 16 vertices, joined to the shoulder socket and to the paw with Bridge Edge Loops, and a side wall of 53 (left) and 50 (right) faces under each arm |
 | Material | One material with one base color JPEG of 4096 × 4608 pixels: the atlas of the source, and a strip of 512 pixels on top with the fur color of the source arms, baked onto the new faces. The side walls and the flat inner sides of the arms take one gray fur texel of the trunk beside the seam. No metallic-roughness texture |
-| `cat-weights.json` | 483,760 bytes, SHA-256 `61f3e1d708dc24bbb935f6239a5e38fa19ab1b3bf6987039ee4071d60f8fed1a` |
+| `cat-weights.json` | 482,789 bytes, SHA-256 `d93edb9c70f94b6fd034dc1cd4e27efa2fcd6d90f4961b3fa3a3a3da8d651438` |
 | Weights | The automatic weights of Blender with the Weight Paint fixes of the session, on the studio bones and the arm segments and helpers (`armSegments` of the config), for `paintedWeights` of the config |
 | License | Derived from the mesh of the user, who holds its rights |
 
