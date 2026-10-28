@@ -1038,7 +1038,9 @@ solo.
   each lit pixel of the scene in each shot (9.7). The subject then reads as in the close shots of
   `scene.png`, and the wide shots keep the light of the stage.
 - **Room haze** (`ROOM_HAZE`, final pass). Thin warm air starts behind the point that the camera
-  looks at and grows with the distance, brighter toward the key light. The back rows and the hall
+  looks at and grows with the distance, brighter toward the rim light behind the stage, because
+  haze scatters most light forward. The polished hall floor shows the gloss of the same light
+  (`HALL_FLOOR`). The back rows and the hall
   get an aerial depth, and the beam stands in air, as in `orchestra-latest.png`. The stage in
   front of the subject gets no haze, so no player is veiled, and the black point stays. The depth
   pass of the beam has no hall, so the haze takes the distance to the hall floor for its pixels.

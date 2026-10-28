@@ -204,7 +204,7 @@ uniform sampler2D uSceneDepth;
 uniform float uHazeOn;
 uniform mat4 uHazeInverse;
 uniform vec3 uHazeCamera;
-uniform vec3 uHazeKey;
+uniform vec3 uHazeLight;
 uniform vec3 uHazeColor;
 uniform vec4 uHaze;
 uniform float uPixelsPerBlur;
@@ -220,7 +220,7 @@ varying vec2 vUv;
 
 // The room haze (design 4.5): the light of the air between the camera and the point of the
 // pixel. It starts behind the subject of the camera (uHaze.x, in meters) and grows with the
-// distance (uHaze.y, the density for each meter). Its light grows toward the key light, by the
+// distance (uHaze.y, the density for each meter). Its light grows toward the rim light, by the
 // Henyey-Greenstein phase with g = uHaze.z. The depth pass has no hall, so a pixel of the hall
 // gets the distance to the hall floor (y = uHaze.w) or, above the floor, the far plane.
 vec3 hazed(vec3 color) {
@@ -234,7 +234,7 @@ vec3 hazed(vec3 color) {
   }
   float amount = 1.0 - exp(-uHaze.y * max(distance - uHaze.x, 0.0));
   float g = uHaze.z;
-  float c = dot(direction, uHazeKey);
+  float c = dot(direction, uHazeLight);
   float phase = (1.0 - g * g) / pow(1.0 + g * g - 2.0 * g * c, 1.5);
   return mix(color, uHazeColor * phase, amount * uHazeOn);
 }

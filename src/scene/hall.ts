@@ -15,8 +15,9 @@ import {
 import type { Vec3 } from '../models/tuples.ts';
 import { srgb } from '../models/mesh.ts';
 import type { Rgb } from '../models/mesh.ts';
+import { rimLightPlace } from '../models/beam.ts';
 import { STAGE_THICKNESS } from '../models/stage.ts';
-import { KEY_LIGHT, keyLightPosition } from './lights.ts';
+import { RIM_LIGHT } from './lights.ts';
 
 /**
  * The concert hall around the stage (design 4.5, hall). The values are parts of the hall unit
@@ -410,12 +411,14 @@ export const HALL_FLOOR = {
   /** The distance from the stage edge where the spill halves, in stage sides. */
   reach: 0.12,
   /**
-   * The gloss of the polished floor: the reflection of the key light (scene/lights.ts), as a
-   * Blinn-Phong highlight with this exponent. In `mockup.png`, the floor in front of the podium
-   * shows a warm smear of light from the pool on the stage.
+   * The gloss of the polished floor: the reflection of the rim light on the stage axis
+   * (`RIM_LIGHT` of scene/lights.ts), as a Blinn-Phong highlight with this exponent. In
+   * `mockup.png`, the floor in front of the podium shows a warm smear of light from the stage.
+   * The light stands behind the stage, so the default view sees its reflection in front of the
+   * stage.
    */
   shine: 60,
-  /** The light of the middle of the gloss, as a part of the color of the key light. */
+  /** The light of the middle of the gloss, as a part of the color of the rim light. */
   gloss: 0.015,
 } as const;
 
@@ -433,7 +436,7 @@ uniform vec3 uFar;
 uniform vec3 uEdge;
 uniform float uHalfSide;
 uniform float uReach;
-uniform vec3 uKey;
+uniform vec3 uGlossLight;
 uniform vec3 uGlossColor;
 uniform float uShine;
 uniform float uFloorY;
@@ -442,9 +445,9 @@ void main() {
   vec2 outside = max(abs(vFloor) - uHalfSide, 0.0);
   float d = length(outside) / uReach;
   vec3 color = mix(uFar, uEdge, 1.0 / (1.0 + d * d));
-  // The gloss: the reflection of the key light on the polished floor, outside the stage.
+  // The gloss: the reflection of the rim light on the polished floor, outside the stage.
   vec3 p = vec3(vFloor.x, uFloorY, vFloor.y);
-  vec3 h = normalize(normalize(uKey - p) + normalize(cameraPosition - p));
+  vec3 h = normalize(normalize(uGlossLight - p) + normalize(cameraPosition - p));
   float onFloor = step(0.0, max(outside.x, outside.y) - 1e-3);
   color += uGlossColor * pow(max(h.y, 0.0), uShine) * onFloor;
   gl_FragColor = vec4(color, 1.0);
@@ -691,9 +694,9 @@ export function createHall(stageSide: number): Group {
         uEdge: { value: new Color(HALL_FLOOR.edge) },
         uHalfSide: { value: stageSide / 2 },
         uReach: { value: HALL_FLOOR.reach * stageSide },
-        uKey: { value: new Vector3(...keyLightPosition(stageSide)) },
+        uGlossLight: { value: new Vector3(...rimLightPlace(stageSide)) },
         uGlossColor: {
-          value: new Color(KEY_LIGHT.color).multiplyScalar(HALL_FLOOR.gloss),
+          value: new Color(RIM_LIGHT.color).multiplyScalar(HALL_FLOOR.gloss),
         },
         uShine: { value: HALL_FLOOR.shine },
         uFloorY: { value: -STAGE_THICKNESS },

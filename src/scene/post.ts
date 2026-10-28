@@ -74,7 +74,11 @@ export const ROOM_HAZE = {
    * `[0.03, 0.0175, 0.00875]` gave 22.
    */
   color: [0.045, 0.02625, 0.013125],
-  /** The g of the Henyey-Greenstein phase: the haze is brighter toward the key light. */
+  /**
+   * The g of the Henyey-Greenstein phase: the haze is brighter toward the rim light, which stands
+   * behind the stage and shines toward the camera, as the haze of a real hall scatters most light
+   * forward.
+   */
   forward: 0.6,
 } as const;
 
@@ -86,8 +90,8 @@ export interface HazeFrame {
   readonly start: number;
   /** The stage side `S`, in meters. */
   readonly stageSide: number;
-  /** The position of the key light. */
-  readonly key: Vec3;
+  /** The position of the light that the haze scatters: the rim light on the stage axis. */
+  readonly light: Vec3;
   /** The height of the hall floor, in meters. */
   readonly floorY: number;
 }
@@ -591,10 +595,10 @@ export class PostPipeline {
     if (from instanceof Vector3) {
       from.copy(camera.position);
     }
-    const key = uniforms['uHazeKey']?.value;
-    if (key instanceof Vector3) {
-      key
-        .set(...haze.key)
+    const light = uniforms['uHazeLight']?.value;
+    if (light instanceof Vector3) {
+      light
+        .set(...haze.light)
         .sub(camera.position)
         .normalize();
     }
@@ -664,7 +668,7 @@ export class PostPipeline {
         uHazeOn: { value: 0 },
         uHazeInverse: { value: new Matrix4() },
         uHazeCamera: { value: new Vector3() },
-        uHazeKey: { value: new Vector3(0, 1, 0) },
+        uHazeLight: { value: new Vector3(0, 1, 0) },
         uHazeColor: { value: new Vector3(...ROOM_HAZE.color) },
         uHaze: { value: new Vector4() },
         ...gradeUniforms(),

@@ -9,6 +9,7 @@ import type {
   WebGLShadowMap,
 } from 'three';
 
+import { rimLightPlace } from '../models/beam.ts';
 import { CONDUCTOR } from '../models/cast.ts';
 import type { SceneLayout } from '../models/layout.ts';
 import type { Vec3 } from '../models/tuples.ts';
@@ -709,7 +710,7 @@ export class StageScene {
       depth: this.#beamDepth.texture,
       start: camera.position.distanceTo(new Vector3(...view.camera.target)),
       stageSide: view.stageSide,
-      key: keyLightPosition(view.stageSide),
+      light: rimLightPlace(view.stageSide),
       floorY: -STAGE_THICKNESS,
     };
   }
