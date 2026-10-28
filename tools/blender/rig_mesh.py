@@ -1931,7 +1931,7 @@ def tail_curl(src, bind, tris, weights, heads, ends, root, rule):
     body keeps the tail of the source. With `thin` (a factor and two places along the line, in
     units from the root), the offset from the line shrinks to the factor by the smoothstep of the
     place over the two places, so that a thick tail of the source becomes thin on the seat. With
-    `smooth`, that number of rounds of `tail_smooth()` round the curled tube. Gives the moved bind
+    `smooth`, that number of rounds of `taubin()` round the curled tube. Gives the moved bind
     mesh and the count of moved vertices."""
     share = weights[:, BONES.index('tail')] + weights[:, BONES.index(TAIL_TIP)]
     ids = np.nonzero(share > 0)[0]
@@ -1958,16 +1958,17 @@ def tail_curl(src, bind, tris, weights, heads, ends, root, rule):
     out = bind.copy()
     out[ids] = bind[ids] + share[ids, None] * (curled - bind[ids])
     if 'smooth' in rule:
-        out = tail_smooth(out, tris, ids, share[ids], rule['smooth'])
+        # The bend of the curl and the tip of the source tail made a corner and a knob on the
+        # seat. Each vertex moves by its share of the curl, so that the root keeps the haunch.
+        out = taubin(out, tris, ids, share[ids], rule['smooth'])
     return out, len(ids)
 
 
-def tail_smooth(points, tris, ids, share, rounds):
-    """Smooths the curled tail (`studio.tailCurl.smooth`) by the method of Taubin (1995): in each
-    round, each tail vertex moves a half of the way to the middle of its neighbors, then 0.53 of
-    the way back, so that the tube keeps its width. Each vertex moves by its share of the curl, so
-    that the root keeps the haunch. The bend of the curl and the tip of the source tail made a
-    corner and a knob on the seat. Gives the smoothed points."""
+def taubin(points, tris, ids, share, rounds):
+    """Smooths the vertices `ids` by the method of Taubin (1995): in each round, each vertex moves
+    a half of the way to the middle of its neighbors, then 0.53 of the way back, so that a tube
+    keeps its width. Each vertex moves by its `share`, so that the edge of the region keeps its
+    neighbors. Gives the smoothed points."""
     neighbors = [set() for _ in range(len(points))]
     for a, b, c in tris:
         neighbors[a].update((b, c))
