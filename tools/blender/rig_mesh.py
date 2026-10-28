@@ -26,7 +26,8 @@ reads it (route 3 of `docs/agents/model-work.md`). The steps:
    the normals of the skin too. With `rootNormals` of the config, the rim also takes the skin
    faces within its radius of each shoulder joint, and within its `elbow` radius of each elbow
    joint, and with `armShare` only the faces that the clavicle and the arm move (`root_rim()`).
-   With `knee`, it takes the leg faces within that radius behind each knee joint.
+   With `knee`, it takes the leg faces within that radius behind each knee joint. With `wrist`,
+   it takes the arm faces of a band from before each wrist joint to past it on the paw.
    With `turn`, a face whose corner takes a skin normal more than `turn` degrees from its own
    face in the final bind keeps the crease normals (`rim_turns()`).
 2. Give each face one color from the base color texture. A face of an eye keeps its dark color.
@@ -1504,10 +1505,29 @@ def root_rim(verts, tris, heads, rule, weights):
     crease angle from each other. With `kneeFront`, each face whose middle lies within that
     radius of a knee joint, in front of it in the source (+z), and on the leg bones of its side
     for at least half of its weight is in the rim too: short edges of the round front of the bent
-    knee can turn more than the crease angle. Gives a mask of the faces."""
+    knee can turn more than the crease angle.
+
+    With `wrist` (two lengths in units: back and ahead), each face whose middle lies from `back`
+    units before a wrist joint along the forearm to `ahead` units past it along the paw, within
+    `wristReach` units of the joint, and on the arm bones of its side for at least half of its
+    weight is in the rim too: the bridge from the last ring of a rebuilt arm tube to the paw is a
+    band of thin faces, and the seated bind turns the paw, so the edges of the band can turn more
+    than the crease angle. The claws start past the band and keep their facets. Gives a mask of
+    the faces."""
     mids = verts[tris].mean(axis=1)
     out = np.zeros(len(tris), bool)
     for side in 'LR':
+        if 'wrist' in rule:
+            back, ahead = rule['wrist']
+            elbow, wrist, tip = (np.asarray(heads[f'{b}_{side}'], float)
+                                 for b in ('forearm', 'hand', 'fingers'))
+            gap = mids - wrist
+            along = np.where(gap @ unit(wrist - elbow) < 0, gap @ unit(wrist - elbow),
+                             gap @ unit(tip - wrist))
+            bones = [BONES.index(b) for b in arm_bones(side)]
+            share = weights[:, bones].sum(axis=1)[tris].mean(axis=1)
+            out |= ((along > -back) & (along < ahead) & (share >= 0.5)
+                    & (np.linalg.norm(gap, axis=1) < rule.get('wristReach', 0.1)))
         joint = np.asarray(heads[f'shin_{side}'], float)
         legs = [BONES.index(f'{b}_{side}') for b in LEG]
         share = weights[:, legs].sum(axis=1)[tris].mean(axis=1)
@@ -5133,7 +5153,8 @@ def main():
             raise SystemExit('A face of the rim of the cut is not fur.')
         extras['rim'] = sorted(int(t) for t in module_faces(order, materials)[found])
         log(f'rim: {len(found)} skin faces around the caps of the body, the shoulder joints, the '
-            f'elbow joints, or at the knee joints take the normals of the skin in the app')
+            f'elbow joints, the wrist joints, or at the knee joints take the normals of the skin '
+            f'in the app')
     if raised:
         # One rule writes one pose, as the files before the list of rules did, so that their bytes
         # stay.
