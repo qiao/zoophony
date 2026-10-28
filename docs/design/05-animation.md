@@ -532,7 +532,12 @@ The code constants of each family hold the times, the angles, and the lengths of
       dog, so that the left arm keeps off the body (`docs/decisions/2026-10-19-hippo-chest.md`).
       Its bow paw keeps the bend of its bind pose on the forearm (`BowedHold.pawKeepR`), so that
       the skin of the thick wrist keeps its form and shows no lump under the paw
-      (`docs/decisions/2026-10-28-hippo-paw.md`).
+      (`docs/decisions/2026-10-28-hippo-paw.md`). Its bow hand turns in the plane of its palm
+      around the grip in the middle of the paw, so that the forearm keeps one angle in that plane
+      (`BowedHold.stickTurnR`). The paw then keeps one turn on the hand and a straight wrist, the
+      stick stays in the middle of the paw, and the bow turns in the paw over a stroke, as the
+      fingers of a player let it turn. In pizzicato, the bow tip points up and forward, so that
+      the plucking hand keeps that angle too (`docs/decisions/2026-10-28-hippo-grip.md`).
       The left elbow points out, a little down, and forward. The right elbow points forward, out,
       and a little down, also in pizzicato, with the twist bone of the upper arm, because a raised
       or level elbow twists the thick upper arm of the mesh into a flat band, and a lower elbow
