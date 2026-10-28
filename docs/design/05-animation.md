@@ -315,7 +315,10 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
   (`docs/decisions/2026-10-26-fifth-review-strings.md`). With the paw on the top of the thigh, the
   short right arm of the rabbit folded (`docs/decisions/2026-10-26-violin-lift.md`). In the lift
   and the lowering, the bow tip turns through the front, forward and a little up, beside the body
-  (`BowVia` of `pose/bowed-rig.ts`): with the tip up, the bow stood in front of the face.
+  (`BowVia` of `pose/bowed-rig.ts`): with the tip up, the bow stood in front of the face. The bow
+  stays on the strings of the instrument at its mixed place, and the carried instrument leaves
+  that place, so the grip of the bow also moves out and up in the middle of the move, and the bow
+  paw stays out of the carried instrument (`docs/decisions/2026-10-27-cat3.md`).
 - **The instrument turns with the paw.** In the lift and the lowering, the left paw carries the
   instrument, as a player brings it up by its neck, and the instrument hangs from the paw that the
   viewer sees (`carryLift()` of `pose/bowed.ts`). Thus the instrument turns with the paw, in the

@@ -555,7 +555,11 @@ A round that changes the motion updates the items.
   rolled a full turn around its long axis (`docs/decisions/2026-10-26-violin-lift.md`). From 2026-10-26 to the round
   `fifth-strings`, it took its own short turn while the paw pronated, so the two turned in opposite
   directions (`docs/decisions/2026-10-26-fifth-review-strings.md`). The bow tip points forward
-  beside the body in the middle of the move (`docs/decisions/2026-10-26-violin-lift.md`).
+  beside the body in the middle of the move (`docs/decisions/2026-10-26-violin-lift.md`). The bow
+  plays on the strings of the instrument at its mixed place, and the carried instrument leaves that
+  place, so the bow grip of the cat moves 0.5 H out and 0.45 H up in the middle of the move: with
+  less, the right claws went 2.1 cm into the carried viola at the start of a lowering
+  (`docs/decisions/2026-10-27-cat3.md`).
 - **The violin and the viola at rest** (section 2.9). The rabbit and the red fox rest the
   instrument upright on the left knee, and the cat rests the viola upright on the top of the left
   thigh, nearer to the hip for its shorter arms, so that its left elbow bends
