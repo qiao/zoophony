@@ -1166,11 +1166,11 @@ const DOG_HOLD = {
  *
  * The bow hand turns in the plane of its palm around the grip on the stick, so that the forearm
  * keeps 45° in that plane (`stickTurnR`), and the paw keeps one turn on the hand. The grip lies in
- * the middle of the closed paw (`SpeciesParams.bowGrip`), so the stick stays within 0.6 cm of it
+ * the middle of the closed paw (`SpeciesParams.bowGrip`), so the stick stays within 0.4 cm of it
  * in the play, the lift, the rest, and the lowering. The bow turns in the paw over a stroke, as on
  * `main` before. With the paw turned toward the forearm by the retarget alone, the forearm turned
  * about 45° against the bow over a stroke, and the paw slid up to 2.4 cm off the stick. The turn
- * goes up to 90°, because the lowering after a pizzicato turns the forearm up to 84° past 45°.
+ * goes up to 90°, because the lowering after a pizzicato turns the forearm up to 85° past 45°.
  * The measures are in the 2026-10-28-hippo-grip decisions.
  */
 const HIPPO_HOLD = {

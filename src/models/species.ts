@@ -437,7 +437,7 @@ export const SPECIES = {
    * `docs/research/2026-10-24-bow-holds/stick-line.ts`). With the grip of `BOW_GRIP`, the stick
    * passed under the paw, and the claws pointed down past it. The bow hand turns around the grip
    * on the stick (`stickTurnR` of the hold), so the paw keeps one turn on the hand, and the stick
-   * stays within 0.6 cm of the middle of the paw in the play, the lift, the rest, and the
+   * stays within 0.4 cm of the middle of the paw in the play, the lift, the rest, and the
    * lowering. With the grip on the stick 2.5 cm from the middle of the paw toward the frog, on
    * the line nearest to the middles of the paw that the retarget turned, the stick ran up to
    * 2.4 cm from the middle (2026-10-28-hippo-grip decisions).
