@@ -24,7 +24,11 @@
   "rootNormals": {
     "knee": 0.2,
     "kneeFront": 0.1,
-    "note": "The faces behind each knee joint of the source, within knee units of it, and in front of it, within kneeFront units, on the leg bones for at least half of their weight, take the normals of the skin with no crease angle in the app (root_rim() of tools/blender/rig_mesh.py). The bent knee folds the back of the knee into a crease, and the front of the right knee keeps short ring edges that turn up to 58 degrees, more than the crease angle of the app (40 degrees). With the skin normals, these edges shade soft. No vertex moves (docs/research/2026-10-27-polar-legs-rebuild.md)."
+    "wrist": [
+      0.03,
+      0.025
+    ],
+    "note": "The faces behind each knee joint of the source, within knee units of it, and in front of it, within kneeFront units, on the leg bones for at least half of their weight, take the normals of the skin with no crease angle in the app (root_rim() of tools/blender/rig_mesh.py). The bent knee folds the back of the knee into a crease, and the front of the right knee keeps short ring edges that turn up to 58 degrees, more than the crease angle of the app (40 degrees). With the skin normals, these edges shade soft. No vertex moves (docs/research/2026-10-27-polar-legs-rebuild.md). The arm faces from 0.03 units before each wrist joint to 0.025 units past it on the paw take the skin normals too: the seated bind turns the paw about 26 degrees, and faces of the wrist band meet at up to 96 degrees in the bind, more than the crease angle, so their edges shaded as hard lines around the wrist (user, 2026-10-27: \"there's a crease around the bear's wrist\"). The claws start past the band and keep their facets (docs/research/2026-10-27-polar-wrist.md)."
   },
   "armSegments": {
     "helper": 0.03,
