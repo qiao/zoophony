@@ -1,0 +1,16 @@
+main 13-knee_relax: thigh 0.5 0.152 x 0.146 | thigh 0.7 0.142 x 0.142 | knee 0.126 x 0.141 | shin 0.5 0.113 x 0.110 | shin 0.8 0.108 x 0.108
+    knee front 0.072 (ratio 0.98), back 0.069, knee depth on the bisector 0.141
+main-R 13-knee_relax: thigh 0.5 0.151 x 0.152 | thigh 0.7 0.141 x 0.138 | knee 0.126 x 0.142 | shin 0.5 0.109 x 0.111 | shin 0.8 0.105 x 0.110
+    knee front 0.072 (ratio 0.99), back 0.070, knee depth on the bisector 0.142
+v30 13-knee_relax: thigh 0.5 0.151 x 0.136 | thigh 0.7 0.142 x 0.139 | knee 0.126 x 0.151 | shin 0.5 0.114 x 0.110 | shin 0.8 0.111 x 0.116
+    knee front 0.073 (ratio 0.97), back 0.079, knee depth on the bisector 0.151
+v30-R 13-knee_relax: thigh 0.5 0.150 x 0.157 | thigh 0.7 0.141 x 0.136 | knee 0.126 x 0.147 | shin 0.5 0.108 x 0.111 | shin 0.8 0.107 x 0.120
+    knee front 0.072 (ratio 0.96), back 0.074, knee depth on the bisector 0.147
+v34 13-knee_relax: thigh 0.5 0.151 x 0.136 | thigh 0.7 0.142 x 0.139 | knee 0.126 x 0.153 | shin 0.5 0.115 x 0.113 | shin 0.8 0.113 x 0.119
+    knee front 0.073 (ratio 0.97), back 0.081, knee depth on the bisector 0.153
+v34-R 13-knee_relax: thigh 0.5 0.150 x 0.157 | thigh 0.7 0.141 x 0.137 | knee 0.126 x 0.148 | shin 0.5 0.109 x 0.113 | shin 0.8 0.111 x 0.121
+    knee front 0.072 (ratio 0.95), back 0.076, knee depth on the bisector 0.148
+v38 13-knee_relax: thigh 0.5 0.151 x 0.136 | thigh 0.7 0.142 x 0.140 | knee 0.126 x 0.156 | shin 0.5 0.116 x 0.119 | shin 0.8 0.113 x 0.120
+    knee front 0.073 (ratio 0.96), back 0.083, knee depth on the bisector 0.156
+v38-R 13-knee_relax: thigh 0.5 0.150 x 0.157 | thigh 0.7 0.141 x 0.138 | knee 0.126 x 0.150 | shin 0.5 0.112 x 0.119 | shin 0.8 0.113 x 0.123
+    knee front 0.072 (ratio 0.95), back 0.078, knee depth on the bisector 0.150

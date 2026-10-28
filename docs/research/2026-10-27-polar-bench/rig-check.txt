@@ -1,0 +1,35 @@
+# pnpm rig-mesh polar-bear --check --roles pianist --keep <dir> --set 'shinFactor=<f>;<LEVEL of probes/variants.txt>' (the scale of main)
+rig_mesh: legs and head: the leg factor 1.6 raises the body 0.1290 u, the shoulder joint to 0.8540 u (1.3959 m), and the head factor 1 grows the head around the neck joint
+rig_mesh: trunk: the pelvis turns 1.23 degrees back, so that the hip angle opens 1 degrees, from 98.0 to 99.0 degrees. The shares of the turn: {'hips': 1, 'spine': 1, 'spine1': 0.75, 'chest': 0.5, 'neck': 0.25, 'head': 0}. The head turns 0.00 degrees
+rig_mesh: trunk: 128 vertices of the haunch and the tail rise toward the seat top 0.3257 u of the upright body, at most 0.0047 u (0.78 cm). The lowest point over the seat is 0.3238 u. After 60 rounds of relaxing, 2 faces turn over, on the bones hips 1, thigh_R 1
+rig_mesh: chair: seat top 0.3238 u, lowest point of the body 0.1832 u
+rig_mesh: shins: the shin factor 2.549 makes the shins longer than the thighs (leg factor 1.6)
+rig_mesh: legs and head: the leg factor 1.6 raises the body 0.2097 u, the shoulder joint to 0.9347 u (1.5278 m), and the head factor 1 grows the head around the neck joint
+rig_mesh: trunk: the pelvis turns 1.23 degrees back, so that the hip angle opens 1 degrees, from 92.9 to 93.9 degrees. The shares of the turn: {'hips': 1, 'spine': 1, 'spine1': 0.75, 'chest': 0.5, 'neck': 0.25, 'head': 0}. The head turns 0.00 degrees
+rig_mesh: trunk: 123 vertices of the haunch and the tail rise toward the seat top 0.4082 u of the upright body, at most 0.0044 u (0.73 cm). The lowest point over the seat is 0.4074 u. After 60 rounds of relaxing, 5 faces turn over, on the bones hips 4, thigh_R 1
+rig_mesh: chair: seat top 0.4074 u, lowest point of the body 0.1991 u
+rig_mesh: shins: the shin factor 2.967 makes the shins longer than the thighs (leg factor 1.6)
+rig_mesh: legs and head: the leg factor 1.6 raises the body 0.2452 u, the shoulder joint to 0.9702 u (1.5858 m), and the head factor 1 grows the head around the neck joint
+rig_mesh: trunk: the pelvis turns 1.23 degrees back, so that the hip angle opens 1 degrees, from 92.9 to 93.9 degrees. The shares of the turn: {'hips': 1, 'spine': 1, 'spine1': 0.75, 'chest': 0.5, 'neck': 0.25, 'head': 0}. The head turns 0.00 degrees
+rig_mesh: trunk: 123 vertices of the haunch and the tail rise toward the seat top 0.4437 u of the upright body, at most 0.0044 u (0.73 cm). The lowest point over the seat is 0.4429 u. After 60 rounds of relaxing, 4 faces turn over, on the bones hips 4
+rig_mesh: chair: seat top 0.4429 u, lowest point of the body 0.1981 u
+rig_mesh: shins: the shin factor 3.417 makes the shins longer than the thighs (leg factor 1.6)
+rig_mesh: legs and head: the leg factor 1.6 raises the body 0.2834 u, the shoulder joint to 1.0084 u (1.6484 m), and the head factor 1 grows the head around the neck joint
+rig_mesh: trunk: the pelvis turns 1.23 degrees back, so that the hip angle opens 1 degrees, from 92.9 to 93.9 degrees. The shares of the turn: {'hips': 1, 'spine': 1, 'spine1': 0.75, 'chest': 0.5, 'neck': 0.25, 'head': 0}. The head turns 0.00 degrees
+rig_mesh: trunk: 123 vertices of the haunch and the tail rise toward the seat top 0.4820 u of the upright body, at most 0.0044 u (0.73 cm). The lowest point over the seat is 0.4812 u. After 60 rounds of relaxing, 4 faces turn over, on the bones hips 4
+rig_mesh: chair: seat top 0.4812 u, lowest point of the body 0.1971 u
+| Variant | Triangles | Mesh gzip B | Scale m/u | Seat m | Leg seat m | Chair m | Reach L m | Reach R m | Standing mm | pianist play | pianist lift | pianist rest | pianist bones |
+| base | 5106 | 32831 | 1.6345 | 0.230 | 0.230 | none | 0.527 | 0.527 | 0.327 | 100.0% | 100.0% | 100.0% | clavicle_L 47529, upper_arm_seg0_L 10927, clavicle_R 9495 |
+| shinFactor=2.549;studio.legTurns.thigh=[0.691458,0.033721,-0.185276,0.69744] | 5106 | 32894 | 1.6345 | 0.340 | 0.340 | none | 0.527 | 0.527 | 0.329 | 100.0% | 100.0% | 100.0% | clavicle_L 60185, clavicle_R 19275, upper_arm_seg0_L 16109 |
+| shinFactor=2.967;studio.legTurns.thigh=[0.691458,0.033721,-0.185276,0.69744] | 5106 | 32893 | 1.6345 | 0.400 | 0.400 | none | 0.527 | 0.527 | 0.327 | 100.0% | 100.0% | 100.0% | clavicle_L 65997, clavicle_R 21978, upper_arm_seg0_L 16797 |
+| shinFactor=3.417;studio.legTurns.thigh=[0.691458,0.033721,-0.185276,0.69744] | 5106 | 32932 | 1.6345 | 0.464 | 0.464 | none | 0.527 | 0.527 | 0.324 | 100.0% | 100.0% | 100.0% | clavicle_L 70542, clavicle_R 25277, upper_arm_seg0_L 19422 |
+| Variant | Player | Seat m | Visible head m | Standing head top m | Seated head top m | Footprint m |
+| base | polar-bear piano | 0.230 (+0.000) | 0.353 (+0.000) | 1.546 (+0.000) | 1.546 (+0.000) | 1.637 (+0.000) by 3.137 (+0.000) |
+| shinFactor=2.549;studio.legTurns.thigh=[0.691458,0.033721,-0.185276,0.69744] | polar-bear piano | 0.340 (+0.111) | 0.353 (+0.000) | 1.651 (+0.106) | 1.651 (+0.106) | 1.637 (+0.000) by 3.137 (+0.000) |
+| shinFactor=2.967;studio.legTurns.thigh=[0.691458,0.033721,-0.185276,0.69744] | polar-bear piano | 0.400 (+0.170) | 0.353 (-0.000) | 1.711 (+0.165) | 1.711 (+0.165) | 1.637 (+0.000) by 3.137 (+0.000) |
+| shinFactor=3.417;studio.legTurns.thigh=[0.691458,0.033721,-0.185276,0.69744] | polar-bear piano | 0.464 (+0.235) | 0.353 (-0.000) | 1.775 (+0.230) | 1.775 (+0.230) | 1.637 (+0.000) by 3.137 (+0.000) |
+| Variant | Player | Head center m | Head height m | Nose m | Instrument box m |
+| base | polar-bear piano | (0.000, 1.378, -0.257) (0.0 mm) | 0.336 (+0.0 mm) | (0.005, 1.393, -0.481) (0.0 mm) | (-0.825, 0.000, -2.962) to (0.812, 2.052, -0.642) (0.0 mm) |
+| shinFactor=2.549;studio.legTurns.thigh=[0.691458,0.033721,-0.185276,0.69744] | polar-bear piano | (0.000, 1.484, -0.257) (105.8 mm MOVED) | 0.336 (+0.0 mm) | (0.005, 1.499, -0.481) (105.8 mm MOVED) | (-0.825, 0.000, -2.962) to (0.812, 2.052, -0.642) (0.0 mm) |
+| shinFactor=2.967;studio.legTurns.thigh=[0.691458,0.033721,-0.185276,0.69744] | polar-bear piano | (0.000, 1.543, -0.257) (165.5 mm MOVED) | 0.336 (+0.0 mm) | (0.005, 1.558, -0.481) (165.5 mm MOVED) | (-0.825, 0.000, -2.962) to (0.812, 2.052, -0.642) (0.0 mm) |
+| shinFactor=3.417;studio.legTurns.thigh=[0.691458,0.033721,-0.185276,0.69744] | polar-bear piano | (0.000, 1.608, -0.257) (229.7 mm MOVED) | 0.336 (+0.0 mm) | (0.005, 1.623, -0.481) (229.7 mm MOVED) | (-0.825, 0.000, -2.962) to (0.812, 2.052, -0.642) (0.0 mm) |

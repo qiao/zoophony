@@ -1,0 +1,27 @@
+Sweep of the pianist: 4 demos with the role (bach-bwv1047, bach-bwv1048, bach-bwv1050, boulanger-matin), 1 row to sweep.
+Estimated time: about 5 s: 1 row of 5.4 s, from the last rows of this sweep, with a time for 4 of 4 demos.
+base (3.8 s):
+  bach-bwv1047 pianist 18 (polar-bear)
+    target L: 32.66 mm at song 121.52 s
+    target R: 0.00 mm at song 1.02 s
+    targets: 98.7% of 625 within 5 mm, worst 32.66 mm
+  bach-bwv1048 pianist 20 (polar-bear)
+    target L: 35.81 mm at song 108.61 s
+    target R: 0.00 mm at song 30.16 s
+    targets: 94.4% of 1023 within 5 mm, worst 35.81 mm
+  bach-bwv1050 pianist 16 (polar-bear)
+    target L: 13.46 mm at song 146.89 s
+    target R: 0.00 mm at song 246.02 s
+    targets: 100.0% of 2086 within 5 mm, worst 13.46 mm
+  boulanger-matin pianist 17 (polar-bear)
+    target L: 0.00 mm at song 106.98 s
+    target R: 16.50 mm at song 179.45 s
+    targets: 98.0% of 197 within 5 mm, worst 16.50 mm
+| variant | target L mm | target R mm | targets within 5 mm % |
+|---|---|---|---|
+| base | 35.8 | 16.5 | 98.2 |
+
+The demo and the time of the sample of each value of the table:
+| variant | target L mm | target R mm |
+|---|---|---|
+| base | bach-bwv1048 108.61 s | boulanger-matin 179.45 s |
