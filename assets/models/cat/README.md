@@ -47,8 +47,9 @@ The front of each arm root keeps the trunk weights of the rules, so it stays wit
 raised left arm of the play crushed it into a dark crease, and the user said "the cat's arm has
 lumps" on 2026-10-27. The rig gives the left arm a shape of `raise` with the turns of the play:
 in its pose, the front of the root moves half of the way with the first segment of the upper arm
-(`follow` of the config). At rest the shape has no weight, so the root keeps its trunk weights
-(`docs/research/2026-10-28-cat-root.md`).
+(`follow` of the config). A second shape does the same with the turns of the rest, where the
+hanging arm left a dark notch at the root. The root keeps its trunk weights, because with none
+it folded (`docs/research/2026-10-28-cat-root.md`).
 
 | Item | Value |
 |---|---|
