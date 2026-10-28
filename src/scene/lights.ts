@@ -125,7 +125,7 @@ export const BACK_ROW_LIGHT = {
  * `models/beam.ts`), as the back lights on a truss of a concert film. They light the heads and
  * the shoulders from behind, so the players stand out of the dark hall, and the haze shows the
  * beam of each one. They cast no shadow, so the key light stays the only light that casts shadows
- * on the stage.
+ * on the stage. They give diffuse light only, in the materials (`scene/rim-light.ts`).
  */
 export const RIM_LIGHT = {
   /** The color, in sRGB: the warm orange of the key light. */
@@ -641,6 +641,9 @@ export function createLights(
     light.name = RIM_NAME;
     light.angle = rim.angle;
     light.penumbra = rim.penumbra;
+    // three.js does not render an invisible light. The materials add its diffuse light
+    // (`scene/rim-light.ts`), because a spotlight of three.js cost 0.3 ms of GPU time.
+    light.visible = false;
     group.add(light, light.target);
   }
 

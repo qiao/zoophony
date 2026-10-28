@@ -1003,7 +1003,10 @@ lights, and `scene/solo-light.ts` the light of a solo.
 - **Rim lights** (`RIM_LIGHT`, `RIM_PLACE`, user, 2026-10-27). Warm spotlights far behind the
   orchestra and high, as the back lights on a truss of a concert film, light the heads and the
   shoulders from behind, so the players stand out of the dark hall. They also give the floor of
-  the pool a part of its light. They cast no shadow, so the shadows keep one direction. Each rim
+  the pool a part of its light. They cast no shadow, so the shadows keep one direction. They give
+  diffuse light only, as a term in the materials of the players, the props, and the stage
+  (`scene/rim-light.ts`), because a spotlight of three.js cost GPU time on each lit pixel (9.7),
+  as the shot light does. Each rim
   light has a visible beam, because haze scatters most light forward: a beam shows when it shines
   toward the camera, and a beam of the key light would show only as a thin fog over the players.
   The default has one rim light on the stage axis, as the one beam of the reference images.

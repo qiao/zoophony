@@ -54,6 +54,7 @@ import type { PlayerSpot } from './player.ts';
 import { PostPipeline, targetFormatOf } from './post.ts';
 import type { HazeFrame } from './post.ts';
 import { POST_LOOK } from './post.ts';
+import { createRimUniforms, setRimLights } from './rim-light.ts';
 import { SHOT_LOOK, createShotUniforms, setShotLight } from './shot-light.ts';
 import { freeShotLight, shotRig } from '../shots/shot-light.ts';
 import { createRenderer, probeTargetFormat } from './renderer.ts';
@@ -298,7 +299,9 @@ export class StageScene {
   readonly #pool = createPoolUniforms();
   /** The light of a close shot (design 4.5, 5.6), which the shared material reads. */
   readonly #shot = createShotUniforms();
-  readonly #materials = createMaterials(this.#pool, this.#shot);
+  /** The rim lights of the current layout in the materials (design 4.5). */
+  readonly #rim = createRimUniforms();
+  readonly #materials = createMaterials(this.#pool, this.#shot, this.#rim);
   /** The copies of the shared material for each program variant of the players. */
   readonly #variants = new VariantMaterials(this.#materials);
   #view: LayoutView | null = null;
@@ -369,10 +372,11 @@ export class StageScene {
     const aim = defaultAim(layout.stageSide, podium);
     setPoolAim(this.#pool, aim);
     const bakeUniforms = noBakeUniforms();
-    const stageGroup = createStage(layout.stageSide, podium, this.#pool, bakeUniforms);
+    const stageGroup = createStage(layout.stageSide, podium, this.#pool, bakeUniforms, this.#rim);
     scene.add(stageGroup);
     const lights = createLights(layout.stageSide, this.#tier, layout.conductor);
     scene.add(lights);
+    setRimLights(this.#rim, lights);
     const props = createStaticMesh(buildSceneProps(layout), materials);
     scene.add(props);
     const players = createPlayers(playerSpots(layout), materials, models);
@@ -742,6 +746,7 @@ export class StageScene {
     setPoolAim(this.#pool, aim);
     aimKeyLight(view.lights, view.stageSide, aim.center[0], aim.center[1]);
     aimRimLights(view.lights, view.stageSide, aim.beam[0], aim.beam[1]);
+    setRimLights(this.#rim, view.lights);
     return aim.beam;
   }
 

@@ -8,6 +8,8 @@ import { createGeometry } from './geometry.ts';
 import { shadowChunkWithSamples } from './shadow-chunk.ts';
 import { addLightPool } from './light-pool.ts';
 import type { PoolUniforms } from './light-pool.ts';
+import { addRimLight } from './rim-light.ts';
+import type { RimUniforms } from './rim-light.ts';
 import { noBakeTexture } from './stage-bake.ts';
 
 /**
@@ -316,12 +318,14 @@ function liftedShadowVertex(): string {
  * @param pool The uniforms of the pool of the stage lights (design 4.5).
  * @param bake The uniforms of the bake of the static props. With no bake, all light reaches each
  *   point.
+ * @param rim The uniforms of the rim lights (design 4.5), or `null` for no rim lights.
  * @returns The material.
  */
 export function createStageMaterial(
   stageSide: number,
   pool: PoolUniforms,
   bake: StageBakeUniforms = noBakeUniforms(),
+  rim: RimUniforms | null = null,
 ): MeshPhysicalMaterial {
   const material = new MeshPhysicalMaterial({
     vertexColors: true,
@@ -333,6 +337,9 @@ export function createStageMaterial(
   });
   material.onBeforeCompile = (shader) => {
     addLightPool(shader, pool, 'stage');
+    if (rim) {
+      addRimLight(shader, rim, 'stage');
+    }
     shader.uniforms['uGrain'] = { value: STAGE_FINISH.grain };
     shader.uniforms['uGrainRoughness'] = { value: STAGE_FINISH.grainRoughness };
     shader.uniforms['uHalfSide'] = { value: stageSide / 2 };
@@ -391,6 +398,7 @@ export function createStageMaterial(
  * @param podium The podium center of the layout, or `null` for a layout with no podium.
  * @param pool The uniforms of the pool of the stage lights (design 4.5).
  * @param bake The uniforms of the bake of the static props.
+ * @param rim The uniforms of the rim lights (design 4.5), or `null` for no rim lights.
  * @returns A group with the stage mesh. The mesh has its own material.
  */
 export function createStage(
@@ -398,10 +406,11 @@ export function createStage(
   podium: Vec3 | null,
   pool: PoolUniforms,
   bake: StageBakeUniforms = noBakeUniforms(),
+  rim: RimUniforms | null = null,
 ): Group {
   const stage = new Mesh(
     createGeometry(buildStage(stageSide, podium)),
-    createStageMaterial(stageSide, pool, bake),
+    createStageMaterial(stageSide, pool, bake, rim),
   );
   stage.castShadow = true;
   stage.receiveShadow = true;

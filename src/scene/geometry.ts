@@ -16,6 +16,8 @@ import { addLightPool } from './light-pool.ts';
 import { FILL } from './lights.ts';
 import type { PoolUniforms } from './light-pool.ts';
 import { addShotLight } from './shot-light.ts';
+import { addRimLight } from './rim-light.ts';
+import type { RimUniforms } from './rim-light.ts';
 import type { ShotUniforms } from './shot-light.ts';
 
 /**
@@ -66,11 +68,14 @@ function addPlayerFill(shader: WebGLProgramParametersWithUniforms): void {
  *   no pool, such as the gallery.
  * @param shot The uniforms of the light of a close shot (design 4.5, 5.6), or `null` for a page
  *   with no shots. It needs the pool.
+ * @param rim The uniforms of the rim lights (design 4.5), or `null` for a page with no rim
+ *   lights. It needs the pool.
  * @returns The material, in an array for the one geometry group of {@link createGeometry}.
  */
 export function createMaterials(
   pool: PoolUniforms | null = null,
   shot: ShotUniforms | null = null,
+  rim: RimUniforms | null = null,
 ): [MeshStandardMaterial] {
   const finishes = createFinishTexture();
   const material = new MeshStandardMaterial({
@@ -86,6 +91,9 @@ export function createMaterials(
       addPlayerFill(shader);
       if (shot) {
         addShotLight(shader, shot);
+      }
+      if (rim) {
+        addRimLight(shader, rim, 'players');
       }
     };
   }
