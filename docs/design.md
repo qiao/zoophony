@@ -303,7 +303,7 @@ The decision files:
 - [`2026-10-23-bear-tpose.md`](decisions/2026-10-23-bear-tpose.md): the T-pose bear mesh with its own faces and no cut or split, its size, its elbow and palm, and its open rest arms.
 - [`2026-10-24-wind-paws.md`](decisions/2026-10-24-wind-paws.md): the wind paws across the tube, and the clarinet of the wolf and the oboe of the mouse nearer the body.
 - [`2026-10-24-polar-bear-tpose.md`](decisions/2026-10-24-polar-bear-tpose.md): the T-pose polar bear mesh, its size, legs, and seat, and the eye size of the bear.
-- [`2026-10-24-polar-bear-seat.md`](decisions/2026-10-24-polar-bear-seat.md): the smaller polar bear pianist from the keys of its sheet.
+- [`2026-10-24-polar-bear-seat.md`](decisions/2026-10-24-polar-bear-seat.md): the smaller polar bear pianist, and the rest paws on the thighs.
 - [`2026-10-24-rabbit-hold.md`](decisions/2026-10-24-rabbit-hold.md): the shorter rabbit arms with rings at the elbows, the true palm, and the violin under the chin.
 - [`2026-10-24-violin-rest.md`](decisions/2026-10-24-violin-rest.md): the rabbit violin and the cat viola upright on the left knee at rest, and upright in front of the chest in the middle of the lift, as the red fox.
 - [`2026-10-24-violin-poses.md`](decisions/2026-10-24-violin-poses.md): the bent rest arms of the rabbit, the scroll of the cat viola toward the left shoulder in the middle of the lift, and the nearer rest viola of the cat.
@@ -358,7 +358,7 @@ The decision files:
 - [`2026-10-27-wolf-bind.md`](decisions/2026-10-27-wolf-bind.md): the bind elbows of the wolf bent forward, the bind paws supinated on their forearms, and the rest elbows of the clarinet, so that the arm gate passes with the clarinet rest on the knee.
 - [`2026-10-27-wolf-mouse-rests.md`](decisions/2026-10-27-wolf-mouse-rests.md): the upright clarinet rest of the wolf in front of the belly between the knees, and the oboe rest of the mouse, each with the paws on their grips of the play.
 - [`2026-10-27-polar-legs-rebuild.md`](decisions/2026-10-27-polar-legs-rebuild.md): the quad legs of the polar bear with the dual quaternion knees, the smoothed crease at the back of each knee, the bone heat of the copy before the rebuild, and the rigid faces of the right hip front.
-- [`2026-10-27-polar-bench.md`](decisions/2026-10-27-polar-bench.md): the bench of the polar bear pianist that fits its haunch and its thighs, in the form of the reference bench.
+- [`2026-10-27-polar-bench.md`](decisions/2026-10-27-polar-bench.md): the bench of 0.38 m of the polar bear pianist with level thighs and longer shins at the seated size of before (user), and the bench that fits its haunch and its thighs, in the form of the reference bench.
 - [`2026-10-27-hall-back-lamps.md`](decisions/2026-10-27-hall-back-lamps.md): no low lamps of the hall on the wall behind the stage (user).
 - [`2026-10-27-cat-fox.md`](decisions/2026-10-27-cat-fox.md): the cat bind upper arm nearer to the hanging arm with the skin normals of the arm roots, the rest viola nearer to the hip, and the left tan fox paw that wraps the flute from the front.
 - [`2026-10-27-cat-fox2.md`](decisions/2026-10-27-cat-fox2.md): the cat arms of 1.10 H with a shorter forearm, the 10-inch viola near the neck, the cat rest paw that closes around the neck, and the right tan fox paw that holds the flute from behind and below as a right hand.

@@ -774,14 +774,17 @@ mesh are quad tubes (rings at a right angle to the bones), and the weights come 
   body (`docs/decisions/2026-10-21-mesh-penguin.md`). A leg factor of a rig raises its standing
   shoulder joints, so the landmark rises with them, and the longer legs do not make the trunk, the
   head, and the arms smaller (`docs/decisions/2026-10-22-polar-legs.md`). The user said that the
-  polar bear pianist at the size of the studio polar bear was too tall, so it takes the seated
-  head top of the side view of `polar-bear-views.png`, measured against the keys
-  (`docs/decisions/2026-10-24-polar-bear-seat.md`).
+  polar bear pianist at the size of the studio polar bear was too tall
+  (`docs/decisions/2026-10-24-polar-bear-seat.md`). When its bench went up, the user chose to
+  keep its seated size: the scale keeps the head top of the play of the hold before the higher
+  bench, and the longer shins carry the body higher (`docs/decisions/2026-10-27-polar-bench.md`).
 - **Seat.** A seated role binds its mesh seated, and the export puts its soles on the floor and its
   seat at the front edge of the seat of the app. The polar bear sits on the bench of its rig
-  (`chair.prop`) with near level thighs and near upright shins, as a real pianist sits, because
-  thighs that slope down hid under the round belly, and the bear read almost as standing
-  (`docs/decisions/2026-10-24-polar-bear-tpose.md`). The piano bench of the app fits the body, as
+  (`chair.prop`) with level thighs, vertical shins, and flat feet, as a real pianist sits and as
+  the side view of `polar-bear-views.png` shows, because thighs that slope down hid under the
+  round belly, and the bear read almost as standing (`docs/decisions/2026-10-24-polar-bear-tpose.md`).
+  The bench top stands at the height of the reference against the head top: the shins take a
+  factor of their own (`shinFactor` of the rig), longer than the thighs. The piano bench of the app fits the body, as
   the chair does: it holds the whole haunch, and its front edge lies under the thighs where their
   underside leaves the seat top (`StudioBody.benchDepth`, `benchFitOf()` of `tools/studio-body.ts`,
   `docs/decisions/2026-10-27-polar-bench.md`). The rabbits, the foxes, the cats, the dogs, the pandas, the pigs, and the

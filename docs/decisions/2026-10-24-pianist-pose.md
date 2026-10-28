@@ -14,7 +14,6 @@ images. The user can reverse each decision. Then update its section, and remove 
 |---|---|
 | The pose follows a professional pianist with a source for each fact, in the living reference `docs/reference/piano-technique.md`. | 5.3 |
 | The user: "size of the piano". The piano is 1.16 times a real piano (`PIANO_SCALE`), so that the keys reach the forearms of the long trunk on short legs. At 1.12, the forearms sloped 8° down. This replaces the keys at 0.70 m of `2026-10-14-polar-bench.md`. | 4.6, 5.3 |
-| The user: "height of seat". The bench stays at the seat of the rig: a lower bench puts the knees above the hips, and a higher bench needs a new seated bind. | 4.4, 5.3 |
 | The spine leans 14° in place of 28°, and the shoulders turn down 6° in the play (`lean`, `shoulderDrop` of `HANDS_HOLDS.piano`). | 5.3 |
 | The user: "paws are not touching the keys". The palm stands 0.03 m in front of the keys, and the claw tips lie on the key tops at each strike (`palmL`, `palmR`). | 5.3 |
 | The keys stand 1.16 H in front of the floor point (`PIANO_FRONT_H`), so that the elbows bend about 103°. This replaces the keys at 1.55 H of `2026-10-24-polar-bear-seat.md`. | 4.6, 5.3 |

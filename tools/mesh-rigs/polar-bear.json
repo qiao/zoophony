@@ -34,14 +34,16 @@
   "name": "Polar Bear",
   "weld": 1e-05,
   "app": {
-    "shoulders": 1.395906,
-    "reach": 0.52649,
-    "note": "0.85 of the size of the studio polar bear before the meshes (the skull top at 1.923 m), because the user said that the bear was too tall (docs/decisions/2026-10-24-polar-bear-seat.md). The skull top of the mesh is at 1.0 u, so the scale is 1.63455 m for each unit. The leg factor raises the standing shoulder joints from 0.725 u, and the landmark rises with them, so that the trunk, the head, and the arms keep their meters. The reach is the reach of the arm factor below."
+    "shoulders": 1.42549,
+    "reach": 0.46347,
+    "note": "0.8803 of the scale of the polar bear of 2026-10-24 (1.63455 m for each unit then, 1.4389 m now). On 2026-10-27 the bench went up to 0.38 m, and the user chose to keep the seated size: the head top of 1.50 m in the play of the hold before the higher bench (docs/decisions/2026-10-27-polar-bench.md). The leg factor and the shin factor raise the standing shoulder joints from 0.725 u, and the landmark rises with them, so that the trunk, the head, and the arms keep their meters. The reach is the reach of the arm factor below."
   },
   "armFactor": 1,
   "armFactorNote": "The arms keep the length of the mesh (user rule: keep the limbs of a mesh of the user, and fit the props).",
   "legFactor": 1.6,
   "legFactorNote": "The user chose longer legs with the size kept for the polar bear mesh on 2026-10-22 (\"Longer legs, keep size\"), because with short legs the round belly hid the lap on the bench, and the seated bear read almost as standing (docs/research/2026-10-22-polar-legs.md). The T-pose mesh has short legs too, so it keeps the factor 1.6.",
+  "shinFactor": 3.208,
+  "shinFactorNote": "The shins are 3.208 times as long as on the mesh, and the thighs keep the leg factor 1.6. With level thighs, vertical shins, and flat feet, the bench top is 0.38 m, as the side view of polar-bear-views.png shows against the head top. The user chose this bench of three variants (0.30, 0.34, 0.38 m) on 2026-10-27 (docs/research/2026-10-27-polar-bench.md). The knee keeps its form: the stretch moves the points of the shin along the bone only.",
   "joints": {
     "root": {
       "head": [
@@ -254,10 +256,10 @@
   "studio": {
     "legTurns": {
       "thigh": [
-        0.662208,
-        0.032182,
-        -0.174523,
-        0.728002
+        0.691458,
+        0.033721,
+        -0.185276,
+        0.69744
       ],
       "shin": [
         0.115266,
@@ -306,7 +308,7 @@
         0.731461
       ]
     },
-    "note": "legTurns gives the world turn of each left leg bone from the seated bind pose to the source, and the right side mirrors it: the thighs 5 degrees down and 15 degrees out, and the shins vertical, so that the knee angle from the side is 95 degrees, as a real pianist sits with the thighs level or a little down to the knees (leg_turns.py of docs/research/2026-10-16-hip-open/ 5 15 0). With the thighs 30 degrees out, the knees did not show more from the camera of the stage, and the rest folded more faces. The trunk shares and the bind arms are the values of the other meshes. A forward lean of the bind (open -12 or -18) folded both arms in each play sample, so the trunk keeps the seat of the source, and the play lean of the hold leans the spine (docs/research/2026-10-22-polar-seat.md)."
+    "note": "legTurns gives the world turn of each left leg bone from the seated bind pose to the source, and the right side mirrors it: the thighs level and 15 degrees out, and the shins vertical, so that the knee angle from the side is 90 degrees, as the side view of polar-bear-views.png shows (leg_turns.py of docs/research/2026-10-16-hip-open/ 0 15 0, docs/decisions/2026-10-27-polar-bench.md). With the thighs 30 degrees out, the knees did not show more from the camera of the stage, and the rest folded more faces. The trunk shares and the bind arms are the values of the other meshes. A forward lean of the bind (open -12 or -18) folded both arms in each play sample, so the trunk keeps the seat of the source, and the play lean of the hold leans the spine (docs/research/2026-10-22-polar-seat.md)."
   },
   "weights": {
     "armSplit": 0.145,
@@ -466,15 +468,15 @@
     "front": -0.017,
     "back": -0.2,
     "backHeight": 0.01,
-    "note": "The seat is the piano bench of the pianist (prop): it is level, and its top is the lowest point of the seated body over the seat, with no shin, foot, or tail. The front edge lies under the hip joints, where the thighs leave the haunch, and the back edge at the back of the haunch. The half width holds the haunch (x \u00b10.23). PIANO_BENCH of src/models/instruments/piano.ts takes this width and depth in meters."
+    "note": "The seat is the piano bench of the pianist (prop): it is level, and its top is the lowest point of the seated body over the seat, with no shin, foot, or tail. The front edge lies under the hip joints, where the thighs leave the haunch, and the back edge at the back of the haunch. The half width holds the haunch (x \u00b10.23). The bench of the app fits the body: it holds the haunch, and its front edge lies under the level thighs (benchFitOf() of tools/studio-body.ts, StudioBody.benchDepth)."
   },
   "crease": {
     "rings": 2,
-    "rounds": 8,
+    "rounds": 12,
     "share": 0.5,
     "back": 0.1,
     "below": 0.03,
-    "note": "The values of the other meshes."
+    "note": "12 rounds: with the 8 rounds of the other meshes, the level thighs of 2026-10-27 left faces of the hips turned over in the bind (docs/research/2026-10-27-polar-bench.md)."
   },
   "kneeCrease": {
     "reach": 0.105,
@@ -496,10 +498,10 @@
     "band": 0.2,
     "ramp": 0.015,
     "step": 0.005,
-    "smooth": 6,
+    "smooth": 8,
     "end": 0.0055,
     "most": 0.25,
-    "note": "The values of the dog and the deer."
+    "note": "The values of the dog and the deer, with 8 rounds of smoothing: with 6, two faces of the hips stayed turned over in the bind under the level thighs (docs/research/2026-10-27-polar-bench.md)."
   },
   "bind": {
     "knee": "dq",

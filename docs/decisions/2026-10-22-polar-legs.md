@@ -14,4 +14,3 @@ can reverse each decision. Then update its section, and remove its row.
 | Decision | Section |
 |---|---|
 | The user chose "Longer legs, keep size (Recommended)" (2026-10-22): the thighs and the shins about 1.6 times as long, the feet at their size, and the bear at its size, so that the bench is higher and the lap shows (`legFactor` of `tools/mesh-rigs/polar-bear.json`). | 4.4 |
-| Factor 1.6: 1.4 gave a bench of 0.230 m with the knees 3 cm behind the belly at rest, and 1.8 a bench of 0.307 m with 52% of the play samples folded and 9% of the notes missed. 1.6 gives 0.269 m with the knees in front of the belly (`legFactor`). | 4.4 |

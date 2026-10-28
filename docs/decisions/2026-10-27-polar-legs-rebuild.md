@@ -23,4 +23,3 @@ row.
 | The faces near each knee keep the skin normals (`rootNormals.knee`, `rootNormals.kneeFront`): the crease and the front of the right knee keep edges that turn up to 58°. | 4.4 |
 | The kept vertices keep the bone heat of `polar-bear-arms.glb` (`heatSource`): with the heat of the new mesh, the crotch weights moved by up to 0.23, the seat top went 7 mm down, and three faces folded in more samples. | 4.4 |
 | Two thin faces of the right hip front take one mean of their weights (`weights.rigid`): they folded in each play sample of the pedal leg when the knee rings no longer cut them. | 4.4 |
-| The bench top goes 2 mm down to 0.230 m, the lowest point of the seated body over the seat, and the first download grows by 2,434 B, with 5,106 triangles in the polar bear. | 7.2 |
