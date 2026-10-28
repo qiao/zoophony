@@ -350,13 +350,16 @@ def step_weights(s):
 
 #: The steps of the session: the steps of `cat_arms.py`, with the clean of the cut loops after the
 #: side wall, the clean of the bridge after Beautify Faces, and the share of the fingers after the
-#: paint, as in `fox_arms.py`, and the weights file above.
+#: paint, as in `fox_arms.py`, and the weights file above. The belly step of the cat
+#: (`cat_arms.step_belly()`, 2026-10-27) is not a step of the hippo session: the hippo has no
+#: `belly` rule, and the step stopped the replay with a KeyError.
 STEPS = tuple(out for step in ca.STEPS
               for out in {ca.step_cut: (ca.step_cut, step_trim),
                           ca.step_wall: (ca.step_wall, step_triangulate, fa.step_clean_cut),
                           ca.step_beautify: (ca.step_beautify, fa.step_clean_bridge,
                                              step_clean_seam),
                           ca.step_shape: (ca.step_shape, step_torn_uv),
+                          ca.step_belly: (),
                           ca.step_paint: (ca.step_paint, step_tube_trunk, step_wrist,
                                           fa.step_fingers),
                           ca.step_weights: (step_weights,)}.get(step, (step,)))
