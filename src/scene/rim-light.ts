@@ -10,7 +10,8 @@ export const MAX_RIM_LIGHTS = 3;
  * The uniforms of the rim lights in the materials of the players, the props, and the stage
  * (design 4.5). The rim lights of `createLights()` are invisible spotlights, so three.js does not
  * render them: the materials add their diffuse light, as a spotlight with the decay 2 gives it.
- * A spotlight of three.js cost about 0.3 ms of GPU time in each frame of `perf-60.mid`.
+ * A spotlight of three.js, and the same term for each pixel, cost about 0.3 ms of GPU time in each
+ * frame of `perf-60.mid`, so the vertex shader calculates the light.
  */
 export interface RimUniforms {
   /** The number of rim lights, at most {@link MAX_RIM_LIGHTS}. */
@@ -77,30 +78,51 @@ export function setRimLights(uniforms: RimUniforms, lights: Group): void {
  */
 type RimSurface = 'stage' | 'players';
 
+/** The declarations of the uniforms and of the varying of the rim lights. */
+const RIM_UNIFORMS = /* glsl */ `
+uniform int uRimCount;
+uniform vec3 uRimPosition[${MAX_RIM_LIGHTS}];
+uniform vec3 uRimAxis[${MAX_RIM_LIGHTS}];
+uniform vec2 uRimCone[${MAX_RIM_LIGHTS}];
+uniform vec3 uRimColor[${MAX_RIM_LIGHTS}];
+varying vec3 vRimLight;
+`;
+
 /**
- * The GLSL of the rim lights after the lights of three.js: the diffuse light of each rim light,
- * with the smooth step of the cone of three.js r186, the decay 2, and the pool of the stage lights
- * (`addLightPool()`). `RIM_SKY` is the factor of the open sky. The lights give no gloss.
+ * The GLSL of the rim lights in the vertex shader, after the skin and the normal of the vertex:
+ * the light of each rim light on a face that looks at it, with the smooth step of the cone of
+ * three.js r186, the decay 2, and the cosine of the face. The light falls off slowly over a face,
+ * so the vertices give it.
  */
-const RIM_GLSL = /* glsl */ `
-vec3 rimNormal = inverseTransformDirection(geometryNormal, viewMatrix);
+const RIM_VERTEX = /* glsl */ `
+vec3 rimPosition = (modelMatrix * vec4(transformed, 1.0)).xyz;
+vec3 rimNormal = inverseTransformDirection(transformedNormal, viewMatrix);
+vRimLight = vec3(0.0);
 for (int i = 0; i < ${MAX_RIM_LIGHTS}; i++) {
   if (i >= uRimCount) {
     break;
   }
-  vec3 toLamp = uRimPosition[i] - lightPoolWorld;
+  vec3 toLamp = uRimPosition[i] - rimPosition;
   float distanceSquared = max(dot(toLamp, toLamp), 1e-4);
   vec3 direction = toLamp * inversesqrt(distanceSquared);
   float cone = smoothstep(uRimCone[i].x, uRimCone[i].y, dot(-direction, uRimAxis[i]));
   float facing = saturate(dot(rimNormal, direction));
-  vec3 irradiance = uRimColor[i] * (facing * cone * lightPool * RIM_SKY / distanceSquared);
-  reflectedLight.directDiffuse += irradiance * BRDF_Lambert(material.diffuseContribution);
+  vRimLight += uRimColor[i] * (facing * cone / distanceSquared);
 }
 `;
 
 /**
+ * The GLSL of the rim lights in the fragment shader, after the lights of three.js: the light of
+ * the vertices times the pool of the stage lights (`addLightPool()`) and `RIM_SKY`, the factor of
+ * the open sky. The lights give diffuse light only.
+ */
+const RIM_FRAGMENT = /* glsl */ `
+reflectedLight.directDiffuse += vRimLight * (lightPool * RIM_SKY) * BRDF_Lambert(material.diffuseContribution);
+`;
+
+/**
  * Adds the rim lights to the shader of a standard or physical material, after `addLightPool()`,
- * which gives the world position and the pool factor of the pixel. Call it in `onBeforeCompile`.
+ * which gives the pool factor of the pixel. Call it in `onBeforeCompile`.
  *
  * @param shader The shader of the material.
  * @param uniforms The uniforms of {@link createRimUniforms}.
@@ -112,7 +134,10 @@ export function addRimLight(
   uniforms: RimUniforms,
   surface: RimSurface,
 ): void {
-  if (!shader.fragmentShader.includes('#include <lights_fragment_end>')) {
+  if (
+    !shader.fragmentShader.includes('#include <lights_fragment_end>') ||
+    !shader.vertexShader.includes('#include <worldpos_vertex>')
+  ) {
     throw new Error('The shader has no light chunk of three.js. Update addRimLight().');
   }
   if (!ShaderChunk.lights_physical_fragment.includes('material.diffuseContribution')) {
@@ -123,11 +148,11 @@ export function addRimLight(
   shader.uniforms['uRimAxis'] = uniforms.uRimAxis;
   shader.uniforms['uRimCone'] = uniforms.uRimCone;
   shader.uniforms['uRimColor'] = uniforms.uRimColor;
-  const glsl = RIM_GLSL.replace('RIM_SKY', surface === 'stage' ? 'stageBake.g' : '1.0');
+  const fragment = RIM_FRAGMENT.replace('RIM_SKY', surface === 'stage' ? 'stageBake.g' : '1.0');
+  shader.vertexShader = shader.vertexShader
+    .replace('#include <common>', `#include <common>\n${RIM_UNIFORMS}`)
+    .replace('#include <worldpos_vertex>', `#include <worldpos_vertex>\n${RIM_VERTEX}`);
   shader.fragmentShader = shader.fragmentShader
-    .replace(
-      '#include <common>',
-      `#include <common>\nuniform int uRimCount;\nuniform vec3 uRimPosition[${MAX_RIM_LIGHTS}];\nuniform vec3 uRimAxis[${MAX_RIM_LIGHTS}];\nuniform vec2 uRimCone[${MAX_RIM_LIGHTS}];\nuniform vec3 uRimColor[${MAX_RIM_LIGHTS}];`,
-    )
-    .replace('#include <lights_fragment_end>', `#include <lights_fragment_end>\n${glsl}`);
+    .replace('#include <common>', `#include <common>\n${RIM_UNIFORMS}`)
+    .replace('#include <lights_fragment_end>', `#include <lights_fragment_end>\n${fragment}`);
 }
