@@ -639,8 +639,11 @@ const MOUSE_OBOE_FORWARD = 10;
  * (`docs/research/2026-10-27-wolf-mouse-rests.md`). Both paws keep the aim and the roll of the
  * play (`restAim`): with the roll of the shoulder, the left paw turned 177° on its forearm at rest
  * and flipped in the lowering. The left elbow points out, down, and forward, and the right elbow
- * out and down (`restPoleL`, `restPoleR`). With the rest elbows before, the left paw turned 158°
- * on its forearm at rest and the right paw 125°, against 143° and 121° on the rest grips before.
+ * out, down, and a little back (`restPoleL`, `restPoleR`), so that the left paw turns 134° on its
+ * forearm at rest and the right paw 121° (143° and 121° on the rest grips before). With the rest
+ * elbows before, they turned 158° and 125°. With the left elbow further down or forward, the left
+ * palm turned more than 60° from the tube, and the paw did not grasp it (`pnpm wind-grip oboist`).
+ * With the right elbow further down, the right upper arm went 0.8 cm into the body (0.6 cm).
  *
  * The big head puts the mouth about 0.13 m above the shoulder joints, so the grips are near the
  * height of the shoulders. While the mouse plays, the right elbow points down, out, and forward,
@@ -658,9 +661,9 @@ const MOUSE_OBOE = {
   ...WIND_HOLDS.oboe,
   lipShift: [0, -0.04, 0.23],
   rest: holdTurn(-30, 0),
-  restShift: [0.1, -0.25, 0],
-  restPoleL: [-1.5, -1, -1],
-  restPoleR: [1, -1, 0],
+  restShift: [0.1, -0.25, -0.05],
+  restPoleL: [-1, -0.75, -1],
+  restPoleR: [1.5, -0.75, 0.25],
   play: holdTurn(MOUSE_OBOE_FORWARD, 0),
   poleL: [-0.5, -1, 0],
   poleR: [0.5, -1, -0.5],
