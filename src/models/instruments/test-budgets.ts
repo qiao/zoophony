@@ -5,10 +5,10 @@ import type { InstrumentId } from './types.ts';
  * triangle budgets). Only tests read it.
  */
 export const INSTRUMENT_BUDGETS = {
-  violin: 800,
-  viola: 800,
-  cello: 800,
-  contrabass: 800,
+  violin: 1200,
+  viola: 1200,
+  cello: 1200,
+  contrabass: 1200,
   harp: 800,
   piano: 2000,
   'choir-folder': 800,

@@ -1275,7 +1275,8 @@ back (`chairForward()`). Each species moves toward the anatomy of its reference 
   studio bodies share the scene. The mesh of the bear keeps its 3,142 triangles, as the user gave
   it. The polar bear has 4,142: the faces of the user, with quad tubes on the arms. The pea eyes add their triangles to a studio body
   (`docs/decisions/2026-10-15-pea-eyes.md`).
-- An instrument has at most 800 triangles, except the timpani (1,200) and the piano (2,000). A
+- An instrument has at most 800 triangles, except the four bowed strings with their bows and
+  the timpani (1,200), and the piano (2,000). A
   chair or the piano bench has at most 120, and a stand at most 80. The full scene with 60
   players has at most 200,000. The frame cost of `perf-60.mid` set these budgets (9.7).
   `models/budget.test.ts` and `models/species.test.ts` check them.
