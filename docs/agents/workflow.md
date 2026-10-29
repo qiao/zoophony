@@ -130,8 +130,10 @@ These rules hold for each test:
 - Run each timed measure through `tools/measure-lock.sh run --owner <name> -- <cmd>`: a trace,
   `pnpm load-probe`, `pnpm frame`, and each timed probe. The lock serves the tickets in order, so
   two agents do not measure at the same time. `--gate <load>` also waits for a quiet CPU.
-- A load round measures with `pnpm load-probe`, because Lighthouse of the chrome-devtools MCP
-  server has no performance category.
+- A load round measures the times of the app with `pnpm load-probe`, and the scores and the metrics
+  of Lighthouse with `pnpm lighthouse`. Use the saved tool, because the Lighthouse of the
+  chrome-devtools MCP server has no performance category. `--url https://www.zoophony.com/` audits
+  the live site.
 - An ablation of a GPU cost reads the Metal trace of `pnpm frame`. With no frame cap, the main
   thread limits the frame rate, so the frame time alone does not show a GPU change.
 - A change of the material IDs can change the order of the draws, and thus the pixels. Run
