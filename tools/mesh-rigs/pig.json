@@ -1,25 +1,25 @@
 {
   "source": "assets/models/pig/pig-arms.glb",
-  "sourceNote": "A copy of the mesh of the user (assets/models/pig/pig.glb) with new upper arms (assets/models/pig/README.md). The user said on 2026-10-21: \"the rabbit and pig's arms are still very deformed\", and chose a remodel in Blender. The mesh has no upper arm of its own: above the elbow, the arm is a bulge of the trunk wall, and each turn of the arm crumpled that wall. tools/blender/pig_arms.py cuts each arm at a plane just below the elbow, removes the faces of the bulge, fills the wall again, and builds a round tube of two rings of 10 edges up to a closed dome around the shoulder joint. The wall, its rim, and two rings of the trunk around it are smoothed, because the saw rim and the fan showed as dark spikes at the top of each shoulder (docs/research/2026-10-21-arm-form.md).",
+  "sourceNote": "A copy of assets/models/pig/pig.glb with new upper arms (assets/models/pig/README.md). The mesh has no upper arm of its own, so tools/blender/pig_arms.py removes the bulge of the trunk wall above each elbow, fills the wall again, and builds a round tube up to a closed dome around the shoulder joint.",
   "output": "assets/models/pig/pig.rig.glb",
   "name": "Pig",
   "weld": 1e-05,
   "app": {
     "shoulders": 0.671951,
     "reach": 0.3845,
-    "note": "The size of the parametric pig of 9a4613b4 (size 1.05, H 0.399 m), which stood 1.137 m high to the head top. No reference image shows a pig, so the pig takes the size of its parametric body (user rule of 2026-10-19, docs/decisions/2026-10-19-mouse-size.md). The scale puts the standing skull top (the highest vertex within 0.03 u of the middle plane, 0.9476 u) at 1.137 m, with the standing shoulder joints at 0.671951 m. The reach is the reach of the arm factor below, from the shoulder joint to the middle of the palm. With no --check, pnpm rig-mesh stops until the arm factor gives this reach."
+    "note": "No reference image shows a pig, so the pig takes the size of its parametric body. The scale puts the standing skull top (0.9476 u) at 1.137 m, with the standing shoulder joints at 0.671951 m. The reach is the reach of the arm factor, from the shoulder joint to the middle of the palm."
   },
   "armFactor": 1.5,
-  "armFactorNote": "The factor of the upper arm and the forearm. The arms of the mesh are short: 0.263 m from the shoulder joint to the middle of the palm with no factor, 0.58 of the trunk from the hips joint to the shoulder joints. The user chose the factor 1.5 from the mid-report (pnpm mesh-options pig, docs/decisions/2026-10-19-mesh-pig.md): the reach is 0.385 m, and the arm is 0.84 of the trunk. The long snout puts the mouthpiece of the horn far in front of the body, so the pig plays the horn of the app with a hold of its own that turns the horn back toward the body (SPECIES_WIND_HOLDS.pig of src/pose/winds.ts).",
+  "armFactorNote": "The factor of the upper arm and the forearm. The arms of the mesh are short, so the factor 1.5 gives a reach of 0.385 m. The long snout puts the horn far in front of the body, so the hold of the pig turns the horn back toward the body (SPECIES_WIND_HOLDS.pig of src/pose/winds.ts).",
   "legFactor": 1,
-  "legFactorNote": "The legs keep the length of the mesh (user rule: do not stretch the legs, change the chair).",
+  "legFactorNote": "The legs keep the length of the mesh. Do not stretch the legs: change the chair.",
   "rootNormals": {
     "radius": 0.16,
-    "note": "The skin faces whose middle lies within radius (units) of the head of an upper arm take the normals of the skin with no crease angle in the app (root_rim() of tools/blender/rig_mesh.py, studioNormals() of src/models/studio-normals.ts), as on the rhino. The user: \"the pig has unnatural seam between the trunk and the arm. also there's a black area under the armpit\" (2026-10-25): the crease angle split the normals of the sharp faces of the arm root into a hard line and a dark wedge under the arm. With the radius 0.12, a softer line stayed at the back of the root (docs/decisions/2026-10-26-arm-fixes.md)."
+    "note": "The skin faces whose middle lies within radius (units) of the head of an upper arm take the normals of the skin with no crease angle (root_rim() of tools/blender/rig_mesh.py, studioNormals() of src/models/studio-normals.ts), as on the rhino. Thus the arm root shows no hard seam and no dark wedge."
   },
   "upperTwist": {
     "share": 0.4,
-    "note": "The twist bone of each upper arm keeps 0.4 of the roll of the upper arm from the chest (StudioBody.upperTwist), the share of the hippo and the rhino. The user chose it with the new upper arms on 2026-10-21: the twist p95 of the arm gate falls from 48 to 39 degrees on the left and to 35 on the right (docs/research/2026-10-21-arm-form.md)."
+    "note": "The twist bone of each upper arm keeps 0.4 of the roll of the upper arm from the chest (StudioBody.upperTwist), the share of the hippo and the rhino."
   },
   "joints": {
     "root": {
@@ -229,7 +229,7 @@
     -0.605,
     -0.195
   ],
-  "jointsNote": "The places are in the units and the axes of the studio in the pose of the source: 1 unit from the soles to the tips of the ears, the soles at y = 0, +z forward, +x the left side. The right side mirrors the left side. The probes are in docs/research/2026-10-19-pig-mesh/: sections.py gives the cuts at each height (sections-y.txt, sections-x.txt, sections-z.txt), and measures.py the parts (measures.txt). The legs are short stumps apart below the crotch at y 0.145, with the middle of each leg at x 0.103 and z 0.0. The thigh joint lies just above the crotch, the knee halfway to the ankle, the ankle at the narrowest leg cut over the hoof (y 0.06), and the toes at the ball of the hoof (toe tip at z 0.10). The trunk joints lie 0.01 to 0.02 behind the middle of the body cut. The narrowest neck cut is at y 0.68, and the head starts at the chin at y 0.67. The cuts across the free arm (arm-axis2.txt) give its middle line, (0.45, -0.8, 0.4) down the arm: the arm is apart from the body from x 0.17 out (free-arm.txt). The shoulder joint lies on that line inside the root, at x 0.16, the elbow halfway to the wrist on the middle line, the wrist at the top of the dark hoof (y 0.40), the forearm twist halfway between them, and the finger joint 0.03 u before the tip of the hoof (paw.py). The ear joint lies at the root of the ear flap on the head, and its tail at the top of the flap. The small curled tail is a ball on one bone at the back, from its root at z -0.19 to its end at z -0.25. The palm takes the smallest principal direction of the vertices of the left hoof beyond the wrist, inward, down, and back (paw.txt).",
+  "jointsNote": "The places are in the studio units and axes of the source pose: 1 unit from the soles to the tips of the ears, the soles at y = 0, +z forward, +x the left side. The right side mirrors the left side. The small curled tail is a ball on one bone at the back.",
   "studio": {
     "legTurns": {
       "thigh": [
@@ -285,7 +285,7 @@
         0.731461
       ]
     },
-    "note": "The studio has no pig. legTurns gives the world turn of each left leg bone from the seated bind pose to the source, and the right side mirrors it. The posture is the seated posture of design 5.2: the thigh slopes 25 degrees down from the hip to the knee, the thighs turn 15 degrees out, so that the horn has room at the right knee, and the shin is vertical (tools/rig/leg_turns.py <config> 25 15 0). The foot and the toes keep the turn of the source, so that the soles stand flat on the floor. The source shin slants 7.6 degrees back. The trunk shares and the bind arms are the values of the cat, the dog, the panda, the hippo, and the mouse."
+    "note": "The seated posture of design 5.2: the thigh slopes 25 degrees down and 15 degrees out, so that the horn has room at the right knee, and the shin is vertical (tools/rig/leg_turns.py <config> 25 15 0). The foot and the toes keep the turn of the source, so that the soles stand flat on the floor."
   },
   "weights": {
     "armSplit": 0.14,
@@ -293,7 +293,7 @@
       "turn": 0,
       "radius": 0.075,
       "floor": 0.3,
-      "note": "The tube of each upper arm and the forearm have no face that joins them to the trunk. A vertex of the free arm lies beyond the plane, within 0.075 u of the chain of the arm joints, and above y 0.3, so that the wall under the arm and the belly beside the paw follow the trunk (docs/research/2026-10-21-arm-form.md)."
+      "note": "The tube of each upper arm and the forearm have no face that joins them to the trunk. A vertex of the free arm lies beyond the plane, within 0.075 u of the chain of the arm joints, and above y 0.3, so that the wall under the arm and the belly beside the paw follow the trunk."
     },
     "stretchRamp": 0,
     "headFrom": 0.68,
@@ -313,12 +313,12 @@
     "sliver": {
       "angle": 10,
       "longest": 0.03,
-      "note": "The values of the fox, the cat, the dog, the panda, the hippo, and the mouse."
+      "note": "The values of the fox."
     },
     "line": {
       "angle": 150,
       "head": true,
-      "note": "The values of the fox, the cat, the dog, the panda, the hippo, and the mouse."
+      "note": "The values of the fox."
     },
     "clavicleFrom": [
       0.525,
@@ -338,9 +338,9 @@
         0.13,
         0.185
       ],
-      "note": "The part of the thigh weight that goes to the hips grows from 0 at the lower height to 1 at the upper height, so that the round haunch stays on the hips. It starts below the crotch and ends 0.03 u above the thigh joint."
+      "note": "The part of the thigh weight that goes to the hips grows from 0 at the lower height to 1 at the upper height, so that the round haunch stays on the hips."
     },
-    "note": "Beyond the plane |x| = armSplit, only the free arm follows the arm bones (armFree): the new tube of the upper arm and the forearm. The plane lies inside the tube at the shoulder joint (x 0.16, tube radius 0.058 u), so that the whole tube is in the free arm. Above headFrom, each vertex follows the head only: the chin starts at y 0.67. The ears join the head from y 0.87, below the skull top (0.9476), so the height rule of earBase would also take the top of the head, and earBase lies above the head: the ears follow the head, as for the panda, the hippo, and the mouse. The small curled tail is a ball on one bone (tailBall): the vertices within radius of the center and behind the plane z = behind follow the tail. clavicleFrom, armTop, and shoulderHead are the rules of the hippo, moved with the shoulder joint (y 0.56) and the wide neck of the pig (x 0.14)."
+    "note": "Beyond the plane |x| = armSplit, only the free arm (armFree) follows the arm bones. The plane lies inside the tube at the shoulder joint, so that the whole tube is in the free arm. Above headFrom (the chin), each vertex follows the head only. earBase lies above the head, so the ears follow the head."
   },
   "refine": {
     "rings": [],
@@ -349,9 +349,9 @@
       "normals": 60,
       "move": 0.0016,
       "rounds": 4,
-      "note": "The values of the fox, the rabbit, the cat, the dog, the panda, the hippo, and the mouse."
+      "note": "The values of the fox."
     },
-    "ringsNote": "The first config has no rings. pnpm rig-mesh pig --check lists the thin faces near the joints as candidates for a ring (check.thin). The fold probe of the role chooses the rings."
+    "ringsNote": "The config has no rings. pnpm rig-mesh pig --check lists the thin faces near the joints as candidates for a ring (check.thin)."
   },
   "check": {
     "thin": {
@@ -359,14 +359,14 @@
       "length": 0.08,
       "near": 0.1
     },
-    "note": "The values of the fox, the cat, the dog, the panda, the hippo, and the mouse."
+    "note": "The values of the fox."
   },
   "colors": {
     "border": {
       "box": [[-0.3, 0.4, -0.3], [0.3, 0.67, 0.3]],
       "share": 1.01,
       "dark": 0.5,
-      "note": "In the box of the trunk, from y 0.4 to the chin (0.67), each dark fur face takes the color of the nearest light fur face. Four faces under the right arm (faces 1709 and 1716 to 1718 of the module) took dark texture samples and showed as a black sliver under the raised right arm (user, 2026-10-26: \"black area under the pig's armpit\", docs/decisions/2026-10-26-third-review.md). The share 1.01 takes each dark face of the box: the dark hooves of the hands lie on the free arms, below the box."
+      "note": "In the box of the trunk, from y 0.4 to the chin, each dark fur face takes the color of the nearest light fur face, so that no black sliver shows under the raised right arm. The dark hooves lie on the free arms, below the box."
     },
     "samples": 6,
     "palette": 48,
@@ -417,23 +417,23 @@
           -0.0131
         ]
       ],
-      "note": "The user chose the reference white of the panda: each plain face takes the hue and the chroma of the species color of its band and keeps its lightness. A row is [L, dL, da, db] in Oklab. The pink skin of the mesh (L 0.797, hue 36 degrees, chroma 0.104) moves to the hue and the chroma of the fur of SPECIES_COLORS.pig (#d99a8e, hue 31 degrees, chroma 0.078), and the pale belly (L 0.892, hue 48 degrees, chroma 0.061) to the belly color #e6b2a8 (hue 31 degrees, chroma 0.063). The dark hooves (L 0.29) take no move, and the snout disc has a chroma above 0.115 (median 0.125), so it keeps its color (colors.txt)."
+      "note": "Each plain face takes the hue and the chroma of the species color of its band (SPECIES_COLORS.pig) and keeps its lightness, as for the panda. A row is [L, dL, da, db] in Oklab. The dark hooves and the snout disc keep their colors."
     },
-    "note": "The values of samples, palette, dark, and eyeShare are the values of the other meshes. A dark face in the eye box is a face of an eye: 13 faces on the right and 14 on the left, at x 0.064 to 0.090, y 0.826 to 0.858, and z 0.124 to 0.147 (colors.txt). The config has no nose box: the snout disc has no dark faces, and the front-most vertex of the head near the middle plane is the middle of the snout disc, at x -0.001 (measures.txt)."
+    "note": "A dark face in the eye box is an eye. The config has no nose box: the snout disc has no dark faces, and the front-most vertex of the head near the middle plane is the middle of the snout disc."
   },
   "eyeShell": {
     "lift": 0.002,
     "points": 12,
     "reach": 1,
     "darkReach": 2,
-    "note": "The values of the fox, the cat, the dog, the hippo, and the mouse."
+    "note": "The values of the fox."
   },
   "chair": {
     "halfWidth": 0.23,
     "front": -0.07,
     "back": -0.19,
     "backHeight": 0.15,
-    "note": "The seat is level, and its top is the lowest point of the seated body over the seat, with no shin, foot, or tail. The half width holds the haunch of the pig (x 0.22). The short thighs lie under the round belly, so the front edge lies behind them. The back edge holds the back of the haunch."
+    "note": "The seat is level, and its top is the lowest point of the seated body over the seat, with no shin, foot, or tail. The half width holds the haunch. The front edge lies behind the short thighs, and the back edge holds the back of the haunch."
   },
   "crease": {
     "rings": 2,
@@ -441,7 +441,7 @@
     "share": 0.5,
     "back": 0.1,
     "below": 0.03,
-    "note": "The values of the cat, the dog, the panda, the hippo, and the mouse."
+    "note": "The values of the cat."
   },
   "sit": {
     "gap": 0,
@@ -451,7 +451,7 @@
     "smooth": 8,
     "end": 0.0065,
     "most": 0.03,
-    "note": "The values of the panda, the hippo, and the mouse."
+    "note": "The values of the panda."
   },
   "raise": [
     {
@@ -482,7 +482,7 @@
       ],
       "below": 0.3,
       "grow": 1,
-      "note": "The shape of the right arm on the horn, with the mean turns of the play samples of the hold (pnpm raise-fit hornist --faces 81,213,216,438 --side R): the upper arm 50 degrees from the bind. Four long thin faces of the right armpit folded in each play sample. In the pose of the rule, they turn over and relax. The user said on 2026-10-20: \"pig and rabbit's armpit are deformed\". The faces of the back of the right armpit (437, 438, 479, and 222) turned 55 to 78 degrees in each play sample, short of a fold, and showed as a dark band. Each face below the cosine 0.3 now relaxes, with one ring of trunk corners (grow): the faces past 45 degrees fall from 11.2 to 6.4 in a play sample. The cosines 0.4 and 0.5 folded 35% and 100% of the play samples (docs/research/2026-10-20-armpits.md)."
+      "note": "The shape of the right arm on the horn, with the mean turns of the play samples of the hold (pnpm raise-fit hornist --faces 81,213,216,438 --side R). Each face of the right armpit below the cosine 0.3 relaxes, with one ring of trunk corners (grow)."
     },
     {
       "side": "L",
@@ -511,7 +511,7 @@
         20
       ],
       "below": 0,
-      "note": "The shape of the left arm on the valves, with the mean turns of the play samples (pnpm raise-fit hornist --faces 1169,1888,1936 --side L): the upper arm 97 degrees from the bind, with the left shoulder turned forward. Three faces of the front of the left shoulder and the armpit folded in each play sample."
+      "note": "The shape of the left arm on the valves, with the mean turns of the play samples (pnpm raise-fit hornist --faces 1169,1888,1936 --side L)."
     },
     {
       "side": "L",
@@ -529,7 +529,7 @@
         25
       ],
       "below": 0.3,
-      "note": "The shape of the bent left wrist on the valves (pnpm raise-fit hornist --faces 1896,2638 --side L --bone hand): the paw turns 156 degrees from the bind in the mean of the play samples, and the rule turns 10 degrees further. Two faces of the left hoof folded in each play sample."
+      "note": "The shape of the bent left wrist on the valves (pnpm raise-fit hornist --faces 1896,2638 --side L --bone hand). The rule turns 10 degrees past the mean of the play samples."
     },
     {
       "side": "R",
@@ -558,7 +558,7 @@
         20
       ],
       "below": 0,
-      "note": "The shape of the right arm in the rest pose of the horn, with the mean turns of the rest samples (pnpm raise-fit hornist --faces 81,213,216,438,437 --side R --sets rest): the upper arm 92 degrees from the bind. The faces of the right armpit folded in each rest sample. Four rules is the limit of a body (RAISE_LIMIT), so the right paw of the rest has no shape: faces 10 and 13 of the right hoof fold in each rest sample and in a quarter of the lift samples."
+      "note": "The shape of the right arm in the rest pose of the horn, with the mean turns of the rest samples (pnpm raise-fit hornist --faces 81,213,216,438,437 --side R --sets rest). Four rules is the limit of a body (RAISE_LIMIT), so the right paw of the rest has no shape."
     }
   ]
 }

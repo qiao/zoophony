@@ -1,6 +1,6 @@
 {
   "source": "assets/models/rabbit/rabbit-arms.glb",
-  "sourceNote": "The A-pose mesh of the user of 2026-10-23 (assets/models/rabbit/README.md), with new quad faces on each arm from the shoulder line to the wrist. The user said on 2026-10-24: \"note that there's significant twisting happening for the arms and wrists. add loop edges and retopology and additional bones if needed to address them\". tools/blender/violin_arms.py replays the Blender session that made it. The faces of the paws, the trunk, the legs, and the head are the faces of the user. The file of the user, rabbit-apose.glb, stays unchanged.",
+  "sourceNote": "The A-pose rabbit mesh (assets/models/rabbit/README.md), with new quad faces on each arm from the shoulder line to the wrist, so that the arms and the wrists do not twist. tools/blender/violin_arms.py makes these faces. The other faces and rabbit-apose.glb stay unchanged.",
   "paintedWeights": "assets/models/rabbit/rabbit-weights.json",
   "paintedLower": [
     "root",
@@ -22,18 +22,18 @@
     "toes_R",
     "tail"
   ],
-  "paintedNote": "The weights of the clavicles and the arms are the automatic weights of Blender with the Weight Paint fixes of tools/blender/violin_arms.py. The vertices on the bones of paintedLower (the hips, the trunk up to the chest, the neck, the head, the ears, the legs, and the tail) keep the rule weights: the seated bind of the app depends on them, as on the polar bear (branch polar-bear-arms), and with Blender weights on the head, the chin of the seated rabbit went 7.6 cm lower on the neck.",
+  "paintedNote": "The weights of the clavicles and the arms are the automatic weights of Blender with the Weight Paint fixes of tools/blender/violin_arms.py. The vertices on the bones of paintedLower keep the rule weights, as on the polar bear, because the seated bind of the app depends on them.",
   "armSegments": {
     "helper": 0.017,
-    "note": "Each upper arm and each forearm has 4 deform segments, and each elbow and wrist a helper bone of this length in units, which spans the three rings of its joint in the bind. The app turns them from the joints of the pose (poseArm() of src/models/studio-rig.ts). They replace upperTwist and the ring at each elbow."
+    "note": "Each upper arm and each forearm has 4 deform segments, and each elbow and wrist a helper bone of this length in units, which spans the three rings of its joint in the bind. The app turns them from the joints of the pose (poseArm() of src/models/studio-rig.ts)."
   },
   "rootNormals": {
     "radius": 0.12,
-    "note": "The skin faces whose middle lies within radius (units, 17.8 cm) of the head of an upper arm take the normals of the skin with no crease angle in the app (root_rim() of tools/blender/rig_mesh.py), as on the fox and the cat. The seated bind turns each hanging arm up, so the faces of the arm root meet at up to 121 degrees, and the crease angle split their normals. At rest, the arm-down shape gives the arm root the form of the copy again, but the split stays: a hard line ran down the seam between the front of each upper arm and the trunk, with a sharp corner at its top, and a short dark slit lay beside the left arm root. The user saw it under the front key (user, 2026-10-28: \"seeing visible crease on fox and rabbit's arm\"). With 0.08, a hard edge of 18 cm stayed at the left root, and with 0.1, an edge of 3 cm at the right root in the play (docs/research/2026-10-28-fox-rabbit-crease.md).",
+    "note": "The skin faces whose middle lies within radius (units) of the head of an upper arm take the normals of the skin with no crease angle in the app (root_rim() of tools/blender/rig_mesh.py), as on the fox and the cat. Thus the seam between the upper arm and the trunk shows no hard line.",
     "armShare": 0.3,
-    "armShareNote": "A face of the radius stays in the rim only when the mean weight of its corners on the clavicle and the arm bones of its side is 0.3 or more (root_rim()), as on the hippo. The radius 0.12 reaches the upper chest and the back, and with no share, the trunk faces there lost their facets and the back of the right shoulder shaded as a soft dark patch from the stage camera. With 0.3, the trunk keeps its facets, and no edge of the arm roots jumps more than 12 degrees. The turn rule of the hippo (turn 60) kept hard edges of 15 cm to 50 cm at the arm roots.",
+    "armShareNote": "A face of the radius stays in the rim only when the mean weight of its corners on the clavicle and the arm bones of its side is 0.3 or more (root_rim()), as on the hippo. Thus the faces of the upper chest and the back keep their facets.",
     "elbow": 0.06,
-    "elbowNote": "The faces within 0.06 units (8.9 cm) of each elbow joint take the skin normals too, as on the fox: the bind bends each elbow, and the crease angle split the normals of the inner elbows into hard lines of 46 cm (left) and 61 cm (right) at rest. With 0.05, edges of 10 cm to 13 cm at the right inner elbow stayed hard."
+    "elbowNote": "The faces within 0.06 units of each elbow joint take the skin normals too, as on the fox. The bind bends each elbow, and the crease angle splits the normals of the inner elbows into hard lines."
   },
   "output": "assets/models/rabbit/rabbit-apose.rig.glb",
   "name": "Rabbit",
@@ -41,12 +41,12 @@
   "app": {
     "shoulders": 0.8513179,
     "reach": 0.3647,
-    "note": "The app puts the standing shoulder joints 0.8513179 m above the floor (ANIMALS of tools/studio-body.ts), the size of the rabbit that the user chose on 2026-10-14 (docs/research/2026-10-14-animal-size.md). The shoulder joints of the mesh are at 0.574 u after the leg factor, so the scale is 1.4831 m for each unit. The user asked on 2026-10-23 to stretch the arms of the new mesh a little, and on 2026-10-24 for shorter arms with the same violin, which bend less to play. The reach is 0.3647 m (0.320 m with no stretch), and the violin is 0.83 of the violin of the app. The violin points further to the left, so that the left paw reaches the fingerboard from 0.06 of its length (docs/research/2026-10-24-rabbit-hold.md)."
+    "note": "The app puts the standing shoulder joints 0.8513179 m above the floor (ANIMALS of tools/studio-body.ts). The shoulder joints of the mesh are at 0.574 u after the leg factor, so the scale is 1.4831 m for each unit. The reach is 0.3647 m, and the violin is 0.83 of the violin of the app."
   },
   "armFactor": 1,
-  "armFactorNote": "The factor of the upper arm and the forearm in the rig: 1, because the rig with arm segments does not stretch the arms (armSegments of tools/blender/rig_mesh.py). The arms of rabbit-arms.glb are already 1.15 times longer than the arms of the user mesh (step_shape() of tools/blender/violin_arms.py), and the arm joints below are the joints of the longer arms, so the reach stays app.reach. The user asked for a little stretch on 2026-10-23 (1.3), and then said: \"the rabbit arm is too long\", and \"keep the violin same, but reduce the length of the arm. the arm can bend less to play the violin\" (2026-10-24). The factor is 1.15.",
+  "armFactorNote": "The factor 1 keeps the arm length, because the rig with arm segments does not stretch the arms. The arms of rabbit-arms.glb are 1.15 times longer than the source arms (step_shape() of tools/blender/violin_arms.py), and the arm joints are the joints of the longer arms, so the reach stays app.reach.",
   "legFactor": 1.75,
-  "legFactorNote": "The factor of the thigh and the shin. Each one stretches only between its joints, the foot keeps its size, and the body rises 0.105 units, so that the soles stay at y 0. The user asked for longer legs and a higher seat on 2026-10-14, and then said that the legs of the factor 2.5 were too long. The legs gave a seat of 0.215 m, 0.67 H (0.123 m before). Since 2026-10-16, the chair of the app fits the legs (no seat of ANIMALS), so the soles stand on the floor. Since 2026-10-17, the thighs 25 degrees down and the vertical shins give a seat of 0.227 m (0.179 m with the thighs 15 degrees down and the slanted shins of 2026-10-16, docs/research/2026-10-17-fox-form.md). The factor 2.75 gave the seat of the reference rabbit (1.03 H against 1.07 H), with standing animals that were too tall (docs/research/2026-10-14-fox-rabbit-form.md).",
+  "legFactorNote": "The factor of the thigh and the shin. Each one stretches only between its joints, the foot keeps its size, and the body rises 0.105 units, so that the soles stay at y 0. The chair of the app fits the legs, so the soles stand on the floor.",
   "joints": {
     "root": {
       "head": [
@@ -255,7 +255,7 @@
     -0.764,
     -0.23
   ],
-  "jointsNote": "The places are in the units and the axes of the studio in the pose of the source: 1 unit from the soles to the ear tips, the soles at y = 0, +z forward, +x the left side. The right side mirrors the left side. The probes are in docs/research/2026-10-23-rabbit-apose/. sections.py gives the cuts at each height: the crotch at y 0.16, the narrow neck at 0.57, and the ear bases above 0.76. The trunk joints lie 0.01 to 0.03 behind the middle of the body cut. The leg joints lie on the middle of the leg cuts, the ankle at the narrow cut above the soles, and the toes at the ball of the foot. arm_axis.py gives the middle line of the free arm, out, down, and a little forward from the shoulder at (0.091, 0.484) to the paw tip at (0.268, 0.326). The shoulder joint lies on that line at the root of the arm, the elbow halfway to the wrist, the wrist where the paw starts, and the finger joint at the claws. The tail joint lies at the front of the tail ball. Each roll is the hint of the z axis of the bone, forward by default. The arm bones take the normal of the palm (palm). The palm is the true palm of the source, in, down, and a little back, as the palm of the fox. The holds turn this palm toward the violin neck and the bow: with a palm hint turned 200 degrees, the paw twist numbers fell, but the left palm faced up, away from the neck (user, 2026-10-24: \"the rabbit's left hand is reversed\", docs/decisions/2026-10-24-rabbit-hold.md).",
+  "jointsNote": "The places are in the studio units and axes of the source pose: 1 unit from the soles to the ear tips, the soles at y = 0, +z forward, +x the left side. The right side mirrors the left side. The palm is the true palm of the source, in, down, and a little back, as the palm of the fox.",
   "studio": {
     "legTurns": {
       "thigh": [
@@ -294,7 +294,7 @@
         "head": 0
       }
     },
-    "trunkNote": "The trunk of the seated bind sits upright (trunk_turn() of tools/blender/rig_mesh.py): the pelvis turns back around the head of the hips until the hip angle from the side opens by open degrees, and each trunk bone takes its share of that turn as its world turn. With open 4, the trunk axis from the hip joints to the neck joint is vertical within 1 degree in the play pose (4.4 degrees forward before), as seated string players sit tall and do not lean on the chair back (docs/decisions/2026-10-16-hip-open.md). The user first chose a recline toward the chair back, and then asked for a straight back on 2026-10-16. The shares fall from the spine1 to the head in equal steps, so that the four joints from the spine to the head share the counter turn, and the head stays level. Of the shares that pnpm rig-mesh fox --check --roles fox-violinist,flutist --step 1 tried at open 20, these folded the red fox in 9.1% and the tan fox in 0.7% of the play samples (1.5% and 0.6% on main). The chest 0.667, the neck 0.333, and the head 0 folded the red fox in 14.8%. Each share set with a head share above 0 folded the tan fox in 92% to 100%: face 1034 at the back of the neck turns over when the flute hold turns the head. The haunch and the root of the tail rise onto the seat top of the upright body (seat_lift()). The value 0 keeps the trunk of the source.",
+    "trunkNote": "The trunk of the seated bind sits upright (trunk_turn() of tools/blender/rig_mesh.py): the pelvis turns back until the hip angle opens by open degrees, as seated string players sit tall. The shares fall from the spine1 to the head in equal steps, so that the head stays level. The value 0 keeps the trunk of the source.",
     "bindArms": {
       "upper_arm": [
         0.813873,
@@ -315,8 +315,8 @@
     "bindSupination": {
       "L": 100
     },
-    "bindSupinationNote": "The bind paw of the left arm turns 100 degrees about its bind forearm toward supination (paw_supination() of tools/blender/rig_mesh.py), and the forearm segments share the turn in the bind. The forearm of the app turns with its elbow hinge, so the bind paw sets the zero of the paw twist. With the bind arms alone, the left paw of the violin twisted -91 degrees at rest and 141 to 169 degrees in the play, and it supinated through 180 degrees in each lift and lowering, where the forearm skin unwound. With 100 degrees, it twists 9 degrees at rest and -119 to -91 degrees in the play, and each sample of the moves stays within 119 degrees. With 80 degrees, the forearm twist p95 of pnpm arm-check was 67 (58 with 100), and with 60 and 120 degrees, the faces of the left wrist folded in the play as with no turn (docs/decisions/2026-10-27-left-paw-bind.md). The right paw holds the bow and keeps the bind arms.",
-    "note": "The seat of a long thigh, made with tools/rig/leg_turns.py <config> 25 8 0: legTurns gives the world turn of each left leg bone from the seated bind pose to the source, and the right side mirrors it. The thigh slopes 25 degrees down from the hip to the knee, 8 degrees out, so that the hips are above the knees, and the shin is vertical, with the ankle under the knee (the shin of the source slants 20 degrees back), so that the knee angle from the side is 115 degrees, as the legs of the red fox (tools/mesh-rigs/fox.json, docs/decisions/2026-10-17-fox-form.md). The thigh of 2026-10-16 sloped 15 degrees down, the shin slanted 23.8 degrees forward, and the feet stood 7.7 cm in front of the knees (docs/decisions/2026-10-16-hip-open.md). The foot and the toes keep the turn of the source, so that the soles stand flat on the floor. The seat of the studio rabbit (a thigh turn of 57 degrees) left the longer thighs slanted down, with the knees low in front of the chair. The bind arms are the bind arms of the studio rabbit (lowpoly-studio/animals/rabbit/out/rabbit.glb), from tools/rig/studio-targets.ts: the unit direction of each left arm bone in the bind pose."
+    "bindSupinationNote": "The bind paw of the left arm turns 100 degrees about its bind forearm toward supination (paw_supination() of tools/blender/rig_mesh.py), and the forearm segments share the turn. The bind paw sets the zero of the paw twist, so the violin paw does not twist through 180 degrees. The right paw keeps the bind arms.",
+    "note": "The thigh slopes 25 degrees down and 8 degrees out, so that the hips are above the knees, and the shin is vertical, as the legs of the red fox (tools/rig/leg_turns.py <config> 25 8 0, tools/mesh-rigs/fox.json). The bind arms are the bind arms of the studio rabbit, from tools/rig/studio-targets.ts."
   },
   "weights": {
     "armSplit": 0.095,
@@ -337,27 +337,27 @@
     "sliver": {
       "angle": 10,
       "longest": 0.03,
-      "note": "The corners of each thin face share one set of weights, so that the face moves rigidly and does not turn over at a bent joint. A thin face has a corner angle below angle (degrees) and a longest edge below longest (units). A longer thin face spans a joint, and one set of weights there pulls the side of the trunk out with the arm."
+      "note": "The corners of each thin face share one set of weights, so that the face moves rigidly and does not turn over at a bent joint. A thin face has a corner angle below angle (degrees) and a longest edge below longest (units)."
     },
     "line": {
       "angle": 170,
-      "note": "The middle corner of each long thin face (a corner angle above angle, in degrees) takes the mix of the weights of its two other corners by its place along their line, so that it does not lag behind the line when a joint bends. Lower angles turned over more faces of the arms (pnpm fold-probe violinist)."
+      "note": "The middle corner of each long thin face (a corner angle above angle, in degrees) takes the mix of the weights of its two other corners by its place along their line, so that it does not lag behind the line when a joint bends."
     },
     "shoulderHead": [
       0.04,
       0.07
     ],
-    "shoulderHeadNote": "Below headFrom, the share of the head weight that goes to the neck grows from 0 at the smaller distance from the middle plane to all at the larger distance (units). Bone heat gave the top of each shoulder up to 0.18 of the head weight, and the turns of the head pulled it.",
+    "shoulderHeadNote": "Below headFrom, the share of the head weight that goes to the neck grows from 0 at the smaller distance from the middle plane to all at the larger distance (units). Thus the turns of the head do not pull the top of each shoulder.",
     "fingers": 0.5,
-    "fingersNote": "The fingers keep this share of their bone heat weight, and the hand takes the rest. With the full share, the curl of the fingers in the app turned over one face between the hand and the fingers of each paw in each play sample (pnpm fold-probe violinist).",
+    "fingersNote": "The fingers keep this share of their bone heat weight, and the hand takes the rest, so that the curl of the fingers does not turn over a face between the hand and the fingers.",
     "haunch": {
       "height": [
         0.12,
         0.19
       ],
-      "note": "The part of the thigh weight that goes to the hips grows from 0 at the lower height to 1 at the upper height, so that the haunch stays on the seat and the thigh turns onto it. This is the ramp of the fox (0.16 to 0.27), scaled by the thigh of the rabbit (the knee at 0.1, the hip at 0.165): it starts 0.02 units above the knee and ends 0.025 units above the thigh joint. With the ramp from the knee (0.1 to 0.15), the hips held almost the whole thigh: in the seated bind, the shin moved 9 cm forward with the knee, the thigh stayed upright on the hips, and the faces between them sheared into a sharp V at the front of each knee (user, 2026-10-26: \"the rabbit's knee is cut\"). The seat is 0.9 cm higher."
+      "note": "The part of the thigh weight that goes to the hips grows from 0 at the lower height to 1 at the upper height, so that the haunch stays on the seat and the thigh turns onto it. This is the ramp of the fox, scaled by the thigh of the rabbit."
     },
-    "note": "Beyond the plane |x| = armSplit, only the free arm follows the arm bones: the cuts of sections.py x show the arm apart from the body from x 0.095 out. Inside that plane, the shoulder follows the upper arm and no lower bone of the arm. Above headFrom, each vertex except the ears follows the head only: the eyes, the nose, and the whiskers. Each ear vertex goes to its ear bone with a ramp over the heights of earBase. The tail ball follows the tail only: the vertices near its middle and behind the plane z = behind, where the cuts of sections.py z show the ball apart from the body (z -0.145)."
+    "note": "Beyond the plane |x| = armSplit, only the free arm follows the arm bones. Above headFrom, each vertex except the ears follows the head only. Each ear vertex goes to its ear bone with a ramp over the heights of earBase. The tail ball follows the tail only."
   },
   "refine": {
     "rings": [],
@@ -366,9 +366,9 @@
       "normals": 60,
       "move": 0.0016,
       "rounds": 4,
-      "note": "The long edge of a face of the arms with a corner angle above angle (degrees) in the seated bind mesh flips to the corner of the face on its other side. The two faces must lie almost on one plane in the source and in the bind mesh (normals within normals, in degrees), and the flip must move the surface by at most move (units) in both. The flips run in rounds until no edge flips. The angle 180 turns the flips off. The move of 0.0016 units is 2 mm in the app."
+      "note": "The long edge of a face of the arms with a corner angle above angle (degrees) flips to the corner of the face on its other side, when the two faces lie almost on one plane and the flip moves the surface by at most move (units). The angle 180 turns the flips off."
     },
-    "ringsNote": "No ring: the quad tube of each arm of rabbit-arms.glb has 3 rings at each elbow and at each wrist. The ring at each elbow that the user allowed on 2026-10-24 (\"Yes, rings at the elbows\") cut the long thin faces of the source, which the tube replaces."
+    "ringsNote": "No ring: the quad tube of each arm of rabbit-arms.glb has 3 rings at each elbow and at each wrist."
   },
   "check": {
     "thin": {
@@ -376,7 +376,7 @@
       "length": 0.08,
       "near": 0.1
     },
-    "note": "pnpm rig-mesh --check lists the faces of the seated bind mesh with a corner angle below angle (degrees) and a longest edge of at least length (units), when that edge passes within near (units) of a joint of the arms or the legs. These faces are candidates for a ring (refine.rings). The values are the sliver angle and the minEdge and the radius of the ring at the left elbow."
+    "note": "pnpm rig-mesh --check lists the thin faces of the seated bind mesh near a joint of the arms or the legs as candidates for a ring (refine.rings)."
   },
   "colors": {
     "samples": 6,
@@ -412,21 +412,21 @@
       0.55,
       0.55
     ],
-    "note": "Each face takes the mean sRGB color of the texture at the samples of a grid of the given steps on the face. A face is dark when its share of samples with a linear luminance below dark is at least eyeShare, and then it takes the mean of its dark samples. Each other face takes the mean of its samples that are not dark, so that the black gaps between the islands of the texture do not darken it. A dark face in the eye box (the left eye, mirrored for the right eye) is a face of an eye. A face in the nose box whose color is nearer to the nose color than to white is a face of the nose. Then each face takes the nearest color of a palette of palette colors, from k-means in Oklab, so that the packed mesh of the app holds few colors."
+    "note": "Each face takes the mean sRGB color of the texture at a grid of samples. A face is dark when at least eyeShare of its samples are below dark. A dark face in the eye box is an eye, and a face in the nose box near the nose color is the nose. A palette of palette colors (k-means in Oklab) keeps the colors few."
   },
   "eyeShell": {
     "lift": 0.002,
     "points": 12,
     "reach": 1,
     "darkReach": 2,
-    "note": "Each eye shell is a fan from the middle of the dark faces of the eye to at most this number of points of their edge, lifted this far (units) along the normal of the eye, so that the shells keep the triangles within the budget of a studio body. pnpm studio-body finds each eye by its fan, drops the fan, and the app puts its pea eye there (design 4.5). The old eye is the dark faces and each face whose middle lies within reach times the radius of their edge, seen along the normal of the eye. After the palette, the faces of the old eye take the color with the largest area in the ring of faces that share a corner with it, so that no outline of the old eye shows around the pea eye. Then each patch of dark faces (the faces that share corners) that no old eye holds, with its middle within darkReach times the radius of the edge and within half the radius of its plane, takes the color with the largest area in the ring of faces that share a corner with the patch. The values of reach and darkReach are the values of the fox."
+    "note": "Each eye shell is a fan from the middle of the dark faces of the eye to at most points points of their edge, lifted along the normal of the eye. pnpm studio-body drops the fan, and the app puts its pea eye there (design 4.5). The faces of the old eye take the main color of the ring around it."
   },
   "chair": {
     "halfWidth": 0.16,
     "front": -0.02,
     "back": -0.1396,
     "backHeight": 0.15,
-    "note": "The seat is level, and its top is the lowest point of the seated body over the seat. Its front edge ends where the thighs, which slope down, leave the seat top at the haunch: with the front edge 0.01 units further forward, the seat top fell 1.9 cm under the thighs (front-scan-rabbit.txt of docs/research/2026-10-17-fox-form/). The chair of the app grows back until its back posts keep 1 cm behind the trunk, and by the room of 4 cm behind the back (backRoom of ANIMALS of tools/studio-body.ts, docs/decisions/2026-10-17-rabbit-pose.md), so the seat of the app is 0.285 m deep. The back edge lies 0.0204 units (3 cm) forward of the back edge of 2026-10-16 (-0.16 units), so that the body keeps its place on the chair (the user said \"let the fox and rabbit sit in more\" on 2026-10-16), and the seat of the app ends at the front edge of this chair (no seatBack in ANIMALS)."
+    "note": "The seat is level, and its top is the lowest point of the seated body over the seat. Its front edge ends where the sloped thighs leave the seat top at the haunch. The chair of the app grows back until its back posts keep 1 cm behind the trunk (backRoom of ANIMALS of tools/studio-body.ts)."
   },
   "crease": {
     "rings": 2,
@@ -434,7 +434,7 @@
     "share": 0.5,
     "back": 0.1,
     "below": 0.03,
-    "note": "The seated bind is smoothed across the crease where the belly meets the top of each thigh (crease_relax() of tools/blender/rig_mesh.py). The user said \"there's an obvious fold/gap between the trunk and the thigh, can that be made less obvious?\" on 2026-10-16. The cause is the geometry: the upright trunk over the sloped thighs folds the mesh there, the faces of the fold face away from the light, and the render with a flat light and the face colors shows no line (docs/research/2026-10-16-hip-open.md). The seam is each vertex of both a trunk face and a thigh face, up to back units behind the hip joints and above below units under them, and the region adds rings rings of neighbors. Each vertex moves share of the way to the middle of its neighbors in rounds rounds, with a weight that falls from the seam out. Of 3, 8, and 20 rounds, the middle one is the moderate step. The corrective shapes give the source back, so the standing body keeps its form."
+    "note": "The seated bind is smoothed across the crease where the belly meets the top of each thigh (crease_relax() of tools/blender/rig_mesh.py). Each vertex near the seam moves share of the way to the middle of its neighbors in rounds rounds, with a weight that falls from the seam out."
   },
   "sit": {
     "gap": 0.004,
@@ -444,6 +444,6 @@
     "smooth": 6,
     "end": 0.02,
     "most": 0.045,
-    "note": "The underside of the haunch behind the hip joints goes down onto the seat in the seated bind, with the rule of the fox (sit of tools/mesh-rigs/fox.json). The manager found the back of the haunch 2 to 5 cm above the seat on 2026-10-14. The drop is at most 0.045 units, and it fades over the last 0.02 units of the haunch, because the round back of the haunch meets the tail ball there: with no limit, 17 faces between the haunch and the ball turned over (docs/research/2026-10-14-fox-rabbit-fix.md). With the thighs 25 degrees down of 2026-10-17 and the limit 0.03 units of 2026-10-14, the side view of the final bind, with no part of the last 0.02 units, was 1.73 cm above the seat at most (2.12 cm with the thighs of 2026-10-16). With 0.04, 0.045, and 0.05 units, it is 1.24, 1.03, and 0.86 cm, and no face turns over (docs/research/2026-10-17-fox-form.md)."
+    "note": "The underside of the haunch goes down onto the seat in the seated bind, with the rule of the fox (sit of tools/mesh-rigs/fox.json). The drop fades over the last 0.02 units of the haunch, where the haunch meets the tail ball, so that no face between them turns over."
   }
 }

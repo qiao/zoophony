@@ -1,6 +1,6 @@
 {
   "source": "assets/models/wolf/wolf-arms.glb",
-  "sourceNote": "The mesh of the user (assets/models/wolf/wolf.glb, assets/models/wolf/README.md), with new quad faces on each arm from the shoulder line to the wrist. The user allowed loop edges, retopology, and extra bones for the arm and wrist twist on 2026-10-24 (\"add loop edges and retopology and additional bones if needed to address them\"). tools/blender/wind_arms.py replays the Blender session that made it. The faces of the paws, the trunk, the legs, and the head are the faces of the user. The file of the user, wolf.glb, stays unchanged.",
+  "sourceNote": "The mesh assets/models/wolf/wolf.glb (assets/models/wolf/README.md), with new quad faces on each arm from the shoulder line to the wrist. tools/blender/wind_arms.py makes these faces. The other faces and wolf.glb stay unchanged.",
   "paintedWeights": "assets/models/wolf/wolf-weights.json",
   "paintedLower": [
     "root",
@@ -23,15 +23,15 @@
     "tail",
     "tail_tip"
   ],
-  "paintedNote": "The weights of the clavicles and the arms are the automatic weights of Blender with the Weight Paint fixes of tools/blender/wind_arms.py. The vertices on the bones of paintedLower (the trunk up to the chest, the neck, the head, the ears, the legs, and the tail) keep the rule weights, as on the rabbit and the polar bear: the seated bind of the app depends on them.",
+  "paintedNote": "The weights of the clavicles and the arms are the automatic weights of Blender with the Weight Paint fixes of tools/blender/wind_arms.py. The vertices on the bones of paintedLower keep the rule weights, as on the rabbit and the polar bear, because the seated bind of the app depends on them.",
   "armSegments": {
     "helper": 0.032,
-    "note": "Each upper arm and each forearm has 4 deform segments, and each elbow and wrist a helper bone of this length in units, which spans the three rings of its joint in the bind. The app turns them from the joints of the pose (poseArm() of src/models/studio-rig.ts). They replace upperTwist and the raise shapes. The helper of the wolf is 0.032 units, twice the gap of the rings of its elbow (gap of tools/blender/wind_arms.py): with the gap 0.0085 of the rabbit, the thin faces of the inner elbow folded 9 faces of the left arm in the play (limit 8), and with 0.016, 4. The wrist rings keep the gap 0.0085, and the Blender session gives the wrist helper that length: with the gap 0.016 at the wrist, the right paw lost the clarinet."
+    "note": "Each upper arm and each forearm has 4 deform segments, and each elbow and wrist a helper bone. The elbow helper is 0.032 units, twice the gap of the rings of the elbow (gap of tools/blender/wind_arms.py), so that the inner elbow does not fold. The app turns the bones from the joints of the pose (poseArm() of src/models/studio-rig.ts)."
   },
   "armSmooth": {
     "rounds": 6,
     "sides": "LR",
-    "note": "6 rounds of taubin() smooth the arm tubes of wolf-arms.glb after the weights (arm_smooth() of tools/blender/rig_mesh.py), at most 0.0144 units. The rebuilt arms put dense rings onto the big flat faces of the mesh of the user, so the tubes took the ridges between the faces, and the user said on 2026-10-28: \"the wolf's arm has unexpected dents / bends\". The folded samples of the neck fall from 10,661 to 51 and of the right upper arm from 58 to 0. With 12 rounds, the root of the right upper arm folded in 10,573 samples (docs/research/2026-10-28-arm-smooth.md)."
+    "note": "6 rounds of taubin() smooth the arm tubes of wolf-arms.glb after the weights (arm_smooth() of tools/blender/rig_mesh.py), at most 0.0144 units. The dense rings on the big flat faces of the mesh made ridges, and the smoothing removes these dents."
   },
   "output": "assets/models/wolf/wolf.rig.glb",
   "name": "Wolf",
@@ -53,7 +53,7 @@
     "share": 0.5,
     "rounds": 4,
     "most": 0.006,
-    "note": "The user, 2026-10-20: \"still sad\", and chose \"Soften the crease\". The brow ridge of the mesh has a sharp crease over each eye that goes down to the outer side (edges of 40 to 110 degrees at y 0.875 to 0.925, |x| up to 0.07, z 0.05 to 0.13, in the units of the source before the proportions). In the light of the stage and of the gallery, it shades as a dark line, the brow of a sad face, and no color rule removes it. The 75 vertices of these edges move half of the way to the mean of their neighbors in 4 rounds, at most 0.006 u (1.1 cm in the app). 0.003 u left a weaker line, and 0.010 u changed the form of the forehead (docs/research/2026-10-20-wolf-brows.md)."
+    "note": "The brow ridge of the mesh has a sharp crease over each eye that shades as a dark line, the brow of a sad face. The vertices of these edges move half of the way to the mean of their neighbors in 4 rounds, at most 0.006 u."
   },
   "proportions": {
     "width": 1.13064,
@@ -66,16 +66,16 @@
       0.775
     ]
   },
-  "proportionsNote": "The user, 2026-10-20: \"make the wolf 0.9x shorter while keeping its width\", then \"actually, make the wolf 1.2x the width, for it to have similar body ratio as the fox\", then \"both change\". The source takes 1.2 of its width (x) and 0.9 of its height (y) after its scale to 1 unit high, and keeps its depth (z), a choice of the manager. The meters for each unit stay, so the standing body is 0.9 times as high and 1.2 times as wide as in round mesh-wolf. Each place, height, width, and box of this config is in the units of the scaled source. The notes give the measures of round mesh-wolf on the source before the scale: x then takes 1.2, and y 0.9 (tools/rig/wolf_shape_config.py). The cuts of the scaled source check the joints (docs/research/2026-10-20-wolf-shape/arm-axis.txt, paw.txt). The user then said: \"don't modify the head of the wolf\". With keep, the head (the skull, the muzzle, the ears, and the eyes) keeps the form and the size of round mesh-wolf and takes no factor: it moves with the top of the neck. The blend zone is the narrow neck of the source before the factors, from y 0.74, where the neck is narrow above the tops of the shoulders (x \u00b10.082 at 0.74, \u00b10.068 at 0.76), to the head line at 0.775 (weights.headFrom before the factors), where the chin starts (docs/research/2026-10-20-wolf-mesh/measures.txt). A zone from the neck joint at 0.70 took the top of the right shoulder, and one face there folded in each rest sample (docs/research/2026-10-20-wolf-head/check-0.70.log). The head joints, the ear joints, the eye box, the nose box, and the heights of the head weights take the map of the rule (tools/rig/wolf_head_config.py). The user then said: \"make the wolf's head the same size as the fox. reduce its body if needed.\" The kept head takes the factor head (1.235) on each axis around the top of the blend zone, so that the mean of its skull height and its skull width (0.464 m) is the mean of the red fox (0.465 m). The manager chose to keep the standing skull top at 1.620 m, so the body below the neck takes 0.9422 on each axis: width 1.2 x 0.9422, height 0.9 x 0.9422, and depth 0.9422, and keeps the width and the depth to the height of round wolf-shape. The places of this config take the map of both factors (tools/rig/wolf_size_config.py). The mean factor of the skull, 1.2095, left the mean 9.8 mm below the fox, because the chin lies in the blend zone and grows less than the head (docs/research/2026-10-20-wolf-face/head-probe.txt).",
+  "proportionsNote": "The body below the neck takes 1.2 of the source width and 0.9 of its height, times the body factor 0.9422 on each axis. With keep, the head takes only the factor head (1.235), so that its size is the size of the head of the red fox. The blend zone is the narrow neck. tools/rig/wolf_shape_config.py, wolf_head_config.py, and wolf_size_config.py map the places.",
   "app": {
     "shoulders": 0.973079,
     "reach": 0.4787,
-    "note": "The size of the reference images, then the proportions above. In round mesh-wolf, the seated wolf sat 1.10 times as high as the seated dog cellist of the app, the middle of the range 1.03 to 1.16 of orchestra-latest.png and orchestra-side.png (docs/research/2026-10-20-wolf-mesh/landmark-probe.txt): the seated skull top at 1.600 m, and the standing skull top (the highest vertex within 0.03 u of the middle plane, 0.9459 u) at 1.765 m. The proportions keep the meters for each unit, 1.8659 m. Round wolf-shape put the standing shoulder joints at 0.5535 u (1.032773 m), and the body factor 0.9422 of round wolf-face puts them at 0.521508 u (0.973079 m). The larger head keeps the standing skull top at 0.8684 u (1.620 m, docs/research/2026-10-20-wolf-face/head-probe.txt). The reach is the reach of round mesh-wolf (0.5081 m) times the body factor, because the arms keep the arm factor: 0.4787 m. With no --check, pnpm rig-mesh stops until the arm factor gives this reach."
+    "note": "1.8659 m for each unit. The standing shoulder joints are at 0.521508 u (0.973079 m), and the standing skull top at 0.8684 u (1.620 m). The reach is 0.4787 m, because the arms take the body factor."
   },
   "armFactor": 1,
-  "armFactorNote": "The factor of the upper arm and the forearm in the rig: 1, because the rig with arm segments does not stretch the arms (armSegments of tools/blender/rig_mesh.py). The arms of wolf-arms.glb are already 1.178 times longer than the arms of the user mesh (step_shape() of tools/blender/violin_arms.py, called by wind_arms.py), and the arm joints below are the joints of the longer arms, so the reach stays app.reach. The reasons for the factor 1.178 before: the parametric wolf of 3268680f plays the clarinet with a reach of 0.516 m, and round mesh-wolf took 0.508 m, the smallest stretch for that reach. On the scaled source, the arm with no factor reaches 0.439 m, and the factor 1.178 gives 0.508 m, below the limit 1.25 of a mesh of the user (pnpm rig-mesh wolf --check, docs/research/2026-10-20-wolf-shape/check-first.log). The body factor 0.9422 of round wolf-face scales the arms with the body, and the arm factor stays, so the reach is 0.4787 m (app.reach).",
+  "armFactorNote": "The factor 1 keeps the arm length, because the rig with arm segments does not stretch the arms. The arms of wolf-arms.glb are 1.178 times longer than the source arms (step_shape() of tools/blender/violin_arms.py), and the arm joints are the joints of the longer arms, so the reach stays app.reach.",
   "legFactor": 1,
-  "legFactorNote": "The legs keep the length of the mesh (user rule: do not stretch the legs, change the chair).",
+  "legFactorNote": "The legs keep the length of the mesh. Do not stretch the legs: change the chair.",
   "joints": {
     "root": {
       "head": [
@@ -297,7 +297,7 @@
     -0.662,
     -0.51
   ],
-  "jointsNote": "The places are in the units and the axes of the studio in the pose of the source: 1 unit from the soles to the tips of the ears, the soles at y = 0, +z forward, +x the left side. The right side mirrors the left side. The probes are in docs/research/2026-10-20-wolf-mesh/: sections.py gives the cuts at each height (sections-y.txt, sections-x.txt, sections-z.txt), and measures.py the parts (measures.txt). The wolf stands upright on long legs: the feet below y 0.05 (the toes forward to z 0.091), the thin shins from 0.05 to 0.18, the thighs from 0.18 to the crotch at 0.30, the body from 0.31 to 0.58, the shoulders from 0.59 to 0.70, the narrow neck at 0.74 to 0.77 (x \u00b10.067), the head from the chin at 0.78 with the muzzle to z 0.197, and the ears apart from 0.93. The trunk joints lie 0.01 to 0.02 behind the middle of the body cut. The thigh joint lies at the crotch on the middle of the leg cut, the knee where the thin shin meets the wider thigh (y 0.18), the ankle where the foot starts (y 0.055), and the toes at the ball of the foot. The cuts across the axis of the free arm (arm-axis.txt) give its middle line, (0.49, -0.71, 0.51) down the arm, which leaves the body at x 0.10. The shoulder joint lies on that line, 0.03 inside the root (x 0.085), the wrist at the narrowest cut, where the paw starts (s 0.02), the elbow on the middle line halfway to the wrist, the forearm twist halfway between them, and the finger joint 0.03 before the tip of the paw (paw.txt). The ear joint lies on the line of the middles of the ear cuts at 0.95 and 0.99, at the top of the head (0.92), and its tail at the ear tip. The bushy tail is a chain of two bones (measures.txt): the tail joint lies at its root on the back (y 0.40, z -0.075), the tail_tip joint on the middle line halfway down (y 0.24), and its tail at the lowest point of the cream tip (y 0.081). Each roll is the hint of the z axis of the bone, forward by default. The arm bones take the normal of the palm (palm): the smallest principal direction of the vertices of the left paw beyond the wrist, inward, down, and back (paw.txt). Since 2026-10-25, the joints of the elbow, the wrist, and the paw are the joints of the arms that are 1.178 times longer (wind_arms.py), and the joints of the source arms are in source_joints() of tools/blender/violin_arms.py.",
+  "jointsNote": "The places are in the studio units and axes of the source pose: 1 unit from the soles to the tips of the ears, the soles at y = 0, +z forward, +x the left side. The right side mirrors the left side. The bushy tail is a chain of two bones. The joints of the elbow, the wrist, and the paw are the joints of the longer arms of wind_arms.py.",
   "studio": {
     "legTurns": {
       "thigh": [
@@ -353,12 +353,12 @@
         0.84567
       ]
     },
-    "bindArmsNote": "The bind forearm and the bind hand turn 45 degrees forward about the bind upper arm from the bind arms of the cat and the dog (forearm 0.316246, 0.757051, 0.571719, hand -0.078782, 0.677317, 0.731461), and the hand keeps its wrist bend of 25 degrees in the frame of the palm, as on the rhino (bind-hinge.py of docs/research/2026-10-27-wolf-bind/). The forearm of the app turns with its elbow hinge, so the bind elbow sets the zero of the roll of the upper arm. With the elbow bent up, the upper arms rolled 98 degrees (left) and -118 degrees (right) from the chest at the clarinet rest on the knee, and the arm gate read a left twist of 38 and a right flat share of 0.75 (24 and 0.82 before that rest). The turn moves both rolls 45 degrees toward 0, and the rolls of the play from 34 and -48 degrees to near 0. The turns 30, 45, and 60 degrees gave the left twists 25, 19, and 13 and the right twists 30, 23, and 19 with the rest elbows of main (docs/research/2026-10-27-wolf-bind.md). The turn also supinates each bind paw 43.5 degrees on its forearm, so bindSupination takes that much less.",
+    "bindArmsNote": "The bind forearm and the bind hand turn 45 degrees forward about the bind upper arm from the bind arms of the cat and the dog, and the hand keeps its wrist bend of 25 degrees in the frame of the palm, as on the rhino. The bind elbow sets the zero of the roll of the upper arm, so the rolls of the clarinet stay near 0.",
     "bindSupination": {
       "L": 66,
       "R": 57
     },
-    "bindSupinationNote": "The bind paw of each arm turns about its bind forearm toward supination, the left 66 degrees and the right 57 degrees (paw_supination() of tools/blender/rig_mesh.py), and the forearm segments share the turn in the bind. The forearm of the app turns with its elbow hinge, so the bind paw sets the zero of the paw twist. With the bind elbow of bindArms, which supinates each paw 43.5 degrees, each paw turns 109.5 degrees (left) and 100.5 degrees (right) from the bind with the elbow bent up. With that bind, the left paw twisted -152 degrees at rest on the knee and -68 degrees in the play, so the arm gate read a paw twist of 152 (89 before that rest, limit 170). With the turns and the rest elbows of WOLF_CLARINET, the left paw twists -28 degrees at rest and 41 degrees in the play, and the right paw 32 and -23 degrees. The earlier scan of each turn gave the twists 42 and 23 with 110 and 100 degrees, and -100 degrees on the right flipped the right paw at 17,996 degrees per second in a lowering (docs/research/2026-10-27-wolf-knee/bind-scan-L.txt, bind-scan-R.txt, gate-bind-*.txt).",
+    "bindSupinationNote": "The bind paw of each arm turns about its bind forearm toward supination, the left 66 degrees and the right 57 degrees (paw_supination() of tools/blender/rig_mesh.py), and the forearm segments share the turn. The bind paw sets the zero of the paw twist, so the paw twists stay small in the clarinet hold.",
     "tailBind": {
       "tail": [
         0,
@@ -371,7 +371,7 @@
         -0.2425
       ]
     },
-    "note": "The studio has no wolf. legTurns gives the world turn of each left leg bone from the seated bind pose to the source, and the right side mirrors it. The posture is the seated posture of design 5.2: the thigh slopes 25 degrees down from the hip to the knee, the thighs turn 15 degrees out, and the shin is vertical (tools/rig/leg_turns.py <config> 25 15 0). The shin of the scaled source slants 4.1 degrees forward (docs/research/2026-10-20-wolf-shape/leg-turns.txt). The foot and the toes keep the turn of the source, so that the soles stand flat on the floor. The trunk shares are the values of the cat, the dog, the panda, the hippo, the mouse, and the pig, and the bind arms start from their bind arms (bindArmsNote). tailBind gives the direction of each tail bone in the seated bind pose: the root goes back and down over the back of the seat, 40 degrees below the level, and the tip hangs down behind the seat, 76 degrees below the level. On the scaled source, the root at 45 degrees went 2.0 cm into the seat at rest, and at 40 degrees 0.6 cm (docs/research/2026-10-20-wolf-shape/tail-variants.txt)."
+    "note": "The seated posture of design 5.2: the thigh slopes 25 degrees down and 15 degrees out, and the shin is vertical (tools/rig/leg_turns.py <config> 25 15 0). tailBind turns the tail root 40 degrees below the level over the back of the seat, and the tip hangs down behind the seat, 76 degrees below the level."
   },
   "weights": {
     "armSplit": 0.101758,
@@ -394,12 +394,12 @@
     "sliver": {
       "angle": 10,
       "longest": 0.03,
-      "note": "The values of the fox, the cat, the dog, the panda, the hippo, the mouse, and the pig."
+      "note": "The values of the fox."
     },
     "line": {
       "angle": 150,
       "head": true,
-      "note": "The values of the fox, the cat, the dog, the panda, the hippo, the mouse, and the pig."
+      "note": "The values of the fox."
     },
     "clavicleFrom": [
       0.485045,
@@ -419,7 +419,7 @@
         0.178076,
         0.279833
       ],
-      "note": "The part of the thigh weight that goes to the hips grows from 0 at the lower height to 1 at the upper height, so that the buttocks stay on the hips. This is the rule of the dog, moved with the joints of the wolf: it starts 0.03 units above the knee and ends 0.03 units above the thigh joint."
+      "note": "The part of the thigh weight that goes to the hips grows from 0 at the lower height to 1 at the upper height, so that the buttocks stay on the hips. This is the rule of the dog, moved with the joints of the wolf."
     },
     "rigid": [
       [
@@ -453,8 +453,8 @@
         0.029679
       ]
     ],
-    "rigidNote": "The corners of each thin face at these points take the mean of their weights (rigid_faces() of tools/blender/rig_mesh.py). The points are the middles of faces 261 and 1987 in the units of the source (pnpm fold-probe clarinetist --faces). Face 261, a sliver across the middle of the chest under the neck, had the weights of both clavicles and folded in each sample. Face 1987, at the front of the left shoulder, folded in each rest sample and in 14% of the lift samples. With both rules, no sample folded in round mesh-wolf (check-rigid.log). On the scaled source, face 229, a sliver of the right shoulder, folded in each sample, and faces 69, 148 (one item, because they share corners), and 76 of the right forearm and face 2093 of the top of the left shoulder folded in each rest sample. With the four more points, no sample folds (docs/research/2026-10-20-wolf-shape/check-rigid3.log).",
-    "note": "Beyond the plane |x| = armSplit, only the free arm follows the arm bones: the cuts show the arm apart from the body from x 0.085 out (free-arm.txt). Above headFrom, each vertex except the ears follows the head only: the chin starts at y 0.775. Each ear vertex goes to its ear bone with a ramp over the heights of earBase, from 0.035 units below the place where the ears are apart (0.93). The tail has two bones (tail): the vertices within radius of the line from the root over the bend to the tip, and behind the plane z = behind, follow the tail bones. The radius holds each cut of the tail (x \u00b10.057 at most, z 0.137 deep at y 0.22, measures.txt), and the plane keeps the backs of the thighs (z -0.033 at y 0.29) out of it. clavicleFrom, armTop, and shoulderHead are the rules of the dog, moved with the shoulder joint (y 0.615) and the neck (x \u00b10.067) of the wolf."
+    "rigidNote": "The corners of each thin face at these points take the mean of their weights (rigid_faces() of tools/blender/rig_mesh.py), so that the faces do not fold. The points are the middles of slivers of the chest, the shoulders, and the right forearm, in the units of the source.",
+    "note": "Beyond the plane |x| = armSplit, only the free arm follows the arm bones. Above headFrom (the chin), each vertex except the ears follows the head only. Each ear vertex goes to its ear bone with a ramp over the heights of earBase. The vertices within radius of the line of the tail bones, and behind the plane z = behind, follow the tail bones."
   },
   "refine": {
     "rings": [],
@@ -463,9 +463,9 @@
       "normals": 60,
       "move": 0.0016,
       "rounds": 4,
-      "note": "The values of the fox, the rabbit, the cat, the dog, the panda, the hippo, the mouse, and the pig."
+      "note": "The values of the fox."
     },
-    "ringsNote": "The first config has no rings. pnpm rig-mesh wolf --check lists the thin faces near the joints as candidates for a ring (check.thin). The fold probe of the role chooses the rings."
+    "ringsNote": "The config has no rings. pnpm rig-mesh wolf --check lists the thin faces near the joints as candidates for a ring (check.thin)."
   },
   "check": {
     "thin": {
@@ -473,7 +473,7 @@
       "length": 0.08,
       "near": 0.1
     },
-    "note": "The values of the fox, the cat, the dog, the panda, the hippo, the mouse, and the pig."
+    "note": "The values of the fox."
   },
   "colors": {
     "samples": 6,
@@ -481,7 +481,7 @@
     "dark": 0.02,
     "eyeShare": 0.34,
     "noseShare": 0.5,
-    "noseShareNote": "The user, 2026-10-20: \"the wolf's nose has a large black triangle\". One large face (7.4 cm2, at the left of the muzzle top) covers the edge of the black nose of the texture. With the share eyeShare of dark samples, it took black and the gloss of the nose, and showed as a black wedge in the three-quarter views. In the nose box, a face is dark only from the share noseShare, and else takes the mean of its light samples: 1 face. 0.6 and 0.75 took 3 and 5 faces with no visible gain (docs/research/2026-10-20-wolf-brows.md).",
+    "noseShareNote": "In the nose box, a face is dark only from the share noseShare, and else takes the mean of its light samples. Thus one large face at the edge of the black nose does not show as a black wedge.",
     "eyeBox": [
       [
         0.018525,
@@ -533,7 +533,7 @@
         ]
       ],
       "dark": 0.68,
-      "note": "The user, 2026-10-20: \"the wolf look sad now. make it look happier\", then \"the face is still sad, mainly due to the eye brow?\". Over each eye, a gray band rose from the outer side to the inner top, so the two bands made sad brows with raised inner ends (/ \\). The faces of the bands lie back from the front of the muzzle (z below 0.1) and out to |x| 0.1, and the gray of the eye rims is near Oklab lightness 0.66. Each fur face with Oklab lightness below 0.68 in the box over and beside the eyes, or in its mirror, with a corner below the flat bottom of the wide ellipse (y 0.79 at the middle) takes the color of the nearest light fur face: 71 faces. The gray cap then ends at a level line over the eyes, and the eyes sit in light fur, as in wolf-turnaround.png. The manager chose the variant in the live Blender of the user and in the head views of the app; dark 0.6 kept the bands, and dark 0.72 took 9 more faces with no visible gain (docs/research/2026-10-20-wolf-brows.md)."
+      "note": "Each fur face darker than dark in the box over and beside the eyes, or in its mirror, with a corner below the flat bottom of the ellipse, takes the color of the nearest light fur face. Thus the gray cap ends at a level line over the eyes, with no sad brows, as in wolf-turnaround.png."
     },
     "smile": {
       "bands": [
@@ -561,23 +561,23 @@
         0.0093,
         0.0073
       ],
-      "note": "The user, 2026-10-20: \"the wolf look sad now. make it look happier\". A thin closed smile under the black nose, with the corners 0.016 u (3.0 cm) up at |x| 0.045 u, as the closed mouth of wolf-turnaround.png: the band takes 5 faces of the lower lip under the nose and at the corners. The gray of the patches is too light for a line, so the line takes the dark of the black spots of the paws (color). With the faces that point up (normalY to 1), the band took 10 faces, and a wide dark area showed under the nose. outward 0.6 keeps the faces that turn to the side out of the line, so the side view shows no dark block (the trap of the panda, docs/research/2026-10-20-wolf-face.md)."
+      "note": "A thin closed smile under the black nose, with the corners up, as the closed mouth of wolf-turnaround.png. The line takes the dark of the black spots of the paws (color). outward 0.6 keeps the faces that turn to the side out of the line, so the side view shows no dark block."
     },
-    "note": "A face is dark when at least eyeShare of its samples have a linear luminance below dark. The other meshes take dark 0.05, but the dark gray fur of the wolf lies near that limit: 890 of the 3,119 faces were dark and took the mean of their darkest samples. With 0.02, 117 faces are dark: the black nose, the pupils, and small spots of the paws and the feet (dark-probe.txt). A dark face in the eye box is a face of an eye: 4 faces on the left and 3 on the right, at x 0.025 to 0.038, y 0.851 to 0.862, and z 0.119 to 0.125. A face in the nose box whose color is nearer to the nose color than to white is a face of the black nose, at the tip of the muzzle (y 0.80 to 0.83, z 0.18 to 0.197). The values of samples, palette, and eyeShare are the values of the other meshes. The config has no tone rule: each face keeps the hue and the chroma of the texture, which match the sheet wolf-turnaround.png (the gray fur hue 36 degrees against 35, the cream chest 68 against 67, docs/research/2026-10-20-wolf-mesh/tone-probe.txt and sheet-colors.txt)."
+    "note": "A face is dark when at least eyeShare of its samples have a linear luminance below dark. The limit 0.02 keeps the dark gray fur out of the dark faces. A dark face in the eye box is an eye, and a dark face in the nose box is the nose. The config has no tone rule: the texture colors match wolf-turnaround.png."
   },
   "eyeShell": {
     "lift": 0.002,
     "points": 12,
     "reach": 1,
     "darkReach": 2,
-    "note": "The values of the fox, the cat, the dog, the hippo, the mouse, and the pig."
+    "note": "The values of the fox."
   },
   "chair": {
     "halfWidth": 0.169596,
     "front": 0.056532,
     "back": -0.09422,
     "backHeight": 0.14133,
-    "note": "The seat is level, and its top is the lowest point of the seated body over the seat, with no shin, foot, or tail. The half width holds the haunch of the wolf (x 0.144 on the source of round wolf-shape). The chair takes the body factor 0.9422 of round wolf-face. The values of front and back are the values of the dog."
+    "note": "The seat is level, and its top is the lowest point of the seated body over the seat, with no shin, foot, or tail. The half width holds the haunch. The chair takes the body factor 0.9422. The values of front and back are the values of the dog."
   },
   "crease": {
     "rings": 2,
@@ -585,7 +585,7 @@
     "share": 0.5,
     "back": 0.1,
     "below": 0.03,
-    "note": "The values of the cat, the dog, the panda, the hippo, the mouse, and the pig."
+    "note": "The values of the cat."
   },
   "sit": {
     "gap": 0,
@@ -600,6 +600,6 @@
       0.8,
       0.98
     ],
-    "note": "The values of the panda, the hippo, the mouse, and the pig, with root of the dog: the tail share of a vertex of the root of the tail counts as the haunch only by its smoothstep from 0.8 to 0.98. The user, 2026-10-20: \"the wolf's hip is not touching the chair\". After the smaller body of round wolf-face, the underside of the haunch behind the hip joints stayed up to 12.9 cm above the seat with most 0.03. most 0.09 (16.2 cm) leaves 3.9 cm at the back of the round haunch, with no fold. 0.05 folded 27% of the play, and 0.11 and 0.13 folded the tail in 31% and 64%. The user then said: \"the wolf tails are looking weird\": the root of the tail moved down with the haunch and the rest of the tail did not, so the tail became a flat wedge under the seat. With carryTail, each tail vertex moves down by the mean drop of the root (0.028 u, 5.2 cm), by its share on the tail bones, so the tail keeps its form (docs/research/2026-10-20-wolf-brows.md)."
+    "note": "The values of the panda, with root of the dog. most 0.09 puts the haunch on the seat with no fold. With carryTail, each tail vertex moves down by the mean drop of the root, by its share on the tail bones, so that the tail keeps its form."
   }
 }

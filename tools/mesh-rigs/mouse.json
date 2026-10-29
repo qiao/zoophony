@@ -1,6 +1,6 @@
 {
   "source": "assets/models/mouse/mouse-arms.glb",
-  "sourceNote": "The mesh of the user (assets/models/mouse/mouse.glb, assets/models/mouse/README.md), with new quad faces on each arm from the shoulder line to the wrist. The user allowed loop edges, retopology, and extra bones for the arm and wrist twist on 2026-10-24 (\"add loop edges and retopology and additional bones if needed to address them\"). tools/blender/wind_arms.py replays the Blender session that made it. The faces of the paws, the trunk, the legs, and the head are the faces of the user. The file of the user, mouse.glb, stays unchanged.",
+  "sourceNote": "The mesh assets/models/mouse/mouse.glb (assets/models/mouse/README.md), with new quad faces on each arm from the shoulder line to the wrist. tools/blender/wind_arms.py makes these faces. The other faces and mouse.glb stay unchanged.",
   "paintedWeights": "assets/models/mouse/mouse-weights.json",
   "paintedLower": [
     "root",
@@ -23,10 +23,10 @@
     "tail",
     "tail_tip"
   ],
-  "paintedNote": "The weights of the clavicles and the arms are the automatic weights of Blender with the Weight Paint fixes of tools/blender/wind_arms.py. The vertices on the bones of paintedLower (the trunk up to the chest, the neck, the head, the ears, the legs, and the tail) keep the rule weights, as on the rabbit and the polar bear: the seated bind of the app depends on them.",
+  "paintedNote": "The weights of the clavicles and the arms are the automatic weights of Blender with the Weight Paint fixes of tools/blender/wind_arms.py. The vertices on the bones of paintedLower keep the rule weights, as on the rabbit and the polar bear, because the seated bind of the app depends on them.",
   "armSegments": {
     "helper": 0.017,
-    "note": "Each upper arm and each forearm has 4 deform segments, and each elbow and wrist a helper bone of this length in units, which spans the three rings of its joint in the bind. The app turns them from the joints of the pose (poseArm() of src/models/studio-rig.ts). They replace upperTwist and the raise shapes."
+    "note": "Each upper arm and each forearm has 4 deform segments, and each elbow and wrist a helper bone of this length in units, which spans the three rings of its joint in the bind. The app turns them from the joints of the pose (poseArm() of src/models/studio-rig.ts)."
   },
   "output": "assets/models/mouse/mouse.rig.glb",
   "name": "Mouse",
@@ -34,12 +34,12 @@
   "app": {
     "shoulders": 0.507635,
     "reach": 0.2926,
-    "note": "The size of the parametric mouse of ab002346 (size 0.75, H 0.285 m), which stood 0.812 m high to the head top. The user said: \"the mouse is way too big. make it the size of the previous parametric model\" (docs/decisions/2026-10-19-mouse-size.md). The scale puts the standing skull top (the highest vertex within 0.03 u of the middle plane, 0.9485 u) at 0.812 m, 0.856045 m for each unit, with the standing shoulder joints at 0.507635 m (the entry of the mouse in ANIMALS). The ear tips stand at 0.856 m. The reach is the reach of the arm factor below, from the shoulder joint to the middle of the palm. With no --check, pnpm rig-mesh stops until the arm factor gives this reach."
+    "note": "The scale puts the standing skull top (0.9485 u) at 0.812 m, 0.856045 m for each unit, with the standing shoulder joints at 0.507635 m (the entry of the mouse in ANIMALS). The reach is the reach of the arm factor, from the shoulder joint to the middle of the palm."
   },
   "armFactor": 1,
-  "armFactorNote": "The factor of the upper arm and the forearm in the rig: 1, because the rig with arm segments does not stretch the arms (armSegments of tools/blender/rig_mesh.py). The arms of mouse-arms.glb are already 1.25 times longer than the arms of the user mesh (step_shape() of tools/blender/violin_arms.py, called by wind_arms.py), and the arm joints below are the joints of the longer arms, so the reach stays app.reach. The user called the arms 1.4 too long on 2026-10-25, so the factor is 1.25, with a reach of 0.293 m (docs/decisions/2026-10-26-short-arms.md). The reasons for the factor 1.4 before: the arms of the mesh are short: 0.238 m from the shoulder joint to the middle of the palm with no factor, 0.67 of the trunk from the hips joint to the shoulder joints. With 1.4, the reach is 0.325 m, and the arm is 0.91 of the trunk, as the red fox (0.91), the dog (0.92), the panda, and the hippo (0.94). The user called the arms of the dog with the factor 1.75 much too long, so the mouse plays a smaller oboe (SpeciesParams.oboeScale), and its hold brings the oboe to the arms (SPECIES_WIND_HOLDS.mouse of src/pose/winds.ts, docs/research/2026-10-19-mouse-size.md).",
+  "armFactorNote": "The factor 1 keeps the arm length, because the rig with arm segments does not stretch the arms. The arms of mouse-arms.glb are 1.25 times longer than the source arms (step_shape() of tools/blender/violin_arms.py), so the reach is 0.293 m. The mouse plays a smaller oboe (SpeciesParams.oboeScale, SPECIES_WIND_HOLDS.mouse of src/pose/winds.ts).",
   "legFactor": 1,
-  "legFactorNote": "The legs keep the length of the mesh (user rule: do not stretch the legs, change the chair). The seat of the legs of the seated bind is 0.076 m, and the chair of the app is 0.120 m deep.",
+  "legFactorNote": "The legs keep the length of the mesh. Do not stretch the legs: change the chair. The seat of the legs of the seated bind is 0.076 m.",
   "joints": {
     "root": {
       "head": [
@@ -241,7 +241,7 @@
     -0.481,
     -0.575
   ],
-  "jointsNote": "The places are in the units and the axes of the studio in the pose of the source: 1 unit from the soles to the top of the ears, the soles at y = 0, +z forward, +x the left side. The right side mirrors the left side. The probes are in docs/research/2026-10-19-mouse-mesh/: sections.py gives the cuts at each height (sections-y.txt, sections-x.txt, sections-z.txt), and measures.py the parts (measures.txt). The legs are short cones apart below the crotch at y 0.145, with the middle of each leg at x 0.095. The thigh joint lies just above the crotch, the knee halfway to the ankle, the ankle at the narrowest leg cut (y 0.045), and the toes at the ball of the long flat foot (toe tip at z 0.18). The trunk joints lie 0.01 to 0.02 behind the middle of the body cut. The narrowest neck cut is at y 0.68, and the head starts at the chin at y 0.70. The cuts across the free arm give its middle line, (0.61, -0.71, 0.35) down the arm: the arm is apart from the body from x 0.11 out. The shoulder joint lies on that line 0.035 u inside the root, the elbow on the middle line of the cuts, the wrist at the narrowest cut before the fingers (y 0.41), the forearm twist halfway between them, and the finger joint 0.035 u before the tip of the paw (paw.py). The ear joint lies at the root of the large round ear on the head, and its tail at the top of the ear. The long tail has two bones: the root under the buttock, the bend on the floor at the back of the loop of the tail, and the tip at the end of the loop. The bend gives the smallest largest gap of a tail vertex from the line of the bones, 0.077 u (tail_bend.py). The palm takes the smallest principal direction of the vertices of the left paw beyond the wrist, inward, down, and back. Since 2026-10-25, the joints of the elbow, the wrist, and the paw are the joints of the arms that are 1.25 times longer (wind_arms.py), and the joints of the source arms are in source_joints() of tools/blender/violin_arms.py.",
+  "jointsNote": "The places are in the studio units and axes of the source pose: 1 unit from the soles to the top of the ears, the soles at y = 0, +z forward, +x the left side. The right side mirrors the left side. The joints of the elbow, the wrist, and the paw are the joints of the longer arms of wind_arms.py.",
   "studio": {
     "legTurns": {
       "thigh": [
@@ -297,7 +297,7 @@
         0.731461
       ]
     },
-    "note": "The studio has no mouse. legTurns gives the world turn of each left leg bone from the seated bind pose to the source, and the right side mirrors it. The posture is the seated posture of design 5.2: the thigh slopes 25 degrees down from the hip to the knee, the thighs turn 15 degrees out, so that the oboe has room between the knees, and the shin is vertical (tools/rig/leg_turns.py <config> 25 15 0). The source shin slants 20 degrees back. The foot and the toes keep the turn of the source, so that the soles stand flat on the floor. The trunk shares and the bind arms are the values of the cat, the dog, the panda, and the hippo. tailBind turns the two tail bones rigidly: the root bone 24 degrees below the level, so that the tail goes back over the seat top between the back posts of the chair and down to the floor, and the tip bone keeps the direction of the source, so that the loop of the tail lies flat on the floor behind the chair. With 22 degrees, the lowest point of the tail was 2.0 cm above the soles.",
+    "note": "The seated posture of design 5.2: the thigh slopes 25 degrees down and 15 degrees out, so that the oboe has room between the knees, and the shin is vertical (tools/rig/leg_turns.py <config> 25 15 0). tailBind turns the tail root 24 degrees below the level, so that the loop of the tail lies flat on the floor behind the chair.",
     "tailBind": {
       "tail": [
         -0.3222,
@@ -328,17 +328,17 @@
       ],
       "bend": 0.04,
       "smooth": 3,
-      "note": "The tail has two bones: the vertices within radius of the line from the root over the bend to the tip, and behind the plane z = behind, follow the tail bones. The loop of the tail on the floor lies up to 0.077 u from the line, so the radius is 0.09 u. With the radius 0.1 and the bend at the floor contact, 30 vertices of the loop lay outside, followed the hips, and stretched into a spike."
+      "note": "The vertices within radius of the line of the tail bones, and behind the plane z = behind, follow the tail bones. The loop of the tail lies up to 0.077 u from the line, so the radius is 0.09 u."
     },
     "sliver": {
       "angle": 10,
       "longest": 0.03,
-      "note": "The values of the fox, the cat, the dog, the panda, and the hippo. The rule takes 57 faces in 13 groups."
+      "note": "The values of the fox."
     },
     "line": {
       "angle": 150,
       "head": true,
-      "note": "The values of the fox, the cat, the dog, the panda, and the hippo. The rule takes 225 corners."
+      "note": "The values of the fox."
     },
     "clavicleFrom": [
       0.55,
@@ -358,7 +358,7 @@
         0.13,
         0.185
       ],
-      "note": "The part of the thigh weight that goes to the hips grows from 0 at the lower height to 1 at the upper height, so that the round haunch stays on the hips. It starts below the crotch and ends 0.03 u above the thigh joint."
+      "note": "The part of the thigh weight that goes to the hips grows from 0 at the lower height to 1 at the upper height, so that the round haunch stays on the hips."
     },
     "rigid": [
       [
@@ -367,8 +367,8 @@
         0.0279
       ]
     ],
-    "rigidNote": "The corners of the thin face from the neck to the top of the left shoulder take the mean of their weights (rigid_faces() of tools/blender/rig_mesh.py). The point is the middle of the face in the units of the source. Its corners had the neck weight 0.62 and the upper arm weight 0.54 at the two ends, and its middle corner (a corner angle of 153 degrees) lagged between them, so the face turned over in each play sample, also with a raise rule and 4 rings of neighbors (find_faces.py of docs/research/2026-10-19-mouse-mesh/).",
-    "note": "Beyond the plane |x| = armSplit, only the free arm follows the arm bones: the cuts show the arm apart from the body from x 0.11 out (98 vertices of the free left arm, free_arm.py). Above headFrom, each vertex follows the head only: the chin starts at y 0.70. The large round ears join the head from y 0.80 to 0.94, below the skull top (0.9485), so the height rule of earBase would also take the top of the head, and earBase lies above the head: the ears follow the head, as for the panda and the hippo. clavicleFrom, armTop, and shoulderHead are the rules of the panda and the hippo, moved with the shoulder joint (y 0.593) and the neck (x 0.077) of the mouse."
+    "rigidNote": "The corners of the thin face from the neck to the top of the left shoulder take the mean of their weights (rigid_faces() of tools/blender/rig_mesh.py), so that the face does not turn over. The point is the middle of the face in the units of the source.",
+    "note": "Beyond the plane |x| = armSplit, only the free arm follows the arm bones. Above headFrom (the chin), each vertex follows the head only. The ears join the head below the skull top, so earBase lies above the head and the ears follow the head."
   },
   "refine": {
     "rings": [],
@@ -377,9 +377,9 @@
       "normals": 60,
       "move": 0.0016,
       "rounds": 4,
-      "note": "The values of the fox, the rabbit, the cat, the dog, the panda, and the hippo. The rule flips 4 edges."
+      "note": "The values of the fox."
     },
-    "ringsNote": "The first config has no rings. pnpm rig-mesh mouse --check lists the thin faces near the joints as candidates for a ring (check.thin). The fold probe of the role chooses the rings."
+    "ringsNote": "The config has no rings. pnpm rig-mesh mouse --check lists the thin faces near the joints as candidates for a ring (check.thin)."
   },
   "check": {
     "thin": {
@@ -387,7 +387,7 @@
       "length": 0.08,
       "near": 0.1
     },
-    "note": "The values of the fox, the cat, the dog, the panda, and the hippo."
+    "note": "The values of the fox."
   },
   "colors": {
     "samples": 6,
@@ -423,7 +423,7 @@
       0.705,
       0.645
     ],
-    "note": "The values of samples, palette, dark, and eyeShare are the values of the other meshes. A dark face in the eye box is a face of an eye: 15 faces on the left and 20 on the right, at x 0.057 to 0.084, y 0.807 to 0.856, and z 0.18 to 0.21 (colors.txt). The nose is a pink pad at the front of the muzzle, at x \u00b10.022 and y 0.768 to 0.796, with no dark faces. A face in the nose box whose color is nearer to the nose color (the mean of the pink faces of the pad) than to white is a face of the nose and takes the gloss: 13 faces. With no nose box, the export took the front of the muzzle as the tip of the nose, and the front-most fur vertex of the head is the tip of a whisker, 0.2 u to the right of the middle plane, so the mouth and the oboe lay 0.33 m to the right of the head.",
+    "note": "A dark face in the eye box is an eye. A pink face in the nose box is the nose and takes the gloss. The nose box also sets the tip of the nose, because the front-most vertex of the head is the tip of a whisker.",
     "tone": {
       "chroma": 0.05,
       "light": [
@@ -456,7 +456,7 @@
           -0.0142
         ]
       ],
-      "note": "The user chose the reference white of the panda: each plain face takes the hue and the chroma of the species color of its band and keeps its lightness. A row is [L, dL, da, db] in Oklab. The gray-brown fur of the mesh (L 0.547, hue 58 degrees, chroma 0.033) moves to the hue and the chroma of the fur of SPECIES_COLORS.mouse (#9a8b7e, hue 63 degrees, chroma 0.026), and the cream belly and muzzle (L 0.943, hue 81 degrees, chroma 0.038) to the belly color #c9bcae (hue 70 degrees, chroma 0.024). The pink paws, feet, tail, inner ears, and nose have a chroma above 0.05 (the paws 0.084), so they keep their colors (colors.txt)."
+      "note": "Each plain face takes the hue and the chroma of the species color of its band (SPECIES_COLORS.mouse) and keeps its lightness, as for the panda. A row is [L, dL, da, db] in Oklab. The pink parts have a chroma above 0.05, so they keep their colors."
     }
   },
   "eyeShell": {
@@ -464,14 +464,14 @@
     "points": 12,
     "reach": 1,
     "darkReach": 2,
-    "note": "The values of the fox, the cat, the dog, and the hippo."
+    "note": "The values of the fox."
   },
   "chair": {
     "halfWidth": 0.19,
     "front": -0.02,
     "back": -0.11,
     "backHeight": 0.15,
-    "note": "The seat is level, and its top is the lowest point of the seated body over the seat, with no shin, foot, or tail. The half width holds the haunch of the mouse (x 0.18). The short thighs lie under the round belly, and the shins and the feet start at z 0.045 u, so the front edge lies behind them. The back edge holds the back of the haunch (z -0.107)."
+    "note": "The seat is level, and its top is the lowest point of the seated body over the seat, with no shin, foot, or tail. The half width holds the haunch. The front edge lies behind the shins, and the back edge holds the back of the haunch."
   },
   "crease": {
     "rings": 2,
@@ -479,7 +479,7 @@
     "share": 0.5,
     "back": 0.1,
     "below": 0.03,
-    "note": "The values of the cat, the dog, the panda, and the hippo. The seam has 24 vertices, and 120 vertices move."
+    "note": "The values of the cat."
   },
   "sit": {
     "gap": 0,
@@ -489,6 +489,6 @@
     "smooth": 8,
     "end": 0.0065,
     "most": 0.03,
-    "note": "The values of the panda and the hippo. 157 vertices of the haunch move down, at most 0.03 u, and the side view of the underside behind the hip joints is at most 4.34 cm above the seat top."
+    "note": "The values of the panda and the hippo."
   }
 }

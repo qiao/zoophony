@@ -6,10 +6,10 @@
   "app": {
     "shoulders": 0.998678,
     "reach": 0.5778,
-    "note": "The user chose the head height of the red fox on 2026-10-18 (\"Fox head height (Recommended)\"): the scale puts the standing head top at 1.570 m, the head top of the red fox of main. The head top is the top of the skull, 0.986 u in the source, with no ear, as the head top of the red fox, and the ear tips are at 1.591 m. With the leg factor 1.5, the skull top is 1.036 u above the soles, so the scale is 1.515445 m for each unit, with the standing shoulder joints at 0.998678 m (the entry of the panda in ANIMALS). The parametric panda of main stands 1.300 m high to the head top and sits on a seat of 0.342 m (docs/research/2026-10-18-panda-mesh/landmark-probe.txt). The reach is the reach of the arm factor below, from the shoulder joint to the middle of the palm. With no --check, pnpm rig-mesh stops until the arm factor gives this reach."
+    "note": "The scale puts the standing skull top (with no ear) at 1.570 m, the head top of the red fox: 1.515445 m for each unit, with the standing shoulder joints at 0.998678 m (the entry of the panda in ANIMALS). The reach is the reach of the arm factor, from the shoulder joint to the middle of the palm."
   },
   "armFactor": 1.497,
-  "armFactorNote": "The factor of the upper arm and the forearm. The user chose \"1.5x, as the fox (Recommended)\" on 2026-10-18: the arm is 0.91 of the trunk from the hips joint to the middle of the shoulder joints, as the red fox (0.91) and the dog (0.92). The reach from the shoulder joint to the middle of the palm is 0.5778 m (0.4027 m with no factor). The parametric panda of main reaches 0.6521 m. The factor 1.704 gives that reach, and the factors 1.987 and 2.753 give half and all of the slide travel in the shoulder and grip places of the parametric panda (docs/research/2026-10-18-panda-mesh/sizes.txt).",
+  "armFactorNote": "The factor of the upper arm and the forearm. With 1.5, the arm is 0.91 of the trunk, as the red fox (0.91) and the dog (0.92), and the reach from the shoulder joint to the middle of the palm is 0.5778 m.",
   "legFactor": 1.5,
   "joints": {
     "root": {
@@ -99,7 +99,7 @@
     }
   },
   "palm": [-0.868, -0.307, -0.389],
-  "jointsNote": "The places are in the units and the axes of the studio in the pose of the source: 1 unit from the soles to the top of the ears, the soles at y = 0, +z forward, +x the left side. The right side mirrors the left side. The probes are tools/blender/sections.py and tools/rig/panda_measures.py (sections-*.txt, measures.txt): the feet below y 0.06 (the toes forward to z 0.084, the heel back to z -0.097), the narrowest leg cut at the ankle at y 0.07, the legs apart up to the crotch at y 0.157, the round body from 0.17 to 0.69 with the belly forward to z 0.204, the narrowest neck cut at 0.69 to 0.71 (x ±0.155), the head from the chin at 0.72 with the muzzle to z 0.237, and the round ears beside the top of the skull (0.986) from 0.90 to 1.0. The trunk joints lie 0.01 to 0.02 behind the middle of the body cut. The thigh joint lies just above the crotch, a little behind the middle of the leg cut, the knee at y 0.115, where the leg cut grows fastest above the ankle, the ankle at the narrowest cut, where the foot starts, and the toes at the ball of the foot. The cuts of the arm in vertical planes (x 0.18 to 0.33) give its middle line, (0.54, -0.77, 0.35) down the arm. The arm is apart from the body from x 0.18 out. The shoulder joint lies on that line, 0.045 inside the root, the wrist where the cut across the arm stops to narrow before the claws (s -0.02 of measures.txt), the elbow and the forearm twist on the middle line at a half and three quarters of the way to the wrist, and the finger joint 0.03 before the tip of the claws. The ear joint lies at the root of the ear on the head, and its tail at the edge of the ear. The tail is one bone through the tail ball. Each roll is the hint of the z axis of the bone, forward by default. The arm bones take the normal of the palm (palm): the smallest principal direction of the vertices of the left paw beyond the wrist, inward, down, and back (measures.txt).",
+  "jointsNote": "The places are in the studio units and axes of the source pose: 1 unit from the soles to the top of the ears, the soles at y = 0, +z forward, +x the left side. The right side mirrors the left side. tools/blender/sections.py and tools/rig/panda_measures.py measure the cuts and the parts. The tail is one bone through the tail ball.",
   "studio": {
     "legTurns": {
       "thigh": [0.529851, 0.031791, -0.059496, 0.845403],
@@ -118,17 +118,17 @@
         "head": 0
       }
     },
-    "trunkNote": "The trunk turns back by the share of each trunk bone until the hip angle opens by open degrees, with the shares of the cat and the dog. The pelvis turns 1.25 degrees, and the hip angle of the seated bind opens from 116.4 to 117.4 degrees.",
+    "trunkNote": "The trunk turns back by the share of each trunk bone until the hip angle opens by open degrees, with the shares of the cat and the dog.",
     "bindArms": {
       "upper_arm": [0.813873, -0.143043, 0.563161],
       "forearm": [0.316246, 0.757051, 0.571719],
       "hand": [-0.078782, 0.677317, 0.731461]
     },
-    "note": "The studio has no panda. legTurns gives the world turn of each left leg bone from the seated bind pose to the source, and the right side mirrors it (tools/rig/leg_turns.py <config> 25 8 0). The posture is the posture of design 5.2: the thigh slopes 25 degrees down from the hip to the knee, 8 degrees out, and the shin is vertical, so that the knee angle from the side is 115 degrees. The foot and the toes keep the turn of the source, so that the soles stand flat on the floor. The source shin slants 14.6 degrees back. The bind arms are the bind arms of the fox, the rabbit, the cat, and the dog. The tail has one bone, as the tail ball of the rabbit, so it needs no bind direction."
+    "note": "The posture of design 5.2: the thigh slopes 25 degrees down and 8 degrees out, and the shin is vertical (tools/rig/leg_turns.py <config> 25 8 0). The foot and the toes keep the turn of the source, so that the soles stand flat on the floor. The tail has one bone, so it needs no bind direction."
   },
   "weights": {
     "rigid": [[[0.1769, 0.6474, 0.0404], [0.1726, 0.6222, 0.0595]]],
-    "rigidNote": "The two faces at the front of the left arm root take the mean of the weights of their 4 corners, so that they move rigidly. With bone heat, they folded in each play sample under the raised left arm (user, 2026-10-26: \"there's black area under the panda's armpit\", docs/decisions/2026-10-26-third-review.md). With face 842 below them in the group, the left arm skin twisted 19° (9° before) and stretched 0.17 (0.08), and the rigid face 305 of the right chest moved the folds to 7 faces around it.",
+    "rigidNote": "The two faces at the front of the left arm root take the mean of the weights of their 4 corners, so that they move rigidly and do not fold under the raised left arm.",
     "armSplit": 0.16,
     "armFree": {
       "turn": 0,
@@ -139,7 +139,7 @@
         "heights": [0.47, 0.6],
         "depths": [-1, 0]
       },
-      "note": "The arm hangs apart from the body from x 0.18 out, and its root joins the side of the trunk with a notch at its front and its back from y 0.47 to 0.58 (the lips at x 0.16 to 0.18). Bone heat gave the lips 0.2 to 0.46 of arm weight, and a raised arm pulled the back lips out as a black flap under the arm at az150 and the front lips as white wedges into the black arm (docs/research/2026-10-22-panda-armpit.md). A vertex of the free arm lies beyond the plane |x| = armSplit, within radius of the chain of the arm joints, and above the floor. Between armSplit and root.split, only the back lips (z below 0, y 0.47 to 0.6) join the free arm. With the front lips too, the caps of the arm took their white, and a white tag showed under the elbow. With no root band, the side of the trunk beside the forearm (y 0.41 to 0.47) and the top of the shoulder joined the arm."
+      "note": "A vertex of the free arm lies beyond the plane |x| = armSplit, within radius of the chain of the arm joints, and above the floor. Between armSplit and root.split, only the back lips of the arm root join the free arm, so that a raised arm does not pull them out as a black flap."
     },
     "stretchRamp": 0,
     "headFrom": 0.72,
@@ -152,12 +152,12 @@
     "sliver": {
       "angle": 10,
       "longest": 0.03,
-      "note": "The corners of each thin face share one set of weights, so that the face moves rigidly and does not turn over at a bent joint. The values are the values of the fox, the rabbit, the cat, and the dog. The rule takes 12 faces in 7 groups."
+      "note": "The corners of each thin face share one set of weights, so that the face moves rigidly and does not turn over at a bent joint. The values of the fox."
     },
     "line": {
       "angle": 150,
       "head": true,
-      "note": "The middle corner of each long thin face takes the mix of the weights of its two other corners by its place along their line. The values are the values of the fox, the cat, and the dog. The rule takes 48 corners."
+      "note": "The middle corner of each long thin face takes the mix of the weights of its two other corners by its place along their line. The values of the fox."
     },
     "clavicleFrom": [0.565, 0.61],
     "armTop": [0.67, 0.71],
@@ -165,15 +165,15 @@
     "fingers": 1,
     "haunch": {
       "height": [0.145, 0.195],
-      "note": "The part of the thigh weight that goes to the hips grows from 0 at the lower height to 1 at the upper height, so that the buttocks stay on the hips. This is the rule of the cat and the dog, moved with the joints of the panda: it starts 0.03 units above the knee and ends 0.03 units above the thigh joint."
+      "note": "The part of the thigh weight that goes to the hips grows from 0 at the lower height to 1 at the upper height, so that the buttocks stay on the hips. This is the rule of the cat and the dog, moved with the joints of the panda."
     },
-    "note": "Beyond the plane |x| = armSplit, only the free arm (armFree) follows the arm bones: the cuts of sections.py x show the arm apart from the body from x 0.18 out, and the free left arm has 185 vertices. Above headFrom, each vertex follows the head only: the chin starts at y 0.72. The ears stay on the head: their roots (y 0.90 to 0.93) lie below the top of the skull (0.986), so the height rule of earBase would also take the top of the head, and earBase lies above the head, as for the dog. clavicleFrom, armTop, and shoulderHead are the rules of the cat and the dog, moved with the shoulder joint (y 0.609) and the neck (x ±0.155) of the panda. The tail ball holds the round tail: the vertices within radius of center and behind the plane z = behind follow the tail bone only (measures.txt: the tail from z -0.19 to -0.238, y 0.22 to 0.33)."
+    "note": "Beyond the plane |x| = armSplit, only the free arm (armFree) follows the arm bones. Above headFrom (the chin), each vertex follows the head only. earBase lies above the head, so the ears follow the head. The vertices in the tail ball follow the tail bone only."
   },
   "raise": [
-    {"side": "R", "turns": {"clavicle": [0, 0.3827, 0, 0.9239], "upper_arm": [0.1897, 0.428, -0.0195, 0.8834], "forearm": [-0.0478, 0.0271, -0.0623, 0.9965]}, "fade": [10, 20], "below": 0.0, "note": "The shape of the right arm on the slide of the trombone, with the mean turns of the play samples (keys-read.ts of docs/research/2026-10-18-panda-mesh/): the clavicle turns 45 degrees forward, as the reach of the trombone hold. Face 467 at the front of the right shoulder folded in each play sample. In the pose of the rule, it turns over and relaxes in 1 round."},
-    {"side": "R", "turns": {"clavicle": [0, 0.3827, 0, 0.9239], "upper_arm": [0.2075, 0.5231, -0.2535, 0.7868], "forearm": [-0.0048, 0.0027, -0.0062, 1.0]}, "fade": [10, 20], "below": 0.0, "note": "The shape of the right arm in the rest pose, with the mean turns of the rest samples. Faces 466 and 467 folded in each rest sample and in 18% of the lift samples. In the pose of the rule, face 467 relaxes in 2 rounds."},
-    {"side": "R", "turns": {"clavicle": [0, 0.3827, 0, 0.9239], "upper_arm": [0.2231, 0.485, -0.1638, 0.8296], "forearm": [-0.0095, 0.0054, -0.0124, 0.9999]}, "fade": [10, 20], "below": 0, "note": "The shape of the right arm in the lift, with the mean turns of the folded lift samples (pnpm raise-fit trombonist --faces 90,103 --side R --sets lift). With the back lips in the free arm (armFree.root), faces 90 and 103 at the back lip folded in 5.4% of the lift samples of brahms-2 (docs/research/2026-10-22-panda-armpit.md)."},
-    {"side": "R", "turns": {"clavicle": [0, 0.3827, 0, 0.9239], "upper_arm": [0.2157, 0.4565, -0.1036, 0.857], "forearm": [0.0115, -0.0065, 0.015, 0.9998]}, "fade": [10, 20], "below": 0, "note": "The shape of the right arm in the lift for face 292 at the front of the right shoulder, which folded in 1.1% of the lift samples with the shape above (pnpm raise-fit trombonist --faces 292 --side R --sets lift)."}
+    {"side": "R", "turns": {"clavicle": [0, 0.3827, 0, 0.9239], "upper_arm": [0.1897, 0.428, -0.0195, 0.8834], "forearm": [-0.0478, 0.0271, -0.0623, 0.9965]}, "fade": [10, 20], "below": 0.0, "note": "The shape of the right arm on the slide of the trombone, with the mean turns of the play samples. It relaxes a face at the front of the right shoulder."},
+    {"side": "R", "turns": {"clavicle": [0, 0.3827, 0, 0.9239], "upper_arm": [0.2075, 0.5231, -0.2535, 0.7868], "forearm": [-0.0048, 0.0027, -0.0062, 1.0]}, "fade": [10, 20], "below": 0.0, "note": "The shape of the right arm in the rest pose, with the mean turns of the rest samples."},
+    {"side": "R", "turns": {"clavicle": [0, 0.3827, 0, 0.9239], "upper_arm": [0.2231, 0.485, -0.1638, 0.8296], "forearm": [-0.0095, 0.0054, -0.0124, 0.9999]}, "fade": [10, 20], "below": 0, "note": "The shape of the right arm in the lift for faces 90 and 103 at the back lip (pnpm raise-fit trombonist --faces 90,103 --side R --sets lift)."},
+    {"side": "R", "turns": {"clavicle": [0, 0.3827, 0, 0.9239], "upper_arm": [0.2157, 0.4565, -0.1036, 0.857], "forearm": [0.0115, -0.0065, 0.015, 0.9998]}, "fade": [10, 20], "below": 0, "note": "The shape of the right arm in the lift for face 292 at the front of the right shoulder (pnpm raise-fit trombonist --faces 292 --side R --sets lift)."}
   ],
   "refine": {
     "rings": [],
@@ -182,9 +182,9 @@
       "normals": 60,
       "move": 0.0016,
       "rounds": 4,
-      "note": "The long edge of a face of the arms with a corner angle above angle (degrees) in the seated bind mesh flips to the corner of the face on its other side, when the two faces lie almost on one plane and the surface moves at most move (units). The values are the values of the fox, the rabbit, the cat, and the dog. The rule flips 13 edges."
+      "note": "The long edge of a face of the arms with a corner angle above angle (degrees) flips to the corner of the face on its other side, when the two faces lie almost on one plane and the surface moves at most move (units). The values of the fox."
     },
-    "ringsNote": "The first config has no rings. pnpm rig-mesh panda --check lists the thin faces near the joints as candidates for a ring (check.thin): with the factor 1, faces at the elbows and the right ankle. The fold probe of the role chooses the rings after the arm factor."
+    "ringsNote": "The config has no rings. pnpm rig-mesh panda --check lists the thin faces near the joints as candidates for a ring (check.thin)."
   },
   "check": {
     "thin": {
@@ -192,7 +192,7 @@
       "length": 0.08,
       "near": 0.1
     },
-    "note": "pnpm rig-mesh --check lists the faces of the seated bind mesh with a corner angle below angle (degrees) and a longest edge of at least length (units), when that edge passes within near (units) of a joint of the arms or the legs. The values are the values of the fox, the cat, and the dog."
+    "note": "pnpm rig-mesh --check lists the thin faces of the seated bind mesh near a joint of the arms or the legs. The values of the fox."
   },
   "colors": {
     "samples": 6,
@@ -217,8 +217,8 @@
       "dark": 0.5,
       "teeth": 2,
       "gray": 0.8,
-      "grayNote": "Each fur face of the box with an Oklab lightness from dark (0.5) up to gray (0.8) also takes the color of the nearest light fur face. Three faces at the front of the left armpit, across the edge of the black band, took the mean of their gray edge samples (lightness 0.70) and showed as a gray wedge under the raised arm (user, 2026-10-26). With 0.9, 22 faces of plain white fur (lightness 0.81 to 0.90) changed.",
-      "note": "The user said on 2026-10-18: \"there's unexpected black marks on the torso. fix that\" (docs/decisions/2026-10-18-panda-marks.md). A face takes black from the share eyeShare (0.34) of dark texture samples. Seven large faces at the lower border of the black band under the arms are mostly white in the texture (36% to 46% dark samples). They gave the band black teeth, and the raised arms stretched the teeth into black wedges on the white sides of the belly. In the box of the trunk, from the crotch (y 0.17) to the neck (0.69), each dark face with less than half dark samples takes the color of the nearest light fur face: 7 faces, 3 on the left and 4 on the right. No other face of the trunk has a share from 0.34 to 0.5 (docs/research/2026-10-18-panda-marks.md). With teeth 2, each dark face of the box with at least 2 light neighbors also takes the white: 6 small black teeth at the old seam that the cut (cut below) leaves (docs/research/2026-10-18-panda-seam.md)."
+      "grayNote": "Each fur face of the box with an Oklab lightness from dark up to gray also takes the color of the nearest light fur face, so that no gray wedge shows under the raised arm.",
+      "note": "In the box of the trunk, each dark face with less than half dark samples takes the color of the nearest light fur face, so that the black band under the arms has no black teeth. With teeth 2, each dark face of the box with at least 2 light neighbors also takes the white."
     },
     "patch": {
       "center": [0.0717, 0.8547],
@@ -228,14 +228,14 @@
         [0.132, 0.95, 1.0]
       ],
       "dark": 0.5,
-      "note": "The user chose \"1: Round patches, no smile\" on 2026-10-18 (docs/decisions/2026-10-18-panda-face.md). The sharp upper inner point of each eye patch read as raised inner brows, a sad face. Each dark fur face in the box, or in its mirror, with a corner outside the circle of radius 0.0475 around the middle of the patch takes the color of the nearest light fur face: 18 faces, 9 on each side. The left patch goes from 23% x 38% to 23% x 18% of the head width, and the right patch to 22% x 22%. The circle holds the old eye, so the pea eyes keep their places, and the patches get no light hole (docs/research/2026-10-18-panda-face.md)."
+      "note": "Each dark fur face in the box, or in its mirror, with a corner outside the circle around the middle of the patch takes the color of the nearest light fur face. Thus the eye patches are round and do not look sad."
     },
     "smile": {
       "bands": [
         {"x": [0, 0.0627], "y": [0.7525, 0.7696], "rise": 0, "front": 0.165, "normalY": [-0.3, 1], "facing": 0.5},
         {"x": [0.0528, 0.0792], "y": [0.7591, 0.7822], "rise": 0, "front": 0.165, "normalY": [-1, -0.25], "facing": -1, "outward": 0.6}
       ],
-      "note": "The user chose \"Thin smile line\" on 2026-10-18. The line takes the dark color of the patches. The first band takes the faces on the top of the lower lip, along the crease between the lips: 18 faces. The second band takes the faces under the upper lip at the corners that do not turn to the side (outward 0.6): 6 faces. The user said on 2026-10-18: \"The corner of the mouth has a big area of black\". With no outward limit, the band took 13 faces, and the 7 faces that turn to the side (normal x 0.69 to 0.85, one of 7.4 cm2) showed as a dark block in a side view: 409 dark px against a line of 81 px in the gallery side view, and 0 px with the limit. No face of the line shares a corner with the nose or with an eye patch (docs/research/2026-10-18-panda-face.md)."
+      "note": "A thin smile line in the dark color of the patches. The first band takes the top of the lower lip, and the second band the corners under the upper lip. outward 0.6 keeps the faces that turn to the side out of the line."
     },
     "tone": {
       "chroma": 0.08,
@@ -245,29 +245,29 @@
         [0.5, 0, 0, 0],
         [0.8, 0, -0.0027, -0.029]
       ],
-      "note": "The user chose \"Reference white (Recommended)\" on 2026-10-18 (docs/decisions/2026-10-18-panda-folds.md), so the white fur takes the full step to the white of SPECIES_COLORS.panda (#e9e5dc, Oklab chroma 0.013 at the hue 87 degrees). A row is [L, dL, da, db] in Oklab: a face below the lightness 0.5 does not move, and a face above 0.8 takes the move of the second row. The black fur, the eyes, the nose, and the paws are below 0.5, so they keep their colors. The white fur of the mesh had the lightness 0.957 and the chroma 0.042 at the hue 85 degrees, and the move gives the chroma 0.013 at the hue 87 degrees with the same lightness. In a front and a back render of the gallery, the white fur then has the chroma of the parametric panda of that color at the same lightness: 0.043 against 0.043 on the front of the head, and 0.020 against 0.021 on the back of the head. 4% of the white faces get a little blue (Oklab b below -0.005). In the play frame of the stage, the heads stay warm white, with no blue or gray tint: the chroma 0.082 at the hue 66 degrees, against 0.092 before (docs/research/2026-10-18-panda-folds.md)."
+      "note": "The white fur takes the full step to the white of SPECIES_COLORS.panda. A row is [L, dL, da, db] in Oklab: a face below the lightness 0.5 does not move, and a face above 0.8 takes the move of the second row. Thus the black parts keep their colors."
     },
-    "note": "The values of samples, palette, dark, and eyeShare are the values of the fox, the cat, and the dog. The eyes lie in dark eye patches of almost the same color: the darkest faces of the eyes have the Oklab lightness 0.125 to 0.136, and the faces of the patches 0.14 to 0.147 (docs/research/2026-10-18-panda-mesh/head-colors.txt), so a dark threshold cannot split them. The eye box holds only the eye in the middle of the patch: 19 dark faces on the left and 16 on the right. The box of 2026-10-18 phase 1 (x 0.03 to 0.1, y 0.83 to 0.9) took 38 of the 46 dark faces of the left patch, and the color of the old eye left light holes in the patches. The nose is a patch of 62 dark faces at x ±0.03 and y 0.789 to 0.830. A face in the nose box whose color is nearer to the nose color than to white takes the gloss: 60 faces."
+    "note": "The eyes and the eye patches have almost the same dark color, so the eye box holds only the eye in the middle of the patch. A face in the nose box whose color is nearer to the nose color than to white takes the gloss."
   },
   "eyeShell": {
     "lift": 0.002,
     "points": 12,
     "reach": 1,
     "darkReach": 0,
-    "note": "The values of lift, points, and reach are the values of the fox, the cat, and the dog. The fan of the left eye has 11 faces over 19 dark faces, and the right eye 8 faces over 16. The old eye of each side is 31 and 17 faces inside the black patch, and they take the black of 37% and 62% of the area of the faces around them. darkReach is 0, so that no dark face of the patch around the old eye takes the color of its own ring: with 2, the rest of each patch took the white of the fur around it."
+    "note": "The values of lift, points, and reach are the values of the fox. darkReach is 0, so that no dark face of the patch around the old eye takes the color of its own ring."
   },
   "cut": {
     "top": 0.58,
     "fins": true,
-    "finsNote": "With the back lips of the arm root in the free arm, a face of the trunk at each notch sticks into the hole with two edges, and the cap repeats it with the opposite winding. The rule removes two such faces on the left and one on the right (docs/research/2026-10-22-panda-armpit.md).",
-    "note": "The user chose \"Cut the mesh (Recommended)\" on 2026-10-18 (docs/decisions/2026-10-18-panda-marks.md). Each hanging forearm of the source touches the belly, and short faces join the two. When the arm lifts, either those faces turn over and show, or the belly faces under them turn from the light (the gray streaks). Below the height top (source units), the faces with a corner in the free arm and a corner in the body go: 26 on the left and 28 on the right with the free arm of armFree (20 and 17 before). New faces close the forearm and the belly, and no vertex moves. The bone heat of the cut mesh gives the belly side to the trunk. At top 0.56, the lift folded face 86 in 5.4% of the samples, and at 0.6, the rest folded faces 86 and 404 in each sample (docs/research/2026-10-18-panda-seam.md)."
+    "finsNote": "At each notch of the arm root, a face of the trunk sticks into the hole, and the cap repeats it with the opposite winding. The rule removes these faces.",
+    "note": "Each hanging forearm of the source touches the belly, so below the height top, the faces with a corner in the free arm and a corner in the body go. New faces close the forearm and the belly, and no vertex moves. Thus a lifted arm shows no fold or gray streak."
   },
   "chair": {
     "halfWidth": 0.22,
     "front": -0.1,
     "back": -0.2,
     "backHeight": 0.15,
-    "note": "The seat is level, and its top is the lowest point of the seated body over the seat, with no shin, foot, or tail. The half width holds the haunch of the panda (x ±0.21). The short thighs end under the round belly, and the shins and the feet start at z -0.016. With the front edge at -0.045, the lowest point over the seat was the back of the thighs, 0.1 u below the round haunch, and the sit pulled the haunch down into a flat sheet behind the seat. With the front edge at -0.1, the seat lies under the haunch behind the thighs, the thighs slope down in front of it, and the seat of the legs is 0.278 m (0.265 m with -0.075 and 0.318 m with -0.12, docs/research/2026-10-18-panda-mesh/check-seat.log). The back edge holds the back of the haunch."
+    "note": "The seat is level, and its top is the lowest point of the seated body over the seat, with no shin, foot, or tail. The front edge at -0.1 puts the seat under the haunch behind the thighs. The back edge holds the back of the haunch."
   },
   "crease": {
     "rings": 2,
@@ -275,7 +275,7 @@
     "share": 0.5,
     "back": 0.1,
     "below": 0.03,
-    "note": "The seated bind is smoothed across the crease where the belly meets the top of each thigh, with the values of the cat and the dog. The seam has 41 vertices, 189 vertices move, and no face turns over."
+    "note": "The seated bind is smoothed across the crease where the belly meets the top of each thigh, with the values of the cat and the dog."
   },
   "sit": {
     "gap": 0,
@@ -285,7 +285,7 @@
     "smooth": 8,
     "end": 0.0065,
     "most": 0.03,
-    "note": "The underside of the haunch behind the hip joints goes down onto the seat in the seated bind (sit() of tools/blender/rig_mesh.py), with the values of the cat, except most. most keeps the drop small: 130 vertices move down, at most 0.03 units (4.55 cm), no face turns over, and the side view of the underside is 5.95 cm above the seat top, where the round haunch curves up at its back. With most 0.2 and the front edge at -0.045, the sit moved the haunch down 0.187 units (28.3 cm) into a flat sheet behind the seat, and 32 faces turned over. With no drop, the side view is 6.95 cm above the seat top."
+    "note": "The underside of the haunch goes down onto the seat in the seated bind (sit() of tools/blender/rig_mesh.py), with the values of the cat, except most. most keeps the drop small, so that the round haunch keeps its form."
   },
-  "legFactorNote": "The factor of the thigh and the shin. The user chose \"1.5x, as fox and dog (Recommended)\" on 2026-10-18. The seat of the legs at the front edge of the chair below is 0.278 m high at this scale. With the chair front edge at -0.045, the seat of the legs was 0.180 m, the factor 1 gave 0.124 m, and the factor 2 gave 0.221 m at the same head top (docs/research/2026-10-18-panda-mesh/sizes.txt)."
+  "legFactorNote": "The factor of the thigh and the shin, as the fox and the dog. The seat of the legs at the front edge of the chair is 0.278 m high at this scale."
 }

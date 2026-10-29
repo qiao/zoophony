@@ -6,12 +6,12 @@
   "app": {
     "shoulders": 0.691834,
     "reach": 0.384,
-    "note": "No reference image shows a monkey, so the mesh took the head top of the parametric monkey (user, 2026-10-19, docs/decisions/2026-10-19-mouse-size.md): the standing head top of the parametric monkey with the trumpet is 1.029 m (docs/research/2026-10-20-mesh-monkey/landmark-probe.txt). The skull top of the mesh under the small tuft of hair is at about 0.965 u, and the tuft top, the highest point in the middle strip of pnpm mesh-options, at 1.0 u. The skull top at 1.029 m gave 1.066 m for each unit (size skull of options.md). Then the user said: \"make the monkey 1.1x bigger\" (docs/decisions/2026-10-20-mesh-monkey.md): 1.1726 m for each unit, the standing shoulder joints at 0.59 u (0.691834 m), the skull top at 1.132 m, and H 0.334 m. The reach is the reach of the arm factor below at that scale. With no --check, pnpm rig-mesh stops until the arm factor gives this reach."
+    "note": "No reference image shows a monkey. The scale is 1.1726 m for each unit, so the skull top is at 1.132 m, the standing shoulder joints at 0.59 u (0.692 m), and H is 0.334 m."
   },
   "armFactor": 1.2,
-  "armFactorNote": "The factor of the upper arm and the forearm. The arms of the mesh are short for the trumpet: 0.79 of the trunk from the shoulder joint to the middle of the palm with no factor (0.297 m at 1.066 m for each unit). With the trumpet hold of the base, no factor up to 1.25 reaches both trumpet grips (options.md, trumpet-scale.txt of docs/research/2026-10-20-mesh-monkey/). The user chose \"arms 1.5, trumpet at the scale 0.8\" (docs/decisions/2026-10-20-mesh-monkey.md), and then said that the arms are too long (2026-10-25, docs/decisions/2026-10-26-short-arms.md): the factor is now 1.2, with a reach of 0.384 m at the size 1.1 of the user (0.469 m with 1.5), and a trumpet at the scale 0.65. The monkey plays a smaller trumpet (SpeciesParams.trumpetScale), and its hold brings the trumpet to the arms (SPECIES_WIND_HOLDS.monkey of src/pose/winds.ts).",
+  "armFactorNote": "The factor of the upper arm and the forearm. The arms of the mesh are short for the trumpet, so the factor 1.2 gives a reach of 0.384 m. The monkey plays a smaller trumpet at the scale 0.65 (SpeciesParams.trumpetScale, SPECIES_WIND_HOLDS.monkey of src/pose/winds.ts).",
   "legFactor": 1,
-  "legFactorNote": "The legs keep the length of the mesh (user rule: do not stretch the legs, change the chair).",
+  "legFactorNote": "The legs keep the length of the mesh. Do not stretch the legs: change the chair.",
   "joints": {
     "root": {
       "head": [
@@ -233,7 +233,7 @@
     -0.164,
     -0.594
   ],
-  "jointsNote": "The places are in the units and the axes of the studio in the pose of the source: 1 unit from the soles to the top of the tuft of hair on the head, the soles at y = 0, +z forward, +x the left side. The right side mirrors the left side. The probes are in docs/research/2026-10-20-mesh-monkey/: sections.py gives the cuts at each height (sections-y.txt, sections-x.txt, sections-z.txt), and measures.py the parts (measures.txt). The monkey stands upright on short legs: the feet below y 0.05 (the toes forward to z 0.13), the legs as cones from the narrowest cut at y 0.065 to the crotch at y 0.215, the trunk from 0.22 to the shoulders at 0.58, the narrow neck at 0.72 (x \u00b10.052), and the large round head from the chin at 0.734 to the skull top at about 0.965, with a small tuft of hair to 1.0. The round ears stand at the sides of the head (x 0.12 to 0.17, y 0.79 to 0.89). The trunk joints lie about 0.01 behind the middle of the body cut. The thigh joint lies at the crotch on the middle of the leg cut, the ankle at the narrowest leg cut, the knee halfway between them, and the toes at the ball of the foot. The cuts across the free arm (arm-axis.txt) give its middle line down the arm: the arm leaves the body at x 0.095. The shoulder joint lies on that line at the root of the arm, the wrist at the narrowest cut (x 0.244, y 0.403), and the elbow on the middle line halfway between them (upper arm 0.121 u, forearm 0.122 u, paw.txt). The forearm twist lies halfway between the elbow and the wrist. The long hand hangs down from the wrist to the finger tips at y 0.276. The finger joint lies at the knuckles, where the cuts split into the fingers (y 0.335), and its tail at the tip of the longest finger. The ear joint lies at the root of the ear on the head, and its tail at the outer edge of the ear. The long tail is a chain of two bones: the root at the back of the haunch, where the tail leaves the body (y 0.27), the bend on the floor behind the right foot, and the tip at the end of the curl, which stands up on the floor behind the right side. The bend gives the smallest largest gap of a tail vertex from the line of the bones, 0.066 u (tail-bend.txt). Each roll is the hint of the z axis of the bone, forward by default. The arm bones take the normal of the palm (palm): the smallest principal direction of the vertices of the left hand beyond the wrist, inward and back (paw.txt).",
+  "jointsNote": "The places are in the studio units and axes of the source pose: 1 unit from the soles to the top of the tuft of hair, the soles at y = 0, +z forward, +x the left side. The right side mirrors the left side. The tail is a chain of two bones from the haunch over a bend behind the right foot to the tip of the curl.",
   "studio": {
     "legTurns": {
       "thigh": [
@@ -301,7 +301,7 @@
         0.023
       ]
     },
-    "note": "The studio has no monkey. legTurns gives the world turn of each left leg bone from the seated bind pose to the source, and the right side mirrors it. The monkey has no chair and stands in this pose (SpeciesParams.noChair). The user asked: \"make the monkey stand, but fix its pose so that the center of the gravity of the monkey is natural\" (docs/decisions/2026-10-21-monkey-stand.md). The thigh slopes 65 degrees down from the hip to the knee, the thighs turn 15 degrees out, and the shin slants 20 degrees back from the knee to the ankle, so that the feet stand under the hips (tools/rig/leg_turns.py <config> 65 15 -20). With the thighs 25 degrees down and vertical shins, the center of mass was 17 cm behind the middle of the soles, and the monkey would fall back (docs/research/2026-10-20-monkey-stand/balance-main.txt). The foot and the toes keep the turn of the source, so that the soles stand flat on the floor. The trunk leans forward: the hip angle closes by 14 degrees, so the pelvis turns 18.7 degrees forward, and the shares turn the upper trunk back, so that the head stays about level. The legs alone brought the center of mass only to 10 cm behind the middle of the soles. With the lean, it is 0.2 cm in front of the middle at a note and 0.9 cm behind it at rest, at 51% and 45% of the length of the soles from the heels (balance-variants.txt). A real stand is most stable with the center of foot pressure at 30% to 60% of the foot length (Asai 2020, docs/research/2026-10-20-monkey-stand.md). The trunk shares and the bind arms are the values of the fox, the cat, the dog, the panda, the hippo, the mouse, the pig, and the wolf. tailBind gives the direction of each tail bone in the seated bind pose: the root goes back and down from the haunch, 63 degrees below the level and 15 degrees to the right of the back, and the tip keeps the direction of the source, so that the curl stands up on the floor 0.2 cm above the soles as in the source. At 61 degrees, the lowest point of the tail was 0.8 cm above the soles (check-nosit.log, check-final.log of docs/research/2026-10-20-monkey-stand/)."
+    "note": "The monkey has no chair and stands in this pose (SpeciesParams.noChair). The thigh slopes 65 degrees down and 15 degrees out, and the shin slants 20 degrees back, so that the feet stand under the hips (tools/rig/leg_turns.py <config> 65 15 -20). The trunk leans forward, so that the center of mass stays over the soles."
   },
   "weights": {
     "armSplit": 0.095,
@@ -320,17 +320,17 @@
       ],
       "bend": 0.04,
       "smooth": 3,
-      "note": "The tail has two bones: the vertices within radius of the line from the root over the bend to the tip, and behind the plane z = behind, follow the tail bones. The tail lies up to 0.066 u from the line (tail-bend.txt). The plane keeps the backs of the legs (z -0.046 at y 0.21) out of the tail. The share of the tail bones starts at the root, so that the haunch above the root keeps its weights."
+      "note": "The vertices within radius of the line of the tail bones, and behind the plane z = behind, follow the tail bones. The plane keeps the backs of the legs out of the tail."
     },
     "sliver": {
       "angle": 10,
       "longest": 0.03,
-      "note": "The values of the fox, the cat, the dog, the panda, the hippo, the mouse, the pig, and the wolf."
+      "note": "The values of the fox."
     },
     "line": {
       "angle": 150,
       "head": true,
-      "note": "The values of the fox, the cat, the dog, the panda, the hippo, the mouse, the pig, and the wolf."
+      "note": "The values of the fox."
     },
     "clavicleFrom": [
       0.547,
@@ -350,9 +350,9 @@
         0.17,
         0.245
       ],
-      "note": "The part of the thigh weight that goes to the hips grows from 0 at the lower height to 1 at the upper height, so that the buttocks stay on the hips. This is the rule of the dog, moved with the joints of the monkey: it starts 0.03 units above the knee and ends 0.03 units above the thigh joint."
+      "note": "The part of the thigh weight that goes to the hips grows from 0 at the lower height to 1 at the upper height, so that the buttocks stay on the hips. This is the rule of the dog, moved with the joints of the monkey."
     },
-    "note": "Beyond the plane |x| = armSplit, only the free arm follows the arm bones: the cuts show the arm apart from the body from x 0.09 out (168 vertices of the free left arm, free-arm.txt). Above headFrom, each vertex follows the head only: the chin starts at y 0.734. The round ears join the head at the sides, below the skull top, so earBase lies above the head and the ears follow the head, as for the panda, the hippo, and the mouse. clavicleFrom, armTop, and shoulderHead are the rules of the dog, moved with the shoulder joint (y 0.59) and the neck (x \u00b10.052) of the monkey."
+    "note": "Beyond the plane |x| = armSplit, only the free arm follows the arm bones. Above headFrom (the chin), each vertex follows the head only. earBase lies above the head, so the round ears follow the head."
   },
   "refine": {
     "rings": [],
@@ -361,9 +361,9 @@
       "normals": 60,
       "move": 0.0016,
       "rounds": 4,
-      "note": "The values of the rabbit and the fox, the cat, the dog, the panda, the hippo, the mouse, the pig, and the wolf."
+      "note": "The values of the rabbit and the fox."
     },
-    "ringsNote": "The first config has no rings. pnpm rig-mesh monkey --check lists the thin faces near the joints as candidates for a ring (check.thin). The fold probe of the role chooses the rings."
+    "ringsNote": "The config has no rings. pnpm rig-mesh monkey --check lists the thin faces near the joints as candidates for a ring (check.thin)."
   },
   "check": {
     "thin": {
@@ -371,7 +371,7 @@
       "length": 0.08,
       "near": 0.1
     },
-    "note": "The values of the fox, the cat, the dog, the panda, the hippo, the mouse, the pig, and the wolf."
+    "note": "The values of the fox."
   },
   "colors": {
     "samples": 6,
@@ -433,23 +433,23 @@
         0.051,
         0.022
       ],
-      "note": "The user asks for happy faces (user, 2026-10-20). The texture has a thin brown smile line on the muzzle, but each face takes the mean of its samples, so the line goes away (smile-probe.txt) and the face shows no mouth (face-crops-plain.webp). The band takes 5 faces of the lower lip under the nose (y 0.768 to 0.776 at the middle) and at the corners, 0.018 u (1.9 cm) up at |x| 0.05 u, in a mid brown of the fur (sRGB 0.42, 0.25, 0.16). The lower end 0.765 took 8 faces with a wedge that hangs down at the middle (face 1764, face-crops-smile-wide.webp). outward 0.6 keeps the faces that turn to the side out of the line, as for the wolf (face-crops-smile.webp, smile-bands.log)."
+      "note": "The texture has a thin smile line, but each face takes the mean of its samples, so the line goes away. The band colors 5 faces of the lower lip and its corners in a mid brown of the fur. outward 0.6 keeps the side faces out of the line."
     },
-    "note": "A face is dark when at least eyeShare of its samples have a linear luminance below dark. With the limit 0.05 of the other meshes, 817 of the 3,129 faces are dark: the dark brown hands (371) and feet (415), whose color is a brown (sRGB 0.28, 0.18, 0.12, linear luminance about 0.034), and the eyes (31). With 0.02, the hands and the feet take the mean of their light samples (colors.txt, dark-regions.txt). A dark face in the eye box is a face of an eye: the large black eyes lie at x 0.029 to 0.061, y 0.834 to 0.868, and z 0.094 to 0.104. The small brown nose lies at the front of the muzzle (x \u00b10.02, y 0.809 to 0.821, z 0.134 to 0.146, muzzle.txt). A face in the nose box whose color is nearer to the nose color (the mean of the brown faces of the nose) than to white is a face of the nose and takes the gloss. The values of samples, palette, and eyeShare are the values of the other meshes. The config has no tone rule: no reference image shows a monkey."
+    "note": "A face is dark when at least eyeShare of its samples have a linear luminance below dark. The limit 0.02 keeps the dark brown hands and feet out of the dark faces. A dark face in the eye box is an eye, and a brown face in the nose box is the nose and takes the gloss."
   },
   "eyeShell": {
     "lift": 0.002,
     "points": 12,
     "reach": 1,
     "darkReach": 2,
-    "note": "The values of the fox, the cat, the dog, the hippo, the mouse, the pig, and the wolf."
+    "note": "The values of the fox."
   },
   "chair": {
     "halfWidth": 0.165,
     "front": -0.05,
     "back": -0.1,
     "backHeight": 0.15,
-    "note": "The app builds no chair under the monkey (SpeciesParams.noChair), but the rig needs its chair for the seat height of the export. The config has no sit rule, so the haunch keeps its form: with the sit of the other meshes, the forward lean turned the haunch down into the rig chair, and the lift flattened it by up to 6 cm (check-final.log of docs/research/2026-10-20-monkey-stand/). The seat is level, and its top is the lowest point of the seated body over the seat, with no shin, foot, or tail. The half width holds the haunch of the monkey (x 0.145). The back is the value of the dog. The shins of the stand lie over the seat from z -0.012, so the front edge is at -0.05, under the back of the haunch."
+    "note": "The app builds no chair under the monkey, but the rig needs a chair for the seat height of the export. The config has no sit rule, so the haunch keeps its form. The seat top is the lowest point of the seated body over the seat."
   },
   "crease": {
     "rings": 2,
@@ -457,6 +457,6 @@
     "share": 0.5,
     "back": 0.1,
     "below": 0.03,
-    "note": "The values of the cat, the dog, the panda, the hippo, the mouse, the pig, and the wolf."
+    "note": "The values of the cat."
   }
 }

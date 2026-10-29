@@ -6,12 +6,12 @@
   "app": {
     "shoulders": 0.6258,
     "reach": 0.2381,
-    "note": "No reference image gives a size for the penguin over the parametric penguin, so the mesh takes the head top of the egg penguin of main (user, 2026-10-19, docs/decisions/2026-10-19-mouse-size.md): the standing head top of the egg penguin with the folder is 1.043 m (docs/research/2026-10-21-mesh-penguin/landmark-probe.txt). The crown of the mesh is its highest point, at 1.0 u, so the scale is 1.043 m for each unit, and the standing shoulder joints are at 0.6 u (0.6258 m). The reach is the reach of the arm factor below at that scale. With no --check, pnpm rig-mesh stops until the arm factor gives this reach."
+    "note": "The crown of the mesh is its highest point, at 1.0 u, and the scale puts it at the head top of the egg penguin, 1.043 m. Thus the scale is 1.043 m for each unit, and the standing shoulder joints are at 0.6 u (0.6258 m)."
   },
   "armFactor": 1,
-  "armFactorNote": "The factor of the upper arm and the forearm. The flippers keep the length of the mesh: 0.2381 m from the shoulder joint to the middle of the palm (check-first.log), by the rule of the user of 2026-10-10 (keep the limbs of a mesh of the user, and fit the props). The folder comes to the flippers (CHOIR_FOLDER of src/models/instruments/folder.ts).",
+  "armFactorNote": "The factor of the upper arm and the forearm. The flippers keep the length of the mesh (0.2381 m from the shoulder joint to the middle of the palm), and the folder comes to the flippers (CHOIR_FOLDER of src/models/instruments/folder.ts).",
   "legFactor": 1,
-  "legFactorNote": "The legs keep the length of the mesh (user rule: do not stretch the legs). The penguin stands on its riser, so no seat asks for longer legs.",
+  "legFactorNote": "The legs keep the length of the mesh. The penguin stands on its riser, so no seat asks for longer legs.",
   "joints": {
     "root": {
       "head": [
@@ -237,7 +237,7 @@
     -0.46,
     0.0
   ],
-  "jointsNote": "The places are in the units and the axes of the studio in the pose of the source: 1 unit from the soles to the crown, the soles at y = 0, +z forward, +x the left side. The right side mirrors the left side. sections.py of docs/research/2026-10-21-mesh-penguin/ gives the cuts at each height and across (sections-y.txt, sections-x.txt, sections-z.txt). The body is one egg with no neck: the trunk joints lie on the middle line of the body cuts, a little behind their middle (z -0.013 at y 0.3), and the head joint at the narrowest cut under the head (y 0.79). The penguin has no ears, so each ear joint lies inside the crown, and no vertex follows it (earBase). The flipper hangs out and down from its root on the side of the body (y 0.48 to 0.65 at x 0.206) to its tip at x 0.324 and y 0.29. The middle of its cuts gives its middle line: x 0.206 at y 0.567, 0.246 at y 0.487, 0.286 at y 0.414, and 0.306 at y 0.375. The shoulder joint lies inside the root, the elbow and the wrist on the middle line at a third and at a half of its length, the forearm twist halfway between them, and the finger joint and its tail near the tip. The flipper is broad from the front to the back, so its palm faces in toward the body, at right angles to the middle line. The short legs hide in the egg: the thigh joint lies above the knee inside the egg, the ankle above the foot, and the toes at the ball of the foot (toe tips at z 0.105). The short pointed tail sticks out back at the bottom of the egg (y 0.05 to 0.16). The jaw joint lies at the hinge of the beak, the middle of the two corners of the mouth (x -0.045 and 0.045, y 0.883, z 0.14, beak-split.log), and its tail at the tip of the beak.",
+  "jointsNote": "The places are in the studio units and axes of the source pose: 1 unit from the soles to the crown, the soles at y = 0, +z forward, +x the left side. The right side mirrors the left side. The body is one egg with no neck. The penguin has no ears, so each ear joint lies inside the crown. The jaw joint lies at the hinge of the beak.",
   "studio": {
     "legTurns": {
       "thigh": [
@@ -293,7 +293,7 @@
         0.731461
       ]
     },
-    "note": "The studio has no penguin. legTurns gives the world turn of each left leg bone from the seated bind pose to the source, and the right side mirrors it. The penguin stands on its riser in the app (the standing pose of the rig), and its legs hide in the egg, so the seated bind keeps the legs of the source: each turn is the identity. The trunk does not recline (open 0). The upper arm of the bind points out, down, and forward, at 40 degrees below the level: with the bind arm of the other meshes (8 degrees below the level), the large turn from the hanging flipper turned 20 faces of the root of the flipper over in the bind, and 13 faces folded in each sample of the play. With this bind, no face turns over in the bind, and at most 4 faces fold (check-bind.log, check-bind2.log). The forearm and the hand keep the bind directions of the other meshes."
+    "note": "The penguin stands on its riser, and its legs hide in the egg, so each leg turn is the identity, and the trunk does not recline (open 0). The upper arm of the bind points out, down, and forward, at 40 degrees below the level, so that no face of the flipper root turns over."
   },
   "weights": {
     "armSplit": 0.226,
@@ -315,12 +315,12 @@
     "sliver": {
       "angle": 10,
       "longest": 0.03,
-      "note": "The values of the fox, the cat, the dog, the panda, the hippo, the mouse, the pig, the wolf, the monkey, and the rhino."
+      "note": "The values of the fox."
     },
     "line": {
       "angle": 150,
       "head": true,
-      "note": "The values of the fox, the cat, the dog, the panda, the hippo, the mouse, the pig, the wolf, the monkey, and the rhino."
+      "note": "The values of the fox."
     },
     "clavicleFrom": [
       0.56,
@@ -342,7 +342,7 @@
       ],
       "note": "The part of the thigh weight that goes to the hips grows from 0 at the knee to 1 at the thigh joint, so that the bottom of the egg stays on the hips."
     },
-    "note": "Beyond the plane |x| = armSplit, only the free flipper follows the arm bones: below y 0.47, each vertex of the flipper lies at x 0.227 or more, and each vertex of the side of the body at x 0.225 or less (flipper-free.txt). Above headFrom, the narrowest cut under the head, each vertex follows the head only. The tail is a ball on one bone (tailBall): the vertices within radius of the center and behind the plane z = behind follow the tail. clavicleFrom and armTop are the rules of the rhino, moved with the shoulder joint (y 0.6) and the head.",
+    "note": "Beyond the plane |x| = armSplit, only the free flipper follows the arm bones. Above headFrom, the narrowest cut under the head, each vertex follows the head only. The tail is a ball on one bone (tailBall). clavicleFrom and armTop are the rules of the rhino.",
     "jaw": {
       "box": [
         [
@@ -357,7 +357,7 @@
         ]
       ],
       "below": 0.8829,
-      "note": "Each vertex of the lower part of the beak, in the box of the beak of beak_split.py and below the mouth plane (y 0.883), follows the jaw only. The gap of the split puts the lower edge of the cut 0.00026 u below the plane. The corners of the mouth lie on the plane and stay on the head."
+      "note": "Each vertex of the lower part of the beak, in the box of the beak and below the mouth plane, follows the jaw only (tools/blender/penguin_beak.py). The corners of the mouth lie on the plane and stay on the head."
     }
   },
   "refine": {
@@ -367,9 +367,9 @@
       "normals": 60,
       "move": 0.0016,
       "rounds": 4,
-      "note": "The values of the fox, the cat, the dog, the panda, the hippo, the mouse, the pig, the wolf, the monkey, and the rhino."
+      "note": "The values of the fox."
     },
-    "ringsNote": "The first config has no rings. pnpm rig-mesh penguin --check lists the thin faces near the joints as candidates for a ring (check.thin)."
+    "ringsNote": "The config has no rings. pnpm rig-mesh penguin --check lists the thin faces near the joints as candidates for a ring (check.thin)."
   },
   "check": {
     "thin": {
@@ -377,7 +377,7 @@
       "length": 0.08,
       "near": 0.1
     },
-    "note": "The values of the fox, the cat, the dog, the panda, the hippo, the mouse, the pig, the wolf, the monkey, and the rhino."
+    "note": "The values of the fox."
   },
   "colors": {
     "samples": 6,
@@ -398,9 +398,9 @@
       ],
       "x": 0.15,
       "arm": 0.5,
-      "note": "The user said on 2026-10-28: \"check the rigged glb and the original glb, the rigged one has extra black area and bump under the arm\". The texture paints the black flipper larger than the flipper of the mesh, so a band of black skin of the trunk with less than half of its weight on the arm surrounds the flipper at its front and below its tip (penguin-flank-map.webp of docs/research/2026-10-28-followups/: green for an arm share of 0.5 or more, red for a black face with a smaller share). When the flipper rises to the folder, the band stayed on the white side as a black tongue with a hook. Each black face of the side (|x| from 0.15 units) forward of the line from the armpit (height 0.62, 0.06 units forward) to the lower side (height 0.26, 0.06 units back) takes the white of the nearest light face (flank_faces() of tools/blender/rig_mesh.py): 61 faces. The line from (0.6, 0.07) to (0.3, -0.04) left a step at the left side."
+      "note": "The texture paints the black flipper larger than the flipper of the mesh. Thus each black face of the side forward of the line from the armpit to the lower side takes the white of the nearest light face (flank_faces() of tools/blender/rig_mesh.py), so that a raised flipper leaves no black band on the white side."
     },
-    "splitNote": "The user said on 2026-10-28: \"the penguine's head has unnatural gradient between black and white. Make it look more like the original mesh\". The texture of the mesh has a sharp edge between the black and the white through the faces, so a face across the edge took the mean of black and white, and the faces of the edge showed as a gray and tan band on the head and the neck. A face whose samples spread over more than 0.3 of Oklab lightness takes the mean of the larger of its light and dark halves (face_colors() of tools/blender/rig_mesh.py), so the edge is black or white. 0.2 gave the same look. The faces along the edge are cut since the same day (source), and the rule still gives one side to a face with an island of the other side inside it.",
+    "splitNote": "A face whose samples spread over more than 0.3 of Oklab lightness takes the mean of the larger of its light and dark halves (face_colors() of tools/blender/rig_mesh.py). Thus the edge between the black and the white is sharp, with no gray band.",
     "shift": {
       "chroma": [
         0.04,
@@ -415,7 +415,7 @@
         0.25
       ],
       "turn": 0,
-      "note": "The pale yellow throat and cheeks of the mesh (Oklab chroma 0.09 at the lightness 0.85 to 0.9, tone.txt) take a quarter of their chroma, the chroma of the white belly (0.027), so that the front is white from the beak to the feet, as the penguins of orchestra-latest.png and orchestra-side.png and SPECIES_COLORS.penguin (shift_colors() of tools/blender/rig_mesh.py). A face takes the move by the smoothstep of its chroma from 0.04 to 0.07 and of its lightness from 0.8 to 0.84: the white belly (chroma 0.027), the black (lightness 0.18), and the orange beak and feet (lightness 0.75 and 0.70 at most) keep their colors. 112 faces move (check-final.log, colors-shift.webp)."
+      "note": "The pale yellow throat and cheeks take a quarter of their chroma, so that the front is white from the beak to the feet, as in orchestra-latest.png and SPECIES_COLORS.penguin (shift_colors() of tools/blender/rig_mesh.py). The white, the black, and the orange parts keep their colors."
     },
     "eyeBox": [
       [
@@ -429,7 +429,7 @@
         0.122
       ]
     ],
-    "note": "The values of samples, palette, and eyeShare are the values of the other meshes. The black of the head, the back, and the flippers is the color of the penguin, so a face is dark only below the dark limit 0.0055 that rig-mesh --check gives: 4.8% of the faces outside the eye boxes (check-first.log). A dark face in the eye box is a face of an eye: about 23 faces on each side at |x| 0.06 to 0.08, y 0.896 to 0.92, and z 0.09 to 0.12 (colors.txt). The config has no nose box: the beak keeps its orange."
+    "note": "The black of the head, the back, and the flippers is the color of the penguin, so a face is dark only below the dark limit 0.0055. A dark face in the eye box is an eye. The config has no nose box, so the beak keeps its orange."
   },
   "eyeShell": {
     "lift": 0.002,
@@ -443,7 +443,7 @@
     "front": -0.11,
     "back": -0.165,
     "backHeight": 0.15,
-    "note": "The chair of the rig sets the seat top of the seated bind. The penguin stands in the app (the standing pose of the rig, soloist of ANIMALS), so no player sits on this seat. The front edge lies behind the feet (from z -0.095 u, check-first.log), and the back edge in front of the tail. The half width and the height of the back are the values of the rhino."
+    "note": "The chair of the rig sets the seat top of the seated bind, but the penguin stands in the app, so no player sits on this seat. The front edge lies behind the feet, and the back edge in front of the tail."
   },
   "crease": {
     "rings": 2,
@@ -451,7 +451,7 @@
     "share": 0.5,
     "back": 0.1,
     "below": 0.03,
-    "note": "The values of the fox, the cat, the dog, the panda, the hippo, the mouse, the pig, the wolf, the monkey, and the rhino."
+    "note": "The values of the fox."
   },
-  "sourceNote": "The mesh of the user with the beak split along the mouth line and closed with caps of a dark mouth color (tools/blender/penguin_beak.py, assets/models/penguin/README.md). The file of the user, penguin.glb, does not change. The faces across the black and white edge of the texture are cut along that edge (tools/blender/penguin_edge.py, assets/models/penguin/README.md): the user said on 2026-10-28 \"the penguine's head has unnatural gradient between black and white. Make it look more like the original mesh\", and chose to cut the faces along the edge of the texture. 178 faces split, so the mesh has 3,549 triangles (3,185 before)."
+  "sourceNote": "The mesh with the beak split along the mouth line and closed with caps of a dark mouth color (tools/blender/penguin_beak.py). The faces across the black and white edge of the texture are cut along that edge (tools/blender/penguin_edge.py). See assets/models/penguin/README.md. penguin.glb does not change."
 }
