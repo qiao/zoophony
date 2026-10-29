@@ -577,8 +577,14 @@ passes, and the quality tiers of 2.6 keep 60 fps on a laptop.
 
 ## Step 7. Demo build, tests, and deploy (8, 9)
 
-- [ ] Open the deployed site <https://qiao.github.io/zoophony/>, play the default demo, and check
-      that the CI and Pages runs pass (9.2).
+- [ ] Run `pnpm deploy:vercel`, open the deployed site, play the default demo, and check that the
+      CI run passes (9.2).
+- [ ] Put the Vercel URL in the line "Live site" of `README.md`, and turn off GitHub Pages in the
+      settings of the repository. The old site at <https://qiao.github.io/zoophony/> stays online
+      until then.
+- [ ] Check the notes on GitHub Pages against Vercel: design 7.2 and 8.3, and the comments of
+      `tools/gzip-site.ts`, `tools/size.ts`, `tools/load-probe.ts`, `src/audio/plain-bytes.ts`, and
+      `vite.config.ts`. They tell how the host sends the files that the build gzips.
 - [ ] Add an Open Graph image to `index.html`: a screenshot of the default view, with the absolute
       URL of the deployed site (2.8).
 - [ ] Add `AudioContext.playbackStats` to the manual release test of 9.4. Chrome gives the underruns
