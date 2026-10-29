@@ -25,21 +25,6 @@ export type ProcessorCommand =
   | TransportCommand
   | SeatCommand;
 
-/** The render time statistics of the processor, for the spike page. */
-export interface RenderStats {
-  /** The number of blocks that the processor rendered while the song played. */
-  readonly blocks: number;
-  /** The number of these blocks with a render time above the block length (2.7 ms at 48 kHz). */
-  readonly slowBlocks: number;
-  /** The longest render time of a block, in milliseconds. */
-  readonly maxRenderMs: number;
-  /**
-   * The timer of the render time. Chromium has no `performance` in a worklet, so the processor
-   * then uses `Date.now()`. Its 1 ms steps count only the blocks of 3 ms or more as slow.
-   */
-  readonly timer: 'performance.now' | 'Date.now';
-}
-
 /** A message from the worklet processor to the `Player`. */
 export type ProcessorReply =
   | {
@@ -48,5 +33,4 @@ export type ProcessorReply =
       readonly banks: number;
     }
   | { readonly type: 'anchor'; readonly anchor: ClockAnchor }
-  | { readonly type: 'stats'; readonly stats: RenderStats }
   | { readonly type: 'error'; readonly message: string };

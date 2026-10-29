@@ -1,4 +1,4 @@
-import { BLOCK_FRAMES, SynthEngine } from './engine.ts';
+import { SynthEngine } from './engine.ts';
 import { PROCESSOR_NAME } from './processor-messages.ts';
 import type { ProcessorCommand, ProcessorReply } from './processor-messages.ts';
 
@@ -19,20 +19,9 @@ declare function registerProcessor(
 
 type ProcessArguments = [inputs: Float32Array[][], outputs: Float32Array[][]];
 
-/** The timer of the render time. Chromium has no `performance` in a worklet. */
-const timer: { now(): number } = 'performance' in globalThis ? globalThis.performance : Date;
-
-const timerName = 'performance' in globalThis ? 'performance.now' : 'Date.now';
-
 /** The worklet processor: spessasynth_core and the block scheduler (design 6.4). */
 class SynthProcessor extends AudioWorkletProcessor {
   readonly #engine: SynthEngine;
-  readonly #budgetMs = (BLOCK_FRAMES / sampleRate) * 1000;
-  readonly #statsInterval = Math.round(sampleRate / BLOCK_FRAMES);
-  #blocks = 0;
-  #slowBlocks = 0;
-  #maxRenderMs = 0;
-  #blocksSinceStats = 0;
   #failed = false;
 
   constructor() {
@@ -52,8 +41,6 @@ class SynthProcessor extends AudioWorkletProcessor {
     if (!left || !right || this.#failed) {
       return true;
     }
-    const playing = this.#engine.playing;
-    const start = timer.now();
     try {
       this.#engine.render(currentTime, left, right);
     } catch (error) {
@@ -63,31 +50,7 @@ class SynthProcessor extends AudioWorkletProcessor {
       this.#reply({ type: 'error', message: String(error) });
       return true;
     }
-    if (playing) {
-      this.#count(timer.now() - start);
-    }
     return true;
-  }
-
-  #count(renderMs: number): void {
-    this.#blocks += 1;
-    if (renderMs > this.#budgetMs) {
-      this.#slowBlocks += 1;
-    }
-    this.#maxRenderMs = Math.max(this.#maxRenderMs, renderMs);
-    this.#blocksSinceStats += 1;
-    if (this.#blocksSinceStats >= this.#statsInterval) {
-      this.#blocksSinceStats = 0;
-      this.#reply({
-        type: 'stats',
-        stats: {
-          blocks: this.#blocks,
-          slowBlocks: this.#slowBlocks,
-          maxRenderMs: this.#maxRenderMs,
-          timer: timerName,
-        },
-      });
-    }
   }
 
   #receive(command: ProcessorCommand): void {

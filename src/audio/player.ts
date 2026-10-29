@@ -23,7 +23,7 @@ import type { OutputChain } from './output-chain.ts';
 import { INDEX_FILE, resolvePresetFiles } from './preset-index.ts';
 import type { PresetFileEntry } from './preset-index.ts';
 import { PROCESSOR_NAME } from './processor-messages.ts';
-import type { ProcessorCommand, ProcessorReply, RenderStats } from './processor-messages.ts';
+import type { ProcessorCommand, ProcessorReply } from './processor-messages.ts';
 import processorUrl from './processor.ts?worker&url';
 import { packSynthEvents, tableBuffers } from './synth-events.ts';
 import { SOUNDFONT_HEADROOM_DB } from './soundfont-info.ts';
@@ -196,7 +196,6 @@ export class WorkletPlayer implements Player {
   #live: Engine | undefined;
   #anchors: readonly ClockAnchor[] = [];
   #durationSec = 0;
-  #stats: RenderStats | undefined;
   #pcmBytes = 0;
   #rate: number | undefined;
   #requestId = 0;
@@ -231,11 +230,6 @@ export class WorkletPlayer implements Player {
   /** The clock anchors that `now()` uses, the last one at the end. */
   get anchors(): readonly ClockAnchor[] {
     return this.#anchors;
-  }
-
-  /** The last render time statistics of the processor, or undefined before the first. */
-  get renderStats(): RenderStats | undefined {
-    return this.#stats;
   }
 
   /** The PCM SF2 size of all banks that the synth holds, in bytes (design 6.3, 9.7). */
@@ -613,9 +607,6 @@ export class WorkletPlayer implements Player {
     switch (reply.type) {
       case 'anchor':
         this.#anchors = addScoreAnchor(this.#anchors, reply.anchor, engine.loads);
-        break;
-      case 'stats':
-        this.#stats = reply.stats;
         break;
       case 'ready':
         this.#readyQueue.shift()?.resolve();
