@@ -8,7 +8,6 @@ import {
 import type { ToneMapping } from 'three';
 
 import { CLEAR_COLOR } from './post.ts';
-import type { TargetFormat } from './post.ts';
 import { tierPixelRatio } from './quality.ts';
 import { smoothShadowEdges } from './shadow-chunk.ts';
 import type { QualityTier } from './quality.ts';
@@ -73,28 +72,6 @@ export function rendererSettings(look: RendererLook): RendererSettings {
     exposure: STAGE_TONE.exposure,
     clearAlpha: 1,
   };
-}
-
-/**
- * Finds the color format that the GPU can render to, before the renderer of the page exists: a
- * small WebGL2 context reads the extensions, and then frees its context. The stage needs it to
- * select the MSAA of its canvas, because a canvas keeps the attributes of its first context.
- *
- * @returns The best format, or `none` with no WebGL2.
- */
-export function probeTargetFormat(): TargetFormat {
-  const gl = document.createElement('canvas').getContext('webgl2');
-  if (!gl) {
-    return 'none';
-  }
-  let format: TargetFormat = 'none';
-  if (gl.getExtension('EXT_color_buffer_float')) {
-    format = 'packed';
-  } else if (gl.getExtension('EXT_color_buffer_half_float')) {
-    format = 'half';
-  }
-  gl.getExtension('WEBGL_lose_context')?.loseContext();
-  return format;
 }
 
 /**

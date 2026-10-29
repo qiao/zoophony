@@ -73,12 +73,12 @@ import {
 } from './player.ts';
 import type { PlayerSpot } from './player.ts';
 import { PostPipeline, targetFormatOf } from './post.ts';
-import type { HazeFrame } from './post.ts';
+import type { HazeFrame, TargetFormat } from './post.ts';
 import { POST_LOOK } from './post.ts';
 import { createRimUniforms, setRimLights } from './rim-light.ts';
 import { SHOT_LOOK, createShotUniforms, setShotLight } from './shot-light.ts';
 import { freeShotLight, shotRig } from '../shots/shot-light.ts';
-import { createRenderer, probeTargetFormat } from './renderer.ts';
+import { createRenderer } from './renderer.ts';
 import { aimGap, easeAim, easeShare, soloAim } from './solo-light.ts';
 import { STAGE_SHADOW, createStage, noBakeUniforms } from './stage.ts';
 import { VariantMaterials } from './variants.ts';
@@ -90,6 +90,8 @@ import { compileInto, gpuDoneSteps, programsReadySteps } from './programs.ts';
 interface StageSceneOptions {
   readonly tier: QualityTier;
   readonly devicePixelRatio: number;
+  /** The color format of a render target of the GPU, from the probe of WebGL2 (design 2.6). */
+  readonly targetFormat: TargetFormat;
   /** True if the user prefers reduced motion (design 2.5). */
   readonly reducedMotion: boolean;
 }
@@ -399,7 +401,7 @@ export class StageScene {
     this.#devicePixelRatio = options.devicePixelRatio;
     // A GPU with no target of floats renders with no post effects, so its canvas has the MSAA
     // (design 2.6).
-    const look = probeTargetFormat() === 'none' ? 'stage' : 'post';
+    const look = options.targetFormat === 'none' ? 'stage' : 'post';
     this.#renderer = createRenderer(canvas, options.tier, options.devicePixelRatio, look);
     this.#renderer.setOpaqueSort(this.#variants.opaqueSort);
     this.#exposure = this.#renderer.toneMappingExposure;

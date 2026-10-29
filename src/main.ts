@@ -5,7 +5,8 @@ import { App } from './app/app.ts';
 import { fileFromHash } from './app/demos.ts';
 import type { DevHook } from './app/dev-hook.ts';
 import { NO_WEBGL2_TEXT } from './app/messages.ts';
-import { supportsWebgl2 } from './app/webgl.ts';
+import { yieldToMain } from './app/slices.ts';
+import { probeWebgl2 } from './app/webgl.ts';
 import { boneIndex } from './models/rig.ts';
 import { watchPixelRatio } from './scene/pixel-ratio.ts';
 import { startTierOf } from './scene/quality.ts';
@@ -14,19 +15,24 @@ import { showFullPageMessage } from './ui/full-page-message.ts';
 
 /**
  * Makes the scene of the stage, or gives `null` for a browser with no WebGL2 (design 2.6). The
- * renderer can also fail to make its context, for example with no GPU.
+ * renderer can also fail to make its context, for example with no GPU. The probe and the renderer
+ * each start in a later task, so that no task of the load blocks the page (design 7.2).
  *
  * @param canvas The canvas of the stage.
  * @returns The scene, or `null` with no WebGL2.
  */
-function createScene(canvas: HTMLCanvasElement): StageScene | null {
-  if (!supportsWebgl2(document.createElement('canvas'))) {
+async function createScene(canvas: HTMLCanvasElement): Promise<StageScene | null> {
+  await yieldToMain();
+  const targetFormat = probeWebgl2(document.createElement('canvas'));
+  if (targetFormat === null) {
     return null;
   }
+  await yieldToMain();
   try {
     return new StageScene(canvas, {
       tier: startTierOf(window),
       devicePixelRatio: window.devicePixelRatio,
+      targetFormat,
       reducedMotion: window.matchMedia('(prefers-reduced-motion: reduce)').matches,
     });
   } catch (error) {
@@ -87,6 +93,13 @@ function start(canvas: HTMLCanvasElement, scene: StageScene): void {
   };
   window.addEventListener('resize', resize);
   watchPixelRatio(window, resize);
+  // The first size comes after the layout of the page: a read of the canvas size before it
+  // forces the layout inside this task (design 7.2).
+  const firstSize = new ResizeObserver(() => {
+    firstSize.disconnect();
+    resize();
+  });
+  firstSize.observe(canvas);
   if (import.meta.env.DEV) {
     installDevHook(app, scene);
     soloFromQuery(app, scene);
@@ -97,7 +110,6 @@ function start(canvas: HTMLCanvasElement, scene: StageScene): void {
     app.select(fileFromHash(location.hash, import.meta.env.DEV), false).catch(reportError);
   });
   const first = fileFromHash(location.hash, import.meta.env.DEV);
-  resize();
   // The first screen waits for a click, because the browser needs a user gesture (design 2.2).
   app.select(first, false).catch(reportError);
   requestAnimationFrame(frame);
@@ -111,11 +123,14 @@ const canvas = document.querySelector<HTMLCanvasElement>('#stage');
 if (!canvas) {
   throw new Error('The page has no canvas with the id "stage".');
 }
-const scene = createScene(canvas);
-if (scene) {
-  start(canvas, scene);
-} else {
-  // The app has no WebGL1 fallback (design 2.6), so the message replaces the stage.
-  canvas.hidden = true;
-  showFullPageMessage(document.body, NO_WEBGL2_TEXT);
-}
+createScene(canvas)
+  .then((scene) => {
+    if (scene) {
+      start(canvas, scene);
+    } else {
+      // The app has no WebGL1 fallback (design 2.6), so the message replaces the stage.
+      canvas.hidden = true;
+      showFullPageMessage(document.body, NO_WEBGL2_TEXT);
+    }
+  })
+  .catch(reportError);
