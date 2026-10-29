@@ -470,6 +470,10 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       light. From the stage camera at elevation 40, the bear and the keys hide the pedals and the
       feet. No demo has sustain pedal data (CC 64) on the piano, so the damper pedal moves only
       with a file of the user.
+- [ ] Polar bear keys (`2026-10-28-piano-keys.md`): with the gaps of 1 mm between the white keys,
+      the soft shadow of the paws on the keys is weaker than on `main` in the close views. With
+      no gap, it is as on `main`. The cause is not known. The claws stay at the key top and do
+      not follow a pressed key down (about 1 cm).
 - [ ] Bear (T-pose mesh, `2026-10-23-bear-tpose.md`): at rest, the arms stand out about 35° from
       the body around the wide belly, where the studio bear held its paws at the hips. The
       upper arms go 2.2 cm into the body while the arms move (3.5 cm before the quad arms of
