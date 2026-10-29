@@ -4,8 +4,8 @@ import { IDENTITY, toQuat, toVec3 } from '../tuples.ts';
 import { applyTransform, transform } from '../mesh.ts';
 import type { Quat, Vec3 } from '../tuples.ts';
 import type { Transform } from '../mesh.ts';
-import { box, cylinder, lathe, prism, quad, sweep } from '../primitives.ts';
-import type { OutlinePoint, ProfilePoint } from '../primitives.ts';
+import { box, cylinder, lathe, plate, prism, quad, sweep } from '../primitives.ts';
+import type { OutlinePoint, PlateLevel, ProfilePoint } from '../primitives.ts';
 import { DEFAULT_HEAD_HEIGHT } from '../species.ts';
 import { PieceBuilder, hold, pieceSize } from './piece.ts';
 import type { InstrumentModel, InstrumentPiece, PlayTarget } from './types.ts';
@@ -516,6 +516,43 @@ const BRIDGE = {
 } as const;
 
 /**
+ * The chin rest of the violin and the viola at the left of the tailpiece, in meters in the
+ * violin axes: an oval cup with a rim. The rim is at the chin grip of {@link buildBowedString},
+ * so the chin rests on it.
+ */
+const CHIN_REST = {
+  /** The center of the oval: along the violin, and across. */
+  center: [0.023, 0.028],
+  /** The half length and the half width of the oval. */
+  half: [0.019, 0.0145],
+  /** The height of the bottom on the edge of the top. */
+  bottom: 0.0335,
+  /**
+   * The levels from the bottom: the scale of the oval and the height above the bottom. The last
+   * level is the floor of the cup, below the rim.
+   */
+  levels: [
+    [0.85, 0],
+    [1, 0.012],
+    [1, 0.019],
+    [0.6, 0.017],
+  ] satisfies readonly PlateLevel[],
+} as const;
+
+/**
+ * Makes the oval outline of the chin rest.
+ *
+ * @returns The outline, counterclockwise when seen from +y.
+ */
+function chinRestOutline(): OutlinePoint[] {
+  const [a, b] = CHIN_REST.half;
+  return Array.from({ length: 8 }, (_, k): OutlinePoint => {
+    const angle = (-k / 8) * 2 * Math.PI;
+    return [a * Math.cos(angle), b * Math.sin(angle)];
+  });
+}
+
+/**
  * Places a part in a frame. The frame has no scale.
  *
  * @param frame The frame.
@@ -621,7 +658,11 @@ function addViolinParts(piece: PieceBuilder, frame: Transform, upright: boolean)
   // The tailpiece, which tapers from its top end to the edge of the body, and the chin rest.
   part(sweep(TAILPIECE.map(tailRing)), dark, [0, 0, 0]);
   if (!upright) {
-    part(box(0.04, 0.012, 0.05), dark, [0.018, v.bodyThickness + 0.006, 0.03]);
+    part(plate(chinRestOutline(), CHIN_REST.levels), dark, [
+      CHIN_REST.center[0],
+      CHIN_REST.bottom,
+      CHIN_REST.center[1],
+    ]);
   }
   // The bridge: a thin plate across the violin, with its feet on the arch.
   const across = new Vector3(0, 0, 1);
