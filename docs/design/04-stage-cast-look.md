@@ -165,8 +165,8 @@ give their offsets in `H`, so one hold serves the species of different sizes.
 ## 4.4 Models
 
 Code builds the instruments and the props from low-poly shapes with vertex colors. Each species
-has a studio body: a source mesh, rigged into the studio format. The app reads only the
-modules of `src/models/studio/`, and the tools make them from the meshes:
+has a studio body: a source mesh, rigged into the studio format. The app reads only the modules
+of `src/models/studio/`, and the tools make them from the meshes:
 
 ```text
 user mesh (Meshy GLB)  ->  tools/blender/<a>_arms.py  ->  <a>-arms.glb + <a>-weights.json
@@ -174,66 +174,105 @@ user mesh (Meshy GLB)  ->  tools/blender/<a>_arms.py  ->  <a>-arms.glb + <a>-wei
   ->  pnpm studio-body <a> (no Blender)  ->  src/models/studio/<a>.ts (the app reads only this)
 ```
 
-The files of each species are in `assets/models/<a>/`, and its `README.md` gives the source and
-the steps of each file. [`docs/agents/rigging.md`](../agents/rigging.md) gives the details and
-the traps of the rig.
+The `README.md` of `assets/models/<a>/` gives the source and the steps of each file.
+[`docs/agents/rigging.md`](../agents/rigging.md) gives the details and the traps of the rig.
 
 ### Source meshes
 
 - **Fidelity.** A source mesh stays as it is. The rig adds no stretch of a limb, unless a
-  product choice sets an arm or a leg factor. The props and the instruments fit the body:
-  each chair fits the legs, and a species with short arms plays a smaller instrument in place of
-  longer arms (4.6). The source file stays unchanged. Each edit goes into a copy that a script
-  of `tools/blender/` makes, so that a run gives the same bytes again.
-- **Colors.** The texture of the mesh shows as one color for each face. A color rule of the rig
-  can move the fur toward the color of the species in the reference images (mesh rig, below).
+  product choice sets an arm or a leg factor. The props and the instruments fit the body: each
+  chair fits the legs, and a species with short arms plays a smaller instrument in place of
+  longer arms (4.6). Each edit goes into a copy that a script of `tools/blender/` makes, so the
+  source file stays unchanged and a run gives the same bytes again.
+- **Colors.** The texture shows as one color for each face. A color rule of the rig can move the
+  fur toward the color of the species in the reference images.
 - **Intake pose.** A new mesh comes in an A-pose, with a gap between each arm and the trunk. An
   arm that touches the trunk needs a cut with a flat cap, and bone heat then spreads the arm
-  weights into the trunk. Both give flaps at the armpit. The rig fixes the meshes that exist,
-  and nobody makes them again.
+  weights into the trunk. Both give flaps at the armpit. The rig fixes the meshes that exist.
 - **Triangle budget.** The budget of a studio body allows round forms, such as a round tube for
-  each arm and a round shoulder (`STUDIO_TRIANGLE_BUDGET` and `STUDIO_MESH_GZIP_BUDGET` of
-  `tools/studio-budgets.ts`). The pea eyes add their triangles. The first download of 1 MB and
-  the frame time of 9.7 stay the limits.
+  each arm (`STUDIO_TRIANGLE_BUDGET`, `STUDIO_MESH_GZIP_BUDGET` of `tools/studio-budgets.ts`).
+  The first download of 1 MB and the frame time of 9.7 stay the limits.
 - **Licenses.** The project author made the meshes with Meshy on a paid plan, and holds their
   rights. The files of `assets/models/` and `src/models/studio/` are under CC BY-NC 4.0 (the
-  `README.md` of the repository). They need no entry in the third-party license file (7.3).
+  `README.md` of the repository), with no entry in the third-party license file (7.3).
 
 ### Rules of each body
 
 - The animal faces -z, with its left side at -x. The mouth is near the middle plane, below the
-  eyes.
-- The bones have the names of 4.7, so that the pose code of section 5 drives each body. A
-  vertex follows up to four studio bones.
+  eyes. The bones have the names of 4.7, so that the pose code of section 5 drives each body.
 - Each player is one `SkinnedMesh`: the body, the instrument, and the bow merge into one mesh,
-  with one draw call for each player (4.5, materials). One `Mesh` for each part gives about 25
-  draw calls for each animal, which is too many for an integrated GPU. The static props merge
-  into a few meshes.
-- The tests of the behavior check each body: the clearance of the arms, the bow hold, the hidden
-  heads, the budgets, the feet on the floor, and the footprints of the layout.
+  with one draw call. One `Mesh` for each part gives about 25 draw calls for each animal, which
+  is too many for an integrated GPU. The static props merge into a few meshes.
 
 ### Export
 
-`pnpm studio-body <animal>` (`tools/studio-body.ts`) reads the rigged GLB file with no Blender
-and writes the module of the body. The entry of the animal in `ANIMALS` gives its settings.
+`pnpm studio-body <animal>` reads the rigged GLB file with no Blender and writes the module. The
+entry of the animal in `ANIMALS` of `tools/studio-body.ts` gives its settings.
 
-- It turns the animal to face -z and scales it (scale, below). It drops the props and the clips
-  of the studio, because the app keeps its own. It joins the digits of a paw into one `fingers`
-  bone, so that the digits curl together.
-- It drops the eyes of the mesh, and the app puts its pea eyes there on eye bones of their own,
-  so that they blink (`StudioBody.eyes`). A pea eye is a share of the head height, and a body
-  can scale its eyes (`eyeSize`), turn them level (`eyeLevel`), move them to a part of the face
-  with less fold (`eyeShift`), or turn them toward the normal of the face (`eyeNormal`).
-- Each pea eye bends along its direction to a fit of the head surface (`eyeBend()`), so its rim
-  lies at the fur in each view. The light of the eye is a thin disc flat on the front of the
-  oval. Both lights show on the upper left of the eyes seen from the front, as the reflection of
-  one lamp does on two real eyes.
-- The tip of the nose comes only from the vertices near the middle plane (`NOSE_PLANE`), because
-  a whisker tip can be the front of the head. A horn on the muzzle stands in front of the lips,
-  so the rhino takes its nose tip from below the horn (`noseTop`).
-- The head measures (`H`, the head center, and the box of the pea eyes) leave out a long nose
-  below the chin, the whisker tips, and the antlers (`headFloor`, `headCeiling`), because the
-  holds in `H` start at the head.
+- It turns the animal to face -z and scales it. It drops the props and the clips of the studio,
+  because the app keeps its own, and it joins the digits of a paw into one `fingers` bone.
+- It drops the eyes of the mesh, and puts the pea eyes of the app on eye bones of their own, so
+  that they blink. A body can scale, level, move, or turn its eyes (`eyeSize`, `eyeLevel`,
+  `eyeShift`, `eyeNormal`). Each eye bends to the head surface (`eyeBend()`), so its rim lies at
+  the fur. Both eye lights show on the upper left, as the reflection of one lamp does.
+- The tip of the nose comes from the vertices near the middle plane (`NOSE_PLANE`), or below a
+  horn (`noseTop`). The head measures leave out a long nose, the whiskers, and the antlers
+  (`headFloor`, `headCeiling`), because the holds in `H` start at the head.
+- **Scale.** The scale keeps a landmark that the scene depends on: the shoulders of the bear for
+  the conductor stand, and the shoulders, the ear tips, or the head top at the chosen size for
+  each other body. A longer leg raises the landmark, so the trunk, the head, and the arms keep
+  their size in meters.
+
+### Mesh rig
+
+`pnpm rig-mesh <animal>` rigs a source mesh with Blender: one mesh of faces with one color each,
+the skeleton of the biped template of the studio, a skin of up to four bones for each vertex,
+and up to `RAISE_LIMIT` corrective shapes. The config `tools/mesh-rigs/<animal>.json` gives the
+joints and the rules, each with a note.
+
+| Group | Config keys | Purpose |
+| --- | --- | --- |
+| Form | `armFactor`, `legFactor`, `headFactor`, `neckFactor`, `trunkFactor`, `girthFactor`, `proportions` | Change a part to a product choice or to the sheet. The head can keep its form. |
+| Seat | `studio.legTurns`, `sit`, `studio.trunk`, `chair.front`, `crease` | Bind a seated role in its pose of 5.2, with the haunch on the seat. |
+| Weights | `weights.*`, `refine.rings`, `refine.pointFlip`, `heatSource` | Bone heat, with rules and rings that keep the faces at the joints from a fold. |
+| Shapes | `raise` | Give the source back in the standing pose, and relax the faces of a bent arm. |
+| Arms | `upperTwist`, `armSegments`, `studio.bindSupination`, `studio.bindArms`, `armSmooth` | Spread the roll of an arm along the arm, so the skin does not twist. |
+| Splits | `weights.armSplit`, `weights.armFree`, `weights.armCrease`, `cut` | Free an arm that the mesh joins to the trunk, so a raised arm pulls no flap out. |
+| Normals | `cut.skinNormals`, `cut.bodyNormals`, `rootNormals` | Shade a bent arm root, elbow, wrist, or knee soft, with no dark slot. |
+| Colors | `colors.tone`, `colors.shift`, `colors.dark`, `colors.border`, `colors.split`, `colors.flank` | Move the face colors toward the reference, and keep the black borders clean. |
+| Face | `colors.patch`, `colors.smile`, `soften`, `eyeShell` | Give a happy face: round eye patches, a thin smile line, and no brow crease. |
+| Tail, ears, jaw | `studio.tailCurl`, `studio.tailBind`, `tailBall`, `earFlap`, `noseFront`, `weights.jaw` | Lay a tail on the seat or the floor, let a trunk or a hanging ear follow the head, and open a beak. |
+
+**Arms.** A hold with the elbow out and level rolls the upper arm far, and the linear blend at
+the shoulder then twists the skin and squeezes the arm flat. So a body takes a twist bone of each
+upper arm (`upperTwist`), or arm segments with a helper bone at the elbow and at the wrist
+(`armSegments`). The arms of a body with segments are quad tubes that a script of
+`tools/blender/` builds on the arms of the mesh. The bind paw sets the zero of the paw twist, so
+the rig turns it toward supination where a hold supinates far (`studio.bindSupination`).
+
+**Arm gate.** A fold count does not see a twisted or a flat arm. So `pnpm arm-check` reads all
+arm measures of each arm against one table of limits (`ARM_LIMITS`), and each change of a pose,
+a hold, or a body runs it.
+
+### Seat
+
+- A seated role binds its mesh seated. The export puts the soles on the floor and the haunch on
+  the seat. The chair fits the body (`StudioBody.seatHeight`, `chairDepth`, `chairWidth`,
+  `backRoom`), so the feet touch the floor. The seat is level, and it ends where the thighs leave
+  it at the haunch (`chair.front`).
+- The polar bear sits on a bench that fits its haunch and legs (`benchFitOf()`), with vertical
+  shins and flat feet, as a real pianist sits. Its legs keep the length of the mesh, so the body
+  keeps the part ratios of the mesh. The deer sits on the stool of the harp.
+- The mouse, the beaver, and the monkey have no chair (`noChair`). Each keeps its seated pose at
+  the seat height of its legs, with its feet on the floor. The monkey has short legs under a
+  large head, so its feet stand under its hips and its trunk leans forward with the head level.
+  Its center of mass thus stays over its soles.
+- The hippo, the elephant, the badger, the rhino, and the penguin stand to play, in the standing
+  pose of their meshes. The rhino stands as a real tubist on a strap does.
+- A seated body that also stands as a soloist (`soloist` of `ANIMALS`) keeps the leg shapes of
+  its sheet pose (`standingBody()` of `models/studio-rig.ts`).
+
+### Retarget and render
 
 ```text
  src/models/studio/<a>.ts: StudioBody (packed mesh, heads, palms, sheet arms)
@@ -252,95 +291,18 @@ and writes the module of the body. The entry of the animal in `ANIMALS` gives it
                                             targets (scene/player.ts)
 ```
 
-### Mesh rig
-
-`pnpm rig-mesh <animal>` rigs a source mesh with Blender into the studio format: one mesh
-of faces with one color each, the skeleton of the biped template with twist bones of the
-forearms, a skin of up to four bones for each vertex, and up to four corrective shapes
-(`RAISE_LIMIT`). The config `tools/mesh-rigs/<animal>.json` gives the joints, measured on cuts
-of the mesh, and the rules, each with a note. `--check` measures the rig.
-
-| Group | Config keys | Reason |
-| --- | --- | --- |
-| Form | `armFactor`, `legFactor`, `headFactor`, `neckFactor`, `trunkFactor`, `girthFactor`, `proportions` (`keep`, `head`) | A factor changes a part to a product choice or to the sheet. The head can keep its form and move with the top of the neck. |
-| Seat | `studio.legTurns`, `sit`, `studio.trunk`, `chair.front`, `crease` | The rig binds a seated role in its seated pose of 5.2 and lowers the haunch onto the seat. |
-| Weights | bone heat, `weights.*`, `refine.rings`, `refine.pointFlip`, `heatSource` | Bone heat gives the weights. Rules and rings keep the faces at the joints from a fold. |
-| Shapes | `raise` (`spread`, `follow`, `smooth`, `below`, `grow`) | The shapes give the source back in the standing pose and relax the faces that a bent arm turns over. |
-| Arms | `upperTwist`, `armSegments`, `studio.bindSupination`, `studio.bindArms`, `paintedWeights`, `armSmooth`, `bindSmooth` | The roll of an arm spreads along the arm, so the skin does not twist like a wrung cloth. |
-| Splits | `weights.armSplit`, `weights.armFree`, `weights.armIslands`, `weights.armCrease`, `cut` | An arm that the mesh joins to the trunk is freed, so that a raised arm does not pull flaps out of the trunk. |
-| Normals | `cut.skinNormals`, `cut.bodyNormals`, `rootNormals` (`elbow`, `wrist`, `knee`, `armShare`, `turn`) | The faces at an arm root, an elbow, a wrist, or a knee take the normals of the skin, so a bent joint shades soft and shows no dark slot. |
-| Colors | `colors.tone`, `colors.shift`, `colors.dark`, `colors.border`, `colors.split`, `colors.flank` | The face colors move toward the reference colors, and the black borders do not get teeth or bands. |
-| Face | `colors.patch`, `colors.smile`, `soften`, `eyeShell` | The face rules give a happy face: round eye patches, a thin smile line with the corners up, and no brow crease. |
-| Tail, ears, jaw | `tail_tip`, `studio.tailCurl`, `studio.tailBind`, `tailBall`, `earFlap`, `noseFront`, `earBase`, `weights.jaw` | A tail lies on the seat or the floor, or hangs behind the chair. A trunk or a hanging ear follows the head. A beak opens. |
-
-**Arms.** The plane of the arm sets the roll of the upper arm. A hold with the elbow out and
-level rolls it far, and the linear blend at the shoulder then twists the skin and squeezes the
-upper arm flat. A body can take a twist bone of each upper arm (`upperTwist`), or the bones of a
-rigger on each arm (`armSegments`): 4 deform segments on the upper arm and on the forearm, and a
-helper bone at the elbow and at the wrist. Each segment takes its share of the roll, and each
-helper turns halfway across its joint. The arms of a body with segments are quad tubes that a
-script of `tools/blender/` builds on the arms of the mesh, with weights from Blender. The bind
-paw sets the zero of the twist from the forearm to the paw, so the rig turns the bind paw toward
-supination where a hold supinates far (`studio.bindSupination`). The rest and the play then lie
-on one side of 180°.
-
-**Arm gate.** A fold count does not see a twisted or a flat arm, and a goal on one measure can
-move a twist to a joint that no goal measures. So `pnpm arm-check` reads the folds, the skin
-twist, the flat share, the paw turn, the stretch, and the wrist turn rate of each arm against one
-table of limits (`ARM_LIMITS` of `tools/arm-check.ts`). Each change of a pose, a hold, or a body
-runs it.
-
-### Scale
-
-The scale keeps a landmark that the scene depends on (`ANIMALS`): the shoulders of the bear for
-the conductor stand, and the shoulders, the ear tips, or the head top at the chosen size
-for each other body. A longer leg raises the landmark by the same height, so the trunk, the head,
-and the arms keep their size in meters.
-
-### Seat
-
-- A seated role binds its mesh seated. The export puts the soles on the floor and the haunch on
-  the seat of the app. The chair fits the body: it takes its height, depth, width, and the room
-  behind the back from the body (`StudioBody.seatHeight`, `chairDepth`, `chairWidth`,
-  `backRoom`), so the feet touch the floor (4.5, props).
-- The seat of each chair is level. It ends where the thighs leave it at the haunch
-  (`chair.front`), so that the haunch rests on it.
-- The polar bear sits on a piano bench that fits its haunch and its legs (`StudioBody.benchDepth`,
-  `benchFitOf()` of `tools/studio-body.ts`). Its thighs slope a little down to vertical shins and
-  flat feet, as a real pianist sits. Its legs keep the length of the mesh, so that the body keeps
-  the part ratios of the mesh, and the bench is as low as the legs need.
-- The deer sits on the stool of the harp, with its whole haunch on the seat.
-- The mouse, the beaver, and the monkey have no chair (`noChair`). Each keeps its seated pose at
-  the seat height of its legs, with its feet on the floor. The monkey has short legs under a
-  large head, so its thighs slope steeply down, its feet stand under its hips, and its trunk
-  leans forward with the head level. Thus its center of mass stays over its soles.
-- The hippo stands at its contrabass, the elephant at its timpani, the badger at each percussion
-  instrument, the rhino at its tuba, and the penguin on its riser, each in the standing pose of
-  its mesh. The rhino stands as a real tubist on a strap does. Each center of mass lies inside
-  the support area of the soles.
-- A seated body that also stands (`soloist` of `ANIMALS`) keeps the leg shapes and the turns of
-  its sheet pose, and `standingBody()` of `models/studio-rig.ts` stands it within 1 mm of the
-  source.
-
-### Retarget and render
-
 - **Retarget.** The app keeps its own motion (5.3, 5.4), so it drives the studio bones from the
-  pose of the player in each frame. The skeleton of the player has the joints of the studio, with
-  each arm straight down, because the pose code reads a hanging arm in the bind pose (4.7, 5.2).
-  `poseStudioBones()` bends each arm at the elbow axis of the studio. Each paw turns toward the
-  forearm up to `PAW_TURN`, because the skin of the studio bends well only near its clips. A pose
-  can give the left paw its own turn (`pawTurnL`) or keep a share of the bend of the right paw
-  (`pawKeepR`) (5.2, 5.3). Each shape takes its weight from the pose alone (`raiseWeight()`), so
-  the rule of stateless poses holds.
-- **Render.** The scene draws the body with four bones for each vertex and the shapes as morph
-  targets. The colors hold the baked occlusion of the rig. The fur gets smooth normals within the
-  crease angle of the body (`crease` of `ANIMALS`, `studioNormals()`). The bears take a larger
-  angle and a color blend at each vertex (`colorBlend`), so their fur looks round with soft
-  facets, and the edges of the muzzle, the brows, and the claws stay sharp. The penguin takes a
-  large angle and a blend too, so that its sides look round. The other bodies share one angle.
+  pose of the player in each frame. The skeleton of the player has each arm straight down,
+  because the pose code reads a hanging arm in the bind pose (5.2). Each paw turns toward the
+  forearm up to `PAW_TURN`, because the skin bends well only near its clips. A pose can give a
+  paw its own turn (`pawTurnL`, `pawKeepR`). Each shape takes its weight from the pose alone
+  (`raiseWeight()`), so the rule of stateless poses holds.
+- **Render.** The fur gets smooth normals within the crease angle of the body (`crease` of
+  `ANIMALS`, `studioNormals()`). The bears and the penguin take a larger angle and a color blend
+  (`colorBlend`), so they look round with soft facets, and the edges of the muzzle and the claws
+  stay sharp. The other bodies share one angle. The colors hold the baked occlusion of the rig.
 - **Bind mesh.** `buildStudioBody()` gives the mesh in the bind pose of the player, with two
-  bones for each corner, for the footprints, the budgets, and the tests. The sweep of each role
-  (9.3) keeps the parts out of the body and the instrument.
+  bones for each corner, for the footprints, the budgets, and the tests.
 
 ## 4.5 Visual values
 
