@@ -42,7 +42,7 @@ export const MAX_BEATS = 100_000;
  * tempo of a listener. A song whose median conducted
  * beat is faster has a pulse of two or more conducted beats.
  */
-export const PULSE_TEMPO = 120;
+const PULSE_TEMPO = 120;
 
 /**
  * Builds the conducted beats of a file from its time signatures and its tempo map (design 5.4).

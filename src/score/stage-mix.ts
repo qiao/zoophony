@@ -40,7 +40,7 @@ export const FAR_REVERB_SEND = 80;
  * tutti of the Beethoven 9 demo. With this gain, it is about 3 dB below the orchestra. The vocal
  * soloists get no gain.
  */
-export const CHOIR_GAIN_DB = 6;
+const CHOIR_GAIN_DB = 6;
 
 /**
  * The pan, the reverb send, and the gain of one synth channel, from the stage places and the
