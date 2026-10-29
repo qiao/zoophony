@@ -60,7 +60,7 @@ config, read `README.md`. For the workflow, load the user skill `lowpoly-animal-
   user asked for them. It used the GLB file of the rabbit for a part of 2026-10-13, until the rigged
   mesh of the user took its place (item 5 below). After a change of `animals/bear/out/bear.glb` or
   `animals/polar-bear/out/polar-bear.glb`, run `pnpm studio-body <animal>` and `pnpm test` in the
-  root of the repository (route 3 of `docs/agents/model-work.md`). The clearance tests of the
+  root of the repository (`docs/agents/rigging.md`). The clearance tests of the
   conductor and of the pianist check the arms and the paws against the body and the piano of the
   app. A change of the studio rabbit needs no step in the app. Another GLB of the studio goes into
   the app only when the user asks.
