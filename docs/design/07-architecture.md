@@ -307,6 +307,13 @@ The report [`2026-10-21-load-performance.md`](../research/2026-10-21-load-perfor
 the measures of the load.
 
 - The limit is 1 MB (1,000,000 bytes). CI fails above the limit and prints the size on each run.
+  The limit goes up only with the approval of the project owner.
+- Each studio body is in the first download, so the packed mesh of each body has a gzip budget
+  (`STUDIO_MESH_GZIP_BUDGET` of `tools/studio-budgets.ts`). A rig with one color for each face
+  is about twice the size of a body with a face palette, and the budget stops such a body.
+- The client removes the gzip layer of the presets and the demos with `DecompressionStream`. A
+  browser with no `DecompressionStream` cannot load them, and the app adds no fallback and no
+  dependency for it.
 - `pnpm size` runs `tools/size.ts` after the build. The script finds the static imports of the
   entry chunk in the Vite manifest, and gzips each file with the default level of Node zlib. A
   file that is gzip data already counts with its own size, because the host sends it with no
@@ -377,6 +384,11 @@ text of the credit line `HALL_CREDIT.text` of `audio/hall-credit.ts` (with the n
 changes), the source link, and the license link. CC BY 4.0 asks for the credit, a link to the
 license, and a note of the changes (section 3(a)). The link meets section 3(a)(1)(C), so the
 repository holds no copy of the license text.
+
+A new dependency that the site ships gets an entry in the list of `tools/licenses.ts` in the
+same commit. A dev dependency that the site does not ship gets no entry. The meshes of the
+studio bodies (4.4) are made for this project by its owner, who holds their rights, so they need
+no entry.
 
 `githubMarkEntry()` adds the entry of the GitHub mark, with the MIT license of
 `assets/github-mark/LICENSE.txt`. The mark is also a trademark of GitHub, Inc., so its use
