@@ -11,8 +11,8 @@ export const NEAR = 0.1;
  * The elevation of the default view (design 4.5, camera): 29° above {@link DEFAULT_TARGET}. The
  * view of 33° followed `orchestra-latest.png`: that image shows the full stage from the back heads
  * at 0.145 of its height down to the front edge, and the depth of the orchestra in the image is
- * 0.68 of its width. The user asked for a slightly lower camera (2026-10-20), so the view is 4°
- * lower. The view of 25° (0.55) followed the lower camera of `mockup.png`.
+ * 0.68 of its width. This view is 4° lower than 33°, a slightly lower camera. The lower camera of
+ * `mockup.png` gives 25° (0.55).
  */
 export const DEFAULT_ELEVATION = 29 * MathUtils.DEG2RAD;
 
@@ -41,10 +41,10 @@ export const DEFAULT_AZIMUTH = 0;
 const DEFAULT_DISTANCE_IN_SIDES = 3.3;
 
 /**
- * The landscape rule of the wide views (design 4.5, camera). The user asked on 2026-10-06 for the
- * view of `mockup.png`: the stage fills the free area left of the open drawer. Thus the default
- * view stands at a part of the default distance. On a narrower landscape viewport, the camera
- * moves back with the width, so that the orchestra keeps its part of the width.
+ * The landscape rule of the wide views (design 4.5, camera). The view follows `mockup.png`: the
+ * stage fills the free area left of the open drawer. Thus the default view stands at a part of the
+ * default distance. On a narrower landscape viewport, the camera moves back with the width, so
+ * that the orchestra keeps its part of the width.
  */
 const LANDSCAPE_RULE = {
   /**
@@ -84,9 +84,9 @@ export const MIN_DISTANCE = 2;
 
 /**
  * The space between the camera of Free mode and the box of the stage and the players, in meters
- * (design 2.5, 4.5). A zoom stops at this space, so that no player comes nearer to the camera.
- * With a limit of 2 m from the stage center, a zoom put the camera among the players and in the
- * head of the conductor, and the depth of field blurred all of them (bug report of 2026-10-07).
+ * (design 2.5, 4.5). A zoom stops at this space, so that no player comes nearer to the camera. With
+ * a limit of 2 m from the stage center, a zoom put the camera among the players and in the head of
+ * the conductor, and the depth of field blurred all of them.
  */
 export const ORBIT_CLEARANCE = 1;
 
@@ -154,9 +154,9 @@ export function defaultDistance(stageSide: number, aspect: number): number {
 }
 
 /**
- * The portrait rule of the wide views (design 4.5, camera). The user chose on 2026-10-06 a lower
- * and more frontal camera in a portrait viewport, so that the orchestra fills more of a tall
- * screen, and the stage corners can leave the frame (UX audit 2026-10-05, SC8).
+ * The portrait rule of the wide views (design 4.5, camera). A portrait viewport has a lower and
+ * more frontal camera, so that the orchestra fills more of a tall screen, and the stage corners
+ * can leave the frame.
  */
 export const PORTRAIT_RULE = {
   /** The rule applies in full at this aspect and below, and not at all at the aspect 1. */

@@ -20,9 +20,7 @@ const DEMOS = await shotDemos();
  */
 const LIMITS = {
   /**
-   * 5.5 on the development Mac for the Boulanger demo, the slowest demo (14.4 ms), on
-   * 2026-10-08. The bodies of 2026-10-07 and 2026-10-08 block more lines of sight, so the planner
-   * tests more cameras. The limit is about 29 ms on that Mac, above the 20 ms of design 9.7. Thus
+   * 5.5 on the development Mac for the Boulanger demo, the slowest demo (14.4 ms). The limit is about 29 ms on that Mac, above the 20 ms of design 9.7. Thus
    * the test finds a plan that is 2 times slower, and the target of 9.7 needs a measure on that
    * Mac.
    */

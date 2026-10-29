@@ -108,7 +108,7 @@ export interface ShotRig {
  * subject between the camera and the key light. The key light stands far from the stage, so its
  * direction is the same for each subject. The key light stands in front of the stage, so the
  * cameras of most close shots see the lit side of the subject: a soft key and more exposure on
- * that side made the light fur clip (`docs/research/2026-10-27-key-look.md`).
+ * that side make the light fur clip.
  *
  * @param azimuth The azimuth of the camera around the subject, in radians.
  * @param elevation The angle of the camera above the subject, in radians.

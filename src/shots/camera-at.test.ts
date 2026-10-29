@@ -76,8 +76,7 @@ describe('cameraAt and the transport (design 5.6)', () => {
 
   it('holds the camera of the start point in the count-in of a play', () => {
     // A play from the song start: the first shot holds its first key until the downbeat. That key
-    // is the default view of the first screen, so the click on play makes no cut (audit
-    // 2026-10-05, FI1).
+    // is the default view of the first screen, so the click on play makes no cut.
     const first = cameraOf(plan, 0);
     expect(cameraOf(plan, -0.9)).toEqual(first);
     const before = cameraOf(plan, 0, NOT_STARTED);
@@ -174,9 +173,9 @@ describe('cameraAt and the moves (design 5.6)', () => {
   );
 
   it('gives each blend of the demos one beat of 0.5 s to 1.2 s', () => {
-    // The sight lines and the test of the path of a blend at 65 points (UX audit 2026-10-05,
-    // SC1) leave no blend in the demos: the last blend of the Beethoven 8 demo crossed a box
-    // between two of the first 17 points. The next test gives a cut a blend.
+    // The sight lines and the test of the path of a blend at 65 points leave no blend in the demos:
+    // the last blend of the Beethoven 8 demo crossed a box between two of the first 17 points. The
+    // next test gives a cut a blend.
     const blends = SCENES.flatMap((s) => s.plan.shots.filter((shot) => shot.blendSec > 0));
     for (const shot of blends) {
       expect(shot.blendSec).toBeGreaterThanOrEqual(0.5);

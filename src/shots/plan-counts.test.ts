@@ -28,7 +28,7 @@ describe('the counts of the shots of the plan of each demo (design 5.6)', () => 
       seen.add(id);
     }
     // The Ode to Joy demo is a loud tutti with the choir for 158 s. Its plan shows only two
-    // subjects a second time (2026-10-06).
+    // subjects a second time.
     expect(again).toBeGreaterThanOrEqual(scene.file === 'beethoven-9.mid' ? 2 : 4);
   });
 });

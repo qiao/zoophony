@@ -58,12 +58,9 @@ export const SUBJECT_SIZES = {
   /**
    * The sphere of the two-shot of a small group holds each player plus this margin in the stage
    * plane. A two-shot frames its players closer than a section shot. With 0.75 m, the violin and
-   * the piano of a duo needed a camera 0.45 of the default distance away, beyond the limit of the
-   * close shots (design 5.6). With 0.5 m, the deeper footprint of the standing rabbit with the
-   * longer legs of 2026-10-14 put the two players 2 cm further apart, and the only clear camera
-   * stood 0.4415 of the default distance away, beyond the limit of 0.44. With 0.48 m, the polar
-   * bear 5.2 cm further from its keys put each camera at least 0.4414 of the default distance
-   * away (`docs/decisions/2026-10-14-polar-fix.md`).
+   * the piano of a duo need a camera 0.45 of the default distance away, beyond the limit of the
+   * close shots (design 5.6). With 0.5 m or 0.48 m, the only clear camera stands just beyond the
+   * limit of 0.44 of the default distance.
    */
   twoShotMargin: 0.46,
   /** The largest sphere of a section shot. */
@@ -219,10 +216,9 @@ export interface Subject {
 const HEAD_RADIUS_IN_H = 0.6;
 
 /**
- * The view of the piano (design 5.6). The case stands in front of the pianist, so a camera in
- * front of the player looked into the black case, and the hands did not show (UX audit
- * 2026-10-05, SC1). The camera of a piano shot stands on the right of the pianist, the side of
- * the high keys and of the open lid, and higher.
+ * The view of the piano (design 5.6). The case stands in front of the pianist, so a camera in front
+ * of the player looked into the black case, and the hands did not show. The camera of a piano shot
+ * stands on the right of the pianist, the side of the high keys and of the open lid, and higher.
  */
 const KEYBOARD_VIEW = {
   /**

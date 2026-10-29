@@ -176,9 +176,8 @@ function entryCutsOf(scene: ShotScene): EntryCuts {
 
 describe('the cuts at the entries of the demos (design 5.6)', () => {
   it('cuts to a seat that enters, within one bar, at half of the entries or more', () => {
-    // The user asked on 2026-10-07 that the automatic camera films the player who just started
-    // to play. Main cut to 23 of 95 entry events (24%): the cut points and the choice gave an
-    // entry only a small bonus. The numbers of each demo are in design 5.6.
+    // The automatic camera films the player who just started to play. The numbers of each demo
+    // are in design 5.6.
     const counts = SCENES.map(entryCutsOf);
     const events = counts.reduce((sum, c) => sum + c.events, 0);
     const cut = counts.reduce((sum, c) => sum + c.cut, 0);

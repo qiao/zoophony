@@ -11,10 +11,9 @@ export interface StageHead {
 }
 
 /**
- * The foreground rule of a close shot (design 5.6). Close shots showed large heads
- * of other players at the bottom edge and over the subject (UX audit 2026-10-05, SC1), and the
- * piano case or a head of another player over a large part of the frame (UX audit 2026-10-06,
- * N1 to N3).
+ * The foreground rule of a close shot (design 5.6). Close shots showed large heads of other players
+ * at the bottom edge and over the subject, and the piano case or a head of another player over a
+ * large part of the frame (N1 to N3).
  */
 export const FOREGROUND = {
   /**
@@ -36,8 +35,7 @@ export const FOREGROUND = {
    * A head nearer than `coverShare` with a larger radius on the screen must stay out of the frame.
    * The unit is half the height of a landscape frame, and the geometric mean of the half sides of
    * a portrait frame, because the area of the frame sets how large a head looks. A solo shot
-   * shows the head of its player with a radius of about 0.22. The heads at the frame edges of the
-   * audit had 0.26 to 0.39.
+   * shows the head of its player with a radius of about 0.22.
    */
   edgeRadius: 0.24,
   /**
@@ -53,15 +51,15 @@ export const FOREGROUND = {
   objectNear: 0.9,
   /**
    * The largest part of the frame that the foreground boxes of one other object cover: a player
-   * with its instrument, the conductor with the podium, or a stand. The piano case covered 30%
-   * to 45% of the shots of the first violins (UX audit 2026-10-06, N1).
+   * with its instrument, the conductor with the podium, or a stand. The piano case covered 30% to
+   * 45% of the shots of the first violins.
    */
   objectShare: 0.15,
   /** The cells on each side of the grid of the frame that measures the cover. */
   cells: 20,
   /**
    * The aspects of the test: a desktop, and a phone in portrait (390 × 844). The tall frame of a
-   * phone shows more of the area in front of the subject (UX audit 2026-10-06, N3).
+   * phone shows more of the area in front of the subject.
    */
   aspects: [1.6, 0.46],
 } as const;
@@ -250,7 +248,7 @@ const NEAR_DEPTH = 0.1;
 
 /**
  * Tells if one other object covers more than 15% of the frame of a close camera with its
- * foreground boxes (design 5.6, UX audit 2026-10-06, N1 and N2). The objects are the players
+ * foreground boxes (design 5.6). The objects are the players
  * with their instruments, the conductor with the podium, and the stands. The subject players and
  * the risers do not count. A box counts when its middle is nearer to the camera than 0.9 of the
  * depth of the focus. The test marks the cells of a grid of 20 × 20 over the frame that the

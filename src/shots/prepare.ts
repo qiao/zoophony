@@ -95,7 +95,7 @@ export const SHOT_TIMES = {
   choiceWindowSec: 8,
   /**
    * The longest time with no wide or high shot, from the end of one to the start of the next.
-   * K. 315 showed no wide view from 10 s to 183 s (UX audit 2026-10-06, N6).
+   * With no limit, K. 315 shows no wide view from 10 s to 183 s.
    */
   maxWideGapSec: 60,
   /** After this time with no wide or high shot, the wide and high candidates get a bonus. */
@@ -124,8 +124,8 @@ const CUT_BONUS = {
   /** A cut at an entry loses this much for each bar after the start of the entry. */
   entryDelay: 0.5,
   /**
-   * The beat in the middle of a bar with an even number of beats. Cuts only on downbeats gave
-   * Bach 30 of 34 shots of 9.6 s, and K. 525 three lengths (UX audit 2026-10-06, N5).
+   * The beat in the middle of a bar with an even number of beats. Cuts only on downbeats give Bach
+   * 30 of 34 shots of 9.6 s, and K. 525 three lengths.
    */
   midBar: -0.3,
   /**
@@ -237,16 +237,16 @@ const KEY_SEARCH = {
    */
   sideFromFront: 30 * DEG,
   /**
-   * The camera of a section or solo shot stays at least this far in azimuth from the camera of
-   * the last shot of the same subject. K. 315 showed the solo flute six times from almost the
-   * same angle (UX audit 2026-10-06, N7).
+   * The camera of a section or solo shot stays at least this far in azimuth from the camera of the
+   * last shot of the same subject. With no limit, K. 315 shows the solo flute six times from
+   * almost the same angle.
    */
   repeatAngle: 20 * DEG,
   /**
    * The tops of the elevation bands of the search, plus the lift of a piano shot. At a cut, each
-   * candidate first gets a search in the lowest band, and only then in the higher bands. The close shots of the back
-   * rows looked down at 40° to 60°: the animals showed the tops of their heads, and the dark area
-   * beside the stage filled 30% to 45% of the frame (UX audit 2026-10-06, N4).
+   * candidate first gets a search in the lowest band, and only then in the higher bands. Close
+   * shots of the back rows from 40° to 60° show the tops of the heads, and the dark area beside
+   * the stage fills 30% to 45% of the frame.
    */
   bands: [30 * DEG, 40 * DEG, 50 * DEG],
   /**
@@ -350,9 +350,8 @@ function defaultKey(zoom: number): ShotKey {
 }
 
 /**
- * The camera values of each kind of shot, in degrees and factors (design 5.6). The user asked for
- * a slightly lower camera (2026-10-20), so each elevation is 3° lower than before, and 2° for the
- * conductor, which stays above its head.
+ * The camera values of each kind of shot, in degrees and factors (design 5.6). The cameras are a
+ * little low. The conductor camera stays above the head of the conductor.
  */
 const SHOT_KEYS = {
   /**
@@ -1279,9 +1278,7 @@ function candidatesAt(planner: Planner, cut: number, window: WindowMusic): Candi
   const pending = new Set(restingIn(music, cut + 1e-6, later, cut + SHOT_TIMES.choiceWindowSec));
   if (planned.length === 1) {
     // The first cut after the opening: each active seat that played its first note in the
-    // opening counts as an entry, so the first voice gets its shot. The baritone of the Ode to
-    // Joy demo until 2026-10-06 sang alone from 1.5 s, and the first rule gave the first singer
-    // shot at 18 s.
+    // opening counts as an entry, so the first voice gets its shot.
     for (const [seat, notes] of music.seats.entries()) {
       const first = notes.starts[0];
       if (first !== undefined && first < cut && window.active[seat]) {

@@ -134,9 +134,8 @@ describe('the cut points of prepareShots() (design 5.6)', () => {
   );
 
   it.each(SCENES)('varies the shot lengths of $file (N5)', (scene) => {
-    // In Bach, 30 of 34 shots lasted 9.6 s, and K. 525 had three lengths (UX audit 2026-10-06).
-    // With cuts on downbeats and middle beats, the bars of K. 525 (3.6 s) allow 5 lengths from 4 s
-    // to 14 s.
+    // In Bach, 30 of 34 shots lasted 9.6 s, and K. 525 had three lengths. With cuts on downbeats
+    // and middle beats, the bars of K. 525 (3.6 s) allow 5 lengths from 4 s to 14 s.
     const lengths = scene.plan.shots
       .slice(1, -1)
       .map((shot) => (shot.endSec - shot.startSec).toFixed(1));
@@ -185,8 +184,8 @@ describe('the cut points of prepareShots() (design 5.6)', () => {
       const first = plan.shots[0];
       const last = plan.shots.at(-1);
       expect(first?.startSec).toBe(-Infinity);
-      // The first screen shows the default view of design 4.5, so the click on play makes no cut
-      // (audit 2026-10-05, FI1). The view pushes in over the first phrase.
+      // The first screen shows the default view of design 4.5, so the click on play makes no cut.
+      // The view pushes in over the first phrase.
       expect(first?.kind).toBe('wide');
       expect(first?.from.azimuth).toBeCloseTo(DEFAULT_AZIMUTH, 9);
       expect(first?.from.elevation).toBeCloseTo(DEFAULT_ELEVATION, 9);
@@ -278,7 +277,7 @@ describe('the choice of the shots of prepareShots() (design 5.6)', () => {
   it.each(SCENES)(
     'shows the conductor of $file in at most 20% of the shots, first over its shoulder',
     (scene) => {
-      // Bach had 12 conductor shots of 35, all from one angle (UX audit 2026-10-05, SC3).
+      // Bach had 12 conductor shots of 35, all from one angle.
       const { plan } = scene;
       const conductor = plan.shots.flatMap((shot, i) => (shot.kind === 'conductor' ? [i] : []));
       expect(conductor.length / plan.shots.length).toBeLessThanOrEqual(0.2);
@@ -329,7 +328,7 @@ describe('the choice of the shots of prepareShots() (design 5.6)', () => {
   );
 
   it('keeps the section and solo cameras of the demos at 50° or lower (N4)', () => {
-    // The close shots of the back rows looked down at 40° to 60° (UX audit 2026-10-06, N4).
+    // The close shots of the back rows looked down at 40° to 60°.
     const elevations = SCENES.flatMap(({ plan, score }) => closeElevations(score, plan.shots));
     expect(Math.max(...elevations)).toBeLessThanOrEqual(50 + 1e-9);
   });
@@ -339,8 +338,7 @@ describe('the choice of the shots of prepareShots() (design 5.6)', () => {
     // the demos, the bodies block some low cameras, so a new body moves these shares. With each
     // layout spread 4 times, no player blocks another, and each camera stays in the lowest band.
     // Thus a planner that raises a camera with no blocked view fails here. With a spread of 3,
-    // the red foxes on the seats of 0.36 m of 2026-10-14 still blocked the low cameras to the
-    // flutes of the Boulanger demo, and one camera rose to 34.5°.
+    // the red foxes still block the low cameras to the flutes of the Boulanger demo.
     const elevations = SCENES.flatMap(({ score, layout, models }) =>
       closeElevations(score, prepareShots(score, spreadLayout(layout, 4), TEST_SEED, models).shots),
     );
@@ -386,7 +384,7 @@ describe('the choice of the shots of prepareShots() (design 5.6)', () => {
   });
 
   it.each(SCENES)('shows a wide or high shot of $file at least every 60 s (N6)', (scene) => {
-    // K. 315 showed no wide view from 10 s to 183 s (UX audit 2026-10-06, N6).
+    // K. 315 showed no wide view from 10 s to 183 s.
     const { plan } = scene;
     let lastEnd = 0;
     for (const shot of plan.shots) {
@@ -402,7 +400,7 @@ describe('the choice of the shots of prepareShots() (design 5.6)', () => {
   it.each(SCENES)(
     'turns the camera of the next shot of a subject of $file by 20° (N7)',
     (scene) => {
-      // K. 315 showed the solo flute six times from almost the same angle (UX audit 2026-10-06).
+      // K. 315 showed the solo flute six times from almost the same angle.
       const { plan, score } = scene;
       const last = new Map<string, number>();
       let checked = 0;
@@ -560,8 +558,7 @@ describe('the soloist and the first voice (design 5.6, UX audit 2026-10-05, SC4)
     const { soloist } = scene.score;
     const place = scene.layout.players.find((p) => p.cast.seatIndex === soloist);
     const shots = scene.plan.shots.filter((s) => s.kind === 'solo' && s.seats[0] === soloist);
-    // Since the higher seats and the larger red fox of 2026-10-14, the seated players hide the
-    // low cameras of the solo of the horns at 78.3 s. The plan then takes a side shot that holds
+    // The seated players hide the low cameras of the solo of the horns at 78.3 s. The plan then takes a side shot that holds
     // the soloist, so its solo shot of 93.9 s drops out, and 2 solo shots of the soloist stay.
     expect(shots.length).toBeGreaterThanOrEqual(2);
     for (const shot of shots) {
@@ -765,9 +762,7 @@ describe('the music of the shots of prepareShots() (design 5.6)', () => {
   it('cuts to the horns within one bar of an entry on the second beat of a bar of 3/4', () => {
     // Ten seats play loud chords for 45 s. The horns rest from the start and enter on the second
     // beat of bar 13 (20 s). A bar of 3/4 has no middle beat, so the nearest cut points are the
-    // downbeats 0.5 s before and 1 s after the entry. Until 2026-10-07, an entry gave a bonus only
-    // to a cut point within a quarter of a bar (0.375 s), and only the plan of seed 1 cut to the
-    // horns within one bar of their entry.
+    // downbeats 0.5 s before and 1 s after the entry.
     const BAR_34 = QUARTER * 3;
     const programs = [40, 41, 42, 43, 73, 68, 71, 70, 46, 47];
     const file: TestFile = {
@@ -864,8 +859,7 @@ describe('the shots of a chamber group (design 4.2, 5.6)', () => {
 
 /**
  * Moves each player of a layout by a distance in a seeded direction in the stage plane. Its
- * footprint boxes, its head, and its sight points move with it. The cast branch of 2026-10-06
- * moved the players and their boxes by 1 to 2 cm.
+ * footprint boxes, its head, and its sight points move with it.
  *
  * @param layout The layout.
  * @param seed The seed of the directions.
@@ -927,8 +921,7 @@ describe('the stability of prepareShots() against small moves of the players (de
   });
 
   it('keeps the horn shot at the entry when each player moves by 2 cm', () => {
-    // A move of 1 cm of a viola took away the one clear horn camera in reach of the search of
-    // seed 4, and the first horn shot came 6 s late (cast branch, 2026-10-06).
+    // A move of 1 cm of a viola can take away the one clear horn camera in reach of the search.
     const bytes = hornEntryFile();
     for (const seed of [1, 2, 3, 4, 5]) {
       const { score, layout, models } = shotSceneOf('horns', bytes, seed);

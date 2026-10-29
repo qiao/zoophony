@@ -68,8 +68,7 @@ const FULL_VIEW = { top: 1, bottom: -1 } as const;
 const NO_COVER = { right: 0, lift: 0 } as const;
 
 /**
- * The frame rule of design 5.6 for the close shots (UX audit 2026-10-06, N2), as numbers of the
- * design.
+ * The frame rule of design 5.6 for the close shots, as numbers of the design.
  */
 const FRAME_RULES = {
   /** The boxes of another object nearer than this part of the depth of the focus count. */
@@ -465,7 +464,7 @@ export function describeShotFrames(scenes: readonly ShotScene[]): void {
               camera.updateMatrixWorld();
               camera.updateProjectionMatrix();
               // A wide shot in portrait keeps the orchestra between the title and the bar (2.8).
-              // The subject of a close shot stays above the bar (review of step 8, M4).
+              // The subject of a close shot stays above the bar.
               const aboveBar = { top: 1, bottom: -1 + (2 * BAR_COVER) / height };
               const wideFree = aspect < 1 ? FREE_AREA : FULL_VIEW;
               const free = shot.kind === 'wide' ? wideFree : pose.close ? aboveBar : FULL_VIEW;
@@ -719,9 +718,8 @@ export function describeShotFrames(scenes: readonly ShotScene[]): void {
             }
           }
         }
-        // The close shots of K. 525 with the larger red fox and the longer legs of 2026-10-14
-        // put 75 heads of other players in front of the camera, so the least count of the checks
-        // of the heads is 60.
+        // The close shots of K. 525 put 75 heads of other players in front of the camera, so the
+        // least count of the checks of the heads is 60.
         expect(checked).toBeGreaterThan(leastChecks(scene, 60));
       },
       60_000,
@@ -792,8 +790,8 @@ export function describeShotFrames(scenes: readonly ShotScene[]): void {
             checked++;
           }
         }
-        // Two times of each solo shot of the soloist: 2 solo shots since the higher seats of
-        // 2026-10-14 (`films the soloist of K. 315` of `shots/prepare.test.ts`).
+        // Two times of each solo shot of the soloist: 2 solo shots (`films the soloist of K. 315`
+        // of `shots/prepare.test.ts`).
         expect(checked).toBeGreaterThanOrEqual(4);
       });
     }

@@ -20,8 +20,8 @@ export const CLEARANCE = {
 
 /**
  * The lines of sight to the sight points of a subject (design 5.6). Close shots hid the face, the
- * hands, or the instrument behind heads, stands, and the piano case, because one line to the
- * target passed (UX audit 2026-10-05, SC1).
+ * hands, or the instrument behind heads, stands, and the piano case, because one line to the target
+ * passed.
  */
 const SIGHT = {
   /** A line of sight starts this far from its point, toward the camera. */
