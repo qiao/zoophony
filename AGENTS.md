@@ -1,7 +1,7 @@
 # AGENTS.md
 
 Zoophony is a WebGL MIDI player in which low-poly animals play orchestral music on a small stage.
-It uses Three.js, TypeScript, Vite, and pnpm, and it is a static site on GitHub Pages.
+It uses Three.js, TypeScript, Vite, and pnpm, and it is a static site on Vercel.
 
 This file holds the rules that each agent needs in each round. The modules in `docs/agents/` hold
 the details. [`CONTRIBUTING.md`](CONTRIBUTING.md) gives the setup and the core commands.

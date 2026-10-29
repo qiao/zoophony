@@ -2,7 +2,7 @@
 
 ### Goals
 
-- The app is a static site on GitHub Pages. It has no server.
+- The app is a static site on Vercel. It has no server.
 - Desktop browsers come first. Phones must play the music, with lower visual quality.
 - The code license is Apache-2.0. The animal models are under CC BY-NC 4.0 (the license
   section of `README.md`).
