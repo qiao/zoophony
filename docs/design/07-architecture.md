@@ -308,17 +308,24 @@ the measures of the load.
 
 - The limit is 1 MB (1,000,000 bytes). CI fails above the limit and prints the size on each run.
 - `pnpm size` runs `tools/size.ts` after the build. The script finds the static imports of the
-  entry chunk in the Vite manifest, and gzips each file with the default level of Node zlib.
-  It also counts each script and stylesheet that `index.html` loads. With several entries,
-  Vite puts its module preload polyfill into a shared chunk that the manifest entry does not
-  import.
+  entry chunk in the Vite manifest, and gzips each file with the default level of Node zlib. A
+  file that is gzip data already counts with its own size, because the host sends it with no
+  second gzip. It also counts each script and stylesheet that `index.html` loads. With several
+  entries, Vite puts its module preload polyfill into a shared chunk that the manifest entry does
+  not import.
 - `pnpm size --base <ref>` builds a commit in a temporary folder with its own `pnpm build`, and
   prints its total beside the total of the working tree, with the difference. A round thus
   gives the size change of a branch with no worktree of `main`.
 - The site holds the default demo at `demos/boulanger-matin.mid`. The build writes it to
-  `dist/demos/boulanger-matin.mid` (8.3), and the check counts that file. With no such file, the
-  check counts `demos/src/boulanger-matin.mid`. `defaultDemoFile()` of `tools/size.ts` follows
-  `DEFAULT_DEMO`.
+  `dist/demos/boulanger-matin.mid` as gzip data (8.3), and the check counts the bytes of that
+  file. With no such file, the check counts the gzip of `demos/src/boulanger-matin.mid`.
+  `defaultDemoFile()` of `tools/size.ts` follows `DEFAULT_DEMO`.
+- GitHub Pages gzips only the text types, such as HTML, JS, CSS, and JSON. The build thus gzips
+  the demo files and the preset files in place, with the same names (`GZIP_AUDIO` of
+  `vite.config.ts`, `tools/gzip-site.ts`). The client removes the gzip layer only when the first
+  two bytes are `1f 8b` (`plainBytes()` of `audio/plain-bytes.ts`), so the plain files of the
+  dev server also load. The URL stays the same, so the fetch of the app still takes the preload
+  of `index.html`.
 - On 2026-10-06 (`0cc4b2b`), the check gives 259,355 B. The default demo file is 30,097 B of
   it. A change that moves the size by more than 5 KB states the reason in its commit message.
 - On 2026-10-07, the check gives 302,738 B on `main`. The sculpt of the red fox (4.4) adds
