@@ -38,7 +38,8 @@ one, and chose the room and the mix of [`research/sound-quality.md`](../research
   channel sings for a full choir. With no gain, the choir was about 9 dB below the orchestra in a
   tutti, and with it about 3 dB below. The seat of the vocal soloists gets no gain. The `Player`
   sends the gains with the score (`channelGainsDb()`), and the engine sets the gain of each synth
-  channel again after each reset of the synth.
+  channel again after each reset of the synth. The gain is a channel gain of spessasynth_core,
+  because CC 7 gives only about +4 dB above its value 100.
 - `mixSynthEvents()` drops each pan (CC 10) and reverb send (CC 91) of the file, and puts the
   values of the mix at song time 0. Thus the file cannot change them, and the chase of a seek
   restores them (6.5). The rule is in `score/`, because it is a MIDI rule (7.1).
@@ -362,7 +363,8 @@ interface ClockAnchor {
   gives the error to the `onError` function of its constructor:
   `new WorkletPlayer(baseUrl, onError)`.
 - `play()` resumes the context. Safari and iOS can refuse the resume outside a user gesture, and
-  the `WorkletPlayer` gives a refused resume to `onError`.
+  the `WorkletPlayer` gives a refused resume to `onError`. Thus a click that waits for the samples,
+  and a selection of a demo, resume the suspended context at once, in the user gesture.
 - A later `load()` replaces a pending `load()`, because a new selection stops the current piece
   (2.2). The earlier promise rejects at once with a `LoadReplacedError`, which the app ignores,
   and the earlier load sends nothing more.
@@ -420,7 +422,8 @@ interface PlayerScore extends Pick<Score, 'durationSec' | 'synthEvents' | 'prese
   limiter on the dynamic demos. `pnpm loudness --fit` measures
   each value with the code of the chain in an `OfflineAudioContext`. Run it again after a change
   of a demo file, the SoundFont, the mix, the hall, or the limiter. A file of the user and
-  `perf-60.mid` get 0 dB, and the limiter catches the peaks.
+  `perf-60.mid` get 0 dB, and the limiter catches the peaks. Each demo keeps its loudness range:
+  the gain moves the whole piece, and only the limiter acts on the peaks.
 - **Hall.** The convolver does not normalize the impulse response, so the wet gain sets the level
   of the hall against the room of the synth.
 - **Limiter.** A `DynamicsCompressorNode` adds a fixed makeup gain. The trim gain removes it, so
