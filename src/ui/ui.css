@@ -124,6 +124,7 @@ svg {
 }
 
 .title {
+  --logo-lift: -2px;
   position: fixed;
   top: var(--title-top);
   left: var(--title-left);
@@ -182,6 +183,15 @@ svg {
   height: 21px;
   fill: currentColor;
   stroke: none;
+}
+
+/* The flex line centers the box of the wordmark, which holds the tails of the "p" and the "y", so
+   the paw and the GitHub mark sat 2 px under the capitals, and the paw hung under the baseline
+   (user, 2026-10-28: "the paw icon and the zoophony text are not aligned"). They move up, so the
+   paw stands on the baseline and reaches the height of the capitals. */
+.title .logo > svg:first-child,
+.title .github svg {
+  translate: 0 var(--logo-lift);
 }
 
 /* The wordmark in Fraunces (design 2.8). Its view box goes from the top of the "h" to the bottom
