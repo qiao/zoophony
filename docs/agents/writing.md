@@ -10,6 +10,9 @@ commit messages, and UI text.
   concrete nouns. Define a term on first use, then use the same term each time.
 - Write procedural sentences of at most 20 words and descriptive sentences of at most 25 words.
 - Show a mechanism or a number in place of a subjective word.
+- Never quote a request of the project owner, and never write "the user asked" or "the user
+  said", in code, comments, docs, commit messages, or data files. State the fact and its reason
+  in neutral words. "The user" stays for a person who uses the app.
 
 ## Tells to avoid
 
