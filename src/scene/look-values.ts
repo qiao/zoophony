@@ -88,7 +88,7 @@ const LOOK_ROOTS = {
  * paths. `*` stands for one key. The other modules read the roots at use time, or they load after
  * the override, because `src/app/look-override.ts` is the first import of `src/main.ts`, such as
  * `CLOSE_DISTANCE_SHARE` of `shots/prepare.ts`. To change a refused value, read it at use time,
- * as `gradeLutData()` of `scene/grade.ts` reads the tone curve, and remove it from the list.
+ * as `gradeLutDataSteps()` of `scene/grade.ts` reads the tone curve, and remove it from the list.
  */
 const LOAD_TIME_PATHS: ReadonlyMap<string, string> = new Map([
   ['BEAM_LOOK.maxConcentration', '`BEAM_FRAGMENT` of `scene/beam.ts`'],

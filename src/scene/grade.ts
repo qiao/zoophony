@@ -1,5 +1,8 @@
 import { Data3DTexture, LinearFilter, NoColorSpace, RGBAFormat, UnsignedByteType } from 'three';
 
+import { runAll } from '../score/steps.ts';
+import type { Steps } from '../score/steps.ts';
+
 /** A color with three channels from 0 to 1. */
 type GradeColor = readonly [r: number, g: number, b: number];
 
@@ -179,18 +182,20 @@ function gradeColor(color: GradeColor, curve: (x: number) => number): [number, n
 export const GRADE_LUT_SIZE = 33;
 
 /**
- * Fills the lookup table of the grade: the {@link gradeColor} of each entry, as RGBA bytes. Red
- * changes fastest, then green, then blue, as `Data3DTexture` reads them.
+ * Fills the lookup table of the grade in steps, one for each blue entry (design 7.2): the
+ * {@link gradeColor} of each entry, as RGBA bytes. Red changes fastest, then green, then blue, as
+ * `Data3DTexture` reads them.
  *
  * @param size The number of entries on each axis.
- * @returns Four bytes for each entry.
+ * @returns The steps, which return four bytes for each entry.
  */
-function gradeLutData(size: number = GRADE_LUT_SIZE): Uint8Array {
+function* gradeLutDataSteps(size: number): Steps<Uint8Array> {
   const data = new Uint8Array(size * size * size * 4);
   // The curve reads `GRADE.curve` at the call, so that the look override of the dev server
   // (`src/app/look-override.ts`) reaches it.
   const curve = monotoneCurve(GRADE.curve.map(([x, y]) => [x / 255, y / 255]));
   for (let b = 0; b < size; b++) {
+    yield;
     for (let g = 0; g < size; g++) {
       for (let r = 0; r < size; r++) {
         const graded = gradeColor([r / (size - 1), g / (size - 1), b / (size - 1)], curve);
@@ -215,9 +220,18 @@ let lut: Data3DTexture | null = null;
  * @returns The texture. Its pixels stay in memory, so a restored WebGL context loads it again.
  */
 export function gradeLut(): Data3DTexture {
+  return lut ?? runAll(gradeLutSteps());
+}
+
+/**
+ * Makes the lookup table of the grade as {@link gradeLut} does, in steps (design 7.2).
+ *
+ * @returns The steps, which return the texture. A made table takes no step.
+ */
+export function* gradeLutSteps(): Steps<Data3DTexture> {
   if (!lut) {
     const size = GRADE_LUT_SIZE;
-    lut = new Data3DTexture(gradeLutData(size), size, size, size);
+    lut = new Data3DTexture(yield* gradeLutDataSteps(size), size, size, size);
     lut.format = RGBAFormat;
     lut.type = UnsignedByteType;
     lut.minFilter = LinearFilter;

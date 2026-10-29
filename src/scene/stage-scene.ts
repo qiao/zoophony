@@ -78,6 +78,7 @@ import { POST_LOOK } from './post.ts';
 import { createRimUniforms, setRimLights } from './rim-light.ts';
 import { SHOT_LOOK, createShotUniforms, setShotLight } from './shot-light.ts';
 import { freeShotLight, shotRig } from '../shots/shot-light.ts';
+import { gradeLutSteps } from './grade.ts';
 import { createRenderer } from './renderer.ts';
 import { aimGap, easeAim, easeShare, soloAim } from './solo-light.ts';
 import { STAGE_SHADOW, createStage, noBakeUniforms } from './stage.ts';
@@ -347,8 +348,14 @@ export class StageScene {
   #pmrem: PMREMGenerator;
   /** The exposure of the renderer of a wide shot (design 4.5). A close shot adds to it. */
   readonly #exposure: number;
-  /** The post effects, or `null` for a GPU that cannot render to a target of floats. */
-  readonly #post: PostPipeline | null;
+  /**
+   * The post effects, or `null` before the first build and for a GPU that cannot render to a
+   * target of floats. The first build makes them, because the lookup table of the grade takes
+   * steps (design 7.2).
+   */
+  #post: PostPipeline | null = null;
+  /** The color format of the targets of the post effects, or `none` for no post effects. */
+  readonly #postFormat: TargetFormat;
   /** The depth of the scene for the haze of the beam (design 4.5). */
   readonly #beamDepth = new BeamDepth();
   #tier: QualityTier;
@@ -411,11 +418,25 @@ export class StageScene {
     canvas.addEventListener('webglcontextrestored', () => {
       this.#restoreEnvironment();
     });
-    const format = targetFormatOf(this.#renderer);
-    this.#post =
-      format === 'none'
-        ? null
-        : new PostPipeline(this.#renderer, format, options.tier, this.#variants);
+    this.#postFormat = targetFormatOf(this.#renderer);
+  }
+
+  /**
+   * Makes the post effects in steps on the first build (design 7.2): the lookup table of the
+   * grade, then the passes. A GPU that cannot render to a target of floats gets none.
+   *
+   * @returns The steps.
+   */
+  *#postSteps(): Steps<undefined> {
+    if (this.#post || this.#postFormat === 'none') {
+      return undefined;
+    }
+    yield* gradeLutSteps();
+    const post = new PostPipeline(this.#renderer, this.#postFormat, this.#tier, this.#variants);
+    const buffer = this.#renderer.getDrawingBufferSize(new Vector2());
+    post.setSize(buffer.x, buffer.y);
+    this.#post = post;
+    return undefined;
   }
 
   /**
@@ -430,6 +451,7 @@ export class StageScene {
    */
   *prepareSteps(layout: SceneLayout, models: ModelCache): Steps<PreparedLayout> {
     this.#discardPending();
+    yield* this.#postSteps();
     this.#environment ??= yield* createEnvironmentSteps(
       this.#renderer,
       this.#pmrem,
