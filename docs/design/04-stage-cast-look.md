@@ -19,6 +19,21 @@
 - The bear conductor stands on a podium at the front center. A chamber group of at most 5
   players has no conductor and no podium (4.2).
 
+### Product choices
+
+- **Reference images first.** The reference images win over the values in the code. The values
+  that 4.5 to 4.7 name describe the current models, and they are no targets. Design 1 says which
+  image wins where two images differ.
+- **Key light from the front.** The key light goes from the front of the stage to the back, so
+  the shadows fall back (4.5, light and render).
+- **Hall lamps.** The lamps of the balcony rails go all around the hall. The low row of wall
+  lamps has a gap at the back, so that no lamp floats above the orchestra.
+- **Happy faces.** Each animal has a happy face. A face rule of the rig removes a sad look, such
+  as raised inner brows or a down crease over the eyes (4.4, face). The faces have no blush.
+- **Natural balance.** A body that stands, or that plays with no chair, keeps its center of mass
+  over the middle of its soles. The monkey, the mouse, and the beaver have no chair (4.4, seat).
+- **No fur shading.** The material has no fur shader, no tufts, and no shells (4.5, materials).
+
 ## 4.2 Layout
 
 The sections go into arcs in the standard order, with no gaps between the used sections. The
@@ -290,6 +305,26 @@ The arms of the polar bear then got quad faces and Blender weights
 to the last ring of each tube, and the thin faces of each wrist band collapse before the band is
 smoothed and put back on the arm: a cut at a right angle to the turned paw left a band of thin
 faces that showed as a crease around the wrist (`docs/decisions/2026-10-27-polar-wrist.md`).
+
+**Meshes of the user**
+
+- **Fidelity.** A mesh that the user gives stays as it is. The rig adds no stretch of a limb,
+  unless the user chooses an arm or a leg factor. The props and the instruments fit the body:
+  each chair fits the legs, and a species with short arms plays a smaller instrument in place of
+  longer arms (4.6). The source file stays unchanged, and each edit goes into a copy that a script
+  of `tools/blender/` makes.
+- **Colors.** The texture of the mesh shows as one color for each face. A color rule of the rig
+  can move the fur toward the color of the species in the reference images (mesh rig, colors).
+- **Intake pose.** A new mesh comes in an A-pose, with a gap between each arm and the trunk. An
+  arm that touches the trunk needs a cut with a flat cap, and bone heat then spreads the arm
+  weights into the trunk. Both give flaps at the armpit. The rig fixes the meshes that exist, and
+  nobody makes them again.
+- **Triangle budget.** The budget of a studio body allows round forms, such as a round tube for
+  each arm and a round shoulder (`STUDIO_TRIANGLE_BUDGET`). The first download of 1 MB and the
+  frame time of 9.7 stay the limits.
+- **Licenses.** The project author made the meshes with Meshy on a paid plan, and holds their
+  rights. The files of `assets/models/` and `src/models/studio/` are under CC BY-NC 4.0 (the
+  `README.md` of the repository). They need no entry in the third-party license file (7.3).
 
 Each body follows these rules:
 
@@ -867,7 +902,7 @@ relax (`bindSmooth`): the left elbow of the hippo folded into a lip there.
   little in front of the middle of its soles with the tuba (`docs/decisions/2026-10-21-mesh-rhino.md`).
   The penguin stands on its riser in the standing pose of its mesh, and its center of mass lies a
   little behind the middle of its soles, inside the support area
-  (`docs/decisions/2026-10-21-mesh-penguin.md`). Each level seat ends where the thighs leave it at the haunch (`chair.front`), so that
+  (`docs/decisions/2026-10-21-mesh-penguin.md`). The seat of each chair is level. Each level seat ends where the thighs leave it at the haunch (`chair.front`), so that
   the haunch rests on it. Short
   thighs under a round belly, as on the panda, end the seat behind the thighs, under the haunch,
   so that the sit does not pull the haunch down into a sheet behind the seat. The chair takes
@@ -1222,7 +1257,9 @@ landscape rule, the portrait rule, and the orbit limits. `shots/frame.ts` holds 
   `orchestra-latest.png` (1): the full stage with the podium at the bottom middle. The camera looks
   down at `DEFAULT_ELEVATION` at `DEFAULT_TARGET`. In the axes of the stage origin (below), it is at
   `target + d × (0, sin e, cos e)` for the elevation `e` and the distance `d`. The wide shots of
-  5.6 look at the same target, and Free mode turns around it (2.5).
+  5.6 look at the same target, and Free mode turns around it (2.5). The view looks down a little
+  less steeply than `orchestra-latest.png`. This product choice wins over the image, and the full
+  stage still shows.
 - The default distance is `DEFAULT_DISTANCE_IN_SIDES × S`, multiplied by the height divided by the
   width of a tall viewport. The wide shots, the planner, and the beam fade use it as their unit.
 - **Landscape rule** (user, 2026-10-06). The players fill almost the full width of the free area
