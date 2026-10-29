@@ -55,7 +55,8 @@ The UI has the style of a video player. The theme is dark only, because the scen
   controls ignore the pointer, so the first tap on the bar only shows it.
 - The drawer on the right has three tabs: "Pieces" (the demo list and the file button), "Seats"
   (the seat list), and "Settings" (the settings and the link "Credits"). On a phone, the drawer
-  is a sheet above the bar.
+  is a sheet above the bar. The UI says "Pieces", because "track" names a track of a MIDI file
+  in this app. The code keeps the name "demo".
 - The seat list has a row for each seat, with a mute button and a solo button. A click on an
   animal does nothing (user, 2026-10-20: "do not support clicking on animals to highlight it in
   seats tab"). A pointer motion of more than 4 CSS pixels is a drag of the view (`app/pick.ts`).
@@ -121,6 +122,7 @@ the cinematic camera." Thus the page starts in Free mode.
   sections, the soloists, and wide views. When a section or a soloist enters after a rest, the next
   cut goes to it (user, 2026-10-07). The first shot starts from the default view, so a click on
   play in Cinematic mode makes no cut.
+- The key C also acts while a button or a slider has the focus, because no control uses it.
 - In Cinematic mode, a drag, a pinch, or a wheel on the stage changes to Free at once, with no note
   (user, 2026-10-22). While the first screen shows, the zoom is off (`movesCamera()`), because a
   wheel there is often an attempt to scroll the page.
@@ -142,7 +144,10 @@ steps, and the final pass of the post effects (4.5).
 - At start, a touch screen (`(pointer: coarse)`) or a small screen gives the medium tier, and all
   other devices start at the high tier. A new phone renders the medium tier with no problem, and
   the automatic tier drops a slow phone to the low tier.
-- The app drops one tier if the frames take more than 18 ms for 2 s. The automatic tier only goes
+- The app does not read the GPU name to find a fast device, because Safari on iOS gives only
+  "Apple GPU" for each iPhone.
+- The app drops one tier if the frames take more than 18 ms for 2 s. It measures the time between
+  frames, because the work time of a frame does not hold the GPU time. The automatic tier only goes
   down, so the quality does not go down and up many times. The app measures only while the music
   plays, the tab is visible, and the setting is "Auto", with a trimmed mean that ignores a few slow
   frames (`followFrame()` in `app/settings.ts`).
@@ -215,13 +220,15 @@ is instant with reduced motion. Each text keeps the contrast 4.5:1 of WCAG AA ov
   logo rules of GitHub permit only white, black, or gray. Each line of the title has its own soft
   shade, whose level comes from the lightest part of the frame behind the line
   (`app/backdrop-probe.ts`, `shadeLevel()` in `ui/title-shade.ts`). Thus the dark hall of the
-  default view shows no shade, as in the mockup.
+  default view shows no shade, as in the mockup. The level comes from the frame, because a shade
+  from the camera mode does not see a free camera. A shade comes in at once and goes out slowly,
+  so that it does not flicker in a camera move.
 - Bar: the controls of 2.3 in the look of the mockup. "Automatic camera" is pressed in Cinematic
   mode. At the song end, play becomes "Play again" and plays from the start (6.5). The seek bar
   seeks only when the samples are ready, and it shows the seek point until the listener hears it
   (`app/seek.ts`). The volume gain is the square of the position (6.8). The drawer button has the
   label "Open the drawer" or "Close the drawer", and the full screen button "Full screen" or "Exit
-  full screen".
+  full screen". The bar offers no next demo at the song end.
 - First screen: a round play button below the front edge of the stage, so that it does not cover
   the orchestra. While it shows, the frame of the camera shrinks until the stage is clear of it.
   After the first play, the frame grows back as a short push-in (`clearFirstScreen()` in
@@ -231,6 +238,8 @@ is instant with reduced motion. Each text keeps the contrast 4.5:1 of WCAG AA ov
   - Until the first play of the session, an intro line names the app, and the button "Select a
     piece" opens the demo list. ASD-STE100 has no verb "choose", so the buttons say "Select".
   - `index.html` holds the same load state as static HTML, so a slow network shows it at once.
+    Its head links the style sheets, and no script imports them, so that the first paint shows
+    no unstyled page.
 - Drawer: a floating panel in `--panel-glass` with the tabs "Pieces", "Seats", and "Settings" at
   the top, beside the close button (`Drawer.addTab()`). Only the panel of the current tab shows.
   The drawer itself does not scroll and does not bounce (`overscroll-behavior: none`). The panel
@@ -242,9 +251,13 @@ is instant with reduced motion. Each text keeps the contrast 4.5:1 of WCAG AA ov
   pattern of WAI-ARIA says, and they do not seek. It is nearly opaque, so that its dim text keeps
   4.5:1 over white fur.
   While it is open, the camera moves its frame to the middle of the free area with
-  `setViewOffset()`, and the canvas does not move (`stageCover()` in `app/stage-cover.ts`). A
-  wide window opens the drawer at start at the tab "Pieces" (`isWideLayout()`).
-  - Demos: a row for each demo with the title, the composer, and the length, and no cover. The
+  `setViewOffset()`, and the canvas does not move (`stageCover()` in `app/stage-cover.ts`). The
+  canvas fills the window at all times, so the opaque canvas of the post effects shows no edge. A
+  wide window opens the drawer at start at the tab "Pieces" (`isWideLayout()`), also on the first
+  screen, so that the stage does not move at the click on play.
+  - Demos: a row for each demo with the title, the composer, and the length, and no cover. A long
+    title wraps to a second line, because an ellipsis would hide a part of it. The meter comes
+    from the notes of the score, so the UI owns no audio code. The
     row of the current demo has a level meter that the song time alone gives (`meterLevels()` in
     `app/meter.ts`), so it stops in a pause and follows a seek. The meter shows only after the
     piece starts, so a piece that waits at its start, as after a load, shows no meter (user,
@@ -253,7 +266,9 @@ is instant with reduced motion. Each text keeps the contrast 4.5:1 of WCAG AA ov
   - The button "Open a MIDI file" stays below the demo list, with a folder icon and the dim
     second line "From this device, or drop it on the page", which also describes the button. A
     touch screen cannot drop a file, so its second line is "From this device" (user, 2026-10-20:
-    "it's not obvious to users that they can select a local file").
+    "it's not obvious to users that they can select a local file"). The button stands below the
+    demo list, because it also selects a piece. The text does not say "Upload", because the file
+    stays on the device.
   - Seats: a row for each seat with a dot in the fur color of the species, the seat name, the
     animal line, and the toggle buttons "M" and "S" with the labels "Mute {name}" and "Solo
     {name}". Only a screen reader reads the source line of each row.
@@ -277,7 +292,8 @@ is instant with reduced motion. Each text keeps the contrast 4.5:1 of WCAG AA ov
     only the player counts, so the music, the song time, and the flags stay.
   - Credits: the link "Credits" at the end of the tab "Settings" (user, 2026-10-07: "hide credits
     behind a link, which when clicked would popup a modal"; user, 2026-10-20: "move credit to
-    settings") opens a native `<dialog>` with `showModal()` (`ui/modal-dialog.ts`). The dialog
+    settings") opens a native `<dialog>` with `showModal()` (`ui/modal-dialog.ts`). The link is a
+    `button` with `aria-haspopup="dialog"`, because it opens a dialog and goes to no page. The dialog
     has the layout of the end credits of a film (user, 2026-10-21: "make the credit modal have a
     layout like a movie credit screen"), with all text on the center axis. A title card shows the
     name of the author (user, 2026-10-21: "add myself to the top"). The groups "Now playing" (the
@@ -289,10 +305,13 @@ is instant with reduced motion. Each text keeps the contrast 4.5:1 of WCAG AA ov
 - Phone, narrower than 700 px: the drawer is a sheet above the bar with a drag handle
   (`sheetCloses()` in `app/phone-layout.ts`), and a selection closes the sheet. The speed, the
   volume, "Reset view", and full screen move into the "Playback" group of the settings
-  (`Bar.placePlayback()`), and the bar shows no duration.
+  (`Bar.placePlayback()`), so that the page has one control of each kind. The bar shows no
+  duration, so that the seek bar is longer.
 - Messages: at the bottom center above the bar, with a bar in `--danger`. A message closes after
   6 s, with "Close the message", or with Escape, and it stays while it has the pointer or the
-  focus (`followMessage()` in `app/messages.ts`). A new message replaces the old one. On the first
+  focus (`followMessage()` in `app/messages.ts`). A new message replaces the old one, and a new
+  piece closes it. The failure texts end with "Check the connection.", because the button "Try
+  again" stands next to them. On the first
   screen, a message stays clear of "Select a piece", the way out of a failure.
 - Build cover: a new piece or a new section size stops the frames for a build, so the canvas fades
   out before it and in after the first render (`Ui.coverStage()`, `Ui.uncoverStage()`).
@@ -302,7 +321,9 @@ is instant with reduced motion. Each text keeps the contrast 4.5:1 of WCAG AA ov
 - Tooltips name the action and its key (2.4): "Play (Space)", "Pause (Space)", or "Play again
   (Space)", "Seek (← →, Home)", "Mute (M)", "Automatic camera (C)", "Full screen (F)" or "Exit full
   screen (F)", and "Speed", "Volume", "Reset view", and "Open the drawer" with no key. The buttons
-  "M" and "S" show their labels, and the link to GitHub shows "Zoophony on GitHub". A tooltip
+  "M" and "S" show their labels, and the link to GitHub shows "Zoophony on GitHub". The tooltips
+  keep their keys, although the mockup shows only the names, because they are the only visible
+  hint of the keys. A tooltip
   follows WCAG 1.4.13, shows for a mouse, a pen, or a keyboard focus, and never for a touch. A
   screen reader skips it, because `aria-label` and `aria-keyshortcuts` give the name and the key
   (`ui/tooltip.ts`, `app/tooltips.ts`).
