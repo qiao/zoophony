@@ -65,9 +65,9 @@ bulkier than expected. it's not anatomically correct". Long faces of the user me
 haunch to the heel, so the seated leg was a wedge with no hollow behind the knee.
 `tools/blender/polar_bear_legs.py` replays the Blender session that made both files, byte for
 byte. The faces of the feet, the trunk, the haunch, the arms, and the head stay. The new leg
-surface lies on the old one, with the leg length of the user: the rig makes the thighs and the
-shins 1.3 times as long (`legFactor`), so that the legs keep the proportions of the mesh
-(`docs/decisions/2026-10-28-polar-bench2.md`). The files of this folder do not change for it.
+surface lies on the old one, with the leg length of the user, and the rig keeps that length
+(`legFactor` 1), so that the body keeps the part ratios of the mesh
+(`docs/decisions/2026-10-29-polar-ratio.md`). The files of this folder do not change for it.
 
 | Item | Value |
 |---|---|
