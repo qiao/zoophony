@@ -273,14 +273,6 @@ describe('SynthEngine', () => {
     expect(voices(run, 1)).toBe(0);
   });
 
-  it('keeps the volume after a seek', () => {
-    const run = harness(banks, [program(0, 0, 40), on(0, 0, 60), off(3, 0, 60)]);
-    run.engine.setVolume(0);
-    run.engine.enqueue({ type: 'play', countInSec: 0 });
-    run.engine.enqueue({ type: 'seek', songSec: 0 });
-    expect(run.renderTo(0.5)).toBe(0);
-  });
-
   describe('count-in (design 6.5)', () => {
     /** The length of one block at the test sample rate. */
     const BLOCK_SEC = BLOCK_FRAMES / TEST_SAMPLE_RATE;
@@ -540,17 +532,16 @@ describe('SynthEngine', () => {
       off(3, 0, 67),
     ];
 
-    /** Makes an engine with the score of {@link ENTRIES} and a volume, before the banks. */
-    function engineBeforeBanks(volume: number, anchors: ClockAnchor[] = []): SynthEngine {
+    /** Makes an engine with the score of {@link ENTRIES}, before the banks. */
+    function engineBeforeBanks(anchors: ClockAnchor[] = []): SynthEngine {
       const engine = new SynthEngine(TEST_SAMPLE_RATE, (anchor) => anchors.push(anchor));
-      engine.setVolume(volume);
       const score = scoreOf({ tracks: [ENTRIES] });
       engine.loadScore(packSynthEvents(score.synthEvents), score.durationSec);
       return engine;
     }
 
     it('plays a note of each preset of the score, also of a preset that enters later', () => {
-      const engine = engineBeforeBanks(1);
+      const engine = engineBeforeBanks();
       const log = recordMessages(engine);
       engine.addBanks(copyBanks(banks));
       const keys = log.flatMap((item) =>
@@ -559,13 +550,12 @@ describe('SynthEngine', () => {
       expect(new Set(keys)).toEqual(new Set(['0:60', '1:64', '0:67']));
     });
 
-    it('leaves the synth silent, at the song start, and at its volume', () => {
+    it('leaves the synth silent and at the song start', () => {
       const anchors: ClockAnchor[] = [];
-      const engine = engineBeforeBanks(0.7, anchors);
+      const engine = engineBeforeBanks(anchors);
       engine.addBanks(copyBanks(banks));
       expect(anchors).toEqual([]);
       const synth = synthOf(engine);
-      expect(synth.systemParameters.gain).toBe(0.7);
       expect(synth.midiChannels[0]?.patch.program).toBe(0);
       expect(engine.playing).toBe(false);
 

@@ -16,12 +16,6 @@ export type ProcessorCommand =
       readonly channelGainsDb: readonly number[];
     }
   | { readonly type: 'banks'; readonly banks: readonly EngineBank[] }
-  /**
-   * The master gain of the synth. The `Player` sends no volume command, because the volume is a
-   * node of the output chain (design 6.8). `processor.ts` keeps the command until the Safari
-   * check of step 1 frees it (review of step 1, condition 3).
-   */
-  | { readonly type: 'volume'; readonly gain: number }
   | TransportCommand
   | SeatCommand;
 

@@ -253,15 +253,6 @@ export class SynthEngine {
   }
 
   /**
-   * Sets the master gain of the synth.
-   *
-   * @param gain The gain, 1 for the default level.
-   */
-  setVolume(gain: number): void {
-    this.synth.setSystemParameter('gain', gain);
-  }
-
-  /**
    * Renders one block of 128 frames (design 6.4): applies the commands, sends the due events,
    * renders, and posts a clock anchor after a change and one time each second. The seat flags of
    * all commands of the block go into one plan, so a solo costs one walk over the events

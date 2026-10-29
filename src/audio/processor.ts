@@ -63,9 +63,6 @@ class SynthProcessor extends AudioWorkletProcessor {
           this.#engine.addBanks(command.banks);
           this.#reply({ type: 'ready', banks: command.banks.length });
           break;
-        case 'volume':
-          this.#engine.setVolume(command.gain);
-          break;
         default:
           this.#engine.enqueue(command);
       }
