@@ -1,14 +1,8 @@
-import { bodyFrame, tailBase } from './body-frame.ts';
 import type { Stance } from './body-frame.ts';
-import { bodyColors } from './body-parts.ts';
 import type { Vec3 } from './tuples.ts';
 import type { MeshBuilder } from './mesh.ts';
 import type { BoneName } from './rig.ts';
 import type { SpeciesParams } from './species.ts';
-import { addTail } from './tails.ts';
-import { buildArms } from './arms.ts';
-import { buildLegs } from './legs.ts';
-import { buildTrunk } from './trunk.ts';
 import { buildStudioBody } from './studio-body.ts';
 
 /** The bones that the body places. The instrument generators place the other bones. */
@@ -40,80 +34,23 @@ export interface BodyBones {
 }
 
 /**
- * Builds the body of the parametric biped in its bind pose, and adds its parts to a mesh (design
- * 4.3, 4.5). A species with a body of its own (`SpeciesParams.body`) gets that body in place of
- * the biped: a studio body of `models/studio-body.ts` (design 4.4). The animal faces -z, its left
- * side is -x, and the floor is at y = 0. The arms hang down beside the body. Each part of the biped
- * follows one bone (design 4.4).
- *
- * The function makes the frame of the body (`body-frame.ts`), then adds the trunk
- * (`trunk.ts`), the tail (`tails.ts`), the arms (`arms.ts`), and the legs (`legs.ts`), in this
- * order. Each area reads the joint places of the frame, and no area reads another area.
+ * Builds the body of a species in its bind pose, and adds its parts to a mesh (design 4.4). Each
+ * species has a body of its own (`SpeciesParams.body`): a studio body of `models/studio-body.ts`.
+ * The animal faces -z, its left side is -x, and the floor is at y = 0.
  *
  * @param builder The mesh that gets the parts.
  * @param species The species parameters.
  * @param stance The seat under the body, or no seat.
  * @returns The bind positions of the body bones.
+ * @throws Error if the species has no body of its own.
  */
 export function buildBiped(
   builder: MeshBuilder,
   species: SpeciesParams,
   stance: Stance,
 ): BodyBones {
-  if (species.body) {
-    return buildStudioBody(builder, species.body, stance.kind === 'standing', species.palette);
+  if (!species.body) {
+    throw new Error('The species has no studio body.');
   }
-
-  const frame = bodyFrame(species, stance);
-  const colors = bodyColors(species);
-
-  const trunk = buildTrunk(builder, species, colors, frame);
-  const [tail1, tail2] = addTail(builder, species, colors, frame.h, tailBase(frame));
-  const arms = buildArms(builder, species, colors, frame);
-  const legs = buildLegs(builder, species, colors, frame);
-
-  return {
-    headHeight: frame.h,
-    headCenter: trunk.headCenter,
-    mouth: trunk.mouth,
-    floor: [0, 0, -frame.forward],
-    palmL: arms.palmL,
-    palmR: arms.palmR,
-    fingerBlockL: arms.fingerBlockL,
-    fingerBlockR: arms.fingerBlockR,
-    positions: {
-      root: [0, 0, 0],
-      hips: trunk.positions.hips,
-      spine: trunk.positions.spine,
-      chest: trunk.positions.chest,
-      neck: trunk.positions.neck,
-      head: trunk.positions.head,
-      jaw: trunk.positions.jaw,
-      eyeL: trunk.positions.eyeL,
-      eyeR: trunk.positions.eyeR,
-      earL: trunk.positions.earL,
-      earR: trunk.positions.earR,
-      tail1,
-      tail2,
-      trunk1: trunk.positions.trunk1,
-      trunk2: trunk.positions.trunk2,
-      trunk3: trunk.positions.trunk3,
-      shoulderL: arms.positions.shoulderL,
-      upperArmL: arms.positions.upperArmL,
-      forearmL: arms.positions.forearmL,
-      handL: arms.positions.handL,
-      fingersL: arms.positions.fingersL,
-      shoulderR: arms.positions.shoulderR,
-      upperArmR: arms.positions.upperArmR,
-      forearmR: arms.positions.forearmR,
-      handR: arms.positions.handR,
-      fingersR: arms.positions.fingersR,
-      thighL: legs.thighL,
-      shinL: legs.shinL,
-      footL: legs.footL,
-      thighR: legs.thighR,
-      shinR: legs.shinR,
-      footR: legs.footR,
-    },
-  };
+  return buildStudioBody(builder, species.body, stance.kind === 'standing', species.palette);
 }
