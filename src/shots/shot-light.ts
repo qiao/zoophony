@@ -114,7 +114,7 @@ export interface ShotRig {
  * @param elevation The angle of the camera above the subject, in radians.
  * @returns The part, from 0 to 1.
  */
-export function shadeShare(azimuth: number, elevation: number): number {
+function shadeShare(azimuth: number, elevation: number): number {
   const key = KEY_PLACE;
   const cosine =
     Math.cos(elevation) * Math.cos(key.elevation) * Math.cos(azimuth - key.azimuth) +
