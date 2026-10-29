@@ -1,0 +1,7 @@
+Folded faces of the studio body of the bassist on main (ddb9d0d93) and on the working tree: 44.0 s.
+
+| Set | main (ddb9d0d93) | Working tree |
+|---|---:|---:|
+| rest | 0.0% (0/9), most 0 (L 0 / R 0 / other 0) | 0.0% (0/9), most 0 (L 0 / R 0 / other 0) |
+| play | 8.9% (1154/12912), most 2 (L 2 / R 0 / other 0) | 3.2% (410/12912), most 1 (L 1 / R 0 / other 0) |
+| lift | 0.0% (0/279), most 0 (L 0 / R 0 / other 0) | 0.0% (0/279), most 0 (L 0 / R 0 / other 0) |

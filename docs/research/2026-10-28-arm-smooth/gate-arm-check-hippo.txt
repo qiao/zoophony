@@ -1,0 +1,31 @@
+Arm gate of 1 roles against main in 66 s. A cell gives the value, the base in parentheses, and the verdict of a value that does not pass.
+
+| Role | Arm | folds p95 (8) | twist p95 (55) | forearm twist p95 (80) | flat p5 (0.55) | paw twist p95 (170) | paw swing p95 (70) | paw jumps (0.5%) | stretch p95 (0.35) | grip turn p50 (45) | move twist max (176) | move turn max (3000) | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| bassist | L | 0 (0) | 15 (15) | 65 (64) | 0.84 (0.85) | 174 (174) OPEN | 38 (38) | 0.0% (0.0%) | 0.08 (0.08) | 5 (5) | 176 (176) | 50 (50) | OPEN |
+| bassist | R | 0 (0) | 28 (29) | 36 (35) | 0.85 (0.84) | 84 (84) | 2 (2) | 0.1% (0.1%) | 0.16 (0.18) | 3 (3) | 140 (140) | 881 (881) | PASS |
+
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| bassist | L | folds p95 | rest | 9 | 0 | 0 | 0.0% | 0 at bach-bwv1048.mid rest | 0 | 8 | 0 | PASS |
+| bassist | L | twist p95 | rest | 9 | 14 | 15 | 100.0% | 15 at bach-bwv1048.mid rest | 15 | 55 | 15 | PASS |
+| bassist | L | forearm twist p95 | play | 12912 | 62 | 65 | 100.0% | 66 at beethoven-8-4.mid 666.09 s | 65 | 80 | 64 | PASS |
+| bassist | L | flat p5 | play | 12912 | 0.85 | 0.84 | 100.0% | 0.83 at beethoven-8-4.mid 657.59 s | 0.84 | 0.55 | 0.85 | PASS |
+| bassist | L | paw twist p95 | play | 12912 | 166 | 174 | 100.0% | 176 at beethoven-8-4.mid 666.09 s | 174 | 170 | 174 | OPEN |
+| bassist | L | paw swing p95 | rest | 9 | 36 | 38 | 100.0% | 38 at bach-bwv1048.mid rest | 38 | 70 | 38 | PASS |
+| bassist | L | paw jumps | rest | 9 | 0 | 0 | 0.0% | 0 at bach-bwv1048.mid rest | 0.0% | 0.5% | 0.0% | PASS |
+| bassist | L | stretch p95 | play | 12912 | 0.05 | 0.08 | 100.0% | 0.09 at bach-bwv1048.mid 140.75 s | 0.08 | 0.35 | 0.08 | PASS |
+| bassist | L | grip turn p50 | play | 12912 | 5 | 10 | 100.0% | 12 at boulanger-matin.mid 80.88 s | 5 | 45 | 5 | PASS |
+| bassist | L | move twist max | move | 10449 | 166 | 174 | 100.0% | 176 at beethoven-8-4.mid lower 718.93 s, wall 0.50 s | 176 | 176 | 176 | PASS |
+| bassist | L | move turn max | move | 10449 | 10 | 33 | 89.5% | 50 at boulanger-matin.mid lift 93.56 s, wall 0.31 s | 50 | 3000 | 50 | PASS |
+| bassist | R | folds p95 | rest | 9 | 0 | 0 | 0.0% | 0 at bach-bwv1048.mid rest | 0 | 8 | 0 | PASS |
+| bassist | R | twist p95 | play | 12912 | 24 | 28 | 100.0% | 43 at boulanger-matin.mid 122.13 s | 28 | 55 | 29 | PASS |
+| bassist | R | forearm twist p95 | rest | 9 | 36 | 36 | 100.0% | 36 at bach-bwv1048.mid rest | 36 | 80 | 35 | PASS |
+| bassist | R | flat p5 | rest | 9 | 0.85 | 0.85 | 100.0% | 0.85 at bach-bwv1050.mid rest | 0.85 | 0.55 | 0.84 | PASS |
+| bassist | R | paw twist p95 | rest | 9 | 84 | 84 | 100.0% | 84 at bach-bwv1048.mid rest | 84 | 170 | 84 | PASS |
+| bassist | R | paw swing p95 | play | 12912 | 1 | 2 | 100.0% | 5 at brahms-2.mid 249.88 s | 2 | 70 | 2 | PASS |
+| bassist | R | paw jumps | play | 12912 | 0 | 0 | 0.1% | 151 at boulanger-matin.mid 223.63 s | 0.1% | 0.5% | 0.1% | PASS |
+| bassist | R | stretch p95 | lift | 279 | 0.08 | 0.16 | 96.8% | 0.17 at bach-bwv1048.mid wall 0.4 s | 0.16 | 0.35 | 0.18 | PASS |
+| bassist | R | grip turn p50 | play | 12912 | 3 | 11 | 100.0% | 149 at boulanger-matin.mid 265.13 s | 3 | 45 | 3 | PASS |
+| bassist | R | move twist max | move | 10449 | 12 | 84 | 100.0% | 140 at boulanger-matin.mid lower 187.11 s, wall 0.39 s | 140 | 176 | 140 | PASS |
+| bassist | R | move turn max | move | 10449 | 10 | 160 | 91.3% | 881 at boulanger-matin.mid lift 187.11 s, wall 0.29 s | 881 | 3000 | 881 | PASS |

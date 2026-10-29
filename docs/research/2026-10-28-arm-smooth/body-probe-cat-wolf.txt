@@ -1,0 +1,16 @@
+base main, new: the working tree
+bodies equal: 85 of 95
+players equal: 21 of 23
+pose sets equal: 1492 of 1492
+body wolf chair: mesh differs (positions, correctives, normals), joints same
+body wolf stool: mesh differs (positions, correctives, normals), joints same
+body wolf high-stool: mesh differs (positions, correctives, normals), joints same
+body wolf bench: mesh differs (positions, correctives, normals), joints same
+body wolf stand: mesh differs (positions, correctives, normals), joints same
+body cat chair: mesh differs (positions, colors, bones, blendBones, blendWeights, correctives, normals), joints same
+body cat stool: mesh differs (positions, colors, bones, blendBones, blendWeights, correctives, normals), joints same
+body cat high-stool: mesh differs (positions, colors, bones, blendBones, blendWeights, correctives, normals), joints same
+body cat bench: mesh differs (positions, colors, bones, blendBones, blendWeights, correctives, normals), joints same
+body cat stand: mesh differs (positions, colors, bones, blendBones, blendWeights, correctives, normals), joints same
+player viola/cat/viola: mesh differs (positions, colors, bones, blendBones, blendWeights, correctives, normals), moved bones: none
+player clarinet/wolf/clarinet: mesh differs (positions, correctives, normals), moved bones: none

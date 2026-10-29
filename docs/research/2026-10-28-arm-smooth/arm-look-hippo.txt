@@ -1,0 +1,6 @@
+Arm look of 1 roles, play step 1 s. Limits: crease share 14.6% (twice the worst arm of the red fox (7.3%)), section 0.44 (0.6 of the worst arm of the red fox (0.74)).
+
+| Role | Arm | Play samples | Crease share p50 | Section p50 |
+|---|---|---:|---:|---:|
+| bassist | L | 3232 | 3.8% | 0.90 |
+| bassist | R | 3232 | 7.8% | 0.85 |
