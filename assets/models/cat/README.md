@@ -1,125 +1,109 @@
 # Cat model
 
-This folder holds the cat mesh that the user gave. The app does not serve it.
+This folder holds the source mesh of the cat, a copy with rebuilt arms and its weights, and the
+rigged copy. The app does not serve these files. It loads the module `src/models/studio/cat.ts`,
+which this chain writes:
 
-## cat-arms.glb and cat-weights.json
-
-`cat-arms.glb` is `cat.glb` with new faces on each arm and under it, with the upper arm 0.92 and
-the forearm 0.78 as long, and with arms 0.85 as thick. On 2026-10-24 the user said: "note that there's significant twisting
-happening for the arms and wrists. add loop edges and retopology and additional bones if needed to
-address them". The upper arm of `cat.glb` joins the side of the trunk down to the elbow, so the edit
-also makes an armpit: a cut along the seam where the arm meets the trunk, a side wall of the trunk
-under the arm, and a quad tube from the shoulder to the wrist, whose flat inner side lies on the
-side wall and meets it only at the armpit line. `tools/blender/cat_arms.py` replays the Blender
-session that made both files, byte for byte. The faces of the paws, the trunk, the legs, and the
-head are the faces of the user. The arms get their length in the copy, because a rig with arm
-segments does not stretch the arms: 1.10 head heights from the shoulder joint to the wrist, 1.30
-on the mesh of the user, with the cross-section 0.85 of the source (`armGirth` 0.85 of
-2026-10-17). The user said "the cat's arm has dent and is longer than expected" on 2026-10-27.
-From 2026-10-25 to 2026-10-26 they were 1.1496 times longer, and the user said "the cats arms are
-too long". `pnpm rig-mesh cat` writes `cat.rig.glb` from it (`tools/mesh-rigs/cat.json`),
-and `pnpm studio-body cat` writes `src/models/studio/cat.ts`.
-
-The trunk of the copy is an even oval from the front and from the side. The user said "make the
-cat's belly more oval and smooth" on 2026-10-27. The belly front of `cat.glb` has an upright chest
-and a peak low on the belly, and its sides are a straight cone. The step `step_belly()` of the
-script moves the belly front onto an ellipse arc, each side onto an even curve, and the belly
-front part of the way to a half ellipse at each height, at most 0.016 units. The front of the
-upper belly, where the bow upper arm lies in the play, is a little flatter, most at the middle
-line (`flat`, `docs/research/2026-10-27-cat-lap.md`). The faces and the colors of the trunk stay
-(`docs/research/2026-10-27-cat-belly.md`).
-
-The side wall under each arm rounds into the trunk. The fill of the seam was a flat fan of 27
-long thin faces, and the cut left lips under it: small trunk faces that turned back under the
-wall. The raised arm of the play showed them as a light patch with a crease, and the user said
-"the cat's arm has lumps" on 2026-10-27. The step `step_round_wall()` of the script deletes the
-lips, fills the hole again with even faces, and smooths the wall and the trunk near it along the
-normal of the plane of the seam (`docs/research/2026-10-28-cat-wall.md`).
-
-The band between the left armpit line and the flat inner side of the left arm has no thin face.
-The first shoulder ring lay 0.1 to 0.5 units-cm from the line there, so Bridge Edge Loops made
-thin triangles, and three corners of a face at the front end of the line lay on one line. The
-step `step_clean_pit()` merges the shoulder ring vertices near the line into the next ring and
-the socket vertices near the line ends, and fills the band again with a strip of triangles. The
-line and the side wall stay. The right arm keeps its band, because the clean made the root ring
-of the bow arm flatter in the play (`docs/research/2026-10-28-cat-root2.md`).
-
-The tube of each arm is an even round from the shoulder to the paw. The seated bind of
-`pnpm rig-mesh cat` bends each elbow 79° and turns the left paw 120°, so it binds the left lower
-arm with the dual quaternion blend (`bind.arm` of the config): the elbow and the forearm keep the
-round of the tube. With the linear blend, they were 0.86 and 0.84 as thick, and the user said
-"the cat's arm has lumps" on 2026-10-27 (`docs/research/2026-10-27-cat-arm.md`). The bow arm
-keeps the linear blend, because it bends further than the bind in the play.
-
-The front of each arm root keeps the trunk weights of the rules, so it stays with the chest. The
-raised left arm of the play crushed it into a dark crease, and the user said "the cat's arm has
-lumps" on 2026-10-27. The rig gives the left arm a shape of `raise` with the turns of the play:
-in its pose, the front of the root moves half of the way with the first segment of the upper arm
-(`follow` of the config). A second shape does the same with the turns of the rest, where the
-hanging arm left a dark notch at the root, and a third shape with the turns between the rest and
-the play. The root keeps its trunk weights, because with none it folded
-(`docs/research/2026-10-28-cat-root.md`, `docs/research/2026-10-28-cat-root2.md`). In the pose
-of the shape of the play, the skin near the root front then fills its valleys and moves no vertex
-in (`follow.fill`), so the soft fold there is lighter. A fourth shape does the same as the
-follow of the left shapes for the bow arm in the play, where its root front folded into deep
-valleys (`docs/research/2026-10-28-cat-root3.md`).
-
-| Item | Value |
-|---|---|
-| `cat-arms.glb` | 1,180,540 bytes, SHA-256 `ecfe907e75fac79a56df2e5aa98e82b95217ff78f0d17cddb95e880552d90d76` |
-| Mesh | 2,146 vertices after a weld at 1e-5, 4,287 triangles (3,121 in the source): on each arm a tube of 16 rings of 16 vertices, joined to the shoulder socket and to the paw with Bridge Edge Loops, and a side wall of 54 (left) and 50 (right) faces under each arm. Near the left armpit line, 8 vertices of the first two shoulder rings merged into the next ring or into the line |
-| Material | One material with one base color JPEG of 4096 × 4608 pixels: the atlas of the source, and a strip of 512 pixels on top with the fur color of the source arms, baked onto the new faces. The side walls and the flat inner sides of the arms take one gray fur texel of the trunk beside the seam. No metallic-roughness texture |
-| `cat-weights.json` | 480,430 bytes, SHA-256 `588d9b38b0dff053118adf037f9c87521a1504fc48df949043622062a486155e` |
-| Weights | The automatic weights of Blender with the Weight Paint fixes of the session, on the studio bones and the arm segments and helpers (`armSegments` of the config), for `paintedWeights` of the config. The arms take the automatic weights of the copy before the round side walls (`step_tube_heat()`) |
-| License | Derived from the mesh of the user, who holds its rights |
-
-```bash
-shasum -a 256 assets/models/cat/cat-arms.glb assets/models/cat/cat-weights.json
+```text
+cat.glb                            source mesh
+   │  tools/blender/cat_arms.py    rebuilt arms, belly, and painted weights
+   v
+cat-arms.glb + cat-weights.json    `source` and `paintedWeights` of tools/mesh-rigs/cat.json
+   │  pnpm rig-mesh cat
+   v
+cat.rig.glb                        rigged mesh
+   │  pnpm studio-body cat
+   v
+src/models/studio/cat.ts           studio body of the app
 ```
+
+`docs/agents/rigging.md` gives the steps of the chain. The target of the form is the sheet
+`docs/reference/cat-views.png`. The cat has the same bead eyes as the fox and the rabbit.
+
+## Files
+
+| File | Origin | Rebuild |
+|---|---|---|
+| `cat.glb` | Source mesh (below) | None |
+| `cat-arms.glb` | Copy of `cat.glb` with rebuilt arms and belly. License as `cat.glb` | `cat_arms.py` |
+| `cat-weights.json` | Weights of the same Blender run. License as `cat.glb` | `cat_arms.py` |
+| `cat.rig.glb` | Output of the rig. License as `cat.glb` | `pnpm rig-mesh cat` |
 
 ## cat.glb
 
-`cat.glb` is a mesh with no skeleton. The user gave it on 2026-10-16. The file is the file of the
-user, byte for byte. The rig of this project makes a studio body from it, as for the rabbit mesh
-and the fox mesh (route 3 of `AGENTS.md`, `tools/mesh-rigs/cat.json`): `pnpm rig-mesh cat` writes
-the rigged file `cat.rig.glb`, and `pnpm studio-body cat` writes the module
-`src/models/studio/cat.ts` from it. The app does not serve the two GLB files.
-
-The user said these things on 2026-10-16, in this order:
-
-1. With the sheet `docs/reference/cat-views.png`: "after this round, update the cat model to use
-   this".
-2. "note that we should use the same bead/pea eyes as the fox and rabbit".
-3. "this is the model for cat:
-   /Users/xueqiaoxu/Downloads/Meshy_AI_Cat_Remeshed_3K_Trian_1017021112_texture.glb".
-
 | Item | Value |
 |---|---|
-| File | `cat.glb`, 14,466,300 bytes |
+| Size | 14,466,300 bytes |
 | SHA-256 | `0ca57eaa7f831ce5f17ff889d46b935e6c21400e69a597347c1381f0305cda9e` |
-| Source | Generated by the user, who gave it to this project on 2026-10-16 as `Meshy_AI_Cat_Remeshed_3K_Trian_1017021112_texture.glb` |
+| Origin | Generated with Meshy by the project author on a paid plan. The author holds the rights |
+| License | CC BY-NC 4.0 (`../LICENSE`). It is no third-party file, so the third-party license file (design 7.3) has no entry for it |
 | Writer | Khronos glTF Blender I/O v4.3.47 |
 | Contents | One node `output_unwrapped` with one mesh of one primitive: 3,121 triangles and 4,148 vertices with POSITION, NORMAL, TEXCOORD_0, and indices. No skin and no animation |
 | Material | One material `BakedMaterial`, double-sided, with a base color texture and a metallic-roughness texture, each a PNG of 4096 × 4096 pixels. The texture is an atlas of an automatic unwrap |
-| License | The user generated the model and holds its rights. It is no third-party file, so the third-party license file (design 7.3) has no entry for it |
 
-To check the file:
-
-```bash
-shasum -a 256 assets/models/cat/cat.glb
-```
-
-These facts of the mesh were measured on 2026-10-16 with the probes of
-`docs/research/2026-10-16-cat-mesh/` (`facts.txt`, `sections-y.txt`, and `head-colors.txt`):
+Facts of the mesh:
 
 - A weld at 1e-5 gives 1,563 vertices in one connected part. The mesh has 2 open edges and 6
-  edges with more than two faces. 318 faces have a corner angle below 10° (the fox mesh has 178).
+  edges with more than two faces. 318 faces have a corner angle below 10°.
 - The box is x -0.491 to 0.490, y -0.952 to 0.952, and z -0.419 to 0.426. Thus the cat is 1.903
   units high from the soles to the tips of the ears.
 - The cat faces +z, with its left side at +x. These are the axes of the studio.
 - The cat stands in an A-pose: the arms go down and out at about 58° below the horizontal.
-- It has gray fur, a cream chest and belly, white paws, pink inner ears, and a pink nose. The eyes
-  are dark faces of the head surface with a few green faces, with no shells. Thin whiskers stand
-  out from the muzzle.
-- The tail hangs down behind the legs from the lower back, and its end goes back along the floor.
-  The sheet shows a tail that curls up at its end.
+- The eyes are dark faces of the head surface with a few green faces, with no shells. Thin
+  whiskers stand out from the muzzle.
+- The tail hangs down behind the legs, and its end goes back along the floor. The sheet shows a
+  tail that curls up at its end.
+
+## cat-arms.glb and cat-weights.json
+
+| Item | Value |
+|---|---|
+| `cat-arms.glb` | 1,180,540 bytes, SHA-256 `ecfe907e75fac79a56df2e5aa98e82b95217ff78f0d17cddb95e880552d90d76` |
+| Mesh | 2,146 vertices after a weld at 1e-5, 4,287 triangles: on each arm a tube of 16 rings of 16 vertices, joined to the shoulder socket and to the paw with Bridge Edge Loops, and a side wall of 54 (left) and 50 (right) faces under each arm. Near the left armpit line, 8 vertices of the first two shoulder rings merged into the next ring or into the line |
+| Material | One material with one base color JPEG of 4096 × 4608 pixels: the atlas of the source, and a strip of 512 pixels on top with the fur color of the source arms, baked onto the new faces. The side walls and the flat inner sides of the arms take one gray fur texel of the trunk beside the seam. No metallic-roughness texture |
+| `cat-weights.json` | 480,430 bytes, SHA-256 `588d9b38b0dff053118adf037f9c87521a1504fc48df949043622062a486155e` |
+| Weights | The automatic weights of Blender with the Weight Paint fixes of the script, on the studio bones and the arm segments and helpers (`armSegments` of the config), for `paintedWeights` of the config. The arms take the automatic weights of the copy before the round side walls (`step_tube_heat()`) |
+
+The upper arm of `cat.glb` joins the side of the trunk down to the elbow. Thus the script makes an
+armpit: a cut along the seam where the arm meets the trunk, a side wall of the trunk under the
+arm, and a quad tube from the shoulder to the wrist. The flat inner side of the tube lies on the
+side wall and meets it only at the armpit line. The faces of the paws, the trunk, the legs, and
+the head are the faces of the source.
+
+A rig with arm segments does not stretch the arms, so the arms get their length in the copy. The
+upper arm is 0.92 and the forearm 0.78 as long as on the source. The arm is 1.10 head heights from
+the shoulder joint to the wrist (1.30 on the source). The cross-section is 0.85 of the source.
+
+The other steps of the script:
+
+- **`step_belly()`.** It moves the belly front onto an ellipse arc and each side onto an even
+  curve, at most 0.016 units. Thus the trunk is an even oval from the front and from the side. The
+  front of the upper belly, where the bow upper arm lies in the play, is a little flatter, most at
+  the middle line (`flat`). The faces and the colors of the trunk stay.
+- **`step_round_wall()`.** It deletes the small trunk faces that turn back under the side wall,
+  fills the hole again with even faces, and smooths the wall and the trunk near it along the
+  normal of the plane of the seam. Thus the side wall rounds into the trunk.
+- **`step_clean_pit()`.** It merges the shoulder ring vertices near the left armpit line into the
+  next ring, and the socket vertices near the line ends. Then it fills the band again with a strip
+  of triangles. Thus the band has no thin face. The right arm keeps its band, because the clean
+  made the root ring of the bow arm flatter in the play.
+
+A run gives the same bytes:
+
+```bash
+blender -b --factory-startup -P tools/blender/cat_arms.py
+shasum -a 256 assets/models/cat/*.glb assets/models/cat/cat-weights.json
+```
+
+## Rig facts of cat.rig.glb
+
+- The seated bind bends each elbow 79° and turns the left paw 120°. Thus the rig binds the left
+  lower arm with the dual quaternion blend (`bind.arm` of the config), and the elbow and the
+  forearm keep the round of the tube. The bow arm keeps the linear blend, because it bends
+  further than the bind in the play.
+- The front of each arm root keeps the trunk weights, so it stays with the chest. With no trunk
+  weights, the root folded.
+- Three `raise` shapes of the left arm (the turns of the play, of the rest, and between them) move
+  the front of the arm root half of the way with the first segment of the upper arm (`follow`).
+  In the shape of the play, the skin near the root front fills its valleys and moves no vertex in
+  (`follow.fill`). A fourth shape does the same for the bow arm in the play.
