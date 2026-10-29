@@ -70,6 +70,9 @@ Then these rules hold:
   and `origin/main` is old because nobody pushes. When `git merge-base HEAD main` differs from
   `git rev-parse main`, run `git reset --hard main` before your first change. On 2026-10-25, an
   audit rendered a tree 428 commits behind `main` and reported faults that `main` had fixed.
+- Give the start commit of your branch to each `--base` option, such as
+  `pnpm body-probe --base <start>` and `pnpm close-views --base <start>`. The other agent commits
+  on `main` during your round, so `--base main` also shows its changes as false differences.
 - Stage each path by its name: `git add <path>`. `git add -A` and `git add .` also stage the files
   of the other agents.
 - Merge a branch with `tools/merge-branch.sh <branch> [worktree]`. It rebases with no
