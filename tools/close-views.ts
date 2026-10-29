@@ -136,6 +136,16 @@ interface LineCamera {
   readonly z: number;
 }
 
+/** The point at which a line camera looks (`--aim`), in meters. */
+interface LineAim {
+  /** The x of the vertical line around which the camera turns. */
+  readonly x: number;
+  /** The z of the vertical line around which the camera turns. */
+  readonly z: number;
+  /** The height of the point that the camera looks at. */
+  readonly target: number;
+}
+
 /** The close view of one role of the gallery. */
 interface RoleViews {
   /** The species of the role, which the query `only` selects. */
@@ -1021,6 +1031,11 @@ interface CloseViewsArgs {
    * for the elevation of each view of the role.
    */
   readonly elevation: number | null;
+  /**
+   * The point of `--aim` at which a line camera looks ({@link aimOf}), or `null` for the point of
+   * the role.
+   */
+  readonly aim: LineAim | null;
   /** The factor of the size of each cell (`--scale`): 1 gives {@link CELL}. */
   readonly scale: number;
   /**
@@ -1271,14 +1286,15 @@ function scaleOf(value: string | null): number {
 
 /**
  * Reads the command line of the close views: `<role> <dir> [--target head] [--views <view|deg,...>]
- * [--moments <moment,...>] [--zoom <n>] [--elevation <deg>] [--scale <n>] [--probe <probe,...>]
- * [--url <url>] [--glb <file>] [--set <changes>] [--lineup [--with <role,...>] [--crop <n>] [--box
- * <x>,<y>,<w>,<h>]] [--base <ref> [--pairs <view|cell,...> [--crop <x>,<y>,<w>,<h>]] [--sheet
- * [--box <x>,<y>,<w>,<h>]]]`. With `--lineup`, the views are {@link LINEUP_VIEWS} and the moments
- * {@link lineupMoments} unless `--views` and `--moments` give others. `--sheet` gives one sheet
- * for each view ({@link writeSheets}), with the cells of `--scale` cut to the box of `--box`. A
- * moment `lift<n>` or `lower<n>` gives the share n / 100 of that move ({@link roleMoment}), such
- * as `lift30`.
+ * [--moments <moment,...>] [--zoom <n>] [--elevation <deg>] [--aim <x>,<z>,<height>] [--scale <n>]
+ * [--probe <probe,...>] [--url <url>] [--glb <file>] [--set <changes>] [--lineup [--with
+ * <role,...>] [--crop <n>] [--box <x>,<y>,<w>,<h>]] [--base <ref> [--pairs <view|cell,...> [--crop
+ * <x>,<y>,<w>,<h>]] [--sheet [--box <x>,<y>,<w>,<h>]]]`. `--aim` points a line camera at a part,
+ * such as a wrist of the conductor ({@link aimOf}). With `--lineup`, the views are
+ * {@link LINEUP_VIEWS} and the moments {@link lineupMoments} unless `--views` and `--moments`
+ * give others. `--sheet` gives one sheet for each view ({@link writeSheets}), with the cells of
+ * `--scale` cut to the box of `--box`. A moment `lift<n>` or `lower<n>` gives the share n / 100 of
+ * that move ({@link roleMoment}), such as `lift30`.
  *
  * @param args The arguments after the script.
  * @returns The command line, or `null` when it is not correct.
@@ -1296,6 +1312,7 @@ export function closeViewsArgs(args: readonly string[]): CloseViewsArgs | null {
   const base = optionValue(args, '--base');
   const zoom = optionValue(args, '--zoom');
   const elevation = optionValue(args, '--elevation');
+  const aim = optionValue(args, '--aim');
   const scale = optionValue(args, '--scale');
   const pairs = optionValue(args, '--pairs');
   const crop = optionValue(args, '--crop');
@@ -1374,6 +1391,7 @@ export function closeViewsArgs(args: readonly string[]): CloseViewsArgs | null {
     base: base ?? null,
     zoom: zoom ? zoomOf(zoom) : null,
     elevation: elevationOf(elevation ?? undefined),
+    aim: aimOf(aim ?? undefined),
     scale: scaleOf(scale ?? null),
     pairs: pairs
       ? pairCells(target ? headViews(ROLE_VIEWS[role]) : ROLE_VIEWS[role], pairs.split(','))
@@ -1610,18 +1628,21 @@ async function pairImage(
  * Gives the close view of a role with the camera of the command line: the face crops of
  * `--target head` ({@link headViews}), the views of `--views` and the moments of `--moments`,
  * then the zoom of `--zoom` and the elevation of `--elevation` for each view, in place of the
- * values of the role.
+ * values of the role. A line camera then looks at the point of `--aim`.
  *
  * @param role The close view of the role.
- * @param args The zoom, the elevation, the target, the views, and the moments of the command line.
+ * @param args The zoom, the elevation, the target, the views, the moments, and the point of the
+ *   command line.
  * @returns The close view.
+ * @throws Error if `--aim` comes with a role whose camera is not a line camera.
  */
 function roleCamera(
   role: RoleViews,
   args: Pick<CloseViewsArgs, 'zoom' | 'elevation' | 'target'> &
-    Partial<Pick<CloseViewsArgs, 'views' | 'moments'>>,
+    Partial<Pick<CloseViewsArgs, 'views' | 'moments' | 'aim'>>,
 ): RoleViews {
   const { zoom, elevation } = args;
+  const aim = args.aim ?? null;
   const aimed = args.target === 'head' ? headViews(role) : role;
   const views = args.views ?? aimed.views;
   const names = args.moments;
@@ -1636,8 +1657,26 @@ function roleCamera(
             elevation,
           })),
     moments: names ? names.map((name) => roleMoment(aimed, name)) : aimed.moments,
-    camera: zoom === null ? aimed.camera : { ...aimed.camera, zoom },
+    camera: aimCamera(zoom === null ? aimed.camera : { ...aimed.camera, zoom }, aim),
   };
+}
+
+/**
+ * Gives a camera that looks at the point of `--aim`.
+ *
+ * @param camera The camera of the role.
+ * @param aim The point, or `null` to keep the camera.
+ * @returns The camera.
+ * @throws Error if the camera is not a line camera and a point comes.
+ */
+function aimCamera(camera: BodyCamera | LineCamera, aim: LineAim | null): BodyCamera | LineCamera {
+  if (aim === null) {
+    return camera;
+  }
+  if (camera.kind !== 'line') {
+    throw new Error('The option --aim needs a role with a line camera, such as the conductor.');
+  }
+  return { ...camera, ...aim };
 }
 
 /**
@@ -2031,7 +2070,7 @@ async function probeViews(
   const lineup = args.lineup;
   const rows: LineupRow[] = [{ label: 'working tree', cells: views.cells }];
   for (const other of lineup?.roles ?? []) {
-    const own = roleCamera(ROLE_VIEWS[other], { ...args, target: null, moments: null });
+    const own = roleCamera(ROLE_VIEWS[other], { ...args, target: null, moments: null, aim: null });
     const partner = { ...own, moments: role.moments.map((m) => partnerMoment(own, m)) };
     const cells = await renderViews(browser, site.base, partner, out, `${other}-`, size);
     rows.push({ label: `${other}, working tree`, cells: cells.cells });
@@ -2566,6 +2605,35 @@ function zoomOf(value: string | undefined): number {
     );
   }
   return zoom;
+}
+
+/**
+ * Reads the point of `--aim`: the x and the z of the vertical line of a line camera, and the
+ * height of the point that it looks at, in meters, such as `0.36,-0.1,1.2` for the left wrist of
+ * the conductor.
+ *
+ * @param value The text of the option, or `undefined` with no option.
+ * @returns The point, or `null` with no option.
+ * @throws Error if the text is not three numbers.
+ */
+function aimOf(value: string | undefined): LineAim | null {
+  if (value === undefined) {
+    return null;
+  }
+  const numbers = value.split(',').map(Number);
+  const [x, z, target] = numbers;
+  if (
+    numbers.length !== 3 ||
+    x === undefined ||
+    z === undefined ||
+    target === undefined ||
+    !numbers.every(Number.isFinite)
+  ) {
+    throw new Error(
+      `The option --aim takes the x, the z, and the height in meters, such as 0.36,-0.1,1.2, and not "${value}".`,
+    );
+  }
+  return { x, z, target };
 }
 
 /**
@@ -5090,7 +5158,7 @@ async function renderModes(
 
 /** The usage text of the tool. */
 const USAGE = [
-  `Usage: pnpm close-views <${CLOSE_ROLES.join('|')}> <output directory> [--target head] [--views <view|deg,...>] [--moments <moment,...>] [--zoom <n>] [--elevation <deg>] [--scale <n>] [--probe <${GALLERY_PROBES.join('|')},...>] [--url <url>] [--glb <file>] [--set <changes>] [--lineup [--with <role,...>] [--crop <n>] [--box <x>,<y>,<w>,<h>]] [--base <ref> [--pairs <view|cell,...> [--crop <x>,<y>,<w>,<h>]] [--sheet [--box <x>,<y>,<w>,<h>]]]`,
+  `Usage: pnpm close-views <${CLOSE_ROLES.join('|')}> <output directory> [--target head] [--views <view|deg,...>] [--moments <moment,...>] [--zoom <n>] [--elevation <deg>] [--aim <x>,<z>,<height>] [--scale <n>] [--probe <${GALLERY_PROBES.join('|')},...>] [--url <url>] [--glb <file>] [--set <changes>] [--lineup [--with <role,...>] [--crop <n>] [--box <x>,<y>,<w>,<h>]] [--base <ref> [--pairs <view|cell,...> [--crop <x>,<y>,<w>,<h>]] [--sheet [--box <x>,<y>,<w>,<h>]]]`,
   '       pnpm close-views lineup <species,...> <output directory> [--url <url>] [--base <ref>]',
   `       pnpm close-views species <species,...> <output directory> [--views <${SPECIES_VIEWS.map((view) => view.name).join('|')},...>] [--moment <play|rest|lift<p>|lower<p>>] [--zoom <n>] [--elevation <deg>] [--url <url>] [--base <ref>]`,
   `       pnpm close-views play <output directory> [--demo <id> | --midi <path>] [--time <s>]... [--strip <from>:<step>:<count>] [--camera <${PLAY_CAMERAS.map((camera) => camera.name).join('|')}|<dx>,<dy>,<wheel>|<JSON>>]... [--camera-file <json>] [--cinematic] [--shot <seat|species>] [--at <seat|species> [--azimuth <deg>]... [--zoom <z>] [--elevation <deg>]] [--url <url>] [--base <ref>] [--set <changes>]... [--size <w>x<h>]`,
