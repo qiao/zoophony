@@ -1,0 +1,21 @@
+# grep of the variant table and the form table of pnpm rig-mesh polar-bear --check --keep <dir> --set ... (the leg factor and the thigh slope)
+ Variant | Triangles | Mesh gzip B | Scale m/u | Seat m | Leg seat m | Chair m | Reach L m | Reach R m | Standing mm 
+---|---|---|---|---|---|---|---|---|---
+ base | 5056 | 32437 | 1.5828 | 0.255 | 0.255 | none | 0.510 | 0.510 | 0.274 
+ legFactor=1.0;studio.legTurns.thigh=[0.532593,0.0255,-0.130398,0.835878] | 5056 | 32386 | 1.5828 | 0.199 | 0.199 | none | 0.510 | 0.510 | 0.264 
+ legFactor=1.0;studio.legTurns.thigh=[0.46117,0.02188,-0.107709,0.880478] | 5056 | 32375 | 1.5828 | 0.199 | 0.199 | none | 0.510 | 0.510 | 0.258 
+ legFactor=1.0;studio.legTurns.thigh=[0.599789,0.028941,-0.152685,0.784922] | 5056 | 32390 | 1.5828 | 0.169 | 0.169 | none | 0.510 | 0.510 | 0.254 
+ legFactor=1.1;studio.legTurns.thigh=[0.532593,0.0255,-0.130398,0.835878] | 5056 | 32398 | 1.5828 | 0.201 | 0.201 | none | 0.510 | 0.510 | 0.256 
+ legFactor=1.2;studio.legTurns.thigh=[0.532593,0.0255,-0.130398,0.835878] | 5056 | 32411 | 1.5828 | 0.237 | 0.237 | none | 0.510 | 0.510 | 0.259 
+ legFactor=1.1;studio.legTurns.thigh=[0.497374,0.023711,-0.119099,0.858995] | 5056 | 32387 | 1.5828 | 0.210 | 0.210 | none | 0.510 | 0.510 | 0.257 
+
+| Variant | Player | Seat m | Visible head m | Standing head top m | Seated head top m | Footprint m |
+|---|---|---|---|---|---|---|
+| main | polar-bear piano | 0.255 | 0.342 | 1.540 | 1.540 | 1.722 by 3.105 |
+| base | polar-bear piano | 0.255 (+0.000) | 0.342 (+0.000) | 1.540 (+0.000) | 1.540 (+0.000) | 1.722 (+0.000) by 3.105 (+0.000) |
+| legFactor=1.0;studio.legTurns.thigh=[0.532593,0.0255,-0.130398,0.835878] | polar-bear piano | 0.199 (-0.057) | 0.342 (-0.000) | 1.472 (-0.068) | 1.472 (-0.068) | 1.722 (+0.000) by 3.105 (+0.000) |
+| legFactor=1.0;studio.legTurns.thigh=[0.46117,0.02188,-0.107709,0.880478] | polar-bear piano | 0.199 (-0.057) | 0.342 (+0.000) | 1.503 (-0.036) | 1.503 (-0.036) | 1.722 (+0.000) by 3.096 (-0.009) |
+| legFactor=1.0;studio.legTurns.thigh=[0.599789,0.028941,-0.152685,0.784922] | polar-bear piano | 0.169 (-0.086) | 0.342 (-0.000) | 1.438 (-0.102) | 1.438 (-0.102) | 1.722 (+0.000) by 3.105 (+0.000) |
+| legFactor=1.1;studio.legTurns.thigh=[0.532593,0.0255,-0.130398,0.835878] | polar-bear piano | 0.201 (-0.054) | 0.342 (-0.000) | 1.495 (-0.045) | 1.495 (-0.045) | 1.722 (+0.000) by 3.096 (-0.009) |
+| legFactor=1.2;studio.legTurns.thigh=[0.532593,0.0255,-0.130398,0.835878] | polar-bear piano | 0.237 (-0.018) | 0.342 (-0.000) | 1.517 (-0.023) | 1.517 (-0.023) | 1.722 (+0.000) by 3.105 (+0.000) |
+| legFactor=1.1;studio.legTurns.thigh=[0.497374,0.023711,-0.119099,0.858995] | polar-bear piano | 0.210 (-0.045) | 0.342 (-0.000) | 1.512 (-0.028) | 1.512 (-0.028) | 1.722 (+0.000) by 3.096 (-0.009) |

@@ -1,0 +1,50 @@
+# LEG=1.3 uv run --no-project --with numpy python -I probes/ratio_table.py on the files of c44b8ebb4
+# c44b8ebb4: leg factor 1.3, scale 1.582774 m/u, pose bach-bwv1047.mid at 149.77 s
+| Measure | source | app standing | seated bind | rest | play | standing / source | seated / source | play / source |
+|---|---|---|---|---|---|---|---|---|
+| standing height | 1.000 u (158.3 cm) | 1.065 u (168.5 cm) |  |  |  | 1.06 |  |  |
+| trunk: hip joints to shoulder joints | 0.446 u (70.5 cm) | 0.446 u (70.5 cm) | 0.446 u (70.6 cm) | 0.445 u (70.4 cm) | 0.438 u (69.3 cm) | 1.00 | 1.00 | 0.98 |
+| shoulder joints apart | 0.260 u (41.2 cm) | 0.260 u (41.2 cm) | 0.260 u (41.2 cm) | 0.260 u (41.2 cm) | 0.263 u (41.6 cm) | 1.00 | 1.00 | 1.01 |
+| chest width | 0.286 u (45.3 cm) | 0.286 u (45.3 cm) | 0.283 u (44.8 cm) | 0.292 u (46.2 cm) | 0.289 u (45.7 cm) | 1.00 | 0.99 | 1.01 |
+| chest depth | 0.277 u (43.8 cm) | 0.277 u (43.8 cm) | 0.277 u (43.8 cm) | 0.276 u (43.7 cm) | 0.276 u (43.7 cm) | 1.00 | 1.00 | 1.00 |
+| belly width | 0.361 u (57.2 cm) | 0.361 u (57.2 cm) | 0.350 u (55.3 cm) | 0.350 u (55.4 cm) | 0.351 u (55.5 cm) | 1.00 | 0.97 | 0.97 |
+| belly depth | 0.340 u (53.8 cm) | 0.340 u (53.8 cm) | 0.324 u (51.2 cm) | 0.322 u (50.9 cm) | 0.322 u (51.0 cm) | 1.00 | 0.95 | 0.95 |
+| upper arm length | 0.160 u (25.4 cm) | 0.160 u (25.4 cm) | 0.160 u (25.4 cm) | 0.160 u (25.4 cm) | 0.160 u (25.4 cm) | 1.00 | 1.00 | 1.00 |
+| upper arm girth (diameter) | 0.118 u (18.7 cm) | 0.117 u (18.5 cm) | 0.117 u (18.4 cm) | 0.112 u (17.7 cm) | 0.113 u (17.9 cm) | 0.99 | 0.99 | 0.96 |
+| forearm length | 0.146 u (23.1 cm) | 0.146 u (23.1 cm) | 0.146 u (23.1 cm) | 0.146 u (23.1 cm) | 0.146 u (23.1 cm) | 1.00 | 1.00 | 1.00 |
+| forearm girth (diameter) | 0.095 u (15.1 cm) | 0.094 u (14.9 cm) | 0.094 u (14.8 cm) | 0.093 u (14.8 cm) | 0.093 u (14.8 cm) | 0.99 | 0.98 | 0.98 |
+| thigh length | 0.130 u (20.6 cm) | 0.169 u (26.8 cm) | 0.169 u (26.8 cm) | 0.169 u (26.8 cm) | 0.169 u (26.8 cm) | 1.30 | 1.30 | 1.30 |
+| thigh girth (diameter) | 0.163 u (25.8 cm) | 0.162 u (25.6 cm) | 0.145 u (23.0 cm) | 0.145 u (23.0 cm) | 0.146 u (23.2 cm) | 0.99 | 0.89 | 0.90 |
+| thigh side width | 0.154 u (24.4 cm) | 0.153 u (24.1 cm) | 0.148 u (23.5 cm) | 0.148 u (23.5 cm) | 0.146 u (23.0 cm) | 0.99 | 0.96 | 0.95 |
+| thigh at 0.85 girth (diameter) | 0.153 u (24.2 cm) | 0.152 u (24.0 cm) | 0.139 u (22.0 cm) | 0.139 u (22.0 cm) | 0.137 u (21.7 cm) | 0.99 | 0.91 | 0.90 |
+| thigh at 0.85 side width | 0.143 u (22.7 cm) | 0.142 u (22.5 cm) | 0.137 u (21.6 cm) | 0.137 u (21.6 cm) | 0.135 u (21.3 cm) | 0.99 | 0.95 | 0.94 |
+| shin length | 0.087 u (13.8 cm) | 0.114 u (18.0 cm) | 0.114 u (18.0 cm) | 0.114 u (18.0 cm) | 0.114 u (18.0 cm) | 1.30 | 1.30 | 1.30 |
+| shin girth (diameter) | 0.123 u (19.4 cm) | 0.122 u (19.3 cm) | 0.115 u (18.2 cm) | 0.115 u (18.2 cm) | 0.115 u (18.1 cm) | 0.99 | 0.94 | 0.93 |
+| shin side width | 0.119 u (18.8 cm) | 0.118 u (18.7 cm) | 0.114 u (18.0 cm) | 0.114 u (18.0 cm) | 0.114 u (18.0 cm) | 1.00 | 0.96 | 0.96 |
+| shin at 0.75 girth (diameter) | 0.118 u (18.6 cm) | 0.117 u (18.6 cm) | 0.117 u (18.5 cm) | 0.117 u (18.5 cm) | 0.117 u (18.5 cm) | 1.00 | 1.00 | 0.99 |
+| shin at 0.75 side width | 0.116 u (18.3 cm) | 0.116 u (18.3 cm) | 0.114 u (18.1 cm) | 0.114 u (18.1 cm) | 0.114 u (18.1 cm) | 1.00 | 0.99 | 0.99 |
+| head: head joint to skull top | 0.217 u (34.4 cm) | 0.217 u (34.4 cm) | 0.217 u (34.4 cm) | 0.218 u (34.4 cm) | 0.217 u (34.4 cm) | 1.00 | 1.00 | 1.00 |
+
+| Measure / standing height | source | app | app / source |
+|---|---|---|---|
+| trunk: hip joints to shoulder joints | 0.446 | 0.419 | 0.94 |
+| shoulder joints apart | 0.260 | 0.244 | 0.94 |
+| chest width | 0.286 | 0.269 | 0.94 |
+| chest depth | 0.277 | 0.260 | 0.94 |
+| belly width | 0.361 | 0.339 | 0.94 |
+| belly depth | 0.340 | 0.319 | 0.94 |
+| upper arm length | 0.160 | 0.151 | 0.94 |
+| upper arm girth (diameter) | 0.118 | 0.110 | 0.93 |
+| forearm length | 0.146 | 0.137 | 0.94 |
+| forearm girth (diameter) | 0.095 | 0.088 | 0.93 |
+| thigh length | 0.130 | 0.159 | 1.22 |
+| thigh girth (diameter) | 0.163 | 0.152 | 0.93 |
+| thigh side width | 0.154 | 0.143 | 0.93 |
+| thigh at 0.85 girth (diameter) | 0.153 | 0.143 | 0.93 |
+| thigh at 0.85 side width | 0.143 | 0.134 | 0.93 |
+| shin length | 0.087 | 0.107 | 1.22 |
+| shin girth (diameter) | 0.123 | 0.115 | 0.93 |
+| shin side width | 0.119 | 0.111 | 0.94 |
+| shin at 0.75 girth (diameter) | 0.118 | 0.110 | 0.94 |
+| shin at 0.75 side width | 0.116 | 0.109 | 0.94 |
+| head: head joint to skull top | 0.217 | 0.204 | 0.94 |
