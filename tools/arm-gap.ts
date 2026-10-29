@@ -2,8 +2,7 @@
  * Measures how each arm of a mesh rig meets the trunk in the stance of the long-armed source mesh
  * (`standingBody()`), the intake check of `pnpm rig-mesh <animal> --check`. An arm that joins the
  * trunk far down, or that touches it, hides trunk faces that a raised arm then shows as flaps,
- * shards, or dents (`docs/research/2026-10-22-seam-gate.md`). A new mesh in an A-pose, with a gap
- * between each arm and the trunk, has none.
+ * shards, or dents. A new mesh in an A-pose, with a gap between each arm and the trunk, has none.
  *
  * - An arm vertex holds {@link GAP_SHARE} or more of its weight on the arm bones of its side, from
  *   the upper arm to the fingers. Its place along the arm is 0 at the shoulder joint, 1 at the
@@ -41,7 +40,7 @@ export const GAP_FROM = 0.35;
 /**
  * The deepest end of the join of a good armpit, as a place along the arm. The arms of the known good
  * roles end their join at 0.52 to 0.78 of the upper arm, and the deer and the dog, whose seams
- * show shards, at 0.80 to 0.94 (`docs/research/2026-10-22-seam-gate/gaps.txt`).
+ * show shards, at 0.80 to 0.94.
  */
 export const JOIN_LIMIT = 0.79;
 
@@ -218,7 +217,7 @@ export function gapLines(animal: string, gaps: readonly ArmGap[]): string[] {
     const touch = g.gap !== null && g.gap < TOUCH_GAP;
     if (deep || touch) {
       lines.push(
-        `WARNING: the ${g.side} arm of ${animal} ${deep ? 'joins the trunk down to' : 'touches the trunk at'} ${(deep ? (g.join?.[1] ?? 0) : g.at).toFixed(2)} of the arm. A raised arm then shows the hidden trunk faces as flaps, shards, or dents. Ask for a new mesh in an A-pose, with a gap between each arm and the trunk. Else plan a cut and a remodel of the arm (docs/agents/model-traps.md).`,
+        `WARNING: the ${g.side} arm of ${animal} ${deep ? 'joins the trunk down to' : 'touches the trunk at'} ${(deep ? (g.join?.[1] ?? 0) : g.at).toFixed(2)} of the arm. A raised arm then shows the hidden trunk faces as flaps, shards, or dents. Ask for a new mesh in an A-pose, with a gap between each arm and the trunk. Else plan a cut and a remodel of the arm (docs/agents/rigging.md).`,
       );
     }
   }

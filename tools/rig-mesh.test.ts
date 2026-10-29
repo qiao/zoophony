@@ -70,7 +70,7 @@ function figure(armFactor: number): MeshRigConfig {
   };
 }
 
-describe('pnpm rig-mesh (route 3 of docs/agents/model-work.md)', () => {
+describe('pnpm rig-mesh (the asset chain of docs/agents/rigging.md)', () => {
   it('measures the reach in the app, with the factor on the upper arm and the forearm only', () => {
     expect(armReach(figure(1), 'L')).toBeCloseTo(0.22 * Math.SQRT2, 9);
     expect(armReach(figure(1.4), 'L')).toBeCloseTo(0.3 * Math.SQRT2, 9);
