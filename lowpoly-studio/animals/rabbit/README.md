@@ -1,7 +1,7 @@
 # The rabbit violinist
 
 The third animal of the low-poly studio (see `../../README.md`): a rabbit from the four-view
-sheet that the user gave on 2026-10-13 (`reference/rabbit-views.png`, facts in
+sheet of the project owner (`reference/rabbit-views.png`, facts in
 `reference/README.md`), with the role `violinist` (`../../roles/violinist/`). `animal.toml`
 holds all constants of the rabbit, and `golden.json` the stats of the regression
 (`python3 studio regress rabbit`).
@@ -98,9 +98,9 @@ view of the blade in about 2 s. It reads the config, so a round of the rings nee
 
 ## Method (round 4, the arms)
 
-Round 4 changed the arm joints of the sheet pose (`field.arm.joints`) and the props of the
-violinist. The user chose on 2026-10-13: "Arms x1.4, violin 28 cm". With the short arms of the
-sheet, the rule of a violin shop gave the app rabbit a violin of only 0.15 m.
+The arm joints of the sheet pose (`field.arm.joints`) and the props of the violinist follow a
+product choice of the project owner: arms 1.4 times longer, and a violin of 28 cm. With the short
+arms of the sheet, the rule of a violin shop gave the app rabbit a violin of only 0.15 m.
 
 1. The reach is the measure of the app: the shoulder joint to the elbow, the elbow to the wrist,
    and the wrist to the middle of the paw (half way from the joint `hand_L` to the joint
@@ -139,7 +139,7 @@ sheet, the rule of a violin shop gave the app rabbit a violin of only 0.15 m.
 | GLB | 861 kB (model GLB 524 kB) | 879 kB (509 kB) | 1.5 MB |
 | Seed report | seed 8 passes every clip (1 of the 2 that pass the remesh gate) | seeds 5, 4, 8 (3 of 3) | |
 
-The arms of the model are longer than the arms of the sheet (the decision of the user), so the
+The arms of the model are longer than the arms of the sheet (a product choice of the project owner), so the
 paws show outside the sheet in the front, back, and 3/4 views. The IoU of these views falls.
 
 The seed report:
@@ -186,7 +186,7 @@ details and the head field did not change, so the facets of the seed are the cau
 - One catchlight in each eye, mirrored. The sheet has the catchlight of both eyes on the same
   side.
 - `instrument_reach.violin` fails: the violin of 0.234 is 0.589 of the arm from the neck to the
-  middle of the palm (0.397), and the size chart of a violin shop gives 0.9 to 1.1. This is the
-  decision of the user of 2026-10-13 ("Arms x1.4, violin 28 cm"), and it is no blocker for the
+  middle of the palm (0.397), and the size chart of a violin shop gives 0.9 to 1.1. This follows the
+  product choice of the arms 1.4 times longer and a violin of 28 cm, and it is no blocker for the
   app. (Measured from the shoulder joint, as before the review of the retro, the ratio is
   0.744.)

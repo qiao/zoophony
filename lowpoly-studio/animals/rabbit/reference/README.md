@@ -4,12 +4,11 @@ The stated facts of the rabbit sheet (`docs/sheet-spec.md`, "Stated facts").
 
 | Fact | Value |
 |---|---|
-| Source | The user gave the file on 2026-10-13. |
-| File name of the user | "Low-Poly Rabbit Turnaround Sheet.png" |
+| Source | A file of the project owner. |
 | File | `rabbit-views.png`, 1536 x 1024 px |
 | SHA-256 | `396b50f81998343879463b4145f0245b1f1c2f73c52b3cf36b21e0d9992e7ccb` |
 | Generator, version, prompt, seed | not stated |
-| License or rights | not stated (a file of the user) |
+| License or rights | not stated (a file of the project owner) |
 | Camera | not stated. The studio fits a far, level camera (`sheet.camera`). |
 | Background | RGB 204, 204, 206 at the bottom. A soft vertical gradient from about 191 at the top to 204 at the bottom. |
 | View order | front, side (faces right), back, 3/4 front-right |
@@ -20,7 +19,7 @@ The stated facts of the rabbit sheet (`docs/sheet-spec.md`, "Stated facts").
 
 ## The target crops
 
-`targets/` holds the crops of the brief of round 1 (2026-10-13). Each crop has a ruler of 0.01
+`targets/` holds the crops of the first brief of the rabbit. Each crop has a ruler of 0.01
 animal heights. The colors are lit sheet colors.
 
 | Crop | Claim |

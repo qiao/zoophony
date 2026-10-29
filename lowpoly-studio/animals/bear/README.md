@@ -531,7 +531,7 @@ others again.
   sheet is not symmetric, and the model is.
 - **The remesh seed matters for the look.** All 8 seeds pass the contact and fold check, but
   the facets, the facet contrast, and the shape of the tan edge change with the seed. Seed 3 is
-  the default. The remesh gate (2026-10-12) stops seed 2: 1036 quads (the band is 765 to 1035),
+  the default. The remesh gate stops seed 2: 1036 quads (the band is 765 to 1035),
   1.08% slivers, and 4 open edges.
 - **Snout from the front.** The snout reads round from the side and the 3/4 view. From the
   front, the tan edge follows the facets, so it reads as a rounded block, not as the smooth
