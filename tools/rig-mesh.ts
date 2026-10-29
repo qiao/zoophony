@@ -326,7 +326,8 @@ function parseConfigValue(text: string, old: ConfigValue, path: string): ConfigV
  * (`colors.tone`), the light border of a black fur region (`colors.border`), the round eye
  * patches (`colors.patch`), the smile line (`colors.smile`), the move of a colored fur in Oklch
  * (`colors.shift`), the cut of the mesh where a hanging forearm touches the belly (`cut`), and
- * the smoothing of the arm tubes (`armSmooth`). `tools/blender/rig_mesh.py` describes each rule.
+ * the smoothing of the arm tubes (`armSmooth`), and the smoothing of the bent elbows of the bind
+ * mesh (`bindSmooth`). `tools/blender/rig_mesh.py` describes each rule.
  */
 const OPTIONAL_VALUES: ReadonlyMap<string, ConfigValue> = new Map<string, ConfigValue>([
   ['headFactor', 1],
@@ -340,6 +341,7 @@ const OPTIONAL_VALUES: ReadonlyMap<string, ConfigValue> = new Map<string, Config
   ['sit.root', [0, 1]],
   ['sit.top', 0],
   ['armSmooth', { rounds: 0, sides: 'LR', bones: ['upper_arm'] }],
+  ['bindSmooth', { rounds: 0, sides: 'LR', bones: ['elbow'] }],
   ['studio.tailCurl', { points: [[0, 0, 0]] }],
   ['colors.tone', { chroma: 0, light: [0, 1], keep: [], points: [[0, 0, 0, 0]] }],
   [

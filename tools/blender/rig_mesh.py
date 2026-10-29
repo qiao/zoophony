@@ -5089,6 +5089,15 @@ def main():
     dots = turn_dots(long_verts, bind, tris, weights, upright_matrices)
     log(f'bind: after {rounds} rounds of relaxing, {int((dots < 0).sum())} faces turn over'
         f'{turned_on(dots, main_bone)}')
+    if 'bindSmooth' in config:
+        # The seated bind bends each elbow far, and the inner elbow folds into a lip, which the
+        # bind mesh of the GLB file shows (user, 2026-10-28: "the hippo's arm has unexpected bump
+        # near the elbow"). The rule of `arm_smooth()` smooths the bind mesh of the bones of the
+        # rule after the relax.
+        bind, count, largest = arm_smooth(bind, tris, weights, config['bindSmooth'])
+        dots = turn_dots(long_verts, bind, tris, weights, upright_matrices)
+        log(f'bindSmooth: {count} vertices of the bind elbows, at most {largest:.4f} u, '
+            f'{int((dots < 0).sum())} faces turn over{turned_on(dots, main_bone)}')
     top, low, front = haunch_gap(bind, weights, config['chair'], config.get('sit', {}),
                                  float(upright_heads['hips'][2]))
     gap = (low - top) * meters
