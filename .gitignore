@@ -3,7 +3,7 @@
 .*.swo
 .DS_Store
 
-# Python bytecode from the research scripts
+# Python bytecode of the Python scripts
 __pycache__/
 
 # Dependencies and build output
@@ -19,14 +19,6 @@ public/sf/
 
 # Output of tools/patch-demos.ts: the demo files after demos/patches.json (design 8.3).
 public/demos/
-
-# Values that the spike page posts in the report mode of docs/research/scripts/spike/serve.mjs
-docs/research/scripts/spike/reports.jsonl
-
-# Inputs and build output of docs/research/scripts/webkit-audio/ (prepare.ts and the Vite configs)
-docs/research/scripts/webkit-audio/page/data/
-docs/research/scripts/webkit-audio/page/synth-probe.js
-docs/research/scripts/webkit-audio/out/
 
 # Output of tools/write-perf-60.ts: the file of the frame target (design 9.5). Only the dev
 # server serves it.
