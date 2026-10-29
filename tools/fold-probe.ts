@@ -19,8 +19,7 @@
  * the holds in memory, as `pnpm pose-depth --set` does, so that `pnpm rig-mesh --check --hold`
  * fits a corrective shape to a hold with no commit. With `--base <ref> --faces-of <faces>`, the
  * faces of the commit pair with the folded faces of the working tree by their middles
- * ({@link pairBaseFaces}). The method comes from
- * `docs/research/2026-10-12-studio-polar-bear/measure-folds.ts`.
+ * ({@link pairBaseFaces}).
  *
  * `--bins <face>` gives the turn of each bone of the arm of the face from its bind pose with a fold
  * and with no fold, and the share of the samples with a fold by that turn ({@link binProbe}).

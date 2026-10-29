@@ -1,6 +1,6 @@
 /**
  * Scores named variants of the holds on chosen pairs of the sweep of a role, in one process
- * (`pnpm pair-scan <role>`, route 3 of `docs/agents/model-work.md`). A pair is a sample set, a
+ * (`pnpm pair-scan <role>`, `docs/agents/rigging.md`, "Holds and reach"). A pair is a sample set, a
  * moving part, and an obstacle, such as `lower:upper arms:body`. For the base and each
  * `--variant`, the tool builds the scene of each demo of the role, sweeps each n-th play sample
  * (`--every`) and all samples of the other sets, or only the samples of `--at`, and gives the

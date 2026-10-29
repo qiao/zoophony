@@ -1,6 +1,6 @@
 /**
- * Measures the options of the mid-report of phase 1 of a mesh of the user (route 3 of
- * `docs/agents/model-work.md`), and draws them in one labeled image:
+ * Measures the options of the size, the arms, and the legs of a new source mesh (step "Options" of
+ * `docs/agents/rigging.md`, "The asset chain"), and draws them in one labeled image:
  * `node tools/mesh-options.ts <animal> <dir> --size <label>=<head top>... [--legs <f>,...]
  * [--arms <f>,...] [--instrument <id>] [--species <id>]`.
  *
@@ -74,7 +74,7 @@ const PLOT_SCRIPT = join(ROOT, 'tools', 'mesh_options.py');
 
 /**
  * The half width of the middle strip of the head in which the skull top lies, in the units of the
- * studio. The ears of the meshes of the user stand beside the skull, outside the strip, so the
+ * studio. The ears of the source meshes stand beside the skull, outside the strip, so the
  * head top of a size leaves the ears out, as the head top of the parametric bodies does
  * (`tools/rig/panda_measures.py`).
  */
@@ -477,12 +477,11 @@ export interface WorkingBody {
 }
 
 /**
- * Measures the body of a species in the working tree, as
- * `docs/research/2026-10-17-dog-mesh/landmark-probe.ts` does: the standing head top, the highest
- * corner of the body, the standing shoulder joints, H, the seat on a chair, and the reach of the
- * left arm. The head top is the highest corner of the head bone in the middle strip of
- * {@link HEAD_STRIP} times the highest corner, so that the ears of a studio body on the head bone
- * stay out, as for a rig.
+ * Measures the body of a species in the working tree: the standing head top, the highest corner of
+ * the body, the standing shoulder joints, H, the seat on a chair, and the reach of the left arm.
+ * The head top is the highest corner of the head bone in the middle strip of {@link HEAD_STRIP}
+ * times the highest corner, so that the ears of a studio body on the head bone stay out, as for a
+ * rig.
  *
  * @param species The species.
  * @param instrument The instrument of the reach of the hold, or `null`.

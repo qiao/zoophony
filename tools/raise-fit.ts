@@ -10,8 +10,6 @@
  * because the pose of a rule in Blender turns over fewer faces than the app at the same turn. The
  * proposed fade is full up to the angle that holds 90% of the folded samples (at least 10°), and
  * ends 10° later.
- * The method comes from `keys-dump.ts`, `keys-read.ts`, and `wrist-turn.ts` of
- * `docs/research/2026-10-19-elephant-mesh/`.
  *
  * `--json <file>` writes the entry into a file, and
  * `pnpm rig-mesh <animal> --check --set 'raise+=@<file>'` adds it to the list of `raise`.
@@ -82,7 +80,7 @@ export const FADES: readonly (readonly [number, number])[] = [
   [30, 50],
 ];
 
-/** The step of the song time of the play by default, in seconds, as in the probes of the rounds. */
+/** The step of the song time of the play by default, in seconds. */
 export const RAISE_STEP = 1;
 
 /** One posed sample of the arm. */

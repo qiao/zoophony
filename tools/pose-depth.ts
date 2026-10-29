@@ -124,8 +124,7 @@ export interface WhereRequest {
 
 /**
  * The most `--set` rows of a run over all demos of its role: a run with more rows needs `--demo`
- * or `--long`. A sweep of the hornist with 4 rows over its 10 demos ran for more than 20 minutes
- * (`docs/decisions/2026-10-19-winds-retro.md`).
+ * or `--long`. A sweep of the hornist with 4 rows over its 10 demos runs for more than 20 minutes.
  */
 export const ROW_LIMIT = 5;
 
@@ -385,7 +384,7 @@ export interface DemoResult {
 
 /**
  * The largest error of a reached note target, in meters: 5 mm, as in the reach scans of the
- * mallets of the elephant (`docs/research/2026-10-19-elephant-mesh/reach-scan.ts`).
+ * mallets of the elephant.
  */
 export const TARGET_REACH = 0.005;
 
@@ -549,9 +548,8 @@ function strikeHeight(track: StrikeTrack, time: number): number {
 
 /**
  * Gives the phase of the sample of a deepest point: the time to the next note start of its hand,
- * and for a mallet the height of its head above the target, as the probe `wait.ts` of
- * `docs/research/2026-10-19-elephant-arms/` gave them. The bone of the point gives the hand, such
- * as `handL` or `malletR`. The note layer runs `timeOffset` later than the song time.
+ * and for a mallet the height of its head above the target. The bone of the point gives the hand,
+ * such as `handL` or `malletR`. The note layer runs `timeOffset` later than the song time.
  *
  * @param plan The plan of the player.
  * @param pair The deepest point of a pair.

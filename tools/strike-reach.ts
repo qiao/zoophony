@@ -3,8 +3,7 @@
  * the species plays the instrument, the distance of the piece of each hand from the point of each
  * of its strikes at the note start. The piece is the head of a mallet, or the inner face of a
  * cymbal. `pnpm hold-reach --instrument` and `pnpm mesh-options --instrument` give the share of the
- * strikes within `TARGET_REACH` of `tools/pose-depth.ts` and the worst error. The method comes from
- * `docs/research/2026-10-19-elephant-mesh/mallet-reach.ts`.
+ * strikes within `TARGET_REACH` of `tools/pose-depth.ts` and the worst error.
  */
 import { Vector3 } from 'three';
 

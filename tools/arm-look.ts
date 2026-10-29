@@ -1,5 +1,5 @@
 /**
- * Measures the look of the arm skin of the studio bodies of mesh rigs against the mesh of the user
+ * Measures the look of the arm skin of the studio bodies of mesh rigs against the source mesh
  * (design 4.4, "Upper arm form"): the crumple of the skin of the upper arm and the shoulder, and
  * the section of the upper arm. The fold count of `pnpm fold-probe` and the arm gate do not see a
  * skin that crumples into flaps or an upper arm that reads as a flat plank.
@@ -17,7 +17,7 @@
  *   posed bone. A round arm gives about 1, and a flat plank gives less than 0.5.
  *
  * Each value is the median of the play samples. {@link ARM_LOOK_LIMITS} gives the limits, from the
- * red fox, whose arms the user found good on 2026-10-21. A value over its limit is `FAIL`, and the
+ * red fox, whose arms are accepted as good. A value over its limit is `FAIL`, and the
  * exit code is 1. `--set` changes the holds in memory, as `pnpm fold-probe --set` does. `--glb
  * <file>` gives one role the studio body of the file, with the corners of the rig script that wrote
  * it: the file `<name>.corners.json` beside `<name>.glb` of `pnpm rig-mesh --check --keep`
@@ -66,7 +66,7 @@ export interface ArmLookLimit {
 
 /**
  * The limits of the values, from the red fox (`fox-violinist`): its play medians are 3.5% and
- * 7.3% creases and the sections 0.74 and 0.93, left and right (`docs/research/2026-10-21-arm-form.md`).
+ * 7.3% creases and the sections 0.74 and 0.93, left and right.
  */
 export const ARM_LOOK_LIMITS: Readonly<Record<'crease' | 'section', ArmLookLimit>> = {
   crease: { limit: 0.146, up: true, source: 'twice the worst arm of the red fox (7.3%)' },

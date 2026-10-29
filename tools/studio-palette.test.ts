@@ -33,7 +33,7 @@ describe('the tan palette of the fox mesh (design 4.4, 4.5)', () => {
   it('moves the red fur to the tan fur, and an orange face of the mesh toward it', () => {
     expect(distance(map(srgb(SPECIES_COLORS['fox-red'].fur), 'matte'), tanFur)).toBeLessThan(0.002);
 
-    // The largest orange of the palette of the fox mesh (`colors.txt` of the research of the mesh).
+    // The largest orange of the palette of the fox mesh.
     const orange = srgb('#ef862c');
     expect(distance(map(orange, 'matte'), tanFur)).toBeLessThan(distance(orange, tanFur) / 2);
   });

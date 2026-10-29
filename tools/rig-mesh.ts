@@ -60,7 +60,7 @@ export interface MeshRigJoint {
  * color rules, the seat and the bind arms of the studio, and the chair.
  */
 export interface MeshRigConfig {
-  /** The GLB file of the user, relative to the repository. */
+  /** The source GLB file, relative to the repository. */
   readonly source: string;
   /** The rigged GLB file, relative to the repository. */
   readonly output: string;
@@ -892,8 +892,9 @@ export function targetFactor(config: MeshRigConfig, side: Side): number {
 }
 
 /**
- * Writes the line of the reach of `--check`, which goes on when the reach misses the target. The
- * question to the user about the arms gives this measured factor (`docs/briefs/studio-body.md`).
+ * Writes the line of the reach of `--check`, which goes on when the reach misses the target. A
+ * question about the arms gives this measured factor (`docs/agents/rigging.md`, "The asset
+ * chain").
  *
  * @param config The config.
  * @returns The line.
@@ -1757,8 +1758,8 @@ function againstBase(value: number, base: number | undefined): string {
 
 /**
  * The move of a hold anchor from the commit {@link FORM_BASE} above which the table of the anchors
- * marks it, in meters. The layout change of the fox rig of 2026-10-15 came from a move of the head
- * center of 1.71 cm, which took the violin with it.
+ * marks it, in meters. A move of the head center of 1.71 cm in the fox rig changes the layout,
+ * because it takes the violin with it.
  */
 export const ANCHOR_MARK = 0.001;
 
@@ -2254,8 +2255,8 @@ async function checkVariants(
 }
 
 /**
- * Rigs the mesh of the user of an animal into the format of a studio body (route 3 of
- * `docs/agents/model-work.md`):
+ * Rigs the source mesh of an animal into the format of a studio body (`docs/agents/rigging.md`,
+ * "The asset chain"):
  * `node tools/rig-mesh.ts <animal> [--preview <dir>] [--check [--set <changes>]...]`.
  * It checks the source file and the arm factor of `tools/mesh-rigs/<animal>.json`, and runs
  * `tools/blender/rig_mesh.py`, which writes the GLB file of the config. With `--preview`, the

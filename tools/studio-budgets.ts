@@ -10,8 +10,7 @@ export const STUDIO_TRIANGLE_BUDGET = 5600;
  * The largest gzip size of the packed mesh of one studio body, in bytes (design 7.2). Each studio
  * body of `STUDIO_BODIES` is in the first download, so its mesh counts against the limit of 1 MB.
  * The budget keeps room above the largest body, the rhino with a round shoulder and a round tube
- * for each arm (`docs/decisions/2026-10-22-rhino-arm-3.md`). The first rig of the rabbit mesh,
- * with one color for each face, was 53,969 B (`docs/decisions/2026-10-14-mesh-rig-retro.md`).
+ * for each arm.
  */
 export const STUDIO_MESH_GZIP_BUDGET = 34_000;
 

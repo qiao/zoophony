@@ -1,6 +1,6 @@
 /**
- * Scans the variants of a hold fast (`pnpm hold-scan <role>`, route 3 of
- * `docs/agents/model-work.md`): the product of the grids of `--grid`, and rigid moves of a bowed
+ * Scans the variants of a hold fast (`pnpm hold-scan <role>`, `docs/agents/rigging.md`, "Holds
+ * and reach"): the product of the grids of `--grid`, and rigid moves of a bowed
  * instrument around the end of its bone with `--move` (`yaw`, `tilt`, `side`, and `roll` in
  * degrees, `dx`, `dy`, and `dz` in meters, on the hold of `--hold` or of the first player), each on
  * top of the changes of `--set`. For each variant, it prepares the plans of the players of the role

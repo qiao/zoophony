@@ -277,8 +277,8 @@ describe('pnpm studio-body with a seated body (design 4.4)', async () => {
   });
 
   it('puts the keys of the studio a little below the elbows of the seated bind pose', () => {
-    // The landmark height is the height of the keys of the studio in the app. The longer shins of
-    // 2026-10-14 raise them above the keys of the piano of the app.
+    // The landmark height is the height of the keys of the studio in the app. The longer shins
+    // raise them above the keys of the piano of the app.
     for (const side of ['L', 'R'] as const) {
       const elbow = floor.heads[`forearm_${side}`][1];
       expect(elbow - settings.height, side).toBeGreaterThan(0);

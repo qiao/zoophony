@@ -2,8 +2,7 @@
  * Measures the bow of a player in the samples of a sweep at a point at each 1 cm along each edge
  * of the bow (`bowPoints()` of `tools/lap-rest.ts`). The stick is one long box, so its corners
  * alone miss a thigh or an arm that the middle of the stick goes through. `pnpm pose-depth
- * --soloist` measures the standing soloist with it, as the probe
- * `docs/research/2026-10-16-cat-seat/stand-bow.ts` did.
+ * --soloist` measures the standing soloist with it.
  */
 import type { Vector3 } from 'three';
 

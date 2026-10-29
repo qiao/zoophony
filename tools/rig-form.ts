@@ -1,12 +1,12 @@
 /**
  * Measures the form of the players of a studio body in the app of a source tree, for the table of
- * `pnpm rig-mesh --check` (route 3 of `docs/agents/model-work.md`): for each player, the visible
- * head, the standing and the seated head tops, the footprint, and the hold anchors (the head
- * center, the head height, the nose, and the box of the instrument), and the stage side of each
- * demo. The
- * check runs it as a child in the copy of `tools/glb-swap.ts` with the body of each variant, and
- * in a probe tree of `main` (`tools/ref-tree.ts`). It imports only the code of the app and the
- * demo patches, so the check runs this script of the working tree also on the source of `main`.
+ * `pnpm rig-mesh --check` (`docs/agents/rigging.md`, "The asset chain"): for each player, the
+ * visible head, the standing and the seated head tops, the footprint, and the hold anchors (the
+ * head center, the head height, the nose, and the box of the instrument), and the stage side of
+ * each demo. The check runs it as a child in the copy of `tools/glb-swap.ts` with the body of each
+ * variant, and in a probe tree of `main` (`tools/ref-tree.ts`). It imports only the code of the app
+ * and the demo patches, so the check runs this script of the working tree also on the source of
+ * `main`.
  *
  * Usage: node tools/rig-form.ts --player <species>:<instrument>... --json <file>
  */

@@ -59,8 +59,8 @@ export function linearOfOklab([lightness, a, b]: Vec3): Vec3 {
 }
 
 /**
- * Gives the color map of another palette of a studio body (design 4.4, 4.5), the map of
- * `docs/research/2026-10-14-fox-mesh/colors.py`. The map moves the Oklab color of each matte face
+ * Gives the color map of another palette of a studio body (design 4.4, 4.5). The map moves the
+ * Oklab color of each matte face
  * by the step from each color of the species of the mesh (the fur, the belly, and the accent) to
  * the same color of the other species. It blends the steps by the nearness of the face to each
  * color of the species of the mesh ({@link SPREAD}), and a face far from each color takes the step

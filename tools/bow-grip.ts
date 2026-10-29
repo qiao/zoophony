@@ -2,8 +2,7 @@
  * Measures the grip of the bow in the right paw of a posed bowed string player (design 5.3): the
  * gap from the middle of the closed right paw to the axis of the stick, and the depth of the axis
  * in the closed paw. The stick passes through the grip of the paw when the gap is at most
- * {@link GRIP_GAP} and the axis goes into the paw, as the stick goes through a fist
- * (`docs/decisions/2026-10-17-cat-bow.md`).
+ * {@link GRIP_GAP} and the axis goes into the paw, as the stick goes through a fist.
  */
 import { Vector3 } from 'three';
 

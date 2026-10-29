@@ -1,7 +1,7 @@
 /**
  * Lists the arm segments and the helpers of one side for the tools that count the skin of an arm
  * (`ARM_SEGMENT_BONES` of `src/models/studio-format.ts`, design 4.4, 4.7). A body with arm
- * segments holds the arm skin on them, and the old upper arm, forearm, and forearm twist bones hold
+ * segments holds the arm skin on them, and its upper arm, forearm, and forearm twist bones hold
  * none. A body with no arm segments has no vertex on them, so a tool can always add them to the
  * arm bones.
  */

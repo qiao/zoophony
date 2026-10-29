@@ -1,10 +1,10 @@
 /**
  * Checks the arms of the studio body of each role against one table of limits ({@link ARM_LIMITS},
  * design 4.4), so that a change of a hold, a rig, a pose, an instrument size, or a seat that twists
- * or deforms an arm stops before its merge. Five rounds each met their own measure and moved the
- * fault to a joint that no measure read (`docs/decisions/2026-10-19-arm-gate.md`). So the gate
- * reads the measures of `pnpm fold-probe`, `pnpm arm-shape`, and `pnpm hold-fit` together, for
- * each arm, over the rest, play, and lift samples of `probeFolds()` of `tools/fold-probe.ts`:
+ * or deforms an arm stops before its merge. A change that meets one measure can move the fault to
+ * a joint that no measure reads. So the gate reads the measures of `pnpm fold-probe`, `pnpm
+ * arm-shape`, and `pnpm hold-fit` together, for each arm, over the rest, play, and lift samples of
+ * `probeFolds()` of `tools/fold-probe.ts`:
  *
  * - `folds`: the folded faces of the arm ({@link armFaces}), as `pnpm fold-probe` finds them. The
  *   value is the 95th percentile of the count.
@@ -17,7 +17,7 @@
  *   the twist around the forearm and the swing, as `pawAngles()` of `tools/hold-fit.ts` gives them
  *   for the mean turn.
  * - `paw jumps`: the share of the play and lift samples whose paw twist changes by more than
- *   {@link JUMP_ANGLE} from the sample before, as the flips of the bow paw of the hippo did.
+ *   {@link JUMP_ANGLE} from the sample before, such as a flip of a bow paw.
  * - `stretch`: the largest growth of an edge of the faces of the forearm and the paw from the rest
  *   sample of the same body and demo, as a share of the length of the upper arm, such as a spike
  *   from the paw to the upper arm. A face that is long in the rest too does not count.
@@ -29,8 +29,7 @@
  * - `move twist` and `move turn`: the largest paw twist on the forearm, and the largest turn rate of
  *   the wrist in degrees per second, over the lifts and the lowerings of {@link probeMoves} at
  *   steps of 0.01 s (the set `move`). A paw twist past 180° makes the twist bone of the forearm
- *   jump by 180° in one step, and a mix of two turns near 180° apart jumps to the other side
- *   (`docs/research/2026-10-21-wrist-lift.md`).
+ *   jump by 180° in one step, and a mix of two turns near 180° apart jumps to the other side.
  *
  * The other values are the 95th percentiles of the samples. Each value has a p50, a p95 (a p5 for
  * the flat share), and its worst sample (the demo and the time) in each sample set. The value of
@@ -50,9 +49,9 @@
  * second run on the same tree, such as the merge gate after the gate of the branch, reads it and
  * prints `tree: cached`. A change of a file of `src/`, `tools/`, or the demos gives a new key.
  *
- * The tool imports only the modules and the exports that the trees since 2026-10-18 have, because
- * a probe of an old commit copies it into the tree of the commit (`withProbeTree()`). A tree before
- * the label of the fold visit gets the labels of its samples from the plan of the demo.
+ * The tool imports only the modules and the exports that the older trees of a probe have too,
+ * because a probe of an older commit copies it into the tree of the commit (`withProbeTree()`). A
+ * tree with no label of the fold visit gets the labels of its samples from the plan of the demo.
  *
  * `--views <dir>` renders the worst play sample of each arm that fails, or of each arm with
  * `--views-all`, a strike, and a rest of the player, with `pnpm close-views play --at <species>`,
@@ -89,7 +88,7 @@
  * [--set <changes>]..., or pnpm arm-check <role> --explain <stretch | flat> [--demo <id>]...
  * [--midi <path>]... [--step <seconds>] [--set <changes>]...
  *
- * Each `--midi <path>` adds a MIDI file of the user to the demos as one more `--demo`
+ * Each `--midi <path>` adds a MIDI file outside the repository to the demos as one more `--demo`
  * ({@link userFiles}), also on the commit of `--base` and `--states`.
  */
 import { existsSync, readFileSync } from 'node:fs';
@@ -134,9 +133,8 @@ import type { Transport } from '../src/pose/types.ts';
 const SIDES = ['L', 'R'] as const;
 
 /**
- * The unwind of the left forearm twist near 180° in the trees of 2026-10-26 and 2026-10-27, up to
- * the supinated bind of the left paws (`docs/decisions/2026-10-27-left-paw-bind.md`). A gate of
- * such a base reads it, so that the base keeps its own measure.
+ * The unwind of the left forearm twist near 180° in the older trees with no supinated bind of the
+ * left paws. A gate of such a base reads it, so that the base keeps its own measure.
  */
 interface UnwindTree {
   /** Gives the twist that the twist bone and the segments of a forearm share (`skinTwist()`). */
@@ -208,10 +206,9 @@ export interface ArmLimit {
 }
 
 /**
- * The limits of the gate. Each limit comes from the arms that look good on `main` at 2026-10-19
- * (the rabbit and the red fox of `pnpm arm-shape`, and the other roles with no open arm item), or
- * from anatomy, with a margin above the good arms. `docs/decisions/2026-10-19-arm-gate.md` gives
- * the rows, and `docs/research/2026-10-19-arm-gate.md` the measures.
+ * The limits of the gate. Each limit comes from arms that look good (the rabbit and the red fox of
+ * `pnpm arm-shape`, and the other roles with no open arm item), or from anatomy, with a margin
+ * above the good arms. Each row names its source.
  */
 export const ARM_LIMITS: Readonly<Record<Measure, ArmLimit>> = {
   folds: {
@@ -322,92 +319,72 @@ export const JUMP_ANGLE = 90;
 
 /**
  * The accepted grip of each arm of each role: the median paw twist on the forearm in the play of
- * `eefece23`, whose arms the user accepted, in degrees, with the sign of the right arm turned so
+ * `eefece23`, whose arms are accepted, in degrees, with the sign of the right arm turned so
  * that one sign is one turn of the forearm on both sides. The bind paw of a mesh body is no
  * neutral wrist, so no anatomy limit from the bind separates a wrung paw from a good one: the good
  * left paws of the violins turned 133° to 156° from the pronated bind of their meshes. The value
- * `grip` is the turn of the paw from its accepted grip. A hold round that changes a grip on purpose
- * gives its new median here, with the crops that the user accepted. A new bind of a paw moves its
+ * `grip` is the turn of the paw from its accepted grip. A hold change that changes a grip on
+ * purpose gives its new median here, with the accepted crops. A new bind of a paw moves its
  * entry by the turn of the bind. A role with no entry has no value `grip`.
  */
 export const ACCEPTED_GRIPS: ReadonlyMap<string, Readonly<Record<Side, number>>> = new Map<
   string,
   Readonly<Record<Side, number>>
 >([
-  // The smooth studio bear with the baton along the index finger
-  // (docs/decisions/2026-10-22-studio-bears.md).
+  // The smooth studio bear with the baton along the index finger.
   ['conductor', { L: -54, R: -5 }],
-  // The T-pose polar bear mesh (docs/decisions/2026-10-24-polar-bear-tpose.md).
+  // The T-pose polar bear mesh.
   ['pianist', { L: -23, R: -30 }],
   ['harpist', { L: -55, R: -101 }],
   // The bind left paw of the rabbit, the red fox, and the cat turns 100°, 110°, and 120° toward
-  // supination (docs/decisions/2026-10-27-left-paw-bind.md), so the left grips of the same holds
-  // moved from 133°, 140°, and 147° by these angles, and the left flute grip from -120°.
+  // supination, so the left grips of the same holds are 133°, 140°, and 147° plus these angles,
+  // wrapped into ±180°.
   ['violinist', { L: -127, R: -86 }],
   ['fox-violinist', { L: -110, R: -102 }],
-  // The cat violist with the right elbow down at the tip, which rolls the right forearm
-  // (docs/decisions/2026-10-24-violin-review.md), and the review of the 2x paw crops by the
-  // manager on 2026-10-24.
+  // The cat violist with the right elbow down at the tip, which rolls the right forearm, from
+  // accepted 2x paw crops.
   ['violist', { L: -93, R: -62 }],
   ['cellist', { L: -146, R: 12 }],
   // The hippo bow arm with the elbow out and a little up, so that the forearm slopes down to the
-  // bow with a nearly straight wrist (user, 2026-10-25, docs/decisions/2026-10-26-arm-fixes.md).
+  // bow with a nearly straight wrist.
   ['bassist', { L: -164, R: -10 }],
   // The panda holds the low part of the slide brace from its right side, with the right palm to
-  // the left and the thumb up the brace (user, 2026-10-25: "their palm are facing outwards and
-  // thumbs downwards", docs/decisions/2026-10-25-wind-elbows.md, and the 3x crops of
-  // docs/research/2026-10-25-wind-elbows/).
+  // the left and the thumb up the brace, from accepted 3x crops. A palm that faces out with the
+  // thumb down is the fault.
   ['trombonist', { L: -104, R: -85 }],
-  // The paws of the timpanist and of the badger close on their mallets, sticks, and beaters
-  // (user, 2026-10-25: "the badger doesnt seem to be 'holding' the stick",
-  // docs/decisions/2026-10-25-percussion-grip.md, and the review of the 3x crops of
-  // docs/research/2026-10-25-percussion-grip/ by the manager on 2026-10-25). Since 2026-10-25,
-  // each timpani paw turns around the shaft at the strike (strikeRoll), so that the shaft stays in
-  // the closed paw, and the left paw turns 12° and the right paw 13° further. The manager accepted
-  // the 3x crops of
-  // docs/research/2026-10-25-timpani-piano-rest/pairs/timpanist-rest-crop3.webp
-  // (docs/decisions/2026-10-25-timpani-piano-rest.md).
+  // The paws of the timpanist and of the badger close on their mallets, sticks, and beaters, so
+  // that each paw holds its stick, from accepted 3x crops. Each timpani paw turns around the shaft
+  // at the strike (strikeRoll), so that the shaft stays in the closed paw. This turns the left paw
+  // 12° and the right paw 13° further.
   ['timpanist', { L: -9, R: -20 }],
   ['bassoonist', { L: -118, R: -70 }],
   ['hornist', { L: -153, R: -54 }],
   // The wolf and the mouse close their paws around the tube, with the palms toward its axis and
-  // the grips moved around it (user, 2026-10-24: "they are not even holding the instrument",
-  // docs/decisions/2026-10-24-wind-grips.md, and the review of the 2x crops by the manager on
-  // 2026-10-24). The bind elbow and the bind paws of the wolf turn the left paw 109.5° and the
-  // right paw 100.5° toward supination (docs/decisions/2026-10-27-wolf-bind.md), so the grips
-  // moved from -89° and -71° by these angles.
+  // the grips moved around it, so that each paw holds the instrument, from accepted 2x crops. The
+  // bind elbow and the bind paws of the wolf turn the left paw 109.5° and the right paw 100.5°
+  // toward supination, so the grips are -89° and -71° plus these angles.
   ['clarinetist', { L: 20, R: 29 }],
   // The mouse holds the 40° oboe from the side of each paw, with the left paw on the upper joint
-  // and the thumbs up the tube (user, 2026-10-25: "their palm are facing outwards and thumbs
-  // downwards", docs/decisions/2026-10-25-wind-palms.md, and the review of the crops by the
-  // manager on 2026-10-25). The left elbow points down, so that the left arm does not read as a
-  // raised wing (docs/decisions/2026-10-25-wind-elbows.md, and the pairs of
-  // docs/research/2026-10-25-wind-elbows/).
+  // and the thumbs up the tube, from accepted crops. A palm that faces out with the thumb down is
+  // the fault. The left elbow points down, so that the left arm does not read as a raised wing.
   ['oboist', { L: -85, R: -90 }],
-  // The paws of the woodwinds of the tan fox face its tube (faceTube of pose/winds.ts,
-  // docs/decisions/2026-10-23-night-fixes.md). The left paw holds the flute from its front, with
-  // its fingers over the top, and faces it in the play (user, 2026-10-27: "the fox doesn't seem to
-  // be holding the instrument properly", docs/decisions/2026-10-27-cat-fox.md, and the 2x paw
-  // crops of docs/research/2026-10-27-cat-fox/). It turned -10° on its forearm below the flute.
+  // The paws of the woodwinds of the tan fox face its tube (faceTube of pose/winds.ts). The left
+  // paw holds the flute from its front, with its fingers over the top, and faces it in the play,
+  // from accepted 2x paw crops. It turns -10° on its forearm below the flute.
   ['flutist', { L: -87, R: -30 }],
   ['trumpeter', { L: -99, R: -98 }],
   // The rhino with the rebuilt arms, the bind elbow bent forward, and the tuba elbows down and out
-  // (docs/decisions/2026-10-26-fifth-review-rhino.md, and the 2x paw crops of
-  // docs/research/2026-10-26-fifth-rhino/). The bind sets the zero of the paw twist, so the medians
-  // of the same grips moved from -129 and -148.
+  // (from accepted 2x paw crops). The bind sets the zero of the paw twist.
   ['tubist', { L: -87, R: -32 }],
   ['singer', { L: -79, R: -79 }],
   ['bass-drummer', { L: -102, R: 21 }],
-  // The wrist lifts the tip of the stick or the mallet over its spot between strikes
-  // (docs/decisions/2026-10-25-percussion-tips.md), and the paws close on their sticks and
-  // mallets (docs/decisions/2026-10-25-percussion-grip.md), after the review of the paw crops by
-  // the manager on 2026-10-25.
+  // The wrist lifts the tip of the stick or the mallet over its spot between strikes, and the paws
+  // close on their sticks and mallets, from accepted paw crops.
   ['snare-drummer', { L: -4, R: -4 }],
   ['cymbalist', { L: 0, R: 0 }],
   ['percussionist', { L: -80, R: -28 }],
   // The spine leans over the bars, and the wrist lifts the head of each mallet over its bar
-  // between strikes (docs/decisions/2026-10-25-xylophone-sway.md), and the review of the 2x paw
-  // crops by the manager on 2026-10-25.
+  // between strikes, from accepted 2x paw crops.
   ['xylophonist', { L: -28, R: -22 }],
 ]);
 
@@ -1962,7 +1939,7 @@ export const TRACE_STEP = 0.01;
 const TRACE_LINES = 5000;
 
 /**
- * Reads the MIDI files of the user of `--midi`, by the names that `userDemoFile()` of
+ * Reads the MIDI files of `--midi`, by the names that `userDemoFile()` of
  * `tools/probe-demos.ts` gives them: the base name with one `.mid`. The gate keeps its own reader,
  * because it runs in the probe tree of an older commit too ({@link GATE_SCRIPTS}), whose
  * `probeDemos()` does not read these files.
@@ -2627,8 +2604,8 @@ function readArmJson(text: string): ArmJson {
  * `tools/ref-tree.ts`). The key holds the tree of `src/`, `tools/`, and the demos of the working
  * tree, which holds the code of the gate, {@link ARM_FORMAT}, and the arguments of the role. A run
  * with `--glb`, whose file is outside the tree, or with `PROBE_NO_CACHE=1` has no cache. The
- * function of the key loads only here, because a tree before 2026-10-19 does not export it, and
- * a probe of such a commit copies the gate into its tree.
+ * function of the key loads only here, because an older tree does not export it, and a probe of
+ * such a commit copies the gate into its tree.
  *
  * @param args The arguments of the role on the working tree, with no `--json`.
  * @returns The file, or `null`.

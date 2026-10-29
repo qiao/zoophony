@@ -1,8 +1,9 @@
 /**
  * Measures the seated tail of the studio body of a role against its chair and the floor, for
- * `pnpm rig-mesh --check` (route 3 of `docs/agents/model-work.md`): the lowest point of the tail,
- * and the smallest gap from a corner of the tail to the seat, the two back posts, and the top rail
- * of the chair of the app ({@link chairParts}), with a negative gap for a corner inside a part.
+ * `pnpm rig-mesh --check` (`docs/agents/rigging.md`, "The asset chain"): the lowest point of the
+ * tail, and the smallest gap from a corner of the tail to the seat, the two back posts, and the top
+ * rail of the chair of the app ({@link chairParts}), with a negative gap for a corner inside a
+ * part.
  * The samples are the rest pose before the first play over one sway period of the tail
  * (`IDLE_MOTION.tailSec`), from the wall time {@link TAIL_FROM_SEC} at steps of
  * {@link TAIL_STEP_SEC}, in the first demo with the role. A body with no chair, such as a body with

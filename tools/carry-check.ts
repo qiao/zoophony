@@ -14,8 +14,7 @@
  * With `--base <ref>`, the commit and the working tree run at the same time, each in a child
  * process (`probeBeside()` of `tools/ref-tree.ts`), and each value of the commit follows in
  * parentheses. The cache by tree keeps the JSON text of the commit. `--set` changes the holds of
- * the working tree only. The probe `carry-probe.ts` of `docs/research/2026-10-26-fifth-strings/`
- * gave these measures first.
+ * the working tree only.
  *
  * Usage: pnpm carry-check <role,...> [--demo <id>]... [--set <changes>] [--base <ref>]
  *        [--json <file>]

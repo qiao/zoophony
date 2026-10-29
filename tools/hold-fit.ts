@@ -1,12 +1,13 @@
 /**
- * Fits the hold of a role of a studio body in one run (route 3 of `docs/agents/model-work.md`): for
- * the base and for each variant of `--set`, it gives the folds of `pnpm fold-probe` with the most
- * folded faces of one rest sample by side, the deepest point of each sample set of the sweep of
- * `pnpm pose-depth` with the note-target errors, and, for a violin role, the reach of `pnpm hold-reach`. For a role that holds
- * its instrument against its body, it gives the deepest point of the instrument in the body. For a wind
- * role with a paw that leaves its grip in the rest pose (`WindHold.restFreeL`), it gives the gap of
- * that paw to the body in the rest and the reach share of its rest place. It prints one table with
- * one row for each variant. The source files do not change.
+ * Fits the hold of a role of a studio body in one run (`docs/agents/rigging.md`, "Holds and
+ * reach"): for the base and for each variant of `--set`, it gives the folds of `pnpm fold-probe`
+ * with the most folded faces of one rest sample by side, the deepest point of each sample set of
+ * the sweep of `pnpm pose-depth` with the note-target errors, and, for a violin role, the reach of
+ * `pnpm hold-reach`. For a role that holds its instrument against its body, it gives the deepest
+ * point of the instrument in the body. For a wind role with a paw that leaves its grip in the rest
+ * pose (`WindHold.restFreeL`), it gives the gap of that paw to the body in the rest and the reach
+ * share of its rest place. It prints one table with one row for each variant. The source files do
+ * not change.
  *
  * `--grid '<path>=<a>:<b>:<step>'` adds the variants of a range of values, and several `--grid`
  * options give the product of their ranges. With `--set`, the grids go on top of each variant of
@@ -130,10 +131,9 @@ import type { WindInstrument } from '../src/pose/winds.ts';
 
 /**
  * The demos of a run with no `--demo`: the demos of the deepest point of each sample set of the
- * red fox in the sweep of 2026-10-14 (`docs/research/2026-10-14-fox-retro.md`). One variant of
- * `fox-violinist` over all 14 demos takes about 173 s. A role with none of these demos takes its
- * one demo with the most notes of the role ({@link chooseDemos}), and `--demo all` takes all demos
- * of the role.
+ * red fox in a sweep of all demos. One variant of `fox-violinist` over all 14 demos takes about
+ * 173 s. A role with none of these demos takes its one demo with the most notes of the role
+ * ({@link chooseDemos}), and `--demo all` takes all demos of the role.
  */
 export const FIT_DEMOS: readonly string[] = [
   'bach-bwv1050',
@@ -146,8 +146,7 @@ export const FIT_DEMOS: readonly string[] = [
 export const FIT_STEP = 1;
 
 /**
- * The largest share of the play samples with a fold: the goal of a mesh rig
- * (`docs/briefs/studio-body.md`, section 7).
+ * The largest share of the play samples with a fold: the goal of a mesh rig.
  */
 export const PLAY_FOLD_GOAL = 0.01;
 
@@ -175,7 +174,7 @@ export type FitSet = (typeof FIT_SETS)[number];
 
 /**
  * The largest gap of the lower end of the instrument to the skin under it in the rest without the
- * mark `OVER`, in meters: the goal of the lap rest (`docs/decisions/2026-10-16-bow-rest.md`).
+ * mark `OVER`, in meters: the goal of the lap rest.
  */
 export const LAP_GAP_GOAL = 0.02;
 
@@ -209,7 +208,7 @@ export const BOW_DEPTH_GOAL = 0.005;
 /**
  * The highest right elbow joint above the right shoulder joint in the rest without the mark
  * `OVER`, in meters: the elbow hangs below the shoulder, as the elbows of the seated violinist of
- * the image of the user (`docs/decisions/2026-10-16-rabbit-arm.md`).
+ * the reference image.
  */
 export const ELBOW_RISE_GOAL = 0;
 
@@ -233,8 +232,7 @@ export const UPPER_ARM_GOAL = 35;
 
 /**
  * The wind holds whose rest stands the instrument on a leg, by the root of `--set`: the flute of
- * the tan fox stands upright on the right leg (decisions `2026-10-15-flute-rest.md`). Each other
- * wind role has no lap rest.
+ * the tan fox stands upright on the right leg. Each other wind role has no lap rest.
  */
 export const LEG_RESTS: ReadonlySet<string> = new Set(['flute@fox-tan']);
 
@@ -1019,8 +1017,7 @@ export interface PawAngles {
 
 /**
  * Gives the angles of the mean turn of a paw from its forearm: the whole turn, the twist around
- * the forearm, and the swing with no twist (`twistAngle()` of `src/models/studio-rig.ts`), as the
- * probe `twist.ts` of `docs/research/2026-10-19-elephant-arms/` gave them.
+ * the forearm, and the swing with no twist (`twistAngle()` of `src/models/studio-rig.ts`).
  *
  * @param turn The mean turn of the paw from the forearm.
  * @param axis The bind axis of the forearm, from the elbow to the wrist, as a unit vector.
@@ -1056,9 +1053,8 @@ function forearmAxis(rig: StudioRig, side: 'L' | 'R'): Vector3 {
  * in the axes of the chest and of each paw from its forearm in each sample (`armKeys()` of
  * `tools/raise-fit.ts`), and a function that gives the angles of their mean turns, with the twist
  * and the swing of each paw ({@link pawAngles}). The mean turns of the play show an upper arm that
- * a hold twists, as the elbows out and level of the mouse did
- * (`docs/research/2026-10-19-mouse-mesh.md`), and a paw that twists on its forearm, as the old
- * mallet grip of the elephant did (`docs/research/2026-10-19-elephant-arms.md`).
+ * a hold twists, such as elbows out and level, and a paw that twists on its forearm, such as a
+ * mallet grip.
  *
  * @returns The visit, and the function of the result.
  */
@@ -1831,8 +1827,8 @@ function freeShares(role: RoleSource): FreeShare[] {
 }
 
 /**
- * Gives the spare reach of each grip of the wind hold of a role on the chair, with the holds of now
- * (`spareRow()` of `pnpm hold-reach`).
+ * Gives the spare reach of each grip of the wind hold of a role on the chair, with the current
+ * holds (`spareRow()` of `pnpm hold-reach`).
  *
  * @param role The role.
  * @returns The spare reach of each grip, or `null` for a role with no wind hold.

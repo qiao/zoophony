@@ -206,8 +206,8 @@ function fieldValues(mesh: MeshData, studio: StudioRenderMesh | null): FieldValu
   ];
   if (studio) {
     fields.push({ field: 'correctives', lists: studio.correctives, exact: false });
-    // `--base` runs this tool on the code of a commit. A studio body before the smooth normals of
-    // 2026-10-14 has no normals.
+    // `--base` runs this tool on the code of a commit. A studio body of an older commit can have
+    // no smooth normals.
     const normals: SmoothNormals | undefined = studio.normals;
     if (normals) {
       fields.push({ field: 'normals', lists: [normals.corners, ...normals.moves], exact: false });

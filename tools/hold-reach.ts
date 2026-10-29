@@ -74,7 +74,7 @@ export type ReachSupport = 'chair' | 'stand';
 
 /**
  * The total lengths of the smallest and the largest violin of the size chart of a violin teacher,
- * in meters (`docs/research/2026-10-13-studio-rabbit.md`, section 5).
+ * in meters.
  */
 const REAL_VIOLINS = { smallest: 0.33, largest: 0.59 } as const;
 

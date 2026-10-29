@@ -101,22 +101,21 @@ export interface AnimalSettings {
   readonly constant: string;
   /**
    * The crease angle of the smooth normals of the fur, in degrees (design 4.4, 4.5). Each body has
-   * its own angle. The bears take a large angle, so that their fur looks smooth and round (user,
-   * 2026-10-22, `docs/decisions/2026-10-22-studio-bears.md`). The reference rabbits have more facet contrast than each render of the app
-   * rabbit, so the manager chose its angle from the play frames
-   * (`docs/research/2026-10-14-rabbit-smooth.md`).
+   * its own angle. The bears take a large angle, so that their fur looks smooth and round. The
+   * reference rabbits have more facet contrast than each render of the app rabbit, so the angle of
+   * the rabbit comes from the play frames.
    */
   readonly crease: number;
   /**
    * The largest difference of two face colors of the fur that blend at a vertex, in each sRGB
    * channel from 0 to 1 (`StudioBody.colorBlend`, design 4.5). The bears take it, so that the
-   * steps of the paint and of the baked occlusion fade across the smooth fur (user, 2026-10-22).
+   * steps of the paint and of the baked occlusion fade across the smooth fur.
    * With no value, each face keeps its color.
    */
   readonly colorBlend?: number;
   /**
    * The GLB file of the body, relative to the repository: the rig that `pnpm rig-mesh` writes from
-   * a mesh of the user (route 3 of `docs/agents/model-work.md`). Each animal of `ANIMALS` has one.
+   * a source mesh (`docs/agents/rigging.md`, "The asset chain"). Each animal of `ANIMALS` has one.
    * The scratch settings of a probe or of `--inspect` can have none.
    */
   readonly glb?: string;
@@ -157,9 +156,9 @@ export interface AnimalSettings {
   readonly eyeLevel?: boolean;
   /**
    * The share of the turn of each pea eye from its direction toward the mean normal of the head
-   * faces within 0.09 H of its place, from 0 to 1. The bear takes 0.5, the choice of the user of
-   * 2026-10-20: its eyes then face halfway between their direction and its face, which faces
-   * about 29° up at the eyes. With no value, each eye keeps its direction.
+   * faces within 0.09 H of its place, from 0 to 1. The bear takes 0.5: its eyes then face halfway
+   * between their direction and its face, which faces about 29° up at the eyes. With no value,
+   * each eye keeps its direction.
    */
   readonly eyeNormal?: number;
   /**
@@ -192,8 +191,7 @@ const FOX_TEXTURE_COLORS: SpeciesColors = {
 
 /** The animals that the app shows, by their ids. */
 export const ANIMALS: ReadonlyMap<string, AnimalSettings> = new Map([
-  // The bear conductor: the T-pose mesh of the user (decisions/2026-10-23-bear-tpose.md), with the
-  // size of the studio bear of decisions/2026-10-22-studio-bears.md.
+  // The bear conductor: the T-pose mesh (design 4.4), with the size of the studio bear.
   [
     'bear',
     {
@@ -202,26 +200,20 @@ export const ANIMALS: ReadonlyMap<string, AnimalSettings> = new Map([
       seated: false,
       soloist: false,
       constant: 'STUDIO_BEAR',
-      // The user asked for a smooth bear, then for "slightly faceted" bears, and chose the crease
-      // 40° with the blend 0.05 from a lineup of 70°, 50°, 40°, and 30° (2026-10-22). The blend
-      // fades the steps of the fur colors, and keeps the edge of the muzzle
-      // (docs/research/2026-10-22-studio-bears.md). The T-pose mesh keeps both.
+      // The crease 40° with the blend 0.05 gives slightly faceted fur. The blend fades the steps
+      // of the fur colors, and keeps the edge of the muzzle.
       crease: 40,
       colorBlend: 0.05,
       eyeNormal: 0.5,
       glb: 'assets/models/bear/bear-tpose.rig.glb',
-      // The eyes of the T-pose mesh are 0.7 of the size 1.15 that the user chose for the studio bear
-      // (user, 2026-10-23, docs/decisions/2026-10-23-bear-eye-size.md).
+      // The eyes of the T-pose mesh are 0.7 of the size 1.15 of the studio bear.
       eyeSize: 0.805,
     },
   ],
-  // The polar bear pianist: the T-pose mesh of the user (decisions/2026-10-24-polar-bear-tpose.md).
-  // The landmark is its standing shoulder joints (0.725 u at 1.5828 m for each unit). The user said
-  // that the bear was too tall (decisions/2026-10-24-polar-bear-seat.md), and chose the scale of
-  // 2026-10-27 (decisions/2026-10-27-polar-bench.md). The body is 1.1 times that scale
-  // (decisions/2026-10-28-polar-bench2.md), with the legs of the mesh
-  // (decisions/2026-10-29-polar-ratio.md). The crease angle and the blend are those of the bear,
-  // and the user asked for the eye size of the bear.
+  // The polar bear pianist: the T-pose mesh (design 4.4). The landmark is its standing shoulder
+  // joints (0.725 u at 1.5828 m for each unit). The height is small enough that the bear does not
+  // look too tall, and the body keeps the legs of the mesh. The crease angle, the blend, and the
+  // eye size are those of the bear.
   [
     'polar-bear',
     {
@@ -236,9 +228,8 @@ export const ANIMALS: ReadonlyMap<string, AnimalSettings> = new Map([
       eyeSize: 0.805,
     },
   ],
-  // The violinist rabbit: decisions/2026-10-14-fox-rabbit-form.md, 2026-10-14-neck-violin.md,
-  // 2026-10-16-hip-open.md, 2026-10-17-fox-form.md, and 2026-10-17-rabbit-pose.md. The rabbit
-  // sits 4 cm further forward on a seat 4 cm deeper, so that its back keeps off the chair back.
+  // The violinist rabbit (design 4.4). The rabbit sits 4 cm further forward on a seat 4 cm deeper,
+  // so that its back keeps off the chair back.
   [
     'rabbit',
     {
@@ -252,9 +243,7 @@ export const ANIMALS: ReadonlyMap<string, AnimalSettings> = new Map([
       glb: 'assets/models/rabbit/rabbit-apose.rig.glb',
     },
   ],
-  // The red and the tan foxes: decisions/2026-10-14-fox-flute.md and the files that it names,
-  // 2026-10-16-hip-open.md, 2026-10-17-fox-form.md, and 2026-10-17-tan-rest.md. The wide haunch
-  // of the fox sits on a wider chair.
+  // The red and the tan foxes (design 4.4). The wide haunch of the fox sits on a wider chair.
   [
     'fox',
     {
@@ -269,10 +258,9 @@ export const ANIMALS: ReadonlyMap<string, AnimalSettings> = new Map([
       palettes: { tan: { from: FOX_TEXTURE_COLORS, to: SPECIES_COLORS['fox-tan'] } },
     },
   ],
-  // The viola cat: decisions/2026-10-16-mesh-cat.md, 2026-10-16-cat-trunk.md, and
-  // 2026-10-16-cat-form.md. The wider haunch of the cat sits on a wider chair. The tips of the
+  // The viola cat (design 4.4). The wider haunch of the cat sits on a wider chair. The tips of the
   // lower whiskers hang below the chin and follow the head (`noseFront` of the rig config), so
-  // the head measures start at the chin (2026-10-27-cat3 decisions).
+  // the head measures start at the chin.
   [
     'cat',
     {
@@ -287,7 +275,7 @@ export const ANIMALS: ReadonlyMap<string, AnimalSettings> = new Map([
       headFloor: 0.6885,
     },
   ],
-  // The cello dog: decisions/2026-10-17-mesh-dog.md.
+  // The cello dog (design 4.4).
   [
     'dog',
     {
@@ -300,7 +288,7 @@ export const ANIMALS: ReadonlyMap<string, AnimalSettings> = new Map([
       glb: 'assets/models/dog/dog.rig.glb',
     },
   ],
-  // The trombone panda: decisions/2026-10-18-mesh-panda.md. It stands as a soloist.
+  // The trombone panda (design 4.4). It stands as a soloist.
   [
     'panda',
     {
@@ -313,9 +301,9 @@ export const ANIMALS: ReadonlyMap<string, AnimalSettings> = new Map([
       glb: 'assets/models/panda/panda.rig.glb',
     },
   ],
-  // The contrabass hippo: decisions/2026-10-18-mesh-hippo.md. It stands at its contrabass, so the
-  // export keeps the standing pose of the rig. The pea eyes are 0.8 of their size: the user said
-  // "the hippo's eyes are too big" (2026-10-26-third-review decisions).
+  // The contrabass hippo (design 4.4). It stands at its contrabass, so the export keeps the
+  // standing pose of the rig. The pea eyes are 0.8 of their size, because at the full size they
+  // look too big.
   [
     'hippo',
     {
@@ -329,7 +317,7 @@ export const ANIMALS: ReadonlyMap<string, AnimalSettings> = new Map([
       eyeSize: 0.8,
     },
   ],
-  // The oboe mouse: decisions/2026-10-19-mesh-mouse.md. It stands as a soloist.
+  // The oboe mouse (design 4.4). It stands as a soloist.
   [
     'mouse',
     {
@@ -342,7 +330,7 @@ export const ANIMALS: ReadonlyMap<string, AnimalSettings> = new Map([
       glb: 'assets/models/mouse/mouse.rig.glb',
     },
   ],
-  // The timpani elephant: decisions/2026-10-19-mesh-elephant.md. It stands at its timpani, so the
+  // The timpani elephant (design 4.4). It stands at its timpani, so the
   // export keeps the standing pose of the rig. Its trunk follows the head below the chin. Its eyes
   // are 0.6 of the pea eyes of its head, because the large head with its ears made them large.
   [
@@ -359,7 +347,7 @@ export const ANIMALS: ReadonlyMap<string, AnimalSettings> = new Map([
       eyeSize: 0.6,
     },
   ],
-  // The bassoon beaver: decisions/2026-10-19-mesh-beaver.md. A bassoon soloist keeps its seat,
+  // The bassoon beaver (design 4.4). A bassoon soloist keeps its seat,
   // but the standing views of the gallery stand it up.
   [
     'beaver',
@@ -373,7 +361,7 @@ export const ANIMALS: ReadonlyMap<string, AnimalSettings> = new Map([
       glb: 'assets/models/beaver/beaver.rig.glb',
     },
   ],
-  // The horn pig: decisions/2026-10-19-mesh-pig.md. It stands as a soloist.
+  // The horn pig (design 4.4). It stands as a soloist.
   [
     'pig',
     {
@@ -386,8 +374,7 @@ export const ANIMALS: ReadonlyMap<string, AnimalSettings> = new Map([
       glb: 'assets/models/pig/pig.rig.glb',
     },
   ],
-  // The clarinet wolf: decisions/2026-10-20-mesh-wolf.md and 2026-10-20-wolf-shape.md. It stands
-  // as a soloist.
+  // The clarinet wolf (design 4.4). It stands as a soloist.
   [
     'wolf',
     {
@@ -401,7 +388,7 @@ export const ANIMALS: ReadonlyMap<string, AnimalSettings> = new Map([
       glb: 'assets/models/wolf/wolf.rig.glb',
     },
   ],
-  // The percussion badger: decisions/2026-10-20-mesh-badger.md. It stands at each percussion
+  // The percussion badger (design 4.4). It stands at each percussion
   // instrument, so the export keeps the standing pose of the rig.
   [
     'badger',
@@ -415,7 +402,7 @@ export const ANIMALS: ReadonlyMap<string, AnimalSettings> = new Map([
       glb: 'assets/models/badger/badger.rig.glb',
     },
   ],
-  // The trumpet monkey: decisions/2026-10-20-mesh-monkey.md. It stands as a soloist.
+  // The trumpet monkey (design 4.4). It stands as a soloist.
   [
     'monkey',
     {
@@ -428,12 +415,11 @@ export const ANIMALS: ReadonlyMap<string, AnimalSettings> = new Map([
       glb: 'assets/models/monkey/monkey.rig.glb',
     },
   ],
-  // The tuba rhino: decisions/2026-10-21-mesh-rhino.md. It stands to play the tuba, so the export
-  // keeps the standing pose of the rig. The tip of its nose is the front of the muzzle under the
-  // horn. The head measures start at the chin: bone heat gives the throat under the chin of the
-  // copy with the arm tubes a head weight just above 0.5 (docs/research/2026-10-22-rhino-arm-2.md).
-  // The T-pose mesh of 2026-10-28 keeps the head top of 1.462 m of the A-pose rhino, with its
-  // chin at 0.70 and its horn from 0.83 (docs/research/2026-10-28-rhino-tpose.md).
+  // The tuba rhino (design 4.4). It stands to play the tuba, so the export keeps the standing pose
+  // of the rig. The tip of its nose is the front of the muzzle under the horn. The head measures
+  // start at the chin: bone heat gives the throat under the chin of the copy with the arm tubes a
+  // head weight just above 0.5. The T-pose mesh has its head top at 1.462 m, its chin at 0.70, and
+  // its horn from 0.83.
   [
     'rhino',
     {
@@ -448,7 +434,7 @@ export const ANIMALS: ReadonlyMap<string, AnimalSettings> = new Map([
       headFloor: 0.7,
     },
   ],
-  // The harp deer: decisions/2026-10-21-mesh-deer.md. It sits on the stool of the harp, and the
+  // The harp deer (design 4.4). It sits on the stool of the harp, and the
   // harp soloist keeps the stool, so it does not stand. The antlers stay out of the head measures.
   // The haunch of the deer of 1.2 times the size is 0.39 m wide, so the stool is 0.44 m wide.
   [
@@ -465,7 +451,7 @@ export const ANIMALS: ReadonlyMap<string, AnimalSettings> = new Map([
       glb: 'assets/models/deer/deer.rig.glb',
     },
   ],
-  // The choir penguin: decisions/2026-10-21-mesh-penguin.md. It stands on its riser, so the
+  // The choir penguin (design 4.4). It stands on its riser, so the
   // export keeps the standing pose of the rig.
   [
     'penguin',
@@ -475,11 +461,10 @@ export const ANIMALS: ReadonlyMap<string, AnimalSettings> = new Map([
       seated: true,
       soloist: true,
       constant: 'STUDIO_PENGUIN',
-      // The user said on 2026-10-26: "the meshes for the penguine are too faceted on the side. make
-      // it round". With the crease 35° and no blend, the sides showed hard facets and a sawtooth of
-      // white, tan, and black faces along the belly. The crease 60° smooths the shading, and the
-      // blend 0.7 fades the face colors across the border. With 1.0, the beak blurred into the
-      // head (docs/decisions/2026-10-26-second-review.md).
+      // The penguin looks round. With the crease 35° and no blend, the sides show hard facets and
+      // a sawtooth of white, tan, and black faces along the belly. The crease 60° smooths the
+      // shading, and the blend 0.7 fades the face colors across the border. With 1.0, the beak
+      // blurs into the head.
       crease: 60,
       colorBlend: 0.7,
       glb: 'assets/models/penguin/penguin.rig.glb',
@@ -552,7 +537,7 @@ const EYE_SIDE = 0.02;
 /**
  * The largest distance of the tip of the nose from the middle plane of the body, in meters. The
  * export takes the tip only from the vertices this near the plane, because the front-most vertex
- * of the head of the mouse was the tip of a whisker, 0.2 u from the plane, and it moved the oboe
+ * of the head of the mouse is the tip of a whisker, 0.2 u from the plane, which moves the oboe
  * 0.33 m. The front of the muzzle of the hippo, a nostril, lies 2.8 cm from the plane, and it
  * stays the tip.
  */

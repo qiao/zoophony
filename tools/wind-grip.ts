@@ -1,9 +1,8 @@
 /**
  * Measures the contact of each paw of a woodwind player with its instrument over the sample sets
  * of the sweep of its role (design 5.3): the play, the lift, the rest, and the lowering. A gate of
- * the arms or of the depths can pass while the paws float beside the tube
- * (`docs/research/2026-10-24-wind-grips.md`), so this tool measures the grip itself, on the skin
- * of the studio as the GPU poses it.
+ * the arms or of the depths can pass while the paws float beside the tube, so this tool measures
+ * the grip itself, on the skin of the studio as the GPU poses it.
  *
  * For each paw and each sample, it measures:
  *
@@ -133,15 +132,13 @@ const OWN_MALLETS: RoleGrip['parts'] = { L: ['malletL'], R: ['malletR'] };
 /**
  * The roles that the tool measures: the woodwinds, the brass, the clip of the triangle, the
  * mallets, the sticks, and the beaters of the percussion players, the left paw of the red fox on
- * the neck of the violin, the grip that the user accepts (user, 2026-10-24), for a compare, and the
- * left paw of the cat on the neck of the viola, which holds it at rest too (user, 2026-10-27: "the
- * cat is not "holding" the viola in rest mode"). The places come from `docs/reference/wind-technique.md` and
- * `docs/reference/percussion-technique.md`. A woodwind hand has its thumb behind the tube and its
- * fingers over the front, so the middle of the paw is at the side of the tube of its own arm, and
- * the palm faces the tube from that side. With the middle of the paw behind the tube, the palm
- * faced the audience, and the thumb pointed down the tube (user, 2026-10-25: "their palm are
- * facing outwards and thumbs downwards", `docs/research/2026-10-25-wind-palms.md`). A brass hand
- * holds the valves or the slide from its own side.
+ * the neck of the violin, an accepted grip, for a compare, and the left paw of the cat on the
+ * neck of the viola, which holds it at rest too. The places come from
+ * `docs/reference/wind-technique.md` and `docs/reference/percussion-technique.md`. A woodwind hand
+ * has its thumb behind the tube and its fingers over the front, so the middle of the paw is at the
+ * side of the tube of its own arm, and the palm faces the tube from that side. With the middle of
+ * the paw behind the tube, the palm faces the audience, and the thumb points down the tube. A brass
+ * hand holds the valves or the slide from its own side.
  */
 const ROLES = {
   clarinetist: wind('clarinetist', 'wolf', 'clarinet', { L: [-1, 0, 0], R: [1, 0, 0] }),
@@ -155,7 +152,7 @@ const ROLES = {
   bassoonist: wind('bassoonist', 'beaver', 'bassoon', { L: [-1, 0, 0], R: [1, 0, 0] }),
   trombonist: wind('trombonist', 'panda', 'trombone', { L: [0, 0, -1], R: [0, 0, 1] }, 'slide'),
   // The left paw wraps the valve casings from the left, and the right paw lies above the valves
-  // with its fingers down on them (wind-technique 2.1, docs/research/2026-10-25-brass-grips.md).
+  // with its fingers down on them (wind-technique 2.1).
   trumpeter: wind('trumpeter', 'monkey', 'trumpet', { L: [-1, 0, 0], R: [0, 1, 0] }),
   tubist: wind('tubist', 'rhino', 'tuba', { R: [1, 0, 0] }),
   percussionist: {
@@ -333,9 +330,9 @@ export interface ShaftContact {
  * Tells if a paw holds its instrument, in one of two ways. A fist: the axis of the tube passes
  * within {@link GRIP_GAP} of the middle of the closed paw and goes into it, the rule of the bow
  * grip (`tools/bow-grip.ts`). A wrap: the skin touches the instrument, and the finger tips touch
- * it too, so that the fingers close around it. The left paw of the red fox on the violin neck, the
- * grip that the user accepts, has its finger tips 0.1 cm from the neck in the play. A paw whose
- * skin only touches the tube can point away from it, with the tube in the back of the paw.
+ * it too, so that the fingers close around it. The left paw of the red fox on the violin neck, an
+ * accepted grip, has its finger tips 0.1 cm from the neck in the play. A paw whose skin only
+ * touches the tube can point away from it, with the tube in the back of the paw.
  *
  * @param c The measures of the paw.
  * @returns True when the paw holds.

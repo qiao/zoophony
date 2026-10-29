@@ -1,10 +1,8 @@
 /**
  * Measures the rest of a seated player on its lap (design 5.2, 5.3): the lower end of the
  * instrument on the skin of the thighs, the tilt of the instrument, the place of the left paw on
- * it, the upright bow at the right side, and the right arm that holds the bow. The goals of the
- * upright rest of the violin are in `docs/decisions/2026-10-16-bow-rest.md`, and the goals of the
- * right arm in `docs/decisions/2026-10-16-rabbit-arm.md`. `pnpm hold-fit` gives them in its rest
- * columns.
+ * it, the upright bow at the right side, and the right arm that holds the bow. `pnpm hold-fit`
+ * gives the goals of the upright rest of the violin and of the right arm in its rest columns.
  */
 import { MathUtils, Ray, Triangle, Vector3 } from 'three';
 
@@ -42,8 +40,8 @@ import { windHoldOf, windRig } from '../src/pose/winds.ts';
 
 /**
  * The wall times of the rest samples of the lap rest, in seconds, before the first play: the times
- * of `rest-probe.ts`. The idle motion moves the bow tip of the rabbit by up to 0.8 cm between
- * them (`docs/research/2026-10-16-hip-open/rest-probe-branch.txt`).
+ * of the rest probe. The idle motion moves the bow tip of the rabbit by up to 0.8 cm between
+ * them.
  */
 export const REST_WALLS: readonly number[] = [10, 13.7, 21.1, 29.3];
 
@@ -372,8 +370,8 @@ function sectionPoints(triangles: readonly Triangle[], height: number): Vector3[
  * Gives the triangles of the trunk of a posed player, each moved by its main bone alone: the bone
  * of its first corner, one of {@link TRUNK_BONES}. The skin of a studio body gives the side of the
  * trunk under the armpit a part of the weight of the upper arm, so a raised arm drags that skin
- * out. On the rabbit in the rest of 2026-10-16, the posed skin of the trunk reached 26 cm out from
- * the middle at the height of the right elbow, and the trunk moved by its main bones 14 cm.
+ * out. In a rest of the rabbit, the posed skin of the trunk can reach 26 cm out from the middle at
+ * the height of the right elbow, and the trunk moved by its main bones alone reaches 14 cm.
  *
  * @param posed The posed skeleton of the player.
  * @returns The triangles, in the model axes.
@@ -677,8 +675,7 @@ export function probeLaps(
 
 /**
  * The wall time of the rest sample of a scan of `pnpm hold-fit --scan` by default, in seconds: one
- * of {@link REST_WALLS}, the time of the scan probe of the round rabbit-arm
- * (`docs/research/2026-10-16-rabbit-arm/rest-scan.ts`).
+ * of {@link REST_WALLS}.
  */
 export const SCAN_WALL = 21.1;
 

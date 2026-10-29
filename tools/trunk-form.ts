@@ -1,6 +1,6 @@
 /**
- * Measures the form of the trunk of the first player of a role (`pnpm trunk-form <role>`, route 3
- * of `docs/agents/model-work.md`), in the seated bind and in the poses of the sample sets. The
+ * Measures the form of the trunk of the first player of a role (`pnpm trunk-form <role>`,
+ * `docs/agents/rigging.md`), in the seated bind and in the poses of the sample sets. The
  * frame has its origin at the hips joint, `f` along the line to the neck joint as a share of it,
  * `d` forward square to it, and `x` to the left. Each cut of the trunk across the line between
  * `--from` and `--to` gives four outlines: the left and the right side (the front view), and the
@@ -9,8 +9,7 @@
  * cuts (a corner or a lump). For the light patch on the trunk front: the same measures of its
  * soft width on each side, the sum of the light share of each face along the cut, and the angles
  * between the normals of neighbor light faces. A pose takes the frame of its hips bone, so the
- * legs and the seat do not move the measures. `docs/research/2026-10-27-cat-belly.md` gives the
- * method.
+ * legs and the seat do not move the measures.
  *
  * Usage: pnpm trunk-form <role> [--sets <set>[@<n>],...] [--demo <id>] [--from <f>] [--to <f>]
  *   [--light <dark>:<light>] [--base <ref>] [--json <file>]

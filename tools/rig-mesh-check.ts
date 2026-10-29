@@ -1,8 +1,9 @@
 /**
- * Measures a rig of `pnpm rig-mesh <animal> --check` (route 3 of `docs/agents/model-work.md`): the
- * triangles, the size of the module, the seat, the head height, the reach, the lowest point of each
- * leg and of the tail above the floor, the standing body against the long-armed source, and the
- * thin faces near the joints of the limbs. It reads the GLB file of the rig and writes no file.
+ * Measures a rig of `pnpm rig-mesh <animal> --check` (`docs/agents/rigging.md`, "The asset
+ * chain"): the triangles, the size of the module, the seat, the head height, the reach, the lowest
+ * point of each leg and of the tail above the floor, the standing body against the long-armed
+ * source, and the thin faces near the joints of the limbs. It reads the GLB file of the rig and
+ * writes no file.
  */
 import { Matrix4, Quaternion, Vector3 } from 'three';
 
@@ -240,9 +241,8 @@ export function objVertices(obj: string, scale: number): Vector3[] {
 }
 
 /**
- * Measures the standing body of the app against the long-armed source of a rig, as
- * `docs/research/2026-10-13-rabbit-mesh/standing-probe.ts` did: the standing body of
- * `studioRig(body, true)`, with each arm bone turned to the arm of the clip `reference` and both
+ * Measures the standing body of the app against the long-armed source of a rig: the standing body
+ * of `studioRig(body, true)`, with each arm bone turned to the arm of the clip `reference` and both
  * arm corrective shapes at the weight 1.
  *
  * @param bytes The GLB file of the rig.

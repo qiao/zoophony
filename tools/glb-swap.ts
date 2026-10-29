@@ -1,11 +1,11 @@
 /**
  * Runs a probe on the studio body that the export makes from another GLB file (`--glb <file>`),
- * with no edit of `ANIMALS` and no written module in `src/` (route 3 of
- * `docs/agents/model-work.md`). The pure core keeps no state: the probe runs in a child process on
+ * with no edit of `ANIMALS` and no written module in `src/` (`docs/agents/rigging.md`, "The asset
+ * chain"). The pure core keeps no state: the probe runs in a child process on
  * a copy of `src/` that holds the module of the file, as `pnpm body-probe --base` runs the probe of
  * a commit. A species with no studio body also works when it has a rig config
  * `tools/mesh-rigs/<species>.json`: the copy then gives the species the body, and `ANIMALS` of the
- * copy gets a scratch entry ({@link addScratchBody}). Thus phase 1 of a mesh of the user probes
+ * copy gets a scratch entry ({@link addScratchBody}). Thus the first check of a new mesh probes
  * the real body before the commit of the body.
  */
 import { execFileSync, spawn } from 'node:child_process';
@@ -136,7 +136,7 @@ export function rigConfigPath(animal: string): string {
 /**
  * Gives the animal whose studio body `--glb <file>` swaps for a species: the animal of the studio
  * body of the species, or the species itself when it has no studio body and has a rig config
- * ({@link rigConfigPath}), as the panda had in phase 1 of its mesh.
+ * ({@link rigConfigPath}), such as a new mesh before the commit of its body.
  *
  * @param species The species.
  * @returns The animal, or `null` when the species has no studio body and no rig config.
