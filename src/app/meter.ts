@@ -125,7 +125,7 @@ export function meterLevels(track: MeterTrack, songSec: number, out: Float32Arra
 }
 
 /** The time in which the ring of a seat fades to 0 after its last note ends, in seconds. */
-export const GLOW_FADE_SEC = 0.3;
+const GLOW_FADE_SEC = 0.3;
 
 /** The level of a note at the velocity 0. The velocity 127 gives the level 1. */
 const GLOW_FLOOR = 0.5;

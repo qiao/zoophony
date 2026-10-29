@@ -330,7 +330,7 @@ function contrastOf(a: Rgb, b: Rgb): number {
  * @param fur The fur color, as `#rrggbb`.
  * @returns The ring color, as `#rrggbb`.
  */
-export function ringColor(fur: string): string {
+function ringColor(fur: string): string {
   const value = Number.parseInt(fur.slice(1), 16);
   const base: Rgb = [(value >> 16) & 0xff, (value >> 8) & 0xff, value & 0xff];
   const mix = (share: number, i: 0 | 1 | 2): number =>
