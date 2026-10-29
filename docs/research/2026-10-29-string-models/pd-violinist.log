@@ -1,0 +1,358 @@
+
+> zoophony@0.0.0 pose-depth /Users/xueqiaoxu/proj/zoophony/.claude/worktrees/string-models
+> node tools/pose-depth.ts violinist --demo boulanger-matin --demo beethoven-1 --demo brahms-2 --base 9ecc8a9bd
+
+Sweep of the violinist: 3 demos with the role (beethoven-1, boulanger-matin, brahms-2), 1 row to sweep.
+Estimated time: about 5.3 minutes: 1 row of 316.3 s, from the last rows of this sweep, with a time for 3 of 3 demos.
+base: cached (9ecc8a9bd, 74c6a9dd8dc1)
+Sweeps of 9ecc8a9bd (9ecc8a9bd) and of the working tree: 327.4 s.
+base (326.8 s):
+  beethoven-1 violinist 0 (rabbit, chair)
+    play: paws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1186 samples over 1.5 cm (0.0%)
+    play: paws in violin: 1.5 cm at song 287.15 s, wall 299.25 s (handL 0.17); next note in 0.00 s; limit 1.5 cm OVER; 4 of 1186 samples over 1.5 cm (0.3%)
+    play: claws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1186 samples over 1.5 cm (0.0%)
+    play: claws in violin: 1.3 cm at song 224.40 s, wall 236.50 s (fingersR); next note in 0.20 s; limit 1.5 cm; 0 of 1186 samples over 1.5 cm (0.0%)
+    play: forearms in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1186 samples over 1.5 cm (0.0%)
+    play: forearms in violin: 2.0 cm at song 287.90 s, wall 300.00 s (forearmL 1.02); next note in 0.02 s; limit 1.5 cm OVER; 91 of 1186 samples over 1.5 cm (7.7%)
+    play: upper arms in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1186 samples over 1.5 cm (0.0%)
+    play: upper arms in violin: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1186 samples over 1.5 cm (0.0%)
+    play: bow in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1186 samples over 1.5 cm (0.0%)
+    play: bow in violin: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1186 samples over 1.5 cm (0.0%)
+    play: instrument in body: 1.9 cm at song 210.40 s, wall 222.50 s (instrument); next note in 0.05 s; limit 2.0 cm; 0 of 1186 samples over 2.0 cm (0.0%)
+    lift: paws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: paws in violin: 0.5 cm at song -0.60 s, wall 11.50 s (handL 0.66); next note in 0.58 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: claws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: claws in violin: 0.6 cm at song -1.30 s, wall 10.80 s (fingersL); next note in 1.28 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: forearms in body: 0.2 cm at song -2.00 s, wall 10.10 s (forearmR 0.18); next note in 1.98 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: forearms in violin: 0.0 cm at song -1.60 s, wall 10.50 s (forearmL 0.80); next note in 1.58 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: upper arms in body: 0.7 cm at song -2.00 s, wall 10.10 s (upperArmR 0.57); next note in 1.98 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: upper arms in violin: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: bow in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: bow in violin: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: instrument in body: 1.8 cm at song -1.10 s, wall 11.00 s (instrument); next note in 1.08 s; limit 2.0 cm; 0 of 31 samples over 2.0 cm (0.0%)
+    rest: paws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: paws in violin: 0.1 cm at song -2.10 s, wall 10.00 s (handL 0.64); next note in 2.08 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: claws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: claws in violin: 0.2 cm at song -2.10 s, wall 10.00 s (fingersL); next note in 2.08 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: forearms in body: 0.2 cm at song -2.10 s, wall 10.00 s (forearmR 0.18); next note in 2.08 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: forearms in violin: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: upper arms in body: 0.7 cm at song -2.10 s, wall 10.00 s (upperArmR 0.57); next note in 2.08 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: upper arms in violin: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: bow in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: bow in violin: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: instrument in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 2.0 cm; 0 of 1 samples over 2.0 cm (0.0%)
+    lower: paws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 30 samples over 1.5 cm (0.0%)
+    lower: paws in violin: 0.6 cm at song 294.33 s, wall 11.50 s (handL 0.65); after the last note; limit 1.5 cm; 0 of 30 samples over 1.5 cm (0.0%)
+    lower: claws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 30 samples over 1.5 cm (0.0%)
+    lower: claws in violin: 0.6 cm at song 294.33 s, wall 13.40 s (fingersL); after the last note; limit 1.5 cm; 0 of 30 samples over 1.5 cm (0.0%)
+    lower: forearms in body: 0.2 cm at song 294.33 s, wall 14.70 s (forearmR 0.18); after the last note; limit 1.5 cm; 0 of 30 samples over 1.5 cm (0.0%)
+    lower: forearms in violin: 0.1 cm at song 294.33 s, wall 14.10 s (forearmL 0.80); after the last note; limit 1.5 cm; 0 of 30 samples over 1.5 cm (0.0%)
+    lower: upper arms in body: 0.7 cm at song 294.33 s, wall 14.50 s (upperArmR 0.57); after the last note; limit 1.5 cm; 0 of 30 samples over 1.5 cm (0.0%)
+    lower: upper arms in violin: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 30 samples over 1.5 cm (0.0%)
+    lower: bow in body: 0.1 cm at song 294.33 s, wall 13.60 s (bow); after the last note; limit 1.5 cm; 0 of 30 samples over 1.5 cm (0.0%)
+    lower: bow in violin: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 30 samples over 1.5 cm (0.0%)
+    lower: instrument in body: 1.8 cm at song 294.33 s, wall 13.30 s (instrument); after the last note; limit 2.0 cm; 0 of 30 samples over 2.0 cm (0.0%)
+    target R: 0.00 mm at song 294.14 s
+    targets: 100.0% of 1677 within 5 mm, worst 0.00 mm
+  beethoven-1 violinist 4 (fox-red, chair)
+    play: paws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1186 samples over 1.5 cm (0.0%)
+    play: paws in violin: 0.8 cm at song 70.15 s, wall 82.25 s (handL 0.58); next note in 0.05 s; limit 1.5 cm; 0 of 1186 samples over 1.5 cm (0.0%)
+    play: claws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1186 samples over 1.5 cm (0.0%)
+    play: claws in violin: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1186 samples over 1.5 cm (0.0%)
+    play: forearms in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1186 samples over 1.5 cm (0.0%)
+    play: forearms in violin: 1.5 cm at song 282.65 s, wall 294.75 s (forearmL 0.89); next note in 0.02 s; limit 1.5 cm; 0 of 1186 samples over 1.5 cm (0.0%)
+    play: upper arms in body: 0.9 cm at song 170.65 s, wall 182.75 s (upperArmR 0.03); next note in 0.12 s; limit 1.5 cm; 0 of 1186 samples over 1.5 cm (0.0%)
+    play: upper arms in violin: 0.3 cm at song 170.65 s, wall 182.75 s (upperArmL 0.31); next note in 0.12 s; limit 1.5 cm; 0 of 1186 samples over 1.5 cm (0.0%)
+    play: bow in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1186 samples over 1.5 cm (0.0%)
+    play: bow in violin: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1186 samples over 1.5 cm (0.0%)
+    play: instrument in body: 1.5 cm at song 143.15 s, wall 155.25 s (instrument); next note in 0.00 s; limit 2.0 cm; 0 of 1186 samples over 2.0 cm (0.0%)
+    lift: paws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: paws in violin: 0.8 cm at song 0.00 s, wall 13.00 s (handL 0.58); next note in 0.01 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: claws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: claws in violin: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: forearms in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: forearms in violin: 0.6 cm at song -1.40 s, wall 10.70 s (forearmL 1.08); next note in 1.41 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: upper arms in body: 0.9 cm at song 0.00 s, wall 13.00 s (upperArmR 0.03); next note in 0.01 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: upper arms in violin: 0.2 cm at song 0.00 s, wall 12.20 s (upperArmL 0.31); next note in 0.01 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: bow in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: bow in violin: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: instrument in body: 1.5 cm at song -0.70 s, wall 11.40 s (instrument); next note in 0.71 s; limit 2.0 cm; 0 of 31 samples over 2.0 cm (0.0%)
+    rest: paws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: paws in violin: 0.3 cm at song -2.10 s, wall 10.00 s (handL 0.83); next note in 2.11 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: claws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: claws in violin: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: forearms in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: forearms in violin: 0.5 cm at song -2.10 s, wall 10.00 s (forearmL 1.11); next note in 2.11 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: upper arms in body: 0.6 cm at song -2.10 s, wall 10.00 s (upperArmR -0.12); next note in 2.11 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: upper arms in violin: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: bow in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: bow in violin: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: instrument in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 2.0 cm; 0 of 1 samples over 2.0 cm (0.0%)
+    lower: paws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 30 samples over 1.5 cm (0.0%)
+    lower: paws in violin: 0.7 cm at song 294.33 s, wall 13.60 s (handL 0.59); after the last note; limit 1.5 cm; 0 of 30 samples over 1.5 cm (0.0%)
+    lower: claws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 30 samples over 1.5 cm (0.0%)
+    lower: claws in violin: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 30 samples over 1.5 cm (0.0%)
+    lower: forearms in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 30 samples over 1.5 cm (0.0%)
+    lower: forearms in violin: 0.7 cm at song 294.33 s, wall 13.40 s (forearmL 0.77); after the last note; limit 1.5 cm; 0 of 30 samples over 1.5 cm (0.0%)
+    lower: upper arms in body: 2.4 cm at song 294.33 s, wall 14.10 s (upperArmR 0.73); after the last note; limit 1.5 cm OVER; 3 of 30 samples over 1.5 cm (10.0%)
+    lower: upper arms in violin: 0.2 cm at song 294.33 s, wall 12.00 s (upperArmL 0.30); after the last note; limit 1.5 cm; 0 of 30 samples over 1.5 cm (0.0%)
+    lower: bow in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 30 samples over 1.5 cm (0.0%)
+    lower: bow in violin: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 30 samples over 1.5 cm (0.0%)
+    lower: instrument in body: 1.5 cm at song 294.33 s, wall 13.20 s (instrument); after the last note; limit 2.0 cm; 0 of 30 samples over 2.0 cm (0.0%)
+    target R: 0.00 mm at song 294.17 s
+    targets: 100.0% of 1496 within 5 mm, worst 0.00 mm
+  boulanger-matin violinist 0 (rabbit, chair)
+    play: paws in body: 0.1 cm at song 227.88 s, wall 239.50 s (handR 0.26); next note in 0.37 s; limit 1.5 cm; 0 of 1130 samples over 1.5 cm (0.0%)
+    play: paws in violin: 2.0 cm at song 152.63 s, wall 164.25 s (handL 0.15); next note in 0.40 s; limit 1.5 cm OVER; 231 of 1130 samples over 1.5 cm (20.4%)
+    play: claws in body: 0.0 cm at song 25.13 s, wall 36.75 s (fingersR); next note in 0.61 s; limit 1.5 cm; 0 of 1130 samples over 1.5 cm (0.0%)
+    play: claws in violin: 1.3 cm at song 171.63 s, wall 183.25 s (fingersR); next note in 9.61 s; limit 1.5 cm; 0 of 1130 samples over 1.5 cm (0.0%)
+    play: forearms in body: 1.2 cm at song 131.38 s, wall 143.00 s (forearmR 0.56); next note in 0.19 s; limit 1.5 cm; 0 of 1130 samples over 1.5 cm (0.0%)
+    play: forearms in violin: 2.1 cm at song 149.88 s, wall 161.50 s (forearmL 0.99); next note in 0.23 s; limit 1.5 cm OVER; 365 of 1130 samples over 1.5 cm (32.3%)
+    play: upper arms in body: 1.5 cm at song 280.63 s, wall 292.25 s (upperArmR 0.57); after the last note; limit 1.5 cm OVER; 1 of 1130 samples over 1.5 cm (0.1%)
+    play: upper arms in violin: 0.0 cm at song 280.63 s, wall 292.25 s (upperArmR 1.03); after the last note; limit 1.5 cm; 0 of 1130 samples over 1.5 cm (0.0%)
+    play: bow in body: 0.1 cm at song 179.38 s, wall 191.00 s (bow); next note in 1.86 s; limit 1.5 cm; 0 of 1130 samples over 1.5 cm (0.0%)
+    play: bow in violin: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1130 samples over 1.5 cm (0.0%)
+    play: instrument in body: 1.9 cm at song 253.13 s, wall 264.75 s (instrument); next note in 0.02 s; limit 2.0 cm; 0 of 1130 samples over 2.0 cm (0.0%)
+    lift: paws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: paws in violin: 0.6 cm at song -0.12 s, wall 11.50 s (handL 0.67); next note in 0.10 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: claws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: claws in violin: 0.6 cm at song -0.82 s, wall 10.80 s (fingersL); next note in 0.80 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: forearms in body: 0.2 cm at song -1.52 s, wall 10.10 s (forearmR 0.18); next note in 1.50 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: forearms in violin: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: upper arms in body: 0.7 cm at song -1.52 s, wall 10.10 s (upperArmR 0.57); next note in 1.50 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: upper arms in violin: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: bow in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: bow in violin: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: instrument in body: 1.8 cm at song -0.72 s, wall 10.90 s (instrument); next note in 0.70 s; limit 2.0 cm; 0 of 31 samples over 2.0 cm (0.0%)
+    rest: paws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: paws in violin: 0.1 cm at song -1.62 s, wall 10.00 s (handL 0.64); next note in 1.60 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: claws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: claws in violin: 0.2 cm at song -1.62 s, wall 10.00 s (fingersL); next note in 1.60 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: forearms in body: 0.2 cm at song -1.62 s, wall 10.00 s (forearmR 0.18); next note in 1.60 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: forearms in violin: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: upper arms in body: 0.7 cm at song -1.62 s, wall 10.00 s (upperArmR 0.57); next note in 1.60 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: upper arms in violin: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: bow in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: bow in violin: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: instrument in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 2.0 cm; 0 of 1 samples over 2.0 cm (0.0%)
+    lower: paws in body: 0.1 cm at song 280.67 s, wall 13.30 s (handR 0.25); after the last note; limit 1.5 cm; 0 of 30 samples over 1.5 cm (0.0%)
+    lower: paws in violin: 0.6 cm at song 280.67 s, wall 11.50 s (handL 0.69); after the last note; limit 1.5 cm; 0 of 30 samples over 1.5 cm (0.0%)
+    lower: claws in body: 0.0 cm at song 280.67 s, wall 12.00 s (fingersR); after the last note; limit 1.5 cm; 0 of 30 samples over 1.5 cm (0.0%)
+    lower: claws in violin: 0.3 cm at song 280.67 s, wall 12.00 s (fingersL); after the last note; limit 1.5 cm; 0 of 30 samples over 1.5 cm (0.0%)
+    lower: forearms in body: 1.3 cm at song 280.67 s, wall 13.30 s (forearmR 0.56); after the last note; limit 1.5 cm; 0 of 30 samples over 1.5 cm (0.0%)
+    lower: forearms in violin: 1.6 cm at song 280.67 s, wall 13.50 s (forearmL 0.92); after the last note; limit 1.5 cm OVER; 13 of 30 samples over 1.5 cm (43.3%)
+    lower: upper arms in body: 1.5 cm at song 280.67 s, wall 12.00 s (upperArmR 0.57); after the last note; limit 1.5 cm OVER; 9 of 30 samples over 1.5 cm (30.0%)
+    lower: upper arms in violin: 0.0 cm at song 280.67 s, wall 11.50 s (upperArmR 1.03); after the last note; limit 1.5 cm; 0 of 30 samples over 1.5 cm (0.0%)
+    lower: bow in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 30 samples over 1.5 cm (0.0%)
+    lower: bow in violin: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 30 samples over 1.5 cm (0.0%)
+    lower: instrument in body: 1.9 cm at song 280.67 s, wall 13.30 s (instrument); after the last note; limit 2.0 cm; 0 of 30 samples over 2.0 cm (0.0%)
+    target R: 0.00 mm at song 278.36 s
+    targets: 100.0% of 882 within 5 mm, worst 0.00 mm
+  boulanger-matin violinist 4 (fox-red, chair)
+    play: paws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1130 samples over 1.5 cm (0.0%)
+    play: paws in violin: 1.5 cm at song 277.88 s, wall 289.50 s (handL 0.19); next note in 0.07 s; limit 1.5 cm; 0 of 1130 samples over 1.5 cm (0.0%)
+    play: claws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1130 samples over 1.5 cm (0.0%)
+    play: claws in violin: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1130 samples over 1.5 cm (0.0%)
+    play: forearms in body: 0.8 cm at song 280.63 s, wall 292.25 s (forearmR 0.55); after the last note; limit 1.5 cm; 0 of 1130 samples over 1.5 cm (0.0%)
+    play: forearms in violin: 2.5 cm at song 280.13 s, wall 291.75 s (forearmL 0.98); next note in 0.33 s; limit 1.5 cm OVER; 166 of 1130 samples over 1.5 cm (14.7%)
+    play: upper arms in body: 1.2 cm at song 280.63 s, wall 292.25 s (upperArmR 0.20); after the last note; limit 1.5 cm; 0 of 1130 samples over 1.5 cm (0.0%)
+    play: upper arms in violin: 0.3 cm at song 84.88 s, wall 96.50 s (upperArmL 0.31); next note in 0.31 s; limit 1.5 cm; 0 of 1130 samples over 1.5 cm (0.0%)
+    play: bow in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1130 samples over 1.5 cm (0.0%)
+    play: bow in violin: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1130 samples over 1.5 cm (0.0%)
+    play: instrument in body: 1.8 cm at song 277.88 s, wall 289.50 s (instrument); next note in 0.07 s; limit 2.0 cm; 0 of 1130 samples over 2.0 cm (0.0%)
+    lift: paws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: paws in violin: 0.7 cm at song -1.32 s, wall 10.30 s (handL 0.70); next note in 1.33 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: claws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: claws in violin: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: forearms in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: forearms in violin: 0.6 cm at song -1.02 s, wall 10.60 s (forearmL 1.07); next note in 1.03 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: upper arms in body: 0.9 cm at song 0.00 s, wall 13.00 s (upperArmR 0.02); next note in 0.01 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: upper arms in violin: 0.1 cm at song 0.00 s, wall 11.80 s (upperArmL 0.30); next note in 0.01 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: bow in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: bow in violin: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: instrument in body: 1.5 cm at song -0.22 s, wall 11.40 s (instrument); next note in 0.23 s; limit 2.0 cm; 0 of 31 samples over 2.0 cm (0.0%)
+    rest: paws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: paws in violin: 0.3 cm at song -1.62 s, wall 10.00 s (handL 0.83); next note in 1.63 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: claws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: claws in violin: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: forearms in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: forearms in violin: 0.5 cm at song -1.62 s, wall 10.00 s (forearmL 1.11); next note in 1.63 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: upper arms in body: 0.6 cm at song -1.62 s, wall 10.00 s (upperArmR -0.12); next note in 1.63 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: upper arms in violin: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: bow in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: bow in violin: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: instrument in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 2.0 cm; 0 of 1 samples over 2.0 cm (0.0%)
+    lower: paws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 30 samples over 1.5 cm (0.0%)
+    lower: paws in violin: 0.7 cm at song 280.67 s, wall 12.00 s (handL 0.56); after the last note; limit 1.5 cm; 0 of 30 samples over 1.5 cm (0.0%)
+    lower: claws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 30 samples over 1.5 cm (0.0%)
+    lower: claws in violin: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 30 samples over 1.5 cm (0.0%)
+    lower: forearms in body: 0.8 cm at song 280.67 s, wall 11.50 s (forearmR 0.55); after the last note; limit 1.5 cm; 0 of 30 samples over 1.5 cm (0.0%)
+    lower: forearms in violin: 2.1 cm at song 280.67 s, wall 12.00 s (forearmL 0.89); after the last note; limit 1.5 cm OVER; 13 of 30 samples over 1.5 cm (43.3%)
+    lower: upper arms in body: 1.2 cm at song 280.67 s, wall 13.20 s (upperArmR 0.20); after the last note; limit 1.5 cm; 0 of 30 samples over 1.5 cm (0.0%)
+    lower: upper arms in violin: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 30 samples over 1.5 cm (0.0%)
+    lower: bow in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 30 samples over 1.5 cm (0.0%)
+    lower: bow in violin: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 30 samples over 1.5 cm (0.0%)
+    lower: instrument in body: 1.6 cm at song 280.67 s, wall 13.40 s (instrument); after the last note; limit 2.0 cm; 0 of 30 samples over 2.0 cm (0.0%)
+    target R: 0.00 mm at song 278.39 s
+    targets: 100.0% of 1090 within 5 mm, worst 0.00 mm
+  brahms-2 violinist 0 (rabbit, chair)
+    play: paws in body: 0.1 cm at song 580.13 s, wall 591.75 s (handR 0.26); next note in 0.23 s; limit 1.5 cm; 0 of 3017 samples over 1.5 cm (0.0%)
+    play: paws in violin: 2.0 cm at song 741.38 s, wall 753.00 s (handL 0.15); next note in 0.02 s; limit 1.5 cm OVER; 172 of 3017 samples over 1.5 cm (5.7%)
+    play: claws in body: 0.0 cm at song 592.13 s, wall 603.75 s (fingersR); next note in 0.31 s; limit 1.5 cm; 0 of 3017 samples over 1.5 cm (0.0%)
+    play: claws in violin: 1.3 cm at song 461.63 s, wall 473.25 s (fingersR); next note in 0.40 s; limit 1.5 cm; 0 of 3017 samples over 1.5 cm (0.0%)
+    play: forearms in body: 1.2 cm at song 125.88 s, wall 137.50 s (forearmR 0.56); next note in 2.43 s; limit 1.5 cm; 0 of 3017 samples over 1.5 cm (0.0%)
+    play: forearms in violin: 2.1 cm at song 693.63 s, wall 705.25 s (forearmL 1.02); next note in 0.06 s; limit 1.5 cm OVER; 526 of 3017 samples over 1.5 cm (17.4%)
+    play: upper arms in body: 1.3 cm at song 592.13 s, wall 603.75 s (upperArmR 0.57); next note in 0.31 s; limit 1.5 cm; 0 of 3017 samples over 1.5 cm (0.0%)
+    play: upper arms in violin: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 3017 samples over 1.5 cm (0.0%)
+    play: bow in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 3017 samples over 1.5 cm (0.0%)
+    play: bow in violin: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 3017 samples over 1.5 cm (0.0%)
+    play: instrument in body: 1.9 cm at song 476.88 s, wall 488.50 s (instrument); next note in 0.15 s; limit 2.0 cm; 0 of 3017 samples over 2.0 cm (0.0%)
+    lift: paws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: paws in violin: 0.5 cm at song -0.12 s, wall 11.50 s (handL 0.66); next note in 0.10 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: claws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: claws in violin: 0.7 cm at song -0.82 s, wall 10.80 s (fingersL); next note in 0.80 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: forearms in body: 0.2 cm at song -1.52 s, wall 10.10 s (forearmR 0.18); next note in 1.50 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: forearms in violin: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: upper arms in body: 0.7 cm at song -1.52 s, wall 10.10 s (upperArmR 0.57); next note in 1.50 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: upper arms in violin: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: bow in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: bow in violin: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: instrument in body: 1.8 cm at song -0.62 s, wall 11.00 s (instrument); next note in 0.60 s; limit 2.0 cm; 0 of 31 samples over 2.0 cm (0.0%)
+    rest: paws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: paws in violin: 0.1 cm at song -1.62 s, wall 10.00 s (handL 0.64); next note in 1.60 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: claws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: claws in violin: 0.2 cm at song -1.62 s, wall 10.00 s (fingersL); next note in 1.60 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: forearms in body: 0.2 cm at song -1.62 s, wall 10.00 s (forearmR 0.18); next note in 1.60 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: forearms in violin: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: upper arms in body: 0.7 cm at song -1.62 s, wall 10.00 s (upperArmR 0.57); next note in 1.60 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: upper arms in violin: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: bow in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: bow in violin: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: instrument in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 2.0 cm; 0 of 1 samples over 2.0 cm (0.0%)
+    lower: paws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 30 samples over 1.5 cm (0.0%)
+    lower: paws in violin: 0.8 cm at song 752.46 s, wall 11.50 s (handL 0.65); after the last note; limit 1.5 cm; 0 of 30 samples over 1.5 cm (0.0%)
+    lower: claws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 30 samples over 1.5 cm (0.0%)
+    lower: claws in violin: 0.4 cm at song 752.46 s, wall 12.00 s (fingersL); after the last note; limit 1.5 cm; 0 of 30 samples over 1.5 cm (0.0%)
+    lower: forearms in body: 0.2 cm at song 752.46 s, wall 14.70 s (forearmR 0.18); after the last note; limit 1.5 cm; 0 of 30 samples over 1.5 cm (0.0%)
+    lower: forearms in violin: 1.0 cm at song 752.46 s, wall 11.50 s (forearmL 0.80); after the last note; limit 1.5 cm; 0 of 30 samples over 1.5 cm (0.0%)
+    lower: upper arms in body: 0.8 cm at song 752.46 s, wall 14.50 s (upperArmR 0.57); after the last note; limit 1.5 cm; 0 of 30 samples over 1.5 cm (0.0%)
+    lower: upper arms in violin: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 30 samples over 1.5 cm (0.0%)
+    lower: bow in body: 0.1 cm at song 752.46 s, wall 13.60 s (bow); after the last note; limit 1.5 cm; 0 of 30 samples over 1.5 cm (0.0%)
+    lower: bow in violin: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 30 samples over 1.5 cm (0.0%)
+    lower: instrument in body: 1.8 cm at song 752.46 s, wall 13.30 s (instrument); after the last note; limit 2.0 cm; 0 of 30 samples over 2.0 cm (0.0%)
+    target R: 0.00 mm at song 750.78 s
+    targets: 100.0% of 1944 within 5 mm, worst 0.00 mm
+  brahms-2 violinist 4 (fox-red, chair)
+    play: paws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 3017 samples over 1.5 cm (0.0%)
+    play: paws in violin: 0.8 cm at song 499.63 s, wall 511.25 s (handL 0.58); next note in 0.07 s; limit 1.5 cm; 0 of 3017 samples over 1.5 cm (0.0%)
+    play: claws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 3017 samples over 1.5 cm (0.0%)
+    play: claws in violin: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 3017 samples over 1.5 cm (0.0%)
+    play: forearms in body: 0.7 cm at song 588.63 s, wall 600.25 s (forearmR 0.55); next note in 0.51 s; limit 1.5 cm; 0 of 3017 samples over 1.5 cm (0.0%)
+    play: forearms in violin: 2.1 cm at song 459.63 s, wall 471.25 s (forearmL 0.89); next note in 0.76 s; limit 1.5 cm OVER; 20 of 3017 samples over 1.5 cm (0.7%)
+    play: upper arms in body: 1.2 cm at song 587.63 s, wall 599.25 s (upperArmR 0.20); next note in 1.51 s; limit 1.5 cm; 0 of 3017 samples over 1.5 cm (0.0%)
+    play: upper arms in violin: 0.3 cm at song 247.38 s, wall 259.00 s (upperArmL 0.31); next note in 0.13 s; limit 1.5 cm; 0 of 3017 samples over 1.5 cm (0.0%)
+    play: bow in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 3017 samples over 1.5 cm (0.0%)
+    play: bow in violin: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 3017 samples over 1.5 cm (0.0%)
+    play: instrument in body: 1.6 cm at song 460.13 s, wall 471.75 s (instrument); next note in 0.26 s; limit 2.0 cm; 0 of 3017 samples over 2.0 cm (0.0%)
+    lift: paws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: paws in violin: 0.7 cm at song -1.12 s, wall 10.50 s (handL 0.65); next note in 1.13 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: claws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: claws in violin: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: forearms in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: forearms in violin: 0.6 cm at song -0.82 s, wall 10.80 s (forearmL 1.08); next note in 0.83 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: upper arms in body: 0.9 cm at song -0.82 s, wall 10.80 s (upperArmR 0.04); next note in 0.83 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: upper arms in violin: 0.2 cm at song 0.00 s, wall 11.80 s (upperArmL 0.31); next note in 0.01 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: bow in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: bow in violin: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 31 samples over 1.5 cm (0.0%)
+    lift: instrument in body: 1.5 cm at song -0.22 s, wall 11.40 s (instrument); next note in 0.23 s; limit 2.0 cm; 0 of 31 samples over 2.0 cm (0.0%)
+    rest: paws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: paws in violin: 0.3 cm at song -1.62 s, wall 10.00 s (handL 0.83); next note in 1.63 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: claws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: claws in violin: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: forearms in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: forearms in violin: 0.5 cm at song -1.62 s, wall 10.00 s (forearmL 1.11); next note in 1.63 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: upper arms in body: 0.6 cm at song -1.62 s, wall 10.00 s (upperArmR -0.12); next note in 1.63 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: upper arms in violin: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: bow in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: bow in violin: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 1 samples over 1.5 cm (0.0%)
+    rest: instrument in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 2.0 cm; 0 of 1 samples over 2.0 cm (0.0%)
+    lower: paws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 30 samples over 1.5 cm (0.0%)
+    lower: paws in violin: 0.8 cm at song 752.46 s, wall 14.30 s (handL 0.72); after the last note; limit 1.5 cm; 0 of 30 samples over 1.5 cm (0.0%)
+    lower: claws in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 30 samples over 1.5 cm (0.0%)
+    lower: claws in violin: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 30 samples over 1.5 cm (0.0%)
+    lower: forearms in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 30 samples over 1.5 cm (0.0%)
+    lower: forearms in violin: 0.6 cm at song 752.46 s, wall 12.00 s (forearmL 1.08); after the last note; limit 1.5 cm; 0 of 30 samples over 1.5 cm (0.0%)
+    lower: upper arms in body: 2.7 cm at song 752.46 s, wall 14.10 s (upperArmR 0.73); after the last note; limit 1.5 cm OVER; 5 of 30 samples over 1.5 cm (16.7%)
+    lower: upper arms in violin: 0.2 cm at song 752.46 s, wall 13.10 s (upperArmL 0.31); after the last note; limit 1.5 cm; 0 of 30 samples over 1.5 cm (0.0%)
+    lower: bow in body: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 30 samples over 1.5 cm (0.0%)
+    lower: bow in violin: 0.0 cm at song 0.00 s, wall 0.00 s; limit 1.5 cm; 0 of 30 samples over 1.5 cm (0.0%)
+    lower: instrument in body: 1.5 cm at song 752.46 s, wall 13.20 s (instrument); after the last note; limit 2.0 cm; 0 of 30 samples over 2.0 cm (0.0%)
+    target R: 0.00 mm at song 750.81 s
+    targets: 100.0% of 1936 within 5 mm, worst 0.00 mm
+| variant | play paws>body cm | play paws>violin cm | play claws>violin cm | play forearms>body cm | play forearms>violin cm | play upper arms>body cm | play upper arms>violin cm | play bow>body cm | play instrument>body cm | lift paws>violin cm | lift claws>violin cm | lift forearms>body cm | lift forearms>violin cm | lift upper arms>body cm | lift upper arms>violin cm | lift instrument>body cm | rest paws>violin cm | rest claws>violin cm | rest forearms>body cm | rest forearms>violin cm | rest upper arms>body cm | lower paws>body cm | lower paws>violin cm | lower claws>violin cm | lower forearms>body cm | lower forearms>violin cm | lower upper arms>body cm | lower upper arms>violin cm | lower bow>body cm | lower instrument>body cm | targets within 5 mm % |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| base | 0.1 | 2.0 | 1.3 | 1.2 | 2.5 | 1.5 | 0.3 | 0.1 | 1.9 | 0.8 | 0.7 | 0.2 | 0.6 | 0.9 | 0.2 | 1.8 | 0.3 | 0.2 | 0.2 | 0.5 | 0.7 | 0.1 | 0.8 | 0.6 | 1.3 | 2.1 | 2.7 | 0.2 | 0.1 | 1.9 | 100.0 |
+
+The demo and the time of the sample of each value of the table:
+| variant | play paws>body cm | play paws>violin cm | play claws>violin cm | play forearms>body cm | play forearms>violin cm | play upper arms>body cm | play upper arms>violin cm | play bow>body cm | play instrument>body cm | lift paws>violin cm | lift claws>violin cm | lift forearms>body cm | lift forearms>violin cm | lift upper arms>body cm | lift upper arms>violin cm | lift instrument>body cm | rest paws>violin cm | rest claws>violin cm | rest forearms>body cm | rest forearms>violin cm | rest upper arms>body cm | lower paws>body cm | lower paws>violin cm | lower claws>violin cm | lower forearms>body cm | lower forearms>violin cm | lower upper arms>body cm | lower upper arms>violin cm | lower bow>body cm | lower instrument>body cm |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| base | boulanger-matin 227.88 s | brahms-2 741.38 s | boulanger-matin 171.63 s | boulanger-matin 131.38 s | boulanger-matin 280.13 s | boulanger-matin 280.63 s | brahms-2 247.38 s | boulanger-matin 179.38 s | brahms-2 476.88 s | beethoven-1 wall 13.00 s | brahms-2 wall 10.80 s | beethoven-1 wall 10.10 s | brahms-2 wall 10.80 s | boulanger-matin wall 13.00 s | brahms-2 wall 11.80 s | boulanger-matin wall 10.90 s | beethoven-1 wall 10.00 s | beethoven-1 wall 10.00 s | beethoven-1 wall 10.00 s | beethoven-1 wall 10.00 s | beethoven-1 wall 10.00 s | boulanger-matin wall 13.30 s | brahms-2 wall 11.50 s | beethoven-1 wall 13.40 s | boulanger-matin wall 13.30 s | boulanger-matin wall 12.00 s | brahms-2 wall 14.10 s | brahms-2 wall 13.10 s | beethoven-1 wall 13.60 s | boulanger-matin wall 13.30 s |
+
+The share of the samples over the goal of each pair (the limit, or --goal):
+| variant | play paws>violin % | play forearms>violin % | play upper arms>body % | lower forearms>violin % | lower upper arms>body % |
+|---|---|---|---|---|---|
+| base | 3.8 | 11.0 | 0.0 | 14.4 | 9.4 |
+
+The depths of 9ecc8a9bd (9ecc8a9bd) and of the working tree with no change:
+H of each body, 9ecc8a9bd (9ecc8a9bd) -> working tree: rabbit 0.299 m -> 0.299 m, fox-red 0.323 m -> 0.323 m
+| Species | Set | Pair | 9ecc8a9bd (9ecc8a9bd) cm | 9ecc8a9bd (9ecc8a9bd) H | tree cm | tree H | Mark | tree at |
+|---|---|---|---:|---:|---:|---:|---|---|
+| rabbit | play | paws in body | 0.1 | 0.002 | 0.1 | 0.002 |  | boulanger-matin 227.88 s |
+| rabbit | play | paws in violin | 2.0 | 0.067 | 2.0 | 0.066 |  | brahms-2 741.38 s |
+| rabbit | play | claws in violin | 1.6 | 0.052 | 1.3 | 0.044 |  | boulanger-matin 171.63 s |
+| rabbit | play | forearms in body | 1.2 | 0.041 | 1.2 | 0.041 |  | boulanger-matin 131.38 s |
+| rabbit | play | forearms in violin | 2.1 | 0.070 | 2.1 | 0.070 |  | brahms-2 693.63 s |
+| rabbit | play | upper arms in body | 1.5 | 0.051 | 1.5 | 0.051 |  | boulanger-matin 280.63 s |
+| rabbit | play | upper arms in violin | 0.6 | 0.020 | 0.0 | 0.000 |  | boulanger-matin 280.63 s |
+| rabbit | play | bow in body | 0.0 | 0.000 | 0.1 | 0.002 |  | boulanger-matin 179.38 s |
+| rabbit | play | instrument in body | 1.8 | 0.061 | 1.9 | 0.065 | GROWS | brahms-2 476.88 s |
+| rabbit | lift | paws in violin | 0.8 | 0.028 | 0.6 | 0.019 |  | boulanger-matin wall 11.50 s |
+| rabbit | lift | claws in violin | 0.6 | 0.021 | 0.7 | 0.023 |  | brahms-2 wall 10.80 s |
+| rabbit | lift | forearms in body | 0.2 | 0.007 | 0.2 | 0.007 |  | beethoven-1 wall 10.10 s |
+| rabbit | lift | forearms in violin | 0.5 | 0.018 | 0.0 | 0.000 |  | beethoven-1 wall 10.50 s |
+| rabbit | lift | upper arms in body | 0.7 | 0.023 | 0.7 | 0.023 |  | beethoven-1 wall 10.10 s |
+| rabbit | lift | instrument in body | 1.7 | 0.058 | 1.8 | 0.061 |  | boulanger-matin wall 10.90 s |
+| rabbit | rest | paws in violin | 0.2 | 0.008 | 0.1 | 0.003 |  | beethoven-1 wall 10.00 s |
+| rabbit | rest | claws in violin | 0.3 | 0.012 | 0.2 | 0.008 |  | beethoven-1 wall 10.00 s |
+| rabbit | rest | forearms in body | 0.2 | 0.007 | 0.2 | 0.007 |  | beethoven-1 wall 10.00 s |
+| rabbit | rest | forearms in violin | 0.1 | 0.005 | 0.0 | 0.000 |  | beethoven-1 wall 0.00 s |
+| rabbit | rest | upper arms in body | 0.7 | 0.023 | 0.7 | 0.023 |  | beethoven-1 wall 10.00 s |
+| rabbit | lower | paws in body | 0.1 | 0.003 | 0.1 | 0.003 |  | boulanger-matin wall 13.30 s |
+| rabbit | lower | paws in violin | 0.8 | 0.028 | 0.8 | 0.027 |  | brahms-2 wall 11.50 s |
+| rabbit | lower | claws in violin | 0.9 | 0.029 | 0.6 | 0.021 |  | beethoven-1 wall 13.40 s |
+| rabbit | lower | forearms in body | 1.3 | 0.043 | 1.3 | 0.043 |  | boulanger-matin wall 13.30 s |
+| rabbit | lower | forearms in violin | 1.8 | 0.060 | 1.6 | 0.055 |  | boulanger-matin wall 13.50 s |
+| rabbit | lower | upper arms in body | 1.5 | 0.051 | 1.5 | 0.051 |  | boulanger-matin wall 12.00 s |
+| rabbit | lower | upper arms in violin | 0.6 | 0.020 | 0.0 | 0.000 |  | boulanger-matin wall 11.50 s |
+| rabbit | lower | bow in body | 0.1 | 0.005 | 0.1 | 0.005 |  | beethoven-1 wall 13.60 s |
+| rabbit | lower | instrument in body | 1.7 | 0.058 | 1.9 | 0.062 | GROWS | boulanger-matin wall 13.30 s |
+| fox-red | play | paws in violin | 1.5 | 0.045 | 1.5 | 0.045 |  | boulanger-matin 277.88 s |
+| fox-red | play | forearms in body | 0.8 | 0.026 | 0.8 | 0.026 |  | boulanger-matin 280.63 s |
+| fox-red | play | forearms in violin | 2.5 | 0.078 | 2.5 | 0.078 |  | boulanger-matin 280.13 s |
+| fox-red | play | upper arms in body | 1.2 | 0.038 | 1.2 | 0.038 |  | boulanger-matin 280.63 s |
+| fox-red | play | upper arms in violin | 0.5 | 0.016 | 0.3 | 0.010 |  | brahms-2 247.38 s |
+| fox-red | play | instrument in body | 1.9 | 0.059 | 1.8 | 0.055 |  | boulanger-matin 277.88 s |
+| fox-red | lift | paws in violin | 1.0 | 0.030 | 0.8 | 0.025 |  | beethoven-1 wall 13.00 s |
+| fox-red | lift | forearms in violin | 1.0 | 0.030 | 0.6 | 0.019 |  | brahms-2 wall 10.80 s |
+| fox-red | lift | upper arms in body | 0.9 | 0.027 | 0.9 | 0.027 |  | boulanger-matin wall 13.00 s |
+| fox-red | lift | upper arms in violin | 0.4 | 0.013 | 0.2 | 0.006 |  | brahms-2 wall 11.80 s |
+| fox-red | lift | instrument in body | 1.6 | 0.051 | 1.5 | 0.048 |  | beethoven-1 wall 11.40 s |
+| fox-red | rest | paws in violin | 0.5 | 0.015 | 0.3 | 0.010 |  | beethoven-1 wall 10.00 s |
+| fox-red | rest | forearms in violin | 0.1 | 0.004 | 0.5 | 0.017 | GROWS | beethoven-1 wall 10.00 s |
+| fox-red | rest | upper arms in body | 0.6 | 0.018 | 0.6 | 0.018 |  | beethoven-1 wall 10.00 s |
+| fox-red | lower | paws in violin | 0.9 | 0.027 | 0.8 | 0.024 |  | brahms-2 wall 14.30 s |
+| fox-red | lower | forearms in body | 0.8 | 0.026 | 0.8 | 0.026 |  | boulanger-matin wall 11.50 s |
+| fox-red | lower | forearms in violin | 2.1 | 0.065 | 2.1 | 0.065 |  | boulanger-matin wall 12.00 s |
+| fox-red | lower | upper arms in body | 2.7 | 0.082 | 2.7 | 0.082 |  | brahms-2 wall 14.10 s |
+| fox-red | lower | upper arms in violin | 0.4 | 0.013 | 0.2 | 0.006 |  | brahms-2 wall 13.10 s |
+| fox-red | lower | instrument in body | 1.9 | 0.058 | 1.6 | 0.050 |  | boulanger-matin wall 13.40 s |

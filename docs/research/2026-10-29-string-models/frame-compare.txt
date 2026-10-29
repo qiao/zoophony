@@ -1,0 +1,12 @@
+Median of the runs (ms), pnpm frame:
+
+| Item | Runs | Main thread p50 / p95 | GPU p50 / p95 | Frame rate with no cap |
+|---|---|---|---|---|
+| 9ecc8a9bd (9ecc8a9bd) | 2 of 2 | 3.73 / 4.96 | 7.79 / 7.95 | 130.3 fps |
+| e41b571f2 (e41b571f2) | 2 of 2 | 4.36 / 5.60 | 7.90 / 8.09 | 125.8 fps |
+
+e41b571f2 (e41b571f2) against 9ecc8a9bd (9ecc8a9bd):
+play: mean 4.838, largest 232, changed 1733531 pixels, above 16: 10.00%
+conductor: mean 4.092, largest 238, changed 1417730 pixels, above 16: 7.90%
+perf-wide: mean 1.515, largest 235, changed 583137 pixels, above 16: 3.00%
+perf-section: mean 0.716, largest 100, changed 754593 pixels, above 16: 1.53%

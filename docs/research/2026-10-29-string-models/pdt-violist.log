@@ -1,0 +1,24 @@
+
+> zoophony@0.0.0 pose-depth /Users/xueqiaoxu/proj/zoophony/.claude/worktrees/string-models
+> node tools/pose-depth.ts violist --demo boulanger-matin --demo beethoven-1 --demo brahms-2 --targets
+
+Sweep of the violist: 3 demos with the role (beethoven-1, boulanger-matin, brahms-2), 1 row to sweep.
+Estimated time: about 4 s: 1 row of 3.9 s, from the last rows of this sweep, with a time for 3 of 3 demos.
+base (3.8 s):
+  beethoven-1 violist 8 (cat, chair)
+    target R: 0.00 mm at song 294.14 s
+    targets: 100.0% of 1263 within 5 mm, worst 0.00 mm
+  boulanger-matin violist 8 (cat, chair)
+    target R: 42.07 mm at song 34.04 s
+    targets: 99.4% of 898 within 5 mm, worst 42.07 mm
+  brahms-2 violist 8 (cat, chair)
+    target R: 0.00 mm at song 750.78 s
+    targets: 100.0% of 1945 within 5 mm, worst 0.00 mm
+| variant | target R mm | targets within 5 mm % |
+|---|---|---|
+| base | 42.1 | 99.9 |
+
+The demo and the time of the sample of each value of the table:
+| variant | target R mm |
+|---|---|
+| base | boulanger-matin 34.04 s |
