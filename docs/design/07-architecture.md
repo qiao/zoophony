@@ -44,7 +44,8 @@ touches no DOM. It can use the math classes of `three/src/math/`, because they a
 JavaScript that runs in Node, and Three.js is already in the first download. It uses no
 scene-graph object of Three.js (`Object3D`, `Mesh`, `Bone`, geometry, material, or renderer). It
 returns plain data: typed arrays, tuples, or plain objects. Thus a test can compare it, and
-`poseAt()` stays stateless (5.1).
+`poseAt()` stays stateless (5.1). A long calculation, such as `layoutScene()`, also has a step
+form that the app runs in slices of the main thread (7.2, "Short tasks during the load").
 
 A point or a rotation at a module boundary is a readonly tuple of `models/tuples.ts`. A function
 converts it with `new Vector3(...p)`, and gives back a tuple with `toVec3()` or `toQuat()`. The
@@ -146,6 +147,41 @@ The build puts the CSS of `index.html` inline in its head (`INLINE_CSS` of `vite
 because a linked style sheet blocks the first paint for one more request. The CSS is about 6 kB
 after compression. Only a new deploy loads it again, because a repeat visit gets the page from
 its ETag. The dev server keeps the links. `pnpm size` counts the CSS in `index.html`.
+
+### Short tasks during the load
+
+No task of the main thread is a long task during the load. Lighthouse multiplies each task of a
+phone by 4, and each part of a task above 50 ms adds to the total blocking time. Thus each task
+stays below about 10 ms on the development Mac.
+
+```text
+module task ─> probe of WebGL2 ─> renderer ─> app and fetch ─> slices of the build ─> show
+                                                                │ (about 4 ms each)
+   score ─> models and layout ─> pose plan ─> shot plan ─> scene steps (GPU waits)
+```
+
+- **Step form.** A long pure calculation has a step form: a generator that yields between its
+  steps (`Steps` of `score/steps.ts`). A step reads no clock, so `runAll()` of a tool and the
+  slices of the app give the same result.
+- **Slices.** `runSliced()` of `app/slices.ts` runs steps until `SLICE_MS` pass, and then gives
+  the main thread back with `scheduler.yield()`, or a `MessageChannel` message. A step that waits
+  for the GPU yields `wait`. A later selection stops a build at its next slice. The builds run
+  one after the other, because they share the renderer.
+- **Scene build.** `StageScene.prepareSteps()` builds the scene of a layout, and `show()` swaps
+  it in one task. The steps compile the programs of each pass with a render target, as the pass
+  draws them, and wait for `KHR_parallel_shader_compile`. The bake, the environment, and the
+  capture render in steps, with a fence wait after each GPU step, because an upload waits on the
+  main thread while the GPU is busy. One draw of each player geometry on a warm layer uploads its
+  buffers and builds its morph texture. The first frame thus compiles and uploads nothing new.
+- **Start.** One probe context gives WebGL2 and the target format (`probeWebgl2()`). The probe
+  and the renderer start in later tasks, and the first canvas size comes from a
+  `ResizeObserver`, so no read forces the layout of the page.
+- **Audio.** The app starts the audio output service before the `AudioContext` (6.3).
+
+The steps run on the main thread, with no Worker. The scene needs the player models of the pure
+core on the main thread, so a Worker bundle holds the pure core and the packed meshes a second
+time, above the limit of the first download. A plan also holds instances of the math classes,
+which a message to a Worker gives back as plain objects.
 
 GitHub Pages gzips only the text types. Thus the build gzips the demo files and the preset files
 in place, with the same names (`GZIP_AUDIO` of `vite.config.ts`). The client removes the gzip
