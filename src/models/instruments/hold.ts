@@ -42,11 +42,47 @@ export interface PlacedPiece {
   readonly at: Transform;
 }
 
+/**
+ * The keys of a keyboard in the mesh of one player (design 4.6, 5.3): the corners of each key,
+ * and the line that the keys turn around, in the model axes of the bind pose.
+ */
+export interface PianoKeys {
+  /** The MIDI key of the first key: key `i` is the MIDI key `first + i`. */
+  readonly first: number;
+  /**
+   * The first corner of each key in the mesh, in MIDI order, then the end of the last key. Key `i`
+   * has the corners from `corners[i]` up to `corners[i + 1]`, the end excluded.
+   */
+  readonly corners: Uint32Array;
+  /** A point on the line that the keys turn around: the balance rail under the keys. */
+  readonly pivot: Vec3;
+  /** The unit direction of the line. A turn by a positive angle moves the front of a key down. */
+  readonly axis: Vec3;
+  /**
+   * The turn of a key at the key bottom, in radians: the front of a white key goes down by the key
+   * dip.
+   */
+  readonly angle: number;
+}
+
 /** An instrument at its place in the bind pose of one player. */
 interface PlacedInstrument {
   readonly pieces: readonly PlacedPiece[];
   /** The bind position of each bone that carries a piece. */
   readonly bones: ReadonlyMap<InstrumentBone, Vec3>;
+  /** The keys of a keyboard, or `null` for an instrument with no key parts. */
+  readonly keys: PianoKeys | null;
+}
+
+/** One key part in the mesh of a player. */
+interface KeyCorners {
+  /** The MIDI key. */
+  readonly key: number;
+  /** The first corner of the key in the mesh, and the end of its corners. */
+  readonly start: number;
+  readonly end: number;
+  /** The placement of the piece of the key. */
+  readonly at: Transform;
 }
 
 /**
@@ -131,14 +167,60 @@ export function attachInstrument(
 ): PlacedInstrument {
   const pieces = holdInstrument(model, body);
   const bones = new Map<InstrumentBone, Vec3>();
+  const keyed: KeyCorners[] = [];
   for (const { piece, at } of pieces) {
     const bone = boneIndex(piece.bone);
     for (const part of piece.parts) {
+      const start = builder.triangleCount * 3;
       builder.add(part.corners, { color: part.color, finish: part.finish, bone, at });
+      if (part.key !== undefined) {
+        keyed.push({ key: part.key, start, end: builder.triangleCount * 3, at });
+      }
     }
     bones.set(piece.bone, at.position);
   }
-  return { pieces, bones };
+  return { pieces, bones, keys: keyed.length > 0 ? pianoKeys(model, keyed) : null };
+}
+
+/**
+ * Collects the key parts of a keyboard in the mesh of a player (design 4.6). The keys must be
+ * one run of parts in MIDI order on one piece, so that the corners of each key follow the
+ * corners of the key below it.
+ *
+ * @param model The instrument.
+ * @param keyed The key parts in the order of the mesh.
+ * @returns The keys, with the line of {@link InstrumentModel.keyTurn} in the model axes.
+ * @throws Error if the instrument has no key turn, or if the keys are not one run in MIDI order
+ *   on one piece.
+ */
+function pianoKeys(model: InstrumentModel, keyed: readonly KeyCorners[]): PianoKeys {
+  const turn = model.keyTurn;
+  const first = keyed[0];
+  if (!turn || !first) {
+    throw new Error(`The ${model.id} has key parts, but no turn of its keys.`);
+  }
+
+  const corners = new Uint32Array(keyed.length + 1);
+  for (const [i, part] of keyed.entries()) {
+    const before = keyed[i - 1];
+    if (
+      part.key !== first.key + i ||
+      part.at !== first.at ||
+      (before && part.start !== before.end)
+    ) {
+      throw new Error(`The keys of the ${model.id} are not one run of parts in MIDI order.`);
+    }
+    corners[i] = part.start;
+    corners[i + 1] = part.end;
+  }
+  const rotation = new Quaternion(...first.at.rotation);
+  return {
+    first: first.key,
+    corners,
+    pivot: applyTransform(first.at, turn.pivot),
+    axis: toVec3(new Vector3(...turn.axis).applyQuaternion(rotation)),
+    angle: turn.angle,
+  };
 }
 
 /**

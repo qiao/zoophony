@@ -16,7 +16,7 @@ import type { StudioRig } from './studio-rig.ts';
 import type { SpeciesId, SpeciesParams } from './species.ts';
 import { buildInstrument } from './instruments/catalog.ts';
 import { attachInstrument } from './instruments/hold.ts';
-import type { PlacedPiece } from './instruments/hold.ts';
+import type { PianoKeys, PlacedPiece } from './instruments/hold.ts';
 import type { KettleCount } from './instruments/percussion.ts';
 import type { InstrumentBone, InstrumentId, InstrumentModel } from './instruments/types.ts';
 
@@ -139,6 +139,11 @@ export interface PlayerModel {
   /** The pieces of the instrument at their places in the bind pose. */
   readonly pieces: readonly PlacedPiece[];
   /**
+   * The keys of a keyboard in {@link PlayerModel.mesh}, which go down with their notes (design
+   * 4.6, 5.3), or `null` for each other instrument.
+   */
+  readonly keys: PianoKeys | null;
+  /**
    * The rig of a studio body (design 4.4), or `null`. The scene draws a studio body with the skin
    * of the studio, and `mesh` holds the body in the bind pose of the player.
    */
@@ -210,6 +215,7 @@ export function buildPlayer(
     body,
     instrument: model,
     pieces: placed.pieces,
+    keys: placed.keys,
     studio: params.body ? studioRigOf(params.body, stance.kind === 'standing') : null,
   };
 }

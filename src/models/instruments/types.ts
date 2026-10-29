@@ -87,6 +87,19 @@ export interface InstrumentPart {
 }
 
 /**
+ * The line that the keys of a keyboard turn around when they go down, as a real key turns on its
+ * balance rail (design 4.6, 5.3), and the turn of a key at the key bottom.
+ */
+export interface KeyTurn {
+  /** A point on the line, in the axes of the piece of the keys. */
+  readonly pivot: Vec3;
+  /** The unit direction of the line. A turn by a positive angle moves the front of a key down. */
+  readonly axis: Vec3;
+  /** The turn of a key at the key bottom, in radians. */
+  readonly angle: number;
+}
+
+/**
  * The body point that the origin of a piece goes to in the bind pose. `floor` is the floor under
  * the middle of the body: under its seat point, or under a standing player. `instrument` is the
  * origin of the `instrument` piece, for a piece that follows the instrument (the trombone slide).
@@ -211,4 +224,6 @@ export interface InstrumentModel {
   readonly targets: readonly PlayTarget[];
   /** The size of the box around the main piece, in its own axes, in meters. */
   readonly size: Vec3;
+  /** The turn of the keys of a keyboard, on the piece of its key parts. Only a keyboard has it. */
+  readonly keyTurn?: KeyTurn;
 }

@@ -7,7 +7,7 @@ import type { MeshData } from '../mesh.ts';
 import { box, cylinder, plate, prism, quad } from '../primitives.ts';
 import type { OutlinePoint } from '../primitives.ts';
 import { PieceBuilder, hold, pieceSize, placeCorners } from './piece.ts';
-import type { InstrumentModel } from './types.ts';
+import type { InstrumentModel, KeyTurn } from './types.ts';
 
 /**
  * The sizes of the grand piano, in meters, before {@link PIANO_SCALE} (design 4.6). In the piano
@@ -24,6 +24,13 @@ export const PIANO = {
   blackKeyLength: 0.09,
   /** The gap between two white keys. The key bed shows through it. */
   whiteKeyGap: 0.001,
+  /** The key dip: the drop of the front of a white key at the key bottom. */
+  keyDip: 0.01,
+  /**
+   * The distance of the balance rail behind the front edge of the white keys. A key turns around
+   * the balance rail, at the height of the bottom of the white keys.
+   */
+  balanceRail: 0.25,
   /** The lowest and the highest key: A0 and C8. */
   keys: [21, 108],
   /** The width of the case, and its length from the front edge of the keys. */
@@ -444,6 +451,17 @@ function addKeys(piece: PieceBuilder): void {
 }
 
 /**
+ * The line that the piano keys turn around, and the turn of a key at the key bottom (design 4.6,
+ * 5.3). The line lies along the keys under the balance rail, behind the fallboard, so the front of
+ * a white key goes down by the key dip, and its back less. The turn is the same at each scale.
+ */
+const PIANO_KEY_TURN: KeyTurn = {
+  pivot: [0, (PIANO.keyTop - 0.02) * PIANO_SCALE, -PIANO.balanceRail * PIANO_SCALE],
+  axis: [1, 0, 0],
+  angle: Math.atan(PIANO.keyDip / PIANO.balanceRail),
+};
+
+/**
  * Builds the grand piano (design 4.6). It stands on the floor in front of the player, with the
  * lid open to the right of the player. The celesta and the organs use it too.
  *
@@ -571,6 +589,7 @@ export function buildPiano(): InstrumentModel {
       },
     ],
     size: pieceSize(instrument),
+    keyTurn: PIANO_KEY_TURN,
   };
 }
 
