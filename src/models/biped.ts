@@ -42,15 +42,11 @@ export interface BodyBones {
  * @param species The species parameters.
  * @param stance The seat under the body, or no seat.
  * @returns The bind positions of the body bones.
- * @throws Error if the species has no body of its own.
  */
 export function buildBiped(
   builder: MeshBuilder,
   species: SpeciesParams,
   stance: Stance,
 ): BodyBones {
-  if (!species.body) {
-    throw new Error('The species has no studio body.');
-  }
   return buildStudioBody(builder, species.body, stance.kind === 'standing', species.palette);
 }
