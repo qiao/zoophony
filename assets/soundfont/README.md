@@ -94,7 +94,6 @@ node tools/build-soundfont.ts --fetch-only       # only the downloads
 node tools/build-soundfont.ts --update-lock      # after a change of the recipes
 ```
 
-After the downloads, the build takes about 1 minute on an Apple M1 Max. It prints the level of
-each new preset against GeneralUser GS and the headroom. When the headroom changes, change
+The build prints the level of each new preset against GeneralUser GS and the headroom. When the headroom changes, change
 `SOUNDFONT_HEADROOM_DB` in `src/audio/soundfont-info.ts` to the same value. A test compares the
 two.
