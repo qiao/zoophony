@@ -1,3 +1,0 @@
-# Each round adds the line of its decision file to docs/design.md, so a merge keeps the lines of
-# both sides (docs/decisions/2026-10-14-rig-retro.md).
-docs/design.md merge=union
