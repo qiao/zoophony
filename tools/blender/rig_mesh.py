@@ -2358,6 +2358,41 @@ def rigid_faces(verts, tris, weights, rules):
     return out
 
 
+def wrist_fade(verts, weights, heads, rule):
+    """Gives the vertices of the band of each wrist even weights around each ring, so that the
+    skin fades from the forearm to the paw over several rings. `rule` holds `back` and `ahead`
+    (units before the wrist joint along the forearm and past it along the paw), `reach` (units
+    from the joint), and `window` (units along the arm). A vertex of the band is within `reach`
+    of the joint and on the arm bones of its side for at least half of its weight. It takes the
+    mean of the weights of the band vertices of its side, each by a Gaussian of their gap along
+    the arm with the width `window`. The share of the mean falls to 0 over one `window` at each
+    end of the band, so that the band joins the painted weights. The painted weights of one ring
+    can differ by 0.5 on the wrist helper, and then a bent paw pinches the skin of the ring into
+    a slit. A config with no `wristFade` changes no weight."""
+    out = weights.copy()
+    back, ahead, reach, window = (float(rule[k]) for k in ('back', 'ahead', 'reach', 'window'))
+    for side in 'LR':
+        elbow, wrist, tip = (np.asarray(heads[f'{b}_{side}'], float)
+                             for b in ('forearm', 'hand', 'fingers'))
+        gap = verts - wrist
+        along = np.where(gap @ unit(wrist - elbow) < 0, gap @ unit(wrist - elbow),
+                         gap @ unit(tip - wrist))
+        bones = [BONES.index(b) for b in arm_bones(side)]
+        share = weights[:, bones].sum(axis=1)
+        band = np.flatnonzero((along > -back) & (along < ahead) & (share >= 0.5)
+                              & (np.linalg.norm(gap, axis=1) < reach))
+        if len(band) == 0:
+            continue
+        a = along[band]
+        kernel = np.exp(-0.5 * ((a[:, None] - a[None, :]) / window) ** 2)
+        mean = (kernel @ weights[band]) / kernel.sum(axis=1)[:, None]
+        edge = np.clip(np.minimum(a + back, ahead - a) / window, 0.0, 1.0)[:, None]
+        out[band] = (1.0 - edge) * weights[band] + edge * mean
+        change = np.abs(out[band] - weights[band]).max()
+        log(f'wristFade {side}: {len(band)} vertices of the band, the largest change {change:.3f}')
+    return out
+
+
 def straight_slivers(verts, tris, weights, rules):
     """Gives the middle corner of each long thin face the weights of the line between its two
     other corners: the mix of their weights by the place of the middle corner along that line. A
@@ -4897,6 +4932,9 @@ def main():
             # as `rigid` does for the rule weights.
             weights = limit(rigid_faces(verts, source_tris, weights,
                                         {'rigid': rules['rigidPainted']}))
+        if 'wristFade' in rules:
+            # The fade comes after the rigid faces, so that a rigid face of the band evens out too.
+            weights = limit(wrist_fade(verts, weights, heads, rules['wristFade']))
     else:
         weights = apply_rules(verts, source_tris,
                               kept_heat(verts, source_tris, heads, ends, rolls, config), rules, heads,
