@@ -24,6 +24,30 @@ export function playWithSilentSwitch(host: AudioSessionHost): boolean {
   return true;
 }
 
+/** The part of `navigator` that {@link warmAudioOutput} uses. A test can give a fake. */
+interface MediaDevicesHost {
+  /** The media devices. A page that is not a secure context has none. */
+  readonly mediaDevices?: Pick<MediaDevices, 'enumerateDevices'>;
+}
+
+/**
+ * Starts the audio output service of the browser before the page makes its `AudioContext`
+ * (design 6.3, 7.2). In Chrome, the first `AudioContext` of a browser waits on the main thread
+ * until the audio service starts: about 145 ms on the development Mac. The list of the media
+ * devices starts the service with no wait on the main thread, and the next `AudioContext` then
+ * takes about 1 ms. The list needs no permission, and the app does not read it.
+ *
+ * @param host The navigator of the page.
+ * @returns A promise that resolves when the list arrives, or at once with no API. It never
+ *   rejects.
+ */
+export async function warmAudioOutput(host: MediaDevicesHost): Promise<void> {
+  if (!host.mediaDevices) {
+    return;
+  }
+  await host.mediaDevices.enumerateDevices().catch(() => undefined);
+}
+
 declare global {
   interface Navigator {
     /** The audio session of Safari 16.4 and later. The DOM types of TypeScript do not have it. */

@@ -21,7 +21,7 @@ import type { Score, SectionSize } from '../score/types.ts';
 import { focusKindOf } from '../ui/dom.ts';
 import { nextShadeLevel } from '../ui/title-shade.ts';
 import { Ui } from '../ui/ui.ts';
-import { playWithSilentSwitch } from './audio-session.ts';
+import { playWithSilentSwitch, warmAudioOutput } from './audio-session.ts';
 import { BackdropProbe } from './backdrop-probe.ts';
 import { DEFAULT_SPEED, DEFAULT_VOLUME, barShows, volumeGain } from './bar-rules.ts';
 import { motionEvent, movesCamera, nextMode } from './camera-mode.ts';
@@ -270,6 +270,8 @@ export class App {
   #audio: Audio | null = null;
   /** True after the first start of the audio module. */
   #audioStarted = false;
+  /** The start of the audio output service, which the `AudioContext` waits for (design 6.3). */
+  readonly #audioOutput: Promise<void>;
   #state: PlayState = STOPPED;
   /** The song time of `Player.now()` in the last frame. */
   #songTime = 0;
@@ -337,6 +339,7 @@ export class App {
   constructor(canvas: HTMLCanvasElement, scene: StageScene) {
     this.#canvas = canvas;
     this.#scene = scene;
+    this.#audioOutput = warmAudioOutput(navigator);
     // The renderer made the context of the canvas first, so the canvas gives the same context.
     this.#backdrop = new BackdropProbe(canvas, canvas.getContext('webgl2'));
     this.#tierWatch = watchTier(scene.tier);
@@ -1253,6 +1256,8 @@ export class App {
    */
   async #startAudio(): Promise<void> {
     const { LoadReplacedError, WorkletPlayer } = await import('../audio/player.ts');
+    // With the audio service started, the `AudioContext` does not block the main thread.
+    await this.#audioOutput;
     const baseUrl = new URL(import.meta.env.BASE_URL, window.location.href);
     // On iOS, the music plays with the silent switch on (design 2.4).
     playWithSilentSwitch(navigator);

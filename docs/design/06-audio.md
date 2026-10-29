@@ -81,6 +81,9 @@ play is enabled
   synth does not have. Thus each preset is in memory one time.
 - The decode starts when `sf/index.json` arrives. `splitDecodes()` spreads the files over up to
   four Workers, because one Worker made the decode the slowest part of the load.
+- The app starts the audio output service of the browser when it starts (`warmAudioOutput()`),
+  and the `AudioContext` waits for it. In Chrome, the first `AudioContext` of a browser otherwise
+  blocks the main thread until the service runs: one long task of the load (7.2).
 
 ## 6.4 Block scheduler
 
