@@ -474,222 +474,117 @@ Done when: the pose tests pass, and the pose and frame targets pass.
 
 ## Step 6. UI (2, 6.6, 9.5)
 
-- [ ] Run `node tools/measure-targets.ts` on a quiet machine. The render target of 9.7 failed
-      only under the load of other agents.
-- [ ] Decide the range rule of the soft demos with the user (6.8). Beethoven 8 keeps 58 % of
-      its time below -30 LUFS short-term. Research section 6 proposes a velocity curve of
-      `30 log10(v / 127)` for the demos only.
-- [ ] Run `pnpm loudness --check` after each change of a demo file, the SoundFont, the mix, the
-      hall, or the limiter, until a check of CI or of the merge runs it (6.8).
+- [ ] Run `node tools/measure-targets.ts` on a quiet machine. The render target of 9.7 failed only
+      under the load of other processes.
+- [ ] Ask the user for the range rule of the soft demos (6.8). Beethoven 8 keeps 58% of its time
+      below -30 LUFS short-term. A velocity curve of `30 log10(v / 127)` for the demos is an option.
+- [ ] Add `pnpm loudness --check` to CI or to the merge checks. Until then, run it after each change
+      of a demo file, the SoundFont, the mix, the hall, or the limiter (6.8).
 - [ ] Move the seat flags and the settings of `App` into small classes next to it, because
-      `app/app.ts` has about 900 lines (review of step 6, N7). This task can wait until the work
-      on the audio chain and the camera in `app.ts` is merged.
-- [ ] Ask the user if a silent seat row needs a second cue (re-review of step 6, N3). With the
-      flutes soloed, the 7 silent rows (opacity 0.8, for 4.5:1 contrast) look almost as bright
-      as the flute row, and only the pressed "S" shows the solo. Options: keep it, or add a mark
-      to each silent row. No change until the user decides.
-- [ ] Show the user the seat rings during play, and ask if the pulse of fast short notes is
-      correct (2.8). The cellos of Beethoven 8 mvt 4 at 30 s dip from the level 0.88 to 0.35
-      between notes 0.36 s apart. A tutti turns on each ring, so the rings then show no lead.
-- [ ] Check the seat rings in Safari, in Firefox, and on a real phone (2.8). The round of
-      2026-10-21 checked them only in headless Chromium.
+      `src/app/app.ts` is long. Do it after the work on the audio chain and the camera in `app.ts`.
+- [ ] Ask the user if a silent seat row needs a second cue. With one row soloed, the silent rows
+      look almost as bright as the solo row, and only the pressed "S" shows the solo (2.8).
+- [ ] Show the user the seat rings in play, and ask if the pulse of fast short notes is correct
+      (2.8). A tutti turns on each ring, so the rings then show no lead.
+- [ ] Check the seat rings in Safari, in Firefox, and on a real phone (2.8).
 
 Done when: the UI matches the prototype at both sizes, and a keyboard alone can reach and use
 each control.
 
 ## Step 6b. Cinematic camera (2.3, 2.4, 2.5, 2.8, 4.5, 5.6, 9.7)
 
-- [ ] The review of 9.8: frames of each kind of shot of each demo at both sizes, and the GIF.
+- [ ] Take frames of each kind of shot of each demo at both sizes, and the GIF, and check them
+      against 5.6 (9.8).
 
 Done when: the tests of 5.6 pass for each demo, the shot targets and the frame target of 9.7
 pass, and the smoke test checks the camera.
 
 ## Step 8. Polished look (1, 2.5, 2.8, 4.1 to 4.6, 5.6)
 
-- [ ] Scene look: the hall with warm lights out of focus, the visible beam, the glossy stage,
-      the lights, and the post effects (bloom, depth of field, vignette, grain, color grade).
+The targets are `docs/reference/mockup.png` and `docs/reference/scene.png` (design 1). The
+navigation menu at the top of the mockup is out of scope.
+
+- [ ] Scene look: the hall with warm lights out of focus, the visible beam, the glossy stage, the
+      lights, and the post effects (bloom, depth of field, vignette, grain, color grade).
 - [ ] Camera: the default view and the shots of `scene.png`.
 - [ ] Cast: the faceted animals and the instruments of `scene.png`.
-- [ ] Give the cello and the contrabass the deeper ribs of the real instruments (about 0.16 of
-      the body length against 0.10 now), with a check of the holds of the dog and the hippo
-      (`docs/research/2026-10-29-string-models.md`).
-- [ ] Slope the strings of the bowed strings down about 5° from the bridge to the nut, as on a
-      real instrument, so that the fingerboard can lie close to the top and the neck can be
-      thinner. The bow contact, the fingerboard target, and the left hand poses must follow the
-      new string line (`docs/decisions/2026-10-29-string-models.md`).
 - [ ] UI: the title, the panel, the demo rows, the seat rows, and the bar of `mockup.png`.
-- [ ] Turn the conductor to the audience for the bow at the song end. Now it bows to the
-      players. A conductor turns around on the podium, bows to the audience, and turns back
-      (user request of 2026-10-07, design 5.4). Keep the clearance tests of the stand.
-- [ ] Audit the seating algorithm of design 4.2 against the seating of professional orchestras
-      and choirs, with sources: the place of each section, the desks, the rows, the risers, the
-      soloist, the chamber groups, and the choir. Write the audit in `docs/audits/` with the
-      file and the line of each finding, then fix the findings that the user approves (user
-      request of 2026-10-07).
-- [ ] Bring the high tier back within the frame target of 9.7. On 2026-10-13, `pnpm frame` gave
-      a GPU p95 of 4.76 ms and a main-thread p95 of 4.6 to 4.9 ms. The target is at most 4 ms
-      for each. The post effects of this step caused most of the GPU time
-      (`docs/research/2026-10-13-frame-time.md`, section 10). Each option below has one run at a
-      load of about 7. Measure it again at a low load before a choice.
-      - Cut the JavaScript of each frame by about 0.7 ms, with the same pixels.
-      - Find the geometry pass of about 0.64 ms after the scene pass. The fix round did not find
-        its code.
-      - a. The depth of field reads the depth of the beam: GPU p95 4.38 ms. A rim of 1 to 2
-        pixels shows on the back-row heads, only in shots with the depth of field. The main
-        thread also gets faster.
-      - b. MSAA with 2 samples in place of 4: GPU p95 4.20 ms. Thin lines show more steps.
-      - c. The two side spotlights become directional lights: GPU p95 4.63 ms. The stage corners
-        get brighter, and the pool of light gets flatter.
-      - d. The high tier renders at the device scale 1.5 in place of 2: GPU p95 3.13 ms. The
-        whole image is softer. Only this option passes the target alone.
-      - a and b together: GPU p95 4.28 ms.
-      - A new target of 5 ms for the high tier, with a change of design 9.7.
-      The image `docs/research/2026-10-13-frame-time/options.webp` shows each option beside the
-      current frame.
-      Waits for the user: on 2026-10-13, the user asked to record these options and to choose
-      no path yet.
-      2026-10-21: the cuts with the same pixels of `docs/research/2026-10-21-frame-performance.md`
-      took the main-thread p95 from 8.83 ms to 4.74 ms and the GPU p95 from 6.80 ms to 5.89 ms.
-      Its section 6 measures the options again on the new code, with an image of each one in its
-      folder `options/`. Only the device scale 1.5 passes the GPU target alone (4.06 ms).
-- [ ] Skin the players one time in each frame. Each pass of a frame skins them again in its vertex
-      shader: 0.2 ms to 0.5 ms of GPU time for each shadow map and each depth pass
-      (`docs/research/2026-10-21-frame-performance.md`, section 8). The pixels must stay the same.
-- [ ] Cut `poseStudioBones()`: about 0.5 ms of each frame for the 55 studio bodies of
-      `perf-60.mid`, the largest part of the main thread after the round `perf-frame`.
-- [ ] Compile the shaders before the first frame, for example with `compileAsync()`, with the same
-      first frame: `setProgram()` took 381 ms from the load to 2 s after play
-      (`docs/research/2026-10-21-frame-performance/logs/load-tip.txt`, found by the round
-      `perf-load`).
-- [ ] 6 of the 13 tests of the paused file `scene/player.test.ts` fail on `main` (found by the round
-      `perf-frame`). Fix them when the pause of the tests ends.
-- [ ] Cut the rest of the frame cost of the cinematic light in the performance sweep: about
-      0.67 ms in each frame of `perf-60.mid`. The bake step costs 0.42 ms, with 20 shadow samples
-      of the baked stage in place of 12.
-- [ ] The glow of the haze around the beam is weaker than in `orchestra-latest.png`: the hall
-      above the stage has a luma p90 of 26 against 49 in the camera `orchestra`, after the fan of
-      the beam. Free mode dims the beam there, as in a close shot.
-- [ ] Give the players the shadows of the props on their bodies again, such as the shadow of a
-      chair seat on the shins. The bake took the props out of the shadow map.
-- [ ] The white fur of the rabbit is a little more yellow than in `orchestra-latest.png`: a hue
-      of 26° against 19°, and a saturation of 0.32 against 0.30 (`pnpm look-lab`, after the warm
-      white side lights).
-- [ ] The chairs have a lit saturation of 0.52 against 0.65 in `orchestra-latest.png`, and the
-      stage of the camera `orchestra` a median luma of 130 against 107 outside the pool of light.
-- [ ] A cool fill (`#282c34`) against the warm keys waits for the user: it makes the shade of the
-      white fur a little grayer (`docs/research/2026-10-18-key-beam.md`).
-- [ ] The lit floor in the pool is darker than in `orchestra-latest.png` after variant B: a luma
-      of 152 against 179 in the user view, and 119 against 191 left of the podium in the camera
-      `orchestra`. Ask the user if the planks should go back to their color, with the narrow pool.
-      2026-10-27: the hot spot of the front key light on the podium gives 138 and 133 beside the
-      podium, against 191 and 158 (`docs/research/2026-10-27-key-look.md`).
-- [ ] The white fur of the back rows has 0.92 of the p90 of the front rows, against 0.98 in
-      `orchestra-latest.png` (`pnpm look-lab`, camera `default`).
-- [ ] The chair mask of the look lab ("chair, front left") holds 4 pixels after the lower
-      exposure, because its luma limit is 90 (`LOOK_REGIONS` of `tools/look-lab.ts`).
-- [ ] The hot spot of the key light also multiplies the side lights on the high and medium tiers,
-      because they cast shadows there (`SPOT_POOL_GLSL` of `scene/light-pool.ts`). There, the first
-      row gets about 1.3 times the light of the low tier, and the back row only 0.63 to 0.77 of the
-      first row (`docs/research/2026-10-18-back-light.md`). A hot spot on the key light alone dims
-      the front rows of the high tier.
-      2026-10-27: the players take a hot spot of 0.3 of its radii, on the podium alone, and the
-      side lights give 0.5 lux (`docs/research/2026-10-27-key-front.md`).
-- [ ] The floor at the back of the stage has a luma p50 of 52, against 39 before the back-row
-      lights and 41 in `orchestra-latest.png` (`docs/research/2026-10-18-back-light.md`).
-- [ ] Measure the frame cost of the two back-row lights in the performance sweep: two more
-      spotlights in the light loop of each pixel of the players, the props, and the stage.
-- [ ] Cut the frame cost of the shadows of the side lights in the performance sweep: about 0.9 ms
-      of GPU time and 0.4 ms of main-thread time in each frame of `perf-60.mid` on the high tier.
-      Options: smaller maps, or a new map only every second frame.
-      2026-10-21: maps of 512 save only 0.07 ms of the GPU p95, because the vertex work of the
-      skinned players is the cost (`docs/research/2026-10-21-frame-performance.md`, section 6).
-- [ ] The polar bear close shot clips a channel on 0.6% of its light fur, against 0.1% with the key
-      light from behind: the camera stands behind the pianist, and the key light and the kicker
-      light the tops of its shoulders and arms (`docs/research/2026-10-27-key-look.md`).
-- [ ] The paused test "goes into the material of the players only with a pool" of
-      `src/scene/light-pool.test.ts` fails on `main`: its test shader has no
-      `#include <lights_fragment_end>`, which `addPlayerFill()` of `scene/geometry.ts` needs.
-- [ ] The shot planner keeps one upright cone at the stage center (`insideBeam()`). With three
-      beams (`RIM_PLACE.count` 3), a camera can stand in a side beam, which draws its back faces.
-- [ ] Give `pnpm close-views play` a `--look <JSON>` option that starts its own dev server, as
-      `look-variants` does (retro of the key light round, 2026-10-27). A variant sheet at any
-      camera then needs no dev server and no URL script made by hand.
-- [ ] Give `pnpm look-variants` a `--shots <subjects>` option that renders the close shot of each
-      variant on its own dev server and prints the clip measure of `clip.py` (retro of the round
-      `sixth-key-look`, 2026-10-27). That round used `shot-variants.sh` of
-      `docs/research/2026-10-27-key-look/`, made by hand, for six runs.
-- [ ] Find the reads of the look roots at the load of a module with a saved check. Today
-      `LOAD_TIME_PATHS` of `scene/look-values.ts` lists them by hand, so a new read at load gives
-      an override with no effect and no error (`docs/decisions/2026-10-18-look-tools.md`).
-- [ ] Fetch the presets of the default demo before the first frame (round `perf-load`,
-      `docs/research/2026-10-21-load-performance.md`). On the Fast 4G phone run, the link is idle
-      for about 4.8 s while the main thread builds the scene, and the presets then take about
-      10 s. AGENTS.md loads the SoundFont files after the first frame, so this needs the user.
-      The fetches must start before the score build: a fetch after it waits for the 2.8 s task.
-      The round `perf-gzip-audio` measured the idle link again: about 4.7 s, from the end of the
-      first download to the audio chunks (`docs/research/2026-10-29-network-load.md`,
-      `docs/decisions/2026-10-29-gzip-audio.md`). Start the fetches, and yield once, before
-      `select()` of `src/app/app.ts`.
+- [ ] Give the cello and the contrabass the deeper ribs of the real instruments (about 0.16 of the
+      body length), and check the holds of the dog and the hippo.
+- [ ] Slope the strings of the bowed strings down about 5° from the bridge to the nut, as on a real
+      instrument. The bow contact, the fingerboard target, and the left hand poses follow the line.
+- [ ] Conductor: at the song end, turn to the audience on the podium, bow, and turn back (5.4). Keep
+      the clearance tests of the stand.
+- [ ] Audit the seating of design 4.2 against professional orchestras and choirs, with sources and
+      the file and the line of each finding. Then fix the findings that the user approves.
+- [ ] Bring the high tier within the frame target of 9.7 (4 ms p95 on the GPU and the main thread).
+      Only the device scale 1.5 passes alone. The choice of the path waits for the user.
+- [ ] Skin the players one time in each frame. Each pass skins them again in its vertex shader, and
+      each shadow map and depth pass costs 0.2 ms to 0.5 ms. The pixels stay the same.
+- [ ] Cut `poseStudioBones()`: about 0.5 ms of each frame for the 55 bodies of `perf-60.mid`.
+- [ ] Compile the shaders before the first frame with no block (`compileAsync()`): `setProgram()`
+      takes about 335 ms in the first frame of the default demo. The first frame stays the same.
+- [ ] Cut the frame cost of the cinematic light in the performance sweep: about 0.67 ms in each
+      frame of `perf-60.mid`, 0.42 ms of it in the bake step.
+- [ ] Cut the frame cost of the shadows of the side lights: about 0.9 ms of GPU time and 0.4 ms of
+      main-thread time on the high tier. Smaller maps save little, because skinning is the cost.
+- [ ] Measure the frame cost of the two back-row lights in the performance sweep.
+- [ ] When the test pause ends, fix `scene/player.test.ts` (6 of 13 fail) and the pool test of
+      `scene/light-pool.test.ts` (no `#include <lights_fragment_end>`).
+- [ ] The glow of the haze around the beam is weaker than in `orchestra-latest.png` above the stage
+      in the camera `orchestra`. Free mode dims the beam there, as in a close shot.
+- [ ] Give the players the shadows of the props again, such as the shadow of a chair seat on the
+      shins. The bake took the props out of the shadow map.
+- [ ] The white fur of the rabbit is a little more yellow than in `orchestra-latest.png` (hue 26°
+      against 19°, `pnpm look-lab`).
+- [ ] The chairs are less saturated than in `orchestra-latest.png`, and the stage outside the pool
+      of light is brighter in the camera `orchestra`.
+- [ ] Ask the user about a cool fill (`#282c34`) against the warm keys. It makes the shade of the
+      white fur a little grayer.
+- [ ] The lit floor in the pool is darker than in `orchestra-latest.png`, most beside the podium.
+      Ask the user if the planks go back to their color, with the narrow pool.
+- [ ] The white fur of the back rows is darker against the front rows than in `orchestra-latest.png`
+      (`pnpm look-lab`, camera `default`).
+- [ ] The floor at the back of the stage is brighter than in `orchestra-latest.png`.
+- [ ] On the high and medium tiers, the hot spot of the key light also multiplies the side lights
+      (`SPOT_POOL_GLSL`), so the back row gets less light than the first row.
+- [ ] The chair mask "chair, front left" of `LOOK_REGIONS` (`tools/look-lab.ts`) holds only 4
+      pixels, because its luma limit is 90.
+- [ ] The polar bear close shot clips a channel on 0.6% of its light fur, because the key light and
+      the kicker light the tops of its shoulders and arms.
+- [ ] The shot planner keeps one upright cone at the stage center (`insideBeam()`). With three beams
+      (`RIM_PLACE.count` 3), a camera can stand in a side beam and draw its back faces.
+- [ ] Find the reads of the look roots at module load with a saved check. `LOAD_TIME_PATHS` of
+      `scene/look-values.ts` lists them by hand, and a missed read fails with no error.
+- [ ] Tool: give `pnpm close-views play` a `--look <JSON>` option that starts its own dev server, as
+      `look-variants` does.
+- [ ] Tool: give `pnpm look-variants` a `--shots <subjects>` option that renders the close shot of
+      each variant and prints its clip measure.
+- [ ] Fetch the presets of the default demo before the score build: the link is idle for about 4.7 s
+      on a phone. This changes a rule of AGENTS.md, so ask the user first.
 - [ ] Ship the packed meshes of the studio bodies as one binary file with gzip, read with
-      `DecompressionStream` (round `perf-gzip-audio`, `docs/decisions/2026-10-29-gzip-audio.md`).
-      Their base64 text is most of the renderer chunk, and the binary file saves about 50 KB of
-      the first download (`docs/research/2026-10-29-network-load.md`).
+      `DecompressionStream`. It saves about 50 KB of the first download (7.2).
 - [ ] Move the layout, the pose plan, and the geometry of the players off the main thread of the
-      first frame, into a Worker or into the build: about 680 ms of the 740 ms task of the
-      default demo on the development Mac, and about 2.8 s on the phone run.
-- [ ] Remove the CPU skin of each player in the first frame: `SkinnedMesh.computeBoundingSphere()`
-      takes about 138 ms on the development Mac, for the depth sort of three.js. The owner of the
-      render loop decides, because a new sphere can change the draw order.
-- [ ] Compile the shaders of the stage without a block of the first frame (`compileAsync()`): about
-      335 ms of `setProgram()` in the first frame of the default demo on the development Mac.
-- [ ] Encode the hall impulse response as FLAC: about 177 KB in place of 480,044 B, if GitHub
-      Pages sends a WAV file with no gzip. Check `decodeAudioData()` in Chrome, Firefox, and
-      Safari against the samples of the WAV file first.
-- [ ] Decide on a service worker for the repeat visits (round `perf-load`). It saves the
-      revalidation of each file after the 600 s of `max-age` of GitHub Pages, and a new fetch of
-      an SF3 file that the HTTP cache dropped. In the round `perf-gzip-audio`, about 745 KB
-      revalidates after 10 min (`docs/decisions/2026-10-29-gzip-audio.md`). A host with brotli
-      would also save about 128 KB of the first download. The host is a decision of the user
-      (`docs/research/2026-10-29-network-load.md`).
+      first frame, into a Worker or into the build: about 2.8 s on the phone run.
+- [ ] Remove the CPU skin of each player in the first frame (`SkinnedMesh.computeBoundingSphere()`,
+      about 138 ms). A new sphere can change the draw order.
+- [ ] Ask the user about a service worker for repeat visits. It saves the revalidation of about 745
+      KB after the `max-age` of 600 s of GitHub Pages. A host with brotli saves about 128 KB more.
 
 Done when: the screenshots of design 9.8 look like `mockup.png` and `scene.png`, the size check
 passes, and the quality tiers of 2.6 keep 60 fps on a laptop.
-Review:
 
 ## Step 7. Demo build, tests, and deploy (8, 9)
 
-- [ ] Ask the user to create the GitHub repository `zoophony`, or to install `gh`. Add the
-      remote and push.
-      After the first push, the user sets the source of GitHub Pages to "GitHub Actions" in the
-      settings of the repository. Then check the first CI run: it is the first run of
-      SwiftShader and of the audio of headless Chromium on Linux (9.2).
-- [ ] Open the deployed site and play the default demo.
-      The site is at `https://<owner>.github.io/zoophony/` after the first Pages run.
-- [ ] Add an Open Graph image to `index.html`: a screenshot of the default view, with the
-      absolute URL of the deployed site (design 2.8, audit 2026-10-05-ux-design, CP1). A crawler
-      needs an absolute URL, and the owner of the site is not known yet.
-- [ ] Add `AudioContext.playbackStats` to the manual release test of 9.4. Chrome gives the
-      underruns there (spike report, section 8, item 5).
-- [ ] Add the three checks that the step 6 reviews could not make to the manual release test of
-      9.4, because headless Chromium opens no native list, has no phone call, and is not iOS
-      Safari.
-      U1: in Chrome on a desktop below 700 px, open the sheet, open the speed menu with Space,
-      and press Escape. The list closes, and the sheet stays open. `App.#pressKey()` closes the
-      drawer on each Escape that reaches the page.
-      U2: on an iPhone, play a demo, take a phone call, and end it. The app must show "Play" or
-      the audio failure message. The app has no `statechange` listener on the `AudioContext`:
-      a suspended context stops the song time, the bar keeps "Pause", and Pause, then Play,
-      resumes it.
-      U3: on an iPhone, play a demo and wait until the bar hides. Tap Pause, then tap it again
-      0.3 s later: the second tap pauses. Then tap Play four times at 0.4 s intervals: the play
-      state changes each time. iOS Safari can send no click for the tap that shows the bar, so
-      the guard of R1 ends 0.5 s after the lift, and fast taps can restart it (second re-review
-      of step 6, U3).
-- [ ] Check the FLAC hall in the manual release test of 9.4: in real Safari on macOS and on iOS,
-      the network list shows the FLAC file of the hall and no WAV file (round `perf-hall`,
-      `docs/research/2026-10-21-load-performance/hall-flac.md`). Playwright WebKit is no Safari.
-- [ ] Do the manual release test of 9.4 with the user.
-      It needs the deployed site and the real devices of 9.4.
+- [ ] Open the deployed site <https://qiao.github.io/zoophony/>, play the default demo, and check
+      that the CI and Pages runs pass (9.2).
+- [ ] Add an Open Graph image to `index.html`: a screenshot of the default view, with the absolute
+      URL of the deployed site (2.8).
+- [ ] Add `AudioContext.playbackStats` to the manual release test of 9.4. Chrome gives the underruns
+      there.
+- [ ] Add to 9.4: Escape in the open speed list below 700 px closes only the list (Chrome), and a
+      phone call and fast taps on Pause and Play leave a correct state (iPhone).
+- [ ] Do the manual release test of 9.4 with the user, on the deployed site and the real devices.
 
 Done when: CI passes on `main` with Playwright in Chromium, and the deployed site plays the
 default demo.
