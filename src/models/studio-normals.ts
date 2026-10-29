@@ -1,3 +1,5 @@
+import { runAll } from '../score/steps.ts';
+import type { Steps } from '../score/steps.ts';
 import { FINISH_ORDER } from './mesh.ts';
 import type { StudioMesh } from './studio-format.ts';
 
@@ -110,6 +112,31 @@ export function studioCornerColors(
   blend: number,
   caps: readonly number[] = [],
 ): Float32Array {
+  return runAll(studioCornerColorsSteps(mesh, colors, crease, blend, caps));
+}
+
+/** The number of corners of one step of {@link studioCornerColorsSteps}. */
+const COLOR_CORNERS_PER_STEP = 4000;
+
+/**
+ * Gives the color of each corner of a studio body as {@link studioCornerColors} does, in steps
+ * (design 7.2).
+ *
+ * @param mesh The places of the welded vertices, the corners, and the finishes of the mesh.
+ * @param colors Linear r, g, b of each triangle.
+ * @param crease The crease angle in degrees.
+ * @param blend The largest difference of two face colors that blend, in each sRGB channel.
+ * @param caps The `matte` triangles of the caps of the arms (`StudioBody.caps`).
+ * @returns The steps, which return linear r, g, b of each corner, in the order of
+ *   `mesh.corners`.
+ */
+export function* studioCornerColorsSteps(
+  mesh: Pick<StudioMesh, 'positions' | 'corners' | 'finishes'>,
+  colors: ArrayLike<number>,
+  crease: number,
+  blend: number,
+  caps: readonly number[] = [],
+): Steps<Float32Array> {
   const { corners, finishes } = mesh;
   const cornerCount = corners.length;
   const out = new Float32Array(cornerCount * 3);
@@ -124,9 +151,13 @@ export function studioCornerColors(
   }
   const isCap = faceFlags(cornerCount / 3, caps);
   const { faces, angles, start, around } = meshFrame(mesh);
+  yield;
   const srgb = Float32Array.from({ length: colors.length }, (_, i) => toSrgb(colors[i] ?? 0));
   const limit = Math.cos((crease * Math.PI) / 180) - 1e-6;
   for (let c = 0; c < cornerCount; c++) {
+    if (c % COLOR_CORNERS_PER_STEP === COLOR_CORNERS_PER_STEP - 1) {
+      yield;
+    }
     const own = Math.floor(c / 3);
     if (finishes[own] !== MATTE || isCap[own] === 1) {
       continue;
