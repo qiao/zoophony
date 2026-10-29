@@ -2422,6 +2422,13 @@ the mockup is out of scope.
       the lights, and the post effects (bloom, depth of field, vignette, grain, color grade).
 - [ ] Camera: the default view and the shots of `scene.png`.
 - [ ] Cast: the faceted animals and the instruments of `scene.png`.
+- [ ] Give the cello and the contrabass the deeper ribs of the real instruments (about 0.16 of
+      the body length against 0.10 now), with a check of the holds of the dog and the hippo
+      (`docs/research/2026-10-29-string-models.md`).
+- [ ] Slope the strings of the bowed strings down about 5° from the bridge to the nut, as on a
+      real instrument, so that the fingerboard can lie close to the top and the neck can be
+      thinner. The bow contact, the fingerboard target, and the left hand poses must follow the
+      new string line (`docs/decisions/2026-10-29-string-models.md`).
 - [ ] UI: the title, the panel, the demo rows, the seat rows, and the bar of `mockup.png`.
 - [x] Make the shot planner stable against small changes of the player footprints, then
       restore the horn entry test of `shots/prepare.test.ts` to the cut at the entry, and
