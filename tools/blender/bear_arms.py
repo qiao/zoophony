@@ -224,7 +224,10 @@ def step_paint(s):
     Weight Mix modifier adds the fingers weight to the hand weight at the influence of that share,
     and Levels scales the fingers weight by `fingers`. The rule weights give the fingers half of
     their bone (`weights.fingers` of the config). With the full fingers weight of the automatic
-    weights, the curl of the fingers at rest folded the faces of the paws."""
+    weights, the curl of the fingers at rest folded the faces of the paws.
+
+    Last, with `wristSmooth` of `BEAR`, Smooth runs `repeat` times on the vertices within `radius`
+    units of each wrist joint, so that the paw weights start on the forearm with no kink."""
     wa.step_paint(s)
     mesh, fr, head = s.mesh, s.fr, s.spec['head']
     va.paint_mode(mesh, lambda p: abs(p.co.x) / fr.height > head['x']
@@ -249,6 +252,16 @@ def step_paint(s):
     va.paint_mode(mesh)
     va.limit_and_normalize()
     bpy.ops.object.mode_set(mode='OBJECT')
+    smooth = s.spec.get('wristSmooth')
+    if smooth:
+        joints = [fr.point(s.joints['hand_L']['head'], side) for side in (1, -1)]
+        va.paint_mode(mesh, lambda p: min((p.co - q).length for q in joints)
+                      < s.units(smooth['radius']))
+        bpy.ops.object.vertex_group_smooth(group_select_mode='BONE_DEFORM', factor=0.5,
+                                           repeat=smooth['repeat'])
+        va.limit_and_normalize()
+        bpy.ops.object.mode_set(mode='OBJECT')
+        mesh.data.use_paint_mask_vertex = False
 
 
 def step_weights(s):
