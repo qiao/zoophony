@@ -80,7 +80,7 @@ test.describe('the load state on a slow network (audit 2026-10-05-ux-design, LD2
       // The demo file never arrives. The page closes at the end of the test.
     });
     await page.goto('./');
-    await expect(page.locator('.title h1')).toHaveText(DEMOS[DEFAULT_DEMO].title);
+    await expect(page.locator('.title h2')).toHaveText(DEMOS[DEFAULT_DEMO].title);
     await expect(page.locator('.first-screen .status')).toHaveText(LOADING_TEXT);
   });
 

@@ -734,7 +734,7 @@ async function checkDrawer(c: Checker, page: Page, phone: boolean): Promise<void
     buffer: ONE_NOTE_FILE,
   });
   await page.waitForSelector('canvas[data-demo="file"]', { timeout: 30_000 });
-  const title = (await page.textContent('.title h1')) ?? '';
+  const title = (await page.textContent('.title h2')) ?? '';
   c.record(
     'Open a MIDI file (a valid file)',
     'Tab, Space, select the file',
@@ -1305,7 +1305,7 @@ async function checkDemoFailure(browser: Browser, base: string): Promise<KeyChec
       return [
         `message "${shown ? (message.querySelector('span')?.textContent ?? '') : ''}"`,
         `retry ${retry instanceof HTMLElement && !retry.hidden}`,
-        `title "${document.querySelector('.title h1')?.textContent ?? ''}"`,
+        `title "${document.querySelector('.title h2')?.textContent ?? ''}"`,
         `first play ${play instanceof HTMLElement && play.offsetParent !== null}`,
         `hash "${location.hash}"`,
       ].join('; ');

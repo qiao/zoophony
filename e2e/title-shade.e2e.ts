@@ -21,7 +21,7 @@ const MOST_STEP = 12;
 const AA_TEXT = 4.5;
 
 /** The selectors of the lines of the title, in the order of `Title.lines`. */
-const LINES = ['.title .logo', '.title h1', '.title p'] as const;
+const LINES = ['.title .logo', '.title h2', '.title p'] as const;
 
 /** The style that shows the shades alone over a white page, as over a light floor. */
 const WHITE_PAGE = `

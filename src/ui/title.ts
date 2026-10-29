@@ -6,13 +6,16 @@ import type { TitleLine } from './title-shade.ts';
 
 /**
  * Creates the logo (design 2.8): the gold paw and the wordmark "Zoophony". It is plain content, no
- * control. A screen reader reads the name of the wordmark and skips the paw.
+ * control. The wordmark is the heading of the page (`h1`), with the name of the app as its
+ * accessible name. A screen reader reads the name and skips the paw.
  *
  * @returns The logo element.
  */
 function createLogo(): HTMLElement {
   const logo = createElement('div', 'logo');
-  logo.append(createIcon('paw'), createWordmark(APP_NAME));
+  const name = createElement('h1', 'name');
+  name.append(createWordmark(APP_NAME));
+  logo.append(createIcon('paw'), name);
   return logo;
 }
 
@@ -35,8 +38,8 @@ function createRepositoryLink(): HTMLAnchorElement {
 }
 
 /**
- * The title at the top left (2.8): the logo with the link to GitHub, then the piece title in a
- * serif (24 px to 36 px) and the composer. It is a polite live region, so that a screen reader
+ * The title at the top left (2.8): the logo with the link to GitHub, then the piece title (`h2`)
+ * in a serif (24 px to 36 px) and the composer. It is a polite live region, so that a screen reader
  * reads the current piece when it changes. The logo does not change, so the region does not read
  * it again.
  */
@@ -77,7 +80,7 @@ export class Title {
     } else {
       this.element.prepend(this.#logo);
     }
-    this.#title = this.element.querySelector(':scope > h1') ?? createElement('h1');
+    this.#title = this.element.querySelector(':scope > h2') ?? createElement('h2');
     this.#composer = this.element.querySelector(':scope > p') ?? createElement('p');
     if (!this.#title.isConnected || !this.#composer.isConnected) {
       this.element.append(this.#title, this.#composer);

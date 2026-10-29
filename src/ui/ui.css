@@ -141,7 +141,7 @@ svg {
    shows. With no level, the full shade shows. A line is as wide as its text, so the shade follows
    the text. */
 .title .logo,
-.title h1,
+.title h2,
 .title p {
   position: relative;
   width: fit-content;
@@ -152,7 +152,7 @@ svg {
    that the app reads (e2e/title-shade.e2e.ts). Its z-index puts it behind the text of each line
    of the title. */
 .title .logo::before,
-.title h1::before,
+.title h2::before,
 .title p::before {
   content: '';
   position: absolute;
@@ -192,6 +192,13 @@ svg {
    capitals. */
 .title .logo > svg:first-child {
   translate: 0 var(--logo-lift);
+}
+
+/* The heading of the page holds only the wordmark, so it takes the place of the wordmark in the
+   flex line of the logo. */
+.title .logo .name {
+  display: flex;
+  margin: 0;
 }
 
 /* The wordmark in Fraunces (design 2.8). Its view box goes from the top of the "h" to the bottom
@@ -241,7 +248,7 @@ svg {
   height: 12px;
 }
 
-.title h1 {
+.title h2 {
   margin: 0;
   font-family: var(--font-serif);
   /* 32 px at 1280 px, as in the mockup. */

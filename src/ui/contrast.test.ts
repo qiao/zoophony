@@ -132,7 +132,7 @@ function contrast(a: Rgba, b: Rgba): number {
 }
 
 /** The selector of the shade of each line of the title. */
-const LINE_SHADE = '.title .logo::before,\n.title h1::before,\n.title p::before';
+const LINE_SHADE = '.title .logo::before,\n.title h2::before,\n.title p::before';
 
 /** White, the lightest color behind the panel of the drawer: white fur in a close shot. */
 const WHITE: Rgba = { r: 255, g: 255, b: 255, a: 1 };
@@ -262,7 +262,7 @@ describe('the shape of the title shade (design 2.8, audit 2026-10-06-ux-design-2
   const blur = Number(/^blur\((\d+)px\)$/u.exec(declaration(UI_CSS, LINE_SHADE, 'filter'))?.[1]);
 
   it('follows the text of each line', () => {
-    expect(declaration(UI_CSS, '.title .logo,\n.title h1,\n.title p', 'width')).toBe('fit-content');
+    expect(declaration(UI_CSS, '.title .logo,\n.title h2,\n.title p', 'width')).toBe('fit-content');
   });
 
   it('is a blurred pill, with no straight edge', () => {

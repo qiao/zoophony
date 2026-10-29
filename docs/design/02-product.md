@@ -176,7 +176,9 @@ The modules of `ui/` and `app/` hold the sizes, the places, and the motions. Eac
 instant with reduced motion. Each text keeps the contrast 4.5:1 of WCAG AA over the scene.
 
 - **Title**: the logo (a gold paw and the wordmark "Zoophony" in Fraunces, one SVG path
-  `WORDMARK_PATH`, so no font file loads), the piece title, and the composer. A gray pill with the
+  `WORDMARK_PATH`, so no font file loads), the piece title, and the composer. The wordmark is the
+  `h1` of the page, with the name as its accessible name, because the page is the app. The piece
+  title is an `h2`. A gray pill with the
   GitHub mark and "Open source" (`REPOSITORY_TEXT`) links to `REPOSITORY_URL`. It is gray, because
   the logo rules of GitHub permit only white, black, or gray. `index.html` holds the title lines
   of the default demo, and the app keeps that header, so the piece title paints with the first
