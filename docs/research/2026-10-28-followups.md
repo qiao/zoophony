@@ -67,10 +67,43 @@ Oklab lightness takes the mean of the larger of its light and dark halves (`face
 edge is a zigzag along the faces. Only the penguin colors change (`penguin-body-probe.txt`), and
 the first download grows by 116 B.
 
-## 5. The bright elbow
+## 5. The hippo bow arm
+
+With a fill light, the right arm of `main` at rest shows a bulge in the upper arm, a kink at the
+back of the elbow, and a bump on the top of the forearm (`hippo-rest.webp`, top row). The arm
+smoothing of the source tube cannot remove them, because the bend of the rest pose makes them: in
+the rest, the upper arm turns about 64° from the seated bind (`rest-turns.ts`, the mean turns of
+the 9 rest samples of `armSamples()`).
+
+A rule of `raise` at these turns now smooths the posed skin with Taubin rounds before its relax
+(`smooth` of `raise_shape()`), and the shape gives the smooth arm back at rest. In the play, the
+upper arm lies 75° to 115° from the rule turn, so the shape has no weight there (fade 10° to 25°).
+
+| Variant | Rest folds | Shape | Look at rest |
+|---|---:|---|---|
+| Upper arm and clavicle, 6 or 12 rounds | 100% | 5 faces of the root stay turned | softer elbow, forearm bump stays |
+| Whole arm, 6 or 10 rounds | 100% | the root folds | |
+| Second upper arm segment to the wrist, no relax, 6 rounds | 0% | no turned face | smoother |
+| The same, 10 rounds (chosen) | 0% | no turned face | smoothest elbow line and forearm |
+
+The values come from `hippo-table-root.txt` and `hippo-table.txt`. The play folds stay 3.2% of
+the samples (`hippo-fold.txt`), the depths and the arm look stay as on `main`, and only the
+correctives of the hippo change. The arm gate gives `FAIL` on the right stretch p95: 0.22 against
+0.16 (`hippo-arm-check.txt`). The gate counts the stretch from the rest sample, and the shape
+shortens one inner elbow edge at rest to 0.148 of the upper arm below the bind (0.084 on `main`).
+From the bind, the play stretch is 0.084 on both (`hippo-stretch.txt`, `hippo-stretch-main.txt`).
+
+## 6. The fill light
+
+The key light of the stage comes from the back, so the role views from the back and the sides were
+nearly black. Each close view now has a light of 2 lux from the camera, about a third of the key
+(`fill-light.webp`). A base commit before it renders with no fill, so the hippo images use a base
+after it.
+
+## 7. The bright elbow
 
 The image of the user shows orange fur, a black forearm with a zigzag edge, and an upright bow:
-the colors of the red fox at rest, not of the gray cat. In the role views of the red fox violinist,
+the colors of the red fox at rest. The cat is gray in each play view. In the role views of the red fox violinist,
 the inner right elbow at rest has a faint light crease from az60, and no face of that elbow folds
 at rest (`pnpm fold-probe fox-violinist`). The play camera of `close-views play --at` stood too
 near the next player to show it. The place and the time of the image are a question for the user.

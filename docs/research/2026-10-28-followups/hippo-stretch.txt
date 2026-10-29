@@ -1,0 +1,65 @@
+
+> zoophony@0.0.0 arm-check /Users/xueqiaoxu/proj/zoophony
+> node tools/arm-check.ts bassist --explain stretch
+
+Explain of stretch p95 of the bassist over 9 demos at a step of 0.25 s: bach-bwv1048.mid, bach-bwv1050.mid, beethoven-1.mid, beethoven-8-4.mid, beethoven-8.mid, beethoven-9.mid, boulanger-matin.mid, brahms-2.mid, mendelssohn-op61.mid.
+The stretch is the largest growth of an edge of the faces of the forearm and the paw, as a share of the upper arm (L 0.251 m, R 0.251 m). The gate counts it from the rest sample of the same demo, and "from the bind" counts it from the bind pose.
+MOVES: R play, R lift. The stretch from the rest is larger than from the bind, because the rest sample shrinks the edges that these samples stretch. The gate counts that move of the rest as stretch.
+
+| Arm | Set | Samples | p95 from the rest (gate) | p95 from the bind | Worst from the rest | Worst from the bind | Mark |
+|---|---|---:|---:|---:|---|---|---|
+| L | rest | 9 | 0.000 | 0.105 | 0.000, bach-bwv1048.mid rest | 0.105, bach-bwv1048.mid rest |  |
+| L | play | 12912 | 0.083 | 0.118 | 0.092, bach-bwv1048.mid 140.75 s | 0.130, beethoven-8-4.mid 662.59 s |  |
+| L | lift | 279 | 0.071 | 0.116 | 0.074, beethoven-9.mid wall 0.9 s | 0.117, bach-bwv1048.mid wall 0.9 s |  |
+| R | rest | 9 | 0.000 | 0.107 | 0.000, bach-bwv1048.mid rest | 0.107, bach-bwv1050.mid rest |  |
+| R | play | 12912 | 0.216 | 0.084 | 0.237, boulanger-matin.mid 265.13 s | 0.147, boulanger-matin.mid 270.13 s | MOVES |
+| R | lift | 279 | 0.205 | 0.171 | 0.207, beethoven-8.mid wall 1.0 s | 0.176, beethoven-9.mid wall 0.3 s | MOVES |
+
+The part of the rest sample of each demo that shrinks most from the bind. A short edge in the rest makes each stretch from the rest larger.
+
+| Arm | Rest sample | Part | Rest from the bind |
+|---|---|---|---:|
+| L | bach-bwv1048.mid rest | face 2233, edge 1223-1224, forearm_seg1_L | -0.110 |
+| L | bach-bwv1050.mid rest | face 2233, edge 1223-1224, forearm_seg1_L | -0.107 |
+| L | beethoven-1.mid rest | face 2233, edge 1223-1224, forearm_seg1_L | -0.107 |
+| L | beethoven-8-4.mid rest | face 2233, edge 1223-1224, forearm_seg1_L | -0.107 |
+| L | beethoven-8.mid rest | face 2233, edge 1223-1224, forearm_seg1_L | -0.107 |
+| L | beethoven-9.mid rest | face 2233, edge 1223-1224, forearm_seg1_L | -0.107 |
+| L | boulanger-matin.mid rest | face 2233, edge 1223-1224, forearm_seg1_L | -0.107 |
+| L | brahms-2.mid rest | face 2233, edge 1223-1224, forearm_seg1_L | -0.107 |
+| L | mendelssohn-op61.mid rest | face 2233, edge 1223-1224, forearm_seg1_L | -0.107 |
+| R | bach-bwv1048.mid rest | face 448, edge 216-234, forearm_seg0_R | -0.148 |
+| R | bach-bwv1050.mid rest | face 448, edge 216-234, forearm_seg0_R | -0.147 |
+| R | beethoven-1.mid rest | face 448, edge 216-234, forearm_seg0_R | -0.147 |
+| R | beethoven-8-4.mid rest | face 448, edge 216-234, forearm_seg0_R | -0.147 |
+| R | beethoven-8.mid rest | face 448, edge 216-234, forearm_seg0_R | -0.147 |
+| R | beethoven-9.mid rest | face 448, edge 216-234, forearm_seg0_R | -0.147 |
+| R | boulanger-matin.mid rest | face 448, edge 216-234, forearm_seg0_R | -0.147 |
+| R | brahms-2.mid rest | face 448, edge 216-234, forearm_seg0_R | -0.147 |
+| R | mendelssohn-op61.mid rest | face 448, edge 216-234, forearm_seg0_R | -0.147 |
+
+The worst sample of the L arm for the gate: bach-bwv1048.mid 140.75 s (play), 0.092 from the rest, 0.091 from the bind.
+
+| Faces | Edge | Bone | Sample cm | Rest cm | Bind cm | From the rest | From the bind | Rest from the bind |
+|---|---|---|---:|---:|---:|---:|---:|---:|
+| 1591 | 897-898 | forearm_seg0_L | 10.77 | 8.44 | 10.80 | 0.092 | -0.001 | -0.094 |
+| 1399 | 806-807 | upper_arm_seg3_L | 9.01 | 7.15 | 9.63 | 0.074 | -0.025 | -0.099 |
+| 1591 | 806-898 | forearm_seg0_L | 8.48 | 6.83 | 8.22 | 0.066 | 0.010 | -0.055 |
+| 2235 | 897-1225 | forearm_seg0_L | 8.91 | 7.30 | 8.19 | 0.064 | 0.029 | -0.035 |
+| 2235 | 1224-1225 | forearm_seg0_L | 9.41 | 7.82 | 9.53 | 0.063 | -0.005 | -0.068 |
+| 1397, 1590 | 805-806 | forearm_seg1_L | 6.38 | 4.96 | 7.21 | 0.057 | -0.033 | -0.090 |
+| 2983 | 1224-1602 | elbow_L | 8.73 | 7.33 | 7.72 | 0.056 | 0.040 | -0.016 |
+| 2983 | 1602-1603 | elbow_L | 9.11 | 7.72 | 9.11 | 0.055 | -0.000 | -0.055 |
+
+The worst sample of the R arm for the gate: boulanger-matin.mid 265.13 s (play), 0.237 from the rest, 0.139 from the bind.
+
+| Faces | Edge | Bone | Sample cm | Rest cm | Bind cm | From the rest | From the bind | Rest from the bind |
+|---|---|---|---:|---:|---:|---:|---:|---:|
+| 448 | 216-234 | forearm_seg0_R | 12.53 | 6.57 | 10.26 | 0.237 | 0.090 | -0.147 |
+| 448 | 217-234 | forearm_seg0_R | 13.37 | 7.96 | 10.15 | 0.215 | 0.128 | -0.087 |
+| 446 | 232-233 | forearm_seg0_R | 10.65 | 5.57 | 8.54 | 0.202 | 0.084 | -0.118 |
+| 446 | 216-233 | forearm_seg0_R | 11.52 | 7.16 | 8.65 | 0.173 | 0.114 | -0.059 |
+| 466 | 226-243 | forearm_seg0_R | 4.73 | 1.90 | 2.91 | 0.112 | 0.072 | -0.040 |
+| 460 | 223-240 | elbow_R | 7.17 | 4.49 | 5.87 | 0.107 | 0.052 | -0.055 |
+| 462 | 224-241 | elbow_R | 6.29 | 3.76 | 4.87 | 0.101 | 0.056 | -0.044 |
+| 464 | 225-242 | elbow_R | 5.54 | 3.10 | 3.81 | 0.097 | 0.069 | -0.028 |
