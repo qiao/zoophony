@@ -528,7 +528,7 @@ targets ask for up to 0.8145 of the reach (ready, frame 24, side R).
 
 The two checks are report checks: no gate reads them. Read the line before a body goes into the
 app. A ratio outside the range or a target past the reach is a blocker, unless the size is a
-decision of the product owner. The rabbit has a ratio of 0.589 by such a decision.
+decision of the repository owner. The rabbit has a ratio of 0.589 by such a decision.
 
 ## The prop library
 
