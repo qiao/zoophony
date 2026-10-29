@@ -481,6 +481,10 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       thigh near the knee 0.90 of the mesh by its perimeter (0.97 by its side width). A crease
       that only fills turned 29 faces over. With no calf fair, the back of each knee has 6 more
       edges that turn more than 40° (`out/knee-variants.txt` of the report).
+- [ ] Polar bear (`2026-10-29-polar-ratio.md`): with the side lean over 0.3 s, the head still
+      moves about 4 cm to each side about two times each second in the fast passages of
+      `bach-bwv1050`. A wider window lets the trunk lag, and the upper arms go deeper into the
+      belly, so a calmer trunk needs a lean that keeps the reach of the far paw.
 - [ ] Polar bear keys (`2026-10-28-piano-keys.md`): with the gaps of 1 mm between the white keys,
       the soft shadow of the paws on the keys is weaker than on `main` in the close views. With
       no gap, it is as on `main`. The cause is not known. The claws stay at the key top and do
