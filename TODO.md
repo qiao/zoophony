@@ -832,9 +832,9 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       light, and count the stretch from the bind for a body with a rest shape.
 - [ ] Fill light (`2026-10-28-followups.md`): `pnpm close-views play` renders the app with no
       fill light. Next: add a fill to the play mode for the checks.
-- [ ] Bright elbow (user, 2026-10-28): "the cat's elbow has an area that's too bright". The image
-      shows the colors of the red fox at rest. The role views show only a faint light crease at
-      its inner right elbow, with no fold. Next: ask the user for the demo and the time.
+- [x] Bright elbow (user, 2026-10-28): "the cat's elbow has an area that's too bright". Done: the
+      image shows the red fox at rest, and a shape of `raise` smooths the ridge of its inner
+      right elbow at rest (`2026-10-28-followups.md`). Next: the user confirms the species.
 - [x] Arm lumps (user, 2026-10-28): "the hippo's arm has lumps / dents", "the wolf's arm has
       unexpected dents / bends", "the cat's arm has unexpected lumps". Partly done: the rebuilt
       arm tubes took the ridges of the big faces of the user meshes. Taubin rounds smooth the
