@@ -36,7 +36,6 @@
     "clip-probe": "node tools/clip-probe.ts",
     "keyboard": "pnpm build && node tools/keyboard-check.ts",
     "smoke": "node tools/split-soundfont.ts && node tools/patch-demos.ts && node tools/smoke.ts",
-    "rig-body": "node tools/rig-body.ts",
     "rig-mesh": "node tools/rig-mesh.ts",
     "mesh-options": "node tools/mesh-options.ts",
     "studio-body": "node tools/studio-body.ts",
