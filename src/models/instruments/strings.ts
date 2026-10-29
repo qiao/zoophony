@@ -4,7 +4,7 @@ import { IDENTITY, toQuat, toVec3 } from '../tuples.ts';
 import { applyTransform, transform } from '../mesh.ts';
 import type { Quat, Vec3 } from '../tuples.ts';
 import type { Transform } from '../mesh.ts';
-import { box, cylinder, lathe, quad, sweep } from '../primitives.ts';
+import { box, cylinder, lathe, prism, quad, sweep } from '../primitives.ts';
 import type { OutlinePoint, ProfilePoint } from '../primitives.ts';
 import { DEFAULT_HEAD_HEIGHT } from '../species.ts';
 import { PieceBuilder, hold, pieceSize } from './piece.ts';
@@ -488,6 +488,34 @@ function tailRing([x, width, under, thick]: (typeof TAILPIECE)[number]): Vec3[] 
 }
 
 /**
+ * The outline of the bridge across the violin, as (across, height above the feet) from the left
+ * foot around to the left ear, clockwise when seen from the tail end: two feet with an arch between them, the waist, the ears, and an
+ * arched top edge that holds the strings. The top of the middle is at the underside of the
+ * strings.
+ */
+const BRIDGE_OUTLINE: readonly OutlinePoint[] = [
+  [-0.0145, 0],
+  [-0.0085, 0],
+  [0, 0.0055],
+  [0.0085, 0],
+  [0.0145, 0],
+  [0.0105, 0.0095],
+  [0.0122, 0.0175],
+  [0.0118, 0.0252],
+  [0, 0.0268],
+  [-0.0118, 0.0252],
+  [-0.0122, 0.0175],
+  [-0.0105, 0.0095],
+];
+
+/** The bridge: the height of its feet on the arch, its thickness, and the center of its outline. */
+const BRIDGE = {
+  feet: 0.04,
+  thickness: 0.0025,
+  center: 0.013,
+} as const;
+
+/**
  * Places a part in a frame. The frame has no scale.
  *
  * @param frame The frame.
@@ -595,8 +623,25 @@ function addViolinParts(piece: PieceBuilder, frame: Transform, upright: boolean)
   if (!upright) {
     part(box(0.04, 0.012, 0.05), dark, [0.018, v.bodyThickness + 0.006, 0.03]);
   }
-  // The bridge, and the strings as one thin strip (design 4.5, instrument colors).
-  part(box(0.004, 0.024, 0.032), INSTRUMENT_COLORS.bridge, [v.bridge, v.bodyThickness + 0.012, 0]);
+  // The bridge: a thin plate across the violin, with its feet on the arch.
+  const across = new Vector3(0, 0, 1);
+  const along = new Vector3(1, 0, 0);
+  const bridgeTurn = toQuat(
+    new Quaternion().setFromRotationMatrix(
+      new Matrix4().makeBasis(across, along, new Vector3().crossVectors(across, along)),
+    ),
+  );
+  part(
+    prism(
+      BRIDGE_OUTLINE.map(([z, y]): OutlinePoint => [z, y - BRIDGE.center]).toReversed(),
+      -BRIDGE.thickness / 2,
+      BRIDGE.thickness / 2,
+    ),
+    INSTRUMENT_COLORS.bridge,
+    [v.bridge, BRIDGE.feet + BRIDGE.center, 0],
+    bridgeTurn,
+  );
+  // The strings as one thin strip (design 4.5, instrument colors).
   piece.add(
     box(0.27, 0.002, v.stringsWidth),
     INSTRUMENT_COLORS.strings,
