@@ -139,6 +139,20 @@ These rules hold for each test:
 - A change of the material IDs can change the order of the draws, and thus the pixels. Run
   `pnpm frozen` after such a change.
 
+These traps make a load measure wrong:
+
+- Start each preload after the first contentful paint, and keep the link of the site server at
+  40 Mbit/s. Lighthouse adds each request that ends before the observed paint to the simulated
+  LCP, and each high-priority one, such as a module preload, to FCP.
+- Make each body of a Node server before the first request. A synchronous compression in a
+  request handler stops all other answers, so the first preset of a run gets wrong times.
+- To see the static HTML in a Playwright probe, hold `**/*.js` and wait for `commit`. A module
+  script runs before `DOMContentLoaded`, so a probe at that event sees the page after the script.
+- Skip each CSS file of the Vite manifest that the page does not link, as `tools/size.ts` does.
+  The build puts the CSS inline, and the manifest still names the removed file.
+- Commit or set aside each later edit before a build for a measure. The build reads the working
+  tree, so the edit goes into the measure.
+
 ## Images of a mesh
 
 Each image set that checks a mesh, a hold, or a clip shows the front, the back, the left side, and
