@@ -1342,7 +1342,7 @@ export function playingFrames(rig: RigPoints): TorsoFrames {
  * @returns The longest reached part of the hair, in meters from the frog end. If the arm reaches
  *   no part, the 0.04 m around the nearest place.
  */
-export function bowRangeOf(rig: RigPoints): BowRange {
+function bowRangeOf(rig: RigPoints): BowRange {
   const frames = playingFrames(rig);
   const { place, strings, bow: placed, hand } = createBowPlaces();
   const tilted = { grip: new Vector3(), rotation: new Quaternion() };
@@ -1415,7 +1415,7 @@ const STOP_STEP = 0.01;
  * @returns The longest reached part, from 0 at the nut to 1 at the end. If the arm reaches no
  *   place, the place nearest to the shoulder.
  */
-export function stopRangeOf(rig: RigPoints): readonly [low: number, high: number] {
+function stopRangeOf(rig: RigPoints): readonly [low: number, high: number] {
   const frames = playingFrames(rig);
   const { place, strings } = createBowPlaces();
   instrumentAt(rig, frames, 1, place);

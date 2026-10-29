@@ -718,7 +718,7 @@ function chamberLooks(layout: SceneLayout, models: ModelCache, leader: number): 
 }
 
 /** A plan to reuse in {@link preparePoses}, with the players to prepare again. */
-export interface PlanReuse {
+interface PlanReuse {
   /** The plan of the same score, layout, seed, and models. */
   readonly plan: PosePlan;
   /** The indices of the players of the layout to prepare again. */

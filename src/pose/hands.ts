@@ -450,7 +450,7 @@ export interface HandsState {
  * trunk lag behind the paws, so the arms cross further into the belly: with 0.35 s, the upper
  * arms go deeper than with no window.
  */
-export const SIDE_LEAN_WINDOW = 0.3;
+const SIDE_LEAN_WINDOW = 0.3;
 
 /** The number of samples of the window of the side lean on each side of the song time. */
 const SIDE_LEAN_STEPS = 30;

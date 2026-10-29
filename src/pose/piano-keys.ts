@@ -7,7 +7,7 @@ import { smoothstep } from './rest.ts';
 export const PIANO_KEY_COUNT = PIANO.keys[1] - PIANO.keys[0] + 1;
 
 /** The times of the press of a piano key (design 5.3), in seconds. */
-export const KEY_MOTION = {
+const KEY_MOTION = {
   /** A key goes down in this time, and reaches the key bottom at its note start. */
   pressSec: 0.03,
   /** A key comes up in this time after its note end. */

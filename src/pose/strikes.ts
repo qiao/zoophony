@@ -55,7 +55,7 @@ export interface StrikeGroup {
 }
 
 /** The rules by which {@link alternateHands} gives the strikes of a player to its two hands. */
-export interface HandRules {
+interface HandRules {
   /**
    * The longest time from the strike before in which a single target takes the other hand, in
    * seconds. With 0, each single target takes the hand on its side.

@@ -698,7 +698,7 @@ function lowerSamples(scene: TestScene, family: 'keyboard' | 'harp' = 'keyboard'
  * each demo with a harp plays it, on its stool. Each palm rests on the string of its note just
  * before the note start.
  */
-export const HARPIST_SWEEP: RoleSweep = {
+const HARPIST_SWEEP: RoleSweep = {
   role: 'harpist',
   parts: [...ARM_PARTS, ...SEATED_PARTS],
   obstacles: [
@@ -1274,7 +1274,7 @@ const TROMBONIST_SWEEP: RoleSweep = {
  * The sweep of the violist (design 5.3): the sweep of the violinist with the viola. The first
  * seated cat of each demo, and each standing cat soloist, play it.
  */
-export const VIOLIST_SWEEP: RoleSweep = {
+const VIOLIST_SWEEP: RoleSweep = {
   ...VIOLINIST_SWEEP,
   role: 'violist',
   obstacles: [
@@ -1289,7 +1289,7 @@ export const VIOLIST_SWEEP: RoleSweep = {
  * The sweep of the cellist (design 5.3): the sweep of the violinist with the cello. The first
  * seated dog of each demo plays it. A cellist does not stand as a soloist (4.2).
  */
-export const CELLIST_SWEEP: RoleSweep = {
+const CELLIST_SWEEP: RoleSweep = {
   ...VIOLINIST_SWEEP,
   role: 'cellist',
   obstacles: [
@@ -1304,7 +1304,7 @@ export const CELLIST_SWEEP: RoleSweep = {
  * The sweep of the bassist (design 5.3): the sweep of the violinist with the contrabass. The first
  * hippo of each demo plays it, standing, as each contrabass player stands.
  */
-export const BASSIST_SWEEP: RoleSweep = {
+const BASSIST_SWEEP: RoleSweep = {
   ...VIOLINIST_SWEEP,
   role: 'bassist',
   obstacles: [
@@ -1365,7 +1365,7 @@ function strikeTargets(scene: TestScene, index: number, model: PlayerModel): Not
  * play start, in the rest pose before the first play, and in the lowering after the song end. The
  * elephant of each demo with timpani plays it, standing, as each timpani player stands.
  */
-export const TIMPANIST_SWEEP: RoleSweep = {
+const TIMPANIST_SWEEP: RoleSweep = {
   role: 'timpanist',
   parts: [
     ...ARM_PARTS,
@@ -1924,7 +1924,7 @@ function sweptTubist(scene: TestScene, index: number): boolean {
  * each phrase, and the right palm on its grip at the valves at the start of each note
  * ({@link trombonistTargets}: the tuba has no slide).
  */
-export const TUBIST_SWEEP: RoleSweep = {
+const TUBIST_SWEEP: RoleSweep = {
   ...TROMBONIST_SWEEP,
   role: 'tubist',
   obstacles: [
@@ -2021,7 +2021,7 @@ function sweptSinger(scene: TestScene, index: number): boolean {
  * on its grip at the start of each note ({@link singerTargets}). The body of the penguin mesh has no
  * open edge, so its closed surface has the two cuts to the upper arms.
  */
-export const SINGER_SWEEP: RoleSweep = {
+const SINGER_SWEEP: RoleSweep = {
   role: 'singer',
   parts: [...ARM_PARTS, INSTRUMENT_PART],
   obstacles: [

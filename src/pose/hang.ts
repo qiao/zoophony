@@ -23,7 +23,7 @@ export interface HangingArm {
 }
 
 /** The angles of the hanging arm, and its gap to the body. */
-export const HANG = {
+const HANG = {
   /**
    * The forward swing of the upper arm. The arm hangs in front of the widest part of the hips, so
    * that it comes nearer to the side: with 8°, the arm stands 8° further out.

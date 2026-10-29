@@ -938,7 +938,7 @@ const HIGH_HAND = [handPlaceOf(HAND_FRAMES.violin, 3), handPlaceOf(HAND_FRAMES.v
  *   the end.
  * @returns The tilt, in radians.
  */
-export function leftTilt(hold: BowedHold, fingerboard: number): number {
+function leftTilt(hold: BowedHold, fingerboard: number): number {
   const [from, to] = HIGH_HAND;
   return hold.highTilt * smoothstep((fingerboard - from) / (to - from));
 }

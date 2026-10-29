@@ -290,7 +290,7 @@ function tubeAim(forward: number, down: number, keys: Vec3 = [0, 1, 0]): Quatern
  * @param keys The direction of the keys. Up by default.
  * @returns The turn, in the axes of the chest.
  */
-export function fluteTurn(forward: number, down: number, keys: Vec3 = [0, 1, 0]): Quat {
+function fluteTurn(forward: number, down: number, keys: Vec3 = [0, 1, 0]): Quat {
   return toQuat(
     tubeAim(forward, down, keys).multiply(tubeAim(FLUTE_BIND.forward, FLUTE_BIND.down).invert()),
   );

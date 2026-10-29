@@ -17,7 +17,7 @@ import { smoothstep } from './rest.ts';
  * The time of one press or one release of the damper pedal, in seconds. A pianist changes the
  * pedal in a short move of the ankle (design 5.3).
  */
-export const PEDAL_SEC = 0.1;
+const PEDAL_SEC = 0.1;
 
 /**
  * The share of the length of the sole from the heel to the ball of the foot. On the polar bear,
