@@ -293,7 +293,12 @@ async function measureSite(
   options: ProbeOptions,
   profileFile: string,
 ): Promise<RunResult[]> {
-  const site = await startSiteServer(root, options.phone, options.port);
+  const site = await startSiteServer({
+    root,
+    host: 'pages',
+    phone: options.phone,
+    port: options.port,
+  });
   const { server } = site;
   const browser = await chromium.launch({
     channel: 'chrome',

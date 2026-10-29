@@ -1,7 +1,10 @@
-// The local server of a built site for the load measures: `pnpm load-probe`. It serves a folder
-// such as `dist/` over HTTP/2 with TLS (and HTTP/1.1), and copies the answers of the host:
+// The local server of a built site for the load measures: `pnpm load-probe` and `pnpm lighthouse`.
+// It serves a folder such as `dist/` over HTTP/2 with TLS (and HTTP/1.1), and copies the answers
+// of one host:
 //
-// - GitHub Pages: gzip for the text types, ETag, and `Cache-Control: max-age=600`.
+// - GitHub Pages (`pages`): gzip for the text types, ETag, and `Cache-Control: max-age=600`.
+// - Vercel (`vercel`): brotli or gzip for the text types, ETag, the default
+//   `Cache-Control: public, max-age=0, must-revalidate`, and the header rules of `vercel.json`.
 //
 // The phone shape delays each request and shares one link rate among all bodies, so that the
 // fetches of the Workers also get the shape (`--phone` of `pnpm load-probe`).
@@ -12,13 +15,13 @@ import type { IncomingHttpHeaders, OutgoingHttpHeaders } from 'node:http';
 import { createSecureServer } from 'node:http2';
 import type { Http2ServerRequest, Http2ServerResponse } from 'node:http2';
 import { extname, join, normalize, resolve } from 'node:path';
-import { gzipSync } from 'node:zlib';
+import { brotliCompressSync, gzipSync } from 'node:zlib';
 
 /** The root of the repository. */
 const ROOT = resolve(import.meta.dirname, '..');
 
-/** The text types that the server sends with gzip, as GitHub Pages does. */
-const GZIP_TYPES = new Set(['.html', '.js', '.css', '.json', '.svg', '.txt']);
+/** The text types that the server compresses, as GitHub Pages and Vercel do. */
+const TEXT_TYPES = new Set(['.html', '.js', '.css', '.json', '.svg', '.txt', '.xml']);
 
 /** The content type of each file type of the site. */
 const CONTENT_TYPES = new Map([
@@ -28,10 +31,12 @@ const CONTENT_TYPES = new Map([
   ['.json', 'application/json'],
   ['.svg', 'image/svg+xml'],
   ['.txt', 'text/plain'],
+  ['.xml', 'application/xml'],
   ['.wav', 'audio/wav'],
   ['.flac', 'audio/flac'],
   ['.mid', 'audio/midi'],
   ['.png', 'image/png'],
+  ['.jpg', 'image/jpeg'],
   ['.webp', 'image/webp'],
 ]);
 
@@ -44,6 +49,83 @@ const PHONE_BYTES_PER_S = (9e6 / 8) * 0.9;
 /** The bytes that each body of the shaper gets in its turn. */
 const LINK_TURN_BYTES = 4096;
 
+/** The host whose answers the server copies. */
+export type SiteHost = 'pages' | 'vercel';
+
+/** The `Cache-Control` header of each file of GitHub Pages. */
+const PAGES_CACHE = 'max-age=600';
+
+/** The `Cache-Control` header of Vercel for a static file with no header rule. */
+const VERCEL_CACHE = 'public, max-age=0, must-revalidate';
+
+/** The part of `vercel.json` that the server reads. */
+interface VercelConfig {
+  /** The header rules: each path that matches a source gets the headers of the rule. */
+  readonly headers?: readonly {
+    /** The path pattern, in the syntax of path-to-regexp. */
+    readonly source: string;
+    /** The headers of the rule. */
+    readonly headers: readonly { readonly key: string; readonly value: string }[];
+  }[];
+}
+
+/** A header rule of `vercel.json`, with its source as a regular expression. */
+interface HeaderRule {
+  /** The pattern of the paths of the rule. */
+  readonly pattern: RegExp;
+  /** The headers, with their names in lower case. */
+  readonly headers: readonly (readonly [string, string])[];
+}
+
+/**
+ * Converts a source of a header rule of `vercel.json` into a regular expression. The server knows
+ * the parts that `vercel.json` uses: plain text, an escaped character, and a group of a regular
+ * expression in parentheses.
+ *
+ * @param source The source, such as `/assets/(.*)`.
+ * @returns The expression of the whole path.
+ * @throws Error for a part that the server does not know, such as `:name` or `*`.
+ */
+function sourcePattern(source: string): RegExp {
+  let pattern = '';
+  let depth = 0;
+  for (let i = 0; i < source.length; i++) {
+    const char = source.charAt(i);
+    if (char === '\\') {
+      pattern += source.slice(i, i + 2);
+      i++;
+      continue;
+    }
+
+    if (char === '(') {
+      depth++;
+    } else if (char === ')') {
+      depth--;
+    } else if (depth === 0 && /[:*?+{}]/u.test(char)) {
+      throw new Error(`The site server does not know the part "${char}" of the source ${source}.`);
+    } else if (depth === 0) {
+      pattern += char.replaceAll(/[.^$|[\]]/gu, '\\$&');
+      continue;
+    }
+    pattern += char;
+  }
+  return new RegExp(`^${pattern}$`, 'u');
+}
+
+/**
+ * Reads the header rules of `vercel.json` of the repository.
+ *
+ * @returns The rules, in the order of the file.
+ */
+function vercelRules(): HeaderRule[] {
+  // SAFETY: vercel.json of the repository follows the schema of Vercel.
+  const config = JSON.parse(readFileSync(join(ROOT, 'vercel.json'), 'utf8')) as VercelConfig;
+  return (config.headers ?? []).map((rule) => ({
+    pattern: sourcePattern(rule.source),
+    headers: rule.headers.map(({ key, value }) => [key.toLowerCase(), value] as const),
+  }));
+}
+
 /** A body that the shaper sends: the bytes that are left, and the functions of the response. */
 interface LinkBody {
   /** The bytes that the shaper did not send yet. */
@@ -54,25 +136,34 @@ interface LinkBody {
   readonly end: () => void;
 }
 
-/** A file of the site with its gzip bytes and its ETag. */
+/** A content coding of the server. */
+type Coding = 'br' | 'gzip';
+
+/** A file of the site with its compressed bytes and its ETag. */
 interface SiteFile {
   /** The bytes of the file. */
   readonly body: Buffer;
-  /** The gzip bytes of a text type, or `null`. */
-  readonly gzip: Buffer | null;
+  /** True for a text type, which the server compresses. */
+  readonly text: boolean;
+  /** The compressed bytes of each coding that the server sent, made at the first use. */
+  readonly coded: Map<Coding, Buffer>;
   /** The ETag: a part of the SHA-1 of the bytes. */
   readonly etag: string;
 }
 
 /**
- * The server of a site as GitHub Pages serves it: HTTP/2 with TLS (or HTTP/1.1), gzip for the text
- * types, `Cache-Control: max-age=600`, and ETag. The phone run shapes the network in the server, so
- * that the fetches of the Workers also get the shape: each body gets a turn of
+ * The server of a site as its host serves it: HTTP/2 with TLS (or HTTP/1.1), the compression of the
+ * text types, the `Cache-Control` headers of the host, and ETag. The phone run shapes the network
+ * in the server, so that the fetches of the Workers also get the shape: each body gets a turn of
  * {@link LINK_TURN_BYTES} bytes, so that each body keeps the order of its own bytes.
  */
 export class SiteServer {
   /** The folder of the site. */
   readonly #root: string;
+  /** The host whose answers the server copies. */
+  readonly #host: SiteHost;
+  /** The header rules of `vercel.json` for the host `vercel`, else none. */
+  readonly #rules: readonly HeaderRule[];
   /** The latency of each request, in ms. */
   readonly #latencyMs: number;
   /** The rate of the link, in bytes per second, `Infinity` with no shape. */
@@ -96,10 +187,13 @@ export class SiteServer {
    * Creates the server of a folder.
    *
    * @param root The folder of the site, such as `dist/`.
+   * @param host The host whose answers the server copies.
    * @param phone True for the shape of Fast 4G.
    */
-  constructor(root: string, phone: boolean) {
+  constructor(root: string, host: SiteHost, phone: boolean) {
     this.#root = root;
+    this.#host = host;
+    this.#rules = host === 'vercel' ? vercelRules() : [];
     this.#latencyMs = phone ? PHONE_LATENCY_MS : 0;
     this.#bytesPerSecond = phone ? PHONE_BYTES_PER_S : Infinity;
   }
@@ -141,7 +235,7 @@ export class SiteServer {
   }
 
   /**
-   * Reads a file of the site, with its gzip bytes and its ETag, one time.
+   * Reads a file of the site, with its ETag, one time.
    *
    * @param path The path of the URL.
    * @returns The file, or `null` when the site has no such file.
@@ -163,12 +257,31 @@ export class SiteServer {
       const body = readFileSync(file);
       entry = {
         body,
-        gzip: GZIP_TYPES.has(extname(file)) ? gzipSync(body) : null,
+        text: TEXT_TYPES.has(extname(file)),
+        coded: new Map(),
         etag: `"${createHash('sha1').update(body).digest('hex').slice(0, 16)}"`,
       };
       this.#files.set(file, entry);
     }
     return entry;
+  }
+
+  /**
+   * Gives the content coding of a file for a request. GitHub Pages sends gzip, and Vercel sends
+   * brotli when the browser accepts it.
+   *
+   * @param entry The file.
+   * @param accepted The header `Accept-Encoding` of the request.
+   * @returns The coding, or `null` for the plain bytes.
+   */
+  #coding(entry: SiteFile, accepted: string): Coding | null {
+    if (!entry.text) {
+      return null;
+    }
+    if (this.#host === 'vercel' && accepted.includes('br')) {
+      return 'br';
+    }
+    return accepted.includes('gzip') ? 'gzip' : null;
   }
 
   /**
@@ -210,19 +323,28 @@ export class SiteServer {
     const filePath = path.endsWith('/') ? `${path}index.html` : path;
     const replyHeaders: OutgoingHttpHeaders = {
       'content-type': CONTENT_TYPES.get(extname(filePath)) ?? 'application/octet-stream',
-      'cache-control': 'max-age=600',
+      'cache-control': this.#host === 'vercel' ? VERCEL_CACHE : PAGES_CACHE,
       etag: entry.etag,
     };
+    for (const rule of this.#rules) {
+      if (rule.pattern.test(path)) {
+        for (const [name, value] of rule.headers) {
+          replyHeaders[name] = value;
+        }
+      }
+    }
     if (headers['if-none-match'] === entry.etag) {
       response.writeHead(304, replyHeaders);
       response.end();
       return;
     }
 
-    const gzip = entry.gzip !== null && String(headers['accept-encoding']).includes('gzip');
-    const body = gzip && entry.gzip ? entry.gzip : entry.body;
-    if (gzip) {
-      replyHeaders['content-encoding'] = 'gzip';
+    const coding = this.#coding(entry, String(headers['accept-encoding']));
+    let body = entry.body;
+    if (coding) {
+      body = entry.coded.get(coding) ?? encode(entry.body, coding);
+      entry.coded.set(coding, body);
+      replyHeaders['content-encoding'] = coding;
     }
     replyHeaders['content-length'] = String(body.length);
     response.writeHead(200, replyHeaders);
@@ -252,6 +374,17 @@ export class SiteServer {
       },
     });
   }
+}
+
+/**
+ * Compresses the bytes of a file.
+ *
+ * @param body The bytes.
+ * @param coding The content coding.
+ * @returns The compressed bytes. Brotli uses its default quality, 11.
+ */
+function encode(body: Buffer, coding: Coding): Buffer {
+  return coding === 'br' ? brotliCompressSync(body) : gzipSync(body);
 }
 
 /** The certificate of the server. */
@@ -316,20 +449,27 @@ export interface RunningSite {
   readonly close: () => void;
 }
 
+/** The options of a site server. */
+export interface SiteOptions {
+  /** The folder of the site, such as `dist/`. */
+  readonly root: string;
+  /** The host whose answers the server copies. */
+  readonly host: SiteHost;
+  /** True for the shape of Fast 4G. */
+  readonly phone: boolean;
+  /** The port on `localhost`. */
+  readonly port: number;
+}
+
 /**
  * Starts the server of a site on a port of `localhost`, with its shaper.
  *
- * @param root The folder of the site, such as `dist/`.
- * @param phone True for the shape of Fast 4G.
- * @param port The port.
+ * @param options The options.
  * @returns The running site.
  */
-export async function startSiteServer(
-  root: string,
-  phone: boolean,
-  port: number,
-): Promise<RunningSite> {
-  const server = new SiteServer(root, phone);
+export async function startSiteServer(options: SiteOptions): Promise<RunningSite> {
+  const { root, host, phone, port } = options;
+  const server = new SiteServer(root, host, phone);
   const linkTimer = setInterval(() => {
     server.tick();
   }, 5);
