@@ -1,5 +1,7 @@
 import { drumPart, RHYTHM_CHANNEL } from './drum-map.ts';
 import { programPlace, sectionByPitch } from './program-map.ts';
+import { runAll } from './steps.ts';
+import type { Steps } from './steps.ts';
 import type { ProgramPlace } from './program-map.ts';
 import type { Note, Timeline } from './timeline.ts';
 import { SECTION_ORDER } from './types.ts';
@@ -35,12 +37,26 @@ export interface Seating {
  * @returns The seats in the order of design 3.2, and the seat of each note.
  */
 export function assignSeats(timeline: Timeline): Seating {
+  return runAll(assignSeatsSteps(timeline));
+}
+
+/**
+ * Gives each note a section and a seat as {@link assignSeats} does, in steps (design 7.2).
+ *
+ * @param timeline The notes of the file.
+ * @returns The steps, which return the seats and the seat of each note.
+ */
+export function* assignSeatsSteps(timeline: Timeline): Steps<Seating> {
   const notes = timeline.notes;
   const mapped = noteSections(notes);
+  yield;
   const channelKeys = notes.map((note, i) => seatKey(note, mapped[i] ?? 'sound-only'));
+  yield;
   const mergedKeys =
     timeline.format === 1 ? mergeArticulations(notes, mapped, channelKeys) : channelKeys;
+  yield;
   const { keys, sections } = limitSeats(notes, mapped, mergedKeys);
+  yield;
   const ordered = orderSeats(groupSeats(notes, sections, keys));
   const seatOfKey = new Map(ordered.map((item, i) => [item.key, i]));
   const counts = new Map<SectionId, number>();

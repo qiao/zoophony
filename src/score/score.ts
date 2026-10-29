@@ -1,6 +1,6 @@
 import { buildBeats } from './beats.ts';
 import { assignPlayersSteps } from './players.ts';
-import { assignSeats } from './seats.ts';
+import { assignSeatsSteps } from './seats.ts';
 import { titleSequenceName } from './sequence-name.ts';
 import { runAll } from './steps.ts';
 import type { Steps } from './steps.ts';
@@ -40,7 +40,7 @@ export function* buildScoreSteps(bytes: Uint8Array, sectionSize: SectionSize): S
     return { ok: false, error: 'not-midi' };
   }
   yield;
-  const seating = assignSeats(timeline);
+  const seating = yield* assignSeatsSteps(timeline);
   yield;
   const cast = yield* assignPlayersSteps(timeline, seating, sectionSize);
   yield;
