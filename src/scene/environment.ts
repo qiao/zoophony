@@ -123,7 +123,7 @@ export const CAPTURE = {
   intensity: 1,
 } as const;
 
-/** The inputs of {@link captureEnvironment}. */
+/** The inputs of {@link captureEnvironmentSteps}. */
 export interface CaptureOptions {
   /** The point of the capture. */
   readonly position: Vec3;

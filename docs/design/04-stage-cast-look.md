@@ -393,7 +393,7 @@ under the hard key light.
   key and a kicker on the shade side of the subject (`scene/shot-light.ts`, 5.6). Room haze gives
   the back rows an aerial depth (`ROOM_HAZE`). A solo turns the key light, the pool, and the beams
   to the soloed players (`soloAim()`, 2.4). A captured cube of the lit hall gives the reflections
-  (`captureEnvironment()`).
+  (`captureEnvironmentSteps()`).
 - **Tone.** AgX tone mapping, because ACES moved the dark wood to red. Its exposure (`STAGE_TONE`)
   keeps the lit floor and the white fur below the shoulder of the curve, so the stage does not
   look over-exposed. With reduced motion, the noise, the motes, and the grain stand still (2.5).

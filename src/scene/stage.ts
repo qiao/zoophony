@@ -252,7 +252,7 @@ function addBakeToLights(fragmentShader: string): string {
 
 /** The uniforms of the bake of a stage, which `StageScene` sets after the bake. */
 export interface StageBakeUniforms {
-  /** The texture of `bakeStage()`, or one white texel with no bake. */
+  /** The texture of `bakeStageSteps()`, or one white texel with no bake. */
   readonly uStageBake: { value: Texture };
   /**
    * The part of the normal bias of the key shadow that the stage takes: 1 with no bake, 0 with

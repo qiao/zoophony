@@ -38,7 +38,7 @@ their traps. The head comment of each tool file gives its options.
   the tan fox uses the red fox rig. A color rule of a rig changes only `COLOR_0`, and each palette
   maps from the colors before the rule (`COLOR_1`). Check that `pnpm body-probe` shows only the
   target species.
-- **Floor light.** The captured environment (`captureEnvironment()`) sees the lit floor, so a
+- **Floor light.** The captured environment (`captureEnvironmentSteps()`) sees the lit floor, so a
   stronger hot spot on the floor can clip a close shot with no more light on the player. After a
   change of the light of the floor, measure the close shots too.
 - **Gamut.** A darker color reaches the sRGB gamut early, and a larger chroma factor then has no
