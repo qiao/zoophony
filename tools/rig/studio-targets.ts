@@ -1,19 +1,20 @@
+// Output: the bind arms of `tools/mesh-rigs/rabbit.json` and `tools/mesh-rigs/fox.json`.
 /**
  * Prints the seat and the bind arms of the studio rabbit, which the rig of the mesh rabbit copies
  * (`tools/mesh-rigs/rabbit.json`): the world turn of each left leg bone from the bind pose to the
  * first key of the clip `reference`, and the unit direction of each left arm bone in the bind
  * pose, in the axes of the studio.
  *
- *     node docs/research/2026-10-13-rabbit-mesh/studio-targets.ts
+ *     node tools/rig/studio-targets.ts
  */
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 import { Matrix4, Quaternion, Vector3 } from 'three';
 
-import { firstKeys, readGlb, readSkeleton, worldMatrices } from '../../../tools/studio-body.ts';
+import { firstKeys, readGlb, readSkeleton, worldMatrices } from '../studio-body.ts';
 
-const root = join(import.meta.dirname, '..', '..', '..');
+const root = join(import.meta.dirname, '..', '..');
 const glb = readGlb(readFileSync(join(root, 'lowpoly-studio/animals/rabbit/out/rabbit.glb')));
 const skeleton = readSkeleton(glb);
 const posed = worldMatrices(glb.json, firstKeys(glb, 'reference').nodes);
@@ -33,6 +34,6 @@ for (const [bone, child] of [
   ['upper_arm_L', 'forearm_L'],
   ['forearm_L', 'hand_L'],
   ['hand_L', 'fingers_L'],
-]) {
+] as const) {
   console.log(`bind ${bone}: ${round(head(child).sub(head(bone)).normalize().toArray())}`);
 }
