@@ -97,7 +97,10 @@ In both cases:
 - Before the report, run `tools/decision-rows.sh --diff <base>`. Update or remove each decision
   row that names a removed identifier and that the change makes wrong.
 - Run `pnpm test:e2e` with `ZOOPHONY_E2E_PORT` set to a free port, because the merge script and
-  other agents use port 4182.
+  other agents use port 4182. While all tests are paused, a change that does not touch the UI
+  (`src/ui/` or the UI tests) runs only `pnpm test:e2e e2e/smoke.e2e.ts --project=chromium`.
+  Some UI tests fail on `main` (11 on 2026-10-29). Thus a failure in a full run is a fault of the
+  change only when the same test passes on the base.
 - Stop each dev server, preview server, and browser that you start, before you end your turn.
   `pgrep -fl 'vite|playwright|chrome-headless'` shows the processes that remain.
 
