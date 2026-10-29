@@ -612,7 +612,7 @@ export const SPECIES = {
   /**
    * Rhino, the tuba: a gray rhino with a pale belly, a large pale horn on the muzzle and a small
    * one behind it, tall ears, light claws, and a thin tail with a dark tuft. It has the studio
-   * body of the mesh of the user with rebuilt arms, `assets/models/rhino/rhino-apose-arms.glb`,
+   * body of the mesh of the user with rebuilt arms, `assets/models/rhino/rhino-tpose-arms.glb`,
    * which `pnpm rig-mesh rhino` rigs (design 4.4), with the size of the parametric rhino
    * (2026-10-21-mesh-rhino decisions). It stands to play the tuba, as the user asked. Its long
    * muzzle puts the mouthpiece far in front of the chest, so the lead pipe of its tuba is 0.25 m
