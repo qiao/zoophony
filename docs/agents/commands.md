@@ -50,7 +50,7 @@ prints only a one-line usage text.
 | Command | Action |
 |---|---|
 | `pnpm screenshots <dir> [--sheet] [--play] [--ui] [--drawer] [--load] [--shots]` | Writes the review screenshots of design 9.8 into `<dir>` as WebP files of at most 300 kB: each demo at 1440 × 900 and 390 × 844, the gallery, the animal views, and the sheets. The flags add close views, play frames, UI states, and camera shots. |
-| `pnpm snapshot` | Saves the play frame of the default demo and a close view of each gallery model into `scratch/snapshots/<commit>/`. |
+| `pnpm snapshot` | Saves the play frame of the default demo and a close view of each gallery model into `scratch/snapshots/<date>-<hash>/` of the commit. |
 | `pnpm sheet-check <sheet> <dir>` | Compares a sheet page of `views.html` with its sheet in `docs/reference/` (design 7.1). With a matte of `tools/sheet-mattes/`, it also prints the silhouette IoU of each view. |
 | `pnpm choir-check <dir>` | Puts the gallery penguin beside a penguin of each of the two newest reference images. |
 | `pnpm close-views <role> <dir> [--moments <list>] [--views <list>] [--probe <p>] [--lineup] [--sheet] [--base <ref>] [--glb <file>] [--set <changes>]...` | Writes the moments and the views of `ROLE_VIEWS` of a role, and a grid. `--moments` takes a share of a move, such as `lift30`. `--lineup` gives a row of the base, the tree, and each `--with` role for each view (front, back, left, right). `--base --sheet` writes the moments as columns with the base row above the tree row, cut to `--box` (2x with `--scale 2`). `--target head` gives 3x face crops. Each `--set` goes into `set-<n>/`. Each close view has a fill light from the camera. 25 s to 45 s. |
