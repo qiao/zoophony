@@ -313,17 +313,16 @@ when no light value can match the lit pixels of the reference.
 
 **Colors**
 
-- **Scene.** `SCENE_COLORS` of `models/colors.ts` (chairs, stands, sheets), `STAGE_COLORS` of
+- **Scene colors.** `SCENE_COLORS` of `models/colors.ts` (chairs, stands, sheets), `STAGE_COLORS` of
   `models/props.ts` (stage, risers, podium), and `HALL_COLORS` of `scene/hall.ts`. The hall is a
-  dark, warm room. The stage is an amber wood with a tone for each plank and dark seams, and a
-  baked light (`SIDE_GLOW`) keeps its sides from black. The chairs are a honey wood. The music
-  stands are black with a warm gray desk, because black desks were the largest shapes of some
-  close shots.
-- **Species.** `SPECIES_COLORS` gives each species the fur, the belly, and the accent color. A
-  studio body keeps the face colors of its rig (4.4). The UI seat dots read the fur color, and a
+  dark, warm room. The stage is an amber wood with a tone for each plank and dark seams, and a baked
+  light (`SIDE_GLOW`) keeps its sides from black. The chairs are a honey wood. The music stands are
+  black with a warm gray desk, because black desks were the largest shapes of some close shots.
+- **Species colors.** `SPECIES_COLORS` gives each species the fur, the belly, and the accent color.
+  A studio body keeps the face colors of its rig (4.4). The UI seat dots read the fur color, and a
   color rule of a rig can move the fur toward it. All eyes are black with a light.
-- **Instruments.** `INSTRUMENT_COLORS`. The bowed strings are varnished wood with a lighter top
-  and darker edges. The clarinet is black lacquer with silver keys, the flutes are silver, the
+- **Instrument colors.** `INSTRUMENT_COLORS`. The bowed strings are varnished wood with a lighter
+  top and darker edges. The clarinet is black lacquer with silver keys, the flutes are silver, the
   brass is gold with lit bells, and the timpani are copper. The piano is black lacquer with a dark
   well and a dark gold plate in its open case (`PIANO_INSIDE`).
 
