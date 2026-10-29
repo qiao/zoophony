@@ -52,6 +52,7 @@ prints only a one-line usage text.
 | Command | Action |
 |---|---|
 | `pnpm screenshots <dir> [--sheet] [--play] [--ui] [--drawer] [--load] [--shots]` | Writes the review screenshots of design 9.8 into `<dir>` as WebP files of at most 300 kB: each demo at 1440 × 900 and 390 × 844, the gallery, the animal views, and the sheets. The flags add close views, play frames, UI states, and camera shots. |
+| `pnpm share-image [--out <file>]` | Builds the site, and writes the share image of design 7.4 into `public/share.jpg`: a JPEG of 1200 × 630 of the default demo after 6 s of play, with the logo and no other UI, at most 200 kB. Run it after a change of the look, and commit the image. About 20 s. |
 | `pnpm snapshot` | Saves the play frame of the default demo and a close view of each gallery model into `scratch/snapshots/<date>-<hash>/` of the commit. |
 | `pnpm sheet-check <sheet> <dir>` | Compares a sheet page of `views.html` with its sheet in `docs/reference/` (design 7.1). With a matte of `tools/sheet-mattes/`, it also prints the silhouette IoU of each view. |
 | `pnpm choir-check <dir>` | Puts the gallery penguin beside a penguin of each of the two newest reference images. |

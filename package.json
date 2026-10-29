@@ -21,6 +21,7 @@
     "load-probe": "node tools/load-probe.ts",
     "lighthouse": "node tools/lighthouse.ts",
     "screenshots": "pnpm build && node tools/screenshots.ts",
+    "share-image": "pnpm build && node tools/share-image.ts",
     "snapshot": "pnpm build && node tools/snapshot.ts",
     "sheet-check": "pnpm build && node tools/sheet-check.ts",
     "pose-probe": "node tools/pose-probe.ts",

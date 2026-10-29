@@ -16,6 +16,26 @@ export const SITE_URL = 'https://www.zoophony.com/';
  */
 export const SITE_TITLE = `${APP_NAME}: 3D animal orchestra MIDI player in the browser`;
 
+/** The share image of the start page, a file of `public/` (design 7.4). */
+interface ShareImage {
+  /** The path of the file from the root of the site. */
+  readonly path: string;
+  /** The width in pixels: the width of a large card of Open Graph. */
+  readonly width: number;
+  /** The height in pixels. */
+  readonly height: number;
+  /** The text that tells a person who cannot see the image what it shows. */
+  readonly alt: string;
+}
+
+/** The share image of the start page, which `pnpm share-image` writes (design 7.4). */
+export const SHARE_IMAGE: ShareImage = {
+  path: 'share.jpg',
+  width: 1200,
+  height: 630,
+  alt: 'A bear conducts an orchestra of low-poly animals on a wooden stage in a dark concert hall.',
+};
+
 /** The description of the start page for search results and shares, at most 155 characters. */
 export const SITE_DESCRIPTION =
   'An orchestra of low-poly animals plays classical music on a 3D stage in your browser. Play a demo by Bach, Mozart, or Beethoven, or open a MIDI file.';
