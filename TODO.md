@@ -842,6 +842,9 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
 - [ ] Rhino T-pose (`2026-10-28-rhino-tpose.md`): the paws go 2.4 cm into the tuba (limit 2.2 cm,
       1.9 cm on the A-pose mesh), and the right arm folds 6 faces at p95 (3 before). Next: a
       thinner round stump at the nails, or a grip that keeps the stump on the outside of the tube.
+- [x] Hippo elbow (user, 2026-10-29): "the hippo's arm has unexpected bump near the elbow". Done:
+      the bind mesh of the left elbow takes Taubin rounds after its relax (`bindSmooth`,
+      `2026-10-28-followups.md`). A small step stays under the bind elbow.
 - [ ] Penguin flank (`2026-10-28-followups.md`): the round bump at the armpit stays a little
       visible from az90. The faces around the flipper with a part of the arm weight stretch when
       the flipper rises. Next: a cut of the flipper from the body with a side wall, as the arm

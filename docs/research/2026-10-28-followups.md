@@ -158,3 +158,18 @@ With the skin normals of `rootNormals.wrist`, the right wrist folds in 18,499 sa
 folded faces of the play fall from 24 to 21 (`bear-fold.txt`), and the arm gate, the depths, and
 the poses stay as on `main` (`bear-arm-check.txt`). `bear-wrist.webp` shows `main`, the new copy,
 and the new copy with the skin normals (chosen), at rest from az90, az-90, and az60.
+
+## 9. The hippo elbow in the bind mesh
+
+On 2026-10-29 the user said: "the hippo's arm has unexpected bump near the elbow", with two images
+of white faces: the bind mesh of `hippo.rig.glb`, which a viewer shows with no skin. In Blender
+with the armature off, the seated bind of the left arm has the forearm up and a lip at the inner
+elbow (`hippo-bind-main.webp`). The rig of the start of 2026-10-28 has the same lip, so the rounds
+of that day did not make it. `bindSmooth` runs the Taubin rounds of `arm_smooth()` on the bind mesh
+of the bones of its rule after the relax. On the left elbow, the upper arm segment before it, and
+the first forearm segment, 12 rounds lower the play folds of the bassist from 3.2% to 1.7% of the
+samples (`hippo-fold-bind.txt`, 6 rounds 3.0%, `hippo-bind-table.txt`). The same rule on both
+sides folded the right arm in 14.9% of the samples (`hippo-bind-both-table.txt`), and a band of
+five bones gave 3.2%. `hippo-bind-smooth.webp` shows the softer inner elbow of the bind. In the
+app, the left elbow is a little calmer from the left side (`hippo-left-elbow.webp`), and the arm
+gate, the depths, and the poses stay as on `main`. A small step stays under the bind elbow.

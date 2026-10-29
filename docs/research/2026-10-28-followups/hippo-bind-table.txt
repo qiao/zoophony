@@ -1,0 +1,52 @@
+| Set | Samples | With a fold | Share | Most faces (by the side of the main bone) | Worst sample |
+|---|---:|---:|---:|---:|---|
+| rest | 9 | 0 | 0.0% | 0 (L 0 / R 0 / other 0) | - |
+| play | 12912 | 410 | 3.2% | 1 (L 1 / R 0 / other 0) | bach-bwv1048.mid 15.00 s |
+| lift | 279 | 0 | 0.0% | 0 (L 0 / R 0 / other 0) | - |
+| all | 13200 | 410 | 3.1% | 1 (L 1 / R 0 / other 0) | bach-bwv1048.mid 15.00 s |
+| Set | Samples | With a fold | Share | Most faces (by the side of the main bone) | Worst sample |
+|---|---:|---:|---:|---:|---|
+| rest | 9 | 0 | 0.0% | 0 (L 0 / R 0 / other 0) | - |
+| play | 12912 | 381 | 3.0% | 1 (L 1 / R 0 / other 0) | bach-bwv1050.mid 31.55 s |
+| lift | 279 | 0 | 0.0% | 0 (L 0 / R 0 / other 0) | - |
+| all | 13200 | 381 | 2.9% | 1 (L 1 / R 0 / other 0) | bach-bwv1050.mid 31.55 s |
+| Set | Samples | With a fold | Share | Most faces (by the side of the main bone) | Worst sample |
+|---|---:|---:|---:|---:|---|
+| rest | 9 | 0 | 0.0% | 0 (L 0 / R 0 / other 0) | - |
+| play | 12912 | 221 | 1.7% | 1 (L 1 / R 0 / other 0) | bach-bwv1050.mid 31.80 s |
+| lift | 279 | 0 | 0.0% | 0 (L 0 / R 0 / other 0) | - |
+| all | 13200 | 221 | 1.7% | 1 (L 1 / R 0 / other 0) | bach-bwv1050.mid 31.80 s |
+| Variant | Triangles | Mesh gzip B | Scale m/u | Seat m | Leg seat m | Chair m | Reach L m | Reach R m | Standing mm | bassist play | bassist lift | bassist rest | bassist bones | Shapes: faces left turned |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| base | 3603 | 27265 | 1.6009 | 0.139 | 0.139 | 0.333 | 0.539 | 0.539 | 0.237 | 3.2% | 0.0% | 0.0% | forearm_seg0_L 410 | arm_raise_R: none |
+| bindSmooth={"rounds":6,"sides":"L","bones":["elbow","upper_arm_seg3","forearm_seg0"]} | 3603 | 27290 | 1.6009 | 0.139 | 0.139 | 0.333 | 0.539 | 0.539 | 0.237 | 3.0% | 0.0% | 0.0% | forearm_seg0_L 381 | arm_raise_R: none |
+| bindSmooth={"rounds":12,"sides":"L","bones":["elbow","upper_arm_seg3","forearm_seg0"]} | 3603 | 27290 | 1.6009 | 0.139 | 0.139 | 0.333 | 0.539 | 0.539 | 0.237 | 1.7% | 0.0% | 0.0% | forearm_seg0_L 221 | arm_raise_R: none |
+| Variant | Player | Seat m | Visible head m | Standing head top m | Seated head top m | Footprint m |
+|---|---|---|---|---|---|---|
+| main | hippo contrabass | 0.000 | 0.542 | 1.601 | 1.601 | 0.954 by 1.043 |
+| base | hippo contrabass | 0.000 (+0.000) | 0.542 (+0.000) | 1.601 (+0.000) | 1.601 (+0.000) | 0.954 (+0.000) by 1.043 (+0.000) |
+| bindSmooth={"rounds":6,"sides":"L","bones":["elbow","upper_arm_seg3","forearm_seg0"]} | hippo contrabass | 0.000 (+0.000) | 0.542 (+0.000) | 1.601 (+0.000) | 1.601 (+0.000) | 0.954 (+0.000) by 1.043 (+0.000) |
+| bindSmooth={"rounds":12,"sides":"L","bones":["elbow","upper_arm_seg3","forearm_seg0"]} | hippo contrabass | 0.000 (+0.000) | 0.542 (+0.000) | 1.601 (+0.000) | 1.601 (+0.000) | 0.954 (+0.000) by 1.043 (+0.000) |
+| Variant | Player | Head center m | Head height m | Nose m | Instrument box m |
+|---|---|---|---|---|---|
+| main | hippo contrabass | (0.000, 1.348, -0.069) | 0.505 | (-0.028, 1.284, -0.442) | (-0.523, 0.000, -0.600) to (0.315, 1.684, 0.099) |
+| base | hippo contrabass | (0.000, 1.348, -0.069) (0.0 mm) | 0.505 (+0.0 mm) | (-0.028, 1.284, -0.442) (0.0 mm) | (-0.523, 0.000, -0.600) to (0.315, 1.684, 0.099) (0.0 mm) |
+| bindSmooth={"rounds":6,"sides":"L","bones":["elbow","upper_arm_seg3","forearm_seg0"]} | hippo contrabass | (0.000, 1.348, -0.069) (0.0 mm) | 0.505 (+0.0 mm) | (-0.028, 1.284, -0.442) (0.0 mm) | (-0.523, 0.000, -0.600) to (0.315, 1.684, 0.099) (0.0 mm) |
+| bindSmooth={"rounds":12,"sides":"L","bones":["elbow","upper_arm_seg3","forearm_seg0"]} | hippo contrabass | (0.000, 1.348, -0.069) (0.0 mm) | 0.505 (+0.0 mm) | (-0.028, 1.284, -0.442) (0.0 mm) | (-0.523, 0.000, -0.600) to (0.315, 1.684, 0.099) (0.0 mm) |
+| Demo | main m | base | bindSmooth={"rounds":6,"sides":"L","bones":["elbow","upper_arm_seg3","forearm_seg0"]} | bindSmooth={"rounds":12,"sides":"L","bones":["elbow","upper_arm_seg3","forearm_seg0"]} |
+|---|---|---|---|---|
+| bach-bwv1047.mid | 10.625 | 10.625 (+0.0%) | 10.625 (+0.0%) | 10.625 (+0.0%) |
+| bach-bwv1048.mid | 10.497 | 10.497 (+0.0%) | 10.497 (+0.0%) | 10.497 (+0.0%) |
+| bach-bwv1050.mid | 9.356 | 9.356 (+0.0%) | 9.356 (+0.0%) | 9.356 (+0.0%) |
+| beethoven-1.mid | 9.904 | 9.904 (+0.0%) | 9.904 (+0.0%) | 9.904 (+0.0%) |
+| beethoven-8-4.mid | 10.323 | 10.323 (+0.0%) | 10.323 (+0.0%) | 10.323 (+0.0%) |
+| beethoven-8.mid | 9.779 | 9.779 (+0.0%) | 9.779 (+0.0%) | 9.779 (+0.0%) |
+| beethoven-9.mid | 12.520 | 12.520 (+0.0%) | 12.520 (+0.0%) | 12.520 (+0.0%) |
+| boulanger-matin.mid | 11.484 | 11.484 (+0.0%) | 11.484 (+0.0%) | 11.484 (+0.0%) |
+| brahms-2.mid | 11.173 | 11.173 (+0.0%) | 11.173 (+0.0%) | 11.173 (+0.0%) |
+| mendelssohn-op61.mid | 9.920 | 9.920 (+0.0%) | 9.920 (+0.0%) | 9.920 (+0.0%) |
+| mozart-k191.mid | 8.488 | 8.488 (+0.0%) | 8.488 (+0.0%) | 8.488 (+0.0%) |
+| mozart-k315.mid | 8.946 | 8.946 (+0.0%) | 8.946 (+0.0%) | 8.946 (+0.0%) |
+| mozart-k417.mid | 8.325 | 8.325 (+0.0%) | 8.325 (+0.0%) | 8.325 (+0.0%) |
+| mozart-k525.mid | 6.787 | 6.787 (+0.0%) | 6.787 (+0.0%) | 6.787 (+0.0%) |
+| Largest change | | none | none | none |
