@@ -4,8 +4,8 @@ import { IDENTITY, toQuat, toVec3 } from '../tuples.ts';
 import { applyTransform, transform } from '../mesh.ts';
 import type { Quat, Vec3 } from '../tuples.ts';
 import type { Transform } from '../mesh.ts';
-import { box, cylinder, quad, sweep } from '../primitives.ts';
-import type { OutlinePoint } from '../primitives.ts';
+import { box, cylinder, lathe, quad, sweep } from '../primitives.ts';
+import type { OutlinePoint, ProfilePoint } from '../primitives.ts';
 import { DEFAULT_HEAD_HEIGHT } from '../species.ts';
 import { PieceBuilder, hold, pieceSize } from './piece.ts';
 import type { InstrumentModel, InstrumentPiece, PlayTarget } from './types.ts';
@@ -358,6 +358,106 @@ function neckRing([x, half, bottom]: (typeof NECK_RINGS)[number]): Vec3[] {
 }
 
 /**
+ * The pegbox and the scroll of the violin model, in meters in the violin axes. The scroll is a
+ * spiral in the plane along the violin. As on a real scroll, its outer turn starts at the back of
+ * the pegbox, goes over the end and the front, and turns in to the eye. Each ring of the spiral
+ * is a box section that gets smaller toward the eye.
+ */
+const SCROLL = {
+  /** The end of the pegbox along the violin, at the throat of the scroll. */
+  pegboxEnd: 0.375,
+  /** The half width, the bottom, and the top of the pegbox at the nut. */
+  nutRing: [0.0095, 0.032, 0.0595],
+  /** The half width, the bottom, and the top of the pegbox at the throat. */
+  throatRing: [0.0085, 0.033, 0.058],
+  /** The center of the spiral: along the violin, and the height. */
+  center: [0.386, 0.0466],
+  /**
+   * The angle of the first ring and of the last ring, in degrees from the end (+x) toward the
+   * top (+y).
+   */
+  fromDeg: -135,
+  toDeg: 405,
+  /** The number of steps of the spiral. */
+  steps: 9,
+  /** The radius of the spiral at the first ring, and its part that remains at the eye. */
+  radius: 0.015,
+  eyeShare: 0.28,
+  /** The radial thickness of a turn, as a part of its radius. */
+  thickness: 0.46,
+  /** The half width of the spiral at the first ring and at the eye. */
+  halfWidth: 0.0105,
+  eyeHalfWidth: 0.006,
+  /** The radius and the half width of the core disk that closes the groove between the turns. */
+  coreRadius: 0.0105,
+  coreHalfWidth: 0.0045,
+} as const;
+
+/** The places of the four pegs along the violin, and the side of the head of each (+z or -z). */
+const PEGS: readonly (readonly [x: number, side: 1 | -1])[] = [
+  [0.342, 1],
+  [0.3495, -1],
+  [0.357, 1],
+  [0.3645, -1],
+];
+
+/**
+ * The profile of a peg along its shaft, from the end that stands out of the far wall of the
+ * pegbox to the tip of the head. The head is flat (`PEG_FLAT`), so that its wide faces show from
+ * the front and from the back.
+ */
+const PEG_PROFILE: readonly ProfilePoint[] = [
+  [0.0012, 0],
+  [0.0016, 0.0205],
+  [0.0048, 0.027],
+  [0, 0.0315],
+];
+
+/** The scale of the head of a peg across its wide faces. */
+const PEG_FLAT = 0.45;
+
+/**
+ * Makes the spiral of the scroll.
+ *
+ * @returns The corner list.
+ */
+function scrollSpiral(): number[] {
+  const sc = SCROLL;
+  const rings: Vec3[][] = [];
+  for (let k = 0; k <= sc.steps; k++) {
+    const t = k / sc.steps;
+    const angle = (sc.fromDeg + t * (sc.toDeg - sc.fromDeg)) * MathUtils.DEG2RAD;
+    const radius = sc.radius * sc.eyeShare ** t;
+    const inner = radius * (1 - sc.thickness / 2);
+    const outer = radius * (1 + sc.thickness / 2);
+    const half = sc.halfWidth + t * (sc.eyeHalfWidth - sc.halfWidth);
+    const at = (r: number, z: number): Vec3 => [
+      sc.center[0] + r * Math.cos(angle),
+      sc.center[1] + r * Math.sin(angle),
+      z,
+    ];
+    rings.push([at(inner, -half), at(inner, half), at(outer, half), at(outer, -half)]);
+  }
+  return sweep(rings);
+}
+
+/**
+ * Makes a ring of the pegbox.
+ *
+ * @param x The place along the violin.
+ * @param ring The half width, the bottom, and the top.
+ * @returns The corners, counterclockwise when seen from the scroll.
+ */
+function boxRing(x: number, [half, bottom, top]: readonly [number, number, number]): Vec3[] {
+  return [
+    [x, bottom, -half],
+    [x, top, -half],
+    [x, top, half],
+    [x, bottom, half],
+  ];
+}
+
+/**
  * Places a part in a frame. The frame has no scale.
  *
  * @param frame The frame.
@@ -420,16 +520,45 @@ function addViolinParts(piece: PieceBuilder, frame: Transform, upright: boolean)
     (nutTop + FINGERBOARD.nutUnder) / 2,
     0,
   ]);
-  // The pegbox, the pegs, and the scroll.
-  part(box(0.045, 0.025, 0.02), wood, [0.355, v.bodyThickness + 0.002, 0]);
+  // The pegbox with its dark opening at the top, the scroll, and the four pegs.
+  const sc = SCROLL;
+  const pegboxStart = v.nut + FINGERBOARD.nutLength;
   part(
-    cylinder(0.016, 0.016, 0.022, 8),
-    top,
-    [0.385, v.bodyThickness + 0.008, -0.011],
+    sweep([boxRing(pegboxStart, sc.nutRing), boxRing(sc.pegboxEnd, sc.throatRing)]),
+    wood,
+    [0, 0, 0],
+  );
+  const opening = (ring: readonly [number, number, number]): [number, number, number] => [
+    ring[0] - 0.0022,
+    ring[2] - 0.006,
+    ring[2] + 0.0004,
+  ];
+  part(
+    sweep([
+      boxRing(pegboxStart + 0.0025, opening(sc.nutRing)),
+      boxRing(sc.pegboxEnd - 0.004, opening(sc.throatRing)),
+    ]),
+    dark,
+    [0, 0, 0],
+  );
+  part(scrollSpiral(), top, [0, 0, 0]);
+  part(
+    cylinder(sc.coreRadius, sc.coreRadius, 2 * sc.coreHalfWidth, 6),
+    wood,
+    [sc.center[0], sc.center[1], -sc.coreHalfWidth],
     toQuat(new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), Math.PI / 2)),
   );
-  for (const x of [0.343, 0.365]) {
-    part(box(0.006, 0.006, 0.03), dark, [x, v.bodyThickness + 0.004, 0]);
+  const pegY = (sc.nutRing[1] + sc.nutRing[2]) / 2;
+  for (const [x, side] of PEGS) {
+    const turn = toQuat(
+      new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), (side * Math.PI) / 2),
+    );
+    piece.add(
+      lathe(PEG_PROFILE, 4),
+      dark,
+      inFrame(frame, transform([x, pegY, -side * (sc.nutRing[0] + 0.001)], turn, [1, 1, PEG_FLAT])),
+      'varnish',
+    );
   }
   // The tailpiece and the chin rest.
   part(box(0.05, 0.006, 0.03), dark, [0.04, v.bodyThickness + 0.008, 0]);
