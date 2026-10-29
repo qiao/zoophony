@@ -120,11 +120,10 @@ studio body of its own (4.4). The table gives the species of each section.
   the same faces (`palette`).
 - The polar bear plays the piano and each keyboard seat of 3.8. The wolf is the gray clarinet
   player of `animals.webp`. The penguins look like a choir in robes.
-- The size rule of 4.2 puts the large species in the back row.
+- The mouse, the beaver, and the monkey play with no chair (`noChair`), as a real mouse, beaver,
+  or monkey stands on its hind legs (4.4, seat).
 - Further seats of a section alternate their species variants: a third violin seat uses rabbits
   again.
-- The mouse, the beaver, and the monkey play with no chair (`noChair`). Each one stands on its
-  hind legs with bent knees, as a real mouse, beaver, or monkey does (4.4, seat).
 
 ```typescript
 /** The parameters of one species (`SPECIES` of `models/species.ts`). */
@@ -306,12 +305,9 @@ a hold, or a body runs it.
 
 ## 4.5 Visual values
 
-One world unit is one meter. The code files that each block names hold the values.
-
-The colors come from samples of the reference images. Each base color is a little lighter than
-its darkest sample, because an image shows lit and shaded colors. Tune the light first. Change a
-base color only when a measure of the lit pixels shows that no light value can match the
-reference.
+One world unit is one meter. The code files that each block names hold the values. The colors
+come from samples of the reference images. Tune the light first, and change a base color only
+when no light value can match the lit pixels of the reference.
 
 **Colors**
 
@@ -345,8 +341,7 @@ of the players (skin, morph count) gets its own copy of the material and a depth
 | `metal`   | Brass, copper, and silver.                                | Sharp highlights. The hall is dark, so a high metalness looks black.  |
 
 The studio bodies smooth their fur, because their many small faces showed a crumpled pattern
-under the hard key light. The vertex colors hold a baked ambient occlusion, so the folds stay
-dark.
+under the hard key light.
 
 **Light and render**
 
@@ -378,23 +373,17 @@ dark.
   on the high tier (`TIER_SETTINGS`), because a hard edge showed black wedges on white fur. The
   back-row lights keep the back rows almost as bright as the front rows. These lights are a warm
   white, so white, gray, and purple fur keep their colors.
-- **Pool** (`LIGHT_POOL`). A factor in the shaders makes a pool on the conductor and the middle
-  of the orchestra (`addLightPool()`), because a separate light costs GPU time. The floor falls
-  off to its edges. A hot spot holds only the podium on the players, so the white fur of the
-  front rows does not clip.
-- **Bake** (`scene/stage-bake.ts`). The props and the stage do not move, so each layout bakes
-  the soft key shadow on the stage one time. The players keep a shadow map in each frame.
-- **Beam** (`BEAM_LOOK`). The haze cone is narrower than its rim light, because the full cone
-  veiled the orchestra. It leans toward its rim light, which stands at the x of the beam, so the
-  beam has a visible source and stands upright. The camera dims it in a close shot (5.6).
-- **Shot light** (`scene/shot-light.ts`). A close shot adds a soft key and a kicker only on the
-  part of the subject in the shade of the key light, so the lit fur does not clip.
-- **Room haze** (`ROOM_HAZE`, `HALL_FLOOR`). Thin warm air grows with the distance behind the
-  subject, so the back rows get an aerial depth and no player is veiled.
-- **Solo light** (`soloAim()`). When the user solos seats (2.4, 6.6), the key light, the pool,
-  and the beams turn to the soloed players, and ease back after the solo.
-- **Environment** (`captureEnvironment()`). Each layout renders its hall and its lit stage into a
-  cube, so the brass reflects the real lamps.
+- **Pool** (`LIGHT_POOL`, `addLightPool()`). A factor in the shaders makes a pool on the
+  conductor and the middle of the orchestra, because a separate light costs GPU time. A hot spot
+  holds only the podium on the players, so the white fur of the front rows does not clip.
+- **Beam** (`BEAM_LOOK`). The haze cone leans toward its rim light, which stands at the x of the
+  beam, so the beam has a visible source and stands upright. The camera dims it in a close shot.
+- **Other terms.** Each layout bakes the soft key shadow on the stage one time
+  (`scene/stage-bake.ts`), because the props and the stage do not move. A close shot adds a soft
+  key and a kicker on the shade side of the subject (`scene/shot-light.ts`, 5.6). Room haze gives
+  the back rows an aerial depth (`ROOM_HAZE`). A solo turns the key light, the pool, and the beams
+  to the soloed players (`soloAim()`, 2.4). A captured cube of the lit hall gives the reflections
+  (`captureEnvironment()`).
 - **Tone.** AgX tone mapping, because ACES moved the dark wood to red. Its exposure (`STAGE_TONE`)
   keeps the lit floor and the white fur below the shoulder of the curve, so the stage does not
   look over-exposed. With reduced motion, the noise, the motes, and the grain stand still (2.5).
@@ -430,31 +419,22 @@ scene ──> [depth 1/2] ──────────────────
 
 **Camera**
 
-`shots/view.ts` holds the field of view, the default view, the screen rules, and the orbit
+`shots/view.ts` holds the field of view (30°), the default view, the screen rules, and the orbit
 limits. `shots/frame.ts` holds the frame.
 
-- A perspective camera with a vertical field of view of 30°.
 - The default view stands on the audience axis behind the conductor, as `orchestra-latest.png`,
   and looks down at `DEFAULT_ELEVATION` at `DEFAULT_TARGET`. It looks a little less steeply down
   than the image. This product choice wins over the image. The wide shots of 5.6 look at the same
   target, and Free mode turns around it (2.5).
-- The default distance is `DEFAULT_DISTANCE_IN_SIDES × S`, and it is the unit of the wide shots,
-  the planner, and the beam fade.
-- In landscape, the players fill almost the full width of the free area beside the drawer
-  (`landscapeZoom()`). A portrait viewport gets a lower and more frontal view (`PORTRAIT_RULE`).
-  Each player stays whole in each wide shot (`wideView()`).
-- `camera.setViewOffset` puts the frame in the middle of the free area of 2.8 (`viewFrame()`).
-- Free mode keeps the camera outside the box of the stage and the players
-  (`orbitMinDistance()`).
+- The default distance (`DEFAULT_DISTANCE_IN_SIDES × S`) is the unit of the wide shots, the
+  planner, and the beam fade. A portrait viewport gets a lower and more frontal view
+  (`PORTRAIT_RULE`). Each player stays whole in each wide shot (`wideView()`), and the frame
+  centers on the free area of 2.8 (`viewFrame()`).
 
-**Supports and budgets**
-
-- The players of the timpani, the percussion, the contrabass, the tuba, the choir, and the
-  conductor stand. The soloist of 3.8 also stands when it plays the violin, the viola, the
-  flute, the oboe, the clarinet, the horn, the trumpet, or the trombone, as in a concerto
-  (`supportOf()` of `models/player.ts`).
-- A studio body has at most `STUDIO_TRIANGLE_BUDGET` triangles (4.4), and each instrument its
-  value of `INSTRUMENT_BUDGETS`. The frame cost of `perf-60.mid` sets the budgets (9.7).
+**Supports.** The players of the timpani, the percussion, the contrabass, the tuba, the choir,
+and the conductor stand. The soloist of 3.8 also stands when it plays the violin, the viola, the
+flute, the oboe, the clarinet, the horn, the trumpet, or the trombone, as in a concerto
+(`supportOf()` of `models/player.ts`).
 
 **Props and stage**
 
