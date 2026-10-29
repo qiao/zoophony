@@ -129,9 +129,14 @@ tailpiece, the chin rest, four strings, the shaped bow, and the double bass form
 with its bow has at most 1,188 triangles, within the new budget of 1,200. The clearance stays
 within the limits.
 
-The smaller chin rest moves the seats of the default demo. On the base, a violin at the radius
-2.72 m touched an item in front, so `fitRow()` placed row 0 at 2.76 m, and the first violins sat
-between -70.0° and -9.9°. The new chin rest clears at 2.72 m, and the first violins sit between
--89.9° and -12.8°, the mirror of the violas and the cellos (`rows.ts`). The clip probe passes with
-this layout. The cello keeps the depth of the violin form, and the strings stay parallel to the
-body (open tasks of `TODO.md`).
+The detailed footprint moved the seats of the default demo. The smaller chin rest let row 0 fit
+at 2.72 m in place of 2.76 m (`fitRow()`), so the first violins spread from -70.0°..-9.9° to
+-89.9°..-12.8°, and the contrabass seats moved by 2.5 cm. The merge gate then failed: the right
+arm of the conductor folded more in the lift (folds p95 9 against 5). The footprint now counts a
+simple box model of each bowed string and its bow in place of its parts (`addLayoutSpace()`). With
+it, each seat and each stand of the 15 demos equals the base to 1 µm (`layout-all.ts`), and the
+conductor passes with its base values (`arm-conductor.log`). The measures of section 4 come from
+the tree before this fix, with the moved seats.
+
+The cello keeps the depth of the violin form, and the strings stay parallel to the body (open
+tasks of `TODO.md`).
