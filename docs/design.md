@@ -362,6 +362,7 @@ The decision files:
 - [`2026-10-28-polar-legs.md`](decisions/2026-10-28-polar-legs.md): the hold and the rest of the low seat of the polar bear pianist, its calf fair, and its groin faces (user, manager; the factor, bench, size, and piano rows went on 2026-10-28).
 - [`2026-10-28-polar-bench2.md`](decisions/2026-10-28-polar-bench2.md): the taller bench of the polar bear pianist, with the leg factor 1.3, the thighs 25° down, the body 1.1 times as large, and the piano of 1.22 (user).
 - [`2026-10-28-tails.md`](decisions/2026-10-28-tails.md): the seated tails of the cat and the dog along the middle line of the source tail, with smoothing.
+- [`2026-10-28-arm-smooth.md`](decisions/2026-10-28-arm-smooth.md): the Taubin smoothing of the rebuilt arm tubes of the wolf, the cat bow arm, and the middles of the hippo arms.
 - [`2026-10-27-hall-back-lamps.md`](decisions/2026-10-27-hall-back-lamps.md): no low lamps of the hall on the wall behind the stage (user).
 - [`2026-10-27-cat-fox.md`](decisions/2026-10-27-cat-fox.md): the cat bind upper arm nearer to the hanging arm with the skin normals of the arm roots, the rest viola nearer to the hip, and the left tan fox paw that wraps the flute from the front.
 - [`2026-10-27-cat-fox2.md`](decisions/2026-10-27-cat-fox2.md): the cat arms of 1.10 H with a shorter forearm, the 10-inch viola near the neck, the cat rest paw that closes around the neck, and the right tan fox paw that holds the flute from behind and below as a right hand.
