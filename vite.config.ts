@@ -2,6 +2,7 @@ import { resolve } from 'node:path';
 import type { Plugin } from 'vite';
 import { LICENSES_FILE } from './src/app/credits.ts';
 import { DEFAULT_DEMO, DEMOS, demoUrl } from './src/app/demos.ts';
+import { SITE_DESCRIPTION, SITE_TITLE } from './src/app/page-title.ts';
 import { gzipSiteAudio } from './tools/gzip-site.ts';
 import { licenseDocument, licenseEntries } from './tools/licenses.ts';
 import { configDefaults, defineConfig } from 'vitest/config';
@@ -94,9 +95,9 @@ function escapeHtml(text: string): string {
 
 /**
  * Gives the value of each placeholder `%NAME%` of `index.html`, ready for its place in the HTML:
- * the URL of the default demo for the preload script, and the title lines of the default demo
- * for the static title (design 2.8, 7.2). Each value comes from a constant of the app, so that
- * the page and the app cannot differ.
+ * the URL of the default demo for the preload script, the title lines of the default demo for the
+ * static title (design 2.8, 7.2), and the texts of search and share (7.4). Each value comes from
+ * a constant of the app, so that the page and the app cannot differ.
  *
  * @param base The base path of the site.
  * @returns The values by name.
@@ -107,6 +108,8 @@ function indexValues(base: string): ReadonlyMap<string, string> {
     ['DEFAULT_DEMO_URL', demoUrl(DEFAULT_DEMO, base)],
     ['DEFAULT_DEMO_TITLE', escapeHtml(demo.title)],
     ['DEFAULT_DEMO_COMPOSER', escapeHtml(demo.composer)],
+    ['SITE_TITLE', escapeHtml(SITE_TITLE)],
+    ['SITE_DESCRIPTION', escapeHtml(SITE_DESCRIPTION)],
   ]);
 }
 

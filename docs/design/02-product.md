@@ -235,7 +235,7 @@ instant with reduced motion. Each text keeps the contrast 4.5:1 of WCAG AA over 
   end with "Check the connection.", because the button "Try again" stands next to them.
 - **Build cover**: the canvas fades out before a build and in after the first render.
 - **Page title**: "{title}, {composer} · Zoophony" for a demo, and "{title} · Zoophony" for a
-  file (`pageTitle()`).
+  file (`pageTitle()`). The default demo keeps the title of the start page (7.4).
 - **Tooltips** name the action and its key: "Play (Space)", "Pause (Space)", "Play again (Space)",
   "Seek (← →, Home)", "Mute (M)", "Automatic camera (C)", "Full screen (F)", "Exit full screen
   (F)", and "Speed", "Volume", "Reset view", and "Open the drawer" with no key. The link to GitHub

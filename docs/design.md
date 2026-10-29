@@ -23,6 +23,6 @@ history keeps the old decision files and research reports.
 | [`04-stage-cast-look.md`](design/04-stage-cast-look.md) | 4. Stage, cast, and look: look, layout, species, models, visual values, model inventory, and rig (4.1 to 4.7)                         |
 | [`05-animation.md`](design/05-animation.md)             | 5. Animation: pose index, pose function, rest pose, instrument motion, conductor, silent seats, and camera shots (5.1 to 5.6)         |
 | [`06-audio.md`](design/06-audio.md)                     | 6. Audio: engine, SoundFont, load flow, block scheduler, seek and pause, mute and solo, clock, and interfaces (6.1 to 6.8)            |
-| [`07-architecture.md`](design/07-architecture.md)       | 7. Architecture: modules, first download, and third-party licenses (7.1 to 7.3)                                                       |
+| [`07-architecture.md`](design/07-architecture.md)       | 7. Architecture: modules, first download, third-party licenses, and search and share (7.1 to 7.4)                                     |
 | [`08-demos.md`](design/08-demos.md)                     | 8. Demos: license rules, list, changes to the files, OpenScore files, and demo tests (8.1 to 8.5)                                     |
 | [`09-process.md`](design/09-process.md)                 | 9. Process: repository, CI, tests, manual test, order of work, docs, targets, and reviews (9.1 to 9.8)                                |

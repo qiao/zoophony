@@ -178,3 +178,17 @@ rights, so they need no entry.
   the repository holds no copy of the license text.
 - The GitHub mark is also a trademark of GitHub, Inc., so its use follows the logo rules of GitHub
   (`assets/github-mark/README.md`).
+
+## 7.4 Search and share
+
+The main URL of the site is `https://www.zoophony.com/` (`SITE_URL` of `app/page-title.ts`). The
+plugin `INDEX_VALUES` of `vite.config.ts` writes the texts of this section into `index.html` from
+the constants of `app/page-title.ts`, so that the page and the app cannot differ.
+
+- **Title**: the start page has the title `SITE_TITLE`: the name and the words that people search
+  for, such as 3D, animal orchestra, MIDI player, and browser. Google renders the page with its
+  scripts, so the app keeps this title while the default demo shows (`pageTitle()`). A search
+  result and a share of the start page then name the app and its topic. Another demo and a file
+  of the user give the title of the piece (2.8).
+- **Description**: `SITE_DESCRIPTION`, at most 155 characters, because a search result cuts a
+  longer text. It names classical music and three composers of the demos.

@@ -1,7 +1,24 @@
+import { DEFAULT_DEMO, DEMOS } from './demos.ts';
 import type { TitleLines } from './file-rules.ts';
 
 /** The name of the app, at the end of the title of the page (design 2.8). */
 export const APP_NAME = 'Zoophony';
+
+/**
+ * The URL of the start page on the main host (design 7.4). Each build names it as the canonical
+ * URL, also the build for GitHub Pages.
+ */
+export const SITE_URL = 'https://www.zoophony.com/';
+
+/**
+ * The title of the start page (design 7.4): the name of the app and the words that people search
+ * for. The page keeps it while the default demo shows ({@link pageTitle}).
+ */
+export const SITE_TITLE = `${APP_NAME}: 3D animal orchestra MIDI player in the browser`;
+
+/** The description of the start page for search results and shares, at most 155 characters. */
+export const SITE_DESCRIPTION =
+  'An orchestra of low-poly animals plays classical music on a 3D stage in your browser. Play a demo by Bach, Mozart, or Beethoven, or open a MIDI file.';
 
 /** The repository of the app on GitHub, which the link after the logo opens (design 2.8). */
 export const REPOSITORY_URL = 'https://github.com/qiao/zoophony';
@@ -18,7 +35,8 @@ export const REPOSITORY_TEXT = 'Open source';
 
 /**
  * Gives the title of the page for the current piece (design 2.8): the browser tab and the history
- * then name the piece.
+ * then name the piece. The default demo plays on the start page, so its title is
+ * {@link SITE_TITLE}, the title of `index.html` (design 7.4).
  *
  * @param lines The title lines of the piece.
  * @param demo True for a demo, whose second line is the composer. The second line of a file of
@@ -26,6 +44,11 @@ export const REPOSITORY_TEXT = 'Open source';
  * @returns For example "Ode to Joy, Ludwig van Beethoven · Zoophony".
  */
 export function pageTitle(lines: TitleLines, demo: boolean): string {
+  const start = DEMOS[DEFAULT_DEMO];
+  if (demo && lines.title === start.title && lines.composer === start.composer) {
+    return SITE_TITLE;
+  }
+
   const piece = demo && lines.composer ? `${lines.title}, ${lines.composer}` : lines.title;
   return `${piece} · ${APP_NAME}`;
 }

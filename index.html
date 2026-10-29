@@ -3,17 +3,13 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Zoophony</title>
-    <meta
-      name="description"
-      content="An orchestra of animals plays your MIDI file in the browser. Play a demo, or open a MIDI file of your own."
-    />
+    <!-- The texts of search and share (design 7.4). The plugin INDEX_VALUES of vite.config.ts
+         writes them from src/app/page-title.ts. -->
+    <title>%SITE_TITLE%</title>
+    <meta name="description" content="%SITE_DESCRIPTION%" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-    <meta property="og:title" content="Zoophony" />
-    <meta
-      property="og:description"
-      content="An orchestra of animals plays your MIDI file in the browser. Play a demo, or open a MIDI file of your own."
-    />
+    <meta property="og:title" content="%SITE_TITLE%" />
+    <meta property="og:description" content="%SITE_DESCRIPTION%" />
     <meta property="og:type" content="website" />
     <!-- The file of the default demo loads with the scripts, so the stage can show it sooner
          (design 7.2). The fetch of src/app/app.ts then takes it from the preload. Its low
