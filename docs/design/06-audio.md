@@ -47,8 +47,10 @@ preset files for one piece, after the first frame. The first download stays belo
   section of basses.
 - Each new preset matches the level of the GeneralUser GS preset that it replaces. Every preset
   gets the headroom `SOUNDFONT_HEADROOM_DB`, which the output chain adds back.
-- `tools/split-soundfont.ts` writes one file for each preset at `sf/<bank>/<program>.sf3`, and
-  `sf/index.json` with the size of each file. The app finds a preset or its fallback in the index
+- `tools/split-soundfont.ts` writes one file for each preset at
+  `sf/<bank>/<program>.<hash>.sf3`, and `sf/index.json` with the path and the size of each file.
+  The hash is the first 10 hex digits of the SHA-256 of the file, so a host can keep each preset
+  file in the cache for a long time and check only the index. The app finds a preset or its fallback in the index
   (bank 0, or kit 0). The build gzips each preset file in place (7.2).
 - The hall impulse response of St Paul's Hall (CC BY 4.0) is in `assets/hall/`.
 

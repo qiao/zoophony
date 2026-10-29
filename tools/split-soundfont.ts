@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 import { mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 
@@ -49,6 +50,20 @@ export function presetTarget(preset: PresetPatch): ScorePreset | undefined {
  */
 export function presetFilePath(target: ScorePreset): string {
   return `sf/${target.bank}/${target.program}.sf3`;
+}
+
+/**
+ * Calculates the site path of the file of a preset with a hash of its bytes in the name, such as
+ * `sf/0/40.3f2a9c1b7e.sf3`. A new SoundFont thus gives new names, and a host can keep each preset
+ * file in the cache with no new check (design 6.2).
+ *
+ * @param target The bank and program of the preset.
+ * @param data The bytes of the file.
+ * @returns The path.
+ */
+export function hashedPresetFilePath(target: ScorePreset, data: ArrayBuffer): string {
+  const hash = createHash('sha256').update(new Uint8Array(data)).digest('hex').slice(0, 10);
+  return presetFilePath(target).replace(/\.sf3$/u, `.${hash}.sf3`);
 }
 
 /**
@@ -112,8 +127,8 @@ async function main(): Promise<void> {
     if (!target) {
       continue;
     }
-    const file = presetFilePath(target);
     const data = splitPreset(source, preset);
+    const file = hashedPresetFilePath(target, data);
     await mkdir(dirname(join(site, file)), { recursive: true });
     await writeFile(join(site, file), new Uint8Array(data));
     entries.push({ ...target, file, size: data.byteLength });
