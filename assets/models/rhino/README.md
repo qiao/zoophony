@@ -63,7 +63,7 @@ user.
 | Item | Value |
 |---|---|
 | `rhino-tpose-arms.glb` | 967,148 bytes, SHA-256 `8f6f5fa8f7e9b835702005fdbd16878a5b7157a85fb977ee7165948879af9fa4` |
-| `rhino-tpose-weights.json` | 429,599 bytes, SHA-256 `0ab29c9964a414d0ed9e62729e74429c9f59382cd46aa71ad1ce9527ce51e297` |
+| `rhino-tpose-weights.json` | 429,315 bytes, SHA-256 `6a92c6f9719d8c31b9d1d0cca0a5447b915c1a6762e93520832c814091b5a5a5` |
 | Weights | The automatic weights of Blender with the Weight Paint fixes of the session, for `paintedWeights` of the config |
 | License | Derived from the mesh of the user, who holds its rights |
 
