@@ -12,6 +12,11 @@
     "radius": 0.1,
     "note": "The skin faces whose middle lies within radius (units) of the head of an upper arm take the normals of the skin with no crease angle in the app (root_rim() of tools/blender/rig_mesh.py), as on the fox and the deer. The bind turns the arm root, and the crease angle 35 split the normals at the back of each arm root into hard dark lines from behind and to the left, at rest and in the play, with no dark color (user, 2026-10-27: \"the cat's arm has dent\", docs/research/2026-10-27-cat-fox.md)."
   },
+  "armSmooth": {
+    "rounds": 4,
+    "sides": "R",
+    "note": "4 rounds of taubin() smooth the tube of the bow arm of cat-arms.glb after the weights (arm_smooth() of tools/blender/rig_mesh.py), at most 0.0048 units. The user said on 2026-10-28: \"the cat's arm has unexpected lumps\". The play folds of the right arm fall from 8 to 5 faces at most. With 8 rounds, the bow paw folded in 18,236 samples, also with both arms (docs/research/2026-10-28-arm-smooth.md)."
+  },
   "output": "assets/models/cat/cat.rig.glb",
   "name": "Cat",
   "weld": 1e-5,
