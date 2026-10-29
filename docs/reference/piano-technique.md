@@ -21,6 +21,10 @@ text of the source.
 
 - **Key surface.** The top of the white keys at rest.
 - **Key bed.** The stop under the keys. A pressed key stops on it.
+- **Key dip.** The drop of the front of a white key from the key surface to the key bed. Other
+  names are "touch depth" and "key depth".
+- **Balance rail.** The rail under the keys with one pin for each key. A key turns on its pin as
+  a lever.
 - **Fallboard.** The lid that covers the keys. When it is open, it stands behind the keys.
 - **Damper pedal.** The right pedal. It lifts all dampers off the strings [14].
 - **Sit bones.** The two lowest points of the pelvis. They carry the weight on the bench [9].
@@ -109,6 +113,14 @@ text of the source.
 - The trunk moved smoothly. The weight shifts came at the leaps [11].
 - The hand hovers over the keys before it plays [6]. Teachers train a lift and a drop of the hand
   and the forearm as one unit from the elbow [17].
+- **The keys.** A grand piano key is 50 cm to 60 cm long, with its balance pin at about its
+  middle [27]. On a Boston grand, the felt under the key front is 217.5 mm in front of the pin
+  (derived) [26]. The key dip is about 10 mm [25][26][27]: 9.5 mm (secondary) [24], 10 ± 0.2 mm
+  on Yamaha grands, and 10.5 mm on most Kawai grands (secondary) [28]. A press from the touch to
+  the key bed takes 25 ms in forte and 160 ms in piano (secondary) [24]. At about mezzo forte,
+  the key reaches the key bed when the hammer strikes the string [23]. A free grand key comes up
+  in about 35 ms [29]. For a fast repeat, the key comes up only a third of its dip [23], or about
+  half [25].
 
 ## 8. The rest pose
 
@@ -185,6 +197,15 @@ differences. The research reports
   pedal, and the foot follows it. The left foot stays flat on the floor, left of the soft pedal.
   The report [`2026-10-24-piano-pedals.md`](../research/2026-10-24-piano-pedals.md) gives the
   measures.
+- **Keys.** Each of the 88 keys goes down with its notes (section 7, `pose/piano-keys.ts`). A
+  key turns around a line 0.25 m behind the front of the white keys, at the height of the key
+  bottom, so its front goes down by the dip of 10 mm and its back less, both times `PIANO_SCALE`
+  (`PIANO.keyDip`, `PIANO.balanceRail`). A key reaches the key bed at its note start after a
+  press of 0.03 s, near a forte press, because the paw strikes at its full speed. It comes up in
+  0.06 s after the note end, slower than a free key, so that the rise shows at 60 frames per
+  second. Before a repeat, the key comes up the whole way, more than a real key does. The claws
+  stay at the key surface and do not follow a pressed key down. The decision file
+  [`2026-10-28-piano-keys.md`](../decisions/2026-10-28-piano-keys.md) gives the reasons.
 - **Rest.** The trunk sits tall, and the paws rest in the lap (section 8). The app differs: the
   round belly of the polar bear covers its thighs up to 0.45 m in front of the hips, and the top
   of a thigh past the belly stands about 0.7 m from the shoulder joint, where the arm reaches
@@ -194,7 +215,8 @@ differences. The research reports
 
 ## 10. Sources
 
-Sources 1 to 20 opened on 2026-10-24, and source 21 on 2026-10-25.
+Sources 1 to 20 opened on 2026-10-24, source 21 on 2026-10-25, and sources 23 to 29 on
+2026-10-28.
 
 1. Yamaha Corporation. "How to Play the Piano: Correct Posture." Musical Instrument Guide.
    https://www.yamaha.com/en/musical_instrument_guide/piano/play/play002.html
@@ -246,6 +268,24 @@ Sources 1 to 20 opened on 2026-10-24, and source 21 on 2026-10-25.
 22. "Closer Than They Appear", a report from the World Piano Competition, Cincinnati, 2012 (a
     search summary only: the server refused the page).
     https://helldriver.commons.gc.cuny.edu/2012/08/04/closer-than-they-appear/
+23. A. Askenfelt and E. V. Jansson. "From touch to string vibrations." Five Lectures on the
+    Acoustics of the Piano, Royal Swedish Academy of Music, 1990.
+    https://www.speech.kth.se/music/5_lectures/askenflt/measure.html
+24. W. Goebl. "Melody lead in piano performance: Expressive device or artifact?" Journal of the
+    Acoustical Society of America 110, 2001. It quotes Askenfelt and Jansson, JASA, 1991.
+    https://iwk.mdw.ac.at/goebl/papers/Goebl_JASA2001_melodyLead.pdf
+25. W. Goebl, R. Bresin, and A. Galembo. "Touch and temporal behavior of grand piano actions."
+    Journal of the Acoustical Society of America 118, 1154-1165, 2005.
+    https://iwk.mdw.ac.at/goebl/papers/Goebl-Bresin-Galembo_JASA2005_PianoAction.pdf
+26. M. Hirschkorn. "Dynamic Model of a Piano Action Mechanism." MASc thesis, University of
+    Waterloo, 2004, tables A.2 and A.3.
+    https://uwspace.uwaterloo.ca/bitstreams/67abfb63-cb24-41e8-98f9-a6dda46cc4f8/download
+27. Kawai Musical Instruments. US Patent 10,847,130 B2, 2020.
+    https://patents.google.com/patent/US10847130B2/en
+28. Pianotech mailing list, 18 October 2002: values of the makers that a technician quotes.
+    http://moypiano.com/ptg/pianotech.php/2002-October/120252.html
+29. Burgett Inc. US Patent 6,153,819 A, 2000.
+    https://patents.google.com/patent/US6153819A/en
 
 **Conflicts.** The sources put the elbow from a little below the keys [5][8] to about 2.5 cm
 above them [4][5]. Most sources put the pianist on the front half of the bench, and one on the
