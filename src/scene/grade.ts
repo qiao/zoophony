@@ -147,10 +147,7 @@ function lumaOf(color: GradeColor): number {
  * @param curve The tone curve of `GRADE.curve`, on values from 0 to 1 ({@link monotoneCurve}).
  * @returns The graded color.
  */
-export function gradeColor(
-  color: GradeColor,
-  curve: (x: number) => number,
-): [number, number, number] {
+function gradeColor(color: GradeColor, curve: (x: number) => number): [number, number, number] {
   const g = GRADE;
   const clamped = color.map((value) => Math.min(1, Math.max(0, value)));
   const [r0 = 0, g0 = 0, b0 = 0] = clamped;
@@ -188,7 +185,7 @@ export const GRADE_LUT_SIZE = 33;
  * @param size The number of entries on each axis.
  * @returns Four bytes for each entry.
  */
-export function gradeLutData(size: number = GRADE_LUT_SIZE): Uint8Array {
+function gradeLutData(size: number = GRADE_LUT_SIZE): Uint8Array {
   const data = new Uint8Array(size * size * size * 4);
   // The curve reads `GRADE.curve` at the call, so that the look override of the dev server
   // (`src/app/look-override.ts`) reaches it.

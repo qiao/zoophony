@@ -25,7 +25,7 @@ declare module 'three' {
  * @param mesh The mesh.
  * @returns A key that is the same for two meshes of one variant.
  */
-export function programVariant(mesh: Mesh): string {
+function programVariant(mesh: Mesh): string {
   const geometry = mesh.geometry;
   const morphs = geometry.morphAttributes;
   const attributes = Object.entries(geometry.attributes)

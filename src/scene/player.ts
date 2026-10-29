@@ -83,7 +83,7 @@ interface StudioPlayer {
  * depth of field uploaded each bone texture a second time. Out of a hold, the skeleton updates as
  * a skeleton of three.js, for example in the gallery.
  */
-export class FrameSkeleton extends Skeleton {
+class FrameSkeleton extends Skeleton {
   /** True between {@link FrameSkeleton.hold} and {@link FrameSkeleton.release}. */
   #held = false;
 
