@@ -4,15 +4,8 @@ This file is the target of the motion of the string players of the app: the viol
 the cello, and the double bass (the app calls it the contrabass). It describes how professional
 players move the left hand, the fingers, and the bow arm, with a source for each fact.
 
-**Upkeep.** This file is current. It is not a record of one date, as a research report is. A
-round that changes the string motion of the app updates this file in the same commit: section 3
-"Use in the app", and each fact that the round finds wrong. Each new fact gets its source. The
-decision file [`2026-10-17-string-hands.md`](../decisions/2026-10-17-string-hands.md) records
-this rule. The research report
-[`2026-10-17-string-hands.md`](../research/2026-10-17-string-hands.md) holds the measures of the
-app, the prototype of a position planner, and the motion spec of the code round. The report
-[`2026-10-17-left-hand.md`](../research/2026-10-17-left-hand.md) measures the left hand of the
-app after the code round.
+**Upkeep.** This file is current. A change of the string motion of the app updates section 3 "Use
+in the app" and each fact that it finds wrong, in the same commit. Each new fact gets its source.
 
 **Source marks.** Each fact names its source by a number of section 4. "(abstract)" marks a fact
 from an abstract or a search summary, because the full text did not open. "(secondary)" marks a
@@ -43,7 +36,7 @@ values of its sources. A fact with no mark comes from the text of the source.
 
 | Value | Violin | Viola | Cello | Double bass |
 |---|---|---|---|---|
-| Open strings, low to high (`TUNINGS` of `pose/strokes.ts`) | G3 D4 A4 E5 | C3 G3 D4 A4 | C2 G2 D3 A3 | E1 A1 D2 G2, an octave below the written part |
+| Open strings, low to high (`TUNINGS` of `src/pose/fingering.ts`) | G3 D4 A4 E5 | C3 G3 D4 A4 | C2 G2 D3 A3 | E1 A1 D2 G2, an octave below the written part |
 | Vibrating string length | 330 mm (Stradivari and Guarneri del Gesù) [8] | No standard. Bodies from 360 mm to 430 mm [8] | About 700 mm [8] | 1,050 mm to 1,100 mm on orchestral basses [8] |
 | First semitone at the nut (derived) | 18.5 mm | 20.8 mm at a string of 370 mm | 39.3 mm | 60.3 mm at a string of 1,075 mm |
 
@@ -130,12 +123,11 @@ The shift starts in the old note, and the new finger lands before the bow change
   taller players. Only two of six players moved the elbow to the side to start a shift. Five of six
   players kept a guide finger on the string until the new finger arrived [20].
 - **The arm on the violin and the viola.** Between the first and the fourth positions, the forearm
-  turns at the elbow, and the elbow does not move to the left or to the right. From the third
-  position to the sixth position, the hand goes "up and over" the shoulder of the instrument on
-  the thumb, and the elbow swings a little to the right, as little as possible. Between the seventh
-  and the ninth positions, the hand moves "almost from the wrist alone". On the way down, below the
-  fifth position, the thumb goes back to the side of the neck, and the elbow swings back to the
-  left [1].
+  turns at the elbow, and the elbow stays in place. From the third to the sixth position, the hand
+  goes "up and over" the shoulder of the instrument on the thumb, and the elbow swings a little to
+  the right. Between the seventh and the ninth positions, the hand moves "almost from the wrist
+  alone". On the way down, below the fifth position, the thumb goes back to the side of the neck,
+  and the elbow swings back to the left [1].
 - **The elbow in a high position.** In the sixth position, the angle of the left upper arm from
   the vertical is 2° to 4.7° larger than in the second position, for each of five holds of the
   violin. The mean over all holds and positions is 21.4°, with a range of 12° to 32° [21].
@@ -200,15 +192,14 @@ violin, by 0.32 mm on the cello, and by 0.52 mm on the double bass (derived from
 - **The thumb.** The thumb sits on the side of the neck, opposite the fingers. In the first
   position, Auer puts it opposite the second finger, Galamian between the first and the second
   fingers or opposite the first finger, Flesch and Ševčík opposite the first finger, and Suzuki
-  between the first finger and the nut [67]. Keep an open space between the base of the thumb and
-  the first finger, and do not squeeze the neck between the thumb and the fingers [67].
+  between the first finger and the nut. An open space stays between the base of the thumb and the
+  first finger, and the hand does not squeeze the neck [67].
 - **The first finger.** The side of the first finger touches the neck lightly [67].
 - **The fingers.** The fingers keep a natural curve, and they move from the base joints, while the
   hand stays still [68].
 - **The wrist.** "In low positions the back of the hand should be in a straight line with the
-  elbow, wherever possible." In the higher positions, the wrist bends outward. A wrist that gives
-  in very slightly can feel free, and a hand position that depends on a wrist that sticks out can
-  give tension [68].
+  elbow, wherever possible." In the higher positions, the wrist bends outward. A wrist that sticks
+  out can give tension [68].
 
 ### 1.10 The violin under the jaw
 
@@ -228,14 +219,13 @@ violin, by 0.32 mm on the cello, and by 0.52 mm on the double bass (derived from
   9.1 mm in the hold of each player. With the violin further out from the middle of the body, it
   moved forward by 22.5 mm (standard deviation 7.4 mm), and with the violin 30° nearer to the
   middle, by 4.8 mm [80].
-- **The size of the viola.** Violas have no fixed size. A shop gives the size as the length of the
-  body: 380 mm to 400 mm for a full viola, 330 mm to 340 mm for a 3/4 viola, and 280 mm to 320 mm
-  for a 1/2 viola [82]. A chart in inches goes from 10 to 16.5 inches. It pairs 10 inches with an
-  arm of 36 cm, 11 inches with 38 cm, 12 inches with 46 cm, and 13 inches with 51 cm, and adults
-  "typically choose between 15, 15.5, and 16+ inch sizes" [81]. The chart measures the left arm
-  extended to the side, "from the base of your neck, where it meets your left shoulder, to the
-  center of your left palm" [81]. The shop measures the left arm extended to the front, from the
-  start of the shoulder to the middle of the open palm [82].
+- **The size of the viola.** Violas have no fixed size. A shop gives the body length: 380 mm to
+  400 mm for a full viola, 330 mm to 340 mm for a 3/4, and 280 mm to 320 mm for a 1/2. It measures
+  the left arm extended to the front, from the shoulder to the middle of the open palm [82]. A
+  chart goes from 10 to 16.5 inches, and pairs 10 inches with an arm of 36 cm, 11 inches with
+  38 cm, 12 inches with 46 cm, and 13 inches with 51 cm. Adults "typically choose between 15,
+  15.5, and 16+ inch sizes". The chart measures the left arm extended to the side, from the base
+  of the neck to the center of the palm [81].
 
 ## 2. The right arm and the bow
 
@@ -333,7 +323,6 @@ and at the highest rates the wrist and the elbow move in phase [56 (abstract)].
   string at 80 bows a minute. Novices move only the shoulder [58].
 - **The attack.** Listeners accept a noisy start of up to 50 ms or 90 ms, by the kind of noise, on
   the open G string of a violin [41 (secondary)].
-- **The left hand.** The new finger lands 26 ms to 41 ms before the bow change (section 1.5) [23].
 
 ### 2.7 The cello on the chair and at rest
 
@@ -351,13 +340,11 @@ and at the highest rates the wrist and the elbow move in phase [56 (abstract)].
   from the floor [65] (abstract). The cellist sits upright, or leans a little forward into the
   cello, and does not lean back [66] (abstract).
 - **The size.** The total length of a cello is 121.9 cm for a 4/4, 114.3 cm for a 3/4, and
-  106.6 cm for a 1/2 [62] (abstract). Thus a 3/4 is 0.94 and a 1/2 is 0.87 of the length of a
-  4/4 (derived). The back of a 4/4 is at least 30 in long, of a 3/4 26 in to 27.25 in, and of a
-  1/2 23 in to 26 in [63] (abstract). A size guide chooses the size from the height, the arm
-  length, and the finger span of the player, and two of the three must match: a 1/2 for a player
-  of 4 ft 0 in to 4 ft 6 in with an arm length of 20 in to 22 in, and a 4/4 for a player of at
-  least 5 ft 0 in with an arm length of at least 24 in [64]. The guide does not say how it
-  measures the arm.
+  106.6 cm for a 1/2 [62] (abstract): 0.94 and 0.87 of a 4/4 (derived). The back of a 4/4 is at
+  least 30 in long, of a 3/4 26 in to 27.25 in, and of a 1/2 23 in to 26 in [63] (abstract). A
+  size guide takes a 1/2 for a player of 4 ft 0 in to 4 ft 6 in with an arm of 20 in to 22 in,
+  and a 4/4 for a player of at least 5 ft 0 in with an arm of at least 24 in. Two of the height,
+  the arm length, and the finger span must match [64].
 - **The bow at rest.** In a first lesson, the screw of the frog stands on top of the right knee,
   so that the bow points up at the ceiling, and the left hand rests on the left knee [61]. No
   source of this file gives the rest of an orchestral cellist between pieces.
@@ -367,8 +354,8 @@ and at the highest rates the wrist and the elbow move in phase [56 (abstract)].
 - **The contacts.** The player turns the bass slightly to the right and tilts it back, so that it
   rests against the left side of the hip. Some bassists rest the bass against the stomach [69].
   A lean of the bass against the leg is the most common way to stand, and the left knee against
-  the bottom of the instrument controls its turn [70] (abstract). The bass thus touches the body,
-  and it does not go into the body.
+  the bottom of the instrument controls its turn [70] (abstract). Thus the bass touches the body
+  (derived).
 - **The height and the feet.** The end pin is set so that the nut is at the level of the
   eyebrows. The feet are shoulder width apart [69].
 - **The left hand on the neck.** The hand forms a C, and the fingers are curved. The thumb gently
@@ -391,8 +378,7 @@ and at the highest rates the wrist and the elbow move in phase [56 (abstract)].
   on your knee" [74].
 - **The side of the top plate.** In the standing rest, the violin lies under the right arm with
   the scroll forward and the bridge facing out [73]. No source of this file gives the side of the
-  top plate in the seated rest. The image of the user shows a seated violinist with the top plate
-  to the front (`docs/research/2026-10-16-bow-rest.md`).
+  top plate in the seated rest.
 - **The horizontal hold.** A violinist or a violist can hold the instrument in the "banjo"
   position, horizontally on the lap, and pluck the strings with the right thumb. This hold is
   rarely used, and it is a hold to play [83]. In a time of shoulder pain, one orchestral violinist
@@ -401,335 +387,213 @@ and at the highest rates the wrist and the elbow move in phase [56 (abstract)].
 
 ## 3. Use in the app
 
-Since 2026-10-17 (round `left-hand`), the left hand of the app follows this reference: the position
-plan, the shift, the fingers, vibrato, and the left elbow of section 5.2 of the research report
-[`2026-10-17-string-hands.md`](../research/2026-10-17-string-hands.md). The report
-[`2026-10-17-left-hand.md`](../research/2026-10-17-left-hand.md) gives the measures. Since round
-`bow-arm` of the same day, the bow arm follows the motion spec B1 to B8 of section 5.3 of that
-report, and the report [`2026-10-17-bow-arm.md`](../research/2026-10-17-bow-arm.md) gives the
-measures. Each item of 3.2 gives the rule of the app and its code, or where the app still differs.
-A round that changes the motion updates the items.
+Each species plays with a `BowedHold` of `src/pose/bowed-rig.ts` (`DOG_HOLD`, `HIPPO_HOLD`, and
+the others). The left hand and the strokes come from `src/pose/fingering.ts` and
+`src/pose/strokes.ts`, and the pose from `poseBowed()` of `src/pose/bowed.ts`. The paws of the
+meshes have one finger bone and a thumb with no bone, so the app shows no single fingers and no
+thumb on the neck.
 
 ### 3.1 The left hand
 
-- **The hand keeps its position.** `planHand()` of `pose/fingering.ts` plans the position, the
-  string, and the finger of each stroke from the score, with the frames of section 1.2
-  (`HAND_FRAMES`) and the rules of section 1.4 (`FINGERING_COSTS`). Each player takes the
-  orchestral style: low positions and open strings (section 1.3). The middle of the finger block
-  stays at the middle of the frame of the position, and the hand moves only in a shift. In the
-  demos, the hand moves on 1.9% of the violin strokes, 0.5% of the viola strokes, 4.6% of the cello
-  strokes, and 10.0% of the contrabass strokes (65.4%, 55.1%, 72.8%, and 70.1% before).
-- **The shift** (section 1.5). `bowStateAt()` of `pose/strokes.ts` moves the hand in the second
-  half of the note before the shift, in at most 0.35 s, with a quintic ease. The shift ends when
-  the finger of the new note lands, 0.03 s before the note (`LEFT_HAND`). The app has no guide
-  finger that slides, because the four fingers are one block: the press lifts to a light contact.
-- **The fingers** (section 1.6). The paws have one finger bone. The finger of each stopped note
-  lands 0.03 s before the note and presses at the note start. An open string has no press. The
-  hand turns a little toward the finger of the note and rolls around the neck to the string of
-  the finger (`BOWED_HANDS.reachTurn` and `BOWED_HANDS.rollL` of `pose/bowed.ts`). The fingers do
-  not stay down for the lower notes, and the next finger is not prepared, because the block cannot
-  show single fingers.
-- **Vibrato** (section 1.7). A stopped bowed note of at least 0.35 s gets vibrato after 0.15 s:
-  5.5 Hz on the violin, the viola, and the cello, 5 Hz on the contrabass (no source, the rate of
-  the lower end of the measures), with a seeded change of each player of up to 0.4 Hz. The width
-  is 20 cents to each side on the violin and the viola and 15 cents on the cello and the
-  contrabass, up to 50% wider in a high position and in a loud note. The whole hand moves, as a
-  forearm vibrato.
-- **The left elbow follows the string** (section 1.8). `leftElbow()` of `pose/bowed.ts` turns the
-  left elbow toward the body for the lower strings of the violin and the viola, and up for the
-  lower strings of the cello and the contrabass, for each string below the highest string
-  (`BowedHold.elbowPerString`). From the fourth to the sixth position, it turns a little further
-  (`BowedHold.highElbow`, section 1.5). No source gives the angles, so the holds tune them. The
-  cello of the dog turns 2° for each string (10° on the floor hold), because a larger turn folded
-  the skin of the left arm of the dog mesh in more play samples.
-- **The hand goes over the shoulder of the instrument** (section 1.5). From the second position to
-  the fifth position, `leftTilt()` of `pose/bowed.ts` tilts the left hand further over the neck
-  by `BowedHold.highTilt`, and the wrist comes up beside the upper bout. The finger block keeps its
-  place. The app starts the tilt one position earlier than a real hand, because the left forearm
-  of the cat touches the upper bout from the third position. Only the cat tilts, and only so far
-  that its fingers still point down to the strings. Its wrist then bends more than the straight
-  wrist of a real player (decisions
-  [`2026-10-17-cat-hand.md`](../decisions/2026-10-17-cat-hand.md)).
-- **The paw holds the neck** (section 1.9). `stopHandAt()` of `pose/bowed.ts` puts the paw below
-  the neck on the side of the high strings, with the palm toward the low strings, and tilts it
-  over the neck by `BowedHold.tiltL`, so that the fingers come down on the strings from above. The
-  paws have no thumb and one finger bone, so the app shows no thumb on the neck and no single
-  curved fingers. The cat tilts 45° (30° in the chin hold), so that its paw curls around the neck:
-  with 30°, the skin of its wrist under the neck pinched into a twisted band. Its wrist then
-  bends about 30° from the line of the forearm in the low positions, where a real player keeps it
-  straight (decisions [`2026-10-20-cat-left-arm.md`](../decisions/2026-10-20-cat-left-arm.md)).
-- **The violin under the jaw** (section 1.10). The instrument lies about level: the middle line of
-  the body falls 3° to the scroll on the rabbit and the red fox, and 8° on the cat. The middle line
-  points 50° to the left of the front of the chest on the rabbit and 45° on the red fox, as the
-  45° of [78] (60° before, 64° on the line between the farthest ends of the probe of
-  `docs/research/2026-10-24-violin-arms.md`). The left shoulder bone turns forward in the play
-  (`BowedHold.reachL`, `shoulderTurnL()` of `pose/bowed.ts`), as the left shoulder of a
-  violinist moves forward [80]: the shoulder joint moves 2.9 cm on the rabbit and 1.1 cm on the
-  red fox, so that the short left arms reach the nut. At 45°, the bow paw of the rabbit at the
-  frog went into its jaw. The viola of the cat points about 48° to the left on the line from the
-  tail end to the scroll, and 10° down to the scroll. The cat plays a viola of about 10 inches,
-  0.74 of the viola of the app, with a body of 259 mm (`SpeciesParams.violaScale`). The chart of
-  [81] pairs 10 inches with an arm of 36 cm and 11 inches with 38 cm. The arm of the cat is 41 cm
-  from the shoulder joint to the middle of the palm, but its chin rest lies under the long jaw,
-  about 12 cm further from the shoulder along the viola than on a person, so it takes the
-  smallest size of the chart. Its left shoulder bone turns 20° forward, and its head lifts 15°, so
-  that the jaw lies on the chin rest of the viola near the neck. With a turn of 35°, the back of
-  the left arm root sank into pits in the play, so the viola falls 10° to the scroll, and the paw
-  reaches the nut with the smaller turn (`docs/decisions/2026-10-27-cat3.md`). The left paw reaches the nut, and
-  the bow paw the end of the free hair. With the 1/2 viola of 0.87 and the
-  arms of 1.30 H before 2026-10-27, the paw reached the fingerboard from 0.33 and the bow 0.355 m
-  of 0.441 m (`docs/research/2026-10-27-cat-fox2.md`). The jaw lies on
-  the chin rest: the head touches the instrument in each play sample of the rabbit and the red
-  fox, and in most play samples of the cat, in `angle-probe.ts` of
-  `docs/research/2026-10-25-string-angle/`. The bow of the cat lies square across the strings
-  (`BowedHold.slant` 0). The rabbit lowers its head 17° while it plays
-  (`BowedHold.headDrop`), so that its violin sits 0.03 H higher out of the chest
-  (`docs/decisions/2026-10-25-string-angle.md`).
-- **The left elbow under the instrument** (section 1.10). The left elbow points down and forward
-  under the instrument (`BowedHold.poleL`). The left upper arm turns 46° from the vertical to
-  the side on the rabbit, 29° on the red fox, and 38° on the cat, where a violin student turns it 16° to 25°
-  toward the middle of the body [80]. With the elbow further in, the left paw twisted past the
-  limit of 170° on its forearm, and on the red fox it left its accepted grip.
+The app follows these facts:
+
+- **The position plan (1.2 to 1.4).** `planHand()` plans the position, the string, and the
+  finger of each stroke from the score, with the frames of `HAND_FRAMES` and the rules of
+  `FINGERING_COSTS`. Each player takes the orchestral style: low positions and open strings. The
+  hand moves only in a shift.
+- **The shift (1.5).** `bowStateAt()` moves the hand in the second half of the note before the
+  shift. The shift ends when the finger of the new note lands, a little before the note
+  (`LEFT_HAND`).
+- **The fingers (1.6).** The finger of each stopped note lands before the note and presses at the
+  note start. An open string has no press. The hand turns a little toward the finger of the note,
+  and rolls around the neck to its string (`BOWED_HANDS.reachTurn`, `BOWED_HANDS.rollL`).
+- **Vibrato (1.7).** A long stopped note gets vibrato after a short delay, with a seeded rate for
+  each player, and wider in a high position and in a loud note (`LEFT_HAND.vibrato`,
+  `vibratoRate()`, `vibratoWidth()`). The whole hand moves, as a forearm vibrato. No source gives
+  the contrabass, so it takes the lower end of the measured rates.
+- **The left elbow for each string (1.8).** `leftElbow()` turns the left elbow toward the body for
+  the lower strings of the violin and the viola, and up for the lower strings of the cello and the
+  contrabass (`BowedHold.elbowPerString`). It turns a little further in the high positions
+  (`BowedHold.highElbow`). No source gives the angles, so each hold sets them, with no fold of the
+  skin of the arm.
+- **The hand over the shoulder of the instrument (1.5).** In the high positions, `leftTilt()`
+  tilts the left hand further over the neck (`BowedHold.highTilt`), and the wrist comes up beside
+  the upper bout.
+- **The violin under the jaw (1.10).** The instrument lies about level and points to the left of
+  the front of the chest, and the jaw lies on the chin rest. The left shoulder bone turns forward
+  in the play (`BowedHold.reachL`, `shoulderTurnL()`), as the left shoulder of a violinist moves
+  forward, so that the short left arm reaches the nut.
+- **The size of the viola (1.10).** The cat plays a smaller viola (`SpeciesParams.violaScale`),
+  the smallest size of the chart of [81]. The chin rest lies under the long jaw, further from the
+  shoulder along the viola than on a person.
+
+The app does not follow these facts:
+
+- **The guide finger (1.5).** No finger slides on the string, because the four fingers are one
+  block. The press lifts to a light contact.
+- **The fingers down and the next finger (1.6).** The fingers do not stay down for the lower
+  notes, and the next finger is not prepared, because the block cannot show single fingers.
+- **The start of the tilt (1.5).** The tilt starts one position earlier than a real hand, because
+  the left forearm of the cat touches the upper bout from the third position. Only the cat tilts,
+  and its wrist bends more than the straight wrist of a real player.
+- **The hand on the neck (1.9).** `stopHandAt()` puts the paw below the neck on the side of the
+  high strings, with the palm toward the low strings, and tilts it over the neck
+  (`BowedHold.tiltL`), so that the fingers come down on the strings from above. The cat tilts
+  further, so that its paw curls around the neck, and a smaller tilt pinches the skin of its
+  wrist. Thus its wrist bends off the line of the forearm in the low positions.
+- **The left upper arm (1.10).** The left upper arm turns further out to the side than the arm of
+  a violin student (`BowedHold.poleL`). With the elbow further in, the left paw twists too far on
+  its forearm.
+- **The head (1.10).** The head of the cat lifts, so that the jaw lies on the chin rest near the
+  neck, and its viola falls to the scroll. A larger shoulder turn sinks the back of the left arm
+  root into the body. The rabbit lowers its head (`BowedHold.headDrop`), so that its violin sits
+  higher out of the chest.
 
 ### 3.2 The bow arm
 
-- **The string planes** (section 2.2). The bow turns around the strings by `BowedHold.stringTurn`
-  of `pose/bowed-rig.ts` for each string: 17° on the violin and the viola, the lower end of the 17°
-  to 18° of a violinist in motion capture, and 25° on the contrabass. No source gives the angle of
-  the viola and the cello, so they take the angle of the violin. Each angle is the real angle, or
-  the largest angle below it with which the bow arm still reaches the full hair (`bowRangeOf()`).
-  The search of the reached hair tests the end of the free hair as its last place, so a bow that
-  reaches it plays to the end (`docs/decisions/2026-10-27-cat3.md`). The bodies of the mesh rigs
-  stay below. The viola of the cat turns 7°: with the shorter arm and the stick leaned 30°, the
-  bow reaches the end of the hair with 7°, and the hair to 2 cm before its end with 11°. The rabbit turns 10°, and the red fox 9° with the
-  stick leaned 15°: larger turns fold the skin of their right arms in more play samples
-  (`pnpm hold-fit`), and put the bow paw of the rabbit into the violin at the frog on the E string.
-  The cello of the dog turns 6°: with its short arms, a larger turn put the paw into the right rim
-  of the cello on the C string. It also plays no hair within 0.12 m of the frog
-  (`BowedHold.frogHair`), where its forearm crossed the rim. The contrabass of the hippo turns
-  12°: with 25°, the bow paw on the lowest string went 9.1 cm into the round belly. The bow of
-  the rabbit plays no hair within 0.11 m of the frog (`BowedHold.frogHair`), because at the frog
-  the violin at 50° brought the bow paw to the jaw. The rabbit and the red fox pluck over the end
-  of the fingerboard (`BowedHold.pluckPlace` 0), because a pluck near the bow put the right
-  forearm into the body (`docs/decisions/2026-10-25-string-angle.md`). The cat plucks with the
-  palm 0.1 m from the strings toward the frog side (`BowedHold.pluckSide`), as a bass hand comes
-  up from the side (section 2.8), because its short bow arm went into the top of its round chest
-  with the palm over the strings (`docs/decisions/2026-10-27-cat-lap.md`). No source of this file
-  gives the place of a violin pizzicato.
-  The app had 9° (7° on the contrabass) before. The arm levels come from the
-  geometry: the bow plane of the string turns the hand, and the arm follows it, higher for the
-  lower strings of the violin and the viola.
-- **The bow elbow at the frog.** No source of this file gives the direction of the right elbow at
-  the frog. The vertical move of the upper arm makes the crossings (section 2.3), so each hold
-  keeps the elbow near the level of the bow. The rabbit and the red fox point the elbow out,
-  forward, and a little down (`BowedHold.poleR` of `pose/bowed-rig.ts`), the rabbit less down
-  than the red fox. With the elbow further down, the long flat upper arm of the rabbit turned its
-  broad side to the front as a plank (user, 2026-10-21, `docs/decisions/2026-10-21-arm-form.md`),
-  and the A-pose rabbit folded more faces of the right arm
-  (`docs/decisions/2026-10-23-rabbit-arms.md`). The cat points the elbow out, forward, and less
-  down than before, because the back of its rebuilt upper arm lies against the trunk and went
-  3.8 cm into the body with the lower elbow (`docs/decisions/2026-10-25-cat-arms.md`). At the tip,
-  the elbow of the rabbit and of the cat
-  points down, out, and forward (`BowedHold.poleTipR`): the elbow of the cat pointed up there, and a
-  dark wedge fold opened under its right armpit (`docs/decisions/2026-10-24-violin-review.md`).
-  The right shoulder of the cat turns 36° forward (`BowedHold.reach`), and its pizzicato elbow
-  points a little further out, so that the nearly straight bow arm keeps off its even oval belly
-  (`docs/decisions/2026-10-27-cat-belly.md`).
-- **The stick in the paw.** The stick passes through the middle of the closed right paw of the
-  rabbit, the red fox, the cat, and the hippo (`SpeciesParams.bowGrip`), as the fingers of a real
-  player close around it. With the grip of the bind bow, the stick of the hippo passed under the
-  paw (`docs/decisions/2026-10-24-bow-holds.md`).
-- **The lift and the lowering of the rabbit, the red fox, and the cat.** No source of this file
-  gives the path of the violin or the viola from the lap to the chin. The left paw carries the
-  instrument as a player brings it up by its neck, and the instrument hangs from the paw: it turns
-  with the paw, in the same direction, and keeps nearly its place in the paw, as the player keeps
-  the hold of the neck (`carryLift()` of `pose/bowed.ts`). At rest, the paw takes a turn in the
-  plane of its palm near the turn of the play (`BowedHold.restPawTurnL`), so the grip in the paw
-  changes by 22° to 27° in a move (56° to 79° before the round `fifth-strings2`). The paw
-  supinates on its forearm on the way, as a real forearm turns. The playing grip of the app lies
-  215° to 234° of supination from the paw of the mesh, which is pronated, so the bind of the left
-  paw is supinated 100° to 120° about its forearm. The rest and the play twists then lie on one
-  side of 180°, and the forearm skin follows the paw with no jump
-  (`docs/decisions/2026-10-27-left-paw-bind.md`). With the pronated bind, each rest grip with a
-  natural elbow lay on the other side of 180° (`docs/decisions/2026-10-27-violin-carry.md`). A rest roll of the instrument with
-  the scroll to the side, the banjo hold of section 2.9, avoids the pass, but no source gives it as
-  a rest, and the image of the user shows an upright rest
-  (`docs/decisions/2026-10-27-violin-unwind.md`). In the middle of the move, the wrist
-  moves off its line (`BowedHold.liftReach`), so that the instrument near the jaw goes at most
-  2.0 cm into the body (`docs/decisions/2026-10-27-violin-unwind.md`). Up to 2026-10-25,
-  the instrument turned upright with the top plate to the chest in the middle of the move, and
-  rolled a full turn around its long axis (`docs/decisions/2026-10-26-violin-lift.md`). From 2026-10-26 to the round
-  `fifth-strings`, it took its own short turn while the paw pronated, so the two turned in opposite
-  directions (`docs/decisions/2026-10-26-fifth-review-strings.md`). The bow tip points forward
-  beside the body in the middle of the move (`docs/decisions/2026-10-26-violin-lift.md`). The bow
-  plays on the strings of the instrument at its mixed place, and the carried instrument leaves that
-  place, so the bow grip of the cat moves 0.5 H out and 0.45 H up in the middle of the move: with
-  less, the right claws went 2.1 cm into the carried viola at the start of a lowering
-  (`docs/decisions/2026-10-27-cat3.md`).
-- **The violin and the viola at rest** (section 2.9). The rabbit and the red fox rest the
-  instrument upright on the left knee, and the cat rests the viola upright on the top of the left
-  thigh, nearer to the hip for its shorter arms, so that its left elbow bends
-  (`docs/decisions/2026-10-27-cat-fox2.md`). The left paw holds the neck in a rest grip: the
-  playing grip at the rest place, with the fingers closed around the neck, on it or a few
-  millimeters off it, and turned at most 10° around the normal of the top plate, so that the paw
-  holds the neck and goes at most 0.5 cm into the instrument (`restHandAt()` of `pose/bowed.ts`).
-  The cat closes its paw further, with the palm on the neck, so that the neck runs through the
-  closed paw: 11 mm off the neck, its paw closed beside the neck as a fist (user, 2026-10-27: "the
-  cat is not "holding" the viola in rest mode"). The paw keeps a turn in the
-  plane of its palm near the turn of the play (`BowedHold.restPawTurnL`), so that it holds the
-  neck at rest nearly as in the play. The left elbow hangs near
-  the side (`BowedHold.restPoleL`). The top plate of the violin faces the front, and the top plate
-  of the viola the front and 30° to the left: with the top to the front, the bow paw of the cat
-  turned up to 7,437°/s in a lowering (`docs/decisions/2026-10-24-violin-review.md`). The bow paw
-  rests low at the front of the lap or the lower belly, with the elbow hanging and a straight
-  wrist, as the user asked on 2026-10-26. The round belly of the cat keeps each of its elbows a
-  little out, near the side of the belly (`docs/decisions/2026-10-26-fifth-review-strings.md`).
-- **The string crossing leads the note** (section 2.3). `bowStateAt()` of `pose/strokes.ts` turns
-  the bow to the string of the next note in at most 0.08 s, and in at most 0.3 of the time from
-  the note start to the next note (`BOW_MOTION.crossSec` and `crossShare`). The turn ends 0.01 s
-  before the next note (`BOW_MOTION.crossLeadSec`), as a real crossing leads the bow change by
-  about 15° of the phase of a stroke pair, about 11 ms at 7.5 notes a second. Before round
-  `bow-arm`, the app turned the bow in the last 0.1 s before the note.
-- **The upper arm moves little in a fast crossing** (section 2.3). In a fast run across two
-  neighbor strings (each next note within 0.25 s), `crossStrings()` of `pose/strokes.ts` gives the
-  notes next to a change of the string the mean of the two strings, when they change the string
-  at least twice in a row. The notes of the run that stay on one string keep it. `poseBowed()` of
-  `pose/bowed.ts` then turns the right elbow toward the elbow of the bow on that mean string
-  (`crossPole()`), so the elbow stays near it, and the forearm and the wrist make the rest of the
-  crossing. The bow itself turns the full angle to each string. In the lift and the lowering, the
-  rule fades in over the second half of the move. Before round `bow-arm`, the elbow followed the
-  wrist in each crossing.
-- **Slurs** (section 2.5). The MIDI files have no slurs, so `slurSizes()` of `pose/strokes.ts`
-  guesses them from the score: two to four normal notes in one beat join into one bow when each
-  note is shorter than 0.25 s, each gap is shorter than 0.03 s, and each note changes the pitch
-  (`BOW_MOTION.slur`). A longer run in one beat splits into slurs of nearly equal size. A repeated
-  pitch takes a new bow, because the file plays it as a new note. The bow keeps one direction
-  over the notes of a slur, and its length follows the time of the whole slur. It moves at one
-  speed until the last note, and slows to a stop in the last note. The left hand still plays each
-  note. Before round `bow-arm`, the bow changed direction on each note.
-- **The sounding point follows the loudness** (section 2.4). `soundingPointAt()` of
-  `pose/bowed.ts` moves the contact point of the bow along the strings, from
-  `BowedHold.soundingPoint[0]` of the string length from the bridge in piano to
-  `BowedHold.soundingPoint[1]` in forte: 1/8 to 1/18 on the violin and the viola, as the two
-  violinists of Askenfelt, and 1/9 to 1/15 on the cello and the contrabass, near the mean sounding
-  points of six cellists (1/9 and 1/12). No source measures the contrabass. The loudness of the
-  score sets the place, and the bow follows a change of the loudness with a time constant of 0.2 s
-  (`followLoudness()` of `pose/strokes.ts`). Before round `bow-arm`, the bow played at 1/16 of the
-  string length on each instrument and at each loudness.
-- **The stick tilts toward the fingerboard** (section 2.1). `heldBowAt()` of `pose/bowed.ts`
-  turns the bow around its hair by `BowedHold.bowTilt` of `pose/bowed-rig.ts`: 30° on the violin
-  and the viola, 20° on the cello, and 10° on the contrabass. The hair stays on the contact point.
-  The fingers turn the stick in the paw by the tilt, and the hand keeps the turn of the bow with
-  no tilt, because the paws have one finger bone and the skin of the arm folds with a turned
-  hand.
-- **The bow length follows the measures** (section 2.4). A bow of the app is `0.1 + 0.4 ×
-  duration` of the bow range (`BOW_MOTION.length`), with the duration of the note or of the whole
-  slur. On a bow range of 0.6 m, that is 6 cm plus 24 cm for each second, near the stroke lengths
-  of section 2.4. The loudness changes the length only a little: the length is multiplied by
-  `0.7 + 0.3 ×` the gesture size, because real players change the sounding point and the force
-  more than the bow speed. Before round `bow-arm`, the gesture size multiplied the length.
-- **Fast bows move to the balance point** (section 2.5). A bow whose next bow starts within
-  0.25 s (`BOW_MOTION.fastSec`, at least 4 notes a second, the lower end of the fast patterns of
-  section 2.3) moves toward the balance point and the middle of the bow: `balanceShift()` of
-  `pose/strokes.ts` moves the middle of the bow 0.2 of the way to 0.45 of the bow range
-  (`BOW_MOTION.balance`), and keeps the direction of the bow. A long note keeps the length of its
-  rule.
-- **A measured tremolo moves the bow a short way** (section 2.5). A run of at least 4 notes of
-  one pitch, each shorter than 0.09 s, is a measured tremolo (`measuredTremolo()` of
-  `pose/strokes.ts`, `BOW_MOTION.measured`). Each stroke of the run moves the bow 1.2 cm,
-  multiplied by the gesture size, and the next stroke moves it back, so the arm stays nearly still
-  and only the hand moves. No source of this file gives the stroke length of a measured tremolo.
-  Before, each note of 0.05 s took a bow of 3 cm to 4 cm, and the bow arm reversed 19 times a
-  second in `boulanger-matin` (user, 2026-10-28: "the red fox's bow arm is going up and down too
-  rapidly").
+The app follows these facts:
+
+- **The bow hold (2.1).** The stick passes through the middle of the closed right paw
+  (`SpeciesParams.bowGrip`), as the fingers of a real player close around it.
+- **The tilt of the stick (2.1).** `heldBowAt()` turns the bow around its hair by
+  `BowedHold.bowTilt`, less on the lower instruments.
+- **The string planes (2.2).** The bow turns around the strings by `BowedHold.stringTurn` for each
+  string: the real angle, or the largest angle below it with which the bow arm still reaches the
+  full hair (`bowRangeOf()`). The arm levels come from the geometry, higher for the lower strings.
+- **The crossing leads the note (2.3).** `bowStateAt()` turns the bow to the string of the next
+  note, and the turn ends a little before the note (`BOW_MOTION.crossSec`, `crossShare`,
+  `crossLeadSec`).
+- **The upper arm in a fast crossing (2.3).** In a fast run across two neighbor strings,
+  `crossStrings()` gives the notes next to a change of the string the mean of the two strings.
+  `crossPole()` then keeps the right elbow near the elbow of the mean string, and the forearm and
+  the wrist make the rest of the crossing. The bow turns the full angle to each string.
+- **The sounding point (2.4).** `soundingPointAt()` moves the contact point from
+  `BowedHold.soundingPoint[0]` of the string length in piano to `soundingPoint[1]` in forte, after
+  the violinists of Askenfelt and the six cellists. The bow follows a change of the loudness with
+  a time constant (`followLoudness()`). No source measures the contrabass.
+- **The bow length (2.4).** The bow length grows with the duration of the note or of the whole
+  slur (`BOW_MOTION.length`), near the measured stroke lengths. The loudness changes the length
+  only a little, because real players change the sounding point and the force more than the
+  speed.
+- **The slurs (2.5).** The MIDI files have no slurs, so `slurSizes()` guesses them from the score
+  (`BOW_MOTION.slur`): short notes in one beat that change the pitch join into one bow. A
+  repeated pitch takes a new bow. The bow keeps one speed and slows to a stop in the last note.
+- **The fast bows (2.5).** A bow before a fast next bow moves toward the balance point and the
+  middle of the bow (`balanceShift()`, `BOW_MOTION.fastSec`, `BOW_MOTION.balance`).
+- **The rest (2.9).** The violin and the viola rest upright on the left knee or thigh. The left paw
+  holds the neck in a rest grip near the grip of the play (`restHandAt()`,
+  `BowedHold.restPawTurnL`), and the left elbow hangs near the side (`BowedHold.restPoleL`). The
+  cat rests the viola nearer to the hip, so that its shorter arm bends, and closes its paw around
+  the neck.
+
+The app does not follow these facts:
+
+- **The bow hand (2.1).** The fingers turn the stick in the paw by the tilt, and the hand keeps
+  the turn of the bow with no tilt. The skin of the arm folds with a turned hand.
+- **The smaller string turns (2.2).** Some holds turn the bow less than the real angle. A larger
+  turn folds the skin of the right arm, or puts the bow paw into the instrument or the belly.
+- **The hair near the frog (2.5).** Some holds play no hair near the frog
+  (`BowedHold.frogHair`): there, the forearm of the dog and the hippo crosses the rim, and the bow
+  paw of the rabbit comes to its jaw.
+- **The bow elbow (2.3).** No source gives the direction of the right elbow at the frog. Each hold
+  keeps the elbow near the level of the bow (`BowedHold.poleR`, and `poleTipR` at the tip). A
+  lower elbow turns the broad side of the flat upper arm of the rabbit to the front, and puts the
+  upper arm of the cat into the trunk. The right shoulder turns forward (`BowedHold.reach`), so
+  that the bow arm keeps off the belly.
+- **The measured tremolo (2.5).** No source gives its stroke length. `measuredTremolo()` moves
+  the bow a short way and back on each note of a fast run of one pitch (`BOW_MOTION.measured`), so
+  the arm stays nearly still and only the hand moves.
+- **The pizzicato of the violin and the viola (2.8).** No source gives its place. The rabbit and
+  the red fox pluck over the end of the fingerboard (`BowedHold.pluckPlace`), because a pluck near
+  the bow puts the right forearm into the body. The cat plucks from the side of the frog
+  (`BowedHold.pluckSide`), as a bass hand comes up from the side. Its short arm goes into its
+  round chest with the palm over the strings.
+- **The lift and the lowering.** No source gives the path of the violin or the viola from the lap
+  to the chin. The left paw carries the instrument by its neck, and the instrument turns with the
+  paw (`carryLift()`). The paw supinates on its forearm on the way, as a real forearm turns. The
+  bind of the left paw is supinated, so that the rest twist and the play twist lie on one side of
+  180°, and the forearm skin follows the paw with no jump. In the middle of the move, the wrist
+  moves off its line (`BowedHold.liftReach`), so that the instrument keeps out of the body near
+  the jaw. A banjo roll with the scroll to the side avoids the twist, but no source gives it as a
+  rest.
+- **The top plate at rest (2.9).** No source gives its side in the seated rest. The top plate of
+  the violin faces the front. The top plate of the viola faces the front and a little to the left,
+  because with the top to the front the bow paw of the cat turns too fast in a lowering. The bow
+  paw rests low at the front of the lap or the lower belly, with the elbow hanging and a straight
+  wrist.
 
 ### 3.3 The cello on the chair and at rest
 
-- **The contacts** (section 2.7). The dog holds the cello between its knees with its own hold
-  (`DOG_HOLD` of `pose/bowed-rig.ts`): the endpin on the floor in front of the chair, the back of
-  the cello against the belly and the chest, and the neck at the left of the head, above the left
-  shoulder. Its thighs turn 30° out. The app differs from the source: the short thighs of the dog
-  mesh end far behind the lower bout of the leaned cello, so the knees stay 21 cm and 22 cm from
-  it and do not touch it.
-- **The angle** (section 2.7). The cello leans back 25° from the vertical, in the range of the
-  handout [65], and 14° to the left. The dog sits upright with the lean of 3° [66].
-- **The left hand over the neck.** The left paw tilts 55° over the neck from the bass side
-  (`BowedHold.tiltL`, 30° on the holds of the other species except the hippo), so that the thick
-  paw keeps off the fingerboard.
-- **The rest** (section 2.7). The cello stays between the knees, the left paw holds it at 0.6 of
-  the fingerboard, and the right paw holds the bow over the right knee with the tip up, as the
-  first lesson of the source. The short arm of the dog does not reach the knee, so the grip is
-  above the thigh and the tip leans out and forward. The source gives no rest of an orchestral cellist.
-- **Pizzicato** (section 2.8). The right paw of the dog comes up from the side and plucks 0.15 m
-  right of the strings, near the end of the fingerboard (`BowedHold.pluckSide` and `pluckPlace`),
-  with the elbow out and down, as the bassist of the source. The source is for the double bass,
-  and no source of this file gives the cello pizzicato.
+The app follows these facts:
+
+- **The contacts (2.7).** The dog holds the cello with `DOG_HOLD`: the endpin on the floor in
+  front of the chair, the back of the cello against the belly and the chest, and the neck at the
+  left of the head, above the left shoulder.
+- **The angle (2.7).** The cello leans back in the range of the handout [65], and a little to the
+  left. The dog sits upright, with a small lean forward [66].
+- **The rest (2.7).** The cello stays between the knees, and the left paw holds it. The right paw
+  holds the bow over the right knee with the tip up, as in the first lesson of [61].
+- **The pizzicato (2.8).** The right paw comes up from the side and plucks right of the strings,
+  near the end of the fingerboard (`BowedHold.pluckSide`, `pluckPlace`), with the elbow out and
+  down, as a bassist. No source of this file gives the cello pizzicato.
+
+The app does not follow these facts:
+
+- **The knees (2.7).** The short thighs of the dog end far behind the lower bout of the leaned
+  cello, so the knees do not touch it.
+- **The left hand (1.9).** The left paw tilts further over the neck from the bass side
+  (`BowedHold.tiltL`), so that the thick paw keeps off the fingerboard.
+- **The bow at rest (2.7).** The short arm does not reach the knee, so the grip is above the
+  thigh, and the tip leans out and forward. No source gives the rest of an orchestral cellist.
 
 ### 3.4 The standing contrabass player and the rest
 
-- **The size.** The hippo plays a smaller contrabass (`bassScale` 0.8 of `models/species.ts`), as
-  a child plays a fractional size (section 1.1 gives the string lengths of real sizes), with an end
-  pin of 0.2 m (`BASS_END_PIN`). Its arms reach 0.54 m, and its round belly reaches far in front of
-  its shoulder joints.
-- **The contacts** (section 2.8). The hippo stands, as many orchestral bassists do, with its own
-  hold (`HIPPO_HOLD` of `pose/bowed-rig.ts`). The end pin stands on the floor in front of it, and
-  the contrabass leans 33° to the left and 6° back, with the nut beside the head. The back of the
-  contrabass touches the front of the belly and goes at most 2 cm in, as a real bassist rests the
-  bass against the stomach [69]. The sweep limits this depth (`INSTRUMENT_CONTACT`). The app
-  differs from the source: a real bassist leans the bass against the left side of the hip and the
-  left knee [69, 70], but the knee of the hippo lies under its belly, so the contrabass stands in
-  front of the belly. Both shoulders of the hippo turn forward (`BowedHold.reach`,
-  `BowedHold.reachL`), so that the short arms reach the strings 0.28 m in front of the belly. At
-  rest, the app points the right elbow down and a little out (`BowedHold.restPoleR`), so that the
-  skin of the hanging upper arm twists less.
-- **The left hand over the neck** (section 2.8). The thick left paw of the hippo tilts 55° over
-  the neck, as the paw of the dog (section 3.3), so that the left arm keeps off the body. A real
-  bassist touches the back of the neck with the thumb alone [71]. The app differs: the paw of the
-  hippo is 5.9 cm long from the wrist to the middle of the fingers, and its wrist is about 8 cm
-  thick in radius, so the wrist skin goes 1.5 cm to 2.0 cm into the neck while the fingers stop the
-  strings.
-- **The high positions** (section 2.8). A real bassist raises the elbow so that the wrist comes
-  over the shoulder of the bass [71]. The left shoulder of the hippo lies behind the upper bout,
-  and its short arm does not reach over it. So the left paw stops the strings only up to 0.7 of
-  the fingerboard (`BowedHold.stopEnd`), and the high notes take places lower on the neck.
-- **Pizzicato** (section 2.8). The right paw of the hippo comes up from the side and plucks 0.18 m
-  right of the strings (`BowedHold.pluckSide`), as a real bassist rests the thumb on the edge of
-  the fingerboard [72]. The right elbow points out to the right, so that the straight arm passes
-  outside the rim of the upper bout. The bow tip points up, square to the strings
-  (`BowedHold.pizzicatoTip`), so that the forearm comes to the hand at 45° in the plane of the
-  palm, as in the play: with the tip to the left, the paw swung up to 41° off the forearm
-  (`docs/decisions/2026-10-28-hippo-grip.md`). No source of this file gives the place of the bow
-  in the hand in pizzicato. The app differs: the paw lies further right than a real hand,
-  because the right shoulder is 0.16 m behind the back of the contrabass.
-- **The part of the bow.** The short bow arm reaches the frog only straight, and then it crosses
-  the rim of the upper bout. So the hippo plays no hair within 0.25 m of the frog
-  (`BowedHold.frogHair`), as the dog on the cello (section 3.3). No source gives the bow of a
-  player with such short arms.
-- **The bow hand.** A real bassist holds the French bow with the palm toward the bass (section
-  2.1). The app rolls the paw around the stick so that the back of the paw points to the elbow,
-  within a range of the roll (`rollToward()` of `pose/bowed.ts`). The elbow of the hippo lies near
-  the backward line of the stick. On the E and the A strings, it lies near the far side of the
-  stick, where the roll changes from one end of its range to the other end, and the paw turned by
-  about 200° at a change of the string. The hold of the hippo moves that side to an angle that no
-  elbow of its play takes (`BowedHold.farSideR`), so the paw keeps one end of the range there.
-  The paw keeps the bend of its bind pose on the forearm (`BowedHold.pawKeepR`), as the French
-  bow is held "as if the hand is resting by the side" (section 2.1): the turn onto the line of
-  the forearm bent the thick wrist 25° off its form, into a lump under the paw
-  (`docs/decisions/2026-10-28-hippo-paw.md`). The hand turns in the plane of its palm around the
-  grip in the middle of the closed paw, so that the forearm keeps 45° in that plane
-  (`BowedHold.stickTurnR`). The paw thus keeps one place on the stick and a straight wrist, and
-  the bow turns in the paw by about 15° to each side over a stroke, as the fingers of a player let
-  the bow turn. With the paw turned toward the forearm alone, the forearm turned about 45° against
-  the bow over a stroke, and the paw slid up to 2.4 cm off the stick
-  (`docs/decisions/2026-10-28-hippo-grip.md`). No source gives the bow hand of a player with such
-  short arms.
-- **The rest.** The contrabass stays at its playing place, and the left paw holds the neck. The
-  right paw hangs beside the belly with the bow tip down, because the knee of the hippo is under
-  its belly. No source gives the rest of an orchestral bassist.
+The app follows these facts:
+
+- **The size (1.1).** The hippo plays a smaller contrabass (`SpeciesParams.bassScale`), as a child
+  plays a fractional size, with a short end pin (`BASS_END_PIN` of
+  `src/models/instruments/strings.ts`).
+- **The contacts (2.8).** The hippo stands, as many orchestral bassists do, with `HIPPO_HOLD`. The
+  end pin stands on the floor in front of it, the contrabass leans to the left and back, and the
+  nut is beside the head. The back of the contrabass touches the front of the belly, as a real
+  bassist rests the bass against the stomach [69].
+- **The pizzicato (2.8).** The right paw comes up from the side and plucks right of the strings
+  (`BowedHold.pluckSide`). The right elbow points out to the right, so that the straight arm
+  passes outside the rim of the upper bout. The bow tip points up, square to the strings
+  (`BowedHold.pizzicatoTip`), so that the forearm meets the paw as in the play. No source gives
+  the place of the bow in the hand in pizzicato.
+
+The app does not follow these facts:
+
+- **The hip and the knee (2.8).** The knee of the hippo lies under its belly, so the contrabass
+  stands in front of the belly. Both shoulders turn forward (`BowedHold.reach`,
+  `BowedHold.reachL`), so that the short arms reach the strings.
+- **The left hand (2.8).** The thick left paw tilts over the neck, as the paw of the dog, so that
+  the left arm keeps off the body. The thick wrist then touches the neck while the fingers stop
+  the strings, where a real bassist touches the neck with the thumb alone.
+- **The high positions (2.8).** The left shoulder lies behind the upper bout, and the short arm
+  does not reach over it. Thus the left paw stops the strings only up to `BowedHold.stopEnd`, and
+  the high notes take places lower on the neck.
+- **The pizzicato place (2.8).** The paw lies further right than a real hand, because the right
+  shoulder is behind the back of the contrabass.
+- **The hair near the frog (2.5).** The short bow arm reaches the frog only straight, and then it
+  crosses the rim of the upper bout. Thus the hippo plays no hair near the frog
+  (`BowedHold.frogHair`).
+- **The bow hand (2.1).** `rollToward()` rolls the paw around the stick, so that the back of the
+  paw points to the elbow, and `BowedHold.farSideR` keeps the roll at one end of its range on the
+  low strings. The paw keeps the bend of its bind pose on the forearm (`BowedHold.pawKeepR`), as
+  the French bow is held "as if the hand is resting by the side". The hand turns in the plane of
+  its palm around the grip (`BowedHold.stickTurnR`), so that the paw keeps one place on the stick
+  and a straight wrist. The bow then turns a little in the paw over a stroke, as the fingers of a
+  player let the bow turn.
+- **The rest.** No source gives the rest of an orchestral bassist. The contrabass stays at its
+  playing place, and the left paw holds the neck. The right paw hangs beside the belly with the
+  bow tip down, because the knee is under the belly. The right elbow points down and a little out
+  (`BowedHold.restPoleR`), so that the skin of the hanging upper arm twists less.
 
 ## 4. Sources
 
-Each source opened on 2026-10-17, except where a fact has a mark of section "Source marks".
+Each source opened on 2026-10-17, except where its entry gives another date.
 
 1. S. Fischer, "Basics: Changing position", The Strad, July 2011.
    https://www.simonfischeronline.com/uploads/5/7/7/9/57796211/241_july_2011_shifting.pdf
@@ -873,10 +737,10 @@ Each source opened on 2026-10-17, except where a fact has a mark of section "Sou
 64. Stringers Music, "Cello Size Guide".
     https://www.stringersmusic.com/pages/cello-size-guide
 65. "Cello Posture and Technique Guide" (curriculum example, Scribd). The text did not open in
-    full on 2026-10-17, and the fact comes from the summary of the manager of the session.
+    full on 2026-10-17, and the fact comes from a summary.
     https://www.scribd.com/document/397158821/curriculum-example
 66. Cellofun, "The spike (endpin)", seating posture. The page gave the HTTP status 502 on
-    2026-10-17, and the fact comes from the summary of the manager of the session.
+    2026-10-17, and the fact comes from a summary.
     https://cellofun.eu/home/cello-blog-encyclopaedia/mechanics-technique/basic-principles-of-technique/seating-posture/the-spike-endpin/
 67. S. Fischer, "Basics: The left thumb", The Strad.
     https://www.simonfischeronline.com/uploads/5/7/7/9/57796211/046thumb.pdf
@@ -886,7 +750,7 @@ Each source opened on 2026-10-17, except where a fact has a mark of section "Sou
     https://stringbassonline.com/howtoholdthebass.htm
 70. Double Bass Blog, a post on the standing position (2492), and the transcript of the
     interview with Andrew Anderson, Contrabass Conversations. Neither page opened on 2026-10-21,
-    and the facts come from the search summary of the agent of the session.
+    and the facts come from a search summary.
     https://doublebassblog.org/?p=2492
 71. "Elements of Double Bass Shifting", The Instrumentalist, April 2015. Opened on 2026-10-21.
     https://theinstrumentalist.com/april-2015/elements-of-double-bass-shifting/
