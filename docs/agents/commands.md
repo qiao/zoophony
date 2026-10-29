@@ -63,7 +63,7 @@ prints only a one-line usage text.
 
 | Command | Action |
 |---|---|
-| `pnpm loudness [--demo <id>]... [--fit] [--target <LUFS>]... [--json] [--check]` | Renders each demo in Node, then sends it through `output-chain.ts` in headless Chromium (design 6.8). It prints the loudness measures and the gain reduction of the limiter. `--fit` gives the value of `DEMO_LOUDNESS` for `TARGET_LOUDNESS`. `--check` fails above 0.5 LU from the target or above -1 dBTP. About 25 s for each demo. |
+| `pnpm loudness [--mix <name>] [--demo <id>]... [--fit] [--target <LUFS>]... [--json] [--check]` | Renders each demo in Node, then sends it through `output-chain.ts` in headless Chromium with the mix bus of `--mix` (`hall` by default, or `cinematic`, design 6.8). It prints the loudness measures, the gain reduction of the glue compressor (95th percentile and highest block), and that of the limiter. `--fit` gives the value of `DEMO_LOUDNESS` of the preset for `TARGET_LOUDNESS`. `--check` fails above 0.5 LU from the target or above -1 dBTP: run it for each preset. `--json` also gives the render time of the chain. About 25 s for each demo. |
 
 ## Pose and body probes
 

@@ -1202,7 +1202,8 @@ export class App {
     if (!audio) {
       return;
     }
-    const score = { ...loading.score, mix: loading.mix, gainDb: pieceGainDb(loading.file) };
+    const gainDb = pieceGainDb(loading.file, this.#mix);
+    const score = { ...loading.score, mix: loading.mix, gainDb };
     loading.loadStartSec = performance.now() / 1000;
     audio.player
       .load(score, (progress) => {

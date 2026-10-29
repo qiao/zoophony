@@ -1,12 +1,13 @@
 /**
  * Measures the loudness of each demo at the output of the app (design 6.8).
  *
- * Usage: `pnpm loudness [--demo <id>]... [--fit] [--target <LUFS>]... [--json] [--check]`
+ * Usage: `pnpm loudness [--mix <name>] [--demo <id>]... [--fit] [--target <LUFS>]... [--json]
+ * [--check]`
  *
  * For each demo (all demos by default), it renders the synth output in Node with the
  * `SynthEngine`, the SoundFont of design 6.2, the room of the synth, and the stage mix of the
  * layout, as the app and its worklet do. Then the code of `src/audio/output-chain.ts` runs in an
- * `OfflineAudioContext` of headless Chromium, with the mix bus of the preset `hall`, its hall
+ * `OfflineAudioContext` of headless Chromium, with the mix bus of the mix preset, its hall
  * impulse response, the glue compressor, the limiter, and their trims. The input gain is
  * `SOUNDFONT_HEADROOM_DB` plus `pieceGainDb()`, as in the `Player`. The render has the full song
  * and 3 s of tail, at 48 kHz.
@@ -17,14 +18,15 @@
  * percentile and its highest value in a block of 50 ms), and the gain reduction of the limiter
  * (its highest value, and the share of the blocks above 1 dB and 3 dB).
  *
+ * - `--mix <name>` selects the mix preset of `MIX_BUSES`: `hall` (the default) or `cinematic`.
  * - `--fit` finds the piece gain that brings each demo within 0.05 LU of `TARGET_LOUDNESS`, in
  *   steps of 0.1 dB, and gives the value for `DEMO_LOUDNESS`: the target minus that gain.
  * - `--target <LUFS>` fits to this target in place of `TARGET_LOUDNESS`. Each target gives one
  *   row for each demo, from one synth render.
  * - `--json` prints one JSON object for each demo, with the short-term loudness at each second.
  * - `--check` exits with 1 when a demo at the gain of `pieceGainDb()` is more than 0.5 LU from
- *   `TARGET_LOUDNESS`, or has a true peak above -1 dBTP. Run it after a change of a demo
- *   file, the SoundFont, the mix, the mix bus, the hall, or the limiter.
+ *   `TARGET_LOUDNESS`, or has a true peak above -1 dBTP. Run it for each mix preset after a
+ *   change of a demo file, the SoundFont, the mix, the mix bus, the hall, or the limiter.
  *
  * The page server listens on a free port that the system gives. A run of all demos takes about
  * 5 minutes. The renders are deterministic, so two runs give the same numbers.
@@ -40,6 +42,7 @@ import type { Browser } from '@playwright/test';
 
 import { DEMO_IDS, isDemoId } from '../src/app/demos.ts';
 import type { DemoId } from '../src/app/demos.ts';
+import { DEFAULT_MIX, isMixName } from '../src/app/mix-query.ts';
 import { TARGET_LOUDNESS, pieceGainDb } from '../src/audio/demo-loudness.ts';
 import type { MixName } from '../src/audio/output-chain.ts';
 import { SOUNDFONT_HEADROOM_DB } from '../src/audio/soundfont-info.ts';
@@ -543,18 +546,21 @@ function optionValues(args: readonly string[], name: string): string[] {
 }
 
 /**
- * Runs the tool: `node tools/loudness.ts [--demo <id>]... [--fit] [--target <LUFS>]... [--json]
- * [--check]`.
+ * Runs the tool: `node tools/loudness.ts [--mix <name>] [--demo <id>]... [--fit]
+ * [--target <LUFS>]... [--json] [--check]`.
  */
 async function main(): Promise<void> {
   const args = process.argv.slice(2);
   if (args.includes('--help')) {
     console.log(
-      'Usage: pnpm loudness [--demo <id>]... [--fit] [--target <LUFS>]... [--json] [--check]',
+      'Usage: pnpm loudness [--mix <name>] [--demo <id>]... [--fit] [--target <LUFS>]... [--json] [--check]',
     );
     return;
   }
-  const mix: MixName = 'hall';
+  const [mix = DEFAULT_MIX, ...extraMixes] = optionValues(args, '--mix');
+  if (extraMixes.length || !isMixName(mix)) {
+    throw new Error('Give one --mix: hall or cinematic.');
+  }
   const names = optionValues(args, '--demo');
   const unknown = names.filter((name) => !isDemoId(name));
   if (unknown.length) {
@@ -584,7 +590,7 @@ async function main(): Promise<void> {
   try {
     for (const demo of demos) {
       const synth = await renderSynth(demo);
-      const first = await measureAt(demo, synth, pieceGainDb(demo), null, mix);
+      const first = await measureAt(demo, synth, pieceGainDb(demo, mix), null, mix);
       failures.push(...checkFailures(first));
       const rows = [first];
       for (const target of targets) {
