@@ -36,8 +36,11 @@ export const VIOLIN = {
   /** The distances of the nut and of the end of the fingerboard from the tail end. */
   nut: 0.335,
   fingerboardEnd: 0.17,
-  /** The width of the strip that shows the four strings. */
-  stringsWidth: 0.008,
+  /**
+   * The width of the four strings at the bridge, from the outer side of the first string to the
+   * outer side of the fourth.
+   */
+  stringsWidth: 0.0232,
 } as const;
 
 /** The thickness of each string of the violin model, in meters before the scale. */
@@ -553,6 +556,46 @@ function chinRestOutline(): OutlinePoint[] {
 }
 
 /**
+ * The four strings of the violin model, in meters in the violin axes: the distance between the
+ * middles of the outer strings at the end of the tailpiece and at the nut (at the bridge, the
+ * distance is `VIOLIN.stringsWidth` less one string), the place of the end on the tailpiece, and
+ * the drop of the outer and the inner strings below `VIOLIN.stringHeight` on the arched top of
+ * the bridge and on the crowned fingerboard at the nut.
+ */
+const STRINGS = {
+  tailSpan: 0.015,
+  nutSpan: 0.0115,
+  tailEnd: [0.058, 0.0478],
+  bridgeDrop: [0.0014, 0.0005],
+  nutDrop: [0.0006, 0.0002],
+} as const;
+
+/**
+ * Makes one straight piece of a string: a thin square rod with no end caps, because its ends are
+ * inside the tailpiece, the bridge, or the nut.
+ *
+ * @param from The middle of the first end.
+ * @param to The middle of the last end.
+ * @returns 8 triangles.
+ */
+function strand(from: Vec3, to: Vec3): number[] {
+  const along = new Vector3(...to).sub(new Vector3(...from)).normalize();
+  const side = new Vector3().crossVectors(along, new Vector3(0, 1, 0)).normalize();
+  const up = new Vector3().crossVectors(side, along);
+  const half = STRING_SIZE / 2;
+  const ring = (p: Vec3): Vec3[] =>
+    [
+      [-1, -1],
+      [-1, 1],
+      [1, 1],
+      [1, -1],
+    ].map(([a = 0, b = 0]) =>
+      toVec3(new Vector3(...p).addScaledVector(side, a * half).addScaledVector(up, b * half)),
+    );
+  return sweep([ring(from), ring(to)], false);
+}
+
+/**
  * Places a part in a frame. The frame has no scale.
  *
  * @param frame The frame.
@@ -682,12 +725,24 @@ function addViolinParts(piece: PieceBuilder, frame: Transform, upright: boolean)
     [v.bridge, BRIDGE.feet + BRIDGE.center, 0],
     bridgeTurn,
   );
-  // The strings as one thin strip (design 4.5, instrument colors).
-  piece.add(
-    box(0.27, 0.002, v.stringsWidth),
-    INSTRUMENT_COLORS.strings,
-    inFrame(frame, transform([0.2, v.stringHeight - 0.001, 0])),
-  );
+  // The four strings, from the end of the tailpiece over the bridge to the nut (design 4.5,
+  // instrument colors).
+  const st = STRINGS;
+  const strings: number[] = [];
+  const middle = v.stringHeight - STRING_SIZE / 2;
+  for (let i = 0; i < 4; i++) {
+    const share = i / 3 - 0.5;
+    const outer = i === 0 || i === 3 ? 0 : 1;
+    const tail: Vec3 = [st.tailEnd[0], st.tailEnd[1] + STRING_SIZE / 2, share * st.tailSpan];
+    const bridge: Vec3 = [
+      v.bridge,
+      middle - st.bridgeDrop[outer],
+      share * (v.stringsWidth - STRING_SIZE),
+    ];
+    const nut: Vec3 = [v.nut, middle - st.nutDrop[outer], share * st.nutSpan];
+    strings.push(...strand(tail, bridge), ...strand(bridge, nut));
+  }
+  piece.add(strings, INSTRUMENT_COLORS.strings, inFrame(frame, transform()));
 }
 
 /**

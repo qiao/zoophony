@@ -29,8 +29,7 @@ export const BOWED_HANDS = {
   /**
    * The roll of the left hand around the neck for each string from the middle of the strings, to
    * the string of the finger (`BowState.stopString`). On the depth of the neck, it moves the
-   * finger block across the strip of the strings of the violin model by half of the space between
-   * two strings (2.7 mm). The roll of the full space put the left forearm of the red fox 2.4 cm
+   * finger block across the strings of the violin model by 2.7 mm. The roll of the full space put the left forearm of the red fox 2.4 cm
    * into the violin in the play (1.9 cm on `main`), and this roll 2.2 cm.
    */
   rollL: 2.5 * MathUtils.DEG2RAD,

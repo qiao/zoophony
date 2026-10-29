@@ -1007,8 +1007,9 @@ type AccentPart =
 **Instrument colors**
 
 `INSTRUMENT_COLORS` of `models/colors.ts` holds the colors of the instruments, after the polished
-images. The bowed strings are varnished wood with a lighter arched top. Their strings are one thin
-strip, so that they show no light bar. The clarinet is black lacquer with silver keys, the flutes
+images. The bowed strings are varnished wood with a lighter arched top and darker edges. Their four
+strings are separate thin rods of a dull gray: they show as fine lines over the black fingerboard,
+with no light bar. The clarinet is black lacquer with silver keys, the flutes
 are silver, and the brass is gold with open bells that show the lit inside of the flare. The
 timpani are copper. The piano is black lacquer with a dark well and a dark gold plate inside its
 open case (`PIANO_INSIDE` of `models/instruments/piano.ts`). Its three pedals are brass, as the

@@ -904,13 +904,13 @@ function instrumentSurface(posed: PosedSkeleton): ClosedSurface {
 
 /**
  * Gives the distance of the bow hair from the strings: the distance of the line of the hair from
- * the middle line of the strings, less half the width of the strings. The hair crosses the strings
- * at the string of the note, so it touches the strip of the strings. The sounding point moves the
+ * the middle line of the strings, less half the width of the four strings at the bridge. The hair
+ * crosses the strings at the string of the note, so it touches one of the four strings. The sounding point moves the
  * bow along the strings with the loudness (design 5.3), so the measure takes the line of the
  * strings, through the bow contact point of the model along the fingerboard.
  *
  * @param posed The posed skeleton.
- * @param halfWidth Half the width of the strip of the strings, in meters.
+ * @param halfWidth Half the width of the four strings at the bridge, in meters.
  * @returns The distance, in meters: 0 when the hair touches the strings.
  */
 function hairOffStrings(posed: PosedSkeleton, halfWidth: number): number {
