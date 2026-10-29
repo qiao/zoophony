@@ -547,6 +547,10 @@ showed lumps or a bright ridge at the inner elbow, and the play keeps its skin
     through the faces as on the mesh. With `colors.split`, a face whose samples spread over a
     lightness limit takes the larger of its light and dark halves, such as a face with a small
     island of the other side.
+  - Black band under a raised arm. The penguin texture paints the black flipper larger than the
+    flipper of the mesh, and the raised flipper left the band on the white side. With
+    `colors.flank`, each black trunk face of the side forward of a line from the armpit to the
+    lower side takes the white of the nearest light face.
   - Arm seam. Where the hanging forearm of a mesh touches the belly, short faces join the two.
     When the arm rises, those faces turn over and show, or the belly faces under them shade dark.
     No weight rule, corrective shape, or vertex move fixes both. `cut` removes the faces that join
