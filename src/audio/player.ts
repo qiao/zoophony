@@ -222,7 +222,7 @@ export class WorkletPlayer implements Player {
     this.#output = createOutputChain(this.#context);
   }
 
-  /** The AudioContext of the player, for the clock values of the spike page. */
+  /** The AudioContext of the player, which the app resumes after a user gesture. */
   get context(): AudioContext {
     return this.#context;
   }
