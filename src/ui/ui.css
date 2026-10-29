@@ -212,8 +212,8 @@ svg {
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  height: 22px;
-  margin: -1px 0 -1px 10px;
+  height: 20px;
+  margin: 0 0 0 6px;
   padding: 0 9px 0 7px;
   border: 1px solid var(--pill-line);
   border-radius: 999px;
@@ -238,8 +238,8 @@ svg {
 }
 
 .title .github svg {
-  width: 13px;
-  height: 13px;
+  width: 12px;
+  height: 12px;
 }
 
 .title h1 {
@@ -1720,15 +1720,15 @@ body:has(.first-screen:not([hidden])):has(.drawer:not([hidden])) .messages {
   }
 
   .title .github {
-    height: 20px;
-    margin-left: 8px;
+    height: 18px;
+    margin-left: 5px;
     padding: 0 8px 0 6px;
     font-size: 11px;
   }
 
   .title .github svg {
-    width: 12px;
-    height: 12px;
+    width: 11px;
+    height: 11px;
   }
 
   /* On a phone, the drawer is a sheet above the bar, so that the transport stays usable. */
