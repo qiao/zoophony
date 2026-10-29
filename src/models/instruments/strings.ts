@@ -416,6 +416,57 @@ function boardRing(x: number): Vec3[] {
 }
 
 /**
+ * The open part of the neck under the first positions, in meters in the violin axes: from this
+ * place along the violin to the nut, the top of the neck is at this height, below the fingerboard,
+ * and two thin side walls close the space up to the board. The left wrist of the hippo passes
+ * through the middle of the neck there, and a solid neck put it 1.7 cm deep in place of 1.5 cm.
+ */
+const NECK_OPEN = { from: 0.268, top: 0.048, wall: 0.0008 } as const;
+
+/**
+ * Gives the height of the top of the neck at a place along the violin.
+ *
+ * @param x The place along the violin.
+ * @returns The height: under the fingerboard, or the top of the open part.
+ */
+function neckTop(x: number): number {
+  const f = FINGERBOARD;
+  return x >= NECK_OPEN.from ? NECK_OPEN.top : alongBoard(x, f.endUnder, f.nutUnder) + 0.0003;
+}
+
+/**
+ * Makes the two side walls of the open part of the neck ({@link NECK_OPEN}), from the top of the
+ * neck up to the underside of the fingerboard.
+ *
+ * @returns The corner list.
+ */
+function neckWalls(): number[] {
+  const f = FINGERBOARD;
+  const [, startHalf] = NECK_RINGS[3] ?? [0, 0, 0];
+  const [, endHalf] = NECK_RINGS[4] ?? [0, 0, 0];
+  const from = NECK_OPEN.from;
+  const to = VIOLIN.nut;
+  const bottom = NECK_OPEN.top - 0.0005;
+  const out: number[] = [];
+  for (const side of [-1, 1]) {
+    const ring = (x: number, half: number): Vec3[] => {
+      const outer = side * 0.85 * half;
+      const inner = outer - side * NECK_OPEN.wall;
+      const top = alongBoard(x, f.endUnder, f.nutUnder);
+      return [
+        [x, bottom, Math.min(outer, inner)],
+        [x, top, Math.min(outer, inner)],
+        [x, top, Math.max(outer, inner)],
+        [x, bottom, Math.max(outer, inner)],
+      ];
+    };
+    // The ends of a wall touch the neck and the nut, so they need no caps.
+    out.push(...sweep([ring(from, startHalf), ring(to, endHalf)], false));
+  }
+  return out;
+}
+
+/**
  * Makes a ring of the neck: a flat top under the fingerboard, and a round back.
  *
  * @param ring The ring of {@link NECK_RINGS}.
@@ -423,10 +474,9 @@ function boardRing(x: number): Vec3[] {
  * @returns The corners, counterclockwise when seen from the nut.
  */
 function neckRing([x, half, low]: (typeof NECK_RINGS)[number], form: StringForm): Vec3[] {
-  const f = FINGERBOARD;
   // The heel stays on the back where the back of the contrabass rises toward the neck.
   const bottom = Math.max(low, backRise(form, x - VIOLIN.bodyLength / 2) + 0.002);
-  const top = alongBoard(x, f.endUnder, f.nutUnder) + 0.0003;
+  const top = neckTop(x);
   const middle = bottom + 0.55 * (top - bottom);
   return [
     [x, bottom, -0.55 * half],
@@ -635,7 +685,6 @@ const CHIN_REST = {
    */
   levels: [
     [0.85, 0],
-    [1, 0.012],
     [1, 0.019],
     [0.6, 0.017],
   ] satisfies readonly PlateLevel[],
@@ -901,6 +950,7 @@ function addViolinParts(piece: PieceBuilder, frame: Transform, form: StringForm)
   part(fHoles(arch), dark, [0, 0, 0]);
   // The neck with its round heel, the fingerboard as a tapered board, and the nut.
   part(sweep(NECK_RINGS.map((ring) => neckRing(ring, form))), wood, [0, 0, 0]);
+  part(neckWalls(), wood, [0, 0, 0]);
   part(sweep([boardRing(v.fingerboardEnd), boardRing(v.nut)]), dark, [0, 0, 0]);
   const nutWidth = FINGERBOARD.nutWidth + 0.001;
   const nutTop = v.stringHeight - STRING_SIZE;

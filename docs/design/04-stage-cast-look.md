@@ -1548,7 +1548,9 @@ with a ferrule and an eye, a screw button, and a flat ribbon of hair. The resear
 The strings of the model stay at one height over the whole length, because the holds and the play
 targets read that height (`VIOLIN`). So the fingerboard stands higher above the top, and the neck
 is deeper than on a real violin. The board keeps the height and the end thickness of the earlier
-box board, because the left paw of the hippo passes through it in a high position.
+box board, because the left paw of the hippo passes through it in a high position. For the same
+reason, the neck under the first positions is open below the board, and two thin side walls close
+it (`NECK_OPEN`).
 
 **Sizes and holds**
 
