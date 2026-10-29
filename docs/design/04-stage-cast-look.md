@@ -344,251 +344,106 @@ the head, and the arms keep their size in meters.
 
 ## 4.5 Visual values
 
-One world unit is one meter. The values of this section live in the code files that each block
-names. A block gives the rules, the intent, and the reasons. The research reports and the decision
-files keep the measures of each tuning, such as
-[`2026-10-06-polished-look.md`](../decisions/2026-10-06-polished-look.md).
+One world unit is one meter. The code files that each block names hold the values.
 
-The colors come from samples of the reference images, and design 1 says which image wins. Each
-base color is a little lighter than its darkest sample, because an image shows lit and shaded
-colors. Tune the light first, until a screenshot of the default view looks like the reference.
-Change a base color only when a measurement of the lit pixels of the same part shows that no light
-value can match the reference.
+The colors come from samples of the reference images. Each base color is a little lighter than
+its darkest sample, because an image shows lit and shaded colors. Tune the light first. Change a
+base color only when a measure of the lit pixels shows that no light value can match the
+reference.
 
-**Scene colors**
+**Colors**
 
-`SCENE_COLORS` of `models/colors.ts` holds the colors of the chairs, the music stands, and the
-sheet music, `STAGE_COLORS` of `models/props.ts` the stage, the risers, and the podium, and
-`HALL_COLORS` of `scene/hall.ts` the hall. The hall is a dark, warm room, and the stage an amber
-wood of fine planks with a tone for each plank and dark seams, as in `orchestra-latest.png`. The
-side lights are a warm white, so the wood holds the amber itself. The lip and the risers are a
-little lighter than the planks, and a baked light (`SIDE_GLOW`) keeps the sides of the stage from
-black. The chairs are a honey wood, and the music stands are black with a warm gray desk, because
-black desks were the largest shapes of some close shots.
-
-**Species colors**
-
-`SPECIES_COLORS` of `models/colors.ts` gives each species three colors: the fur, the belly and
-the face, and the accent. The models and the seat dots of the UI read them through `SPECIES`
-(`models/species.ts`). Each studio body keeps the colors of the faces of its GLB file (4.4), so
-its colors and its accent parts here color no part of its body. The rig of the panda moves its
-white fur to the fur color here, its smile line takes the dark of its eye patches, and the border
-of its black band under the arms takes the white of its fur (4.4). The rig of the red fox moves
-its orange fur to the red-orange of the reference foxes, and its fur color here is that moved fur,
-for the seat dot (4.4).
-
-- All species have black eyes with a light (`EYE_COLOR` and `EYE_LIGHT_COLOR`), and a dark nose
-  (`NOSE_COLOR`), unless their accent parts include the nose.
-- The antlers have the belly color. The inside of an ear has the belly color, unless the accent
-  parts include the inner ears or the ears.
-- The accent color goes to the accent parts of the species (table below). Accent arms also color
-  a band over the shoulders, and accent feet the lower shins, as the dark socks of the fox in
-  `animals.webp`.
-
-```typescript
-type AccentPart =
-  | 'inner-ears'
-  | 'ears'
-  | 'nose'
-  | 'snout'
-  | 'horn'
-  | 'beak'
-  | 'arms'
-  | 'hands'
-  | 'legs'
-  | 'feet'
-  | 'tail'
-  | 'face-pattern';
-```
-
-| Species      | Accent parts       | Species | Accent parts     |
-| ------------ | ------------------ | ------- | ---------------- |
-| rabbit       | inner-ears, nose   | cat     | inner-ears, nose |
-| fox, violins | feet               | hippo   | nose, inner-ears |
-| fox, flutes  | ears, feet         | deer    | nose, feet       |
-| wolf         | inner-ears         | panda   | ears, nose       |
-| elephant     | inner-ears         | mouse   | inner-ears, nose |
-| bear         | snout              | beaver  | tail             |
-| dog          | ears, face-pattern | monkey  | hands, feet      |
-| pig          | snout              | rhino   | horn             |
-| badger       | face-pattern       | penguin | beak, feet       |
-| polar bear   | nose               |         |                  |
-
-**Instrument colors**
-
-`INSTRUMENT_COLORS` of `models/colors.ts` holds the colors of the instruments, after the polished
-images. The bowed strings are varnished wood with a lighter arched top and darker edges. Their four
-strings are separate thin rods of a dull gray: they show as fine lines over the black fingerboard,
-with no light bar. The clarinet is black lacquer with silver keys, the flutes
-are silver, and the brass is gold with open bells that show the lit inside of the flare. The
-timpani are copper. The piano is black lacquer with a dark well and a dark gold plate inside its
-open case (`PIANO_INSIDE` of `models/instruments/piano.ts`). Its three pedals are brass, as the
-pedals of a real grand piano.
+- **Scene.** `SCENE_COLORS` of `models/colors.ts` (chairs, stands, sheets), `STAGE_COLORS` of
+  `models/props.ts` (stage, risers, podium), and `HALL_COLORS` of `scene/hall.ts`. The hall is a
+  dark, warm room. The stage is an amber wood with a tone for each plank and dark seams, and a
+  baked light (`SIDE_GLOW`) keeps its sides from black. The chairs are a honey wood. The music
+  stands are black with a warm gray desk, because black desks were the largest shapes of some
+  close shots.
+- **Species.** `SPECIES_COLORS` gives each species the fur, the belly, and the accent color. A
+  studio body keeps the face colors of its rig (4.4). The UI seat dots read the fur color, and a
+  color rule of a rig can move the fur toward it. All eyes are black with a light.
+- **Instruments.** `INSTRUMENT_COLORS`. The bowed strings are varnished wood with a lighter top
+  and darker edges. The clarinet is black lacquer with silver keys, the flutes are silver, the
+  brass is gold with lit bells, and the timpani are copper. The piano is black lacquer with a dark
+  well and a dark gold plate in its open case (`PIANO_INSIDE`).
 
 **Materials**
 
 All meshes share the values of one `MeshStandardMaterial` with vertex colors and crease normals
-(`models/shading.ts`), so each player has one material and one draw call. three.js keeps one current
-program for each material, and a skinned mesh or another count of morph targets needs another
-program. So the stage gives each program variant of the players its own copy of the material, and a
-depth material of its own for the shadow maps and for the depth passes of the beam and of the depth
-of field (`scene/variants.ts`). A pass draws a player only when its view or its shadow camera sees
-the sphere of the pose of the frame: the stage fits the sphere from the bone matrices, with a radius
-for each bone that holds its vertices and their morph moves (`scene/bounds.ts`). A corner gets the
-mean normal of the faces at its vertex within the crease angle of its finish. Each triangle has a
-finish (`Finish` and `FINISHES` of `models/mesh.ts`), and the `uv` of a vertex points at the texel
-of its finish in the roughness map and the metalness map of the material.
+(`models/shading.ts`), so each player has one material and one draw call. Each program variant
+of the players (skin, morph count) gets its own copy of the material and a depth material
+(`scene/variants.ts`). A pass draws a player only when its camera sees the sphere of the pose
+(`scene/bounds.ts`). Each triangle has a finish (`FINISHES` of `models/mesh.ts`):
 
-| Finish    | Parts                                                          | Intent                                                                                                 |
-| --------- | -------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
-| `matte`   | Cloth, raw wood, the stage, the props, and the bodies.         | No gloss, and flat faces. The fur of a studio body smooths the angles below its crease angle.          |
-| `varnish` | The varnished wood of the bowed strings.                       | A soft gloss.                                                                                          |
-| `lacquer` | The black lacquer of the piano and the clarinet, and the eyes. | A sharp gloss.                                                                                         |
-| `metal`   | Brass, copper, and silver.                                     | Sharp highlights. The environment map of the hall is dark, so a high metalness makes metal look black. |
+| Finish    | Parts                                                     | Intent                                                                |
+| --------- | --------------------------------------------------------- | --------------------------------------------------------------------- |
+| `matte`   | Cloth, raw wood, the stage, the props, and the bodies.    | No gloss. A studio body smooths the angles below its crease angle.    |
+| `varnish` | The varnished wood of the bowed strings.                  | A soft gloss.                                                         |
+| `lacquer` | The black lacquer of the piano and the clarinet, the eyes. | A sharp gloss.                                                        |
+| `metal`   | Brass, copper, and silver.                                | Sharp highlights. The hall is dark, so a high metalness looks black.  |
 
-- The `matte` finish keeps each face flat, so the animals show the facets of the low-poly look
-  that the user chose (2026-10-09). The studio bodies smooth their fur (user, 2026-10-14), because
-  their many small faces showed a crumpled pattern under the hard spotlight (4.4, render).
-- The vertex colors of a player hold a baked ambient occlusion (`shadeMesh()`), so that the folds
-  stay dark. An arm shades only its parent and its children, because an occlusion of the bind
-  pose would stay on the side of the torso when the arm rises. A studio body keeps the occlusion
-  of the studio.
-- The material has no fur shading (user, 2026-10-07).
+The studio bodies smooth their fur, because their many small faces showed a crumpled pattern
+under the hard key light. The vertex colors hold a baked ambient occlusion, so the folds stay
+dark.
 
 **Light and render**
 
-`scene/lights.ts` holds the lights, `scene/light-pool.ts` the pool of the stage lights,
-`scene/beam.ts` and `models/beam.ts` the visible beams and the places of the key light and the rim
-lights, and `scene/solo-light.ts` the light of a solo.
+`scene/lights.ts` holds the lights, `scene/light-pool.ts` the pool, `models/beam.ts` and
+`scene/beam.ts` the light places and the beams, and `scene/solo-light.ts` the solo light.
 
 ```text
           rim light (behind, high, no shadow) ── visible beam in the haze
                           │
    back   ┌───────────────v───────────────┐
-          │        players: lit rims      │  shadows fall to the back right
+          │   players: lit rims, shadows  │  shadows fall to the back right
           │     ◄ side light  side light ►│  (weak cross lights)
    front  └───────────────────────────────┘
                     ^
-                    │ key light (front left, high, the only shadow)
+                    │ key light (front left, high, the only stage shadow)
                  audience and default camera
 ```
 
-- **Key light** (`KEY_PLACE` of `models/beam.ts`, user, 2026-10-27). One warm `SpotLight` far in
-  front of the stage, high over the audience and to the left, is the key light, and the only
-  light that casts shadows on the stage. It acts as the front light of a concert hall: it lights
-  the faces, and the shadows of the players fall to the back right, parallel (user, 2026-10-27:
-  "make the key light go from front to back"). It stands to one side of the camera axis, so each
-  body keeps a lit side and a shade side, and the default view and a view from the front right
-  see the shadows beside the players. A front light lights the fronts by the cosine of its
-  elevation, so a high light keeps the white fur below the shoulder of the tone curve. Its soft
-  penumbra keeps the stage edges darker than the pool, as in `mockup.png`. Its intensity grows
-  with the square of the distance to the aim point, so each stage size gets the same light. A
-  low, nearly neutral fill keeps the shadows deep, and one weak light shows the face of the
-  conductor.
-- **Rim lights** (`RIM_LIGHT`, `RIM_PLACE`, user, 2026-10-27). Warm spotlights far behind the
-  orchestra and high, as the back lights on a truss of a concert film, light the heads and the
-  shoulders from behind, so the players stand out of the dark hall. They also give the floor of
-  the pool a part of its light. They cast no shadow, so the shadows keep one direction. They give
-  diffuse light only, and the vertex shaders of the players, the props, and the stage calculate
-  it (`scene/rim-light.ts`), because a spotlight of three.js, and the same term for each pixel,
-  cost GPU time on each lit pixel (9.7). Each rim
-  light has a visible beam, because haze scatters most light forward: a beam shows when it shines
-  toward the camera, and a beam of the key light would show only as a thin fog over the players.
-  The default has one rim light on the stage axis, as the one beam of the reference images.
-- **Side lights** (`SIDE_LIGHT`, user, 2026-10-18). Two high spotlights at the front corners are
-  weak cross lights beside the key light. The narrow cone of each one holds only the section on
-  the far side, so the key light keeps the lit side of each body. They cast the shadows of the
-  players, such as an arm on the chest. The shadows of the players have a soft edge on the high
-  tier (`TIER_SETTINGS`), because a hard edge showed black wedges and the steps of the map on
-  white fur (user, 2026-10-21). The stage takes no shadow of them, and the low tier has
-  none (2.6). The players and the props take only a part of the fill and of the diffuse light of
-  the environment (`FILL.players`), so their shade sides stay dark. The floor takes less fill
-  than the players, so it falls off outside the pool (user, 2026-10-21).
-- **Back-row lights** (`BACK_ROW_LIGHT`, user, 2026-10-18). Two more spotlights at the front
-  corners, lower than the side lights, cross the stage and light the fronts of the back rows and
-  the choir of the far section, so the back rows are almost as bright as the front rows, as in
-  `orchestra-latest.png`. Their narrow cones keep the front rows outside, and each body keeps a lit
-  side and a shade side. They have the color of the side lights and cast no shadow, so they cost
-  little GPU time. The gallery has none.
-- **Light color** (user, 2026-10-18). The side lights are a warm white and the sky of the fill a
-  neutral gray, so white, gray, and purple fur keep their colors, as in `orchestra-latest.png`.
-  The key light and the rim lights stay orange, because they give the amber of the floor and the
-  warm rims.
-- **Bake of the static props** (`scene/stage-bake.ts`). The props and the stage do not move during
-  a song, and the key light keeps its place, so each layout bakes their light on the stage top
-  one time: the soft shadow of a large key light, and the part of the sky that the near props
-  leave open. The stage shader limits the key light by the bake, and the other lights and the
-  reflections by the open sky. The props and the stage then cast no shadow in the shadow map of
-  each frame, and the players keep it. A GPU with no target of floats has no bake.
-- The baked stage takes no normal bias of the key shadow, so the shadow of a player starts at its
-  feet. It blurs the shadows of the players more than the players do (`STAGE_SHADOW`), so their
-  edge on the floor is near the edge of the bake. A point of the stage under an overhang, such as
-  the floor below the edge of the podium top, gets no key light (`stageBakeAt()`).
-- The light is a pool on the conductor and the middle of the orchestra. A factor in the shaders
-  multiplies each spotlight (`addLightPool()`), because a separate pool light cost GPU time. The
-  pool falls off only at the side edges and the front corners (user, 2026-10-07). It is narrower
-  than the stage, so the floor falls off to its edges and the players stand out of the floor, as
-  in `orchestra-latest.png` (user, 2026-10-21). On the players
-  and the props, it reaches far toward the back (`LIGHT_POOL`), so the back rows keep most of the
-  light, as in `orchestra-latest.png`. The stage keeps the round pool, so the floor at the back
-  stays dark. A hot spot brightens the key light around the podium. On the players and the
-  props, it holds only the podium, as a special on the conductor, because the key light from the
-  front made the white fur of the front rows clip in close shots. On the stage, it gives the floor
-  around the podium the bright pool of `orchestra-latest.png`. A solo has a weaker hot spot of its
-  own (`SOLO_LIGHT`), because the soloed players stand at its center.
-- The visible beam (`BEAM_LOOK`) is haze in a narrower cone than its rim light, because haze in
-  the full cone veiled the orchestra. The beam comes from its rim light, so the light has a
-  visible source: the haze cone leans from its foot toward the rim light, and its tip stands low
-  on that line (`hazeTip()`). The default view then sees the narrow top of the cone, and the beam
-  opens as a fan toward the stage, as in `orchestra-latest.png`. Each rim light stands at the x of
-  its beam, so the beam stands upright in the frontal view (user, 2026-10-18). A row of rim
-  lights gives a row of beams (`RIM_PLACE.count`). The shot planner keeps its own
-  upright cone around the stage center (`insideBeam()`, 5.6), which holds the haze near the
-  stage. The beam fades toward the stage with no edge. A depth pass
-  (`BeamDepth`) gives no haze to an item on the stage, so the beam shows between the players
-  (user, 2026-10-06). The camera dims the beam in a close shot (`shots/beam-opacity.ts`, 5.6),
-  because the additive beam washed out the image. Dust motes drift in the haze by the tier.
-- **Shot light** (`scene/shot-light.ts`, 5.6). A close shot adds a soft key 35° from the axis of
-  the camera toward the stage key light, so the lit side of the subject faces away from its
-  shadow, and a kicker behind the subject on the side of the nearer stage light (`shotRig()`),
-  with a little more exposure and a stronger vignette. The soft key and the extra exposure fill
-  only the part of the subject that the camera sees in the shade of the stage key light
-  (`shadeShare()`). The key light stands in front of the stage, so the cameras of most close shots
-  see the lit side, and more light on that side made the light fur clip. The lamps are a diffuse
-  term in the material of the players and the props, which runs only while a lamp has light,
-  because two spotlights cost each lit pixel of the scene in each shot (9.7). The subject then
-  reads as in the close shots of `scene.png`, and the wide shots keep the light of the stage.
-- **Room haze** (`ROOM_HAZE`, final pass). Thin warm air starts behind the point that the camera
-  looks at and grows with the distance, brighter toward the rim light behind the stage, because
-  haze scatters most light forward. The polished hall floor shows the gloss of the same light
-  (`HALL_FLOOR`). The back rows and the hall
-  get an aerial depth, and the beam stands in air, as in `orchestra-latest.png`. The stage in
-  front of the subject gets no haze, so no player is veiled, and the black point stays. The depth
-  pass of the beam has no hall, so the haze takes the distance to the hall floor for its pixels.
-- **Solo light** (`soloAim()`, user, 2026-10-07). When the user solos seats (2.4, 6.6), the key
-  light, its pool, the beams, and their rim lights turn to the soloed players, and ease back after
-  the solo. The aim
-  comes from the solo flags and the layout alone. The pool of a solo is round on the players too,
-  so the back rows outside it step back.
-- **Captured environment** (`captureEnvironment()`). Each layout renders its hall and its lit
-  stage into a cube, with no players, no props, and no beam, from above the middle of the pool of
-  light. The brass and the lacquer reflect the real lamps and the lit floor, and the shadow sides
-  of the players get the warm light of the floor below them, as in `orchestra-latest.png`. A GPU
-  with no target of floats keeps a fixed environment of a dark room with warm lamps.
-- Tone mapping is AgX, because ACES moved the dark wood to red. Its exposure (`STAGE_TONE` of
-  `scene/renderer.ts`) keeps the lit floor and the lit white fur below the shoulder of the curve,
-  so that the stage does not look over-exposed (user, 2026-10-21). With reduced motion, the noise,
-  the motes, and the grain stand still, and the lights move at once (2.5).
+- **Key light** (`KEY_PLACE`). A warm `SpotLight` far in front of the stage, high and to the
+  left, acts as the front light of a concert hall. The shadows fall back, beside the players in
+  the default view. Each body keeps a lit side and a shade side. The intensity grows with the
+  square of the distance, so each stage size gets the same light.
+- **Rim lights** (`RIM_LIGHT`, `RIM_PLACE`). Warm spotlights far behind and high light the heads
+  and the shoulders, so the players stand out of the dark hall. They cast no shadow, so the
+  shadows keep one direction. The vertex shaders calculate them (`scene/rim-light.ts`), because a
+  spotlight costs GPU time on each lit pixel (9.7).
+- **Side and back-row lights** (`SIDE_LIGHT`, `BACK_ROW_LIGHT`). Weak cross lights from the
+  front corners. The side lights cast the shadows of the players on the players, with a soft edge
+  on the high tier (`TIER_SETTINGS`), because a hard edge showed black wedges on white fur. The
+  back-row lights keep the back rows almost as bright as the front rows. These lights are a warm
+  white, so white, gray, and purple fur keep their colors.
+- **Pool** (`LIGHT_POOL`). A factor in the shaders makes a pool on the conductor and the middle
+  of the orchestra (`addLightPool()`), because a separate light costs GPU time. The floor falls
+  off to its edges. A hot spot holds only the podium on the players, so the white fur of the
+  front rows does not clip.
+- **Bake** (`scene/stage-bake.ts`). The props and the stage do not move, so each layout bakes
+  the soft key shadow on the stage one time. The players keep a shadow map in each frame.
+- **Beam** (`BEAM_LOOK`). The haze cone is narrower than its rim light, because the full cone
+  veiled the orchestra. It leans toward its rim light, which stands at the x of the beam, so the
+  beam has a visible source and stands upright. The camera dims it in a close shot (5.6).
+- **Shot light** (`scene/shot-light.ts`). A close shot adds a soft key and a kicker only on the
+  part of the subject in the shade of the key light, so the lit fur does not clip.
+- **Room haze** (`ROOM_HAZE`, `HALL_FLOOR`). Thin warm air grows with the distance behind the
+  subject, so the back rows get an aerial depth and no player is veiled.
+- **Solo light** (`soloAim()`). When the user solos seats (2.4, 6.6), the key light, the pool,
+  and the beams turn to the soloed players, and ease back after the solo.
+- **Environment** (`captureEnvironment()`). Each layout renders its hall and its lit stage into a
+  cube, so the brass reflects the real lamps.
+- **Tone.** AgX tone mapping, because ACES moved the dark wood to red. Its exposure (`STAGE_TONE`)
+  keeps the lit floor and the white fur below the shoulder of the curve, so the stage does not
+  look over-exposed. With reduced motion, the noise, the motes, and the grain stand still (2.5).
 
 **Hall**
 
-The concert hall (`scene/hall.ts`, `HALL`) scales with the stage side, with a minimum. Walls with
-two balcony tiers and lamps stand around the stage, as in `scene.png` (1). The low lamps have a
-gap at the back (`HALL.wallLamps.backGap`), because lamps there floated above the orchestra and
-near the title of the first screen (2.8), and the user removed them (2026-10-27). Each lamp has a soft glow disc (`createGlows()`). The
-shell and the floor take no light, and hold a baked light, because the lights cost GPU time on
-large surfaces. All faces point into the hall, so the near balconies do not stand in front of the
-stage.
+The concert hall (`HALL` of `scene/hall.ts`) scales with the stage side. The balcony rails carry
+lamps all around. The low wall lamps skip the back (`HALL.wallLamps.backGap`), because lamps
+there floated above the orchestra and near the title of the first screen (2.8). Each lamp has a
+soft glow disc. The shell and the floor hold a baked light, because lights cost GPU time on large
+surfaces.
 
 **Post effects**
 
@@ -602,114 +457,58 @@ scene ──> [depth 1/2] ──────────────────
           [scene target] ───────────────────────────────────────────────> final pass ──> canvas
 ```
 
-- With no float target, the scene renders to the canvas with no post effects. The bloom has a
-  number of levels by the tier (2.6).
-- The depth of field follows a thin lens, with the focus on the subject of the shot (5.6), and a
-  smaller blur in front of the focus. The aperture closes for a far focus, so the wide views stay
-  sharp and skip the blur passes. The user found larger apertures too blurry, and Free mode has no
-  depth of field (2026-10-07). A separate depth pass at half size gives the depth, because the
-  resolve of the multisample depth cost more time (9.7).
-- The bloom keeps a small part of all the light, as a diffusion filter on a film lens, and its
-  glow is warmer than the light, as the halation of film (`POST_LOOK`).
-- The final pass does the depth of field, the bloom, the tone mapping, a grade, a vignette, and a
-  grain at a fixed rate. The grade is a 3D lookup table of `gradeColor()` (`scene/grade.ts`): a
-  tone curve on the luma, more saturation for the pale colors, and a split tone. AgX gives flat
-  and pale middle tones, and `pnpm look-lab` fits the grade to `orchestra-latest.png`. The curve
-  keeps the soft shoulder of AgX, because the curve scales the three channels by one factor: a
-  steep shoulder clipped the red of the lit floor and the white fur, and the stage looked
-  over-exposed (user, 2026-10-21).
+- With no float target, the scene renders with no post effects. The bloom levels follow the tier
+  (2.6).
+- The depth of field is a thin lens focused on the subject of the shot (5.6). The aperture
+  closes for a far focus, so the wide views stay sharp and skip the blur. Free mode has none.
+- The bloom keeps a small part of all light, as a diffusion filter, with a warm halation.
+- The final pass does the tone mapping, a grade (`gradeColor()`, `GRADE` of `scene/grade.ts`), a
+  vignette, and a grain. `pnpm look-lab` fits the grade to `orchestra-latest.png`. The curve
+  keeps the soft shoulder of AgX, because a steep shoulder clipped the floor and the white fur.
 
 **Camera**
 
-`shots/view.ts` holds the values of the camera: the field of view, the default view, the
-landscape rule, the portrait rule, and the orbit limits. `shots/frame.ts` holds the frame.
+`shots/view.ts` holds the field of view, the default view, the screen rules, and the orbit
+limits. `shots/frame.ts` holds the frame.
 
-- The camera is a perspective camera with a vertical field of view of 30°. The far plane is the
-  camera distance plus `3 × S`, so that a full zoom-out still shows the stage.
-- The default view stands on the audience axis and sees the back of the conductor, as
-  `orchestra-latest.png` (1): the full stage with the podium at the bottom middle. The camera looks
-  down at `DEFAULT_ELEVATION` at `DEFAULT_TARGET`. In the axes of the stage origin (below), it is at
-  `target + d × (0, sin e, cos e)` for the elevation `e` and the distance `d`. The wide shots of
-  5.6 look at the same target, and Free mode turns around it (2.5). The view looks down a little
-  less steeply than `orchestra-latest.png`. This product choice wins over the image, and the full
-  stage still shows.
-- The default distance is `DEFAULT_DISTANCE_IN_SIDES × S`, multiplied by the height divided by the
-  width of a tall viewport. The wide shots, the planner, and the beam fade use it as their unit.
-- **Landscape rule** (user, 2026-10-06). The players fill almost the full width of the free area
-  left of the open drawer, as in `mockup.png` (2.8, `landscapeZoom()`).
-- **Portrait rule** (user, 2026-10-06). A portrait viewport gets a lower and more frontal view, so
-  that the orchestra fills more of the tall screen. Its share grows smoothly with the aspect, so a
-  turn of the screen makes no jump (`PORTRAIT_RULE`). Both rules keep each player whole in each
-  wide shot, between the title and the bar of 2.8 (`wideView()`).
-- **Frame.** `camera.setViewOffset` puts the middle of the frame in the middle of the free area
-  (2.8, `viewFrame()`). A close shot of 5.6 fits its full frame into the free area, so that the bar
-  and the drawer cover no part that the planner tests. While the play button of the first screen
-  shows, the frame shrinks until the stage is clear of it.
-- **Orbit limits.** Free mode keeps a range of elevations and a largest distance. The near limit
-  keeps the camera outside the box of the stage and the players (`orbitMinDistance()`).
+- A perspective camera with a vertical field of view of 30°.
+- The default view stands on the audience axis behind the conductor, as `orchestra-latest.png`,
+  and looks down at `DEFAULT_ELEVATION` at `DEFAULT_TARGET`. It looks a little less steeply down
+  than the image. This product choice wins over the image. The wide shots of 5.6 look at the same
+  target, and Free mode turns around it (2.5).
+- The default distance is `DEFAULT_DISTANCE_IN_SIDES × S`, and it is the unit of the wide shots,
+  the planner, and the beam fade.
+- In landscape, the players fill almost the full width of the free area beside the drawer
+  (`landscapeZoom()`). A portrait viewport gets a lower and more frontal view (`PORTRAIT_RULE`).
+  Each player stays whole in each wide shot (`wideView()`).
+- `camera.setViewOffset` puts the frame in the middle of the free area of 2.8 (`viewFrame()`).
+- Free mode keeps the camera outside the box of the stage and the players
+  (`orbitMinDistance()`).
 
-**Body proportions**
+**Supports and budgets**
 
-The head height `H` is the unit of the body. The default `H` is `DEFAULT_HEAD_HEIGHT` of
-`models/species.ts` times the size of the species, so the species keep their sizes relative to
-each other and to the chairs and the podium of the reference image. The head top is 0.5 H above
-the head center. The table gives the parts of the parametric body (4.4).
-
-| Part           | Code                      | Intent                                                                                                                                                                                                                                                                        |
-| -------------- | ------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Head           | `models/head.ts`          | The round head of the polished images, with full cheeks that carry the muzzle, and small triangle facets.                                                                                                                                                                     |
-| Torso and neck | `models/trunk.ts`         | A round pear torso with the belly forward, as in `animals.webp`, and a short neck that the torso and the head hide.                                                                                                                                                           |
-| Arms and hands | `models/arms.ts`          | Two limbs for each arm and a round mitten. A dome around the shoulder joint sinks into the torso in each pose.                                                                                                                                                                |
-| Legs and feet  | `models/legs.ts`          | The short legs of 4.3, with round shoes on the floor or on the foot ring of a high stool.                                                                                                                                                                                     |
-| Eyes           | `models/eyes.ts`          | Two black upright ovals with a white light, between the front and the sides of the head, so that the side view shows them. Both lights show on the upper left of each eye seen from the front, as the reflection of one lamp does on two real eyes (user, 2026-10-21). The studio bodies have the same eyes, bent to the form of the head (4.4). No mouth, except the smile lines of the panda and the wolf meshes (4.4). |
-| Ears           | `models/ears.ts`          | The ear type of the species (4.3).                                                                                                                                                                                                                                            |
-| Snouts         | `models/snouts.ts`        | The snout type of the species (4.3). A long muzzle reaches past the mouthpiece of a wind instrument.                                                                                                                                                                          |
-| Tails          | `models/tails.ts`         | The tail type of the species (4.3). A long tail goes back through the open back of the chair.                                                                                                                                                                                 |
-
-A player that stands (the timpani, the percussion, the choir, and the conductor, 4.6) has short
-straight legs. The soloist of 3.8 also stands when it plays the violin, the viola, the flute, the
-oboe, the clarinet, the horn, the trumpet, or the trombone, as in a concerto (user, 2026-10-06).
-The other soloists keep their seats (`supportOf()` of `models/player.ts`). The props of a standing
-player fit its shoulders. On a chair, the body moves forward until it keeps a small gap from the
-back (`chairForward()`). Each species moves toward the anatomy of its reference images (design 1).
-
-**Facets and triangle budgets**
-
-- The parametric body shows small triangle facets. The target is the large, flat, and clean facets
-  of the reference images (design 1, `lowpoly-animals.png`).
-- A body has at most 2,600 triangles. A studio body keeps the faces of its GLB file, and its GLB
-  file has a budget of 5,600 faces, so that a thick arm can take a round tube and a round shoulder of its own (the
-  user, 2026-10-22: "do not worry about triangle budget"). The rabbit and the red fox play in the violin sections, the
-  cat in the violas, the dog in the cellos, the tan fox in the flutes, the mouse in the oboes, the
-  beaver in the bassoons, the wolf in the clarinets, the monkey in the trumpets, the panda in the
-  trombones, the pig in the horns, the hippo in the contrabasses, the elephant at the timpani, the
-  badger in the percussion, the rhino at the tuba, the deer at the harp, the penguin in the
-  choir, the polar bear at the piano, and the bear on the podium, so many
-  studio bodies share the scene. The mesh of the bear keeps its 3,142 triangles, as the user gave
-  it. The polar bear has 4,142: the faces of the user, with quad tubes on the arms. The pea eyes add their triangles to a studio body
-  (`docs/decisions/2026-10-15-pea-eyes.md`).
-- An instrument has at most 800 triangles, except the four bowed strings with their bows and
-  the timpani (1,200), and the piano (2,000). A
-  chair or the piano bench has at most 120, and a stand at most 80. The full scene with 60
-  players has at most 200,000. The frame cost of `perf-60.mid` set these budgets (9.7).
-  `models/budget.test.ts` and `models/species.test.ts` check them.
+- The players of the timpani, the percussion, the contrabass, the tuba, the choir, and the
+  conductor stand. The soloist of 3.8 also stands when it plays the violin, the viola, the
+  flute, the oboe, the clarinet, the horn, the trumpet, or the trombone, as in a concerto
+  (`supportOf()` of `models/player.ts`).
+- A studio body has at most `STUDIO_TRIANGLE_BUDGET` triangles (4.4), and each instrument its
+  value of `INSTRUMENT_BUDGETS`. The frame cost of `perf-60.mid` sets the budgets (9.7).
 
 **Props and stage**
 
-`models/props.ts` holds the sizes of the chairs, the stools, the music stands, and the choir
-risers. `models/stage.ts` holds the sizes of the stage, the podium, and the conductor stand.
+`models/props.ts` holds the chairs, the stools, the music stands, and the risers.
+`models/stage.ts` holds the stage, the podium, and the conductor stand.
 
-| Item            | Rules                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
-| --------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Chair           | A seat, two back posts, one wide top rail, open below the rail, and four legs (`CHAIR`), as in `animals.webp`. The seat is at the `seatHeight` of the skeleton (`seatHeights()`, 4.3), so each species has a chair of its own height. A studio body also gives the depth, the room, and the width of its seat (4.4, seat). A species with no chair (`SpeciesParams.noChair`), the mouse, the beaver, or the monkey, keeps its seated pose at the seat height of its legs, and the app builds no chair under it (`buildSupport()`). The monkey stands in this pose with its center of mass over its soles (4.4, seat). |
-| Stool           | For the harp, with no back (`STOOL`). Under a studio body, as the deer, its seat fits the legs, and it has the width and the depth of the seat of the chair of the body (`StudioBody.chairWidth`, `chairDepth`), with its back at the back of the chair and its legs at its corners. Its front edge thus ends where the thighs leave it, so the knees, the shins, and the hooves stay out of it (`seatHeights()`). Under the parametric biped, it keeps the height of the chair of 2026-10-06.                        |
-| High stool      | With a foot ring at the `seatHeight` of the skeleton below the seat (`HIGH_STOOL`). No player sits on it since the hippo stands at its contrabass.                                                                                                                                                                                                                                                                                                                                                                    |
-| Music stand     | A tripod, a post, and a tilted desk with a white sheet (`MUSIC_STAND`). The desk stays below the eyes of its players (`standDeskHeight()`).                                                                                                                                                                                                                                                                                                                                                                           |
-| Podium          | A box with cut corners and framed panels (`PODIUM_SIZE`, `PODIUM_TRIM`), as in `orchestra-latest.png` and `bear-views.png`.                                                                                                                                                                                                                                                                                                                                                                                           |
-| Conductor stand | A desk on a post in front of the podium (`CONDUCTOR_STAND`), with its top edge at the shoulders of the bear, as in `animals.webp`. A post on the podium put the belly of the bear through the desk.                                                                                                                                                                                                                                                                                                                   |
-| Stage           | A slab of side `S` (stage origin, below) with no steps, cut corners (`STAGE_CORNER_CUT`), a raised lip (`STAGE_LIP`), and planks from the left to the right. The wood has a soft sheen under a thin lacquer (`STAGE_FINISH`), so the lit floor keeps the warm color of the wood. Each plank has its own tone and gloss, and the seams have little gloss.                                                                                                                                                              |
-| Choir risers    | Up to three arc levels behind the orchestra, with three steps in front, as in `orchestra-latest.png` (`RISER`).                                                                                                                                                                                                                                                                                                                                                                                                       |
-| Floor           | The floor of the hall, with the baked spill of the stage light.                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| Item            | Rules                                                                                                     |
+| --------------- | --------------------------------------------------------------------------------------------------------- |
+| Chair           | A level seat, two back posts, one wide top rail, and four legs (`CHAIR`). It fits the body (4.4, seat).   |
+| Stool           | For the harp, with no back (`STOOL`). It fits the legs, so the knees and the hooves stay out of it.       |
+| Piano bench     | A padded seat with four tapered legs (`PIANO_BENCH`), as in `polar-bear-views.png`. It fits the body.     |
+| Music stand     | A tripod and a tilted desk with a sheet (`MUSIC_STAND`), below the eyes of its players.                   |
+| Podium          | A box with cut corners and framed panels (`PODIUM_SIZE`, `PODIUM_TRIM`), as in `bear-views.png`.          |
+| Conductor stand | A desk on a post in front of the podium (`CONDUCTOR_STAND`), with its top edge at the bear shoulders.     |
+| Stage           | A slab of side `S` with cut corners (`STAGE_CORNER_CUT`), a raised lip (`STAGE_LIP`), and lacquered planks. |
+| Choir risers    | Up to three arc levels behind the orchestra, with three steps in front (`RISER`).                         |
 
 **Stage origin**
 
@@ -717,54 +516,36 @@ The world origin is the stage center, on the top of the stage. The axes are the 
 axes of Three.js: +x points to the right as the audience sees it, +y points up, and +z points to
 the audience (the front).
 
-1. Place the soloist (soloist, below), then the seats in arcs around the podium center.
-2. Calculate the half width `L`: the largest `|x|` of a seat, plus 0.5 m for the chair and 0.3 m
-   of margin. `L` is also at least the largest `|x|` of a footprint box (seat geometry, below),
-   plus 0.3 m.
-3. Calculate the front distance `F` from the front edge to the podium center: 1.0 m. With a
-   soloist, the front edge also stays 0.3 m in front of its footprint.
-4. Calculate the depth `D`: `F`, plus the largest distance behind the podium of a seat, plus
-   0.5 m for the chair and 0.3 m of margin. The footprint boxes count as in step 2.
-5. The stage side is `S = max(5, 2 × L, D)`. The front edge stays `F` in front of the podium
-   center, so any extra depth goes to the back.
-6. Spread the instrumental rows inside the stage (seat geometry, below). `S` does not change.
-7. Move all items so that the stage center is the origin. The podium center is then at
-   `(0, 0, S / 2 - F)`.
-
-These values keep the stage near the size of the reference image (`REFERENCE_STAGE_SIDE` of
-`models/test-layout.ts`). `models/layout-scene.test.ts` limits the growth of the stage of each
-demo.
+1. Place the soloist, then the seats in arcs around the podium center.
+2. Calculate the half width `L`: the largest `|x|` of a seat or a footprint, plus a chair and a
+   margin.
+3. Set the front distance `F` from the front edge to the podium center (`PODIUM_FROM_FRONT`).
+4. Calculate the depth `D`: `F`, plus the largest distance of a seat behind the podium, plus a
+   chair and a margin.
+5. The stage side is `S = max(5, 2 × L, D)`. Any extra depth goes to the back.
+6. Spread the instrumental rows inside the stage. `S` does not change.
+7. Move all items so that the stage center is the origin.
 
 **Seat geometry**
 
-The seats stand in arcs around the podium center (`models/layout-scene.ts`). All players face the
-podium, except the pianist. An angle of 0° points from the podium to the back (-z), and negative
-angles are on the left. A seat at the angle `a` and the radius `r` is at
+The seats stand in arcs around the podium center (`models/layout-scene.ts`), and all players
+face the podium, except the pianist. An angle of 0° points from the podium to the back (-z), and
+negative angles are on the left. A seat at the angle `a` and the radius `r` is at
 `podium + (r × sin a, 0, -r × cos a)`.
 
-- A seated player uses at least 0.95 m of arc, and a choir singer 0.60 m. The arc between two
-  neighbors grows until their footprints keep 0.05 m apart. Two string players share one stand
-  (`STAND_DISTANCE` of `models/layout.ts`), and each wind player has its own stand.
-- Rows 0 and 1 hold the strings (4.2): the violins left of 0°, and the violas and the cellos right
-  of it, so no string player sits behind the conductor. The other rows are centered on 0° and span
-  at most 160°. A row with no players drops out.
-- Row `n` has the radius `r(n) = max(r(n - 1) + 1.2, width(n) / 2.79)`, where `width(n)` is the
-  arc length that its players need and 2.79 is 160° in radians. `r(-1)` is 1.2. Then the row moves
-  back until its footprints keep 0.05 m from the items in front.
-- A player in a row behind a piano case keeps a larger gap from the case (`PIANO_REACH_GAP` of
-  `models/layout-scene.ts`), also in the spread. A footprint is the bind pose, and a player behind
-  the case faces it and reaches toward it in play. Thus a contrabass of a continuo group stands
-  near the case, with a clear gap. The players in front of the case face away from it and keep
-  0.05 m.
-- Riser level `k` of the choir has the radius `r + 0.8 × k` and the height `1.0 + 0.25 × k`, where
-  `r` is 1.2 m more than the radius of the last instrumental row, so that the back row hides no
-  singer (4.2). The layout keeps the count of levels with the smallest stage, then widens the
-  levels (`widenRisers()`). The vocal soloists of 3.8 stand alone on level 0.
-- After the stage size, each instrumental row spreads to the side edges, because the packed rows
-  left the front corners empty. Each side takes the largest factor of its arcs (`SpreadLimits`)
-  that keeps each footprint 0.3 m inside the stage (`boxOnStage()`) and its gap from the other
-  items. Then row 1 moves its back desks toward the first desks of their seats, as the wedges of a
-  professional orchestra.
+- A seated player uses at least `SEATED_ARC`, and neighbors keep `FOOTPRINT_GAP` between their
+  footprints. Two string players share one stand (`STAND_DISTANCE`). Each wind player has a
+  stand.
+- Rows 0 and 1 hold the strings: the violins left of 0°, the violas and the cellos right of it,
+  so no string player sits behind the conductor. The other rows are centered on 0° and span at
+  most 160°.
+- Each row stands at least `ROW_STEP` behind the row in front, and then moves back until its
+  footprints clear the items in front. A player behind a piano case keeps `PIANO_REACH_GAP`,
+  because it reaches toward the case in play.
+- The choir risers stand behind the last row, each level higher, so the back row hides no singer.
+- After the stage size, each row spreads to the side edges (`SPREAD_LIMITS`), because the packed
+  rows left the front corners empty. Then row 1 moves its back desks toward their first desks, as
+  the wedges of a professional orchestra.
 
 ```typescript
 /** The limits of the spread of a row. */
@@ -776,35 +557,27 @@ interface SpreadLimits {
 }
 ```
 
-The **footprint** of a player is one box for the parts of each bone in each band of 0.2 m of
-height, in the bind pose, and the box of its seat. A piece with its own footprint corners counts
-them in place of its parts (`InstrumentPiece.footprint`): the bowed strings and their bows count
-a simple box model, so that the detail of their models does not move the seats. The overlap test of `models/` places the
-footprints of all items of each demo layout and of `perf-60.mid` (9.5): no two items touch, and
-each item is on the stage.
+The **footprint** of a player is one box for the parts of each bone in each band of height, in
+the bind pose, and the box of its seat. A bowed string and its bow count a simple box model
+(`InstrumentPiece.footprint`), so the detail of the model does not move the seats.
 
-| Row | Sections, from left to right                                                               |
-| --- | ------------------------------------------------------------------------------------------ |
-| 0   | the first desk of: violins (first seat), violins (second and later seats), violas, cellos  |
-| 1   | the other desks of: violins (first seat), violins (second and later seats), violas, cellos |
-| 2   | a keyboard of the orchestra (4.2), harp, flutes, oboes                                     |
-| 3   | horns, clarinets, bassoons, trumpets                                                       |
-| 4   | percussion, contrabasses, timpani, trombones, tuba                                         |
-| 5   | choir, on the risers                                                                       |
+| Row | Sections, from left to right                                                   |
+| --- | ------------------------------------------------------------------------------ |
+| 0   | the first desks of: first violins, other violins, violas, cellos               |
+| 1   | the other desks of: first violins, other violins, violas, cellos               |
+| 2   | a keyboard of the orchestra (4.2), harp, flutes, oboes                         |
+| 3   | horns, clarinets, bassoons, trumpets                                           |
+| 4   | percussion, contrabasses, timpani, trombones, tuba                             |
+| 5   | choir, on the risers                                                           |
 
-**Soloist.** The soloist of 3.8 stands at the front left of the conductor (4.2), at
-`SOLOIST_PLACE` of `models/layout-scene.ts`. It faces the audience and turns to the conductor
-(`SOLOIST_FACING`), so the default view sees its face. A place farther left hid a player of the
-first desk, and a place nearer to the conductor put the bear into the solo shots. A piano soloist
-sits at `PIANO_CENTER` and faces the conductor, as in a concerto, so the lid opens to the audience.
-A keyboard of the orchestra turns a quarter turn, so that its case lies along row 2.
+**Soloist.** The soloist of 3.8 stands at the front left of the conductor (`SOLOIST_PLACE`) and
+turns to the conductor (`SOLOIST_FACING`), so the default view sees its face. A piano soloist
+sits at `PIANO_CENTER` and faces the conductor, so the lid opens to the audience. A keyboard of
+the orchestra turns a quarter turn, so that its case lies along row 2.
 
-**Chamber group.** A chamber group (4.2) has no conductor and no podium (`CHAMBER` of
-`models/layout-scene.ts`). The players of an arc stand in one row around the old podium center,
-each side within 60°, and face the center, so they face each other a little. The arc has no
-spread. A solo player stands at the middle of the arc. In a recital, the partner stands at the
-curved side of the piano and turns a little to the pianist. The stage rule applies from the middle
-of the group.
+**Chamber group** (`CHAMBER`). The players of an arc stand in one row around the podium center
+and face the center. A solo player stands at the middle. In a recital, the partner stands at the
+curved side of the piano and turns a little to the pianist.
 
 ## 4.6 Model inventory
 
