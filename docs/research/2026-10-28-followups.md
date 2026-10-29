@@ -82,6 +82,21 @@ The folds and the arm gate stay as on `main` (`fold.txt`), the flippers go 1.3 c
 rule alone) above the cut: the white cheek patch has the curved outline of the mesh. The files of this
 section are in `2026-10-28-penguin-edge/`.
 
+### 4.2 The black band under the flipper
+
+The user then said: "check the rigged glb and the original glb, the rigged one has extra black area
+and bump under the arm". In Blender, the flipper of the mesh joins the body along its inner side,
+and the texture paints the black flipper larger than the faces that follow the arm
+(`penguin-flank-map.webp`: green for an arm share of 0.5 or more, red for black faces with less).
+When the flipper rises to the folder, the red band stays on the white side as a black tongue with
+a hook, the outline of the flipper tip. The rigs before the cut show the same band as a gray
+smear. The `cut` of the arm seam (height 0.55) removed only 29 faces and left the band. The rule
+`colors.flank` gives the white of the side to the black faces forward of a line from the armpit to
+the lower side (`flank_faces()`). `penguin-flank.webp` shows `main` and two lines. The line from
+(0.62, 0.06) to (0.26, -0.06) gives one smooth edge from the armpit to the lower back. Only the
+penguin colors change, and the first download is 841,903 B. The round bump at the armpit stays a
+little visible from az90, as a shade on the black side.
+
 ## 5. The hippo bow arm
 
 With a fill light, the right arm of `main` at rest shows a bulge in the upper arm, a kink at the

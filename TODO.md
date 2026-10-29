@@ -822,6 +822,13 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
 - [x] Penguin head (user, 2026-10-28): "why cant the penguins head just use the original mesh's
       side", then option 1. Done: a copy of the mesh cuts the faces along the black and white edge
       of the texture (`penguin-edge.glb`, `2026-10-28-followups.md`).
+- [x] Penguin flank (user, 2026-10-28): "the rigged one has extra black area and bump under the
+      arm". Done: the black band of the texture around each flipper takes the white of the side
+      (`colors.flank`, `2026-10-28-followups.md`).
+- [ ] Penguin flank (`2026-10-28-followups.md`): the round bump at the armpit stays a little
+      visible from az90. The faces around the flipper with a part of the arm weight stretch when
+      the flipper rises. Next: a cut of the flipper from the body with a side wall, as the arm
+      copies of route 3.
 - [ ] Penguin edge (`2026-10-28-followups.md`): the flippers go 1.3 cm into the body (1.1 cm
       before), and the edge of the orange beak and feet stays uncut. Next: check the flipper roots
       with a fill light.
