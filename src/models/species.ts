@@ -25,29 +25,12 @@ import { STUDIO_WOLF } from './studio/wolf.ts';
 import { SPECIES_COLORS } from './colors.ts';
 import type { SpeciesColors } from './colors.ts';
 
-/** A part of an animal that gets the accent color (design 4.5). */
-export type AccentPart =
-  | 'inner-ears'
-  | 'ears'
-  | 'nose'
-  | 'snout'
-  | 'horn'
-  | 'beak'
-  | 'arms'
-  | 'hands'
-  | 'legs'
-  | 'feet'
-  | 'tail'
-  | 'face-pattern';
-
 /** The parameters that each species has (design 4.3, 4.5). */
 interface CommonParams {
   /** Height scale. 1.0 is the rabbit of the reference image. */
   readonly size: number;
   /** The colors of the species (design 4.5, species colors). */
   readonly colors: SpeciesColors;
-  /** The parts that get the accent color (design 4.5). */
-  readonly accentParts: readonly AccentPart[];
   /**
    * The skeleton of the species (design 4.3): the head height and the places and the lengths of
    * the bones. Each value that it does not give has its default (`proportionsOf()` of
@@ -269,7 +252,6 @@ export const SPECIES = {
     body: 'studio-rabbit',
     size: 1,
     colors: SPECIES_COLORS.rabbit,
-    accentParts: ['inner-ears', 'nose'],
     violinScale: 0.83,
     bowGrip: { at: [-0.0084, -0.04, 0.0553], turn: 40 * (Math.PI / 180) },
     proportions: {
@@ -300,7 +282,6 @@ export const SPECIES = {
     body: 'studio-fox',
     size: 1,
     colors: SPECIES_COLORS['fox-red'],
-    accentParts: ['feet'],
     violinScale: 0.998,
     bowGrip: { at: [-0.0045, -0.0298, -0.1025], turn: 50 * (Math.PI / 180) },
     proportions: {
@@ -320,7 +301,6 @@ export const SPECIES = {
     palette: 'tan',
     size: 1,
     colors: SPECIES_COLORS['fox-tan'],
-    accentParts: ['ears', 'feet'],
     proportions: {
       headHeight: STUDIO_FOX.headHeight,
       seatHeight: STUDIO_FOX.seatHeight / STUDIO_FOX.headHeight,
@@ -340,7 +320,6 @@ export const SPECIES = {
     body: 'studio-wolf',
     size: 1,
     colors: SPECIES_COLORS.wolf,
-    accentParts: ['inner-ears'],
     proportions: {
       headHeight: STUDIO_WOLF.headHeight,
       seatHeight: STUDIO_WOLF.seatHeight / STUDIO_WOLF.headHeight,
@@ -359,7 +338,6 @@ export const SPECIES = {
     body: 'studio-elephant',
     size: 1,
     colors: SPECIES_COLORS.elephant,
-    accentParts: ['inner-ears'],
     proportions: {
       headHeight: STUDIO_ELEPHANT.headHeight,
       seatHeight: STUDIO_ELEPHANT.seatHeight / STUDIO_ELEPHANT.headHeight,
@@ -375,7 +353,6 @@ export const SPECIES = {
     body: 'studio-bear',
     size: 1.35,
     colors: SPECIES_COLORS.bear,
-    accentParts: ['snout'],
     proportions: { headHeight: STUDIO_BEAR.headHeight },
   },
   /**
@@ -401,7 +378,6 @@ export const SPECIES = {
     body: 'studio-cat',
     size: 1,
     colors: SPECIES_COLORS.cat,
-    accentParts: ['inner-ears', 'nose'],
     seatedTail: 'curl',
     violaScale: 0.74,
     bowGrip: { at: [-0.002, 0.007, -0.079], turn: 50 * (Math.PI / 180) },
@@ -435,7 +411,6 @@ export const SPECIES = {
     bowGrip: { at: [0.0139, 0.0037, -0.0894], turn: 23 * (Math.PI / 180) },
     size: 1,
     colors: SPECIES_COLORS.hippo,
-    accentParts: ['inner-ears', 'nose'],
     proportions: {
       headHeight: STUDIO_HIPPO.headHeight,
       seatHeight: STUDIO_HIPPO.seatHeight / STUDIO_HIPPO.headHeight,
@@ -456,7 +431,6 @@ export const SPECIES = {
     harpScale: 0.6,
     size: 1,
     colors: SPECIES_COLORS.deer,
-    accentParts: ['nose', 'feet'],
     proportions: {
       headHeight: STUDIO_DEER.headHeight,
       seatHeight: STUDIO_DEER.seatHeight / STUDIO_DEER.headHeight,
@@ -475,7 +449,6 @@ export const SPECIES = {
     body: 'studio-panda',
     size: 1,
     colors: SPECIES_COLORS.panda,
-    accentParts: ['ears', 'nose'],
     proportions: {
       headHeight: STUDIO_PANDA.headHeight,
       seatHeight: STUDIO_PANDA.seatHeight / STUDIO_PANDA.headHeight,
@@ -497,7 +470,6 @@ export const SPECIES = {
     body: 'studio-mouse',
     size: 1,
     colors: SPECIES_COLORS.mouse,
-    accentParts: ['inner-ears', 'nose'],
     oboeScale: 0.45,
     noChair: true,
     proportions: {
@@ -521,7 +493,6 @@ export const SPECIES = {
     body: 'studio-beaver',
     size: 1,
     colors: SPECIES_COLORS.beaver,
-    accentParts: ['tail'],
     bassoonScale: 0.82,
     noChair: true,
     proportions: {
@@ -545,7 +516,6 @@ export const SPECIES = {
     celloScale: 0.86,
     size: 1,
     colors: SPECIES_COLORS.dog,
-    accentParts: ['ears', 'nose'],
     hangingEars: true,
     proportions: {
       headHeight: STUDIO_DOG.headHeight,
@@ -570,7 +540,6 @@ export const SPECIES = {
     body: 'studio-monkey',
     size: 1,
     colors: SPECIES_COLORS.monkey,
-    accentParts: ['hands', 'feet'],
     trumpetScale: 0.65,
     noChair: true,
     proportions: {
@@ -590,7 +559,6 @@ export const SPECIES = {
     body: 'studio-pig',
     size: 1,
     colors: SPECIES_COLORS.pig,
-    accentParts: ['snout'],
     proportions: {
       headHeight: STUDIO_PIG.headHeight,
       seatHeight: STUDIO_PIG.seatHeight / STUDIO_PIG.headHeight,
@@ -611,7 +579,6 @@ export const SPECIES = {
     body: 'studio-rhino',
     size: 1,
     colors: SPECIES_COLORS.rhino,
-    accentParts: ['horn'],
     tubaPipe: [0.25, 0.1],
     proportions: {
       headHeight: STUDIO_RHINO.headHeight,
@@ -633,7 +600,6 @@ export const SPECIES = {
     size: 1,
     cymbalForm: 'suspended',
     colors: SPECIES_COLORS.badger,
-    accentParts: ['face-pattern'],
     proportions: {
       headHeight: STUDIO_BADGER.headHeight,
       seatHeight: STUDIO_BADGER.seatHeight / STUDIO_BADGER.headHeight,
@@ -651,7 +617,6 @@ export const SPECIES = {
     body: 'studio-penguin',
     size: 1,
     colors: SPECIES_COLORS.penguin,
-    accentParts: ['beak', 'feet'],
     proportions: {
       headHeight: STUDIO_PENGUIN.headHeight,
       seatHeight: STUDIO_PENGUIN.seatHeight / STUDIO_PENGUIN.headHeight,
@@ -669,7 +634,6 @@ export const SPECIES = {
     body: 'studio-polar-bear',
     size: 1.1,
     colors: SPECIES_COLORS['polar-bear'],
-    accentParts: ['nose'],
     proportions: {
       headHeight: STUDIO_POLAR_BEAR.headHeight,
       seatHeight: STUDIO_POLAR_BEAR.seatHeight / STUDIO_POLAR_BEAR.headHeight,

@@ -1,64 +1,15 @@
-import { readFileSync } from 'node:fs';
-
 import { Vector3 } from 'three';
 import { describe, expect, it } from 'vitest';
 
 import type { BodyBoneName } from './biped.ts';
 import { seated } from './body-frame.ts';
-import { srgb } from './mesh.ts';
-import type { MeshData, Rgb } from './mesh.ts';
 import { BONE_NAMES, boneIndex, makeSkeleton } from './rig.ts';
 import { proportionsOf } from './proportions.ts';
-import { EYE_COLOR, NOSE_COLOR, SPECIES, SPECIES_IDS } from './species.ts';
-import type { SpeciesId, SpeciesParams } from './species.ts';
+import { SPECIES, SPECIES_IDS } from './species.ts';
+import type { SpeciesParams } from './species.ts';
 import { studioRigOf } from './studio-body.ts';
 import { builtBody } from './test-body.ts';
 import type { BuiltBody } from './test-body.ts';
-
-const DESIGN = readFileSync(
-  new URL('../../docs/design/04-stage-cast-look.md', import.meta.url),
-  'utf8',
-);
-
-/** The species ids of a species name in the tables of design 4.3 and 4.5. */
-const NAMES = new Map<string, readonly SpeciesId[]>([
-  ['fox (both colors)', ['fox-red', 'fox-tan']],
-  ['fox, violins', ['fox-red']],
-  ['fox, flutes', ['fox-tan']],
-  ['bear (conductor)', ['bear']],
-  ['polar bear', ['polar-bear']],
-]);
-
-/**
- * Reads the rows of the Markdown table that follows a header line of the design.
- *
- * @param header The exact header line of the table.
- * @returns The cells of each row, with no spaces at the ends.
- */
-function tableRows(header: string): string[][] {
-  const start = DESIGN.indexOf(`${header}\n`);
-  expect(start).toBeGreaterThan(-1);
-  const rows: string[][] = [];
-  // Skip the header and the separator line.
-  for (const line of DESIGN.slice(start).split('\n').slice(2)) {
-    if (!line.startsWith('|')) {
-      break;
-    }
-    rows.push(
-      line
-        .split('|')
-        .slice(1, -1)
-        .map((cell) => cell.trim()),
-    );
-  }
-  return rows;
-}
-
-function idsOf(name: string): readonly SpeciesId[] {
-  const ids = NAMES.get(name) ?? SPECIES_IDS.filter((id) => id === name);
-  expect(ids.length, `the species "${name}" of the design`).toBeGreaterThan(0);
-  return ids;
-}
 
 /** The seat height of the bodies of these tests, in meters. */
 const SEAT = 0.35;
@@ -72,54 +23,6 @@ const SEAT = 0.35;
 function build(params: SpeciesParams): BuiltBody {
   return builtBody(params, seated(SEAT));
 }
-
-function hasColor(mesh: MeshData, color: Rgb): boolean {
-  for (let v = 0; v < mesh.bones.length; v++) {
-    if (color.every((c, k) => Math.abs((mesh.colors[v * 3 + k] ?? 0) - c) < 1e-6)) {
-      return true;
-    }
-  }
-  return false;
-}
-
-describe('SPECIES', () => {
-  it('holds the shape parameters of design 4.3 for each species of the biped', () => {
-    const rows = tableRows('| Species | ears | snout | tail |');
-    const seen = new Set<SpeciesId>();
-    for (const [name = '', ears, snout, tail] of rows) {
-      for (const id of idsOf(name)) {
-        seen.add(id);
-        expect({ id, ...SPECIES[id] }).toMatchObject({ id, ears, snout, tail });
-      }
-    }
-    // A species with a body of its own has no shape parameters and no row.
-    const biped = SPECIES_IDS.filter((id) => {
-      const species: SpeciesParams = SPECIES[id];
-      return !species.body;
-    });
-    expect([...seen].toSorted()).toEqual(biped.toSorted());
-  });
-
-  it('holds the accent parts of design 4.5', () => {
-    const rows = tableRows('| Species | Accent parts | Species | Accent parts |');
-    const seen = new Set<SpeciesId>();
-    for (const row of rows) {
-      for (const [name = '', parts = ''] of [row.slice(0, 2), row.slice(2, 4)]) {
-        if (name === '') {
-          continue;
-        }
-        for (const id of idsOf(name)) {
-          seen.add(id);
-          expect({ id, parts: [...SPECIES[id].accentParts].toSorted() }).toEqual({
-            id,
-            parts: parts.split(', ').toSorted(),
-          });
-        }
-      }
-    }
-    expect([...seen].toSorted()).toEqual([...SPECIES_IDS].toSorted());
-  });
-});
 
 describe('buildBiped for each species', () => {
   const bodyBones = BONE_NAMES.filter(
@@ -228,16 +131,6 @@ describe('buildBiped for each species', () => {
         );
         expect(skeleton.positions).toHaveLength(38);
         expect(skeleton.parents.filter((parent) => parent === -1)).toHaveLength(1);
-      });
-
-      it.runIf(!studio)('uses the colors of design 4.5', () => {
-        expect(hasColor(mesh, srgb(species.colors.fur))).toBe(true);
-        expect(hasColor(mesh, srgb(species.colors.belly))).toBe(true);
-        expect(hasColor(mesh, srgb(species.colors.accent))).toBe(true);
-        expect(hasColor(mesh, srgb(EYE_COLOR))).toBe(true);
-        // A body of its own has no nose ball, and an accent nose has the accent color.
-        const ownNose = !species.accentParts.includes('nose') && !species.body;
-        expect(hasColor(mesh, srgb(NOSE_COLOR))).toBe(ownNose);
       });
     });
   }
