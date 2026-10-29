@@ -1,13 +1,10 @@
 import { Matrix4, Quaternion, Vector3 } from 'three';
 import type { BodyColors } from './body-parts.ts';
-import { EYE_DIRECTION, headSurface } from './head.ts';
 import type { SurfacePoint } from './head.ts';
 import { toQuat, toVec3 } from './tuples.ts';
-import type { Vec3 } from './tuples.ts';
 import { transform } from './mesh.ts';
 import type { MeshBuilder } from './mesh.ts';
 import { ball } from './primitives.ts';
-import { boneIndex } from './rig.ts';
 
 /** The size of an eye on x, y, and z, in H (design 4.5). */
 export const EYE = [0.13, 0.18, 0.06] as const;
@@ -118,24 +115,6 @@ function bentBall(corners: readonly number[], bend: EyeBend): number[] {
 }
 
 /**
- * Gives the middle of an eye from the point of the head surface under it: 0.01 H into the head,
- * so that the eye lies half in the head surface.
- *
- * @param surface The point of the head surface and the unit normal of the surface there.
- * @param h The head height, in meters.
- * @returns The middle of the eye, with the normal of the surface.
- */
-export function eyeMiddle(surface: SurfacePoint, h: number): SurfacePoint {
-  const depth = -0.01;
-  return {
-    point: toVec3(
-      new Vector3(...surface.point).addScaledVector(new Vector3(...surface.normal), depth * h),
-    ),
-    normal: surface.normal,
-  };
-}
-
-/**
  * Adds one eye on an eye bone: a black upright oval of 0.13 × 0.18 H, with a wet finish and a
  * small white light above the middle, as the eyes of the polished images. The thin axis of the
  * oval is the normal of the head surface, and its long axis points up along the surface. The light
@@ -145,10 +124,10 @@ export function eyeMiddle(surface: SurfacePoint, h: number): SurfacePoint {
  *
  * @param builder The mesh that gets the parts.
  * @param colors The colors of the eye.
- * @param eye The middle of the eye ({@link eyeMiddle}) and the normal of the head surface there.
+ * @param eye The middle of the eye and the normal of the head surface there.
  * @param h The head height that sizes the eye, in meters.
  * @param bone The eye bone.
- * @param bend The bend of the oval. A flat face of a parametric head needs none.
+ * @param bend The bend of the oval, or none for a flat face.
  */
 export function addEye(
   builder: MeshBuilder,
@@ -243,34 +222,4 @@ function addBentLight(
     at: transform(toVec3(light), onOval, [EYE_LIGHT * h, EYE_LIGHT * h, EYE_LIGHT_DEPTH * h]),
     finish: 'lacquer',
   });
-}
-
-/**
- * Adds the eyes to the head of the parametric biped: two eyes of {@link addEye}, wide apart, half
- * in the head surface between the front and the sides (`EYE_DIRECTION` of `head.ts`,
- * {@link eyeMiddle}).
- *
- * @param builder The mesh that gets the parts.
- * @param colors The colors of the species.
- * @param h The head height, in meters.
- * @param headCenter The center of the head.
- * @returns The bind positions of the left and the right eye bone: the middle of each eye.
- */
-export function addEyes(
-  builder: MeshBuilder,
-  colors: BodyColors,
-  h: number,
-  headCenter: Vec3,
-): [Vec3, Vec3] {
-  const eyeAt = (side: number): SurfacePoint =>
-    eyeMiddle(
-      headSurface(h, headCenter, [side * EYE_DIRECTION[0], EYE_DIRECTION[1], EYE_DIRECTION[2]]),
-      h,
-    );
-  const eyes = [eyeAt(-1), eyeAt(1)] as const;
-
-  addEye(builder, colors, eyes[0], h, boneIndex('eyeL'));
-  addEye(builder, colors, eyes[1], h, boneIndex('eyeR'));
-
-  return [eyes[0].point, eyes[1].point];
 }

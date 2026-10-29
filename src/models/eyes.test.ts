@@ -1,21 +1,9 @@
 import { Vector3 } from 'three';
 import { describe, expect, it } from 'vitest';
 
-import { EYE, addEye, eyeMiddle } from './eyes.ts';
+import { EYE, addEye } from './eyes.ts';
 import { FINISH_ORDER, MeshBuilder } from './mesh.ts';
 import { boneIndex } from './rig.ts';
-import type { Vec3 } from './tuples.ts';
-
-describe('eyeMiddle (design 4.5)', () => {
-  const normal: Vec3 = [0.6, 0, -0.8];
-  const surface = { point: [0.1, 1.2, -0.3] satisfies Vec3, normal };
-
-  it('puts the middle of an eye 0.01 H into the head along the normal', () => {
-    const { point } = eyeMiddle(surface, 0.5);
-    const move = new Vector3(...point).sub(new Vector3(...surface.point));
-    expect(move.distanceTo(new Vector3(...normal).multiplyScalar(-0.005))).toBeLessThan(1e-12);
-  });
-});
 
 describe('addEye (design 4.5)', () => {
   const h = 0.4;
