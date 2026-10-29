@@ -9,7 +9,7 @@ This folder holds the demo pieces of the app (design section 8).
 - `boulanger/` holds the source score of the Boulanger file.
 - `groups/` holds the group maps of the other OpenScore files.
 - The Boulanger demo is the default demo: the first screen shows it, and it is part of the first
-  download (design 2.2, 7.2). The user chose it on 2026-10-05.
+  download (design 2.2, 7.2).
 
 ## Sources and licenses
 
@@ -69,31 +69,24 @@ In `src/bach-bwv1047.mid` (Mutopia 1680), track 8 (the cello / violone) has prog
 changed to 42 (Cello), and track 9 (the continuo) has program 0 (Acoustic Grand Piano), changed
 to 6 (Harpsichord) for Baroque continuo.
 
-Until 2026-10-05, the Beethoven 5 demo (`beethoven-5.mid`, Mutopia 941) had two changes: track 5
-(the horns) and track 6 (the trumpets) changed from program 69 (English Horn) to 60 (French
-Horn) and 56 (Trumpet). In its LilyPond source, both staves had the instrument name "Corni in
-Es.", but the short names and the file names (`cornies.ly`, `trombec.ly`) showed horns and
-trumpets. The user removed the demo on 2026-10-05 (design 8.2), with the Grieg demo
-(`grieg-ase.mid`, Mutopia 247) and the Mozart K. 488 demo (`mozart-k488.mid`, Mutopia 2229).
-
 ## The Boulanger file
 
 `boulanger/matin-nolyrics.mscz` is the OpenScore score with all 170 Lyrics elements removed
 (87 in the main score, 83 in the part scores). These lyrics held the CC BY-SA annotations, so the
 remaining score is CC0 only. Its `copyright` meta tag still names the annotations.
 
-`src/boulanger-matin.mid` comes from this pipeline. The scripts are in `tools/musescore/`. The
-research report [`../docs/research/musescore-export.md`](../docs/research/musescore-export.md)
-explains each step. CI does not run the pipeline, because it needs MuseScore 4.
+`src/boulanger-matin.mid` comes from this pipeline. The scripts are in `tools/musescore/`, and
+`tools/musescore/README.md` explains them. CI does not run the pipeline, because it needs
+MuseScore 4.
 
-The scripts in `tools/musescore/` differ from the research copies in one fix. When two parts on
-one channel overlap on the same key, `remap_midi.py` now ends the sounding note just before the
-later note-on. Without the fix, 110 notes had no note off and sounded to the end of the piece.
+When two parts on one channel overlap on the same key, `remap_midi.py` ends the sounding note just
+before the later note-on. Without this rule, 110 notes have no note off and sound to the end of
+the piece.
 
 ```bash
 P=tools/musescore
 T=$(mktemp -d)
-MS="/Applications/MuseScore 4.app/Contents/MacOS/mscore"   # MuseScore 4.7.5
+MS=mscore                                                  # the CLI of MuseScore 4.7.5
 python3 $P/remap_score.py unique demos/boulanger/matin-nolyrics.mscz $T/matin-unique.mscz
 python3 $P/add_switches.py $T/matin-unique.mscz $T/matin-unique-sw.mscz
 "$MS" -o $T/matin-unique-sw.mid $T/matin-unique-sw.mscz    # exits with 134 after the write
@@ -108,11 +101,9 @@ sound. The 15 notes are pizzicato and arco notes of two parts that start on the 
 same tick, so only one note-on remains.
 
 CAUTION: The MuseScore CLI crashes after it writes the file in most runs. Check the output file,
-and ignore the exit code. Each crash writes a dump file to
-`~/Library/Application Support/MuseScore/MuseScore4/logs/dumps/`.
+and ignore the exit code. Each crash writes a dump file to the log folder of MuseScore.
 
-On 2026-10-04, this pipeline gave a file that is byte-identical to `src/boulanger-matin.mid`. In
-that run, MuseScore exited with code 0.
+The pipeline gives a file that is byte-identical to `src/boulanger-matin.mid`.
 
 ## The other OpenScore files
 
@@ -144,11 +135,8 @@ The Beethoven 9 demo is an excerpt of two parts of the finale, both in D major:
 
 The score counts the pickup bar as measure 1, and three more partial bars, so bar 543 starts at
 tick 880,800, bar 591 at tick 949,920, and bar 851 at tick 1,610,880, with 480 ticks for each
-quarter note. The finale ends at tick 1,781,760. Until 2026-10-06, the excerpt was bars 216 to
-330 (ticks 364,800 to 575,520), from the baritone recitative "O Freunde, nicht diese Töne!" to
-the end of "vor Gott!". The user asked for a more traditional and joyful version.
-[`../docs/research/2026-10-06-joyful-ode.md`](../docs/research/2026-10-06-joyful-ode.md) gives
-the candidates and the measures.
+quarter note. The finale ends at tick 1,781,760. The two parts give a traditional and joyful
+version of the finale.
 
 | Score file | SHA-256 |
 |---|---|
@@ -160,7 +148,7 @@ the candidates and the measures.
 ```bash
 P=tools/musescore
 T=$(mktemp -d)
-MS="/Applications/MuseScore 4.app/Contents/MacOS/mscore"   # MuseScore 4.7.5
+MS=mscore                                                  # the CLI of MuseScore 4.7.5
 H=https://raw.githubusercontent.com/MarkGotham/Hauptstimme/8f677853c45b74ca0afcd79677e5379c06c82354/data
 # ID, the score in the Hauptstimme repository, and the tick ranges of an excerpt
 ID=beethoven-9 S='Beethoven,_Ludwig_van/Symphony_No.9,_Op.125/4/Beethoven_Op.125_4.mscz' CUT='880800 949920 1610880 1781760'
@@ -183,8 +171,6 @@ cmp $T/$ID.mid demos/src/$ID.mid
 The check prints 0 missed attacks, 0 extra attacks, 0 notes with a wrong program, and 0 s of lost
 sound for each score: 46,224 attacks for the full Beethoven 9 finale, 9,301 for the Bach, and
 5,694 for the Beethoven 8. Its count of keys on channel 10 that are not drum keys reads the keys
-of the Boulanger kit. The finale uses other keys (234). On 2026-10-05, the pipeline gave files
-that are byte-identical to the three files in `src/`. Two of the three MuseScore runs exited with
-code 134 after the write. On 2026-10-06, the pipeline gave the same full finale again: its cut
-of ticks 364,800 to 575,520 was byte-identical to the excerpt of that date. The cut of the
-current ticks gave `src/beethoven-9.mid`.
+of the Boulanger kit. The finale uses other keys (234). The pipeline gives files that are
+byte-identical to the files in `src/`. The MuseScore runs can exit with code 134 after the
+write.
