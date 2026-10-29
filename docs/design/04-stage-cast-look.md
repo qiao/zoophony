@@ -1546,8 +1546,9 @@ with a ferrule and an eye, a screw button, and a flat ribbon of hair. The resear
 `docs/research/2026-10-29-string-models.md` gives the real proportions.
 
 The strings of the model stay at one height over the whole length, because the holds and the play
-targets read that height (`VIOLIN`). So the fingerboard is a wedge under the strings, and the neck
-is deeper than on a real violin.
+targets read that height (`VIOLIN`). So the fingerboard stands higher above the top, and the neck
+is deeper than on a real violin. The board keeps the height and the end thickness of the earlier
+box board, because the left paw of the hippo passes through it in a high position.
 
 **Sizes and holds**
 

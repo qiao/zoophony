@@ -12,7 +12,7 @@ section, and remove its row.
 | Decision | Section |
 |---|---|
 | The user: "more detailed, polished, and realistic". Each bowed string with its bow has a budget of 1,200 triangles in place of 800 (`INSTRUMENT_BUDGETS`). The corners, the scroll, the pegs, four strings, and a shaped bow need about 1,150. | 4.5 |
-| The strings stay at `VIOLIN.stringHeight` over the whole length, because the holds and the play targets read it. So the fingerboard is a wedge under the strings, and the neck keeps the bottom line of the base neck, so the left paw keeps its contact (`FINGERBOARD`, `NECK_RINGS`). | 4.6 |
+| The strings stay at `VIOLIN.stringHeight`, because the holds and the play targets read it. The board keeps the height and the end thickness of the base board: a thicker or higher board put the left paw of the hippo 1.9 or 2.4 cm deep in place of 1.5 cm (`FINGERBOARD`). | 4.6 |
 | Four separate strings replace the strip. `VIOLIN.stringsWidth` is now the width of the four strings at the bridge, and the bow check of `pose-depth --targets` reads it. A play frame and close shots show no light bar (`STRINGS`). | 4.5 |
 | The edges of the body have the darker wood color, and the ribs and the arches have the top color, so a dark band goes around the top as in `orchestra-latest.png` (`VIOLIN_LEVELS`). | 4.5 |
 | The contrabass gets sloped shoulders, a flat back with a break, and brass machine heads, as a real double bass. The cello keeps the violin form and its depth, so that its back stays out of the chest of the dog (`BASS_HALF`, `BASS_BREAK`, `MACHINES`). | 4.6 |

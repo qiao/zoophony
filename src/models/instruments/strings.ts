@@ -342,9 +342,11 @@ function bodyBands(
 }
 
 /**
- * The fingerboard of the violin model, in meters in the violin axes. The strings stay at
- * `VIOLIN.stringHeight` over the whole length, so the board is a wedge: its top runs just below
- * the strings, and its underside comes down near the arch of the top at the end over the body.
+ * The fingerboard of the violin model, in meters in the violin axes: a board that is thin at the
+ * nut and thicker at the end over the body. The strings stay at `VIOLIN.stringHeight` over the
+ * whole length, so the board keeps the height and the end thickness of the earlier box board. The
+ * left paw of the hippo goes through the board in a high position, and a top 4 mm higher or a
+ * thicker end put it 2.4 cm or 1.9 cm deep in place of 1.5 cm.
  */
 const FINGERBOARD = {
   /** The width at the nut. */
@@ -352,13 +354,13 @@ const FINGERBOARD = {
   /** The width at the end over the body. */
   endWidth: 0.0285,
   /** The height of the middle of the top at the nut. */
-  nutTop: 0.064,
+  nutTop: 0.0605,
   /** The height of the middle of the top at the end. */
-  endTop: 0.0625,
+  endTop: 0.06,
   /** The height of the underside at the nut. */
-  nutUnder: 0.0585,
+  nutUnder: 0.0555,
   /** The height of the underside at the end. */
-  endUnder: 0.0475,
+  endUnder: 0.052,
   /** The drop of the edges below the middle of the top, as the curve of a real fingerboard. */
   crown: 0.0018,
   /** The length of the nut along the violin, after `VIOLIN.nut`. */
