@@ -821,8 +821,8 @@ export const CELL = { width: 360, height: 450 } as const;
 /**
  * The illuminance of the light from the camera of each close view (the gallery query `fill`), in
  * lux: about a third of the key light (`KEY_LIGHT.illuminance` 5.8), so that the side of a body
- * away from the key light shows its form (user, 2026-10-28: "when taking screenshots, remember to
- * cast a fill light"). A commit before the query renders with no fill.
+ * away from the key light shows its form. Each check screenshot has a fill light. A commit with no
+ * query `fill` renders with no fill.
  */
 const CLOSE_FILL_LUX = 2;
 
@@ -1076,7 +1076,7 @@ export interface RoleLineup {
   readonly sheet?: string | null;
 }
 
-/** The views of the lineup with no `--views`: the front, the back, and each side (user, 2026-10-21). */
+/** The views of the lineup with no `--views`: the front, the back, and each side. */
 export const LINEUP_VIEWS: readonly string[] = ['front', 'back', 'left', 'right'];
 
 /** The box of the crops of the lineup with no `--box`: the arms and the upper body at zoom 1.5. */
@@ -2447,14 +2447,14 @@ export function namedItem<T extends { readonly name: string }>(
 /**
  * The views of the mode `species`, around the body of the animal (the gallery query `body`). The
  * azimuth turns the camera to the right side of the animal, from its front at 0°. The views from
- * the sides are low (3°), so that the knees, the seat, and the soles show from the side. The
- * views from the front and the back are a little higher (10°), so that the lap shows. `side` and
- * `front35` are the views of the probe `views.ts` of the round of the seats
- * (`docs/research/2026-10-16-seat-rest/`). `front60` is the view of the check of the face of a
- * mesh of the user from the front and at 60° (`docs/agents/model-traps.md`). `above35` looks down
- * 35° from the front, as the default view of the stage looks down at the players that face it.
- * `back150` and `back-150` look from behind and 30° to each side, as the camera of the stage
- * looks at the players from behind and above (`docs/agents/workflow.md`, "Images of a mesh").
+ * the sides are low (3°), so that the knees, the seat, and the soles show from the side. The views
+ * from the front and the back are a little higher (10°), so that the lap shows. `side` and
+ * `front35` look from the right side and from 35° to the right of the front. `front60` is the view
+ * of the check of the face of a mesh from the front and at 60° (`docs/agents/rigging.md`, "Head and
+ * colors"). `above35` looks down 35° from the front, as the default view of the stage looks down at
+ * the players that face it. `back150` and `back-150` look from behind and 30° to each side, as the
+ * camera of the stage looks at the players from behind and above (`docs/agents/workflow.md`,
+ * "Images of a mesh").
  */
 export const SPECIES_VIEWS: readonly CloseViewAngle[] = [
   { name: 'front', azimuth: 0, elevation: 10 },
@@ -2756,9 +2756,8 @@ async function speciesViews(args: SpeciesArgs, site: TreeSite): Promise<CommitRe
 
 /**
  * A camera of the mode `play`: a drag across the stage and wheel steps of the orbit controls
- * after "Reset view" (design 2.5), as the probe `user-camera.ts` of the round of the seats
- * (`docs/research/2026-10-16-seat-rest/`) moved it. A drag of the height of the canvas turns the
- * camera 360° (the rotate speed 1 of the orbit controls).
+ * after "Reset view" (design 2.5), as a person moves it with the pointer and the wheel. A drag of
+ * the height of the canvas turns the camera 360° (the rotate speed 1 of the orbit controls).
  */
 export interface PlayCamera {
   /**
@@ -2842,9 +2841,8 @@ export function aimPose(
  *
  * - `default`: the default view of "Reset view", as the play frame of `pnpm snapshot`.
  * - `violins`: low from the front left, close to the first and the second violins, with the back
- *   of the conductor on the right. It is the camera of the frame of the user of 2026-10-16
- *   (`docs/research/2026-10-16-seat-rest/user-camera.webp`). The drag up of 60 px puts the camera
- *   at the lowest elevation of the orbit limits (10°).
+ *   of the conductor on the right. The drag up of 60 px puts the camera at the lowest elevation
+ *   of the orbit limits (10°).
  * - `orchestra`: the default view, a little lower and closer, so that the stage fills the frame
  *   as in `orchestra-latest.png`. `pnpm look-lab` measures its regions against that image.
  */
@@ -2868,7 +2866,7 @@ const PLAY_SIZE_RANGE = [320, 4096] as const;
 
 /**
  * Reads the size of the play frames of `--size`, such as `2022x1076`, to render the window of a
- * screenshot of the user. The landscape rule and the portrait rule of the camera follow the aspect
+ * given screenshot. The landscape rule and the portrait rule of the camera follow the aspect
  * (design 4.5), and a short side below 600 px gives the low tier (design 2.6).
  *
  * @param text The size: the width, `x`, and the height, in CSS pixels.
@@ -3878,7 +3876,8 @@ const FREEZE_WALL = 1000;
 
 /**
  * The code of `frame()` of `src/app/app.ts` that {@link freezePlugin} changes: the read of the
- * song time from the `Player`, and the call of `poseAt()`. The trees since 2026-10-05 have both.
+ * song time from the `Player`, and the call of `poseAt()`. A tree with no such code stops the
+ * build.
  */
 const FREEZE_ANCHORS = {
   song: "this.#songTime = audio && piece.samples !== 'loading' ? audio.player.now() : 0;",
@@ -3928,11 +3927,11 @@ function freezePlugin(root: string): Plugin {
 const AIM_MODULE = 'virtual:close-views-aim';
 
 /**
- * Gives the plugin of a build of the app whose stage camera follows the camera of the query
- * `aim`: JSON of a `CameraPose` ({@link aimPose}). The last import of `src/main.ts` replaces
- * `follow()` and `update()` of `StageCamera` with a call of the old `follow()` with that camera.
- * Thus each frame takes that camera, in Free mode and in Cinematic mode. A page with no query
- * `aim` is the page of the app.
+ * Gives the plugin of a build of the app whose stage camera follows the camera of the query `aim`:
+ * JSON of a `CameraPose` ({@link aimPose}). The last import of `src/main.ts` replaces `follow()`
+ * and `update()` of `StageCamera` with a call of the original `follow()` with that camera. Thus
+ * each frame takes that camera, in Free mode and in Cinematic mode. A page with no query `aim` is
+ * the page of the app.
  *
  * @param root The root of the tree to build.
  * @returns The plugin.
@@ -4848,7 +4847,7 @@ export const AUDIT_VIEWS: readonly string[] = ['back', '150', '-150', 'front', '
 
 /**
  * The camera heights of the mode `audit`, in degrees above the floor: a dent at the root of the
- * arm shows best from above (user, 2026-10-22).
+ * arm shows best from above.
  */
 export const AUDIT_ELEVATIONS: readonly number[] = [20, 40];
 

@@ -574,7 +574,7 @@ export interface BesideTexts {
  *   its version that an older text does not have.
  */
 export interface ProbeFormat {
-  /** The format version: the field `version`, or 1 for a text with no field (before 2026-10-15). */
+  /** The format version: the field `version`, or 1 for a text with no field. */
   readonly version: number;
   /**
    * The oldest format version that this version only adds fields to: the field `since`, or the

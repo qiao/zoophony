@@ -81,9 +81,9 @@ export interface LookRegion {
 }
 
 /**
- * The matched regions of the look lab (`docs/research/2026-10-17-cinematic-lighting.md`, P0). The
- * boxes of the app hold for the default demo at {@link LOOK_TIME_SEC}. A new layout or a new
- * camera moves them, so check them again on a new frame.
+ * The matched regions of the look lab. The boxes of the app hold for the default demo at
+ * {@link LOOK_TIME_SEC}. A new layout or a new camera moves them, so check them again on a new
+ * frame.
  */
 export const LOOK_REGIONS: readonly LookRegion[] = [
   {
@@ -108,8 +108,7 @@ export const LOOK_REGIONS: readonly LookRegion[] = [
     mask: null,
   },
   {
-    // The belly of the front left rabbit. The box [240, 480, 280, 560] fell on the floor and a
-    // chair after a change of the layout (2026-10-21).
+    // The belly of the front left rabbit.
     name: 'white fur, front left rabbit',
     kind: 'color',
     app: [362, 552, 392, 588],
@@ -130,8 +129,8 @@ export const LOOK_REGIONS: readonly LookRegion[] = [
     reference: [820, 1150, 1180, 1235],
     mask: null,
   },
-  // The three regions of `metrics.py` of `docs/research/2026-10-18-light-color/`. No box of the
-  // reference is known for the torso and the chair.
+  // The three regions of the tone of the stage. No box of the reference is known for the torso
+  // and the chair.
   {
     name: 'rabbit torso, front left',
     kind: 'tone',
@@ -148,8 +147,7 @@ export const LOOK_REGIONS: readonly LookRegion[] = [
     mask: { hue: [28, 50], saturation: [0.3, 2], luma: [90, 256] },
   },
   {
-    // The hall of `hall_measure.py` of `docs/research/2026-10-18-shot-light-lens-haze/`: 62% to
-    // 95% of the width and 2% to 14% of the height of each image.
+    // The hall: 62% to 95% of the width and 2% to 14% of the height of each image.
     name: 'hall above the stage, right of the beam',
     kind: 'tone',
     app: [892, 18, 1368, 126],
@@ -247,7 +245,7 @@ export interface StageTone {
 
 /**
  * Measures the tone of the stage area: the band from 45% to 85% of the height and from 20% to
- * 80% of the width, as `tone_measure.py` of the research report.
+ * 80% of the width.
  *
  * @param image The image.
  * @param height The height of the image, in pixels.
@@ -292,8 +290,7 @@ export interface RegionContrast {
 }
 
 /**
- * Measures the contrast of the cast shadows in a region, as `floor_measure.py` of the research
- * report.
+ * Measures the contrast of the cast shadows in a region.
  *
  * @param image The image.
  * @param box The region.
@@ -341,7 +338,7 @@ function inMask(color: readonly [number, number, number], mask: PixelMask): bool
 
 /**
  * Measures the tone of colors: the luma percentiles, the median hue, and the median saturation,
- * as `metrics.py` of `docs/research/2026-10-18-light-color/` with the percentile rule of `at()`.
+ * with the percentile rule of `at()`.
  *
  * @param colors The colors, from 0 to 255 for each channel.
  * @returns The tone, or `null` with no colors.
@@ -540,8 +537,8 @@ export function lookTables(
 export type SummaryRow = readonly (readonly [name: string, text: string])[];
 
 /**
- * Gives the measures of the camera `orchestra` in one row, as the table of `metrics.py` of
- * `docs/research/2026-10-18-light-color/`. `pnpm look-variants` prints one row for each variant.
+ * Gives the measures of the camera `orchestra` in one row. `pnpm look-variants` prints one row for
+ * each variant.
  *
  * @param frame The frame of the camera `orchestra`, or the reference.
  * @returns The columns. A measure with no box or no pixel in the frame gives `-`.
@@ -674,7 +671,7 @@ export function maskedPixels(frame: LookFrame, region: DefaultRegion): Uint32Arr
 /**
  * Measures the regions of the camera `default` in a frame. A region with a mask measures the
  * pixels of the mask in `pixelsOf`, so that two frames under two lights compare on one pixel set
- * (`docs/agents/model-traps.md`). The reference takes its own boxes and its own mask.
+ * (`docs/agents/look-work.md`, "Traps"). The reference takes its own boxes and its own mask.
  *
  * @param frame The frame of the camera `default`, or the reference.
  * @param regions The regions of {@link lookRegions}.

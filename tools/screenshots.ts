@@ -517,7 +517,7 @@ export async function toWebp(browser: Browser, png: Buffer): Promise<Buffer> {
  * Takes a contact sheet of the species: the gallery species page at 1440 × 900 with three device
  * pixels for each CSS pixel, with one cell for each model above its label. The screenshot has no
  * labels, and each cell gets only the text of its own label. A crop of the page with its labels
- * showed parts of the labels of the next models (review of step 4, P4).
+ * shows parts of the labels of the next models.
  *
  * @param browser The browser.
  * @param base The URL of the site.

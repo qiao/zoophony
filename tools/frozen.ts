@@ -10,8 +10,7 @@
  * extracts the commit into a temporary folder, serves it in the same way, writes
  * `<out>/base/<shot>.png`, and prints for each shot the mean difference of the channels (0 to
  * 255), the largest difference, the count of changed pixels, and the part of the pixels with a
- * difference above 16. It exits with 1 when a pixel changed. It is a copy of the probes
- * `frozen.ts` and `pixel-diff.py` of `docs/research/2026-10-21-frame-performance/` as a tool.
+ * difference above 16. It exits with 1 when a pixel changed.
  */
 import { existsSync, symlinkSync } from 'node:fs';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';

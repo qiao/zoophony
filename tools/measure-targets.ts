@@ -95,7 +95,7 @@ function overlapsCollection(start: number, duration: number): boolean {
   );
 }
 
-/** The times of the late seek of review F14, in milliseconds. */
+/** The times of a late seek, in milliseconds. */
 interface SeekTimes {
   /** Blocks that apply a seek near the end while the song plays. */
   readonly seekBlocks: readonly number[];
@@ -106,7 +106,7 @@ interface SeekTimes {
 }
 
 /**
- * Times the blocks of a seek near the end of a score (review of step 1, F14). The seek walks all
+ * Times the blocks of a seek near the end of a score. The seek walks all
  * events before the cursor on the audio thread.
  */
 function lateSeekTimes(score: Score, banks: readonly EngineBank[], repeats: number): SeekTimes {
@@ -149,8 +149,8 @@ interface SoloTimes {
 }
 
 /**
- * Times the blocks of a solo of one seat and of its end, at 60 % of a score while the song plays
- * (review of step 5, P1). A solo changes all other seats in one block.
+ * Times the blocks of a solo of one seat and of its end, at 60 % of a score while the song plays.
+ * A solo changes all other seats in one block.
  *
  * @param score The score.
  * @param banks The banks of the score.

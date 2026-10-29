@@ -85,7 +85,7 @@ function xylophoneNotes(channel: number): TestEvent[][] {
 }
 
 /**
- * Builds the percussion test score of the probe tools (`docs/decisions/2026-10-20-mesh-badger.md`):
+ * Builds the percussion test score of the probe tools:
  * a drum part with each player of a percussion seat (the bass drum, the snare drum, the cymbals,
  * and the small percussion), and two xylophone parts on two channels, so that the score has 6
  * players and keeps the layout of an orchestra (design 4.2). No demo has a snare drum or a

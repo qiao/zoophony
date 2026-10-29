@@ -129,7 +129,7 @@ describe('the demo files after demos/patches.json (design 8.3)', () => {
 
   /**
    * The tracks and the new program of each change of demos/README.md. No demo file needs a
-   * change since the user decision of 2026-10-05 (design 8.2, 8.3).
+   * change (design 8.2, 8.3).
    */
   const CHANGES = new Map<string, ReadonlyMap<number, number>>([
     [

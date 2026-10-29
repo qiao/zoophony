@@ -53,14 +53,13 @@ export const MIN_MAXIMUM_SHARE = 0.9;
 
 /**
  * The least part of the span of the GPU intervals that the rows of the state "Maximum" cover for
- * a valid GPU phase (design 9.7). The kept traces of 2026-10-13 gave 73.6% to 95.9%.
+ * a valid GPU phase (design 9.7). Kept traces give 73.6% to 95.9%.
  */
 export const MIN_MAXIMUM_COVER = 0.6;
 
 /**
  * The song time of the seek before the Chrome trace, in seconds. The trace of 10 s then covers
- * the section shot from 32 s to 44 s of `perf-60.mid`, with the depth of field
- * (`docs/research/2026-10-13-frame-time/shot-focus.ts`).
+ * the section shot from 32 s to 44 s of `perf-60.mid`, with the depth of field.
  */
 export const CHROME_SEEK_SEC = 32;
 
@@ -394,8 +393,8 @@ export function frameTable(rows: readonly FrameRow[]): string[] {
 
 /**
  * The highest CPU use of the machine over {@link CPU_WINDOW_SEC} at which the main-thread phase
- * starts, in percent of all cores (design 9.7). At the 1-minute load averages 4.1 to 5.8, below
- * the old limit of 8, the CPU use over 5 s was 15% to 38%.
+ * starts, in percent of all cores (design 9.7). At the 1-minute load averages 4.1 to 5.8, the CPU
+ * use over 5 s is 15% to 38%.
  */
 export const MAX_CPU = 40;
 

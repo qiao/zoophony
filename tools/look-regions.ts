@@ -1,8 +1,7 @@
 /**
  * The regions of the camera `default` of `pnpm look-lab`, from the layout of the default demo
  * (design 4.5): the front rows, the back rows, the floor behind the back rows, and the white fur
- * of the front rows and of the back rows. They replace the hand-picked boxes of
- * `back_measures.py` of `docs/research/2026-10-18-back-light/`.
+ * of the front rows and of the back rows. They replace hand-picked boxes.
  *
  * The camera is the default view of "Reset view" at the frame of `pnpm close-views play`, with the
  * drawer closed (`defaultView()` and `viewFrame()` of `src/shots/`). Each box of the footprint of

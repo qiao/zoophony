@@ -47,7 +47,7 @@ const RATES_FORMAT = 1;
 
 /**
  * The default limit of the sway tempo, in sides for each minute: the limit of the felt pulse
- * (`PULSE_TEMPO` of `src/score/beats.ts`, `docs/research/2026-10-21-beat-fold.md`).
+ * (`PULSE_TEMPO` of `src/score/beats.ts`).
  */
 const DEFAULT_LIMIT = 120;
 

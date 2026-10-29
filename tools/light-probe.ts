@@ -1,7 +1,5 @@
 /**
- * Probes the direct light of the stage lights on the players (design 4.5), with no render. It
- * replaces the probes `row-light.ts.txt`, `search.ts.txt`, and `back-light-probe.ts.txt` of
- * `docs/research/2026-10-18-back-light/`.
+ * Probes the direct light of the stage lights on the players (design 4.5), with no render.
  *
  * Usage: `pnpm light-probe [--demo <id>]... [--look <JSON>] [--grid <path>=<a>:<b>:<step>]...
  * [--grid <path>=<v>,<v>,...]... [--goal <ratio> [--solve <path>]] [--tier <tier>] [--no-hot]`
@@ -23,7 +21,7 @@
  *   spotlight with a shadow map by the hot spot of the key light (`SPOT_POOL_GLSL` of
  *   `src/scene/light-pool.ts`): the key light on each tier, and the side lights on the high and
  *   the medium tier. The players take a narrower hot spot (`LIGHT_POOL.playerSpot`). `--no-hot`
- *   leaves the hot spot out, as the first probes of 2026-10-18 did.
+ *   leaves the hot spot out.
  *
  * The math comes from the scene: `createLights()`, `defaultAim()`, `poolFactor()`,
  * `hotSpotFactor()`, and `spotIlluminance()`. The light on the face of the conductor is not in
@@ -46,7 +44,7 @@ import { patchedDemo } from './patch-demos.ts';
 /** The height of the chest above the seat floor, in meters: the point of the light of a player. */
 export const CHEST = 0.8;
 
-/** The demos of the probe with no `--demo`: the demos of the back-light round. */
+/** The demos of the probe with no `--demo`. */
 export const PROBE_DEMOS = ['beethoven-9', 'brahms-2', 'boulanger-matin'] as const;
 
 /** The light of the stage lights on the front of one player, in lux, with the pool factor. */
@@ -168,8 +166,7 @@ export function playerLights(layout: SceneLayout, options: ProbeLight): PlayerLi
 /**
  * Calculates the mean light on the stage top behind the back row: points every 0.5 m across the
  * middle 0.8 of the stage, and every 0.25 m from 0.2 m in front of the back edge to 0.6 m in front
- * of the last player, as `search.ts.txt` of `docs/research/2026-10-18-back-light/`. The stage
- * takes the round pool.
+ * of the last player. The stage takes the round pool.
  *
  * @param layout The layout.
  * @param options The tier and the hot spot.
@@ -303,7 +300,7 @@ export function demoMeasures(rows: readonly RowLight[], floor: KindLight): DemoM
 }
 
 /**
- * Writes the rows of one demo as the lines of `row-light.txt` of the back-light round.
+ * Writes the rows of one demo as lines.
  *
  * @param file The demo file.
  * @param layout The layout.
@@ -332,8 +329,7 @@ export function rowLines(
 }
 
 /**
- * Writes the measures of the demos in one line, as the lines of `search.txt` of the back-light
- * round.
+ * Writes the measures of the demos in one line.
  *
  * @param names The short name of each demo.
  * @param measures The measures of each demo.

@@ -154,7 +154,7 @@ describe('loadShots', () => {
       state: 'error',
     });
     // The load text shows "Loading" at once, so the shot waits for the first preset that is
-    // ready (audit 2026-10-05-ux-design, LD2).
+    // ready.
     expect(shots[0]?.ready).toBe('.first-screen .status:text-matches("instruments: [1-9]")');
     expect(shots[4]?.ready).toBe('.full-page');
   });

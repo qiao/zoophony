@@ -1,5 +1,5 @@
 {
-  "header": {"source": "metal-gpu-intervals.xml of the run e of 2026-10-13 (docs/research/2026-10-13-frame-time.md, section 10.4): the command buffers of the GPU process of Chrome that start in the WebGL frames 367 to 368, 571 to 572, and 578 to 579, and the first buffer of frame 580", "process": "Google Chrome Helper (GPU) (48265)", "canvas": [2880, 1800], "columns": ["startNs from the first row", "durationNs", "channel", "the last six digits of the command buffer id", "the label with no prefix 'Command Buffer 0:', no process, and no encoder id", "the IOSurface accesses"]},
+  "header": {"source": "metal-gpu-intervals.xml of the run e: the command buffers of the GPU process of Chrome that start in the WebGL frames 367 to 368, 571 to 572, and 578 to 579, and the first buffer of frame 580", "process": "Google Chrome Helper (GPU) (48265)", "canvas": [2880, 1800], "columns": ["startNs from the first row", "durationNs", "channel", "the last six digits of the command buffer id", "the label with no prefix 'Command Buffer 0:', no process, and no encoder id", "the IOSurface accesses"]},
   "intervals": [
     [0,5542,"Vertex","523286","Render Command 0",""],
     [22500,6959,"Vertex","523286","Render Command 1",""],

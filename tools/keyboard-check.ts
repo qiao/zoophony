@@ -236,8 +236,8 @@ async function creditsOpen(page: Page): Promise<boolean> {
 }
 
 /**
- * Opens the sheet of a phone again after a selection closed it (design 2.8, audit
- * 2026-10-05-ux-design, PH1). The selection gave the focus to the drawer button.
+ * Opens the sheet of a phone again after a selection closed it (design 2.8). The selection gives
+ * the focus to the drawer button.
  *
  * @param c The checker.
  * @param phone True for the phone size. A desktop keeps the drawer open.
@@ -280,9 +280,8 @@ async function openPage(
 }
 
 /**
- * Checks the button "Select a piece" of the first screen (design 2.8, audit
- * 2026-10-05-ux-design, FI2): Enter opens the drawer at the demo list, and the row of the current
- * demo gets the focus.
+ * Checks the button "Select a piece" of the first screen (design 2.8): Enter opens the drawer at
+ * the demo list, and the row of the current demo gets the focus.
  *
  * @param browser The browser.
  * @param base The URL of the site.
@@ -395,8 +394,8 @@ async function checkBar(c: Checker, page: Page, phone: boolean): Promise<void> {
     tip === 'Mute (M)' && tipAfter === '' && stays === 'Mute',
   );
 
-  // The speed menu and the volume slider of the bar have tooltips with no key (audit
-  // 2026-10-06-ux-design-2, N17). On a phone, they are in the drawer.
+  // The speed menu and the volume slider of the bar have tooltips with no key. On a phone, they
+  // are in the drawer.
   if (!phone) {
     await c.tabTo(named('Volume'));
     await page.waitForTimeout(600);
@@ -946,7 +945,7 @@ async function checkRetry(
   return c.checks;
 }
 
-/** The times that a finger stays on the hidden bar in a tap, in milliseconds (review of step 6, R1). */
+/** The times that a finger stays on the hidden bar in a tap, in milliseconds. */
 const TAP_HOLDS_MS = [20, 60, 120] as const;
 
 /**
@@ -1129,7 +1128,7 @@ async function checkHiddenBarTap(browser: Browser, base: string): Promise<KeyChe
   );
 
   // A credit link of the touch size keeps the line height of its paragraph: the paragraph has the
-  // same height as with plain inline links (re-review of step 6, R2).
+  // same height as with plain inline links.
   const gaps = await page.evaluate(() => {
     const paragraphs = [...document.querySelectorAll('.credits p')].filter((p) =>
       p.querySelector('a'),
@@ -1154,7 +1153,7 @@ async function checkHiddenBarTap(browser: Browser, base: string): Promise<KeyChe
   );
 
   // A tap on each row of the box of a credit link hits the link, also in the lower part, where
-  // the next paragraph comes later in the paint order (second re-review of step 6, S1).
+  // the next paragraph comes later in the paint order.
   const covered = await page.evaluate(() =>
     [...document.querySelectorAll('.credits a')].flatMap((link) => {
       link.scrollIntoView({ block: 'center' });
@@ -1237,7 +1236,7 @@ async function checkPointerFocus(browser: Browser, base: string): Promise<KeyChe
 
 /**
  * Checks that the play button of the first screen does not move when the load of the samples
- * ends and the load text clears (review of step 6, N5).
+ * ends and the load text clears.
  *
  * @param browser The browser.
  * @param base The URL of the site.
@@ -1356,10 +1355,10 @@ async function checkDemoFailure(browser: Browser, base: string): Promise<KeyChec
 }
 
 /**
- * Checks "Try again" after a failed selection and a later failure of the samples (re-review of
- * step 6, R4). The samples of the default demo load slowly, a selection of the Ode to Joy fails, and
- * then the samples of the default demo fail. "Try again" of the second message loads the
- * samples of the default demo again, and does not select the Ode to Joy.
+ * Checks "Try again" after a failed selection and a later failure of the samples. The samples of
+ * the default demo load slowly, a selection of the Ode to Joy fails, and then the samples of the
+ * default demo fail. "Try again" of the second message loads the samples of the default demo
+ * again, and does not select the Ode to Joy.
  *
  * @param browser The browser.
  * @param base The URL of the site.

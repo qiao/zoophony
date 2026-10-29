@@ -1,7 +1,6 @@
 /**
  * Renders look variants with `pnpm look-lab` on a dev server of its own, and prints the measures
- * of each variant in one table (design 4.5). It replaces the `run-variants.sh` scripts of the
- * light rounds of 2026-10-18.
+ * of each variant in one table (design 4.5).
  *
  * Usage: `pnpm look-variants <variants.json> --out <dir> [--port <p>]`
  *
@@ -20,7 +19,7 @@
  *    a value of the wrong kind, and a solo with no seat in the layout of the default demo stop
  *    the run with a message that names them.
  * 2. It writes the files of `pnpm dev`, and starts the Vite dev server on 127.0.0.1 at a free port,
- *    or at `--port`. It refuses a port that is in use, because the user runs dev servers too.
+ *    or at `--port`. It refuses a port that is in use, because other dev servers can run too.
  * 3. It runs `pnpm look-lab <dir>/<name> --url <url>` for each variant, with the log in
  *    `<dir>/<name>.log`. A failed variant does not stop the others.
  * 4. It stops the server by its PID, also after a failure and after Ctrl-C. Each run of
