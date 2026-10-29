@@ -98,9 +98,32 @@ export class PieceBuilder {
     at: Transform = transform(),
     finish: Finish = 'matte',
   ): void {
+    this.#parts.push({ corners: this.#place(corners, at), color, finish });
+  }
+
+  /**
+   * Adds one key of a keyboard as a part of its own (design 4.6), with the matte finish.
+   *
+   * @param key The MIDI key.
+   * @param corners The corner list of the key in its own axes.
+   * @param color The color.
+   * @param at The placement of the key in the piece axes, before the size scale.
+   */
+  key(key: number, corners: readonly number[], color: Rgb, at: Transform): void {
+    this.#parts.push({ corners: this.#place(corners, at), color, finish: 'matte', key });
+  }
+
+  /**
+   * Places the corners of a part in the piece axes, and applies the size scale.
+   *
+   * @param corners The corner list of the part in its own axes.
+   * @param at The placement of the part in the piece axes, before the size scale.
+   * @returns The new corner list.
+   */
+  #place(corners: readonly number[], at: Transform): number[] {
     const s = this.#size;
     const placed = placeCorners(corners, at);
-    this.#parts.push({ corners: s === 1 ? placed : placed.map((c) => c * s), color, finish });
+    return s === 1 ? placed : placed.map((c) => c * s);
   }
 
   /**

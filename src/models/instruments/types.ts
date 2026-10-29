@@ -79,6 +79,11 @@ export interface InstrumentPart {
   readonly corners: readonly number[];
   readonly color: Rgb;
   readonly finish: Finish;
+  /**
+   * The MIDI key of a part that is one key of a keyboard (design 4.6). The key goes down when its
+   * note plays (5.3). A part with no key does not move on its piece.
+   */
+  readonly key?: number;
 }
 
 /**

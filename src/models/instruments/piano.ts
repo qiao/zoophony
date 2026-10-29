@@ -22,6 +22,8 @@ export const PIANO = {
   /** The visible length of a white key and of a black key. */
   whiteKeyLength: 0.15,
   blackKeyLength: 0.09,
+  /** The gap between two white keys. The key bed shows through it. */
+  whiteKeyGap: 0.001,
   /** The lowest and the highest key: A0 and C8. */
   keys: [21, 108],
   /** The width of the case, and its length from the front edge of the keys. */
@@ -412,6 +414,36 @@ export function pianoKeyFront(key: number): Vec3 {
 }
 
 /**
+ * Adds the 88 keys from A0 to C8 in MIDI order, each as a part of its own (design 4.6), so that
+ * each key can go down with its note (5.3). The white keys stand side by side with a narrow gap
+ * ({@link PIANO.whiteKeyGap}), and each black key lies on the two white keys at its sides.
+ *
+ * @param piece The piece of the piano.
+ */
+function addKeys(piece: PieceBuilder): void {
+  const p = PIANO;
+  const width = p.keyboardWidth / 52;
+  for (let k = p.keys[0]; k <= p.keys[1]; k++) {
+    const [x] = unscaledKeyPosition(k);
+    if (isBlack(k)) {
+      piece.key(
+        k,
+        box(0.012, 0.012, p.blackKeyLength),
+        INSTRUMENT_COLORS.blackKeys,
+        transform([x, p.keyTop + 0.006, -p.whiteKeyLength + p.blackKeyLength / 2]),
+      );
+    } else {
+      piece.key(
+        k,
+        box(width - p.whiteKeyGap, 0.02, p.whiteKeyLength),
+        INSTRUMENT_COLORS.whiteKeys,
+        transform([x, p.keyTop - 0.01, -p.whiteKeyLength / 2]),
+      );
+    }
+  }
+}
+
+/**
  * Builds the grand piano (design 4.6). It stands on the floor in front of the player, with the
  * lid open to the right of the player. The celesta and the organs use it too.
  *
@@ -451,7 +483,7 @@ export function buildPiano(): InstrumentModel {
   const lidHeight = p.caseTop + (propX - hingeX) * Math.tan(p.lidAngle);
   piece.rod([propX, p.caseTop, -0.95], [propX, lidHeight, -0.95], 0.012, 4, dark, 'lacquer');
 
-  // The key bed, the cheek blocks, the white keys, the fallboard, and the music desk.
+  // The key bed, the cheek blocks, the keys, the fallboard, and the music desk.
   piece.add(
     box(p.caseWidth, 0.06, -front),
     dark,
@@ -466,11 +498,7 @@ export function buildPiano(): InstrumentModel {
       'lacquer',
     );
   }
-  piece.add(
-    box(p.keyboardWidth, 0.02, p.whiteKeyLength),
-    INSTRUMENT_COLORS.whiteKeys,
-    transform([0, p.keyTop - 0.01, -p.whiteKeyLength / 2]),
-  );
+  addKeys(piece);
   piece.add(
     box(p.keyboardWidth, 0.07, 0.02),
     dark,
@@ -493,18 +521,6 @@ export function buildPiano(): InstrumentModel {
     INSTRUMENT_COLORS.sheet,
     transform([0, p.caseTop + 0.12 + sheetAt.y, -0.38 + sheetAt.z], deskTilt),
   );
-
-  // The black keys.
-  for (let k = p.keys[0]; k <= p.keys[1]; k++) {
-    if (isBlack(k)) {
-      const [x] = unscaledKeyPosition(k);
-      piece.add(
-        box(0.012, 0.012, p.blackKeyLength),
-        INSTRUMENT_COLORS.blackKeys,
-        transform([x, p.keyTop + 0.006, -p.whiteKeyLength + p.blackKeyLength / 2]),
-      );
-    }
-  }
 
   // Three legs, and the lyre with the pedals.
   for (const [x, z] of [
