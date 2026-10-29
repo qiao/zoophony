@@ -836,17 +836,19 @@ relax (`bindSmooth`): the left elbow of the hippo folded into a lip there.
   head, and the arms smaller (`docs/decisions/2026-10-22-polar-legs.md`). The user said that the
   polar bear pianist at the size of the studio polar bear was too tall
   (`docs/decisions/2026-10-24-polar-bear-seat.md`). It is 1.1 times the scale of
-  `docs/decisions/2026-10-27-polar-bench.md`, so that its legs near the mesh sit on a bench of a
-  natural height (`docs/decisions/2026-10-28-polar-bench2.md`).
+  `docs/decisions/2026-10-27-polar-bench.md` (`docs/decisions/2026-10-28-polar-bench2.md`), and
+  it keeps that scale with the legs of the mesh, so that the trunk, the head, and the arms keep
+  their size (`docs/decisions/2026-10-29-polar-ratio.md`).
 - **Seat.** A seated role binds its mesh seated, and the export puts its soles on the floor and its
   seat at the front edge of the seat of the app. The polar bear sits on the bench of its rig
-  (`chair.prop`) with the thighs 25° down, vertical shins, and flat feet, as a real pianist
+  (`chair.prop`) with the thighs a little down, vertical shins, and flat feet, as a real pianist
   sits. Thighs that slope far down hid under the round belly, and the bear read almost as
-  standing (`docs/decisions/2026-10-24-polar-bear-tpose.md`). The thigh and the shin take one leg
-  factor (`legFactor` of the rig), so that the legs keep the proportions of the mesh, and the
-  bench is as low as the legs need (user, `docs/decisions/2026-10-28-polar-legs.md`). A bench
-  that low folded the legs tight under the haunch, so the body is a little larger, and the bench
-  grows with it (user, `docs/decisions/2026-10-28-polar-bench2.md`). The piano bench of the app fits the body, as
+  standing (`docs/decisions/2026-10-24-polar-bear-tpose.md`). The thighs and the shins keep the
+  length of the mesh (`legFactor` of the rig), so that the body keeps the part ratios of the
+  mesh, and the bench is as low as the legs need (user,
+  `docs/decisions/2026-10-29-polar-ratio.md`). Longer legs made the bear look like a human, with
+  a small head and thin legs under a tall trunk. The knee crease of the bind smooths only the
+  back of each knee: a fair of the calf made the short shin thin. The piano bench of the app fits the body, as
   the chair does: it holds the whole haunch, and its front edge lies under the thighs where their
   underside leaves the seat top (`StudioBody.benchDepth`, `benchFitOf()` of `tools/studio-body.ts`,
   `docs/decisions/2026-10-27-polar-bench.md`). The rabbits, the foxes, the cats, the dogs, the pandas, the pigs, and the
@@ -1528,8 +1530,8 @@ wrist stays near the chin (5.4, `docs/decisions/2026-10-22-studio-bears.md`).
 The round belly of the polar bear stands in front of its short arms, so the keys stand in front
 of the belly, and each paw reaches the key of each note (5.3,
 `docs/decisions/2026-10-14-polar-fix.md`). The keys stand near the bear, so that its right foot
-reaches the damper pedal and does not pull the haunch into the bench
-(`docs/decisions/2026-10-28-polar-legs.md`).
+reaches the damper pedal and pulls the haunch little into the bench
+(`docs/decisions/2026-10-29-polar-ratio.md`).
 The chairs, the stands,
 and the podium keep their sizes in meters.
 
