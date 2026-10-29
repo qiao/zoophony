@@ -757,7 +757,10 @@ helpers by the rules of the app.
     bends the seated tail: the cat curls it on the seat, and the dog hangs it down behind the seat
     (`docs/decisions/2026-10-17-dog-tail.md`). Each tail vertex keeps its place and its offset
     along the middle line of the source tail, and a few rounds of smoothing round the curled tube,
-    so that it keeps the round form of the source (`docs/decisions/2026-10-28-tails.md`). A curled
+    so that it keeps the round form of the source (`docs/decisions/2026-10-28-tails.md`). Only the
+    vertices near the line of the tail bones take tail weights, and the root moves over a short
+    range of the tail share, so that the root of the dog tail stays slim and makes no web to the
+    back (`docs/decisions/2026-10-28-followups.md`). A curled
     tail does not sway (5.1). The long thin tail
     of the mouse lies on the floor in a loop, so its two bones turn rigidly
     (`studio.tailBind`): the seated tail goes back from the haunch and keeps its loop flat on the
