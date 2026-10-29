@@ -62,6 +62,7 @@ range, or a local test. "Not verified" marks a fact that the agent could not con
 | [`2026-10-18-light-color.md`](2026-10-18-light-color.md) | The variants of the light color, the wood, the floor shadows, and the haze against `orchestra-latest.png` | Design 4.5, the colors of the lights, the wood, and the haze (2026-10-18) |
 | [`2026-10-18-key-beam.md`](2026-10-18-key-beam.md) | The professional light setup, the shadow directions of the reference, the variants of the key light and the beam, and the pool of the key light | Design 4.5, the place of the key light and the fan of the beam (2026-10-18) |
 | [`2026-10-21-free-soundfonts.md`](2026-10-21-free-soundfonts.md) | Survey of free high-quality SoundFonts in 2026 across SF2, SF3, and open multi-sample formats | Reference for audio assets and sound quality |
+| [`2026-10-29-network-load.md`](2026-10-29-network-load.md) | The network load of the production build: the gzip of the preset and demo files, the phone and desktop load before and after, and the open candidates of the load | Design 6.2, 6.3, 7.2, and 8.3, the gzip of the preset and demo files |
 
 ## Scripts
 

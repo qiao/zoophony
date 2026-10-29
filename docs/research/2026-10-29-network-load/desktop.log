@@ -1,0 +1,23 @@
+
+> zoophony@0.0.0 load-probe /Users/xueqiaoxu/proj/zoophony/.claude/worktrees/perf-gzip-audio
+> node tools/load-probe.ts --base 9ecc8a9bd --runs 3 --out docs/research/2026-10-29-network-load/desktop.json
+
+measure-lock: load-probe holds the lock.
+run 1: fcp 500, first frame 1527, ready 2076, blocking 1230, bytes 10608433
+run 2: fcp 64, first frame 1212, ready 1617, blocking 989, bytes 10608433
+run 3: fcp 64, first frame 1185, ready 1555, blocking 965, bytes 10608433
+measure-lock: load-probe frees the lock (exit code 0).
+measure-lock: load-probe holds the lock.
+run 1: fcp 276, first frame 1430, ready 1992, blocking 1094, bytes 8099632
+run 2: fcp 68, first frame 1191, ready 1602, blocking 964, bytes 8099632
+run 3: fcp 64, first frame 1220, ready 1630, blocking 991, bytes 8099632
+measure-lock: load-probe frees the lock (exit code 0).
+Load of the default demo: desktop, first visit, median of 3
+measure                       9ecc8a9bd (9ecc8a9bd)      working tree      change
+FCP                                        64 ms             68 ms          +4
+LCP                                       168 ms            168 ms           0
+empty stage                                88 ms             88 ms           0
+first frame of the orchestra            1,212 ms          1,220 ms          +8
+ready to play                           1,617 ms          1,630 ms         +13
+blocking time to ready                    989 ms            991 ms          +2
+bytes                               10,608,433 B       8,099,632 B  -2,508,801

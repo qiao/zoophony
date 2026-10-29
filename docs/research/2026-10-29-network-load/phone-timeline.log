@@ -1,0 +1,6 @@
+9ecc8a9bd (9ecc8a9bd) run 1: demo requests 1 (102980 B), idle link 1149 to 7416 ms (6267 ms), 17 presets 9,358,224 B from 8325 to 17559 ms, ready 17994 ms
+9ecc8a9bd (9ecc8a9bd) run 2: demo requests 1 (102980 B), idle link 1137 to 5740 ms (4603 ms), 17 presets 9,358,224 B from 6285 to 15558 ms, ready 15922 ms
+9ecc8a9bd (9ecc8a9bd) run 3: demo requests 1 (102980 B), idle link 1131 to 5735 ms (4604 ms), 17 presets 9,358,224 B from 6305 to 15562 ms, ready 15942 ms
+working tree run 1: demo requests 1 (30058 B), idle link 1075 to 5772 ms (4697 ms), 17 presets 6,922,111 B from 6482 to 13355 ms, ready 13790 ms
+working tree run 2: demo requests 1 (30058 B), idle link 996 to 5766 ms (4770 ms), 17 presets 6,922,111 B from 6294 to 13165 ms, ready 13522 ms
+working tree run 3: demo requests 1 (30058 B), idle link 1063 to 5820 ms (4757 ms), 17 presets 6,922,111 B from 6384 to 13247 ms, ready 13595 ms

@@ -1,0 +1,31 @@
+# ZOOPHONY_E2E_PORT=4471 pnpm test:e2e --project=chromium on perf-gzip-audio (02ff8a9a0)
+  ✓  19 [chromium] › e2e/smoke.e2e.ts:46:1 › plays the default demo after its count-in (design 9.3) 
+  11 failed
+  53 passed (3.6m)
+# failures:
+[chromium] › e2e/credits.e2e.ts:25:3 › the credits dialog (design 2.8) › opens from the link, holds the focus,
+[chromium] › e2e/github-link.e2e.ts:43:3 › the link to GitHub on a phone (design 2.8) › takes a tap in a squar
+[chromium] › e2e/solo-light.e2e.ts:102:3 › the spotlight of a solo (design 2.4, 4.5) › moves to the soloed cel
+[chromium] › e2e/title-shade.e2e.ts:187:5 › the shade of each title line (design 2.8, audit 2026-10-06-ux-desi
+[chromium] › e2e/title-shade.e2e.ts:187:5 › the shade of each title line (design 2.8, audit 2026-10-06-ux-desi
+[chromium] › e2e/title-shade.e2e.ts:187:5 › the shade of each title line (design 2.8, audit 2026-10-06-ux-desi
+[chromium] › e2e/title-shade.e2e.ts:246:3 › the level of the title shade (design 2.8) › keeps 4.5:1 for each l
+[chromium] › e2e/ui.e2e.ts:266:1 › a desktop shows the drop hint (audit 2026-10-05-ux-design, PH2) 
+[chromium] › e2e/ui.e2e.ts:279:3 › the labels of the "Playback" group (audit 2026-10-05-ux-design, PH3) › name
+[chromium] › e2e/ui.e2e.ts:391:1 › the settings explain their values (audit 2026-10-05-ux-design, DR4) 
+[chromium] › e2e/ui.e2e.ts:60:3 › the load state on a slow network (audit 2026-10-05-ux-design, LD2) › shows t
+# the five files of these failures on 9ecc8a9bd (ZOOPHONY_E2E_PORT=4472):
+  11 failed
+  28 passed 
+# failures:
+[chromium] › e2e/credits.e2e.ts:25:3 › the credits dialog (design 2.8) › opens from the link, holds the focus,
+[chromium] › e2e/github-link.e2e.ts:43:3 › the link to GitHub on a phone (design 2.8) › takes a tap in a squar
+[chromium] › e2e/solo-light.e2e.ts:102:3 › the spotlight of a solo (design 2.4, 4.5) › moves to the soloed cel
+[chromium] › e2e/title-shade.e2e.ts:187:5 › the shade of each title line (design 2.8, audit 2026-10-06-ux-desi
+[chromium] › e2e/title-shade.e2e.ts:187:5 › the shade of each title line (design 2.8, audit 2026-10-06-ux-desi
+[chromium] › e2e/title-shade.e2e.ts:187:5 › the shade of each title line (design 2.8, audit 2026-10-06-ux-desi
+[chromium] › e2e/title-shade.e2e.ts:246:3 › the level of the title shade (design 2.8) › keeps 4.5:1 for each l
+[chromium] › e2e/ui.e2e.ts:266:1 › a desktop shows the drop hint (audit 2026-10-05-ux-design, PH2) 
+[chromium] › e2e/ui.e2e.ts:279:3 › the labels of the "Playback" group (audit 2026-10-05-ux-design, PH3) › name
+[chromium] › e2e/ui.e2e.ts:391:1 › the settings explain their values (audit 2026-10-05-ux-design, DR4) 
+[chromium] › e2e/ui.e2e.ts:60:3 › the load state on a slow network (audit 2026-10-05-ux-design, LD2) › shows t
