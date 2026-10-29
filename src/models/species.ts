@@ -148,16 +148,9 @@ interface CommonParams {
   readonly bowGrip?: BowGrip;
 }
 
-/** The parameters of a species with the parametric biped (design 4.3): the shape of its parts. */
-export interface BipedParams extends CommonParams {
-  /** No body of its own: the species has the parametric biped. */
-  readonly body?: undefined;
-}
-
 /**
- * The parameters of a species with a body of its own in place of the parametric biped (design
- * 4.4): a studio body, which keeps the mesh, the colors, and the size of its GLB file. A body of
- * its own has no shape parameters.
+ * The parameters of a species with a body of its own (design 4.4): a studio body, which keeps the
+ * mesh, the colors, and the size of its GLB file.
  */
 export interface OwnBodyParams extends CommonParams {
   /** The body of its own: a studio body (`models/studio-body.ts`). */
@@ -182,8 +175,8 @@ export interface OwnBodyParams extends CommonParams {
   readonly hangingEars?: true;
 }
 
-/** The parameters of one species (design 4.3): the parametric biped, or a body of its own. */
-export type SpeciesParams = BipedParams | OwnBodyParams;
+/** The parameters of one species (design 4.3, 4.4): each species has a studio body. */
+export type SpeciesParams = OwnBodyParams;
 
 /**
  * The ids of the species that the generator builds (design 4.3), in the order of {@link SPECIES}.
