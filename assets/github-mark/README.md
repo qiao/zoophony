@@ -7,7 +7,7 @@ The link to the repository after the logo shows the GitHub mark, the Invertocat 
 |---|---|
 | Source | Primer Octicons, <https://github.com/primer/octicons> |
 | Source file | `icons/mark-github-24.svg`, view box 24 × 24 |
-| Commit | `ea8e6bb79894cc7e85564ee9b53d86b418738d04` (2026-03-18), the last change of the file on 2026-10-07 |
+| Commit | `ea8e6bb79894cc7e85564ee9b53d86b418738d04` (2026-03-18), the last commit that changed the file |
 | Source file SHA-256 | `bce494189797623c34e39a41c2c38a132bdca23ce4e6ac06b70116ed7e91ce26` |
 | License | MIT, Copyright (c) 2026 GitHub Inc. `LICENSE.txt` in this folder is the `LICENSE` of the repository |
 | License SHA-256 | `da259c8bd0de62713ccdcf88910aebca810644f98c2c912bad814fc79ea778df` |
