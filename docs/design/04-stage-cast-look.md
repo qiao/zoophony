@@ -660,9 +660,9 @@ showed lumps or a bright ridge at the inner elbow, and the play keeps its skin
     the inner arm fills the dark pocket between the arm and the trunk at rest. Bone heat gives a
     free arm of a cut only arm weights, so the inner root of the bow arm swings into the chest.
     The inner root gives a share of its weight to the chest (`weights.armRoot`).
-    The rhino has a mesh in an A-pose since 2026-10-23, with the arms apart from the trunk below
-    the shoulders, so its rig has no cut or split of the arm (user: "don't split the arm"). The
-    copy with round tube arms of 2026-10-22 stays in its folder as a record. The rabbit also has a
+    The rhino has a mesh in a T-pose since 2026-10-28, with the arms level and out to the sides.
+    Its A-pose mesh of 2026-10-23 and the copies of the earlier rounds stay in its folder as a
+    record. The rabbit also has a
     mesh in an A-pose since 2026-10-23. Its arms stretch only 1.15
     times, and its violin is smaller (4.6). Long faces of the mesh crossed each elbow and twisted
     along the forearm, so its arms have new quad faces from the shoulder line to the wrist and
@@ -730,13 +730,14 @@ showed lumps or a bright ridge at the inner elbow, and the play keeps its skin
     forearm on a thick wrist, so the wrist cut stands parallel to the last ring of the tube, and a
     smooth evens the band of the wrist: a cut at a right angle to the paw crossed the ring, and the
     bridge made a lip with a slit (`docs/decisions/2026-10-28-hippo-arm.md`). The rhino has such
-    arms since 2026-10-27 (`tools/blender/rhino_arms.py`), with the settings of the elephant for a
-    thick arm and the length of its mesh, because long faces and two bones along each forearm
-    twisted its skin into a thin band. The inner lower side of each upper arm and its shoulder loop are a little flatter,
-    so that the upper arms stay out of the round belly when the elbows point down. The flatten
-    comes after the bake of the fur, because the bake casts its rays from a small distance out of
-    the tube. The paws of the rhino keep the rule weights of the rig, because the Blender weights
-    of the short paws folded their faces in the curl around the tubes. The deer has such arms
+    arms since 2026-10-27, from its T-pose mesh since 2026-10-28 (`tools/blender/rhino_tpose_arms.py`),
+    with the steps of the T-pose bear and the length of its mesh, because long faces and two bones
+    along each forearm twisted its skin into a thin band. Its short upper arm takes the shoulder
+    cut at 0.4, the clean of a cut loop collapses only an edge along the loop, and the wrap of the
+    tube projects at most 0.03 units, so that no shard runs from the arm root to the trunk. The
+    clavicles leave the chest and the neck, and Taubin rounds smooth the tubes (`armSmooth`). The
+    paws of the rhino keep the rule weights of the rig with half of the finger weight, because the
+    curl of the grip folded the round paw stumps. The deer has such arms
     since 2026-10-27 (`tools/blender/deer_arms.py`), with the arm factor 1.25 in the copy of the
     mesh. Its upper arm joins the trunk down to near the elbow, so its copy takes the seam cut and
     the side wall of the cat. Its shoulder is a broad round top that the plane of the seam leaves

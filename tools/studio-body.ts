@@ -433,18 +433,20 @@ export const ANIMALS: ReadonlyMap<string, AnimalSettings> = new Map([
   // keeps the standing pose of the rig. The tip of its nose is the front of the muzzle under the
   // horn. The head measures start at the chin: bone heat gives the throat under the chin of the
   // copy with the arm tubes a head weight just above 0.5 (docs/research/2026-10-22-rhino-arm-2.md).
+  // The T-pose mesh of 2026-10-28 keeps the head top of 1.462 m of the A-pose rhino, with its
+  // chin at 0.70 and its horn from 0.83 (docs/research/2026-10-28-rhino-tpose.md).
   [
     'rhino',
     {
       landmark: 'shoulders',
-      height: 0.912976,
+      height: 0.958199,
       seated: true,
       soloist: true,
       constant: 'STUDIO_RHINO',
       crease: 35,
       glb: 'assets/models/rhino/rhino.rig.glb',
-      noseTop: 0.76,
-      headFloor: 0.668,
+      noseTop: 0.8,
+      headFloor: 0.7,
     },
   ],
   // The harp deer: decisions/2026-10-21-mesh-deer.md. It sits on the stool of the harp, and the

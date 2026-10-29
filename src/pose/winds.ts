@@ -1006,7 +1006,10 @@ const MONKEY_TRUMPET = {
  * toward the front and 0.1 H toward the right shoulder (`gripShiftR`), so that the right paw lies
  * on the valve tops at the front right of the valve branch, where it shows from the front and from
  * the right front. On the grip of the instrument, the valve branch hid it from both views (manager
- * review of 2026-10-25). A grip further forward is out of the reach of the arm.
+ * review of 2026-10-25). A grip further forward is out of the reach of the arm. The T-pose mesh of
+ * 2026-10-28 has a rounder belly, so the mouthpiece moves 0.05 H from the mouth along -z of the
+ * head under the long muzzle (`lipShift`): with no shift, the tuba went 4.6 cm into the belly, and
+ * with the shift 2.7 cm (3.8 cm with the A-pose mesh, `docs/research/2026-10-28-rhino-tpose.md`).
  */
 const RHINO_TUBA = {
   ...WIND_HOLDS.tuba,
@@ -1024,6 +1027,7 @@ const RHINO_TUBA = {
   restGripShiftL: [0.07, 0.14, 0.05],
   restAim: 1,
   gripCurl: curls(92, 80),
+  lipShift: [0, 0, -0.05],
 } as const satisfies WindHold;
 
 /**

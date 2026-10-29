@@ -142,12 +142,12 @@ const BADGER_BODY_LOOPS = 2;
 const MONKEY_BODY_LOOPS = 5;
 
 /**
- * The open loops of {@link BODY_BONES} of the rhino mesh in an A-pose: the roots of the two upper
- * arms, and ten small loops of one to four edges, from 1.4 cm to 13.5 cm, where faces of the ears,
- * the tail, or the hips meet faces that follow other bones most (`loops-probe.txt` of
- * `docs/research/2026-10-23-rhino-apose/`).
+ * The open loops of {@link BODY_BONES} of the rhino mesh in a T-pose: the roots of the two upper
+ * arms, and one small loop of two edges (3.8 cm) at the head, where faces meet that follow other
+ * bones most (`loops-probe.txt` of `docs/research/2026-10-28-rhino-tpose/`). The A-pose mesh had
+ * ten small loops more.
  */
-const RHINO_BODY_LOOPS = 12;
+const RHINO_BODY_LOOPS = 3;
 
 /**
  * The open loops of {@link BODY_BONES} of the deer mesh: the roots of the two rebuilt upper arms
