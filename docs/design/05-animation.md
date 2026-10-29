@@ -159,7 +159,7 @@ demo shows the same motion on each visit.
 - **Idle layer.** The idle layer uses the wall clock, so the animals stay alive while the music
   stops. Its motions come at seeded times in windows of the wall clock, so they need no state
   (`IDLE_MOTION`). Hanging ears do not twitch, as a real hanging ear does not
-  (`OwnBodyParams.hangingEars`).
+  (`SpeciesParams.hangingEars`).
 
 ## 5.2 Rest pose
 
