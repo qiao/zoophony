@@ -2,7 +2,7 @@ import { pieceGainDb } from '../audio/demo-loudness.ts';
 import type { WorkletPlayer } from '../audio/player.ts';
 import { heardTimeFromLatency, heardTimeFromTimestamp, songTimeAt } from '../audio/clock.ts';
 import type { ClockAnchor } from '../audio/clock.ts';
-import { fetchOk } from '../audio/fetch-ok.ts';
+import { fetchPlainBytes } from '../audio/plain-bytes.ts';
 import { demoFromQuery, demoUrl } from '../app/demos.ts';
 import type { DemoId } from '../app/demos.ts';
 
@@ -256,12 +256,12 @@ function measureFirstSound(player: WorkletPlayer, probe: FirstSoundProbe): void 
 
 /**
  * Fetches the demo of the query, or {@link SPIKE_DEMO}, after the changes of
- * `demos/patches.json`. `pnpm dev` and `pnpm build` write the file into the site (design 8.3).
+ * `demos/patches.json`. `pnpm dev` and `pnpm build` write the file into the site, and the build
+ * gzips it (design 8.3).
  */
 async function fetchDemo(): Promise<Uint8Array> {
   const url = demoUrl(demoFromQuery(window.location.search, SPIKE_DEMO), import.meta.env.BASE_URL);
-  const response = await fetchOk(url);
-  return new Uint8Array(await response.arrayBuffer());
+  return fetchPlainBytes(url);
 }
 
 async function start(): Promise<void> {

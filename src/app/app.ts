@@ -1,6 +1,6 @@
 import { pieceGainDb } from '../audio/demo-loudness.ts';
 import type { LoadProgress, Player } from '../audio/player.ts';
-import { fetchOk } from '../audio/fetch-ok.ts';
+import { fetchPlainBytes } from '../audio/plain-bytes.ts';
 import { layoutScene } from '../models/layout-scene.ts';
 import type { SceneLayout } from '../models/layout.ts';
 import { ModelCache } from '../models/model-cache.ts';
@@ -214,18 +214,15 @@ interface PieceFile {
 }
 
 /**
- * Fetches a demo or `perf-60.mid` from the site.
+ * Fetches a demo or `perf-60.mid` from the site. The build gzips each demo file (design 8.3).
  *
  * @param file The demo, or `perf-60.mid`.
- * @returns The bytes of the file.
+ * @returns The plain bytes of the file.
  * @throws Error if the file does not load.
  */
 async function fetchStageFile(file: StageFile): Promise<Uint8Array> {
   const base = import.meta.env.BASE_URL;
-  const response = await fetchOk(
-    file === PERF_60 ? `${base}perf/perf-60.mid` : demoUrl(file, base),
-  );
-  return new Uint8Array(await response.arrayBuffer());
+  return fetchPlainBytes(file === PERF_60 ? `${base}perf/perf-60.mid` : demoUrl(file, base));
 }
 
 /**

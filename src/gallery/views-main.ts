@@ -31,7 +31,7 @@ import { createRenderer } from '../scene/renderer.ts';
 import { gradeUniforms } from '../scene/post.ts';
 import { GRADE_FUNCTION } from '../scene/post-shaders.ts';
 import { demoUrl } from '../app/demos.ts';
-import { fetchOk } from '../audio/fetch-ok.ts';
+import { fetchPlainBytes } from '../audio/plain-bytes.ts';
 import { layoutScene } from '../models/layout-scene.ts';
 import { buildScore } from '../score/score.ts';
 import { sheetPose } from './sheet-poses.ts';
@@ -204,8 +204,8 @@ function viewPose(
   return played.get(`${group.species} ${group.instrument}`) ?? gripPose(model);
 }
 
-const response = await fetchOk(demoUrl(PAGE.poseDemo, import.meta.env.BASE_URL));
-const result = buildScore(new Uint8Array(await response.arrayBuffer()), 'auto');
+const demo = await fetchPlainBytes(demoUrl(PAGE.poseDemo, import.meta.env.BASE_URL));
+const result = buildScore(demo, 'auto');
 if (!result.ok) {
   throw new Error(`The demo "${PAGE.poseDemo}" is not valid: ${result.error}.`);
 }
