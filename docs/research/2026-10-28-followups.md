@@ -67,6 +67,21 @@ Oklab lightness takes the mean of the larger of its light and dark halves (`face
 edge is a zigzag along the faces. Only the penguin colors change (`penguin-body-probe.txt`), and
 the first download grows by 116 B.
 
+### 4.1 The cut along the edge
+
+The user then asked why the head cannot use the look of the mesh, and chose the cut of the faces
+along the edge of the texture over a small texture. `edge_cut.py` of
+[`2026-10-28-penguin-edge/`](2026-10-28-penguin-edge/) gives each vertex a side by the Oklab
+lightness 0.5 of the texture, splits each edge between the sides where the texture changes, and
+splits each face along the line between its two new vertices (`assets/models/penguin/README.md`).
+The first cut also split the faces at the black and orange root of the beak, and the jaw folded in
+1,539 samples (`rig-check-first.txt`). So the orange of the beak and of the feet (a chroma above
+0.06 and a lightness under 0.8) stays uncut: 178 faces split, and the mesh has 3,549 triangles.
+The folds and the arm gate stay as on `main` (`fold.txt`), the flippers go 1.3 cm into the body
+(1.1 cm, `depth.txt`), and the first download is 839,852 B. `head.webp` shows `main` (the split
+rule alone) above the cut: the white cheek patch has the curved outline of the mesh. The files of this
+section are in `2026-10-28-penguin-edge/`.
+
 ## 5. The hippo bow arm
 
 With a fill light, the right arm of `main` at rest shows a bulge in the upper arm, a kink at the

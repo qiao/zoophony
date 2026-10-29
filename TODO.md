@@ -819,10 +819,12 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       a measured tremolo moves the bow 1.2 cm for each note (`2026-10-28-followups.md`).
 - [x] Penguin head (user, 2026-10-28): "unnatural gradient between black and white". Done: a face
       across the black and white edge of the texture takes one side (`2026-10-28-followups.md`).
-- [ ] Penguin head (`2026-10-28-followups.md`): the edge is a zigzag along the faces, and the
-      user asked why the head cannot use the look of the original mesh. Next: with the choice of
-      the user, cut the head faces along the edge of the texture, or give the penguin a small
-      texture.
+- [x] Penguin head (user, 2026-10-28): "why cant the penguins head just use the original mesh's
+      side", then option 1. Done: a copy of the mesh cuts the faces along the black and white edge
+      of the texture (`penguin-edge.glb`, `2026-10-28-followups.md`).
+- [ ] Penguin edge (`2026-10-28-followups.md`): the flippers go 1.3 cm into the body (1.1 cm
+      before), and the edge of the orange beak and feet stays uncut. Next: check the flipper roots
+      with a fill light.
 - [x] Hippo arm (user, 2026-10-28): "the hippo's arm is still not fixed". Done: a shape of
       `raise` smooths the bow arm in the rest pose, where the bent tube showed a bulge, a kink,
       and a bump (`2026-10-28-followups.md`).
