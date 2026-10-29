@@ -38,6 +38,8 @@ import { STUDIO_RHINO } from './studio/rhino.ts';
 import { STUDIO_WOLF } from './studio/wolf.ts';
 import { EYE_COLOR, EYE_LIGHT_COLOR } from './species.ts';
 import type { Vec3 } from './tuples.ts';
+import { runAll } from '../score/steps.ts';
+import type { Steps } from '../score/steps.ts';
 
 /** The studio bodies that a species can have (design 4.4), by the value of `SpeciesParams.body`. */
 export const STUDIO_BODIES = {
@@ -177,7 +179,28 @@ export function buildStudioBody(
   stands: boolean,
   palette?: StudioPalette,
 ): BodyBones {
+  return runAll(buildStudioBodySteps(builder, name, stands, palette));
+}
+
+/**
+ * Adds the triangles of a studio body to the mesh of a player as {@link buildStudioBody} does, in
+ * steps (design 7.2).
+ *
+ * @param builder The mesh that gets the triangles.
+ * @param name The studio body.
+ * @param stands True for a player that stands.
+ * @param palette Another palette of the faces. The colors of the mesh by default.
+ * @returns The steps, which return the bind positions of the body bones and the points that the
+ *   instruments need.
+ */
+export function* buildStudioBodySteps(
+  builder: MeshBuilder,
+  name: StudioBodyName,
+  stands: boolean,
+  palette?: StudioPalette,
+): Steps<BodyBones> {
   const rig = studioRigOf(name, stands);
+  yield;
   const { body, positions } = rig;
   const skeleton = makeSkeleton(
     {
@@ -196,6 +219,7 @@ export function buildStudioBody(
     rig.mesh,
     poseStudioBones(rig, skeleton, bind, NO_OFFSETS, 1, createStudioPose()),
   );
+  yield;
 
   const { corners, finishes } = rig.mesh;
   const colors = studioCornerColors(
@@ -205,6 +229,7 @@ export function buildStudioBody(
     body.colorBlend ?? 0,
     body.caps,
   );
+  yield;
   const skins = playerSkins(rig);
   const places = new Float32Array(corners.length * 3);
   for (const [c, v] of corners.entries()) {
@@ -214,6 +239,7 @@ export function buildStudioBody(
     const skin = skins[corners[c] ?? 0];
     return skin ?? { bone: 0, blendBone: 0, blendWeight: 0 };
   });
+  yield;
   // The head keeps the bind pose of the studio, so each pea eye goes to the bind place of its eye
   // bone, bent to the head surface when the body has bends. The eyes blink with the eye bones of
   // the studio (`studioRenderMesh()`).
@@ -301,23 +327,26 @@ const rigNormals = new WeakMap<StudioRig, SmoothNormals>();
  * corrective shape, one time for each rig.
  *
  * @param rig The studio rig.
- * @returns The normals. Each array holds the body corners only. The callers do not change it.
+ * @returns The steps, which return the normals. Each array holds the body corners only. The
+ *   callers do not change it.
  */
-function rigSmoothNormals(rig: StudioRig): SmoothNormals {
+function* rigSmoothNormalsSteps(rig: StudioRig): Steps<SmoothNormals> {
   let normals = rigNormals.get(rig);
   if (!normals) {
     const { positions, correctives } = rig.mesh;
     const { caps, rim, crease } = rig.body;
     const corners = studioNormals(rig.mesh, crease, caps, rim);
-    const moves = correctives.map((corrective) => {
+    const moves: Float32Array[] = [];
+    for (const corrective of correctives) {
+      yield;
       const moved = positions.map((p, i) => p + (corrective[i] ?? 0));
       const after = studioNormals({ ...rig.mesh, positions: moved }, crease, caps, rim);
       const move = new Float32Array(corners.length);
       for (let i = 0; i < corners.length; i++) {
         move[i] = (after[i] ?? 0) - (corners[i] ?? 0);
       }
-      return move;
-    });
+      moves.push(move);
+    }
     normals = { corners, moves };
     rigNormals.set(rig, normals);
   }
@@ -332,10 +361,10 @@ function rigSmoothNormals(rig: StudioRig): SmoothNormals {
  *
  * @param rig The studio rig.
  * @param total The number of corners of the mesh of the player, with the instrument.
- * @returns The normals.
+ * @returns The steps, which return the normals.
  */
-function smoothNormals(rig: StudioRig, total: number): SmoothNormals {
-  const { corners, moves } = rigSmoothNormals(rig);
+function* smoothNormalsSteps(rig: StudioRig, total: number): Steps<SmoothNormals> {
+  const { corners, moves } = yield* rigSmoothNormalsSteps(rig);
   return {
     corners,
     moves: moves.map((body) => {
@@ -379,6 +408,20 @@ function playerJoint(bone: number): number {
  * @returns The render mesh.
  */
 export function studioRenderMesh(rig: StudioRig, mesh: MeshData): StudioRenderMesh {
+  return runAll(studioRenderMeshSteps(rig, mesh));
+}
+
+/**
+ * Makes the mesh of a player with a studio body as {@link studioRenderMesh} does, in steps
+ * (design 7.2).
+ *
+ * @param rig The studio rig.
+ * @param mesh The mesh of the player in its bind pose.
+ * @returns The steps, which return the render mesh.
+ */
+export function* studioRenderMeshSteps(rig: StudioRig, mesh: MeshData): Steps<StudioRenderMesh> {
+  const normals = yield* smoothNormalsSteps(rig, mesh.bones.length);
+  yield;
   const { corners, positions, joints, weights, correctives } = rig.mesh;
   const bodyCorners = corners.length;
   const total = mesh.bones.length;
@@ -410,6 +453,6 @@ export function studioRenderMesh(rig: StudioRig, mesh: MeshData): StudioRenderMe
     joints: cornerJoints,
     weights: cornerWeights,
     correctives: moves,
-    normals: smoothNormals(rig, total),
+    normals,
   };
 }

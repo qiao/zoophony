@@ -1,4 +1,6 @@
-import { buildBiped } from './biped.ts';
+import { runAll } from '../score/steps.ts';
+import type { Steps } from '../score/steps.ts';
+import { buildBipedSteps } from './biped.ts';
 import type { BodyBones } from './biped.ts';
 import { seated } from './body-frame.ts';
 import type { Stance } from './body-frame.ts';
@@ -89,17 +91,30 @@ export const CHAIR_BACK_CLEARANCE = 0.01;
  * @throws Error if the chair has no seat heights, which cannot happen.
  */
 export function chairForward(species: SpeciesParams): number {
+  return runAll(chairForwardSteps(species));
+}
+
+/**
+ * Calculates how far a body moves forward on a chair as {@link chairForward} does, in steps
+ * (design 7.2).
+ *
+ * @param species The species.
+ * @returns The steps, which return the distance in meters.
+ * @throws Error if the chair has no seat heights, which cannot happen.
+ */
+function* chairForwardSteps(species: SpeciesParams): Steps<number> {
   const seat = seatHeights('chair', species);
   if (!seat) {
     throw new Error('The chair has no seat heights.');
   }
 
   const builder = new MeshBuilder();
-  buildBiped(builder, species, seated(seat.seatHeight, seat.footHeight));
+  yield* buildBipedSteps(builder, species, seated(seat.seatHeight, seat.footHeight));
   const mesh = builder.build();
   const tail = new Set([boneIndex('tail1'), boneIndex('tail2')]);
   let forward = 0;
   for (const part of chairBack(seat.seatHeight)) {
+    yield;
     const back = backmostIn(mesh, part, (bone) => !tail.has(bone));
     forward = Math.max(forward, back + CHAIR_BACK_CLEARANCE - part.min[2]);
   }
@@ -116,12 +131,23 @@ export function chairForward(species: SpeciesParams): number {
  * @returns The stance.
  */
 export function stanceOn(support: Support, species: SpeciesParams): Stance {
+  return runAll(stanceOnSteps(support, species));
+}
+
+/**
+ * Gives the stance of a body on a support as {@link stanceOn} does, in steps (design 7.2).
+ *
+ * @param support The support.
+ * @param species The species of the body.
+ * @returns The steps, which return the stance.
+ */
+function* stanceOnSteps(support: Support, species: SpeciesParams): Steps<Stance> {
   const seat = seatHeights(support, species);
   if (!seat) {
     return { kind: 'standing' };
   }
 
-  const forward = support === 'chair' ? chairForward(species) : 0;
+  const forward = support === 'chair' ? yield* chairForwardSteps(species) : 0;
   return seated(seat.seatHeight, seat.footHeight, forward);
 }
 
@@ -190,10 +216,30 @@ export function buildPlayer(
   kettles: KettleCount = 4,
   support: Support = INSTRUMENT_SUPPORTS[instrument],
 ): PlayerModel {
+  return runAll(buildPlayerSteps(species, instrument, kettles, support));
+}
+
+/**
+ * Builds one player as {@link buildPlayer} does, in steps (design 7.2).
+ *
+ * @param species The species of the player.
+ * @param instrument The instrument of the player.
+ * @param kettles The number of kettles of the timpani. The other instruments ignore it.
+ * @param support The support of the player.
+ * @returns The steps, which return the mesh data, the skeleton, and the placed instrument.
+ */
+export function* buildPlayerSteps(
+  species: SpeciesId,
+  instrument: InstrumentId,
+  kettles: KettleCount,
+  support: Support,
+): Steps<PlayerModel> {
   const builder = new MeshBuilder();
   const params: SpeciesParams = SPECIES[species];
-  const stance = stanceOn(support, params);
-  const body = buildBiped(builder, params, stance);
+  const stance = yield* stanceOnSteps(support, params);
+  yield;
+  const body = yield* buildBipedSteps(builder, params, stance);
+  yield;
   const model = buildInstrument(
     instrument,
     kettles,
@@ -202,7 +248,9 @@ export function buildPlayer(
     params.cymbalForm,
     params.tubaPipe,
   );
+  yield;
   const placed = attachInstrument(builder, model, body);
+  yield;
   const positions = {
     ...body.positions,
     ...instrumentBones(body, placed.bones),

@@ -1,3 +1,5 @@
+import { runAll } from '../score/steps.ts';
+import type { Steps } from '../score/steps.ts';
 import type { Score, Seat } from '../score/types.ts';
 import { castScore, chamberFormOf, CONDUCTOR } from './cast.ts';
 import type { ChamberForm, PlayerCast, PlayingSection } from './cast.ts';
@@ -374,7 +376,7 @@ function standsAlone(member: Member, next: Member | undefined): boolean {
  * @param radius The radius of the row.
  * @returns The arc, in meters.
  */
-function spacing(left: Member, right: Member, radius: number): number {
+function* spacingSteps(left: Member, right: Member, radius: number): Steps<number> {
   // The players face the podium, so the left neighbor is on the right side (+x) of a player.
   let arc = Math.max(
     (left.arc + right.arc) / 2,
@@ -394,7 +396,7 @@ function spacing(left: Member, right: Member, radius: number): number {
     if (sharesWith(left, right)) {
       stands.push(placeStand(angle / 2, radius - STAND_DISTANCE, -1, [left, right]));
     } else if (standsAlone(left, right)) {
-      const alone = aloneStandArc(left, radius) / radius;
+      const alone = (yield* aloneStandArcSteps(left, radius)) / radius;
       stands.push(placeStand(alone, radius - STAND_DISTANCE, left.index, [left]));
     }
     // The right player starts a desk: its stand stands to its right, at half the arc to a
@@ -403,9 +405,12 @@ function spacing(left: Member, right: Member, radius: number): number {
     const next =
       right.stand === 'shared' && right.cast.player % 2 === 0 && !sharesWith(left, right)
         ? [
-            placeStand(angle + aloneStandArc(right, radius) / radius, radius - STAND_DISTANCE, -1, [
-              right,
-            ]),
+            placeStand(
+              angle + (yield* aloneStandArcSteps(right, radius)) / radius,
+              radius - STAND_DISTANCE,
+              -1,
+              [right],
+            ),
           ]
         : [];
     const clear =
@@ -426,6 +431,7 @@ function spacing(left: Member, right: Member, radius: number): number {
       return arc;
     }
     arc += CLEAR_STEP;
+    yield;
   }
 }
 
@@ -440,12 +446,24 @@ const aloneStandArcs = new WeakMap<Member, Map<number, number>>();
  * partner of the same seat would share it: half the arc to such a partner, to the right.
  */
 function aloneStandArc(member: Member, radius: number): number {
+  return aloneStandArcs.get(member)?.get(radius) ?? runAll(aloneStandArcSteps(member, radius));
+}
+
+/**
+ * Calculates the arc from a string player with no partner to its stand as {@link aloneStandArc}
+ * does, in steps (design 7.2).
+ *
+ * @param member The player.
+ * @param radius The radius of the row.
+ * @returns The steps, which return the arc in meters.
+ */
+function* aloneStandArcSteps(member: Member, radius: number): Steps<number> {
   const known = aloneStandArcs.get(member)?.get(radius);
   if (known !== undefined) {
     return known;
   }
   const partner: Member = { ...member, cast: { ...member.cast, player: member.cast.player + 1 } };
-  const arc = spacing(member, partner, radius) / 2;
+  const arc = (yield* spacingSteps(member, partner, radius)) / 2;
   const arcs = aloneStandArcs.get(member) ?? new Map<number, number>();
   arcs.set(radius, arc);
   aloneStandArcs.set(member, arcs);
@@ -489,11 +507,29 @@ function arrange(
   radius: number,
   halfSpan = HALF_SPAN,
 ): Arrangement {
+  return runAll(arrangeSteps(members, split, radius, halfSpan));
+}
+
+/**
+ * Places the players of a row on its arc as {@link arrange} does, in steps (design 7.2).
+ *
+ * @param members The players from left to right. There is at least one.
+ * @param split True for rows 0 and 1.
+ * @param radius The radius at which the spacing is measured.
+ * @param halfSpan The largest angle of one side.
+ * @returns The steps, which return the arrangement.
+ */
+function* arrangeSteps(
+  members: readonly Member[],
+  split: boolean,
+  radius: number,
+  halfSpan = HALF_SPAN,
+): Steps<Arrangement> {
   const at: number[] = [];
-  members.forEach((member, i) => {
+  for (const [i, member] of members.entries()) {
     const previous = members[i - 1];
-    at.push(previous ? (at[i - 1] ?? 0) + spacing(previous, member, radius) : 0);
-  });
+    at.push(previous ? (at[i - 1] ?? 0) + (yield* spacingSteps(previous, member, radius)) : 0);
+  }
   const first = members[0];
   const last = members.at(-1);
   const from = first ? -leftEnd(first) : 0;
@@ -646,16 +682,17 @@ function rowClear(row: RowPlacement, clearance: RowClearance): boolean {
  * @param clearance The items on the stage, all in front of the row.
  * @returns The row with its radius, its angles, and its places.
  */
-function fitRow(
+function* fitRowSteps(
   members: readonly Member[],
   row: number,
   smallest: number,
   clearance: RowClearance,
-): FittedRow {
+): Steps<FittedRow> {
   const split = row < SPLIT_ROWS;
   let radius = smallest;
   for (;;) {
-    const arrangement = arrange(members, split, radius);
+    yield;
+    const arrangement = yield* arrangeSteps(members, split, radius);
     if (arrangement.radius > radius) {
       radius = Math.max(arrangement.radius, radius + CLEAR_STEP);
       continue;
@@ -1402,14 +1439,15 @@ function spreadAngles(row: FittedRow, side: -1 | 1, factor: number): number[] {
  * @param stage The stage side and the front distance.
  * @returns The row with the new angles, or the same row if no factor above 1 fits.
  */
-function spreadSide(
+function* spreadSideSteps(
   row: FittedRow,
   side: -1 | 1,
   clearance: RowClearance,
   stage: StageSize,
-): FittedRow {
+): Steps<FittedRow> {
   const { maxAngle, maxArc } = SPREAD_LIMITS;
   for (let k = maxArc / SEATED_ARC; k > 1 + 1e-9; k -= SPREAD_STEP) {
+    yield;
     const next = spreadAngles(row, side, k);
     if (next.some((a) => Math.abs(a) > maxAngle + 1e-9)) {
       continue;
@@ -1490,17 +1528,18 @@ function wedgeAngles(packed: FittedRow, front: FittedRow, side: -1 | 1): number[
  * @param stage The stage side and the front distance.
  * @returns The row with the new angles, or the spread row if no blend fits.
  */
-function wedgeSide(
+function* wedgeSideSteps(
   spread: FittedRow,
   packed: FittedRow,
   front: FittedRow,
   side: -1 | 1,
   clearance: RowClearance,
   stage: StageSize,
-): FittedRow {
+): Steps<FittedRow> {
   const target = wedgeAngles(packed, front, side);
   const steps = Math.round(1 / WEDGE_STEP);
   for (let k = steps; k > 0; k--) {
+    yield;
     const blend = k / steps;
     const next = spread.angles.map((angle, i) =>
       side * (packed.angles[i] ?? 0) > 0 ? angle + blend * ((target[i] ?? angle) - angle) : angle,
@@ -1521,7 +1560,7 @@ function wedgeSide(
  * packed rows end at ±43° to ±74°, so the front corners of the stage stayed empty. The left side
  * and the right side of a row each get their own factor. Rows 0 and 1 keep the violins left of
  * 0° and the other strings right of it. After its spread, row 1 moves its back desks toward their
- * first desks ({@link wedgeSide}). The stage side does not change.
+ * first desks ({@link wedgeSideSteps}). The stage side does not change.
  *
  * @param rows The packed rows, from the front.
  * @param fixed The obstacles that do not move: the podium with the conductor, the soloist, the
@@ -1530,14 +1569,14 @@ function wedgeSide(
  * @param stage The stage side and the front distance.
  * @returns The rows after the spread.
  */
-function spreadRows(
+function* spreadRowsSteps(
   rows: readonly FittedRow[],
   fixed: readonly Obstacle[],
   soloPianos: readonly Obstacle[],
   stage: StageSize,
-): FittedRow[] {
+): Steps<FittedRow[]> {
   const done: FittedRow[] = [];
-  rows.forEach((row, n) => {
+  for (const [n, row] of rows.entries()) {
     const behind = rows.slice(n + 1);
     const clearance: RowClearance = {
       placed: [
@@ -1548,14 +1587,15 @@ function spreadRows(
       pianosInFront: [...soloPianos, ...done.flatMap((r) => pianosOfRow(r.placement))],
       playersBehind: behind.flatMap((r) => r.placement.players.map((p) => p.obstacle)),
     };
-    let next = spreadSide(spreadSide(row, -1, clearance, stage), 1, clearance, stage);
+    const left = yield* spreadSideSteps(row, -1, clearance, stage);
+    let next = yield* spreadSideSteps(left, 1, clearance, stage);
     const front = done.find((r) => r.row === 0);
     if (row.row === BACK_DESK_ROW && front) {
-      next = wedgeSide(next, row, front, -1, clearance, stage);
-      next = wedgeSide(next, row, front, 1, clearance, stage);
+      next = yield* wedgeSideSteps(next, row, front, -1, clearance, stage);
+      next = yield* wedgeSideSteps(next, row, front, 1, clearance, stage);
     }
     done.push(next);
-  });
+  }
   return done;
 }
 
@@ -1599,10 +1639,26 @@ export function placesOfCast(
  * @throws {Error} If a player has no place.
  */
 export function layoutScene(score: Score, models = new ModelCache()): SceneLayout {
+  return runAll(layoutSceneSteps(score, models));
+}
+
+/**
+ * Calculates the layout of a score as {@link layoutScene} does, in steps (design 7.2). The steps
+ * build each player model that the layout needs.
+ *
+ * @param score The score.
+ * @param models The player models of the score.
+ * @returns The steps, which return the layout.
+ * @throws {Error} If a player has no place.
+ */
+export function* layoutSceneSteps(score: Score, models: ModelCache): Steps<SceneLayout> {
   const cast = castScore(score);
   const form = chamberFormOf(score.seats);
   const groups: RowGroup[] = [];
-  const members = cast.map((c, index) => {
+  const members: Member[] = [];
+  for (const [index, c] of cast.entries()) {
+    yield* models.getSteps(c.species, c.instrument, c.kettles, c.support);
+    yield;
     const seat = score.seats[c.seatIndex];
     if (form === 'solo' || form === 'recital') {
       // A player alone or in a recital has the place of a soloist, with no turn and no stand.
@@ -1619,8 +1675,10 @@ export function layoutScene(score: Score, models = new ModelCache()): SceneLayou
       groups.push(seat ? groupOf(seat, c.player) : 'choir');
     }
     const section = !seat || seat.section === 'sound-only' ? 'choir' : seat.section;
-    return memberOf(c, index, section, models, groups.at(-1) ?? 'choir');
-  });
+    members.push(memberOf(c, index, section, models, groups.at(-1) ?? 'choir'));
+  }
+  yield* models.getSteps(CONDUCTOR.species, CONDUCTOR.instrument);
+  yield;
   if (form) {
     return layoutChamber(form, members, cast, groups);
   }
@@ -1642,19 +1700,19 @@ export function layoutScene(score: Score, models = new ModelCache()): SceneLayou
 
   const rows: FittedRow[] = [];
   let radius = FIRST_ROW_RADIUS - ROW_STEP;
-  ROWS.forEach((rowGroups, n) => {
+  for (const [n, rowGroups] of ROWS.entries()) {
     const row = rowGroups.flatMap(inGroup);
     if (row.length === 0) {
-      return;
+      continue;
     }
-    const fit = fitRow(row, n, radius + ROW_STEP, {
+    const fit = yield* fitRowSteps(row, n, radius + ROW_STEP, {
       placed: [...fixed, ...rows.flatMap((r) => obstaclesOfRow(r.placement))],
       pianosInFront: [...soloPianos, ...rows.flatMap((r) => pianosOfRow(r.placement))],
       playersBehind: [],
     });
     radius = fit.radius;
     rows.push(fit);
-  });
+  }
   const withRows = (fitted: readonly FittedRow[]): (PlayerPlace | undefined)[] => {
     const places = [...players];
     for (const p of fitted.flatMap((r) => r.placement.players)) {
@@ -1674,6 +1732,7 @@ export function layoutScene(score: Score, models = new ModelCache()): SceneLayou
   // The count of levels that gives the smallest stage wins, and fewer levels win a tie.
   let best = Infinity;
   for (let levels = 1; levels <= Math.min(choirLevels, singers.length); levels++) {
+    yield;
     const candidateChoir = fitChoir(singers, levels, radius + ROW_STEP, obstacles, soloSingers);
     const withChoir = withRows(rows);
     for (const s of candidateChoir.singers) {
@@ -1696,7 +1755,8 @@ export function layoutScene(score: Score, models = new ModelCache()): SceneLayou
 
   const stage = stageOf(draft);
   // The rows spread inside the stage, and the stage side stays (design 4.5, stage origin).
-  const spread = spreadRows(rows, [...fixed, ...choir.obstacles], soloPianos, stage);
+  const spread = yield* spreadRowsSteps(rows, [...fixed, ...choir.obstacles], soloPianos, stage);
+  yield;
   const places = withRows(spread);
   for (const s of choir.singers) {
     places[s.index] = s.place;

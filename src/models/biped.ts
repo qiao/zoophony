@@ -3,7 +3,8 @@ import type { Vec3 } from './tuples.ts';
 import type { MeshBuilder } from './mesh.ts';
 import type { BoneName } from './rig.ts';
 import type { SpeciesParams } from './species.ts';
-import { buildStudioBody } from './studio-body.ts';
+import type { Steps } from '../score/steps.ts';
+import { buildStudioBody, buildStudioBodySteps } from './studio-body.ts';
 
 /** The bones that the body places. The instrument generators place the other bones. */
 export type BodyBoneName = Exclude<
@@ -49,4 +50,20 @@ export function buildBiped(
   stance: Stance,
 ): BodyBones {
   return buildStudioBody(builder, species.body, stance.kind === 'standing', species.palette);
+}
+
+/**
+ * Builds the body of a species as {@link buildBiped} does, in steps (design 7.2).
+ *
+ * @param builder The mesh that gets the parts.
+ * @param species The species parameters.
+ * @param stance The seat under the body, or no seat.
+ * @returns The steps, which return the bind positions of the body bones.
+ */
+export function buildBipedSteps(
+  builder: MeshBuilder,
+  species: SpeciesParams,
+  stance: Stance,
+): Steps<BodyBones> {
+  return buildStudioBodySteps(builder, species.body, stance.kind === 'standing', species.palette);
 }

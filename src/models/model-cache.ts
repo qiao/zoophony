@@ -1,4 +1,6 @@
-import { INSTRUMENT_SUPPORTS, buildPlayer } from './player.ts';
+import { runAll } from '../score/steps.ts';
+import type { Steps } from '../score/steps.ts';
+import { INSTRUMENT_SUPPORTS, buildPlayerSteps } from './player.ts';
 import type { PlayerModel } from './player.ts';
 import type { Support } from './props.ts';
 import type { SpeciesId } from './species.ts';
@@ -29,10 +31,30 @@ export class ModelCache {
     kettles: KettleCount = 4,
     support: Support = INSTRUMENT_SUPPORTS[instrument],
   ): PlayerModel {
+    const model = this.#models.get(`${species} ${instrument} ${kettles} ${support}`);
+    return model ?? runAll(this.getSteps(species, instrument, kettles, support));
+  }
+
+  /**
+   * Gives the model of a kind of player as {@link ModelCache.get} does, and builds it in steps on
+   * the first call for that kind (design 7.2).
+   *
+   * @param species The species of the player.
+   * @param instrument The instrument of the player.
+   * @param kettles The number of kettles of the timpani. The other instruments ignore it.
+   * @param support The support of the player.
+   * @returns The steps, which return the model. A cached model takes no step.
+   */
+  *getSteps(
+    species: SpeciesId,
+    instrument: InstrumentId,
+    kettles: KettleCount = 4,
+    support: Support = INSTRUMENT_SUPPORTS[instrument],
+  ): Steps<PlayerModel> {
     const key = `${species} ${instrument} ${kettles} ${support}`;
     let model = this.#models.get(key);
     if (!model) {
-      model = buildPlayer(species, instrument, kettles, support);
+      model = yield* buildPlayerSteps(species, instrument, kettles, support);
       this.#models.set(key, model);
     }
     return model;
