@@ -384,6 +384,8 @@
     "palette": 48,
     "dark": 0.0055,
     "eyeShare": 0.34,
+    "split": 0.3,
+    "splitNote": "The user said on 2026-10-28: \"the penguine's head has unnatural gradient between black and white. Make it look more like the original mesh\". The texture of the mesh has a sharp edge between the black and the white through the faces, so a face across the edge took the mean of black and white, and the faces of the edge showed as a gray and tan band on the head and the neck. A face whose samples spread over more than 0.3 of Oklab lightness takes the mean of the larger of its light and dark halves (face_colors() of tools/blender/rig_mesh.py), so the edge is black or white, a zigzag along the faces. 0.2 gave the same look.",
     "shift": {
       "chroma": [
         0.04,

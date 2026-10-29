@@ -538,6 +538,10 @@ helpers by the rules of the app.
     dark face of a box with less than half dark samples the color of the nearest light face, as
     under the arms of the panda (`docs/decisions/2026-10-18-panda-marks.md`). Its option `teeth`
     also gives the white to a dark face with two or more light neighbors.
+  - Sharp edges of the texture. A face across a sharp edge of the texture takes the mean of both
+    sides, so the faces of the edge show as a band of a third color. With `colors.split`, a face
+    whose samples spread over a lightness limit takes the larger of its light and dark halves: the
+    black and white of the penguin head meet in a zigzag along the faces, as on the mesh.
   - Arm seam. Where the hanging forearm of a mesh touches the belly, short faces join the two.
     When the arm rises, those faces turn over and show, or the belly faces under them shade dark.
     No weight rule, corrective shape, or vertex move fixes both. `cut` removes the faces that join
