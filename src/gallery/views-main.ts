@@ -325,7 +325,7 @@ camera.lookAt(halfWidth, -halfHeight, 0);
 
 function frame(): void {
   renderer.render(scene, camera);
-  // The screenshot script of the reviews (tools/screenshots.ts) waits for this attribute.
+  // The screenshot script (tools/screenshots.ts) waits for this attribute.
   canvas.dataset['ready'] = 'views';
   requestAnimationFrame(frame);
 }

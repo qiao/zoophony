@@ -55,7 +55,7 @@ interface SheetMoment {
  * - The bear of `bear-views.png` holds the baton up in the right paw and the left paw up at the
  *   other side, as in the ready gesture of a count-in from the song start (design 5.4). The pose
  *   takes the time 1 s before the first beat, in the ready pause. The sheet has a baton in each
- *   paw, and the user decided on 2026-10-10 that the conductor holds one baton.
+ *   paw, but the conductor of the app holds one baton.
  */
 export const SHEET_MOMENTS = {
   violin: {

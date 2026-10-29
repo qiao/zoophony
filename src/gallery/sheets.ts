@@ -71,9 +71,9 @@ export interface ViewSheet {
  * The pages of the model sheets (design 7.1). The places and the scales come from the sheet
  * images, in CSS pixels of the page:
  *
- * - `fox-views.png`: the chair seat is 258 px of the sheet above the floor. With the chair of
- *   2026-10-06 (0.35 m), the sheet has 737 px for each meter, and the page has half of that. The
- *   chairs fit the legs of each species since 2026-10-11, and the scales keep their values.
+ * - `fox-views.png`: the chair seat is 258 px of the sheet above the floor. With a chair of
+ *   0.35 m, the sheet has 737 px for each meter, and the page has half of that. The chairs of the
+ *   app fit the legs of each species, and the scales keep these values.
  * - `rabbit-views.png`: the chair seat is 110 px above the floor, so 314 px for each meter.
  * - `dog-views.png`: the line of 1.8 m is 560 px above the line of 0 m, so 311 px for each meter.
  * - `polar-bear-views.png`: the height mark of 1.8 m is 333 px, so 185 px for each meter.

@@ -73,8 +73,8 @@ const COLUMNS = { species: 8, instruments: 6 } as const satisfies Readonly<
 const GAP = 0.8;
 
 /**
- * The depth of floor in front of a row that its labels cover, in meters. The labels of two lines
- * touched the heads of the next row (review of step 4, P4).
+ * The depth of floor in front of a row that its labels cover, in meters. With less depth, the
+ * labels of two lines touch the heads of the next row.
  */
 const LABEL_DEPTH = 0.5;
 
@@ -252,8 +252,7 @@ scene.add(lights);
 
 const camera = new PerspectiveCamera(GALLERY_FOV_DEG, 1, 0.1, 10 * floorSide);
 // The query `fill` (an illuminance in lux) adds a light from the camera along its view, so that
-// the close views of `pnpm close-views` show the side of a body that the key light leaves dark
-// (user, 2026-10-28: "when taking screenshots, remember to cast a fill light").
+// the close views of `pnpm close-views` show the side of a body that the key light leaves dark.
 const fill = Number(search.get('fill') ?? 0);
 if (fill > 0) {
   const light = new DirectionalLight(0xffffff, fill);
@@ -584,7 +583,7 @@ function frame(): void {
     const y = ((1 - projected.y) / 2) * height;
     label.style.transform = `translate(${x}px, ${y}px) translate(-50%, 0)`;
   }
-  // The screenshot script of the reviews (tools/screenshots.ts) waits for this attribute.
+  // The screenshot script (tools/screenshots.ts) waits for this attribute.
   canvas.dataset['ready'] = page;
   requestAnimationFrame(frame);
 }
