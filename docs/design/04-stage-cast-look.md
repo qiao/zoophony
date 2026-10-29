@@ -164,157 +164,79 @@ give their offsets in `H`, so one hold serves the species of different sizes.
 
 ## 4.4 Models
 
-Code builds the bodies, the instruments, and the props from low-poly shapes with vertex colors.
-No species uses the parametric body now. `buildBiped()` of `models/biped.ts` builds it from the
-parts of 4.5 (body proportions) on the skeleton of 4.3, and a species with a `body` gets a body of
-its own from `buildBiped()` in its place.
+Code builds the instruments and the props from low-poly shapes with vertex colors. Each species
+has a studio body: a mesh of the user, rigged into the studio format. The app reads only the
+modules of `src/models/studio/`, and the tools make them from the meshes:
 
-The user chose each body of its own, and the table "Bodies and roles" of
-`docs/agents/model-work.md` lists them with their decision files. The bear conductor, the polar
-bear pianist, the rabbit violinist,
-the red violin fox, the viola cat, the cello dog, the trombone panda, the contrabass hippo, the
-oboe mouse, the timpani elephant, the bassoon beaver, the horn pig, the clarinet wolf, the trumpet
-monkey, the percussion badger, the tuba rhino, the harp deer, and the choir penguin have meshes of
-the user that the app rigs itself (studio bodies, below). The tan flute fox has the rig of the red
-fox with a tan palette. The mesh of the penguin replaces its egg body of 2026-10-11, by the newest
-decision of the user (`docs/decisions/2026-10-21-mesh-penguin.md`). The meshes of the rhino and the deer replace their parametric bodies
-(`docs/decisions/2026-10-21-mesh-rhino.md`, `docs/decisions/2026-10-21-mesh-deer.md`). The user
-asked for the studio bear and the studio polar bear again after their meshes, with more smooth fur
-(`docs/decisions/2026-10-22-studio-bears.md`). Both then got new meshes in a T-pose
-(`docs/decisions/2026-10-23-bear-tpose.md`, `docs/decisions/2026-10-24-polar-bear-tpose.md`).
-The arms of the polar bear then got quad faces and Blender weights
-(`docs/decisions/2026-10-24-polar-bear-arms.md`), and the arms of the bear too
-(`docs/decisions/2026-10-26-arm-fixes.md`). The wrist cut of the polar bear copy stands parallel
-to the last ring of each tube, and the thin faces of each wrist band collapse before the band is
-smoothed and put back on the arm: a cut at a right angle to the turned paw left a band of thin
-faces that showed as a crease around the wrist (`docs/decisions/2026-10-27-polar-wrist.md`).
+```text
+user mesh (Meshy GLB)  ->  tools/blender/<a>_arms.py  ->  <a>-arms.glb + <a>-weights.json
+  ->  pnpm rig-mesh <a> (tools/mesh-rigs/<a>.json, Blender)  ->  <a>.rig.glb
+  ->  pnpm studio-body <a> (no Blender)  ->  src/models/studio/<a>.ts (the app reads only this)
+```
 
-**Meshes of the user**
+The files of each species are in `assets/models/<a>/`, and its `README.md` gives the source and
+the steps of each file. [`docs/agents/rigging.md`](../agents/rigging.md) gives the details and
+the traps of the rig.
+
+### Meshes of the user
 
 - **Fidelity.** A mesh that the user gives stays as it is. The rig adds no stretch of a limb,
   unless the user chooses an arm or a leg factor. The props and the instruments fit the body:
   each chair fits the legs, and a species with short arms plays a smaller instrument in place of
-  longer arms (4.6). The source file stays unchanged, and each edit goes into a copy that a script
-  of `tools/blender/` makes.
+  longer arms (4.6). The source file stays unchanged. Each edit goes into a copy that a script
+  of `tools/blender/` makes, so that a run gives the same bytes again.
 - **Colors.** The texture of the mesh shows as one color for each face. A color rule of the rig
-  can move the fur toward the color of the species in the reference images (mesh rig, colors).
+  can move the fur toward the color of the species in the reference images (mesh rig, below).
 - **Intake pose.** A new mesh comes in an A-pose, with a gap between each arm and the trunk. An
   arm that touches the trunk needs a cut with a flat cap, and bone heat then spreads the arm
-  weights into the trunk. Both give flaps at the armpit. The rig fixes the meshes that exist, and
-  nobody makes them again.
+  weights into the trunk. Both give flaps at the armpit. The rig fixes the meshes that exist,
+  and nobody makes them again.
 - **Triangle budget.** The budget of a studio body allows round forms, such as a round tube for
-  each arm and a round shoulder (`STUDIO_TRIANGLE_BUDGET`). The first download of 1 MB and the
-  frame time of 9.7 stay the limits.
+  each arm and a round shoulder (`STUDIO_TRIANGLE_BUDGET` and `STUDIO_MESH_GZIP_BUDGET` of
+  `tools/studio-budgets.ts`). The pea eyes add their triangles. The first download of 1 MB and
+  the frame time of 9.7 stay the limits.
 - **Licenses.** The project author made the meshes with Meshy on a paid plan, and holds their
   rights. The files of `assets/models/` and `src/models/studio/` are under CC BY-NC 4.0 (the
   `README.md` of the repository). They need no entry in the third-party license file (7.3).
 
-Each body follows these rules:
+### Rules of each body
 
-- A body has at most 2,600 triangles, and a studio body at most 5,600 (4.5, facets and triangle
-  budgets).
-- The animal faces -z, with its left side at -x, and the mouth is near the middle plane, below
-  the eyes (`models/species.test.ts`).
-- The body takes the colors of its species (4.5, species colors), and its bones have the names of
-  4.7, so that the pose code of section 5 drives each body.
-- Each part follows one bone (4.7). A studio body has the skin of the studio instead: up to four
-  bones for each vertex.
-- The tests of the behavior check each body: the clearance of the arms, the bow hold, the arm
-  joints, the hidden heads, the budgets, the feet on the floor, and the footprints of the layout.
-  `models/layout-scene.test.ts` limits the growth of each stage when a body grows its footprint.
+- The animal faces -z, with its left side at -x. The mouth is near the middle plane, below the
+  eyes.
+- The bones have the names of 4.7, so that the pose code of section 5 drives each body. A
+  vertex follows up to four studio bones.
+- Each player is one `SkinnedMesh`: the body, the instrument, and the bow merge into one mesh,
+  with one draw call for each player (4.5, materials). One `Mesh` for each part gives about 25
+  draw calls for each animal, which is too many for an integrated GPU. The static props merge
+  into a few meshes.
+- The tests of the behavior check each body: the clearance of the arms, the bow hold, the hidden
+  heads, the budgets, the feet on the floor, and the footprints of the layout.
 
-**Bodies of their own**
+### Export
 
-A body of its own built in code for one species, from rings of free corners (route 2 of
-`docs/agents/model-work.md`), places each bone of 4.7, so that the pose code drives it as the
-biped. No species has one since 2026-10-21. The egg body of the penguin of 2026-10-11 is in the
-history (`git show c4951160:src/models/penguin/penguin-body.ts`). The penguin has no model sheet,
-so `pnpm choir-check <dir>` compares its body with one penguin of each of `orchestra-latest.png`
-and `orchestra-side.png` (7.1).
+`pnpm studio-body <animal>` (`tools/studio-body.ts`) reads the rigged GLB file with no Blender
+and writes the module of the body. The entry of the animal in `ANIMALS` gives its settings.
 
-**Studio bodies**
-
-A studio body is the GLB file of an animal of `lowpoly-studio/`, or of a mesh of the user that
-`pnpm rig-mesh` rigs into the same format: one mesh of faces with one color each, a skeleton of the
-biped template with twist bones of the forearms, a skin of up to four bones for each vertex, and
-corrective shapes. The studio bodies are the bear conductor
-(`docs/decisions/2026-10-23-bear-tpose.md`), the polar bear pianist
-(`docs/decisions/2026-10-24-polar-bear-tpose.md`), the rabbit violinist
-(`docs/decisions/2026-10-13-mesh-rabbit.md`), the red violin fox
-(`docs/decisions/2026-10-14-mesh-fox.md`), the tan flute fox
-(`docs/decisions/2026-10-14-fox-flute.md`), the viola cat (`docs/decisions/2026-10-16-mesh-cat.md`),
-the cello dog (`docs/decisions/2026-10-17-mesh-dog.md`), the trombone panda
-(`docs/decisions/2026-10-18-mesh-panda.md`), the contrabass hippo
-(`docs/decisions/2026-10-18-mesh-hippo.md`), the oboe mouse
-(`docs/decisions/2026-10-19-mesh-mouse.md`), the timpani elephant
-(`docs/decisions/2026-10-19-mesh-elephant.md`), the bassoon beaver
-(`docs/decisions/2026-10-19-mesh-beaver.md`), the horn pig
-(`docs/decisions/2026-10-19-mesh-pig.md`), the clarinet wolf
-(`docs/decisions/2026-10-20-mesh-wolf.md`), the trumpet monkey
-(`docs/decisions/2026-10-20-mesh-monkey.md`, `docs/decisions/2026-10-21-monkey-stand.md`), the
-percussion badger (`docs/decisions/2026-10-20-mesh-badger.md`), the tuba rhino
-(`docs/decisions/2026-10-21-mesh-rhino.md`), the harp deer
-(`docs/decisions/2026-10-21-mesh-deer.md`), and the choir penguin
-(`docs/decisions/2026-10-21-mesh-penguin.md`).
-
-The app keeps its own motion (5.3, 5.4), so it drives the bones of the studio from the pose of the
-player each frame: the retarget (`docs/decisions/2026-10-12-studio-bear.md`). It gave about a
-quarter of the folded faces of a skin on the bones of the player
-(`docs/research/2026-10-12-studio-bear.md`).
-
-The plane of the arm sets the roll of the one upper arm bone. A hold with the elbow out and level
-rolls it by about 90°, and the linear blend at the shoulder then twists the skin like a wrung
-cloth and squeezes the upper arm flat. A fold count does not see this, so `pnpm arm-shape` measures
-the twist, the flat share, and the spikes of each arm. A goal on one measure can move a twist to a
-joint that no goal measures, so the arm gate `pnpm arm-check` reads the folds, the skin twist, the
-flat share, the paw turn, the stretch, and the paw twist and the wrist turn rate in the lifts and
-the lowerings of each arm against one table of limits, and the merge
-of a pose or model change runs it (`docs/decisions/2026-10-19-arm-gate.md`). A body can take a twist bone of each upper
-arm (`StudioBody.upperTwist`): the bone takes a share of the roll from the chest, and the weight of
-the upper arm moves to it near the shoulder, so the roll spreads along the arm. The rule comes from
-`upperTwist.share` of the config of the mesh rig. The rig solves its corrective shapes with the
-twist bone, and `pnpm studio-body` writes the share into the body. A body with no share has no
-twist bone (`docs/decisions/2026-10-19-arm-skin.md`).
-
-A mesh rig can instead give each arm the bones of a rigger, as on the Rigify rabbit of `ode.html`
-(`armSegments` of the config, `docs/decisions/2026-10-24-polar-bear-arms.md`), as the polar bear,
-the rabbit, the mouse, the wolf, the cat, the elephant, the two foxes, and the hippo do
-(`docs/decisions/2026-10-24-violin-arms.md`, `docs/decisions/2026-10-25-wind-arms.md`,
-`docs/decisions/2026-10-25-cat-arms.md`, `docs/decisions/2026-10-25-elephant-arms.md`,
-`docs/decisions/2026-10-25-fox-arms.md`, `docs/decisions/2026-10-25-hippo-arms.md`): 4 deform
-segments
-on the upper arm and on the forearm, and a helper bone at the elbow and at the wrist. The skin of
-the arm hangs on them, and the upper arm, the forearm, and the forearm twist bone only drive them.
-The app turns them from the joints of the pose, so each song keeps the live pose (`poseArm()`).
-Each segment takes its share of the roll of the upper arm from the chest, or of the twist from the
-forearm to the paw, at its middle. Each helper turns halfway across its joint. The twist from the
-forearm to the paw lies from -180° to 180°, so a paw that passes 180° turns the twist bone and the
-segments by half a turn in one frame. The bind paw sets the zero of the twist, because the forearm
-turns with its elbow hinge. In the lift and the lowering of a violin or a viola, the left paw
-supinates more than half a turn (5.2), so the rig turns the bind left paw of these meshes about its
-forearm toward supination (`studio.bindSupination` of the rig config): the rest and the play then
-lie on one side of 180°, and the segments share the whole twist in each move. The wolf turns both
-bind paws, because the clarinet rest on the knee pronated the left paw far from its play grip. The
-skin then turns
-in small steps along the arm, and the elbow and the wrist keep their volume. The arms of such a
-mesh are quad tubes (rings at a right angle to the bones), and the weights come from Blender
-(`paintedWeights`), with the rule weights on the bones of `paintedLower`. The rings lie on the
-big flat faces of the user mesh, so they take the ridges between the faces, and the smooth
-shade of the app shows each ridge as a lump. So the wolf, the cat bow arm, and the middles of
-the hippo arms take a few rounds of Taubin smoothing after the weights (`armSmooth`,
-`docs/decisions/2026-10-28-arm-smooth.md`). A segment rig replaces
-`upperTwist`. It can take the shapes of `raise`: the pose of a rule turns the segments and the
-helpers by the rules of the app. A shape of `raise` can also smooth the posed arm (`smooth`): the
-bow arms of the hippo and of the red fox take a smooth arm in the rest pose, where the bent tube
-showed lumps or a bright ridge at the inner elbow, and the play keeps its skin
-(`docs/decisions/2026-10-28-followups.md`). The bind mesh of a bent elbow can take Taubin rounds after its
-relax (`bindSmooth`): the left elbow of the hippo folded into a lip there.
+- It turns the animal to face -z and scales it (scale, below). It drops the props and the clips
+  of the studio, because the app keeps its own. It joins the digits of a paw into one `fingers`
+  bone, so that the digits curl together.
+- It drops the eyes of the mesh, and the app puts its pea eyes there on eye bones of their own,
+  so that they blink (`StudioBody.eyes`). A pea eye is a share of the head height, and a body
+  can scale its eyes (`eyeSize`), turn them level (`eyeLevel`), move them to a part of the face
+  with less fold (`eyeShift`), or turn them toward the normal of the face (`eyeNormal`).
+- Each pea eye bends along its direction to a fit of the head surface (`eyeBend()`), so its rim
+  lies at the fur in each view. The light of the eye is a thin disc flat on the front of the
+  oval. Both lights show on the upper left of the eyes seen from the front, as the reflection of
+  one lamp does on two real eyes.
+- The tip of the nose comes only from the vertices near the middle plane (`NOSE_PLANE`), because
+  a whisker tip can be the front of the head. A horn on the muzzle stands in front of the lips,
+  so the rhino takes its nose tip from below the horn (`noseTop`).
+- The head measures (`H`, the head center, and the box of the pea eyes) leave out a long nose
+  below the chin, the whisker tips, and the antlers (`headFloor`, `headCeiling`), because the
+  holds in `H` start at the head.
 
 ```text
- lowpoly-studio/animals/polar-bear/out/polar-bear.glb
-        | pnpm studio-body polar-bear (tools/studio-body.ts, no Blender)
-        v
- src/models/studio/polar-bear.ts: StudioBody (packed mesh, heads, palms, sheet arms)
+ src/models/studio/<a>.ts: StudioBody (packed mesh, heads, palms, sheet arms)
         | studioRig() (models/studio-rig.ts)
         v
  StudioRig: the skeleton of the player (arms straight down), the constants of the arms
@@ -322,535 +244,103 @@ relax (`bindSmooth`): the left elbow of the hippo folded into a lip there.
  buildStudioBody(): the body in the         poseAt() pose of the player (5.1), each frame
  bind pose of the player, two bones of          |
  the player for each corner (footprints,        v
- hanging arms, tests)                       poseStudioBones(): 33 studio bones + 38 bones of
-                                            the player, the corrective weights
+ hanging arms, tests)                       poseStudioBones(): the studio bones from the
+                                            bones of the player, the corrective weights
                                                 |
                                                 v
                                             the scene: one SkinnedMesh, 4 bones and morph
                                             targets (scene/player.ts)
 ```
 
-- **Export.** `pnpm studio-body <animal>` reads the GLB file with no Blender, turns the animal to
-  face -z, and scales it. It drops the props and the clips of the studio, because the app keeps its
-  own, and it joins the digits of a paw into one `fingers` bone. It also drops the eyes of the
-  mesh, and the app puts its pea eyes there on eye bones of their own, so that they blink (user,
-  2026-10-15, `StudioBody.eyes`, `eyePush()`). It takes each gloss shell of the head out of the
-  middle plane as an eye, so a mesh with two nostrils and no nose pad, as the hippo, has no gloss
-  nose, and the tip of its nose is the front of its muzzle. The tip comes only from the vertices
-  near the middle plane (`NOSE_PLANE`), because the tip of a whisker of the mouse is the front of
-  its head. `pnpm rig-mesh --check` and `pnpm mesh-options` warn when the tip and the mouth lie
-  off the middle plane (`noseWarning()`). A horn on the muzzle stands further forward than the
-  lips, so the tip of the nose of the rhino comes only from the vertices below the horn
-  (`noseTop` of `ANIMALS`), and the mouthpiece of its tuba goes to the lips. The head measures (the head height `H`, the head center, and the box of the pea eyes)
-  leave out a long nose below the chin, as the trunk of the elephant, or the tips of the whiskers
-  of the cat (`headFloor` of `ANIMALS`), because the holds in `H` start at the head. Each pea eye faces out from the middle of the head
-  that shows. A large head box behind the eyes turns them up, and such eyes look up, so a body
-  can turn its eyes level (`eyeLevel` of `ANIMALS`, the wolf). A pea eye is a share of the head
-  height that shows, so a large head gets large eyes, and a body can scale its eyes (`eyeSize` of
-  `ANIMALS`: smaller on the elephant, the polar bear, and the bear, user,
-  2026-10-23). A flat oval on a curved cheek, or on a face that slopes against the direction of the
-  eye, stood out of the fur at one edge. So each oval bends along its direction to a fit of the
-  head surface under it, and its middle lies on the surface (`eyeBend()`, `StudioEyes.bends`).
-  Its rim then lies at the fur in each view, and
-  its front stands out of the fur, as an eye on a flat face of a parametric head does. The light
-  of a bent eye is a thin disc that lies flat on the front of the oval, so that it stands only
-  0.004 H out of the oval in each view (user, 2026-10-20). An old eye of a mesh can lie on an
-  edge of the face that runs across the diagonal of the oval. A bent oval there folds along that
-  diagonal and reads as a bean, and a flat oval stands out as a bead. So a body can move its eye
-  places to a part of the face with less fold (`eyeShift` of `ANIMALS`). The eyes of
-  the bear also turn halfway from their direction toward the normal of the face (`eyeNormal`,
-  user, 2026-10-20, `docs/decisions/2026-10-20-bear-eyes.md`).
-- **Mesh rig.** `pnpm rig-mesh <animal>` rigs a mesh of the user with no skeleton into the format
-  of a studio body with Blender. The config `tools/mesh-rigs/<animal>.json` gives the joints,
-  measured on cuts of the mesh, and the rules below, each with a note. The decision files of the
-  body give the values and their reasons, and `docs/agents/model-traps.md` gives the traps.
-  - Form. Factors change the arms, the legs, the head, the neck, the trunk, and the girth to the
-    choice of the user or to the sheet. The other parts keep their sizes, and the holds in `H` read
-    the source head (`ungrown()` of `tools/studio-body.ts`). Before the joints, the whole source
-    can take a factor on each axis, for a body that is shorter or wider than the mesh
-    (`proportions`). The head can keep its form and move with the top of the neck, with a blend
-    zone on the neck (`proportions.keep`), at its size or at a size of its own
-    (`proportions.head`). The joints and the rules of the config are then in the units of the
-    scaled source.
-  - Seat. The rig poses the seated bind of 5.2 (`studio.legTurns`), lowers the haunch onto the
-    seat (`sit`), and can turn the trunk upright or forward (`studio.trunk`). The bind mesh is the
-    linear blend of the source in that pose. A dual quaternion blend of the arm roots
-    (`bind.blend`) keeps the radius of a vertex between the trunk and the arm, but no body uses
-    it: the dent at an arm root is the form of the bend from the hanging arm to the bind arm,
-    and the blend does not shrink it (`docs/research/2026-10-22-dq-bind.md`). A body that stands
-    with no chair has no `sit`, so its haunch keeps its form. The seated thigh turns with its own
-    weight: the hips take only the thigh near the hip joint (`weights.haunch`), and on a short
-    thick leg the weight of the thigh and the shin splits by height across the knee joint
-    (`weights.knee`), so that the knee bends as one clean corner. A face that crosses the knee
-    cannot bend, so a long face of a source leg from the haunch to the heel stays one flat plane
-    in the seated bind, and the leg reads as a wedge with no hollow behind the knee. Such a leg
-    gets new quad faces in a copy of the mesh: a tube of rings at right angles to the bones, from
-    the line where the thigh leaves the haunch to the ankle (`docs/agents/rig-blender.md`). The
-    rig makes the legs longer after the copy, along the bones only, so each ring keeps its right
-    angle. The linear blend puts each vertex of the bent knee on the chord between its places on
-    the thigh and the shin, so the knee front is a flat bevel and the knee thins. With the dual
-    quaternion blend of the knees (`bind.knee`), each ring turns by its share of the bend and
-    keeps its radius: the front rounds over the kneecap, and the back of the knee folds into a
-    crease, as a real bent knee does. A smoothing of the seam of the thigh and the shin faces at
-    the back of each knee (`kneeCrease`) opens the crease, so that its faces do not turn more
-    than the crease angle from each other. Its weight falls with the distance from the seam
-    (`reach`), and the hips keep their share, because the crotch of a short leg lies near the
-    knee. The back of the calf is then faired along the vertex normals (`kneeCrease.fair`), and
-    the faces near each knee take the normals of the skin with no crease angle
-    (`rootNormals.knee`, `rootNormals.kneeFront`). Bone heat spreads over the whole mesh, so the
-    kept vertices of a rebuilt mesh take the bone heat of the mesh before the rebuild
-    (`heatSource`), and the trunk, the haunch, and the seat keep their weights. The seated bind
-    also bends each elbow and can turn a paw far (`studio.bindSupination`), and the linear blend
-    thins the elbow and the forearm in the same way. With the dual quaternion blend of the lower
-    arms (`bind.arm`), the elbow and the forearm keep the round of the tube. An arm that bends
-    further than the bind in its poses, as a bow arm, keeps the linear blend (`bind.armSides`),
-    because its round inner elbow folds.
-    `pnpm rig-mesh --check` gives the gaps of the tail to the floor and to the
-    chair over one sway period (`tools/tail-gap.ts`).
-  - Weights and shapes. Bone heat gives the weights, and rules and rings of new vertices at the
-    joints (`refine.rings`) keep the faces from a fold. The corrective shapes give the source back
-    in the standing pose, and up to four shapes of `raise` relax the faces that turn over in a bent
-    arm. The relax can move one vertex several cm to turn back one face, and the step to its
-    neighbors then shows as a crease line in each pose with the shape. `spread` of a rule spreads
-    the move of that vertex over a ring of its neighbors. A
-    spread of the whole shape loses the relax of the other faces. `follow` of a rule moves the
-    skin near its points a share of the way with the first segment of the upper arm in the pose
-    of the rule, before the relax: the front of a joined arm root keeps its trunk weights at
-    rest, and a raised arm does not crush it into a crease. `follow.fill` then fills the
-    valleys of that skin in the pose and moves no vertex in, so the round front of the root
-    keeps its form. The clavicle weights can fade out toward the middle plane of the chest
-    (`weights.clavicleMiddle`), so that a face on that plane does not take the weights of both
-    clavicles, which a bow arm turns far apart. Below a cut of the armpit, a vertex of the trunk can
-    give its arm weight to the trunk (`weights.armBelow`), so that a lowered arm does not drag the
-    thin faces of the trunk. A thin face across a joint can take the mean of the
-    weights of its corners (`weights.rigid`), and thin faces that share corners take one mean
-    together, so that one face does not undo the other. A quad of a rebuilt arm tube can split
-    along its short diagonal in the source, while the bent elbow of the bind shears it, so that
-    the diagonal becomes the long one and its thin face folds when the elbow bends further. Its
-    edge flips to the other diagonal at a named point (`refine.pointFlip`), because the mean of
-    its weights folds the face in each pose. When a grip far in front of a deep chest turns the upper arm so far that no rule removes
-    the fold at the front of the shoulder, the hold shares the turn with the shoulder bone (5.3).
-    The `fingers` bone keeps its whole weight of bone heat (`weights.fingers` 1) on the bodies of
-    the beaver, the badger, the panda, the monkey, and the rhino, so that a curl closes the paw
-    around a tube or a clip. With half of it, no vertex of these paws followed the fingers more
-    than the paw, and the paws stayed open (`docs/decisions/2026-10-25-grips.md`).
-  - Colors. Each face takes the nearest palette color of the texture, and the faces of the old
-    eyes take the color of the fur around them. A rule can move the plain fur in Oklab toward the
-    color of the reference after a choice of the user (`colors.tone`): the cat takes half of the
-    move to its sheet, the white fur of the panda takes the white of `SPECIES_COLORS.panda`, and
-    each plain face of the hippo, of the mouse, of the elephant, and of the pig takes the hue and
-    the chroma of the fur or the belly color of its species color with its own lightness. The wolf
-    has no such rule, because the hues of its texture match its sheet, and the badger neither. A face is dark when a third of its texture samples are below a luminance limit
-    (`colors.dark`). The dark gray fur of the wolf lies near the limit of the other meshes, so the
-    wolf takes a lower limit, and only its nose, pupils, and small spots of the paws are dark. The
-    dark front fur and the black eye stripes of the badger lie near the limit too, so its lower
-    limit keeps only its pupils and its smile line dark. `pnpm rig-mesh --check` warns when more
-    than 5% of the faces are dark outside the eye and nose boxes, and gives a limit under 5%. The
-    cream tusks and
-    nails of the elephant keep their colors. A second rule moves a colored fur in Oklch
-    (`colors.shift`): the orange fur of the red fox takes the lightness, the chroma, and the hue
-    of the reference foxes in the play frame. A moved color keeps its hue at the edge of the sRGB
-    gamut and takes less chroma, because a clip of each channel turns the hue.
-    The tan palette of the fox mesh (`StudioBody.palettes`) lets one module serve both foxes. It
-    maps the colors of the texture before the shift (`COLOR_1` of the GLB file), so a shift of the
-    red fox keeps the tan fox.
-  - Borders of black fur. A face takes black from a third of dark texture samples, so that the
-    small faces of an eye stay dark. On the large faces of a trunk, the border of a black region
-    then gets teeth, and a raised arm stretches them into black wedges. `colors.border` gives each
-    dark face of a box with less than half dark samples the color of the nearest light face, as
-    under the arms of the panda (`docs/decisions/2026-10-18-panda-marks.md`). Its option `teeth`
-    also gives the white to a dark face with two or more light neighbors.
-  - Sharp edges of the texture. A face across a sharp edge of the texture takes the mean of both
-    sides, so the faces of the edge show as a band of a third color. The penguin copy cuts each
-    face across its black and white edge along that edge (`penguin-edge.glb`), so the edge runs
-    through the faces as on the mesh. With `colors.split`, a face whose samples spread over a
-    lightness limit takes the larger of its light and dark halves, such as a face with a small
-    island of the other side.
-  - Black band under a raised arm. The penguin texture paints the black flipper larger than the
-    flipper of the mesh, and the raised flipper left the band on the white side. With
-    `colors.flank`, each black trunk face of the side forward of a line from the armpit to the
-    lower side takes the white of the nearest light face.
-  - Arm seam. Where the hanging forearm of a mesh touches the belly, short faces join the two.
-    When the arm rises, those faces turn over and show, or the belly faces under them shade dark.
-    No weight rule, corrective shape, or vertex move fixes both. `cut` removes the faces that join
-    the forearm to the belly below a height and closes both holes with new faces, with no move of
-    a vertex. The user chose it for the panda, and the caps of the belly take its white. The
-    beaver takes the same cut under each armpit, where
-    thin faces join the upper arm to the chest and turn over in each pose, or a corner of the
-    trunk with a part of the arm weight makes a ridge of long faces when the arm rises. A shape of
-    `raise` can also relax the faces that turn far short of a fold (`below`), with one ring of
-    trunk corners (`grow`). The normals of the caps of the arm point
-    into the gap between the arm and the trunk, away from the light, so the caps show as a dark
-    slot at the armpit. With `cut.skinNormals`, the rig names these caps (`StudioBody.caps`), and
-    each corner of a cap takes the mean normal of the skin at its vertex (`studioNormals()`). The
-    caps of the body keep their own normals, because the normals of the skin turn the light caps
-    of the belly into dark wedges. The black arm caps of the panda stay dark with each normal, so
-    the panda keeps the normals of its faces. Where the side of the trunk curls in at a joined
-    arm, the caps of the body lie in a notch. A raised arm stretches the quad at the top of the
-    cut into a sheet that faces down, and the skin faces of the rim of the notch turn far from the
-    skin around them. With their own normals, the notch shows as a jagged dark gap, as if a piece
-    of the body is missing. `cut.bodyNormals` names the sides that give the caps of the body, the
-    quads, and the rim (`StudioBody.rim`) the normals of the skin, the rim with no crease angle.
-    The seated bind turns a hanging arm up, so the faces of its root meet at sharp angles, and the
-    crease angle splits their normals into a black slot or a hard dark wedge under the raised
-    arm, with no dark color on the faces. `rootNormals` adds the skin faces within a radius of
-    each shoulder joint to the rim, so that the arm root shades as a soft armpit and the facets
-    elsewhere stay. Each rig with a split at an arm root has it (`tools/mesh-rigs/`). A rim
-    corner takes the mean normal of all skin faces at its vertex, and the app moves that normal
-    with the skin of the vertex. A trunk face that shares a corner with the turned arm root, and a face at a notch
-    vertex whose skin faces point in opposite directions, then shade from a normal that their
-    surface does not have, as a soft dark patch under the raised arm. So the hippo keeps in the
-    rim only the faces that the clavicle and the arm move (`rootNormals.armShare`), and no face
-    whose corner normal turns far from its face in the bind (`rootNormals.turn`). The rebuilt quad arms of the
-    beaver and the rhino kept the slots without it, and they folded the beaver arms, so the beaver
-    keeps the faces of its mesh (`docs/decisions/2026-10-25-beaver-rhino-arms.md`). A bind that bends
-    the elbow splits the normals of the inner elbow in the same way, into short light and dark
-    creases on the bent arm. `rootNormals.elbow` adds the skin faces within its radius of each
-    elbow joint to the rim. The elephant, the hippo, the foxes, and the rabbit have it, because
-    the bind bends their elbows (`docs/decisions/2026-10-25-elephant-hippo-creases.md`,
-    `docs/decisions/2026-10-28-fox-rabbit-crease.md`). The bind also turns each paw from its
-    forearm, so `rootNormals.wrist` adds the arm faces of a band from before each wrist joint to
-    past it on the paw, and the claws past the band keep their facets. The polar bear and the bear conductor have it, with a wrist cut parallel to the last ring of the arm copy and a smoothed band
-    (`docs/decisions/2026-10-27-polar-wrist.md`, `docs/decisions/2026-10-28-followups.md`). A split of the bind stays in each pose,
-    also at rest, where the arm-down shape gives back the form of the source and adds the moves
-    of its own split normals. The key light in front of the stage lights the fronts of the arm
-    roots and the inner elbows, so it shows such a split as a hard line, a slit, or a notch. A
-    raised arm also casts the hard shadow of its faces into the crease between the arm and the
-    trunk, and on white fur the shadow shows as black wedges with steps of the
-    shadow map along the seam. The rig cannot change these shadows, so the soft shadow edge of the high tier (4.5) decides them. The thick arm of the rhino joins the side of the
-    trunk from the shoulder down to the paw, with a notch at its front and its back. A plane
-    |x| = `armSplit` then cuts through the arm or the trunk, so the plane turns around the
-    vertical through both notches, and the free arm keeps within a radius of the arm joints and
-    above a floor (`weights.armFree`). The rig then reads a copy in which a round tube replaces
-    the arm (upper arm form, below). The root of the arm of the bear mesh of 2026-10-22 reaches
-    farther back than forward, so a
-    radius around the joints left its back strip on the trunk, and a raised arm pulled that strip
-    out as a dark flap. The chain of the joints moves back before the distance
-    (`weights.armFree.shift`), so that the free arm takes the back strip and leaves the front edge
-    on the trunk. A kept face that sticks into the hole of the cut with two edges goes too
-    (`cut.fins`), because the cap repeats it with the opposite winding. The ball of each shoulder
-    of that mesh has half of its weight on the upper arm, and the turns of the arm sink it below the
-    surface around it, as a sharp V at the top back of the arm root. Its rig read a
-    copy of the mesh in which each shoulder ball and its ring move out by about the sunk depth,
-    and the longest edge across the shoulder joint splits, so that the skin bends over two faces
-    (`bear-mesh-roots.glb`). `tools/blender/arm_root.py` writes each such local edit of an arm
-    root from one edit file of `tools/arm-roots/`. The T-pose bear of 2026-10-23 has its arms
-    free of the trunk, and its rig keeps each face with no cut or copy. The panda arm root joins
-    the trunk with lips that curl into the notches at its front and its back. Bone heat gives
-    the lips a part of the arm weight, and a raised arm pulls them out as flaps. A band between
-    two planes takes only the back lips into the free arm (`weights.armFree.root`), because the
-    front lips are white belly fur that the black arm would show as a white tag. Each flipper of the penguin is an arm of the rig, free of the body
-    below its root, so the plane frees it with no cut. The upper arm of its bind points far down
-    (`studio.bindArms`), because the large turn from the hanging flipper to the bind arm of the
-    other meshes turned the faces at the root of the flipper over. The forearm of the app turns with
-    the elbow hinge, so the bind arms also set the zero of the paw twist: the bind forearm of the
-    rhino bends forward and not up, so that its bind paw sits on its forearm as the A-pose paw of
-    the source with a forward elbow. With the elbow up, each tuba paw turned about 63° more on its
-    forearm (`docs/decisions/2026-10-26-fifth-review-rhino.md`). The upper arm turns with the
-    hinge too, so the bind elbow also sets the zero of the roll of the upper arm. The bind forearm
-    of the wolf bends 45° forward, because with the elbow up, each upper arm rolled about 100° at
-    the clarinet rest on the knee, and its skin twisted and went flat
-    (`docs/decisions/2026-10-27-wolf-bind.md`). A hanging upper arm that is one solid with the
-    trunk has a plane of the split out of the crease where they meet, so the free arm is only the
-    outer shell of the arm, closed by a flat cap: a thin plate with no armpit. The rig can fit a
-    plane through the concave edges of that crease and free the whole arm out of it
-    (`weights.armCrease`). The elephant has a mesh in an A-pose, with the arms apart from the
-    trunk, and the user said: "do not cut its arm or create a dent in the arm", then chose to keep
-    the faces of the mesh with no split. So its rig has no cut, no crease rule, and no split, and
-    the line rule takes only the corners on the line (`weights.line.angle` 170). The long faces
-    of its arms showed dark shards on the bent upper arms, so its rig reads a copy with quad tube
-    arms that lie on the arms of the mesh, with no dent (below).
-  - Upper arm form. A mesh whose arm is free of the trunk only from the elbow down has no upper
-    arm of its own: the upper arm is a bulge of the trunk wall, and each turn of the arm crumples
-    the wall into flaps. No weight rule, cut, ring, or shape fixes it. The rig of the pig reads a
-    copy of the mesh in which each upper arm is a round tube with rings of edges, free of the
-    trunk up to a dome around the shoulder joint (`pig-arms.glb`), so the free arm needs no cut
-    (`weights.armFree`). The wall where the bulge was is smoothed, because the saw rim of the hole
-    and a fan from its middle showed as dark spikes at the top of the shoulder. Where the inner
-    side of a hanging arm joins the trunk from the middle of the upper arm to past the elbow, a
-    flat cap of the cut showed as a flat sheet at the bent elbow. So the rig reads a copy that
-    removes the joining faces and closes each arm with a round patch over its arm run. The patch
-    lies inside the plane of the arm split, and the free arm takes it as an island
-    (`weights.armIslands`). The cut then closes only the hole of the trunk. The dog takes such a
-    copy and a cut (`dog-arms.glb`). Under the cut, the arm and the trunk are two shells: on the
-    deer, the back of each upper arm moved off the flat cap of the trunk in the play and showed a
-    notch (user, 2026-10-26: "the deer's upper arm are missing pieces (have dent)"), so the deer
-    has rebuilt arms (below). The patch of the dog pushes to the round form from near its top, so that
-    the inner arm fills the dark pocket between the arm and the trunk at rest. Bone heat gives a
-    free arm of a cut only arm weights, so the inner root of the bow arm swings into the chest.
-    The inner root gives a share of its weight to the chest (`weights.armRoot`).
-    The rhino has a mesh in a T-pose since 2026-10-28, with the arms level and out to the sides.
-    Its A-pose mesh of 2026-10-23 and the copies of the earlier rounds stay in its folder as a
-    record. The rabbit also has a
-    mesh in an A-pose since 2026-10-23. Its arms stretch only 1.15
-    times, and its violin is smaller (4.6). Long faces of the mesh crossed each elbow and twisted
-    along the forearm, so its arms have new quad faces from the shoulder line to the wrist and
-    arm segments (user, 2026-10-24: "add loop edges and retopology and additional bones if needed",
-    `docs/decisions/2026-10-24-violin-arms.md`). A rig with arm segments does not stretch the
-    arms, so the copy of the mesh gets the arm length in Blender (`tools/blender/violin_arms.py`).
-    The mouse and the wolf have such arms since 2026-10-25 (`tools/blender/wind_arms.py`), with
-    their arm factors 1.4 and 1.178 in the copy of the mesh. The upper arm of the mouse joins the
-    trunk down to 0.6 of its length, so its tube starts there. The upper arm of the cat joins
-    the trunk down to the elbow, so its copy also gets an armpit (`tools/blender/cat_arms.py`): a
-    cut along the seam where the arm meets the trunk, a side wall of the trunk under the arm, and
-    a tube whose flat inner side lies on the wall and meets it only at the armpit line, high under
-    the shoulder. The trunk and the first ring of the shoulder keep the rule weights. The seated
-    bind of its upper arm points nearer to the hanging arm of the mesh, as on the deer, and the
-    faces around each arm root take the normals of the skin: with the far bind, the socket and the
-    armpit line folded into a crease at the back of the arm root. Its arms are shorter than the
-    arms of the mesh, because the trunk of the cat is shorter than the trunk of the mesh and of
-    `cat-views.png`, and the user found the arm too long. Its forearm is shorter than its upper arm,
-    as on a real arm: a shorter upper arm moves the round part of the tube into the plane of the
-    seam, and the upper arm goes flat (`docs/decisions/2026-10-27-cat-fox2.md`). The trunk of
-    its copy is an even oval from the front and from the side, as in `cat-views.png`
-    (`step_belly()` of the script), and its light belly patch is an even oval
-    (`colors.belly`): the mesh has an upright chest over a low belly peak, and the short trunk
-    of the rig and the seat showed a pinch and a lump (`docs/decisions/2026-10-27-cat-belly.md`).
-    The seated bind smooths the lap a second time up the belly front (`crease.lap` of the
-    config), so that the bottom of the oval goes into the thighs as one curve, and the front of
-    the upper belly is a little flatter, most at the middle line and with no crease, where the
-    bow upper arm lies in the play (`flat` of `step_belly()`,
-    `docs/decisions/2026-10-27-cat-lap.md`). The side wall under each arm has even faces and
-    rounds into the trunk, with no lips of the seam cut under it, so that a raised arm shows no
-    flat light patch and no crease there (`step_round_wall()`,
-    `docs/decisions/2026-10-28-cat-wall.md`). The band between the left armpit line and the flat
-    inner side of the left arm has new triangles with no thin face, so that the skin there does
-    not turn over when the root moves (`step_clean_pit()`,
-    `docs/decisions/2026-10-28-cat-root2.md`).
-    The trunk weights keep the front of the left arm root with the chest, so three shapes of
-    `raise` take it a part of the way with the arm in the poses of the play, of the rest, and
-    between them, and the root keeps its trunk weights (`docs/decisions/2026-10-28-cat-root.md`,
-    `docs/decisions/2026-10-28-cat-root2.md`). The shape of the play also fills the valleys of
-    the left root, and a fourth shape takes the front of the root of the bow arm along with the
-    bow arm in the play (`docs/decisions/2026-10-28-cat-root3.md`). The
-    elephant has such arms since 2026-10-25 (`tools/blender/elephant_arms.py`), with the length
-    and the thickness of its mesh. Its arms are as thick as half of their length, so its cut
-    planes stand at a right angle to the arm, the wrist cut lies further out on the paw, and the
-    rings of the elbow stand further from the joint, so that the bend of the timpani hold spreads
-    over more faces. A tilted cut plane or a near wrist cut crossed the nearest ring and turned
-    the bridge faces over. The inner front of each upper arm of the copy is a little flatter,
-    because the thick arm turns down toward the round belly as one rigid part, and linear
-    skinning does not press its flesh. The flatten comes after the bake of the fur: the bake
-    casts its rays from a small distance out of the tube, so a tube moved into the source arm
-    gets black texels, which show as a black area under each armpit of the bear. The foxes have such arms since 2026-10-25 (`tools/blender/fox_arms.py`),
-    with the arm factor 1.21 in the copy of the mesh, one rig for the red and the tan fox. The
-    upper arm of the fox joins the trunk only near the shoulder, so its copy takes the seam cut
-    and the side wall of the cat, with no ring of the shoulder: rings packed at the short socket
-    folded into a dark slit. The rule weight of each upper arm goes to its first segment
-    (`armSegments.rootSegment`), so that the socket takes the roll of the first ring. The hippo
-    has such arms since 2026-10-25 (`tools/blender/hippo_arms.py`), with the arm factor 1.5 in the
-    copy of the mesh. Its thick hanging upper arm joins the trunk down to the elbow, so its copy
-    takes the seam cut and the side wall of the cat at the crease of the arm, with no ring of the
-    shoulder. A second plane under the seam keeps the round belly under the forearm on the trunk,
-    and the thin ears of the hole go before the wall. The rule weights serve only the trunk and
-    the socket, so the plane of the arm split lies out of the whole trunk. The arm vertices hang
-    on no lower trunk bone, so that the back of the arm root turns with the arm, and the paws hang
-    on no wrist helper, so that they turn with the hands. The short paw turns far from the
-    forearm on a thick wrist, so the wrist cut stands parallel to the last ring of the tube, and a
-    smooth evens the band of the wrist: a cut at a right angle to the paw crossed the ring, and the
-    bridge made a lip with a slit (`docs/decisions/2026-10-28-hippo-arm.md`). The rhino has such
-    arms since 2026-10-27, from its T-pose mesh since 2026-10-28 (`tools/blender/rhino_tpose_arms.py`),
-    with the steps of the T-pose bear and the length of its mesh, because long faces and two bones
-    along each forearm twisted its skin into a thin band. Its short upper arm takes the shoulder
-    cut at 0.4, the clean of a cut loop collapses only an edge along the loop, and the wrap of the
-    tube projects at most 0.03 units, so that no shard runs from the arm root to the trunk. The
-    clavicles leave the chest and the neck, and Taubin rounds smooth the tubes (`armSmooth`). The
-    paws of the rhino keep the rule weights of the rig with half of the finger weight, because the
-    curl of the grip folded the round paw stumps. The deer has such arms
-    since 2026-10-27 (`tools/blender/deer_arms.py`), with the arm factor 1.25 in the copy of the
-    mesh. Its upper arm joins the trunk down to near the elbow, so its copy takes the seam cut and
-    the side wall of the cat. Its shoulder is a broad round top that the plane of the seam leaves
-    only near the neck, so a cap plane across the upper arm, turned toward the trunk, keeps the
-    top of the shoulder on the trunk, and the socket is a loop around the arm root. The chest
-    anchor reaches only as far as the radius of the thin arm, so that the outer arm turns with the
-    arm bones. The seated bind of its upper arm points further down than the bind of the other
-    meshes, nearer to the hanging arm of the mesh: with the far bind, the faces of the socket
-    folded and the shoulder ring narrowed in the play. The back end of its left armpit line is
-    smoothed (`smooth`), because the saw-tooth outline of the underside of the arm root showed as
-    a black notch from behind.
-    `pnpm arm-look` measures the
-    crease of the arm skin against the source and the section of the upper arm, with limits from the red fox
-    (`docs/decisions/2026-10-21-arm-form.md`).
-  - Face. Face rules recolor faces of the face after a choice of the user, with no move of a
-    vertex. `colors.patch` makes each eye patch round, because a sharp inner point reads as
-    raised inner brows and gives a sad face. `colors.smile` draws a thin smile line in the dark
-    of the patches, or in a color of its own (`color`) with no patch rule, along the crease
-    between the lips, with the corners up, so that the corners show beside a mouthpiece. A band takes no face that turns to the side (`outward`), because
-    such a face shows as a dark block in a side view. The panda has both rules
-    (`docs/decisions/2026-10-18-panda-face.md`). The wolf has both rules too: its patch rule
-    ends the gray cap of the forehead at a level line over the eyes, so the eyes sit in light fur,
-    its `soften` rule flattens the crease of the brow ridge over each eye, and its smile line takes
-    a dark color of its own (`color`), because its gray patches are too light for a line
-    (`docs/decisions/2026-10-20-wolf-face.md`).
-  - Tail. `tail_tip` gives a tail of two bones (`OPTIONAL_STUDIO_BONES`), and `studio.tailCurl`
-    bends the seated tail: the cat curls it on the seat, and the dog hangs it down behind the seat
-    (`docs/decisions/2026-10-17-dog-tail.md`). Each tail vertex keeps its place and its offset
-    along the middle line of the source tail, and a few rounds of smoothing round the curled tube,
-    so that it keeps the round form of the source (`docs/decisions/2026-10-28-tails.md`). Only the
-    vertices near the line of the tail bones take tail weights, and the root moves over a short
-    range of the tail share, so that the root of the dog tail stays slim and makes no web to the
-    back (`docs/decisions/2026-10-28-followups.md`). A curled
-    tail does not sway (5.1). The long thin tail
-    of the mouse lies on the floor in a loop, so its two bones turn rigidly
-    (`studio.tailBind`): the seated tail goes back from the haunch and keeps its loop flat on the
-    floor behind the body, because a curve bent the loop into a sheet. The broad flat tail of the
-    beaver has two bones that turn rigidly too: the root bone goes back from the haunch, and the
-    tip bone lays the end of the tail on the floor behind the body, at the height of the soles,
-    so that the tail does not set the seat height. The bushy tail of the wolf has two bones that
-    turn rigidly: the root bone goes back and down over the back of the seat, and the tip bone
-    hangs the tail down behind the seat, between the back posts of the chair. The long thin tail
-    of the monkey has two bones that turn rigidly: the root bone goes back and down from the
-    haunch, and the tip bone keeps the curl of the source, which stands on the floor behind the
-    body, at the height of the soles. A short round
-    tail, as the tail of the rabbit, of the panda, of the hippo, of the badger, and the puff tail of
-    the deer, or the small curled tail of the pig, or the short pointed tail of the penguin, is a
-    ball on one tail bone (`tailBall`). The ears of the dog hang and do not twitch (`OwnBodyParams.hangingEars`). The
-    round ears of the panda, the small ears of the hippo and of the beaver, the large round
-    ears of the mouse, and the ears of the pig and of the badger join the head below the top of the skull, so they follow the head. The large ears of the
-    deer stand out at the height of the skull top, and its antlers rise from it, so both follow the
-    head, and the head measures leave the antlers out (`headCeiling` of `ANIMALS`). The large ears of the
-    elephant follow the head too, and its trunk and the tips of its tusks, which hang below the
-    head line in front of the chest, follow the head only (`noseFront`), so that a turn of the
-    head does not bend the trunk at the chin. The tips of the lower whiskers of the cat hang below
-    the head line in front of the chin, and they follow the head by the same rule, so that the head
-    lift of the viola does not bend them. The thin tail of the elephant is a ball on one tail
-    bone, and so is the thin tail of the rhino, which hangs behind the haunch. The tall ears of the
-    rhino stand on the top of the head and follow their ear bones. The penguin has no ears: its ear
-    bones lie inside the crown, and no vertex follows them (`earBase`). Its beak opens: a copy
-    of the mesh splits the beak along the mouth line and closes each part with a cap of a dark
-    mouth color (`assets/models/penguin/penguin-beak.glb`), and the lower part follows the jaw
-    bone with rigid weights, around the line between the corners of the mouth (`weights.jaw`,
-    `docs/decisions/2026-10-21-penguin-beak.md`).
-  - Eyes in patches. When dark eye patches hold the eyes, as on the panda, the eye box holds only
-    the eye, and no dark face near the old eye takes the color of the fur (`eyeShell.darkReach`),
-    so that the patches stay black around the pea eyes.
-- **Scale.** The scale keeps a landmark that the scene depends on (`ANIMALS` in
-  `tools/studio-body.ts`). The landmark is the shoulders of the bear for the conductor stand. For a
-  mesh body, it is the shoulders, the ear
-  tips, or the head top at the size that the user chose. A longer leg raises the landmark by the same height, so
-  the trunk, the head, and the arms keep their meters. The user chose the head height of the red
-  fox for the cat, the dog, the panda, and the hippo, and the head top of the parametric mouse
-  for the mouse, which is about half as tall (`docs/decisions/2026-10-19-mouse-size.md`). By the
-  same rule, the beaver and the pig take the head tops of their parametric bodies, because no
-  reference image shows a beaver or a pig (`docs/decisions/2026-10-19-mesh-beaver.md`,
-  `docs/decisions/2026-10-19-mesh-pig.md`). The orchestra images show the seated wolf beside the
-  seated dogs, so the seated wolf took the middle of the height ratio of the two in the images
-  (`docs/decisions/2026-10-20-mesh-wolf.md`). Then the user made the body of the wolf 0.9 times as
-  high and 1.2 times as wide, for a body ratio near the red fox, and kept the head at its size, so
-  the seated wolf is now about as high as the dogs (`proportions`,
-  `docs/decisions/2026-10-20-wolf-shape.md`). Then the user gave the wolf the head size of the red
-  fox, and the body below the neck became smaller on each axis, so that the standing skull top
-  keeps its height (`proportions.head`, `docs/decisions/2026-10-20-wolf-face.md`). No reference
-  image shows a badger or a monkey, so the badger and the monkey take the head tops of their
-  parametric bodies (`docs/decisions/2026-10-20-mesh-badger.md`,
-  `docs/decisions/2026-10-20-mesh-monkey.md`). The skull top of the monkey under its small tuft
-  of hair took the head top, and then the user made the monkey 1.1 times as large. No reference
-  image shows a rhino, so the skull top of the rhino between its tall ears takes the head top of
-  the parametric rhino (`docs/decisions/2026-10-21-mesh-rhino.md`). No reference image shows a
-  deer, so the skull top of the deer between its antlers took the skull top of the parametric deer,
-  and then the user made the deer 1.2 times as large (`docs/decisions/2026-10-21-mesh-deer.md`). The crown of the penguin takes the head top of its egg
-  body (`docs/decisions/2026-10-21-mesh-penguin.md`). A leg factor of a rig raises its standing
-  shoulder joints, so the landmark rises with them, and the longer legs do not make the trunk, the
-  head, and the arms smaller (`docs/decisions/2026-10-22-polar-legs.md`). The user said that the
-  polar bear pianist at the size of the studio polar bear was too tall
-  (`docs/decisions/2026-10-24-polar-bear-seat.md`). It is 1.1 times the scale of
-  `docs/decisions/2026-10-27-polar-bench.md` (`docs/decisions/2026-10-28-polar-bench2.md`), and
-  it keeps that scale with the legs of the mesh, so that the trunk, the head, and the arms keep
-  their size (`docs/decisions/2026-10-29-polar-ratio.md`).
-- **Seat.** A seated role binds its mesh seated, and the export puts its soles on the floor and its
-  seat at the front edge of the seat of the app. The polar bear sits on the bench of its rig
-  (`chair.prop`) with the thighs a little down, vertical shins, and flat feet, as a real pianist
-  sits. Thighs that slope far down hid under the round belly, and the bear read almost as
-  standing (`docs/decisions/2026-10-24-polar-bear-tpose.md`). The thighs and the shins keep the
-  length of the mesh (`legFactor` of the rig), so that the body keeps the part ratios of the
-  mesh, and the bench is as low as the legs need (user,
-  `docs/decisions/2026-10-29-polar-ratio.md`). Longer legs made the bear look like a human, with
-  a small head and thin legs under a tall trunk. The knee crease of the bind smooths only the
-  back of each knee: a fair of the calf made the short shin thin. The piano bench of the app fits the body, as
-  the chair does: it holds the whole haunch, and its front edge lies under the thighs where their
-  underside leaves the seat top (`StudioBody.benchDepth`, `benchFitOf()` of `tools/studio-body.ts`,
-  `docs/decisions/2026-10-27-polar-bench.md`). The rabbits, the foxes, the cats, the dogs, the pandas, the pigs, and the
-  wolves have chairs that fit their legs, so that their feet touch the floor (user, 2026-10-16). The
-  deer sits on the stool of the harp, which fits its legs too, with its whole haunch on the seat
-  (user, 2026-10-21): the sit of its rig puts the underside of the haunch on the seat top, and
-  its puff tail stays above the seat. The mouse, the
-  beaver, and the monkey have no chair (user, 2026-10-19 and 2026-10-20, `SpeciesParams.noChair`):
-  each keeps its seated pose at the seat height of its legs, with its feet on the floor, so it
-  stands on its hind legs with bent knees, as a real mouse, beaver, or monkey does. The center of
-  mass of a body that stands must be over the middle of its soles (user, 2026-10-21). The thighs
-  of the monkey slope steeply down, its feet stand under its hips, and its trunk leans forward
-  with the head level, because its short legs alone cannot put the feet under its large head
-  (`docs/decisions/2026-10-21-monkey-stand.md`). The rhino stands to play the tuba in each seat,
-  in the standing pose of its mesh, as a real tubist on a strap, and its center of mass lies a
-  little in front of the middle of its soles with the tuba (`docs/decisions/2026-10-21-mesh-rhino.md`).
-  The penguin stands on its riser in the standing pose of its mesh, and its center of mass lies a
-  little behind the middle of its soles, inside the support area
-  (`docs/decisions/2026-10-21-mesh-penguin.md`). The seat of each chair is level. Each level seat ends where the thighs leave it at the haunch (`chair.front`), so that
-  the haunch rests on it. Short
-  thighs under a round belly, as on the panda, end the seat behind the thighs, under the haunch,
-  so that the sit does not pull the haunch down into a sheet behind the seat. The chair takes
-  its height, depth, width, and the room behind the back from the body (`StudioBody.seatHeight`,
-  `chairDepth`, `chairWidth`, `backRoom`, 4.5, props).
-- **Soloist.** A seated body that also stands (`soloist` of `ANIMALS`: the rabbit, the red fox, the
-  cat, the panda, the mouse, the beaver, the pig, the wolf, the monkey, the hippo, which stands in each seat of the contrabass,
-  the elephant, which stands at the timpani, the badger, which stands at each percussion
-  instrument, the rhino, which stands at the tuba, and the penguin, which stands on its riser) keeps the leg shapes and the turns of its sheet pose, and `standingBody()` of
-  `models/studio-rig.ts` stands it within 1 mm of the source.
-- **Retarget.** The skeleton of the player has the joints of the studio, with each arm straight
-  down, because the pose code reads a hanging arm in the bind pose (4.7, 5.2).
-  `poseStudioBones()` moves the bones of the studio with the bones of the player, and bends each
-  arm at the elbow axis of the studio. Each paw turns toward the forearm, up to a limit
-  (`PAW_TURN`), because the skin of the studio bends well only near its clips. The turn fades out
-  where the forearm passes behind the palm, because the side of the turn there jumps in one frame
-  (`docs/decisions/2026-10-26-violin-lift.md`). A pose can give the left paw its own turn in
-  place of this turn (`pawTurnL` of `AnimalPose`), so that a carried violin keeps its place in
-  the paw (5.2). The seated bind bends each paw about 25° off its forearm, and the turn takes
-  this bend away. On a thick wrist, the skin then bends off its form into a lump, so a pose can
-  keep a share of the bend of the right paw (`pawKeepR` of `AnimalPose`, 5.3). Each shape takes its
-  weight from the pose alone (`raiseWeight()`), so the rule of stateless poses holds.
+### Mesh rig
+
+`pnpm rig-mesh <animal>` rigs a mesh of the user with Blender into the studio format: one mesh
+of faces with one color each, the skeleton of the biped template with twist bones of the
+forearms, a skin of up to four bones for each vertex, and up to four corrective shapes
+(`RAISE_LIMIT`). The config `tools/mesh-rigs/<animal>.json` gives the joints, measured on cuts
+of the mesh, and the rules, each with a note. `--check` measures the rig.
+
+| Group | Config keys | Reason |
+| --- | --- | --- |
+| Form | `armFactor`, `legFactor`, `headFactor`, `neckFactor`, `trunkFactor`, `girthFactor`, `proportions` (`keep`, `head`) | A factor changes a part to the choice of the user or to the sheet. The head can keep its form and move with the top of the neck. |
+| Seat | `studio.legTurns`, `sit`, `studio.trunk`, `chair.front`, `crease` | The rig binds a seated role in its seated pose of 5.2 and lowers the haunch onto the seat. |
+| Weights | bone heat, `weights.*`, `refine.rings`, `refine.pointFlip`, `heatSource` | Bone heat gives the weights. Rules and rings keep the faces at the joints from a fold. |
+| Shapes | `raise` (`spread`, `follow`, `smooth`, `below`, `grow`) | The shapes give the source back in the standing pose and relax the faces that a bent arm turns over. |
+| Arms | `upperTwist`, `armSegments`, `studio.bindSupination`, `studio.bindArms`, `paintedWeights`, `armSmooth`, `bindSmooth` | The roll of an arm spreads along the arm, so the skin does not twist like a wrung cloth. |
+| Splits | `weights.armSplit`, `weights.armFree`, `weights.armIslands`, `weights.armCrease`, `cut` | An arm that the mesh joins to the trunk is freed, so that a raised arm does not pull flaps out of the trunk. |
+| Normals | `cut.skinNormals`, `cut.bodyNormals`, `rootNormals` (`elbow`, `wrist`, `knee`, `armShare`, `turn`) | The faces at an arm root, an elbow, a wrist, or a knee take the normals of the skin, so a bent joint shades soft and shows no dark slot. |
+| Colors | `colors.tone`, `colors.shift`, `colors.dark`, `colors.border`, `colors.split`, `colors.flank` | The face colors move toward the reference colors, and the black borders do not get teeth or bands. |
+| Face | `colors.patch`, `colors.smile`, `soften`, `eyeShell` | The face rules give a happy face: round eye patches, a thin smile line with the corners up, and no brow crease. |
+| Tail, ears, jaw | `tail_tip`, `studio.tailCurl`, `studio.tailBind`, `tailBall`, `earFlap`, `noseFront`, `earBase`, `weights.jaw` | A tail lies on the seat or the floor, or hangs behind the chair. A trunk or a hanging ear follows the head. A beak opens. |
+
+**Arms.** The plane of the arm sets the roll of the upper arm. A hold with the elbow out and
+level rolls it far, and the linear blend at the shoulder then twists the skin and squeezes the
+upper arm flat. A body can take a twist bone of each upper arm (`upperTwist`), or the bones of a
+rigger on each arm (`armSegments`): 4 deform segments on the upper arm and on the forearm, and a
+helper bone at the elbow and at the wrist. Each segment takes its share of the roll, and each
+helper turns halfway across its joint. The arms of a body with segments are quad tubes that a
+script of `tools/blender/` builds on the arms of the mesh, with weights from Blender. The bind
+paw sets the zero of the twist from the forearm to the paw, so the rig turns the bind paw toward
+supination where a hold supinates far (`studio.bindSupination`). The rest and the play then lie
+on one side of 180°.
+
+**Arm gate.** A fold count does not see a twisted or a flat arm, and a goal on one measure can
+move a twist to a joint that no goal measures. So `pnpm arm-check` reads the folds, the skin
+twist, the flat share, the paw turn, the stretch, and the wrist turn rate of each arm against one
+table of limits (`ARM_LIMITS` of `tools/arm-check.ts`). Each change of a pose, a hold, or a body
+runs it.
+
+### Scale
+
+The scale keeps a landmark that the scene depends on (`ANIMALS`): the shoulders of the bear for
+the conductor stand, and the shoulders, the ear tips, or the head top at the size that the user
+chose for each other body. A longer leg raises the landmark by the same height, so the trunk,
+the head, and the arms keep their size in meters.
+
+### Seat
+
+- A seated role binds its mesh seated. The export puts the soles on the floor and the haunch on
+  the seat of the app. The chair fits the body: it takes its height, depth, width, and the room
+  behind the back from the body (`StudioBody.seatHeight`, `chairDepth`, `chairWidth`,
+  `backRoom`), so the feet touch the floor (4.5, props).
+- The seat of each chair is level. It ends where the thighs leave it at the haunch
+  (`chair.front`), so that the haunch rests on it.
+- The polar bear sits on a piano bench that fits its haunch and its legs (`StudioBody.benchDepth`,
+  `benchFitOf()` of `tools/studio-body.ts`). Its thighs slope a little down to vertical shins and
+  flat feet, as a real pianist sits. Its legs keep the length of the mesh, so that the body keeps
+  the part ratios of the mesh, and the bench is as low as the legs need.
+- The deer sits on the stool of the harp, with its whole haunch on the seat.
+- The mouse, the beaver, and the monkey have no chair (`noChair`). Each keeps its seated pose at
+  the seat height of its legs, with its feet on the floor. The monkey has short legs under a
+  large head, so its thighs slope steeply down, its feet stand under its hips, and its trunk
+  leans forward with the head level. Thus its center of mass stays over its soles.
+- The hippo stands at its contrabass, the elephant at its timpani, the badger at each percussion
+  instrument, the rhino at its tuba, and the penguin on its riser, each in the standing pose of
+  its mesh. The rhino stands as a real tubist on a strap does. Each center of mass lies inside
+  the support area of the soles.
+- A seated body that also stands (`soloist` of `ANIMALS`) keeps the leg shapes and the turns of
+  its sheet pose, and `standingBody()` of `models/studio-rig.ts` stands it within 1 mm of the
+  source.
+
+### Retarget and render
+
+- **Retarget.** The app keeps its own motion (5.3, 5.4), so it drives the studio bones from the
+  pose of the player in each frame. The skeleton of the player has the joints of the studio, with
+  each arm straight down, because the pose code reads a hanging arm in the bind pose (4.7, 5.2).
+  `poseStudioBones()` bends each arm at the elbow axis of the studio. Each paw turns toward the
+  forearm up to `PAW_TURN`, because the skin of the studio bends well only near its clips. A pose
+  can give the left paw its own turn (`pawTurnL`) or keep a share of the bend of the right paw
+  (`pawKeepR`) (5.2, 5.3). Each shape takes its weight from the pose alone (`raiseWeight()`), so
+  the rule of stateless poses holds.
 - **Render.** The scene draws the body with four bones for each vertex and the shapes as morph
-  targets. The colors hold the baked occlusion of the studio. The fur gets smooth normals within
-  the crease angle of the body (`crease` of `ANIMALS`, `studioNormals()`). The bear takes a larger
-  angle than the other bodies, so that its fur looks round with soft facets, as the user asked. Its fur colors also blend at
-  each vertex where two faces differ by a small step (`colorBlend`, `studioCornerColors()`), so
-  that the steps of the paint and of the baked occlusion fade, and the edges of the muzzle, the
-  brows, and the claws stay sharp (`docs/decisions/2026-10-22-studio-bears.md`). The red fox, the cat, the dog, the panda, the hippo,
-  the mouse, the elephant, the beaver, the pig, the wolf, the monkey, the badger, the rhino, the
-  deer, and the penguin take the angle of the rabbit, which the manager chose from the play frames,
-  because the sixteen are meshes of image models (`docs/research/2026-10-14-rabbit-smooth.md`).
-- **Bind mesh.** `buildStudioBody()` gives the mesh in the bind pose of the player, with two bones
-  for each corner, for the footprints, the budgets, and the tests. The sweep of each role (9.3)
-  keeps the parts out of the body and the instrument, and
-  `docs/decisions/2026-10-13-role-sweep.md` lists each accepted depth.
-
-**Rigged bodies**
-
-No species has a rigged body since 2026-10-11, and the app has no code of it. The GLB files
-`assets/models/rabbit/rabbit.glb` and `assets/models/bear/bear.glb` of the user and the tools stay
-for a later body, and route 1 of `docs/agents/model-work.md` brings the code back.
-`pnpm rig-body <species>` packs a file into `src/models/rigged/<species>.ts` with a baked skin. It
-keeps the two largest weights of each vertex, and gives the missing ear, tail, and finger bones a
-part of the weight of their parents. It moves the colors of the texture to the colors of the
-species (`docs/decisions/2026-10-10-glb-skins.md`), and puts a plate on each eye, so that it
-blinks. The
-limbs keep the lengths of the model, unless the user asks for the look of a reference image
-(user, 2026-10-10).
-
-**Tools of Blender**
-
-- `pnpm glb-init <species> <glb>` starts a rigged body: it copies the file, and proposes the config
-  of `pnpm rig-body`.
-- `pnpm rig-body <species>` packs a rigged GLB body and bakes its skin (rigged bodies, above).
-
-**Meshes**
-
-- Each player is one `SkinnedMesh`: the body, the instrument, and the bow merge into one mesh.
-  This gives one draw call for each player (4.5, materials). One `Mesh` for each part would give
-  about 25 draw calls for each animal, which is too many for an integrated GPU.
-- The static props merge into a few meshes.
-- The parametric body has one module for each area: `models/trunk.ts` (the torso, the neck, and
-  the head), `models/tails.ts`, `models/arms.ts`, and `models/legs.ts`. `buildBiped()` calls them
-  in this order. The areas read their shared values from `models/body-frame.ts`.
+  targets. The colors hold the baked occlusion of the rig. The fur gets smooth normals within the
+  crease angle of the body (`crease` of `ANIMALS`, `studioNormals()`). The bears take a larger
+  angle and a color blend at each vertex (`colorBlend`), so their fur looks round with soft
+  facets, and the edges of the muzzle, the brows, and the claws stay sharp. The penguin takes a
+  large angle and a blend too, so that its sides look round. The other bodies share one angle.
+- **Bind mesh.** `buildStudioBody()` gives the mesh in the bind pose of the player, with two
+  bones for each corner, for the footprints, the budgets, and the tests. The sweep of each role
+  (9.3) keeps the parts out of the body and the instrument.
 
 ## 4.5 Visual values
 
