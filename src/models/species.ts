@@ -24,8 +24,8 @@ import { STUDIO_WOLF } from './studio/wolf.ts';
 import { SPECIES_COLORS } from './colors.ts';
 import type { SpeciesColors } from './colors.ts';
 
-/** The parameters that each species has (design 4.3, 4.5). */
-interface CommonParams {
+/** The parameters of one species (design 4.3, 4.4, 4.5): each species has a studio body. */
+export interface SpeciesParams {
   /** The colors of the species (design 4.5, species colors). */
   readonly colors: SpeciesColors;
   /** The head height `H` of the body, in meters (design 4.5). */
@@ -126,14 +126,7 @@ interface CommonParams {
    * its turn in the palm. The grip of the bind pose of the bow (`BOW_GRIP`) when it is not given.
    */
   readonly bowGrip?: BowGrip;
-}
-
-/**
- * The parameters of a species with a body of its own (design 4.4): a studio body, which keeps the
- * mesh, the colors, and the size of its GLB file.
- */
-export interface OwnBodyParams extends CommonParams {
-  /** The body of its own: a studio body (`models/studio-body.ts`). */
+  /** The studio body of the species (`models/studio-body.ts`, design 4.4). */
   readonly body: StudioBodyName;
   /**
    * Another palette of the faces of a studio body (`StudioBody.palettes`), such as the tan palette
@@ -149,14 +142,11 @@ export interface OwnBodyParams extends CommonParams {
   /**
    * True for a studio body whose ears hang beside the head and the neck (`earFlap` of the rig
    * config), so that they do not twitch to the side in the idle motion (design 5.1). A real
-   * hanging ear does not twitch to the side, and the twitch of standing ears pushed the tips of
+   * hanging ear does not twitch to the side, and the twitch of standing ears pushes the tips of
    * the hanging ears of the dog into its cheeks. The ears twitch when it is not given.
    */
   readonly hangingEars?: true;
 }
-
-/** The parameters of one species (design 4.3, 4.4): each species has a studio body. */
-export type SpeciesParams = OwnBodyParams;
 
 /**
  * The ids of the species that the generator builds (design 4.3), in the order of {@link SPECIES}.

@@ -157,13 +157,13 @@ export interface PlayerPlan {
   readonly idle: IdleParams;
   /**
    * The share of the idle sway of the tail (design 5.1): 0 for a seated tail that lies curled on
-   * the seat (`OwnBodyParams.seatedTail`), so that it does not swing into the haunch and the
+   * the seat (`SpeciesParams.seatedTail`), so that it does not swing into the haunch and the
    * thighs, and 1 for each other tail.
    */
   readonly tailSway: number;
   /**
    * The share of the idle twitch of the ears (design 5.1): 0 for a species whose ears hang
-   * (`OwnBodyParams.hangingEars`), and 1 for each other species and the conductor.
+   * (`SpeciesParams.hangingEars`), and 1 for each other species and the conductor.
    */
   readonly earTwitch: number;
   /** The turn of the head to the conductor, around y then around x, in radians. */
@@ -442,7 +442,7 @@ export function seatSeedOf(seed: number, seatIndex: number): number {
 
 /**
  * Gives the share of the idle sway of the tail of a player (design 5.1): 0 for a seated player
- * whose species has a tail that lies curled on the seat (`OwnBodyParams.seatedTail`), and 1 for
+ * whose species has a tail that lies curled on the seat (`SpeciesParams.seatedTail`), and 1 for
  * each other player.
  *
  * @param model The player model. A seated model has a seat.
@@ -456,7 +456,7 @@ function tailSwayOf(model: PlayerModel, species: SpeciesId): number {
 
 /**
  * Gives the share of the idle twitch of the ears of a species (design 5.1): 0 for a species whose
- * ears hang (`OwnBodyParams.hangingEars`), and 1 for each other species.
+ * ears hang (`SpeciesParams.hangingEars`), and 1 for each other species.
  *
  * @param species The species of the player.
  * @returns The share, 0 or 1.
