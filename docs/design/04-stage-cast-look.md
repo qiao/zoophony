@@ -546,26 +546,26 @@ curved side of the piano and turns a little to the pianist.
 Each body is a module of `src/models/studio/` (4.4). The instruments are in
 `models/instruments/`.
 
-| Section      | Species          | Body file       | Instrument model                                    | Support                 |
-| ------------ | ---------------- | --------------- | --------------------------------------------------- | ----------------------- |
-| violin       | rabbit, red fox  | `rabbit.ts`, `fox.ts` | violin and bow                                | chair                   |
-| viola        | cat              | `cat.ts`        | the violin model at a larger scale                  | chair                   |
-| cello        | dog              | `dog.ts`        | cello and bow                                       | chair                   |
-| contrabass   | hippo            | `hippo.ts`      | double bass with sloped shoulders and machine heads | stands                  |
-| harp         | deer             | `deer.ts`       | concert harp, or a smaller harp (`harpScale`)       | stool                   |
-| piano        | polar bear       | `polar-bear.ts` | grand piano, also for the celesta and the organs    | bench                   |
-| flute        | tan fox          | `fox.ts` (tan palette) | silver tube, also for the piccolo and the pipes | chair                |
-| oboe         | mouse            | `mouse.ts`      | thin dark tube with a small bell                    | no chair                |
-| clarinet     | wolf             | `wolf.ts`       | black tube with silver keys and a bell              | chair                   |
-| bassoon      | beaver           | `beaver.ts`     | tall wooden tube with a bocal                       | no chair                |
-| horn         | pig              | `pig.ts`        | coiled tube with a bell                             | chair                   |
-| trumpet      | monkey           | `monkey.ts`     | tube with valves and a forward bell                 | no chair                |
-| trombone     | panda            | `panda.ts`      | tube with a slide and a bell                        | chair                   |
-| tuba         | rhino            | `rhino.ts`      | large tube with an upward bell, on a strap          | stands                  |
-| timpani      | elephant         | `elephant.ts`   | two to four kettles, by the pitch range of the file | stands                  |
-| percussion   | badger           | `badger.ts`     | bass drum, snare drum, cymbals, triangle, tambourine, xylophone | stands      |
-| choir        | penguin          | `penguin.ts`    | a music folder                                      | stands on the risers    |
-| conductor    | bear             | `bear.ts`       | baton                                               | stands on the podium    |
+| Section    | Species         | Body file             | Support         |
+| ---------- | --------------- | --------------------- | --------------- |
+| violin     | rabbit, red fox | `rabbit.ts`, `fox.ts` | chair           |
+| viola      | cat             | `cat.ts`              | chair           |
+| cello      | dog             | `dog.ts`              | chair           |
+| contrabass | hippo           | `hippo.ts`            | stands          |
+| harp       | deer            | `deer.ts`             | stool           |
+| piano      | polar bear      | `polar-bear.ts`       | bench           |
+| flute      | tan fox         | `fox.ts`, tan palette | chair           |
+| oboe       | mouse           | `mouse.ts`            | no chair        |
+| clarinet   | wolf            | `wolf.ts`             | chair           |
+| bassoon    | beaver          | `beaver.ts`           | no chair        |
+| horn       | pig             | `pig.ts`              | chair           |
+| trumpet    | monkey          | `monkey.ts`           | no chair        |
+| trombone   | panda           | `panda.ts`            | chair           |
+| tuba       | rhino           | `rhino.ts`            | stands          |
+| timpani    | elephant        | `elephant.ts`         | stands          |
+| percussion | badger          | `badger.ts`           | stands          |
+| choir      | penguin         | `penguin.ts`          | stands on riser |
+| conductor  | bear            | `bear.ts`             | stands, podium  |
 
 `castScore(score)` of `models/cast.ts` gives each player its species (4.3), its instrument, and
 its support. A drum player gets the instrument of the first key group that it plays, in the
@@ -595,53 +595,39 @@ declare function castScore(score: Score): PlayerCast[];
 The instruments follow the reference images, and their sizes fit the animals. The chairs, the
 stands, and the podium keep their sizes in meters. The arms of each body keep their chosen
 length, and a species with short arms plays a smaller instrument (`SCALED_INSTRUMENTS`, the scale
-fields of `SpeciesParams`), as a child plays a fractional violin or a small lever harp. A violin
-shop sizes a violin so that, with the left arm extended, the scroll lies in the middle of the
-palm (`pnpm hold-reach`).
+fields of `SpeciesParams`), as a child plays a fractional violin or a small lever harp. A smaller
+instrument shrinks toward the mouth or the base, so the mouth keeps its place. A violin shop
+sizes a violin so that, with the left arm extended, the scroll lies in the middle of the palm
+(`pnpm hold-reach`).
 
-- A smaller oboe or bassoon shrinks toward the tip of the reed, and a smaller trumpet toward its
-  mouthpiece, so the mouth keeps its place. A smaller harp shrinks toward its base. A smaller
-  cello has a longer end pin (`endPinLength()`).
-- Where the body sets the hold, the hold or the instrument fits the body: the violin of the red
-  fox and the viola of the cat sit nearer to the neck. The pig turns its horn back toward the
-  body (`PIG_HORN`). The rhino has a longer lead pipe of its tuba (`tubaPipe`). The kettles of the
-  elephant move to its short arms, with a gap for its trunk (`TIMPANI`). The drums of the badger
-  stand within the reach of its short arms, and it plays a suspended cymbal (`cymbalForm`,
-  `SUSPENDED_CYMBAL`). The deer harp leans on its right shoulder, on a box (`HARP_PLACE`,
-  `HARP_STAND`). The choir folder of the penguin hangs at its flippers (`CHOIR_FOLDER`). The keys
-  of the polar bear stand in front of its belly, near enough that its right foot reaches the
-  damper pedal (`PIANO_FRONT_H`).
-- The hold gives the place of each piece in the bind pose of 4.7, in the axes of the model: the
-  player faces -z, and its left is -x. An offset in `H` uses the head height of the player.
+The hold gives the place of each piece in the bind pose of 4.7, in the axes of the model: the
+player faces -z, and its left is -x. An offset in `H` uses the head height of the player. Where
+the body sets the hold, the instrument fits the body, as the table names.
 
-| Instrument | Hold in the bind pose |
+| Instrument | Model and hold |
 | --- | --- |
-| Violin, viola | Under the chin on the left shoulder, the top turned to the audience. The bow stick lies in the right paw (`bowGrip`). |
-| Cello, contrabass | The end pin in front of the seat. The cello leans back between the knees, with the neck left of the head. The contrabass stands at the left side. |
-| Harp | Leaned back onto the right shoulder, both paws on the strings. |
-| Piano | Both paws on the keys. The piano is larger than a real grand piano (`PIANO_SCALE`), so the keys stand a little below the elbows of the large polar bear. |
-| Flute, oboe, clarinet, bassoon | The mouth on the lip plate, the reed, or the mouthpiece. The flute points to the right, and the bassoon crosses the body to the left. |
-| Horn, trumpet, trombone, tuba | The mouthpiece at the mouth. The right paw is in the horn bell. The trombone slide is a second piece in the right paw. |
-| Timpani, drums, xylophone | In an arc or in front of the player, with a mallet, a stick, or a beater in each paw. |
-| Cymbals, small percussion | Crash cymbals in the paws, or a suspended cymbal on a stand. A triangle and a tambourine. |
-| Choir folder | In both flippers, in front of the chest. |
-| Baton | In the right paw, along the index finger, with its grip in the palm, because a conductor holds it so (`BATON_ALONG`). |
+| Violin, viola | An arched body with f-holes, a scroll, a bridge, four strings, and a bow. Under the chin on the left shoulder. The cat plays a small viola near the neck. |
+| Cello, contrabass | The violin form with an end pin (`endPinLength()`). The cello leans back between the knees. The contrabass has sloped shoulders and machine heads, and stands at the left side. |
+| Harp | Leaned back onto the right shoulder. The deer plays a smaller harp on a box (`HARP_PLACE`, `HARP_STAND`). |
+| Piano | Larger than a real grand piano (`PIANO_SCALE`), so the keys stand a little below the elbows of the polar bear. The keys stand in front of its belly (`PIANO_FRONT_H`). |
+| Flute, oboe, clarinet, bassoon | The lip plate, the reed, or the mouthpiece at the mouth. The flute points to the right, and the bassoon crosses the body to the left. |
+| Horn, trumpet, trombone, tuba | The mouthpiece at the mouth. The pig turns its horn back toward the body (`PIG_HORN`), and the rhino has a longer lead pipe (`tubaPipe`). |
+| Timpani | Kettles of the real size in an arc. The kettles of the elephant move to its short arms, with a gap for its trunk (`TIMPANI`). |
+| Percussion | Drums, a xylophone, a triangle, and a tambourine within the reach of the badger, and a suspended cymbal (`cymbalForm`, `SUSPENDED_CYMBAL`). |
+| Choir folder | In both flippers, in front of the chest (`CHOIR_FOLDER`). |
+| Baton | Along the index finger, with its grip in the palm, as a conductor holds it (`BATON_ALONG`). |
 
 Each mallet, stick, and beater slants down toward the line of the forearm, as a real player holds
 the shaft along the thumb (`malletTilt`). No vertex of a player is below the floor.
 
-**Bowed strings** (`models/instruments/strings.ts`). Low-poly copies of real instruments with
-large flat facets: corners at the C-bouts, f-holes, a scroll with pegs, a bridge, and four
-separate strings. The contrabass has the sloped shoulders, the flat back, and the machine heads of
-a real double bass. The strings stay at one height over the board (`VIOLIN`), because the holds
-and the play targets read that height. The neck under the first positions is open below the
-board (`NECK_OPEN`), so the left paw of the hippo does not go through it. The layout reads a
-simple box of each bowed string (`addLayoutSpace()`).
+**Bowed strings** (`models/instruments/strings.ts`). The strings stay at one height over the
+board (`VIOLIN`), because the holds and the play targets read that height. The neck under the
+first positions is open below the board (`NECK_OPEN`), so the left paw of the hippo does not go
+through it. The layout reads a simple box of each bowed string (`addLayoutSpace()`).
 
-**Piano** (`models/instruments/piano.ts`). A case with an open lid, 88 separate keys, a lyre, and
-three brass pedals in the sizes of a real grand piano (`PIANO_PEDALS`). Each key turns down with
-its notes around a line behind the fallboard (`PIANO.keyDip`), and the damper pedal goes down
-under the right foot (5.3).
+**Piano** (`models/instruments/piano.ts`). 88 separate keys, a lyre, and three brass pedals in the
+sizes of a real grand piano (`PIANO_PEDALS`). Each key turns down with its notes (`PIANO.keyDip`),
+and the damper pedal goes down under the right foot (5.3).
 
 ### Instrument data
 
