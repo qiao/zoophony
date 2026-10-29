@@ -1,11 +1,11 @@
 import { MathUtils, Matrix4, Quaternion, Vector3 } from 'three';
 import { INSTRUMENT_COLORS } from '../colors.ts';
 import { IDENTITY, toQuat, toVec3 } from '../tuples.ts';
-import { applyTransform, splitByCentroid, transform } from '../mesh.ts';
+import { applyTransform, transform } from '../mesh.ts';
 import type { Quat, Vec3 } from '../tuples.ts';
 import type { Transform } from '../mesh.ts';
-import { box, cylinder, plate } from '../primitives.ts';
-import type { OutlinePoint, PlateLevel } from '../primitives.ts';
+import { box, cylinder, quad } from '../primitives.ts';
+import type { OutlinePoint } from '../primitives.ts';
 import { DEFAULT_HEAD_HEIGHT } from '../species.ts';
 import { PieceBuilder, hold, pieceSize } from './piece.ts';
 import type { InstrumentModel, InstrumentPiece, PlayTarget } from './types.ts';
@@ -137,45 +137,130 @@ const UPRIGHT_HOLDS = {
 >;
 
 /**
- * The outline of the body around its center, counterclockwise from +y: the upper bout at +x
- * (the neck side), the waist, and the lower bout at -x (the tail side).
+ * The outline of the violin body around its center, from the neck end (+x) along the -z side to
+ * the tail end (-x): the upper bout, the upper corner, the C-bout, the lower corner, and the
+ * lower bout (`docs/research/2026-10-29-string-models.md`). Each corner is a tip and a point on
+ * the line from the tip to the center, so that the outline stays star-shaped around the center
+ * for the fan caps.
  */
-const BODY_HALF: readonly OutlinePoint[] = [
+const VIOLIN_HALF: readonly OutlinePoint[] = [
   [0.12, 0],
-  [0.11, -0.035],
-  [0.085, -0.055],
-  [0.055, -0.057],
-  [0.03, -0.045],
-  [0, -0.04],
-  [-0.03, -0.045],
-  [-0.06, -0.065],
-  [-0.09, -0.068],
-  [-0.11, -0.05],
+  [0.116, -0.022],
+  [0.098, -0.045],
+  [0.068, -0.0566],
+  [0.045, -0.052],
+  [0.032, -0.0475],
+  [0.0278, -0.0413],
+  [0.01, -0.0378],
+  [-0.0135, -0.0434],
+  [-0.016, -0.0515],
+  [-0.035, -0.062],
+  [-0.062, -0.068],
+  [-0.092, -0.062],
+  [-0.112, -0.04],
   [-0.12, 0],
 ];
 
 /**
- * The levels of the body plate, as (scale of the outline, part of the body thickness): a round
- * edge at the back, the ribs, a round edge at the top, and the arch of the top plate.
+ * One level of the body: the outline at a scale around the center, at a part of the body
+ * thickness.
  */
-const BODY_LEVELS: readonly PlateLevel[] = [
-  [0.93, 0],
-  [1, 0.18],
-  [1, 0.76],
-  [0.96, 0.86],
-  [0.8, 0.95],
-  [0.45, 1],
+interface BodyLevel {
+  /** The scale of the outline. */
+  readonly scale: number;
+  /** The height, as a part of the body thickness. */
+  readonly y: number;
+  /**
+   * The color of the band from the level below to this level: the color of the top, or the
+   * darker wood of the edges.
+   */
+  readonly band: 'top' | 'edge';
+}
+
+/**
+ * The levels of the violin body from the back to the top: the arch of the back, the back edge
+ * that stands out over the ribs, the ribs, the top edge that stands out over the ribs, and the
+ * arch of the top. The edges have the darker wood color, so that a dark band goes around the top
+ * and the back, as in `orchestra-latest.png`.
+ */
+const VIOLIN_LEVELS: readonly BodyLevel[] = [
+  { scale: 0.8, y: 0, band: 'top' },
+  { scale: 1, y: 0.13, band: 'top' },
+  { scale: 0.965, y: 0.17, band: 'edge' },
+  { scale: 0.965, y: 0.76, band: 'top' },
+  { scale: 1, y: 0.8, band: 'edge' },
+  { scale: 0.93, y: 0.85, band: 'edge' },
+  { scale: 0.72, y: 0.95, band: 'top' },
+  { scale: 0.45, y: 1, band: 'top' },
 ];
 
-/** The part of the body thickness above which the faces of the body have the top color. */
-const TOP_COLOR_FROM = 0.84;
+/**
+ * Makes a closed outline from its half on the -z side.
+ *
+ * @param half The half from +x to -x, with the two end points on the x axis.
+ * @returns The outline, counterclockwise when seen from +y.
+ */
+function mirrorOutline(half: readonly OutlinePoint[]): OutlinePoint[] {
+  return [
+    ...half,
+    ...half
+      .slice(1, -1)
+      .toReversed()
+      .map(([x, z]): OutlinePoint => [x, -z]),
+  ];
+}
 
-const BODY_OUTLINE: readonly OutlinePoint[] = [
-  ...BODY_HALF,
-  ...BODY_HALF.slice(1, -1)
-    .toReversed()
-    .map(([x, z]): OutlinePoint => [x, -z]),
-];
+/** The faces of the body of a bowed string, by color. */
+interface BodyBands {
+  /** The faces with the color of the top. */
+  readonly top: number[];
+  /** The faces with the darker wood color of the edges. */
+  readonly edge: number[];
+}
+
+/**
+ * Makes the body of a bowed string: the outline at each level, with a fan cap at the back and at
+ * the top.
+ *
+ * @param outline The outline, counterclockwise when seen from +y.
+ * @param levels The levels from the back to the top.
+ * @param thickness The thickness of the body.
+ * @returns The faces by color.
+ */
+function bodyBands(
+  outline: readonly OutlinePoint[],
+  levels: readonly BodyLevel[],
+  thickness: number,
+): BodyBands {
+  const top: number[] = [];
+  const edge: number[] = [];
+  const at = (level: BodyLevel, i: number): Vec3 => {
+    const [x, z] = outline[i % outline.length] ?? [0, 0];
+    return [x * level.scale, level.y * thickness, z * level.scale];
+  };
+  for (let j = 1; j < levels.length; j++) {
+    const lower = levels[j - 1];
+    const upper = levels[j];
+    if (!lower || !upper) {
+      continue;
+    }
+    const out = upper.band === 'top' ? top : edge;
+    for (let i = 0; i < outline.length; i++) {
+      out.push(...quad(at(lower, i), at(lower, i + 1), at(upper, i + 1), at(upper, i)));
+    }
+  }
+  const back = levels[0];
+  const arch = levels.at(-1);
+  for (let i = 0; i < outline.length; i++) {
+    if (back) {
+      top.push(0, back.y * thickness, 0, ...at(back, i + 1), ...at(back, i));
+    }
+    if (arch) {
+      top.push(0, arch.y * thickness, 0, ...at(arch, i), ...at(arch, i + 1));
+    }
+  }
+  return { top, edge };
+}
 
 /**
  * Places a part in a frame. The frame has no scale.
@@ -216,16 +301,11 @@ function addViolinParts(piece: PieceBuilder, frame: Transform, upright: boolean)
     piece.add(corners, color, inFrame(frame, transform(at, rotation)), 'varnish');
   };
 
-  // The body: a plate with round edges and an arched top. The arch has the lighter color of the
-  // top, and the edges and the ribs have the darker wood color, as the varnished instruments of
-  // the polished images.
-  const body = plate(
-    BODY_OUTLINE,
-    BODY_LEVELS.map(([scale, y]): PlateLevel => [scale, y * v.bodyThickness]),
-  );
-  const [arch, sides] = splitByCentroid(body, ([, y]) => y > TOP_COLOR_FROM * v.bodyThickness);
-  part(arch, top, [v.bodyLength / 2, 0, 0]);
-  part(sides, wood, [v.bodyLength / 2, 0, 0]);
+  // The body: the outline with its corners at each level, with the darker edges (design 4.5,
+  // instrument colors).
+  const body = bodyBands(mirrorOutline(VIOLIN_HALF), VIOLIN_LEVELS, v.bodyThickness);
+  part(body.top, top, [v.bodyLength / 2, 0, 0]);
+  part(body.edge, wood, [v.bodyLength / 2, 0, 0]);
   // The f-holes, one at each side of the bridge, a little turned.
   for (const side of [-1, 1]) {
     part(
