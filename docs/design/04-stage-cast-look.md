@@ -380,7 +380,11 @@ bind paws, because the clarinet rest on the knee pronated the left paw far from 
 skin then turns
 in small steps along the arm, and the elbow and the wrist keep their volume. The arms of such a
 mesh are quad tubes (rings at a right angle to the bones), and the weights come from Blender
-(`paintedWeights`), with the rule weights on the bones of `paintedLower`. A segment rig replaces
+(`paintedWeights`), with the rule weights on the bones of `paintedLower`. The rings lie on the
+big flat faces of the user mesh, so they take the ridges between the faces, and the smooth
+shade of the app shows each ridge as a lump. So the wolf, the cat bow arm, and the middles of
+the hippo arms take a few rounds of Taubin smoothing after the weights (`armSmooth`,
+`docs/decisions/2026-10-28-arm-smooth.md`). A segment rig replaces
 `upperTwist`. It can take the shapes of `raise`: the pose of a rule turns the segments and the
 helpers by the rules of the app.
 
