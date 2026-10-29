@@ -496,6 +496,27 @@ const PEG_PROFILE: readonly ProfilePoint[] = [
 const PEG_FLAT = 0.45;
 
 /**
+ * The machine heads of the contrabass, in meters in the violin axes: a brass plate on each side
+ * of the pegbox, and two keys on each plate that point to the back and out, as on a real double
+ * bass.
+ */
+const MACHINES = {
+  /** The middle of each plate along the violin, and its length, height, and thickness. */
+  plate: [0.354, 0.03, 0.016, 0.0012],
+  /** The places of the keys along the violin. */
+  keys: [0.346, 0.362],
+  /** The direction of a key at the +z side: to the back (-y) and out. */
+  keyDirection: [0, -0.8, 0.6],
+  /** The profile of a key from the plate to the tip of its head. */
+  profile: [
+    [0.001, 0],
+    [0.001, 0.006],
+    [0.0045, 0.009],
+    [0, 0.0135],
+  ] satisfies readonly ProfilePoint[],
+} as const;
+
+/**
  * Makes the spiral of the scroll.
  *
  * @returns The corner list.
@@ -799,6 +820,43 @@ function inFrame(frame: Transform, local: Transform): Transform {
 }
 
 /**
+ * Adds the machine heads of the contrabass to a piece: a brass plate on each side of the pegbox,
+ * with two keys.
+ *
+ * @param piece The piece that gets the parts.
+ * @param frame The placement of the violin axes in the piece axes, before the piece scale.
+ * @param y The height of the middle of the pegbox.
+ */
+function addMachines(piece: PieceBuilder, frame: Transform, y: number): void {
+  const m = MACHINES;
+  const [plateX, length, height, thick] = m.plate;
+  const wall = SCROLL.nutRing[0] + thick / 2;
+  for (const side of [-1, 1]) {
+    piece.add(
+      box(length, height, thick),
+      INSTRUMENT_COLORS.brass,
+      inFrame(frame, transform([plateX, y, side * wall])),
+      'metal',
+    );
+    const [dx, dy, dz] = m.keyDirection;
+    const turn = toQuat(
+      new Quaternion().setFromUnitVectors(
+        new Vector3(0, 1, 0),
+        new Vector3(dx, dy, side * dz).normalize(),
+      ),
+    );
+    for (const x of m.keys) {
+      piece.add(
+        lathe(m.profile, 4),
+        INSTRUMENT_COLORS.brass,
+        inFrame(frame, transform([x, y, side * (wall + thick / 2)], turn, [1, 1, PEG_FLAT])),
+        'metal',
+      );
+    }
+  }
+}
+
+/**
  * Adds the parts of the violin model to a piece. In the violin axes, the violin runs along +x
  * from the tail end at the origin to the scroll. The top plate faces +y, and the bottom of the
  * body is at y = 0.
@@ -878,7 +936,10 @@ function addViolinParts(piece: PieceBuilder, frame: Transform, form: StringForm)
     toQuat(new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), Math.PI / 2)),
   );
   const pegY = (sc.nutRing[1] + sc.nutRing[2]) / 2;
-  for (const [x, side] of PEGS) {
+  if (bass) {
+    addMachines(piece, frame, pegY);
+  }
+  for (const [x, side] of bass ? [] : PEGS) {
     const turn = toQuat(
       new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), (side * Math.PI) / 2),
     );
