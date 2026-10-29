@@ -605,7 +605,9 @@ the shaft along the thumb (`malletTilt`). No vertex of a player is below the flo
 board (`VIOLIN`), because the holds and the play targets read that height. The neck under the
 first positions is open below the board (`NECK_OPEN`), so the left paw of the hippo does not go
 through it. The chin rest of the violin and the viola is at the left of the tailpiece, on the side
-of the G string (`CHIN_REST`), because a violinist rests the left side of the jaw on it. The layout
+of the G string (`CHIN_REST`), because a violinist rests the left side of the jaw on it. The
+strings of the violin and the viola have a triangle section (`STRING_SECTION`), because they are
+about 1 mm thick on the stage, and the triangles go to other parts of the budget. The layout
 reads a simple box of each bowed string (`addLayoutSpace()`), so a change of the detail does not
 move the seats.
 

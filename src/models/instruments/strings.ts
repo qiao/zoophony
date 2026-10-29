@@ -720,25 +720,50 @@ const STRINGS = {
 } as const;
 
 /**
- * Makes one straight piece of a string: a thin square rod with no end caps, because its ends are
- * inside the tailpiece, the bridge, or the nut.
+ * The corners of the section of a string rod, in half string sizes across the string and up: a
+ * square, or a triangle with a flat top of the same width and the point down.
+ */
+const STRING_SECTIONS = {
+  square: [
+    [-1, -1],
+    [-1, 1],
+    [1, 1],
+    [1, -1],
+  ],
+  triangle: [
+    [-1, 0.577],
+    [1, 0.577],
+    [0, -1.155],
+  ],
+} as const;
+
+/**
+ * The section of the strings of each form. The strings of the violin and the viola are
+ * triangles, because they are about 1 mm thick on the stage. Thus the violin keeps 16 triangles
+ * of its triangle budget for other parts (design 4.6).
+ */
+const STRING_SECTION = {
+  violin: 'triangle',
+  cello: 'square',
+  contrabass: 'square',
+} as const satisfies Record<StringForm, keyof typeof STRING_SECTIONS>;
+
+/**
+ * Makes one straight piece of a string: a thin rod with no end caps, because its ends are inside
+ * the tailpiece, the bridge, or the nut.
  *
  * @param from The middle of the first end.
  * @param to The middle of the last end.
- * @returns 8 triangles.
+ * @param section The corners of the section of the rod ({@link STRING_SECTIONS}).
+ * @returns 2 triangles for each corner of the section.
  */
-function strand(from: Vec3, to: Vec3): number[] {
+function strand(from: Vec3, to: Vec3, section: readonly (readonly [number, number])[]): number[] {
   const along = new Vector3(...to).sub(new Vector3(...from)).normalize();
   const side = new Vector3().crossVectors(along, new Vector3(0, 1, 0)).normalize();
   const up = new Vector3().crossVectors(side, along);
   const half = STRING_SIZE / 2;
   const ring = (p: Vec3): Vec3[] =>
-    [
-      [-1, -1],
-      [-1, 1],
-      [1, 1],
-      [1, -1],
-    ].map(([a = 0, b = 0]) =>
+    section.map(([a, b]) =>
       toVec3(new Vector3(...p).addScaledVector(side, a * half).addScaledVector(up, b * half)),
     );
   return sweep([ring(from), ring(to)], false);
@@ -1161,6 +1186,7 @@ function addViolinParts(piece: PieceBuilder, frame: Transform, form: StringForm)
   // The four strings, from the end of the tailpiece over the bridge to the nut (design 4.5,
   // instrument colors).
   const st = STRINGS;
+  const section = STRING_SECTIONS[STRING_SECTION[form]];
   const strings: number[] = [];
   const middle = v.stringHeight - STRING_SIZE / 2;
   for (let i = 0; i < 4; i++) {
@@ -1173,7 +1199,7 @@ function addViolinParts(piece: PieceBuilder, frame: Transform, form: StringForm)
       share * (v.stringsWidth - STRING_SIZE),
     ];
     const nut: Vec3 = [v.nut, middle - st.nutDrop[outer], share * st.nutSpan];
-    strings.push(...strand(tail, bridge), ...strand(bridge, nut));
+    strings.push(...strand(tail, bridge, section), ...strand(bridge, nut, section));
   }
   piece.add(strings, INSTRUMENT_COLORS.strings, inFrame(frame, transform()));
 }
