@@ -54,7 +54,7 @@ import { MAX_WEBP_BYTES, openDrawer, openShot, startSite, toWebp } from './scree
 import type { Site } from './screenshots.ts';
 
 /** One view of a close view: the turn of the gallery camera around the animal. */
-export interface CloseViewAngle {
+interface CloseViewAngle {
   /** The name of the view in the file names and the labels, such as `front` or `keys`. */
   readonly name: string;
   /**
@@ -70,7 +70,7 @@ export interface CloseViewAngle {
  * One moment of a close view: a time of the gallery time slider in the test notes of the role,
  * the rest pose of design 5.2, or a point of the lift or of the lowering between them.
  */
-export interface CloseMoment {
+interface CloseMoment {
   /** The name of the moment in the file names and the labels. */
   readonly name: string;
   /** The time of the slider, in seconds. The rest pose ignores it. */
@@ -106,7 +106,7 @@ function halfMoves(time: number): CloseMoment[] {
  * body gives the vertical line, the target, and the distance at the zoom 1. A new role needs no
  * other value.
  */
-export interface BodyCamera {
+interface BodyCamera {
   /** The kind of the camera. */
   readonly kind: 'body';
   /** The zoom of the camera, 1 or more: 1 shows the whole body. */
@@ -121,7 +121,7 @@ export interface BodyCamera {
 }
 
 /** The camera of a close view around a fixed vertical line of the gallery (`closeView()`). */
-export interface LineCamera {
+interface LineCamera {
   /** The kind of the camera. */
   readonly kind: 'line';
   /** The zoom of the camera, 1 or more. */
@@ -137,7 +137,7 @@ export interface LineCamera {
 }
 
 /** The close view of one role of the gallery. */
-export interface RoleViews {
+interface RoleViews {
   /** The species of the role, which the query `only` selects. */
   readonly species: SpeciesId;
   /**
@@ -164,7 +164,7 @@ export interface RoleViews {
  * penguin singer, or the badger bass drummer, snare drummer, cymbalist, percussionist, or
  * xylophonist.
  */
-export type CloseRole =
+type CloseRole =
   | 'conductor'
   | 'pianist'
   | 'harpist'
@@ -784,13 +784,13 @@ export const ROLE_VIEWS: Readonly<Record<CloseRole, RoleViews>> = {
 export const SERVER_PORT = 4300;
 
 /** The zoom of the face crops of `--target head`, from the distance that shows the whole body. */
-export const HEAD_ZOOM = 3;
+const HEAD_ZOOM = 3;
 
 /** The angle of the camera of the face crops above the floor, in degrees. */
-export const HEAD_ELEVATION = 10;
+const HEAD_ELEVATION = 10;
 
 /** The views of the face crops of `--target head`: the front, 60° to the right, and the side. */
-export const HEAD_VIEWS: readonly CloseViewAngle[] = [
+const HEAD_VIEWS: readonly CloseViewAngle[] = [
   { name: 'front', azimuth: 0 },
   { name: 'front-60', azimuth: 60 },
   { name: 'side', azimuth: 90 },
@@ -804,7 +804,7 @@ export const HEAD_VIEWS: readonly CloseViewAngle[] = [
  * @param role The close view of the role.
  * @returns The close view of the face crops.
  */
-export function headViews(role: RoleViews): RoleViews {
+function headViews(role: RoleViews): RoleViews {
   const rest = role.moments.find((moment) => moment.rest);
   const note = role.moments.find((moment) => !moment.rest && !moment.move && !moment.stand);
   return {
@@ -816,7 +816,7 @@ export function headViews(role: RoleViews): RoleViews {
 }
 
 /** The size of one cell of the close view, in CSS pixels. */
-export const CELL = { width: 360, height: 450 } as const;
+const CELL = { width: 360, height: 450 } as const;
 
 /**
  * The illuminance of the light from the camera of each close view (the gallery query `fill`), in
@@ -1005,7 +1005,7 @@ export function roleOf(name: string | undefined): CloseRole | null {
 }
 
 /** The command line of the close views. */
-export interface CloseViewsArgs {
+interface CloseViewsArgs {
   /** The role. */
   readonly role: CloseRole;
   /** The output directory. */
@@ -1062,7 +1062,7 @@ export interface CloseViewsArgs {
 }
 
 /** The lineup of the close views of a role (`--lineup`). */
-export interface RoleLineup {
+interface RoleLineup {
   /** The other roles of `--with`, one row each, from the working tree. */
   readonly roles: readonly CloseRole[];
   /** The factor of `--crop <n>`: 1 for the whole cells, or 2 or 3 for crops of the box at n times. */
@@ -1077,16 +1077,16 @@ export interface RoleLineup {
 }
 
 /** The views of the lineup with no `--views`: the front, the back, and each side. */
-export const LINEUP_VIEWS: readonly string[] = ['front', 'back', 'left', 'right'];
+const LINEUP_VIEWS: readonly string[] = ['front', 'back', 'left', 'right'];
 
 /** The box of the crops of the lineup with no `--box`: the arms and the upper body at zoom 1.5. */
-export const LINEUP_BOX: CropBox = { x: 0.1, y: 0.25, width: 0.8, height: 0.5 };
+const LINEUP_BOX: CropBox = { x: 0.1, y: 0.25, width: 0.8, height: 0.5 };
 
 /** The box of the whole cell: a cell of `--sheet` with no `--box`, or a pair with no `--crop`. */
-export const WHOLE_CELL: CropBox = { x: 0, y: 0, width: 1, height: 1 };
+const WHOLE_CELL: CropBox = { x: 0, y: 0, width: 1, height: 1 };
 
 /** The views that each role has by name in `--views`, with their turns of the camera. */
-export const NAMED_VIEWS: readonly CloseViewAngle[] = [
+const NAMED_VIEWS: readonly CloseViewAngle[] = [
   { name: 'front', azimuth: 0 },
   { name: 'back', azimuth: 180 },
   { name: 'left', azimuth: -90 },
@@ -1102,7 +1102,7 @@ export const NAMED_VIEWS: readonly CloseViewAngle[] = [
  * @returns The views, in their order.
  * @throws Error for an unknown name or a view that comes two times.
  */
-export function viewList(role: RoleViews, value: string): CloseViewAngle[] {
+function viewList(role: RoleViews, value: string): CloseViewAngle[] {
   const views = value.split(',').map((name): CloseViewAngle => {
     const own = [...role.views, ...NAMED_VIEWS].find((view) => view.name === name);
     if (own) {
@@ -1130,7 +1130,7 @@ export function viewList(role: RoleViews, value: string): CloseViewAngle[] {
  * @param role The close view of the role.
  * @returns The names of the moments.
  */
-export function lineupMoments(role: RoleViews): string[] {
+function lineupMoments(role: RoleViews): string[] {
   const [first] = role.moments;
   const rest = role.moments.find((moment) => moment.rest);
   return [first, rest].flatMap((moment, i, all) =>
@@ -1146,7 +1146,7 @@ export function lineupMoments(role: RoleViews): string[] {
  * @param moment The moment of the role.
  * @returns The moment of the other role.
  */
-export function partnerMoment(role: RoleViews, moment: CloseMoment): CloseMoment {
+function partnerMoment(role: RoleViews, moment: CloseMoment): CloseMoment {
   const same = role.moments.find((own) => own.name === moment.name);
   const rest = role.moments.find((own) => own.rest);
   const [first] = role.moments;
@@ -1165,7 +1165,7 @@ export function partnerMoment(role: RoleViews, moment: CloseMoment): CloseMoment
  * @returns The probes, in their order.
  * @throws Error that lists the probes, for an unknown probe or a probe that comes two times.
  */
-export function probesOf(value: string): GalleryProbe[] {
+function probesOf(value: string): GalleryProbe[] {
   const probes = value
     .split(',')
     .flatMap((name) => GALLERY_PROBES.filter((probe) => probe === name));
@@ -1181,7 +1181,7 @@ export function probesOf(value: string): GalleryProbe[] {
  * A box of a cell, as shares of the width and the height of the cell, from its top left corner:
  * the same box at each `--scale`.
  */
-export interface CropBox {
+interface CropBox {
   /** The left side, from 0 to 1. */
   readonly x: number;
   /** The top side, from 0 to 1. */
@@ -1200,7 +1200,7 @@ export interface CropBox {
  * @returns The box.
  * @throws Error if the text has not four numbers, or if the box is not inside the cell.
  */
-export function cropOf(value: string): CropBox {
+function cropOf(value: string): CropBox {
   const parts = value.split(',').map((part) => (part.trim() === '' ? Number.NaN : Number(part)));
   const [x = Number.NaN, y = Number.NaN, width = Number.NaN, height = Number.NaN] = parts;
   const inside =
@@ -1229,7 +1229,7 @@ export function cropOf(value: string): CropBox {
  * @returns The cells, as `<moment>-<view>`, in the order of the grid.
  * @throws Error if a name names no view and no cell of the role.
  */
-export function pairCells(role: RoleViews, names: readonly string[]): string[] {
+function pairCells(role: RoleViews, names: readonly string[]): string[] {
   const cells = role.moments.flatMap((moment) =>
     role.views.map((view) => ({ cell: `${moment.name}-${view.name}`, view: view.name })),
   );
@@ -1247,7 +1247,7 @@ export function pairCells(role: RoleViews, names: readonly string[]): string[] {
 }
 
 /** The largest factor of the cell size of `--scale`: the grid of a role stays below 16,384 px. */
-export const MAX_SCALE = 3;
+const MAX_SCALE = 3;
 
 /**
  * Reads the factor of the cell size of `--scale`.
@@ -1256,7 +1256,7 @@ export const MAX_SCALE = 3;
  * @returns The factor: 1 with no option.
  * @throws Error if the factor is not a number above 0 and at most {@link MAX_SCALE}.
  */
-export function scaleOf(value: string | null): number {
+function scaleOf(value: string | null): number {
   if (value === null) {
     return 1;
   }
@@ -1616,7 +1616,7 @@ async function pairImage(
  * @param args The zoom, the elevation, the target, the views, and the moments of the command line.
  * @returns The close view.
  */
-export function roleCamera(
+function roleCamera(
   role: RoleViews,
   args: Pick<CloseViewsArgs, 'zoom' | 'elevation' | 'target'> &
     Partial<Pick<CloseViewsArgs, 'views' | 'moments'>>,
@@ -1646,7 +1646,7 @@ export function roleCamera(
  * @param scale The factor of `--scale`.
  * @returns The size, in CSS pixels: {@link CELL} at the factor 1.
  */
-export function roleCell(scale: number): CellSize {
+function roleCell(scale: number): CellSize {
   return { width: Math.round(CELL.width * scale), height: Math.round(CELL.height * scale) };
 }
 
@@ -2099,7 +2099,7 @@ export interface RowBox {
 }
 
 /** The camera of a lineup, from the front at {@link LINEUP_ELEVATION}. */
-export interface LineupCamera {
+interface LineupCamera {
   /** The height of the point that the camera looks at, in meters. */
   readonly target: number;
   /** The distance of the camera from that point, in meters. */
@@ -2156,7 +2156,7 @@ export function lineupPath(species: readonly SpeciesId[], camera: LineupCamera |
 }
 
 /** The command line of a lineup. */
-export interface LineupArgs {
+interface LineupArgs {
   /** The species of the lineup. */
   readonly species: readonly SpeciesId[];
   /** The output directory. */
@@ -2335,7 +2335,7 @@ async function lineupViews(args: LineupArgs, site: TreeSite): Promise<CommitRend
 }
 
 /** The command line of a mode after its name: its words and the values of its options. */
-export interface ModeLine {
+interface ModeLine {
   /** The arguments that are not options or values of options, in their order. */
   readonly words: readonly string[];
   /** The values of each option that the command line gives, in their order. */
@@ -2357,7 +2357,7 @@ export interface ModeLine {
  * @throws Error for an option that the mode does not know, an option with no value, or an option
  *   or a flag that comes two times and cannot repeat.
  */
-export function modeLine(
+function modeLine(
   args: readonly string[],
   known: readonly string[],
   repeated: readonly string[] = [],
@@ -2410,7 +2410,7 @@ export function modeLine(
  * @throws Error if the role has no moment of the name and the name is no share of a move of the
  *   role.
  */
-export function roleMoment(role: RoleViews, name: string): CloseMoment {
+function roleMoment(role: RoleViews, name: string): CloseMoment {
   const own = role.moments.find((moment) => moment.name === name);
   const found = /^(lift|lower)(\d{1,3})$/.exec(name);
   const moves = role.moments.find((moment) => moment.move);
@@ -2431,7 +2431,7 @@ export function roleMoment(role: RoleViews, name: string): CloseMoment {
  * @returns The item.
  * @throws Error that lists the names of the items, for a name that no item has.
  */
-export function namedItem<T extends { readonly name: string }>(
+function namedItem<T extends { readonly name: string }>(
   name: string,
   items: readonly T[],
   kind: string,
@@ -2456,7 +2456,7 @@ export function namedItem<T extends { readonly name: string }>(
  * camera of the stage looks at the players from behind and above (`docs/agents/workflow.md`,
  * "Images of a mesh").
  */
-export const SPECIES_VIEWS: readonly CloseViewAngle[] = [
+const SPECIES_VIEWS: readonly CloseViewAngle[] = [
   { name: 'front', azimuth: 0, elevation: 10 },
   { name: 'front35', azimuth: 35, elevation: 10 },
   { name: 'front60', azimuth: 60, elevation: 10 },
@@ -2469,13 +2469,13 @@ export const SPECIES_VIEWS: readonly CloseViewAngle[] = [
 ];
 
 /** The views of the mode `species` with no `--views`. */
-export const DEFAULT_SPECIES_VIEWS: readonly string[] = ['side', 'front35'];
+const DEFAULT_SPECIES_VIEWS: readonly string[] = ['side', 'front35'];
 
 /**
  * The moments of the mode `species`: `play`, the playing pose at the time 0 of the default test
  * notes of the gallery, and `rest`, the rest pose of design 5.2 (the gallery query `rest`).
  */
-export const SPECIES_MOMENTS: readonly CloseMoment[] = [
+const SPECIES_MOMENTS: readonly CloseMoment[] = [
   { name: 'play', time: 0, rest: false },
   { name: 'rest', time: 0, rest: true },
 ];
@@ -2494,7 +2494,7 @@ const MOVE_MOMENT = /^(lift|lower)(0|[1-9]\d?|100)$/;
  * @returns The moment.
  * @throws Error that lists the correct names, for a name that is not a moment.
  */
-export function speciesMoment(name: string): CloseMoment {
+function speciesMoment(name: string): CloseMoment {
   const named = SPECIES_MOMENTS.find((moment) => moment.name === name);
   if (named) {
     return named;
@@ -2520,10 +2520,10 @@ const SPECIES_CAMERA: BodyCamera = { kind: 'body', zoom: 1, elevation: 10 };
  * The largest elevation of `--elevation`, in degrees: the gallery limits the elevation of a close
  * view to 0° to 89° (`closeView()` of `src/gallery/items.ts`).
  */
-export const MAX_ELEVATION = 89;
+const MAX_ELEVATION = 89;
 
 /** The command line of the mode `species`. */
-export interface SpeciesArgs {
+interface SpeciesArgs {
   /** The species, one row of the grid each. */
   readonly species: readonly SpeciesId[];
   /** The views, one column of the grid each. */
@@ -2555,7 +2555,7 @@ export interface SpeciesArgs {
  * @returns The zoom: 1 with no option.
  * @throws Error if the zoom is not a number of 1 or more.
  */
-export function zoomOf(value: string | undefined): number {
+function zoomOf(value: string | undefined): number {
   if (value === undefined) {
     return 1;
   }
@@ -2575,7 +2575,7 @@ export function zoomOf(value: string | undefined): number {
  * @returns The elevation in degrees, or `null` with no option.
  * @throws Error if the elevation is not a number from 0 to {@link MAX_ELEVATION}.
  */
-export function elevationOf(value: string | undefined): number | null {
+function elevationOf(value: string | undefined): number | null {
   if (value === undefined) {
     return null;
   }
@@ -2593,7 +2593,7 @@ export function elevationOf(value: string | undefined): number | null {
  *
  * @returns The species, each one time.
  */
-export function gallerySpecies(): SpeciesId[] {
+function gallerySpecies(): SpeciesId[] {
   return [...new Set(speciesItems().map((item) => item.species))];
 }
 
@@ -2606,7 +2606,7 @@ export function gallerySpecies(): SpeciesId[] {
  * @throws Error that lists the correct names, for an unknown species, view, or moment, and an
  *   error for a wrong option, a zoom or an elevation that does not fit, or a missing word.
  */
-export function speciesArgs(args: readonly string[]): SpeciesArgs | null {
+function speciesArgs(args: readonly string[]): SpeciesArgs | null {
   if (args[0] !== 'species') {
     return null;
   }
@@ -2648,7 +2648,7 @@ export function speciesArgs(args: readonly string[]): SpeciesArgs | null {
  * @param args The command line.
  * @returns The views, the moment, and the camera.
  */
-export function speciesRole(species: SpeciesId, args: SpeciesArgs): RoleViews {
+function speciesRole(species: SpeciesId, args: SpeciesArgs): RoleViews {
   const { elevation } = args;
   const items = speciesItems().filter((item) => item.species === species);
   const role: RoleViews = {
@@ -2668,7 +2668,7 @@ export function speciesRole(species: SpeciesId, args: SpeciesArgs): RoleViews {
  * @param args The command line.
  * @returns The text, such as `, zoom 3, 20°`, or empty with no `--zoom` and no `--elevation`.
  */
-export function speciesCameraText(args: Pick<SpeciesArgs, 'zoom' | 'elevation'>): string {
+function speciesCameraText(args: Pick<SpeciesArgs, 'zoom' | 'elevation'>): string {
   const zoom = args.zoom === 1 ? '' : `, zoom ${args.zoom}`;
   const elevation = args.elevation === null ? '' : `, ${args.elevation}°`;
   return `${zoom}${elevation}`;
@@ -2683,7 +2683,7 @@ export function speciesCameraText(args: Pick<SpeciesArgs, 'zoom' | 'elevation'>)
  * @param columns The number of columns.
  * @returns The cells of both grids, row by row.
  */
-export function rowsInTurns<T>(before: readonly T[], after: readonly T[], columns: number): T[] {
+function rowsInTurns<T>(before: readonly T[], after: readonly T[], columns: number): T[] {
   const cells: T[] = [];
   for (let start = 0; start < after.length; start += columns) {
     cells.push(...before.slice(start, start + columns), ...after.slice(start, start + columns));
@@ -2759,7 +2759,7 @@ async function speciesViews(args: SpeciesArgs, site: TreeSite): Promise<CommitRe
  * after "Reset view" (design 2.5), as a person moves it with the pointer and the wheel. A drag of
  * the height of the canvas turns the camera 360° (the rotate speed 1 of the orbit controls).
  */
-export interface PlayCamera {
+interface PlayCamera {
   /**
    * The name of the camera in the file names and the labels: a label of `--camera-file`, or a name
    * from the camera.
@@ -2778,7 +2778,7 @@ export interface PlayCamera {
 }
 
 /** The view of a camera of `--at` at one player of the demo. */
-export interface AimView {
+interface AimView {
   /**
    * The turn of the camera to the right side of the player, in degrees. 0 is the front of the
    * player, as in a close view of the gallery.
@@ -2846,14 +2846,14 @@ export function aimPose(
  * - `orchestra`: the default view, a little lower and closer, so that the stage fills the frame
  *   as in `orchestra-latest.png`. `pnpm look-lab` measures its regions against that image.
  */
-export const PLAY_CAMERAS: readonly PlayCamera[] = [
+const PLAY_CAMERAS: readonly PlayCamera[] = [
   { name: 'default', dx: 0, dy: 0, wheel: 0 },
   { name: 'violins', dx: 45, dy: -60, wheel: 12 },
   { name: 'orchestra', dx: 0, dy: -15, wheel: 5 },
 ];
 
 /** The song time of the play frame with no `--time`, in seconds, as `pnpm screenshots --play`. */
-export const PLAY_TIME_SEC = 6;
+const PLAY_TIME_SEC = 6;
 
 /**
  * The size of a play frame with no `--size`, in CSS pixels: the size of the reference images of
@@ -2873,7 +2873,7 @@ const PLAY_SIZE_RANGE = [320, 4096] as const;
  * @returns The size.
  * @throws Error for a text that is not a size, or a side outside {@link PLAY_SIZE_RANGE}.
  */
-export function playSize(text: string): CellSize {
+function playSize(text: string): CellSize {
   const match = /^(\d+)x(\d+)$/.exec(text);
   const [low, high] = PLAY_SIZE_RANGE;
   const sides = match ? [Number(match[1]), Number(match[2])] : [];
@@ -2887,7 +2887,7 @@ export function playSize(text: string): CellSize {
 }
 
 /** The size of one cell of a grid, in CSS pixels. */
-export interface CellSize {
+interface CellSize {
   /** The width. */
   readonly width: number;
   /** The height. */
@@ -2904,7 +2904,7 @@ export interface CellSize {
  * @param frame The size of a play frame, in CSS pixels.
  * @returns The size of one cell, in CSS pixels.
  */
-export function playCell(columns: number, frame: CellSize = PLAY_FRAME): CellSize {
+function playCell(columns: number, frame: CellSize = PLAY_FRAME): CellSize {
   const scale = Math.min(2 / 3, 4 / 3 / Math.max(1, columns));
   return {
     width: Math.round(frame.width * scale),
@@ -2925,13 +2925,13 @@ const SEEK_LEAD_SEC = BAR_HIDE_SEC + 1;
  * The camera of `--cinematic`: the camera of the shot plan of the app at the song time (Cinematic
  * mode, design 2.5, 5.6), with no "Reset view", no drag, and no wheel.
  */
-export const CINEMATIC_CAMERA: PlayCamera = { name: 'cinematic', dx: 0, dy: 0, wheel: 0 };
+const CINEMATIC_CAMERA: PlayCamera = { name: 'cinematic', dx: 0, dy: 0, wheel: 0 };
 
 /**
  * The subject of `--shot` and `--at`: a seat of the score, or each seat of a species, or of a
  * species with one instrument.
  */
-export type ShotSubject =
+type ShotSubject =
   | {
       /** A seat. */
       readonly kind: 'seat';
@@ -2982,7 +2982,7 @@ function isSubjectPlayer(subject: ShotSubject, cast: PlayerPlace['cast']): boole
 }
 
 /** The time of the frames of the mode `play`. */
-export type PlayTime =
+type PlayTime =
   | {
       /** A song time of `--time`, or {@link PLAY_TIME_SEC}. */
       readonly kind: 'song';
@@ -3000,7 +3000,7 @@ export type PlayTime =
     };
 
 /** The command line of the mode `play`. */
-export interface PlayArgs {
+interface PlayArgs {
   /** The demo, or the default demo with `--midi`. */
   readonly demo: DemoId;
   /**
@@ -3077,7 +3077,7 @@ interface CameraJson {
  * @returns The camera.
  * @throws Error for a text that is not such an object.
  */
-export function jsonCamera(text: string): PlayCamera {
+function jsonCamera(text: string): PlayCamera {
   let parsed: CameraJson | null = null;
   try {
     // SAFETY: the text comes from the command line, and the checks below read each field.
@@ -3133,7 +3133,7 @@ async function resetView(page: Page): Promise<void> {
  * @returns The camera.
  * @throws Error that lists the names of the cameras, for a text that is not a camera.
  */
-export function playCamera(text: string): PlayCamera {
+function playCamera(text: string): PlayCamera {
   if (text.trimStart().startsWith('{')) {
     return jsonCamera(text);
   }
@@ -3166,7 +3166,7 @@ const CAMERA_LABEL = /^[A-Za-z0-9][A-Za-z0-9._-]*$/;
  * @throws Error that names the file, if it cannot be read, holds no object with a camera, has a
  *   label that is not a part of a file name, or has a camera that {@link playCamera} refuses.
  */
-export function cameraFile(path: string): PlayCamera[] {
+function cameraFile(path: string): PlayCamera[] {
   let parsed: Readonly<Record<string, string | CameraJson>> | null = null;
   try {
     // SAFETY: the file comes from the command line, and the checks below read each entry.
@@ -3321,7 +3321,7 @@ export function playTimeDir(out: string, sec: number): string {
  * @param index The index of the variant, from 0.
  * @returns The folder.
  */
-export function playSetDir(out: string, index: number): string {
+function playSetDir(out: string, index: number): string {
   return join(out, `set-${index + 1}`);
 }
 
@@ -3335,7 +3335,7 @@ export function playSetDir(out: string, index: number): string {
  * @param args The command line.
  * @returns The command line of each part, by variant, then in the order of the times.
  */
-export function playParts(args: PlayArgs): PlayArgs[] {
+function playParts(args: PlayArgs): PlayArgs[] {
   const variants: PlayArgs[] = [];
   if (args.holds.length > 1) {
     for (const index of args.holds.keys()) {
@@ -3390,7 +3390,7 @@ export function playParts(args: PlayArgs): PlayArgs[] {
  *   option of `--at` with no `--at`, `--pause` with `--strip` or `--shot`, a wrong option, or a
  *   missing word.
  */
-export function playArgs(args: readonly string[]): PlayArgs | null {
+function playArgs(args: readonly string[]): PlayArgs | null {
   if (args[0] !== 'play') {
     return null;
   }
@@ -3547,7 +3547,7 @@ export function playArgs(args: readonly string[]): PlayArgs | null {
 }
 
 /** The most frames of `--strip`. */
-export const STRIP_LIMIT = 120;
+const STRIP_LIMIT = 120;
 
 /**
  * Reads the times of `--strip <from>:<step>:<count>`: `<count>` song times from `<from>` at steps
@@ -3559,7 +3559,7 @@ export const STRIP_LIMIT = 120;
  * @throws Error for a text of another form, a step that is not above 0, a count that is not a
  *   whole number from 1 to {@link STRIP_LIMIT}, or a last time at or after the end of the piece.
  */
-export function stripTimes(text: string, lengthSec: number): number[] {
+function stripTimes(text: string, lengthSec: number): number[] {
   const found = /^(\d+(?:\.\d+)?):(\d+(?:\.\d+)?):(\d+)$/.exec(text);
   const [from, step, count] = [Number(found?.[1]), Number(found?.[2]), Number(found?.[3])];
   if (!found || !(step > 0) || count < 1 || count > STRIP_LIMIT) {
@@ -3625,10 +3625,10 @@ function aimCamerasOf(text: string, options: ReadonlyMap<string, readonly string
 }
 
 /** The share of a shot at the frame of `--shot`: the middle, after the blend from the shot before. */
-export const SHOT_FRAME_SHARE = 0.5;
+const SHOT_FRAME_SHARE = 0.5;
 
 /** The shot of `--shot` in the shot plan of a demo. */
-export interface ChosenShot {
+interface ChosenShot {
   /** The shot, from `prepareShots()` with the seed of the app. */
   readonly shot: Shot;
   /** The species of the players of each seat of the shot, in the order of the seats. */
@@ -3649,7 +3649,7 @@ export interface ChosenShot {
  * @param subject The subject.
  * @returns The shot, or `undefined` when no solo or section shot has the subject.
  */
-export function firstShotOf(
+function firstShotOf(
   shots: readonly Shot[],
   players: readonly PlayerPlace[],
   subject: ShotSubject,
@@ -3745,7 +3745,7 @@ async function demoLayout(demo: DemoId, midi: string | null): Promise<DemoLayout
  * @throws Error when the demo is not valid, when no solo or section shot has the subject, or when
  *   the time of the frame is not a time of a play frame ({@link frameTime}).
  */
-export async function chooseShot(
+async function chooseShot(
   demo: DemoId,
   subject: ShotSubject,
   midi: string | null = null,
@@ -3774,7 +3774,7 @@ export async function chooseShot(
  * @param chosen The shot.
  * @returns The text, such as `solo of the seat 4 (hippo), 232.03 s to 237.03 s`.
  */
-export function chosenShotText(demo: string, chosen: ChosenShot): string {
+function chosenShotText(demo: string, chosen: ChosenShot): string {
   const { shot } = chosen;
   const seats = shot.seats.map((seat, i) => `${seat} (${chosen.species[i] ?? '?'})`).join(', ');
   const noun = shot.seats.length === 1 ? 'the seat' : 'the seats';
@@ -3783,7 +3783,7 @@ export function chosenShotText(demo: string, chosen: ChosenShot): string {
 }
 
 /** The player of `--at` on the stage of a demo. */
-export interface AimTarget {
+interface AimTarget {
   /** The place of the player. */
   readonly place: PlayerPlace;
   /** The box of its body, in the axes of its model (`bodyBoundsOf()`). */
@@ -4636,10 +4636,10 @@ async function playViews(args: PlayArgs, site: TreeSite): Promise<CommitRender> 
 }
 
 /** The first argument that only checks the command line: the tool then builds and renders nothing. */
-export const CHECK_FLAG = '--check';
+const CHECK_FLAG = '--check';
 
 /** The command line of one mode of the tool that renders images: a role, a lineup, or a view. */
-export type SingleMode =
+type SingleMode =
   | {
       /** The close view of a role. */
       readonly kind: 'role';
@@ -4666,7 +4666,7 @@ export type SingleMode =
     };
 
 /** The command line of the mode `batch`: single modes that share one build of each tree. */
-export interface BatchArgs {
+interface BatchArgs {
   /** The single modes, in their order, each with its own folder under the output directory. */
   readonly parts: readonly SingleMode[];
   /** The output directory. */
@@ -4678,7 +4678,7 @@ export interface BatchArgs {
 }
 
 /** The command line of the tool: one single mode, or a batch of single modes. */
-export type CloseMode =
+type CloseMode =
   | SingleMode
   | {
       /** Single modes that share one build of each tree. */
@@ -4688,7 +4688,7 @@ export type CloseMode =
     };
 
 /** The moments of the species of a batch with no `--moments`: the playing pose and the rest pose. */
-export const DEFAULT_BATCH_MOMENTS: readonly string[] = ['play', 'rest'];
+const DEFAULT_BATCH_MOMENTS: readonly string[] = ['play', 'rest'];
 
 /**
  * Checks that each name of a list comes one time, because two parts with one name write the same
@@ -4745,7 +4745,7 @@ function partMode(args: readonly string[]): SingleMode {
  *   or camera, and an error for a wrong option, a name or a zoom that comes two times, an option
  *   with no part, a batch with no part, or a missing word.
  */
-export function batchArgs(args: readonly string[]): BatchArgs | null {
+function batchArgs(args: readonly string[]): BatchArgs | null {
   if (args[0] !== 'batch') {
     return null;
   }
@@ -4843,19 +4843,19 @@ export function batchArgs(args: readonly string[]): BatchArgs | null {
 }
 
 /** The views of the mode `audit`: the back and 30° to each side of it first, then the four sides. */
-export const AUDIT_VIEWS: readonly string[] = ['back', '150', '-150', 'front', 'left', 'right'];
+const AUDIT_VIEWS: readonly string[] = ['back', '150', '-150', 'front', 'left', 'right'];
 
 /**
  * The camera heights of the mode `audit`, in degrees above the floor: a dent at the root of the
  * arm shows best from above.
  */
-export const AUDIT_ELEVATIONS: readonly number[] = [20, 40];
+const AUDIT_ELEVATIONS: readonly number[] = [20, 40];
 
 /** The box of the crops of the mode `audit`: the arms, the shoulders, and the upper trunk. */
-export const AUDIT_BOX = '0.05,0.2,0.9,0.55';
+const AUDIT_BOX = '0.05,0.2,0.9,0.55';
 
 /** The crop factor of the mode `audit`. */
-export const AUDIT_CROP = 2;
+const AUDIT_CROP = 2;
 
 /**
  * Reads the command line of the mode `audit`: `audit <dir> [--roles <role,...>] [--url <url>]
@@ -4871,7 +4871,7 @@ export const AUDIT_CROP = 2;
  * @throws Error that lists the roles, for an unknown role, and an error for a wrong option or a
  *   missing word.
  */
-export function auditArgs(args: readonly string[]): BatchArgs | null {
+function auditArgs(args: readonly string[]): BatchArgs | null {
   if (args[0] !== 'audit') {
     return null;
   }
@@ -4931,7 +4931,7 @@ export function auditArgs(args: readonly string[]): BatchArgs | null {
  * @throws Error that lists the correct names, for a wrong value of the mode `species`, `play`, or
  *   `batch`.
  */
-export function closeModeArgs(args: readonly string[]): CloseMode | null {
+function closeModeArgs(args: readonly string[]): CloseMode | null {
   const batch = batchArgs(args) ?? auditArgs(args);
   if (batch) {
     return { kind: 'batch', args: batch };
@@ -4987,7 +4987,7 @@ function modeRender(mode: SingleMode): ModeRender {
 }
 
 /** The renders of the modes that one build of a commit serves. */
-export interface CommitBuild<T> {
+interface CommitBuild<T> {
   /** The paths of the working tree that the build takes in place of the paths of the commit. */
   readonly overlay: readonly string[];
   /** The renders, in the order of the modes. */
@@ -5005,7 +5005,7 @@ export interface CommitBuild<T> {
  * @param same Tells if a path is the same in the working tree and in the commit.
  * @returns The builds, each with its renders and the overlay paths that differ.
  */
-export function commitBuilds<T>(
+function commitBuilds<T>(
   modes: readonly { readonly overlay: readonly string[]; readonly render: T }[],
   same: (path: string) => boolean,
 ): CommitBuild<T>[] {
