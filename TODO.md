@@ -810,8 +810,31 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       tail, Taubin rounds round the curled tube, and the dog tail shrinks less
       (`2026-10-28-tails.md`).
 - [ ] Tails (`2026-10-28-tails.md`): the cat has 4 faces that stay turned over against the bone
-      turn after the bind (2 before), and the left paw of the cellist folds in 843 samples (706
-      before), because the chair of the dog is 5 mm less deep. No image shows them.
+      turn after the bind (2 before). No image shows them.
+- [x] Dog tail root (user, 2026-10-28): "it's too bulky at the root". Done: the tail weights
+      reach less far over the rump, and the root moves over a short range of the tail share. The
+      chair is 2 cm deeper, and the left paw of the cellist folds in 705 samples again
+      (`2026-10-28-followups.md`).
+- [x] Bow arm (user, 2026-10-28): "the red fox's bow arm is going up and down too rapidly". Done:
+      a measured tremolo moves the bow 1.2 cm for each note (`2026-10-28-followups.md`).
+- [x] Penguin head (user, 2026-10-28): "unnatural gradient between black and white". Done: a face
+      across the black and white edge of the texture takes one side (`2026-10-28-followups.md`).
+- [ ] Penguin head (`2026-10-28-followups.md`): the edge is a zigzag along the faces, and the
+      user asked why the head cannot use the look of the original mesh. Next: with the choice of
+      the user, cut the head faces along the edge of the texture, or give the penguin a small
+      texture.
+- [x] Hippo arm (user, 2026-10-28): "the hippo's arm is still not fixed". Done: a shape of
+      `raise` smooths the bow arm in the rest pose, where the bent tube showed a bulge, a kink,
+      and a bump (`2026-10-28-followups.md`).
+- [ ] Hippo arm (`2026-10-28-followups.md`): the arm gate gives `FAIL` on the right stretch p95
+      (0.22 against 0.16), because the shape shortens an inner elbow edge of the rest sample. The
+      left arm on the neck of the bass has no rest shape. Next: check the left arm with a fill
+      light, and count the stretch from the bind for a body with a rest shape.
+- [ ] Fill light (`2026-10-28-followups.md`): `pnpm close-views play` renders the app with no
+      fill light. Next: add a fill to the play mode for the checks.
+- [ ] Bright elbow (user, 2026-10-28): "the cat's elbow has an area that's too bright". The image
+      shows the colors of the red fox at rest. The role views show only a faint light crease at
+      its inner right elbow, with no fold. Next: ask the user for the demo and the time.
 - [x] Arm lumps (user, 2026-10-28): "the hippo's arm has lumps / dents", "the wolf's arm has
       unexpected dents / bends", "the cat's arm has unexpected lumps". Partly done: the rebuilt
       arm tubes took the ridges of the big faces of the user meshes. Taubin rounds smooth the
