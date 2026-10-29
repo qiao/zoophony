@@ -1,6 +1,14 @@
 {
   "source": "assets/models/bear/bear-arms.glb",
   "sourceNote": "The T-pose bear mesh of the user, of 2026-10-23 (assets/models/bear/README.md), with new quad faces on each arm from the shoulder line to the wrist. The user said on 2026-10-25: \"the bear's arm has unnatural facets underneath\". The long thin faces of the source arm folded into dark shards under the raised forearm, and the inner elbow of the bind collapsed into a hollow. Smooth normals at the arm roots (rootNormals 0.14) and raise shapes did not change them. tools/blender/bear_arms.py replays the Blender session that made it. The faces of the paws, the trunk, the legs, and the head are the faces of the user (docs/decisions/2026-10-26-arm-fixes.md).",
+  "rootNormals": {
+    "radius": 0,
+    "wrist": [
+      0.03,
+      0.025
+    ],
+    "note": "The arm faces from 0.03 units before each wrist joint to 0.025 units past it take the normals of the skin with no crease angle in the app (root_rim() of tools/blender/rig_mesh.py), as on the polar bear (docs/decisions/2026-10-27-polar-wrist.md). The user said on 2026-10-28: \"the bear has a crease around the wrist\". With radius 0, the shoulders keep the crease angle, as before."
+  },
   "paintedWeights": "assets/models/bear/bear-weights.json",
   "paintedLower": [
     "root",

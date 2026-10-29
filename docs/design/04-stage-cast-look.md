@@ -591,8 +591,8 @@ showed lumps or a bright ridge at the inner elbow, and the play keeps its skin
     the bind bends their elbows (`docs/decisions/2026-10-25-elephant-hippo-creases.md`,
     `docs/decisions/2026-10-28-fox-rabbit-crease.md`). The bind also turns each paw from its
     forearm, so `rootNormals.wrist` adds the arm faces of a band from before each wrist joint to
-    past it on the paw, and the claws past the band keep their facets. The polar bear has it
-    (`docs/decisions/2026-10-27-polar-wrist.md`). A split of the bind stays in each pose,
+    past it on the paw, and the claws past the band keep their facets. The polar bear and the bear conductor have it, with a wrist cut parallel to the last ring of the arm copy and a smoothed band
+    (`docs/decisions/2026-10-27-polar-wrist.md`, `docs/decisions/2026-10-28-followups.md`). A split of the bind stays in each pose,
     also at rest, where the arm-down shape gives back the form of the source and adds the moves
     of its own split normals. The key light in front of the stage lights the fronts of the arm
     roots and the inner elbows, so it shows such a split as a hard line, a slit, or a notch. A
