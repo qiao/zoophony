@@ -1,17 +1,25 @@
 # Zoophony
 
-A WebGL MIDI player featuring low-poly animals playing symphonies.
+Zoophony is a WebGL MIDI player. Low-poly animals play orchestral music on a small stage.
+
+Live site: <https://qiao.github.io/zoophony/>
 
 ![Zoophony](zoophony.png)
 
 ## Features
 
-- **3D animal orchestra.** Low-poly animals play violin, viola, cello, double bass, woodwinds, brass, and percussion. Poses sync with each note, finger placement, and bow stroke.
-- **Custom MIDI playback.** Drop any `.mid` file onto the window, or select from built-in public domain classical pieces.
-- **Web Audio SoundFont synth.** A dedicated AudioWorklet synthesizes instruments from SoundFont files with room reverberation.
-- **Dynamic camera.** Choose between an automated cinematic camera that follows active sections, and a free orbit camera.
-- **Section controls.** Solo or mute any instrument section. The stage spotlight moves to follow solo performers.
-- **Lightweight static app.** The application runs entirely in client-side WebGL and Web Audio. The first download stays under 1 MB compressed.
+- **3D animal orchestra.** Low-poly animals play the strings, the woodwinds, the brass, the
+  percussion, the piano, and the harp, and a choir of animals sings. The poses follow each note:
+  the fingers, the bow strokes, the breaths, the mallet strokes, and the keys.
+- **Your own MIDI files.** Drop a `.mid` file onto the window, or select one of the built-in
+  public domain pieces.
+- **SoundFont synth.** An AudioWorklet plays the instruments from a SoundFont, with the reverb of
+  a real concert hall.
+- **Camera.** Select the cinematic camera, which follows the sections that play, or the free
+  orbit camera.
+- **Section controls.** Solo or mute each section. The stage beam follows the soloists.
+- **Small static app.** The app runs in the browser with WebGL and Web Audio. The first download
+  is less than 1 MB after gzip.
 
 ## Getting started
 
@@ -63,11 +71,34 @@ pnpm build
 - `src/scene/`: Manages Three.js rendering, lighting, spotlight beams, and camera transitions.
 - `src/audio/`: Coordinates the SoundFont synthesizer inside a Web Audio worklet.
 
+## Contributing
+
+[`CONTRIBUTING.md`](CONTRIBUTING.md) gives the setup, the checks, and the rules of a change. The
+design is in [`docs/design.md`](docs/design.md). All unit tests are paused now: `pnpm test` runs
+no test, and `pnpm test:paused <path>` runs one paused file.
+
+## Credits
+
+The app includes the third-party files below. The build writes all their licenses into
+`third-party-licenses.txt`, and the credits dialog of the app links it.
+
+- **Demo pieces:** [`demos/README.md`](demos/README.md) gives the source, the license, and the
+  checksum of each piece.
+- **SoundFont:** [`assets/soundfont/README.md`](assets/soundfont/README.md) (GeneralUser GS and
+  the Versilian Studios libraries).
+- **Hall reverb:** [`assets/hall/README.md`](assets/hall/README.md) (St Paul's Hall, University
+  of Huddersfield).
+- **Font:** [`assets/fraunces/README.md`](assets/fraunces/README.md) (Fraunces, SIL Open Font
+  License).
+- **GitHub mark:** [`assets/github-mark/README.md`](assets/github-mark/README.md) (MIT license).
+- **Animal models:** each folder of [`assets/models/`](assets/models/) has a README with the
+  origin and the checksums of its files.
+
 ## License
 
 - **Code:** the [Apache License 2.0](LICENSE).
 - **Animal models:** the files in `assets/models/` and `src/models/studio/` are under
-  [CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/). You can use, change, and share
+  [CC BY-NC 4.0](assets/models/LICENSE). You can use, change, and share
   them, but not for commercial purposes.
 - **Your output:** you own the videos, images, and audio that you make with Zoophony. You can use
   them for any purpose, including commercial use. This grant covers the animals as they appear in
