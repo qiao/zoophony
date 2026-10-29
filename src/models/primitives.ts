@@ -461,3 +461,54 @@ export function tube(rings: readonly TubeRing[], segments: number): number[] {
   }
   return out;
 }
+
+/**
+ * Makes a closed solid through rings of corners, such as a neck or a fingerboard whose section
+ * changes along its length. Corner i of each ring joins corner i of the next ring. Each end ring
+ * gets a fan cap from the mean of its corners.
+ *
+ * @param rings The rings from the first end to the last end. Each ring has the same number of
+ *   corners, counterclockwise when seen from the side of the last end, and its section is
+ *   star-shaped around the mean of its corners.
+ * @param caps Whether the end rings get caps. A part with hidden ends, such as a string, needs
+ *   none.
+ * @returns 2 triangles for each corner of each step between two rings, plus one triangle for
+ *   each corner of each cap.
+ */
+export function sweep(rings: readonly (readonly Vec3[])[], caps = true): number[] {
+  const out: number[] = [];
+  for (let j = 0; j + 1 < rings.length; j++) {
+    const lower = rings[j] ?? [];
+    const upper = rings[j + 1] ?? [];
+    for (let i = 0; i < lower.length; i++) {
+      const k = (i + 1) % lower.length;
+      pushQuad(
+        out,
+        lower[i] ?? [0, 0, 0],
+        lower[k] ?? [0, 0, 0],
+        upper[k] ?? [0, 0, 0],
+        upper[i] ?? [0, 0, 0],
+      );
+    }
+  }
+  if (!caps) {
+    return out;
+  }
+  const center = (ring: readonly Vec3[]): Vec3 => {
+    const sum = ring.reduce<Vec3>((s, p) => [s[0] + p[0], s[1] + p[1], s[2] + p[2]], [0, 0, 0]);
+    return [sum[0] / ring.length, sum[1] / ring.length, sum[2] / ring.length];
+  };
+  const first = rings[0] ?? [];
+  const last = rings.at(-1) ?? [];
+  const firstCenter = center(first);
+  const lastCenter = center(last);
+  for (let i = 0; i < first.length; i++) {
+    const k = (i + 1) % first.length;
+    out.push(...firstCenter, ...(first[k] ?? [0, 0, 0]), ...(first[i] ?? [0, 0, 0]));
+  }
+  for (let i = 0; i < last.length; i++) {
+    const k = (i + 1) % last.length;
+    out.push(...lastCenter, ...(last[i] ?? [0, 0, 0]), ...(last[k] ?? [0, 0, 0]));
+  }
+  return out;
+}

@@ -4,7 +4,7 @@ import { IDENTITY, toQuat, toVec3 } from '../tuples.ts';
 import { applyTransform, transform } from '../mesh.ts';
 import type { Quat, Vec3 } from '../tuples.ts';
 import type { Transform } from '../mesh.ts';
-import { box, cylinder, quad } from '../primitives.ts';
+import { box, cylinder, quad, sweep } from '../primitives.ts';
 import type { OutlinePoint } from '../primitives.ts';
 import { DEFAULT_HEAD_HEIGHT } from '../species.ts';
 import { PieceBuilder, hold, pieceSize } from './piece.ts';
@@ -39,6 +39,9 @@ export const VIOLIN = {
   /** The width of the strip that shows the four strings. */
   stringsWidth: 0.008,
 } as const;
+
+/** The thickness of each string of the violin model, in meters before the scale. */
+const STRING_SIZE = 0.0012;
 
 /** The sizes of the bow model, in meters before the {@link INSTRUMENT_SCALE}. */
 export const BOW = {
@@ -263,6 +266,98 @@ function bodyBands(
 }
 
 /**
+ * The fingerboard of the violin model, in meters in the violin axes. The strings stay at
+ * `VIOLIN.stringHeight` over the whole length, so the board is a wedge: its top runs just below
+ * the strings, and its underside comes down near the arch of the top at the end over the body.
+ */
+const FINGERBOARD = {
+  /** The width at the nut. */
+  nutWidth: 0.0165,
+  /** The width at the end over the body. */
+  endWidth: 0.0285,
+  /** The height of the middle of the top at the nut. */
+  nutTop: 0.064,
+  /** The height of the middle of the top at the end. */
+  endTop: 0.0625,
+  /** The height of the underside at the nut. */
+  nutUnder: 0.0585,
+  /** The height of the underside at the end. */
+  endUnder: 0.0475,
+  /** The drop of the edges below the middle of the top, as the curve of a real fingerboard. */
+  crown: 0.0018,
+  /** The length of the nut along the violin, after `VIOLIN.nut`. */
+  nutLength: 0.0035,
+} as const;
+
+/**
+ * The rings of the neck, from the heel inside the body to the nut: the place along the violin,
+ * the half width, and the height of the bottom. The top of each ring is the underside of the
+ * fingerboard. The first rings come down to the back as the round heel of the neck.
+ */
+const NECK_RINGS: readonly (readonly [x: number, halfWidth: number, bottom: number])[] = [
+  [0.232, 0.0105, 0.003],
+  [0.246, 0.0105, 0.009],
+  [0.256, 0.01, 0.022],
+  [0.268, 0.0095, 0.0285],
+  [VIOLIN.nut, 0.008, 0.0305],
+];
+
+/**
+ * Gives a value of the fingerboard at a place along the violin, between its value at the end
+ * over the body and its value at the nut.
+ *
+ * @param x The place along the violin.
+ * @param atEnd The value at the end.
+ * @param atNut The value at the nut.
+ * @returns The value.
+ */
+function alongBoard(x: number, atEnd: number, atNut: number): number {
+  const share = (x - VIOLIN.fingerboardEnd) / (VIOLIN.nut - VIOLIN.fingerboardEnd);
+  return atEnd + share * (atNut - atEnd);
+}
+
+/**
+ * Makes the ring of the fingerboard at a place along the violin: a flat underside, sides that
+ * slope out, and a top with a ridge in the middle.
+ *
+ * @param x The place along the violin.
+ * @returns The corners, counterclockwise when seen from the nut.
+ */
+function boardRing(x: number): Vec3[] {
+  const f = FINGERBOARD;
+  const half = alongBoard(x, f.endWidth, f.nutWidth) / 2;
+  const top = alongBoard(x, f.endTop, f.nutTop);
+  const under = alongBoard(x, f.endUnder, f.nutUnder);
+  return [
+    [x, under, -0.72 * half],
+    [x, top - f.crown, -half],
+    [x, top, 0],
+    [x, top - f.crown, half],
+    [x, under, 0.72 * half],
+  ];
+}
+
+/**
+ * Makes a ring of the neck: a flat top under the fingerboard, and a round back.
+ *
+ * @param ring The ring of {@link NECK_RINGS}.
+ * @returns The corners, counterclockwise when seen from the nut.
+ */
+function neckRing([x, half, bottom]: (typeof NECK_RINGS)[number]): Vec3[] {
+  const f = FINGERBOARD;
+  const top = alongBoard(x, f.endUnder, f.nutUnder) + 0.0003;
+  const middle = bottom + 0.55 * (top - bottom);
+  return [
+    [x, bottom, -0.55 * half],
+    [x, middle, -half],
+    [x, top, -0.85 * half],
+    [x, top, 0.85 * half],
+    [x, middle, half],
+    [x, bottom, 0.55 * half],
+  ];
+}
+
+/**
  * Places a part in a frame. The frame has no scale.
  *
  * @param frame The frame.
@@ -315,8 +410,17 @@ function addViolinParts(piece: PieceBuilder, frame: Transform, upright: boolean)
       toQuat(new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), side * 0.25)),
     );
   }
-  // The neck, the pegbox, the pegs, and the scroll.
-  part(box(0.1, 0.02, 0.022), wood, [v.bodyLength + 0.045, v.bodyThickness - 0.002, 0]);
+  // The neck with its round heel, the fingerboard as a tapered board, and the nut.
+  part(sweep(NECK_RINGS.map(neckRing)), wood, [0, 0, 0]);
+  part(sweep([boardRing(v.fingerboardEnd), boardRing(v.nut)]), dark, [0, 0, 0]);
+  const nutWidth = FINGERBOARD.nutWidth + 0.001;
+  const nutTop = v.stringHeight - STRING_SIZE;
+  part(box(FINGERBOARD.nutLength, nutTop - FINGERBOARD.nutUnder, nutWidth), dark, [
+    v.nut + FINGERBOARD.nutLength / 2,
+    (nutTop + FINGERBOARD.nutUnder) / 2,
+    0,
+  ]);
+  // The pegbox, the pegs, and the scroll.
   part(box(0.045, 0.025, 0.02), wood, [0.355, v.bodyThickness + 0.002, 0]);
   part(
     cylinder(0.016, 0.016, 0.022, 8),
@@ -327,8 +431,7 @@ function addViolinParts(piece: PieceBuilder, frame: Transform, upright: boolean)
   for (const x of [0.343, 0.365]) {
     part(box(0.006, 0.006, 0.03), dark, [x, v.bodyThickness + 0.004, 0]);
   }
-  // The fingerboard over the neck and the upper body, and the tailpiece and the chin rest.
-  part(box(0.17, 0.008, 0.026), dark, [0.255, v.bodyThickness + 0.016, 0]);
+  // The tailpiece and the chin rest.
   part(box(0.05, 0.006, 0.03), dark, [0.04, v.bodyThickness + 0.008, 0]);
   if (!upright) {
     part(box(0.04, 0.012, 0.05), dark, [0.018, v.bodyThickness + 0.006, 0.03]);
