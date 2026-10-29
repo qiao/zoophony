@@ -48,7 +48,9 @@ reads it ("The asset chain" of `docs/agents/rigging.md`). The steps:
    keeps four bones, in steps of 1/255. With `smooth` of the config, the vertices inside a box
    first move toward the middle of their neighbors (`smooth_box()`), before the weights. The file
    then gives the move of the head center back to the head before the smoothing (`head_shift()`),
-   so that the holds keep their places.
+   so that the holds keep their places. With `paintedWeights`, the weights come from a file of
+   Blender, and `weights.wristFade` then gives each ring of the band of each wrist even weights
+   (`wrist_fade()`).
 4. Make the upper arm and the forearm longer by the arm factor of the config, and the thigh and
    the shin by the leg factor. Each bone scales along its axis, and the weights blend the stretch
    to 0 at the shoulder and at the hip. The paws and the feet keep their size, and the body rises
