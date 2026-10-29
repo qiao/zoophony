@@ -199,3 +199,5 @@ the constants of `app/page-title.ts`, so that the page and the app cannot differ
   (`SHARE_IMAGE`), a frame of the default demo during play with the logo, 1200 × 630, which
   `pnpm share-image` writes. No element of the page loads it, so the first download (7.2) does not
   hold it. `theme-color` is the dark edge of the page background.
+- **Structured data**: a JSON-LD `WebApplication` with the name, the URL, the description, the
+  image, the category, the need for WebGL2 (2.6), and a free offer. It holds no personal data.

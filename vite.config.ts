@@ -100,6 +100,30 @@ function escapeHtml(text: string): string {
 }
 
 /**
+ * Gives the structured data of the start page (design 7.4): a schema.org `WebApplication` with the
+ * texts of the meta tags, a free offer, and the need for WebGL2. It holds no personal data.
+ *
+ * @returns The JSON text for a script element. Each `<` is escaped, so the text cannot end the
+ *   element.
+ */
+function webApplication(): string {
+  const data = {
+    '@context': 'https://schema.org',
+    '@type': 'WebApplication',
+    name: APP_NAME,
+    url: SITE_URL,
+    description: SITE_DESCRIPTION,
+    image: `${SITE_URL}${SHARE_IMAGE.path}`,
+    applicationCategory: 'MultimediaApplication',
+    operatingSystem: 'Any',
+    browserRequirements: 'Requires WebGL2',
+    isAccessibleForFree: true,
+    offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+  };
+  return JSON.stringify(data).replaceAll('<', String.raw`\u003c`);
+}
+
+/**
  * Gives the value of each placeholder `%NAME%` of `index.html`, ready for its place in the HTML:
  * the URL of the default demo for the preload script, the title lines of the default demo for the
  * static title (design 2.8, 7.2), and the texts of search and share (7.4). Each value comes from
@@ -122,6 +146,7 @@ function indexValues(base: string): ReadonlyMap<string, string> {
     ['SHARE_IMAGE_WIDTH', String(SHARE_IMAGE.width)],
     ['SHARE_IMAGE_HEIGHT', String(SHARE_IMAGE.height)],
     ['SHARE_IMAGE_ALT', escapeHtml(SHARE_IMAGE.alt)],
+    ['WEB_APPLICATION', webApplication()],
   ]);
 }
 
