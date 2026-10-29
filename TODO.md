@@ -825,6 +825,12 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
 - [x] Penguin flank (user, 2026-10-28): "the rigged one has extra black area and bump under the
       arm". Done: the black band of the texture around each flipper takes the white of the side
       (`colors.flank`, `2026-10-28-followups.md`).
+- [x] Bear wrist (user, 2026-10-28): "the bear has a crease around the wrist". Done: the arm copy
+      of the conductor cuts each wrist parallel to the last ring and evens the band, and the wrist
+      faces take the skin normals (`2026-10-28-followups.md`).
+- [ ] Bear wrist (`2026-10-28-followups.md`): a soft notch stays on the top of each wrist at rest,
+      and the right wrist still folds in 18,499 play samples. Next: check the paw of the user mesh
+      at the cut with a fill light.
 - [ ] Penguin flank (`2026-10-28-followups.md`): the round bump at the armpit stays a little
       visible from az90. The faces around the flipper with a part of the arm weight stretch when
       the flipper rises. Next: a cut of the flipper from the body with a side wall, as the arm

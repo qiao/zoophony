@@ -144,3 +144,17 @@ of the red fox 31° to 59° (`fade-angles.ts`), so the fade is 8° to 18°. `fox
 `main`, 6 rounds, and 10 rounds (chosen) at rest and at the frog: the inner elbow is a smooth
 curve, and the frog stays as on `main`. The folds and the arm gate of both foxes stay as on
 `main` (`fox-arm-check.txt`), and the first download grows by 795 B.
+
+## 8. The bear wrist
+
+The user said: "the bear has a crease around the wrist", and named the bear conductor. The fold
+probe of the conductor showed the right wrist in 36,480 play samples. In Blender, the arm copy
+`bear-arms.glb` has a sharp step across each wrist from below, where the tube meets the paw of the
+mesh. Its wrist cut stood at a right angle to the paw, as on the polar bear before
+[`2026-10-27-polar-wrist.md`](2026-10-27-polar-wrist.md). The skin normals at the wrists alone, and
+with Taubin rounds on the wrist band, kept the notch on the top of the wrist. `bear_arms.py` now
+cuts each wrist parallel to the last ring, smooths the band, and snaps it back onto the source arm.
+With the skin normals of `rootNormals.wrist`, the right wrist folds in 18,499 samples, the most
+folded faces of the play fall from 24 to 21 (`bear-fold.txt`), and the arm gate, the depths, and
+the poses stay as on `main` (`bear-arm-check.txt`). `bear-wrist.webp` shows `main`, the new copy,
+and the new copy with the skin normals (chosen), at rest from az90, az-90, and az60.
