@@ -130,7 +130,9 @@ budget (`STUDIO_MESH_GZIP_BUDGET` of `tools/studio-budgets.ts`). `packStudioMesh
 stream for each kind of number, so that gzip finds the repeats.
 
 `index.html` preloads the file of the default demo with a low priority when the hash names no
-demo, so that the score build does not wait for a fetch after the scripts.
+demo, so that the score build does not wait for a fetch after the scripts. The preload starts
+after the first contentful paint. The LCP that Lighthouse simulates holds each request that ends
+before the paint of the LCP element, and the file of 30 kB added 150 ms on mobile.
 
 The largest contentful paint (LCP) of the page is the piece title (2.8). `index.html` holds the
 title lines of the default demo, so the browser paints them with the first paint, before the

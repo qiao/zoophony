@@ -17,17 +17,30 @@
     <meta property="og:type" content="website" />
     <!-- The file of the default demo loads with the scripts, so the stage can show it sooner
          (design 7.2). The fetch of src/app/app.ts then takes it from the preload. Its low
-         priority keeps the scripts first. A hash that names a demo opens that demo (design 2.2),
-         so the page preloads nothing. -->
+         priority keeps the scripts first. It starts after the first contentful paint, because a
+         request that ends before that paint adds to the LCP that Lighthouse simulates. A hash
+         that names a demo opens that demo (design 2.2), so the page preloads nothing. -->
     <script>
       if (!new URLSearchParams(location.hash.slice(1)).has('demo')) {
-        const link = document.createElement('link');
-        link.rel = 'preload';
-        link.as = 'fetch';
-        link.crossOrigin = 'anonymous';
-        link.fetchPriority = 'low';
-        link.href = '%DEFAULT_DEMO_URL%';
-        document.head.append(link);
+        const preload = () => {
+          const link = document.createElement('link');
+          link.rel = 'preload';
+          link.as = 'fetch';
+          link.crossOrigin = 'anonymous';
+          link.fetchPriority = 'low';
+          link.href = '%DEFAULT_DEMO_URL%';
+          document.head.append(link);
+        };
+        if (PerformanceObserver.supportedEntryTypes.includes('paint')) {
+          new PerformanceObserver((list, observer) => {
+            if (list.getEntriesByName('first-contentful-paint').length > 0) {
+              observer.disconnect();
+              preload();
+            }
+          }).observe({ type: 'paint', buffered: true });
+        } else {
+          preload();
+        }
       }
     </script>
     <!-- The style sheets load before the first paint, in the dev server and in the build, so the
