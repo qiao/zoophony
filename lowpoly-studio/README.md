@@ -1,26 +1,30 @@
 # Low-poly studio
 
 The studio makes a rigged, animated, low-poly animal (one GLB file) from one reference sheet.
-Each animal is a folder with a config file. A role pack says what the animal does (conduct,
-later play the piano or the violin). The code is generic: a new animal is a new config, and a new
-role is a new folder.
+Each animal is a folder with a config file. A role pack says what the animal does: conduct, play
+the piano, or play the violin. The code is generic: a new animal is a new config, and a new role
+is a new folder.
 
-The app of this repository (`src/`) uses two outputs of the studio, when the user asked for
-them: the GLB files of the bear conductor and of the polar bear pianist since 2026-10-12, through
-`pnpm studio-body bear` and `pnpm studio-body polar-bear` in the root of the repository. The app
-used the GLB file of the rabbit violinist on 2026-10-13, until the user replaced it by a mesh of
-the user that `pnpm rig-mesh rabbit` rigs in the format of the studio. The studio keeps the rabbit
-as a regression animal. The app imports no studio code, keeps its own conductor, pianist, and
-violin motion, and drives the bones of the studio from it on each frame. It drops the bench, the
-chair, and the piano, and keeps its own. The lint of the repository skips the studio. The first animal is the bear conductor (`animals/bear/`, see its README for the method and
-the results with numbers). The second animal is the polar bear pianist (`animals/polar-bear/`),
-the pilot of `docs/retro/pilot-polar-bear.md`.
+The studio is a separate project inside the repository. The app (`src/`) imports no studio code
+and uses no GLB file of the studio. The bodies of the app are rigged meshes in the GLB format of
+the studio: `pnpm rig-mesh` writes this format, and `pnpm studio-body` reads it
+(`docs/agents/rigging.md` of the repository). Thus a change of the GLB format of the studio (the
+bone names, the shape keys, the clip `reference`) needs a change of these tools. The lint of the
+repository skips the studio.
+
+The studio has three animals. Each one is a regression animal (see "Regression"):
+
+| Animal | Role | Folder |
+|---|---|---|
+| bear | conductor (standing, a baton) | `animals/bear/` (its README gives the method and the numbers) |
+| polar bear | pianist (seated at a grand piano) | `animals/polar-bear/` |
+| rabbit | violinist (seated, a violin and a bow) | `animals/rabbit/` |
 
 ![review](animals/bear/out/report/review.webp)
 
-The image is the review image of the bear (`animals/bear/out/report/review.webp`). Git keeps
-only this render of each animal. `python3 studio build bear` makes the compare image
-(`out/compare/compare.png`) and the other renders again (see "The outputs that git keeps").
+The image is the review image of the bear. Git keeps only this render of each animal.
+`python3 studio build bear` makes the compare image (`out/compare/compare.png`) and the other
+renders again (see "The outputs that git keeps").
 
 ## Quick start
 
@@ -37,19 +41,18 @@ python3 studio view bear             # the viewer on a free port; Ctrl-C stops i
 python3 studio view bear --stop      # stop a viewer that runs in the background
 python3 studio log bear              # the timeline of the builds: real times, seeds, cache hits
 python3 studio regress bear          # build again and compare with the golden stats
-python3 studio new fox --sheet ~/fox-views.png --like bear   # start a new animal (compact
+python3 studio new fox --sheet fox-views.png --like bear   # start a new animal (compact
                                      # config from the bear, sheet check)
 python3 studio calibrate fox --from bear   # light, palette, dark classes from the sheet (5 s)
 python3 studio calibrate fox --quads --no-look   # the QuadriFlow target (about 60 s)
-python3 studio regress polar-bear    # the polar bear pianist: build and compare
 python3 -m unittest tests.test_intake   # the tests of the foreground rules (about 13 s)
 python3 -m unittest tests.test_cache    # the cache keys hold no worktree folder (about 8 s)
 python3 -m unittest tests.test_consistency   # the sheet check reads no config class (about 2 s)
 ```
 
 All worktrees of the repository share the stage cache and the run files in
-`<git common dir>/lowpoly-studio/` (`cache/`, `runs/`). So the first build in a new worktree takes
-its stages from the builds of the other worktrees (4.0 s for one bear seed, 55 s cold).
+`<git common dir>/lowpoly-studio/` (`cache/`, `runs/`). Thus the first build in a new worktree
+takes its stages from the builds of the other worktrees (about 4 s for one bear seed).
 
 ## Layout
 
@@ -116,36 +119,34 @@ lowpoly-studio/
 ├── roles/model/         the role of the model build: a fixed standing bind pose, one clip
 ├── viewer/              viewer, compare page, frames page, props gallery page (three.js),
 │                        read viewer.json
-├── animals/bear/        animal.toml, golden.json, README.md, reference/, out/ (git keeps
-│                        only the files of "The outputs that git keeps")
-├── animals/polar-bear/  animal.toml, golden.json, reference/, out/ (the pianist)
-├── animals/rabbit/      animal.toml, golden.json, README.md, reference/, out/ (the violinist)
-├── tests/               test_intake.py: the foreground rules; test_cache.py and
-│                        setup_keys.py: the cache keys; test_consistency.py: the sheet
-│                        check; test_role_props.py: the attachments of the props;
-│                        test_ear_checks.py: the ear measures; test_reach.py: the reach
-│                        checks of a held instrument; test_ear_box.py: the ear box;
-│                        test_like_scale.py: the scale of new --like (python3 -m unittest)
-├── docs/                handoff.md, handoff-diag.md, handoff-speed.md, handoff-pilot.md,
-│                        handoff-runtime.md, handoff-intake.md, handoff-rabbit.md (the
-│                        state of the work),
+├── animals/<id>/        animal.toml, golden.json, README.md (bear, rabbit), reference/, out/
+│                        (git keeps only the files of "The outputs that git keeps")
+├── tests/               python3 -m unittest: test_intake.py (the foreground rules),
+│                        test_cache.py and setup_keys.py (the cache keys),
+│                        test_consistency.py (the sheet check), test_role_props.py (the
+│                        attachments of the props), test_ear_checks.py (the ear measures),
+│                        test_reach.py (the reach checks of a held instrument),
+│                        test_ear_box.py (the ear box), test_like_scale.py (the scale of
+│                        new --like)
+├── docs/                handoff.md (the state, the rules, and the open problems),
 │                        sheet-spec.md (the rules of a reference sheet), brief-template.md
-│                        (the brief of a round), retro/ (the retrospectives)
+│                        (the brief of a round), retro/scripts/ (the scripts that measure the
+│                        transcript of an agent round)
 └── vite.config.js       the root of the pages is this folder
 ```
 
-No module of `studio/` names an animal. The bear's numbers are in `animals/bear/animal.toml`,
-and the numbers of the conductor are in `roles/conductor/`.
+No module of `studio/` names an animal. The numbers of the bear are in
+`animals/bear/animal.toml`, and the numbers of the conductor are in `roles/conductor/`.
 
 ## How a build runs
 
 `python3 studio build <animal>` runs these stages. The Blender stages run in one Blender process
 for each seed, and the seed pool runs 4 seeds at a time. With shots, the model build (see "The
 model build") runs the same stages with the role `model` in one more Blender process beside the
-pool. Each Blender stage is a function with
-named inputs and named outputs (`studio/build.py`), and `studio/stages.py` writes its outputs,
-its time, and its source (a run, or the stage cache) into `out/stages/<nn>-<stage>/`. The remesh
-gate runs after "remesh" and after "organic" (see "Speed").
+pool. Each Blender stage is a function with named inputs and named outputs (`studio/build.py`).
+`studio/stages.py` writes its outputs, its time, and its source (a run, or the stage cache) into
+`out/stages/<nn>-<stage>/`. The remesh gate runs after "remesh" and after "organic" (see "The
+remesh gate").
 
 ```text
  sheet.png ──> intake ──> masks, measure.json
@@ -170,7 +171,7 @@ gate runs after "remesh" and after "organic" (see "Speed").
                      measures (features, shading, mesh) ──> checks (+ diag/) ──> look report
 ```
 
-| Stage | Where | Inputs | Outputs | Time (bear) |
+| Stage | Where | Inputs | Outputs | Time (bear, cold) |
 |---|---|---|---|---|
 | intake | CLI, Pillow | sheet, `sheet.*`, `intake.*` | masks, `measure.json`, `sheet-check.json` | 2.9 s |
 | field | Blender | body parts of the template | dense mesh (surface nets) | 1.5 s |
@@ -182,7 +183,7 @@ gate runs after "remesh" and after "organic" (see "Speed").
 | correctives | Blender | weights, role `bind.correctives` | shape keys and their drivers | 0.1 s |
 | assemble | Blender | details, role props | joined mesh, shape keys, tip markers | 0.0 s |
 | clips | Blender | the role pack | actions, sampled poses | 3.9 s |
-| contacts | Blender | clips, weights, role checks | contact and fold report, repaired weights | 20.6 s (1.3 s after a change of one clip, from the frame cache) |
+| contacts | Blender | clips, weights, role checks | contact and fold report, repaired weights | 20.6 s (about 1.3 s after a change of one clip, from the frame cache) |
 | export | Blender | all | `out/<id>.glb`, `out/<id>.stats.json` | 1.9 s |
 | diagnostics | Blender | the contact checks (`contacts.JOURNAL`), the mesh | the places of the contacts and folds, the fold debug list | 0.05 s |
 | model build | Blender | the stages field to diagnostics with the role `model` | `out/model/<id>.glb` | 2.5 s from the cache |
@@ -190,16 +191,15 @@ gate runs after "remesh" and after "organic" (see "Speed").
 | measures | CLI | renders, sheet, the model GLB | `features.json`, `topology.json`, `mesh.json` | 2.1 s |
 | checks | CLI | all outputs, limits | `out/checks.json`, `out/diag/`, `out/report/` | 1.8 s |
 
-The times in the table are of a cold build (no stage cache). A cold build of the bear takes
-about 66 s (Blender about 50 s with its start); the old `build.sh` took 64.4 s. With the stage
-cache, a build after a change of an eye radius or a paint color takes about 5 s for the GLB
-(see "Speed"). Each build prints a table of the time and the source of each step and stage, and
-writes it to `out/stages/pipeline.json`, `out/stages/run.json`, and its run file (see "Run files
-and the timeline").
+A cold build of the bear takes about 66 s (Blender about 50 s with its start). With the stage
+cache, the GLB of a change of an eye radius or a paint color takes about 5 s (see "Speed"). Each
+build prints a table of the time and the source of each step and stage. It writes the table to
+`out/stages/pipeline.json`, `out/stages/run.json`, and its run file (see "Run files and the
+timeline").
 
 The model stages (field to details) take one input from the role: the bind pose. Two roles with
-the same bind pose give the same mesh. The model build uses this: `roles/model/` has the bind pose
-of the conductor, so a conductor build and its model build share the model stages in the cache.
+the same bind pose give the same mesh. `roles/model/` has the bind pose of the conductor, so a
+conductor build and its model build share the model stages in the cache.
 
 ## The CLI
 
@@ -231,8 +231,8 @@ Debug prints: `STUDIO_DEBUG=1` makes the build print each face that points into 
 face that the fold repair smooths, and each face that stays folded, with its place and weights.
 Each build also writes the same facts into `out/diag/folds.json`, with no flag.
 
-When no seed passes the gates, the outputs of the last seed that ran come into `out/`, and the
-build writes `checks.json`, `out/diag/`, and the look report of that seed, then stops with exit 1.
+When no seed passes the gates, the outputs of the last seed that ran come into `out/`. The build
+writes `checks.json`, `out/diag/`, and the look report of that seed, then stops with exit 1.
 
 The Blender log of each seed is `out/stages/blender-seed<N>.log` (in the seed pool:
 `out/seeds/<n>/stages/blender-seed<N>.log`, in the model build:
@@ -260,21 +260,22 @@ same loop with its traps. Take each time from `python3 studio log <id>`.
    right, back, 3/4 front-right) on one plain background, one ground line, the arms a little
    away from the body, at least 500 px of figure height. The spec has a prompt for an image
    generator.
-2. Settle the style with the user before the first build, each claim with a crop of the sheet:
-   the facet size, the light and the contrast, the palette, the eyes, the head, the snout, the
-   ears, symmetry, "no folds at any seed", and the bind pose of the role. A manager writes the
-   brief of each round from `docs/brief-template.md`.
-3. Start the animal: `python3 studio new <id> --sheet <png> --like bear` (about 5 s; `--role R`
+2. Settle the style before the first build, each claim with a crop of the sheet: the facet
+   size, the light and the contrast, the palette, the eyes, the head, the snout, the ears,
+   symmetry, "no folds at any seed", and the bind pose of the role. A manager writes the brief of
+   each round from `docs/brief-template.md`.
+3. Start the animal: `python3 studio new <id> --sheet <png> --like bear` (about 5 s, `--role R`
    names another role). It writes the compact config of the like animal, makes the masks, and
    runs the sheet check. The fields of the new sheet are marked "measured by studio new", and
    `compare.head_turn` of the 3/4 view comes from the sheet check. Read the sheet check
-   (`out/sheet-check.json`): each warning names the build checks that the sheet can fail. Ask
-   the user about a fault of the sheet before the work starts. The compact config drops
-   `field.ears.box_pad` of the like animal, so the box of the ears follows the ear radii: the
-   largest radius plus the blend plus 0.01 (`ear_box_pad()` of `studio/config.py`). On the
-   rabbit config, the ear box of the bear (0.07) cut the long ears: the field grid lost 14 of its
-   186 rows at the top, `fit` scaled the body to the lower top, and the front IoU fell from
-   0.886 to 0.790. A config that gives `box_pad` keeps it.
+   (`out/sheet-check.json`): each warning names the build checks that the sheet can fail. Settle
+   each fault of the sheet before the work starts.
+
+   The compact config drops `field.ears.box_pad` of the like animal, so the box of the ears
+   follows the ear radii: the largest radius plus the blend plus 0.01 (`ear_box_pad()` of
+   `studio/config.py`). A box from an animal with short ears can cut long ears: the field grid
+   loses its top rows, and `fit` scales the body to the lower top. A config that gives `box_pad`
+   keeps it.
 
    When the body of the new sheet has another height than the body of the like animal, `new`
    scales the values in animal heights that come from the like animal by the body height ratio
@@ -292,20 +293,8 @@ same loop with its traps. Take each time from `python3 studio log <id>`.
    | `measure.features.<name>.regions` | the regions of a feature of the method `bump` (the ears): the top of the silhouette stays at 1 |
    | `compare.facet_crops` | `paint`, `look`, `checks`, `seeds`, `measure.classes`: no lengths |
 
-   A dry run on the rabbit sheet with `--like polar-bear` (a temporary id, removed after the
-   test) measured the crowns 0.767 and 0.992, a ratio of 0.7733, and scaled 51 values. The
-   scaled values come near the values that round 1 of the rabbit set by hand:
-
-   | Value | Polar bear | Scaled | Round 1 by hand |
-   |---|---|---|---|
-   | `facets.warps[1].center` y, `radius` | 0.88, 0.16 | 0.6805, 0.1237 | 0.67, 0.12 |
-   | `facets.squeeze.center` y | 0.43 | 0.3325 | 0.30 |
-   | `rig.spine.head_end` y | 1.0 | 0.7733 | 0.78 |
-   | `measure.features.eyes.regions.front` y | 0.9 to 0.96 | 0.696 to 0.7424 | 0.64 to 0.70 |
-   | `facets.offset` | 0.004 | 0.0031 | 0.0015 |
-
-   The skin offset of the rabbit (0.0015) follows its thin limbs more than its height: check it
-   in the first build.
+   The skin offset (`facets.offset`) follows the thickness of the limbs more than the height of
+   the body. Check it in the first build.
 4. Calibrate: `python3 studio calibrate <id> --from bear` (about 5 s) sets the light, the
    palette, and the dark classes from the sheet with renders of the bear GLB. Read its warnings:
    a color class that takes fur pixels, a color that clips, a paint contrast that the light
@@ -335,7 +324,7 @@ same loop with its traps. Take each time from `python3 studio log <id>`.
    `python3 studio report <id> --measure` (about 3 s).
 9. Read the seed report before you call the model or a clip done: `out/seed-report.json`, or
    `python3 studio build <id> --all-seeds --no-shots`. With `seeds.require = "kept"` (the
-   default) only the kept seed must pass, so the exit code says nothing about the other seeds.
+   default), only the kept seed must pass, so the exit code says nothing about the other seeds.
    Read them, and list each failed seed with its place. `seeds.require = "all"` makes each seed
    that passes the remesh gate pass every clip (see "The seed rule").
 10. Keep the result: `python3 studio regress <id> --write --from animals/<id>/out --note
@@ -355,9 +344,9 @@ A role pack says what the animal does. It is one folder under `roles/`:
 | `__init__.py` | `make(ctx)` returns the pack object: `fps`, `clips`, `performance`, `blend`, and optionally `hand_targets`. |
 | more | The clip code, the review shots (`shots.json`), review scripts (`pattern.py`). |
 
-The studio calls nothing else of a pack, so a new role is a new folder and no change of the studio
-code (a new prop kind or a new corrective kind is a change of the studio or of the template). The
-pack object has this shape:
+The studio calls nothing else of a pack. Thus a new role is a new folder and no change of the
+studio code. A new prop kind or a new corrective kind is a change of the studio or of the
+template. The pack object has this shape:
 
 ```typescript
 /** The pack object that make(ctx) returns (roles/<name>/__init__.py). */
@@ -444,54 +433,27 @@ chord, rest).
 |---|---|---|
 | Seated bind pose | `[bind] hip_flex`, `knee_flex`, `hip_abduct` (templates/biped `Body.leg_rotations`) | The mesh is built and bound with the legs bent, so the seated clips stay near the bind pose. `hip_abduct` turns the knees apart: thighs side by side leave a slit between them, which the remesh gate stops. |
 | The drop onto the seat | `Body.seated_drop()`, `props.scene_layout()` | The clips offset the hips down by the height of the lowest point of the bent soles, so the feet stand on the floor. |
-| The seat | `Body.seat()`, `bench.fit` (props/bench.py) | The seat reaches from behind the rump to the backs of the shins. Its height map is the lowest body point over each spot, up to the plane of the thighs. The pad of the bench takes this form, as a soft pad under a heavy body: it rests at the thighs, and the rump and the hanging belly push it down. So the rump and the thighs both rest on it. |
+| The seat | `Body.seat()`, `bench.fit` (props/bench.py) | The seat reaches from behind the rump to the backs of the shins. Its height map is the lowest body point over each spot, up to the plane of the thighs. The pad of the bench takes this form, as a soft pad under a heavy body: it rests at the thighs, and the rump and the hanging belly push it down. Thus the rump and the thighs both rest on it. |
 | Digits | `[rig] fingers = 4` (templates/biped, see "The biped template") | Each paw has one digit bone for each claw, from inside the paw to the claw tip. |
-| Keys and hand positions | `props.piano_keys()`, `Paw`, `Pianist.place()` | A white key is as wide as the spacing of the claw tips, so in a hand position each digit is over its own key: for the right paw digit 1 (inner) is on the home key and digit 4 three white keys higher, for the left paw three white keys lower. A straight digit has its claw tip on the key top, and a digit that does not play is lifted 12 degrees. |
+| Keys and hand positions | `props.piano_keys()`, `Paw`, `Pianist.place()` | A white key is as wide as the spacing of the claw tips, so in a hand position each digit is over its own key. For the right paw, digit 1 (inner) is on the home key and digit 4 three white keys higher. For the left paw, digit 4 is three white keys lower. A straight digit has its claw tip on the key top, and a digit that does not play is lifted 12 degrees. |
 | A note | `Pianist.fingers()`, `envelope()` | The digit curls down until its claw tip is on its key (`Paw.curl_for`, a bisection on the tip height), then pushes the key down by the key dip, and lifts. The press share of each key goes into the pose spec (`spec['keys']`), and the key node of the piano turns with it. |
 | Scene props | `[[props]] kind = "piano"` and `"bench"`, `attach.bone = "scene"` (studio/props.py) | Each prop is a mesh node of its own in the GLB with no bone. The keys that the pack presses (`pack.pressed_keys`) are nodes under the piano. The sheet pose hides the props (node scale 0). The props give their test boxes to the scene check. |
 | Wrist targets | `Pianist.arms()` | The clips make wrist points in model space, and turn them into wrist targets in the rest frame of the chest of the same pose (the frame of the solver). |
 | Role checks | `[checks] scene_depth`, `seat_gap`, `hand_targets` (`studio/scene_check.py`) | Gates of each clip: `scene.<clip>` (the deepest body skin point in a prop box), `seat.<clip>` (the larger gap of the rump skin and of the thigh skin to the top of the pad under them), `hands.<clip>` (the distance of the claw tip of each pressing digit from its target). |
 | Correctives | `[bind] correctives = ["arm_down", "legs_straight"]` | `legs_straight` moves the leg skin onto the standing legs in the sheet pose. The thigh angle drives it. |
 
-A pack can give the optional method `hand_targets(clip, t)`: `{side: point}` (the knuckle, with
-one finger bone) or `{side: {digit: point}}` (the claw tip of each digit that presses a key, with
-digits) for the frames where a paw presses a key, or None. The pianist target of a digit is on
-its key, at the depth of the key, on the front part of the key: the claw tip slides a little
-along the key as the digit curls. An optional attribute `pressed_keys` lists the keys that the
-clips press.
+A pack can give the optional method `hand_targets(clip, t)`. It returns `{side: point}` (the
+knuckle, with one finger bone) or `{side: {digit: point}}` (the claw tip of each digit that
+presses a key, with digits) for the frames where a paw presses a key, or None. The pianist target
+of a digit is on its key, at the depth of the key, on the front part of the key: the claw tip
+slides a little along the key as the digit curls. An optional attribute `pressed_keys` lists the
+keys that the clips press.
 
-The tuning of the rest clip (the paws out by 2.1 and forward by 1.3 knee radii, the elbows out
-and back in the first half of the way down, a deeper lean) came from a probe that runs the
-contact stage of the build on the stored mesh of each seed (`docs/handoff-props.md`).
-
-Since 2026-10-14, the polar bear has shins 0.072 units longer than its sheet (`field.lift`), so
-that its feet stand on the floor beside the bench of 0.25 m of the app, and `facets.seeds` puts
-seed 6 first (`docs/decisions/2026-10-14-polar-fix.md` of the repository). The results below are
-the results of 2026-10-12, before that change.
-
-The results on the polar bear: the role seed is 3, the first seed of `facets.seeds` that passes
-every gate (main kept seed 1). Every gate passes. The seed report (`out/seed-report.json`): each
-of the 7 seeds that pass the remesh gate passes every clip (main: seed 1 only). Seed 6 fails the
-remesh gate, as on main.
-
-| Gate (worst clip) | Main (seed 1) | Now (seed 3) |
-|---|---|---|
-| seeds that pass every clip | 1 of 7 | 7 of 7 |
-| contact (rest, over the seeds) | 1.0 to 1.9 cm on 6 seeds | 0.00 cm on each seed |
-| seat: the rump over the bench | 0.20 cm | 0.05 cm |
-| seat: the thighs over the bench | 2.23 cm (fails the new split) | -0.05 cm |
-| hands | 0.00 cm (knuckles) | 0.00 cm (the claw tip of each pressing digit) |
-| scene (a body point in a prop) | 0.19 cm | 0.17 cm |
-| folds | 0 | 0 |
-
-The look checks come from the model build, whose GLB is the GLB of main: IoU front 0.9465, side
-0.9543, back 0.9452, 3/4 0.9332, 71 of 84 checks. The role GLB grew from 888 kB to 1106 kB: 8
-digit bones with their keys in each clip, 10 key nodes, and the piano with its inside (1296
-triangles).
-
-Not built yet: a score-driven clip generator (notes from a MIDI score), black keys in the clips
-(the melody and the chords use white keys), and a cello role (the props exist, see "The prop
-library").
+The rest clip puts the paws out by 2.1 and forward by 1.3 knee radii, turns the elbows out and
+back in the first half of the way down, and leans the trunk further, so that the forearms stay
+off the belly. To tune a clip value on all seeds, run the contact stage of the build
+(`build.stage_contacts`, with the fold repair) on the stored mesh of each seed. Such a probe
+takes 10 to 55 s for 7 seeds in parallel, and a seed pool takes about 3 min.
 
 ### The violinist role (a seated role with a held violin)
 
@@ -517,7 +479,7 @@ left paw holds the violin at the neck, and the right paw holds the bow. Both are
 | The held violin | `studio/props.py` `held_violin`, `held_violin_frame` | The neck lies in the paw at `strings.neck` of the length from the tail end, the scroll along `direction`, the top plate toward `strings.top` (hand frame). The clips turn the paw, so no attachment to the chest or the head is needed. |
 | The hold | `Violinist.held()`, `left_arm()` | The violin lies under the chin (`TAIL`), turned `TURN` degrees to the left of straight forward, the scroll `SCROLL_DOWN` degrees down, the top plate rolled `ROLL` degrees to the right. |
 | The bow | `Violinist.on_string()`, `right_arm()` | The bow crosses the strings square to them at `CONTACT` of the violin length from the tail end (between the bridge and the fingerboard), with the hair down. A whole bow goes from `FROG` to `TIP` of the bow length, a half bow over the half at the frog. |
-| A turn between two places | `slerp()`, `Violinist.way()` | A paw turns about one axis (a linear blend of the directions flipped the paw). The bow paw passes a way point in front of the belly, with the bow pointing forward, so the bow does not cross the belly. |
+| A turn between two places | `slerp()`, `Violinist.way()` | A paw turns about one axis, because a linear blend of the directions flips the paw. The bow paw passes a way point in front of the belly, with the bow pointing forward, so the bow does not cross the belly. |
 | The rest | `Violinist.rest_arms()` | Each paw hangs at its side in the hand frame of the sheet pose: the violin and the bow hang from the paws. The belly of the rabbit covers its short thighs, and its arms do not reach the lap. |
 | The soloist | `clip_stand_play` | The legs of the sheet pose, the chair hidden (`chair_scale = 0`), the violin up, a short stroke. |
 
@@ -525,17 +487,13 @@ The clips: `reference`, `ready` (the violin comes up from the rest), `play` (two
 bpm: a whole bow down and up on the A string, then half bows down and up on the D string),
 `rest`, `stand_play`, and `performance` (ready, play two times, rest). The role checks: contact
 of the paws, the forearms, the claws, and the bow (`contact_tests = ["paw", "forearm", "claws",
-"props"]`, the bow with `contact = "bow"`; the violin touches the chin, so it has `contact =
-"none"`), folds, the scene (the chair), and the seat.
+"props"]`, the bow with `contact = "bow"`), folds, the scene (the chair), and the seat. The
+violin touches the chin, so it has `contact = "none"`.
 
-The limits on the rabbit: since round 4, its arms reach 0.29 animal heights in the sheet pose
-(`reach` of `role.toml`), 1.4 times the reach of rounds 1 to 3 (the user, 2026-10-13: "Arms
-x1.4, violin 28 cm"). Its chest stands 0.11 in front of its shoulder joints. The violin is 0.234
-long (0.80 arm reaches, a person: 1.1), about 0.28 m at the scale of the app, and the paw holds
-it at 0.68 of the length. The bow is 0.29 long (1.25 violins, the rule of the prop library), and
-a whole bow uses 0.18 of the bow length. The app keeps its own violin, bow, and motion: it sizes
-its violin by the rule of a violin shop to the arm of its body (`violinScale` of
-`src/models/species.ts`), and for the app the role gives the seated bind pose and the skin.
+The sizes on the rabbit: its arms reach 0.29 animal heights in the sheet pose (`reach` of
+`role.toml`), and its chest stands 0.11 in front of its shoulder joints. The violin is 0.234 long
+(0.80 arm reaches), and the paw holds it at 0.68 of the length. The bow is 0.29 long (1.25
+violins, the rule of the prop library), and a whole bow uses 0.18 of the bow length.
 
 ### The reach line of a held instrument
 
@@ -561,19 +519,16 @@ targets ask for up to 0.8145 of the reach (ready, frame 24, side R).
   `checks.instrument_reach` of the role (default 0.9 to 1.1). The size chart of [Violin
   Lounge](https://violinlounge.com/tools/size-chart) gives the total length of the violin
   against this arm: 59 cm for 58.5 cm (4/4), 52 cm for 51 cm (1/2), and 36 cm for 35.5 cm
-  (1/16). The ratios are 1.01 to 1.02 (`docs/research/2026-10-13-studio-rabbit.md`, section 5),
-  and the range holds them with room for the step between two sizes.
+  (1/16). The ratios are 1.01 to 1.02, and the range holds them with room for the step between
+  two sizes.
 - `ik_reach.<clip>`: the largest share of the reach of the upper arm and the forearm (the
   shoulder joint to the wrist) that the IK wrist targets of the clip ask for, at most
   `checks.ik_reach` (default 1.0). Above it, the IK stops at the reach, and the paw misses its
   target.
 
-The two checks are report checks: no gate reads them. The manager reads the line before an app
-round. A ratio outside the range or a target past the reach blocks the app round, unless the
-user decided the size. The rabbit of round 1: an arm of 0.3071, a violin of 0.17 (ratio 0.554),
-and targets up to 1.1287 of the reach (`ready`, the bow paw). The rabbit of round 4: an arm of
-0.397, a violin of 0.234 (ratio 0.589, the decision of the user "Arms x1.4, violin 28 cm"), and
-targets up to 0.8145 of the reach.
+The two checks are report checks: no gate reads them. Read the line before a body goes into the
+app. A ratio outside the range or a target past the reach is a blocker, unless the size is a
+decision of the product owner. The rabbit has a ratio of 0.589 by such a decision.
 
 ## The prop library
 
@@ -614,11 +569,12 @@ chin (`roles/violinist/clips.py`), and the left paw carries it to the side in th
 studio has no attachment to the chest or the head.
 
 The keys that a pack presses are nodes under the piano node, with their origin on the pivot of
-the key (far back under the fallboard, as the balance rail of a real key). A pose spec gives the
-press share of each key in `spec['keys']`. `props.ScenePose` turns the shares and
-the prop scales into node transforms, `bake.write_node_actions` writes them as actions on NLA
-tracks with the clip names, and the glTF exporter merges them into the animations of the clips.
-A node that does not move in a clip has no channel in it (three.js keeps its rest transform).
+the key (far back under the fallboard, as the balance rail of a real key). Only the pressed keys
+are nodes, so that the GLB stays small. A pose spec gives the press share of each key in
+`spec['keys']`. `props.ScenePose` turns the shares and the prop scales into node transforms.
+`bake.write_node_actions` writes them as actions on NLA tracks with the clip names, and the glTF
+exporter merges them into the animations of the clips. A node that does not move in a clip has
+no channel in it (three.js keeps its rest transform).
 
 The gallery: `python3 studio props <animal>` builds one prop of each kind (`props/gallery.toml`)
 for the body of the animal into `out/props/gallery.glb`, with the clip "keys" (a scale pressed in
@@ -659,24 +615,25 @@ weight of each skin point to the digits from 2 cm behind the digit heads (none) 
          └─ finger4_L   outer digit                 a curl turns the digit toward the palm
 ```
 
-30 body bones (36 with four digits in each paw) plus one bone for each hand prop (31 for the
-conductor: `baton`). The scene props have no bone (36 bones for the pianist). The bind pose comes from the
-role: a seated bind pose bends the legs (`Body.leg_rotations`), and then the leg rule of the
-trunk weights takes the tops of the bent thigh and shin in place of the standing heights. The weight rules (`rig.py`) take their places from `rig.weights` of the
-animal config: trunk bands along the spine, owned parts of the arm, chain limits, throat and
-shoulder tops to the neck, head rigidity, ears to the head, the crotch to the hips. The solver
-has two-bone IK for the arms and planted legs, the twist split (the forearm twist bone takes a
-share of the paw twist), and the clavicle follow (`rig.clavicle`). The correctives are the
-arm-down shapes and the legs-straight shapes.
+The body has 30 bones (36 with four digits in each paw), plus one bone for each hand prop (31
+for the conductor: `baton`). The scene props have no bone (36 bones for the pianist). The bind
+pose comes from the role: a seated bind pose bends the legs (`Body.leg_rotations`). Then the leg
+rule of the trunk weights takes the tops of the bent thigh and shin in place of the standing
+heights. The weight rules (`rig.py`) take their places from `rig.weights` of the animal config:
+trunk bands along the spine, owned parts of the arm, chain limits, throat and shoulder tops to the
+neck, head rigidity, ears to the head, the crotch to the hips. The solver has two-bone IK for the
+arms and planted legs, the twist split (the forearm twist bone takes a share of the paw twist),
+and the clavicle follow (`rig.clavicle`). The correctives are the arm-down shapes and the
+legs-straight shapes.
 
 ## Checks
 
 `out/checks.json` holds one entry for each check. The contact and fold checks of each clip are
 gates: a failed gate fails the seed and the build. The other checks are reported. The look checks
-(IoU, fur color, features, facet contrast) come from the model build, and they are stale when the
-renders are not of the build in `out/` (see "The model build" and "Old and stale outputs"). A passing
-check is "near" its limit when it uses 75% or more of its allowance (`checks.NEAR`). A fold
-check is near when faces turn past 90 degrees. Each failing or near check that the tools can
+(IoU, fur color, features, facet contrast) come from the model build. They are stale when the
+renders are not of the build in `out/` (see "The model build" and "Old and stale outputs"). A
+passing check is "near" its limit when it uses 75% or more of its allowance (`checks.NEAR`). A
+fold check is near when faces turn past 90 degrees. Each failing or near check that the tools can
 locate gets `where`.
 
 ```typescript
@@ -772,7 +729,7 @@ interface Place {
 | `folds.<clip>` | `checks.folded_faces` | yes | the worst folded (or turned) face, `diag/fold-<face>-<clip>.png` |
 | `rest_inward_faces`, `slivers` | `checks.*` | no | the worst face, `diag/face-<face>.png` |
 | `unpaired_vertices`, `body_triangles` | `checks.*` | no | none |
-| `scene.<clip>`, `seat.<clip>`, `hands.<clip>` (a role with scene props or hand targets) | role `checks.scene_depth`, `checks.seat_gap`, `checks.hand_targets` | yes | the frame, the prop piece, the bone, and the point (scene); the frame, and the gaps of the rump and of the thighs in the stats (seat); the frame, the side, and the digit (hands) |
+| `scene.<clip>`, `seat.<clip>`, `hands.<clip>` (a role with scene props or hand targets) | role `checks.scene_depth`, `checks.seat_gap`, `checks.hand_targets` | yes | the frame, the prop piece, the bone, and the point (scene). The frame, and the gaps of the rump and of the thighs in the stats (seat). The frame, the side, and the digit (hands) |
 | `remesh_gate.<name>`: `quads`, `inward_faces`, `slivers`, `open_edges`, `slit_faces` | `facets.gate.*` | yes | the first face and its center (inward, slit), the first open edges (open edges) |
 | `iou.<view>`, `fur_hue`, `fur_saturation`, `fur_value` of each view | `checks.iou.<view>`, `checks.fur_color` | no | the view tile `report/views/<view>.jpg` |
 | `head_turn.<view>` (a view in `compare.head_turn`): the head turn of the compare render, near or out of range at an end of the range | `compare.head_turn.<view>` | no | the view tile |
@@ -781,37 +738,36 @@ interface Place {
 | `instrument_reach.<prop>` (a role with a held instrument) | role `checks.instrument_reach` | no | the prop, its length, and the arm from the neck to the middle of the palm |
 | `ik_reach.<clip>` (a role with a held instrument) | role `checks.ik_reach` | no | the clip, the frame, the time, and the side of the largest share |
 
-Two ear checks of the bump method find the look faults that rounds 2 and 3 of the rabbit fixed
-by eye. Both are look checks of the model build, and each failure gets the feature crop.
+Two ear checks of the bump method find look faults of the ears that the other checks miss. Both
+are look checks of the model build, and each failure gets the feature crop.
 
-| Check | What it measures | Limit (rabbit) | Sheet | Round 1 (fails) | Current, round 4 (passes) |
-|---|---|---|---|---|---|
-| `ear_inner.front.<side>` | The share of the ear above the notch in the class `ear_inner` (the palette color `ear_inner`, hue 20 degrees, saturation 0.12) | `abs<=` 0.1 | 0.481, 0.505 | 0.836, 0.838 | 0.484, 0.484 |
-| `ear_lean.side.ear` | The lean of the back edge of the ear from the vertical: a least-squares line over the rows of `notch_span` below the top, less 10% at each end. The window does not use the notch, because an oval ear moves the notch up. | `abs<=` 5 degrees | 9.82 | -7.19 | 9.51 |
+| Check | What it measures | Limit (rabbit) |
+|---|---|---|
+| `ear_inner.front.<side>` | The share of the ear above the notch in the class `ear_inner` (the palette color `ear_inner`, hue 20 degrees, saturation 0.12) | `abs<=` 0.1 |
+| `ear_lean.side.ear` | The lean of the back edge of the ear from the vertical: a least-squares line over the rows of `notch_span` below the top, less 10% at each end. The window does not use the notch, because an oval ear moves the notch up. | `abs<=` 5 degrees |
 
-The limits come from these measures: each limit is less than a third of the round 1 gap, and
-more than 4 times the gap of the current rabbit. The probe
-`python3 studio report rabbit --measure --no-serve --out <dir>` measured the renders of round 1
-(copied into `<dir>/compare/`) and of the current rabbit (round 4: the ears of round 3).
+Each limit is less than a third of the gap of an ear with the wrong form, and more than 4 times
+the gap of the current rabbit. To measure the renders of another build, copy them into
+`<dir>/compare/` and run `python3 studio report rabbit --measure --no-serve --out <dir>`.
 
 The lean fit reads all rows of `notch_span` below the top, also the rows below the notch. Set
 `notch_span` of the feature near the ear length of the sheet (the rabbit: 0.198, with the
 default 0.2). A larger span puts the base of the ear and the back of the head into the fit.
 
-The bear passes 76 of 87 checks on the golden build, and 12 checks are near their limit. Three
-failures are known limits of the sheet (see `animals/bear/README.md`): the back view of the
-sheet is darker (`fur_value.back`), and the 3/4 view of the sheet turns the head more
-(`eye_rim.three_quarter.0`, `eye_outline.three_quarter.1`). The feature checks of the nose, the
-muzzle, and the claws find real differences of the look: the nose sits higher in the front view
-and further forward in the side view, the muzzle is shorter, and the claws of each paw touch.
+Some failing checks are known limits of a sheet (see `animals/bear/README.md`). On the bear, the
+back view of the sheet is darker (`fur_value.back`), and the 3/4 view of the sheet turns the head
+more (`eye_rim.three_quarter.0`, `eye_outline.three_quarter.1`). The feature checks of the nose,
+the muzzle, and the claws of the bear find real differences of the look: the nose sits higher in
+the front view and further forward in the side view, the muzzle is shorter, and the claws of
+each paw touch.
 
 ## The model build
 
 The look checks (IoU, fur color, features, facet contrast) compare the sheet pose of a GLB with
 the sheet. A seated role bends the legs in its bind pose, and its sheet pose straightens them by
-skinning: the knees bulge forward, and the side IoU of the polar bear fell from 0.955 (conductor
-build) to 0.912 (pianist build). Thus each build with shots builds the animal a second time with
-the role pack `roles/model/`:
+skinning. The knees then bulge forward: the side IoU of the polar bear is 0.912 on the pianist
+build and 0.955 on a standing build. Thus each build with shots builds the animal a second time
+with the role pack `roles/model/`:
 
 - The bind pose stands: the arms raised (shoulder flex 40, abduct 10, elbow 25, with the
   `arm_down` corrective) and the legs straight. `roles/model/role.toml` fixes the values, so a
@@ -828,24 +784,8 @@ role build. `checks.json` (`look.compare`, `look.model_seed`), the CLI summary, 
 and `review.png` name the build of the look checks. When no seed of the model build passes the
 remesh gate, the compare renders the role GLB and says so.
 
-The polar bear pianist when the model build came (role seed 1, model seed 3):
-
-| View | Pianist build | Model build |
-|---|---|---|
-| front | 0.9409 | 0.9465 |
-| side | 0.912 (fail) | 0.9543 |
-| back | 0.9405 | 0.9452 |
-| 3/4 | 0.9047 | 0.927 |
-
-70 of 83 checks pass (71 before). `iou.side` and `ear_width.front` now pass.
-`eye_outline.front` (2 px narrower than the sheet) and `belly_y.front` and `belly_width.front` now
-fail: the class "light" finds no pixels on the standing body. The bear keeps its IoU and all 87
-check results. With the 3/4 head turn of the compare (see "The head turn of a view in the
-compare"), the 3/4 IoU of the polar bear model build is 0.9332.
-
-A bind pose in the pose of the sheet (no turns) was the other choice. On 2026-10-12 it gave the
-polar bear IoU 0.9410, 0.9526, 0.9410, and 0.9258, and only seed 6 of the bear passed its remesh
-gate (the quad counts of the other seeds fell under the band).
+A bind pose in the pose of the sheet (no turns) gives a lower IoU on the polar bear, and fewer
+bear seeds pass the remesh gate with it.
 
 ## Old and stale outputs
 
@@ -883,12 +823,12 @@ interface LookRecord {
 
 ## The outputs that git keeps
 
-A round of the studio writes about 24 MB of outputs for the two animals, most of them renders.
-Git keeps only what a reader or a tool needs (`lowpoly-studio/.gitignore` names each file):
+A round of the studio writes about 12 MB of outputs for each animal, most of them renders. Git
+keeps only what a reader or a tool needs (`lowpoly-studio/.gitignore` names each file):
 
 | File in `animals/<id>/out/` | Why git keeps it |
 |---|---|
-| `<id>.glb` | The result. The app reads `animals/bear/out/bear.glb` (`pnpm studio-body bear`) and `animals/polar-bear/out/polar-bear.glb` (`pnpm studio-body polar-bear`). The rabbit of the app comes from `pnpm rig-mesh rabbit` since 2026-10-13. |
+| `<id>.glb` | The result. |
 | `<id>.stats.json` | The stats of the GLB: the counts, the contacts, and the fold repairs. |
 | `build.json` | The run, the seed, and the model seed of the build. |
 | `checks.json` | Every check with its value, its limit, its result, and its place. |
@@ -908,28 +848,18 @@ other outputs are ignored, and these commands make them again:
 | `regress/` | `python3 studio regress <id>` |
 
 A new output folder is ignored by default, because the rules keep files by name. To keep
-another file in git, add a `!` rule to `.gitignore` and say why here. The old renders stay in the
-history of the repository, because main is pushed (about 77 MB of the 197 MB pack on
-2026-10-12).
-
-The size of one round of both animals (a change of `details.eyes.radius` of each animal, then
-`python3 studio build bear` and `python3 studio build polar-bear`, 2026-10-12):
-
-| What a commit of `animals/*/out/` adds | Before | After |
-|---|---|---|
-| Files | 70 | 8 |
-| Bytes | 18.0 MB (15.9 MB compressed) | 3.2 MB (1.4 MB compressed) |
-
-After the change, the two GLB files are 2.5 MB of the 3.2 MB, and the two review images 0.6 MB.
-A build that does not change the look changes only `build.json` and `checks.json` (the run).
+another file in git, add a `!` rule to `.gitignore` and say why here. A build that does not
+change the look changes only `build.json` and `checks.json` (the run), and the two GLB files are
+most of the bytes of a commit.
 
 ## Run files and the timeline
 
 Each run of `build`, `regress`, and `compare` writes one run file into
 `<git common dir>/lowpoly-studio/runs/<animal>/<start>-<pid>.json` (`studio/runlog.py`). The CLI
 writes it at the start (status `running`) and at the end. A run that a signal or a crash stopped
-keeps the status `running`. `python3 studio log [<animal>]` prints the runs of this worktree as a
-timeline (`--all`: of all worktrees):
+keeps the status `running`. The run files are never deleted (about 2 kB each).
+`python3 studio log [<animal>]` prints the runs of this worktree as a timeline (`--all`: of all
+worktrees):
 
 ```text
   10-12 07:57:06   135.6 s  build polar-bear  (seed 1, model seed 3; cache 8 of 13; pass, ...)
@@ -941,7 +871,7 @@ timeline (`--all`: of all worktrees):
 ```typescript
 /** <git common dir>/lowpoly-studio/runs/<animal>/<id>.json (studio/runlog.py Run). */
 interface RunFile {
-  id: string;                 // '20261012-075706-13746': the local start time and the pid
+  id: string;                 // '<yyyymmdd>-<hhmmss>-<pid>': the local start time and the pid
   animal: string;
   command: string;            // 'build polar-bear --seed 1'
   worktree: string;           // the lowpoly-studio folder of the run
@@ -981,6 +911,9 @@ places. `studio/locate.py` writes them into `out/diag/`:
 | `folds.json` | The fold debug list: each folded (past 120°), turned (past 90°), repaired, inward, or sliver face with its rest place, its posed place in each clip, its region, its weights (and the weights before the repair), its smallest angle, and its rest direction. |
 | `contacts.json` | The deepest contact of each clip (only when a part goes into the body) and the closest approach (the smallest gap) of each clip. |
 | `contact-<clip>.png`, `fold-<face>-<clip>.png`, `face-<face>.png` | A crop of each place: a flat-shaded render of the mesh around it, from outside the body and from the side. The face is red with a yellow edge and a ring. A body face that shows its back is purple, the arm of a contact is blue, and a claw or a prop is gray. |
+
+The crop renders are flat-shaded and cut at a radius of 0.12 around the place. A fold deep in a
+crease can hide behind other faces, so the crop also shows a side view and a ring.
 
 An example: a test bear with paws of radii `[0.115, 0.115, 0.1]` fails the gate of the bow, and
 the checks print:
@@ -1026,7 +959,8 @@ checks = { outline = { measure = "width", op = "rel<=", limit = 0.08 }, rim = { 
 ```
 
 To tune a feature box, edit it and run `python3 studio report <animal> --measure`. It measures
-the existing renders again and draws the crops in about 3 s.
+the existing renders again and draws the crops in about 3 s. The limits of the features come from
+few sheets, so check each limit on a new animal before you trust it.
 
 ## The look report
 
@@ -1053,16 +987,15 @@ holds the numbers and the key crops in one image, for an agent that reads only i
 
 `python3 studio regress <id>` builds the animal with the golden seed into `out/regress/` and
 compares. The build uses the stage cache, and `--no-cache` makes it cold: both give the same GLB
-bytes (and the same model GLB bytes) on the bear and the polar bear. Each group gets one verdict: identical (the same bytes), float noise (the bytes differ,
-and each block checksum agrees within 2e-6 of its block: about one float32 step of each value),
-or different. IoU may differ by 0.0005. A 1-ulp change of a vertex reads as float noise, and a
-change of 0.001 of one vertex reads as different.
+bytes and the same model GLB bytes. Each group gets one verdict: identical (the same bytes),
+float noise (the bytes differ, and each block checksum agrees within 2e-6 of its block: about one
+float32 step of each value), or different. IoU may differ by 0.0005. A 1-ulp change of a vertex
+reads as float noise, and a change of 0.001 of one vertex reads as different.
 
-The golden stats of the bear come from the build of main c528ca2e (the old
-`bear-studio/build.sh --seed 3`). The build of the studio gives the same GLB bytes, the same
-stats, the same IoU (front 0.9468, side 0.9596, back 0.9495, 3/4 0.9154), and the same check
-results. The measures and the look checks come from the model build since the runtime round
-(`docs/handoff-runtime.md`), so the golden measures changed then.
+A change of studio code runs `python3 studio regress` on the bear, the polar bear, and the
+rabbit. A pure refactor keeps every GLB byte-identical. An improvement may change an existing
+animal when it is measurably closer to its sheet and no gate gets worse. Give a before and after
+table, look at the review image, and commit the new golden file alone with the reason.
 
 ## Speed: the stage cache, the seed pool, and the remesh gate
 
@@ -1090,10 +1023,10 @@ builds in two worktrees can write and read the same entries at the same time. Ea
 its animal in its meta, for `cache info` and `cache clean <animal>`.
 
 A change of a config value that a step did not read keeps its entry valid. Thus a change of an
-eye radius runs paint to assemble again (cheap, they always run) and the export, and takes the
+eye radius runs paint to assemble again (cheap, they always run) and the export. It takes the
 field, the remesh, the organic pass, the clips, the contact check, and the diagnostics from the
-cache. The contact check tracks the reads of the detail items one by one: it reads the claws
-and the baton, so a change of the eyes or of a paint color keeps its entry.
+cache. The contact check tracks the reads of the detail items one by one: it reads the claws and
+the baton, so a change of the eyes or of a paint color keeps its entry.
 
 | Stage | Cache | On a hit |
 |---|---|---|
@@ -1102,15 +1035,14 @@ and the baton, so a change of the eyes or of a paint color keeps its entry.
 | organic | yes | makes the body object again from the stored mesh (`restore_organic`) |
 | paint, details, rig, correctives, assemble | no: always runs | (cheap, and they change the Blender scene) |
 | clips | yes | writes the stored samples into actions (`restore_clips`) |
-| contacts | yes, with diagnostics; inside it, the frame cache keeps the record of each frame | writes the repaired weights and shapes of each round (`restore_contacts`) |
+| contacts | yes, with diagnostics. Inside it, the frame cache keeps the record of each frame | writes the repaired weights and shapes of each round (`restore_contacts`) |
 | export | yes, with the keys of all stages before it in its key | writes the stored GLB and stats |
 | diagnostics | yes, with the key of contacts in its key | loads its data |
 
 A restore function makes the Blender state with the same calls as the run that made the entry.
-So a build from the cache gives the same GLB bytes as a cold build: the regression of the bear
-says "identical" with and without `--no-cache`, and an eye radius change from the cache gives
-the same bytes as the same change with `--no-cache`. Each stage also writes its stage folder on
-a hit, so `checks.py` and the look report read the same `data.json`.
+Thus a build from the cache gives the same GLB bytes as a cold build: the regression of the bear
+says "identical" with and without `--no-cache`. Each stage also writes its stage folder on a hit,
+so `checks.py` and the look report read the same `data.json`.
 
 Rules for new stage code (`studio/cache.py` has the details):
 
@@ -1132,57 +1064,39 @@ Rules for new stage code (`studio/cache.py` has the details):
   whole table, but its digest leaves out the untracked tables (`cfg.paths`, `cfg.role.paths`).
   A truth test (`if cfg.role:`) records only whether the table has a key. The manifest refuses a
   read whose value holds a path in the studio folder, with an error that names the read.
+  `tests/test_cache.py` guards this rule: two studio folders give the same setup keys, and the
+  conductor build and the model build share the keys of the model stages.
 
 An edit of a studio file runs again each stage that ran code of that file. For example, an edit
-of `studio/remesh.py` runs the remesh and the organic pass again (about 18 s). An animal holds
-about 10 MB for each seed. A build deletes the least recently used entries above 2 GB of the whole
-shared cache. `python3 studio cache info [bear]` prints the sizes by step and by animal, and
-`python3 studio cache clean bear` deletes the entries of the bear.
+of `studio/remesh.py` runs the remesh and the organic pass again (about 18 s). The role key uses
+the bytes of each file of the role pack and the template, so a comment change starts a role
+check. An animal holds about 10 MB for each seed. A build deletes the least recently used
+entries above 2 GB of the whole shared cache. `python3 studio cache info [bear]` prints the sizes
+by step and by animal, and `python3 studio cache clean bear` deletes the entries of the bear.
 
-### Times (the bear, seed 3)
+### Times (the bear, one seed)
 
-| Case | Before (phase 1) | With the cache |
-|---|---|---|
-| Cold GLB build (`build --seed 3 --no-shots`, empty cache) | 52.2 s | 53.4 s |
-| Eye radius change (`details.eyes.radius`), GLB | 52.2 s | 4.6 s |
-| Fur color change (`paint.palette.fur`), GLB | 52.1 s | 4.9 s |
-| Clip change (a number in `roles/conductor/clips.py`), GLB | 52.7 s | 10.7 s (12.8 s for a clip of the performance, see "The frame cache") |
-| No change, GLB | 52 s | 1.9 s |
-| Full build with shots, the cache has the seed (`regress bear`) | 65.3 s | 16.0 s |
-| Full 8-seed check (`build --all-seeds --no-shots`), empty cache | 380.2 s (one after the other) | 97.7 s (4 jobs) |
-| Full 8-seed check after an eye radius change | 380 s | 13.3 s |
+| Case | Time |
+|---|---|
+| Cold GLB build (`build --seed 3 --no-shots`, empty cache) | about 53 s |
+| Eye radius change (`details.eyes.radius`), GLB | about 5 s |
+| Fur color change (`paint.palette.fur`), GLB | about 5 s |
+| Clip change (a number in `roles/conductor/clips.py`), GLB | about 11 s (13 s for a clip of the performance) |
+| No change, GLB | about 2 s |
+| Full build with shots, the cache has the seed (`regress bear`) | about 16 s |
+| Full 8-seed check (`build --all-seeds --no-shots`), empty cache, 4 jobs | about 98 s |
+| Full 8-seed check after an eye radius change | about 13 s |
+| A role check of 8 seeds after a comment in the clip file | about 20 s |
 
-A clip change runs the clips stage again (about 3.4 s: it solves every clip) and the contact
-stage. The frame cache of the contact stage measures only the frames whose pose changed (see "The
-frame cache of the contact check").
-
-The shared cache in a new worktree (2026-10-12, another worktree filled the cache):
-
-| Case | Cold | From the shared cache |
-|---|---|---|
-| `build bear --seed 3 --no-shots` | 55.1 s | 4.0 s (the same GLB bytes) |
-| `build bear --all-seeds --no-shots` (8 seeds) | 76.1 s | 8.9 s |
-
-From 5d796dc7 to the fix of 2026-10-12, a new worktree missed the shared cache. The body setup
-tested the role table for truth, and the key recorded the whole table with its absolute folders.
-The same read kept the model build from the stages of the conductor build. `tests/test_cache.py`
-guards the keys: two studio folders give the same setup keys, and the conductor build and the
-model build share the keys of the model stages. The times of the fix (2026-10-12, from
-`python3 studio log`):
-
-| Case | Before (main fda4d55f) | After |
-|---|---|---|
-| `build bear --seed 3 --no-shots`, first build in a new worktree | 52.2 s, 1 of 13 steps from the cache | 3.9 s, 8 of 13 |
-| `build polar-bear --seed 1 --no-shots`, first build in a new worktree | 49.6 s, 1 of 13 | 7.3 s, 8 of 13 |
-| the model build of `compare bear` after a conductor build | 20.6 s | 1.8 s (field, remesh, and organic from the conductor build) |
+The rest of a one-clip change is the clips stage (about 3.4 s: it solves every clip), the
+export (2.0 s), the start of Blender with the cheap stages (about 2 s), and the checks (1.7 s).
+The frame cache of the contact stage measures only the frames whose pose changed.
 
 ### The frame cache of the contact check
 
 The key of the stage "contacts" holds the samples of all clips, so a change of one clip runs the
-stage again. Before the frame cache, the stage then measured each frame of each clip in each
-round of the fold repair (about 24 s for the bear). Now `contacts.Frames` keeps the record of each
-frame in the shared stage cache (step `contact-frames`), and the stage measures only the frames
-that the cache does not hold:
+stage again. `contacts.Frames` keeps the record of each frame in the shared stage cache (step
+`contact-frames`), and the stage measures only the frames that the cache does not hold:
 
 ```text
  round key = digest(skeleton, mesh, weights, corrective shapes, obstacles, test groups,
@@ -1192,12 +1106,11 @@ that the cache does not hold:
              {frames: {frame key: record}} + manifest: the code that measured the records
 ```
 
-A clip reads the records of the 4 newest valid entries of its folder. A change of one clip thus
-measures the frames of that clip and the frames of the performance that show it, in each round.
-The other frames come from the cache. The diagnostics read the same journal of records, and
-`--no-cache` measures every frame. A build from the frame cache gives the same bytes as a cold
-build: after a change of `clip_hush`, the GLB, the stats, and the diagnostics of the build with
-the frame cache and of the build with `--no-cache` are the same.
+A clip reads the records of the 4 newest valid entries of its folder. Thus a change of one clip
+measures the frames of that clip and the frames of the performance that show it, in each round
+of the fold repair. The other frames come from the cache. The diagnostics read the same journal
+of records, and `--no-cache` measures every frame. A build from the frame cache gives the same
+GLB, stats, and diagnostics as a build with `--no-cache`.
 
 ```typescript
 /** The record of one frame (studio/contacts.py ContactCheck.frame, studio/scene_check.py
@@ -1230,22 +1143,6 @@ interface Place {
   gap?: number;     // a closest approach
 }
 ```
-
-The times of the bear (`python3 studio build bear --seed 3 --no-shots`, the cache filled, from
-`python3 studio log`, 2026-10-12):
-
-| Change | Before (main a01d45d2) | After |
-|---|---|---|
-| A number in `clip_nod_turn` (not in the performance) | 40.7 s (contacts 29.4 s) | 10.7 s (contacts 1.3 s: 54 of 1920 frames in each round) |
-| A number in `clip_hush` (in the performance) | 34.7 s (contacts 23.7 s) | 12.8 s (contacts 3.6 s: 248 of 1920 frames in each round) |
-| A comment in `roles/conductor/clips.py`, then `build bear --all-seeds --no-shots` (a role check, 8 seeds) | 43.2 s (the frame cache empty for 4 of the 5 seeds that pass the remesh gate) | 20.4 s |
-
-Three more changes of this round cut the time of the frames that run: the corrective drivers pose
-only the bones that they read (`skinning.world_rotations`), the contact check makes the vertex
-vectors once for each frame (a cold round of the bear: 12.1 s before, 9.9 s after), and the look
-report draws its overlap tiles with Pillow in place of a Python loop (1.3 s less in each build).
-The rest of a one-clip change is the clips stage (3.4 s), the export (2.0 s), the start of
-Blender with the cheap stages (about 2 s), and the checks (1.7 s).
 
 ### The seed pool
 
@@ -1304,11 +1201,10 @@ interface SeedResult {
 
 ### The seed rule
 
-A clip can pass on one seed and fail on others: the rest clip of the polar bear pianist passed
-on seed 1 only before the props round. Thus a pool build runs the role clips on every seed (a role check) when the
-digest of the role pack (each file of `roles/<role>/`), the template package, and `--clips`
-differs from the digest in `out/seed-report.json`, or when no report exists. A full seed run
-writes the report and prints it as a table:
+A clip can pass on one seed and fail on others. Thus a pool build runs the role clips on every
+seed (a role check) when the digest of the role pack (each file of `roles/<role>/`), the template
+package, and `--clips` differs from the digest in `out/seed-report.json`, or when no report
+exists. A full seed run writes the report and prints it as a table:
 
 ```text
   seed  remesh gate                        reference  ready  play  chord  rest                       performance
@@ -1326,9 +1222,7 @@ The setting `seeds.require` decides the exit code:
 
 A one-seed build keeps the report and prints a note when the role changed after it. The look
 report has a section "Seeds", marked OLD after a later role change. On the polar bear, a pool
-build with no change takes 10.6 s, and the role check after a change of the clip code took 84 s
-(8 seeds, 4 at a time) before the frame cache. With the frame cache, the role check of the bear
-after a comment in its clip file takes 20.4 s.
+build with no change takes about 11 s.
 
 ```typescript
 /** out/seed-report.json (studio/cli.py seed_report). */
@@ -1370,18 +1264,20 @@ goes on with the next seed. `--no-gate` reports the gate and builds on.
 | `slit_faces`: faces whose outward ray meets the body within `slit_gap` median edges across a gap whose middle is inside the field, or within `slit_tight` median edges | organic | `slit_faces` (0) |
 
 A gap between two parts, such as the forearm and the trunk, is outside the field, so it is no
-slit. On the bear, the narrowest such gap is 0.24 median edges. The polar bear pilot found two
-real slits (`docs/retro/pilot-polar-bear.md`). The gate writes `out/stages/remesh-gate.json`, and
-`checks.json` has each gate check as `remesh_gate.<name>`. On the bear (`build bear --all-seeds`, 2026-10-12), seeds 3, 1, 5, 6, and 7
-pass. Seed 2 fails the quad band (1036 quads, the band is 765 to 1035), and seeds 4 and 8 fail the
-slit check (1 and 4 slit faces).
+slit. On the bear, the narrowest such gap is 0.24 median edges. On the seated polar bear, the
+slit rule finds real creases: between thighs side by side in front of the crotch, and where the
+seated thigh meets the trunk bottom. The gate writes `out/stages/remesh-gate.json`, and
+`checks.json` has each gate check as `remesh_gate.<name>`.
+
+The inward measure of the gate (the surface field, -0.3) differs from `rest_inward_faces` of the
+stats (all parts, -0.5), so a seed can pass one and fail the other.
 
 ### The shots
 
 `studio/shoot.mjs` stops each command at the first page error, failed request, or HTTP status of
-400 or more, and names it: a missing GLB stops in 0.7 s with "HTTP 404 Not Found: GET
-.../missing.glb" (before, it waited 2 minutes). The CLI runs compare, frames, and viewer in one
-node process with one server and one browser (about 9 s), and each part prints its time.
+400 or more, and names it: a missing GLB stops in about 0.7 s with "HTTP 404 Not Found: GET
+.../missing.glb". The CLI runs compare, frames, and viewer in one node process with one server
+and one browser (about 9 s), and each part prints its time.
 
 ## The intake: the foreground rules and the sheet check
 
@@ -1397,61 +1293,49 @@ a rough figure, smoothed and scaled up, so a gradient of the backdrop does not c
 edge maps the scores from `1 - soft` to `1 + soft` onto 0..255, a blur of 1 px smooths it, and
 the edge is the half value. A ground shadow is a thin band: a column run of figure pixels
 shorter than 3% of the figure height that ends within 5% of the figure height above the lowest
-row goes out, before the hole fill. On the two sheets the two rules agree at IoU 0.987 to
-0.993. On a synthetic white figure on a gray gradient with a ground shadow, the difference
-mask has IoU 0.986 and the colored mask 0.012 (`tests/test_intake.py`).
+row goes out, before the hole fill. On the two bear sheets the two rules agree at IoU 0.987 to
+0.993. On a synthetic white figure on a gray gradient with a ground shadow, the difference mask
+has IoU 0.986 and the colored mask 0.012 (`tests/test_intake.py`).
 
 The sheet check (`studio/consistency.py`) runs in the intake and writes `out/sheet-check.json`.
 Each warning names the build checks that the sheet can fail, and `checks.json` marks each
 failing or near check with the warning that can cause it (`sheet`).
 
-The sheet check describes the sheet, so no tuned value of the model moves it. The head checks read
-no color class and no feature of the config. They find the dark blobs of the head band (x from -0.3
-to 0.3, y from 0.75 to 1.0) relative to the fur of the sheet: the fur level is the median of the
-largest channel of the silhouette pixels in the band. A blob has a largest channel under 0.5 of the
-fur level and a core under 0.15 of it, so a pupil or a nose counts, and the shade of an inner ear or
-of the mouth line does not. The eyes are the pair of blobs at one height (in the 3/4 view, also
-within 0.03 of the front eyes), and the nose is the largest blob below the eyes. With a blob limit
-from 0.4 to 0.6 of the fur level, the 3/4 head turn of each of the two sheets moves at most 1.8
-degrees (about one pixel of eye spacing). Before this rule the head checks read the config classes:
-on the polar bear sheet like the bear, `calibrate` (the dark class 100 to 90) moved the 3/4 head
-turn from +2.3 to -25.5 degrees, because a pair of blobs at the nose took the place of the eyes. Now
-it reads +2.3 before and after `calibrate` (`tests/test_consistency.py`).
+The sheet check describes the sheet, so no tuned value of the model moves it. The head checks
+read no color class and no feature of the config. They find the dark blobs of the head band (x
+from -0.3 to 0.3, y from 0.75 to 1.0) relative to the fur of the sheet: the fur level is the
+median of the largest channel of the silhouette pixels in the band. A blob has a largest channel
+under 0.5 of the fur level and a core under 0.15 of it, so a pupil or a nose counts, and the
+shade of an inner ear or of the mouth line does not. The eyes are the pair of blobs at one
+height (in the 3/4 view, also within 0.03 of the front eyes), and the nose is the largest blob
+below the eyes. With a blob limit from 0.4 to 0.6 of the fur level, the 3/4 head turn of each
+sheet moves at most 1.8 degrees (about one pixel of eye spacing). A config class can let a pair
+of blobs at the nose take the place of the eyes, so `calibrate` does not move the sheet check
+(`tests/test_consistency.py`).
 
-| Check | Measure | Limit | Bear | Polar bear |
-|---|---|---|---|---|
-| `figure_height` | spread of the figure heights of the views | 1% | 2.1% | 4.4% |
-| `ground_line` | spread of the ground rows | 2 px | 5 px | 4 px |
-| `ear_height` | the ear bumps (top to notch) of the front and the back view | 15% | 1.6% | 33% |
-| `arm_gap` | the share of the chest rows (0.45 to 0.65) with background between the arms and the trunk, front and back | 80% | 5% | 5% |
-| `head_turn.front` | the nose against the middle of the eyes | 2 px | -1.7 px | -1.0 px |
-| `head_turn.three_quarter` | the view azimuth less the head azimuth from the eye spacing (the spacing shrinks with the cosine of the azimuth, about 2 degrees for 1 px) | 4 deg | -0.7 deg | +6.3 deg |
-| `symmetry` | the IoU of the front mask with its mirror | 0.97 | 0.971 | 0.972 |
+| Check | Measure | Limit |
+|---|---|---|
+| `figure_height` | spread of the figure heights of the views | 1% |
+| `ground_line` | spread of the ground rows | 2 px |
+| `ear_height` | the ear bumps (top to notch) of the front and the back view | 15% |
+| `arm_gap` | the share of the chest rows (0.45 to 0.65) with background between the arms and the trunk, front and back | 80% |
+| `head_turn.front` | the nose against the middle of the eyes | 2 px |
+| `head_turn.three_quarter` | the view azimuth less the head azimuth from the eye spacing (the spacing shrinks with the cosine of the azimuth, about 2 degrees for 1 px) | 4 deg |
+| `symmetry` | the IoU of the front mask with its mirror | 0.97 |
+
+The sheet check uses the eye band of the config, or a dark blob search in it. A sheet with dark
+fur around the eyes can still fail it.
 
 ## The head turn of a view in the compare
 
 A view in `compare.head_turn` (a range in degrees) gets the head turn with the best IoU in the
-compare render only: the compare page turns the bone "head" about the vertical axis, every 4
+compare render only. The compare page turns the bone "head" about the vertical axis, every 4
 degrees, then 2 and 1 degrees around the best. `iou.json` has the turn (`headTurn`) and the IoU
 with no turn (`iouNoTurn`), and `checks.json` has `head_turn.<view>`. The GLB does not change.
-On the polar bear (range [0, 12] in `animals/polar-bear/animal.toml`), the model build of the
-compare gets +9 degrees: the 3/4 IoU goes from 0.927 to 0.9332, and the 3/4 eye x errors from
-0.020 and 0.015 to 0.000 and 0.002. The far 3/4 eye gets 1 px wider (6 px against 4 px on the
-sheet). On the pianist build the fit gave +6 degrees (IoU 0.9047 to 0.9073). The bear has no
-head turn: its sheet shows the same eye spacing as its model, and a fit runs to the end of the
-range while the eyes move away from the sheet.
-
-## A new animal from a sheet: the start (polar-bear-2)
-
-The polar bear sheet as a new animal like the bear, on 2026-10-12 (the demo animal is deleted
-again):
-
-| Step | Time | Result |
-|---|---|---|
-| `new polar-bear-2 --sheet ... --like bear` | 5 s | a compact config of 477 lines. The sheet check warns about the scale (4.4%), the ground line (3 px), the ears (front 0.077, back 0.052), and the arm gap. The 3/4 head turn reads +2.3 deg against the start azimuth 38 of the bear, so `compare.head_turn` is [-4, 8] |
-| `calibrate polar-bear-2 --from bear` | 5 s | `compare.fur_min_saturation` 0.2 -> 0.06, the fur [208, 194, 170] (the polar bear has [215, 204, 185]), the dark class 100 -> 90. Warnings: the "white" class of the bear takes 45% of the cream fur (the eye rim trap of the pilot), the bear GLB gives more paint contrast than the sheet (so the light needs the own GLB), and the bear muzzle clips |
-| `calibrate polar-bear-2 --quads --no-look` | 31 s | at the target 900, 776 to 922 quads (ratio 0.99), 8 of 8 seeds in the band: the target stays (the field of the role only: the tool measures the field of the model build too since the merge with round B, about 60 s) |
-| `fit polar-bear-2` | 1.7 s | IoU front 0.9461, side 0.9626, back 0.9376, 3/4 0.9149 with the bear field (the pilot started at 0.942, 0.961, 0.935, 0.915) |
+The polar bear has a range of [0, 12] in `animals/polar-bear/animal.toml`: the turn makes its 3/4
+IoU higher and puts its 3/4 eyes on the eyes of the sheet. The bear has no head turn: its sheet
+shows the same eye spacing as its model, and a fit runs to the end of the range while the eyes
+move away from the sheet.
 
 ## Calibrate: the light, the palette, the classes, and the quad target
 
@@ -1472,20 +1356,17 @@ again):
 
 - The light level: a palette that is k times brighter under a light k times darker gives the
   same render. The rule: the median light on a white surface over the fur pixels of the front
-  view is 1.02 (`calibrate.LEVEL`; the hand-tuned lights give 1.07 on the bear and 0.97 on the
-  polar bear).
+  view is 1.02 (`calibrate.LEVEL`).
 - The fur pixels: `compare.fur_min_saturation` is 0.4 of the 5th percentile of the fur
-  saturation of the sheet, at most 0.2 and at least the background saturation plus 0.03 (the
-  bear 0.2, the polar bear 0.06: their hand values).
+  saturation of the sheet, at most 0.2 and at least the background saturation plus 0.03.
 - The palette: the fur family (fur, belly, muzzle, ear, inner ear, brow) takes the scale of the
   fur and keeps its ratios. A family color that the scale clips takes the fur color, with a
   note. The dark pieces take the colors of their dark pixels on the sheet (the iris the darkest
-  quarter). A belly color from the "light" class of the sheet takes the brightest facets: it
-  made the polar bear belly 13 levels too light, and the belly contrast failed.
+  quarter). A belly color from the "light" class of the sheet takes the brightest facets, and it
+  makes the belly too light.
 - The classes: a class with only `max_under` gets the middle of the gap between the dark pieces
-  and the darkest fur (none on the bear sheet: dark brown fur). A class that decides a feature
-  (the rank, the rim, or the only class) and takes more than 2% of the fur pixels gets a
-  warning.
+  and the darkest fur. A class that decides a feature (the rank, the rim, or the only class) and
+  takes more than 2% of the fur pixels gets a warning.
 - `--quads` (`studio/quads.py`): the median ratio of the QuadriFlow count to its target over
   the seeds of two fields, the bind pose of the role and the standing pose of the model build
   (one target remeshes both), and a new `facets.quadriflow_target` when it puts more (field,
@@ -1494,34 +1375,15 @@ again):
 - The GLB: the GLB of the model build (`out/model/`, the GLB of the compare) when it exists,
   else the role GLB, or the GLB of `--from A`.
 
-The results from the sheets (the renders of the own GLB, before the model build):
-
-| | Hand-tuned | Calibrate, sheet contrast | Calibrate, contrast of the hand render |
-|---|---|---|---|
-| Polar bear light (hemi, key) | 3.2, 0.6 | 3.29, 0.75 | 3.42, 0.58 |
-| Polar bear belly contrast (render, sheet 2.48) | 2.37 | 2.48 | 2.37 |
-| Polar bear fur | [215, 204, 185] | [211, 201, 183] | [211, 201, 184] |
-| Bear light (hemi, key) | 1.4, 3.8 | 2.14, 2.68 | 1.0, 3.89 |
-| Bear belly contrast (render, sheet 3.60) | 4.06 | 3.59 | 4.06 |
-| Bear fur | [117, 70, 38] | [118, 72, 41] | [118, 71, 40] |
-
-Margins: with the same contrast target, the key is within 3% of the hand value, the total
-light level within 5% (the level rule), and the fur palette within 4 levels of each channel. The
-hemisphere level alone differs more on the bear (1.0 against 1.4), because the key gives most
-of the bear light. The hand bear light renders 13% more belly contrast than the sheet (inside
-the 15% of `checks.facet_contrast`).
-
-The bear and the polar bear keep their hand light and palette. Builds with the calibrated light
-and fur family match the front view of the sheet (polar bear: fur value 0.839 against 0.839,
-belly contrast 2.46 against 2.48; bear: 0.494 against 0.494, 3.49 against 3.60), but the other
-views move away (the polar bear `fur_value.back` fails, the saturation of the side and 3/4
-views gets 0.006 to 0.007 worse, and the bear `fur_saturation.back` fails), because the fit reads
-the front view only.
+On the bear and the polar bear, calibrate gives the hand-tuned values within a few percent: the
+key light within 3%, the total light level within 5%, and the fur palette within 4 levels of each
+channel. Both animals keep their hand light and palette. The fit reads the front view only: a
+build with the calibrated values matches the front view of the sheet, and the other views move
+away from it (a `fur_value.back` or `fur_saturation.back` failure).
 
 On a new animal with no GLB, `--from <like>` renders the GLB of the like animal. Its paint (the
-belly patch, `paint.occlusion`) stays in the renders: the bear GLB gives a belly contrast of 5.2
-with no key light against 2.48 of the polar bear sheet, so the fit cannot reach the sheet and
-says so. Calibrate again on the own GLB after the first build.
+belly patch, `paint.occlusion`) stays in the renders, so the fit cannot always reach the contrast
+of the sheet, and the tool says so. Calibrate again on the own GLB after the first build.
 
 ## Method, in short
 
@@ -1535,7 +1397,8 @@ mirrored edges, so the triangles vary. The cleanup removes slivers and inward fa
 get colors and baked occlusion. Small pieces (eyes, nose, claws) sit on the facets. The rig
 takes bone heat and the weight rules. The correctives fix the skin between the bind pose and
 the sheet pose. The IK solver solves the clips of the role, and the build bakes them. The
-contact and fold check skins the mesh at each frame and repairs single folded faces. `animals/bear/README.md` gives the reasons and the numbers.
+contact and fold check skins the mesh at each frame and repairs single folded faces.
+`animals/bear/README.md` gives the reasons and the numbers.
 
 ## Known traps
 
@@ -1544,9 +1407,15 @@ contact and fold check skins the mesh at each frame and repairs single folded fa
 - A remesh seed can leave slivers, holes, or slits, or turn the whole mesh inward. The cleanup
   handles some of them, and the remesh gate stops a seed with the others. Do not tune the look
   on one seed only: run `build --all-seeds`.
+- Most folds come from mesh faults (slivers, inward faces), and few come from the weights. Read
+  `out/diag/folds.json` before you add a weight rule.
+- The fold repair is a safety net for single faces. Keep it small: a wider repair can make a new
+  contact at the elbow.
 - The stage cache trusts its keys. A stage that reads a file, the clock, or a config value
   outside `cfg` gives stale results from the cache. When in doubt, compare a build with
   `--no-cache`.
+- Tune numbers in the config, never in the code. For a sweep, give the variants as a list, write
+  each result as JSON, and run the variants in parallel (`--jobs`).
 - Small details (ears, tail) must sink into the body: quads of the facet size cannot hold them.
 - Two surfaces of the field within one voxel make a pinch in the dense mesh (on the polar bear:
   the bottom rim of the trunk loft at the outer knee). `remesh.repair_pinches` opens and fills
@@ -1554,17 +1423,16 @@ contact and fold check skins the mesh at each frame and repairs single folded fa
 - QuadriFlow can put three corners of two mirrored quads on the center line: a fin of two
   opposite triangles (open edges at the throat or the spine). `remesh.remove_center_fins` drops
   them and prints "remesh: removed N fin faces".
-- QuadriFlow does not follow its target closely, and the ratio depends on the field: an early
-  field of the polar bear gave 1.16 to 1.31 times the target, the final seated field 0.97 to
-  1.09, and the standing field of its model build 1.02 to 1.21, and a lower target can give
-  more quads on some seeds. One target remeshes both fields: with the band of 15% the model
-  build of the polar bear lost its seed 3, so it keeps 30%. Run `python3 studio calibrate <id>
-  --quads --no-look` after a change of the field, before you widen `[facets.gate] quads`.
+- QuadriFlow does not follow its target closely, and the ratio depends on the field. A lower
+  target can give more quads on some seeds. One target remeshes the role field and the standing
+  field of the model build, so a band of 15% can lose the model seed (the polar bear keeps 30%).
+  Run `python3 studio calibrate <id> --quads --no-look` after a change of the field, before you
+  widen `[facets.gate] quads`.
 - The feature measures need color classes that fit the animal. A cream fur is lighter than the
-  background and has the color of a white eye rim, so the "white" class of the bear catches fur;
-  measure such eyes by their dark blobs. `calibrate` warns when a class that decides a feature
+  background and has the color of a white eye rim, so the "white" class of the bear catches fur.
+  Measure such eyes by their dark blobs. `calibrate` warns when a class that decides a feature
   takes fur pixels. Lower `compare.fur_min_saturation` for a fur with a saturation near 0.2 or
-  under.
+  under, and compare the mean RGB of the compare log too.
 - A relative feature limit on a small feature is a pixel limit: 0.08 of a 10 px eye is under one
   pixel. `checks.feature_pixels = 1.0` allows at least 1 px of the sheet for each length.
 - The intake rule "colored" does not separate a neutral white or gray fur from a gray
@@ -1574,13 +1442,20 @@ contact and fold check skins the mesh at each frame and repairs single folded fa
   on the bear sheet the best IoU is at +20 degrees, and the eyes move away from the sheet. Keep
   the range near the turn that the sheet check measures from the eye spacing.
 - A seated bind pose needs `hip_abduct` (the knees apart) and a seat under the trunk: a short leg
-  with a low trunk puts the trunk on the seat, and the thighs stay above it. Put the paws of a rest pose
-  where the arm stays bent: a straight arm across a big belly touches it on some seeds.
+  with a low trunk puts the trunk on the seat, and the thighs stay above it. Put the paws of a
+  rest pose where the arm stays bent: a straight arm across a big belly touches it on some seeds.
+- On a seated role for an animal with short legs or a large belly, build the bind pose on 2
+  seeds before you write the clips (`python3 studio build <id> --seed <s> --until organic`, the
+  remesh gate). The pianist values of the bind pose can make slits on other bodies.
 - A background `studio view` (a shell job) does not get the Ctrl-C of the shell. Stop it with
-  `python3 studio view <animal> --stop`.
+  `python3 studio view <animal> --stop`. `studio report` serves its page in the process (no
+  child and no pid file), so SIGTERM stops it.
 - Take the times of a report from `python3 studio log`.
 - A model build has a seed of its own (the first seed that passes its remesh gate). A look check
   that changes with `--seed` is a fault: the look checks do not depend on the role seed.
+- Compare the face crops (`out/compare/face_front.png`, `face_side.png`) and the ear crops
+  (`out/report/features/ears_*.png`) with the sheet by eye after each round. The checks can pass
+  while the muzzle or the ears have the wrong form.
 
 ## Config reference
 
