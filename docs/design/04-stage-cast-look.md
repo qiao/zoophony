@@ -89,7 +89,7 @@ in a line at the back, as the Vienna Philharmonic seats them. The diagram shows 
   - **Arc.** Two to five players in one arc, in the order of the rows, so a string quartet sits
     in the classic half circle. The players of an arc sit.
   - No player leaves the group as a soloist. A player alone and the partner of a pianist stand
-    when their instrument stands as a soloist (4.5, body proportions).
+    when their instrument stands as a soloist (4.5, supports).
 
 - Larger species sit farther back, so that a big animal hides no smaller animal. A species of
   the size 1.2 or more plays only the contrabass, the timpani, the trombone, or the tuba. The
@@ -173,7 +173,9 @@ user mesh (Meshy GLB)  ->  tools/blender/<a>_arms.py  ->  <a>-arms.glb + <a>-wei
   ->  pnpm studio-body <a> (no Blender)  ->  src/models/studio/<a>.ts (the app reads only this)
 ```
 
-The `README.md` of `assets/models/<a>/` gives the source and the steps of each file.
+The first step applies only to a body whose arms or legs get new quad faces. The rig of another
+body reads the source mesh. The `README.md` of `assets/models/<a>/` gives the source and the
+steps of each file.
 [`docs/agents/rigging.md`](../agents/rigging.md) gives the details and the traps of the rig.
 
 ### Source meshes
