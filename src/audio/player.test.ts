@@ -8,8 +8,9 @@ import {
   DRY_GAIN,
   LIMITER,
   LIMITER_TRIM_DB,
+  MIX_BUSES,
   VOLUME_TIME_CONSTANT,
-  WET_GAIN,
+  makeupTrimDb,
 } from './output-chain.ts';
 import { LoadReplacedError, WorkletPlayer } from './player.ts';
 import type { LoadProgress, PlayerScore } from './player.ts';
@@ -70,7 +71,15 @@ class FakePort {
 const nodes: FakeNode[] = [];
 
 /** A node that a fake node can connect to. */
-type FakeTarget = FakeGain | FakeConvolver | FakeCompressor | FakeDestination;
+type FakeTarget =
+  | FakeGain
+  | FakeConvolver
+  | FakeCompressor
+  | FakeFilter
+  | FakeDelay
+  | FakeSplitter
+  | FakeMerger
+  | FakeDestination;
 
 /** The fake `destination` of a fake audio context. */
 class FakeDestination {
@@ -125,6 +134,25 @@ class FakeCompressor extends FakeAudioNode {
   readonly attack = { value: 0.003 };
   readonly release = { value: 0.25 };
 }
+
+/** A fake `BiquadFilterNode`. */
+class FakeFilter extends FakeAudioNode {
+  type: BiquadFilterType = 'lowpass';
+  readonly frequency = { value: 350 };
+  readonly gain = { value: 0 };
+  readonly Q = { value: 1 };
+}
+
+/** A fake `DelayNode`. */
+class FakeDelay extends FakeAudioNode {
+  readonly delayTime = { value: 0 };
+}
+
+/** A fake `ChannelSplitterNode`. */
+class FakeSplitter extends FakeAudioNode {}
+
+/** A fake `ChannelMergerNode`. */
+class FakeMerger extends FakeAudioNode {}
 
 /** A fake `AudioWorkletNode`. */
 class FakeNode {
@@ -234,6 +262,22 @@ class FakeContext {
 
   createDynamicsCompressor(): FakeCompressor {
     return new FakeCompressor();
+  }
+
+  createBiquadFilter(): FakeFilter {
+    return new FakeFilter();
+  }
+
+  createDelay(): FakeDelay {
+    return new FakeDelay();
+  }
+
+  createChannelSplitter(): FakeSplitter {
+    return new FakeSplitter();
+  }
+
+  createChannelMerger(): FakeMerger {
+    return new FakeMerger();
   }
 
   /** Gives a fake buffer that holds the size of the file. */
@@ -347,7 +391,7 @@ beforeEach(() => {
   vi.stubGlobal(
     'fetch',
     vi.fn(async (url: URL) =>
-      url.pathname.endsWith('.wav')
+      url.pathname.endsWith('.wav') || url.pathname.endsWith('.flac')
         ? new Response(new Uint8Array(IMPULSE_BYTES))
         : new Response(JSON.stringify(INDEX), { status: indexStatus }),
     ),
@@ -360,7 +404,7 @@ afterEach(() => {
 
 describe('WorkletPlayer commands before the first load', () => {
   it('sends the last rate after the score, and keeps the volume in the output chain', async () => {
-    const player = new WorkletPlayer(BASE_URL, () => undefined);
+    const player = new WorkletPlayer(BASE_URL, () => undefined, 'hall');
     player.setRate(1.25);
     player.setVolume(0.5);
     await loadFully(player, scoreWith(0));
@@ -373,7 +417,7 @@ describe('WorkletPlayer commands before the first load', () => {
 
 describe('WorkletPlayer commands during a load (design 6.8)', () => {
   it('sends a command before the score post to the old score, and a later one to the new', async () => {
-    const player = new WorkletPlayer(BASE_URL, () => undefined);
+    const player = new WorkletPlayer(BASE_URL, () => undefined, 'hall');
     await loadFully(player, scoreWith(0));
     const loading = player.load(scoreWith(40), () => undefined);
     await flush();
@@ -401,7 +445,7 @@ describe('WorkletPlayer commands during a load (design 6.8)', () => {
 
 describe('WorkletPlayer clock after a new load', () => {
   it('ignores an anchor of the old score that arrives after the new load (review F3)', async () => {
-    const player = new WorkletPlayer(BASE_URL, () => undefined);
+    const player = new WorkletPlayer(BASE_URL, () => undefined, 'hall');
     await loadFully(player, scoreWith(0));
     player.play(0);
     const node = last(nodes);
@@ -428,7 +472,7 @@ describe('WorkletPlayer clock after a new load', () => {
 
 describe('WorkletPlayer count-in', () => {
   it('sends the count-in with the play, and runs now() from below 0 (design 6.5)', async () => {
-    const player = new WorkletPlayer(BASE_URL, () => undefined);
+    const player = new WorkletPlayer(BASE_URL, () => undefined, 'hall');
     await loadFully(player, scoreWith(0));
     player.play(0.9);
     const node = last(nodes);
@@ -444,7 +488,7 @@ describe('WorkletPlayer count-in', () => {
 
 describe('WorkletPlayer seat flags', () => {
   it('sends the audibility flag of a seat to the processor (design 6.6)', async () => {
-    const player = new WorkletPlayer(BASE_URL, () => undefined);
+    const player = new WorkletPlayer(BASE_URL, () => undefined, 'hall');
     await loadFully(player, scoreWith(0));
     player.setSeatAudible(2, false);
     expect(last(last(nodes).port.commands)).toEqual({ type: 'seat', seatIndex: 2, audible: false });
@@ -454,7 +498,7 @@ describe('WorkletPlayer seat flags', () => {
 describe('WorkletPlayer failures', () => {
   it('starts the engine again on the next load after a failed start', async () => {
     indexStatus = 404;
-    const player = new WorkletPlayer(BASE_URL, () => undefined);
+    const player = new WorkletPlayer(BASE_URL, () => undefined, 'hall');
     await expect(player.load(scoreWith(0), () => undefined)).rejects.toThrow('HTTP 404');
     indexStatus = 200;
     await loadFully(player, scoreWith(0));
@@ -463,7 +507,7 @@ describe('WorkletPlayer failures', () => {
 
   it('drops the commands after a failed start', async () => {
     indexStatus = 404;
-    const player = new WorkletPlayer(BASE_URL, () => undefined);
+    const player = new WorkletPlayer(BASE_URL, () => undefined, 'hall');
     await expect(player.load(scoreWith(0), () => undefined)).rejects.toThrow('HTTP 404');
     let rejections = 0;
     const count = (): void => {
@@ -480,7 +524,7 @@ describe('WorkletPlayer failures', () => {
   });
 
   it('rejects the pending load when the Worker script does not load', async () => {
-    const player = new WorkletPlayer(BASE_URL, () => undefined);
+    const player = new WorkletPlayer(BASE_URL, () => undefined, 'hall');
     const loading = player.load(scoreWith(0), () => undefined);
     await flush();
     last(workers).fail();
@@ -494,9 +538,13 @@ describe('WorkletPlayer failures', () => {
 
   it('stops the clock and reports a processor failure during play', async () => {
     const errors: string[] = [];
-    const player = new WorkletPlayer(BASE_URL, (error) => {
-      errors.push(error.message);
-    });
+    const player = new WorkletPlayer(
+      BASE_URL,
+      (error) => {
+        errors.push(error.message);
+      },
+      'hall',
+    );
     await loadFully(player, scoreWith(0));
     player.play(0);
     const node = last(nodes);
@@ -523,9 +571,13 @@ describe('WorkletPlayer failures', () => {
 describe('WorkletPlayer resume', () => {
   it('reports a rejected resume to the error listener', async () => {
     const errors: string[] = [];
-    const player = new WorkletPlayer(BASE_URL, (error) => {
-      errors.push(error.message);
-    });
+    const player = new WorkletPlayer(
+      BASE_URL,
+      (error) => {
+        errors.push(error.message);
+      },
+      'hall',
+    );
     await loadFully(player, scoreWith(0));
     last(contexts).resumeError = new Error('NotAllowedError');
     let rejections = 0;
@@ -543,7 +595,7 @@ describe('WorkletPlayer resume', () => {
 
 describe('WorkletPlayer load progress (design 2.8, audit 2026-10-05-ux-design, LD2)', () => {
   it('starts at 0 with the sizes of the index, and follows the bytes', async () => {
-    const player = new WorkletPlayer(BASE_URL, () => undefined);
+    const player = new WorkletPlayer(BASE_URL, () => undefined, 'hall');
     const progress: LoadProgress[] = [];
     const score = scoreOf({
       tracks: [
@@ -573,7 +625,7 @@ describe('WorkletPlayer load progress (design 2.8, audit 2026-10-05-ux-design, L
 
 describe('WorkletPlayer loads at the same time', () => {
   it('rejects the earlier load, and resolves the later one after its own banks', async () => {
-    const player = new WorkletPlayer(BASE_URL, () => undefined);
+    const player = new WorkletPlayer(BASE_URL, () => undefined, 'hall');
     const progress: number[] = [];
     const first = player.load(scoreWith(0), ({ done }) => {
       progress.push(done);
@@ -617,7 +669,7 @@ describe('WorkletPlayer loads at the same time', () => {
 
 describe('WorkletPlayer session banks (design 6.3)', () => {
   it('asks the Worker only for the presets that the synth does not have', async () => {
-    const player = new WorkletPlayer(BASE_URL, () => undefined);
+    const player = new WorkletPlayer(BASE_URL, () => undefined, 'hall');
     await loadFully(player, scoreWith(0));
     await loadFully(player, scoreWith(0));
     await loadFully(player, scoreWith(40));
@@ -636,7 +688,7 @@ describe('WorkletPlayer session banks (design 6.3)', () => {
   });
 
   it('asks the Worker for all presets again after a failure', async () => {
-    const player = new WorkletPlayer(BASE_URL, () => undefined);
+    const player = new WorkletPlayer(BASE_URL, () => undefined, 'hall');
     await loadFully(player, scoreWith(0));
     last(nodes).port.reply({ type: 'error', message: 'RangeError' });
     await loadFully(player, scoreWith(0));
@@ -672,22 +724,44 @@ describe('WorkletPlayer output chain (design 6.8)', () => {
   }
 
   it('sends the synth through a dry path and the hall reverb to the limiter', async () => {
-    const player = new WorkletPlayer(BASE_URL, () => undefined);
+    const bus = MIX_BUSES.hall;
+    const player = new WorkletPlayer(BASE_URL, () => undefined, 'hall');
     await loadFully(player, scoreWith(0));
     const context = last(contexts);
     const input = as(last(nodes).target, FakeGain);
-    const [dryNode, convolverNode] = input.targets;
+    const [dryNode, delayNode] = input.targets;
     const dry = as(dryNode, FakeGain);
-    const convolver = as(convolverNode, FakeConvolver);
-    const wet = as(onlyTarget(convolver), FakeGain);
-    const limiter = as(onlyTarget(dry), FakeCompressor);
-    expect(onlyTarget(wet)).toBe(limiter);
+    const preDelay = as(delayNode, FakeDelay);
+    const convolver = as(onlyTarget(preDelay), FakeConvolver);
+    const highPass = as(onlyTarget(convolver), FakeFilter);
+    const lowPass = as(onlyTarget(highPass), FakeFilter);
+    const splitter = as(onlyTarget(lowPass), FakeSplitter);
+    expect(splitter.targets).toHaveLength(4);
+    const merger = as(onlyTarget(as(splitter.targets[0], FakeGain)), FakeMerger);
+    const wet = as(onlyTarget(merger), FakeGain);
+    const sum = as(onlyTarget(dry), FakeGain);
+    expect(onlyTarget(wet)).toBe(sum);
+    let tone: FakeAudioNode = sum;
+    const types: BiquadFilterType[] = [];
+    for (let i = 0; i < 4; i++) {
+      const next = as(onlyTarget(tone), FakeFilter);
+      types.push(next.type);
+      tone = next;
+    }
+    expect(types).toEqual(['lowshelf', 'peaking', 'peaking', 'highshelf']);
+    const glue = as(onlyTarget(tone), FakeCompressor);
+    const glueTrim = as(onlyTarget(glue), FakeGain);
+    const limiter = as(onlyTarget(glueTrim), FakeCompressor);
     const trim = as(onlyTarget(limiter), FakeGain);
     const volume = as(onlyTarget(trim), FakeGain);
     expect(onlyTarget(volume)).toBe(context.destination);
 
     expect(dry.gain.value).toBe(DRY_GAIN);
-    expect(wet.gain.value).toBe(WET_GAIN);
+    expect(preDelay.delayTime.value).toBe(bus.preDelay);
+    expect([highPass.type, lowPass.type]).toEqual(['highpass', 'lowpass']);
+    expect([highPass.frequency.value, lowPass.frequency.value]).toEqual(bus.returnBand);
+    expect(wet.gain.value).toBe(bus.wet);
+    expect(glueTrim.gain.value).toBeCloseTo(10 ** (makeupTrimDb(bus.glue) / 20), 12);
     expect(trim.gain.value).toBeCloseTo(10 ** (LIMITER_TRIM_DB / 20), 12);
     expect(convolver.normalize).toBe(false);
     expect(convolver.buffer).toEqual({ bytes: IMPULSE_BYTES });
@@ -701,7 +775,7 @@ describe('WorkletPlayer output chain (design 6.8)', () => {
   });
 
   it('mutes after the hall and the limiter, with no command to the synth (UX audit SD2)', async () => {
-    const player = new WorkletPlayer(BASE_URL, () => undefined);
+    const player = new WorkletPlayer(BASE_URL, () => undefined, 'hall');
     await loadFully(player, scoreWith(0));
     const commands = last(nodes).port.commands.length;
     const context = last(contexts);
@@ -737,7 +811,7 @@ describe('WorkletPlayer output chain (design 6.8)', () => {
   });
 
   it('decodes the impulse response one time for the player, also after a failure', async () => {
-    const player = new WorkletPlayer(BASE_URL, () => undefined);
+    const player = new WorkletPlayer(BASE_URL, () => undefined, 'hall');
     await loadFully(player, scoreWith(0));
     last(nodes).port.reply({ type: 'error', message: 'RangeError' });
     await loadFully(player, scoreWith(40));
@@ -747,7 +821,7 @@ describe('WorkletPlayer output chain (design 6.8)', () => {
   });
 
   it('sets the gain of the piece with its score, plus the headroom of the SoundFont', async () => {
-    const player = new WorkletPlayer(BASE_URL, () => undefined);
+    const player = new WorkletPlayer(BASE_URL, () => undefined, 'hall');
     await loadFully(player, { ...scoreWith(0), gainDb: -6.5 });
     const input = as(last(nodes).target, FakeGain);
     expect(input.gain.value).toBeCloseTo(1, 6);
@@ -766,7 +840,7 @@ describe('WorkletPlayer output chain (design 6.8)', () => {
         ],
       ],
     });
-    const player = new WorkletPlayer(BASE_URL, () => undefined);
+    const player = new WorkletPlayer(BASE_URL, () => undefined, 'hall');
     await loadFully(player, {
       ...score,
       mix: [{ channel: 0, pan: 100, reverbSend: 70, gainDb: 0 }],

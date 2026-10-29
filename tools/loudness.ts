@@ -6,14 +6,16 @@
  * For each demo (all demos by default), it renders the synth output in Node with the
  * `SynthEngine`, the SoundFont of design 6.2, the room of the synth, and the stage mix of the
  * layout, as the app and its worklet do. Then the code of `src/audio/output-chain.ts` runs in an
- * `OfflineAudioContext` of headless Chromium, with the hall impulse response, the limiter, and
- * the trim. The input gain is `SOUNDFONT_HEADROOM_DB` plus `pieceGainDb()`, as in the `Player`.
- * The render has the full song and 3 s of tail, at 48 kHz.
+ * `OfflineAudioContext` of headless Chromium, with the mix bus of the preset `hall`, its hall
+ * impulse response, the glue compressor, the limiter, and their trims. The input gain is
+ * `SOUNDFONT_HEADROOM_DB` plus `pieceGainDb()`, as in the `Player`. The render has the full song
+ * and 3 s of tail, at 48 kHz.
  *
  * Each row gives the integrated loudness and the loudness range (ITU-R BS.1770-4, EBU Tech 3342),
  * the true peak, the median short-term loudness of the first 30 s, the share of the song with a
- * short-term loudness below -30 LUFS, and the gain reduction of the limiter: its highest value
- * in a block of 50 ms, and the share of the blocks above 1 dB and 3 dB.
+ * short-term loudness below -30 LUFS, the gain reduction of the glue compressor (its 95th
+ * percentile and its highest value in a block of 50 ms), and the gain reduction of the limiter
+ * (its highest value, and the share of the blocks above 1 dB and 3 dB).
  *
  * - `--fit` finds the piece gain that brings each demo within 0.05 LU of `TARGET_LOUDNESS`, in
  *   steps of 0.1 dB, and gives the value for `DEMO_LOUDNESS`: the target minus that gain.
@@ -21,8 +23,8 @@
  *   row for each demo, from one synth render.
  * - `--json` prints one JSON object for each demo, with the short-term loudness at each second.
  * - `--check` exits with 1 when a demo at the gain of `pieceGainDb()` is more than 0.5 LU from
- *   `TARGET_LOUDNESS`, or has a true peak above -1 dBTP. Run it after a change of a demo file,
- *   the SoundFont, the mix, the hall, or the limiter.
+ *   `TARGET_LOUDNESS`, or has a true peak above -1 dBTP. Run it after a change of a demo
+ *   file, the SoundFont, the mix, the mix bus, the hall, or the limiter.
  *
  * The page server listens on a free port that the system gives. A run of all demos takes about
  * 5 minutes. The renders are deterministic, so two runs give the same numbers.
@@ -39,6 +41,7 @@ import type { Browser } from '@playwright/test';
 import { DEMO_IDS, isDemoId } from '../src/app/demos.ts';
 import type { DemoId } from '../src/app/demos.ts';
 import { TARGET_LOUDNESS, pieceGainDb } from '../src/audio/demo-loudness.ts';
+import type { MixName } from '../src/audio/output-chain.ts';
 import { SOUNDFONT_HEADROOM_DB } from '../src/audio/soundfont-info.ts';
 import { packSynthEvents } from '../src/audio/synth-events.ts';
 import { OfflineHarness, TEST_SAMPLE_RATE, testBanks } from '../src/audio/test-banks.ts';
@@ -77,15 +80,23 @@ const CHECK_TOLERANCE = 0.5;
 const CHECK_TRUE_PEAK = -1;
 
 /** The synth output of one demo and its song length. */
-interface SynthRender {
+export interface SynthRender {
+  /** The stereo output of the synth at 48 kHz, with the tail. */
   readonly audio: Stereo;
+  /** The song length in seconds. */
   readonly durationSec: number;
 }
 
-/** The output of the chain: the output of the app, and the input of the limiter. */
+/** The output of the chain: the output of the app, and the inputs of the limiter and the glue. */
 interface ChainRender {
+  /** The output of the volume gain. */
   readonly output: Stereo;
+  /** The output of the glue compressor after its trim. */
   readonly limiterInput: Stereo;
+  /** The output of the tone EQ. */
+  readonly glueInput: Stereo;
+  /** The time of `startRendering()` in ms. */
+  readonly renderMs: number;
 }
 
 /** The measures of one demo at one piece gain. */
@@ -101,7 +112,12 @@ interface Row {
   readonly start: number;
   /** The share of the song with a short-term loudness below {@link QUIET_LUFS}. */
   readonly quiet: number;
+  /** The gain reduction of the limiter. */
   readonly reduction: GainReduction;
+  /** The gain reduction of the glue compressor. */
+  readonly glue: GainReduction;
+  /** The time of the chain render in ms. */
+  readonly renderMs: number;
 }
 
 /**
@@ -112,7 +128,7 @@ interface Row {
  * @returns The stereo output of the synth, before the output chain, and the song length.
  * @throws Error if the demo file does not give a score.
  */
-async function renderSynth(demo: DemoId): Promise<SynthRender> {
+export async function renderSynth(demo: DemoId): Promise<SynthRender> {
   const file = (await patchedDemos()).find((item) => item.file === `${demo}.mid`);
   if (!file) {
     throw new Error(`The demo file ${demo}.mid does not exist.`);
@@ -149,15 +165,14 @@ async function renderSynth(demo: DemoId): Promise<SynthRender> {
 
 /**
  * Gives the JavaScript of `src/audio/output-chain.ts` for the page: the types removed, and each
- * URL import of Vite replaced by the route of the impulse response.
+ * URL import of Vite replaced by the route of its file in `assets/hall/`.
  *
  * @returns The module text.
  */
 function chainModule(): string {
-  // Each URL of the hall impulse response gets the WAV file: the FLAC file holds the same samples.
   const source = readFileSync(join(ROOT, 'src/audio/output-chain.ts'), 'utf8').replaceAll(
-    /^import (hall\w*Url) from .*$/gm,
-    `const $1 = '/ir.wav';`,
+    /^import (\w+Url) from '\.\.\/\.\.\/assets\/hall\/([\w.-]+)\?url';$/gm,
+    `const $1 = '/hall/$2';`,
   );
   return stripTypeScriptTypes(source);
 }
@@ -182,23 +197,23 @@ let browser: Browser | undefined;
 
 /**
  * Sends a synth output through the output chain of the app in an `OfflineAudioContext`. The
- * page gets the four channels of the destination: the output of the volume gain, and the sum of
- * the dry and the wet gains at the input of the limiter.
+ * page gets the six channels of the destination: the output of the volume gain, the input of the
+ * limiter, and the input of the glue compressor.
  *
  * @param input The synth output at 48 kHz.
  * @param inputDb The gain of the input node in dB.
- * @returns The output of the chain and the input of the limiter.
+ * @param mix The mix preset.
+ * @returns The output of the chain and the inputs of the limiter and the glue.
  */
-async function renderChain(input: Stereo, inputDb: number): Promise<ChainRender> {
+async function renderChain(input: Stereo, inputDb: number, mix: MixName): Promise<ChainRender> {
   const frames = input.left.length;
   const interleaved = new Float32Array(frames * 2);
   for (let i = 0; i < frames; i++) {
     interleaved[2 * i] = input.left[i] ?? 0;
     interleaved[2 * i + 1] = input.right[i] ?? 0;
   }
-  const rendered = new Float32Array(frames * 4);
+  const rendered = new Float32Array(frames * 6);
   const module = chainModule();
-  const hall = readFileSync(join(ROOT, 'assets/hall/st-pauls-hall-c8m.wav'));
 
   const serve = async (request: IncomingMessage, response: ServerResponse): Promise<void> => {
     const url = new URL(request.url ?? '/', 'http://127.0.0.1');
@@ -210,8 +225,8 @@ async function renderChain(input: Stereo, inputDb: number): Promise<ChainRender>
       response.end(module);
     } else if (url.pathname === '/in.f32') {
       response.end(Buffer.from(interleaved.buffer));
-    } else if (url.pathname === '/ir.wav') {
-      response.end(hall);
+    } else if (/^\/hall\/[\w-]+\.(wav|flac)$/.test(url.pathname)) {
+      response.end(readFileSync(join(ROOT, 'assets', url.pathname)));
     } else if (url.pathname === '/out') {
       const body = await bodyOf(request);
       const values = new Float32Array(new Uint8Array(body).buffer);
@@ -229,63 +244,66 @@ async function renderChain(input: Stereo, inputDb: number): Promise<ChainRender>
 
   browser ??= await chromium.launch();
   const page = await browser.newPage();
+  let renderMs = 0;
   try {
     page.on('console', (message) => console.error(message.text()));
     await page.goto(`http://127.0.0.1:${port}/`);
-    await page.evaluate(async (gainDb) => {
-      const chainUrl = '/chain.js';
-      const chainCode = await import(chainUrl);
-      const raw = new Float32Array(await (await fetch('/in.f32')).arrayBuffer());
-      const length = raw.length / 2;
-      const context = new OfflineAudioContext(4, length, 48_000);
-      const buffer = context.createBuffer(2, length, 48_000);
-      const l = buffer.getChannelData(0);
-      const r = buffer.getChannelData(1);
-      for (let i = 0; i < length; i++) {
-        l[i] = raw[2 * i] ?? 0;
-        r[i] = raw[2 * i + 1] ?? 0;
-      }
-      const chain = chainCode.createOutputChain(context);
-      chain.convolver.buffer = await context.decodeAudioData(
-        await (await fetch(chainCode.HALL_IMPULSE_URL)).arrayBuffer(),
-      );
-      chain.input.gain.value = chainCode.gainOfDb(gainDb);
-
-      // The four channels: the output of the app, then the input of the limiter.
-      chain.volume.disconnect();
-      const merger = context.createChannelMerger(4);
-      const outputSplit = context.createChannelSplitter(2);
-      chain.volume.connect(outputSplit);
-      outputSplit.connect(merger, 0, 0);
-      outputSplit.connect(merger, 1, 1);
-      const tap = context.createGain();
-      chain.dry.connect(tap);
-      chain.wet.connect(tap);
-      const tapSplit = context.createChannelSplitter(2);
-      tap.connect(tapSplit);
-      tapSplit.connect(merger, 0, 2);
-      tapSplit.connect(merger, 1, 3);
-      context.destination.channelInterpretation = 'discrete';
-      merger.connect(context.destination);
-
-      const source = context.createBufferSource();
-      source.buffer = buffer;
-      source.connect(chain.input);
-      source.start();
-      const result = await context.startRendering();
-      const channels = [0, 1, 2, 3].map((index) => result.getChannelData(index));
-      const part = 48_000 * 20;
-      for (let start = 0; start < length; start += part) {
-        const end = Math.min(length, start + part);
-        const chunk = new Float32Array((end - start) * 4);
-        for (let i = start; i < end; i++) {
-          for (let c = 0; c < 4; c++) {
-            chunk[4 * (i - start) + c] = channels[c]?.[i] ?? 0;
-          }
+    renderMs = await page.evaluate(
+      async ([gainDb, mixName]) => {
+        const chainUrl = '/chain.js';
+        const chainCode = await import(chainUrl);
+        const raw = new Float32Array(await (await fetch('/in.f32')).arrayBuffer());
+        const length = raw.length / 2;
+        const context = new OfflineAudioContext(6, length, 48_000);
+        const buffer = context.createBuffer(2, length, 48_000);
+        const l = buffer.getChannelData(0);
+        const r = buffer.getChannelData(1);
+        for (let i = 0; i < length; i++) {
+          l[i] = raw[2 * i] ?? 0;
+          r[i] = raw[2 * i + 1] ?? 0;
         }
-        await fetch(`/out?offset=${4 * start}`, { method: 'POST', body: chunk });
-      }
-    }, inputDb);
+        const chain = chainCode.createOutputChain(context, chainCode.MIX_BUSES[mixName]);
+        chain.convolver.buffer = await context.decodeAudioData(
+          await (await fetch(chain.bus.hall.wavUrl)).arrayBuffer(),
+        );
+        chain.input.gain.value = chainCode.gainOfDb(gainDb);
+
+        // The six channels: the output of the app, the input of the limiter, and the input of the
+        // glue compressor.
+        chain.volume.disconnect();
+        const merger = context.createChannelMerger(6);
+        [chain.volume, chain.glueTrim, chain.tone].forEach((node, index) => {
+          const split = context.createChannelSplitter(2);
+          node.connect(split);
+          split.connect(merger, 0, 2 * index);
+          split.connect(merger, 1, 2 * index + 1);
+        });
+        context.destination.channelInterpretation = 'discrete';
+        merger.connect(context.destination);
+
+        const source = context.createBufferSource();
+        source.buffer = buffer;
+        source.connect(chain.input);
+        source.start();
+        const started = performance.now();
+        const result = await context.startRendering();
+        const elapsed = performance.now() - started;
+        const channels = [0, 1, 2, 3, 4, 5].map((index) => result.getChannelData(index));
+        const part = 48_000 * 20;
+        for (let start = 0; start < length; start += part) {
+          const end = Math.min(length, start + part);
+          const chunk = new Float32Array((end - start) * 6);
+          for (let i = start; i < end; i++) {
+            for (let c = 0; c < 6; c++) {
+              chunk[6 * (i - start) + c] = channels[c]?.[i] ?? 0;
+            }
+          }
+          await fetch(`/out?offset=${6 * start}`, { method: 'POST', body: chunk });
+        }
+        return elapsed;
+      },
+      [inputDb, mix] as const,
+    );
   } finally {
     await page.close();
     await new Promise((resolve) => server.close(resolve));
@@ -294,13 +312,15 @@ async function renderChain(input: Stereo, inputDb: number): Promise<ChainRender>
   const channel = (index: number): Float32Array => {
     const values = new Float32Array(frames);
     for (let i = 0; i < frames; i++) {
-      values[i] = rendered[4 * i + index] ?? 0;
+      values[i] = rendered[6 * i + index] ?? 0;
     }
     return values;
   };
   return {
     output: { left: channel(0), right: channel(1) },
     limiterInput: { left: channel(2), right: channel(3) },
+    glueInput: { left: channel(4), right: channel(5) },
+    renderMs,
   };
 }
 
@@ -311,6 +331,7 @@ async function renderChain(input: Stereo, inputDb: number): Promise<ChainRender>
  * @param synth The synth output of the demo.
  * @param gainDb The piece gain in dB.
  * @param target The target of a fit, or `null`.
+ * @param mix The mix preset.
  * @returns The row.
  */
 async function measureAt(
@@ -318,8 +339,9 @@ async function measureAt(
   synth: SynthRender,
   gainDb: number,
   target: number | null,
+  mix: MixName,
 ): Promise<Row> {
-  const chain = await renderChain(synth.audio, SOUNDFONT_HEADROOM_DB + gainDb);
+  const chain = await renderChain(synth.audio, SOUNDFONT_HEADROOM_DB + gainDb, mix);
   const loudness = measureLoudness(chain.output);
   return {
     demo,
@@ -330,6 +352,8 @@ async function measureAt(
     start: medianShortTerm(loudness.shortTerm, 3, START_SEC),
     quiet: shareBelow(loudness.shortTerm, synth.durationSec, QUIET_LUFS),
     reduction: gainReduction(chain.limiterInput, chain.output),
+    glue: gainReduction(chain.glueInput, chain.limiterInput),
+    renderMs: chain.renderMs,
   };
 }
 
@@ -340,9 +364,16 @@ async function measureAt(
  * @param synth The synth output of the demo.
  * @param target The target in LUFS.
  * @param first The measures at the gain of `pieceGainDb()`.
+ * @param mix The mix preset.
  * @returns The row at the fitted gain.
  */
-async function fit(demo: DemoId, synth: SynthRender, target: number, first: Row): Promise<Row> {
+async function fit(
+  demo: DemoId,
+  synth: SynthRender,
+  target: number,
+  first: Row,
+  mix: MixName,
+): Promise<Row> {
   let row: Row = { ...first, target, tableValue: Math.round((target - first.gainDb) * 10) / 10 };
   const tried = new Set<number>([row.gainDb]);
   for (let step = 0; step < FIT_STEPS; step++) {
@@ -355,7 +386,7 @@ async function fit(demo: DemoId, synth: SynthRender, target: number, first: Row)
       break;
     }
     tried.add(gainDb);
-    row = await measureAt(demo, synth, gainDb, target);
+    row = await measureAt(demo, synth, gainDb, target, mix);
   }
   return row;
 }
@@ -379,7 +410,7 @@ function cell(value: number, digits: number, width: number): string {
  * @returns The line.
  */
 function line(row: Row): string {
-  const { loudness, reduction } = row;
+  const { loudness, reduction, glue } = row;
   return [
     row.demo.padEnd(17),
     row.target === null ? '     app' : cell(row.target, 1, 8),
@@ -390,6 +421,8 @@ function line(row: Row): string {
     cell(loudness.truePeak, 2, 6),
     cell(row.start, 1, 6),
     cell(row.quiet * 100, 0, 5),
+    cell(glue.p95, 1, 5),
+    cell(glue.max, 1, 5),
     cell(reduction.max, 1, 5),
     cell(reduction.over1 * 100, 1, 6),
     cell(reduction.over3 * 100, 1, 6),
@@ -398,8 +431,8 @@ function line(row: Row): string {
 
 /** The head of the text table. */
 const HEAD = [
-  'demo              target   gain  table    LUFS   LRA  dBTP  start quiet  GRmax  GR>1  GR>3',
-  '                  LUFS     dB    LUFS                       LUFS    %     dB     %     %',
+  'demo              target   gain  table    LUFS   LRA  dBTP  start quiet glue95 glue  GRmax  GR>1  GR>3',
+  '                  LUFS     dB    LUFS                       LUFS    %     dB    dB     dB     %     %',
 ].join('\n');
 
 /** The JSON object of one row of `--json`. The levels are in LUFS, dB, or dBTP. */
@@ -424,6 +457,12 @@ interface RowJson {
   readonly reductionOver3: number;
   /** The delay of the limiter in samples. */
   readonly limiterDelay: number;
+  /** The 95th percentile of the gain reduction of the glue compressor in a block of 50 ms. */
+  readonly glueP95: number;
+  /** The highest gain reduction of the glue compressor in a block of 50 ms. */
+  readonly glueMax: number;
+  /** The time of the chain render in ms. */
+  readonly renderMs: number;
   /** The short-term loudness at the end of each second, at least -99 LUFS. */
   readonly shortTerm: readonly number[];
 }
@@ -456,6 +495,9 @@ function jsonOf(row: Row): RowJson {
     reductionOver1: round(row.reduction.over1, 4),
     reductionOver3: round(row.reduction.over3, 4),
     limiterDelay: row.reduction.delay,
+    glueP95: round(row.glue.p95, 2),
+    glueMax: round(row.glue.max, 2),
+    renderMs: Math.round(row.renderMs),
     shortTerm: perSecond,
   };
 }
@@ -500,7 +542,10 @@ function optionValues(args: readonly string[], name: string): string[] {
   return values;
 }
 
-/** Runs the tool: `node tools/loudness.ts [--demo <id>]... [--fit] [--target <LUFS>]... [--json] [--check]`. */
+/**
+ * Runs the tool: `node tools/loudness.ts [--demo <id>]... [--fit] [--target <LUFS>]... [--json]
+ * [--check]`.
+ */
 async function main(): Promise<void> {
   const args = process.argv.slice(2);
   if (args.includes('--help')) {
@@ -509,6 +554,7 @@ async function main(): Promise<void> {
     );
     return;
   }
+  const mix: MixName = 'hall';
   const names = optionValues(args, '--demo');
   const unknown = names.filter((name) => !isDemoId(name));
   if (unknown.length) {
@@ -529,18 +575,20 @@ async function main(): Promise<void> {
   }
 
   if (!json) {
-    console.log(`Output of the chain, after the limiter. TARGET_LOUDNESS ${TARGET_LOUDNESS} LUFS.`);
+    console.log(
+      `Output of the chain with the mix ${mix}, after the limiter. TARGET_LOUDNESS ${TARGET_LOUDNESS} LUFS.`,
+    );
     console.log(HEAD);
   }
   const failures: string[] = [];
   try {
     for (const demo of demos) {
       const synth = await renderSynth(demo);
-      const first = await measureAt(demo, synth, pieceGainDb(demo), null);
+      const first = await measureAt(demo, synth, pieceGainDb(demo), null, mix);
       failures.push(...checkFailures(first));
       const rows = [first];
       for (const target of targets) {
-        rows.push(await fit(demo, synth, target, first));
+        rows.push(await fit(demo, synth, target, first, mix));
       }
       for (const row of rows) {
         console.log(json ? JSON.stringify(jsonOf(row)) : line(row));
@@ -559,4 +607,6 @@ async function main(): Promise<void> {
   }
 }
 
-await main();
+if (import.meta.main) {
+  await main();
+}

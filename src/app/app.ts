@@ -1253,11 +1253,15 @@ export class App {
     playWithSilentSwitch(navigator);
     // A failure during play pauses the transport, so that the animals do not play with no sound.
     // The next load starts a new engine (design 6.8).
-    const player = new WorkletPlayer(baseUrl, (error) => {
-      if (this.#piece) {
-        this.#fail(this.#piece, error, 'play');
-      }
-    });
+    const player = new WorkletPlayer(
+      baseUrl,
+      (error) => {
+        if (this.#piece) {
+          this.#fail(this.#piece, error, 'play');
+        }
+      },
+      'hall',
+    );
     player.setRate(this.#speed);
     player.setVolume(volumeGain(this.#volume, this.#muted));
     this.#audio = {

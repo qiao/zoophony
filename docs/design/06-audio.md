@@ -29,6 +29,10 @@ The sound is full and professional, in the room of a concert hall, and never dry
 - **Room and hall.** The synth has no chorus. Its reverb is the short GS room "Room 1", locked
   with `reverbLock` over each reset. The worklet has one stereo output, so the hall reverb of the
   output chain (6.8) gets the full mix.
+- **Mix bus.** The output chain (6.8) adds a pre-delay, a band filter, and a width stage to the
+  hall return, a tone EQ, and a glue compressor before the limiter. Two mix presets set it:
+  `hall`, the default, and `cinematic`, with a longer hall, more low end, and more width. The
+  query `?mix=` selects one for a listening test.
 
 ## 6.2 SoundFont
 
@@ -210,8 +214,9 @@ interface PlayerScore extends Pick<Score, 'durationSec' | 'synthEvents' | 'prese
 
 ### Output chain
 
-`createOutputChain()` of `audio/output-chain.ts` makes this chain one time for the session. Its
-constants hold the gains, the limiter, and the time constant.
+`createOutputChain()` of `audio/output-chain.ts` makes this chain one time for the session, with
+the mix bus of the mix preset. Its constants hold the gains, the mix buses, the limiter, and the
+time constant.
 
 ```text
 AudioWorkletNode (stereo)
@@ -219,11 +224,25 @@ AudioWorkletNode (stereo)
        v
 GainNode "input": the headroom of the SoundFont plus the gain of the piece
        ├──────────────────────┐
+       │                      v
+       │              DelayNode (preDelay)
+       │                      v
+       │              ConvolverNode (hall impulse response, stereo, normalize off)
+       │                      v
+       │              BiquadFilterNode high-pass, then low-pass (returnBand)
+       │                      v
+       │              ChannelSplitter -> 4 GainNodes -> ChannelMerger (returnWidth)
        v                      v
-GainNode "dry" (1)    ConvolverNode (hall impulse response, stereo, normalize off)
-       │                      │
-       │              GainNode "wet" (WET_GAIN)
+GainNode "dry" (1)    GainNode "wet" (wet)
        v                      v
+GainNode "sum"
+       │
+BiquadFilterNode x 4: tone EQ (TONE_EQ: low shelf, low-mid peak, presence peak, high shelf)
+       │
+DynamicsCompressorNode "glue" (glue: low ratio, slow attack and release, hard knee)
+       │
+GainNode "glueTrim" (removes the makeup gain of the glue)
+       │
 DynamicsCompressorNode "limiter" (LIMITER: below full scale, hard knee, fast attack)
        │
 GainNode "trim" (removes the makeup gain of the limiter)
@@ -233,16 +252,71 @@ GainNode "volume": the volume slider and the mute button, VOLUME_TIME_CONSTANT
 context.destination
 ```
 
+`MIX_BUSES` holds one `MixBus` for each mix preset:
+
+```typescript
+/** The settings of the mix bus of one mix preset. */
+interface MixBus {
+  /** The impulse response of the hall reverb: a FLAC file and a WAV file. */
+  readonly hall: HallImpulse;
+  /** The delay before the convolver, in seconds. */
+  readonly preDelay: number;
+  /** The cutoffs of the reverb return, in Hz. */
+  readonly returnBand: readonly [highPass: number, lowPass: number];
+  /** The gain of the side signal of the reverb return: 1 keeps the width. */
+  readonly returnWidth: number;
+  /** The gain of the reverb return. */
+  readonly wet: number;
+  /** The tone EQ on the sum of the dry path and the reverb return. */
+  readonly tone: Tone;
+  /** The glue compressor before the limiter, with the knee 0. */
+  readonly glue: Compressor;
+}
+
+/** The gains of the tone EQ in dB, at the frequencies and Q values of TONE_EQ. */
+interface Tone {
+  readonly lowShelf: number;
+  readonly lowMid: number;
+  readonly presence: number;
+  readonly highShelf: number;
+}
+```
+
+- **Mix presets.** `hall` is the default. It uses the impulse response of St Paul's Hall
+  (`ST_PAULS_HALL`), a concert hall of medium size, with small steps of each stage. `cinematic`
+  uses the Konzerthaus of Detmold (`KONZERTHAUS`), a longer pre-delay, a wider return, more low
+  end, and more glue. The Konzerthaus measure has the enhancement system of the hall on, which
+  gives the decay of a large hall. Both files are measured halls with a CC BY 4.0 license (8.1),
+  and `assets/hall/README.md` gives their sources. The wet gain of each preset sets the share of
+  the hall in the output, because the energy of the two files differs by about 13 dB.
+- **Query flag.** `mixOfQuery()` of `app/mix-query.ts` reads `?mix=hall` or `?mix=cinematic`, and
+  gives `hall` with no query or with an unknown value. The app gives the preset to the `Player`
+  and to `pieceGainDb()`. The flag is for a listening test of the two presets. The settings have
+  no control for it.
+- **Reverb return.** The pre-delay keeps the onset of each note clear before the hall starts. The
+  high-pass keeps the low notes of the reverb from a boom, and the low-pass removes the hiss of
+  the noise floor of the measurement. The width stage changes only the side signal of the return
+  (mid-side), so the dry path keeps the pan of each seat (6.1).
+- **Tone EQ.** The low shelf gives the body of the low strings and the brass. The cut in the low
+  mids removes the mud of many instruments that sum there. The high shelf gives air. The presence
+  peak cuts a harsh band of the SoundFont: in the 1/3-octave spectrum of a tutti, a chamber
+  demo, and the choir demo, the band at 3.15 kHz is 4 dB to 6 dB above a line fit.
+- **Glue.** The glue compressor joins the sections in a tutti with a little gain reduction: about
+  1 dB to 2 dB with `hall` (`pnpm loudness`). Its slow attack lets the onsets pass, and its trim
+  removes its makeup gain, as the trim of the limiter does. The knee is 0, so `makeupTrimDb()` is exact. Each compressor delays the output by
+  6 ms in Chromium, and the clock (6.7) does not correct this small delay.
 - **Gain of the piece.** `pieceGainDb()` brings each demo to `TARGET_LOUDNESS` (integrated) with
-  the values of `DEMO_LOUDNESS`. The target is the music loudness of AES TD1008, because a louder
-  target needs more gain reduction on the dynamic demos. Each demo keeps its loudness range, and
-  a file of the user gets 0 dB. `pnpm loudness --fit` measures the values again after a change of
-  a demo, the SoundFont, the mix, the hall, or the limiter.
+  the values of `DEMO_LOUDNESS` of the mix preset. The target is the music loudness of AES TD1008,
+  because a louder target needs more gain reduction on the dynamic demos. Each demo keeps its
+  loudness range, and a file of the user gets 0 dB. `pnpm loudness --fit --mix <name>` measures
+  the values again after a change of a demo, the SoundFont, the mix, the mix bus, the hall, or the
+  limiter.
 - **Limiter.** The trim removes the makeup gain of the compressor, so the chain does not change the
   level below the threshold. The threshold keeps the true peak of each demo at or below -1 dBTP
   (EBU R 128).
 - **Volume.** The app gives the gain "volume" the square of the slider position, and 0 for the
   mute button (2.8). The volume comes after the limiter, so the limiter acts the same at each
   volume, and a mute also stops the hall tail.
-- **Hall file.** The `Player` fetches the lossless FLAC file (`HALL_IMPULSE_URL`), and the WAV file
-  (`HALL_WAV_URL`) only when `decodeAudioData()` refuses the FLAC file.
+- **Hall file.** The `Player` fetches only the impulse response of its mix preset, after the first
+  frame: the lossless FLAC file (`flacUrl` of `HallImpulse`), and the WAV file (`wavUrl`) only
+  when `decodeAudioData()` refuses the FLAC file.
