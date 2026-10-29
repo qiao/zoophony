@@ -1,22 +1,23 @@
 # TODO
 
-This list holds the tasks that build Zoophony, in order. It is the only place for the status of
-the work. The rules for each task are in the design files of [`docs/design/`](docs/design.md).
-The numbers in parentheses name its sections, and the index `docs/design.md` gives the file of
-each section.
+This list holds the open tasks of Zoophony, under the steps of the work order (design 9.5). It is
+the only place for the status of the work. The rules for each task are in the design files of
+[`docs/design/`](docs/design.md). The numbers in parentheses name the design sections, and the
+index `docs/design.md` gives the file of each section.
 
 ## How to use this list
 
-1. Take the first unchecked task. Do the steps in order, and do the tasks of a step in order,
-   unless a task says that it can wait.
+1. Take the first open task. Do the steps in order, and do the tasks of a step in order, unless a
+   task says that it can wait.
 2. Read the design sections that the task names before you start.
-3. Do the task in one or more small commits (AGENTS.md). Ship the tests in the same commits.
-4. In the last commit of the task, change its `[ ]` to `[x]`.
-5. At the end of a step, check its "Done when" list. Then do the review of design 9.8. The
-   manager reads the report and the images. After "Review:", write the date and "manager
-   review". Then start the next step.
+3. Do the task in one or more small commits (AGENTS.md). Put each product choice and its reason
+   in its design section. Write no decision file.
+4. In the last commit of the work, remove the task from this list. The list keeps no done tasks,
+   no review lines, and no history.
+5. When the work shows a new problem, add it as an open task under its step, with one line on the
+   reason.
 6. If a task is blocked, add a line `Blocked: <reason>` under it, and ask the user.
-7. If the work shows a new task, add it under its step, unchecked, with one line on the reason.
+7. When a step has no open task and its "Done when" is true, remove the step.
 
 ## Step 1. Audio spike (6, 9.5, 9.7)
 
