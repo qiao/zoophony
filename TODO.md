@@ -790,13 +790,42 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       as long as on the mesh, the thighs slope 10° down on a bench of 0.166 m, the piano is 1.03
       times a real piano with the keys at 0.72 m, and the elbows stand 4 to 6 cm above the keys
       with level forearms. The arm gate passes, and each note target is within 5 mm.
-- [ ] Polar bear (`2026-10-28-polar-legs.md`): the bear sits lower: the head top is 1.31 m in the
+- [x] Polar bear (`2026-10-28-polar-legs.md`): the bear sits lower: the head top is 1.31 m in the
       play (1.46 m before), and in the default view of `bach-bwv1050` the red fox violinists hide
-      more of it. Next: ask the user if the bear reads too small at the piano.
-- [ ] Polar bear (`2026-10-28-polar-legs.md`): the smaller piano moves rows of the four demos with
-      a piano, violins up to 1.40 m in `bach-bwv1050` and 0.99 m in `boulanger-matin`. The rows
-      keep their gaps. Next: ask the user about the new rows, or give the piano shorter legs at
-      the scale 1.16, which keeps the layout.
+      more of it. Done: the user asked for a taller bench, and the body is 1.1 times as large, with
+      the head top at 1.53 m in the play (`2026-10-28-polar-bench2.md`).
+- [x] Polar bench (user, 2026-10-28): "can the polar bear's bench be taller so that it's leg is
+      more natural?" Done: the legs are 1.3 times the mesh, the thighs slope 25° down on a bench
+      of 0.255 m, the body is 1.1 times as large, and the piano is 1.22 times a real piano with
+      the keys at 0.85 m (`2026-10-28-polar-bench2.md`). The arm gate gives no `FAIL`, and each
+      note target is within 5 mm.
+- [ ] Polar bench (`2026-10-28-polar-bench2.md`): the forearms and the upper arms go 8.3 cm into
+      the belly in the play (6.3 and 6.8 cm before). Next: try the elbows a little further out
+      (`poleL`, `poleR` of `HANDS_HOLDS.piano`) with `pnpm pose-depth pianist --base main`.
+- [ ] Polar bench (`2026-10-28-polar-bench2.md`): the piano of 1.22 moves rows of the four demos
+      with a piano again (`gate-body-probe.txt`). Next: check the default view of `bach-bwv1050`
+      and `boulanger-matin`, and show the user the stage with the larger piano.
+- [x] Tails (user, 2026-10-28): "the cat's tail has malformed meshes", "the dog's tail is
+      unnatural". Done: the curl measures each tail vertex against the middle line of the source
+      tail, Taubin rounds round the curled tube, and the dog tail shrinks less
+      (`2026-10-28-tails.md`).
+- [ ] Tails (`2026-10-28-tails.md`): the cat has 4 faces that stay turned over against the bone
+      turn after the bind (2 before), and the left paw of the cellist folds in 843 samples (706
+      before), because the chair of the dog is 5 mm less deep. No image shows them.
+- [x] Arm lumps (user, 2026-10-28): "the hippo's arm has lumps / dents", "the wolf's arm has
+      unexpected dents / bends", "the cat's arm has unexpected lumps". Partly done: the rebuilt
+      arm tubes took the ridges of the big faces of the user meshes. Taubin rounds smooth the
+      tubes of the wolf, the bow arm of the cat, and the middles of the hippo tubes
+      (`2026-10-28-arm-smooth.md`). The folds fall for each of the three roles.
+- [ ] Cat bow arm (`2026-10-28-arm-smooth.md`): the crumple share of `pnpm arm-look violist` stays
+      23.9% (limit 14.6%). At the tip, thin dark wavy folds cross the right shoulder. A larger
+      rim of skin normals did not remove them, so they are folds of the geometry at the root.
+      Next: a bind of the right upper arm nearer to the bow arm of the play, with the raise
+      shapes fitted again.
+- [ ] Hippo bow at rest (user, 2026-10-28): "not holding the bow properly". The stick goes
+      through the middle of the round paw, and the frog end hides inside it, so the paw reads as a
+      lid on the stick. Next: ask the user for the form of the rest hold, such as the bow on the
+      strings, or the frog end out of the paw on the thumb side.
 - [ ] Polar bear (`2026-10-28-polar-legs.md`): with the wrists 0.2 H up in the lift, the paws go
       1.0 cm and the forearms up to 1.5 cm into the front of the case in the lift and the
       lowering (limit 1.5 cm, 0 cm before). In the bind, 3 faces of the left shin and thigh turn
