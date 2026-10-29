@@ -586,6 +586,17 @@ passes, and the quality tiers of 2.6 keep 60 fps on a laptop.
 - [ ] Add to 9.4: Escape in the open speed list below 700 px closes only the list (Chrome), and a
       phone call and fast taps on Pause and Play leave a correct state (iPhone).
 - [ ] Do the manual release test of 9.4 with the user, on the deployed site and the real devices.
+- [ ] Add `pnpm same-code <ref> [paths]`: it proves that a change touches only comments (the
+      TypeScript and Python ASTs with no comments, the TOML data, and shell files with no
+      comments). A comment round needs it.
+- [ ] Give `pnpm rig-mesh` a `--base <ref>` mode that compares the outputs and caches each result
+      by its inputs, as `body-probe` does. A check of all 18 animals now takes about 100 minutes.
+- [ ] Add `pnpm knip` for the unused exports, with the HTML entries, `tools/**/*.ts`, and
+      `--include-entry-exports`.
+- [ ] Format `tools/mesh-rigs/*.json` with oxfmt, so that a script can rewrite them.
+- [ ] Remove the audit and review labels from the `it()` and `describe()` names of the paused
+      tests, and the dated notes that the `_arms.py` scripts write into the weights files of
+      `assets/models/`.
 
 Done when: CI passes on `main` with Playwright in Chromium, and the deployed site plays the
 default demo.
