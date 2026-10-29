@@ -201,3 +201,7 @@ the constants of `app/page-title.ts`, so that the page and the app cannot differ
   hold it. `theme-color` is the dark edge of the page background.
 - **Structured data**: a JSON-LD `WebApplication` with the name, the URL, the description, the
   image, the category, the need for WebGL2 (2.6), and a free offer. It holds no personal data.
+- **Crawlers**: `public/robots.txt` lets each crawler read each path, and names
+  `public/sitemap.xml`, which lists the start page. Both name `SITE_URL`. The development pages
+  keep their `noindex` (7.1) and stay open in `robots.txt`, because a crawler that may not read a
+  page does not see its `noindex`.

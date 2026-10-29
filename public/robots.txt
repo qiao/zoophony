@@ -1,0 +1,6 @@
+# Each crawler may read each page (design 7.4). The development pages gallery.html and views.html
+# have a noindex meta tag, and a crawler sees that tag only when this file lets it read the page.
+User-agent: *
+Allow: /
+
+Sitemap: https://www.zoophony.com/sitemap.xml
