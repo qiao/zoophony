@@ -1,0 +1,256 @@
+{
+  "source": "assets/models/rhino/rhino-tpose-arms.glb",
+  "sourceNote": "The A-pose mesh of the user, of 2026-10-23 (assets/models/rhino/README.md), with new quad faces on each arm from the shoulder line to the wrist. The user said on 2026-10-26: \"the rhino's arms are stretched / twisted in unnatural ways\". The long thin faces of the source forearm and the two bones of the forearm twisted the skin into a thin band. The user allowed loop edges, retopology, and extra bones for the arm and wrist twist on 2026-10-24. tools/blender/rhino_arms.py replays the Blender session that made it. The faces of the paws, the trunk, the legs, and the head are the faces of the user, and the inner lower side of each upper arm is a little flatter (docs/decisions/2026-10-26-fifth-review-rhino.md).",
+  "paintedWeights": "assets/models/rhino/rhino-tpose-weights.json",
+  "paintedNote": "The weights of the clavicles and the arms are the automatic weights of Blender with the Weight Paint fixes of tools/blender/rhino_arms.py: the trunk under the armpits and the neck are off the arm bones and the clavicles, and the paws are off the wrist helper. The vertices on the bones of paintedLower (the trunk up to the chest, the neck, the head, the ears, the legs, the tail, and the paws) keep the rule weights. With Blender weights on the paws, the curl around the tubes folded 9 more faces of the paws.",
+  "paintedLower": [
+    "root",
+    "hips",
+    "spine",
+    "spine1",
+    "chest",
+    "neck",
+    "head",
+    "ear_L",
+    "ear_R",
+    "thigh_L",
+    "shin_L",
+    "foot_L",
+    "toes_L",
+    "thigh_R",
+    "shin_R",
+    "foot_R",
+    "toes_R",
+    "tail",
+    "hand_L",
+    "fingers_L",
+    "hand_R",
+    "fingers_R"
+  ],
+  "output": "assets/models/rhino/rhino.rig.glb",
+  "name": "Rhino",
+  "weld": 1e-5,
+  "app": {
+    "shoulders": 0.958199,
+    "reach": 0.3493,
+    "note": "No reference image shows a rhino, so the mesh takes the head top of the parametric rhino (user, 2026-10-19, docs/decisions/2026-10-19-mouse-size.md): 1.462 m. The skull top of the mesh between the ears is at 0.9448 u, so the scale is 1.5474 m for each unit, and the standing shoulder joints are at 0.59 u (0.912976 m). The reach is the reach of the arms of the mesh."
+  },
+  "armFactor": 1,
+  "armFactorNote": "The arms keep the length of the mesh: 0.374 m from the shoulder joint to the middle of the palm. The palm reaches the grips of the tuba with 3 mm to 47 mm to spare (pnpm hold-reach rhino --instrument tuba).",
+  "legFactor": 1,
+  "legFactorNote": "The legs keep the length of the mesh (user rule: do not stretch the legs). The rhino stands to play the tuba, so no seat asks for longer legs.",
+  "armSegments": {
+    "helper": 0.052,
+    "note": "Each upper arm and each forearm has 4 deform segments, and each elbow and wrist a helper bone. The elbow helper is 0.052 units, twice the gap of the rings of the elbow (gap of tools/blender/rhino_arms.py). The app turns the bones from the joints of the pose (poseArm() of src/models/studio-rig.ts). They replace upperTwist: with two forearm bones, each one took 84 degrees of the turn of the left paw, and the skin collapsed."
+  },
+  "rootNormals": {
+    "radius": 0.12,
+    "note": "The skin faces whose middle lies within radius (units) of the head of an upper arm take the normals of the skin with no crease angle in the app (root_rim() of tools/blender/rig_mesh.py, studioNormals() of src/models/studio-normals.ts). The seated bind turns the hanging arm up, so the faces of the arm root meet at sharp angles, and the crease angle 35 of ANIMALS split their normals into a black slot or a dark wedge under each raised arm. On the rebuilt arms, the radius 0.08 left the wedge under the left arm. The faces of the mesh and the weights stay: the rebuilt quad arms of the method of the elephant put the upper arms 3.5 cm into the belly and took the right paw off the valves (pnpm wind-grip tubist), and they did not remove the wedge without this rule (docs/research/2026-10-25-beaver-rhino-arms.md)."
+  },
+  "joints": {
+    "root": {
+      "head": [0, 0, 0],
+      "tail": [0, 0, 0.1],
+      "roll": [0, 1, 0]
+    },
+    "hips": {
+      "head": [0, 0.22, -0.06],
+      "tail": "spine"
+    },
+    "spine": {
+      "head": [0, 0.32, -0.062],
+      "tail": "spine1"
+    },
+    "spine1": {
+      "head": [0, 0.42, -0.058],
+      "tail": "chest"
+    },
+    "chest": {
+      "head": [0, 0.52, -0.052],
+      "tail": "neck"
+    },
+    "neck": {
+      "head": [0, 0.67, -0.055],
+      "tail": "head"
+    },
+    "head": {
+      "head": [0, 0.72, -0.04],
+      "tail": [0, 0.945, 0.0]
+    },
+    "ear_L": {
+      "head": [0.065, 0.91, -0.025],
+      "tail": [0.108, 0.995, -0.018]
+    },
+    "clavicle_L": {
+      "head": [0.03, 0.62, -0.05],
+      "tail": "upper_arm_L"
+    },
+    "upper_arm_L": {
+      "head": [0.16, 0.625, -0.047],
+      "tail": "forearm_L",
+      "roll": "palm"
+    },
+    "forearm_L": {
+      "head": [0.265, 0.623, -0.042],
+      "tail": "forearm_twist_L",
+      "roll": "palm"
+    },
+    "forearm_twist_L": {
+      "head": [0.319, 0.621, -0.04],
+      "tail": "hand_L",
+      "roll": "palm"
+    },
+    "hand_L": {
+      "head": [0.373, 0.62, -0.037],
+      "tail": "fingers_L",
+      "roll": "palm"
+    },
+    "fingers_L": {
+      "head": [0.402, 0.62, -0.035],
+      "tail": [0.437, 0.622, -0.035],
+      "roll": "palm"
+    },
+    "thigh_L": {
+      "head": [0.118, 0.18, -0.065],
+      "tail": "shin_L"
+    },
+    "shin_L": {
+      "head": [0.11, 0.11, -0.079],
+      "tail": "foot_L"
+    },
+    "foot_L": {
+      "head": [0.116, 0.05, -0.065],
+      "tail": "toes_L",
+      "roll": [0, 1, 0]
+    },
+    "toes_L": {
+      "head": [0.12, 0.018, -0.005],
+      "tail": [0.12, 0.005, 0.04],
+      "roll": [0, 1, 0]
+    },
+    "tail": {
+      "head": [0, 0.27, -0.21],
+      "tail": [0, 0.13, -0.212],
+      "roll": [0, 1, 0]
+    }
+  },
+  "palm": [-0.021, -0.868, -0.495],
+  "jointsNote": "The places are in the units and the axes of the studio in the pose of the source: 1 unit from the soles to the top of the ears, the soles at y = 0, +z forward, +x the left side. The right side mirrors the left side. The cuts are in docs/research/2026-10-23-rhino-apose/ (sections-y.txt, sections-x.txt, sections-z.txt, arm-axis.txt). The legs are columns apart below y 0.19, with the middle of each leg at x 0.113 and z -0.087. The trunk joints lie on the middle of the body cut, z -0.05 to -0.06. The arms hang in an A-pose, apart from the trunk from y 0.39 to 0.53. The shoulder joint lies on the middle line of the arm 0.03 u inside its root, the elbow halfway to the wrist, the wrist where the arm narrows to the paw, and the finger joint 0.03 u from the paw tip at (0.373, 0.399). The ears stand above the skull from y 0.91. The tail hangs from y 0.31 to 0.145 behind the rump. The palm turns with the arm: the palm of the old mesh, swung from its hanging arm onto the arm of the A-pose.",
+  "studio": {
+    "legTurns": {
+      "thigh": [0.63412, 0.022369, -0.159113, 0.756356],
+      "shin": [0.0, 0.0, 0.00909, 0.999959],
+      "foot": [0.0, 0.0, 0.0, 1.0],
+      "toes": [0.0, 0.0, 0.0, 1.0]
+    },
+    "trunk": {
+      "open": 1,
+      "shares": {
+        "hips": 1,
+        "spine": 1,
+        "spine1": 0.75,
+        "chest": 0.5,
+        "neck": 0.25,
+        "head": 0
+      }
+    },
+    "bindArms": {
+      "upper_arm": [0.813873, -0.143043, 0.563161],
+      "forearm": [-0.112888, -0.02484, 0.993297],
+      "hand": [-0.514147, 0.0639, 0.855318]
+    },
+    "note": "The studio has no rhino. legTurns gives the world turn of each left leg bone from the seated bind pose to the source, and the right side mirrors it. The posture is the seated posture of design 5.2: the thigh slopes 25 degrees down from the hip to the knee, the thighs turn 15 degrees out, and the shin is vertical (docs/research/2026-10-16-hip-open/leg_turns.py <config> 25 15 0). The rhino stands to play the tuba in the app (the standing pose of the rig), so no player sits in this pose. The foot and the toes keep the turn of the source. The trunk shares and the bind upper arm are the values of the fox, the cat, the dog, the panda, the hippo, the mouse, the pig, the wolf, and the monkey. The bind forearm of these values turns 68 degrees about the bind upper arm, so that the elbow bends forward and not up, and the bind hand keeps its wrist bend of 25 degrees in the frame of the palm. The forearm of the app turns with the elbow hinge, so the bind sets the zero of the paw twist: with the elbow up, the bind paw sat 78 degrees pronated on its forearm, and each paw of the tuba hold turned 63 degrees more on its forearm. With the elbow forward, the bind paw sits 13 degrees pronated, near the 15 degrees of the A-pose paw of the source with a forward elbow (docs/decisions/2026-10-26-fifth-review-rhino.md)."
+  },
+  "weights": {
+    "armSplit": 0.17,
+    "stretchRamp": 0,
+    "headFrom": 0.7,
+    "earBase": [0.915, 0.945],
+    "tailBall": {
+      "center": [0, 0.2, -0.21],
+      "radius": 0.08,
+      "behind": -0.195
+    },
+    "sliver": {
+      "angle": 10,
+      "longest": 0.03,
+      "note": "The values of the fox, the cat, the dog, the panda, the hippo, the mouse, the pig, the wolf, and the monkey."
+    },
+    "line": {
+      "angle": 170,
+      "head": true,
+      "note": "The angle 170 of the A-pose elephant: on the long thin arm faces of a Meshy mesh, the angle 150 mixed the trunk and the paw weights at the middle corners (docs/research/2026-10-22-elephant-apose.md)."
+    },
+    "clavicleFrom": [0.55, 0.595],
+    "armTop": [0.66, 0.71],
+    "shoulderHead": [0.12, 0.17],
+    "fingers": 1,
+    "haunch": {
+      "height": [0.15, 0.2],
+      "note": "The part of the thigh weight that goes to the hips grows from 0 at the lower height to 1 at the upper height, so that the round haunch stays on the hips. It starts below the thigh joint (y 0.18) and ends above the crotch."
+    },
+    "note": "Beyond the plane |x| = armSplit, only the free arm follows the arm bones: the A-pose arm is apart from the trunk from x 0.17 out below y 0.55, and the trunk there is narrower than 0.17 (108 vertices of the free left arm). Above headFrom, each vertex follows the head only. Each ear follows its ear bone above earBase. The tail is a ball on one bone (tailBall): the vertices within radius of the center and behind the plane z = behind follow the tail, and the rump at y 0.29 lies in front of the plane. clavicleFrom, armTop, and shoulderHead are the rules of the old rhino, moved with the shoulder joint (y 0.59)."
+  },
+  "refine": {
+    "rings": [],
+    "flip": {
+      "angle": 150,
+      "normals": 60,
+      "move": 0.0016,
+      "rounds": 4,
+      "note": "The values of the fox, the cat, the dog, the panda, the hippo, the mouse, the pig, the wolf, and the monkey."
+    },
+    "ringsNote": "The first config has no rings. pnpm rig-mesh rhino --check lists the thin faces near the joints as candidates for a ring (check.thin). The fold probe of the role chooses the rings."
+  },
+  "check": {
+    "thin": {
+      "angle": 10,
+      "length": 0.08,
+      "near": 0.1
+    },
+    "note": "The values of the fox, the cat, the dog, the panda, the hippo, the mouse, the pig, the wolf, and the monkey."
+  },
+  "colors": {
+    "samples": 6,
+    "palette": 48,
+    "dark": 0.05,
+    "eyeShare": 0.34,
+    "eyeBox": [
+      [0.045, 0.803, 0.068],
+      [0.071, 0.836, 0.094]
+    ],
+    "note": "The values of samples, palette, dark, and eyeShare are the values of the other meshes. A dark face in the eye box is a face of an eye: 4 faces on the left and 2 on the right, at |x| 0.050 to 0.059, y 0.811 to 0.824, and z 0.122 to 0.128 (head-colors.txt of docs/research/2026-10-23-rhino-apose/)."
+  },
+  "eyeShell": {
+    "lift": 0.002,
+    "points": 12,
+    "reach": 1,
+    "darkReach": 2,
+    "note": "The values of the fox, the cat, the dog, the panda, the hippo, the mouse, the pig, the wolf, and the monkey."
+  },
+  "chair": {
+    "halfWidth": 0.24,
+    "front": -0.11,
+    "back": -0.26,
+    "backHeight": 0.15,
+    "note": "The chair of the rig sets the seat top of the seated bind under the haunch. The rhino stands in the app (the standing pose of the rig, soloist of ANIMALS), so no player sits on this seat. The values are the values of the old rhino."
+  },
+  "crease": {
+    "rings": 2,
+    "rounds": 8,
+    "share": 0.5,
+    "back": 0.1,
+    "below": 0.03,
+    "note": "The values of the fox, the cat, the dog, the panda, the hippo, the mouse, the pig, the wolf, and the monkey."
+  },
+  "sit": {
+    "gap": 0,
+    "band": 0.2,
+    "ramp": 0.015,
+    "step": 0.005,
+    "smooth": 8,
+    "end": 0.0065,
+    "most": 0.03,
+    "note": "The values of the hippo and the panda."
+  }
+}

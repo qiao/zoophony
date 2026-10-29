@@ -1,0 +1,89 @@
+
+> zoophony@0.0.0 fold-probe /Users/xueqiaoxu/proj/zoophony
+> node tools/fold-probe.ts tubist --glb scratch/r1028f/w/k.glb/variant-1.glb --faces 16
+
+Folded faces of the studio body of the tubist (3877 faces), play step 0.25 s.
+Demos: boulanger-matin.mid, brahms-2.mid
+
+| Set | Samples | With a fold | Share | Most faces (by the side of the main bone) | Worst sample |
+|---|---:|---:|---:|---:|---|
+| rest | 2 | 2 | 100.0% | 30 (L 12 / R 12 / other 6) | boulanger-matin.mid rest |
+| play | 4147 | 4147 | 100.0% | 42 (L 14 / R 20 / other 8) | boulanger-matin.mid 118.63 s |
+| lift | 62 | 62 | 100.0% | 41 (L 13 / R 20 / other 8) | brahms-2.mid wall 0.8 s |
+| all | 4211 | 4211 | 100.0% | 42 (L 14 / R 20 / other 8) | boulanger-matin.mid 118.63 s |
+
+Folded faces of all samples by the main studio bone: clavicle_R 29477, head 29458, hand_L 21055, fingers_R 20875, clavicle_L 16856, elbow_R 16826, fingers_L 8422, hand_R 6432, chest 4211, forearm_seg0_L 4203, upper_arm_seg3_R 4197, upper_arm_seg1_L 4193, ear_L 47
+
+The 16 faces that fold in the most samples, with the places of the bind pose. The mark ALL shows a face that folds in each sample of each set with samples.
+
+| Face | Rest | Play | Lift | Mark | Main bone | Middle (m) | Source middle (u) | Corner angles | Worst sample, angle, bone of the fold |
+|---:|---:|---:|---:|---|---|---|---|---|---|
+| 2 | 100.0% | 100.0% | 100.0% | ALL | fingers_R | 0.340, 0.951, -0.262 | [-0.4242, 0.6333, -0.0495] | 168.1°, 6.1°, 5.8° | boulanger-matin.mid 259.38 s, 135°, turn of fingers_R 103° |
+| 81 | 100.0% | 100.0% | 100.0% | ALL | fingers_R | 0.309, 0.919, -0.268 | [-0.4362, 0.6099, -0.0376] | 45.9°, 66.3°, 67.8° | boulanger-matin.mid 263.63 s, 172°, turn of fingers_R 108° |
+| 82 | 100.0% | 100.0% | 100.0% | ALL | fingers_R | 0.321, 0.920, -0.271 | [-0.4341, 0.6121, -0.0453] | 25.1°, 65.6°, 89.3° | boulanger-matin.mid 264.63 s, 164°, turn of fingers_R 124° |
+| 423 | 100.0% | 100.0% | 100.0% | ALL | elbow_R | 0.312, 0.946, -0.041 | [-0.2513, 0.6188, 0.0058] | 151.2°, 8.5°, 20.3° | boulanger-matin.mid 196.13 s, 161°, turn of elbow_R 4° |
+| 424 | 100.0% | 100.0% | 100.0% | ALL | elbow_R | 0.307, 0.925, -0.040 | [-0.2436, 0.6046, 0.005] | 5.0°, 18.2°, 156.7° | boulanger-matin.mid 97.88 s, 168°, turn of elbow_R 3° |
+| 638 | 100.0% | 100.0% | 100.0% | ALL | clavicle_R | 0.209, 0.967, 0.188 | [-0.1303, 0.6305, -0.1229] | 1.3°, 1.0°, 177.7° | boulanger-matin.mid rest, 112°, turn of clavicle_R 15° |
+| 660 | 100.0% | 100.0% | 100.0% | ALL | head | 0.180, 1.084, 0.135 | [-0.1164, 0.7073, -0.088] | 2.7°, 169.9°, 7.4° | boulanger-matin.mid 56.38 s, 135°, turn of clavicle_R 114° |
+| 664 | 100.0% | 100.0% | 100.0% | ALL | clavicle_R | 0.213, 1.068, 0.061 | [-0.1376, 0.696, -0.0381] | 10.8°, 25.5°, 143.7° | boulanger-matin.mid 44.38 s, 99°, turn of clavicle_R 14° |
+| 678 | 100.0% | 100.0% | 100.0% | ALL | clavicle_R | 0.199, 1.035, 0.008 | [-0.1301, 0.6749, -0.0039] | 10.8°, 163.9°, 5.4° | boulanger-matin.mid rest, 134°, turn of clavicle_R 102° |
+| 684 | 100.0% | 100.0% | 100.0% | ALL | head | 0.189, 1.081, 0.024 | [-0.1235, 0.7046, -0.0152] | 86.6°, 57.1°, 36.2° | boulanger-matin.mid rest, 170°, turn of clavicle_R 177° |
+| 712 | 100.0% | 100.0% | 100.0% | ALL | head | 0.162, 1.063, -0.010 | [-0.1057, 0.6934, 0.0072] | 16.4°, 33.1°, 130.5° | brahms-2.mid rest, 166°, turn of clavicle_R 176° |
+| 718 | 100.0% | 100.0% | 100.0% | ALL | head | 0.176, 1.106, 0.042 | [-0.115, 0.7213, -0.0268] | 138.7°, 26.1°, 15.2° | boulanger-matin.mid rest, 144°, turn of clavicle_R 139° |
+| 871 | 100.0% | 100.0% | 100.0% | ALL | clavicle_R | 0.101, 0.914, -0.100 | [-0.0666, 0.5959, 0.066] | 44.4°, 40.5°, 95.1° | brahms-2.mid wall 0.5 s, 161°, turn of clavicle_R 155° |
+| 872 | 100.0% | 100.0% | 100.0% | ALL | chest | 0.115, 0.862, -0.112 | [-0.0764, 0.5621, 0.0744] | 27.3°, 37.6°, 115.1° | brahms-2.mid 340.38 s, 94°, turn of clavicle_R 85° |
+| 944 | 100.0% | 100.0% | 100.0% | ALL | clavicle_R | 0.100, 1.025, -0.059 | [-0.0652, 0.6684, 0.0386] | 120.3°, 23.9°, 35.8° | boulanger-matin.mid 279.88 s, 114°, turn of clavicle_R 127° |
+| 949 | 100.0% | 100.0% | 100.0% | ALL | clavicle_R | 0.050, 0.980, -0.086 | [-0.0329, 0.6389, 0.0558] | 17.9°, 40.7°, 121.4° | boulanger-matin.mid 154.38 s, 116°, turn of clavicle_L 146° |
+
+The corners of each face in its worst sample. Each shape move gives the move of the corner by one corrective shape at its full weight, then the weight of the shape in the sample. The shapes are in the order of the mesh: the left arm down, the right arm down, and the shapes of a raised arm, a bent elbow, or a bent wrist of a body with such shapes. The move in the sample is the move of all shapes at their weights.
+
+| Face | Vertex | Bind (m) | Posed (m) | Shape moves (mm) × weights | Move in the sample (mm) | Bones and weights |
+|---:|---:|---|---|---|---:|---|
+| 2 | 4 | 0.340, 0.949, -0.263 | 0.048, 0.974, -0.312 | 0.0 × 0.00 / 0.1 × 0.00 | 0.0 | fingers_R 0.51 hand_R 0.48 forearm_twist_R 0.00 |
+| 2 | 2 | 0.312, 0.944, -0.269 | 0.032, 0.980, -0.285 | 0.0 × 0.00 / 0.0 × 0.00 | 0.0 | fingers_R 0.93 hand_R 0.07 |
+| 2 | 3 | 0.368, 0.959, -0.253 | 0.065, 0.955, -0.323 | 0.0 × 0.00 / 0.7 × 0.00 | 0.0 | hand_R 0.81 fingers_R 0.13 forearm_twist_R 0.06 |
+| 81 | 23 | 0.293, 0.912, -0.260 | 0.047, 0.984, -0.279 | 0.0 × 0.00 / 0.0 × 0.00 | 0.0 | fingers_R 0.62 hand_R 0.38 |
+| 81 | 62 | 0.312, 0.934, -0.270 | 0.042, 0.961, -0.295 | 0.0 × 0.00 / 0.0 × 0.00 | 0.0 | fingers_R 0.93 hand_R 0.07 |
+| 81 | 61 | 0.321, 0.912, -0.274 | 0.040, 0.965, -0.301 | 0.0 × 0.00 / 0.0 × 0.00 | 0.0 | hand_R 0.57 fingers_R 0.43 |
+| 82 | 62 | 0.312, 0.934, -0.270 | 0.042, 0.957, -0.298 | 0.0 × 0.00 / 0.0 × 0.00 | 0.0 | fingers_R 0.93 hand_R 0.07 |
+| 82 | 60 | 0.330, 0.915, -0.269 | 0.045, 0.956, -0.307 | 0.0 × 0.00 / 0.0 × 0.00 | 0.0 | hand_R 0.58 fingers_R 0.42 |
+| 82 | 61 | 0.321, 0.912, -0.274 | 0.040, 0.961, -0.303 | 0.0 × 0.00 / 0.0 × 0.00 | 0.0 | hand_R 0.57 fingers_R 0.43 |
+| 423 | 221 | 0.309, 0.942, -0.039 | 0.171, 0.908, -0.160 | 0.0 × 0.00 / 46.5 × 0.00 | 0.0 | elbow_R 0.38 upper_arm_seg3_R 0.25 upper_arm_seg2_R 0.19 forearm_seg0_R 0.17 |
+| 423 | 204 | 0.317, 0.963, -0.041 | 0.196, 0.918, -0.164 | 0.0 × 0.00 / 11.1 × 0.00 | 0.0 | elbow_R 0.45 forearm_seg0_R 0.33 upper_arm_seg3_R 0.13 forearm_seg1_R 0.09 |
+| 423 | 205 | 0.308, 0.933, -0.042 | 0.170, 0.906, -0.152 | 0.0 × 0.00 / 13.5 × 0.00 | 0.0 | elbow_R 0.40 forearm_seg0_R 0.29 upper_arm_seg3_R 0.22 forearm_seg1_R 0.10 |
+| 424 | 206 | 0.304, 0.900, -0.039 | 0.135, 0.876, -0.156 | 0.0 × 0.00 / 10.9 × 0.00 | 0.0 | upper_arm_seg3_R 0.38 elbow_R 0.29 upper_arm_seg2_R 0.18 upper_arm_seg1_R 0.15 |
+| 424 | 221 | 0.309, 0.942, -0.039 | 0.171, 0.904, -0.165 | 0.0 × 0.00 / 46.5 × 0.00 | 0.0 | elbow_R 0.38 upper_arm_seg3_R 0.25 upper_arm_seg2_R 0.19 forearm_seg0_R 0.17 |
+| 424 | 205 | 0.308, 0.933, -0.042 | 0.170, 0.901, -0.157 | 0.0 × 0.00 / 13.5 × 0.00 | 0.0 | elbow_R 0.40 forearm_seg0_R 0.29 upper_arm_seg3_R 0.22 forearm_seg1_R 0.10 |
+| 638 | 337 | 0.194, 0.998, 0.193 | 0.229, 0.998, 0.065 | 0.0 × 0.00 / 0.5 × 0.00 | 0.0 | clavicle_R 0.90 chest 0.09 upper_arm_R 0.01 head 0.00 |
+| 638 | 288 | 0.226, 0.934, 0.183 | 0.243, 0.935, 0.043 | 0.0 × 0.00 / 12.0 × 0.00 | 0.0 | clavicle_R 0.71 upper_arm_seg1_R 0.15 spine1 0.11 upper_arm_seg2_R 0.04 |
+| 638 | 338 | 0.207, 0.971, 0.188 | 0.238, 0.972, 0.046 | 0.0 × 0.00 / 3.9 × 0.00 | 0.0 | clavicle_R 0.85 upper_arm_seg1_R 0.11 spine1 0.04 upper_arm_R 0.00 |
+| 660 | 342 | 0.202, 1.077, 0.101 | 0.194, 1.077, 0.044 | 0.0 × 0.00 / 2.0 × 0.00 | 0.0 | head 0.41 clavicle_R 0.40 neck 0.10 upper_arm_seg1_R 0.09 |
+| 660 | 351 | 0.173, 1.088, 0.144 | 0.173, 1.087, 0.150 | 0.0 × 0.00 / 0.0 × 0.00 | 0.0 | head 1.00 |
+| 660 | 343 | 0.164, 1.089, 0.162 | 0.164, 1.088, 0.168 | 0.0 × 0.00 / 0.0 × 0.00 | 0.0 | head 1.00 |
+| 664 | 355 | 0.211, 1.060, 0.045 | 0.162, 1.062, -0.048 | 0.0 × 0.00 / 1.8 × 0.00 | 0.0 | clavicle_R 0.67 upper_arm_seg1_R 0.19 neck 0.14 head 0.01 |
+| 664 | 353 | 0.214, 1.076, 0.072 | 0.195, 1.077, 0.015 | 0.0 × 0.00 / 1.4 × 0.00 | 0.0 | clavicle_R 0.40 head 0.40 upper_arm_seg1_R 0.11 neck 0.09 |
+| 664 | 354 | 0.214, 1.068, 0.067 | 0.183, 1.069, -0.030 | 0.0 × 0.00 / 2.3 × 0.00 | 0.0 | clavicle_R 0.58 upper_arm_seg1_R 0.23 neck 0.18 head 0.01 |
+| 678 | 358 | 0.205, 1.055, 0.024 | 0.143, 1.056, -0.060 | 0.0 × 0.00 / 1.3 × 0.00 | 0.0 | clavicle_R 0.71 neck 0.18 upper_arm_seg1_R 0.09 head 0.01 |
+| 678 | 357 | 0.200, 1.038, 0.014 | 0.121, 1.039, -0.077 | 0.0 × 0.00 / 1.7 × 0.00 | 0.0 | clavicle_R 0.85 upper_arm_seg1_R 0.09 neck 0.05 upper_arm_R 0.01 |
+| 678 | 359 | 0.191, 1.013, -0.014 | 0.085, 1.012, -0.092 | 0.0 × 0.00 / 0.0 × 0.00 | 0.0 | clavicle_R 1.00 |
+| 684 | 361 | 0.177, 1.086, 0.012 | 0.177, 1.098, 0.015 | 0.0 × 0.00 / 0.0 × 0.00 | 0.0 | head 1.00 |
+| 684 | 362 | 0.186, 1.101, 0.037 | 0.168, 1.105, 0.009 | 0.0 × 0.00 / 0.8 × 0.00 | 0.0 | head 0.59 clavicle_R 0.28 neck 0.09 upper_arm_seg1_R 0.04 |
+| 684 | 358 | 0.205, 1.055, 0.024 | 0.143, 1.056, -0.060 | 0.0 × 0.00 / 1.3 × 0.00 | 0.0 | clavicle_R 0.71 neck 0.18 upper_arm_seg1_R 0.09 head 0.01 |
+| 712 | 361 | 0.177, 1.086, 0.012 | 0.177, 1.097, 0.008 | 0.0 × 0.00 / 0.0 × 0.00 | 0.0 | head 1.00 |
+| 712 | 360 | 0.157, 1.043, -0.028 | 0.090, 1.046, -0.068 | 0.0 × 0.00 / 0.6 × 0.00 | 0.0 | clavicle_R 0.63 neck 0.19 head 0.16 upper_arm_R 0.02 |
+| 712 | 382 | 0.152, 1.061, -0.015 | 0.136, 1.069, -0.032 | 0.0 × 0.00 / 0.8 × 0.00 | 0.0 | neck 0.58 head 0.22 clavicle_R 0.17 upper_arm_R 0.02 |
+| 718 | 362 | 0.186, 1.101, 0.037 | 0.168, 1.105, 0.009 | 0.0 × 0.00 / 0.8 × 0.00 | 0.0 | head 0.59 clavicle_R 0.28 neck 0.09 upper_arm_seg1_R 0.04 |
+| 718 | 361 | 0.177, 1.086, 0.012 | 0.177, 1.098, 0.015 | 0.0 × 0.00 / 0.0 × 0.00 | 0.0 | head 1.00 |
+| 718 | 366 | 0.166, 1.131, 0.075 | 0.166, 1.129, 0.085 | 0.0 × 0.00 / 0.0 × 0.00 | 0.0 | head 1.00 |
+| 871 | 475 | 0.097, 0.863, -0.127 | 0.087, 0.863, -0.125 | 0.0 × 0.00 / 0.0 × 0.00 | 0.0 | chest 0.54 spine1 0.28 spine 0.12 clavicle_R 0.06 |
+| 871 | 474 | 0.076, 0.969, -0.092 | 0.005, 0.971, -0.059 | 0.0 × 0.00 / 0.0 × 0.00 | 0.0 | clavicle_R 0.64 clavicle_L 0.13 neck 0.11 head 0.11 |
+| 871 | 386 | 0.129, 0.910, -0.080 | 0.029, 0.917, -0.093 | 0.0 × 0.00 / 3.7 × 0.00 | 0.0 | clavicle_R 0.68 spine1 0.16 chest 0.10 upper_arm_R 0.06 |
+| 872 | 386 | 0.129, 0.910, -0.080 | 0.018, 0.913, -0.100 | 0.0 × 0.00 / 3.7 × 0.00 | 0.0 | clavicle_R 0.68 spine1 0.16 chest 0.10 upper_arm_R 0.06 |
+| 872 | 387 | 0.120, 0.813, -0.129 | 0.110, 0.814, -0.133 | 0.0 × 0.00 / 0.7 × 0.00 | 0.0 | spine1 0.45 chest 0.37 spine 0.18 upper_arm_R 0.01 |
+| 872 | 475 | 0.097, 0.863, -0.127 | 0.077, 0.861, -0.130 | 0.0 × 0.00 / 0.0 × 0.00 | 0.0 | chest 0.54 spine1 0.28 spine 0.12 clavicle_R 0.06 |
+| 944 | 525 | 0.112, 1.020, -0.052 | 0.047, 1.021, -0.045 | 0.0 × 0.00 / 0.0 × 0.00 | 0.0 | clavicle_R 0.59 neck 0.18 head 0.18 clavicle_L 0.04 |
+| 944 | 523 | 0.069, 1.000, -0.068 | 0.020, 1.000, -0.032 | 0.0 × 0.00 / 0.0 × 0.00 | 0.0 | clavicle_R 0.52 neck 0.17 head 0.16 clavicle_L 0.15 |
+| 944 | 524 | 0.119, 1.054, -0.058 | 0.095, 1.055, -0.053 | 0.0 × 0.00 / 0.0 × 0.00 | 0.0 | neck 0.52 head 0.28 clavicle_R 0.19 chest 0.01 |
+| 949 | 527 | -0.024, 0.968, -0.098 | 0.015, 0.967, -0.053 | 0.0 × 0.00 / 0.0 × 0.00 | 0.0 | clavicle_L 0.53 clavicle_R 0.18 neck 0.15 chest 0.14 |
+| 949 | 526 | 0.099, 1.002, -0.067 | 0.029, 1.001, -0.058 | 0.0 × 0.00 / 0.0 × 0.00 | 0.0 | clavicle_R 0.63 head 0.15 neck 0.15 clavicle_L 0.07 |
+| 949 | 474 | 0.076, 0.969, -0.092 | 0.005, 0.967, -0.060 | 0.0 × 0.00 / 0.0 × 0.00 | 0.0 | clavicle_R 0.64 clavicle_L 0.13 neck 0.11 head 0.11 |

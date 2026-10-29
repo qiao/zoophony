@@ -1,0 +1,36 @@
+
+> zoophony@0.0.0 arm-check /Users/xueqiaoxu/proj/zoophony
+> node tools/arm-check.ts tubist --glb scratch/r1028f/p/k.glb/variant-2.glb
+
+Arm gate of 1 roles in 38 s. A cell gives the value and the verdict of a value that does not pass.
+
+| Role | Arm | folds p95 (8) | twist p95 (55) | forearm twist p95 (80) | flat p5 (0.55) | paw twist p95 (170) | paw swing p95 (70) | paw jumps (0.5%) | stretch p95 (0.35) | grip turn p50 (45) | move twist max (176) | move turn max (3000) | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| tubist | L | 9 FAIL | 12 | 5 | 0.84 | 13 | 59 | 0.0% | 0.02 | 74 FAIL | 13 | 20 | FAIL |
+| tubist | R | 11 FAIL | 13 | 19 | 0.85 | 47 | 37 | 0.0% | 0.02 | 79 FAIL | 47 | 7 | FAIL |
+
+| Role | Arm | Measure | Set | Samples | p50 | p95 or p5 | Share > 0 | Worst (demo, time) | Value | Limit | Base | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| tubist | L | folds p95 | play | 4147 | 9 | 9 | 100.0% | 9 at boulanger-matin.mid -1.62 s | 9 | 8 | - | FAIL |
+| tubist | L | twist p95 | play | 4147 | 12 | 12 | 100.0% | 12 at boulanger-matin.mid 279.88 s | 12 | 55 | - | PASS |
+| tubist | L | forearm twist p95 | play | 4147 | 5 | 5 | 100.0% | 5 at brahms-2.mid 51.38 s | 5 | 80 | - | PASS |
+| tubist | L | flat p5 | play | 4147 | 0.84 | 0.84 | 100.0% | 0.84 at brahms-2.mid 396.13 s | 0.84 | 0.55 | - | PASS |
+| tubist | L | paw twist p95 | play | 4147 | 13 | 13 | 100.0% | 13 at boulanger-matin.mid 166.88 s | 13 | 170 | - | PASS |
+| tubist | L | paw swing p95 | play | 4147 | 59 | 59 | 100.0% | 59 at brahms-2.mid 299.38 s | 59 | 70 | - | PASS |
+| tubist | L | paw jumps | rest | 2 | 0 | 0 | 0.0% | 0 at boulanger-matin.mid rest | 0.0% | 0.5% | - | PASS |
+| tubist | L | stretch p95 | lift | 62 | 0.02 | 0.02 | 96.8% | 0.02 at boulanger-matin.mid wall 2.1 s | 0.02 | 0.35 | - | PASS |
+| tubist | L | grip turn p50 | play | 4147 | 74 | 74 | 100.0% | 74 at brahms-2.mid 25.63 s | 74 | 45 | - | FAIL |
+| tubist | L | move twist max | move | 2322 | 7 | 13 | 100.0% | 13 at brahms-2.mid lift 0.00 s, wall 1.55 s | 13 | 176 | - | PASS |
+| tubist | L | move turn max | move | 2322 | 6 | 17 | 92.3% | 20 at boulanger-matin.mid lift 0.00 s, wall 0.46 s | 20 | 3000 | - | PASS |
+| tubist | R | folds p95 | play | 4147 | 11 | 11 | 100.0% | 11 at boulanger-matin.mid 115.63 s | 11 | 8 | - | FAIL |
+| tubist | R | twist p95 | rest | 2 | 13 | 13 | 100.0% | 13 at boulanger-matin.mid rest | 13 | 55 | - | PASS |
+| tubist | R | forearm twist p95 | play | 4147 | 19 | 19 | 100.0% | 19 at brahms-2.mid 552.13 s | 19 | 80 | - | PASS |
+| tubist | R | flat p5 | play | 4147 | 0.85 | 0.85 | 100.0% | 0.85 at brahms-2.mid 42.88 s | 0.85 | 0.55 | - | PASS |
+| tubist | R | paw twist p95 | play | 4147 | 47 | 47 | 100.0% | 47 at brahms-2.mid 583.13 s | 47 | 170 | - | PASS |
+| tubist | R | paw swing p95 | lift | 62 | 36 | 37 | 100.0% | 37 at brahms-2.mid wall 0.2 s | 37 | 70 | - | PASS |
+| tubist | R | paw jumps | rest | 2 | 0 | 0 | 0.0% | 0 at boulanger-matin.mid rest | 0.0% | 0.5% | - | PASS |
+| tubist | R | stretch p95 | play | 4147 | 0.02 | 0.02 | 100.0% | 0.02 at brahms-2.mid 406.63 s | 0.02 | 0.35 | - | PASS |
+| tubist | R | grip turn p50 | play | 4147 | 79 | 79 | 100.0% | 79 at brahms-2.mid 583.13 s | 79 | 45 | - | FAIL |
+| tubist | R | move twist max | move | 2322 | 44 | 47 | 100.0% | 47 at boulanger-matin.mid lower 93.56 s, wall 0.02 s | 47 | 176 | - | PASS |
+| tubist | R | move turn max | move | 2322 | 3 | 6 | 85.5% | 7 at boulanger-matin.mid lift 0.00 s, wall 0.58 s | 7 | 3000 | - | PASS |
+ ELIFECYCLE  Command failed with exit code 1.

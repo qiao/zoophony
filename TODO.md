@@ -831,6 +831,12 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
 - [ ] Bear wrist (`2026-10-28-followups.md`): a soft notch stays on the top of each wrist at rest,
       and the right wrist still folds in 18,499 play samples. Next: check the paw of the user mesh
       at the cut with a fill light.
+- [ ] Rhino T-pose (user, 2026-10-28): "use the rhino model at [...]
+      Meshy_AI_rhino_tpose_3k_triang_1029050510_texture.glb". The mesh is in
+      `assets/models/rhino/rhino-tpose.glb`, and a first rig plays the tuba, but the arm gate of
+      the tubist fails on the folds of the paw stumps and the shoulder tops
+      (`docs/research/2026-10-28-rhino-tpose.md`). Next: fit the palm, the elbow poles, and the
+      finger curl of `RHINO_TUBA` together, then switch the config to the T-pose copy.
 - [ ] Penguin flank (`2026-10-28-followups.md`): the round bump at the armpit stays a little
       visible from az90. The faces around the flipper with a part of the arm weight stretch when
       the flipper rises. Next: a cut of the flipper from the body with a side wall, as the arm
