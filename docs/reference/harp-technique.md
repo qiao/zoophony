@@ -5,10 +5,9 @@ the size of the harp, the place of the harp at the player, the lean, the hands a
 registers, the arms, the hand shape, the pluck, and the rest of a harpist, with a source for each
 fact.
 
-**Upkeep.** This file is current. It is not a record of one date, as a research report is. A
-round that changes the pose, the motion, or the place of the harp updates this file in the same
-commit: section 6 "Use in the app", and each fact that the round finds wrong. Each new fact gets
-its source.
+**Upkeep.** This file is current. A change of the pose, the motion, or the place of the harp
+updates section 6 "Use in the app" and each fact that it finds wrong, in the same commit. Each new
+fact gets its source.
 
 **Source marks.** Each fact names its source by a number of section 7. "(derived)" marks a value
 that this file calculates from the values of its sources. A fact with no mark comes from the text
@@ -29,16 +28,16 @@ of the source.
 - A pedal harp stands about 1.8 m high, weighs about 36 kg, and has 47 strings, seven in each
   octave [7].
 - A lever harp of 26 strings (Dusty Strings Ravenna 26) is 35 inches (0.89 m) high at the back and
-  39 inches (0.99 m) at the front, from C3 to G6 [6]. A leg or a stand raises it to a comfortable
-  height. A step-stool under it also serves [6].
+  39 inches (0.99 m) at the front, from C3 to G6 [6]. A leg, a stand, or a step-stool raises it to
+  a comfortable height [6].
 - A harp that is too short for the player can stand on a small wooden box [4]. Some smaller harps
   are played with no tilt back [4].
 
 ## 2. The place of the harp and the lean
 
 - The harp rests on the right shoulder, as near the neck of the player as possible, and on the
-  inner side of both knees [1]. It sits on the right shoulder or the collarbone, and not in the
-  hollow of the neck [2].
+  inner side of both knees [1]. It sits on the right shoulder or the collarbone, out of the hollow
+  of the neck [2].
 - The player pulls the harp back between the legs and sits up straight. The harp moves a little
   to the right, balances lightly on the right shoulder, and the knees hold a part of it [3].
 - The player tilts the harp back to its point of balance, so that the shoulder does not hold all
@@ -61,8 +60,7 @@ of the source.
 - The left arm, stretched straight out, touches the column with the finger tips, or wraps the
   lowest string with the hand. Then the harp is at the right place on the shoulder [2].
 - With the arms stretched out, the hands come near the middle of the strings [4].
-- The player plays in the middle of the strings: the fingers a little below the middle, and the
-  thumb a little above it [1].
+- The fingers play a little below the middle of the strings, and the thumb a little above it [1].
 - Both hands are at almost the same level on the strings. The left thumb is a little lower than
   the right thumb, but higher than the fingers of the right hand [1].
 - The correct seat height puts both hands at the middle of the strings in the middle register,
@@ -91,31 +89,34 @@ of the source.
 
 ## 6. Use in the app
 
-The deer plays a smaller harp (`SpeciesParams.harpScale`) at its place of `HARP_PLACE` of
-`src/models/instruments/harp.ts`, with the hold `HANDS_HOLDS.harp` of `src/pose/hands.ts`. Each
-item gives the rule of the app, or where the app differs from sections 1 to 5.
+The deer plays the harp at its place of `HARP_PLACE` of `src/models/instruments/harp.ts`, with the
+hold `HANDS_HOLDS.harp` of `src/pose/hands.ts`.
 
-- **The size.** The harp is 0.6 of the concert harp of the app, 0.84 m high, near the lever harp
-  of section 1. It stands on a box (`HARP_STAND`), as section 1 gives for a short harp.
-- **The place and the lean.** The harp leans 12° back, and the top of its soundbox rests on the
-  front of the right shoulder, near the neck, as section 2 gives. The harp is diagonal to the
-  deer, with the column at the front left. The app differs at the knees: the short knees of the
-  deer lie under its round belly, so the base stands between them only in the front view, in front
-  of them (`docs/research/2026-10-25-harp-lean.md`).
-- **The trunk.** The spine leans 3° forward, near the erect seat of section 2. A larger lean
-  brings the long muzzle to the neck of the harp.
-- **The registers.** The left hand plays the bass strings from the left side, and the right hand
-  the treble strings from the right side, as section 3 gives.
-- **The elbows.** The elbows point out and down, as section 4 gives. The forearms are not level:
-  they rise about 30° from the elbow to the wrist (section 4 gives level forearms), because the
+The app follows these facts:
+
+- **The size (section 1).** The deer plays a smaller harp (`SpeciesParams.harpScale`), near the
+  lever harp. The harp stands on a box (`HARP_STAND`), as a short harp does.
+- **The place and the lean (section 2).** The harp leans back (`HARP_PLACE.tilt`), and the top of
+  its soundbox rests on the front of the right shoulder, near the neck. The harp is diagonal to the
+  deer, with the column at the front left (`HARP_PLACE.turn`).
+- **The trunk (section 2).** The spine leans a little forward (`HANDS_HOLDS.harp.lean`), near the
+  erect seat. A larger lean brings the long muzzle to the neck of the harp.
+- **The registers (section 3).** The left hand plays the bass strings from the left side, and the
+  right hand the treble strings from the right side (`faceL`, `faceR`).
+- **The elbows (section 4).** The elbows point out and down (`poleL`, `poleR`).
+- **The pluck (section 5).** The fingers curl after each pluck (`curl`, `curlClosed`), and the palm
+  pulls away from the strings (`HAND_MOTION` of `src/pose/hand-notes.ts`).
+
+The app does not follow these facts:
+
+- **The knees (section 2).** The short knees of the deer lie under its round belly. Thus the base
+  stands in front of the knees, and between them only in the front view.
+- **The level forearms (section 4).** The forearms rise from the elbow to the wrist, because the
   elbows of the short arms hang below the strings.
-- **The palm height.** The left palm is 0.14 m above the middle of each string, and the right palm
-  at the middle. Section 3 gives both hands at almost one level. The short left arm reaches the
-  far bass strings only higher on the strings.
-- **The pluck.** The fingers curl after each pluck, and the palm pulls away from the strings
-  (`HAND_MOTION` of `src/pose/hand-notes.ts`), as section 5 gives.
-- **The rest.** Each hand rests on a string, a little away from it. Section 5 gives the edge of
-  the soundboard.
+- **The level hands (section 3).** The left palm is higher on the strings than the right palm
+  (`palmL`, `palmR`). The short left arm reaches the far bass strings only higher on the strings.
+- **The rest on the soundboard (section 5).** Each hand rests on a string, a little away from it
+  (`restL`, `restR`). A left palm on the thigh folds the left shoulder of the deer mesh.
 
 ## 7. Sources
 
