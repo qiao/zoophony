@@ -1,0 +1,61 @@
+| Set | Samples | With a fold | Share | Most faces (by the side of the main bone) | Worst sample |
+|---|---:|---:|---:|---:|---|
+| rest | 14 | 0 | 0.0% | 0 (L 0 / R 0 / other 0) | - |
+| play | 17788 | 971 | 5.5% | 3 (L 0 / R 3 / other 0) | brahms-2.mid 385.13 s |
+| lift | 434 | 52 | 12.0% | 2 (L 2 / R 0 / other 0) | bach-bwv1047.mid wall 0.5 s |
+| all | 18236 | 1023 | 5.6% | 3 (L 0 / R 3 / other 0) | brahms-2.mid 385.13 s |
+| Set | Samples | With a fold | Share | Most faces (by the side of the main bone) | Worst sample |
+|---|---:|---:|---:|---:|---|
+| rest | 14 | 0 | 0.0% | 0 (L 0 / R 0 / other 0) | - |
+| play | 17788 | 781 | 4.4% | 4 (L 1 / R 3 / other 0) | brahms-2.mid 430.13 s |
+| lift | 434 | 51 | 11.8% | 2 (L 2 / R 0 / other 0) | bach-bwv1047.mid wall 0.5 s |
+| all | 18236 | 832 | 4.6% | 4 (L 1 / R 3 / other 0) | brahms-2.mid 430.13 s |
+| Set | Samples | With a fold | Share | Most faces (by the side of the main bone) | Worst sample |
+|---|---:|---:|---:|---:|---|
+| rest | 14 | 0 | 0.0% | 0 (L 0 / R 0 / other 0) | - |
+| play | 17788 | 971 | 5.5% | 3 (L 0 / R 3 / other 0) | brahms-2.mid 385.13 s |
+| lift | 434 | 52 | 12.0% | 2 (L 2 / R 0 / other 0) | bach-bwv1047.mid wall 0.5 s |
+| all | 18236 | 1023 | 5.6% | 3 (L 0 / R 3 / other 0) | brahms-2.mid 385.13 s |
+| Set | Samples | With a fold | Share | Most faces (by the side of the main bone) | Worst sample |
+|---|---:|---:|---:|---:|---|
+| rest | 14 | 0 | 0.0% | 0 (L 0 / R 0 / other 0) | - |
+| play | 17788 | 972 | 5.5% | 3 (L 0 / R 3 / other 0) | brahms-2.mid 385.13 s |
+| lift | 434 | 52 | 12.0% | 2 (L 2 / R 0 / other 0) | bach-bwv1047.mid wall 0.5 s |
+| all | 18236 | 1024 | 5.6% | 3 (L 0 / R 3 / other 0) | brahms-2.mid 385.13 s |
+| Variant | Triangles | Mesh gzip B | Scale m/u | Seat m | Leg seat m | Chair m | Reach L m | Reach R m | Standing mm | cellist play | cellist lift | cellist rest | cellist bones | Shapes: faces left turned |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| base | 3181 | 19764 | 1.4338 | 0.264 | 0.264 | 0.258 | 0.451 | 0.451 | 0.269 | 5.5% | 12.0% | 0.0% | hand_L 843, upper_arm_R 204, upper_arm_L 14 | arm_raise_R: none / arm_raise_L: none / arm_raise_L2: none / arm_raise_L3: none |
+| studio.tailCurl.thin=[0.7,-0.08,0.04] | 3181 | 19754 | 1.4338 | 0.264 | 0.264 | 0.263 | 0.451 | 0.451 | 0.257 | 4.4% | 11.8% | 0.0% | hand_L 706, upper_arm_R 148, upper_arm_L 14 | arm_raise_R: none / arm_raise_L: none / arm_raise_L2: none / arm_raise_L3: none |
+| studio.tailCurl.thin=[0.55,-0.08,0.06] | 3181 | 19755 | 1.4338 | 0.264 | 0.264 | 0.264 | 0.451 | 0.451 | 0.252 | 5.5% | 12.0% | 0.0% | hand_L 844, upper_arm_R 203, upper_arm_L 14 | arm_raise_R: none / arm_raise_L: none / arm_raise_L2: none / arm_raise_L3: none |
+| studio.tailCurl.thin=[0.55,-0.08,0.06];studio.tailCurl.blend=[0.15,0.6] | 3181 | 19755 | 1.4338 | 0.265 | 0.265 | 0.278 | 0.451 | 0.451 | 0.274 | 5.5% | 12.0% | 0.0% | hand_L 843, upper_arm_R 205, upper_arm_L 14 | arm_raise_R: none / arm_raise_L: none / arm_raise_L2: none / arm_raise_L3: none |
+| Variant | Player | Seat m | Visible head m | Standing head top m | Seated head top m | Footprint m |
+|---|---|---|---|---|---|---|
+| main | dog cello | 0.264 | 0.327 | 1.455 | 1.455 | 0.759 by 0.975 |
+| base | dog cello | 0.264 (+0.000) | 0.327 (+0.000) | 1.455 (+0.000) | 1.455 (+0.000) | 0.759 (+0.000) by 0.975 (+0.000) |
+| studio.tailCurl.thin=[0.7,-0.08,0.04] | dog cello | 0.264 (-0.000) | 0.327 (+0.000) | 1.455 (+0.000) | 1.455 (+0.000) | 0.759 (+0.000) by 0.975 (+0.000) |
+| studio.tailCurl.thin=[0.55,-0.08,0.06] | dog cello | 0.264 (-0.000) | 0.327 (+0.000) | 1.455 (+0.000) | 1.455 (+0.000) | 0.759 (+0.000) by 0.966 (-0.009) |
+| studio.tailCurl.thin=[0.55,-0.08,0.06];studio.tailCurl.blend=[0.15,0.6] | dog cello | 0.265 (+0.001) | 0.327 (+0.000) | 1.455 (+0.000) | 1.455 (+0.000) | 0.759 (+0.000) by 0.967 (-0.009) |
+| Variant | Player | Head center m | Head height m | Nose m | Instrument box m |
+|---|---|---|---|---|---|
+| main | dog cello | (0.000, 1.291, -0.161) | 0.328 | (0.004, 1.265, -0.396) | (-0.443, 0.000, -0.600) to (0.105, 1.146, -0.016) |
+| base | dog cello | (0.000, 1.291, -0.161) (0.0 mm) | 0.328 (+0.0 mm) | (0.004, 1.265, -0.396) (0.0 mm) | (-0.443, 0.000, -0.600) to (0.105, 1.146, -0.016) (0.0 mm) |
+| studio.tailCurl.thin=[0.7,-0.08,0.04] | dog cello | (0.000, 1.291, -0.166) (4.1 mm MOVED) | 0.328 (+0.0 mm) | (0.004, 1.265, -0.400) (4.1 mm MOVED) | (-0.443, 0.000, -0.604) to (0.105, 1.146, -0.021) (4.1 mm MOVED) |
+| studio.tailCurl.thin=[0.55,-0.08,0.06] | dog cello | (0.000, 1.291, -0.167) (5.7 mm MOVED) | 0.328 (+0.0 mm) | (0.004, 1.265, -0.402) (5.7 mm MOVED) | (-0.443, 0.000, -0.606) to (0.105, 1.146, -0.022) (5.7 mm MOVED) |
+| studio.tailCurl.thin=[0.55,-0.08,0.06];studio.tailCurl.blend=[0.15,0.6] | dog cello | (0.000, 1.291, -0.181) (19.5 mm MOVED) | 0.328 (+0.0 mm) | (0.004, 1.265, -0.416) (19.5 mm MOVED) | (-0.443, 0.000, -0.620) to (0.105, 1.146, -0.036) (19.5 mm MOVED) |
+| Demo | main m | base | studio.tailCurl.thin=[0.7,-0.08,0.04] | studio.tailCurl.thin=[0.55,-0.08,0.06] | studio.tailCurl.thin=[0.55,-0.08,0.06];studio.tailCurl.blend=[0.15,0.6] |
+|---|---|---|---|---|---|
+| bach-bwv1047.mid | 10.625 | 10.625 (+0.0%) | 10.625 (+0.0%) | 10.625 (+0.0%) | 10.625 (+0.0%) |
+| bach-bwv1048.mid | 10.497 | 10.497 (+0.0%) | 10.497 (+0.0%) | 10.497 (+0.0%) | 10.497 (+0.0%) |
+| bach-bwv1050.mid | 9.356 | 9.356 (+0.0%) | 9.356 (+0.0%) | 9.356 (+0.0%) | 9.356 (+0.0%) |
+| beethoven-1.mid | 9.904 | 9.904 (+0.0%) | 9.904 (+0.0%) | 9.904 (+0.0%) | 9.904 (+0.0%) |
+| beethoven-8-4.mid | 10.323 | 10.323 (+0.0%) | 10.323 (+0.0%) | 10.323 (+0.0%) | 10.323 (+0.0%) |
+| beethoven-8.mid | 9.779 | 9.779 (+0.0%) | 9.779 (+0.0%) | 9.779 (+0.0%) | 9.779 (+0.0%) |
+| beethoven-9.mid | 12.520 | 12.520 (+0.0%) | 12.520 (+0.0%) | 12.520 (+0.0%) | 12.520 (+0.0%) |
+| boulanger-matin.mid | 11.484 | 11.484 (+0.0%) | 11.484 (+0.0%) | 11.484 (+0.0%) | 11.484 (+0.0%) |
+| brahms-2.mid | 11.173 | 11.173 (+0.0%) | 11.173 (+0.0%) | 11.173 (+0.0%) | 11.173 (+0.0%) |
+| mendelssohn-op61.mid | 9.920 | 9.920 (+0.0%) | 9.920 (+0.0%) | 9.920 (+0.0%) | 9.920 (+0.0%) |
+| mozart-k191.mid | 8.488 | 8.488 (+0.0%) | 8.488 (+0.0%) | 8.488 (+0.0%) | 8.488 (+0.0%) |
+| mozart-k315.mid | 8.946 | 8.946 (+0.0%) | 8.946 (+0.0%) | 8.946 (+0.0%) | 8.946 (+0.0%) |
+| mozart-k417.mid | 8.325 | 8.325 (+0.0%) | 8.325 (+0.0%) | 8.325 (+0.0%) | 8.325 (+0.0%) |
+| mozart-k525.mid | 6.787 | 6.787 (+0.0%) | 6.787 (+0.0%) | 6.787 (+0.0%) | 6.787 (+0.0%) |
+| Largest change | | none | none | none | none |
