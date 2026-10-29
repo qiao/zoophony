@@ -10,6 +10,8 @@
   section of `README.md`).
 - The user creates the GitHub repository `zoophony` before the first deploy. Until then, all
   commits stay local.
+- Each round merges into the local `main`. The project owner decides when to push `main`, and
+  thus when GitHub Pages deploys.
 
 ## 9.2 CI
 
@@ -33,8 +35,12 @@ Headless WebKit and Firefox on Linux have weak support for WebGL2 and for audio 
 runs do not block a merge (`continue-on-error: true`).
 
 While all tests are paused (9.3), `pnpm test` runs no test. The step `pnpm test:perf` and the job
-`playwright` have `if: false`, and the Pages workflow skips its end-to-end test. To end the pause,
-remove each `if: false`
+`playwright` have `if: false`, and the Pages workflow skips its end-to-end test. The type check,
+the lint, the format check, the build, and the size check still run, so a commit that fails a
+test can deploy. `tools/merge-branch.sh` runs no end-to-end test either (`MERGE_E2E=1` runs them).
+To end the pause, set `ALL_TESTS_PAUSED` to false, set the default of `MERGE_E2E` to 1, and
+remove each `if: false`. Then run `pnpm test`, `pnpm test:perf`, and `pnpm test:e2e` before the
+next merge
 ([`2026-10-16-all-tests-pause.md`](../decisions/2026-10-16-all-tests-pause.md)).
 
 - `.github/workflows/ci.yml` has the job `check` (the checks of the table up to the size check)
@@ -74,7 +80,9 @@ A push to `main` builds with pnpm and deploys to GitHub Pages under the base pat
 - Since 2026-10-16, all tests are paused, because the tests took too long while the project
   changes fast (user, [`2026-10-16-all-tests-pause.md`](../decisions/2026-10-16-all-tests-pause.md)).
   The switch `ALL_TESTS_PAUSED` of `vite.config.ts` makes each unit test file a paused test. While
-  the pause lasts, a change adds no test unless the user asks.
+  the pause lasts, a change adds no test and runs no break test (`tools/break-test.sh`) unless the
+  user asks, because a test that no check runs goes out of date. A change that needs a check runs
+  one file with `pnpm test:paused <path>`.
 - A speed test (`*-speed.test.ts`) compares the time of its work with a fixed reference work in
   the same run (`src/test-speed.ts`), and keeps the least time of each over many rounds, because
   load only adds time. `pnpm test:perf` runs them one file at a time.
@@ -293,6 +301,10 @@ for a motion step a GIF of 10 s. These commands take them (`docs/agents/commands
   images of `main` above the images of the branch (7.1).
 - `pnpm keyboard` (`tools/keyboard-check.ts`) checks each control with the keyboard alone at both
   sizes for the UI.
+
+Each close view has a fill light from the camera (the gallery query `fill`, 7.1), so that the
+side that the key light leaves dark shows. The images of a mesh, a hold, or a clip show the front,
+the back, and each side, in the playing pose and in the rest pose.
 
 Give the images to the manager with the report, and name the targets of the step with their
 results. When a step is done, start the next step without a wait for the user. After the last
