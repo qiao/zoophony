@@ -3,7 +3,8 @@ import { readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 
 import { LICENSES_FILE } from '../src/app/credits.ts';
-import { HALL_CREDIT } from '../src/audio/hall-credit.ts';
+import { HALL_CREDIT, KONZERTHAUS_CREDIT } from '../src/audio/hall-credit.ts';
+import type { AssetCredit } from '../src/audio/hall-credit.ts';
 
 /** npm packages that the site bundles, and whose license texts it ships (design 7.3). */
 const BUNDLED_PACKAGES: readonly string[] = ['three', 'spessasynth_core', 'stb-vorbis'];
@@ -107,23 +108,20 @@ export async function packageEntries(
 }
 
 /**
- * Makes the license entry of the hall impulse response (design 6.2, 7.3). CC BY 4.0 asks for the
- * credit, a link to the license, and a note of the changes, so the text is the credit line of
- * `HALL_CREDIT` and the two links. Section 3(a)(1)(C) accepts the link in place of the license
- * text.
+ * Makes the license entry of a hall impulse response (design 6.8, 7.3). CC BY 4.0 asks for the
+ * credit, a link to the license, and a note of the changes, so the text is the credit line and
+ * the two links. Section 3(a)(1)(C) accepts the link in place of the license text.
  *
+ * @param title The title of the entry.
+ * @param credit The credit of the file, `HALL_CREDIT` or `KONZERTHAUS_CREDIT`.
  * @returns The entry.
  */
-export function hallEntry(): LicenseEntry {
+export function hallEntry(title: string, credit: AssetCredit): LicenseEntry {
   return {
-    title: "Hall impulse response, St Paul's Hall (360° BRIR and FOA database)",
-    license: HALL_CREDIT.license,
-    source: HALL_CREDIT.sourceUrl,
-    text: [
-      HALL_CREDIT.text,
-      `Source: ${HALL_CREDIT.sourceUrl}`,
-      `License: ${HALL_CREDIT.licenseUrl}`,
-    ].join('\n'),
+    title,
+    license: credit.license,
+    source: credit.sourceUrl,
+    text: [credit.text, `Source: ${credit.sourceUrl}`, `License: ${credit.licenseUrl}`].join('\n'),
   };
 }
 
@@ -223,7 +221,14 @@ export async function licenseEntries(root: string): Promise<LicenseEntry[]> {
   }
   const entries = await packageEntries(root, BUNDLED_PACKAGES);
   entries.push(...(await soundFontEntries(root)));
-  entries.push(hallEntry());
+  entries.push(
+    hallEntry("Hall impulse response, St Paul's Hall (360° BRIR and FOA database)", HALL_CREDIT),
+    hallEntry(
+      'Hall impulse response, Konzerthaus Detmold (Open Database of Spatial Room Impulse ' +
+        'Responses at Detmold University of Music)',
+      KONZERTHAUS_CREDIT,
+    ),
+  );
   entries.push(await githubMarkEntry(root));
   entries.push(await frauncesEntry(root));
   return entries;

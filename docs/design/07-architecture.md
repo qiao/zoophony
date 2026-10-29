@@ -144,8 +144,9 @@ presets and the demos, and the app adds no fallback for it.
 The build writes `third-party-licenses.txt`, and the credits dialog links to it (8.1). The file
 holds Three.js (MIT), spessasynth_core (Apache-2.0), stb-vorbis (Apache-2.0), and the three
 sources of the SoundFont (6.2): GeneralUser GS (GeneralUser GS License v2.0), VSCO 2 CE (CC0 1.0),
-and VCSL (CC0 1.0). It also holds the hall impulse response (CC BY 4.0), the GitHub mark (MIT,
-Primer Octicons, 2.8), and the font Fraunces of the wordmark (SIL Open Font License 1.1, 2.8).
+and VCSL (CC0 1.0). It also holds the two hall impulse responses (CC BY 4.0, 6.8), the GitHub
+mark (MIT, Primer Octicons, 2.8), and the font Fraunces of the wordmark (SIL Open Font License
+1.1, 2.8).
 
 `tools/licenses.ts` writes the file after the Vite build, and the plugin `DEV_LICENSES` of
 `vite.config.ts` serves the same text on the dev server. The script fails when a package in
@@ -157,9 +158,9 @@ rights, so they need no entry.
 
 - CC0 1.0 has no condition. The entries of VSCO 2 CE and VCSL still give the credit that the
   VSCO 2 CE readme asks for, and say that the SoundFont holds changed samples.
-- CC BY 4.0 asks for the credit, a link to the license, and a note of the changes. The hall entry
-  (`hallEntry()`) gives the credit line `HALL_CREDIT.text` with the note of the changes, the
-  source, and the license link. The link meets section 3(a)(1)(C), so the repository holds no
-  copy of the license text.
+- CC BY 4.0 asks for the credit, a link to the license, and a note of the changes. Each hall
+  entry (`hallEntry()`) gives the credit line of `HALL_CREDIT` or `KONZERTHAUS_CREDIT` with the
+  note of the changes, the source, and the license link. The link meets section 3(a)(1)(C), so
+  the repository holds no copy of the license text.
 - The GitHub mark is also a trademark of GitHub, Inc., so its use follows the logo rules of GitHub
   (`assets/github-mark/README.md`).

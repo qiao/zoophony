@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import { DEMOS, DEMO_IDS } from './demos.ts';
 import { HALL_CREDIT } from '../audio/hall-credit.ts';
-import { HALL_REVERB_CREDIT, SOUND_CREDITS, creditTexts, licensesUrl } from './credits.ts';
+import { HALL_REVERB_CREDITS, SOUND_CREDITS, creditTexts, licensesUrl } from './credits.ts';
 
 describe('creditTexts (design 2.8, 7.3, 8.1)', () => {
   it('gives the credit block of the current demo, then the blocks of the other demos', () => {
@@ -59,12 +59,11 @@ describe('creditTexts (design 2.8, 7.3, 8.1)', () => {
   });
 });
 
-describe('HALL_REVERB_CREDIT (design 2.8, 6.8)', () => {
+describe('HALL_REVERB_CREDITS (design 2.8, 6.8)', () => {
   it('gives the full credit of the hall reverb with links to its source and to CC BY 4.0', () => {
-    expect(`${HALL_REVERB_CREDIT.title}: impulse response of ${HALL_REVERB_CREDIT.credit}`).toBe(
-      HALL_CREDIT.text,
-    );
-    expect(HALL_REVERB_CREDIT.links).toEqual([
+    const [hall] = HALL_REVERB_CREDITS;
+    expect(`${hall?.title}: impulse response of ${hall?.credit}`).toBe(HALL_CREDIT.text);
+    expect(hall?.links).toEqual([
       { text: 'Source', href: 'https://doi.org/10.5281/zenodo.2641166' },
       { text: 'CC BY 4.0', href: 'https://creativecommons.org/licenses/by/4.0/' },
     ]);

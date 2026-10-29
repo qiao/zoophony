@@ -4,7 +4,7 @@ import { join } from 'node:path';
 
 import { describe, expect, it } from 'vitest';
 
-import { HALL_CREDIT } from './hall-credit.ts';
+import { HALL_CREDIT, KONZERTHAUS_CREDIT } from './hall-credit.ts';
 
 /** The folder of the hall impulse response. */
 const HALL_DIR = join(import.meta.dirname, '..', '..', 'assets', 'hall');
@@ -12,12 +12,15 @@ const HALL_DIR = join(import.meta.dirname, '..', '..', 'assets', 'hall');
 describe('HALL_CREDIT (design 2.8, 7.3)', () => {
   it('has the credit line of the README of the asset', async () => {
     const readme = await readFile(join(HALL_DIR, 'README.md'), 'utf8');
-    const quote = readme
-      .split('\n')
-      .filter((line) => line.startsWith('> '))
-      .map((line) => line.slice(2))
-      .join(' ');
-    expect(quote).toBe(HALL_CREDIT.text);
+    const quotes = readme.split('\n\n').map((block) =>
+      block
+        .split('\n')
+        .filter((line) => line.startsWith('> '))
+        .map((line) => line.slice(2))
+        .join(' '),
+    );
+    expect(quotes).toContain(HALL_CREDIT.text);
+    expect(quotes).toContain(KONZERTHAUS_CREDIT.text);
   });
 
   it('names the file that the README describes, with its checksum', async () => {

@@ -1,4 +1,4 @@
-import { HALL_CREDIT } from '../audio/hall-credit.ts';
+import { HALL_CREDIT, KONZERTHAUS_CREDIT } from '../audio/hall-credit.ts';
 import { SOUNDFONT_CREDITS } from '../audio/soundfont-info.ts';
 import { DEMOS, DEMO_IDS } from './demos.ts';
 import type { DemoId } from './demos.ts';
@@ -64,25 +64,29 @@ export const COPYRIGHT_TEXT = `© 2026 ${AUTHOR_LINK.text}`;
 /** The heading of the group of the current demo (design 2.8, 8.2). */
 export const NOW_PLAYING_LABEL = 'Now playing';
 
-/** The heading of the group of the SoundFont credits and the hall reverb credit (design 2.8). */
+/** The heading of the group of the SoundFont credits and the hall reverb credits (design 2.8). */
 export const SOUNDS_LABEL = 'Sounds';
 
 /** The heading of the group of the demos that do not play (design 8.1). */
 export const OTHER_PIECES_LABEL = 'Other pieces';
 
 /**
- * The credit of the hall reverb (design 2.8, 6.8): the part of `HALL_CREDIT` after its name, and
- * links to its source and to its license. CC BY 4.0 asks for the credit, a link to the license,
- * and a note of the changes.
+ * The credits of the two hall reverbs (design 2.8, 6.8): for each impulse response, the part of
+ * its credit after its name, and links to its source and to its license. CC BY 4.0 asks for the
+ * credit, a link to the license, and a note of the changes. The site serves both files, so both
+ * rows show with each mix preset.
  */
-export const HALL_REVERB_CREDIT: SoundCredit = {
-  title: 'Hall reverb',
-  credit: HALL_CREDIT.attribution,
+export const HALL_REVERB_CREDITS: readonly SoundCredit[] = [
+  { title: 'Hall reverb', asset: HALL_CREDIT },
+  { title: 'Cinematic hall reverb', asset: KONZERTHAUS_CREDIT },
+].map(({ title, asset }) => ({
+  title,
+  credit: asset.attribution,
   links: [
-    { text: 'Source', href: HALL_CREDIT.sourceUrl },
-    { text: HALL_CREDIT.license, href: HALL_CREDIT.licenseUrl },
+    { text: 'Source', href: asset.sourceUrl },
+    { text: asset.license, href: asset.licenseUrl },
   ],
-};
+}));
 
 /**
  * The credits of the SoundFont (design 2.8, 6.2, 7.3): one row for each source of

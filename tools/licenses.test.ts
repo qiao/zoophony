@@ -53,7 +53,7 @@ describe('packageEntries', () => {
 
 describe('hallEntry (design 7.3)', () => {
   it('gives the credit and the links of the hall impulse response', () => {
-    const entry = hallEntry();
+    const entry = hallEntry("St Paul's Hall", HALL_CREDIT);
 
     expect(entry.license).toBe('CC BY 4.0');
     expect(entry.source).toBe('https://doi.org/10.5281/zenodo.2641166');

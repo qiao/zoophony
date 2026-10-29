@@ -2,7 +2,7 @@ import {
   AUTHOR_LINK,
   AUTHOR_TEXT,
   COPYRIGHT_TEXT,
-  HALL_REVERB_CREDIT,
+  HALL_REVERB_CREDITS,
   LICENSES_TEXT,
   NOW_PLAYING_LABEL,
   OTHER_PIECES_LABEL,
@@ -18,7 +18,7 @@ import { createIcon } from './icons.ts';
 /**
  * The content of the credits dialog (design 2.8, 7.3, 8.1), in the layout of the end credits of a
  * film: the title card with the author, the group "Now playing" with the current demo, the group
- * "Sounds" with the SoundFont credits and the hall reverb credit, the group "Other pieces" with
+ * "Sounds" with the SoundFont credits and the hall reverb credits, the group "Other pieces" with
  * the sources of the other demos, and the end card with the copyright line and the link
  * "Third-party licenses".
  */
@@ -53,7 +53,7 @@ export class Credits {
     this.#nowPlaying = creditGroup(NOW_PLAYING_LABEL, this.#current);
 
     const sounds = createElement('dl', 'credit-rows');
-    sounds.append(...[...SOUND_CREDITS, HALL_REVERB_CREDIT].map(soundRow));
+    sounds.append(...[...SOUND_CREDITS, ...HALL_REVERB_CREDITS].map(soundRow));
 
     this.#otherPieces = createElement('ul', 'pieces');
     this.#otherPieces.setAttribute('aria-label', OTHER_PIECES_LABEL);
