@@ -1,8 +1,8 @@
 import type { InstrumentId } from './types.ts';
 
 /**
- * The largest triangle count of each instrument with all its pieces (design 4.5, facets and
- * triangle budgets). Only tests read it.
+ * The largest triangle count of each instrument with all its pieces (design 4.4, source meshes).
+ * Only tests read it.
  */
 export const INSTRUMENT_BUDGETS = {
   violin: 1200,

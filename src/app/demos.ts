@@ -1,7 +1,7 @@
 import { spokenTime } from './time-text.ts';
 
 /**
- * The hash ids of the six demos, in the order of the demo list (design 8.2). The first one is the
+ * The hash ids of the demos, in the order of the demo list (design 8.2). The first one is the
  * default demo.
  */
 export const DEMO_IDS = [

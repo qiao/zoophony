@@ -40,7 +40,7 @@ function seatCounts(seats: readonly Seat[]): Map<SectionId, number> {
 }
 
 /**
- * The table "Expected sections" of design 8.2: the seat count of each section of each demo,
+ * The expected seats of the demos (design 8.5): the seat count of each section of each demo,
  * after the changes of `demos/patches.json` (8.3). The piano seat of the Boulanger demo is the
  * celesta, and the piano seat of the Bach demo is the harpsichord. The percussion seat of the
  * Beethoven 9 demo has the triangle, the cymbals, and the bass drum.

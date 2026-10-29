@@ -46,7 +46,7 @@ export function heardTimeFromTimestamp(timestamp: OutputTimestamp, performanceNo
 
 /**
  * Calculates the context time that the listener hears now, from the latency values: the second
- * method of design 6.7, which the spike compares with the first.
+ * method of design 6.7.
  *
  * @param currentTime `AudioContext.currentTime`.
  * @param outputLatency `AudioContext.outputLatency`, or 0 if the browser has no value.

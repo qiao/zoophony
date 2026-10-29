@@ -18,7 +18,7 @@ import type { SpeciesId } from './species.ts';
 import { buildStage } from './stage.ts';
 import { perf60File } from './test-perf-60.ts';
 
-/** The most triangles of a body (design 4.5, facets and triangle budgets). */
+/** The most triangles of a body (design 4.4, source meshes). */
 const BODY_BUDGET = 2600;
 
 /**

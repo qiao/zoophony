@@ -1,6 +1,6 @@
 /**
  * Fetches a URL, and refuses a response with an HTTP error status. This module has no imports,
- * so the Worker, the player, and the spike page can share it at a small cost.
+ * so the Worker and the player can share it at a small cost.
  *
  * @param url The URL.
  * @returns The response, with a status of 200 to 299.
