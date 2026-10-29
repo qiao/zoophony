@@ -96,6 +96,86 @@ BEAR = {
 SHOULDER_ANGLE = 20.0
 
 
+#: The cut planes of `violin_arms.py`, which `cut_planes()` changes for the bear.
+CUT_PLANES = va.cut_planes
+
+#: The rounds and the factor of Smooth Vertices on the band of each wrist (`step_smooth_wrist()`),
+#: as on the polar bear and the hippo.
+WRIST_SMOOTH = (4, 0.5)
+
+
+def cut_planes(s, line, side):
+    """Gives the cut planes of `violin_arms.cut_planes()`, with the wrist plane at a right angle to
+    the axis of the last ring of the tube, as `cut_planes()` of `hippo_arms.py` and of
+    `polar_bear_arms.py` do.
+
+    The last ring stands at the wrist joint at a right angle to the line halfway between the
+    forearm and the paw (`violin_arms.arm_stations()`). The wrist plane of `violin_arms.py` stands
+    at a right angle to the paw, which turns down from the forearm, so the band from the ring to
+    the cut loop was wide on the top of the wrist and thin on the palm side. The bind showed its
+    sharp edges as a notch on the top of each wrist (user, 2026-10-28: "the bear has a crease
+    around the wrist"). With the two planes parallel, the band is about as wide all around.
+    """
+    shoulder, _ = CUT_PLANES(s, line, side)
+    _, e, w, t = line
+    axis = ((w - e).normalized() + (t - w).normalized()).normalized()
+    return [shoulder, (w + axis * ((t - w).length * s.spec['cut']['wrist']), axis)]
+
+
+def step_cut_and_tube(s):
+    """Cuts both arms and models both tubes as `step_cut_and_tube()` of `wind_arms.py` does, with
+    the wrist plane of `cut_planes()`."""
+    va.cut_planes = cut_planes
+    try:
+        return wa.step_cut_and_tube(s)
+    finally:
+        va.cut_planes = CUT_PLANES
+
+
+def wrist_band(bm, part):
+    """Gives the vertices of the band of both wrists: the cut loop of each paw, and the tube
+    vertices that join the loop by an edge (the last ring)."""
+    loops = {va.PART['wrist'], va.PART['wrist'] + 10}
+    tubes = {va.PART['tube'], va.PART['tube'] + 10}
+    return [p for p in bm.verts if p[part] in loops or (
+        p[part] in tubes and any(e.other_vert(p)[part] in loops for e in p.link_edges))]
+
+
+def step_smooth_wrist(s):
+    """Smooths the band of each wrist (Smooth Vertices, `WRIST_SMOOTH`) after the clean of the
+    bridge, then puts it back on the surface of the source arm (Shrinkwrap, Nearest Surface
+    Point), as `smooth_wrists()` and `retopo_snap_wrists()` of `polar_bear_arms.py` do. The ring
+    is round and the cut loop has the form of the paw, so the bridge keeps small steps. The smooth
+    alone pulls the band in, and the snap gives it the form of the mesh of the user. Gives the
+    number of the band vertices."""
+    import bmesh
+    bpy = va.bpy
+    mesh = s.mesh
+    bpy.context.view_layer.objects.active = mesh
+    bpy.ops.object.mode_set(mode='EDIT')
+    bm = bmesh.from_edit_mesh(mesh.data)
+    verts = wrist_band(bm, bm.verts.layers.int['arm_part'])
+    rounds, factor = WRIST_SMOOTH
+    for _ in range(rounds):
+        bmesh.ops.smooth_vert(bm, verts=verts, factor=factor, use_axis_x=True, use_axis_y=True,
+                              use_axis_z=True)
+    bm.verts.index_update()
+    ids = [p.index for p in verts]
+    bmesh.update_edit_mesh(mesh.data)
+    bpy.ops.object.mode_set(mode='OBJECT')
+    group = mesh.vertex_groups.new(name='wrist-band')
+    group.add(ids, 1.0, 'REPLACE')
+    s.source.hide_set(False)
+    mod = mesh.modifiers.new('snap', 'SHRINKWRAP')
+    mod.target = s.source
+    mod.wrap_method = 'NEAREST_SURFACEPOINT'
+    mod.vertex_group = group.name
+    va.apply_modifier(mesh, mod)
+    mesh.vertex_groups.remove(mesh.vertex_groups['wrist-band'])
+    s.source.hide_set(True)
+    return len(ids)
+
+
 def shoulder_first(step):
     """Gives a clean step of `wind_arms.py` that first runs on the shoulder loops alone with
     `SHOULDER_ANGLE`, then on all loops with the angle of `wind_arms.py`. The clean steps find the
@@ -175,8 +255,9 @@ def step_weights(s):
 STEPS = tuple(
     out for step in wa.STEPS
     for out in {wa.step_weights: (step_weights,), wa.step_paint: (step_paint,),
+                wa.step_cut_and_tube: (step_cut_and_tube,),
                 wa.step_clean_cut: (shoulder_first(wa.step_clean_cut),),
-                wa.step_clean_bridge: (shoulder_first(wa.step_clean_bridge),),
+                wa.step_clean_bridge: (shoulder_first(wa.step_clean_bridge), step_smooth_wrist),
                 va.step_bake: (va.step_bake, ea.step_flatten)}
     .get(step, (step,)))
 

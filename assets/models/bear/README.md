@@ -44,13 +44,18 @@ little flatter, so that it stays out of the round belly. The flatten comes after
 each texel takes the fur of its own place on the source arm. On 2026-10-26 the user said: "there's
 black area under the bear's armpit". The flatten before the bake had moved the tube out of the
 reach of the bake rays, and the bake wrote black texels on 65 faces under the armpits.
+On 2026-10-28 the user said: "the bear has a crease around the wrist". The wrist cut stood at a
+right angle to the paw, so the band from the last ring to the cut loop was thin on the palm side,
+and its sharp edges showed as a notch on the top of each wrist. The cut now stands parallel to the
+last ring, and Smooth Vertices and a Shrinkwrap even the band of each wrist
+(`cut_planes()` and `step_smooth_wrist()` of `tools/blender/bear_arms.py`), as on the polar bear.
 
 | Item | Value |
 |---|---|
-| `bear-arms.glb` | 875,168 bytes, SHA-256 `34797f2db38ef45c5005ab35a6006ae8055699ff2466b13ba6405c3e17915522` |
-| Mesh | 1,928 vertices after a weld at 1e-5, 3,851 triangles (3,142 in the source): on each arm a tube of 13 rings of 16 vertices, joined to the trunk and the paw with Bridge Edge Loops |
+| `bear-arms.glb` | 874,864 bytes, SHA-256 `128b7d5483003962dd6bd0feecf06fffd88a66191ba1fca6bad85cb86d658375` |
+| Mesh | 3,846 triangles (3,142 in the source): on each arm a tube of 13 rings of 16 vertices, joined to the trunk and the paw with Bridge Edge Loops |
 | Material | One material with one base color JPEG of 4096 × 4608 pixels: the atlas of the source, and a strip of 512 pixels on top with the fur color of the source arms, baked onto the new faces. No metallic-roughness texture |
-| `bear-weights.json` | 429,540 bytes, SHA-256 `d0eb24fa0340a7bb1de0f1b9fba62fb2543dd54b71a19f615baa3ae73990c2c6` |
+| `bear-weights.json` | 428,745 bytes, SHA-256 `97b30e46d7629af1702b932a5954154f843d77a899591d97a8eb9b61f0bb7415` |
 | Weights | The automatic weights of Blender with the Weight Paint fixes of the session, on the studio bones and the arm segments and helpers (`armSegments` of the config), for `paintedWeights` of the config |
 | License | Derived from the mesh of the user, who holds its rights |
 
