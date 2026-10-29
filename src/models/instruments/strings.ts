@@ -7,7 +7,7 @@ import type { Transform } from '../mesh.ts';
 import { box, cylinder, lathe, plate, prism, quad, sweep } from '../primitives.ts';
 import type { OutlinePoint, PlateLevel, ProfilePoint } from '../primitives.ts';
 import { DEFAULT_HEAD_HEIGHT } from '../species.ts';
-import { PieceBuilder, hold, pieceSize } from './piece.ts';
+import { PieceBuilder, hold, pieceSize, placeCorners } from './piece.ts';
 import type { InstrumentModel, InstrumentPiece, PlayTarget } from './types.ts';
 
 /**
@@ -596,6 +596,118 @@ function strand(from: Vec3, to: Vec3): number[] {
 }
 
 /**
+ * The f-hole at the +z side of the bridge, in meters in the violin axes: the line of its S-shaped
+ * stem from the upper eye to the lower eye, as (along, across, width), and the center and the
+ * radius of each round eye. The notch of the stem is at the bridge. The f-hole at the -z side is
+ * its mirror image.
+ */
+const F_HOLE = {
+  stem: [
+    [0.122, 0.0145, 0.0012],
+    [0.115, 0.0152, 0.0022],
+    [0.104, 0.0195, 0.0034],
+    [0.092, 0.0262, 0.0034],
+    [0.082, 0.0298, 0.0022],
+    [0.076, 0.0302, 0.0012],
+  ],
+  upperEye: [0.1235, 0.0142, 0.0025],
+  lowerEye: [0.0745, 0.0305, 0.0031],
+  /** The height of the f-hole above the arch, so that it does not sink into the facets. */
+  lift: 0.0006,
+} as const;
+
+/**
+ * Gives the height of the highest face of a corner list above a point, such as the arch of the top
+ * above a point of an f-hole.
+ *
+ * @param corners The corner list.
+ * @param x The point along x.
+ * @param z The point along z.
+ * @returns The height, or -Infinity when no face is above the point.
+ */
+function heightAt(corners: readonly number[], x: number, z: number): number {
+  let best = -Infinity;
+  for (let t = 0; t + 8 < corners.length; t += 9) {
+    const [ax, ay, az] = [corners[t] ?? 0, corners[t + 1] ?? 0, corners[t + 2] ?? 0];
+    const [bx, by, bz] = [corners[t + 3] ?? 0, corners[t + 4] ?? 0, corners[t + 5] ?? 0];
+    const [cx, cy, cz] = [corners[t + 6] ?? 0, corners[t + 7] ?? 0, corners[t + 8] ?? 0];
+    const d = (bz - cz) * (ax - cx) + (cx - bx) * (az - cz);
+    if (Math.abs(d) < 1e-12) {
+      continue;
+    }
+    const a = ((bz - cz) * (x - cx) + (cx - bx) * (z - cz)) / d;
+    const b = ((cz - az) * (x - cx) + (ax - cx) * (z - cz)) / d;
+    if (a < -1e-9 || b < -1e-9 || a + b > 1 + 1e-9) {
+      continue;
+    }
+    best = Math.max(best, a * ay + b * by + (1 - a - b) * cy);
+  }
+  return best;
+}
+
+/**
+ * Turns each triangle of a corner list to face up (+y).
+ *
+ * @param corners The corner list.
+ * @returns The corner list with each triangle counterclockwise when seen from +y.
+ */
+function faceUp(corners: readonly number[]): number[] {
+  const out: number[] = [];
+  for (let t = 0; t + 8 < corners.length; t += 9) {
+    const c = corners.slice(t, t + 9);
+    const [ax = 0, , az = 0, bx = 0, , bz = 0, cx = 0, , cz = 0] = c;
+    // The y part of the normal (b - a) x (c - a).
+    const up = (bz - az) * (cx - ax) - (bx - ax) * (cz - az);
+    out.push(...(up >= 0 ? c : [...c.slice(0, 3), ...c.slice(6, 9), ...c.slice(3, 6)]));
+  }
+  return out;
+}
+
+/**
+ * Makes the two f-holes on the arch of the top: an S-shaped stem and two round eyes each.
+ *
+ * @param arch The faces of the body in the violin axes, which give the height of the arch.
+ * @returns The corner list.
+ */
+function fHoles(arch: readonly number[]): number[] {
+  const f = F_HOLE;
+  const out: number[] = [];
+  const on = (x: number, z: number): Vec3 => [x, heightAt(arch, x, z) + f.lift, z];
+  // The two edges of the stem, with the normal of each point between the lines of its two
+  // neighbors, so that the quads of the stem share their corners.
+  const edges = f.stem.map(([x, z, w], i): readonly [OutlinePoint, OutlinePoint] => {
+    const [px = x, pz = z] = f.stem[i - 1] ?? [];
+    const [qx = x, qz = z] = f.stem[i + 1] ?? [];
+    const length = Math.hypot(qx - px, qz - pz);
+    const nx = -(qz - pz) / length;
+    const nz = (qx - px) / length;
+    return [
+      [x + (nx * w) / 2, z + (nz * w) / 2],
+      [x - (nx * w) / 2, z - (nz * w) / 2],
+    ];
+  });
+  for (const side of [-1, 1]) {
+    for (let i = 0; i + 1 < edges.length; i++) {
+      const [[ax, az] = [0, 0], [bx, bz] = [0, 0]] = edges[i] ?? [];
+      const [[cx, cz] = [0, 0], [dx, dz] = [0, 0]] = edges[i + 1] ?? [];
+      out.push(...quad(on(ax, side * az), on(bx, side * bz), on(dx, side * dz), on(cx, side * cz)));
+    }
+    for (const [x, z, r] of [f.upperEye, f.lowerEye]) {
+      for (let k = 0; k < 6; k++) {
+        const a0 = (k / 6) * 2 * Math.PI;
+        const a1 = ((k + 1) / 6) * 2 * Math.PI;
+        out.push(
+          ...on(x, side * z),
+          ...on(x + r * Math.cos(a0), side * (z + r * Math.sin(a0))),
+          ...on(x + r * Math.cos(a1), side * (z + r * Math.sin(a1))),
+        );
+      }
+    }
+  }
+  return faceUp(out);
+}
+
+/**
  * Places a part in a frame. The frame has no scale.
  *
  * @param frame The frame.
@@ -639,15 +751,9 @@ function addViolinParts(piece: PieceBuilder, frame: Transform, upright: boolean)
   const body = bodyBands(mirrorOutline(VIOLIN_HALF), VIOLIN_LEVELS, v.bodyThickness);
   part(body.top, top, [v.bodyLength / 2, 0, 0]);
   part(body.edge, wood, [v.bodyLength / 2, 0, 0]);
-  // The f-holes, one at each side of the bridge, a little turned.
-  for (const side of [-1, 1]) {
-    part(
-      box(0.036, 0.003, 0.004),
-      dark,
-      [v.bridge + 0.004, v.bodyThickness - 0.0016, side * 0.026],
-      toQuat(new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), side * 0.25)),
-    );
-  }
+  // The f-holes: dark S-shaped stems with round eyes, a little above the arch.
+  const arch = placeCorners(body.top, transform([v.bodyLength / 2, 0, 0]));
+  part(fHoles(arch), dark, [0, 0, 0]);
   // The neck with its round heel, the fingerboard as a tapered board, and the nut.
   part(sweep(NECK_RINGS.map(neckRing)), wood, [0, 0, 0]);
   part(sweep([boardRing(v.fingerboardEnd), boardRing(v.nut)]), dark, [0, 0, 0]);
