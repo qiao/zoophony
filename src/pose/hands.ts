@@ -185,22 +185,24 @@ export const HANDS_HOLDS = {
     // round belly of the T-pose polar bear covers its short thighs, so the paws lie in the lap in
     // front of the lower belly, over the thighs, with the palms down and the fingers forward and
     // in. On the low bench, paws on the belly went 3 cm into it, and the left shoulder folded more
-    // faces than on the high bench. Paws 0.6 H in front of the lap point keep off the belly, and
-    // rest elbows that point out and down, near the elbows of the play, keep the paws from a twist
-    // in the lift (`docs/decisions/2026-10-28-polar-legs.md`). The right paw lies higher than the
+    // faces than on the high bench. Paws 0.8 H in front of the lap point keep off the belly on
+    // the short thighs of the mesh: at 0.6 H, the shoulders folded 4 and 3 more faces
+    // (`docs/decisions/2026-10-29-polar-ratio.md`). Rest elbows that point out and down, near the
+    // elbows of the play, keep the paws from a twist in the lift
+    // (`docs/decisions/2026-10-28-polar-legs.md`). The right paw lies higher than the
     // left paw: a lower right paw folded up to 6 more faces at the right shoulder (`pnpm arm-check`,
     // limit 8). With the trunk of the studio rest clip, the bear
     // slumped forward over its knees, and the paws hung beside them (user report of 2026-10-13).
     restL: {
       kind: 'lap',
-      lap: { along: 0.45, offset: [0.03, 0.08, -0.6] },
+      lap: { along: 0.45, offset: [0.03, 0.08, -0.8] },
       palm: [0.15, -1, 0.1],
       fingers: [0.5, 0, -1],
       pole: [-1, -0.8, 0.2],
     },
     restR: {
       kind: 'lap',
-      lap: { along: 0.45, offset: [-0.03, 0.21, -0.67] },
+      lap: { along: 0.45, offset: [-0.03, 0.21, -0.87] },
       palm: [-0.15, -1, 0.1],
       fingers: [-0.5, 0, -1],
       pole: [1, -0.8, 0.2],
