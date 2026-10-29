@@ -851,6 +851,34 @@ def belly_patch(corners, hips, neck, colors, fur, trunk, rule):
     return out, np.array(changed, int)
 
 
+def flank_faces(corners, colors, fur, arm_share, rule):
+    """Gives the white of the side to the black band around a hanging arm (`colors.flank` of the
+    config). The texture of the penguin paints its black flipper larger than the flipper of the
+    mesh, so a band of black skin of the trunk surrounds the flipper at its front and below its
+    tip. When the flipper rises to the folder, that band stays on the white side as a black tongue
+    with a hook (user, 2026-10-28: "the rigged one has extra black area and bump under the arm").
+    `line` gives two points (height, forward) of the side view: the armpit and the lower side,
+    where the white side meets the black back. Each fur face with |x| of at least `x`, its center
+    between the two heights, forward of the line, an Oklab lightness below 0.5, and a mean share
+    of the arm bones of its corners below `arm` takes the color of the nearest light fur face of
+    the side. Gives the new colors and the changed faces."""
+    centers = corners.mean(axis=1)
+    (y0, z0), (y1, z1) = rule['line']
+    t = np.clip((centers[:, 1] - y0) / (y1 - y0), 0.0, 1.0)
+    edge = z0 + t * (z1 - z0)
+    side = np.abs(centers[:, 0]) >= rule['x']
+    between = (centers[:, 1] >= min(y0, y1)) & (centers[:, 1] <= max(y0, y1))
+    light = oklab(colors)[:, 0] >= 0.5
+    pick = np.nonzero(fur & side & between & ~light & (arm_share < rule['arm'])
+                      & (centers[:, 2] > edge))[0]
+    out = colors.copy()
+    for face in pick:
+        pool = np.nonzero(fur & light & side & (np.sign(centers[:, 0]) == np.sign(
+            centers[face, 0])))[0]
+        out[face] = colors[pool[np.argmin(np.linalg.norm(centers[pool] - centers[face], axis=1))]]
+    return out, pick
+
+
 def smile_line(corners, normals, colors, fur, rule, color):
     """Draws a smile line along the crease between the lips (`colors.smile` of the config). Each
     fur face that lies in a band of `bands` takes `color`, the dark of the eye patches. A face lies
@@ -5197,6 +5225,16 @@ def main():
                                           config['colors']['belly'])
         log(f'belly: {len(changed)} faces take the color of the oval patch by the share of '
             f'their area in it')
+    if 'flank' in config['colors']:
+        arm_bones = [k for k, name in enumerate(BONES) if name.rsplit('_', 1)[0].startswith(
+            ('upper_arm', 'forearm', 'elbow', 'wrist', 'hand', 'fingers'))]
+        arm_share = np.concatenate([weights[tris][:, :, arm_bones].sum(axis=2).mean(axis=1),
+                                    np.zeros(len(tris_all) - len(tris))])
+        colors_all, changed = flank_faces(corners, colors_all, fur_all, arm_share,
+                                          config['colors']['flank'])
+        sides = (corners[changed].mean(axis=1)[:, 0] > 0).sum()
+        log(f'flank: {len(changed)} black faces of the sides ({sides} left, '
+            f'{len(changed) - sides} right) take the color of the nearest light face')
     if 'smile' in config['colors']:
         smile = config['colors']['smile']
         if 'color' not in smile and 'patch' not in config['colors']:
