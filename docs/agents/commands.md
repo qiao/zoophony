@@ -35,6 +35,7 @@ prints only a one-line usage text.
 | Command | Action |
 |---|---|
 | `pnpm install` | Installs the dependencies. |
+| `pnpm prepare-site` | Writes the SF3 presets into `public/sf/` and the changed demos into `public/demos/` (design 8.3). `pnpm dev`, `pnpm build`, `pnpm smoke`, `pnpm frame`, and `pnpm frozen` run it first. |
 | `pnpm dev` | Writes the SF3 presets into `public/sf/`, the changed demos into `public/demos/` (design 8.3), and `perf/perf-60.mid`, then starts the Vite dev server. The gallery is at `/gallery.html`, the animal views at `/views.html` (design 7.1), and a demo at `/#demo=<id>`. |
 | `pnpm build` | Writes the same files, then builds the site into `dist/` with the third-party license file (design 7.3). It gzips the preset and demo files of `dist/` in place, and writes their gzip sizes into `dist/sf/index.json` (design 7.2). `pnpm vite preview` serves `dist/`. `ZOOPHONY_BASE=/zoophony/` sets the base path of GitHub Pages. |
 | `pnpm size [--base <ref>]` | Prints the gzip size of the first download after `pnpm build`, and fails above 1 MB (design 7.2). `--base` also builds the commit, and prints both totals and the difference. |
@@ -49,7 +50,7 @@ prints only a one-line usage text.
 | Command | Action |
 |---|---|
 | `pnpm screenshots <dir> [--sheet] [--play] [--ui] [--drawer] [--load] [--shots]` | Writes the review screenshots of design 9.8 into `<dir>` as WebP files of at most 300 kB: each demo at 1440 × 900 and 390 × 844, the gallery, the animal views, and the sheets. The flags add close views, play frames, UI states, and camera shots. |
-| `pnpm snapshot` | Saves the play frame of the default demo and a close view of each gallery model into a folder of the commit. |
+| `pnpm snapshot` | Saves the play frame of the default demo and a close view of each gallery model into `scratch/snapshots/<commit>/`. |
 | `pnpm sheet-check <sheet> <dir>` | Compares a sheet page of `views.html` with its sheet in `docs/reference/` (design 7.1). With a matte of `tools/sheet-mattes/`, it also prints the silhouette IoU of each view. |
 | `pnpm choir-check <dir>` | Puts the gallery penguin beside a penguin of each of the two newest reference images. |
 | `pnpm close-views <role> <dir> [--moments <list>] [--views <list>] [--probe <p>] [--lineup] [--sheet] [--base <ref>] [--glb <file>] [--set <changes>]...` | Writes the moments and the views of `ROLE_VIEWS` of a role, and a grid. `--moments` takes a share of a move, such as `lift30`. `--lineup` gives a row of the base, the tree, and each `--with` role for each view (front, back, left, right). `--base --sheet` writes the moments as columns with the base row above the tree row, cut to `--box` (2x with `--scale 2`). `--target head` gives 3x face crops. Each `--set` goes into `set-<n>/`. Each close view has a fill light from the camera. 25 s to 45 s. |
@@ -87,6 +88,7 @@ percussion test score of `tools/probe-demos.ts`. The roles are in the table "Bod
 | `pnpm carry-check <role,...> [--set <changes>] [--base <ref>]` | Measures the carry of the violin or the viola in the left paw over each lift and lowering at steps of 0.01 s: the fast steps in which the instrument and the paw turn in opposite senses, the largest angle between their axes, and the largest turn of the instrument in the paw. Three roles: 45 s. |
 | `pnpm raise-fit <role> --faces <list> --side L\|R [--bone upper\|forearm\|hand] [--sets <set>,...] [--json <file>] [--glb <file>]` | Fits one rule of `raise` of a mesh rig to the folds of the faces: the mean turn of each key of the arm over the folded samples, and a ready entry. `--json` writes it for `rig-mesh --set 'raise+=@<file>'`. 15 s. |
 | `pnpm body-probe [--out <file>]`, `--compare <base.json> <new.json>`, or `--base <ref>` | Probes the rest joints and a mesh hash of each species and player, and a hash of the poses of each player of each demo. `--compare` and `--base` print each difference, and fail on it. About 6 s. |
+| `pnpm camera-probe [--out <file>]`, `--compare <base.json> <new.json>`, or `--base <ref>` | Probes a hash of the camera of `cameraAt()` over each demo (design 5.6): it samples each `CAMERA_STEP` for each view of `CAMERA_VIEWS`, and hashes the position, the target, the field of view, the beam, the close flag, the light, and the spot. With no option, it prints the hash of each demo and the total. `--compare` and `--base` print each difference. |
 | `pnpm beat-rates [--demo <id>]... [--limit <bpm>] [--base <ref>]`, or `--trace <from>-<to> [--player <n>]` | Prints the rate of each beat or note motion over a song (design 5.1, 5.4), and fails above 2 s over `--limit` or a conducted beat of 168. `--trace` prints the spine sway of one player at steps of 0.01 s. 3 s for each demo. |
 | `pnpm clip-probe [--demo <id>]... [--jobs <n>] [--set <changes>]... [--variant <name>]... [--base <ref>]` | Finds the clips of all players over the whole song: overlapped seats, a paw in the other paw, a mallet across the other hand, a part in its own instrument, an instrument under the floor, and a part in a near player. A measure clips above 1% of the samples. One file of 1 minute: 6 s. All demos with `--base`: about 8 minutes. |
 | `pnpm shot-trace <demo> [--from <s>] [--to <s>] [--cameras] [--base <ref>]` | Prints the choice of the shot planner at each cut (design 5.6): the dropped candidates, the scores, and the refused cameras. Less than 1 s. |
@@ -99,7 +101,8 @@ Blender 5.2 or later comes from the variable `BLENDER`, or from the path.
 | Command | Action |
 |---|---|
 | `pnpm rig-mesh <animal> [--preview <dir>] [--check [--set <changes>]... [--roles <list>] [--faces <n>] [--watch <faces>] [--hold <changes>]... [--keep <dir>]]` | Rigs a textured mesh into a studio body GLB file from `tools/mesh-rigs/<animal>.json` (design 4.4). `--check` rigs into a temporary folder, and prints the reach, the budgets, the seat, the standing error, the folds and the tail gaps of each role, the arm joins (`tools/arm-gap.ts`), and the dark faces with a fix. Each `--set` is one variant: JSON for a new key, `<path>+=<JSON>` to add to a list, and `@<file>` for a file. `--keep` keeps each GLB file. Run `pnpm studio-body <animal>` after each write. 20 s to 75 s. |
-| `blender -b --factory-startup --python tools/blender/arm_root.py -- tools/arm-roots/<species>.json [--out <file.glb>] [--edits <JSON list>]` | Writes a copy of a source mesh with local edits at the arm root: `flip`, `fair`, `smooth`, `hull`, `push`, and `split`. `--edits` replaces the list for a variant. Rig the copy with `pnpm rig-mesh <animal> --check --set source=<path> --keep <dir>`. A run gives the same bytes. 5 s. |
+| `blender -b --factory-startup --python tools/blender/arm_root.py -- tools/arm-roots/<species>.json [--out <file.glb>] [--edits <JSON list>]` | Writes a copy of a source mesh with local edits at the arm root: `flip`, `fair`, `smooth`, `hull`, `push`, and `split`. `--edits` replaces the list for a variant. Rig the copy with `pnpm rig-mesh <animal> --check --set source=<path> --keep <dir>`. The vertex indices of the edits are the welded indices that `tools/blender/dump_mesh.py` writes. A run gives the same bytes. 5 s. |
+| `blender -b --factory-startup --python tools/blender/dump_mesh.py -- <mesh.glb> <out.npz>` | Writes the welded vertices (studio units and axes) and the triangles of a mesh into an npz file, for a measure script. |
 | `pnpm mesh-options <animal> <dir> --size <label>=<head top>... [--legs <f>,...] [--arms <f>,...] [--instrument <id>]` | Makes the mid-report of a mesh. It rigs each size, leg factor, and arm factor, as `rig-mesh --check` does, and writes the measures and the warnings into `<dir>/options.md`. About 7 s for each variant. |
 | `pnpm studio-body <animal> [--inspect [--glb <file>]]` | Writes `src/models/studio/<animal>.ts` from `glb` of `ANIMALS`, with no Blender, scaled by the landmark of the animal. A seated role drops onto its seat. `--inspect` prints the joints, the clips, and the arm lengths, and writes no file. |
 
@@ -130,3 +133,15 @@ CI (`.github/workflows/ci.yml`) runs `pnpm install`, `pnpm typecheck`, `pnpm lin
 `pnpm test:e2e` in one job for each browser (design 9.2). While all tests are paused, the speed
 tests and the end-to-end tests have `if: false`. `.github/workflows/pages.yml` deploys the site to
 GitHub Pages under `/zoophony/` after CI passes on `main`.
+
+## Checks for each kind of change
+
+These checks compare the working tree with `main`. Each one prints the differences, so an equal
+result proves that the change kept the behavior.
+
+```text
+comments or docs only        ->  body-probe --base main equal, dist/ of both builds equal
+dead code removal            ->  + size --base main, camera-probe --base main, smoke, frozen --base main
+asset or rig cleanup         ->  + rig-mesh <a> --check for each animal, studio-body output equal
+performance change           ->  + frame-compare main <patch>, camera-probe --base main, frozen --base main
+```
