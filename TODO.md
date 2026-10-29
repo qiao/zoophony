@@ -153,10 +153,9 @@ passes.
       pianist --moments lift50` fails. Give the role the moments of `halfMoves()`.
 - [ ] Bear: at rest, the arms stand out about 35° around the wide belly, and the upper arms go 2.2
       cm into the body while the arms move.
-- [ ] Bear: in the play, a dark slit shows at each wrist from the back and az150. The heel of the
-      bent paw goes behind the end of the forearm. Even ring weights, a dual quaternion bind, a
-      straight bind paw, and a `raise` shape do not remove it. Try a mesh change of
-      `bear_arms.py` (a longer wrist band with more rings), or a wrist joint nearer the inner side.
+- [ ] Bear: at the moment "between", a thin dark line stays at the left wrist from the back and
+      az150, most at the camera height 40°. From above, the right wrist keeps a soft dark crease.
+      A taper on the thumb side of the left forearm end folds the left forearm.
 - [ ] Bear: from az-150, a soft dark crease stays at the left arm root, most at rest. From az150, a
       small dark pocket stays where the raised right arm meets the back.
 - [ ] Bear: the trunk faces of the notch below the caps of the cut face down under each raised arm.

@@ -13,7 +13,7 @@ arm tubes, Blender weights, and arm segments (see "The rebuild of the arms in Bl
 
 | Species | Body | Role |
 |---|---|---|
-| bear | T-pose mesh, rebuilt arms (`bear_arms.py`), wrist skin normals (`rootNormals.wrist`), a larger crease angle and a color blend. Stands on the podium, with the baton along the index finger. | `conductor` |
+| bear | T-pose mesh, rebuilt arms with 5 rings at each wrist and a thinner forearm end on the palm side (`bear_arms.py`), wrist skin normals (`rootNormals.wrist`), a bent wrist shape on the left paw (`raise`), a larger crease angle and a color blend. Stands on the podium, with the baton along the index finger. | `conductor` |
 | polar-bear | T-pose mesh, rebuilt arms and legs (`polar_bear_arms.py`, `polar_bear_legs.py`), dual quaternion knees (`bind.knee`, `kneeCrease`), the old bone heat (`heatSource`), and the leg length of the mesh. Sits on a bench that fits its haunch (`benchFitOf()`) at a piano of `PIANO_SCALE`, with the right foot on the damper pedal. | `pianist` |
 | rabbit | A-pose mesh, longer rebuilt arms (`violin_arms.py`), a supinated bind left paw (`bindSupination`), root and elbow skin normals, a smaller violin. | `violinist` |
 | fox-red | Longer rebuilt arms (`fox_arms.py`), a supinated bind left paw, a `raise` shape that smooths the bow arm at rest, a tail of two bones. | `fox-violinist` |
@@ -251,10 +251,10 @@ Read the group of your work before you plan it.
   `pnpm pose-depth`.
 - Automatic weights give the clavicle most of a thick arm root, and the wrist helper half of a
   short paw. Check both.
-- Even ring weights at a wrist (`weights.wristFade`) clear the wrist folds of a fold count. A
-  thick paw that bends 40° or more can still push its heel behind the end of the forearm, and the
-  overlap shows as a dark slit. No weight rule, bind, or `raise` removes it. Judge a wrist by
-  its 2x crops.
+- A thick paw that bends 40° about a joint on its axis must lose about radius × angle of skin on
+  the inner side. The blend bunches it into a light ridge and a dark slit where the paw weights
+  start, up to 0.04 u before the joint. Make the forearm end thinner on that side (`taper` of
+  `bear_arms.py`), because weights, rings, a bind, or a `raise` alone do not remove it.
 - Blender weights on the trunk, the head, or the neck fold faces. Keep the rule weights there
   (`paintedLower`).
 - The glTF skin has no B-Bones and 4 weights for each vertex. In the Blender preview, set
