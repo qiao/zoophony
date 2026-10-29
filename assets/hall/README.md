@@ -40,9 +40,7 @@ credits panel and the third-party license file show this line (design 2.8, 7.3):
 
 ## Changes
 
-These steps make the file from the source file. The research report
-[`docs/research/sound-quality.md`](../../docs/research/sound-quality.md) (section 5) used steps 1
-and 2 for its A/B test.
+These steps make the file from the source file.
 
 1. Decode to stereo with two virtual supercardioid microphones at ±70°:
    `L = 0.37·W + 0.63·(cos 70°·X + sin 70°·Y)`, and `R` is the same with `-sin 70°·Y`.
@@ -61,11 +59,10 @@ and 2 for its A/B test.
    uv run --no-project --with soundfile==0.14.0 --with numpy==2.5.4 python -I tools/hall-flac.py
    ```
 
-The L/R correlation of the result is 0.14. The report measured a T30 of 2.06 s broadband,
-2.47 s at 500 Hz, 2.27 s at 1 kHz, and 1.89 s at 2 kHz for the source position.
+The L/R correlation of the result is 0.14. The T30 of the source position is 2.06 s broadband,
+2.47 s at 500 Hz, 2.27 s at 1 kHz, and 1.89 s at 2 kHz.
 
-The FLAC file is a change of the format only. Section 2(a)(4) of CC BY 4.0 permits
-the Licensed Material "in all media and formats" with the "technical modifications necessary to
+The FLAC file is a change of the format only. Section 2(a)(4) of CC BY 4.0 permits the Licensed Material "in all media and formats" with the "technical modifications necessary to
 do so", and such a change "never produces Adapted Material". Thus the credit line stays.
 
 To check the files:
