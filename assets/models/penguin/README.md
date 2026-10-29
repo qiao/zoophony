@@ -90,3 +90,38 @@ The edits, in the units of the studio (`beak-split.log` of the research folder):
 
 The edited mesh has 3,185 triangles, against 3,103 for `penguin.glb`, and the same 2 open edges
 and 3 edges with more than two faces.
+
+## penguin-edge.glb
+
+`penguin-edge.glb` is a copy of `penguin-beak.glb` with the faces cut along the black and white
+edge of the texture, so that each face of the rig lies on one side and the edge runs through the
+faces as on the mesh of the user (user, 2026-10-28: "the penguine's head has unnatural gradient
+between black and white. Make it look more like the original mesh", then the choice to cut the
+faces along the edge). `source` of `tools/mesh-rigs/penguin.json` names it, and the files before
+it do not change. The script `docs/research/2026-10-28-penguin-edge/edge_cut.py` makes it in a
+headless Blender, and gives the same file again:
+
+```bash
+/Applications/Blender.app/Contents/MacOS/Blender --background --factory-startup \
+  --python docs/research/2026-10-28-penguin-edge/edge_cut.py -- \
+  assets/models/penguin/penguin-beak.glb assets/models/penguin/penguin-edge.glb
+```
+
+| Item | Value |
+|---|---|
+| File | `penguin-edge.glb`, 13,527,960 bytes |
+| SHA-256 | `0f1ac9c7397f37d7c19e82ffd7beaeb3fc2f38b3c4edf4e07b13dd10ab52277e` |
+| Writer | Khronos glTF Blender I/O of the Blender of the script |
+
+The edits (`edge-cut.log` of the research folder):
+
+1. The vertices are welded at 1e-5 units of the file, as `pnpm rig-mesh` welds them.
+2. Each vertex is light or dark by the Oklab lightness 0.5 of the texture at its UV. A vertex on
+   the orange beak or feet has no side, because a cut at the root of the beak gave thin faces that
+   folded when the beak opened.
+3. Each of the 182 edges between a light and a dark vertex splits where the texture changes along
+   it, from 0.15 to 0.85 of the edge, and each of the 178 faces with two new vertices splits along
+   the line between them.
+
+The edited mesh has 3,549 triangles, against 3,185 for `penguin-beak.glb`, and the same 2 open
+edges and 3 edges with more than two faces.

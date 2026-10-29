@@ -1,0 +1,3 @@
+edge_cut: lightness 0.5, limit 0.15: 182 edges cut, 178 faces split, 3185 faces before and 3549 after
+edge_cut: {'open edges': 2, 'edges with more than two faces': 3, 'triangles': 3549}
+edge_cut: wrote scratch/r1028c/penguin-edge.glb
