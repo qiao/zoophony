@@ -252,510 +252,223 @@ scene of each demo has its seats and stage size with no overlap.
 
 ## Step 5. Motion (5, 4.7, 9.7)
 
-- [ ] Dog cellist: the left ear touches the cello, the left forearm and paw go 2.1 cm and 1.6 cm
-      into it, the right upper arm 2.0 cm into the body, and the bow reach is 69% (goal 70%). A loop
-      that moves the cello and rebuilds the left-arm shapes (`2026-10-17-dog-folds.md`).
-- [ ] Dog cellist: the knees stay about 21 cm from the leaned cello (`2026-10-17-dog-rest.md`).
-- [ ] Cat violist: in the 5th position, the left wrist under the neck keeps a twisted band, as on
-      `main` before the tilt (`2026-10-20-cat-left-arm.md`).
-- [ ] Cat violist: the left wrist bends about 30° from the forearm in the low positions, where a
-      real violist keeps it straight. The manager accepts the crops and the grip entry of the arm
-      gate, or the user chooses a smaller viola (`2026-10-20-cat-left-arm.md`).
-- [ ] Red fox: the bow grip is 2.2 cm from the middle of the paw for the standing soloist
-      (`2026-10-17-grip-all.md`).
-- [ ] Standing soloists: the left arm goes 1.8 cm to 2.8 cm into the instrument in the lift and the
-      lowering (`2026-10-17-cat-bow.md`).
-- [ ] The change to pizzicato takes the bow hair 28.5 mm off the strings at one stroke of
-      `boulanger-matin` (18.96 s) (`2026-10-17-mesh-dog.md`).
-- [ ] The paused shot test of the choir of the Ode to Joy fails since the larger cats
-      (`2026-10-16-mesh-cat.md`).
-- [ ] The paused test "moves the trombone slide with the pitch, within the reach of the arm" of
-      `src/pose/winds.test.ts` pins the equal steps of the slide. Since `slideTravel()`, the
-      positions keep the real spacing (`2026-10-18-slide-notes.md`).
-- [ ] Wind motion spec T3: the breath in expands the chest and the belly, with still shoulders, in
-      place of the lean back of 3° (`docs/research/2026-10-18-wind-technique.md`).
-- [ ] Wind motion spec T5: in a fast run, the trombone takes the alternate position that moves the
-      slide less, such as B♭3 in 5 and F4 in 4 or 6 (`docs/research/2026-10-18-wind-technique.md`).
-- [ ] Panda trombonist: the shadow band of the left arm covers 44.6% of the belly box with the left
-      shoulder at 15°, against 20.9% at 9°. A turn of 10° folds the left shoulder at this slide
-      (`docs/research/2026-10-18-trombone-fit.md`).
-- [ ] Panda trombonist: a slide nearer to the front needs a larger forward turn of the right
-      shoulder, and a turn of 50° folds faces 86 and 497 in 6.5% of the lift samples. A rule of the
-      right shoulder in the panda rig can permit it (`2026-10-18-trombone-fit.md`).
-- [ ] Double horn: advanced players use the B♭ side above the written G4, but the app has a single
-      F horn. The B♭ side needs a thumb valve and a second fundamental, B♭1
-      (`docs/reference/wind-technique.md` 2.2, `2026-10-18-horn-fundamental.md`).
-- [ ] The paused shot test of the moves of 2 cm keeps 74.2% of the shots (limit 75%) with the
-      standing hippo. It kept 71.8% since the panda mesh, and passed with the hippo on the stool
-      (`docs/research/2026-10-18-hippo-mesh/shots-test.log`). The elephant mesh keeps 74.7%
-      (`docs/research/2026-10-19-elephant-mesh/shots-test.log`).
-- [ ] Panda trombonist: face 467 at the front of the right shoulder folds in 2.2% of the lift
-      samples, and the shadow of the left arm crosses the belly in the gallery front view of the
-      first position, smaller since the 9° turn (`turn-9.webp`). Show the user the images of
-      `docs/research/2026-10-18-panda-folds/` (`2026-10-18-panda-folds.md`).
-- [ ] Hippo bassist: the sweep gives the right upper arm root 4.1 cm to 6.1 cm in the body
-      (0.0 cm before the rebuilt arms). The flat inner side of the tube lies behind the side
-      wall by design and now counts as upper arm. Measure the clip of the visible surface only,
-      or give the pair an accepted depth (`2026-10-25-hippo-arms.md`).
-- [ ] Hippo bassist: the left paw goes over 1.5 cm into the neck in 27.0% of the play samples
-      (0.9% before), at most 1.7 cm, inside the accepted 2.0 cm, while the left forearm passes
-      1.5 cm in 1.6% (19.7%): the wrist skin counts as paw now. The left forearm goes 2.1 cm in,
-      in 0.1% of the play, and the right upper arm 2.0 cm in 0.4% of the lowering. A light face
-      of the texture under the right arm shows from az150 (`2026-10-25-hippo-arms.md`).
-- [ ] Hippo bassist: on the E and A strings, the roll of the bow paw stays at its low end, and the
-      paw goes more than 1.5 cm into the belly in 4.6% of the play samples. A hold that moves the
-      right elbow off the line of the stick, such as the slant -10°, can remove it
-      (`2026-10-18-hippo-arm.md`).
-- [ ] Hippo bassist: the thick arms go into the body and the contrabass in the play and the
-      lowering, the upper arms up to 6.0 cm into the body in the play, and the right upper arm
-      4.7 cm into the contrabass in the lowering (2.3 cm before the chest fix). A shoulder turn
-      above 50° folds the chest under the chin. Fit the hold further, or accept the depths as
-      limits of the sweep (`2026-10-18-mesh-hippo.md`, `2026-10-19-hippo-chest.md`).
-- [ ] Hippo bassist: the high notes take lower places on the neck, because the left paw stops
-      only up to 0.7 of the fingerboard. Show the user the left hand in a high passage of
-      `bach-bwv1050` (`2026-10-21-hippo-bass-arms.md`).
-- [ ] Hippo bassist: the bow plays only 0.25 m to 0.415 m of the hair (0.045 m before), so the
-      strokes are shorter. Show the user the close views, and offer longer arms or a smaller
-      contrabass for longer strokes (`2026-10-21-hippo-bass.md`).
-- [ ] Hippo bassist: in the change from the bow to pizzicato at 248.13 s of `boulanger-matin`,
-      the right forearm goes 4.2 cm into the right rim of the upper bout for a moment (0.0% of
-      the samples). Try a path of the change around the rim (`2026-10-21-hippo-bass-arms.md`).
-- [ ] Held instruments over the new limit of 2 cm in the body (`roles/summary.txt` of
-      `docs/research/2026-10-21-hippo-bass/`): the pig hornist 4.5 cm in the lift, the rest, and
-      the lowering, the rhino tubist 2.9 cm in the play, the red fox and rabbit violinists 2.9 cm
-      and 2.8 cm in the lift and the lowering, and the cat violist 2.4 cm in the play. Fit each
-      hold, or give the pair an accepted depth with its reason.
-- [ ] The merge gate runs no clearance sweep, so a new instrument in the body shows only in
-      `pnpm pose-depth` and the paused tests. Add the pair "instrument in body" of each held role
-      to the gate, or end the test pause for it (`2026-10-21-hippo-bass.md`).
+- [ ] Dog cellist: the left ear touches the cello, the left forearm and paw go up to 2.1 cm into it,
+      and the bow reach is 69% (goal 70%). Move the cello, and rebuild the left arm shapes.
+- [ ] Dog cellist: the knees stay about 21 cm from the leaned cello.
+- [ ] Dog cellist: in `boulanger-matin` (121 s to 127 s), the third cellist puts one paw 2.4 cm into
+      the other, where pizzicato on the low strings meets a held arco note (`pnpm clip-probe`).
+- [ ] Dog: the upper arms go 5.2 cm into the body in the play and the lowering (goal 3.5 cm). Try a
+      larger `weights.armRoot.along`, or a bow hold that keeps the upper arm off the chest.
+- [ ] Dog: faces 342 and 172 at the right shoulder top fold in 17% of the lift. Try a `raise` shape
+      fitted on the lift alone, with a fade of 5° to 10°.
+- [ ] Dog: a soft star dent shows on the chest below the right arm root from the right side, and a
+      thin dark line at the right root from az150 at rest. Try a fair of the body caps.
+- [ ] Cat violist: in the 5th position, the left wrist under the neck keeps a twisted band.
+- [ ] Cat violist: the left wrist bends about 30° from the forearm in the low positions, but a real
+      violist keeps it straight (string-technique).
+- [ ] Red fox: the bow grip is 2.2 cm from the middle of the paw for the standing soloist.
+- [ ] Bowed strings: the change to pizzicato takes the bow hair 28.5 mm off the strings at one
+      stroke of `boulanger-matin` (18.96 s).
+- [ ] Bow plan: ask the user to check the slurs that the bow plan infers from the MIDI files (21% to
+      38% of the notes).
+- [ ] When the test pause ends, fix the paused tests: the choir shot test, the shot test of the 2 cm
+      moves, and the slide test of `src/pose/winds.test.ts` (equal steps).
+- [ ] Wind breath: the breath in expands the chest and the belly, with still shoulders, in place of
+      the lean back of the spine (wind-technique 1.6).
+- [ ] Trombone: in a fast run, take the alternate position that moves the slide less, such as B♭3 in
+      5 and F4 in 4 or 6 (wind-technique 1.3).
+- [ ] Double horn: advanced players use the B♭ side above the written G4. The app has a single F
+      horn. The B♭ side needs a thumb valve and a second fundamental, B♭1 (wind-technique 2.2).
+- [ ] Panda trombonist: the shadow of the left arm crosses the belly in the front view, and face 467
+      at the front of the right shoulder folds in 2% of the lift. Show the user the front view.
+- [ ] Panda trombonist: the arm reaches about 0.1 m of the slide, 18% of a real seventh position,
+      and a larger right shoulder turn folds the shoulder. Show the user slide angles of 45° and 60°.
+- [ ] Panda trombonist: from the front, the right paw lies below the lower slide tube with its tips
+      on the brace, so it reads as a paw under the slide.
+- [ ] Panda trombonist: at rest, the left finger tips stand 0.7 cm from the slide tubes (limit 0.6
+      cm). Give each paw a rest aim.
+- [ ] Hippo bassist: the upper arms go up to 6 cm into the body and 4.7 cm into the contrabass. The
+      hidden inner side of the arm tube counts. Measure the visible surface only.
+- [ ] Hippo bassist: the left forearm goes 2.1 cm into the neck in 0.1% of the play, and a light
+      face of the texture shows under the right arm from az150.
+- [ ] Hippo bassist: on the E and A strings, the bow paw goes more than 1.5 cm into the belly in 5%
+      of the play. Try a hold that moves the right elbow off the line of the stick (slant -10°).
+- [ ] Hippo bassist: the left paw stops only up to 0.7 of the fingerboard, so the high notes take
+      lower places on the neck. Show the user a high passage of `bach-bwv1050`.
+- [ ] Hippo bassist: the bow plays only a part of the hair, so the strokes are short. Offer the user
+      longer arms or a smaller contrabass.
+- [ ] Hippo bassist: in the change from the bow to pizzicato at 248.13 s of `boulanger-matin`, the
+      right forearm goes 4.2 cm into the rim of the upper bout. Try a path around the rim.
 - [ ] Hippo bassist: the top edge of the upper bout touches the chest under the chin, and a few
-      teeth of the skin show over it in a close view from the front (`chest-compare.webp` of
-      `docs/research/2026-10-19-hippo-chest/`, `2026-10-19-hippo-chest.md`).
+      teeth of the skin show over it in a close view from the front.
 - [ ] Hippo face: the brow ridge of the mesh shades a crease above each pea eye, which can read
-      stern in a close front view. Show the user the face, and offer a face rule
-      (`2026-10-18-mesh-hippo.md`).
-- [ ] Mouse oboist: the paws hold the oboe at the height of the shoulders, higher than a real
-      oboist, because the big head puts the reed about 0.13 m above the shoulder joints. Show the
-      user the close views, and offer a bowed head while the mouse plays
-      (`2026-10-19-mesh-mouse.md`).
-- [ ] Wind angle gate: three values grow on the margin against main, inside their limits: the
-      left forearm twist of the mouse at rest 59° (40°, limit 80°), and the right move twist max
-      of the mouse 99° (84°) and of the wolf 103° (93°, limit 176°). The manager decides
-      (`gate.txt` of `docs/research/2026-10-25-wind-angle/`).
-- [ ] Wind angle twist steps: the right forearm steps of the mouse and the wolf grow to 24.8° and
-      25.8° (21.1° and 23.3° on main, target 25°, `twist-*.txt` of
-      `docs/research/2026-10-25-wind-angle/`).
-- [ ] Mouse oboe at 40°: from the side, the arms reach forward with a more open elbow than at
-      15°. Show the user `oboist-play-side.webp` of `docs/research/2026-10-25-wind-angle/`, and
-      offer a smaller oboe or a forward lean of the head.
-- [ ] Wolf clarinet angle: renders of the app from the camera of the reference images put the
-      wolf of the images at about 30° to 35°. The clarinet takes 30°. Show the user
-      `wolf-reference.webp`, and offer 35° (`2026-10-25-wind-angle.md`).
-- [ ] Oboist close views: at zoom 2, the oboe at 40° leaves the frame of the ±35° views at the
-      paws. Widen the frame of the oboist in `ROLE_VIEWS` of `tools/close-views.ts`.
-- [ ] The mittens of the wind players close as one block, so no finger lies on a key. The red fox
-      on the violin neck has its tips on the neck (`pnpm wind-grip`, `2026-10-25-grips.md`).
-- [ ] Wind grips, after the review of the 2x crops of `docs/research/2026-10-25-grips/` and
-      `docs/research/2026-10-25-open-grips/` by the manager: write the new entries of
-      `ACCEPTED_GRIPS` for the bassoonist, the trombonist, the oboist, and the clarinetist. The
-      gate fails their grip turns until then. The trumpeter and the tubist pass with their entries
-      since `2026-10-25-brass-grips.md`. The bassoon turns of
-      175° and 163° come from the entry of the hold before the palms faced the tube
-      (`2026-10-25-open-grips.md`, section 6). After the side grips of the woodwinds, the grip
-      turns are oboist 140° and 13°, clarinetist 21° and 6°, and bassoonist 11° and 10°: the
-      paws turned back near the grips of 2026-10-24 (`2026-10-25-wind-palms.md`).
-- [ ] Wind palms gate: the oboist and the bassoonist grow on the margin against main, inside the
-      limits: oboist left paw twist 137° (93°), move twists 137° (93°) and 121° (99°), bassoonist
-      left forearm twist 38° (14°), paw twist 135° (57°), paw swing 54° (27°), right rest folds 8
-      (4, limit 8). The manager decides (`gate.txt` of `docs/research/2026-10-25-wind-palms/`).
-- [ ] Beaver left forearm: each of its two links twists 55.4° in the play (target 25°), because
-      the beaver has no arm segments. Only rebuilt arms with segments lower it (see "Beaver
-      rebuilt arms", `2026-10-25-wind-elbows.md`).
-- [ ] Panda trombone right forearm: with the side palm, each of its two links twists 42.8° in
-      the play and up to 70.6° at rest (5.4° and 15.8° before), and the paw twist p95 is 141°
-      (limit 170°). No image shows a band. The panda has no arm segments
-      (`twist-branch-trombonist.txt` of `docs/research/2026-10-25-wind-elbows/`).
-- [ ] Wind elbows gate: five values grow on the margin against main, inside the limits: oboist
-      left flat p5 0.68 (0.75), trombonist right forearm twist 45° (9°), paw twist and move
-      twist 141° (32°), and flat p5 0.66 (0.79). The manager decides (`gate.txt` of
-      `docs/research/2026-10-25-wind-elbows/`).
-- [ ] Panda trombone right paw in the front view: the paw lies below the lower slide tube with
-      its finger tips on the brace, so from the front it reads as a paw under the slide. Show the
-      user `trombonist-right-paw-first.webp` of `docs/research/2026-10-25-wind-elbows/`.
-- [ ] Wind thumbs: the mesh thumbs have no bone, so on the left oboe paw and the right bassoon
-      paw the thumb tip lies 1.2 cm and 5.0 cm in front of the tube axis. Add the
-      thumb measure of `palm-probe.ts` to `pnpm wind-grip`, so that a gate sees the thumb.
-- [ ] Rhino and pig paws have no separate digit, so the palm probe gives no thumb for the tuba
-      and the horn. Check the horn hold from the images and the technique (`palm-branch.txt`).
-      The left tuba palm faced the audience by +0.43. It faces the main branch since
-      `2026-10-25-brass-grips.md` (0.90 to the right, -0.06 to the audience).
-- [ ] Panda trombone travel: the arm reaches 0.105 m of the slide at 45° to the right, 18% of a
-      real seventh position (0.57 m), since the right paw holds the far side of the brace (0.17 m
-      before, `2026-10-25-wind-elbows.md`). On the grip before, 60° gave 0.26 m and 90° 0.455 m.
-      Show the user the lineup of 45° and 60° (`slide-scan-final.txt` of
-      `docs/research/2026-10-25-open-grips/`).
-- [ ] Panda trombone: with the play hold at rest, the left finger tips stand 0.7 cm from the slide
-      tubes at rest (0.4 cm on 0cfe7ee6, limit 0.6 cm). A rest aim for each paw would keep the left
-      paw as before (`2026-10-25-open-grips.md`).
-- [ ] Beaver bassoon: the right claws go 1.5 cm into the bassoon in one lowering sample of 30 in
-      four demos (`depth-bassoonist.txt` of `docs/research/2026-10-25-grips/`).
-- [ ] Badger triangle: the left paw stands with the fingers up and the clip leaves its heel. A
-      real player holds the clip between the thumb and the fingers at eye level
-      (`docs/reference/percussion-technique.md` 10).
-- [ ] Beaver right arm root: a soft dark crease stays at its front from the right side at the
-      elevation 20 (`bassoonist-views.webp` of `docs/research/2026-10-25-beaver-rhino-arms/`).
-- [ ] Beaver rebuilt arms: the method of the cat folded 15 faces of each arm (limit 8) around the
-      socket of the seam cut. A new try needs a smaller socket, because the upper arm joins the
-      trunk down to 0.9 of its length (`2026-10-25-beaver-rhino-arms.md`).
-- [ ] Twist step of the beaver upper arm: 64.8° (target 25°). Only rebuilt arms with segments
-      lower it (`2026-10-25-beaver-rhino-arms.md`). The rhino has them since 2026-10-27, with
-      the largest steps 22.7° and 19.6° (74.1° before, `2026-10-26-fifth-review-rhino.md`).
-- [ ] Rhino tubist: the left forearm comes 1.5 cm into the main branch of the tuba in the moves
-      and at rest (limit 1.5 cm, 0.8 cm before), because the left elbow is lower
-      (`pose-depth.txt` of `docs/research/2026-10-26-fifth-rhino/`).
-- [ ] Rhino tubist: the manager checks the new accepted grips of the tubist (-87°, -32°) in the
-      2x paw crops (`paws.webp` of `docs/research/2026-10-26-fifth-rhino/`). The bind moved the
-      zero of the paw twist, so the old entry failed the same grips.
-- [ ] Mesh rigs: the bind arms of the other configs bend the elbow up, so their bind paws can
-      start pronated on the forearm, and their paws twist more than a real forearm turns. Read
-      the bind turn of each role with `forearm-turn.ts` of the probes of
-      `docs/research/2026-10-26-fifth-rhino/` (the rhino read -78°, and -13° with its elbow
-      forward).
-- [ ] Foxes: the largest twist step is a forearm segment step, a quarter of the paw twist: 44.5°
-      on the red fox left arm (the accepted violin hold twists the paw 168°), and 31° and 33° on
-      the tan fox (target 25°, `2026-10-25-fox-arms.md`).
-- [ ] Tan fox flute: the grips of the play and the rest lie on two sides of the flute, so the
-      right paw turns around the tube in the lift (`gripAround`). Show the user the 2x cells of
-      the lift (`2026-10-25-fox-arms.md`). The right paw stays within 0.7 cm of the flute in each
-      step, and the flute stays out of the body, but in the first and the last 0.4 s of the move
-      the finger tips are 0.6 cm to 0.9 cm off (`crops/flute-moves.webp` of
-      `docs/research/2026-10-25-open-grips/`).
-- [ ] Mouse tail: the loop of the long tail lies on the floor behind the mouse, and the footprint
-      is 0.764 m deep. The stages of the demos with oboes are 2.1% to 6.3% smaller
-      than with the large mouse, about the stages of the parametric mouse. Check the tail between
-      the rows of the stage with the user (`2026-10-19-mouse-size.md`).
-- [ ] Mouse haunch: with no chair, the haunch hangs 0.076 m above the floor behind the heels,
-      and in the low side view of the play it seems to float a little
-      (`chair-species-play-views.webp` of `docs/research/2026-10-19-mouse-size/`). Show the user
-      the side view, and offer a lower haunch or the heels further back, with a rig round of the
-      legs (`2026-10-19-mouse-size.md`).
-- [ ] Mouse oboe size: the mouse plays an oboe of 0.5 of the oboe of the app (0.275 m), so that
-      it holds the oboe at 40°. No source gives the size of a smaller oboe for a child
-      (`docs/reference/wind-technique.md` 4.2). Show the user the play frame with the small oboe
-      (`2026-10-25-wind-angle.md`).
-- [ ] Arm gate: the stretch counts from the rest sample, so a rest where the wrist lifts the head
-      gives a false stretch. The elephant left arm gives 0.22 (base 0.09, limit 0.35), and less
-      than the base against the bind. Count the stretch from the bind, or from the rest only when
-      the rest keeps the wrist straight (`docs/research/2026-10-19-elephant-grip.md` 5).
+      stern in a close front view. Show the user the face, and offer a face rule.
+- [ ] Held instruments over 2 cm in the body: the pig hornist, the rhino tubist, the red fox, the
+      rabbit, and the cat. Fit each hold, or accept the depth with its reason.
+- [ ] Merge gate: it runs no clearance sweep. Add the pair "instrument in body" of each held role to
+      the gate, or end the test pause for it.
+- [ ] Mouse oboist: the big head puts the reed high, so the paws hold the half-size oboe at the
+      height of the shoulders with open elbows. Show the user, and offer a bowed head.
+- [ ] Mouse and beaver: find a source for the size of a small oboe and a small bassoon. The mouse
+      plays an oboe of 0.5, and the beaver a bassoon of 0.82 (wind-technique 4.2).
+- [ ] Mouse: the loop of the long tail lies on the floor behind the mouse, and the footprint is
+      0.764 m deep. Check the tail between the rows of the stage with the user.
+- [ ] Mouse: with no chair, the haunch hangs 0.076 m above the floor, and it seems to float in the
+      low side view. Offer the user a lower haunch, or the heels further back.
+- [ ] Wolf clarinetist: renders from the camera of the reference images put the clarinet of the wolf
+      at about 30° to 35°. The app uses 30°. Show the user, and offer 35°.
+- [ ] Wolf clarinetist: the right paw reaches its grip with only 0.9 cm to spare. Try a larger arm
+      factor (up to 1.25) or a new mouthpiece place.
+- [ ] Wolf clarinetist: the mouthpiece goes 1.3 cm into the head under the long muzzle.
+- [ ] Wolf: the seated wolf is 1.01 times the dog cellist, below the range of the orchestra images.
+      Ask the user to confirm the shape of the body.
+- [ ] Wolf: ask the user to confirm the face (level brows, level pea eyes, a thin smile line).
+- [ ] Wolf: in the warm stage light, the fur shows a warm gray, but the wolf of the orchestra images
+      is a cool gray with no cream chest. Show the user the face and a play frame.
+- [ ] Wolf: at rest, the root of the tail goes 0.6 cm into the back of the seat.
+- [ ] Close views: at zoom 2, the oboe leaves the frame of the ±35° views at the paws. Widen the
+      frame of the oboist in `ROLE_VIEWS` of `tools/close-views.ts`.
+- [ ] Wind players: the mitten paws close as one block, so no finger lies on a key.
+- [ ] Wind thumbs: the thumbs of the meshes have no bone, and the rhino and pig paws have no digit.
+      Add a thumb measure to `pnpm wind-grip`, and check the horn hold in the images.
+- [ ] Wind grips: `pnpm wind-grip` takes the finger tips from the bind pose, and the right oboe paw
+      grasps in 54% of the play. Check the right oboe grip.
+- [ ] Accepted grips: after a check of the 2x paw crops, update `ACCEPTED_GRIPS` for the bassoonist,
+      the trombonist, the oboist, the clarinetist, the wolf, the tubist, and the xylophone.
+- [ ] Horn: the right palm lies across the bell opening, 2.5 cm inside it (`HORN_PALM_DEPTH`). A
+      real hand goes deeper, against the far wall at 2 o'clock. Turn the paw along the bell.
+- [ ] Beaver bassoonist: the right claws go 1.5 cm into the bassoon in one lowering sample.
+- [ ] Beaver bassoonist: three faces of the left wrist, forearm, and shoulder top fold at rest and
+      in 13% of the lift, and a dark slot shows at the cap of the cut under the left arm.
+- [ ] Beaver: a soft dark crease stays at the front of the right arm root from the right side.
+- [ ] Beaver: rebuild the arms with segments. The method of the cat folded 15 faces of each arm, so
+      a new try needs a smaller socket.
+- [ ] Beaver: the fur keeps the orange-brown of its texture. Ask the user if the plain fur takes the
+      chroma of `SPECIES_COLORS.beaver`.
+- [ ] Twist steps above 25° between two arm bones: the left forearm of the rabbit, the cat, and the
+      foxes, the beaver, the panda, and the wolf right forearm. Add forearm segments.
+- [ ] Twist steps: measure the steps of the snare drum and the xylophone on the percussion test
+      score.
+- [ ] Arm gate: accept or fix the values near their margins: the cat, the elephant, the panda
+      (`FAIL`, or revert `2ae168dc`), the mouse, the wolf, and the wind players.
+- [ ] Arm gate: the stretch counts from the rest sample, so a rest shape or a bent wrist gives a
+      false stretch (the hippo `FAIL`, the elephant, the snare). Count from the bind.
 - [ ] Seam gate: no measure of the skin separates the flaps, the shards, and the dents at the arm
-      seam from the good roles, so `pnpm arm-check` does not see them
-      (`docs/research/2026-10-22-seam-gate.md`). Each mesh round looks at the sheets of
-      `pnpm close-views audit`. Next idea: a render measure on the audit cells, or a form
-      measure of the trunk under the source arm.
-- [ ] Pig hornist folds: two faces of the right hoof fold in each rest sample and in 26.5% of the
-      lift samples, because a body has at most four corrective shapes (`RAISE_LIMIT`). Try a
-      weight rule of the right paw, or a rest with a smaller turn of the right wrist
-      (`2026-10-19-mesh-pig.md`).
-- [ ] Pig horn rest: the round belly covers the short thighs, so the horn rests on the belly over
-      the lap, with the bell beside the right haunch. Show the user the close views
-      (`hornist-base-views.webp` of `docs/research/2026-10-19-pig-mesh/`).
-- [ ] Pig arms: in the front view, the skin of the armpits stretches into bands from the trunk to
-      the raised upper arms, most on the right arm. Show the user the close views
-      (`2026-10-19-mesh-pig.md`).
-- [ ] Pig standing soloist: no demo has a standing pig, and `pnpm pose-depth --soloist` takes only
-      a bowed role, so only the close views check it (`2026-10-19-mesh-pig.md`).
-- [ ] Pig right armpit at rest and in the lift: 22 faces turn past 45° in each rest sample (23.5 on
-      `main`), and the rest shape keeps face 217 turned over. The cut of `cut_seam()` fails on the
-      pig seam (a vertex with two loop edges). Make the cut take that seam, or try a weight rule
-      (`2026-10-20-armpits.md`).
-- [ ] Rabbit right armpit after the fair move: a shallow hollow with a small sharp tip stays
-      under the raised bow arm at the camera of the user. The full move made facets and a pit, so
-      a smoother hollow needs more vertices in the notch (`2026-10-21-rabbit-armpit.md`).
-- [ ] Rabbit right armpit front in the play: a V crease stays at the front of the arm root from
-      az60 at the frog, the tip, and the crossing. 84% of its depth comes from the bend of the
-      bind arm, 16% from the twist. A push of the root front softens it (p5), but each push on top
-      of the fill makes the shapes of the right arm fail (`2026-10-22-rabbit-armpit.md`). A dual
-      quaternion bind does not shrink it (`2026-10-22-dq-bind.md`).
-- [ ] Arm root dents of the mesh rigs: the bend from the hanging source arm to the bind arm makes
-      them, and no blend of the bind removes them (`2026-10-22-dq-bind.md`). Next: a bind arm
-      nearer to the source arm (`studio.bindArms`), measured with `split.py` of the report.
-- [ ] Rabbit: commit `b1e270f0` of the paused round `rabbit-depth` (the via of the bow grip in the
-      lift and the lowering) still waits for its gates (`2026-10-22-rabbit-armpit.md`).
-- [ ] Rabbit arm shadows: the shadows of the side lights keep about 13,000 black pixels more in
-      the seam of the rabbit than no shadow (`seam-final.txt` of
-      `docs/research/2026-10-21-stage-exposure/`).
-- [ ] Rabbit soloist: with the twist bones, the violin goes 0.5 cm deeper into the body in the lift
-      and the lowering of the standing soloist (2.3 cm, no limit). Check the chin and the left
-      shoulder in the close views (`pose-depth-soloist-base.txt` of
-      `docs/research/2026-10-21-rabbit-arm/`).
-- [ ] Rabbit upper arms: the narrow axis of the middle ring of each upper arm keeps 0.62 to 0.81
-      of the bind, so the shoulders look flatter than the source in the back views. Try a bind arm
-      nearer to the play, or a shape of the raised arm (`arm-shape.txt` of
-      `docs/research/2026-10-21-rabbit-arm/`).
-- [ ] Rabbit open edges: a flap face with two open edges (3.1 cm) stays under the right armpit.
-      The module before the cut has such a pair too, and no frame of the round shows the flap
-      (`open-edges.txt` of `docs/research/2026-10-21-rabbit-armpit/`).
-- [ ] Horn right paw: the palm lies on the bell axis 2.5 cm inside the opening, and the paw lies
-      across the opening, 86° from the axis. A real hand goes deeper, against the far wall at 2
-      o'clock. Turn the paw along the bell for the horn, and update the accepted grip of the gate
-      after the manager accepts the crops (`2026-10-20-armpits.md`).
-- [ ] Wolf shape: the body is 0.9 times as high and 1.2 times as wide, and the head keeps its size
-      (round `wolf-head`). The seated wolf is now 1.01 times the dog cellist, below the range of
-      the orchestra images. Show the user `compare.webp` of `docs/research/2026-10-20-wolf-head/`
-      (`2026-10-20-wolf-shape.md`).
-- [ ] Wolf grip: the play medians of the paw twists are -97° and 79°, against the accepted -86° and
-      67° of `ACCEPTED_GRIPS`. The grip turn passes (11° and 12°). Update the entry after the
-      manager accepts `arms-strike.webp` and `arms-rest.webp` (`2026-10-20-wolf-shape.md`).
-- [ ] Wolf colors: the fur keeps the hues of the texture and of the sheet (no tone rule, round
-      `mesh-badger`), but the warm light of the stage still shows a warm gray, and the wolf of the
-      orchestra images is a cool gray with no cream chest (`faces-colors.webp` of
-      `docs/research/2026-10-20-wolf-mesh/`). Show the user the face pair and the play frame.
-- [ ] Wolf tail: at rest, the root of the tail goes 0.6 cm into the back of the seat
-      (`tail-variants.txt` of `docs/research/2026-10-20-wolf-shape/`).
-- [ ] Wolf clarinet: the mouthpiece goes 1.3 cm into the head under the long muzzle, and no demo
-      has a standing wolf soloist, so only the close views check it (`2026-10-20-mesh-wolf.md`).
-- [ ] Wolf face: level brows, level pea eyes, and a thin smile line (round `wolf-face`). Show the
-      user `compare.webp` and `faces.webp` of `docs/research/2026-10-20-wolf-face/`, with the
-      variant with no body change (`2026-10-20-wolf-face.md`).
-- [ ] Wolf reach: the right paw reaches its clarinet grip with only 0.9 cm to spare (5.1 cm at
-      `0e7130db`), because the arms take the body factor. A larger arm factor (up to 1.25) or a
-      new mouthpiece place can give more (`2026-10-20-wolf-face.md`).
-- [ ] Badger cymbals choice: the agent chose the suspended cymbal while the user slept. Show the
-      user `compare.webp` of `docs/research/2026-10-20-badger-cymbals/`, and ask if the badger
-      keeps it, or gets longer arms for hand cymbals.
+      seam, so `pnpm arm-check` does not see them. Try a render measure of the audit cells.
+- [ ] Arm root dents, such as the V crease at the front of the rabbit right arm root: the bend from
+      the source arm to the bind arm makes them. Try `studio.bindArms` nearer to the source.
+- [ ] Rabbit: gate the branch `rabbit-depth` (`b1e270f02`, the bow grip further out in the lift and
+      the lowering), then merge or remove it.
+- [ ] Rabbit: under the raised bow arm, a shallow hollow with a small sharp tip stays in the right
+      armpit. A smoother hollow needs more vertices in the notch.
+- [ ] Rabbit: the shadows of the side lights make the seam of the arm darker than no shadow does.
+- [ ] Rabbit: the narrow axis of each upper arm keeps 0.62 to 0.81 of the bind, so the shoulders
+      look flatter than the source from the back. Try a bind arm nearer to the play.
+- [ ] Rabbit: a flap face with two open edges (3.1 cm) stays under the right armpit. No frame shows
+      it.
+- [ ] Rabbit soloist: the violin goes 2.3 cm into the body in the lift and the lowering. Check the
+      chin and the left shoulder in the close views.
+- [ ] Rabbit violinist: the right forearm goes 2.1 cm into the body for 0.2 s at the song end of
+      `bach-bwv1050`.
+- [ ] Rhino: the shoulders widen the footprint, and the conductor pose of `boulanger-matin` changes
+      from 257.38 s. Check that the cue of the conductor still aims at the tuba.
+- [ ] Body probe: a change of the panda rig changes 18 pose sets of other players at the start of
+      `brahms-2` and `beethoven-9`. Find the shared input that the panda rig moves.
+- [ ] Tan fox flutist: the grips of the play and the rest lie on two sides of the flute, so the
+      right paw turns around the tube in the lift (`gripAround`). Show the user the 2x crops.
+- [ ] Pig hornist: two faces of the right hoof fold at rest and in 27% of the lift, because a body
+      has at most four corrective shapes (`RAISE_LIMIT`). Try a weight rule of the right paw.
+- [ ] Pig hornist: the round belly covers the short thighs, so the horn rests on the belly. Show the
+      user the close views.
+- [ ] Pig: in the front view, the skin of the armpits stretches into bands to the raised upper arms.
+      Show the user the close views.
+- [ ] Pig: 22 faces of the right armpit turn past 45° at rest, and the rest shape keeps face 217
+      turned over. `cut_seam()` fails on the pig seam (a vertex with two loop edges).
+- [ ] Pose depth: `pnpm pose-depth --soloist` takes only a bowed role, so a standing pig soloist
+      gets no check.
+- [ ] Badger percussionist: ask the user to confirm the suspended cymbal, or longer arms for hand
+      cymbals.
+- [ ] Badger: ask the user to confirm the size of the badger.
+- [ ] Badger: the front fur and the eye stripes are darker than the sheet, and the warm light shows
+      the stripes on the head as a mid brown. Show the user the faces.
 - [ ] Suspended cymbal: the free paw does not muffle the plate after a note, and the moments of
-      `ROLE_VIEWS.cymbalist` still have the names of a crash (`tools/close-views.ts`).
-- [ ] Badger xylophone runs: a scale stays in one hand, because a hand does not cross the other
-      (`alternateHands()`), so on the percussion test score the right paw reaches across the
-      body to the lowest bars (median miss 9.5 cm). A real player alternates the hands in a
-      scale, with no cross of the mallets (`docs/reference/percussion-technique.md` 9).
-      Done: a run that leaves the reach of one paw goes on in the other paw, and the right paw
-      strikes 93% of its bars within 5 mm, median 0 mm (`2026-10-25-xylophone-reach.md`). The
-      alternation stays open (below).
-- [ ] Badger xylophone outer runs: the runs at the outer bars of the test score stay in one paw,
-      because the other short arm does not reach them (reach 0.53 m from the moved shoulders).
-      A real player alternates there too. A larger side move of the body or a step can help.
-- [ ] Badger xylophone passes: where one paw passes the other in a run, the two shafts show as
-      an X from above, at two heights, with no touch. A real player keeps a V with no cross
-      (`docs/reference/percussion-technique.md` 9, `2026-10-25-percussion-rest/pairs/`).
-- [ ] Badger xylophone head height: between strikes, the right head stands up to 13 cm above the
-      right shoulder joint and shows beside the shoulder from the back, and the left head about
-      13 cm above its bar. A real player keeps the stroke 2 to 3 inches high (source 39). A lower
-      head bent the wrist over the gate (`2026-10-25-percussion-rest/runs-gate.txt`).
-- [ ] Badger xylophone back row middle: in a run up the test score, the right paw misses 4
-      strikes on the two sharp bars in the middle of the back row by 8 to 26 mm, and the paw
-      rises to the height of the muzzle there (`2026-10-25-xylophone-reach/run-test.webp`).
-- [ ] Badger xylophone mallets: the mallets of 0.30 m look long beside the small bars of 11 cm
-      to 7 cm. A shorter mallet moves the band of reach nearer, and the bars with it.
-- [ ] Badger xylophone shafts: on a chord of two near bars, the shafts of the two mallets touch
-      in 0.4% of the samples of the steel drum part (`2026-10-25-xylophone-sway.md`). The smaller
-      bars and heads leave 0.1% (`2026-10-25-xylophone-reach.md`).
-- [ ] Percussion grip, xylophone exit: the mallets run near the line of the forearms, so the
-      shafts leave the fists past the knuckles, under the curled claws. The paws hold as fists in
-      62% (L) and 90% (R) of the play, but grasp in 0% by the exit rule. Accept the crops, then
-      set the xylophone medians in `ACCEPTED_GRIPS`.
-      Round `percussion-rest`: no grip passes the limits. The rest angle 0.6 grasps the right paw in
-      81% of the play, but folds the left knuckles 11 times and turns the grips 70° to 73°. The roll
-      at the strike turns the paws up to 109° in 0.01 s (`2026-10-25-percussion-rest/exit-scan.txt`).
-- [ ] Percussion grip, elephant left paw: it grasps in 68% of the lift samples, and its total
-      arm twist grows from a mean of 61.5° to 81.0° (`twist-branch-timpanist.txt`). Its largest
-      step is 29° in 0.01 s (`main` 16°).
-- [ ] Xylophone rest: the xylophone paws still hold the mallets up and forward at rest. No source
-      gives the rest of a xylophonist. The set position of the snare drum can fit it.
-- [ ] Snare stretch gate: the arm gate counts the stretch from the rest sample, so the new rest
-      raises the snare stretch p95 from 0.14 to 0.28 (limit 0.35) with no change of the play.
-      From the bind, the left play stretch is 0.32 (`2026-10-25-percussion-rest/set-gate.txt`).
-- [ ] Wind grip tips: `pnpm wind-grip` now takes the finger tips from the bind pose. The right
-      oboe paw then grasps in 54% of the play samples in place of 100%: its old tips were the
-      knuckles (`2026-10-25-percussion-grip.md`).
-- [ ] Twist steps of the percussion: `twist-steps.ts` of `docs/research/2026-10-24-violin-arms/`
-      reads the demos only, so the snare drum and the xylophone get no rows. Give it the
-      percussion test score.
-- [ ] Snare and cymbal rest: the arms hang, so the tips point forward beside the drum and the
-      plate, 5 cm to 9 cm outside the rim (design 5.2). `ready` keeps the tips over the instrument
-      also at rest, as for the bass drum, and removes the lift. Ask the user.
-- [ ] Polar bear pianist: the paws keep apart, but their claw tips almost touch when the paws play
-      two octaves apart, because the paws point in along the forearms (`PAW_TURN`). A turn of the
-      paws toward the fallboard would need a hold of its own and a new accepted grip
-      (`2026-10-21-pirates-clip.md`).
-- [ ] Dog cellist: in Boulanger, the third cellist puts one paw 2.4 cm into the other in 15 of
-      1,123 samples (121 s to 127 s), where its notes mix pizzicato on the low strings with a held
-      arco note. `pnpm clip-probe --demo boulanger-matin` gives this clip on `main` too
-      (`docs/research/2026-10-21-pirates-clip.md`).
-- [ ] Badger size: the agent chose the head top of the parametric badger (1.038 m) while the user
-      slept. Show the user the lineup and the play frame (`2026-10-20-mesh-badger.md`).
-- [ ] Badger triangle: three faces of the front of the left shoulder stay turned after the relax
-      of the shape of the raised left arm, and fold in 86% of the play of the percussionist
-      (`raise-fit` rule of `tools/mesh-rigs/badger.json`).
-- [ ] Badger colors: the front fur and the eye stripes of the mesh are darker than the sheet
-      (Oklab L 0.28 against 0.40), and the warm light shows the stripes on the top of the head as
-      a mid brown. Show the user `faces.webp` of `docs/research/2026-10-20-badger-mesh/`.
-- [ ] Badger arm views: `pnpm arm-check --views` renders no crop of the snare drummer and of the
-      xylophonist, because only the percussion test score has them, and `close-views play`
-      renders only demos.
-- [ ] Elephant timpanist: the seam where the upper arm of the mesh lies on the side of the body
-      shades dark lines on the front of the body when the arms play (`timpanist-base-views.webp`
-      of `docs/research/2026-10-19-elephant-mesh/`). The arm cut of `2026-10-19-elephant-arms.md`
-      takes the seam below the shoulder, and dark areas stay on the chest beside the raised arms
-      (`timpanist-views.webp` of `docs/research/2026-10-19-elephant-arms/`).
-- [ ] Elephant timpanist: each hand keeps the front kettle on its side of the trunk, so a roll
-      stays in one hand, and the outer kettles stand out of reach and are never struck
-      (`PercussionHold.pair`). Show the user the views, and offer longer arms for rolls with
-      both hands and for the outer kettles (`2026-10-19-elephant-pose.md`).
-- [ ] Beaver bassoonist: three faces of the left wrist, forearm, and shoulder top fold in each
-      rest sample and in 13% of the lift samples. In the lift and the rest, a dark slot with a
-      thin dark wedge shows at the cap of the cut under the left arm (`fold-probe-arm.txt` and
-      `arm-cut-left.webp` of `docs/research/2026-10-19-beaver-mesh/`).
-- [ ] Beaver colors: the mesh keeps the orange-brown fur of its texture (Oklab hue 55°, chroma
-      0.096). The tone rule of the hippo, the mouse, and the elephant would give the plain fur the
-      chroma 0.060 of `SPECIES_COLORS.beaver`. Show the user the close views, and ask
-      (`2026-10-19-mesh-beaver.md`).
-- [ ] Beaver bassoon size: the beaver plays a bassoon of 0.82 of the bassoon of the app. No source
-      gives the size of a smaller bassoon (`docs/reference/wind-technique.md` 4.2).
-- [ ] Remove the parametric biped (the branch of `buildBiped()` after the studio bodies, and
-      `trunk.ts`, `arms.ts`, `legs.ts`, `ears.ts`, `snouts.ts`, `tails.ts`) when the deer and the
-      rhino have bodies of their own. Until then, the harp and the tuba players use it.
-      `face-patterns.ts` went on 2026-10-20, because no species had a face pattern.
-- [ ] Rabbit lowering: the right forearm goes 2.1 cm into the body for 0.2 s at the song end of
-      `bach-bwv1050`, against 1.0 cm before the fix of the bow flip (`pnpm pose-depth violinist
-      --base 39aa09c9`, `2026-10-21-wrist-lift.md`).
-- [ ] Tools of the beat motion (retro of the beat fold round, 2026-10-21):
-      - Done (`2026-10-21-user-midi-tools.md`): `--midi`, `--strip`, the strip pair sheet of
-        `--base` with its cache, and a camera in JSON in `pnpm close-views play`. `--midi` in
-        `pose-depth`, `hold-fit`, and `arm-check`, `--set` and `--variant` in `pnpm clip-probe`,
-        and `--trace` in `pnpm beat-rates`.
-      - Let `pnpm arm-check --views` render a `--midi` file and the percussion test score, so
-        that the views of the badger arms of the snare and the xylophone work. `arm-views.ts`
-        renders only the demos of the app, so `--views` refuses `--midi`.
-      - Start `docs/reference/conducting-technique.md`, a living reference like the string, wind,
-        and percussion files: the beat patterns, the tempo at which a conductor beats in 2 or in
-        1, and the sway of real players, with a source for each fact. The limit of 168 BPM for a
-        4/4 in 2 has no source yet (`2026-10-21-beat-fold.md`).
-- [ ] Tools of a move (retro of the wrist lift round, 2026-10-21):
-      - Add `pnpm move-views <role> <demo> lift|lower <at> <times> [--base <ref>] [--set ...]`.
-        It writes 2x crop pairs (base | tree) of frames inside a demo lift or lowering. Start
-        from `dump.ts` and `render.py` of `docs/research/2026-10-21-wrist-lift/`.
-      - Extend `pnpm arm-check --trace` to lowerings and pause points
-        (`<demo>:lower@<s>:<from>-<to>`), with columns for the twist bone and the turn rates of
-        the wrist and the forearm, and with `--base`.
-      - Bring the cold gate back near 2.5 to 3 minutes: pose only the body of the role in the
-        set `move`, use a step of 0.02 s with one pause point, and run the set `move` in its own
-        child process.
-- [ ] Hold scan of the winds and the percussion: give `pnpm hold-scan` the spare reach of a wind
-      grip and the strikes of a percussion hold, and lift and lowering samples
-      (`2026-10-21-hold-tools.md`).
-- [ ] `pnpm close-views --camera-at <bone>`: crop pairs from four directions around a bone, after
-      the arm form round merges (`cams.ts` and `sheet.py` of
-      `docs/research/2026-10-21-hippo-bass-arms/`).
-- [ ] Armpit flaps from the back (user, 2026-10-22: "the bear has deformed meshes under the arm",
-      then "the panda and rhino's arms also got deformed"). A flat flap or shard sticks out under
-      the arm from the back or az150 on the bear at the beat (round `bear-armpit`), the panda
-      (`first`, `rest`), the rhino (flat left forearm from az-150), the deer (`chord`), and the
-      dog (shoulders at `frog`). The other roles are clean from the back at their play moment
-      (`pnpm close-views <role> <dir> --lineup --views back,150,-150,front,left,right --crop 2`).
-      Fix the panda, rhino, deer, and dog in one round after the cause of the bear is known.
-- [ ] Panda arm gate: the flat p5 of the lift falls from 0.80 / 0.84 to 0.69 / 0.71, and
-      `pnpm arm-check trombonist --base c5fae22c` gives `FAIL` (limit 0.55). Accept it as
-      a decision row, or revert `2ae168dc`.
-- [ ] Bear left root and back pocket: from az-150, a softer dark crease stays at the left
-      root, most at rest (the left shoulder ball 2.49 cm deep at rest). From az150, a small
-      dark pocket stays where the raised right arm meets the back at `between`. Try a push
-      of vertices 438 and 442, and a second split on the left (`tools/arm-roots/bear.json`).
-- [ ] Panda front notch: a small gray dent below each arm from the left side. Round
-      `arm-roots`: a `hull` fill of the 7 front lips (`tools/arm-roots/panda.json`) at half
-      makes the V smaller, a full fill puts the lips in the free arm with gray streaks, and a
-      fill along +z changes nothing. Next: move the body run of the cut (787, 793, 800).
-- [ ] Dog upper arms in the body: 5.2 cm in the play and the lowering (goal 3.5 cm, base
-      2.0 cm), 4.7 cm in the lift. The front of the bow arm crosses the chest at 248 s of
-      boulanger-matin. Try a larger `weights.armRoot.along`, or a bow hold that keeps the
-      upper arm off the chest.
-- [ ] Dog lift folds: 17.1% (base 16.1%), faces 342 and 172 at the right shoulder top. A
-      `raise` shape for them pushed a pointed sheet out of the shoulder
-      (`shape-spike-247.webp`). Try a shape fitted on the lift alone with the fade 5° to
-      10°, and check the zoomed strip from the right.
-- [ ] Dog marks after the cut: a soft star dent on the chest below the right arm root from
-      the right side (`strip-dog-az90-shoulder.webp`), where the caps of the body meet in a
-      fan, and a thin dark line at the right root from az150 at rest. Try a fair of the
-      body caps (`fair.py` of `docs/research/2026-10-21-rabbit-notch.md`).
-- [ ] Rhino footprint: the shoulders widen it 2.1 cm, and the conductor pose of
-      boulanger-matin changes from 257.38 s (`body-probe.txt` of `2026-10-22-rhino-arm-3/`).
-      Check that the cue of the conductor still aims at the tuba.
-- [ ] Body probe of the panda round: 18 pose sets of other players change at the start of
-      brahms-2 and beethoven-9. Find the shared input that the panda rig moves.
-- [ ] Tools of a mesh round (retro of the bear mesh round, 2026-10-22):
-      - Let `pnpm close-views` use the build again when the tree hash is the same, and take more
-        than one `--glb` in one run, each variant into its own folder. The bear round made about
-        20 renders, and each one built the site first (60 s to 90 s): about 25 minutes.
-      - Let `--at` of `pnpm close-views play` and `--views` of `pnpm arm-check` take the
-        conductor (`--at conductor` aims at the podium). The bear round wrote a JSON camera and
-        its own crop and strip scripts, and lost a set of 8 strips: about 20 minutes.
-- [ ] Tools of a mesh round (retro of the rounds of the night of 2026-10-28):
-      - Give `pnpm close-views play` the `--glb` option of the role mode, so that a rig variant
-        renders at the camera of a user image with no swap of the rig and the module in the tree.
-        The polar legs, polar wrist, hippo, and fox and rabbit rounds each asked for it: each
-        swap blocked the probes of `main` for 6 to 8 minutes.
-      - Let `--set` change `PIANO_SCALE` and `PIANO_FRONT_H` in memory, as it does for the hold
-        values (polar legs round: the scans edited `src/` with perl).
-      - Save the crease probe of the fox and rabbit round (`probes/crease.ts`, about 30 s for
-        each try) and the loop and non-manifold check of the cat wall round (`body-loops.ts`,
-        `glb_nm.py`, about 2 s) as repository tools with `--base`.
-      - Let `pnpm arm-check` print the bind bend of each paw beside the paw swing: a straight
-        paw read as a 25° bend in the hippo arm round.
-- [ ] Tools of a mesh edit (retro of the arm form rounds 3 and 4, 2026-10-21):
-      - Add `pnpm arm-variants <animal> --edit <script> --opts <json>...`. For each option set,
-        it makes the copy, rigs it with `rig-mesh --check --keep`, runs `pnpm studio-body`, and
-        prints one row: the section, the crease, the folds of each set, the stretch p95, the
-        flat p5, the area that faces down, and the faces that the shapes leave turned. Add the
-        depth of the upper arms in the body (`pose-depth --glb --every 4`) and the elbow rings:
-        the rabbit elbow round found a depth of 5.9 cm only at its end (retro, 2026-10-22).
-      - Save `elbow-look.ts` of `docs/research/2026-10-21-rabbit-elbow/` as `pnpm elbow-look`.
-      - Add `pnpm arm-look --explain section`: the ring points, their weights, and the posed
-        section of the worst sample, for the base and the tree. The rabbit elbow round spent
-        about 45 minutes on the cause of a section drop.
-      - Add `--no-shadows` to `pnpm close-views`, and save `round4/shade-probe.ts` of
-        `docs/research/2026-10-21-arm-form/` as `pnpm shade-probe`. Then add a trap: a dark patch
-        from one side renders with `--no-shadows` first, and `shade-probe` maps its largest face
-        to source vertices through `s` of `<name>.corners.json`.
-- [ ] Check with the user the slurs that the bow plan infers from the MIDI files (21% to 38% of the
-      notes) (`2026-10-17-bow-arm.md`).
-- [ ] Beat fold limits: no source gives the tempo at which a conductor goes from 4 to 2. The app
-      uses 168 for 4/x as for 2/x and 3/x. Ask the user, or find a conducting text with a tempo
-      (`docs/research/2026-10-21-beat-fold.md`, section 4).
-- [ ] Felt pulse of the demos: the sway of `beethoven-9`, `boulanger-matin`, `brahms-2`, and
-      `mozart-k525` now takes 2 beats a side. Show the user the change. The measured sideways
-      sway locks to the bar also at 89 BPM, so a lower `PULSE_TEMPO` would follow the source more
-      closely and change more demos.
-- [ ] Fast `generic` bars: the last bar of 7/8 of `bach-bwv1048` is conducted at 200 beats for
-      each minute for 1.5 s, and the count-in beat of its first bar of 1/8 is 0.3 s. A fold needs
-      an uneven grouping, such as 2+2+3.
-- [ ] Sway at the song end: the sway stops at the last pulse, so the file of the user does not
-      sway in its last 0.5 s. The base stopped at the last beat.
-- [ ] `docs/agents/commands.md` has 4,740 words, above its limit of about 3,000. Cut it in a
-      prose pass.
-- [ ] Tools of a rig round (retro of the fifth review, 2026-10-27):
-      - Mark in red the pixels of `close-views --sheet` that change by more than 40 between the
-        base and the round. The elephant round looked through 12 wide sheets by eye.
-      - Save the Blender variant runner of `docs/research/2026-10-26-fifth-deer/probes/`
-        (`variant.py`, `variants.sh`), or fold it into `pnpm arm-variants` above. The variant
-        loop was most of the deer round.
-      - Let `pnpm rig-mesh --check --keep` run `pnpm arm-check --glb` on each kept variant in
-        parallel jobs. The deer round ran them one after the other, 1 to 2 minutes each.
-      - Add the forearm turn from a neutral forearm (bind and pose) as a column of
-        `pnpm arm-check`. The bind-relative paw twist hid the bind offset of the rhino
-        (`docs/research/2026-10-26-fifth-rhino/probes/forearm-turn.ts`).
-      - Print the edges that pass through the skin and the hard edges near each knee in
-        `pnpm rig-mesh --check` (`crossings.py` and `hard_edges.py` of
-        `docs/research/2026-10-26-fifth-bears/`).
-      - Give `pnpm carry-check` a cache of the working tree, as `pose-depth` has. Each run
-        takes about 44 s now.
-      - Keep the base frames of `close-views play --base` in a cache, keyed by the tree hash,
-        the camera, the time, and the size. The legs round rendered `main` again for each
-        variant, about 3 minutes for each 20 frames.
-      - Let `pnpm pose-depth` print, for each body, only the pairs that differ between its
-        `--set` rows. The violin carry round wrote a parser to compare its variants.
-      - Give `pnpm pose-depth` an option `--sets lift,lower`, as `pnpm hold-fit` has. A wrist
-        via changes only the moves, and the violin unwind round swept the play with each row
-        (about 90 s of each row of 4 demos, with `--every 20` about 40 s).
+      `ROLE_VIEWS.cymbalist` keep the names of a crash.
+- [ ] Badger triangle: the left paw stands with the fingers up. A real player holds the clip between
+      the thumb and the fingers at eye level (percussion-technique 10).
+- [ ] Badger triangle: three faces at the front of the left shoulder fold in 86% of the play
+      (`raise-fit` of `tools/mesh-rigs/badger.json`).
+- [ ] Snare and cymbal: at rest, the arms hang, so the tips stand 5 cm to 9 cm outside the rim
+      (5.2). Ask the user if `ready` keeps the tips over the instrument at rest.
+- [ ] Xylophone: a scale stays in one paw, and one paw does not reach the outer bars. A real player
+      alternates the hands in a scale, with no cross (`alternateHands()`, percussion-technique 9).
+- [ ] Xylophone: where one paw passes the other in a run, the shafts show as an X from above. A real
+      player keeps a V (percussion-technique 9).
+- [ ] Xylophone: between strikes, the heads stand up to 13 cm high. A real player keeps the stroke 2
+      to 3 inches high. A lower head bent the wrist past the gate.
+- [ ] Xylophone: in a run up the test score, the right paw misses the two sharp bars in the middle
+      of the back row by 8 mm to 26 mm, and rises to the height of the muzzle.
+- [ ] Xylophone: the mallets of 0.30 m look long beside the small bars. A shorter mallet moves the
+      band of reach and the bars nearer.
+- [ ] Xylophone: on a chord of two near bars, the shafts of the two mallets touch in 0.1% of the
+      samples.
+- [ ] Xylophone grip: the shafts leave the fists past the knuckles, so the exit rule finds no grasp.
+- [ ] Xylophone rest: the paws hold the mallets up and forward at rest. No source gives the rest of
+      a xylophonist. The set position of the snare drum can fit it.
+- [ ] Elephant timpanist: the left paw grasps in 68% of the lift, and its largest twist step is 29°
+      in 0.01 s.
+- [ ] Elephant timpanist: dark lines and areas show on the chest beside the raised arms, where the
+      upper arm of the mesh lies on the side of the body.
+- [ ] Elephant timpanist: a roll stays in one hand, and the outer kettles stand out of reach
+      (`PercussionHold.pair`). Offer the user longer arms.
+- [ ] Polar bear pianist: the claw tips almost touch when the paws play two octaves apart, because
+      the paws point in along the forearms (`PAW_TURN`).
+- [ ] Conductor: start `docs/reference/conducting-technique.md` with sources: the beat patterns, the
+      tempo of a beat in 2 or in 1, and the sway. The fold limit of 168 BPM has no source.
+- [ ] Conductor: the sway of four demos takes 2 beats a side. Show the user, and check a lower
+      `PULSE_TEMPO`.
+- [ ] Conductor: the last bar of 7/8 of `bach-bwv1048` is beaten at 200 BPM, and the count-in beat
+      of its first bar of 1/8 is 0.3 s. A fold needs an uneven grouping, such as 2+2+3.
+- [ ] Conductor: the sway stops at the last pulse, so a file can stop its sway up to 0.5 s before
+      its end.
+- [ ] Docs: cut `docs/agents/commands.md` to about 3,000 words and `docs/agents/rigging.md` to about
+      4,000 words (writing.md).
+- [ ] Tool: let `pnpm arm-check --views` render a `--midi` file and the percussion test score, so
+      that the snare drummer and the xylophonist get crops.
+- [ ] Tool: add `pnpm move-views <role> <demo> lift|lower <at> <times> [--base <ref>]`, which writes
+      2x crop pairs of the frames inside a lift or a lowering.
+- [ ] Tool: extend `pnpm arm-check --trace` to the lowerings and the pause points, with columns for
+      the twist bone and the turn rates of the wrist and the forearm, and with `--base`.
+- [ ] Tool: bring the cold arm gate back near 3 minutes: pose only the body of the role in the set
+      `move`, with one pause point, in its own child process.
+- [ ] Tool: give `pnpm hold-scan` the spare reach of a wind grip, the strikes of a percussion hold,
+      and the lift and lowering samples.
+- [ ] Tool: add `pnpm close-views --camera-at <bone>`, crop pairs from four directions around a
+      bone.
+- [ ] Tool: let `pnpm close-views` use the build again when the tree hash is the same, and take more
+      than one `--glb` in one run.
+- [ ] Tool: let `--at` of `pnpm close-views play` and `--views` of `pnpm arm-check` take the
+      conductor.
+- [ ] Tool: give `pnpm close-views play` the `--glb` option, so that a rig variant renders at any
+      camera with no swap in the tree.
+- [ ] Tool: let `--set` change `PIANO_SCALE` and `PIANO_FRONT_H` in memory.
+- [ ] Tool: add a crease probe and a loop and non-manifold check of a GLB, each with `--base`.
+- [ ] Tool: let `pnpm arm-check` print the bind bend of each paw beside the paw swing, and the
+      forearm turn from a neutral forearm.
+- [ ] Tool: add `pnpm arm-variants <animal> --edit <script> --opts <json>...`, which rigs each
+      option set and prints the arm measures, the folds, and the depth of the upper arms.
+- [ ] Tool: add `pnpm elbow-look`, and `pnpm arm-look --explain section` (the ring points, the
+      weights, and the posed section of the worst sample).
+- [ ] Tool: add `--no-shadows` to `pnpm close-views`, and a shade probe that maps the largest face
+      of a dark patch to source vertices.
+- [ ] Tool: mark in red the pixels of `close-views --sheet` that change by more than 40.
+- [ ] Tool: let `pnpm rig-mesh --check --keep` run `pnpm arm-check --glb` on the kept variants in
+      parallel jobs.
+- [ ] Tool: let `pnpm rig-mesh --check` print the edges that pass through the skin and the hard
+      edges near each knee.
+- [ ] Tool: give `pnpm carry-check` a cache of the working tree, and `close-views play --base` a
+      cache of the base frames.
+- [ ] Tool: let `pnpm pose-depth` print only the pairs that differ between its `--set` rows, and
+      take `--sets lift,lower`.
 
 Done when: the pose tests pass, and the pose and frame targets pass.
 
