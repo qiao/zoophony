@@ -8,7 +8,6 @@ import {
   Mesh,
   Skeleton,
   SkinnedMesh,
-  Vector3,
 } from 'three';
 import type { MeshStandardMaterial } from 'three';
 
@@ -37,51 +36,19 @@ import type { AnimalPose, ScenePose } from '../pose/types.ts';
 import { createGeometry } from './geometry.ts';
 
 /**
- * Creates the geometry of a player model, with the skin attributes and the baked occlusion of
- * design 4.5. Each vertex follows its main bone and its second bone, with the weights of the
- * mesh data (design 4.4, 4.7). A rigid vertex gives its second bone the weight 0. All players of
- * one model share the geometry.
- *
- * @param model The player model of `models/`.
- * @returns The geometry.
- */
-export function createPlayerGeometry(model: PlayerModel): BufferGeometry {
-  if (model.studio) {
-    return createStudioGeometry(model, model.studio);
-  }
-  const geometry = createGeometry(model.mesh, model.skeleton.parents);
-
-  const { bones, blendBones, blendWeights } = model.mesh;
-  const vertexCount = bones.length;
-  const skinIndex = new Uint16Array(vertexCount * 4);
-  const skinWeight = new Float32Array(vertexCount * 4);
-  for (let v = 0; v < vertexCount; v++) {
-    const blendWeight = blendWeights[v] ?? 0;
-    skinIndex[v * 4] = bones[v] ?? 0;
-    skinIndex[v * 4 + 1] = blendBones[v] ?? 0;
-    skinWeight[v * 4] = 1 - blendWeight;
-    skinWeight[v * 4 + 1] = blendWeight;
-  }
-
-  geometry.setAttribute('skinIndex', new BufferAttribute(skinIndex, 4));
-  geometry.setAttribute('skinWeight', new BufferAttribute(skinWeight, 4));
-  return geometry;
-}
-
-/**
- * Creates the geometry of a player with a studio body (design 4.4): the body in the bind pose of
- * the studio, with four bones for each vertex and the corrective shapes of the arms as morph
+ * Creates the geometry of a player model with a studio body (design 4.4): the body in the bind
+ * pose of the studio, with four bones for each vertex and the corrective shapes of the arms as morph
  * targets, and the instrument on the bones of the player. The colors of the studio hold its
  * baked occlusion, so the geometry adds none. The body gets its smooth normals, with their changes
  * for the corrective shapes as morph normals (design 4.5). The instrument keeps the crease normals
- * of its finishes.
+ * of its finishes. All players of one model share the geometry.
  *
- * @param model The player model.
- * @param rig The rig of its studio body.
+ * @param model The player model of `models/`.
  * @returns The geometry. Its skin indices point at the bones of {@link createPlayerMesh}.
+ * @throws Error if the model has no studio body.
  */
-function createStudioGeometry(model: PlayerModel, rig: StudioRig): BufferGeometry {
-  const render = studioRenderMesh(rig, model.mesh);
+export function createPlayerGeometry(model: PlayerModel): BufferGeometry {
+  const render = studioRenderMesh(studioRigOfModel(model), model.mesh);
   const geometry = createGeometry(render.data);
   geometry.setAttribute('skinIndex', new BufferAttribute(render.joints, 4));
   geometry.setAttribute('skinWeight', new BufferAttribute(render.weights, 4));
@@ -98,6 +65,20 @@ function createStudioGeometry(model: PlayerModel, rig: StudioRig): BufferGeometr
   // The moves add to the bind places, as in a glTF file.
   geometry.morphTargetsRelative = true;
   return geometry;
+}
+
+/**
+ * Gives the rig of the studio body of a player model. Each species has a studio body (design 4.4).
+ *
+ * @param model The player model.
+ * @returns The rig.
+ * @throws Error if the model has no studio body.
+ */
+function studioRigOfModel(model: PlayerModel): StudioRig {
+  if (!model.studio) {
+    throw new Error('The player model has no studio body.');
+  }
+  return model.studio;
 }
 
 /** The parts of a player mesh with a studio body that a pose needs. */
@@ -191,29 +172,11 @@ function createBoneGroup(): Group {
 /** The player meshes with a studio body. */
 const studioPlayers = new WeakMap<SkinnedMesh, StudioPlayer>();
 
-/** The index of the `slide` bone of the trombone (design 4.7). */
-const SLIDE = boneIndex('slide');
-
-/** The index of the `instrument` bone (design 4.7). */
-const INSTRUMENT = boneIndex('instrument');
-
-/** The offset of a bone that does not move. */
-const NO_MOVE = [0, 0, 0] as const;
-
-/** The indices of the eye bones, which scale on y for a blink (design 4.7, 5.1). */
-const EYES = [boneIndex('eyeL'), boneIndex('eyeR')] as const;
-
 /**
  * The smallest y scale of a closed eye. A scale of 0 makes the bone matrix singular, so a closed
  * eye keeps a thin line.
  */
 export const CLOSED_EYE_SCALE = 0.05;
-
-/**
- * The bind positions of the `slide` and the `instrument` bones of each player mesh, in the axes
- * of their parents.
- */
-const offsetBinds = new WeakMap<SkinnedMesh, { slide: Vector3; instrument: Vector3 }>();
 
 /** The keys of a player mesh with a keyboard, which {@link applyPose} turns (design 4.6, 5.3). */
 interface KeyMesh {
@@ -290,9 +253,7 @@ export function createPlayerMesh(
   materials: readonly MeshStandardMaterial[],
 ): SkinnedMesh {
   const own = model.keys ? keyGeometry(geometry) : geometry;
-  const mesh = model.studio
-    ? createStudioMesh(model, model.studio, own, materials)
-    : createBipedMesh(model, own, materials);
+  const mesh = createStudioMesh(model, studioRigOfModel(model), own, materials);
   const position = own.getAttribute('position');
   const bind = geometry.getAttribute('position').array;
   if (model.keys && position instanceof BufferAttribute && bind instanceof Float32Array) {
@@ -304,66 +265,6 @@ export function createPlayerMesh(
       levels: new Float32Array(model.keys.corners.length - 1),
     });
   }
-  return mesh;
-}
-
-/**
- * Creates the skinned mesh of a player with a parametric body (design 4.4), with a bone tree in
- * the order of `BONE_NAMES`.
- *
- * @param model The player model.
- * @param geometry The geometry of the player.
- * @param materials The shared material.
- * @returns The mesh in the bind pose.
- */
-function createBipedMesh(
-  model: PlayerModel,
-  geometry: BufferGeometry,
-  materials: readonly MeshStandardMaterial[],
-): SkinnedMesh {
-  const { positions, parents } = model.skeleton;
-  const bones = positions.map(() => {
-    const bone = new Bone();
-    // A write of the quaternion also sets the Euler angles of `bone.rotation` in three.js, which
-    // took 0.46 ms of each frame with perf-60.mid (research/step-5-frame.md, section 5). No code
-    // reads `bone.rotation`, so the quaternion keeps no change callback.
-    // oxlint-disable-next-line no-underscore-dangle -- three.js gives this method an underscore.
-    bone.quaternion._onChange(() => undefined);
-    return bone;
-  });
-  for (const [i, bone] of bones.entries()) {
-    const parent = parents[i] ?? -1;
-    const position = positions[i] ?? [0, 0, 0];
-    const parentBone = bones[parent];
-    const origin = parentBone ? (positions[parent] ?? [0, 0, 0]) : [0, 0, 0];
-    bone.position.set(
-      position[0] - (origin[0] ?? 0),
-      position[1] - (origin[1] ?? 0),
-      position[2] - (origin[2] ?? 0),
-    );
-    parentBone?.add(bone);
-  }
-
-  const mesh = new SkinnedMesh(geometry, [...materials]);
-  const root = bones[0];
-  if (root) {
-    mesh.add(createBoneGroup().add(root));
-  }
-  mesh.updateMatrixWorld(true);
-  mesh.bind(new FrameSkeleton(bones));
-  const slide = bones[SLIDE];
-  const instrument = bones[INSTRUMENT];
-  if (slide && instrument) {
-    offsetBinds.set(mesh, {
-      slide: slide.position.clone(),
-      instrument: instrument.position.clone(),
-    });
-  }
-  mesh.castShadow = true;
-  mesh.receiveShadow = true;
-  // The bounding sphere of the bind pose does not follow the pose. The stage fits a sphere to the
-  // pose of each frame and turns the culling on (`fitPoseSphere()` of `scene/bounds.ts`).
-  mesh.frustumCulled = false;
   return mesh;
 }
 
@@ -419,14 +320,13 @@ function createStudioMesh(
  * Copies a pose to the bones of a player mesh with a studio body: the matrix of each bone and the
  * weights of the corrective shapes (design 4.4, 5.1).
  *
- * @param mesh A mesh of {@link createStudioMesh}.
+ * @param mesh A mesh of {@link createStudioMesh}. Another mesh does not change.
  * @param pose The pose of the player.
- * @returns False if the mesh has no studio body.
  */
-function applyStudioPose(mesh: SkinnedMesh, pose: AnimalPose): boolean {
+function applyStudioPose(mesh: SkinnedMesh, pose: AnimalPose): void {
   const player = studioPlayers.get(mesh);
   if (!player) {
-    return false;
+    return;
   }
   const eyeScale = Math.max(CLOSED_EYE_SCALE, 1 - pose.blink);
   const { matrices, correctives } = poseStudioBones(
@@ -459,7 +359,6 @@ function applyStudioPose(mesh: SkinnedMesh, pose: AnimalPose): boolean {
       influences[i] = correctives[i] ?? 0;
     }
   }
-  return true;
 }
 
 /**
@@ -470,52 +369,25 @@ function applyStudioPose(mesh: SkinnedMesh, pose: AnimalPose): boolean {
  * @param name The bone of the player.
  */
 export function hideBone(mesh: SkinnedMesh, name: BoneName): void {
-  const studio = studioPlayers.has(mesh);
-  const bone = mesh.skeleton.bones[(studio ? STUDIO_BONES.length : 0) + boneIndex(name)];
+  const bone = mesh.skeleton.bones[STUDIO_BONES.length + boneIndex(name)];
   if (!bone) {
     return;
   }
-  if (studio) {
-    bone.matrix.multiply(new Matrix4().makeScale(0, 0, 0));
-    bone.matrixWorldNeedsUpdate = true;
-  } else {
-    bone.scale.setScalar(0);
-  }
+  bone.matrix.multiply(new Matrix4().makeScale(0, 0, 0));
+  bone.matrixWorldNeedsUpdate = true;
 }
 
 /**
- * Copies a pose to the bones of a player mesh: the rotations, the offset of the root, the move of
- * the trombone slide along its axis, the move of the instrument, and the blink of the eyes
- * (design 5.1). A mesh with a studio body gets the bones of the studio from the pose
- * ({@link applyStudioPose}). A mesh with a keyboard turns its keys to their levels
- * ({@link applyKeys}).
+ * Copies a pose to the bones of a player mesh: the bones of the studio body from the pose
+ * ({@link applyStudioPose}), and the turns of the keys of a mesh with a keyboard
+ * ({@link applyKeys}) (design 5.1).
  *
  * @param mesh A mesh of {@link createPlayerMesh}.
  * @param pose The pose, with one rotation for each bone.
  */
 export function applyPose(mesh: SkinnedMesh, pose: AnimalPose): void {
   applyKeys(mesh, pose.keys);
-  if (applyStudioPose(mesh, pose)) {
-    return;
-  }
-  for (const [i, bone] of mesh.skeleton.bones.entries()) {
-    bone.quaternion.fromArray(pose.rotations, i * 4);
-  }
-  const root = mesh.skeleton.bones[0];
-  if (root) {
-    root.position.fromArray(pose.rootOffset);
-  }
-  const slide = mesh.skeleton.bones[SLIDE];
-  const instrument = mesh.skeleton.bones[INSTRUMENT];
-  const binds = offsetBinds.get(mesh);
-  if (slide && instrument && binds) {
-    slide.position.fromArray(pose.slideOffset).add(binds.slide);
-    instrument.position.fromArray(pose.instrumentOffset ?? NO_MOVE).add(binds.instrument);
-  }
-  const eyeScale = Math.max(CLOSED_EYE_SCALE, 1 - pose.blink);
-  for (const eye of EYES) {
-    mesh.skeleton.bones[eye]?.scale.setY(eyeScale);
-  }
+  applyStudioPose(mesh, pose);
 }
 
 /**
