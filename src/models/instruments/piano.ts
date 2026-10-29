@@ -84,7 +84,7 @@ export const PIANO_BENCH = {
 } as const;
 
 /** A pedal of the grand piano, from the left of the player. */
-export type PianoPedal = 'soft' | 'sostenuto' | 'damper';
+type PianoPedal = 'soft' | 'sostenuto' | 'damper';
 
 /**
  * The pedal lyre and the three pedals of the grand piano, in meters before {@link PIANO_SCALE}

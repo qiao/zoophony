@@ -307,7 +307,7 @@ export function wedge(width: number, back: number, front: number, depth: number)
 }
 
 /** One ring of a faceted tube: a radius at a height, turned around the axis. */
-export interface TubeRing {
+interface TubeRing {
   readonly radius: number;
   readonly y: number;
   /** The turn of the ring, in parts of one segment. 0.5 puts its corners between the corners of a ring with 0. */

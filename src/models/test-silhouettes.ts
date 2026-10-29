@@ -8,10 +8,10 @@ import { boneIndex } from './rig.ts';
 import type { BoneName } from './rig.ts';
 
 /** The size of the image of a check, in pixels: the desktop view of design 9.7. */
-export const IMAGE = { width: 1440, height: 900 } as const;
+const IMAGE = { width: 1440, height: 900 } as const;
 
 /** A view of the stage center: the angles in degrees, and the zoom of the default distance. */
-export interface StageView {
+interface StageView {
   readonly azimuth: number;
   readonly elevation: number;
   readonly zoom: number;
@@ -29,7 +29,7 @@ export const WIDE_VIEWS: readonly StageView[] = [
 ];
 
 /** One item of an image: its triangles in pixels with their depths. */
-export interface Silhouette {
+interface Silhouette {
   readonly label: string;
   /** Three corners for each triangle: x and y in pixels, and the depth. */
   readonly corners: Float32Array;
@@ -128,7 +128,7 @@ export function silhouettesOf(
  * @param silhouette The silhouette.
  * @param visit Gets the index of the pixel, the depth, and the bone of the triangle.
  */
-export function rasterize(
+function rasterize(
   silhouette: Silhouette,
   visit: (pixel: number, depth: number, bone: number) => void,
 ): void {

@@ -68,7 +68,7 @@ export const STRING_SCALES = {
 } as const;
 
 /** The length of the end pin of the cello below the tail end, in meters (design 4.6). */
-export const CELLO_END_PIN = 0.2;
+const CELLO_END_PIN = 0.2;
 
 /**
  * The length of the end pin of the contrabass below the tail end, in meters, at each size (design
@@ -88,7 +88,7 @@ const BASS_END_PIN = 0.2;
  * @param scale The scale of the instrument, as a factor of its full size.
  * @returns The length.
  */
-export function endPinLength(id: 'cello' | 'contrabass', scale: number): number {
+function endPinLength(id: 'cello' | 'contrabass', scale: number): number {
   if (id === 'contrabass') {
     return BASS_END_PIN;
   }

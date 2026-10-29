@@ -880,7 +880,7 @@ function segmentIndices(part: 'upper_arm' | 'forearm', side: Side): number[] {
  * @param k The index of the segment from the start of the part.
  * @returns The share, from 0 to 1.
  */
-export function segmentShare(k: number): number {
+function segmentShare(k: number): number {
   return (k + 0.5) / ARM_SEGMENTS;
 }
 

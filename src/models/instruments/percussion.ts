@@ -21,7 +21,7 @@ export type KettleCount = 2 | 3 | 4;
  * bends the paw to the side. At 1.3 (the shaft 15° from the fingers), the shaft leaves the paw
  * along the claws.
  */
-export const PAW_TILT: number = 30 * MathUtils.DEG2RAD;
+const PAW_TILT: number = 30 * MathUtils.DEG2RAD;
 
 /**
  * The grip of a mallet in the closed paw, in head heights `H`, in the axes of the hanging paw of
@@ -29,7 +29,7 @@ export const PAW_TILT: number = 30 * MathUtils.DEG2RAD;
  * thumb (design 4.6). The shaft lies on the palm side, under the curled fingers, so that they
  * close on it (`PercussionHold.curl`), and its butt end sticks out of the heel of the paw.
  */
-export type MalletSpot = readonly [palm: number, fingers: number, thumb: number];
+type MalletSpot = readonly [palm: number, fingers: number, thumb: number];
 
 /**
  * The grip of the mallets in the paws of the badger mesh ({@link MalletSpot}). The shaft runs 60°
@@ -37,7 +37,7 @@ export type MalletSpot = readonly [palm: number, fingers: number, thumb: number]
  * middle of the palm, where the claws curled 90° close on it (`PercussionHold.curl`). With the
  * claws curled 120°, 11 to 20 faces at the knuckles turn over, and at 90°, at most 5.
  */
-export const PAW_SPOT: MalletSpot = [0.08, -0.04, 0.018];
+const PAW_SPOT: MalletSpot = [0.08, -0.04, 0.018];
 
 /**
  * The timpani, in meters (design 4.6). The heads of the kettles have their real size (32, 29, 26,
@@ -355,7 +355,7 @@ export function kettleCount(highestKey: number): KettleCount {
  * end, which sticks out behind the hand of a real player (`docs/reference/percussion-technique.md`
  * 1).
  */
-export const MALLET_BUTT = 0.04;
+const MALLET_BUTT = 0.04;
 
 /**
  * Gives the length of the shaft behind the grip of the mallets of an instrument, in meters: the
