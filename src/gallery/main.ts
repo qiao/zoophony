@@ -2,6 +2,7 @@ import './style.css';
 
 import {
   Color,
+  DirectionalLight,
   Group,
   MathUtils,
   Mesh,
@@ -250,6 +251,16 @@ const lights = createLights(floorSide, 'high', null, { beam: false, backRows: fa
 scene.add(lights);
 
 const camera = new PerspectiveCamera(GALLERY_FOV_DEG, 1, 0.1, 10 * floorSide);
+// The query `fill` (an illuminance in lux) adds a light from the camera along its view, so that
+// the close views of `pnpm close-views` show the side of a body that the key light leaves dark
+// (user, 2026-10-28: "when taking screenshots, remember to cast a fill light").
+const fill = Number(search.get('fill') ?? 0);
+if (fill > 0) {
+  const light = new DirectionalLight(0xffffff, fill);
+  light.target.position.set(0, 0, -1);
+  camera.add(light, light.target);
+  scene.add(camera);
+}
 const controls = new OrbitControls(camera, canvas);
 const transport = galleryTransport(search);
 const move = galleryMove(search);
