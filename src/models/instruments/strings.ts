@@ -669,11 +669,13 @@ const BRIDGE = {
 /**
  * The chin rest of the violin and the viola at the left of the tailpiece, in meters in the
  * violin axes: an oval cup with a rim. The rim is at the chin grip of {@link buildBowedString},
- * so the chin rests on it.
+ * so the chin rests on it. The cup is on the side of the G string (-z), which is the high side
+ * near the neck in the hold, because a violinist rests the left side of the jaw on it
+ * (`docs/reference/string-technique.md`, section 1.10).
  */
 const CHIN_REST = {
-  /** The center of the oval: along the violin, and across. */
-  center: [0.023, 0.028],
+  /** The center of the oval: along the violin, and across (-z is the side of the G string). */
+  center: [0.023, -0.028],
   /** The half length and the half width of the oval. */
   half: [0.019, 0.0145],
   /** The height of the bottom on the edge of the top. */
@@ -958,6 +960,8 @@ function addLayoutSpace(piece: PieceBuilder, frame: Transform, upright: boolean)
     space(box(...size), center);
   }
   if (!upright) {
+    // A box on the side of the E string (+z). It keeps the footprint of the layout, so that the
+    // seats of the demos do not move. The chin rest itself is on the side of the G string.
     space(box(0.04, 0.012, 0.05), [0.018, v.bodyThickness + 0.006, 0.03]);
   }
 }
@@ -1494,7 +1498,9 @@ export function buildBowedString(
       palmL: { bone: 'instrument', at: at([v.neckGrip, v.bodyThickness - 0.035, 0]) },
       palmR: { bone: 'bow', at: [0, 0, 0] },
       mouth: null,
-      chin: upright ? null : { bone: 'instrument', at: at([0.018, v.bodyThickness + 0.012, 0.03]) },
+      chin: upright
+        ? null
+        : { bone: 'instrument', at: at([0.018, v.bodyThickness + 0.012, -0.03]) },
     },
     targets: [
       {

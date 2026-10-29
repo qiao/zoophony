@@ -587,7 +587,7 @@ the body sets the hold, the instrument fits the body, as the table names.
 
 | Instrument | Model and hold |
 | --- | --- |
-| Violin, viola | An arched body with f-holes, a scroll, a bridge, four strings, and a bow. Under the chin on the left shoulder. The cat plays a small viola near the neck. |
+| Violin, viola | An arched body with f-holes, a scroll, a bridge, four strings, a chin rest, and a bow. Under the chin on the left shoulder. The cat plays a small viola near the neck. |
 | Cello, contrabass | The violin form with an end pin (`endPinLength()`). The cello leans back between the knees. The contrabass has sloped shoulders and machine heads, and stands at the left side. |
 | Harp | Leaned back onto the right shoulder. The deer plays a smaller harp on a box (`HARP_PLACE`, `HARP_STAND`). |
 | Piano | Larger than a real grand piano (`PIANO_SCALE`), so the keys stand a little below the elbows of the polar bear. The keys stand in front of its belly (`PIANO_FRONT_H`). |
@@ -604,7 +604,10 @@ the shaft along the thumb (`malletTilt`). No vertex of a player is below the flo
 **Bowed strings** (`models/instruments/strings.ts`). The strings stay at one height over the
 board (`VIOLIN`), because the holds and the play targets read that height. The neck under the
 first positions is open below the board (`NECK_OPEN`), so the left paw of the hippo does not go
-through it. The layout reads a simple box of each bowed string (`addLayoutSpace()`).
+through it. The chin rest of the violin and the viola is at the left of the tailpiece, on the side
+of the G string (`CHIN_REST`), because a violinist rests the left side of the jaw on it. The layout
+reads a simple box of each bowed string (`addLayoutSpace()`), so a change of the detail does not
+move the seats.
 
 **Piano** (`models/instruments/piano.ts`). 88 separate keys, a lyre, and three brass pedals in the
 sizes of a real grand piano (`PIANO_PEDALS`). Each key turns down with its notes (`PIANO.keyDip`),

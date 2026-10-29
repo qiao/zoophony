@@ -420,7 +420,8 @@ The app follows these facts:
   tilts the left hand further over the neck (`BowedHold.highTilt`), and the wrist comes up beside
   the upper bout.
 - **The violin under the jaw (1.10).** The instrument lies about level and points to the left of
-  the front of the chest, and the jaw lies on the chin rest. The left shoulder bone turns forward
+  the front of the chest, and the jaw lies on the chin rest. The chin rest is at the left of the
+  tailpiece, on the side of the G string (`CHIN_REST`). The left shoulder bone turns forward
   in the play (`BowedHold.reachL`, `shoulderTurnL()`), as the left shoulder of a violinist moves
   forward, so that the short left arm reaches the nut.
 - **The size of the viola (1.10).** The cat plays a smaller viola (`SpeciesParams.violaScale`),
