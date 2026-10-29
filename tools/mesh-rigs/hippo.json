@@ -29,6 +29,12 @@
     "rootSegmentNote": "The rule weight of each upper arm goes to its first segment (segment_joints() and main() of tools/blender/rig_mesh.py), so that the trunk around the socket takes the roll of the first ring of the tube, as on the fox.",
     "note": "Each upper arm and each forearm has 4 deform segments, and each elbow and wrist a helper bone of this length in units, which spans the rings of its joint in the bind of Blender. The app turns them from the joints of the pose (poseArm() of src/models/studio-rig.ts), and turns each helper around its joint, so the length changes only the automatic weights of Blender. They replace the twist bone of the upper arm and the three raise shapes. With 0.052, twice the gap of the elbow rings (gap of tools/blender/hippo_arms.py) as on the elephant, 36.1% of the play samples folded, and with 0.044 20.0% (docs/research/2026-10-25-hippo-arms.md)."
   },
+  "armSmooth": {
+    "rounds": 6,
+    "sides": "LR",
+    "bones": ["upper_arm_seg1", "upper_arm_seg2", "forearm_seg1", "forearm_seg2", "forearm_seg3"],
+    "note": "6 rounds of taubin() smooth the middle of each arm tube of hippo-arms.glb after the weights (arm_smooth() of tools/blender/rig_mesh.py), at most 0.0083 units: the vertices on the second and the third segments of the upper arm and on the last three segments of the forearm. The user said on 2026-10-28: \"the hippo's arm has lumps / dents\". The play folds fall from 8.9% to 3.2% of the samples, and one face folds in place of three. With the elbow rings and the root in the smoothing, the folds rose to 24.5% and 100% of the play samples, because the elbow rings keep a gap for the helper bone and the root joins the side wall (docs/research/2026-10-28-arm-smooth.md)."
+  },
   "output": "assets/models/hippo/hippo.rig.glb",
   "name": "Hippo",
   "weld": 1e-05,
