@@ -1,5 +1,7 @@
 import { parseMidi } from '../midi/parse.ts';
 import type { ChannelKind, MidiChannelEvent, MidiFile } from '../midi/types.ts';
+import { runAll } from './steps.ts';
+import type { Steps } from './steps.ts';
 import { TempoMap, eventsOfType } from './tempo-map.ts';
 import type { FileError } from './types.ts';
 
@@ -98,17 +100,36 @@ type TimelineResult =
  *   for each reason.
  */
 export function buildTimeline(bytes: Uint8Array): TimelineResult {
+  return runAll(buildTimelineSteps(bytes));
+}
+
+/** The number of events of the merged tracks in one step of {@link buildTimelineSteps}. */
+const EVENTS_PER_STEP = 2000;
+
+/**
+ * Builds the timeline of a Standard MIDI File as {@link buildTimeline} does, in steps (design
+ * 7.2).
+ *
+ * @param bytes The bytes of the file.
+ * @returns The steps, which return the timeline or the reason to refuse the file.
+ */
+export function* buildTimelineSteps(bytes: Uint8Array): Steps<TimelineResult> {
   const parsed = parseMidi(bytes);
   if (!parsed.ok) {
     return parsed;
   }
+  yield;
   const file = parsed.file;
   const tempoMap = new TempoMap(file);
   const ports = portIndices(file);
   const programs = new ChannelPrograms();
   const pairing = new NotePairing();
   let timeSec = 0;
+  let count = 0;
   for (const item of mergeTracks(file)) {
+    if (++count % EVENTS_PER_STEP === 0) {
+      yield;
+    }
     timeSec = tempoMap.toSeconds(item.tick);
     const event = item.event;
     const port = ports[item.track] ?? 0;

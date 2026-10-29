@@ -3,6 +3,8 @@ import type { PercussionPart } from './drum-map.ts';
 import { techniqueOf } from './program-map.ts';
 import type { SeatPlan, Seating } from './seats.ts';
 import { findSoloist } from './soloist.ts';
+import { runAll } from './steps.ts';
+import type { Steps } from './steps.ts';
 import { findVocalSoloists } from './vocal-soloists.ts';
 import type { Note, Timeline } from './timeline.ts';
 import type { PlayerNote, Seat, SectionId, SectionSize } from './types.ts';
@@ -107,12 +109,34 @@ export function assignPlayers(
   seating: Seating,
   sectionSize: SectionSize,
 ): PlayerAssignment {
+  return runAll(assignPlayersSteps(timeline, seating, sectionSize));
+}
+
+/**
+ * Gives the seats their player counts and the notes to the players as {@link assignPlayers} does,
+ * in steps (design 7.2).
+ *
+ * @param timeline The timeline of the file.
+ * @param seating The seats and the seat of each note.
+ * @param sectionSize The value of the setting "Section size".
+ * @returns The steps, which return the seats with their counts and the player notes.
+ */
+export function* assignPlayersSteps(
+  timeline: Timeline,
+  seating: Seating,
+  sectionSize: SectionSize,
+): Steps<PlayerAssignment> {
   const notes = timeline.notes;
   const orchestral = isOrchestral(notes, seating.seats);
   const divisi = sectionSize === 'full' || (sectionSize === 'auto' && orchestral);
   const seatNotes = seating.seats.map((): number[] => []);
   seating.noteSeats.forEach((seat, i) => seatNotes[seat]?.push(i));
-  const plans = seating.seats.map((seat, s) => planSeat(seat, notes, seatNotes[s] ?? [], divisi));
+  const plans: SeatCount[] = [];
+  for (const [s, seat] of seating.seats.entries()) {
+    yield;
+    plans.push(planSeat(seat, notes, seatNotes[s] ?? [], divisi));
+  }
+  yield;
   // The soloist rule runs before the soloist gets its one player, so that it finds a solo line
   // of a string section, which the size rule gives a full section.
   const soloSeats = seating.seats.map((seat, s) => ({
@@ -122,6 +146,7 @@ export function assignPlayers(
   }));
   const soloNotes = notes.map((note, i) => ({ ...note, seatIndex: seating.noteSeats[i] ?? 0 }));
   const soloist = findSoloist(soloSeats, soloNotes, timeline.durationSec);
+  yield;
   const solo = soloist === null ? undefined : plans[soloist];
   if (soloist !== null && solo && solo.count > 1) {
     plans[soloist] = { ...solo, allocation: 'parts', count: 1, onePerPart: 1 };
@@ -132,13 +157,16 @@ export function assignPlayers(
   if (vocalSoloists !== null && vocal) {
     plans[vocalSoloists] = { ...vocal, allocation: 'parts', count: vocal.onePerPart };
   }
+  yield;
   const counts = removePlayers(plans);
   const players = notes.map((): readonly number[] => []);
-  plans.forEach((plan, s) => {
+  for (const [s, plan] of plans.entries()) {
+    yield;
     for (const [i, list] of playersOf(plan, notes, seatNotes[s] ?? [], counts[s] ?? 0)) {
       players[i] = list;
     }
-  });
+  }
+  yield;
   const playerNotes: PlayerNote[] = [];
   notes.forEach((note, i) => {
     const seatIndex = seating.noteSeats[i] ?? 0;

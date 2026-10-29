@@ -1,9 +1,11 @@
 import { buildBeats } from './beats.ts';
-import { assignPlayers } from './players.ts';
+import { assignPlayersSteps } from './players.ts';
 import { assignSeats } from './seats.ts';
 import { titleSequenceName } from './sequence-name.ts';
+import { runAll } from './steps.ts';
+import type { Steps } from './steps.ts';
 import { buildSynthEvents, listPresets } from './synth.ts';
-import { buildTimeline } from './timeline.ts';
+import { buildTimelineSteps } from './timeline.ts';
 import type { ScoreResult, SectionSize } from './types.ts';
 
 /**
@@ -17,7 +19,18 @@ import type { ScoreResult, SectionSize } from './types.ts';
  *   each reason. A file with more than 100,000 beats is `not-midi` (3.3).
  */
 export function buildScore(bytes: Uint8Array, sectionSize: SectionSize): ScoreResult {
-  const result = buildTimeline(bytes);
+  return runAll(buildScoreSteps(bytes, sectionSize));
+}
+
+/**
+ * Builds the score of a Standard MIDI File as {@link buildScore} does, in steps (design 7.2).
+ *
+ * @param bytes The bytes of the file.
+ * @param sectionSize The value of the setting "Section size" (2.8, 3.8).
+ * @returns The steps, which return the score or the reason to refuse the file.
+ */
+export function* buildScoreSteps(bytes: Uint8Array, sectionSize: SectionSize): Steps<ScoreResult> {
+  const result = yield* buildTimelineSteps(bytes);
   if (!result.ok) {
     return result;
   }
@@ -26,8 +39,11 @@ export function buildScore(bytes: Uint8Array, sectionSize: SectionSize): ScoreRe
   if (!beats) {
     return { ok: false, error: 'not-midi' };
   }
+  yield;
   const seating = assignSeats(timeline);
-  const cast = assignPlayers(timeline, seating, sectionSize);
+  yield;
+  const cast = yield* assignPlayersSteps(timeline, seating, sectionSize);
+  yield;
   return {
     ok: true,
     score: {
