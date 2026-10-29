@@ -171,9 +171,9 @@ export class Ui {
   }
 
   /**
-   * Fades the stage to the page background before the app builds a new scene, and waits until
-   * the fade ends and a frame shows it (design 2.8, audit 2026-10-05-ux-design, PF1). The build
-   * then stops the frames behind the cover. With reduced motion, the stage hides at once.
+   * Fades the stage to the page background before the app builds a new scene, and waits until the
+   * fade ends and a frame shows it (design 2.8). The build then stops the frames behind the cover.
+   * With reduced motion, the stage hides at once.
    *
    * @returns A promise that resolves when the stage is covered.
    */
@@ -206,8 +206,7 @@ export class Ui {
 
   /**
    * Opens the drawer at the demo list, and gives the focus to the row of the current demo (design
-   * 2.8, audit 2026-10-05-ux-design, FI2). The button "Select a piece" of the first screen uses
-   * it.
+   * 2.8). The button "Select a piece" of the first screen uses it.
    */
   openDemoList(): void {
     this.drawer.showTab('demos');
@@ -218,9 +217,8 @@ export class Ui {
 
   /**
    * Closes the sheet of the phone layout after a selection in it, so that the new piece shows
-   * (design 2.8, audit 2026-10-05-ux-design, PH1). The drawer of a wider screen stays open, so
-   * that the user can select again. The drawer button gets the focus that the sheet held, as
-   * after the Escape key.
+   * (design 2.8). The drawer of a wider screen stays open, so that the user can select again. The
+   * drawer button gets the focus that the sheet held, as after the Escape key.
    */
   closeSheetAfterSelection(): void {
     if (!this.#phone.matches || !this.drawer.open) {

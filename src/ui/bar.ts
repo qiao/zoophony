@@ -30,12 +30,12 @@ export interface BarActions {
 interface BarView {
   /**
    * The label of the play button. "Play again" at the song end gives the icon "replay" (design
-   * 2.8, audit 2026-10-05-ux-design, AM2).
+   * 2.8).
    */
   readonly playLabel: 'Play' | 'Pause' | 'Play again';
   /**
-   * False before the file of the first piece arrives. Then the bar shows no times and no seek
-   * bar, because the length is not known (audit 2026-10-06-ux-design-2, N15).
+   * False before the file of the first piece arrives. Then the bar shows no times and no seek bar,
+   * because the length is not known.
    */
   readonly pieceShown: boolean;
   /** The current song time, in seconds. */
@@ -278,9 +278,9 @@ export class Bar {
   }
 
   /**
-   * Keeps the controls inert for the full tap that shows the hidden bar (design 2.3, review of
-   * step 6, R1). A click of that tap on the bar stops in the capture phase. The guard ends at that
-   * click, or {@link WAKE_END_MS} after the end of the tap.
+   * Keeps the controls inert for the full tap that shows the hidden bar (design 2.3). A click of
+   * that tap on the bar stops in the capture phase. The guard ends at that click, or
+   * {@link WAKE_END_MS} after the end of the tap.
    */
   #guardWakingTap(): void {
     this.element.addEventListener('pointerdown', () => {
@@ -346,7 +346,7 @@ export class Bar {
    * Moves the speed menu, the volume slider, "Reset view", and full screen into the "Playback"
    * group of the settings on a phone, or back into the bar (design 2.8). "Automatic camera" stays
    * in the bar. The page has one control of each kind, so the two places never differ. In the
-   * group, each control has a visible label (audit 2026-10-05-ux-design, PH3).
+   * group, each control has a visible label.
    *
    * @param slots The places of the "Playback" group, or `null` for the bar.
    */
@@ -379,7 +379,7 @@ export class Bar {
 
   /**
    * True while a control of the bar has the keyboard focus. A focus from a click or a tap does not
-   * count, so that the bar still hides during play (design 2.3, re-review of step 6, R3).
+   * count, so that the bar still hides during play (design 2.3).
    */
   get focused(): boolean {
     return this.element.querySelector(':focus-visible') !== null;

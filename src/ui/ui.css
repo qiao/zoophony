@@ -87,7 +87,7 @@ button:hover {
   background: var(--line);
 }
 
-/* A pressed button gets a brighter background (audit 2026-10-05-ux-design, CT3). */
+/* A pressed button gets a brighter background. */
 button:active {
   background: rgba(255, 240, 220, 0.18);
 }
@@ -135,11 +135,11 @@ svg {
   pointer-events: none;
 }
 
-/* Each line of the title has its own soft shade, which keeps 4.5:1 for its text over a white
-   animal in a close shot (audit 2026-10-05-ux-design, VD1). The app reads the frame behind each
-   line and sets the level of its shade, from 0 to 1 (`--title-shade-level`). Over the dark hall
-   of the default view, the level is 0 and no shade shows. With no level, the full shade shows.
-   A line is as wide as its text, so the shade follows the text. */
+/* Each line of the title has its own soft shade, which keeps 4.5:1 for its text over a white animal
+   in a close shot. The app reads the frame behind each line and sets the level of its shade, from 0
+   to 1 (`--title-shade-level`). Over the dark hall of the default view, the level is 0 and no shade
+   shows. With no level, the full shade shows. A line is as wide as its text, so the shade follows
+   the text. */
 .title .logo,
 .title h1,
 .title p {
@@ -147,10 +147,10 @@ svg {
   width: fit-content;
 }
 
-/* The shade of a line is a blurred pill with no straight edge (audit 2026-10-06-ux-design-2,
-   N21). It reaches 24 px above and below the line and 40 px to its sides. The blur of 8 px
-   keeps it opaque over the text and the 4 px margin that the app reads (e2e/title-shade.e2e.ts).
-   Its z-index puts it behind the text of each line of the title. */
+/* The shade of a line is a blurred pill with no straight edge. It reaches 24 px above and below the
+   line and 40 px to its sides. The blur of 8 px keeps it opaque over the text and the 4 px margin
+   that the app reads (e2e/title-shade.e2e.ts). Its z-index puts it behind the text of each line
+   of the title. */
 .title .logo::before,
 .title h1::before,
 .title p::before {
@@ -187,9 +187,9 @@ svg {
 }
 
 /* The flex line centers the box of the wordmark, which holds the tails of the "p" and the "y", so
-   the paw and the GitHub mark sat 2 px under the capitals, and the paw hung under the baseline
-   (user, 2026-10-28: "the paw icon and the zoophony text are not aligned"). The paw moves up, so
-   it stands on the baseline and reaches the height of the capitals. */
+   with no lift the paw and the GitHub mark sit 2 px under the capitals, and the paw hangs under
+   the baseline. The paw moves up, so it stands on the baseline and reaches the height of the
+   capitals. */
 .title .logo > svg:first-child {
   translate: 0 var(--logo-lift);
 }
@@ -203,10 +203,9 @@ svg {
 
 /* The link to the repository on GitHub stands after the name in the logo line (design 2.8): an
    outlined pill with the GitHub mark and the text "Open source", in the gray of --github-mark,
-   and white on a hover (user, 2026-10-28: "wrap that and the github icon in a outlined pill").
-   The pill sets the link apart from the name, which the mark alone seemed to be a part of. It
-   centers on the capitals of the name (--logo-lift), and the negative margins keep the height of
-   the logo line. The title takes no pointer, so the link takes it back. */
+   and white on a hover. The pill sets the link apart from the name. It centers on the capitals of
+   the name (--logo-lift), and the negative margins keep the height of the logo line. The title
+   takes no pointer, so the link takes it back. */
 .title .github {
   position: relative;
   display: inline-flex;
@@ -451,8 +450,7 @@ svg {
 }
 
 /* Before the file of the first piece arrives, the length is not known, so the bar shows no times
-   and no seek bar. They keep their places, so that the bar does not move (audit
-   2026-10-06-ux-design-2, N15). */
+   and no seek bar. They keep their places, so that the bar does not move. */
 .bar.is-empty .time,
 .bar.is-empty .seek {
   visibility: hidden;
@@ -532,10 +530,10 @@ svg {
   }
 }
 
-/* The sliders look the same in Chromium, WebKit, and Firefox (design 2.8, audit
-   2026-10-06-ux-design-2, N13): a track of 4 px in --track, the filled part in --accent, and a
-   round thumb of 14 px in --accent. `--fill` is the filled part from 0 to 1, which `ui/bar.ts`
-   sets. Firefox draws the filled part with its own element. */
+/* The sliders look the same in Chromium, WebKit, and Firefox (design 2.8): a track of 4 px in
+   --track, the filled part in --accent, and a round thumb of 14 px in --accent. `--fill` is the
+   filled part from 0 to 1, which `ui/bar.ts` sets. Firefox draws the filled part with its own
+   element. */
 input[type='range'] {
   --fill: 0;
   height: var(--target);
@@ -705,8 +703,8 @@ input[type='range']:disabled::-moz-range-thumb {
   transition: translate 0.2s;
 }
 
-/* The canvas fades to the page background while the app builds a new scene, so that the stop of
-   the frames does not show as a hitch (design 2.8, audit 2026-10-05-ux-design, PF1). */
+/* The canvas fades to the page background while the app builds a new scene, so that the stop of the
+   frames does not show as a hitch (design 2.8). */
 #stage {
   transition: opacity 0.15s;
 }
@@ -1517,9 +1515,8 @@ body.is-building #stage {
 }
 
 /* While the first screen shows, a message sits 12 px above the load ring of the play button, so
-   that it does not cover "Select a piece", the way out of a failure (design 2.8, audit
-   2026-10-06-ux-design-2, N12). The ring has a radius of 42 px. Beside the open drawer, the
-   message moves with the first screen. */
+   that it does not cover "Select a piece", the way out of a failure (design 2.8). The ring has a
+   radius of 42 px. Beside the open drawer, the message moves with the first screen. */
 body:has(.first-screen:not([hidden])) .messages {
   bottom: calc(100% - var(--play-y) + 54px);
 }
@@ -1765,7 +1762,7 @@ body:has(.first-screen:not([hidden])):has(.drawer:not([hidden])) .messages {
   }
 
   /* The seek bar of a phone gets the width of the duration. The seek bar names the duration to a
-     screen reader, and the demo list shows it (audit 2026-10-05-ux-design, PH5). */
+     screen reader, and the demo list shows it. */
   .bar .time.length {
     display: none;
   }
@@ -1822,10 +1819,9 @@ body:has(.first-screen:not([hidden])):has(.drawer:not([hidden])) .messages {
 
 /* On a short and wide screen, the stage fills the height, and the column of the first screen does
    not fit below it. The first screen then stands at the right of the stage, in the middle between
-   the title and the bar (design 2.8, audit 2026-10-06-ux-design-2, N14). The place comes from a
-   stage of 0.74 of the height wide. The frame of the camera shrinks until the stage ends left of
-   the play button. This rule comes after the rules of a phone, so that a phone in landscape also
-   gets it. */
+   the title and the bar (design 2.8). The place comes from a stage of 0.74 of the height wide. The
+   frame of the camera shrinks until the stage ends left of the play button. This rule comes after
+   the rules of a phone, so that a phone in landscape also gets it. */
 @media (max-height: 799px) and (min-aspect-ratio: 7/5) {
   :root {
     --side-left: calc(50% + 37dvh + 24px);
