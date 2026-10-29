@@ -3,9 +3,6 @@
 ## 9.1 Repository
 
 - Git, with the branch `main` and many fine-grained commits.
-- `.gitattributes` merges `docs/design.md` with the union driver of git, so two rounds that each
-  add a line do not conflict. Read the merged file, because a line that both sides change stays
-  two times.
 - The code license is Apache-2.0. The animal models are under CC BY-NC 4.0 (the license section
   of `README.md`).
 - Each round merges into the local `main`. The project owner decides when to push `main`, and
