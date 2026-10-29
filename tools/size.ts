@@ -6,6 +6,7 @@ import { gzipSync } from 'node:zlib';
 import type { Manifest } from 'vite';
 
 import { DEFAULT_DEMO } from '../src/app/demos.ts';
+import { isGzip } from './gzip-site.ts';
 import { ROOT, optionValue, shortHash, withRefBuild } from './ref-tree.ts';
 
 /** Limit of the first download after gzip, in bytes (design 7.2). */
@@ -104,7 +105,7 @@ export function sizeReport(parts: readonly DownloadPart[], limitBytes: number): 
 
 /**
  * Finds the file of the default demo that the first download holds (design 7.2). The build writes
- * the changed file to `dist/demos/`. With no such file, the check counts the source.
+ * the changed file to `dist/demos/` as gzip data. With no such file, the check counts the source.
  *
  * @param dist The output directory of the build.
  * @param demosDir The folder of the demo inputs.
@@ -146,11 +147,20 @@ export function baseLines(
   ];
 }
 
+/**
+ * Measures one file as the host sends it. The build gzips the demo files (`tools/gzip-site.ts`),
+ * and GitHub Pages sends them with no second gzip. Thus a file that is gzip data counts with its
+ * own size, and each other file counts with the size of its gzip.
+ *
+ * @param root The folder that the path of the part is relative to.
+ * @param path The path of the file.
+ * @returns The part.
+ */
 async function measure(root: string, path: string): Promise<DownloadPart> {
   const data = await readFile(path);
   return {
     path: relative(root, path),
-    gzipBytes: gzipSync(data).byteLength,
+    gzipBytes: isGzip(data) ? data.byteLength : gzipSync(data).byteLength,
   };
 }
 
