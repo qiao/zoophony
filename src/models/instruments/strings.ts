@@ -3,7 +3,7 @@ import { INSTRUMENT_COLORS } from '../colors.ts';
 import { IDENTITY, toQuat, toVec3 } from '../tuples.ts';
 import { applyTransform, transform } from '../mesh.ts';
 import type { Quat, Vec3 } from '../tuples.ts';
-import type { Transform } from '../mesh.ts';
+import type { Finish, Rgb, Transform } from '../mesh.ts';
 import { box, cylinder, lathe, plate, prism, quad, sweep } from '../primitives.ts';
 import type { OutlinePoint, PlateLevel, ProfilePoint } from '../primitives.ts';
 import { DEFAULT_HEAD_HEIGHT } from '../species.ts';
@@ -852,6 +852,79 @@ function addViolinParts(piece: PieceBuilder, frame: Transform, upright: boolean)
 }
 
 /**
+ * The parts of the bow model, in meters in the bow axes: the bow runs along +x from the end of
+ * the screw button to the tip, and the hair is below the stick (-y). The stick tapers to the
+ * tip and bends a little toward the hair in its middle, as the camber of a real bow.
+ */
+const BOW_PARTS = {
+  /** The rings of the stick: the place along the bow, the radius, and the camber toward the hair. */
+  stick: [
+    [0.006, 0.0034, 0],
+    [0.15, 0.0031, 0.0015],
+    [0.3, 0.0026, 0.0015],
+    [0.435, 0.0021, 0],
+  ],
+  /** The screw button at the end: its length, and its radius at the end and at the stick. */
+  button: [0.0075, 0.0028, 0.003],
+  /** The side outline of the frog under the stick, as (along, height). */
+  frog: [
+    [0.007, -0.0028],
+    [0.039, -0.0028],
+    [0.0405, -0.0125],
+    [0.031, -0.0165],
+    [0.013, -0.017],
+    [0.0065, -0.0135],
+  ],
+  /** The width of the frog. */
+  frogWidth: 0.0085,
+  /** The center of the metal ferrule at the front of the frog, where the hair comes out. */
+  ferrule: [0.0385, -0.012],
+  /** The center of the pale eye on each side of the frog, and its half size. */
+  eye: [0.022, -0.0095, 0.0013],
+  /** The side outline of the head at the tip, as (along, height). */
+  head: [
+    [0.432, 0.0022],
+    [0.446, 0.0026],
+    [0.4525, 0],
+    [0.4515, -0.009],
+    [0.447, -0.0135],
+    [0.438, -0.0135],
+    [0.4345, -0.004],
+  ],
+  /** The width of the head. */
+  headWidth: 0.0048,
+  /** The ends of the hair along the bow: the ferrule of the frog and the head. */
+  hair: [0.04, 0.437],
+} as const;
+
+/**
+ * Makes a flat part of the bow from its side outline, such as the frog or the head.
+ *
+ * @param outline The side outline as (along, height), clockwise when seen from +z, and
+ *   star-shaped around the mean of its points.
+ * @param width The width across the bow.
+ * @returns The corner list in the bow axes.
+ */
+function bowSide(outline: readonly OutlinePoint[], width: number): number[] {
+  const cx = outline.reduce((sum, [x]) => sum + x, 0) / outline.length;
+  const cy = outline.reduce((sum, [, y]) => sum + y, 0) / outline.length;
+  // The prism takes the outline in its x-z plane: its x along the bow and its z down (-y).
+  const corners = prism(
+    outline.map(([x, y]): OutlinePoint => [x - cx, -(y - cy)]).toReversed(),
+    -width / 2,
+    width / 2,
+  );
+  const along = new Vector3(1, 0, 0);
+  const across = new Vector3(0, 0, 1);
+  const turn = toQuat(
+    new Quaternion().setFromRotationMatrix(
+      new Matrix4().makeBasis(along, across, new Vector3().crossVectors(along, across)),
+    ),
+  );
+  return placeCorners(corners, transform([cx, cy, 0], turn));
+}
+
+/**
  * Adds the parts of the bow model to a piece. In the bow axes, the bow runs along +x from the frog
  * at the origin to the tip, and the hair is below the stick (-y).
  *
@@ -860,22 +933,52 @@ function addViolinParts(piece: PieceBuilder, frame: Transform, upright: boolean)
  */
 function addBowParts(piece: PieceBuilder, frame: Transform): void {
   const b = BOW;
-  const part = (corners: number[], color: readonly [number, number, number], at: Vec3): void => {
-    piece.add(corners, color, inFrame(frame, transform(at)));
+  const p = BOW_PARTS;
+  const add = (corners: number[], color: Rgb, finish: Finish = 'matte'): void => {
+    piece.add(corners, color, inFrame(frame, transform()), finish);
   };
-  piece.add(
-    box(b.length, 0.006, 0.006),
-    INSTRUMENT_COLORS.bowStick,
-    inFrame(frame, transform([b.length / 2, 0, 0])),
-    'varnish',
+  const alongX = toQuat(
+    new Quaternion().setFromUnitVectors(new Vector3(0, 1, 0), new Vector3(1, 0, 0)),
   );
-  part(box(b.length - 0.05, 0.002, 0.008), INSTRUMENT_COLORS.bowHair, [
-    b.length / 2,
-    -b.hairGap,
-    0,
-  ]);
-  part(box(0.035, 0.016, 0.01), INSTRUMENT_COLORS.fingerboard, [0.02, -0.007, 0]);
-  part(box(0.012, 0.014, 0.007), INSTRUMENT_COLORS.bowStick, [b.length - 0.006, -0.006, 0]);
+
+  // The stick: six faces that taper to the tip, with the camber toward the hair.
+  const stick = p.stick.map(([x, r, camber]): Vec3[] =>
+    Array.from({ length: 6 }, (_, k): Vec3 => {
+      const angle = ((k + 0.5) / 6) * 2 * Math.PI;
+      return [x, r * Math.cos(angle) - camber, r * Math.sin(angle)];
+    }),
+  );
+  add(sweep(stick), INSTRUMENT_COLORS.bowStick, 'varnish');
+  add(bowSide(p.head, p.headWidth), INSTRUMENT_COLORS.bowStick, 'varnish');
+
+  // The frog with its metal ferrule and its eye, and the screw button.
+  add(bowSide(p.frog, p.frogWidth), INSTRUMENT_COLORS.fingerboard, 'lacquer');
+  const [eyeX, eyeY, eyeHalf] = p.eye;
+  add(
+    placeCorners(box(2 * eyeHalf, 2 * eyeHalf, p.frogWidth + 0.0004), transform([eyeX, eyeY, 0])),
+    INSTRUMENT_COLORS.bowHair,
+  );
+  add(
+    placeCorners(box(0.003, 0.0045, p.frogWidth + 0.0007), transform([...p.ferrule, 0])),
+    INSTRUMENT_COLORS.silver,
+    'metal',
+  );
+  const [buttonLength, buttonEnd, buttonStick] = p.button;
+  add(
+    placeCorners(cylinder(buttonEnd, buttonStick, buttonLength, 6), transform([0, 0, 0], alongX)),
+    INSTRUMENT_COLORS.silver,
+    'metal',
+  );
+
+  // The hair: a flat ribbon from the ferrule to the head.
+  const [hairFrom, hairTo] = p.hair;
+  add(
+    placeCorners(
+      box(hairTo - hairFrom, 0.0015, 0.008),
+      transform([(hairFrom + hairTo) / 2, -b.hairGap, 0]),
+    ),
+    INSTRUMENT_COLORS.bowHair,
+  );
 }
 
 /**
