@@ -10,8 +10,8 @@ import { e2ePort } from './tools/e2e-port.ts';
 const PORT = e2ePort(process.env['ZOOPHONY_E2E_PORT']);
 
 /**
- * The URL of the built site. With `ZOOPHONY_BASE`, the build and `vite preview` use the base path
- * of GitHub Pages (design 9.2).
+ * The URL of the built site. With `ZOOPHONY_BASE`, the build and `vite preview` use that base path
+ * (design 9.2).
  */
 const SITE = `http://localhost:${PORT}${process.env['ZOOPHONY_BASE'] ?? '/'}`;
 

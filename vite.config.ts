@@ -57,8 +57,8 @@ const ALL_TESTS_PAUSED: boolean = true;
 const PAUSED_FILES = ALL_TESTS_PAUSED ? ['**/*.test.ts'] : PAUSED_TESTS;
 
 /**
- * The base path of the site. The Pages workflow sets `ZOOPHONY_BASE=/zoophony/`, the name of the
- * repository (design 9.2), for the build and for `vite preview`. Without it, the site is at `/`.
+ * The base path of the site. `ZOOPHONY_BASE` sets it for the build and for `vite preview` (design
+ * 9.2). Without it, the site is at `/`.
  */
 const BASE = process.env['ZOOPHONY_BASE'] ?? '/';
 
