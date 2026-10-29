@@ -856,6 +856,133 @@ function fHoles(arch: readonly number[]): number[] {
 }
 
 /**
+ * The outline of the body of the simple model that gives the space of a bowed string in the
+ * layout ({@link addLayoutSpace}), as {@link VIOLIN_HALF}.
+ */
+const SPACE_HALF: readonly OutlinePoint[] = [
+  [0.12, 0],
+  [0.11, -0.035],
+  [0.085, -0.055],
+  [0.055, -0.057],
+  [0.03, -0.045],
+  [0, -0.04],
+  [-0.03, -0.045],
+  [-0.06, -0.065],
+  [-0.09, -0.068],
+  [-0.11, -0.05],
+  [-0.12, 0],
+];
+
+/** The levels of the body of the simple model of {@link addLayoutSpace}, as (scale, part of the thickness). */
+const SPACE_LEVELS: readonly PlateLevel[] = [
+  [0.93, 0],
+  [1, 0.18],
+  [1, 0.76],
+  [0.96, 0.86],
+  [0.8, 0.95],
+  [0.45, 1],
+];
+
+/** The boxes of the simple model of {@link addLayoutSpace}: the size and the center of each. */
+const SPACE_BOXES: readonly (readonly [size: Vec3, center: Vec3])[] = [
+  // The neck, the pegbox, the two pegs, the fingerboard, the tailpiece, the bridge, and the
+  // strings.
+  [
+    [0.1, 0.02, 0.022],
+    [0.285, 0.038, 0],
+  ],
+  [
+    [0.045, 0.025, 0.02],
+    [0.355, 0.042, 0],
+  ],
+  [
+    [0.006, 0.006, 0.03],
+    [0.343, 0.044, 0],
+  ],
+  [
+    [0.006, 0.006, 0.03],
+    [0.365, 0.044, 0],
+  ],
+  [
+    [0.17, 0.008, 0.026],
+    [0.255, 0.056, 0],
+  ],
+  [
+    [0.05, 0.006, 0.03],
+    [0.04, 0.048, 0],
+  ],
+  [
+    [0.004, 0.024, 0.032],
+    [0.095, 0.052, 0],
+  ],
+  [
+    [0.27, 0.002, 0.008],
+    [0.2, 0.067, 0],
+  ],
+];
+
+/**
+ * Adds the space of a bowed string in the layout to a piece (`InstrumentPiece.footprint`): the
+ * simple box model that the seats were placed with. The layout reads it in place of the detailed
+ * model, so that the detail does not move the seats (manager, 2026-10-29). With the footprint of
+ * the detailed model, row 0 of `boulanger-matin.mid` moved, and the right arm of the conductor
+ * folded more in the lift.
+ *
+ * @param piece The piece that gets the space.
+ * @param frame The placement of the violin axes in the piece axes, before the piece scale.
+ * @param upright Whether the model is a cello or a contrabass, with no chin rest.
+ */
+function addLayoutSpace(piece: PieceBuilder, frame: Transform, upright: boolean): void {
+  const v = VIOLIN;
+  const space = (corners: number[], at: Vec3, rotation?: Quat): void => {
+    piece.footprint(corners, inFrame(frame, transform(at, rotation)));
+  };
+  space(
+    plate(
+      mirrorOutline(SPACE_HALF),
+      SPACE_LEVELS.map(([scale, y]): PlateLevel => [scale, y * v.bodyThickness]),
+    ),
+    [v.bodyLength / 2, 0, 0],
+  );
+  for (const side of [-1, 1]) {
+    space(
+      box(0.036, 0.003, 0.004),
+      [v.bridge + 0.004, v.bodyThickness - 0.0016, side * 0.026],
+      toQuat(new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), side * 0.25)),
+    );
+  }
+  space(
+    cylinder(0.016, 0.016, 0.022, 8),
+    [0.385, v.bodyThickness + 0.008, -0.011],
+    toQuat(new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), Math.PI / 2)),
+  );
+  for (const [size, center] of SPACE_BOXES) {
+    space(box(...size), center);
+  }
+  if (!upright) {
+    space(box(0.04, 0.012, 0.05), [0.018, v.bodyThickness + 0.006, 0.03]);
+  }
+}
+
+/**
+ * Adds the space of the bow in the layout to a piece, as {@link addLayoutSpace}: the stick, the
+ * hair, the frog, and the tip as boxes.
+ *
+ * @param piece The piece that gets the space.
+ * @param frame The placement of the bow axes in the piece axes, before the piece scale.
+ */
+function addBowSpace(piece: PieceBuilder, frame: Transform): void {
+  const b = BOW;
+  const space = (corners: number[], at: Vec3): void => {
+    piece.footprint(corners, inFrame(frame, transform(at)));
+  };
+  space(box(b.length, 0.006, 0.006), [b.length / 2, 0, 0]);
+  space(box(b.length - 0.05, 0.002, 0.008), [b.length / 2, -b.hairGap, 0]);
+  space(box(0.035, 0.016, 0.01), [0.02, -0.007, 0]);
+  space(box(0.012, 0.014, 0.007), [b.length - 0.006, -0.006, 0]);
+}
+
+/**
  * Places a part in a frame. The frame has no scale.
  *
  * @param frame The frame.
@@ -1275,6 +1402,7 @@ function buildBow(size: number, grip: BowGrip): BowPiece {
   const b = BOW;
   const piece = new PieceBuilder(size);
   addBowParts(piece, transform([-b.grip, 0, 0]));
+  addBowSpace(piece, transform([-b.grip, 0, 0]));
   const hairY = -b.hairGap * size;
   // The bow points to the front (-z), and the hair faces the inner side (-x).
   const xAxis = new Vector3(0, 0, -1);
@@ -1344,10 +1472,12 @@ export function buildBowedString(
     : transform([0, 0, 0], IDENTITY);
   const piece = new PieceBuilder(s);
   addViolinParts(piece, frame, id === 'viola' ? 'violin' : id);
+  addLayoutSpace(piece, frame, upright);
   if (upright) {
     // The end pin, from its sharp tip on the floor up to the tail end. A blunt tip on the slanted
     // pin went 4 mm into the floor.
     piece.add(cylinder(0, 0.003, pin / s, 5), INSTRUMENT_COLORS.fingerboard, transform([0, 0, 0]));
+    piece.footprint(cylinder(0, 0.003, pin / s, 5), transform([0, 0, 0]));
   }
   const at = (p: Vec3): Vec3 => toVec3(new Vector3(...applyTransform(frame, p)).multiplyScalar(s));
   const top = toVec3(new Vector3(0, 1, 0).applyQuaternion(new Quaternion(...frame.rotation)));

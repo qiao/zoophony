@@ -2429,10 +2429,6 @@ the mockup is out of scope.
       real instrument, so that the fingerboard can lie close to the top and the neck can be
       thinner. The bow contact, the fingerboard target, and the left hand poses must follow the
       new string line (`docs/decisions/2026-10-29-string-models.md`).
-- [ ] Decide the seats of the first violins in row 0. The smaller chin rest of 2026-10-29 lets
-      row 0 fit at 2.72 m in place of 2.76 m (`fitRow()` of `models/layout-scene.ts`), so the
-      first violins of `boulanger-matin` spread from -70.0°..-9.9° to -89.9°..-12.8°
-      (`docs/research/2026-10-29-string-models.md`, section 5).
 - [ ] UI: the title, the panel, the demo rows, the seat rows, and the bar of `mockup.png`.
 - [x] Make the shot planner stable against small changes of the player footprints, then
       restore the horn entry test of `shots/prepare.test.ts` to the cut at the entry, and

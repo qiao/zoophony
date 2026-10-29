@@ -1365,7 +1365,9 @@ interface SpreadLimits {
 ```
 
 The **footprint** of a player is one box for the parts of each bone in each band of 0.2 m of
-height, in the bind pose, and the box of its seat. The overlap test of `models/` places the
+height, in the bind pose, and the box of its seat. A piece with its own footprint corners counts
+them in place of its parts (`InstrumentPiece.footprint`): the bowed strings and their bows count
+a simple box model, so that the detail of their models does not move the seats. The overlap test of `models/` places the
 footprints of all items of each demo layout and of `perf-60.mid` (9.5): no two items touch, and
 each item is on the stage.
 
@@ -1550,7 +1552,8 @@ targets read that height (`VIOLIN`). So the fingerboard stands higher above the 
 is deeper than on a real violin. The board keeps the height and the end thickness of the earlier
 box board, because the left paw of the hippo passes through it in a high position. For the same
 reason, the neck under the first positions is open below the board, and two thin side walls close
-it (`NECK_OPEN`).
+it (`NECK_OPEN`). The layout reads a simple box model of each bowed string and its bow in place of
+the detailed model (`addLayoutSpace()`, seat geometry in 4.5), so the seats stay where they were.
 
 **Sizes and holds**
 

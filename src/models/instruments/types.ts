@@ -125,6 +125,12 @@ export interface InstrumentPiece {
   readonly bone: InstrumentBone;
   readonly parts: readonly InstrumentPart[];
   readonly hold: PieceHold;
+  /**
+   * Corners in the axes of the piece, 9 numbers for each triangle, that the footprint of the
+   * player counts in place of the parts of the piece (design 4.5, seat geometry). The mesh does
+   * not draw them. A detailed model keeps the space of a simpler model, so that the seats stay.
+   */
+  readonly footprint?: readonly number[];
 }
 
 /** A point on one piece, in the axes of that piece. */

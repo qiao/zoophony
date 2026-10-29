@@ -1,8 +1,9 @@
 import type { Bounds } from './bounds.ts';
 import type { Vec3 } from './tuples.ts';
-import type { MeshData } from './mesh.ts';
+import { placeCorners } from './instruments/piece.ts';
 import type { PlayerModel } from './player.ts';
 import { buildMusicStand, buildSupport } from './props.ts';
+import { boneIndex } from './rig.ts';
 
 /**
  * The space that one item takes on the stage: a list of boxes in the axes of the item. For a
@@ -51,15 +52,14 @@ function around(boxes: readonly Bounds[]): Bounds {
 }
 
 /**
- * Calculates one box for each group of the triangles of a mesh.
+ * Calculates one box for each group of the triangles of a corner list.
  *
- * @param mesh The mesh.
+ * @param p The corner list, 9 numbers for each triangle, such as the positions of a mesh.
  * @param groupOf Gives the group of a triangle.
  * @returns One box for each group that has triangles.
  */
-function groupBoxes(mesh: MeshData, groupOf: (triangle: number) => number): Bounds[] {
+function groupBoxes(p: ArrayLike<number>, groupOf: (triangle: number) => number): Bounds[] {
   const boxes = new Map<number, { min: number[]; max: number[] }>();
-  const p = mesh.positions;
   for (let t = 0; t < p.length / 9; t++) {
     const group = groupOf(t);
     const box = boxes.get(group) ?? {
@@ -97,7 +97,8 @@ const playerFootprints = new WeakMap<PlayerModel, Footprint>();
 
 /**
  * Calculates the footprint of a player in its bind pose: one box for the parts of each bone in
- * each band of 0.2 m of height, and one box for its seat (`buildSupport()`). A body with no chair
+ * each band of 0.2 m of height, and one box for its seat (`buildSupport()`). A piece with its own
+ * footprint corners (`InstrumentPiece.footprint`) counts them in place of its parts. A body with no chair
  * (`SeatHeights.noChair`) has no box of a seat. The function keeps the result of each model.
  *
  * @param player The player model, for example from a `ModelCache`.
@@ -108,17 +109,42 @@ export function playerFootprint(player: PlayerModel): Footprint {
   if (known) {
     return known;
   }
-  const { bones, positions } = player.mesh;
+  // The triangles of the mesh, each with its bone. A piece with its own footprint corners
+  // (`InstrumentPiece.footprint`) counts these corners in place of its parts.
+  const replaced = new Set(
+    player.pieces.flatMap(({ piece }) => (piece.footprint ? [boneIndex(piece.bone)] : [])),
+  );
+  const positions: number[] = [];
+  const bones: number[] = [];
+  const mesh = player.mesh;
+  for (let t = 0; t < mesh.positions.length / 9; t++) {
+    const bone = mesh.bones[t * 3] ?? 0;
+    if (!replaced.has(bone)) {
+      positions.push(...mesh.positions.subarray(t * 9, t * 9 + 9));
+      bones.push(bone);
+    }
+  }
+  for (const { piece, at } of player.pieces) {
+    if (!piece.footprint) {
+      continue;
+    }
+    // The mesh keeps 32-bit positions, so the corners get the same rounding.
+    const placed = placeCorners(piece.footprint, at).map((c) => Math.fround(c));
+    positions.push(...placed);
+    for (let t = 0; t < placed.length / 9; t++) {
+      bones.push(boneIndex(piece.bone));
+    }
+  }
   // One box for the parts of each bone in each band of heights, so that a tilted instrument,
   // such as the cello, gets a tight footprint.
-  const boxes = groupBoxes(player.mesh, (t) => {
+  const boxes = groupBoxes(positions, (t) => {
     const y =
       ((positions[t * 9 + 1] ?? 0) + (positions[t * 9 + 4] ?? 0) + (positions[t * 9 + 7] ?? 0)) / 3;
-    return (bones[t * 3] ?? 0) * 100 + Math.floor(y / BAND_HEIGHT);
+    return (bones[t] ?? 0) * 100 + Math.floor(y / BAND_HEIGHT);
   });
   const seat = buildSupport(player.support, player.seat);
   if (seat) {
-    boxes.push(...groupBoxes(seat, () => 0));
+    boxes.push(...groupBoxes(seat.positions, () => 0));
   }
   const footprint = footprintOf(boxes);
   playerFootprints.set(player, footprint);
@@ -144,7 +170,7 @@ export function standFootprint(deskHeight: number): Footprint {
   // the sheet.
   const parts = 4;
   const footprint = footprintOf(
-    groupBoxes(buildMusicStand(deskHeight), (t) => Math.min(Math.floor(t / 12), parts)),
+    groupBoxes(buildMusicStand(deskHeight).positions, (t) => Math.min(Math.floor(t / 12), parts)),
   );
   standFootprints.set(deskHeight, footprint);
   return footprint;

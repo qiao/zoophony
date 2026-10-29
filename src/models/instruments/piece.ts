@@ -73,6 +73,8 @@ export function hold(
 /** Collects the parts of one piece in the axes of the piece. */
 export class PieceBuilder {
   readonly #parts: InstrumentPart[] = [];
+  /** The corners that the footprint counts in place of the parts ({@link InstrumentPiece.footprint}). */
+  readonly #footprint: number[] = [];
   readonly #size: number;
 
   /**
@@ -99,6 +101,17 @@ export class PieceBuilder {
     finish: Finish = 'matte',
   ): void {
     this.#parts.push({ corners: this.#place(corners, at), color, finish });
+  }
+
+  /**
+   * Adds corners that the footprint of the player counts in place of the parts
+   * ({@link InstrumentPiece.footprint}).
+   *
+   * @param corners The corner list in its own axes.
+   * @param at The placement in the piece axes, before the size scale.
+   */
+  footprint(corners: readonly number[], at: Transform = transform()): void {
+    this.#footprint.push(...this.#place(corners, at));
   }
 
   /**
@@ -215,7 +228,11 @@ export class PieceBuilder {
    * @returns The piece.
    */
   build(bone: InstrumentBone, pieceHold: PieceHold): InstrumentPiece {
-    return { bone, parts: [...this.#parts], hold: pieceHold };
+    const piece: InstrumentPiece = { bone, parts: [...this.#parts], hold: pieceHold };
+    if (this.#footprint.length > 0) {
+      return { ...piece, footprint: [...this.#footprint] };
+    }
+    return piece;
   }
 }
 
