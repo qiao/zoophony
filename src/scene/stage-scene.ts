@@ -49,6 +49,7 @@ import {
   createStaticMesh,
   holdSkeletons,
   releaseSkeletons,
+  sharedGeometryOf,
 } from './player.ts';
 import type { PlayerSpot } from './player.ts';
 import { PostPipeline, targetFormatOf } from './post.ts';
@@ -135,7 +136,8 @@ function focusSpots(layout: SceneLayout, models: ModelCache): FocusSpot[] {
 /**
  * Lets three.js cull the player meshes in each pass (design 4.5): each player whose geometry has
  * bone spheres (`boneSpheres()`) gets a bounding sphere, which the stage fits to the pose of each
- * frame (`fitPoseSphere()`). The players of one model share the spheres of their geometry.
+ * frame (`fitPoseSphere()`). The players of one model share the spheres of their shared geometry
+ * (`sharedGeometryOf()`), also a pianist with positions of its own.
  *
  * @param players The player meshes.
  * @returns The bone spheres of each culled mesh.
@@ -144,10 +146,11 @@ function cullPlayers(players: readonly SkinnedMesh[]): Map<SkinnedMesh, BoneSphe
   const byGeometry = new Map<BufferGeometry, BoneSpheres | null>();
   const culled = new Map<SkinnedMesh, BoneSpheres>();
   for (const mesh of players) {
-    let spheres = byGeometry.get(mesh.geometry);
+    const geometry = sharedGeometryOf(mesh);
+    let spheres = byGeometry.get(geometry);
     if (spheres === undefined) {
-      spheres = boneSpheres(mesh.geometry, mesh.skeleton.bones.length);
-      byGeometry.set(mesh.geometry, spheres);
+      spheres = boneSpheres(geometry, mesh.skeleton.bones.length);
+      byGeometry.set(geometry, spheres);
     }
     if (spheres) {
       mesh.boundingSphere = new Sphere();

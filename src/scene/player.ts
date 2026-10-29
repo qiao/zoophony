@@ -1,8 +1,20 @@
-import { Bone, BufferAttribute, Group, Matrix4, Mesh, Skeleton, SkinnedMesh, Vector3 } from 'three';
-import type { BufferGeometry, MeshStandardMaterial } from 'three';
+import {
+  Bone,
+  BufferAttribute,
+  BufferGeometry,
+  DynamicDrawUsage,
+  Group,
+  Matrix4,
+  Mesh,
+  Skeleton,
+  SkinnedMesh,
+  Vector3,
+} from 'three';
+import type { MeshStandardMaterial } from 'three';
 
 import type { Vec3 } from '../models/tuples.ts';
 import type { MeshData } from '../models/mesh.ts';
+import type { PianoKeys } from '../models/instruments/hold.ts';
 import type { ModelCache } from '../models/model-cache.ts';
 import type { PlayerModel } from '../models/player.ts';
 import type { Support } from '../models/props.ts';
@@ -203,9 +215,69 @@ export const CLOSED_EYE_SCALE = 0.05;
  */
 const offsetBinds = new WeakMap<SkinnedMesh, { slide: Vector3; instrument: Vector3 }>();
 
+/** The keys of a player mesh with a keyboard, which {@link applyPose} turns (design 4.6, 5.3). */
+interface KeyMesh {
+  readonly keys: PianoKeys;
+  /** The geometry that the players of the model share. Its positions are the bind places. */
+  readonly shared: BufferGeometry;
+  /** The bind places of the corners: the positions of {@link KeyMesh.shared}. */
+  readonly bind: Float32Array;
+  /** The positions of the mesh, with the turns of its keys. */
+  readonly position: BufferAttribute;
+  /** The level of each key in {@link KeyMesh.position}. */
+  readonly levels: Float32Array;
+}
+
+/** The player meshes with a keyboard. */
+const keyMeshes = new WeakMap<SkinnedMesh, KeyMesh>();
+
+/**
+ * Creates the geometry of one player with a keyboard: a position attribute of its own, because
+ * two players of one model play different notes, and each other attribute and the morph
+ * attributes of the shared geometry (design 4.6). The attribute names stay the same, so the mesh
+ * keeps the program variant of the shared geometry, and it adds no draw call.
+ *
+ * @param shared The geometry that the players of the model share.
+ * @returns The geometry of the player.
+ * @throws Error if the shared geometry has no positions of 32-bit floats.
+ */
+function keyGeometry(shared: BufferGeometry): BufferGeometry {
+  const geometry = new BufferGeometry();
+  for (const [name, attribute] of Object.entries(shared.attributes)) {
+    if (name !== 'position') {
+      geometry.setAttribute(name, attribute);
+    }
+  }
+  const bind = shared.getAttribute('position');
+  if (!(bind instanceof BufferAttribute) || !(bind.array instanceof Float32Array)) {
+    throw new Error('The geometry of a player has no positions of 32-bit floats.');
+  }
+  const position = new BufferAttribute(new Float32Array(bind.array), 3);
+  position.setUsage(DynamicDrawUsage);
+  geometry.setAttribute('position', position);
+  geometry.morphAttributes = { ...shared.morphAttributes };
+  geometry.morphTargetsRelative = shared.morphTargetsRelative;
+  for (const group of shared.groups) {
+    geometry.addGroup(group.start, group.count, group.materialIndex);
+  }
+  return geometry;
+}
+
+/**
+ * Gives the geometry that the players of the model of a mesh share. A player with a keyboard has
+ * a geometry of its own ({@link keyGeometry}), with the same bind places.
+ *
+ * @param mesh A mesh of {@link createPlayerMesh}.
+ * @returns The shared geometry.
+ */
+export function sharedGeometryOf(mesh: SkinnedMesh): BufferGeometry {
+  return keyMeshes.get(mesh)?.shared ?? mesh.geometry;
+}
+
 /**
  * Creates the skinned mesh of one player (design 4.4). Each player has its own bones, so that
- * each player gets its own pose.
+ * each player gets its own pose. A player with a keyboard also gets its own positions, so that
+ * its keys go down with its notes ({@link keyGeometry}).
  *
  * @param model The player model of `models/`.
  * @param geometry The geometry of the model, from {@link createPlayerGeometry}.
@@ -217,9 +289,38 @@ export function createPlayerMesh(
   geometry: BufferGeometry,
   materials: readonly MeshStandardMaterial[],
 ): SkinnedMesh {
-  if (model.studio) {
-    return createStudioMesh(model, model.studio, geometry, materials);
+  const own = model.keys ? keyGeometry(geometry) : geometry;
+  const mesh = model.studio
+    ? createStudioMesh(model, model.studio, own, materials)
+    : createBipedMesh(model, own, materials);
+  const position = own.getAttribute('position');
+  const bind = geometry.getAttribute('position').array;
+  if (model.keys && position instanceof BufferAttribute && bind instanceof Float32Array) {
+    keyMeshes.set(mesh, {
+      keys: model.keys,
+      shared: geometry,
+      bind,
+      position,
+      levels: new Float32Array(model.keys.corners.length - 1),
+    });
   }
+  return mesh;
+}
+
+/**
+ * Creates the skinned mesh of a player with a parametric body (design 4.4), with a bone tree in
+ * the order of `BONE_NAMES`.
+ *
+ * @param model The player model.
+ * @param geometry The geometry of the player.
+ * @param materials The shared material.
+ * @returns The mesh in the bind pose.
+ */
+function createBipedMesh(
+  model: PlayerModel,
+  geometry: BufferGeometry,
+  materials: readonly MeshStandardMaterial[],
+): SkinnedMesh {
   const { positions, parents } = model.skeleton;
   const bones = positions.map(() => {
     const bone = new Bone();
@@ -386,12 +487,14 @@ export function hideBone(mesh: SkinnedMesh, name: BoneName): void {
  * Copies a pose to the bones of a player mesh: the rotations, the offset of the root, the move of
  * the trombone slide along its axis, the move of the instrument, and the blink of the eyes
  * (design 5.1). A mesh with a studio body gets the bones of the studio from the pose
- * ({@link applyStudioPose}).
+ * ({@link applyStudioPose}). A mesh with a keyboard turns its keys to their levels
+ * ({@link applyKeys}).
  *
  * @param mesh A mesh of {@link createPlayerMesh}.
  * @param pose The pose, with one rotation for each bone.
  */
 export function applyPose(mesh: SkinnedMesh, pose: AnimalPose): void {
+  applyKeys(mesh, pose.keys);
   if (applyStudioPose(mesh, pose)) {
     return;
   }
@@ -413,6 +516,85 @@ export function applyPose(mesh: SkinnedMesh, pose: AnimalPose): void {
   for (const eye of EYES) {
     mesh.skeleton.bones[eye]?.scale.setY(eyeScale);
   }
+}
+
+/**
+ * Turns the corners of one key from their bind places around the line of the keys (design 4.6).
+ *
+ * @param keys The keys of the mesh.
+ * @param bind The bind places of the corners.
+ * @param out The positions to write.
+ * @param key The index of the key.
+ * @param angle The turn, in radians. A positive turn moves the front of the key down.
+ */
+function turnKey(
+  keys: PianoKeys,
+  bind: Float32Array,
+  out: Float32Array,
+  key: number,
+  angle: number,
+): void {
+  const [ux, uy, uz] = keys.axis;
+  const [px, py, pz] = keys.pivot;
+  const cos = Math.cos(angle);
+  const sin = Math.sin(angle);
+  const end = (keys.corners[key + 1] ?? 0) * 3;
+  // The rotation formula of Rodrigues, around the unit axis through the pivot.
+  for (let i = (keys.corners[key] ?? 0) * 3; i < end; i += 3) {
+    const x = (bind[i] ?? 0) - px;
+    const y = (bind[i + 1] ?? 0) - py;
+    const z = (bind[i + 2] ?? 0) - pz;
+    const along = (ux * x + uy * y + uz * z) * (1 - cos);
+    out[i] = px + x * cos + (uy * z - uz * y) * sin + ux * along;
+    out[i + 1] = py + y * cos + (uz * x - ux * z) * sin + uy * along;
+    out[i + 2] = pz + z * cos + (ux * y - uy * x) * sin + uz * along;
+  }
+}
+
+/**
+ * Turns the keys of a player mesh with a keyboard to their press levels (design 4.6, 5.3). Only
+ * the keys whose level changed since the last frame move, and only their corners go to the GPU:
+ * one range from the first changed key to the last.
+ *
+ * @param mesh A mesh of {@link createPlayerMesh}. A mesh with no keyboard does not change.
+ * @param levels The level of each key, from `AnimalPose.keys`. With none, all keys are up.
+ */
+function applyKeys(mesh: SkinnedMesh, levels: Float32Array | null | undefined): void {
+  const own = keyMeshes.get(mesh);
+  if (!own) {
+    return;
+  }
+
+  const { keys, bind, position, levels: shown } = own;
+  const out = position.array;
+  if (!(out instanceof Float32Array)) {
+    return;
+  }
+  let from = Infinity;
+  let to = -Infinity;
+  for (let k = 0; k < shown.length; k++) {
+    const level = levels?.[k] ?? 0;
+    if (level === shown[k]) {
+      continue;
+    }
+    shown[k] = level;
+    turnKey(keys, bind, out, k, level * keys.angle);
+    from = Math.min(from, keys.corners[k] ?? 0);
+    to = Math.max(to, keys.corners[k + 1] ?? 0);
+  }
+  if (from >= to) {
+    return;
+  }
+
+  // A range that the renderer did not upload, for example of a culled mesh, joins the new range.
+  const pending = position.updateRanges[0];
+  if (pending) {
+    from = Math.min(from, pending.start / 3);
+    to = Math.max(to, (pending.start + pending.count) / 3);
+    position.clearUpdateRanges();
+  }
+  position.addUpdateRange(from * 3, (to - from) * 3);
+  position.needsUpdate = true;
 }
 
 /**
