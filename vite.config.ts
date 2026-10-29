@@ -1,6 +1,8 @@
+import { resolve } from 'node:path';
 import type { Plugin } from 'vite';
 import { LICENSES_FILE } from './src/app/credits.ts';
 import { DEFAULT_DEMO, demoUrl } from './src/app/demos.ts';
+import { gzipSiteAudio } from './tools/gzip-site.ts';
 import { licenseDocument, licenseEntries } from './tools/licenses.ts';
 import { configDefaults, defineConfig } from 'vitest/config';
 
@@ -91,6 +93,24 @@ const DEFAULT_DEMO_URL: Plugin = {
 };
 
 /**
+ * The plugin that gzips the preset files and the demo files of the build in place, after Vite
+ * writes `dist/` (design 6.2, 7.2, `tools/gzip-site.ts`). GitHub Pages sends these types with no
+ * gzip. The dev server and the Node tools keep the plain files of `public/`.
+ */
+const GZIP_AUDIO: Plugin = {
+  name: 'zoophony:gzip-audio',
+  apply: 'build',
+  async writeBundle() {
+    const { root, build } = this.environment.config;
+    const summary = await gzipSiteAudio(resolve(root, build.outDir));
+    const bytes = (value: number): string => `${value.toLocaleString('en-US')} B`;
+    this.environment.logger.info(
+      `Gzipped ${summary.files} preset and demo files: ${bytes(summary.plainBytes)} to ${bytes(summary.gzipBytes)}.`,
+    );
+  },
+};
+
+/**
  * The plugin that serves the third-party license file in the dev server (design 7.3). The build
  * writes the file into `dist/` after Vite (`tools/licenses.ts`), so the dev server has no file at
  * its path, and its HTML fallback sent the app for the link "Third-party licenses" of the credits.
@@ -116,7 +136,7 @@ const DEV_LICENSES: Plugin = {
 
 export default defineConfig({
   base: BASE,
-  plugins: [DEV_LOOK_OVERRIDE, DEFAULT_DEMO_URL, DEV_LICENSES],
+  plugins: [DEV_LOOK_OVERRIDE, DEFAULT_DEMO_URL, GZIP_AUDIO, DEV_LICENSES],
   build: {
     // tools/size.ts reads the manifest to find the static imports of the entry chunk.
     manifest: true,
