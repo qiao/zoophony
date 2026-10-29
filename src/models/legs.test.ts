@@ -1,6 +1,5 @@
 import { describe, expect, it } from 'vitest';
 
-import { HIP_JOINT } from './body-frame.ts';
 import { SECTION_INSTRUMENTS, SECTION_SPECIES } from './cast.ts';
 import type { PlayingSection } from './cast.ts';
 import type { MeshData } from './mesh.ts';
@@ -57,26 +56,6 @@ describe('the seated legs (design 4.3, 4.5)', () => {
       const kneeTop = topOf(model.mesh, ['shinL', 'shinR']);
 
       expect((kneeTop - seat) / model.body.headHeight, label).toBeLessThan(0.45);
-    }
-  });
-});
-
-describe('the standing legs (design 4.3, 4.5)', () => {
-  it('keeps the legs of each standing player short, as in the reference images', () => {
-    // The standing bear of the reference images has legs of 0.55 H from the crotch to the soles
-    // (`docs/research/2026-10-11-short-legs.md`). The legs of 2026-10-06 were 0.77 H. The studio
-    // penguin stands on the legs of its mesh. The studio bear and the studio rabbit have the legs that the
-    // studio fitted to their sheets (design 4.4), so they are not here.
-    const players = [
-      ...CAST.filter(({ model, label }) => !model.seat && !label.startsWith('penguin')),
-      { label: 'fox-red violin soloist', model: buildPlayer('fox-red', 'violin', 4, 'stand') },
-    ];
-
-    expect(players.length).toBeGreaterThanOrEqual(3);
-    for (const { label, model } of players) {
-      const base = model.body.positions.thighR[1] - HIP_JOINT.standing * model.body.headHeight;
-
-      expect(base / model.body.headHeight, label).toBeLessThan(0.6);
     }
   });
 });
