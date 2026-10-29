@@ -8,17 +8,17 @@ check.
 Two rules hold for every brief:
 
 1. **Each visual claim has a crop of the sheet and a measure.** Make both with
-   `python3 ~/.claude/skills/lowpoly-animal-studio/scripts/sheet_crop.py`, or take them from
+   `scripts/sheet_crop.py` of the skill `lowpoly-animal-studio`, or take them from
    `out/report/` of the last build. A claim with no crop goes back to the manager.
 2. **The agent checks each claim against its crop before it acts.** When the crop disagrees
-   with the claim, the agent follows the crop and reports the difference. (On the bear, the
-   claim "no white ring" had no crop. It was wrong, and three rounds of eye work followed.)
+   with the claim, the agent follows the crop and reports the difference. A claim with no crop
+   can be wrong, and each round that follows a wrong claim is lost.
 
 ---
 
 # Brief: <animal id> <role>, round <n>
 
-Date <yyyy-mm-dd>. Manager <name or session>. Base commit `<hash>` of `main`.
+Base commit `<hash>` of `main`.
 
 ## Goal
 
@@ -34,8 +34,8 @@ Done when: <the exact conditions, each one checkable: checks, images, commits, h
   back, 3/4 at <az> degrees>, figure height <px> px, background RGB <r, g, b>.
 - Camera: <orthographic, or the focal length and the distance>.
 - Face sheet: `<path>`, at <scale>x. Facet image: `<path or "the sheet">`.
-- Sheet spec check (`docs/sheet-spec.md`): <each rule that the sheet breaks, and the decision
-  of the user: "accept as a limit" or "new sheet">.
+- Sheet spec check (`docs/sheet-spec.md`): <each rule that the sheet breaks, and the decision:
+  "accept as a limit" or "new sheet">.
 
 ### Target crops and measures
 
@@ -67,7 +67,7 @@ each item.
 | Folds at any seed | <"each seed that passes the remesh gate passes the fold and contact gates"> | |
 | Other markings | <each marking and its paint rule, or "none"> | <#> |
 | Measures fit this animal | <"agent reads the warnings of `studio calibrate --from <like>`, then confirms the fur saturation floor, the color classes, and the pixel floor of the feature limits before it trusts a check"> | |
-| Sheet check | <each warning of `out/sheet-check.json` and the decision of the user: "accept as a limit" or "new sheet"> | |
+| Sheet check | <each warning of `out/sheet-check.json` and the decision: "accept as a limit" or "new sheet"> | |
 
 ## Role
 
@@ -76,15 +76,13 @@ each item.
   and the reason (the middle of the motion range). (The pianist: 42, 8, 40, 70, 70, 14.)
 - A seated role on an animal with short legs or a large belly: build the bind pose on 2 seeds
   before the clips are written (`python3 studio build <id> --seed <s> --until organic`, the
-  remesh gate). (On the rabbit, the pianist values 70, 70, 14 made slits on most seeds and cost
-  4 role builds, about 15 min.)
+  remesh gate). The pianist values 70, 70, 14 can make slits on most seeds of another body.
 - A held instrument (a violin): the build prints the reach line (README of the studio, "The
   reach line of a held instrument"): the arm from the neck to the middle of the palm (as a
   violin shop measures it), the instrument length, their ratio, and the largest share of the
   reach that the IK targets ask for. The agent reports a ratio outside the range of the size
   chart of a violin shop (0.9 to 1.1) or a target past the reach (above 1) as a blocker for the
-  app, unless the user decided the size. (The rabbit of round 1: ratio 0.554, targets up to
-  1.13 of the reach. Nobody marked it, and a round of the arms followed.)
+  app, unless the brief gives the size as decided.
 - Rig: <`[rig] fingers`: 1, or one digit for each claw (the pianist: 4)>.
 - Props: <each prop and its kind: in a hand `stick` or `bow`, in the scene `piano`, `bench`,
   `chair`, `music_stand`, `violin`, or `cello`. The studio sizes them from the body: give a
@@ -100,8 +98,8 @@ each item.
 ## Values to keep
 
 <Each value that must not get worse, with its current number: the IoU of each view, the checks
-that pass now, the gates, the seed report, the triangle budget, the GLB size,
-`python3 studio regress bear` and `python3 studio regress polar-bear` (the GLB and the model
+that pass now, the gates, the seed report, the triangle budget, the GLB size, and
+`python3 studio regress` of the bear, the polar bear, and the rabbit (the GLB and the model
 GLB).>
 
 ## Limits
@@ -115,21 +113,21 @@ GLB).>
 
 ## Deliverables
 
-- Commits on branch `<branch>`, one logical change per commit, Conventional Commits with the
-  scope `studio`.
+- Commits on `<branch>`, one logical change per commit, Conventional Commits with the scope
+  `studio`.
 - `animals/<id>/animal.toml`, the reference files, `out/` of the kept seed, and
   `animals/<id>/README.md` with the method and the numbers.
 - `golden.json` (`python3 studio regress <id> --write --from animals/<id>/out --note
   "<note>"`) in a commit of its own, with the reason in the commit message.
-- The handoff file `docs/handoff-<id>.md`: the last finished step, the next step, the
-  numbers, the failing checks, the open problems.
+- The update of `docs/handoff.md`: the state, the open problems, and the next steps. It holds
+  the current state only, with no history of the round.
 - The report in the format below.
 
 ## Rules
 
-- Work in the git worktree `<path>` on the branch `<branch>`, from `<base>`. Stage each path by
-  its name. Never use `git add -A` or `git add .`.
-- Run each studio command in `lowpoly-studio/` of your worktree. Never write into the main
+- Work in `<the main checkout, or a worktree for parallel agents>` on `<branch>`, from `<base>`.
+  Stage each path by its name. Never use `git add -A` or `git add .`.
+- Run each studio command in `lowpoly-studio/` of that checkout. Never write into another
   checkout.
 - Ports: let the studio choose free ports. Never take 5173 or 5190.
 - Stop each server, browser, and Blender process that you start. Never stop a process that
@@ -138,7 +136,7 @@ GLB).>
   long builds in the background. Read the exit code of the command itself: a pipe gives the
   code of its last part.
 - Put numbers in `animal.toml` or `role.toml`. A change of studio code runs
-  `python3 studio regress bear` and `python3 studio regress polar-bear`. A pure refactor keeps
+  `python3 studio regress` on the bear, the polar bear, and the rabbit. A pure refactor keeps
   every GLB byte-identical. An improvement may change an existing animal only when it is
   measurably closer to its sheet and no gate gets worse: give a before-and-after table and a
   review image, and write the new golden file in a commit of its own with the reason.
@@ -149,10 +147,9 @@ GLB).>
   `python3 studio compare <id>` makes them current.
 - After each round, compare `out/compare/face_front.png`, `out/compare/face_side.png`, and the
   ear crops (`out/report/features/ears_*.png`) with the sheet by eye. List each visible
-  difference with a measure, also when the checks pass. (Round 1 of the rabbit tuned only to the
-  IoU and the feature checks. It missed a pointed muzzle, upright ears, and a pink share of the
-  ear of 0.84 against 0.48 on the sheet, and round 2 fixed them in 40 minutes.)
-- Commit after each part. Update the handoff file after each finished step. Take each time of
+  difference with a measure, also when the checks pass. The IoU and the feature checks can pass
+  while the muzzle, the form of the ears, or the colors of the ears are wrong.
+- Commit after each part. Update `docs/handoff.md` after each finished step. Take each time of
   a report or a handoff from `python3 studio log <id>`.
 - Write in ASD-STE100 Simplified Technical English, with no em dashes.
 
