@@ -5,8 +5,9 @@
   "license": "(Apache-2.0 AND CC-BY-NC-4.0)",
   "type": "module",
   "scripts": {
-    "dev": "node tools/split-soundfont.ts && node tools/patch-demos.ts && node tools/write-perf-60.ts && vite",
-    "build": "node tools/split-soundfont.ts && node tools/patch-demos.ts && vite build && node tools/licenses.ts",
+    "prepare-site": "node tools/split-soundfont.ts && node tools/patch-demos.ts",
+    "dev": "pnpm prepare-site && node tools/write-perf-60.ts && vite",
+    "build": "pnpm prepare-site && vite build && node tools/licenses.ts",
     "typecheck": "tsc",
     "test": "vitest run --project unit",
     "test:perf": "vitest run --project perf",
@@ -35,7 +36,7 @@
     "beat-rates": "node tools/beat-rates.ts",
     "clip-probe": "node tools/clip-probe.ts",
     "keyboard": "pnpm build && node tools/keyboard-check.ts",
-    "smoke": "node tools/split-soundfont.ts && node tools/patch-demos.ts && node tools/smoke.ts",
+    "smoke": "pnpm prepare-site && node tools/smoke.ts",
     "rig-mesh": "node tools/rig-mesh.ts",
     "mesh-options": "node tools/mesh-options.ts",
     "studio-body": "node tools/studio-body.ts",
@@ -50,9 +51,9 @@
     "look-variants": "node tools/look-variants.ts",
     "light-probe": "node tools/light-probe.ts",
     "loudness": "node tools/loudness.ts",
-    "frame": "node tools/split-soundfont.ts && node tools/patch-demos.ts && node tools/write-perf-60.ts && node tools/measure-frame.ts",
-    "frozen": "node tools/split-soundfont.ts && node tools/patch-demos.ts && node tools/write-perf-60.ts && node tools/frozen.ts",
-    "cpu-profile": "node tools/split-soundfont.ts && node tools/patch-demos.ts && node tools/write-perf-60.ts && node tools/cpu-profile.ts",
+    "frame": "pnpm prepare-site && node tools/write-perf-60.ts && node tools/measure-frame.ts",
+    "frozen": "pnpm prepare-site && node tools/write-perf-60.ts && node tools/frozen.ts",
+    "cpu-profile": "pnpm prepare-site && node tools/write-perf-60.ts && node tools/cpu-profile.ts",
     "frame-compare": "node tools/frame-compare.ts"
   },
   "dependencies": {
