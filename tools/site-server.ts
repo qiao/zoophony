@@ -10,12 +10,12 @@
 // that the fetches of the Workers also get it (`--phone` of `pnpm load-probe`).
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { existsSync, mkdirSync, readFileSync, statSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, readdirSync, statSync } from 'node:fs';
 import type { IncomingHttpHeaders, OutgoingHttpHeaders } from 'node:http';
 import { createSecureServer } from 'node:http2';
 import type { Http2ServerRequest, Http2ServerResponse } from 'node:http2';
 import { extname, join, normalize, resolve } from 'node:path';
-import { brotliCompressSync, gzipSync } from 'node:zlib';
+import { brotliCompressSync, constants, gzipSync } from 'node:zlib';
 
 /** The root of the repository. */
 const ROOT = resolve(import.meta.dirname, '..');
@@ -59,6 +59,12 @@ export const NO_LIMIT: Network = { latencyMs: 0, bytesPerSecond: Infinity };
 
 /** The bytes that each body of the shaper gets in its turn. */
 const LINK_TURN_BYTES = 4096;
+
+/**
+ * The brotli quality of Vercel. The brotli bodies of the live site have the sizes of quality 3,
+ * within 0.1%, and the default quality 11 makes the 1.9 MB chunk `renderer` in about 3 s.
+ */
+const BROTLI_QUALITY = 3;
 
 /** The host whose answers the server copies. */
 export type SiteHost = 'pages' | 'vercel';
@@ -156,7 +162,7 @@ interface SiteFile {
   readonly body: Buffer;
   /** True for a text type, which the server compresses. */
   readonly text: boolean;
-  /** The compressed bytes of each coding that the server sent, made at the first use. */
+  /** The compressed bytes of each coding, made one time. */
   readonly coded: Map<Coding, Buffer>;
   /** The ETag: a part of the SHA-1 of the bytes. */
   readonly etag: string;
@@ -241,6 +247,27 @@ export class SiteServer {
         } else {
           i++;
         }
+      }
+    }
+  }
+
+  /**
+   * Reads each text file of the site and makes its compressed bodies for the host, so that no
+   * request waits for a compression. A compression in a request stops all other answers.
+   */
+  prepare(): void {
+    const codings: readonly Coding[] = this.#host === 'vercel' ? ['br', 'gzip'] : ['gzip'];
+    for (const name of readdirSync(this.#root, { recursive: true, encoding: 'utf8' })) {
+      if (!TEXT_TYPES.has(extname(name))) {
+        continue;
+      }
+
+      const entry = this.#file(`/${name}`);
+      if (!entry) {
+        continue;
+      }
+      for (const coding of codings) {
+        codedBody(entry, coding);
       }
     }
   }
@@ -353,8 +380,7 @@ export class SiteServer {
     const coding = this.#coding(entry, String(headers['accept-encoding']));
     let body = entry.body;
     if (coding) {
-      body = entry.coded.get(coding) ?? encode(entry.body, coding);
-      entry.coded.set(coding, body);
+      body = codedBody(entry, coding);
       replyHeaders['content-encoding'] = coding;
     }
     replyHeaders['content-length'] = String(body.length);
@@ -388,14 +414,24 @@ export class SiteServer {
 }
 
 /**
- * Compresses the bytes of a file.
+ * Gives the compressed body of a file, and keeps it for the next request.
  *
- * @param body The bytes.
+ * @param entry The file.
  * @param coding The content coding.
- * @returns The compressed bytes. Brotli uses its default quality, 11.
+ * @returns The compressed bytes: brotli at {@link BROTLI_QUALITY}, or gzip at its default level.
  */
-function encode(body: Buffer, coding: Coding): Buffer {
-  return coding === 'br' ? brotliCompressSync(body) : gzipSync(body);
+function codedBody(entry: SiteFile, coding: Coding): Buffer {
+  let body = entry.coded.get(coding);
+  if (!body) {
+    body =
+      coding === 'br'
+        ? brotliCompressSync(entry.body, {
+            params: { [constants.BROTLI_PARAM_QUALITY]: BROTLI_QUALITY },
+          })
+        : gzipSync(entry.body);
+    entry.coded.set(coding, body);
+  }
+  return body;
 }
 
 /** The certificate of the server. */
@@ -473,7 +509,8 @@ export interface SiteOptions {
 }
 
 /**
- * Starts the server of a site on a port of `localhost`, with its shaper.
+ * Starts the server of a site on a port of `localhost`, with its shaper. The compressed bodies are
+ * ready before the first request.
  *
  * @param options The options.
  * @returns The running site.
@@ -481,6 +518,7 @@ export interface SiteOptions {
 export async function startSiteServer(options: SiteOptions): Promise<RunningSite> {
   const { root, host, network, port } = options;
   const server = new SiteServer(root, host, network);
+  server.prepare();
   const linkTimer = setInterval(() => {
     server.tick();
   }, 5);
