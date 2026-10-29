@@ -103,7 +103,14 @@ after it.
 ## 7. The bright elbow
 
 The image of the user shows orange fur, a black forearm with a zigzag edge, and an upright bow:
-the colors of the red fox at rest. The cat is gray in each play view. In the role views of the red fox violinist,
-the inner right elbow at rest has a faint light crease from az60, and no face of that elbow folds
-at rest (`pnpm fold-probe fox-violinist`). The play camera of `close-views play --at` stood too
-near the next player to show it. The place and the time of the image are a question for the user.
+the colors of the red fox at rest. The cat is gray in each play view. With the fill light, the role
+view of the red fox violinist from az45 at rest matches the image (`fox-elbow-main.webp`). The bend
+of the rest pose makes a ridge of faceted faces at the inner right elbow, and no face of that elbow
+folds at rest (`pnpm fold-probe fox-violinist`). So the red fox takes the rest shape of the hippo
+(section 5): the mean turns of its 14 rest samples, 10 rounds, and no relax (`fox-table.txt`).
+
+The fox mesh also serves the tan fox flutist. Its rest lies 22.6° from the rule turn, and the play
+of the red fox 31° to 59° (`fade-angles.ts`), so the fade is 8° to 18°. `fox-rest.webp` shows
+`main`, 6 rounds, and 10 rounds (chosen) at rest and at the frog: the inner elbow is a smooth
+curve, and the frog stays as on `main`. The folds and the arm gate of both foxes stay as on
+`main` (`fox-arm-check.txt`), and the first download grows by 795 B.
