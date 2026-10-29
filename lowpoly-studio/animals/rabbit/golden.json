@@ -1447,5 +1447,5 @@
     "claw_count.front.right_in_image": true,
     "facet_contrast": true
   },
-  "source": "Round 4: the arms reach 1.4 times to the middle of the palm (0.3146), the violin 0.234, the bow 0.29. Role seed 8, model seed 3. Retro: the ear measures inner and lean, the ear checks, and the reach checks of the held violin (the same GLB)."
+  "source": "The arms reach 1.4 times to the middle of the palm (0.3146), the violin 0.234, the bow 0.29. Role seed 8, model seed 3. With the ear measures inner and lean, the ear checks, and the reach checks of the held violin (the same GLB)."
 }

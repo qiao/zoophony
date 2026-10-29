@@ -13,11 +13,10 @@ stance = "standing"
 doc = "Stands in a fixed standing bind pose. The model build of each animal uses it for the look checks."
 
 # A standing bind pose with the arms raised to the middle of the range of a standing animal. The
-# values are the conductor values of 2026-10-12, so a conductor build shares its model stages
+# values are the bind values of the conductor, so a conductor build shares its model stages
 # (field to organic) with the model build through the stage cache. They are fixed here: a change
 # of a role does not change the model build. A bind pose in the pose of the sheet (no turns)
-# was the other choice; on 2026-10-12 it gave a lower IoU on the polar bear, and on the bear
-# only seed 6 of 8 passed its remesh gate (lowpoly-studio/docs/handoff-runtime.md).
+# gives a lower IoU on the polar bear, and on the bear only seed 6 of 8 passes its remesh gate.
 [bind]
 shoulder_flex = 40.0
 shoulder_abduct = 10.0

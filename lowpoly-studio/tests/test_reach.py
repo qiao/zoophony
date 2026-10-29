@@ -28,11 +28,11 @@ def reach(arm, length, clips):
             'instruments': [{'name': 'violin', 'kind': 'violin', 'length': length}]}
 
 
-# The short arms of round 1: the bow paw asks for 1.13 of the reach in "ready".
+# Short arms: the bow paw asks for 1.13 of the reach in "ready".
 ROUND_1 = reach(0.2247, 0.17, {'reference': {}, 'ready': {'L': [0.9641, 60], 'R': [1.1287, 24]},
                                'play': {'L': [0.9641, 120], 'R': [0.8665, 30]}})
 
-# The arms of round 4 (1.4 times the reach), with a violin of a real player.
+# Arms with 1.4 times the reach, with a violin of a real player.
 REAL = reach(0.3146, 0.31, {'ready': {'L': [0.7885, 48], 'R': [0.8145, 24]}})
 
 

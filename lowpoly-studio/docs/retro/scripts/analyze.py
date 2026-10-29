@@ -28,7 +28,7 @@ def tags(c):
     if n != 'Bash':
         t.add(n)
         return t
-    if 'def patch(' in cmd or "sed -i" in cmd or re.search(r"cat > (?!/Users/xueqiaoxu/\.claude/jobs)", cmd) or 'apply_patch' in cmd:
+    if 'def patch(' in cmd or "sed -i" in cmd or re.search(r"cat > (?!" + re.escape(os.path.expanduser('~')) + r"/\.claude/jobs)", cmd) or 'apply_patch' in cmd:
         t.add('edit')
     if re.search(r'blender -b|build\.sh|python3\.13|\$PY |fit\.py', cmd):
         t.add('blender')

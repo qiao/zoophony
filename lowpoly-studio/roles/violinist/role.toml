@@ -41,8 +41,7 @@ material = { roughness = 0.6, specular = 0.3 }
 # toward the index side, and the top plate toward the finger. The clips turn the paw so that the
 # violin lies between the chin and the left collarbone. The violin touches the chin and the
 # collarbone, so the contact check does not test it. The violin of the rabbit is 0.234 long: about
-# 0.28 m at the scale of the app (1.198 m for each unit), the size that the app gives to the arms of
-# round 4 (the user, 2026-10-13: "Arms x1.4, violin 28 cm"). That is 0.80 arm reaches.
+# 0.28 m at the scale of the app (1.198 m for each unit). That is 0.80 arm reaches.
 [[props]]
 name = "violin"
 kind = "violin"

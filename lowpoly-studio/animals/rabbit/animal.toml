@@ -132,11 +132,11 @@ tilt = -15.0
 blend = 0.008
 box_pad = 0.05
 
-# The left arm in the pose of the sheet (the "reference" pose). Round 4 (the user, 2026-10-13:
-# "Arms x1.4, violin 28 cm"): the upper arm and the forearm are 1.444 times the sheet arm along the
-# directions of the sheet (sheet: elbow [0.14, 0.40, 0.035], wrist [0.200, 0.335, 0.06]), so the
-# reach from the shoulder joint to the middle of the palm is 1.40 times (0.2247 to 0.3146). The
-# clavicle, the shoulder joint, and the paw (the knuckle - wrist offset) do not change.
+# The left arm in the pose of the sheet (the "reference" pose). For a violin of 28 cm, the upper arm
+# and the forearm are 1.444 times the sheet arm along the directions of the sheet (sheet: elbow
+# [0.14, 0.40, 0.035], wrist [0.200, 0.335, 0.06]), so the reach from the shoulder joint to the
+# middle of the palm is 1.40 times (0.2247 to 0.3146). The clavicle, the shoulder joint, and the paw
+# (the knuckle - wrist offset) do not change.
 [field.arm.joints]
 clavicle = [0.02, 0.50, 0.02]
 shoulder = [0.07, 0.485, 0.025]
@@ -189,7 +189,7 @@ relax_rounds = 3
 jitter = 0.005
 
 # The quad band of the polar bear (30% of facets.quads). On the rabbit the seeds give 648 to 808
-# quads at the target 780 (round 1, 2026-10-13), inside the band.
+# quads at the target 780, inside the band.
 [facets.gate]
 quads = 0.3
 
@@ -312,11 +312,10 @@ smile_lift = 0.003
 smile_radii = [0.0015, 0.0009]
 
 [details.ears]
-# A blade loft (round 3): the outer edge follows the ellipse of round 2, the inner edge comes in
-# toward a pointed tip, and a narrow pink slot runs near the outer edge with a wide cream band on
-# the inner edge. The rings follow the ear rows and the pink rows of the front view of the sheet
-# (y 0.78 to 0.99). tip_x keeps the top of round 2 (y 0.99373), because the renders scale the
-# model to its top.
+# A blade loft: the outer edge follows an ellipse, the inner edge comes in toward a pointed tip,
+# and a narrow pink slot runs near the outer edge with a wide cream band on the inner edge. The
+# rings follow the ear rows and the pink rows of the front view of the sheet (y 0.78 to 0.99).
+# tip_x keeps the top of the ear at y 0.99373, because the renders scale the model to its top.
 blade = [[-1.0, 0.425, -0.025],
          [-0.75, 0.64, -0.02],
          [-0.5, 0.795, -0.005],
@@ -411,7 +410,7 @@ shadow = 0.2
 [compare]
 rows = [130, 840]  # measured by studio new
 # The 3/4 view of the sheet turns the head toward the camera more than the body. The compare
-# render turns the head in this range and keeps the best IoU (+8 to +9 degrees in round 1).
+# render turns the head in this range and keeps the best IoU.
 head_turn = { three_quarter = [0.0, 18.0] }
 fur_band = [0.15, 0.55]
 head_share = 0.3
@@ -432,7 +431,7 @@ mesh_belly = [-0.1, 0.2, 0.1, 0.4]
 dark = { max_under = 129 }  # python3 studio calibrate (rabbit GLB)
 ear_dark = { median_under = 0.8 }
 # The pink of the inner ear: the hue and the saturation of paint.palette.ear_inner. The cream fur
-# (saturation 0.13) stays out, and the strong pink of round 1 (237, 168, 145) stays in.
+# (saturation 0.13) stays out, and a strong pink (237, 168, 145) stays in.
 ear_inner = { palette = "ear_inner", hue_tol = 20.0, saturation_tol = 0.12 }
 nose = { palette = "nose", saturation_tol = 0.12 }
 claw = { palette = "claw", saturation_tol = 0.12, max_under = 185 }
@@ -452,9 +451,8 @@ regions = { front = [-0.12, 0.64, 0.12, 0.70], three_quarter = [-0.12, 0.64, 0.2
 checks = { outline = { measure = "width", op = "rel<=", limit = 0.08 }, y = { op = "abs<=", limit = 0.01 } }
 
 # The ears: the bumps of the silhouette at the top of the head, the inner ear in the front view.
-# inner: the pink share of the ear in the front view (sheet 0.48 and 0.50, round 1 0.84, round 4
-# 0.48). lean: the back edge of the ear from the vertical in the side view (sheet 9.8 degrees,
-# the upright ears of round 1 -7.2, round 4 9.5).
+# inner: the pink share of the ear in the front view (sheet 0.48 and 0.50, build 0.48). lean: the
+# back edge of the ear from the vertical in the side view (sheet 9.8 degrees, build 9.5).
 [measure.features.ears]
 method = "bump"
 dark = "ear_dark"

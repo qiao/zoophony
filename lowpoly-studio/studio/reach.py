@@ -8,10 +8,9 @@ studio/checks.py reach_checks() reads it.
 The arm of a held instrument is the arm of a violin shop: the player holds the left arm out to
 the side, and the shop measures from the neck to the middle of the palm (Ellis Music). The size
 chart of Violin Lounge gives the total length of the violin against this arm: 59 cm for 58.5 cm
-(4/4), 52 cm for 51 cm (1/2), and 36 cm for 35.5 cm (1/16), ratios 1.01 to 1.02
-(docs/research/2026-10-13-studio-rabbit.md, section 5). The studio measures this arm along the
-bones of the extended arm: from the head of the neck bone to the inner end of the clavicle, to
-the shoulder joint, the elbow, the wrist, and the middle of the palm.
+(4/4), 52 cm for 51 cm (1/2), and 36 cm for 35.5 cm (1/16), ratios 1.01 to 1.02. The studio
+measures this arm along the bones of the extended arm: from the head of the neck bone to the inner
+end of the clavicle, to the shoulder joint, the elbow, the wrist, and the middle of the palm.
 """
 
 import math

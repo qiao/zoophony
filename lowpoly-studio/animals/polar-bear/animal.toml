@@ -1,6 +1,5 @@
-# The polar bear: the config of the second animal of the low-poly studio (the pilot of
-# lowpoly-studio/docs/retro/pilot-polar-bear.md). It started from the bear config
-# (python3 studio new polar-bear --like bear) and holds the measures of its own sheet.
+# The polar bear: the config of the second animal of the low-poly studio. It comes from the bear
+# config (python3 studio new polar-bear --like bear) and holds the measures of its own sheet.
 #
 # Units: the animal is 1 unit tall, from the soles to the tops of the ears. Axes of three.js
 # and glTF: x is the left of the animal, y is up, z is forward. Each point of the left side is
@@ -51,11 +50,10 @@ fov = 7.4
 # The body field: measured parts that blend into one signed distance field.
 [field]
 step = 0.004
-# The user asked for longer legs on 2026-10-14: "the polar bear's feet are not touching the
-# ground. make its leg longer if needed". The shins (knee to ankle) are 0.072 units longer than
-# on the sheet, the hang of the soles over the floor in the app on the bench of 0.25 m (0.0725),
-# rounded to 18 steps of the field grid. Each height above the knees is 0.072 higher than its
-# measure on the sheet.
+# The shins (knee to ankle) are 0.072 units longer than on the sheet, so that the feet touch the
+# floor in the app: the hang of the soles over the floor on the bench of 0.25 m (0.0725), rounded
+# to 18 steps of the field grid. Each height above the knees is 0.072 higher than its measure on
+# the sheet.
 lift = 0.072
 
 [field.trunk]
@@ -173,18 +171,13 @@ sole_blend = 0.006
 blend = 0.012
 box_pad = 0.06
 
-# The low-poly facets: the remesh and the organic pass. The user asked on 2026-10-22 for smooth
-# and round bears in the app, within 3,000 faces ("do not exceed 3000 meshes"). So the belly and
-# the soles take no warp, the trunk takes no squeeze, and the facets take no jitter, as for the
-# bear (docs/decisions/2026-10-22-studio-bears.md of the repository). With the level thighs of
-# the pianist role of that day, seed 3 passes each gate. The quads rise from 780 to 960 for a
-# rounder body: 1,624 fur and 1,080 gloss faces.
+# The low-poly facets: the remesh and the organic pass. The bears in the app are smooth and round,
+# with less than 3,000 faces. So the belly and the soles take no warp, the trunk takes no squeeze,
+# and the facets take no jitter, as for the bear. With the level thighs of the pianist role, seed
+# 3 passes each gate. The 960 quads give a rounder body than 780: 1,624 fur and 1,080 gloss faces.
 [facets]
 quads = 960
-# Seed 6 comes first since the longer shins of 2026-10-14: in the poses of the app pianist, a
-# face of seed 6 folds in 9.4% of the play samples (the head and the neck), seed 3 has a corner of
-# the right upper arm with forearm and hand weights that folds in each pose, and seed 4 folds the
-# belly at the lean (`docs/research/2026-10-14-polar-fix.md`).
+# Seed 3 comes first, because it passes each gate with the level thighs of the pianist role.
 seeds = [3, 6, 1, 5, 2, 4, 7, 8]
 offset = 0.004
 squeeze = { factor = 1.0, center = [0.0, 0.502, 0.02], radii = [0.32, 0.26, 0.32] }
@@ -193,7 +186,7 @@ flip_share = 0.8
 relax = 0.12
 jitter = 0.0
 
-# python3 studio calibrate polar-bear --quads (2026-10-12): at the target 780, QuadriFlow gives
+# python3 studio calibrate polar-bear --quads: at the target 780, QuadriFlow gives
 # 760 to 850 quads on the seated field of the pianist and 792 to 940 on the standing field of
 # the model build, so the band is wider than on the bear. A target of 736 would put every seed
 # of both fields in the default band, but it changes both GLBs.

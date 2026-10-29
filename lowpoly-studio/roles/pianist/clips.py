@@ -76,8 +76,8 @@ WHITE = 'CDEFGAB'
 # REST_FORWARD of the knee radius. On their way they first lift off the keys (out, up, and back by
 # REST_LIFT). The elbows turn out and back (REST_POLE) in the first REST_POLE_FIRST of the way
 # down, and the trunk leans further forward by REST_LEAN of the play lean, so the forearms pass
-# outside the belly and the shoulders do not fold. Tuned on the 7 seeds of the polar bear that pass
-# the remesh gate (the probe of each variant in docs/handoff-props.md).
+# outside the belly and the shoulders do not fold. The values fit the 7 seeds of the polar bear
+# that pass the remesh gate.
 REST_OUT = 2.1
 REST_FORWARD = 1.3
 REST_LIFT = (0.03, 0.09, -0.02)
