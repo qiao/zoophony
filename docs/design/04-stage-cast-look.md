@@ -2,36 +2,35 @@
 
 ## 4.1 Look
 
-- Low-poly shapes with flat facets, low polygon counts, and matte colors from the reference
-  image. Each face of a matte part stays flat: the parametric bodies, the props, and the plain
-  parts of the instruments. The fur of the studio bodies shades smooth across the small angles
-  between its faces, and keeps its larger edges. The glossy parts of the instruments shade soft
-  (4.5, materials).
-- One warm spotlight from above, with soft shadows, so that the faceted scene keeps the look of a
-  toy model. It makes a pool of light near the conductor, and the stage edges stay dark.
-- A visible beam of warm light falls on the stage from above, with haze and dust motes.
-- A dark concert hall with two balcony tiers and rows of small warm lamps stands around the
-  stage, as in `scene.png` (1). The lamps bloom, and in a close shot they become soft discs.
+- Low-poly shapes with flat facets and matte colors from the reference images. The fur of a
+  studio body shades smooth across the small angles between its faces and keeps its larger
+  edges. The props and the plain parts of the instruments keep flat faces. The glossy parts of
+  the instruments shade soft (4.5, materials).
+- A cinematic stage light. The key light goes from the front of the stage to the back, so the
+  shadows fall back. Rim lights behind the stage light the heads and give the visible beam, with
+  haze and dust motes (4.5, light and render).
+- A dark concert hall with two balcony tiers and rows of small warm lamps around the stage, as
+  in `scene.png`. The lamps of the balcony rails go all around the hall. The low row of wall
+  lamps has a gap at the back, so that no lamp floats above the orchestra. The lamps bloom, and
+  in a close shot they become soft discs.
 - A square stage of glossy walnut planks with cut corners, a raised lip, and no steps, as in
-  `orchestra-latest.png` (1), yellow chairs, and black music stands.
+  `orchestra-latest.png`. Yellow chairs and black music stands.
 - Post effects make the image of a film: a bloom, a depth of field in the close shots, a warm
   color grade, a vignette, and a fine grain (4.5, post effects).
 - The bear conductor stands on a podium at the front center. A chamber group of at most 5
   players has no conductor and no podium (4.2).
 
-### Product choices
+These product choices apply to each area:
 
-- **Reference images first.** The reference images win over the values in the code. The values
-  that 4.5 to 4.7 name describe the current models, and they are no targets. Design 1 says which
-  image wins where two images differ.
-- **Key light from the front.** The key light goes from the front of the stage to the back, so
-  the shadows fall back (4.5, light and render).
-- **Hall lamps.** The lamps of the balcony rails go all around the hall. The low row of wall
-  lamps has a gap at the back, so that no lamp floats above the orchestra.
+- **Reference images first.** The reference images win over the values in the code. The
+  values that 4.5 to 4.7 name describe the current models, and they are no targets. Design 1
+  says which image wins where two images differ. A newer product choice wins over an image, and
+  its section names it.
 - **Happy faces.** Each animal has a happy face. A face rule of the rig removes a sad look, such
-  as raised inner brows or a down crease over the eyes (4.4, face). The faces have no blush.
+  as raised inner brows or a crease that goes down over the eyes (4.4, mesh rig). The faces have
+  no blush.
 - **Natural balance.** A body that stands, or that plays with no chair, keeps its center of mass
-  over the middle of its soles. The monkey, the mouse, and the beaver have no chair (4.4, seat).
+  over the middle of its soles, where a real stance is most stable (4.4, seat).
 - **No fur shading.** The material has no fur shader, no tufts, and no shells (4.5, materials).
 
 ## 4.2 Layout
@@ -40,8 +39,7 @@ The sections go into arcs in the standard order, with no gaps between the used s
 stage size follows the player count. Thus a string quartet sits close together on a small stage.
 
 The standard order is the American seating of a professional orchestra, with the contrabasses
-in a line at the back, as the Vienna Philharmonic seats them (user, 2026-10-05,
-`docs/research/seating.md`). The diagram shows it from above.
+in a line at the back, as the Vienna Philharmonic seats them. The diagram shows it from above.
 
 ```text
                           back of the stage
@@ -65,15 +63,15 @@ in a line at the back, as the Vienna Philharmonic seats them (user, 2026-10-05,
   no woodwinds, it sits in the middle behind the strings, as a continuo harpsichord.
 - The vocal soloists of 3.8 stand in front of the choir, on the lowest level of the risers,
   because a place beside the conductor covers the first violins or the cellos.
-- The soloist of 3.8 stands or sits at the front left of the conductor, as in a concerto (user,
-  2026-10-06). A piano seat is always the soloist (3.8), so the piano stands there. Another
-  soloist leaves its section row and stands next to the podium (4.5, seat geometry). It has no
-  music stand, because a soloist plays from memory.
-- **Chamber group.** A score with at most 5 players has no conductor and no podium (user,
-  2026-10-06), because a conductor for one pianist looked wrong. The players sit in a small arc at
-  the stage center and face each other a little, as a real chamber group does. A score with no
-  players keeps the conductor, so that the stage is not empty. `chamberFormOf()` of
-  `models/cast.ts` gives one of three forms:
+- The soloist of 3.8 stands or sits at the front left of the conductor, as in a concerto. A
+  piano seat is always the soloist (3.8), so the piano stands there. Another soloist leaves its
+  section row and stands next to the podium (4.5, seat geometry). It has no music stand, because
+  a soloist plays from memory.
+- **Chamber group.** A score with at most 5 players has no conductor and no podium, because a
+  conductor for one pianist looks wrong. The players sit in a small arc at the stage center and
+  face each other a little, as a real chamber group does. A score with no players keeps the
+  conductor, so that the stage is not empty. `chamberFormOf()` of `models/cast.ts` gives one of
+  three forms:
 
   ```text
      solo              recital                     arc (a string quartet)
@@ -93,159 +91,16 @@ in a line at the back, as the Vienna Philharmonic seats them (user, 2026-10-05,
   - No player leaves the group as a soloist. A player alone and the partner of a pianist stand
     when their instrument stands as a soloist (4.5, body proportions).
 
-- Larger species sit farther back, so that a big animal hides no smaller animal (user,
-  2026-10-05). A species of the size 1.2 or more plays only the contrabass, the timpani, the
-  trombone, or the tuba. The strings have species of the size 1.05 or less, and the piano 1.1 or
-  less (`docs/research/seating.md`, section 5).
+- Larger species sit farther back, so that a big animal hides no smaller animal. A species of
+  the size 1.2 or more plays only the contrabass, the timpani, the trombone, or the tuba. The
+  strings have species of the size 1.05 or less, and the piano 1.1 or less.
 - In the default view, a large species hides less than 10% of the head of each smaller animal
   (`scene/hidden-heads.test.ts`).
 
 ## 4.3 Species
 
-The penguins, the bear conductor, the polar bear pianist, the rabbit violinist, the two foxes,
-the viola cats, the cello dogs, the trombone pandas, the contrabass hippos, the oboe mice, the
-timpani elephant, the bassoon beavers, the horn pigs, the clarinet wolves, the trumpet monkeys, the
-percussion badgers, the tuba rhinos, and the harp deer have bodies of their own (4.4). No species
-uses the parametric biped body since 2026-10-21.
-Each species has one `SpeciesParams` in `SPECIES` of `models/species.ts`, and changes only its parameters. A
-species can have a body of its own in place of the biped (`body`, 4.4, bodies of their own and
-studio bodies). The bear, the polar bear, the rabbit,
-the two foxes, the cat, the dog, the panda, the hippo, the mouse, the elephant, the beaver, the
-pig, the wolf, the monkey, the badger, the rhino, the deer, and the penguin have meshes of the user
-that `pnpm rig-mesh` rigs. The two foxes share one rig, and the tan fox takes
-another palette of its faces (`palette`). A species with a body of its own has no shape
-parameters, because its body has its own parts.
-
-```typescript
-/** The parametric biped, or a body of its own. */
-type SpeciesParams = BipedParams | OwnBodyParams;
-
-interface CommonParams {
-  /** Height scale. 1.0 is the rabbit of the reference image. */
-  size: number;
-  colors: { fur: string; belly: string; accent: string };
-  /** The parts that get the accent color (4.5). */
-  accentParts: readonly AccentPart[];
-  /** The skeleton (below). Each value that it does not give has its default. */
-  proportions?: Partial<BodyProportions>;
-  /** The scale of the violin and its bow for a species (4.6). 1 by default. */
-  violinScale?: number;
-  /** The scale of the viola and its bow for a species (4.6). 1 by default. */
-  violaScale?: number;
-  /** The scale of the cello and its bow for a species (4.6). 1 by default. */
-  celloScale?: number;
-  /** The scale of the contrabass and its bow for a species (4.6). 1 by default. */
-  bassScale?: number;
-  /** The lengths of the longer lead pipe of the tuba, back and left, in meters (4.6). */
-  tubaPipe?: readonly [back: number, left: number];
-}
-
-/** The shape of the parts of the deer, the species of the biped. */
-interface BipedParams extends CommonParams {
-  ears: 'small' | 'antlered';
-  snout: 'long' | 'horn';
-  tail: 'puff' | 'thin';
-  body?: undefined;
-}
-
-/** A body of its own in place of the parametric biped (4.4): a studio body. */
-interface OwnBodyParams extends CommonParams {
-  body:
-    | 'studio-badger'
-    | 'studio-bear'
-    | 'studio-beaver'
-    | 'studio-cat'
-    | 'studio-deer'
-    | 'studio-dog'
-    | 'studio-elephant'
-    | 'studio-fox'
-    | 'studio-hippo'
-    | 'studio-monkey'
-    | 'studio-mouse'
-    | 'studio-panda'
-    | 'studio-penguin'
-    | 'studio-pig'
-    | 'studio-polar-bear'
-    | 'studio-rabbit'
-    | 'studio-rhino'
-    | 'studio-wolf';
-  /** A seated tail that lies curled on the seat, and does not sway (5.1): the cat. */
-  seatedTail?: 'curl';
-  /** Ears that hang beside the head, and do not twitch (5.1): the dog. */
-  hangingEars?: true;
-}
-
-/** The skeleton of a species (`models/proportions.ts`). Each length is in H, except `H`. */
-interface BodyProportions {
-  /** The head height `H`, in meters. */
-  headHeight: number;
-  /** The head center above the base of the torso. */
-  headCenter: number;
-  /** The shoulder joints above the base of the torso. */
-  shoulderHeight: number;
-  /** Each shoulder joint from the middle. */
-  shoulderSpread: number;
-  /** The upper arm and the forearm. */
-  upperArm: number;
-  forearm: number;
-  /** Each hip joint from the middle. */
-  hipSpread: number;
-  /** The seated knee in front of the hip joint and above the seat. */
-  seatedKnee: { forward: number; height: number };
-  /** The seat of the chair above the floor, and of the high stool above its foot ring. */
-  seatHeight: number;
-  /** The base of the torso above the floor for a standing body. */
-  standingBase: number;
-  /** The thigh of a standing body, from the hip joint down to the knee. */
-  standingThigh: number;
-}
-```
-
-`proportionsOf()` fills each value that `SpeciesParams.proportions` does not give with its
-default (`DEFAULT_PROPORTIONS`), and the frame of the body (`models/body-frame.ts`) holds the
-result for the trunk, the limbs, and the seats. The default skeleton is the skeleton of the bodies
-of 2026-10-06 (`docs/decisions/2026-10-11-body-revert.md`), with the short legs below. A species
-gives values of its own when its reference images show a different anatomy (design 1).
-
-**Short legs.** The user said on 2026-10-11 that the legs were too long. The reference animals
-have small heads and long trunks, and our bodies keep their large heads, so the legs follow the
-trunk (`docs/research/2026-10-11-short-legs.md`):
-
-- The seated knee is near the height of the seat, and the thigh slopes a little down to it. The
-  seat fits the legs (`seatHeight`), below the median of the reference images, so that the seated
-  legs look short (user, `docs/decisions/2026-10-11-low-seats.md`).
-- The standing legs are as short as the legs of the standing bear of `bear-views.png`, and a
-  standing leg is a straight column (`models/legs.ts`, `models/legs.test.ts`).
-- The studio bodies keep the trunks and the legs of their sources (4.4). No value of this table
-  applies to them, except the head height `H` and the seat heights of the polar bear, the rabbit,
-  the foxes, the cat, the dog, the panda, the hippo, the mouse, the elephant, the beaver, the
-  pig, the wolf, the monkey, the badger, the rhino, the deer, and the penguin, which
-  `models/species.ts` reads from their studio bodies. The hippo stands at its contrabass, the
-  elephant at its timpani, the badger at each percussion instrument, the rhino at its tuba, and
-  the penguin on its riser. The bear reads only its head height `H`.
-
-A height map moves the torso of the parametric body with the joints of the table, and the head
-keeps its form:
-
-```text
- height above the base of the torso (H)
-   headCenter -----  head center (the head keeps its form)
-       - 0.5  -----  `head` bone
-                     top rings and the neck: the same part of the way to the `head` bone
-   shoulderHeight -  shoulder joints
-                     rings, `chest`, `spine`, and `hips`: scale with the joints
-   0 --------------  base of the torso (the seat)
-```
-
-```text
- height above the base of the torso (H)
-   headCenter -----  head center (the head keeps its form)
-       - 0.5  -----  `head` bone
-                     top rings and the neck: the same part of the way to the `head` bone
-   shoulderHeight -  shoulder joints
-                     rings, `chest`, `spine`, and `hips`: scale with the joints
-   0 --------------  base of the torso (the seat)
-```
+Each species has one `SpeciesParams` in `SPECIES` of `models/species.ts`, and each species has a
+studio body of its own (4.4). The table gives the species of each section.
 
 | Section             | Species                                       | Section  | Species                    |
 | ------------------- | --------------------------------------------- | -------- | -------------------------- |
@@ -261,23 +116,51 @@ keeps its form:
 | Conductor           | bear (reference)                              |          |                            |
 
 - The fox plays in two sections, in the two colors of the reference image (`fox-red` and
-  `fox-tan`). The penguins look like a choir in robes.
-- The size rule of 4.2 puts the large species in the back row. The polar bear plays the piano
-  (user, 2026-10-06) and each keyboard seat of 3.8. The wolf is the gray clarinet player of
-  `animals.webp` (user, 2026-10-05).
+  `fox-tan`). The two foxes share one mesh and one rig, and the tan fox takes another palette of
+  the same faces (`palette`).
+- The polar bear plays the piano and each keyboard seat of 3.8. The wolf is the gray clarinet
+  player of `animals.webp`. The penguins look like a choir in robes.
+- The size rule of 4.2 puts the large species in the back row.
 - Further seats of a section alternate their species variants: a third violin seat uses rabbits
   again.
+- The mouse, the beaver, and the monkey play with no chair (`noChair`). Each one stands on its
+  hind legs with bent knees, as a real mouse, beaver, or monkey does (4.4, seat).
 
-The shape parameters of each species of the parametric biped are its ears, its snout, and its
-tail (`BipedParams`, 4.5 gives the colors). No species has them: the rabbit, the two foxes, the
-wolf, the cat, the dog, the panda, the hippo, the mouse, the elephant, the beaver, the pig, the
-monkey, the badger, the rhino, the deer, the penguin, the bear, and the polar bear have studio
-bodies (4.4).
+```typescript
+/** The parameters of one species (`SPECIES` of `models/species.ts`). */
+interface SpeciesParams {
+  /** Height scale. 1.0 is the rabbit of the reference image. The size rule of 4.2 reads it. */
+  size: number;
+  /** The fur, the belly, and the accent colors (4.5). The UI seat dots read them. */
+  colors: SpeciesColors;
+  /** The studio body of the species (4.4): `'studio-rabbit'`, `'studio-fox'`, and so on. */
+  body: StudioBodyName;
+  /** Another palette of the faces of the body (`StudioBody.palettes`): the tan fox. */
+  palette?: StudioPalette;
+  /**
+   * The scale of an instrument of `SCALED_INSTRUMENTS` for the species (4.6), 1 by default.
+   * Also `violaScale`, `celloScale`, `bassScale`, `oboeScale`, `bassoonScale`,
+   * `trumpetScale`, `cymbalScale`, and `harpScale`.
+   */
+  violinScale?: number;
+  /** `'suspended'` for a species whose arms cannot hold hand cymbals (4.6). */
+  cymbalForm?: CymbalForm;
+  /** The lengths of the longer lead pipe of the tuba, back and left, in meters (4.6). */
+  tubaPipe?: readonly [back: number, left: number];
+  /** True for a species that plays with no chair (4.4, seat). */
+  noChair?: true;
+  /** The place and the turn of the bow stick in the right paw (4.6). */
+  bowGrip?: BowGrip;
+  /** A seated tail that lies curled on the seat, and does not sway (5.1): the cat. */
+  seatedTail?: 'curl';
+  /** Ears that hang beside the head, and do not twitch (5.1): the dog. */
+  hangingEars?: true;
+}
+```
 
-The belly color colors the muzzle, the lower
-face, and a stripe down the front of the torso, as the white cheeks of the wolf in `animals.webp`.
-Each triangle has one color, picked by its centroid or its facing (`splitByCentroid()` and
-`splitByFacing()` of `models/mesh.ts`), so a color border follows the edges of the triangles.
+The head height `H` is the unit of the body. The head height and the seat height of a species
+come from its studio body (`StudioBody.headHeight`, `StudioBody.seatHeight`). The holds of 4.6
+give their offsets in `H`, so one hold serves the species of different sizes.
 
 ## 4.4 Models
 
