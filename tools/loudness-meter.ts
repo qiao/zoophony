@@ -328,7 +328,7 @@ export function shareBelow(shortTerm: Float64Array, toSec: number, below: number
   return values.length ? values.filter((value) => value < below).length / values.length : 0;
 }
 
-/** The gain reduction of a limiter, from its input and its output. */
+/** The gain reduction of a compressor or a limiter, from its input and its output. */
 export interface GainReduction {
   /** The delay of the output after the input, in samples. */
   readonly delay: number;
@@ -338,6 +338,8 @@ export interface GainReduction {
   readonly over1: number;
   /** The share of the blocks of 50 ms with more than 3 dB of gain reduction. */
   readonly over3: number;
+  /** The 95th percentile of the gain reduction of the blocks of 50 ms, in dB. */
+  readonly p95: number;
 }
 
 /** The length of a block of the gain reduction in samples: 50 ms. */
@@ -372,11 +374,11 @@ function limiterDelay(input: Float32Array, output: Float32Array): number {
 }
 
 /**
- * Measures the gain reduction of a limiter with a gain of 1 below its threshold: the peak of
- * each block of 50 ms of the input against the same block of the output.
+ * Measures the gain reduction of a compressor or a limiter with a gain of 1 below its threshold:
+ * the peak of each block of 50 ms of the input against the same block of the output.
  *
- * @param input The input of the limiter, at the level of the output below the threshold.
- * @param output The output of the limiter.
+ * @param input The input, at the level of the output below the threshold.
+ * @param output The output.
  * @returns The delay and the gain reduction.
  */
 export function gainReduction(input: Stereo, output: Stereo): GainReduction {
@@ -388,25 +390,22 @@ export function gainReduction(input: Stereo, output: Stereo): GainReduction {
     }
     return peak;
   };
-  let max = 0;
-  let over1 = 0;
-  let over3 = 0;
-  let blocks = 0;
+  const reductions: number[] = [];
   for (let start = 0; start + delay + GR_BLOCK <= output.left.length; start += GR_BLOCK) {
     const before = blockPeak(input, start);
     if (before < GR_FLOOR) {
       continue;
     }
-    const reduction = Math.max(0, decibels(before) - decibels(blockPeak(output, start + delay)));
-    blocks += 1;
-    max = Math.max(max, reduction);
-    over1 += reduction > 1 ? 1 : 0;
-    over3 += reduction > 3 ? 1 : 0;
+    reductions.push(Math.max(0, decibels(before) - decibels(blockPeak(output, start + delay))));
   }
+  const sorted = reductions.toSorted((a, b) => a - b);
+  const share = (limit: number): number =>
+    sorted.length ? sorted.filter((reduction) => reduction > limit).length / sorted.length : 0;
   return {
     delay,
-    max,
-    over1: blocks ? over1 / blocks : 0,
-    over3: blocks ? over3 / blocks : 0,
+    max: sorted.at(-1) ?? 0,
+    over1: share(1),
+    over3: share(3),
+    p95: sorted[Math.floor(0.95 * (sorted.length - 1))] ?? 0,
   };
 }
