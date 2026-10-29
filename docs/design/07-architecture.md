@@ -205,3 +205,7 @@ the constants of `app/page-title.ts`, so that the page and the app cannot differ
   `public/sitemap.xml`, which lists the start page. Both name `SITE_URL`. The development pages
   keep their `noindex` (7.1) and stay open in `robots.txt`, because a crawler that may not read a
   page does not see its `noindex`.
+- **Text of the page**: Google renders the page, maybe with no WebGL2. With WebGL2, the page shows
+  the wordmark as its `h1` (2.8), the piece title, and the intro line with the name and one line
+  about the app. With no WebGL2, the full-page message shows the name as its `h1`, `ABOUT_TEXT`,
+  and the message (2.6). Each text is visible, and each visitor gets the same HTML.
