@@ -536,33 +536,33 @@ const HANGING_BOW = {
  * violinist holds it (violinonline.com, "How to hold the violin", and Simon Fischer, "Basics:
  * Holding the violin"): the tail end on the left collarbone against the left side of the neck,
  * under the jaw, the jaw on the violin, the violin about 38° to the left of the front, and the
- * scroll a little up, so that the strings are about level. The violin is 0.83 of the app violin,
- * so that the arms of the A-pose mesh stretch only a little (`violinScale`). The middle line of
- * the violin points 50° to the left of the front, near the 45° of a real player
+ * scroll a little up, so that the strings are about level. The violin is 0.83 of the app violin, so
+ * that the arms of the A-pose mesh stretch only a little (`violinScale`). The middle line of the
+ * violin points 50° to the left of the front, near the 45° of a real player
  * (`docs/reference/string-technique.md`, section 1.10). The left shoulder bone turns 15.5° forward
  * in the play (`reachL`), so that the shoulder joint comes 2.9 cm forward, inside the forward move
  * of the shoulder of real violinists, and the left paw reaches the fingerboard from 0.01 of its
  * length (0.08 at 60° with no turn). At 45°, the bow paw at the frog goes 1.9 cm into the jaw
  * (1.2 cm at 50°). The violin sits 0.09 H below the tail end of the chin hold, and the head turns
- * 17° down while the rabbit plays (`headDrop`), so that the jaw lies on the chin rest, as a
- * violinist rests the jaw on it: 0.03 H lower and 12° down, the violin goes 2.6 cm into the chest
- * (1.8 cm at this place). The back stays straight. The bow lies nearly square across the strings.
- * The right arm has the shoulder turn of the chin hold. At the frog, the right elbow points out
- * and forward, and only a little down, (1.8, -0.3, -1), and the bow keeps 0.06 m of free hair at
- * each end. With the elbow (1.5, -1.5, -1), the broad side of the long upper arm faces the front
- * as a flat plank. With this elbow, the upper arm reads across the body. With the A-pose mesh, 9
- * faces of the right arm fold in the arm gate (limit 8) at the elbow (1.8, -0.7, -1) of the red
- * fox, and 7 at this elbow. The bow plays no hair within 0.11 m of the frog (`frogHair`): with the
- * violin turned to 50°, the frog brings the bow paw to the jaw, and with 0.09 m, the right forearm
- * goes 1.7 cm into the body (1.2 cm with 0.11 m). In pizzicato, the paw plucks over the end of the
- * fingerboard (`pluckPlace` 0), with the bow tip up and back: with the pluck of the chin hold, near
- * the bow, the right forearm goes 3.5 cm into the body. The right elbow points down at the tip
- * too: up, as in the chin hold, the skin of the studio rabbit folds at the right upper arm
- * (`pnpm fold-probe violinist`). The left elbow points down, forward, and a little out,
- * (-0.5, -1, -0.5), so that it comes toward the middle of the body under the violin, as the elbow
- * of a real player (section 1.10): the upper arm turns 46° from the vertical to the side (57° with
- * the pole (-1, -1.4, -0.3)). With the elbow further in, the left paw twists 174° on its forearm
- * (limit 170).
+ * 10° down while the rabbit plays (`headDrop`), so that the jaw lies on the chin rest on the side
+ * of the G string, as a violinist rests the jaw on it: with 17°, the jaw goes 2.2 cm into the rim
+ * of the chin rest, and with 10°, about 1.5 cm. The back stays straight. The bow lies nearly square
+ * across the strings. The right arm has the shoulder turn of the chin hold. At the frog, the right
+ * elbow points out and forward, and only a little down, (1.8, -0.3, -1), and the bow keeps 0.06 m
+ * of free hair at each end. With the elbow (1.5, -1.5, -1), the broad side of the long upper arm
+ * faces the front as a flat plank. With this elbow, the upper arm reads across the body. With the
+ * A-pose mesh, 9 faces of the right arm fold in the arm gate (limit 8) at the elbow (1.8, -0.7, -1)
+ * of the red fox, and 7 at this elbow. The bow plays no hair within 0.11 m of the frog
+ * (`frogHair`): with the violin turned to 50°, the frog brings the bow paw to the jaw, and with
+ * 0.09 m, the right forearm goes 1.7 cm into the body (1.2 cm with 0.11 m). In pizzicato, the paw
+ * plucks over the end of the fingerboard (`pluckPlace` 0), with the bow tip up and back: with the
+ * pluck of the chin hold, near the bow, the right forearm goes 3.5 cm into the body. The right
+ * elbow points down at the tip too: up, as in the chin hold, the skin of the studio rabbit folds at
+ * the right upper arm (`pnpm fold-probe violinist`). The left elbow points down, forward, and a
+ * little out, (-0.5, -1, -0.5), so that it comes toward the middle of the body under the violin, as
+ * the elbow of a real player (section 1.10): the upper arm turns 46° from the vertical to the side
+ * (57° with the pole (-1, -1.4, -0.3)). With the elbow further in, the left paw twists 174° on its
+ * forearm (limit 170).
  *
  * The string planes of the rabbit are 10° apart, below the 17° of the chin hold. A larger turn
  * folds the skin of the right arm and puts the bow paw into the violin at the frog on the E string:
@@ -634,7 +634,7 @@ const SHOULDER_HOLD = {
   pizzicatoTip: [0.3, 0.5, 1],
   poleTipR: CHIN_HOLD.poleR,
   lean: 0,
-  headDrop: 17 * MathUtils.DEG2RAD,
+  headDrop: 10 * MathUtils.DEG2RAD,
   slant: -5 * MathUtils.DEG2RAD,
   stringTurn: 10 * MathUtils.DEG2RAD,
   restPoleL: [-0.6, -1, 0.3],
@@ -658,29 +658,29 @@ const SHOULDER_HOLD = {
 
 /**
  * The hold of the violin on the left shoulder, for the red fox (design 4.6, 5.3): the hold of the
- * rabbit, with the tail end against the left side of the short neck of the fox, under its long
- * jaw. On the collarbone, 0.087 H further forward and 0.035 H lower, the violin keeps 2.4 cm from
- * the neck. The violin sits 0.07 H further back and 0.016 H further left, so that the left paw
- * reaches the nut. Straight back by 0.06 H, the violin goes 1.3 cm into the neck. It sits 0.01 H
- * higher, and goes 1.0 cm into the trunk and the neck. The head stays level (`headDrop` 0),
- * because the long jaw already lies on the violin. The short neck brings the head and the violin
- * 1.7 cm down, so the violin sits a further 0.01 H higher: 0.01 H lower, it goes 2.4 cm into the
- * body in the play. The middle line of the violin points 45° to the left of the front, as a real
- * player holds it (`docs/reference/string-technique.md`, section 1.10), and the left shoulder bone
- * turns 8° forward in the play (`reachL`), so that the long left arm of the fox reaches the nut
- * with 1.5 cm to spare. The left elbow keeps the pole of the chin hold: further in, under the
- * violin, the left paw turns 9° to 15° further from its accepted grip. The bow slants 12° and the
- * right shoulder turns 15°, and the right elbow at the tip points less down: with the bow of the
- * rabbit (5°, 30°), the skin of the right shoulder of the fox mesh folds in 18% of the play
- * samples (`pnpm fold-probe fox-violinist`), and with the full violin, the turn of 15° folds fewer
- * samples than 25°. At the frog, the right elbow points out, forward, and a little down,
- * (1.8, -0.7, -1), and the bow keeps 0.12 m of free hair at each end: with 0.08 m and the violin
- * further back, the bow paw goes 3.7 cm into the body at the frog, with 0.1 m and the elbow
- * (1.4, -0.7, -1) 3.0 cm, and with this hold 2.4 cm, with the same share of folded play samples.
- * The bow paw reaches 0.265 m of the hair, more than half. In pizzicato, the bow tip points up,
- * back, and a little out, (0.3, 0.5, 1): with the tip of the chin hold, (0.3, 1, 0.4), the bent
- * wrist of the plucking paw moves the middle of the paw 2.1 cm from the stick, and with this tip
- * 1.2 cm.
+ * rabbit, with the tail end against the left side of the short neck of the fox, under its long jaw.
+ * On the collarbone, 0.087 H further forward and 0.035 H lower, the violin keeps 2.4 cm from the
+ * neck. The violin sits 0.07 H further back and 0.016 H further left, so that the left paw reaches
+ * the nut. Straight back by 0.06 H, the violin goes 1.3 cm into the neck. It sits 0.01 H higher,
+ * and goes 1.0 cm into the trunk and the neck. The head lifts 5° (`headDrop`), because the long jaw
+ * already lies on the violin: level, the jaw goes 2.4 cm into the rim of the chin rest, and lifted
+ * 5°, 1.5 cm. The short neck brings the head and the violin 1.7 cm down, so the violin sits a
+ * further 0.01 H higher: 0.01 H lower, it goes 2.4 cm into the body in the play. The middle line of
+ * the violin points 45° to the left of the front, as a real player holds it
+ * (`docs/reference/string-technique.md`, section 1.10), and the left shoulder bone turns 8° forward
+ * in the play (`reachL`), so that the long left arm of the fox reaches the nut with 1.5 cm to
+ * spare. The left elbow keeps the pole of the chin hold: further in, under the violin, the left paw
+ * turns 9° to 15° further from its accepted grip. The bow slants 12° and the right shoulder turns
+ * 15°, and the right elbow at the tip points less down: with the bow of the rabbit (5°, 30°), the
+ * skin of the right shoulder of the fox mesh folds in 18% of the play samples
+ * (`pnpm fold-probe fox-violinist`), and with the full violin, the turn of 15° folds fewer samples
+ * than 25°. At the frog, the right elbow points out, forward, and a little down, (1.8, -0.7, -1),
+ * and the bow keeps 0.12 m of free hair at each end: with 0.08 m and the violin further back, the
+ * bow paw goes 3.7 cm into the body at the frog, with 0.1 m and the elbow (1.4, -0.7, -1) 3.0 cm,
+ * and with this hold 2.4 cm, with the same share of folded play samples. The bow paw reaches
+ * 0.265 m of the hair, more than half. In pizzicato, the bow tip points up, back, and a little out,
+ * (0.3, 0.5, 1): with the tip of the chin hold, (0.3, 1, 0.4), the bent wrist of the plucking paw
+ * moves the middle of the paw 2.1 cm from the stick, and with this tip 1.2 cm.
  *
  * The rest pose is the upright rest of the rabbit: the violin stands on the left thigh at 0.8 of
  * the way to the knee, 0.18 H down and 0.2 H forward. The thighs slope 25° down, so at 0.65 of the
@@ -723,7 +723,7 @@ const FOX_HOLD = {
   elbowPerString: 2 * MathUtils.DEG2RAD,
   poleR: [1.8, -0.7, -1],
   playShift: [-0.07, 0.05, 0.25],
-  headDrop: 0,
+  headDrop: -5 * MathUtils.DEG2RAD,
   slant: -12 * MathUtils.DEG2RAD,
   stringTurn: 9 * MathUtils.DEG2RAD,
   bowTilt: 15 * MathUtils.DEG2RAD,

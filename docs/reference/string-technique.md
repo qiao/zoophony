@@ -450,8 +450,9 @@ The app does not follow these facts:
   its forearm.
 - **The head (1.10).** The head of the cat lifts, so that the jaw lies on the chin rest near the
   neck, and its viola falls to the scroll. A larger shoulder turn sinks the back of the left arm
-  root into the body. The rabbit lowers its head (`BowedHold.headDrop`), so that its violin sits
-  higher out of the chest.
+  root into the body. The rabbit lowers its head a little (`BowedHold.headDrop`), so that its
+  violin sits higher out of the chest. The red fox lifts its head a little, because its long jaw
+  already lies on the chin rest.
 
 ### 3.2 The bow arm
 
