@@ -133,7 +133,7 @@ These rules hold for each test:
 - A load round measures the times of the app with `pnpm load-probe`, and the scores and the metrics
   of Lighthouse with `pnpm lighthouse`. Use the saved tool, because the Lighthouse of the
   chrome-devtools MCP server has no performance category. `--url https://www.zoophony.com/` audits
-  the live site.
+  the live site. Use `--quick` while you change the page, and the default runs for a report.
 - An ablation of a GPU cost reads the Metal trace of `pnpm frame`. With no frame cap, the main
   thread limits the frame rate, so the frame time alone does not show a GPU change.
 - A change of the material IDs can change the order of the draws, and thus the pixels. Run
