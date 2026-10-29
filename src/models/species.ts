@@ -647,9 +647,6 @@ export const EYE_COLOR = '#15110e';
 /** The color of the small light on each eye (design 4.5). */
 export const EYE_LIGHT_COLOR = '#f6f2ea';
 
-/** The color of the nose of a species with no accent nose (design 4.5). */
-export const NOSE_COLOR = '#2a1d15';
-
 /**
  * The default head height `H` for the size 1, in meters. A species with no head height of its own
  * multiplies it by its size (design 4.5).
