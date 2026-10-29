@@ -4,6 +4,8 @@ import type { SceneLayout } from '../models/layout.ts';
 import type { Vec3 } from '../models/tuples.ts';
 import { lastAtOrBefore } from '../pose/blend.ts';
 import { mixHash, mulberry32 } from '../pose/random.ts';
+import { runAll } from '../score/steps.ts';
+import type { Steps } from '../score/steps.ts';
 import type { Score } from '../score/types.ts';
 import { FREE_BEAM_FADE } from './beam-opacity.ts';
 import { angleDifference, keyDistance, viewAngle, writeKeyPosition } from './camera-keys.ts';
@@ -1948,17 +1950,19 @@ function startAttempt(
  * @param seed The seed of the plan.
  * @param models The player models of the score, which the layout shares.
  * @param trace The trace to write, or `null` for a plan with no trace.
- * @returns The plan for `cameraAt()`.
+ * @returns The steps, which return the plan for `cameraAt()`.
  */
-function planShots(
+function* planShotsSteps(
   score: Score,
   layout: SceneLayout,
   seed: number,
   models: ModelCache,
   trace: TraceSink | null,
-): ShotPlan {
+): Steps<ShotPlan> {
   const music = prepareMusic(score);
+  yield;
   const subjects = prepareSubjects(score, layout, models);
+  yield;
   const planner: Planner = {
     music,
     subjects,
@@ -1993,6 +1997,7 @@ function planShots(
   });
 
   while (cut < planner.lastStart - 1e-9) {
+    yield;
     planner.cut = cut;
     const window = musicIn(music, cut, cut + SHOT_TIMES.choiceWindowSec);
     let chosen: { candidate: Candidate; framing: Framing } | null = null;
@@ -2039,6 +2044,7 @@ function planShots(
         planner.fullSearch = entering;
         for (let band = higher ? first : 0; band < (higher ? bands : first); band++) {
           planner.band = [KEY_SEARCH.bands[band - 1] ?? -Infinity, KEY_SEARCH.bands[band] ?? 0];
+          yield;
           const attempt =
             trace && traced ? startAttempt(trace, traces[index]?.attempts ?? [], band) : null;
           const framing = framingOf(planner, candidate, window);
@@ -2189,7 +2195,25 @@ export function prepareShots(
   seed: number,
   models = new ModelCache(),
 ): ShotPlan {
-  return planShots(score, layout, seed, models, null);
+  return runAll(planShotsSteps(score, layout, seed, models, null));
+}
+
+/**
+ * Calculates the shots of a score as {@link prepareShots} does, in steps (design 7.2).
+ *
+ * @param score The score.
+ * @param layout The layout of the score, from `layoutScene()`.
+ * @param seed The seed of the plan.
+ * @param models The player models of the score, which the layout shares.
+ * @returns The steps, which return the plan for `cameraAt()`.
+ */
+export function prepareShotsSteps(
+  score: Score,
+  layout: SceneLayout,
+  seed: number,
+  models: ModelCache,
+): Steps<ShotPlan> {
+  return planShotsSteps(score, layout, seed, models, null);
 }
 
 /**
@@ -2222,6 +2246,6 @@ export function traceShots(
   models = new ModelCache(),
 ): ShotTrace {
   const sink: TraceSink = { range, cuts: [], kept: new Map(), cut: null, attempt: null };
-  const plan = planShots(score, layout, seed, models, sink);
+  const plan = runAll(planShotsSteps(score, layout, seed, models, sink));
   return { plan, cuts: sink.cuts };
 }
