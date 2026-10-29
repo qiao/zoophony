@@ -1399,7 +1399,7 @@ of the group.
 | violin                                           | violin and bow                                                                         | under the chin on the left shoulder, bow in the right hand                                     | chair                                      |
 | viola                                            | the violin model at 1.15 scale                                                         | as the violin                                                                                  | chair                                      |
 | cello                                            | cello and bow                                                                          | between the knees, end pin on the floor                                                        | chair                                      |
-| contrabass                                       | the cello model at 1.6 scale                                                           | at the left side, leaned to the left of the head, bow in the right hand                        | stands                                     |
+| contrabass                                       | the cello at 1.6 scale, with the body form of a double bass and machine heads          | at the left side, leaned to the left of the head, bow in the right hand                        | stands                                     |
 | harp                                             | concert harp, or a smaller harp (`harpScale`)                                          | leaned back onto the right shoulder, both hands on the strings                                 | stool                                      |
 | piano                                            | grand piano (also for the celesta and the organs)                                      | both hands on the keys                                                                         | bench                                      |
 | flute                                            | silver tube (also for the piccolo and other pipes)                                     | horizontal, to the right                                                                       | chair                                      |
@@ -1531,6 +1531,24 @@ reaches the damper pedal and does not pull the haunch into the bench
 The chairs, the stands,
 and the podium keep their sizes in meters.
 
+**Bowed strings**
+
+The violin, the viola, the cello, and the contrabass are low-poly copies of real instruments with
+large flat facets (`models/instruments/strings.ts`). The body outline has four corners at the
+C-bouts, and its edges stand out over the ribs with a darker wood color. The top has two S-shaped
+f-holes. A round neck with a heel holds a tapered fingerboard, and the pegbox ends in a spiral
+scroll with four pegs. A tapered tailpiece, a shaped bridge, and four separate strings are on the
+top. The violin and the viola have a cupped chin rest.
+
+The contrabass has the sloped shoulders, the flat back with a break near the neck, and the brass
+machine heads of a real double bass. The bow has a tapered stick with a camber, a head, a frog
+with a ferrule and an eye, a screw button, and a flat ribbon of hair. The research report
+`docs/research/2026-10-29-string-models.md` gives the real proportions.
+
+The strings of the model stay at one height over the whole length, because the holds and the play
+targets read that height (`VIOLIN`). So the fingerboard is a wedge under the strings, and the neck
+is deeper than on a real violin.
+
 **Sizes and holds**
 
 The hold gives the place of each piece in the bind pose of 4.7, in the axes of the model: the
@@ -1539,10 +1557,10 @@ of each instrument (`models/instruments/`) holds its sizes and the offsets of it
 
 | Instrument                       | Model                                                                                                                   | Hold in the bind pose                                                                                                                                                                                                       |
 | -------------------------------- | ----------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Violin                           | An arched body, a neck, a scroll, and a bow.                                                                            | Under the chin on the left shoulder, the top plate turned to the audience. The bow stick lies in the fingers of the hanging right hand, or through the closed paw of a species with its own grip (`SpeciesParams.bowGrip`). |
+| Violin                           | An arched body with corners and f-holes, a neck, a scroll with pegs, a bridge, a chin rest, four strings, and a bow.    | Under the chin on the left shoulder, the top plate turned to the audience. The bow stick lies in the fingers of the hanging right hand, or through the closed paw of a species with its own grip (`SpeciesParams.bowGrip`). |
 | Viola                            | The violin at 1.15 scale.                                                                                               | As the violin.                                                                                                                                                                                                              |
-| Cello                            | A body with an end pin, and a bow.                                                                                      | The end pin in front of the seat. The cello leans back to the chest, with the neck left of the head, as in `animals.webp`.                                                                                                  |
-| Contrabass                       | The cello at 1.6 scale.                                                                                                 | At the left side, in front of the seat.                                                                                                                                                                                     |
+| Cello                            | The violin form with an end pin and no chin rest, and a bow.                                                            | The end pin in front of the seat. The cello leans back to the chest, with the neck left of the head, as in `animals.webp`.                                                                                                  |
+| Contrabass                       | The cello at 1.6 scale, with sloped shoulders, a flat back, and machine heads.                                          | At the left side, in front of the seat.                                                                                                                                                                                     |
 | Harp                             | 24 strings that show the 47 strings of a concert harp. A box under the base when the harp stands high (`HARP_STAND`).   | Leaned back, with the top of the soundbox on the right shoulder, turned so that the column goes to the front left (`HARP_PLACE`).                                                                                           |
 | Piano                            | A case with an open lid, 88 separate keys, and a desk, larger than a real grand piano (`PIANO_SCALE`), so that the keys stand a little below the elbows of the large polar bear (5.3). The lid opens less than in `mockup.png`. A lyre comes down from the case under the keys to a box just above the floor, and three pedals come out of the box toward the player: the soft pedal, the sostenuto, and the damper pedal, in the sizes of a real grand piano (`PIANO_PEDALS`). Each key goes down with its notes (5.3): it turns around a line under the balance rail behind the fallboard, so the front of a white key goes down by the key dip of a real grand piano and its back less (`PIANO.keyDip`, `PIANO.balanceRail`). The key bed shows through a narrow gap between the white keys. | The keys stand in front of the floor point of the pianist (`PIANO_FRONT_H`), clear of the belly and the muzzle of the polar bear (5.3). |
 | Piano bench                      | A padded seat with round top edges on an apron and four tapered legs with brass feet, as the bench of `polar-bear-views.png` (`PIANO_BENCH`). Under a studio body, it fits the legs and the haunch (4.4, seat). | A static prop under the pianist.                                                                                                                                                                                            |
