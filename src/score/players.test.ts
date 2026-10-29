@@ -387,8 +387,7 @@ describe('assignPlayers', () => {
   });
 
   it('gives the players of a flute chord of 16,000 notes', () => {
-    // A valid file of 96 KB. Before the fix of review R1, this build took about 27 s.
-    // `score-speed.test.ts` times it.
+    // A valid file of 96 KB. `score-speed.test.ts` times it.
     const keys = Array.from({ length: 16_000 }, (...[, i]) => 40 + (i % 60));
     const result = cast({
       tracks: [

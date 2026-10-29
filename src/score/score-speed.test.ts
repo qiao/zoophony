@@ -27,7 +27,6 @@ const BUILD_ROUNDS = 40;
  * The most time of `assignPlayers()` for a flute chord of 16,000 notes, as a multiple of the time
  * of the reference work of {@link timeRatio}. On the development Mac, the ratio is 3.0 (about
  * 8 ms), and the limit is 2 times the ratio. Thus an assignment that is 3 times slower fails.
- * Before the fix of review R1 of step 2, the assignment took about 27 s.
  */
 const CHORD_LIMIT = 6;
 

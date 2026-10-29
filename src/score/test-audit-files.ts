@@ -75,11 +75,10 @@ function soloMelody(): [number, number, readonly number[]][] {
 }
 
 /**
- * Builds the violin concertino of the second UX audit (2026-10-06, N10): a solo violin on the
- * first channel at the velocity 112, above a string ensemble in the range of the violins, a
- * viola, a cello, a flute, and a horn at the velocity 80. It lasts 50 s and has no sequence
- * name. Before the fix, the solo violin played as a section of 4 rabbits, and the string
- * ensemble as 4 red foxes.
+ * Builds a violin concertino: a solo violin on the first channel at the velocity 112, above a
+ * string ensemble in the range of the violins, a viola, a cello, a flute, and a horn at the
+ * velocity 80. It lasts 50 s and has no sequence name. The soloist rule gives the solo violin
+ * one player.
  *
  * @returns The test file.
  */
@@ -140,8 +139,8 @@ export function violinConcertinoFile(): TestFile {
 }
 
 /**
- * Builds the piano piece of the second UX audit (2026-10-06, N9): one piano, 51 s, with the
- * sequence name "Morning Study". The left hand plays chords, and the right hand a melody.
+ * Builds a piano piece: one piano, 51 s, with the sequence name "Morning Study". The left hand
+ * plays chords, and the right hand a melody.
  *
  * @returns The test file.
  */

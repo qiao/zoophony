@@ -46,9 +46,9 @@ function countsOf(
 /**
  * Finds the vocal soloists of a score (design 3.8): the one choir seat beside another choir seat
  * that has at most four voices, sings with no other choir seat in 0.75 of its time, and has one
- * voice alone in 0.3 of its time. In the Ode to Joy, the channel of the soloists sang as 8
- * penguins in the choir row (UX audit 2026-10-06, N8). The soloists get one singer for each voice,
- * and they stand in front of the choir (4.5).
+ * voice alone in 0.3 of its time. With no such rule, the channel of the soloists of the Ode to
+ * Joy sings as 8 penguins in the choir row. The soloists get one singer for each voice, and they
+ * stand in front of the choir (4.5).
  *
  * @param seats The seats, with the player counts of the size rule and their voices.
  * @param notes The notes of the seats.

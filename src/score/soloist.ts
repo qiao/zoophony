@@ -13,9 +13,8 @@ export interface SoloSeat extends Seat {
 export type SoloNote = Pick<PlayerNote, 'seatIndex' | 'pitch' | 'velocity' | 'startSec' | 'endSec'>;
 
 /**
- * The values of the soloist rule (design 3.8). The user decided on 2026-10-06 that a seat that
- * is clearly the soloist sits at the front left of the conductor, as in a concerto (UX audit
- * 2026-10-05, AM3).
+ * The values of the soloist rule (design 3.8). A seat that is clearly the soloist sits at the
+ * front left of the conductor, as in a concerto.
  */
 const SOLOIST_RULE = {
   /** The step at which the rule reads the notes, in seconds. */
@@ -285,7 +284,7 @@ export function measureSoloists(
  * one seat that clearly leads ({@link SOLOIST_RULE}). Two such seats, as in a double concerto,
  * give no soloist. A celesta, a harpsichord, or an organ is a soloist only by this rule. The
  * rule runs before the soloist gets its one player, so that a solo line of a string section is
- * found (UX audit 2026-10-06, N10).
+ * found.
  *
  * @param seats The seats, with the player counts of the size rule and their voices.
  * @param notes The notes of the seats, sorted by start.

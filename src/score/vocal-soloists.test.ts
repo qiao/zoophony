@@ -33,8 +33,7 @@ describe('findVocalSoloists (design 3.8)', () => {
   });
 
   it('finds no vocal soloists in the demos (design 8.2)', async () => {
-    // Until 2026-10-06, the Ode to Joy demo had the four soloists on channel 8. Its excerpt now
-    // has only the choir.
+    // The excerpt of the Ode to Joy demo has only the choir.
     for (const demo of await patchedDemos()) {
       expect(scoreOf(demo.bytes).vocalSoloists, demo.file).toBeNull();
     }

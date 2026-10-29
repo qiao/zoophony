@@ -39,7 +39,7 @@ export const MAX_BEATS = 100_000;
 
 /**
  * The highest tempo of the felt pulse, in pulses for each minute (design 5.1): the preferred
- * tempo of a listener (`docs/research/2026-10-21-beat-fold.md`). A song whose median conducted
+ * tempo of a listener. A song whose median conducted
  * beat is faster has a pulse of two or more conducted beats.
  */
 export const PULSE_TEMPO = 120;

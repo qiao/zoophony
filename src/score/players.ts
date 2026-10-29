@@ -114,7 +114,7 @@ export function assignPlayers(
   seating.noteSeats.forEach((seat, i) => seatNotes[seat]?.push(i));
   const plans = seating.seats.map((seat, s) => planSeat(seat, notes, seatNotes[s] ?? [], divisi));
   // The soloist rule runs before the soloist gets its one player, so that it finds a solo line
-  // of a string section, which the size rule gives a full section (UX audit 2026-10-06, N10).
+  // of a string section, which the size rule gives a full section.
   const soloSeats = seating.seats.map((seat, s) => ({
     ...seat,
     playerCount: plans[s]?.count ?? 0,

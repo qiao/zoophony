@@ -68,8 +68,7 @@ describe('stageMix (design 6.1)', () => {
   });
 
   it('puts the brass and the percussion of Boulanger on their side of the stage', () => {
-    // The file pans the trumpets and the trombones left, and the percussion right
-    // (docs/research/sound-quality.md, D2).
+    // The file pans the trumpets and the trombones left, and the percussion right.
     const score = demoScore('boulanger-matin.mid');
     const mix = stageMix(score, layoutScene(score, models));
     expect(mixOf(score, mix, 'trumpet').pan).toBeGreaterThan(64);
