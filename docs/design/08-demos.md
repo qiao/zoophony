@@ -13,6 +13,9 @@
   the lyrics before the repository gets the file.
 - The credits dialog lists the source of each demo, also when the license does not require a
   credit.
+- A MIDI file whose music is under copyright stays out of the repository, also as a test input.
+- The demo list holds only positive and cheerful pieces. The list has no dark, negative, or
+  depressive piece.
 
 The candidates and their licenses are in [`research/midi-sources.md`](../research/midi-sources.md)
 and, for the demos of the user decision of 2026-10-05 (8.2), in
@@ -67,7 +70,11 @@ excerpt of 2026-10-06 are in
   "O Freunde, nicht diese Töne!", the theme with the baritone at 56.6 s, the soloists and the
   choir, and the end of "vor Gott!" on F major. Its loudness range was 21.7 LU, and the choir
   sang in 30% of the time. The new excerpt has a loudness range of 3.1 LU, and the choir sings
-  in 82% of the time. It has no vocal soloists (3.8).
+  in 82% of the time. It has no vocal soloists (3.8). An excerpt with the four soloists starts
+  with a quiet baritone solo and is longer than 4 minutes, so the excerpt has no soloists. No
+  Mutopia or Wikimedia Commons file with a permitted license has the full orchestra and the choir.
+  The first part ends after bar 590 with the D major chords, because bars 591 to 594 turn to
+  G major.
   [`research/2026-10-06-joyful-ode.md`](../research/2026-10-06-joyful-ode.md) gives the
   candidates, the measures, and the reasons for the choice.
 - Some measures of the Beethoven 9 demo in 5.4 (the count-in and the cues) and 9.7 (the
@@ -220,7 +227,8 @@ The Beethoven 9, Bach, and Beethoven 8 demos (8.2) come from the same pipeline:
 
 - Each score has a group map in `demos/groups/`, which the scripts read with `--groups`. The
   pipeline removes all lyrics first, so the annotations of the instrumental scores do not enter
-  it. The result files hold no text of the scores.
+  it. The result files hold no text of the scores. A group map can put the low strings on the
+  channels 11 to 13, so that no melodic group falls on the percussion channel 10.
 - The repository does not hold these scores. `demos/README.md` gives the commit of the
   Hauptstimme repository, the SHA-256 of each score, and the commands.
 - The Beethoven 9 demo is an excerpt. `tools/musescore/cut_midi.py` keeps bars 543 to 590 and
