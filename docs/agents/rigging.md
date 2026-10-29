@@ -251,6 +251,10 @@ Read the group of your work before you plan it.
   `pnpm pose-depth`.
 - Automatic weights give the clavicle most of a thick arm root, and the wrist helper half of a
   short paw. Check both.
+- Even ring weights at a wrist (`weights.wristFade`) clear the wrist folds of a fold count. A
+  thick paw that bends 40° or more can still push its heel behind the end of the forearm, and the
+  overlap shows as a dark slit. No weight rule, bind, or `raise` removes it. Judge a wrist by
+  its 2x crops.
 - Blender weights on the trunk, the head, or the neck fold faces. Keep the rule weights there
   (`paintedLower`).
 - The glTF skin has no B-Bones and 4 weights for each vertex. In the Blender preview, set
@@ -315,7 +319,8 @@ Read the group of your work before you plan it.
 
 - Give a kept GLB file of `pnpm rig-mesh --check --keep` to `--glb` of the probes. Never copy it
   over the rig in `assets/`.
-- `--views` of `pnpm arm-check` takes no conductor. Aim a camera in JSON at the podium.
+- `--views` of `pnpm arm-check` takes no conductor. Aim `pnpm close-views conductor --aim` at a
+  wrist, or a camera in JSON at the podium.
 - A fix of a turn rate can move a prop to a wrong place with all measures passed. Render a crop of
   the move before you commit.
 - Record each row of a variant table with the commit or the `--set` of its run.
