@@ -17,7 +17,7 @@ export interface SnapshotCommit {
   readonly date: string;
   /** The subject line of the commit message. */
   readonly subject: string;
-  /** True if the working tree has changes that are not committed, outside the snapshots. */
+  /** True if the working tree has changes that are not committed. */
   readonly dirty: boolean;
 }
 
@@ -57,14 +57,15 @@ export const SNAPSHOT_IMAGES: readonly SnapshotImage[] = [
 ];
 
 /**
- * Gives the folder of the snapshot of a commit, from the root of the repository. The folder
- * depends only on the commit, so a second run on the same commit writes the same files again.
+ * Gives the folder of the snapshot of a commit, from the root of the repository, in the ignored
+ * folder `scratch/`. The folder depends only on the commit, so a second run on the same commit
+ * writes the same files again.
  *
  * @param commit The commit.
  * @returns The folder.
  */
 export function snapshotFolder(commit: SnapshotCommit): string {
-  return join('docs', 'snapshots', `${commit.date}-${commit.hash}`);
+  return join('scratch', 'snapshots', `${commit.date}-${commit.hash}`);
 }
 
 /**
@@ -103,7 +104,7 @@ function readCommit(root: string): SnapshotCommit {
     hash: git('rev-parse', '--short', 'HEAD'),
     date: git('log', '-1', '--format=%cd', '--date=format:%Y-%m-%d'),
     subject: git('log', '-1', '--format=%s'),
-    dirty: git('status', '--porcelain', '--', '.', ':(exclude)docs/snapshots') !== '',
+    dirty: git('status', '--porcelain') !== '',
   };
 }
 

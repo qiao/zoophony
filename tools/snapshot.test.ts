@@ -12,7 +12,7 @@ const commit: SnapshotCommit = {
 
 describe('snapshotFolder', () => {
   it('names the folder by the date and the hash of the commit', () => {
-    expect(snapshotFolder(commit)).toBe('docs/snapshots/2026-10-10-7c62dc38');
+    expect(snapshotFolder(commit)).toBe('scratch/snapshots/2026-10-10-7c62dc38');
   });
 });
 
