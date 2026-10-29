@@ -193,15 +193,17 @@ svg {
 
 /* The link to the repository on GitHub stands after the name in the logo line (design 2.8). Its
    mark has the visible size of the paw, in the gray of --github-mark, and white on a hover. The
-   negative margins keep the height of the logo line. The title takes no pointer, so the link
-   takes it back. */
+   negative margins keep the height of the logo line, and the left margin takes back the empty
+   side of the box, so that the mark stands as far from the name as the paw (user, 2026-10-28:
+   "fix the layout of the brand section": the gap was 22 px against 11 px). The title takes no
+   pointer, so the link takes it back. */
 .title .github {
   position: relative;
   display: inline-grid;
   place-items: center;
   width: 28px;
   height: 28px;
-  margin: -4px 0 -4px 6px;
+  margin: -4px 0 -4px -5px;
   border-radius: var(--radius-button);
   color: var(--github-mark);
   pointer-events: auto;
@@ -216,8 +218,8 @@ svg {
 }
 
 .title .github svg {
-  width: 16px;
-  height: 16px;
+  width: 17px;
+  height: 17px;
 }
 
 .title h1 {
@@ -1700,12 +1702,12 @@ body:has(.first-screen:not([hidden])):has(.drawer:not([hidden])) .messages {
   .title .github {
     width: 24px;
     height: 24px;
-    margin-left: 4px;
+    margin-left: -3px;
   }
 
   .title .github svg {
-    width: 13px;
-    height: 13px;
+    width: 14px;
+    height: 14px;
   }
 
   /* On a phone, the drawer is a sheet above the bar, so that the transport stays usable. */
