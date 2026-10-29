@@ -62,8 +62,6 @@ export interface AcceptedDepth {
   readonly depth: number;
   /** Why the depth is accepted. */
   readonly reason: string;
-  /** The decision file and its row. */
-  readonly decision: string;
 }
 
 /**

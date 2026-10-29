@@ -62,7 +62,7 @@ const BODY_BONES = [
 const BODY_LOOPS = 2;
 
 /**
- * The open loops of {@link BODY_BONES} of the foxes, the bodies of the meshes of the user
+ * The open loops of {@link BODY_BONES} of the foxes, the bodies of the meshes
  * (`pnpm rig-mesh <animal>`): the cuts to the two upper arms, and two open edges of each mesh. The
  * export drops the gloss fan over each eye of the rig, and the pea eyes of the app are not in the
  * skin of the studio (design 4.5).
@@ -71,88 +71,78 @@ const MESH_BODY_LOOPS = 4;
 
 /**
  * The open loops of {@link BODY_BONES} of the rabbit mesh in an A-pose: the roots of the two upper
- * arms, and six small open edges at the whiskers, which the source mesh has
- * (`docs/research/2026-10-23-rabbit-arms.md`).
+ * arms, and six small open edges at the whiskers, which the source mesh has.
  */
 const RABBIT_BODY_LOOPS = 8;
 
 /**
  * The open loops of {@link BODY_BONES} of the cat mesh: the cuts to the two upper arms, and one
- * open edge pair of 1.4 cm at a whisker (`loops-probe.txt` of
- * `docs/research/2026-10-16-cat-mesh/`).
+ * open edge pair of 1.4 cm at a whisker.
  */
 const CAT_BODY_LOOPS = 3;
 
 /**
  * The open loops of {@link BODY_BONES} of the dog mesh: the cuts to the two upper arms, two open
- * edge pairs of 3 cm at the muzzle, and two of 1.5 cm to 1.9 cm at the toes (`loops-probe.txt` of
- * `docs/research/2026-10-17-dog-mesh/`).
+ * edge pairs of 3 cm at the muzzle, and two of 1.5 cm to 1.9 cm at the toes.
  */
 const DOG_BODY_LOOPS = 6;
 
 /**
  * The open loops of {@link BODY_BONES} of the hippo mesh: the cuts to the two upper arms, and one
- * open edge pair of 3.3 cm in the small tail (`loops-probe.txt` of
- * `docs/research/2026-10-18-hippo-mesh/`).
+ * open edge pair of 3.3 cm in the small tail.
  */
 const HIPPO_BODY_LOOPS = 3;
 
 /**
  * The open loops of {@link BODY_BONES} of the mouse mesh: the cuts to the two upper arms, 10 open
  * loops of the whiskers (0.10 m to 0.57 m long, each a thin strip beside the muzzle), and two open
- * edge pairs of 1.4 cm and 2.8 cm at the right toes (`loops-probe.txt` of
- * `docs/research/2026-10-19-mouse-mesh/`).
+ * edge pairs of 1.4 cm and 2.8 cm at the right toes.
  */
 const MOUSE_BODY_LOOPS = 14;
 
 /**
  * The open loops of {@link BODY_BONES} of the elephant mesh in an A-pose: the roots of the two
  * upper arms, and one open edge pair of 2.7 cm at the left side of the head, which the source mesh
- * has (`loops-probe.txt` of `docs/research/2026-10-22-elephant-apose/`).
+ * has.
  */
 const ELEPHANT_BODY_LOOPS = 3;
 
 /**
  * The open loops of {@link BODY_BONES} of the beaver mesh: the cuts to the two upper arms, and 7
- * open edge pairs and triples of 1.2 cm to 5.6 cm at the roots of the whiskers on the cheeks
- * (`loops-probe.txt` of `docs/research/2026-10-19-beaver-mesh/`).
+ * open edge pairs and triples of 1.2 cm to 5.6 cm at the roots of the whiskers on the cheeks.
  */
 const BEAVER_BODY_LOOPS = 9;
 
 /**
  * The open loops of {@link BODY_BONES} of the wolf mesh: the cuts to the two upper arms, and three
- * open edge pairs of 4.2 cm to 11.6 cm, one on the head and two on the sides of the trunk
- * (`loops-probe.txt` of `docs/research/2026-10-20-wolf-mesh/`).
+ * open edge pairs of 4.2 cm to 11.6 cm, one on the head and two on the sides of the trunk.
  */
 const WOLF_BODY_LOOPS = 5;
 
 /**
- * The open loops of {@link BODY_BONES} of the badger mesh: the cuts to the two upper arms
- * (`loops-probe.txt` of `docs/research/2026-10-20-badger-mesh/`). In the first rig, a loop of 4
- * edges at the left shoulder was apart. The rigid weights of the left shoulder join it to the cut
- * of the left upper arm (29 edges in place of 25).
+ * The open loops of {@link BODY_BONES} of the badger mesh: the cuts to the two upper arms. The
+ * rigid weights of the left shoulder join a loop of 4 edges at the left shoulder to the cut of the
+ * left upper arm (29 edges in place of 25).
  */
 const BADGER_BODY_LOOPS = 2;
 
 /**
  * The open loops of {@link BODY_BONES} of the monkey mesh: the cuts to the two upper arms, two open
  * edge pairs of 2.6 cm and 2.8 cm at the sides of the neck, and one open edge pair of 3.3 cm at the
- * left toes (`loops-probe.txt` of `docs/research/2026-10-20-mesh-monkey/`).
+ * left toes.
  */
 const MONKEY_BODY_LOOPS = 5;
 
 /**
  * The open loops of {@link BODY_BONES} of the rhino mesh in a T-pose: the roots of the two upper
  * arms, and one small loop of two edges (3.8 cm) at the head, where faces meet that follow other
- * bones most (`loops-probe.txt` of `docs/research/2026-10-28-rhino-tpose/`). The A-pose mesh had
- * ten small loops more.
+ * bones most.
  */
 const RHINO_BODY_LOOPS = 3;
 
 /**
  * The open loops of {@link BODY_BONES} of the deer mesh: the roots of the two rebuilt upper arms
- * (`deer-arms.glb`), and one open edge pair of 1.5 cm at the left hoof (`loops-probe.txt` of
- * `docs/research/2026-10-21-mesh-deer/`).
+ * (`deer-arms.glb`), and one open edge pair of 1.5 cm at the left hoof.
  */
 const DEER_BODY_LOOPS = 3;
 
@@ -166,8 +156,7 @@ const ARM_PARTS: readonly SweepPart[] = [
 
 /**
  * The largest depth of a held instrument in the body, in meters: the instrument presses the fur
- * where a real player touches it, as the contrabass on the lower belly, and goes no further in
- * (`docs/decisions/2026-10-21-hippo-bass.md`).
+ * where a real player touches it, as the contrabass on the lower belly, and goes no further in.
  */
 const INSTRUMENT_CONTACT = 0.02;
 
@@ -192,33 +181,6 @@ export const INSTRUMENT_PART: SweepPart = {
  * belly or a knee presses the fur a little.
  */
 const CONTACT = 0.015;
-
-/** The decision file of the studio polar bear. */
-const POLAR_BEAR_DECISIONS = 'docs/decisions/2026-10-12-studio-polar-bear.md';
-
-/** The decision file of the lap pose of the pianist. */
-const LAP_DECISIONS = 'docs/decisions/2026-10-13-pianist-lap.md';
-
-/** The decision file of the sweep of each role. */
-const SWEEP_DECISIONS = 'docs/decisions/2026-10-13-role-sweep.md';
-
-/** The decision file of the elephant mesh and its timpani. */
-const ELEPHANT_DECISIONS = 'docs/decisions/2026-10-19-mesh-elephant.md';
-
-/** The decision file of the badger mesh and its percussion. */
-const BADGER_DECISIONS = 'docs/decisions/2026-10-20-mesh-badger.md';
-
-/** The decision file of the beaver mesh and its bassoon. */
-const BEAVER_DECISIONS = 'docs/decisions/2026-10-19-mesh-beaver.md';
-
-/** The decision file of the rhino mesh. */
-const RHINO_DECISIONS = 'docs/decisions/2026-10-21-mesh-rhino.md';
-
-/** The decision file of the deer mesh and its harp. */
-const DEER_DECISIONS = 'docs/decisions/2026-10-21-mesh-deer.md';
-
-/** The decision file of cheerful demos. */
-const CHEERFUL_DEMO_DECISIONS = 'docs/decisions/2026-10-14-cheerful-demos.md';
 
 /** The step of the song time between two samples of a full play, in seconds. */
 const PLAY_STEP = 0.25;
@@ -265,7 +227,7 @@ function bodySurface(posed: PosedSkeleton): ClosedSurface {
 }
 
 /**
- * The closed surface of the body of a mesh of the user, the rabbit or a fox: {@link BODY_BONES}
+ * The closed surface of the body of a mesh, the rabbit or a fox: {@link BODY_BONES}
  * with a cap on each open loop ({@link RABBIT_BODY_LOOPS} or {@link MESH_BODY_LOOPS}).
  *
  * @param posed The posed skeleton.
@@ -625,7 +587,6 @@ export const PIANIST_SWEEP: RoleSweep = {
       depth: 0.09,
       reason:
         'The forearms of the round polar bear go into its trunk under the shoulders. No cheap change of the hold removes it.',
-      decision: `${POLAR_BEAR_DECISIONS}, row "Accepted limits", and ${SWEEP_DECISIONS}`,
     })),
     ...(['play', 'lower'] as const).map((samples) => ({
       part: 'upper arms',
@@ -634,7 +595,6 @@ export const PIANIST_SWEEP: RoleSweep = {
       depth: 0.04,
       reason:
         'The skin of the upper arm of the round polar bear runs inside the side of its belly to the elbow.',
-      decision: SWEEP_DECISIONS,
     })),
     // The paws rest in the lap, and the round belly covers the thighs. The forearms lie on the
     // belly, and the upper arms hang by its sides.
@@ -646,7 +606,6 @@ export const PIANIST_SWEEP: RoleSweep = {
         depth: 0.03,
         reason:
           'The arms of the round polar bear are short. With the paws in the lap and the elbows by the sides, the arms lie on its belly.',
-        decision: LAP_DECISIONS,
       })),
     ),
   ],
@@ -756,7 +715,6 @@ export const HARPIST_SWEEP: RoleSweep = {
       depth: 0.04,
       reason:
         'The right forearm of the deer lies on the side of the soundbox near the elbow, so the harp leans on the right arm (design 5.3).',
-      decision: DEER_DECISIONS,
     })),
     ...['play', 'lift', 'rest', 'lower'].map((samples) => ({
       part: 'upper arms',
@@ -765,7 +723,6 @@ export const HARPIST_SWEEP: RoleSweep = {
       depth: 0.035,
       reason:
         'The short upper arm of the deer mesh lies on the side of the body above the elbow, so the arm touches the side (design 5.2).',
-      decision: DEER_DECISIONS,
     })),
     ...['play', 'lower'].map((samples) => ({
       part: 'forearms',
@@ -774,7 +731,6 @@ export const HARPIST_SWEEP: RoleSweep = {
       depth: 0.025,
       reason:
         'The left forearm of the deer touches the side of the chest near the elbow at the far bass strings (design 5.3).',
-      decision: DEER_DECISIONS,
     })),
   ],
   targetError: 1e-3,
@@ -836,7 +792,6 @@ export const CONDUCTOR_SWEEP: RoleSweep = {
       samples: 'arms',
       depth: 0.04,
       reason: 'The hanging arm of the rest pose touches the side of the round body (design 5.2).',
-      decision: SWEEP_DECISIONS,
     })),
     ...['paws', 'claws'].flatMap((part) =>
       ['arms', 'play'].map((samples) => ({
@@ -846,7 +801,6 @@ export const CONDUCTOR_SWEEP: RoleSweep = {
         depth: 0.045,
         reason:
           'The paws and claws brush the round belly during the count-in lift in fast tempos (design 5.4).',
-        decision: CHEERFUL_DEMO_DECISIONS,
       })),
     ),
   ],
@@ -1014,16 +968,16 @@ function sweptBowed(
   return first === index;
 }
 
-/** The species of the violinists with a studio body of a mesh of the user. */
+/** The species of the violinists with a studio body of a mesh. */
 const VIOLINISTS: ReadonlySet<SpeciesId> = new Set(['rabbit', 'fox-red']);
 
-/** The species of the violists with a studio body of a mesh of the user. */
+/** The species of the violists with a studio body of a mesh. */
 const VIOLISTS: ReadonlySet<SpeciesId> = new Set(['cat']);
 
-/** The species of the cellists with a studio body of a mesh of the user. */
+/** The species of the cellists with a studio body of a mesh. */
 const CELLISTS: ReadonlySet<SpeciesId> = new Set(['dog']);
 
-/** The species of the bassists with a studio body of a mesh of the user. */
+/** The species of the bassists with a studio body of a mesh. */
 const BASSISTS: ReadonlySet<SpeciesId> = new Set(['hippo']);
 
 /** The name of the players of each bowed role in the sweep. */
@@ -1361,7 +1315,7 @@ export const BASSIST_SWEEP: RoleSweep = {
   players: (scene) => bowedPlayers(scene, 'contrabass', BASSISTS),
 };
 
-/** The species of the timpanists with a studio body of a mesh of the user. */
+/** The species of the timpanists with a studio body of a mesh. */
 const TIMPANISTS: ReadonlySet<SpeciesId> = new Set(['elephant']);
 
 /**
@@ -1430,7 +1384,6 @@ export const TIMPANIST_SWEEP: RoleSweep = {
     depth: 0.03,
     reason:
       'The middle of the ball of a mallet lies on the head of the kettle at the note start (design 5.3).',
-    decision: ELEPHANT_DECISIONS,
   })),
   targetError: 1e-3,
   hasRole: (score) => score.seats.some((seat) => seat.section === 'timpani'),
@@ -1461,7 +1414,7 @@ export const TIMPANIST_SWEEP: RoleSweep = {
   sampleSets: (scene) => VIOLINIST_SWEEP.sampleSets(scene),
 };
 
-/** The species of the percussion players with a studio body of a mesh of the user. */
+/** The species of the percussion players with a studio body of a mesh. */
 const PERCUSSIONISTS: ReadonlySet<SpeciesId> = new Set(['badger']);
 
 /**
@@ -1542,7 +1495,6 @@ const BADGER_UPPER_ARMS: readonly AcceptedDepth[] = ['play', 'lift', 'rest', 'lo
     depth: 0.025,
     reason:
       'The upper arm of the badger mesh lies on the side of the body below the shoulder, so the arm touches the side (design 5.2).',
-    decision: BADGER_DECISIONS,
   }),
 );
 
@@ -1561,8 +1513,7 @@ const SNARE_DRUMMER_SWEEP: RoleSweep = percussionSweep(
 );
 
 /**
- * The sweep of the badger with the suspended cymbal on its stand and a yarn mallet in each paw
- * (`docs/decisions/2026-10-20-badger-cymbals.md`).
+ * The sweep of the badger with the suspended cymbal on its stand and a yarn mallet in each paw.
  */
 const CYMBALIST_SWEEP: RoleSweep = percussionSweep('cymbalist', 'cymbals', BADGER_UPPER_ARMS);
 
@@ -1578,8 +1529,7 @@ const PERCUSSIONIST_SWEEP: RoleSweep = percussionSweep(
 
 /**
  * The sweep of the badger with the xylophone and a mallet in each paw. The short arms of the
- * badger mesh do not reach the outer bars of the xylophone of the app
- * (`docs/decisions/2026-10-20-mesh-badger.md`, open).
+ * badger mesh do not reach the outer bars of the xylophone of the app.
  */
 const XYLOPHONIST_SWEEP: RoleSweep = percussionSweep('xylophonist', 'xylophone', BADGER_UPPER_ARMS);
 
@@ -1737,7 +1687,6 @@ const BASSOONIST_SWEEP: RoleSweep = {
     depth: 0.016,
     reason:
       'The left paw closes on the wing joint of the smaller bassoon, and in the middle of the lift and the lowering it goes up to 1.6 cm into the tube in one sample of about 30 (design 5.3).',
-    decision: BEAVER_DECISIONS,
   })),
   hasRole: (score) => score.seats.some((seat) => seat.section === 'bassoon'),
   players: (scene) =>
@@ -1793,8 +1742,7 @@ function sweptHornist(scene: TestScene, index: number): boolean {
  * The first seated pig of each demo with horns, and each standing pig soloist, play it. The left
  * palm is on its grip at the valves at the start of each phrase, and the right palm on its grip in
  * the bell at the start of each note ({@link trombonistTargets}: the horn has no slide). The body
- * of the pig mesh has no open edge, so its closed surface has the two cuts to the upper arms
- * (`loops-probe.txt` of `docs/research/2026-10-19-pig-mesh/`).
+ * of the pig mesh has no open edge, so its closed surface has the two cuts to the upper arms.
  */
 const HORNIST_SWEEP: RoleSweep = {
   ...TROMBONIST_SWEEP,
@@ -1990,7 +1938,6 @@ export const TUBIST_SWEEP: RoleSweep = {
     depth: 0.022,
     reason:
       'The thick left paw of the rhino closes on the main branch of the tuba, and its fingers go up to 2.1 cm into the tube (design 5.3).',
-    decision: RHINO_DECISIONS,
   })),
   hasRole: (score) => score.seats.some((seat) => seat.section === 'tuba'),
   players: (scene) =>

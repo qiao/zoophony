@@ -1285,7 +1285,6 @@ function roleOf(options: Options): RoleSweep {
           samples: entry.samples,
           depth: entry.depth,
           reason: entry.reason,
-          decision: entry.decision,
         })),
     ),
   };

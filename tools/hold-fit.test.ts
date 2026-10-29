@@ -240,7 +240,6 @@ describe('worstPairs', () => {
         samples: 'play',
         depth: 0.05,
         reason: 'test',
-        decision: 'test',
       },
     ],
   };
