@@ -2,16 +2,20 @@
 
 - The app is a static site on GitHub Pages. It has no server.
 - Desktop browsers come first. Phones must play the music, with lower visual quality.
-- The scene renders at 60 fps on a laptop with an integrated GPU.
+- The scene renders at 60 fps on a laptop with an integrated GPU. Design 9.7 gives the frame
+  time limit and its check.
 - The first download is less than 1 MB after gzip. Section 7.2 defines what the check counts.
 - The app loads the instrument samples after the first frame. It loads only the presets that the
   file uses.
+- The triangle budget of a studio body allows round forms, such as a round tube for each arm
+  (4.4). The first download and the frame time stay the limits.
 - The code license is Apache-2.0. The animal models are under CC BY-NC 4.0 (the license
   section of `README.md`).
 
 The reference image [`reference/orchestra.webp`](../reference/orchestra.webp) shows the target scene.
 The user owns the rights to it. Look at it before any visual work. Section 4.5 gives the rules
-of the values that come from it, and names the code that holds them.
+of the values that come from it, and names the code that holds them. The reference images win
+over the values in the code: these values describe the current models, and they are no targets.
 
 - A square wooden stage with steps at the front stands in one warm spotlight, on a dark
   background.
@@ -102,7 +106,9 @@ side.
 - No reference image shows a badger. The mesh of the user is the target of the badger, and the
   badger has the size of the parametric badger, by the rule of the user for the mouse. The mesh
   wins over `badger-turnaround.png`, whose fur and stripes are lighter
-  (`docs/decisions/2026-10-20-mesh-badger.md`).
+  (`docs/decisions/2026-10-20-mesh-badger.md`). The bass drum stands in front of the badger, as a
+  real drum stands in front of its player. Thus from the front, the drum hides the right arm and
+  the beater, and the side views and the stage camera show them.
 - The wolf sits on a chair at the right, with the clarinet, beside the dog cellists. The mesh of
   the user is the target of the form of the wolf, and these two images gave its size against the
   dogs (`docs/decisions/2026-10-20-mesh-wolf.md`). The user then made the body of the wolf 0.9
@@ -190,7 +196,8 @@ with close views of the head, a paw on the keys, and a foot pad. The user added 
   the size (`docs/decisions/2026-10-24-polar-bear-seat.md`). The body keeps the part ratios of
   the mesh of the user, with the legs of the mesh, because longer legs made the bear look like a
   human and made the head and the trunk look small (user, 2026-10-28 and 2026-10-29). Thus the
-  bear sits on a lower bench than in the image, with the thighs a little down, the shins
+  bear sits on a lower bench than in the image (the newest request wins over the bench height
+  of the image), with the thighs a little down, the shins
   vertical, and the feet flat on the floor. The body is a little larger than the side view
   gives, so that the bench that fits its legs holds them in a natural seat. The piano is larger
   than a real piano, so that the elbows stand a little above the keys
