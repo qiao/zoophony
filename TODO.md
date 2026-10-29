@@ -470,6 +470,17 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       light. From the stage camera at elevation 40, the bear and the keys hide the pedals and the
       feet. No demo has sustain pedal data (CC 64) on the piano, so the damper pedal moves only
       with a file of the user.
+- [ ] Polar bear (`2026-10-29-polar-ratio.md`): with the legs of the mesh, the thigh of the
+      pedal leg pulls the haunch 2.3 cm into the bench pad in the play (0.1 cm on the base).
+      Keys 0.9 H away keep the haunch on the pad, but the left shoulder then folds 22 to 24
+      faces (20 on the base, arm gate limit 8 with a margin of 2).
+- [ ] Polar bear (`2026-10-29-polar-ratio.md`): the play upper arms go 7.6 cm into the belly
+      (limit 4 cm, 8.3 cm on the base). Elbow poles further out, (±1.4, −0.7, 0.4), give 6.6 cm,
+      and need the arm gate.
+- [ ] Polar bear (`2026-10-29-polar-ratio.md`): the knee crease of the seated bind makes the
+      thigh near the knee 0.90 of the mesh by its perimeter (0.97 by its side width). A crease
+      that only fills turned 29 faces over. With no calf fair, the back of each knee has 6 more
+      edges that turn more than 40° (`out/knee-variants.txt` of the report).
 - [ ] Polar bear keys (`2026-10-28-piano-keys.md`): with the gaps of 1 mm between the white keys,
       the soft shadow of the paws on the keys is weaker than on `main` in the close views. With
       no gap, it is as on `main`. The cause is not known. The claws stay at the key top and do
