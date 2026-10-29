@@ -387,8 +387,9 @@ the hippo arms take a few rounds of Taubin smoothing after the weights (`armSmoo
 `docs/decisions/2026-10-28-arm-smooth.md`). A segment rig replaces
 `upperTwist`. It can take the shapes of `raise`: the pose of a rule turns the segments and the
 helpers by the rules of the app. A shape of `raise` can also smooth the posed arm (`smooth`): the
-hippo bow arm takes a smooth arm in the rest pose, where the bent tube showed lumps, and the play
-keeps its skin (`docs/decisions/2026-10-28-followups.md`).
+bow arms of the hippo and of the red fox take a smooth arm in the rest pose, where the bent tube
+showed lumps or a bright ridge at the inner elbow, and the play keeps its skin
+(`docs/decisions/2026-10-28-followups.md`).
 
 ```text
  lowpoly-studio/animals/polar-bear/out/polar-bear.glb

@@ -10,6 +10,48 @@
     "elbow": 0.07,
     "elbowNote": "The faces within 0.07 units (10.9 cm) of each elbow joint take the skin normals too, as on the elephant and the hippo. The seated bind bends each elbow, so the crease angle split the normals of the inner elbow, and the arm-down shape of the rest adds the moves of its own split normals: the corners at one vertex of the right inner elbow took normals up to 151 degrees apart at rest. The user saw it as a notch in the lit forearm of the red fox under the front key (user, 2026-10-28: \"seeing visible crease on fox and rabbit's arm\"). The tan fox shares the rig and the fault. With 0.06, an edge of the right inner elbow kept a jump of 60 degrees in 68% of the play. With 0.07, no elbow edge jumps more than 16 degrees, and the cells of 0.06 and 0.08 look the same (docs/research/2026-10-28-fox-rabbit-crease.md)."
   },
+  "raise": [
+    {
+      "side": "R",
+      "turns": {
+        "clavicle": [
+          0,
+          0,
+          0,
+          1
+        ],
+        "upper_arm": [
+          0.6587,
+          0.244,
+          0.0643,
+          0.7088
+        ],
+        "forearm": [
+          0.0625,
+          -0.0353,
+          0.0814,
+          0.9941
+        ]
+      },
+      "fade": [
+        8,
+        18
+      ],
+      "below": -1,
+      "smooth": 10,
+      "smoothBones": [
+        "upper_arm_seg1",
+        "upper_arm_seg2",
+        "upper_arm_seg3",
+        "elbow",
+        "forearm_seg0",
+        "forearm_seg1",
+        "forearm_seg2",
+        "forearm_seg3"
+      ],
+      "note": "The user said on 2026-10-28: \"the cat's elbow has an area that's too bright\", with an image of the red fox at rest from its front right (orange fur, the black forearm with its zigzag edge, and the upright bow). In the rest pose, the right upper arm turns far from the seated bind, and the bend of the rebuilt tube made a ridge of faceted faces at the inner elbow that the stage light showed as a bright streak. The shape takes the mean turns of the 14 rest samples of the fox violinist (rest-turns.ts of docs/research/2026-10-28-followups/) and smooths the posed tube from the second segment of the upper arm to the wrist with 10 rounds of taubin() (smooth, smoothBones, raise_shape() of tools/blender/rig_mesh.py), with no relax (below -1), as on the hippo. The fade from 8 to 18 degrees keeps the shape off the play of the red fox (31 to 59 degrees away) and off the rest of the tan fox flutist (22.6 degrees away), which shares this mesh. 6 rounds gave a smaller change (docs/research/2026-10-28-followups.md)."
+    }
+  ],
   "armSegments": {
     "helper": 0.032,
     "rootSegment": true,
