@@ -191,6 +191,10 @@ moment with raised arms, and the user then found a dent at the arm root from abo
 arms lowered and at rest. A measure that says that no view shows a defect is no proof. Show the
 images.
 
+When a change has a side effect on the look that you cannot explain, render one pair of the base
+and the change with only the cause that you suspect removed. Then report the side effect as an
+open problem with the images, and add it to `TODO.md`.
+
 ## Audits
 
 - Write a codebase audit in `docs/audits/`, in a file whose name starts with the date. Give the
