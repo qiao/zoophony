@@ -147,6 +147,9 @@ export const HANDS_HOLDS = {
   // so a melody changes paws between them. The wrists go up and forward over the case between the
   // lap and the keys (`restArc`): with the paws in the lap, the arc 0.1 H forward put the paws
   // of the T-pose polar bear 2.6 cm into its body when they lowered, and 0.25 H 0.8 cm or less.
+  // With the rest paws 0.8 H in front of the lap, the arc 0.25 H forward put the forearms 1.6 cm
+  // into the case front in the lowering, and 0.15 H 1.1 cm
+  // (`docs/research/2026-10-29-polar-ratio.md`).
   // With the paws in the lap, an arc of 0.5 H out stood the upper arms 61° out from the trunk in
   // the lift. With no arc out, they stand out at most as far as in a play. On the low bench, an arc
   // 0.4 H up twisted the paws up to 42° on the forearms in the lift, and 0.2 H up 28°.
@@ -176,7 +179,7 @@ export const HANDS_HOLDS = {
     poleR: [1, -0.7, 0.4],
     curl: 30 * MathUtils.DEG2RAD,
     curlClosed: 30 * MathUtils.DEG2RAD,
-    restArc: [0, 0.2, 0.25],
+    restArc: [0, 0.2, 0.15],
     // The rest pose is the rest position of a pianist before a performance: the trunk sits tall
     // with a slight lean toward the piano, the head is up, and the hands rest in the lap
     // (`docs/research/2026-10-13-pianist-lap.md`). The rest lean is the lean of the `ready` clip
