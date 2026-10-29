@@ -6,8 +6,8 @@
 // - Vercel (`vercel`): brotli or gzip for the text types, ETag, the default
 //   `Cache-Control: public, max-age=0, must-revalidate`, and the header rules of `vercel.json`.
 //
-// The phone shape delays each request and shares one link rate among all bodies, so that the
-// fetches of the Workers also get the shape (`--phone` of `pnpm load-probe`).
+// The network of the server can delay each request and share one link rate among all bodies, so
+// that the fetches of the Workers also get it (`--phone` of `pnpm load-probe`).
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { existsSync, mkdirSync, readFileSync, statSync } from 'node:fs';
@@ -40,11 +40,22 @@ const CONTENT_TYPES = new Map([
   ['.webp', 'image/webp'],
 ]);
 
-/** Fast 4G of DevTools: 60 ms of round trip x 2.75 for each request. */
-const PHONE_LATENCY_MS = 165;
+/** The network of a server: the delay of each request and the rate of the link. */
+export interface Network {
+  /** The delay of each request, in ms. */
+  readonly latencyMs: number;
+  /** The rate of the link for all requests together, in bytes per second, or `Infinity`. */
+  readonly bytesPerSecond: number;
+}
 
-/** Fast 4G of DevTools: 9 Mbit/s x 0.9 down, for all requests together, in bytes per second. */
-const PHONE_BYTES_PER_S = (9e6 / 8) * 0.9;
+/**
+ * Fast 4G of DevTools: 60 ms of round trip x 2.75 for each request, and 9 Mbit/s x 0.9 down for all
+ * requests together.
+ */
+export const FAST_4G: Network = { latencyMs: 165, bytesPerSecond: (9e6 / 8) * 0.9 };
+
+/** No delay and no limit of the rate. */
+export const NO_LIMIT: Network = { latencyMs: 0, bytesPerSecond: Infinity };
 
 /** The bytes that each body of the shaper gets in its turn. */
 const LINK_TURN_BYTES = 4096;
@@ -153,8 +164,8 @@ interface SiteFile {
 
 /**
  * The server of a site as its host serves it: HTTP/2 with TLS (or HTTP/1.1), the compression of the
- * text types, the `Cache-Control` headers of the host, and ETag. The phone run shapes the network
- * in the server, so that the fetches of the Workers also get the shape: each body gets a turn of
+ * text types, the `Cache-Control` headers of the host, and ETag. The server makes its network
+ * itself, so that the fetches of the Workers also get it: each body gets a turn of
  * {@link LINK_TURN_BYTES} bytes, so that each body keeps the order of its own bytes.
  */
 export class SiteServer {
@@ -166,7 +177,7 @@ export class SiteServer {
   readonly #rules: readonly HeaderRule[];
   /** The latency of each request, in ms. */
   readonly #latencyMs: number;
-  /** The rate of the link, in bytes per second, `Infinity` with no shape. */
+  /** The rate of the link, in bytes per second, or `Infinity` with no limit. */
   readonly #bytesPerSecond: number;
   /** The files that the server read, by path. */
   readonly #files = new Map<string, SiteFile>();
@@ -188,14 +199,14 @@ export class SiteServer {
    *
    * @param root The folder of the site, such as `dist/`.
    * @param host The host whose answers the server copies.
-   * @param phone True for the shape of Fast 4G.
+   * @param network The delay of each request and the rate of the link.
    */
-  constructor(root: string, host: SiteHost, phone: boolean) {
+  constructor(root: string, host: SiteHost, network: Network) {
     this.#root = root;
     this.#host = host;
     this.#rules = host === 'vercel' ? vercelRules() : [];
-    this.#latencyMs = phone ? PHONE_LATENCY_MS : 0;
-    this.#bytesPerSecond = phone ? PHONE_BYTES_PER_S : Infinity;
+    this.#latencyMs = network.latencyMs;
+    this.#bytesPerSecond = network.bytesPerSecond;
   }
 
   /** Clears the bytes and the timeline for the next load. */
@@ -285,7 +296,7 @@ export class SiteServer {
   }
 
   /**
-   * Answers a request after the latency of the shape.
+   * Answers a request after the delay of the network.
    *
    * @param request The request.
    * @param response The response.
@@ -455,8 +466,8 @@ export interface SiteOptions {
   readonly root: string;
   /** The host whose answers the server copies. */
   readonly host: SiteHost;
-  /** True for the shape of Fast 4G. */
-  readonly phone: boolean;
+  /** The delay of each request and the rate of the link. */
+  readonly network: Network;
   /** The port on `localhost`. */
   readonly port: number;
 }
@@ -468,8 +479,8 @@ export interface SiteOptions {
  * @returns The running site.
  */
 export async function startSiteServer(options: SiteOptions): Promise<RunningSite> {
-  const { root, host, phone, port } = options;
-  const server = new SiteServer(root, host, phone);
+  const { root, host, network, port } = options;
+  const server = new SiteServer(root, host, network);
   const linkTimer = setInterval(() => {
     server.tick();
   }, 5);

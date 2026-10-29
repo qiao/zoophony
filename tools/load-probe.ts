@@ -32,7 +32,7 @@ import { chromium } from '@playwright/test';
 
 import { chromiumArgs } from './chromium-args.ts';
 import { optionValue, runChild, shortHash, withRefBuild } from './ref-tree.ts';
-import { startSiteServer } from './site-server.ts';
+import { FAST_4G, NO_LIMIT, startSiteServer } from './site-server.ts';
 
 /** The root of the repository. */
 const ROOT = resolve(import.meta.dirname, '..');
@@ -296,7 +296,7 @@ async function measureSite(
   const site = await startSiteServer({
     root,
     host: 'pages',
-    phone: options.phone,
+    network: options.phone ? FAST_4G : NO_LIMIT,
     port: options.port,
   });
   const { server } = site;
