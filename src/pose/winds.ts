@@ -97,10 +97,9 @@ export interface WindHold {
    *   (`docs/reference/wind-technique.md` 2.3).
    * - `back`: the back of the paw faces the tube, and the grip moves past the axis, so that the
    *   tube goes through the closed paw. The tan fox holds the flute so. With `palm`, its right
-   *   paw turned 142° on its forearm and flipped in the lowering (`2026-10-25-grips` decisions).
+   *   paw turns 142° on its forearm and flips in the lowering.
    * - `none`: the paw keeps the roll of its shoulder, and a small paw can hang beside the tube
-   *   with its palm to the side (user, 2026-10-23: "wolf, mouse, and tan fox not holding the
-   *   instrument properly").
+   *   with its palm to the side.
    */
   readonly faceTube: readonly [left: TubeFace, right: TubeFace];
   /**
@@ -117,9 +116,9 @@ export interface WindHold {
    * paw points from its shoulder to the tube. A tube far in front of the body then makes the paw
    * point forward, and the fingers stick out in front of the tube. With a share, the paw turns
    * toward the other side of the body, so that it lies across the back of the tube and its curled
-   * fingers wrap the front. With a grip behind the tube, a share of half turned the palm of a
+   * fingers wrap the front. With a grip behind the tube, a share of half turns the palm of a
    * woodwind paw to the audience and its thumb down the tube, so a woodwind paw takes a small
-   * share and a grip at the side of its own shoulder (`docs/research/2026-10-25-wind-palms.md`).
+   * share and a grip at the side of its own shoulder.
    * A share below 0, from -1 to 0, turns the paw by its size toward the opposite side direction,
    * so that a paw below and behind its tube points up past the back of the tube and its curled
    * fingers come over the top, as the right hand of a flutist does. Only a paw that rolls to face
@@ -191,7 +190,7 @@ export interface FreePaw extends LapHand {
 /**
  * The elbows of a wind player point out and forward, level with the line of the arm, unless a
  * hold turns them down. The elbows down and out, (0.6, -1, 0.2), put the arms of the woodwinds and
- * the horn up to 0.3 H into the thighs and 0.2 H into the belly while they played (2026-10-07).
+ * the horn up to 0.3 H into the thighs and 0.2 H into the belly in the play.
  */
 const POLE_L: Vec3 = [-1, 0, -1];
 const POLE_R: Vec3 = [1, 0, -1];
@@ -305,7 +304,7 @@ export const WIND_HOLDS = {
   // While it plays, the flute turns its right end 30° back and 15° down, nearer to level, the left
   // elbow points out, forward, and a little up, and the right elbow points down. The left hand
   // holds the flute in front of the face, to the right of the middle, so the left arm crosses the
-  // chest: at 10° down, the left upper arm went 0.03 H into the chest of the tan fox, and level and
+  // chest: at 10° down, the left upper arm goes 0.03 H into the chest of the tan fox, and level and
   // square to the front 0.067 H. The flute turns its right end down in the rest pose.
   flute: {
     ...WOODWIND,
@@ -321,10 +320,9 @@ export const WIND_HOLDS = {
     rest: holdTurn(0, -45),
     restShift: [-0.15, 0, -0.1],
   },
-  // The right palm of the oboe was 1.04 of 97% of the reach (review of step 4). The left elbow
-  // points down. At rest, it points a little further out: with (-1, -1, -1), the left upper arm of
-  // the mouse went 0.027 H into the trunk at the start of the lift, after the seats fitted the
-  // legs (2026-10-11).
+  // The oboe turns the arms by `reach`: with no turn, the right palm is at 1.04 of 97% of the
+  // reach. The left elbow points down. At rest, it points a little further out: with (-1, -1, -1),
+  // the left upper arm of the mouse goes 0.027 H into the trunk at the start of the lift.
   oboe: {
     ...WOODWIND,
     reach: 20 * MathUtils.DEG2RAD,
@@ -346,7 +344,7 @@ export const WIND_HOLDS = {
     restShift: [-0.17, 0.05, -0.02],
   },
   // While it plays, the bassoon turns its lower end 20° forward and 20° to the right, and the
-  // right elbow points down. With no turn, the right forearm went 0.21 H into the right thigh.
+  // right elbow points down. With no turn, the right forearm goes 0.21 H into the right thigh.
   bassoon: {
     ...WOODWIND,
     play: holdTurn(20, 20),
@@ -358,7 +356,7 @@ export const WIND_HOLDS = {
   },
   // In the rest pose, the horn comes up out of the right thigh, so that the bell sits on it. The
   // right elbow points down, also while the horn plays. It points a little further out than
-  // (0.5, -1, -0.5): on the low seats of 2026-10-11, the right upper arm of the pig went 0.031 H
+  // (0.5, -1, -0.5): with that elbow on the low seats, the right upper arm of the pig goes 0.031 H
   // into the trunk in play (limit 0.02 H).
   horn: {
     ...WOODWIND,
@@ -413,63 +411,56 @@ const FOX_HEAD_TURN = 30;
 
 /**
  * The turn of the right end of the flute of the flutist fox back from square to the face, in
- * degrees. Square to the face, the shorter arms of 2026-10-14 reach the right grip with 0.8 cm to
- * spare, and two faces of the front of the right shoulder fold in each play sample. The turns from
- * 7° to 11° back, with the flute 8° to 10° down, fold 0.7% of the play samples, and 5° or 12° back,
- * or 12° down, fold each sample again, so the hold takes the middle (`2026-10-14-arms-rest`
- * decisions).
+ * degrees. Square to the face, the arms reach the right grip with 0.8 cm to spare, and two faces
+ * of the front of the right shoulder fold in each play sample. The turns from 7° to 11° back, with
+ * the flute 8° to 10° down, fold 0.7% of the play samples, and 5° or 12° back, or 12° down, fold
+ * each sample, so the hold takes the middle.
  */
 export const FOX_FLUTE_BACK = 9;
 
 /**
- * The flute hold of the tan fox (design 5.3), the hold of a real flutist (decisions
- * `2026-10-14-fox-flute.md`). The head turns 30° to the left while the fox plays, as Debost
- * writes, and the flute lies 9° back from square to the face, 8° down to the right
- * ({@link FOX_FLUTE_BACK}). The lip plate sits 0.05 H below the mouth, under the long muzzle: at
- * the mouth, the jaw touched the flute. The shoulders stay square and low, with no forward turn of
- * the right shoulder. The left elbow points down and out, and the right elbow down, out, and a
- * little forward, as a seated flutist lets the arms hang (`docs/reference/wind-technique.md` 2.4).
+ * The flute hold of the tan fox (design 5.3), the hold of a real flutist. The head turns 30° to
+ * the left while the fox plays, as Debost writes, and the flute lies 9° back from square to the
+ * face, 8° down to the right ({@link FOX_FLUTE_BACK}). The lip plate sits 0.05 H below the mouth,
+ * under the long muzzle: at the mouth, the jaw touches the flute. The shoulders stay square and
+ * low, with no forward turn of the right shoulder. The left elbow points down and out, and the
+ * right elbow down, out, and a little forward, as a seated flutist lets the arms hang
+ * (`docs/reference/wind-technique.md` 2.4).
  *
  * Each palm faces the flute, and the fingers curl over it (`faceTube`, `gripCurl`), as a real
  * flutist curves the fingers over the keys (`docs/reference/wind-technique.md` 2.4). The left paw
- * holds the flute near the lip plate from its front and a little below, with the back of the paw
- * to the audience: its grip moves from the grip of the instrument, 2.5 cm below the axis, to the
- * front of the tube (`gripShiftL`), and the paw points half up across the flute (`aimSide`), so
- * that its fingers come over the top onto the keys. It also faces the flute in the play, although
- * it leaves its grip at rest. Before 2026-10-27, it hung 5.5 cm below the flute with its finger
- * tips 2.7 cm off it (user, 2026-10-27: "the fox doesn't seem to be holding the instrument
- * properly", `2026-10-27-cat-fox` decisions). The right paw holds the body of the flute as the
- * right hand of a flutist: its middle lies behind the flute and a little below, its palm faces the
- * flute, and it points up past the back of the flute (`aimSide` below 0), so that the curled
- * fingers come over the top onto the keys, and the thumb side lies under the flute
- * (`gripShiftR`). Before, the paw lay on the top of the flute from behind and above (user,
- * 2026-10-27: "the fox doesn't seem to be holding the instrument properly", `2026-10-27-cat-fox2`
- * decisions). With the paw below the flute and the side aim to the front, the flute lay in the
- * palm as in a left hand, and the paw turned 180° on its forearm in the lift and the lowering.
- * With the right elbow out to the side, the paw swing reached 45° (30° before), and with the
- * elbow a little back, the right upper arm went 1.5 cm into the body in the moves. Before the rebuilt
- * arms of 2026-10-25, the paws held the flute with the back of the paw, because the right paw
- * turned 142° on its forearm and flipped (`2026-10-25-fox-arms` decisions).
+ * holds the flute near the lip plate from its front and a little below, with the back of the paw to
+ * the audience: its grip moves from the grip of the instrument, 2.5 cm below the axis, to the front
+ * of the tube (`gripShiftL`), and the paw points half up across the flute (`aimSide`), so that its
+ * fingers come over the top onto the keys. It also faces the flute in the play, although it leaves
+ * its grip at rest. The right paw holds the body of the flute as the right hand of a flutist: its
+ * middle lies behind the flute and a little below, its palm faces the flute, and it points up past
+ * the back of the flute (`aimSide` below 0), so that the curled fingers come over the top onto the
+ * keys, and the thumb side lies under the flute (`gripShiftR`). With the paw below the flute and
+ * the side aim to the front, the flute lies in the palm as in a left hand, and the paw turns 180°
+ * on its forearm in the lift and the lowering. With the right elbow out to the side, the paw swing
+ * reaches 45°, and with the elbow a little back, the right upper arm goes 1.5 cm into the body in
+ * the moves.
  *
  * In the rest pose, the flute stands nearly upright at the right side with the foot joint down on
- * the top of the right thigh, as a real flutist rests it vertically on the right leg with the
- * right hand on the right-hand keys (George, `docs/reference/wind-technique.md` 2.4). The closed
- * right paw holds it 0.45 H nearer to the lip plate than in the play, about 0.2 m below the lip
- * plate on the upper body of the flute, with its fingers on the tube (`restGripShiftR`, `restAim`
- * 0). Before 2026-10-25, the paw held it near its lower end. The lift moves the right grip around the
- * flute (`gripAround`): on a straight line, the grip crossed the axis of the tube, and the paw
- * turned 180° in one frame. With the roll of the play at rest, the paw passed through the tube at
- * the end of the lift and turned 175°. The elbows point down and out at rest. The left paw leaves
- * its grip ({@link WindHold.restFreeL}), and the left arm hangs down along the side.
+ * the top of the right thigh, as a real flutist rests it vertically on the right leg with the right
+ * hand on the right-hand keys (George, `docs/reference/wind-technique.md` 2.4). The closed right
+ * paw holds it 0.45 H nearer to the lip plate than in the play, about 0.2 m below the lip plate on
+ * the upper body of the flute, with its fingers on the tube (`restGripShiftR`, `restAim` 0). The
+ * lift moves the right grip around the flute (`gripAround`): on a straight line, the grip crosses
+ * the axis of the tube, and the paw turns 180° in one frame. With the roll of the play at rest, the
+ * paw passes through the tube at the end of the lift and turns 175°. The elbows point down and out
+ * at rest. The left paw leaves its grip ({@link WindHold.restFreeL}), and the left arm hangs down
+ * along the side.
  *
- * The top of the left thigh is out of reach of the left arm: the nearest place of the palm on it
- * is 0.582 m from the shoulder joint, and the arm is 0.545 m (2026-10-17-tan-rest decisions). So
- * the left arm hangs near the side with a soft bend, as a seated flutist lets the free arm hang. The
- * paw hangs out from the outer side of the haunch, with the palm toward the body. The lap place
- * takes the top of the belly over the thigh at 0.45 of the way to the knee, and the paw hangs
- * 0.5 H out, 0.55 H down, and 0.12 H forward from it. At 0.45 H out, the left upper arm went 1.8 cm
- * into the side of the body (limit 1.5 cm). With the paw nearer to the haunch or the elbow more
- * bent, the inner elbow went further into the side of the trunk.
+ * The top of the left thigh is out of reach of the left arm: the nearest place of the palm on it is
+ * 0.582 m from the shoulder joint, and the arm is 0.545 m. So the left arm hangs near the side with
+ * a soft bend, as a seated flutist lets the free arm hang. The paw hangs out from the outer side of
+ * the haunch, with the palm toward the body. The lap place takes the top of the belly over the
+ * thigh at 0.45 of the way to the knee, and the paw hangs 0.5 H out, 0.55 H down, and 0.12 H
+ * forward from it. At 0.45 H out, the left upper arm goes 1.8 cm into the side of the body (limit
+ * 1.5 cm). With the paw nearer to the haunch or the elbow more bent, the inner elbow goes further
+ * into the side of the trunk.
  */
 const FOX_FLUTE = {
   ...WOODWIND,
@@ -504,12 +495,8 @@ const FOX_FLUTE = {
  * `orchestra-latest.png` hold it and as a trombonist points it toward the audience
  * (`docs/reference/wind-technique.md` 1.1). The right arm reaches 0.105 m of the slide travel
  * (`pnpm hold-reach panda --instrument trombone`). With the right grip near the mouthpiece side of
- * the brace, it reached 0.17 m: straight ahead and 10° below the level, the travel was 0.5 cm, 30°
- * to the right 10 cm, 60° 26 cm, and 90° 45.5 cm, with the slide further to the side
- * (`slide-scan-final.txt` of `docs/research/2026-10-25-open-grips/`). Before 2026-10-25, the slide pointed 35°
- * below the level and 30° to the right, as the user chose in the round `trombone-fit`
- * (`docs/research/2026-10-18-trombone-fit.md`), and the bell hung near the knee (manager review of
- * 2026-10-25, `2026-10-25-grips` decisions).
+ * the brace, it reaches 0.17 m: straight ahead and 10° below the level, the travel is 0.5 cm, 30°
+ * to the right 10 cm, 60° 26 cm, and 90° 45.5 cm, with the slide further to the side.
  */
 const PANDA_PLAY = {
   /** The turn of the slide to the right of the panda, around the mouthpiece. */
@@ -524,8 +511,8 @@ const PANDA_PLAY = {
 } as const;
 
 /**
- * The trombone hold of the panda (design 5.3), the hold of a real trombonist (decisions
- * `2026-10-18-mesh-panda.md`): the left paw holds the trombone at its grip near the mouthpiece,
+ * The trombone hold of the panda (design 5.3), the hold of a real trombonist: the left paw holds
+ * the trombone at its grip near the mouthpiece,
  * and the right paw moves the slide. The big round head puts the mouth of the panda 0.40 m in
  * front of its shoulder joints, so with the slide of {@link WIND_HOLDS} straight ahead and 15°
  * down, the grip of the first position is 0.588 m from the right shoulder joint, beyond the reach
@@ -548,14 +535,13 @@ const PANDA_PLAY = {
  * 0.15 H down the brace and 0.08 H along the slide away from the mouthpiece (`gripShiftR`): the
  * slide points 45° to the right, so the right side of the panda is the far right side of the
  * brace. The paw points 0.8 of the way along the slide (`aimSide`), and the fingers curl 110°
- * around the brace. With the grip 0.08 H back toward the mouthpiece, the right palm faced the
- * audience and the right thumb pointed down the brace (user, 2026-10-25: "their palm are facing
- * outwards and thumbs downwards", `docs/research/2026-10-25-wind-elbows.md`). Both paws keep the
- * aim and the roll of the play at rest (`restAim`): with the roll of the shoulder, the right wrist
- * turned 5,500° to 9,800° each second in the lowering. The right elbow points down, a little out,
- * and a little forward, (0.3, -1, -0.3), also at rest, so that the paw turns less on its forearm:
- * with the elbow out and a little down, (1, -0.5, 0), the palm to the side turned the right paw
- * 166° on its forearm (limit 170°), and with this elbow 141°.
+ * around the brace. With the grip 0.08 H back toward the mouthpiece, the right palm faces the
+ * audience and the right thumb points down the brace. Both paws keep the aim and the roll of the
+ * play at rest (`restAim`): with the roll of the shoulder, the right wrist turns 5,500° to 9,800°
+ * each second in the lowering. The right elbow points down, a little out, and a little forward,
+ * (0.3, -1, -0.3), also at rest, so that the paw turns less on its forearm: with the elbow out and
+ * a little down, (1, -0.5, 0), the palm to the side turns the right paw 166° on its forearm
+ * (limit 170°), and with this elbow 141°.
  *
  * The middle of the right paw lies at the far side of the brace, so the right arm reaches 0.105 m
  * of the slide travel of 0.55 m, against 0.17 m with the grip on the mouthpiece side of the brace
@@ -563,17 +549,14 @@ const PANDA_PLAY = {
  * first position (`docs/reference/wind-technique.md` 1.2), so the slide positions map into the
  * reached travel. A forward turn of the right shoulder of 55° reaches 0.125 m, and flattens the
  * right upper arm to 0.60 (limit 0.55). A forward turn of the right shoulder at the sixth and the
- * seventh positions, as a real player moves the shoulder there, gave 0.195 m on the grip before,
- * but bent the right wrist 74° to 76° to the side.
+ * seventh positions, as a real player moves the shoulder there, reaches 0.195 m on the grip at the
+ * mouthpiece side of the brace, but bends the right wrist 74° to 76° to the side.
  *
  * The left shoulder turns forward, as the shoulder blade of a real player slides forward when the
- * arm reaches forward. With a square left shoulder, the left upper arm turned 68° from its bind
- * direction to the grip, and faces at the front of the left shoulder folded in each sample
- * (`docs/research/2026-10-18-panda-folds.md`). The left grip turns with the slide, so with the
- * slide 30° to the right, a turn of 10° still folds faces 1290 and 1291 in each play sample, and
- * 15° or 20° removes the folds. The user chose 9° before for a smaller shadow of the left arm on
- * the belly ("Try the 9° turn"). With 15°, the shadow band covers 44.6% of a box of the belly in
- * the front view, against 20.9% with 9° and the slide of the hold before.
+ * arm reaches forward. With a square left shoulder, the left upper arm turns 68° from its bind
+ * direction to the grip, and faces at the front of the left shoulder fold in each sample. The left
+ * grip turns with the slide, so with the slide 30° to the right, a turn of 10° still folds faces
+ * 1290 and 1291 in each play sample, and 15° or 20° removes the folds.
  */
 const PANDA_TROMBONE = {
   ...WIND_HOLDS.trombone,
@@ -601,61 +584,53 @@ const PANDA_TROMBONE = {
 const MOUSE_OBOE_FORWARD = 10;
 
 /**
- * The oboe hold of the mouse (design 5.3), the hold of a real oboist (decisions
- * `2026-10-19-mesh-mouse.md` and `2026-10-19-mouse-size.md`, `docs/reference/wind-technique.md`
- * 2.3). The long muzzle puts the tip of the nose far in front of the mouth, so the reed sits
- * 0.23 H further back and 0.04 H lower than the mouth of the bind pose, in the mouth under the
- * nose, with about half of the reed in the mouth. The oboe hangs 40° from the vertical, 10°
- * further forward than in {@link WIND_HOLDS} ({@link MOUSE_OBOE_FORWARD}), as a real oboist holds
- * it about 40° from the body. The small mouse plays a smaller oboe (`SpeciesParams.oboeScale`),
- * so that the grips stay near the chest and the elbows bend near the body: 0.45 of the oboe of the
- * app, with the arms 1.25 times the arms of the mesh (2026-10-26-short-arms decisions). On the oboe of 0.62,
- * the arms reached forward straight at 35° and 40°, and the oboe hung 15° from the vertical
- * (`2026-10-25-wind-angle` decisions). As on a real oboe, the left paw holds the upper joint near
- * the reed, and the right paw holds the lower joint above the bell, with a clear gap between the
- * paws: the left grip moves 0.05 H down the tube and the right grip 0.15 H down (`gripShiftL`,
- * `gripShiftR`). With the left grip 0.3 H down, both paws lay together on the lower half
- * (`2026-10-25-wind-palms` decisions). Each grip also moves 0.06 H toward the axis and 0.05 H
- * across it toward the shoulder of its paw, so that each paw holds the tube from its own side.
- * Each paw aims across the tube (`aimAcross`) with no side aim (`aimSide`), each palm faces the
- * tube (`faceTube`), and the fingers curl 100° (left) and 110° (right) over its front
- * (`gripCurl`). The thumbs then point up the oboe to the reed, as an oboist curves the fingers
- * over the keys with the thumb behind the tube (`docs/reference/wind-technique.md` 2.3). Both
- * paws grasp the oboe in each sample (`pnpm wind-grip oboist`). With the grips behind the tube
- * and a side aim of half, each paw lay behind the tube with its palm to the audience and its
- * thumb down the oboe (user, 2026-10-25: "their palm are facing outwards and thumbs downwards",
- * `docs/research/2026-10-25-wind-palms.md`). With the left grip on the axis (0.04 H toward it),
- * the roll to the tube has no direction, and the paw turned over. With 60° on the right, the right
- * arm folded 9 faces at rest (limit 8, `2026-10-25-grips` decisions).
+ * The oboe hold of the mouse (design 5.3), the hold of a real oboist
+ * (`docs/reference/wind-technique.md` 2.3). The long muzzle puts the tip of the nose far in front
+ * of the mouth, so the reed sits 0.23 H further back and 0.04 H lower than the mouth of the bind
+ * pose, in the mouth under the nose, with about half of the reed in the mouth. The oboe hangs 40°
+ * from the vertical, 10° further forward than in {@link WIND_HOLDS} ({@link MOUSE_OBOE_FORWARD}),
+ * as a real oboist holds it about 40° from the body. The small mouse plays a smaller oboe
+ * (`SpeciesParams.oboeScale`), so that the grips stay near the chest and the elbows bend near the
+ * body: 0.45 of the oboe of the app, with the arms 1.25 times the arms of the mesh. On an oboe of
+ * 0.62, the arms reach forward straight at 35° and 40°, and the oboe hangs 15° from the vertical.
+ * As on a real oboe, the left paw holds the upper joint near the reed, and the right paw holds the
+ * lower joint above the bell, with a clear gap between the paws: the left grip moves 0.05 H down
+ * the tube and the right grip 0.15 H down (`gripShiftL`, `gripShiftR`). With the left grip 0.3 H
+ * down, both paws lie together on the lower half. Each grip also moves 0.06 H toward the axis and
+ * 0.05 H across it toward the shoulder of its paw, so that each paw holds the tube from its own
+ * side. Each paw aims across the tube (`aimAcross`) with no side aim (`aimSide`), each palm faces
+ * the tube (`faceTube`), and the fingers curl 100° (left) and 110° (right) over its front
+ * (`gripCurl`). The thumbs then point up the oboe to the reed, as an oboist curves the fingers over
+ * the keys with the thumb behind the tube (`docs/reference/wind-technique.md` 2.3). Both paws grasp
+ * the oboe in each sample (`pnpm wind-grip oboist`). With the grips behind the tube and a side aim
+ * of half, each paw lies behind the tube with its palm to the audience and its thumb down the oboe.
+ * With the left grip on the axis (0.04 H toward it), the roll to the tube has no direction, and the
+ * paw turns over. With 60° on the right, the right arm folds 9 faces at rest (limit 8).
  *
  * In the rest, the oboe stands upright in front of the belly, 0.25 H below the mouth, as a real
  * oboist holds it vertical in a short rest. Both paws stay on their grips of the play, the left paw
  * on the upper joint and the right paw on the lower joint, with a gap of 5.7 cm between them, so
  * that the lift and the lowering move the oboe with the paws, and no paw slides along the tube.
- * Before, both paws closed on its middle on rest grips of their own, and the paws overlapped by
- * 4.5 cm along the tube and slid 4.5 cm and 5.4 cm in each move (user, 2026-10-27: "for the mouse,
- * in rest mode, their two hands are overlapping"). With the grips of the play, the oboe 0.45 H
- * below the mouth put an arm 1.3 cm to 1.9 cm into the body
- * (`docs/research/2026-10-27-wolf-mouse-rests.md`). Both paws keep the aim and the roll of the
- * play (`restAim`): with the roll of the shoulder, the left paw turned 177° on its forearm at rest
- * and flipped in the lowering. The left elbow points out, down, and forward, and the right elbow
- * out, down, and a little back (`restPoleL`, `restPoleR`), so that the left paw turns 134° on its
- * forearm at rest and the right paw 121° (143° and 121° on the rest grips before). With the rest
- * elbows before, they turned 158° and 125°. With the left elbow further down or forward, the left
- * palm turned more than 60° from the tube, and the paw did not grasp it (`pnpm wind-grip oboist`).
- * With the right elbow further down, the right upper arm went 0.8 cm into the body (0.6 cm).
+ * With the grips of the play, the oboe 0.45 H below the mouth puts an arm 1.3 cm to 1.9 cm into
+ * the body. Both paws keep the aim and the roll of the play (`restAim`): with the roll of the
+ * shoulder, the left paw turns 177° on its forearm at rest and flips in the lowering. The left
+ * elbow points out, down, and forward, and the right elbow out, down, and a little back
+ * (`restPoleL`, `restPoleR`), so that the left paw turns 134° on its forearm at rest and the right
+ * paw 121°. With the left elbow further down or forward, the left palm turns more than 60° from
+ * the tube, and the paw does not grasp it (`pnpm wind-grip oboist`). With the right elbow further
+ * down, the right upper arm goes 0.8 cm into the body (0.6 cm with this elbow).
  *
  * The big head puts the mouth about 0.13 m above the shoulder joints, so the grips are near the
  * height of the shoulders. While the mouse plays, the right elbow points down, out, and forward,
  * as an oboist drops the wrists and keeps the arms a little away from the sides. With the elbow of
- * the right arm of {@link WIND_HOLDS} out and level, the right upper arm turned 83° from its bind
- * direction and the paw 160° from the forearm, and the upper arms showed as flat twisted bands.
+ * the right arm of {@link WIND_HOLDS} out and level, the right upper arm turns 83° from its bind
+ * direction and the paw 160° from the forearm, and the upper arms show as flat twisted bands.
  * The left elbow points down and a little out (`poleL`), as a real oboist lets the arms hang
  * loosely from low shoulders with the elbows a little free from the body
  * (`docs/reference/wind-technique.md` 2.3): the left upper arm hangs about 33° below the level,
  * and the left paw keeps its grip on the upper joint. With the elbow out and a little down, as at
- * rest, the left upper arm stood 3.5° below the level, and from ±35° and from the back the left
- * arm read as a raised wing. The shoulder turns are those of {@link WIND_HOLDS}.
+ * rest, the left upper arm stands 3.5° below the level, and from ±35° and from the back the left
+ * arm looks like a raised wing. The shoulder turns are those of {@link WIND_HOLDS}.
  */
 const MOUSE_OBOE = {
   ...WIND_HOLDS.oboe,
@@ -679,8 +654,8 @@ const MOUSE_OBOE = {
 /** The forward turns of the shoulder bones of the bassoon beaver while it plays, in degrees. */
 const BEAVER_SHOULDER_TURN = {
   /**
-   * The left shoulder. With 15°, the left upper arm turned 84° from its bind direction, and the
-   * faces at the front of the left shoulder folded in each play sample.
+   * The left shoulder. With 15°, the left upper arm turns 84° from its bind direction, and the
+   * faces at the front of the left shoulder fold in each play sample.
    */
   left: 20,
   /** The right shoulder. */
@@ -702,48 +677,44 @@ const BEAVER_PLAY = holdTurn(10, -5);
 const BEAVER_REST = holdTurn(0, 0);
 
 /**
- * The bassoon hold of the beaver (design 5.3), the hold of a real bassoonist (decisions
- * `2026-10-19-mesh-beaver.md`, `docs/reference/wind-technique.md` 3): the bassoon lies diagonal
+ * The bassoon hold of the beaver (design 5.3), the hold of a real bassoonist
+ * (`docs/reference/wind-technique.md` 3): the bassoon lies diagonal
  * in front of the body, the left paw above the right paw, and the bocal brings the reed to the
  * mouth at a nearly level angle. The bassoon crosses the body from the right hip up past the left
  * shoulder, 30° from the vertical in the front view, with the bell above the head
- * ({@link BEAVER_PLAY}). With the play turn of {@link WIND_HOLDS}, it lay 54° from the vertical,
- * near level from the side, with its top at the shoulder (manager review of 2026-10-25). At rest,
+ * ({@link BEAVER_PLAY}). With the play turn of {@link WIND_HOLDS}, it lies 54° from the vertical,
+ * near level from the side, with its top at the shoulder. At rest,
  * the bassoon moves 0.15 H forward and 0.05 H lower, off the mouth, and takes its bind turn
  * ({@link BEAVER_REST}), so that the boot joint comes back toward the right thigh and both paws
  * keep their grips. A real bassoonist carries the boot at the right thigh with the boot joint in
  * the right palm, and no source gives the rest (`docs/reference/wind-technique.md` 3). With the
- * diagonal of the play 0.2 H forward, the right grip was 5.2 cm out of the reach of the right arm,
- * and the right paw stood about 10 cm from the boot joint
- * (`docs/research/2026-10-25-wind-elbows.md`). With the rest 0.2 H lower, the right upper arm went
- * 2.7 cm into the body. The left paw holds the wing joint high, and the right grip moves 0.15 H up
- * the boot joint (`gripShiftR`): at its grip of the instrument, the right paw missed by 1.4 cm.
+ * diagonal of the play 0.2 H forward, the right grip is 5.2 cm out of the reach of the right arm,
+ * and the right paw stands about 10 cm from the boot joint. With the rest 0.2 H lower, the right
+ * upper arm goes 2.7 cm into the body. The left paw holds the wing joint high, and the right grip
+ * moves 0.15 H up the boot joint (`gripShiftR`): at its grip of the instrument, the right paw
+ * misses by 1.4 cm.
  * Each grip moves toward the axis and to the side of its own shoulder, the left grip 0.1 H toward
  * the axis and 0.1 H across it toward the left shoulder, and the right grip 0.2 H toward the axis
  * and 0.14 H across it toward the right shoulder. Each palm then faces the tube from its own side
  * (`faceTube`), each paw aims a quarter toward the side across the tube (`aimSide`), the fingers
  * curl 100° over its front
  * (`gripCurl`), and the thumbs point up the bassoon, so that both paws grasp it
- * (`pnpm wind-grip bassoonist`, `docs/research/2026-10-25-wind-palms.md`). With the grips behind
- * the tube and a side aim of half, each paw lay behind the tube with its palm to the audience and
- * its thumb down the bassoon (user, 2026-10-25: "their palm are facing outwards and thumbs
- * downwards").
+ * (`pnpm wind-grip bassoonist`). With the grips behind the tube and a side aim of half, each paw
+ * lies behind the tube with its palm to the audience and its thumb down the bassoon.
  *
  * The long muzzle and the front teeth put the tip of the nose far in front of the mouth, so the
  * reed sits 0.33 H lower and 0.25 H further back than the mouth of the bind pose, under the front
- * teeth. The beaver keeps the arms that the user chose, so it plays a smaller bassoon
+ * teeth. The beaver keeps its arms, so it plays a smaller bassoon
  * (`SpeciesParams.bassoonScale`), and each shoulder bone turns forward
  * ({@link BEAVER_SHOULDER_TURN}), as the shoulder blade of a real player slides forward when the
- * arm reaches forward: with square shoulders, the right paw reached its grip with 3 cm to spare
- * only on a bassoon of 0.75. The right elbow points down, out, and forward, which gave the
+ * arm reaches forward: with square shoulders, the right paw reaches its grip with 3 cm to spare
+ * only on a bassoon of 0.75. The right elbow points down, out, and forward, which gives the
  * smallest arm turns of 3 elbow directions. The left elbow points down, out, and a little back,
  * in the play and at rest. The beaver has no arm segments, so the twist of the left paw on the
  * side grips goes into two links of the forearm: 55.4° for each link, against 64.6° with the
- * elbow down, out, and forward (`docs/research/2026-10-25-wind-elbows.md`). With the elbow of the
- * shared bassoon rest straight out to the side, the left paw turned 178° on its forearm at rest,
- * so the lift and the lowering turned it through 180° and the twist bone of the forearm jumped
- * (user, 2026-10-23: "the cat's and beaver's arm is very twisted when transitioned
- * from rest to play", 2026-10-23-night-fixes decisions). With one left elbow in the play and at
+ * elbow down, out, and forward. With the elbow of the shared bassoon rest straight out to the
+ * side, the left paw turns 178° on its forearm at rest, so the lift and the lowering turn it
+ * through 180° and the twist bone of the forearm jumps. With one left elbow in the play and at
  * rest, the lift does not turn the paw through 180°.
  */
 const BEAVER_BASSOON = {
@@ -799,21 +770,21 @@ function pigTurn(turns: HornTurns): Quat {
 }
 
 /**
- * The horn hold of the pig (design 5.3), the hold of a real hornist (decisions
- * `2026-10-19-mesh-pig.md`, `docs/reference/wind-technique.md` 2.2): the left paw on the valves at
+ * The horn hold of the pig (design 5.3), the hold of a real hornist
+ * (`docs/reference/wind-technique.md` 2.2): the left paw on the valves at
  * the middle of the body, the right paw in the bell, and the horn across the body from the mouth to
  * the bell at the right of the torso and in front of it. The long snout puts the mouthpiece
  * 0.29 m in front of the shoulder joints, so with the hold of {@link WIND_HOLDS} the left grip
- * was 0.507 m from the left shoulder joint, beyond the arm of 0.385 m. The horn turns its lower end
+ * is 0.507 m from the left shoulder joint, beyond the arm of 0.385 m. The horn turns its lower end
  * 40° back toward the body and its right side 20° forward ({@link PIG_TURNS}). The left shoulder
  * turns 26° forward, as the shoulder blade of a real player slides forward. The left paw then has
  * 8.0 cm to spare, and the right paw 7.4 cm (`pnpm hold-reach pig --instrument horn`).
  *
  * The left elbow points out, forward, and a little down, and the right elbow out and down. Of the
- * left elbow directions, (-0.5, -1, -0.5) turned the arm least, but put the left forearm 6 cm into
- * the chest. At rest, the horn comes down 0.2 H and 0.2 H forward onto the round belly, which covers
- * the short thighs, with the bell at the right of the belly beside the right haunch. A lower rest
- * put the right forearm 2.3 cm to 5.4 cm into the belly (`docs/research/2026-10-19-pig-mesh.md`).
+ * left elbow directions, (-0.5, -1, -0.5) turns the arm least, but puts the left forearm 6 cm into
+ * the chest. At rest, the horn comes down 0.2 H and 0.2 H forward onto the round belly, which
+ * covers the short thighs, with the bell at the right of the belly beside the right haunch. A lower
+ * rest puts the right forearm 2.3 cm to 5.4 cm into the belly.
  */
 const PIG_HORN = {
   ...WIND_HOLDS.horn,
@@ -834,67 +805,55 @@ const PIG_HORN = {
 const WOLF_CLARINET_FORWARD = 5;
 
 /**
- * The clarinet hold of the wolf (design 5.3), the hold of a real clarinetist (decisions
- * `2026-10-20-mesh-wolf.md`, `docs/reference/wind-technique.md` 3): the clarinet at the middle of
+ * The clarinet hold of the wolf (design 5.3), the hold of a real clarinetist
+ * (`docs/reference/wind-technique.md` 3): the clarinet at the middle of
  * the body, from the mouth to between the knees. The clarinet turns its lower end
  * {@link WOLF_CLARINET_FORWARD}° forward from {@link WIND_HOLDS}, to 30° from the vertical, the
  * angle of the wolf in `orchestra-latest.png` and `orchestra-side.png`: a render of the app from
  * the camera of the images shows the clarinet at 30° as 25° in the image, and the images show it
- * at 24° and 28° (`2026-10-25-wind-angle` decisions). A real clarinetist holds it at about 45°,
- * and the long muzzle already puts the mouthpiece far in front of the chest: at 45°, the bell was
+ * at 24° and 28°. A real clarinetist holds it at about 45°, and the long muzzle already puts the
+ * mouthpiece far in front of the chest: at 45°, the bell is
  * far in front of the knees. With the mouthpiece 0.18 H below the mouth, the mouthpiece does not
  * go into the jaw. Each paw aims across the tube (`aimAcross`) and a quarter toward the side
  * across it (`aimSide`), and its grip moves around the tube (`gripShiftL`, `gripShiftR`). Each
  * palm faces the tube (`faceTube`), and the fingers curl 115° over its front (`gripCurl`), as a
  * clarinetist curves the fingers over the tube with the thumb behind it. Each grip moves toward
  * the axis and to the side of its own shoulder, so that each paw holds the tube from its own side,
- * the palm faces the tube, and the thumb points up the clarinet to the mouthpiece
- * (`docs/research/2026-10-25-wind-palms.md`). The left grip moves 0.14 H toward the axis and
- * 0.11 H across it toward the left shoulder, and the right grip 0.19 H toward the axis and 0.11 H
- * across it toward the right shoulder. With the
- * grips behind the tube and a side aim of half, each paw lay behind the tube with its palm to the
- * audience and its thumb down the clarinet (user, 2026-10-25: "their palm are facing outwards and
- * thumbs downwards"). The left grip moves 0.15 H down the tube, because 8.5 cm above the shoulder
- * joint, the forearm rose steeply and the retarget turned the paw up along the tube (`PAW_TURN` of
- * `models/studio-rig.ts`). On the grips of the instrument, 2.5 cm in front of the tube, the paws
- * lay in front of it and pointed away from it, with the finger tips 7.6 cm and 8.3 cm from the
- * tube (user, 2026-10-24: "they are not even holding the instrument").
+ * the palm faces the tube, and the thumb points up the clarinet to the mouthpiece. The left grip
+ * moves 0.14 H toward the axis and 0.11 H across it toward the left shoulder, and the right grip
+ * 0.19 H toward the axis and 0.11 H across it toward the right shoulder. With the grips behind the
+ * tube and a side aim of half, each paw lies behind the tube with its palm to the audience and its
+ * thumb down the clarinet. The left grip moves 0.15 H down the tube, because 8.5 cm above the
+ * shoulder joint, the forearm rises steeply and the retarget turns the paw up along the tube
+ * (`PAW_TURN` of `models/studio-rig.ts`). On the grips of the instrument, 2.5 cm in front of the
+ * tube, the paws lie in front of it and point away from it, with the finger tips 7.6 cm and 8.3 cm
+ * from the tube.
  *
- * The long muzzle puts the tip of the nose far in front of the mouth, and at 45° the grips moved
- * further forward: the left paw missed its grip by 2.4 cm and the right paw by 6.1 cm. So in round
- * `mesh-wolf`, the mouthpiece sat 0.3 H further back and 0.12 H lower than the mouth of the bind
- * pose, in the mouth under the muzzle, and each shoulder bone turned forward, the right 30° and the
- * left 20°.
- * The head of the mesh is 1.235 times the size of round `mesh-wolf`, and the body 0.9422 times
- * (`proportions` of `tools/mesh-rigs/wolf.json`), so the larger `H` moved the mouthpiece forward,
- * and the shorter arms missed: the right paw by 3.7 cm. The mouthpiece now sits 0.4 H further
- * back, and the right shoulder bone turns 35° forward. The paws reach their grips with 6.3 cm
- * (left) and 0.9 cm (right) to spare, and the mouthpiece goes 1.2 cm into the head
- * (`docs/research/2026-10-20-wolf-face/fit3.txt`).
+ * The long muzzle puts the tip of the nose far in front of the mouth, so the mouthpiece sits 0.4 H
+ * further back than the mouth of the bind pose, in the mouth under the muzzle, and each shoulder
+ * bone turns forward, the right 35° and the left 20°. At 45°, the grips move further forward, out
+ * of the reach of the arms. The paws reach their grips with 6.3 cm (left) and 0.9 cm (right) to
+ * spare, and the mouthpiece goes 1.2 cm into the head.
  *
  * Both elbows point down and a little out, as a seated clarinetist lets the arms hang near the
- * body, in the play. Of 4 elbow directions, this one gave the smallest paw turns
- * on the forearms: with the elbows of {@link WIND_HOLDS}, the right paw turned 141° and the left
- * paw 123°, and with these elbows 71° and 89° (`docs/research/2026-10-20-wolf-mesh.md`).
+ * body, in the play. Of 4 elbow directions, this one gives the smallest paw turns on the forearms:
+ * with the elbows of {@link WIND_HOLDS}, the right paw turns 141° and the left paw 123°, and with
+ * these elbows 71° and 89°.
  *
- * At rest, the clarinet stands upright (user, 2026-10-27: "for the wolf, in rest mode, the
- * instrument should be vertical"), in front of the belly between the knees, with the bell at the
- * height of the knee tops, 4 cm to the right of the middle and 22 cm in front of the seat. Both
- * paws stay on their grips of the play, as a seated clarinetist holds the clarinet upright with
- * the hands on the keys (`docs/reference/wind-technique.md` 3). Thus the lift and the lowering move
- * the clarinet with the paws, and no paw slides along the tube. The paws keep the aim and the roll
- * of the play (`restAim`), so that the fingers close around the tube at rest too. The bell rests on
+ * At rest, the clarinet stands upright, in front of the belly between the knees, with the bell at
+ * the height of the knee tops, 4 cm to the right of the middle and 22 cm in front of the seat. Both
+ * paws stay on their grips of the play, as a seated clarinetist holds the clarinet upright with the
+ * hands on the keys (`docs/reference/wind-technique.md` 3). Thus the lift and the lowering move the
+ * clarinet with the paws, and no paw slides along the tube. The paws keep the aim and the roll of
+ * the play (`restAim`), so that the fingers close around the tube at rest too. The bell rests on
  * nothing: the round belly reaches the seat front 9 cm to 12 cm above the seat, so an upright
- * clarinet has no room on the seat, and on the top of the right knee, the left forearm went 7 cm to
- * 12 cm into the belly with each left elbow. Nearer to the belly, the left forearm went 1.8 cm to
- * 3.6 cm into it (`docs/research/2026-10-27-wolf-mouse-rests.md`). Before, the bell rested against
- * the inner side of the right knee, and the clarinet leaned 30° forward and 10° to the left.
+ * clarinet has no room on the seat, and on the top of the right knee, the left forearm goes 7 cm to
+ * 12 cm into the belly with each left elbow. Nearer to the belly, the left forearm goes 1.8 cm to
+ * 3.6 cm into it.
  *
  * At rest, the left elbow points out and down, and the right elbow points down, a little out, and a
- * little forward. With the left elbow further in or back, the left forearm went 1.3 cm to 4.0 cm
- * into the belly on the rest at the right knee. With the right elbow down and a little out, the
- * right forearm went 1.7 cm into the belly in the lift on the rig with the bind elbow forward
- * (`docs/research/2026-10-27-wolf-bind.md`).
+ * little forward. With the right elbow down and a little out, the right forearm goes 1.7 cm into
+ * the belly in the lift on the rig with the bind elbow forward.
  */
 const WOLF_CLARINET = {
   ...WIND_HOLDS.clarinet,
@@ -921,41 +880,35 @@ const WOLF_CLARINET = {
  * The trumpet hold of the monkey (design 5.3), the hold of a real trumpet player
  * (`docs/reference/wind-technique.md` 2.1): the left paw wraps the valve casings and holds the
  * weight, the right fingers arch down onto the valves, and the trumpet points forward, angled
- * slightly down. The arms are 1.2 times the arms of the mesh, since the user called the arms 1.5
- * too long (2026-10-26-short-arms decisions), so the monkey plays a trumpet of 0.65
- * (`SpeciesParams.trumpetScale`), and each shoulder bone turns 34° forward (`reach`), as the
- * shoulder blade of a real player slides forward. With square shoulders, the right paw missed the
+ * slightly down. The arms are 1.2 times the arms of the mesh, so the monkey plays a trumpet of
+ * 0.65 (`SpeciesParams.trumpetScale`), and each shoulder bone turns 34° forward (`reach`), as the
+ * shoulder blade of a real player slides forward. With square shoulders, the right paw misses the
  * valves by 3.4 cm.
  *
  * While the monkey plays, the bell turns 10° further down, to 15° below the level, as a real
- * player angles the trumpet "slightly down". With the bell 5° below the level, the paws covered the
- * mouth in the front view (manager review of 2026-10-25), and 20° below the level was more than
- * slightly down.
+ * player angles the trumpet "slightly down". With the bell 5° below the level, the paws cover the
+ * mouth in the front view, and 20° below the level is more than slightly down.
  *
  * The left palm faces the upright casings from the left, below the middle of their height
  * (`InstrumentGrips.tubeL` of `models/instruments/brass.ts`), the left paw points up along its
  * forearm with the thumb up and back toward the first valve slide, and its fingers curl 130°
- * around the thin casings of the smaller trumpet (`gripCurl`): with 109°, the finger tips stood
+ * around the thin casings of the smaller trumpet (`gripCurl`): with 109°, the finger tips stand
  * 1.1 cm off. The right palm lies above the valves at their right and faces
  * down, and the right paw points to the left across the valve tops: 0.8 of its aim is the side
- * direction across the valves (`aimSide`), and its fingers curl 92° down onto the valves. Before
- * 2026-10-25, both palms faced the valve block from its two sides, and the two paws pressed
- * together in front of the mouth like praying hands (`docs/audits/2026-10-25-role-visual-audit.md`,
- * fault 2, `docs/research/2026-10-25-brass-grips.md`). The left paw takes no side aim: the retarget
- * turns the paw back to its forearm in the plane of its palm (`PAW_TURN` of
- * `models/studio-rig.ts`), and with the side aim of the right paw, the left paw left its grip by
- * 4.2 cm. Both paws keep the hold of the play at rest (`restAim`), so that the right fingers stay
- * on the valves: with the roll of the shoulder at rest, the right finger tips stood 3.3 cm off. At
- * rest, the left grip moves 0.04 H along the casings toward the bell (`restGripShiftL`), so that
- * the left finger tips stay on the casings of the upright trumpet: on the grip of the play, they
- * stood 1.1 cm off.
+ * direction across the valves (`aimSide`), and its fingers curl 92° down onto the valves. The left
+ * paw takes no side aim: the retarget turns the paw back to its forearm in the plane of its palm
+ * (`PAW_TURN` of `models/studio-rig.ts`), and with the side aim of the right paw, the left paw
+ * leaves its grip by 4.2 cm. Both paws keep the hold of the play at rest (`restAim`), so that the
+ * right fingers stay on the valves: with the roll of the shoulder at rest, the right finger tips
+ * stand 3.3 cm off. At rest, the left grip moves 0.04 H along the casings toward the bell
+ * (`restGripShiftL`), so that the left finger tips stay on the casings of the upright trumpet: on
+ * the grip of the play, they stand 1.1 cm off.
  *
  * The big head puts the mouthpiece 0.23 m above the shoulder joints, so the grips are 0.17 m to
- * 0.18 m above the shoulders at the size 1.1 that the user chose
- * (`docs/research/2026-10-20-mesh-monkey/size-1.1/mouth-probe.txt`), and the forearms rise
- * steeply. Both elbows point down and out, as a real player lets the elbows hang. With the
- * elbows out and level, the forearms were flatter, but the right upper arm went flat (0.51,
- * limit 0.55) and the right wrist bent 71° (limit 70°).
+ * 0.18 m above the shoulders at the size 1.1, and the forearms rise steeply. Both elbows point
+ * down and out, as a real player lets the elbows hang. With the elbows out and level, the forearms
+ * are flatter, but the right upper arm goes flat (0.51, limit 0.55) and the right wrist bends 71°
+ * (limit 70°).
  */
 const MONKEY_TRUMPET = {
   ...WIND_HOLDS.trumpet,
@@ -981,12 +934,11 @@ const MONKEY_TRUMPET = {
  * elbows point down and out, a little more down than out (`poleL`, `poleR`, `restPoleL`,
  * `restPoleR`), as the arms of a real player stay away from the rib cage
  * (`docs/reference/wind-technique.md` 1.8) and each forearm stays in its range of turn. With the
- * palms on their tubes, the elbows out turned the left forearm 84° and the right forearm 57° from
- * neutral, near the end of the turn of a real forearm, and the skin of each forearm twisted
- * (`docs/decisions/2026-10-26-fifth-review-rhino.md`). Now the left forearm turns 67° and the
- * right forearm 15°. With the elbows straight down, the thick upper arms went into the round
- * belly. At rest, the tuba moves off the mouth and its lower end turns 5° forward
- * (`docs/research/2026-10-21-mesh-rhino.md`).
+ * palms on their tubes, the elbows out turn the left forearm 84° and the right forearm 57° from
+ * neutral, near the end of the turn of a real forearm, and the skin of each forearm twists. With
+ * these elbows, the left forearm turns 67° and the right forearm 15°. With the elbows straight
+ * down, the thick upper arms go into the round belly. At rest, the tuba moves off the mouth and its
+ * lower end turns 5° forward.
  *
  * The right palm faces the valve tops, and the left palm faces the main branch (`faceTube`,
  * `InstrumentGrips.tubeL` of `models/instruments/brass.ts`), as the left hand of a real tubist
@@ -995,21 +947,19 @@ const MONKEY_TRUMPET = {
  * the main branch, 0.05 H around it away from the shoulder, and 0.07 H up (`gripShiftL`), so that
  * the left paw lies on the left side of the branch: its palm faces the branch, the back of the paw
  * faces out to the left, and the fingers point forward and down around the front of the branch.
- * The left fingers curl 92° (`gripCurl`). Before 2026-10-25, the left paw lay at the back left of
- * the branch and pointed at it, so its palm faced up (`docs/research/2026-10-25-brass-grips.md`).
- * With the lower left elbow, the grip of 0.16 H put the left paw 2.3 cm into the branch, and the
- * grips of 0.13 H and less opened its finger tips off the branch. At rest, the left grip moves
- * 0.14 H toward the branch (`restGripShiftL`): on the grip of the play, the left forearm went into
- * the tuba at rest. Both paws keep the aim and the roll of the play at rest (`restAim`): with the
- * roll of the shoulder at rest, the left paw flipped in the lowering (the wrist turned 17960° each
- * second). The right fingers curl 80°. The right grip moves 0.15 H along the row of the valves
- * toward the front and 0.1 H toward the right shoulder (`gripShiftR`), so that the right paw lies
- * on the valve tops at the front right of the valve branch, where it shows from the front and from
- * the right front. On the grip of the instrument, the valve branch hid it from both views (manager
- * review of 2026-10-25). A grip further forward is out of the reach of the arm. The T-pose mesh of
- * 2026-10-28 has a rounder belly, so the mouthpiece moves 0.05 H from the mouth along -z of the
- * head under the long muzzle (`lipShift`): with no shift, the tuba went 4.6 cm into the belly, and
- * with the shift 2.7 cm (3.8 cm with the A-pose mesh, `docs/research/2026-10-28-rhino-tpose.md`).
+ * The left fingers curl 92° (`gripCurl`). With the lower left elbow, the grip of 0.16 H puts the
+ * left paw 2.3 cm into the branch, and the grips of 0.13 H and less open its finger tips off the
+ * branch. At rest, the left grip moves 0.14 H toward the branch (`restGripShiftL`): on the grip of
+ * the play, the left forearm goes into the tuba at rest. Both paws keep the aim and the roll of the
+ * play at rest (`restAim`): with the roll of the shoulder at rest, the left paw flips in the
+ * lowering (the wrist turns 17960° each second). The right fingers curl 80°. The right grip moves
+ * 0.15 H along the row of the valves toward the front and 0.1 H toward the right shoulder
+ * (`gripShiftR`), so that the right paw lies on the valve tops at the front right of the valve
+ * branch, where it shows from the front and from the right front. On the grip of the instrument,
+ * the valve branch hides it from both views. A grip further forward is out of the reach of the arm.
+ * The mesh has a round belly, so the mouthpiece moves 0.05 H from the mouth along -z of the head
+ * under the long muzzle (`lipShift`): with no shift, the tuba goes 4.6 cm into the belly, and with
+ * the shift 2.7 cm.
  */
 const RHINO_TUBA = {
   ...WIND_HOLDS.tuba,
@@ -1267,9 +1217,9 @@ function slideReachOf(rig: Omit<WindRig, 'slideReach'>, travel: number): number 
 /**
  * Finds the sign of the side direction across the tube in the aim of a paw
  * ({@link WindSide.aimSign}): the sign that continues the way of the paw from its shoulder across
- * the body in the playing pose, with the chest in its bind pose. Before, {@link aimSide} took the
- * sign in each frame, and the side direction flipped in the lowering of the trombone, when the
- * slide turned down and the brace lay across the aim of the paw.
+ * the body in the playing pose, with the chest in its bind pose. When {@link aimSide} takes the
+ * sign in each frame, the side direction flips in the lowering of the trombone, when the slide
+ * turns down and the brace lies across the aim of the paw.
  *
  * @param rig The points of the player.
  * @param side The side of the body.
@@ -1471,8 +1421,8 @@ const NO_ROLL = new Quaternion();
 /**
  * The angle between the side of a paw and its tube above which the roll of {@link faceTube} turns
  * around the long axis of the hand. Near 180°, the cross product of the two directions vanishes,
- * and `Quaternion.setFromUnitVectors()` takes any axis square to them, so the paw of the wolf
- * flipped in the lift (the wrist turned 9978° each second).
+ * and `Quaternion.setFromUnitVectors()` takes any axis square to them, so the paw of the wolf can
+ * flip in the lift (the wrist turns 9978° each second).
  */
 const OPPOSITE = Math.cos(170 * MathUtils.DEG2RAD);
 
@@ -1671,10 +1621,9 @@ function poseSide(
   poseShoulder(side.arm, chest, rig.chestBind, turn, shoulder);
   // A paw that leaves its grip at rest takes the aim and the roll of its grip by the weight of
   // the playing pose alone, so that it faces its tube in the play and keeps the aim and the roll
-  // of its shoulder at rest: with the roll of the grip at rest, the mix from its rest paw flipped
-  // to the other side of its forearm in the middle of the move. With no roll in the play, the left
-  // flute paw of the tan fox pointed at the flute from below and missed it (user, 2026-10-27: "the
-  // fox doesn't seem to be holding the instrument properly").
+  // of its shoulder at rest: with the roll of the grip at rest, the mix from its rest paw flips to
+  // the other side of its forearm in the middle of the move. With no roll in the play, the left
+  // flute paw of the tan fox points at the flute from below and misses it.
   const face = rig.hold.faceTube[side.arm.side === 'L' ? 0 : 1];
   if (face !== 'none') {
     tubeAxis.fromArray(side.tube.axis).applyQuaternion(rotation);
