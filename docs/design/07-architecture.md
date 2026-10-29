@@ -192,3 +192,10 @@ the constants of `app/page-title.ts`, so that the page and the app cannot differ
   of the user give the title of the piece (2.8).
 - **Description**: `SITE_DESCRIPTION`, at most 155 characters, because a search result cuts a
   longer text. It names classical music and three composers of the demos.
+- **Canonical URL**: `<link rel="canonical">` and `og:url` name `SITE_URL` in each build. The
+  same build also deploys to GitHub Pages (9.2), so the copy there points to the main URL.
+- **Share card**: Open Graph (`og:site_name`, `og:title`, `og:description`, `og:image` with its
+  size and alt text) and `twitter:card` `summary_large_image`. The image is `public/share.jpg`
+  (`SHARE_IMAGE`), a frame of the default demo during play with the logo, 1200 × 630, which
+  `pnpm share-image` writes. No element of the page loads it, so the first download (7.2) does not
+  hold it. `theme-color` is the dark edge of the page background.

@@ -4,13 +4,24 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <!-- The texts of search and share (design 7.4). The plugin INDEX_VALUES of vite.config.ts
-         writes them from src/app/page-title.ts. -->
+         writes them from src/app/page-title.ts. The canonical URL names www in each build, also
+         on GitHub Pages. The theme color is the dark edge of the page background (style.css). -->
     <title>%SITE_TITLE%</title>
     <meta name="description" content="%SITE_DESCRIPTION%" />
+    <link rel="canonical" href="%SITE_URL%" />
+    <meta name="theme-color" content="#0b0908" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="%APP_NAME%" />
+    <meta property="og:url" content="%SITE_URL%" />
     <meta property="og:title" content="%SITE_TITLE%" />
     <meta property="og:description" content="%SITE_DESCRIPTION%" />
-    <meta property="og:type" content="website" />
+    <meta property="og:image" content="%SHARE_IMAGE_URL%" />
+    <meta property="og:image:type" content="image/jpeg" />
+    <meta property="og:image:width" content="%SHARE_IMAGE_WIDTH%" />
+    <meta property="og:image:height" content="%SHARE_IMAGE_HEIGHT%" />
+    <meta property="og:image:alt" content="%SHARE_IMAGE_ALT%" />
+    <meta name="twitter:card" content="summary_large_image" />
     <!-- The file of the default demo loads with the scripts, so the stage can show it sooner
          (design 7.2). The fetch of src/app/app.ts then takes it from the preload. Its low
          priority keeps the scripts first. It starts after the first contentful paint, because a

@@ -2,7 +2,13 @@ import { resolve } from 'node:path';
 import type { Plugin } from 'vite';
 import { LICENSES_FILE } from './src/app/credits.ts';
 import { DEFAULT_DEMO, DEMOS, demoUrl } from './src/app/demos.ts';
-import { SITE_DESCRIPTION, SITE_TITLE } from './src/app/page-title.ts';
+import {
+  APP_NAME,
+  SHARE_IMAGE,
+  SITE_DESCRIPTION,
+  SITE_TITLE,
+  SITE_URL,
+} from './src/app/page-title.ts';
 import { gzipSiteAudio } from './tools/gzip-site.ts';
 import { licenseDocument, licenseEntries } from './tools/licenses.ts';
 import { configDefaults, defineConfig } from 'vitest/config';
@@ -108,8 +114,14 @@ function indexValues(base: string): ReadonlyMap<string, string> {
     ['DEFAULT_DEMO_URL', demoUrl(DEFAULT_DEMO, base)],
     ['DEFAULT_DEMO_TITLE', escapeHtml(demo.title)],
     ['DEFAULT_DEMO_COMPOSER', escapeHtml(demo.composer)],
+    ['APP_NAME', escapeHtml(APP_NAME)],
+    ['SITE_URL', escapeHtml(SITE_URL)],
     ['SITE_TITLE', escapeHtml(SITE_TITLE)],
     ['SITE_DESCRIPTION', escapeHtml(SITE_DESCRIPTION)],
+    ['SHARE_IMAGE_URL', escapeHtml(`${SITE_URL}${SHARE_IMAGE.path}`)],
+    ['SHARE_IMAGE_WIDTH', String(SHARE_IMAGE.width)],
+    ['SHARE_IMAGE_HEIGHT', String(SHARE_IMAGE.height)],
+    ['SHARE_IMAGE_ALT', escapeHtml(SHARE_IMAGE.alt)],
   ]);
 }
 
