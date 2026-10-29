@@ -127,7 +127,7 @@ const MAX_DECODE_WORKERS = 4;
  * @param processors The logical processors, `navigator.hardwareConcurrency`. 0 if not known.
  * @returns The count, at least 1.
  */
-export function decodeWorkerCount(processors: number): number {
+function decodeWorkerCount(processors: number): number {
   return Math.min(MAX_DECODE_WORKERS, Math.max(1, Math.floor(processors || 0) - 1));
 }
 
@@ -140,7 +140,7 @@ export function decodeWorkerCount(processors: number): number {
  * @returns The indices of the files of each Worker, in the order of the files. A Worker can get no
  *   file.
  */
-export function splitDecodes(sizes: readonly number[], workers: number): number[][] {
+function splitDecodes(sizes: readonly number[], workers: number): number[][] {
   const lists: number[][] = Array.from({ length: workers }, () => []);
   const loads = lists.map(() => 0);
   const order = sizes

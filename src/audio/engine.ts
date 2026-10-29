@@ -107,7 +107,7 @@ export interface EngineBank {
 }
 
 /** A command that the next block applies: a transport command or a seat audibility flag. */
-export type EngineCommand = TransportCommand | SeatCommand;
+type EngineCommand = TransportCommand | SeatCommand;
 
 /** The function that gets each clock anchor of the engine. */
 type AnchorListener = (anchor: ClockAnchor) => void;
