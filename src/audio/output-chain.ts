@@ -19,9 +19,8 @@ export const DRY_GAIN = 1;
 
 /**
  * The gain of the hall path (design 6.8). With the impulse response of {@link HALL_IMPULSE_URL},
- * the hall gave about 20 % of the output energy of the first 30 s of the Beethoven 5 demo (removed
- * on 2026-10-05) and of the Boulanger demo. With the room of the synth, the reverb gives about
- * 26 %.
+ * the hall gives about 20 % of the output energy of the first 30 s of the Boulanger demo. With
+ * the room of the synth, the reverb gives about 26 %.
  */
 export const WET_GAIN = 0.0625;
 

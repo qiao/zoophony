@@ -9,8 +9,7 @@ import { OfflineHarness } from './test-banks.ts';
 /**
  * The most time of the block of a solo or of the end of a solo, as a multiple of the time of the
  * block of one seat change at the same place in the song. One plan for the block gives about 1.
- * One plan for each seat command gave about the count of the changed seats (review of step 5,
- * P1).
+ * One plan for each seat command gives about the count of the changed seats.
  */
 const LIMIT = 2;
 

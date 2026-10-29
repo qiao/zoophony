@@ -13,8 +13,7 @@ export const TARGET_LOUDNESS = -16;
  * piece gain that gives {@link TARGET_LOUDNESS} (ITU-R BS.1770-4, integrated) after the limiter
  * and its trim. `pnpm loudness --fit` measures it for each full demo, with the SoundFont of
  * design 6.2, the stage mix, the room of the synth, and the code of `output-chain.ts` in an
- * OfflineAudioContext of headless Chromium (`docs/research/2026-10-21-demo-loudness.md`). For a
- * demo that the limiter does not touch, the value is the loudness with the piece gain 0 dB.
+ * OfflineAudioContext of headless Chromium. For a demo that the limiter does not touch, the value is the loudness with the piece gain 0 dB.
  */
 export const DEMO_LOUDNESS = {
   'boulanger-matin': -18.6,

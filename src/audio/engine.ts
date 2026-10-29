@@ -321,9 +321,9 @@ export class SynthEngine {
 
   /**
    * Renders the presets of the score with the master gain 0, so that the first note of each
-   * preset does not run cold code on the audio thread (spike report, section 8, item 2, and
-   * review of step 2, N2). A slow block of 3 to 5 ms came at the first notes of a process, and
-   * 1.5 ms at the first notes of a preset in the middle of a song.
+   * preset does not run cold code on the audio thread. With no warm-up, a slow block of 3 to 5 ms
+   * comes at the first notes of a process, and 1.5 ms at the first notes of a preset in the middle
+   * of a song.
    *
    * The warm-up has two parts:
    *
