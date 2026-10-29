@@ -458,6 +458,36 @@ function boxRing(x: number, [half, bottom, top]: readonly [number, number, numbe
 }
 
 /**
+ * The rings of the tailpiece, from the end at the edge of the body to the end near the bridge:
+ * the place along the violin, the width, the height of the underside, and the thickness. The
+ * tailpiece is narrow at the edge, wide near its top end, and follows the arch of the top a
+ * little above it.
+ */
+const TAILPIECE: readonly (readonly [x: number, width: number, under: number, thick: number])[] = [
+  [0.001, 0.011, 0.0345, 0.004],
+  [0.05, 0.026, 0.0425, 0.005],
+  [0.063, 0.019, 0.0435, 0.0045],
+];
+
+/**
+ * Makes a ring of the tailpiece: a flat underside, and a top with beveled edges.
+ *
+ * @param ring The ring of {@link TAILPIECE}.
+ * @returns The corners, counterclockwise when seen from the bridge.
+ */
+function tailRing([x, width, under, thick]: (typeof TAILPIECE)[number]): Vec3[] {
+  const half = width / 2;
+  return [
+    [x, under, -half],
+    [x, under + 0.6 * thick, -half],
+    [x, under + thick, -0.5 * half],
+    [x, under + thick, 0.5 * half],
+    [x, under + 0.6 * thick, half],
+    [x, under, half],
+  ];
+}
+
+/**
  * Places a part in a frame. The frame has no scale.
  *
  * @param frame The frame.
@@ -560,8 +590,8 @@ function addViolinParts(piece: PieceBuilder, frame: Transform, upright: boolean)
       'varnish',
     );
   }
-  // The tailpiece and the chin rest.
-  part(box(0.05, 0.006, 0.03), dark, [0.04, v.bodyThickness + 0.008, 0]);
+  // The tailpiece, which tapers from its top end to the edge of the body, and the chin rest.
+  part(sweep(TAILPIECE.map(tailRing)), dark, [0, 0, 0]);
   if (!upright) {
     part(box(0.04, 0.012, 0.05), dark, [0.018, v.bodyThickness + 0.006, 0.03]);
   }
