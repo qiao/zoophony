@@ -4327,7 +4327,12 @@ def raise_shape(rule, bind, tris, weights, heads, down, sheet, earlier=(), upper
     the rule, so the root keeps the trunk weights at rest. With `follow.fill`, the skin within
     the reach of the points then fills its valleys and moves no vertex in (`fill_valleys()`), so
     that the soft fold between the chest and the arm fills and the round front of the root
-    keeps its form."""
+    keeps its form.
+
+    With `smooth`, that number of rounds of `taubin()` smooth the posed skin of the arm of the side
+    before the relax: each vertex moves by its weight on the clavicle, the upper arm, the forearm,
+    the forearm twist bone, and their segments (or on the bones of `smoothBones`, with no side), so
+    that the paw keeps its form and the shape gives a smooth arm in the pose of the rule."""
     side = rule['side']
     turns = {name: np.eye(3) for name in BONES}
     wrist = rule.get('bone') == 'hand'
@@ -4397,6 +4402,20 @@ def raise_shape(rule, bind, tris, weights, heads, down, sheet, earlier=(), upper
                                        rule['follow']['fill'])
             log(f'raise {side}: the valley fill moves {int((lift > 0).sum())} vertices out, at '
                 f'most {lift.max(initial=0.0):.4f} u')
+    if 'smooth' in rule:
+        # The rebuilt arm tubes of the hippo showed lumps and dents in the rest pose, where the
+        # arm turns far from the bind (user, 2026-10-28: "the hippo's arm is still not fixed").
+        # Each vertex moves by its weight on the arm bones before the paw.
+        share = np.zeros(len(bind))
+        parts = [part for bone in ('clavicle', 'upper_arm', 'forearm', 'forearm_twist')
+                 for part in (bone, *(SEGMENTS_OF[bone] if segmented else ()))]
+        for part in rule.get('smoothBones', parts):
+            share += weights[:, BONES.index(f'{part}_{side}')]
+        share = np.clip(share, 0.0, 1.0)
+        ids = np.nonzero(share > 0)[0]
+        start = taubin(start, tris, ids, share[ids], rule['smooth'])
+        log(f"raise {side}: {rule['smooth']} rounds of taubin() smooth {len(ids)} vertices in the "
+            f'pose of the rule')
     relaxed, rounds = relax(bind, start, tris, weights, matrices, moving=region,
                             below=rule['below'])
     after = np.nonzero(turn_dots(bind, relaxed, tris, weights, matrices) < 0)[0]
