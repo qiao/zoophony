@@ -2612,6 +2612,14 @@ the mockup is out of scope.
       for about 4.8 s while the main thread builds the scene, and the presets then take about
       10 s. AGENTS.md loads the SoundFont files after the first frame, so this needs the user.
       The fetches must start before the score build: a fetch after it waits for the 2.8 s task.
+      The round `perf-gzip-audio` measured the idle link again: about 4.7 s, from the end of the
+      first download to the audio chunks (`docs/research/2026-10-29-network-load.md`,
+      `docs/decisions/2026-10-29-gzip-audio.md`). Start the fetches, and yield once, before
+      `select()` of `src/app/app.ts`.
+- [ ] Ship the packed meshes of the studio bodies as one binary file with gzip, read with
+      `DecompressionStream` (round `perf-gzip-audio`, `docs/decisions/2026-10-29-gzip-audio.md`).
+      Their base64 text is most of the renderer chunk, and the binary file saves about 50 KB of
+      the first download (`docs/research/2026-10-29-network-load.md`).
 - [ ] Move the layout, the pose plan, and the geometry of the players off the main thread of the
       first frame, into a Worker or into the build: about 680 ms of the 740 ms task of the
       default demo on the development Mac, and about 2.8 s on the phone run.
@@ -2625,7 +2633,10 @@ the mockup is out of scope.
       Safari against the samples of the WAV file first.
 - [ ] Decide on a service worker for the repeat visits (round `perf-load`). It saves the
       revalidation of each file after the 600 s of `max-age` of GitHub Pages, and a new fetch of
-      an SF3 file that the HTTP cache dropped.
+      an SF3 file that the HTTP cache dropped. In the round `perf-gzip-audio`, about 745 KB
+      revalidates after 10 min (`docs/decisions/2026-10-29-gzip-audio.md`). A host with brotli
+      would also save about 128 KB of the first download. The host is a decision of the user
+      (`docs/research/2026-10-29-network-load.md`).
 
 Done when: the screenshots of design 9.8 look like `mockup.png` and `scene.png`, the size check
 passes, and the quality tiers of 2.6 keep 60 fps on a laptop.
