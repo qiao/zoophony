@@ -8,6 +8,26 @@ with a hold of its own is a role of its own (`SPECIES_HOLDS` of `pose/bowed-rig.
 `SPECIES_WIND_HOLDS` of `pose/winds.ts`). The code holds the values of each hold, so the table
 gives no angle and no length.
 
+The poses follow these product rules:
+
+- **Real players.** Each role pose and its motion follow a real musician. The technique
+  references of `docs/reference/` give the source of each fact, and their section "Use in the
+  app" lists where the app differs.
+- **Bodies stay.** The app keeps the mesh of each animal with no stretch of a limb. When a short
+  arm does not reach, the app prefers a smaller instrument, a nearer place, or a hold of its own
+  to longer arms.
+- **Natural balance.** A standing pose, and a seated pose with no chair, keep the center of mass
+  over the soles. The monkey trumpeter has no chair.
+- **Grasp.** Each paw wraps its instrument as a real player does: the finger tips are on the
+  instrument, the palm faces the tube or the shaft, and the paw is on the side that the
+  technique names.
+- **Arms close to the body.** The arms hang close to the sides, the elbows stay near the trunk,
+  and the players hold their instruments close, as in the reference images. An arm can touch the
+  body up to `ARM_CONTACT_DEPTH`, and it does not have to touch.
+- **Contact of the instruments.** A held instrument can press the fur where a real player touches
+  it, as the contrabass on the lower belly, and it goes no further in. A rested instrument or bow
+  can touch the body, and it never crosses it.
+
 - **Support.** A role that "stands as a soloist" stands when it is the soloist of an orchestra, a
   player alone, or the partner of a pianist in a recital (`supportOf()` of `models/player.ts`,
   4.2, 4.5).
@@ -189,7 +209,9 @@ declare function poseAt(
 (`StageScene.pose()`). The app calls `layoutScene()` and `preparePoses()` one time for each
 `Score`, so each frame only looks up the song time in sorted lists and writes into one buffer.
 Thus the poses of 60 players take much less than the 4 ms of the main thread (9.7).
-`preparePlayer()` and `prepareConductor()` plan one animal for a page with no `Score`.
+`preparePlayer()` and `prepareConductor()` plan one animal for a page with no `Score`. The app
+poses each demo with the seed 1, so that a demo shows the same seeded offsets and idle motion on
+each visit.
 
 The pose has three layers:
 
@@ -455,7 +477,9 @@ The code constants of each family hold the times, the angles, and the lengths of
     `pose/bowed.ts`). The paws have one finger bone, so the four fingers are one block that lands
     before the note and presses at its start. The hand shifts only between strokes with different
     positions, from the second half of the note before, as Simon Fischer advises. A long stopped
-    note gets vibrato, a sine of the time from the note start, so the pose has no state. The left
+    note gets vibrato, a sine of the time from the note start, so the pose has no state. The
+    vibrato keeps the width of a real player, a little wider in a high position and in a loud
+    note. A pizzicato note has no vibrato, because the plucked sound fades. The left
     elbow turns with the string, and further in the high positions. Only the cat also tilts the
     left paw over the upper bout (`BowedHold.highTilt`), because its viola sits back toward the
     neck.
@@ -714,7 +738,8 @@ The code constants of each family hold the times, the angles, and the lengths of
     (`PARTIALS`). Above the written C5, the horn takes only the 10th, 12th, and 16th partials, as
     the single F horn chart does (`HORN_PARTIALS`). The trombone slide takes the position of the
     pitch, mapped into the part of the travel that the arm reaches. The steps keep the ratio of
-    the real distances, so each step is longer than the step before (`slideTravel()`).
+    the real distances, so each step is longer than the step before (`slideTravel()`). The
+    travel stays in the reach of the arms of the mesh, and the arms do not grow for it.
   - In the rest pose, the head lifts, and the instrument moves off the mouth and tilts. The pig
     rests the horn on its belly with the bell at the right (5.2). A hold that frees the left paw (`WindHold.restFreeL`) puts it on
     or beside the left thigh (`lapHand()` of `pose/lap.ts`) on a path in front of the belly
@@ -991,6 +1016,7 @@ The code constants of each family hold the times, the angles, and the lengths of
     forearm by at most `CONDUCTOR_HOLD.liftTwist` for this turn, because the full turn twisted it
     past 180° (5.2). The right paw holds the baton between the thumb and the fingers with the palm
     down and the claws around the stick (`CONDUCTOR_HOLD.batonRoll`), and the baton points 18° up.
+    The bear holds one baton, in the right paw, although the bear sheet shows a baton in each paw.
   - **Bow at the song end.** At the pause at the song end (6.5), the bear bows to the orchestra
     while the instruments are still up. A hanging arm follows half of the bend (`HANG_FOLLOW`),
     so that the paws touch neither the belly nor the stand. The bow is a function of the wall
@@ -1224,6 +1250,8 @@ decisions, and a small move of the players keeps most of the plan.
   sopranos. Its group is `choir`, so rules 1 and 2 keep it apart from a shot of the full choir.
 - Each move blends the keys with a smoothstep over the full shot, so the move starts and ends at
   rest. The move turns around the target, so it never cuts through the subject.
+- All shots keep the camera a little low, as the default view of 4.5 does (`WIDE_VARIANTS`,
+  `SHOT_KEYS`). The conductor shots stay above the head of the bear.
 
 **Cut points.**
 
@@ -1306,7 +1334,9 @@ need a new plan (choice C of the report).
 an item. The obstacles are the boxes of `layoutObstacles()`: the footprints of 4.5, with one box
 for the parts of each bone in each height band. The planner tests many points along each move
 and each sight line, in a desktop view (aspect 1.6) and in a phone view in portrait (aspect
-0.46), because the plan is the same for all views.
+0.46), because the plan is the same for all views. This section keeps the numbers of the
+clearance rules, because the frame tests (`shots/test-shot-frames.ts`) copy them as the numbers of
+the design and do not read the module values.
 
 - The line of sight from 0.3 m outside the target to the camera crosses no box, except the boxes
   within 0.4 m of the target (the subject). A far part of a large instrument, such as the piano
