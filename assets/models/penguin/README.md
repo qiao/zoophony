@@ -5,19 +5,19 @@ does not serve these files. It loads the module `src/models/studio/penguin.ts`, 
 writes:
 
 ```text
-penguin.glb                    source mesh
-   │  beak_split.py            split beak, so that the beak opens
+penguin.glb                          source mesh
+   │  tools/blender/penguin_beak.py  split beak, so that the beak opens
    v
 penguin-beak.glb
-   │  edge_cut.py              faces cut along the black and white edge of the texture
+   │  tools/blender/penguin_edge.py  color edge cut
    v
-penguin-edge.glb               source of the rig (`source` of tools/mesh-rigs/penguin.json)
+penguin-edge.glb                     source of the rig (`source` of tools/mesh-rigs/penguin.json)
    │  pnpm rig-mesh penguin
    v
-penguin.rig.glb                rigged mesh
+penguin.rig.glb                      rigged mesh
    │  pnpm studio-body penguin
    v
-src/models/studio/penguin.ts   studio body of the app
+src/models/studio/penguin.ts         studio body of the app
 ```
 
 `docs/agents/rigging.md` gives the steps of the chain.
@@ -27,8 +27,8 @@ src/models/studio/penguin.ts   studio body of the app
 | File | Origin | Rebuild |
 |---|---|---|
 | `penguin.glb` | Source mesh (below) | None |
-| `penguin-beak.glb` | Copy of `penguin.glb` with a split beak. License as `penguin.glb` | `beak_split.py` (below) |
-| `penguin-edge.glb` | Copy of `penguin-beak.glb` with the color edge cut. License as `penguin.glb` | `edge_cut.py` (below) |
+| `penguin-beak.glb` | Copy of `penguin.glb` with a split beak. License as `penguin.glb` | `penguin_beak.py` (below) |
+| `penguin-edge.glb` | Copy of `penguin-beak.glb` with the color edge cut. License as `penguin.glb` | `penguin_edge.py` (below) |
 | `penguin.rig.glb` | Output of the rig. License as `penguin.glb` | `pnpm rig-mesh penguin` |
 
 ## penguin.glb
@@ -89,7 +89,7 @@ The copy has 3,185 triangles, with the same 2 open edges and 3 edges with more t
 headless run gives the same bytes:
 
 ```bash
-blender --background --factory-startup --python beak_split.py -- \
+blender --background --factory-startup --python tools/blender/penguin_beak.py -- \
   assets/models/penguin/penguin.glb assets/models/penguin/penguin-beak.glb 0.883
 ```
 
@@ -117,7 +117,7 @@ The copy has 3,549 triangles, with the same 2 open edges and 3 edges with more t
 headless run gives the same bytes:
 
 ```bash
-blender --background --factory-startup --python edge_cut.py -- \
+blender --background --factory-startup --python tools/blender/penguin_edge.py -- \
   assets/models/penguin/penguin-beak.glb assets/models/penguin/penguin-edge.glb
 shasum -a 256 assets/models/penguin/*.glb
 ```

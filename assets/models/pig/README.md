@@ -5,16 +5,16 @@ app does not serve these files. It loads the module `src/models/studio/pig.ts`, 
 writes:
 
 ```text
-pig.glb                        source mesh
-   │  pig_arms.py              new upper arms
+pig.glb                           source mesh
+   │  tools/blender/pig_arms.py   new upper arms
    v
-pig-arms.glb                   source of the rig (`source` of tools/mesh-rigs/pig.json)
+pig-arms.glb                      source of the rig (`source` of tools/mesh-rigs/pig.json)
    │  pnpm rig-mesh pig
    v
-pig.rig.glb                    rigged mesh
+pig.rig.glb                       rigged mesh
    │  pnpm studio-body pig
    v
-src/models/studio/pig.ts       studio body of the app
+src/models/studio/pig.ts          studio body of the app
 ```
 
 `docs/agents/rigging.md` gives the steps of the chain.
@@ -83,6 +83,6 @@ forearm have no face that joins them to the trunk. The tube takes the fur color 
 The script runs in the live Blender or in a batch run:
 
 ```bash
-blender -b --python pig_arms.py -- assets/models/pig/pig.glb assets/models/pig/pig-arms.glb
+blender -b --python tools/blender/pig_arms.py -- assets/models/pig/pig.glb assets/models/pig/pig-arms.glb
 shasum -a 256 assets/models/pig/*.glb
 ```

@@ -5,16 +5,16 @@ app does not serve these files. It loads the module `src/models/studio/dog.ts`, 
 writes:
 
 ```text
-dog.glb                        source mesh
-   │  arm_patch.py             round patch on the inner side of each arm
+dog.glb                           source mesh
+   │  tools/blender/arm_patch.py  round patch on the inner side of each arm
    v
-dog-arms.glb                   source of the rig (`source` of tools/mesh-rigs/dog.json)
+dog-arms.glb                      source of the rig (`source` of tools/mesh-rigs/dog.json)
    │  pnpm rig-mesh dog
    v
-dog.rig.glb                    rigged mesh
+dog.rig.glb                       rigged mesh
    │  pnpm studio-body dog
    v
-src/models/studio/dog.ts       studio body of the app
+src/models/studio/dog.ts          studio body of the app
 ```
 
 `docs/agents/rigging.md` gives the steps of the chain.
@@ -67,7 +67,7 @@ new vertices (36 and 26 faces). The hole of the trunk stays open, and the cut of
 it. No vertex of the source moves. The copy has 3,160 triangles. A run gives the same bytes:
 
 ```bash
-blender -b --factory-startup --python arm_patch.py -- \
+blender -b --factory-startup --python tools/blender/arm_patch.py -- \
   tools/mesh-rigs/dog.json assets/models/dog/dog.glb assets/models/dog/dog-arms.glb \
   '{"step":0.02,"freeR":false,"fade":[0.05,0.35],"scale":1.0}'
 ```
