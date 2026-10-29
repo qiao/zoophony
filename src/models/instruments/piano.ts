@@ -24,6 +24,8 @@ export const PIANO = {
   blackKeyLength: 0.09,
   /** The gap between two white keys. The key bed shows through it. */
   whiteKeyGap: 0.001,
+  /** The distance of the front of the white keys in front of the key bed under them. */
+  keyOverhang: 0.005,
   /** The key dip: the drop of the front of a white key at the key bottom. */
   keyDip: 0.01,
   /**
@@ -501,11 +503,14 @@ export function buildPiano(): InstrumentModel {
   const lidHeight = p.caseTop + (propX - hingeX) * Math.tan(p.lidAngle);
   piece.rod([propX, p.caseTop, -0.95], [propX, lidHeight, -0.95], 0.012, 4, dark, 'lacquer');
 
-  // The key bed, the cheek blocks, the keys, the fallboard, and the music desk.
+  // The key bed, the cheek blocks, the keys, the fallboard, and the music desk. The front of the
+  // key bed stands back from the front of the keys, so that the front face of a pressed key does
+  // not lie on it.
+  const bedFront = -p.keyOverhang;
   piece.add(
-    box(p.caseWidth, 0.06, -front),
+    box(p.caseWidth, 0.06, bedFront - front),
     dark,
-    transform([0, p.keyTop - 0.05, front / 2]),
+    transform([0, p.keyTop - 0.05, (front + bedFront) / 2]),
     'lacquer',
   );
   for (const side of [-1, 1]) {
