@@ -32,6 +32,7 @@ function bindPose(): WritablePose {
     pawTurnL: null,
     pawKeepR: 0,
     blink: 0,
+    keys: null,
   };
 }
 

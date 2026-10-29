@@ -36,6 +36,12 @@ export interface AnimalPose {
   readonly pawKeepR?: number;
   /** 0 is open eyes, 1 is closed eyes. The eye bones scale on y by `max(0.05, 1 - blink)`. */
   readonly blink: number;
+  /**
+   * The press level of each piano key from A0 to C8 (`keyLevelsAt()`), times the weight of the
+   * playing pose: 0 is up, and 1 is at the key bottom (5.3). The scene turns each key by its level
+   * (4.6). It is `null` or absent for each player that is not a pianist.
+   */
+  readonly keys?: Float32Array | null;
 }
 
 /** The poses of the scene for one frame (design 5.1). */

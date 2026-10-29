@@ -23,6 +23,7 @@ import type { HandsState } from './hands.ts';
 import { gestureSize } from './loudness.ts';
 import { activityAt } from './passages.ts';
 import { pedalLevelAt, posePedalFoot } from './pedal.ts';
+import { PIANO_KEY_COUNT, keyLevelsAt } from './piano-keys.ts';
 import { posePercussion } from './percussion.ts';
 import type { PercussionState } from './percussion.ts';
 import type { IdleState } from './idle.ts';
@@ -46,6 +47,7 @@ export interface WritablePose extends AnimalPose {
   pawTurnL: number | null;
   pawKeepR: number;
   blink: number;
+  readonly keys: Float32Array | null;
 }
 
 /** The poses of a scene that `poseAt()` writes in place. */
@@ -85,9 +87,11 @@ const BONES = {
 /**
  * Makes the pose of one animal in the bind pose.
  *
+ * @param player The plan of the animal. A pianist gets the levels of its keys, all up.
  * @returns The pose.
  */
-function createPose(): WritablePose {
+function createPose(player: PlayerPlan): WritablePose {
+  const { note } = player;
   return {
     rotations: Float32Array.from(BIND_ROTATIONS),
     rootOffset: [0, 0, 0],
@@ -96,6 +100,7 @@ function createPose(): WritablePose {
     pawTurnL: null,
     pawKeepR: 0,
     blink: 0,
+    keys: note.family === 'keyboard' && note.keys ? new Float32Array(PIANO_KEY_COUNT) : null,
   };
 }
 
@@ -106,7 +111,10 @@ function createPose(): WritablePose {
  * @returns One pose for each player, and one for the conductor of a plan with a conductor.
  */
 export function createScenePose(plan: PosePlan): ScenePoseBuffer {
-  return { players: plan.players.map(createPose), conductor: plan.conductor ? createPose() : null };
+  return {
+    players: plan.players.map(createPose),
+    conductor: plan.conductor ? createPose(plan.conductor) : null,
+  };
 }
 
 /**
@@ -402,6 +410,13 @@ function poseAnimal(
       if (note.rig.foot) {
         const level = pedalLevelAt(note.pedal, noteTime);
         pose.slideOffset[1] = -posePedalFoot(note.rig.foot, level, weight, pose.rotations);
+      }
+      // The keys go down at the note times of the paws, and all keys are up in the rest pose.
+      if (note.keys && pose.keys) {
+        keyLevelsAt(note.keys, noteTime, pose.keys);
+        for (let k = 0; k < pose.keys.length; k++) {
+          pose.keys[k] = (pose.keys[k] ?? 0) * weight;
+        }
       }
       break;
     }

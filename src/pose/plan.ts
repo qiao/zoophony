@@ -39,6 +39,8 @@ import { buildPassages } from './passages.ts';
 import type { Passages } from './passages.ts';
 import { pedalMotion } from './pedal.ts';
 import type { PedalMotion } from './pedal.ts';
+import { buildKeyTrack } from './piano-keys.ts';
+import type { KeyTrack } from './piano-keys.ts';
 import { percussionTracks } from './percussion.ts';
 import { percussionRig } from './percussion-rig.ts';
 import type { PercussionRig } from './percussion-rig.ts';
@@ -89,6 +91,8 @@ export interface HandsLayer {
   readonly right: HandTrack;
   /** The damper pedal under the right foot of a pianist. It stays up for a harp player. */
   readonly pedal: PedalMotion;
+  /** The presses of the piano keys of a pianist, or `null` for a harp player. */
+  readonly keys: KeyTrack | null;
 }
 
 /** The note layer of a singer: the jaw and the sway of the phrases (design 5.3). */
@@ -399,12 +403,14 @@ function noteLayerOf(
       handsRig(model, instrument, instrumentScale(SPECIES[species], instrument)),
     );
     const { left, right } = handTracks(rig, notes, loudness, amplitude);
+    const family = MOTION_FAMILIES[instrument];
     return {
-      family: MOTION_FAMILIES[instrument],
+      family,
       rig,
       left,
       right,
       pedal: pedalMotion(rig.foot ? pedal : NO_PEDAL),
+      keys: family === 'keyboard' ? buildKeyTrack(notes) : null,
     };
   }
   if (isInFamily(instrument, ['choir'])) {
