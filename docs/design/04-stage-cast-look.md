@@ -91,11 +91,8 @@ in a line at the back, as the Vienna Philharmonic seats them. The diagram shows 
   - No player leaves the group as a soloist. A player alone and the partner of a pianist stand
     when their instrument stands as a soloist (4.5, supports).
 
-- Larger species sit farther back, so that a big animal hides no smaller animal. A species of
-  the size 1.2 or more plays only the contrabass, the timpani, the trombone, or the tuba. The
-  strings have species of the size 1.05 or less, and the piano 1.1 or less.
-- In the default view, a large species hides less than 10% of the head of each smaller animal
-  (`scene/hidden-heads.test.ts`).
+- Larger species sit farther back, so that a big animal hides no smaller animal. In the default
+  view, a large species hides less than 10% of the head of each smaller animal.
 
 ## 4.3 Species
 
@@ -128,8 +125,10 @@ studio body of its own (4.4). The table gives the species of each section.
 ```typescript
 /** The parameters of one species (`SPECIES` of `models/species.ts`). */
 interface SpeciesParams {
-  /** Height scale. 1.0 is the rabbit of the reference image. The size rule of 4.2 reads it. */
-  size: number;
+  /** The head height `H` of the studio body, in meters. */
+  headHeight: number;
+  /** The height of the seat above the floor, in H: the length of the seated legs. */
+  seatHeight: number;
   /** The fur, the belly, and the accent colors (4.5). The UI seat dots read them. */
   colors: SpeciesColors;
   /** The studio body of the species (4.4): `'studio-rabbit'`, `'studio-fox'`, and so on. */
@@ -158,7 +157,8 @@ interface SpeciesParams {
 ```
 
 The head height `H` is the unit of the body. The head height and the seat height of a species
-come from its studio body (`StudioBody.headHeight`, `StudioBody.seatHeight`). The holds of 4.6
+come from its studio body (`StudioBody.headHeight`, `StudioBody.seatHeight`). The bear has no
+studio seat, so it uses a seat of 0.75 H. The holds of 4.6
 give their offsets in `H`, so one hold serves the species of different sizes.
 
 ## 4.4 Models
