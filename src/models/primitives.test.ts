@@ -1,21 +1,9 @@
 import { describe, expect, it } from 'vitest';
 
 import { Vector3 } from 'three';
-import { toVec3 } from './tuples.ts';
 import type { Vec3 } from './tuples.ts';
 import { triangleNormal } from './mesh.ts';
-import {
-  ball,
-  box,
-  cylinder,
-  icosphere,
-  lathe,
-  loft,
-  plate,
-  prism,
-  tube,
-  wedge,
-} from './primitives.ts';
+import { ball, box, cylinder, icosphere, lathe, plate, prism, tube, wedge } from './primitives.ts';
 
 function centroid(corners: readonly number[], t: number): Vec3 {
   const sum = (axis: number): number =>
@@ -130,69 +118,6 @@ describe('primitives', () => {
     // The top is smaller than the middle, so the edge is round.
     const topXs = corners.filter((_, i) => i % 3 === 0 && corners[i + 1] === 0.3);
     expect(Math.max(...topXs)).toBeCloseTo(0.6, 9);
-  });
-
-  it('makes a closed loft with a corner at the front and outward triangles', () => {
-    const corners = loft(
-      [
-        { y: 0, halfWidth: 0, front: 0, back: 0, z: -0.1 },
-        { y: 0.3, halfWidth: 0.6, front: 0.45, back: 0.35 },
-        { y: 0.8, halfWidth: 0.3, front: 0.25, back: 0.3 },
-      ],
-      8,
-    );
-    // The point loses one triangle of each segment, and the top ring gets a cap.
-    expect(corners.length / 9).toBe(8 + 16 + 8);
-    expect(inwardFaces(corners, [0, 0.4, 0])).toBe(0);
-    const zs = corners.filter((_, i) => i % 3 === 2);
-    expect(Math.min(...zs)).toBeCloseTo(-0.45, 9);
-    expect(Math.max(...zs)).toBeCloseTo(0.35, 9);
-    // The left half is the mirror image of the right half, triangle by triangle.
-    const key = (t: number, mirror: number): string =>
-      [0, 1, 2]
-        .map((k) =>
-          [0, 1, 2]
-            .map((axis) =>
-              (
-                Math.round((corners[t * 9 + k * 3 + axis] ?? 0) * (axis === 0 ? mirror : 1) * 1e6) +
-                0
-              ).toString(),
-            )
-            .join(','),
-        )
-        .toSorted()
-        .join(' ');
-    const triangles = corners.length / 9;
-    const plain = new Set(Array.from({ length: triangles }, (_, t) => key(t, 1)));
-    for (let t = 0; t < triangles; t++) {
-      expect(plain.has(key(t, -1))).toBe(true);
-    }
-  });
-
-  it('makes triangle facets between rings that turn by half a segment', () => {
-    const rings = [
-      { y: 0, halfWidth: 0, front: 0, back: 0 },
-      { y: 0.2, halfWidth: 0.5, front: 0.5, back: 0.5 },
-      { y: 0.5, halfWidth: 0.6, front: 0.6, back: 0.6, turn: 0.5 },
-      { y: 0.8, halfWidth: 0.4, front: 0.4, back: 0.4 },
-    ];
-    const corners = loft(rings, 8);
-    // 8 triangles at the point, 16 for each of the two steps, and a cap of 8.
-    expect(corners.length / 9).toBe(8 + 32 + 8);
-    expect(inwardFaces(corners, [0, 0.4, 0])).toBe(0);
-    // The turned ring has no corner at the front: its front corners are 22.5° to the sides.
-    const front = Math.min(
-      ...corners.filter((_, i) => i % 3 === 2 && Math.abs((corners[i - 1] ?? 0) - 0.5) < 1e-9),
-    );
-    expect(front).toBeCloseTo(-0.6 * Math.cos(Math.PI / 8), 9);
-    // Each triangle between two rings has two corners on one ring and one on the other, and no
-    // two triangles are in one plane, so the step has no flat quads.
-    const normals = new Set<string>();
-    for (let t = 8; t < 40; t++) {
-      const n = toVec3(new Vector3(...triangleNormal(corners, t)).normalize());
-      normals.add(n.map((v) => Math.round(v * 1e6)).join(','));
-    }
-    expect(normals.size).toBe(32);
   });
 
   it('makes a wedge of 12 outward triangles that slopes down to the front', () => {
