@@ -848,8 +848,16 @@ The code constants of each family hold the times, the angles, and the lengths of
   - The notes that start within 50 ms of each other form a chord. A chord wider than one octave
     splits at its largest interval that keeps each hand in its reach. A narrower chord goes to the
     nearer hand, so that a melody stays in one hand. A chord past the reach of a hand (`reach` of
-    `HANDS_HOLDS`) goes to the other hand. The piano keys do not move, because they are not
-    separate meshes.
+    `HANDS_HOLDS`) goes to the other hand.
+  - Each piano key goes down with its notes (`pose/piano-keys.ts`). A key reaches the key bottom
+    at its note start, where the sound starts and the paw lands, after a short press with a
+    rising speed. It stays down until the note end, the key release of the score, which the
+    sustain pedal does not change. Then it comes up in a short time. Before a repeat of one key,
+    the key comes up early enough to go down again at the next start, so that each repeat shows a
+    rise. A note outside A0 to C8 presses the nearest key. The level of each key is a function of
+    the notes and the time of the note layer only, times the weight of the playing pose
+    (`AnimalPose.keys`). Thus the keys go down with the paws, all keys are up in the rest pose, in
+    a mute, and after the hold of a pause, and a seek gives the correct keys at once.
   - The paws of the polar bear are wide and point in along the forearms, so the middles of the
     keys of the two paws stay at least two octaves apart (`apart` of `HANDS_HOLDS`). A chord
     wider than one octave splits only when its two parts are that far apart, and else one paw
