@@ -1,0 +1,167 @@
+
+> zoophony@0.0.0 hold-fit /Users/xueqiaoxu/proj/zoophony
+> node tools/hold-fit.ts tubist --base main --grid tuba\@rhino.lipShift.2\=-0.06\:0\:0.02
+
+Hold fit of the tubist on main (db66b1e0a) and on the working tree: 180.8 s.
+Demos of main (db66b1e0a): boulanger-matin
+Demos of the working tree: boulanger-matin
+Grids: 4 = 4 variants (the limit is 40), sorted by the play folds, then by the deepest point.
+base (30.6 s):
+  faces that fold most: 423 100.0%, 424 100.0%, 638 100.0%, 660 100.0%, 664 100.0%
+  play: paws in tuba: 2.4 cm at song 268.63 s, wall 280.25 s (handL 0.18), boulanger-matin tubist 39 (rhino, stand)
+  lift: paws in tuba: 2.4 cm at song -1.02 s, wall 10.60 s (handL 0.18), boulanger-matin tubist 39 (rhino, stand)
+  rest: paws in tuba: 2.3 cm at song -1.62 s, wall 10.00 s (handL 0.20), boulanger-matin tubist 39 (rhino, stand)
+  lower: paws in tuba: 2.4 cm at song 280.67 s, wall 13.50 s (handL 0.18), boulanger-matin tubist 39 (rhino, stand)
+  play: instrument in body: 4.6 cm at song 220.63 s, wall 232.25 s (instrument), boulanger-matin tubist 39 (rhino, stand)
+tuba@rhino.lipShift.2=-0.06 (30.6 s):
+  faces that fold most: 638 100.0%, 660 100.0%, 664 100.0%, 678 100.0%, 684 100.0%
+  play: paws in tuba: 2.4 cm at song 247.13 s, wall 258.75 s (handL 0.20), boulanger-matin tubist 39 (rhino, stand)
+  lift: paws in tuba: 2.4 cm at song -1.12 s, wall 10.50 s (handL 0.21), boulanger-matin tubist 39 (rhino, stand)
+  rest: paws in tuba: 2.3 cm at song -1.62 s, wall 10.00 s (handL 0.23), boulanger-matin tubist 39 (rhino, stand)
+  lower: paws in tuba: 2.4 cm at song 280.67 s, wall 13.80 s (handL 0.21), boulanger-matin tubist 39 (rhino, stand)
+  lower: instrument in body: 2.4 cm at song 280.67 s, wall 13.50 s (instrument), boulanger-matin tubist 39 (rhino, stand)
+tuba@rhino.lipShift.2=-0.04 (31.5 s):
+  faces that fold most: 638 100.0%, 660 100.0%, 664 100.0%, 678 100.0%, 684 100.0%
+  play: paws in tuba: 2.4 cm at song 247.13 s, wall 258.75 s (handL 0.20), boulanger-matin tubist 39 (rhino, stand)
+  lift: paws in tuba: 2.4 cm at song -1.12 s, wall 10.50 s (handL 0.20), boulanger-matin tubist 39 (rhino, stand)
+  rest: paws in tuba: 2.3 cm at song -1.62 s, wall 10.00 s (handL 0.22), boulanger-matin tubist 39 (rhino, stand)
+  lower: paws in tuba: 2.4 cm at song 280.67 s, wall 13.70 s (handL 0.20), boulanger-matin tubist 39 (rhino, stand)
+  play: instrument in body: 3.1 cm at song 102.88 s, wall 114.50 s (instrument), boulanger-matin tubist 39 (rhino, stand)
+tuba@rhino.lipShift.2=-0.02 (33.9 s):
+  faces that fold most: 423 100.0%, 424 100.0%, 638 100.0%, 660 100.0%, 664 100.0%
+  play: paws in tuba: 2.4 cm at song 247.13 s, wall 258.75 s (handL 0.19), boulanger-matin tubist 39 (rhino, stand)
+  lift: paws in tuba: 2.4 cm at song -1.02 s, wall 10.60 s (handL 0.19), boulanger-matin tubist 39 (rhino, stand)
+  rest: paws in tuba: 2.3 cm at song -1.62 s, wall 10.00 s (handL 0.21), boulanger-matin tubist 39 (rhino, stand)
+  lower: paws in tuba: 2.4 cm at song 280.67 s, wall 13.60 s (handL 0.19), boulanger-matin tubist 39 (rhino, stand)
+  play: instrument in body: 3.8 cm at song 181.13 s, wall 192.75 s (instrument), boulanger-matin tubist 39 (rhino, stand)
+tuba@rhino.lipShift.2=0 (41.6 s):
+  faces that fold most: 423 100.0%, 424 100.0%, 638 100.0%, 660 100.0%, 664 100.0%
+  play: paws in tuba: 2.4 cm at song 268.63 s, wall 280.25 s (handL 0.18), boulanger-matin tubist 39 (rhino, stand)
+  lift: paws in tuba: 2.4 cm at song -1.02 s, wall 10.60 s (handL 0.18), boulanger-matin tubist 39 (rhino, stand)
+  rest: paws in tuba: 2.3 cm at song -1.62 s, wall 10.00 s (handL 0.20), boulanger-matin tubist 39 (rhino, stand)
+  lower: paws in tuba: 2.4 cm at song 280.67 s, wall 13.50 s (handL 0.18), boulanger-matin tubist 39 (rhino, stand)
+  play: instrument in body: 4.6 cm at song 220.63 s, wall 232.25 s (instrument), boulanger-matin tubist 39 (rhino, stand)
+
+| Variant | Play folds | Lift folds | Rest faces (by side) | play depth cm (limit) | lift depth cm (limit) | rest depth cm (limit) | lower depth cm (limit) | Note targets: worst mm (within 5 mm) | play turns: upper arm, paw (twist, swing) L / R | Instrument in body cm | Spare L cm play / rest | Spare R cm play / rest |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| main (db66b1e0a) | 100.0% (283/283) OVER | 100.0% (31/31) | 11 (L 6 / R 1 / other 4) | 1.9 paws>tuba (2.2) | 1.5 forearms>tuba (1.5) OVER | 1.5 forearms>tuba (1.5) OVER | 1.5 forearms>tuba (1.5) OVER | 75.0 (0.0%) | 51°, 90° (-87°, 28°) / 59°, 39° (32°, 24°) | 3.8 play OVER | 3.3 / 0.3 | 5.6 / 1.7 |
+| base | 100.0% (283/283) OVER | 100.0% (31/31) | 20 (L 5 / R 9 / other 6) | 2.4 paws>tuba (2.2) OVER | 2.4 paws>tuba (2.2) OVER | 2.3 paws>tuba (2.2) OVER | 2.4 paws>tuba (2.2) OVER | 70.0 (0.0%) | 51°, 86° (-76°, 43°) / 54°, 30° (14°, 27°) | 4.6 play OVER | 7.8 / 5.4 | 11.5 / 7.5 |
+| tuba@rhino.lipShift.2=-0.06 | 100.0% (283/283) OVER | 100.0% (31/31) | 18 (L 6 / R 7 / other 5) | 2.4 paws>tuba (2.2) OVER | 2.4 paws>tuba (2.2) OVER | 2.3 paws>tuba (2.2) OVER | 2.4 paws>tuba (2.2) OVER | 70.0 (0.0%) | 50°, 83° (-75°, 40°) / 55°, 30° (15°, 27°) | 2.4 lower OVER | 6.1 / 3.5 | 9.4 / 5.4 |
+| tuba@rhino.lipShift.2=-0.04 | 100.0% (283/283) OVER | 100.0% (31/31) | 17 (L 5 / R 7 / other 5) | 2.4 paws>tuba (2.2) OVER | 2.4 paws>tuba (2.2) OVER | 2.3 paws>tuba (2.2) OVER | 2.4 paws>tuba (2.2) OVER | 70.0 (0.0%) | 50°, 84° (-75°, 41°) / 54°, 30° (14°, 27°) | 3.1 play OVER | 6.7 / 4.1 | 10.1 / 6.1 |
+| tuba@rhino.lipShift.2=-0.02 | 100.0% (283/283) OVER | 100.0% (31/31) | 19 (L 5 / R 9 / other 5) | 2.4 paws>tuba (2.2) OVER | 2.4 paws>tuba (2.2) OVER | 2.3 paws>tuba (2.2) OVER | 2.4 paws>tuba (2.2) OVER | 70.0 (0.0%) | 51°, 85° (-76°, 42°) / 54°, 30° (14°, 27°) | 3.8 play OVER | 7.2 / 4.8 | 10.8 / 6.8 |
+| tuba@rhino.lipShift.2=0 | 100.0% (283/283) OVER | 100.0% (31/31) | 20 (L 5 / R 9 / other 6) | 2.4 paws>tuba (2.2) OVER | 2.4 paws>tuba (2.2) OVER | 2.3 paws>tuba (2.2) OVER | 2.4 paws>tuba (2.2) OVER | 70.0 (0.0%) | 51°, 86° (-76°, 43°) / 54°, 30° (14°, 27°) | 4.6 play OVER | 7.8 / 5.4 | 11.5 / 7.5 |
+
+The demo and the time of each deepest point of the table:
+| Variant | play deepest at | lift deepest at | rest deepest at | lower deepest at | Instrument in body at |
+|---|---|---|---|---|---|
+| main (db66b1e0a) | boulanger-matin 120.88 s | boulanger-matin wall 10.20 s | boulanger-matin wall 10.00 s | boulanger-matin wall 14.40 s | boulanger-matin 55.13 s |
+| base | boulanger-matin 268.63 s | boulanger-matin wall 10.60 s | boulanger-matin wall 10.00 s | boulanger-matin wall 13.50 s | boulanger-matin 220.63 s |
+| tuba@rhino.lipShift.2=-0.06 | boulanger-matin 247.13 s | boulanger-matin wall 10.50 s | boulanger-matin wall 10.00 s | boulanger-matin wall 13.80 s | boulanger-matin wall 13.50 s |
+| tuba@rhino.lipShift.2=-0.04 | boulanger-matin 247.13 s | boulanger-matin wall 10.50 s | boulanger-matin wall 10.00 s | boulanger-matin wall 13.70 s | boulanger-matin 102.88 s |
+| tuba@rhino.lipShift.2=-0.02 | boulanger-matin 247.13 s | boulanger-matin wall 10.60 s | boulanger-matin wall 10.00 s | boulanger-matin wall 13.60 s | boulanger-matin 181.13 s |
+| tuba@rhino.lipShift.2=0 | boulanger-matin 268.63 s | boulanger-matin wall 10.60 s | boulanger-matin wall 10.00 s | boulanger-matin wall 13.50 s | boulanger-matin 220.63 s |
+
+The depths of main (db66b1e0a) and of the working tree with no change:
+H of each body, main (db66b1e0a) -> working tree: rhino 0.416 m -> 0.388 m
+| Species | Set | Pair | main (db66b1e0a) cm | main (db66b1e0a) H | tree cm | tree H | Mark | tree at |
+|---|---|---|---:|---:|---:|---:|---|---|
+| rhino | play | paws in tuba | 1.9 | 0.046 | 2.4 | 0.063 | GROWS | boulanger-matin 268.63 s |
+| rhino | play | claws in tuba | 0.9 | 0.023 | 0.0 | 0.000 |  | boulanger-matin 0.00 s |
+| rhino | play | forearms in tuba | 1.1 | 0.026 | 1.3 | 0.033 | GROWS | boulanger-matin 268.63 s |
+| rhino | play | upper arms in body | 0.3 | 0.007 | 0.0 | 0.000 |  | boulanger-matin 0.00 s |
+| rhino | lift | paws in tuba | 1.9 | 0.046 | 2.4 | 0.063 | GROWS | boulanger-matin wall 10.60 s |
+| rhino | lift | claws in tuba | 1.0 | 0.024 | 0.0 | 0.000 |  | boulanger-matin wall 0.00 s |
+| rhino | lift | forearms in tuba | 1.5 | 0.036 | 1.3 | 0.033 |  | boulanger-matin wall 10.00 s |
+| rhino | lift | upper arms in body | 0.9 | 0.021 | 0.0 | 0.000 |  | boulanger-matin wall 0.00 s |
+| rhino | rest | paws in tuba | 1.5 | 0.037 | 2.3 | 0.060 | GROWS | boulanger-matin wall 10.00 s |
+| rhino | rest | claws in tuba | 0.6 | 0.015 | 0.0 | 0.000 |  | boulanger-matin wall 0.00 s |
+| rhino | rest | forearms in tuba | 1.5 | 0.036 | 1.3 | 0.033 |  | boulanger-matin wall 10.00 s |
+| rhino | rest | upper arms in body | 0.9 | 0.021 | 0.0 | 0.000 |  | boulanger-matin wall 0.00 s |
+| rhino | lower | paws in tuba | 1.9 | 0.046 | 2.4 | 0.063 | GROWS | boulanger-matin wall 13.50 s |
+| rhino | lower | claws in tuba | 1.0 | 0.024 | 0.0 | 0.000 |  | boulanger-matin wall 0.00 s |
+| rhino | lower | forearms in tuba | 1.5 | 0.036 | 1.3 | 0.033 |  | boulanger-matin wall 14.80 s |
+| rhino | lower | upper arms in body | 0.9 | 0.021 | 0.0 | 0.000 |  | boulanger-matin wall 0.00 s |
+
+The depths of main (db66b1e0a) and of the working tree with tuba@rhino.lipShift.2=-0.06:
+H of each body, main (db66b1e0a) -> working tree: rhino 0.416 m -> 0.388 m
+| Species | Set | Pair | main (db66b1e0a) cm | main (db66b1e0a) H | tree cm | tree H | Mark | tree at |
+|---|---|---|---:|---:|---:|---:|---|---|
+| rhino | play | paws in tuba | 1.9 | 0.046 | 2.4 | 0.062 | GROWS | boulanger-matin 247.13 s |
+| rhino | play | claws in tuba | 0.9 | 0.023 | 0.0 | 0.000 |  | boulanger-matin 0.00 s |
+| rhino | play | forearms in tuba | 1.1 | 0.026 | 1.2 | 0.031 | GROWS | boulanger-matin 247.13 s |
+| rhino | play | upper arms in body | 0.3 | 0.007 | 0.0 | 0.000 |  | boulanger-matin 0.00 s |
+| rhino | lift | paws in tuba | 1.9 | 0.046 | 2.4 | 0.062 | GROWS | boulanger-matin wall 10.50 s |
+| rhino | lift | claws in tuba | 1.0 | 0.024 | 0.0 | 0.000 |  | boulanger-matin wall 0.00 s |
+| rhino | lift | forearms in tuba | 1.5 | 0.036 | 1.3 | 0.032 |  | boulanger-matin wall 10.00 s |
+| rhino | lift | upper arms in body | 0.9 | 0.021 | 0.0 | 0.000 |  | boulanger-matin wall 0.00 s |
+| rhino | rest | paws in tuba | 1.5 | 0.037 | 2.3 | 0.060 | GROWS | boulanger-matin wall 10.00 s |
+| rhino | rest | claws in tuba | 0.6 | 0.015 | 0.0 | 0.000 |  | boulanger-matin wall 0.00 s |
+| rhino | rest | forearms in tuba | 1.5 | 0.036 | 1.3 | 0.032 |  | boulanger-matin wall 10.00 s |
+| rhino | rest | upper arms in body | 0.9 | 0.021 | 0.0 | 0.000 |  | boulanger-matin wall 0.00 s |
+| rhino | lower | paws in tuba | 1.9 | 0.046 | 2.4 | 0.062 | GROWS | boulanger-matin wall 13.80 s |
+| rhino | lower | claws in tuba | 1.0 | 0.024 | 0.0 | 0.000 |  | boulanger-matin wall 0.00 s |
+| rhino | lower | forearms in tuba | 1.5 | 0.036 | 1.3 | 0.032 |  | boulanger-matin wall 14.90 s |
+| rhino | lower | upper arms in body | 0.9 | 0.021 | 0.0 | 0.000 |  | boulanger-matin wall 0.00 s |
+
+The depths of main (db66b1e0a) and of the working tree with tuba@rhino.lipShift.2=-0.04:
+H of each body, main (db66b1e0a) -> working tree: rhino 0.416 m -> 0.388 m
+| Species | Set | Pair | main (db66b1e0a) cm | main (db66b1e0a) H | tree cm | tree H | Mark | tree at |
+|---|---|---|---:|---:|---:|---:|---|---|
+| rhino | play | paws in tuba | 1.9 | 0.046 | 2.4 | 0.062 | GROWS | boulanger-matin 247.13 s |
+| rhino | play | claws in tuba | 0.9 | 0.023 | 0.0 | 0.000 |  | boulanger-matin 0.00 s |
+| rhino | play | forearms in tuba | 1.1 | 0.026 | 1.2 | 0.031 | GROWS | boulanger-matin 247.13 s |
+| rhino | play | upper arms in body | 0.3 | 0.007 | 0.0 | 0.000 |  | boulanger-matin 0.00 s |
+| rhino | lift | paws in tuba | 1.9 | 0.046 | 2.4 | 0.062 | GROWS | boulanger-matin wall 10.50 s |
+| rhino | lift | claws in tuba | 1.0 | 0.024 | 0.0 | 0.000 |  | boulanger-matin wall 0.00 s |
+| rhino | lift | forearms in tuba | 1.5 | 0.036 | 1.3 | 0.032 |  | boulanger-matin wall 10.00 s |
+| rhino | lift | upper arms in body | 0.9 | 0.021 | 0.0 | 0.000 |  | boulanger-matin wall 0.00 s |
+| rhino | rest | paws in tuba | 1.5 | 0.037 | 2.3 | 0.060 | GROWS | boulanger-matin wall 10.00 s |
+| rhino | rest | claws in tuba | 0.6 | 0.015 | 0.0 | 0.000 |  | boulanger-matin wall 0.00 s |
+| rhino | rest | forearms in tuba | 1.5 | 0.036 | 1.3 | 0.032 |  | boulanger-matin wall 10.00 s |
+| rhino | rest | upper arms in body | 0.9 | 0.021 | 0.0 | 0.000 |  | boulanger-matin wall 0.00 s |
+| rhino | lower | paws in tuba | 1.9 | 0.046 | 2.4 | 0.062 | GROWS | boulanger-matin wall 13.70 s |
+| rhino | lower | claws in tuba | 1.0 | 0.024 | 0.0 | 0.000 |  | boulanger-matin wall 0.00 s |
+| rhino | lower | forearms in tuba | 1.5 | 0.036 | 1.3 | 0.032 |  | boulanger-matin wall 14.90 s |
+| rhino | lower | upper arms in body | 0.9 | 0.021 | 0.0 | 0.000 |  | boulanger-matin wall 0.00 s |
+
+The depths of main (db66b1e0a) and of the working tree with tuba@rhino.lipShift.2=-0.02:
+H of each body, main (db66b1e0a) -> working tree: rhino 0.416 m -> 0.388 m
+| Species | Set | Pair | main (db66b1e0a) cm | main (db66b1e0a) H | tree cm | tree H | Mark | tree at |
+|---|---|---|---:|---:|---:|---:|---|---|
+| rhino | play | paws in tuba | 1.9 | 0.046 | 2.4 | 0.062 | GROWS | boulanger-matin 247.13 s |
+| rhino | play | claws in tuba | 0.9 | 0.023 | 0.0 | 0.000 |  | boulanger-matin 0.00 s |
+| rhino | play | forearms in tuba | 1.1 | 0.026 | 1.2 | 0.032 | GROWS | boulanger-matin 274.13 s |
+| rhino | play | upper arms in body | 0.3 | 0.007 | 0.0 | 0.000 |  | boulanger-matin 0.00 s |
+| rhino | lift | paws in tuba | 1.9 | 0.046 | 2.4 | 0.063 | GROWS | boulanger-matin wall 10.60 s |
+| rhino | lift | claws in tuba | 1.0 | 0.024 | 0.0 | 0.000 |  | boulanger-matin wall 0.00 s |
+| rhino | lift | forearms in tuba | 1.5 | 0.036 | 1.3 | 0.033 |  | boulanger-matin wall 10.00 s |
+| rhino | lift | upper arms in body | 0.9 | 0.021 | 0.0 | 0.000 |  | boulanger-matin wall 0.00 s |
+| rhino | rest | paws in tuba | 1.5 | 0.037 | 2.3 | 0.060 | GROWS | boulanger-matin wall 10.00 s |
+| rhino | rest | claws in tuba | 0.6 | 0.015 | 0.0 | 0.000 |  | boulanger-matin wall 0.00 s |
+| rhino | rest | forearms in tuba | 1.5 | 0.036 | 1.3 | 0.033 |  | boulanger-matin wall 10.00 s |
+| rhino | rest | upper arms in body | 0.9 | 0.021 | 0.0 | 0.000 |  | boulanger-matin wall 0.00 s |
+| rhino | lower | paws in tuba | 1.9 | 0.046 | 2.4 | 0.063 | GROWS | boulanger-matin wall 13.60 s |
+| rhino | lower | claws in tuba | 1.0 | 0.024 | 0.0 | 0.000 |  | boulanger-matin wall 0.00 s |
+| rhino | lower | forearms in tuba | 1.5 | 0.036 | 1.3 | 0.033 |  | boulanger-matin wall 14.90 s |
+| rhino | lower | upper arms in body | 0.9 | 0.021 | 0.0 | 0.000 |  | boulanger-matin wall 0.00 s |
+
+The depths of main (db66b1e0a) and of the working tree with tuba@rhino.lipShift.2=0:
+H of each body, main (db66b1e0a) -> working tree: rhino 0.416 m -> 0.388 m
+| Species | Set | Pair | main (db66b1e0a) cm | main (db66b1e0a) H | tree cm | tree H | Mark | tree at |
+|---|---|---|---:|---:|---:|---:|---|---|
+| rhino | play | paws in tuba | 1.9 | 0.046 | 2.4 | 0.063 | GROWS | boulanger-matin 268.63 s |
+| rhino | play | claws in tuba | 0.9 | 0.023 | 0.0 | 0.000 |  | boulanger-matin 0.00 s |
+| rhino | play | forearms in tuba | 1.1 | 0.026 | 1.3 | 0.033 | GROWS | boulanger-matin 268.63 s |
+| rhino | play | upper arms in body | 0.3 | 0.007 | 0.0 | 0.000 |  | boulanger-matin 0.00 s |
+| rhino | lift | paws in tuba | 1.9 | 0.046 | 2.4 | 0.063 | GROWS | boulanger-matin wall 10.60 s |
+| rhino | lift | claws in tuba | 1.0 | 0.024 | 0.0 | 0.000 |  | boulanger-matin wall 0.00 s |
+| rhino | lift | forearms in tuba | 1.5 | 0.036 | 1.3 | 0.033 |  | boulanger-matin wall 10.00 s |
+| rhino | lift | upper arms in body | 0.9 | 0.021 | 0.0 | 0.000 |  | boulanger-matin wall 0.00 s |
+| rhino | rest | paws in tuba | 1.5 | 0.037 | 2.3 | 0.060 | GROWS | boulanger-matin wall 10.00 s |
+| rhino | rest | claws in tuba | 0.6 | 0.015 | 0.0 | 0.000 |  | boulanger-matin wall 0.00 s |
+| rhino | rest | forearms in tuba | 1.5 | 0.036 | 1.3 | 0.033 |  | boulanger-matin wall 10.00 s |
+| rhino | rest | upper arms in body | 0.9 | 0.021 | 0.0 | 0.000 |  | boulanger-matin wall 0.00 s |
+| rhino | lower | paws in tuba | 1.9 | 0.046 | 2.4 | 0.063 | GROWS | boulanger-matin wall 13.50 s |
+| rhino | lower | claws in tuba | 1.0 | 0.024 | 0.0 | 0.000 |  | boulanger-matin wall 0.00 s |
+| rhino | lower | forearms in tuba | 1.5 | 0.036 | 1.3 | 0.033 |  | boulanger-matin wall 14.80 s |
+| rhino | lower | upper arms in body | 0.9 | 0.021 | 0.0 | 0.000 |  | boulanger-matin wall 0.00 s |

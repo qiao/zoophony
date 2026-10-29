@@ -4,7 +4,7 @@ Date 2026-10-28. The user gave a new rhino mesh and said: "use the rhino model a
 /Users/xueqiaoxu/Downloads/Meshy_AI_rhino_tpose_3k_triang_1029050510_texture.glb". The probes and
 the images are in [`2026-10-28-rhino-tpose/`](2026-10-28-rhino-tpose/). The probe scripts are those
 of [`2026-10-23-rhino-apose/`](2026-10-23-rhino-apose/): `sections.py`, `dump.py`, `arm_axis.py`,
-and `head_colors.py`. The rig of `main` still uses the A-pose copy `rhino-apose-arms.glb`.
+and `head_colors.py`. Decisions: [`2026-10-28-rhino-tpose.md`](../decisions/2026-10-28-rhino-tpose.md).
 
 ## 1. The mesh
 
@@ -18,9 +18,9 @@ from y 0.27 to 0.13 at z -0.21.
 
 ## 2. The first rig
 
-`rhino-wip.json` holds the config of the first rig: the new arm joints at the shares of the old
-arm, the eye box, the tail ball, and the shoulder height 0.958 m, so that the head top stays
-1.462 m. `rhino_tpose_arms.py` (run it from `tools/blender/`) builds the arm copy with the steps of
+`tools/mesh-rigs/rhino.json` holds the new arm joints at the shares of the old arm, the eye box,
+the tail ball, and the shoulder height 0.958 m, so that the head top stays 1.462 m.
+`tools/blender/rhino_tpose_arms.py` builds the arm copy with the steps of
 `bear_arms.py` and four changes for this mesh:
 
 - The shoulder cut stands at 0.4 of the short upper arm, out of the joined root.
@@ -49,5 +49,32 @@ arm, points down and back, and the folds at p95 were 16 and 19 faces (limit 8).
 | (0, -0.7, 0.7) | 8, 11 | 58°, 64° | `palm-variant-3.txt` |
 
 A palm down and forward lowers the folds, but the grip then turns past the limit of 45° from the
-accepted grip of the tuba. The next round fits the palm, the elbow poles, and the finger curl of
-`RHINO_TUBA` together, with the arm gate and `pnpm pose-depth tubist`.
+accepted grip of the tuba. So the rig keeps the palm (0, -1, 0), and section 4 lowers the folds
+with the weights.
+
+## 4. The hold fit
+
+The user said "yes" to the hold fit. With the palm (0, -1, 0), half of the finger weight on the
+paws (`weights.fingers` 0.5) lowers the folds at p95 from 10 and 14 faces to 5 and 8. Rigid
+weights on the slivers of the shoulders gave nothing more. 6 rounds of `armSmooth` lower the
+crease share of `pnpm arm-look tubist` from 15.2% and 14.7% to 12.8% and 14.5% (limit 14.6%), and
+the folds to 4 and 6 faces (`arm-check.txt`). 4 rounds left the right arm at 14.9%.
+
+`pnpm hold-fit tubist --grid 'tuba@rhino.lipShift.2=-0.06:0.06:0.02'` (`hold-fit.txt`) gives the
+tuba in the belly: 4.6 cm with no shift, 3.1 cm at -0.04, 2.4 cm at -0.06, and more with a plus
+shift. The hold takes -0.05: 2.7 cm (3.8 cm on `main`). The grips of both paws did not change the
+paws in the tuba, 2.3 cm to 2.4 cm (limit 2.2 cm, 1.9 cm on `main`).
+
+| Gate against `main` | `main` | T-pose rhino |
+|---|---|---|
+| Folds p95, L and R | 5, 3 | 4, 6 |
+| Flat p5, L and R | 0.92, 0.94 | 0.92, 0.87 |
+| Grip turn p50, L and R | 0°, 0° | 12°, 17° (limit 45°) |
+| Crease share, L and R | | 12.8%, 14.5% |
+| Paws in the tuba | 1.9 cm | 2.4 cm |
+| Tuba in the belly | 3.8 cm | 2.7 cm |
+
+`pnpm arm-check tubist --base main` marks the right arm `FAIL` where the old rhino had better
+values, each inside its own limit. The new body also moves the conductor of `brahms-2` and
+`boulanger-matin` and the panda trombonist of `brahms-2` from a few samples on (`body-probe.txt`). The first download is 843,144 B. `final-views.webp` shows `main` above the new
+rhino from six directions.
