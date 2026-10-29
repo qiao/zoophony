@@ -100,8 +100,8 @@ from the first position (derived).
   position [8].
 - Trombonists use alternate positions often, to move the slide less in fast passages, and for a
   glissando on one partial. For high notes, the player needs only the first four positions [8].
-- One teacher uses alternates "primarily to create or avoid slurs", and not for the direction or
-  the distance of the slide [3]. An alternate position that moves the slide against the pitch
+- One teacher uses alternates "primarily to create or avoid slurs". The direction and the
+  distance of the slide do not decide his choice [3]. An alternate position that moves the slide against the pitch
   gives a natural slur [12].
 - The F attachment, a valve that the left thumb works, gives alternate positions for the long
   positions [1] [8].
