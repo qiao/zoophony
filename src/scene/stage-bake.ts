@@ -24,7 +24,9 @@ import {
 import type { IUniform, Material, Matrix4, Texture, WebGLRenderer } from 'three';
 
 import type { Vec3 } from '../models/tuples.ts';
+import type { Steps } from '../score/steps.ts';
 import { SHADOW_TOP } from './lights.ts';
+import { compileInto, gpuDoneSteps, programsReadySteps } from './programs.ts';
 
 /**
  * The values of the bake of the static props (design 4.5, light and render). The props and the
@@ -297,7 +299,10 @@ function sampleMaterial(sky: boolean | 'height', stageSide: number): ShaderMater
   return material;
 }
 
-/** The inputs of {@link bakeStage}. */
+/** The number of samples of the bake in one step of {@link bakeStageSteps}. */
+const BAKE_PASSES_PER_STEP = 16;
+
+/** The inputs of {@link bakeStageSteps}. */
 interface StageBakeOptions {
   /** The stage side `S`, in meters. */
   readonly stageSide: number;
@@ -321,12 +326,18 @@ interface StageBakeOptions {
  *   [depth of the casters] --> [pass over the stage from above] --(add)--> R or G
  * ```
  *
+ * The bake runs in steps (design 7.2): the programs compile first, and then each step renders
+ * {@link BAKE_PASSES_PER_STEP} samples.
+ *
  * @param renderer The renderer. It needs a target of half floats with blending.
  * @param options The stage, the light, the casters, and the receiver. Their world matrices must
  *   be up to date.
- * @returns The target that holds the bake. The caller frees it.
+ * @returns The steps, which return the target that holds the bake. The caller frees it.
  */
-export function bakeStage(renderer: WebGLRenderer, options: StageBakeOptions): WebGLRenderTarget {
+export function* bakeStageSteps(
+  renderer: WebGLRenderer,
+  options: StageBakeOptions,
+): Steps<WebGLRenderTarget> {
   const { stageSide, keyPosition, casters, receiver } = options;
   const bake = STAGE_BAKE;
   const target = new WebGLRenderTarget(bake.size, bake.size, {
@@ -357,29 +368,12 @@ export function bakeStage(renderer: WebGLRenderer, options: StageBakeOptions): W
   });
   const key = sampleMaterial(false, stageSide);
   const sky = sampleMaterial(true, stageSide);
+  const height = sampleMaterial('height', stageSide);
   const surface = placedCopy(receiver, prepass);
   const receiverScene = new Scene().add(surface);
   // The passes over the stage place each vertex in their own vertex shader, so this camera only
   // starts the render.
   const flat = new OrthographicCamera();
-
-  const saved = {
-    target: renderer.getRenderTarget(),
-    color: renderer.getClearColor(new Color()),
-    alpha: renderer.getClearAlpha(),
-    autoClear: renderer.autoClear,
-    shadows: renderer.shadowMap.enabled,
-  };
-  renderer.shadowMap.enabled = false;
-  renderer.autoClear = false;
-  renderer.setClearColor(0x000000, 0);
-  renderer.setRenderTarget(target);
-  renderer.clear(true, true, false);
-  renderer.render(receiverScene, flat);
-  const height = sampleMaterial('height', stageSide);
-  surface.material = height;
-  renderer.render(receiverScene, flat);
-
   const passes = [
     ...keyLightPoints(keyPosition, bake.lightSize, bake.keySamples).map((point) => ({
       material: key,
@@ -392,28 +386,79 @@ export function bakeStage(renderer: WebGLRenderer, options: StageBakeOptions): W
       weight: 1 / bake.skySamples,
     })),
   ];
-  for (const { material, camera, weight } of passes) {
-    renderer.setRenderTarget(depth);
-    renderer.clear(false, true, false);
-    renderer.render(casterScene, camera);
-    const uniforms = material.uniforms;
-    setValue(uniforms['uDepth'], depth.depthTexture);
-    setValue(
-      uniforms['uLightMatrix'],
-      camera.projectionMatrix.clone().multiply(camera.matrixWorldInverse),
-    );
-    setValue(uniforms['uNear'], camera.near);
-    setValue(uniforms['uFar'], camera.far);
-    setValue(uniforms['uWeight'], weight);
+
+  // The programs compile in parallel before the first pass, so no pass waits for the GPU
+  // (design 7.2). The bake renders with no shadow map.
+  const shadows = renderer.shadowMap.enabled;
+  renderer.shadowMap.enabled = false;
+  compileInto(renderer, depth, () => {
+    renderer.compile(casterScene, flat);
+  });
+  for (const material of [prepass, height, key, sky]) {
     surface.material = material;
+    compileInto(renderer, target, () => {
+      renderer.compile(receiverScene, flat);
+    });
+  }
+  renderer.shadowMap.enabled = shadows;
+  yield* programsReadySteps(renderer);
+
+  // Each step sets the state of the renderer for the bake, and gives the state back at its end,
+  // because the frames of the page render between the steps.
+  const run = (draw: () => void): void => {
+    const saved = {
+      target: renderer.getRenderTarget(),
+      color: renderer.getClearColor(new Color()),
+      alpha: renderer.getClearAlpha(),
+      autoClear: renderer.autoClear,
+      shadows: renderer.shadowMap.enabled,
+    };
+    renderer.shadowMap.enabled = false;
+    renderer.autoClear = false;
+    renderer.setClearColor(0x000000, 0);
+    try {
+      draw();
+    } finally {
+      renderer.setRenderTarget(saved.target);
+      renderer.setClearColor(saved.color, saved.alpha);
+      renderer.autoClear = saved.autoClear;
+      renderer.shadowMap.enabled = saved.shadows;
+    }
+  };
+  run(() => {
     renderer.setRenderTarget(target);
+    renderer.clear(true, true, false);
+    surface.material = prepass;
     renderer.render(receiverScene, flat);
+    surface.material = height;
+    renderer.render(receiverScene, flat);
+  });
+
+  for (const [i, { material, camera, weight }] of passes.entries()) {
+    if (i % BAKE_PASSES_PER_STEP === 0) {
+      // The GPU ends the samples before, so that no upload of the page waits for the bake.
+      yield* gpuDoneSteps(renderer);
+    }
+    run(() => {
+      renderer.setRenderTarget(depth);
+      renderer.clear(false, true, false);
+      renderer.render(casterScene, camera);
+      const uniforms = material.uniforms;
+      setValue(uniforms['uDepth'], depth.depthTexture);
+      setValue(
+        uniforms['uLightMatrix'],
+        camera.projectionMatrix.clone().multiply(camera.matrixWorldInverse),
+      );
+      setValue(uniforms['uNear'], camera.near);
+      setValue(uniforms['uFar'], camera.far);
+      setValue(uniforms['uWeight'], weight);
+      surface.material = material;
+      renderer.setRenderTarget(target);
+      renderer.render(receiverScene, flat);
+    });
   }
 
-  renderer.setRenderTarget(saved.target);
-  renderer.setClearColor(saved.color, saved.alpha);
-  renderer.autoClear = saved.autoClear;
-  renderer.shadowMap.enabled = saved.shadows;
+  yield* gpuDoneSteps(renderer);
   depth.depthTexture.dispose();
   depth.dispose();
   for (const material of [depthMaterial, prepass, height, key, sky]) {

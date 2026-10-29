@@ -6,14 +6,16 @@ import {
   HalfFloatType,
   Mesh,
   MeshBasicMaterial,
-  PMREMGenerator,
   Scene,
   SphereGeometry,
   WebGLCubeRenderTarget,
 } from 'three';
-import type { Object3D, WebGLRenderTarget, WebGLRenderer } from 'three';
+import type { Object3D, PMREMGenerator, WebGLRenderTarget, WebGLRenderer } from 'three';
 
 import type { Vec3 } from '../models/tuples.ts';
+import type { Steps } from '../score/steps.ts';
+import { fromCubemapSteps, fromSceneSteps } from './pmrem-steps.ts';
+import { gpuDoneSteps } from './programs.ts';
 
 /**
  * The environment of the reflections (design 4.5, light and render): a dark room with warm lamps
@@ -65,18 +67,37 @@ export function buildEnvironmentScene(): Scene {
   return scene;
 }
 
+/** The size of each face of the cube of the environment of the reflections, in pixels. */
+const ENVIRONMENT_SIZE = 256;
+
+/** The blur of the environment of the reflections, in radians: the `sigma` of `fromScene()`. */
+const ENVIRONMENT_BLUR = 0.04;
+
 /**
- * Creates the environment texture of the reflections: a PMREM of {@link buildEnvironmentScene}.
- * The renderer makes it one time, and each layout uses it.
+ * Creates the environment texture of the reflections in steps (design 4.5, 7.2): a PMREM of
+ * {@link buildEnvironmentScene}, as `fromScene()` of three.js makes it with a blur of
+ * {@link ENVIRONMENT_BLUR}. The renderer makes it one time, and each layout uses it. The steps
+ * compile the programs first, and then render the faces, the blur, and the mip levels in separate
+ * tasks.
  *
  * @param renderer The renderer.
- * @returns The target that holds the texture. The caller frees it.
+ * @param generator The PMREM generator of the renderer. It keeps its materials, so the captures
+ *   of the layouts compile no program again.
+ * @param compileTarget A render target for the compile. A program of a target differs from a
+ *   program of the canvas.
+ * @returns The steps, which return the target that holds the texture. The caller frees it.
  */
-export function createEnvironment(renderer: WebGLRenderer): WebGLRenderTarget {
-  const generator = new PMREMGenerator(renderer);
+export function* createEnvironmentSteps(
+  renderer: WebGLRenderer,
+  generator: PMREMGenerator,
+  compileTarget: WebGLRenderTarget,
+): Steps<WebGLRenderTarget> {
   const scene = buildEnvironmentScene();
-  const target = generator.fromScene(scene, 0.04);
-  generator.dispose();
+  const target = yield* fromSceneSteps(renderer, generator, compileTarget, {
+    scene,
+    size: ENVIRONMENT_SIZE,
+    sigma: ENVIRONMENT_BLUR,
+  });
   scene.traverse((object) => {
     if (object instanceof Mesh) {
       object.geometry.dispose();
@@ -111,21 +132,25 @@ export interface CaptureOptions {
 }
 
 /**
- * Captures the environment of a layout (design 4.5, light and render): it renders the scene into
- * a cube of half floats from one point, with some objects hidden, and makes a PMREM of the cube.
- * The renderer gives no tone mapping to a render target, so the cube holds the linear light.
+ * Captures the environment of a layout in steps (design 4.5, light and render, 7.2): it renders
+ * the scene into a cube of half floats from one point, with some objects hidden, and makes a PMREM
+ * of the cube, as `fromCubemap()` of three.js makes it. The renderer gives no tone mapping to a
+ * render target, so the cube holds the linear light.
  *
  * @param renderer The renderer. It needs a target of half floats.
+ * @param generator The PMREM generator of the renderer, after {@link createEnvironmentSteps}.
  * @param scene The scene of the layout, with the environment that its reflections use during the
  *   capture.
  * @param options The point of the capture and the hidden objects.
- * @returns The target that holds the environment texture. The caller frees it.
+ * @returns The steps, which return the target that holds the environment texture. The caller
+ *   frees it.
  */
-export function captureEnvironment(
+export function* captureEnvironmentSteps(
   renderer: WebGLRenderer,
+  generator: PMREMGenerator,
   scene: Scene,
   options: CaptureOptions,
-): WebGLRenderTarget {
+): Steps<WebGLRenderTarget> {
   const cube = new WebGLCubeRenderTarget(CAPTURE.size, { type: HalfFloatType });
   const camera = new CubeCamera(0.05, 500, cube);
   camera.position.set(...options.position);
@@ -141,10 +166,9 @@ export function captureEnvironment(
   for (const [i, object] of options.hidden.entries()) {
     object.visible = shown[i] ?? true;
   }
+  yield* gpuDoneSteps(renderer);
 
-  const generator = new PMREMGenerator(renderer);
-  const target = generator.fromCubemap(cube.texture);
-  generator.dispose();
+  const target = yield* fromCubemapSteps(renderer, generator, cube.texture, CAPTURE.size);
   cube.dispose();
   return target;
 }

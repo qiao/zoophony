@@ -2,20 +2,15 @@ import { pieceGainDb } from '../audio/demo-loudness.ts';
 import type { MixName } from '../audio/output-chain.ts';
 import type { LoadProgress, Player } from '../audio/player.ts';
 import { fetchPlainBytes } from '../audio/plain-bytes.ts';
-import { layoutScene } from '../models/layout-scene.ts';
-import type { SceneLayout } from '../models/layout.ts';
-import { ModelCache } from '../models/model-cache.ts';
-import { preparePoses } from '../pose/plan.ts';
 import type { PosePlan } from '../pose/plan.ts';
 import { createScenePose, poseAt } from '../pose/pose-at.ts';
 import type { ScenePoseBuffer } from '../pose/pose-at.ts';
 import type { SeatAudibility } from '../pose/types.ts';
-import type { StageScene } from '../scene/stage-scene.ts';
-import { buildScore } from '../score/score.ts';
+import type { PreparedLayout, StageScene } from '../scene/stage-scene.ts';
+import type { Steps } from '../score/steps.ts';
 import { stageMix } from '../score/stage-mix.ts';
 import type { ChannelMix } from '../score/stage-mix.ts';
 import { cameraAt, createCameraPose } from '../shots/camera-at.ts';
-import { SHOT_SEED, prepareShots } from '../shots/prepare.ts';
 import type { CameraPose, ShotPlan } from '../shots/types.ts';
 import type { Score, SectionSize } from '../score/types.ts';
 import { focusKindOf } from '../ui/dom.ts';
@@ -53,6 +48,9 @@ import { playerCounts, seatRows } from './seat-text.ts';
 import { followSeek, shownSongTime } from './seek.ts';
 import { stageCover } from './stage-cover.ts';
 import { PHONE_LAYOUT_QUERY } from './phone-layout.ts';
+import { planFileSteps, planScoreSteps } from './scene-plan.ts';
+import type { PlannedScore, ScoreScene } from './scene-plan.ts';
+import { runSliced } from './slices.ts';
 import {
   FPS_WINDOW_MS,
   autoLabels,
@@ -66,12 +64,6 @@ import type { FrameRateSetting, QualitySetting, TierWatch } from './settings.ts'
 import { songTimeValue, wholeSeconds } from './time-text.ts';
 import { STOPPED, followSongTime, seekPlayState, setPlaying, startPlay } from './transport.ts';
 import type { PlayState } from './transport.ts';
-
-/**
- * The seed of the pose. A fixed seed gives each demo the same seeded offsets and idle motion on
- * each visit (design 5.3).
- */
-const POSE_SEED = 1;
 
 /** The time between two updates of the frame rate counter of the settings, in seconds. */
 const FPS_COUNTER_SEC = 0.5;
@@ -133,38 +125,9 @@ interface Audio {
   readonly resume: () => void;
 }
 
-/** The scene of a score: the layout, the player models, the pose plan, and the shot plan. */
-interface ScoreScene {
-  readonly layout: SceneLayout;
-  /** The player models, which the layout, the plans, and the scene share. */
-  readonly models: ModelCache;
-  readonly plan: PosePlan;
-  readonly shots: ShotPlan;
-}
-
-/** A piece after the load of its file, with the layout and the player models of its scene. */
-interface LoadedPiece {
-  readonly piece: Piece;
-  readonly layout: SceneLayout;
-  readonly models: ModelCache;
-}
-
-/**
- * Calculates the layout, the pose plan, and the shot plan of a score. The layout, the plans, and
- * the scene share one model cache.
- *
- * @param score The score.
- * @returns The layout, the player models, and the plans.
- */
-function planScene(score: Score): ScoreScene {
-  const models = new ModelCache();
-  const layout = layoutScene(score, models);
-  return {
-    layout,
-    models,
-    plan: preparePoses(score, layout, POSE_SEED, models),
-    shots: prepareShots(score, layout, SHOT_SEED, models),
-  };
+/** A score with its scene, and the 3D scene of its layout, ready to show. */
+interface BuiltScore extends PlannedScore {
+  readonly prepared: PreparedLayout;
 }
 
 /**
@@ -176,24 +139,6 @@ function planScene(score: Score): ScoreScene {
  */
 function sectionSizeOf(file: StageFile | null, setting: SectionSize): SectionSize {
   return file === PERF_60 ? 'one-per-part' : setting;
-}
-
-/**
- * Builds the score of a file that the app already checked: a demo, or a file that
- * `readScoreFile()` accepted.
- *
- * @param bytes The bytes of the file.
- * @param sectionSize The section size.
- * @param name The name of the file, for the error.
- * @returns The score.
- * @throws Error if `buildScore()` refuses the file.
- */
-function scoreOfBytes(bytes: Uint8Array, sectionSize: SectionSize, name: string): Score {
-  const result = buildScore(bytes, sectionSize);
-  if (!result.ok) {
-    throw new Error(`The file "${name}" is not valid: ${result.error}.`);
-  }
-  return result.score;
 }
 
 /**
@@ -228,15 +173,16 @@ async function fetchStageFile(file: StageFile): Promise<Uint8Array> {
 }
 
 /**
- * Calculates the scene of a file, and makes its piece with no load and no seat flags.
+ * Makes the piece of a file with its scene, with no load and no seat flags.
  *
  * @param source The file and its score.
+ * @param scene The scene of the score, from `planSceneSteps()`.
  * @param playWhenReady True if the piece starts when its samples are ready.
- * @returns The piece, its layout, and its player models.
+ * @returns The piece.
  */
-function preparePiece(source: PieceFile, playWhenReady: boolean): LoadedPiece {
+function preparePiece(source: PieceFile, scene: ScoreScene, playWhenReady: boolean): Piece {
   const { score } = source;
-  const { layout, models, plan, shots } = planScene(score);
+  const { layout, plan, shots } = scene;
   const piece: Piece = {
     ...source,
     mix: stageMix(score, layout),
@@ -254,7 +200,7 @@ function preparePiece(source: PieceFile, playWhenReady: boolean): LoadedPiece {
     audible: score.seats.map(() => true),
     audibility: [],
   };
-  return { piece, layout, models };
+  return piece;
 }
 
 /**
@@ -283,6 +229,13 @@ export class App {
   #seekSec: number | null = null;
   /** The number of the last selection. A later selection replaces an earlier one. */
   #request = 0;
+  /** The number of the last change of the section size. A later change replaces its build. */
+  #rebuilds = 0;
+  /**
+   * The end of the last build of a scene (design 7.2). A build waits for the build before it, so
+   * that two builds do not share the renderer. A later selection stops the build before it.
+   */
+  #lastBuild: Promise<unknown> = Promise.resolve();
   /** The demo whose file did not load, for "Try again", or `null` (design 2.2, 2.8). */
   #failedFile: StageFile | null = null;
   /**
@@ -500,14 +453,13 @@ export class App {
     if (!piece || piece.file === PERF_60) {
       return;
     }
-    // The build of the new scene stops the frames, so the stage fades out first (PF1).
+    // The stage fades out during the build of the new scene (PF1).
+    const ticket = ++this.#rebuilds;
     this.#ui
       .coverStage()
-      .then(() => {
+      .then(async () => {
         // A new piece or a later change of the setting replaces this build.
-        if (piece === this.#piece && size === this.#sectionSize) {
-          this.#rebuildScene(piece, size);
-        }
+        await this.#rebuildScene(piece, size, () => ticket === this.#rebuilds);
         this.#ui.uncoverStage();
       })
       .catch(reportError);
@@ -519,10 +471,17 @@ export class App {
    *
    * @param piece The current piece.
    * @param size The section size.
+   * @param live Tells if the build is still needed: a later selection or change replaces it.
    */
-  #rebuildScene(piece: Piece, size: SectionSize): void {
-    const score = scoreOfBytes(piece.bytes, size, piece.title.title);
-    const { layout, models, plan, shots } = planScene(score);
+  async #rebuildScene(piece: Piece, size: SectionSize, live: () => boolean): Promise<void> {
+    const built = await this.#build(planFileSteps(piece.bytes, size, piece.title.title), () => {
+      return live() && piece === this.#piece;
+    });
+    if (!built) {
+      return;
+    }
+    const { score, scene, prepared } = built;
+    const { layout, plan, shots } = scene;
     piece.score = score;
     piece.mix = stageMix(score, layout);
     piece.plan = plan;
@@ -530,7 +489,7 @@ export class App {
     piece.meter = meterTrack(score.notes, score.durationSec);
     piece.glow = seatSpans(score.notes, score.seats.length);
     piece.poses = createScenePose(plan);
-    this.#scene.show(layout, models);
+    this.#scene.show(prepared);
     // The player counts of the seat rows change with the section size (design 2.8).
     this.#showSeats(piece);
     this.#ui.seatList.update(piece.flags, piece.audible);
@@ -664,15 +623,49 @@ export class App {
         return false;
       }
     }
-    const score = scoreOfBytes(bytes, sectionSizeOf(file, this.#sectionSize), file);
+    const sectionSize = sectionSizeOf(file, this.#sectionSize);
+    // The new piece replaces a build of the section size of the current piece.
+    this.#rebuilds++;
+    const built = await this.#build(planFileSteps(bytes, sectionSize, file), () => {
+      return ticket === this.#request;
+    });
+    if (!built) {
+      return false;
+    }
+    const { score, scene, prepared } = built;
     const title = stageFileTitle(file);
-    this.#showPiece(
-      preparePiece({ file, title, bytes, score }, playWhenReady || this.#playWhenShown),
+    const piece = preparePiece(
+      { file, title, bytes, score },
+      scene,
+      playWhenReady || this.#playWhenShown,
     );
+    this.#showPiece(piece, prepared);
     if (current) {
       this.#ui.uncoverStage();
     }
+    this.#followSectionSize(piece, sectionSize);
     return true;
+  }
+
+  /**
+   * Builds the score, the plans, and the 3D scene of a file in slices of the main thread (design
+   * 7.2), after the build before it.
+   *
+   * @param planned The steps of the score and its plans.
+   * @param live Tells if the result is still needed.
+   * @returns The score, its scene, and its 3D scene, or `null` if a later selection replaced it.
+   */
+  async #build(planned: Steps<PlannedScore>, live: () => boolean): Promise<BuiltScore | null> {
+    const before = this.#lastBuild;
+    const scene = this.#scene;
+    const steps = (function* (): Steps<BuiltScore> {
+      const { score, scene: plans } = yield* planned;
+      const prepared = yield* scene.prepareSteps(plans.layout, plans.models);
+      return { score, scene: plans, prepared };
+    })();
+    const run = before.then(async () => runSliced(steps, live));
+    this.#lastBuild = run.catch(() => null);
+    return run;
   }
 
   /**
@@ -743,24 +736,50 @@ export class App {
     }
     const { bytes } = result;
     // The section size can change while the page reads the file.
-    const score =
-      sectionSize === this.#sectionSize
-        ? result.score
-        : scoreOfBytes(bytes, this.#sectionSize, file.name);
+    const size = this.#sectionSize;
+    // The new piece replaces a build of the section size of the current piece.
+    this.#rebuilds++;
+    const built = await this.#build(
+      sectionSize === size ? planScoreSteps(result.score) : planFileSteps(bytes, size, file.name),
+      () => ticket === this.#request,
+    );
+    if (!built) {
+      return;
+    }
+    const { score, scene, prepared } = built;
     const title = fileTitle(score.sequenceName, file.name);
-    this.#showPiece(preparePiece({ file: null, title, bytes, score }, true));
+    const piece = preparePiece({ file: null, title, bytes, score }, scene, true);
+    this.#showPiece(piece, prepared);
     if (covered) {
       this.#ui.uncoverStage();
     }
+    this.#followSectionSize(piece, size);
+  }
+
+  /**
+   * Builds the scene of a new piece again when the setting "Section size" changed during its
+   * build (design 3.8). The build used the size of its start.
+   *
+   * @param piece The new piece.
+   * @param built The section size of its build.
+   */
+  #followSectionSize(piece: Piece, built: SectionSize): void {
+    if (piece.file === PERF_60 || built === this.#sectionSize) {
+      return;
+    }
+    const size = this.#sectionSize;
+    this.#sectionSize = built;
+    this.#setSectionSize(size);
   }
 
   /**
    * Replaces the current piece with a new one: it stops the old piece, shows the new scene and
    * title, and loads the samples of the new score (design 2.2).
    *
-   * @param loaded The new piece, its layout, and its player models.
+   * @param piece The new piece.
+   * @param prepared The 3D scene of its layout.
    */
-  #showPiece(loaded: LoadedPiece): void {
+  #showPiece(piece: Piece, prepared: PreparedLayout): void {
     if (this.#state.transport.playing) {
       this.#audio?.player.pause();
     }
@@ -770,9 +789,8 @@ export class App {
     this.#message = null;
     this.#failedFile = null;
     this.#playWhenShown = false;
-    const { piece } = loaded;
     this.#piece = piece;
-    this.#scene.show(loaded.layout, loaded.models);
+    this.#scene.show(prepared);
     // The mode stays. Cinematic mode takes the shots of the new score (design 2.5).
     this.#changeCamera('new-piece');
     const demo = piece.file !== null && isDemoId(piece.file) ? piece.file : null;

@@ -36,9 +36,9 @@ export function soloFromQuery(app: App, scene: StageScene): void {
   // The scene keeps its layout private, so the solo reads the layout of each call of show().
   let layout: SceneLayout | null = null;
   const show = scene.show.bind(scene);
-  scene.show = (next, models) => {
-    layout = next;
-    show(next, models);
+  scene.show = (prepared) => {
+    layout = prepared.view.layout;
+    show(prepared);
   };
 
   const wait = (): void => {

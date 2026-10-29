@@ -1,0 +1,98 @@
+import type { Steps } from '../score/steps.ts';
+
+/**
+ * The time after which a slice of the main thread ends, in ms (design 7.2). Lighthouse multiplies
+ * each task by 4 for a phone, and a task above 50 ms blocks. A slice ends after the first step past
+ * this time, so a step of up to about 6 ms keeps each task below 10 ms on the development Mac.
+ */
+export const SLICE_MS = 4;
+
+/** The time between two checks of a step that waits for the GPU, in ms. */
+const GPU_WAIT_MS = 5;
+
+/** The resolvers of the calls of {@link yieldToMain} that wait for the message of the channel. */
+const waiting: (() => void)[] = [];
+
+/** The channel of {@link yieldToMain} in a browser with no `scheduler.yield()`. */
+let channel: MessagePort | null = null;
+
+/**
+ * Gives the port that ends a yield with no `scheduler.yield()`: a message of a `MessageChannel`
+ * comes in a new task, with no minimum delay of a timer.
+ *
+ * @returns The port that sends the message.
+ */
+function yieldPort(): MessagePort {
+  if (!channel) {
+    const pair = new MessageChannel();
+    pair.port1.addEventListener('message', () => {
+      waiting.shift()?.();
+    });
+    pair.port1.start();
+    channel = pair.port2;
+  }
+  return channel;
+}
+
+/**
+ * Gives the main thread back to the browser for one turn, so that it can draw a frame and run the
+ * input events. It uses `scheduler.yield()` where it exists, because the rest of the work then
+ * keeps its place before the other tasks of the page.
+ *
+ * @returns A promise that resolves in a later task.
+ */
+export function yieldToMain(): Promise<void> {
+  if ('scheduler' in globalThis && 'yield' in scheduler) {
+    return scheduler.yield();
+  }
+  return new Promise((resolve) => {
+    waiting.push(resolve);
+    yieldPort().postMessage(null, []);
+  });
+}
+
+/**
+ * Waits for the GPU between two checks of a step that waits, such as a shader program that
+ * compiles in parallel.
+ *
+ * @returns A promise that resolves after {@link GPU_WAIT_MS}.
+ */
+function waitForGpu(): Promise<void> {
+  return new Promise((resolve) => {
+    setTimeout(resolve, GPU_WAIT_MS);
+  });
+}
+
+/**
+ * Runs the steps of a calculation in slices of the main thread (design 7.2). A slice runs steps
+ * until {@link SLICE_MS} pass, and then gives the main thread back. A step that waits for the GPU
+ * gives it back at once. The first slice starts in a later task.
+ *
+ * @param steps The steps.
+ * @param live Tells if the result is still needed. A later selection makes it false, and the run
+ *   then stops at the end of a slice.
+ * @returns The result, or `null` if the run stopped.
+ */
+export async function runSliced<T>(steps: Steps<T>, live: () => boolean): Promise<T | null> {
+  await yieldToMain();
+  let start = performance.now();
+  for (;;) {
+    if (!live()) {
+      return null;
+    }
+    const step = steps.next();
+    if (step.done) {
+      return step.value;
+    }
+    // The slices run one after the other: each await gives the main thread back.
+    if (step.value === 'wait') {
+      // oxlint-disable-next-line eslint/no-await-in-loop -- see the comment above.
+      await waitForGpu();
+      start = performance.now();
+    } else if (performance.now() - start >= SLICE_MS) {
+      // oxlint-disable-next-line eslint/no-await-in-loop -- see the comment above.
+      await yieldToMain();
+      start = performance.now();
+    }
+  }
+}

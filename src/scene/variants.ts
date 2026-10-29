@@ -195,9 +195,39 @@ export class VariantMaterials {
    * @param draw Renders the scene.
    */
   renderDepth(draw: () => void): void {
-    const own = this.#own;
+    this.#swapDepth(this.#depthMeshes, this.#own, draw);
+  }
+
+  /**
+   * Runs a draw with the depth material of the variant of each mesh of an object in place of its
+   * own material, as {@link VariantMaterials.renderDepth} does for the meshes of the current
+   * scene. The build of a new scene compiles the programs of its depth passes with it (design
+   * 7.2).
+   *
+   * @param object The object. Its meshes that write depth get their depth materials.
+   * @param draw Compiles or renders the object.
+   */
+  renderDepthOf(object: Object3D, draw: () => void): void {
+    const meshes: DepthMesh[] = [];
+    object.traverse((child) => {
+      if (writesDepth(child)) {
+        meshes.push({ mesh: child, depth: this.#depthOf(child), list: [] });
+      }
+    });
+    this.#swapDepth(meshes, [], draw);
+  }
+
+  /**
+   * Runs a draw with the depth materials of some meshes in place of their own materials, and
+   * gives the meshes their own materials back after it.
+   *
+   * @param meshes The meshes and their depth materials.
+   * @param own The list that keeps the own material of each mesh during the draw.
+   * @param draw Renders or compiles.
+   */
+  #swapDepth(meshes: readonly DepthMesh[], own: (Material | Material[])[], draw: () => void): void {
     own.length = 0;
-    for (const entry of this.#depthMeshes) {
+    for (const entry of meshes) {
       const material = entry.mesh.material;
       own.push(material);
       if (Array.isArray(material)) {
@@ -212,7 +242,7 @@ export class VariantMaterials {
     try {
       draw();
     } finally {
-      for (const [i, entry] of this.#depthMeshes.entries()) {
+      for (const [i, entry] of meshes.entries()) {
         const material = own[i];
         if (material) {
           entry.mesh.material = material;

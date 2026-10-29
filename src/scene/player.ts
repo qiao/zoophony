@@ -23,7 +23,9 @@ import type { InstrumentId } from '../models/instruments/types.ts';
 import { boneIndex } from '../models/rig.ts';
 import type { BoneName } from '../models/rig.ts';
 import { STUDIO_BONES } from '../models/studio-format.ts';
-import { studioRenderMesh } from '../models/studio-body.ts';
+import { studioRenderMeshSteps } from '../models/studio-body.ts';
+import { runAll } from '../score/steps.ts';
+import type { Steps } from '../score/steps.ts';
 import {
   STUDIO_POSE_BONES,
   createStudioPose,
@@ -47,7 +49,19 @@ import { createGeometry } from './geometry.ts';
  * @returns The geometry. Its skin indices point at the bones of {@link createPlayerMesh}.
  */
 export function createPlayerGeometry(model: PlayerModel): BufferGeometry {
-  const render = studioRenderMesh(model.studio, model.mesh);
+  return runAll(createPlayerGeometrySteps(model));
+}
+
+/**
+ * Creates the geometry of a player model as {@link createPlayerGeometry} does, in steps (design
+ * 7.2).
+ *
+ * @param model The player model of `models/`.
+ * @returns The steps, which return the geometry.
+ */
+function* createPlayerGeometrySteps(model: PlayerModel): Steps<BufferGeometry> {
+  const render = yield* studioRenderMeshSteps(model.studio, model.mesh);
+  yield;
   const geometry = createGeometry(render.data);
   geometry.setAttribute('skinIndex', new BufferAttribute(render.joints, 4));
   geometry.setAttribute('skinWeight', new BufferAttribute(render.weights, 4));
@@ -497,14 +511,32 @@ export function createPlayers(
   materials: readonly MeshStandardMaterial[],
   models: ModelCache,
 ): SkinnedMesh[] {
+  return runAll(createPlayersSteps(spots, materials, models));
+}
+
+/**
+ * Creates the players of a scene as {@link createPlayers} does, in steps (design 7.2).
+ *
+ * @param spots The players and their places.
+ * @param materials The shared material.
+ * @param models The player models of the score.
+ * @returns The steps, which return one skinned mesh for each player, in the order of `spots`.
+ */
+export function* createPlayersSteps(
+  spots: readonly PlayerSpot[],
+  materials: readonly MeshStandardMaterial[],
+  models: ModelCache,
+): Steps<SkinnedMesh[]> {
   const geometries = new Map<PlayerModel, BufferGeometry>();
   const meshes: SkinnedMesh[] = [];
   for (const spot of spots) {
+    yield;
     const model = models.get(spot.species, spot.instrument, spot.kettles, spot.support);
     let geometry = geometries.get(model);
     if (!geometry) {
-      geometry = createPlayerGeometry(model);
+      geometry = yield* createPlayerGeometrySteps(model);
       geometries.set(model, geometry);
+      yield;
     }
     const mesh = createPlayerMesh(model, geometry, materials);
     mesh.position.set(...spot.position);

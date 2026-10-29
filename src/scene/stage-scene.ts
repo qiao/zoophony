@@ -1,10 +1,23 @@
-import { Group, Mesh, Points, Scene, Sphere, Vector2, Vector3 } from 'three';
+import {
+  BackSide,
+  Group,
+  Light,
+  Line,
+  Mesh,
+  PMREMGenerator,
+  Points,
+  Scene,
+  Sphere,
+  Vector2,
+  Vector3,
+  WebGLRenderTarget,
+} from 'three';
 import type {
   BufferGeometry,
+  Camera,
   Material,
   Object3D,
   SkinnedMesh,
-  WebGLRenderTarget,
   WebGLRenderer,
   WebGLShadowMap,
 } from 'three';
@@ -21,9 +34,16 @@ import type { CameraPose } from '../shots/types.ts';
 import type { ModelCache } from '../models/model-cache.ts';
 import { buildSceneProps } from '../models/props.ts';
 import { STAGE_THICKNESS } from '../models/stage.ts';
+import { runAll } from '../score/steps.ts';
+import type { Steps } from '../score/steps.ts';
 import { StageCamera } from './camera.ts';
 import { disposeTree } from './dispose.ts';
-import { CAPTURE, ENVIRONMENT, captureEnvironment, createEnvironment } from './environment.ts';
+import {
+  CAPTURE,
+  ENVIRONMENT,
+  captureEnvironmentSteps,
+  createEnvironmentSteps,
+} from './environment.ts';
 import type { CaptureOptions } from './environment.ts';
 import { FREE_LENS, focusOf, freeFocusDistance, freeFocusOf } from './focus.ts';
 import type { Focus, FocusSpot } from './focus.ts';
@@ -45,7 +65,7 @@ import { tierPixelRatio } from './quality.ts';
 import type { QualityTier } from './quality.ts';
 import {
   applyScenePose,
-  createPlayers,
+  createPlayersSteps,
   createStaticMesh,
   holdSkeletons,
   releaseSkeletons,
@@ -63,7 +83,8 @@ import { aimGap, easeAim, easeShare, soloAim } from './solo-light.ts';
 import { STAGE_SHADOW, createStage, noBakeUniforms } from './stage.ts';
 import { VariantMaterials } from './variants.ts';
 import type { StageBakeUniforms } from './stage.ts';
-import { bakeStage } from './stage-bake.ts';
+import { bakeStageSteps } from './stage-bake.ts';
+import { compileInto, gpuDoneSteps, programsReadySteps } from './programs.ts';
 
 /** The inputs of {@link StageScene}. */
 interface StageSceneOptions {
@@ -140,15 +161,16 @@ function focusSpots(layout: SceneLayout, models: ModelCache): FocusSpot[] {
  * (`sharedGeometryOf()`), also a pianist with positions of its own.
  *
  * @param players The player meshes.
- * @returns The bone spheres of each culled mesh.
+ * @returns The steps, which return the bone spheres of each culled mesh.
  */
-function cullPlayers(players: readonly SkinnedMesh[]): Map<SkinnedMesh, BoneSpheres> {
+function* cullPlayersSteps(players: readonly SkinnedMesh[]): Steps<Map<SkinnedMesh, BoneSpheres>> {
   const byGeometry = new Map<BufferGeometry, BoneSpheres | null>();
   const culled = new Map<SkinnedMesh, BoneSpheres>();
   for (const mesh of players) {
     const geometry = sharedGeometryOf(mesh);
     let spheres = byGeometry.get(geometry);
     if (spheres === undefined) {
+      yield;
       spheres = boneSpheres(geometry, mesh.skeleton.bones.length);
       byGeometry.set(geometry, spheres);
     }
@@ -166,6 +188,12 @@ interface SoloFlag {
   /** True if the user soloed the seat. */
   readonly soloed: boolean;
 }
+
+/**
+ * The layer of the draws of {@link StageScene} that warm a new scene (design 7.2). No object of
+ * the stage uses it, so such a draw sees only the objects that the warm step puts on it.
+ */
+const WARM_LAYER = 31;
 
 /** The difference of two aims below which the ease of the stage lights stops, in meters. */
 const AIM_SETTLED = 1e-3;
@@ -194,6 +222,23 @@ interface LayoutView {
   readonly bake: LayoutBake | null;
   /** The captured environment, or `null` for a GPU with no target of floats (design 4.5). */
   readonly capture: LayoutCapture | null;
+}
+
+/** The scene of a layout from {@link StageScene.prepareSteps}, ready to show. */
+export interface PreparedLayout {
+  /** The scene and the camera of the layout. */
+  readonly view: LayoutView;
+  /** The aim of the stage lights of the layout with no solo. */
+  readonly aim: LightAim;
+}
+
+/** The parts of a build that a later build frees if the build does not show. */
+interface PendingBuild {
+  readonly scene: Scene;
+  /** The camera, with the listeners of its orbit controls, or `null` before it exists. */
+  camera: StageCamera | null;
+  /** The targets of the bake and of the capture. */
+  readonly targets: WebGLRenderTarget[];
 }
 
 /** The captured environment of a layout, which a restored WebGL context makes again. */
@@ -288,8 +333,16 @@ export function renderScenePass(
 export class StageScene {
   readonly #canvas: HTMLCanvasElement;
   readonly #renderer: WebGLRenderer;
-  /** The environment of the reflections (design 4.5). A restored WebGL context makes it again. */
-  #environment: WebGLRenderTarget;
+  /**
+   * The environment of the reflections (design 4.5), or `null` before the first build. A restored
+   * WebGL context makes it again.
+   */
+  #environment: WebGLRenderTarget | null = null;
+  /**
+   * The PMREM generator of the environment and of the captures. It keeps its materials, so each
+   * capture compiles no program again (design 7.2).
+   */
+  #pmrem: PMREMGenerator;
   /** The exposure of the renderer of a wide shot (design 4.5). A close shot adds to it. */
   readonly #exposure: number;
   /** The post effects, or `null` for a GPU that cannot render to a target of floats. */
@@ -308,6 +361,13 @@ export class StageScene {
   /** The copies of the shared material for each program variant of the players. */
   readonly #variants = new VariantMaterials(this.#materials);
   #view: LayoutView | null = null;
+  /** The build of a layout that does not show yet, or `null`. */
+  #pending: PendingBuild | null = null;
+  /**
+   * The target that is current while a build compiles the programs of a pass into a target. Its
+   * size does not change the programs, and no pass draws into it.
+   */
+  readonly #compileTarget = new WebGLRenderTarget(1, 1);
   #width = 1;
   #height = 1;
   #devicePixelRatio = 1;
@@ -343,7 +403,7 @@ export class StageScene {
     this.#renderer = createRenderer(canvas, options.tier, options.devicePixelRatio, look);
     this.#renderer.setOpaqueSort(this.#variants.opaqueSort);
     this.#exposure = this.#renderer.toneMappingExposure;
-    this.#environment = createEnvironment(this.#renderer);
+    this.#pmrem = new PMREMGenerator(this.#renderer);
     // The renderer listens first, and makes its state again. The PMREM of the environment is
     // rendered one time, so a lost context loses its content.
     canvas.addEventListener('webglcontextrestored', () => {
@@ -357,34 +417,50 @@ export class StageScene {
   }
 
   /**
-   * Shows a layout. The scene of the previous layout frees its geometries, its own materials,
-   * and its lights. The shared material stays for the next layout. The camera
-   * returns to the default view of the new stage.
+   * Builds the scene of a layout in steps (design 7.2), with no change of the shown layout. The
+   * steps compile the shader programs of the scene and wait for the GPU, so that the first frame
+   * of the layout compiles nothing. {@link StageScene.show} then shows the scene. A new build
+   * frees the scene of a build that did not show.
    *
    * @param layout The positions of the stage, the players, and the stands.
    * @param models The player models of the score, which the layout and the pose plan share.
+   * @returns The steps, which return the scene of the layout.
    */
-  show(layout: SceneLayout, models: ModelCache): void {
+  *prepareSteps(layout: SceneLayout, models: ModelCache): Steps<PreparedLayout> {
+    this.#discardPending();
+    this.#environment ??= yield* createEnvironmentSteps(
+      this.#renderer,
+      this.#pmrem,
+      this.#compileTarget,
+    );
+    const environment = this.#environment;
     const scene = new Scene();
-    scene.environment = this.#environment.texture;
+    const pending: PendingBuild = { scene, camera: null, targets: [] };
+    this.#pending = pending;
+    scene.environment = environment.texture;
     scene.environmentIntensity = ENVIRONMENT.intensity;
     const materials = this.#materials;
     const hall = createHall(layout.stageSide);
     scene.add(hall);
+    yield;
     const podium = layout.conductor ? layout.podium : null;
     const aim = defaultAim(layout.stageSide, podium);
+    // The capture of the environment renders the stage with the aim and the rim lights of the
+    // new layout. A shown layout is under the cover of the stage while a new one builds (PF1).
     setPoolAim(this.#pool, aim);
     const bakeUniforms = noBakeUniforms();
     const stageGroup = createStage(layout.stageSide, podium, this.#pool, bakeUniforms, this.#rim);
     scene.add(stageGroup);
+    yield;
     const lights = createLights(layout.stageSide, this.#tier, layout.conductor);
     scene.add(lights);
     setRimLights(this.#rim, lights);
+    yield;
     const props = createStaticMesh(buildSceneProps(layout), materials);
     scene.add(props);
-    const players = createPlayers(playerSpots(layout), materials, models);
+    const players = yield* createPlayersSteps(playerSpots(layout), materials, models);
     this.#variants.assign(players);
-    const culled = cullPlayers(players);
+    const culled = yield* cullPlayersSteps(players);
     const playerGroup = new Group().add(...players);
     scene.add(playerGroup);
     const camera = new StageCamera(
@@ -393,92 +469,254 @@ export class StageScene {
       this.#reducedMotion,
       playersTop(layout, models),
     );
+    pending.camera = camera;
     camera.resize(this.#width, this.#height);
     camera.allowZoom(this.#zoomAllowed);
+    yield;
     const stage = stageGroup.children.find((child) => child instanceof Mesh);
-    const bake =
-      this.#post && stage ? this.#bake(scene, layout.stageSide, stage, props, bakeUniforms) : null;
     const beam = lights.children.find((child) => child instanceof Group);
+    // The bake and the capture render the scene, so its programs compile first.
+    yield* this.#compileSteps(scene, camera.camera, players);
+    let bake: LayoutBake | null = null;
+    if (this.#post && stage) {
+      bake = yield* this.#bakeSteps(scene, layout.stageSide, stage, props, bakeUniforms, pending);
+    }
     const capture = this.#post
-      ? this.#capture(scene, hall, layout.stageSide, {
-          position: [aim.center[0], CAPTURE.height, aim.center[1]],
-          hidden: beam ? [playerGroup, props, beam] : [playerGroup, props],
-        })
+      ? yield* this.#captureSteps(
+          scene,
+          hall,
+          layout.stageSide,
+          {
+            position: [aim.center[0], CAPTURE.height, aim.center[1]],
+            hidden: beam ? [playerGroup, props, beam] : [playerGroup, props],
+          },
+          pending,
+        )
       : null;
-    this.#variants.useScene(scene);
-    // The new scene takes its shader programs before the old scene frees its materials, so the
-    // renderer keeps the programs that both use.
-    this.#renderer.compile(scene, camera.camera);
+    // The captured environment can give other programs to the materials that reflect it.
+    yield* this.#compileSteps(scene, camera.camera, players);
+    yield* this.#warmSteps(scene, camera.camera, players);
+    return {
+      aim,
+      view: {
+        layout,
+        stageSide: layout.stageSide,
+        spots: focusSpots(layout, models),
+        scene,
+        camera,
+        lights,
+        players,
+        culled,
+        hall,
+        effects: lightEffects(scene),
+        bake,
+        capture,
+      },
+    };
+  }
+
+  /**
+   * Shows the scene of a layout from {@link StageScene.prepareSteps}. The scene of the previous
+   * layout frees its geometries, its own materials, and its lights. The shared material stays for
+   * the next layout. The camera returns to the default view of the new stage.
+   *
+   * @param prepared The scene of the layout.
+   */
+  show(prepared: PreparedLayout): void {
+    const { view, aim } = prepared;
+    this.#pending = null;
+    setPoolAim(this.#pool, aim);
+    setRimLights(this.#rim, view.lights);
+    this.#variants.useScene(view.scene);
     this.#disposeView();
     this.#focusDistance = null;
     // The lights of a new layout start at the aim with no solo, with no ease from the old stage.
     this.#soloFlags = null;
     this.#aim = aim;
     this.#aimTarget = aim;
-    this.#view = {
-      layout,
-      stageSide: layout.stageSide,
-      spots: focusSpots(layout, models),
-      scene,
-      camera,
-      lights,
-      players,
-      culled,
-      hall,
-      effects: lightEffects(scene),
-      bake,
-      capture,
-    };
+    this.#view = view;
   }
 
   /**
-   * Captures the environment of a layout (`captureEnvironment()`, design 4.5): the hall and the
-   * lit stage, with no players, no props, and no beam, from above the middle of the pool of light.
-   * During the capture, the reflections use the environment of the renderer, and the hall shows
-   * in full from the point of the capture.
+   * Frees the scene of a build that did not show: a later selection replaced it (design 7.2).
+   */
+  #discardPending(): void {
+    const pending = this.#pending;
+    if (!pending) {
+      return;
+    }
+    this.#pending = null;
+    for (const target of pending.targets) {
+      target.dispose();
+    }
+    disposeTree(pending.scene, new Set([...this.#materials, ...this.#variants.copies]));
+    pending.camera?.dispose();
+  }
+
+  /**
+   * Compiles the shader programs of each pass of a frame of a scene, and waits until the GPU
+   * links them (`KHR_parallel_shader_compile`, design 7.2): the scene pass, the depth passes of
+   * the beam and of the depth of field, the shadow map, and the post effects. A program then
+   * links during the build, and the first frame waits for none. Each pass renders into a target,
+   * so each compile has a target too: three.js gives a target other programs than the canvas.
+   *
+   * @param scene The scene of the layout.
+   * @param camera The camera of the layout.
+   * @param players The player meshes, which cast the shadows.
+   * @returns The steps.
+   */
+  *#compileSteps(scene: Scene, camera: Camera, players: readonly SkinnedMesh[]): Steps<undefined> {
+    const renderer = this.#renderer;
+    const target = this.#compileTarget;
+    const meshes: Object3D[] = [];
+    scene.traverse((object) => {
+      if (object instanceof Mesh || object instanceof Points || object instanceof Line) {
+        meshes.push(object);
+      }
+    });
+    for (const mesh of meshes) {
+      compileInto(renderer, target, () => {
+        renderer.compile(mesh, camera, scene);
+      });
+      yield;
+    }
+    for (const mesh of meshes) {
+      this.#variants.renderDepthOf(mesh, () => {
+        compileInto(renderer, target, () => {
+          renderer.compile(mesh, camera, scene);
+        });
+      });
+      yield;
+    }
+    // The shadow map draws each player with its depth material and the other side of its own
+    // material (`getDepthMaterial()` of three.js).
+    for (const mesh of players) {
+      const own = mesh.material;
+      const depth = mesh.customDepthMaterial;
+      if (depth) {
+        const side = depth.side;
+        depth.side = BackSide;
+        mesh.material = depth;
+        compileInto(renderer, target, () => {
+          renderer.compile(mesh, camera, scene);
+        });
+        mesh.material = own;
+        depth.side = side;
+      }
+      yield;
+    }
+    if (this.#post) {
+      yield* this.#post.compileSteps(target);
+    }
+    yield* programsReadySteps(renderer);
+    return undefined;
+  }
+
+  /**
+   * Draws each player geometry of a scene one time into the target of the compile, each in its own
+   * step (design 7.2). The first draw of a geometry uploads its buffers and builds the texture of
+   * its morph targets: 25 ms for the default demo on the development Mac. The first frame then
+   * does neither. The draw sees only one player and the lights ({@link WARM_LAYER}), with the
+   * programs of the scene pass and of the shadow map. The next frame renders the shadow map again.
+   *
+   * @param scene The scene of the layout.
+   * @param camera The camera of the layout.
+   * @param players The player meshes.
+   * @returns The steps.
+   */
+  *#warmSteps(scene: Scene, camera: Camera, players: readonly SkinnedMesh[]): Steps<undefined> {
+    const renderer = this.#renderer;
+    const view = camera.clone();
+    view.layers.set(WARM_LAYER);
+    const lights: Object3D[] = [];
+    scene.traverse((object) => {
+      if (object instanceof Light) {
+        lights.push(object);
+      }
+    });
+    const geometries = new Set<BufferGeometry>();
+    for (const mesh of players) {
+      if (geometries.has(mesh.geometry)) {
+        continue;
+      }
+      geometries.add(mesh.geometry);
+      const culled = mesh.frustumCulled;
+      mesh.frustumCulled = false;
+      for (const object of [...lights, mesh]) {
+        object.layers.enable(WARM_LAYER);
+      }
+      compileInto(renderer, this.#compileTarget, () => {
+        renderer.render(scene, view);
+      });
+      for (const object of [...lights, mesh]) {
+        object.layers.disable(WARM_LAYER);
+      }
+      mesh.frustumCulled = culled;
+      yield* gpuDoneSteps(renderer);
+    }
+    return undefined;
+  }
+
+  /**
+   * Captures the environment of a layout (`captureEnvironmentSteps()`, design 4.5) in steps: the
+   * hall and the lit stage, with no players, no props, and no beam, from above the middle of the
+   * pool of light. During the capture, the reflections use the environment of the renderer, and
+   * the hall shows in full from the point of the capture.
    *
    * @param scene The scene of the layout.
    * @param hall The hall of the layout.
    * @param stageSide The stage side `S`, in meters.
    * @param options The point of the capture and the hidden objects.
-   * @returns The capture of the layout. The scene then uses it as its environment.
+   * @param pending The build that frees the target if it does not show, or `null`.
+   * @returns The steps, which return the capture of the layout. The scene then uses it as its
+   *   environment.
    */
-  #capture(scene: Scene, hall: Group, stageSide: number, options: CaptureOptions): LayoutCapture {
-    scene.environment = this.#environment.texture;
+  *#captureSteps(
+    scene: Scene,
+    hall: Group,
+    stageSide: number,
+    options: CaptureOptions,
+    pending: PendingBuild | null,
+  ): Steps<LayoutCapture> {
+    scene.environment = this.#environment?.texture ?? null;
     scene.environmentIntensity = ENVIRONMENT.intensity;
     setHallCamera(hall, stageSide, new Vector3(...options.position), CAPTURE.size);
-    const target = captureEnvironment(this.#renderer, scene, options);
+    const target = yield* captureEnvironmentSteps(this.#renderer, this.#pmrem, scene, options);
+    pending?.targets.push(target);
     scene.environment = target.texture;
     scene.environmentIntensity = CAPTURE.intensity;
     return { target, hall, stageSide, options };
   }
 
   /**
-   * Bakes the light of the static props on the stage top (`scene/stage-bake.ts`, design 4.5). The
-   * stage and the props then cast no shadow in the shadow map of each frame, so their shadows
-   * come only from the bake, and the players keep the shadow map.
+   * Bakes the light of the static props on the stage top (`scene/stage-bake.ts`, design 4.5) in
+   * steps. The stage and the props then cast no shadow in the shadow map of each frame, so their
+   * shadows come only from the bake, and the players keep the shadow map.
    *
    * @param scene The scene of the layout.
    * @param stageSide The stage side `S`, in meters.
    * @param stage The stage mesh.
    * @param props The merged props.
    * @param uniforms The uniforms of the stage material that get the bake.
-   * @returns The bake of the layout.
+   * @param pending The build that frees the target if it does not show, or `null`.
+   * @returns The steps, which return the bake of the layout.
    */
-  #bake(
+  *#bakeSteps(
     scene: Scene,
     stageSide: number,
     stage: Mesh,
     props: Mesh,
     uniforms: StageBakeUniforms,
-  ): LayoutBake {
+    pending: PendingBuild | null,
+  ): Steps<LayoutBake> {
     scene.updateMatrixWorld(true);
-    const target = bakeStage(this.#renderer, {
+    const target = yield* bakeStageSteps(this.#renderer, {
       stageSide,
       keyPosition: keyLightPosition(stageSide),
       casters: [stage, props],
       receiver: stage,
     });
+    pending?.targets.push(target);
     uniforms.uStageBake.value = target.texture;
     uniforms.uShadowLift.value = 0;
     uniforms.uStageBlur.value = STAGE_SHADOW.radius;
@@ -797,10 +1035,13 @@ export class StageScene {
     for (const material of this.#materials) {
       material.dispose();
     }
+    this.#discardPending();
     this.#variants.dispose();
     this.#post?.dispose();
     this.#beamDepth.dispose();
-    this.#environment.dispose();
+    this.#environment?.dispose();
+    this.#pmrem.dispose();
+    this.#compileTarget.dispose();
     this.#renderer.dispose();
   }
 
@@ -809,31 +1050,45 @@ export class StageScene {
    * environment again after a restored WebGL context.
    */
   #restoreEnvironment(): void {
-    this.#environment.dispose();
-    this.#environment = createEnvironment(this.#renderer);
-    if (this.#view) {
-      this.#view.scene.environment = this.#environment.texture;
+    // The generator of the lost context holds no valid target, so a new one makes the maps.
+    this.#pmrem.dispose();
+    this.#pmrem = new PMREMGenerator(this.#renderer);
+    this.#environment?.dispose();
+    this.#environment = null;
+    if (!this.#view) {
+      return;
     }
+    const environment = runAll(
+      createEnvironmentSteps(this.#renderer, this.#pmrem, this.#compileTarget),
+    );
+    this.#environment = environment;
+    this.#view.scene.environment = environment.texture;
     const bake = this.#view?.bake;
     if (this.#view && bake) {
       bake.target.dispose();
-      const { target } = this.#bake(
-        this.#view.scene,
-        bake.stageSide,
-        bake.stage,
-        bake.props,
-        bake.uniforms,
+      const { target } = runAll(
+        this.#bakeSteps(
+          this.#view.scene,
+          bake.stageSide,
+          bake.stage,
+          bake.props,
+          bake.uniforms,
+          null,
+        ),
       );
       bake.target = target;
     }
     const capture = this.#view?.capture;
     if (this.#view && capture) {
       capture.target.dispose();
-      const { target } = this.#capture(
-        this.#view.scene,
-        capture.hall,
-        capture.stageSide,
-        capture.options,
+      const { target } = runAll(
+        this.#captureSteps(
+          this.#view.scene,
+          capture.hall,
+          capture.stageSide,
+          capture.options,
+          null,
+        ),
       );
       capture.target = target;
     }

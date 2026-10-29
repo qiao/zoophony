@@ -22,10 +22,12 @@ import {
 import type { Object3D, PerspectiveCamera, Scene, Texture, WebGLRenderer } from 'three';
 
 import type { Vec3 } from '../models/tuples.ts';
+import type { Steps } from '../score/steps.ts';
 
 import type { DepthDraw } from './beam.ts';
 import { LENS } from './focus.ts';
 import { gradeLut } from './grade.ts';
+import { compileInto } from './programs.ts';
 import type { Focus } from './focus.ts';
 import {
   BLOOM_DOWN_FRAGMENT,
@@ -453,6 +455,34 @@ export class PostPipeline {
     setUniform(final, 'uVignette', frame.vignette);
     setUniform(final, 'uSeed', grainSeed(timeSec));
     this.#pass(final, null);
+  }
+
+  /**
+   * Compiles the programs of the passes in steps (design 7.2), so that no frame waits for the GPU
+   * to link them. Each pass but the final pass renders into a target, and three.js gives a pass
+   * into a target other programs than a pass to the canvas.
+   *
+   * @param target A render target for the compile of the passes into a target.
+   * @returns The steps.
+   */
+  *compileSteps(target: WebGLRenderTarget): Steps<undefined> {
+    const renderer = this.#renderer;
+    const passes: readonly (readonly [ShaderMaterial, WebGLRenderTarget | null])[] = [
+      [this.#bloomPrefilter, target],
+      [this.#bloomDown, target],
+      [this.#bloomUp, target],
+      [this.#blurPrepare, target],
+      [this.#blurGather, target],
+      [this.#final, null],
+    ];
+    for (const [material, into] of passes) {
+      this.#quad.material = material;
+      compileInto(renderer, into, () => {
+        renderer.compile(this.#quad, this.#camera);
+      });
+      yield;
+    }
+    return undefined;
   }
 
   /** Frees the targets, the materials, and the geometry. */
