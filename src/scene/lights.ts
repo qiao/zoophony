@@ -11,7 +11,7 @@ import type { QualityTier } from './quality.ts';
  * The key light (design 4.5): the stage spotlight, and the only light that casts shadows on the
  * stage. It stands far in front of the stage, high over the audience and to the left
  * (`KEY_PLACE` of `models/beam.ts`), as the front light of a concert hall. It lights the faces,
- * and the shadows fall to the back right, parallel (user, 2026-10-27).
+ * and the shadows fall to the back right, parallel.
  */
 export const KEY_LIGHT = {
   /** Warm orange. In `mockup.png`, the white rabbits show a hue of about 20. */
@@ -27,7 +27,7 @@ export const KEY_LIGHT = {
    * With the full penumbra, the light falls off from the axis on. The light stands about 2.5 S
    * from its aim, and the angle keeps the dark stage edges of `mockup.png`: the middles of the
    * side edges get 0.6 to 0.8 of the light of the stage center, the front corners 0.15 to 0.25,
-   * and the back corners 0.2 to 0.4 (`pool-probe.ts` of `docs/research/2026-10-27-key-front/`).
+   * and the back corners 0.2 to 0.4.
    */
   angle: 19 * MathUtils.DEG2RAD,
   /** The full penumbra, for a soft pool of light. */
@@ -37,9 +37,9 @@ export const KEY_LIGHT = {
    * behind gave 9, but a front light also lights the fronts that the camera sees. With 9 at 55°,
    * the white fur of the front left rabbit had a luma of 218 against 150 on the old setup and 163
    * in `orchestra-latest.png`. With 6.5 and a hot spot boost of 2.1 on the podium (`LIGHT_POOL`),
-   * the light fur of the rabbit close shot clipped a channel on 3.1% of its pixels, against 2.3%
+   * the light fur of the rabbit close shot clips a channel on 3.1% of its pixels, against 2.3%
    * with the light from behind: the bright floor also lights the players through the captured
-   * environment (`docs/research/2026-10-27-key-look.md`).
+   * environment.
    */
   illuminance: 5.8,
 } as const;
@@ -53,10 +53,10 @@ export const KEY_LIGHT = {
  * the rims.
  *
  * The cone is narrow and the light is high, so the section below the light stays outside the
- * cone. A wide, low cone of 28° lit that section from the camera side too, about as bright as the
- * far section, because it is nearer to the light. Thus each body got light from two sides, and
- * its shade side was gone (user, 2026-10-18). The back rows stay at the edge of the cone, so the
- * back-row lights ({@link BACK_ROW_LIGHT}) light them.
+ * cone. A wide, low cone of 28° lights that section from the camera side too, about as bright as
+ * the far section, because it is nearer to the light. Then each body gets light from two sides,
+ * and its shade side is gone. The back rows stay at the edge of the cone, so the back-row lights
+ * ({@link BACK_ROW_LIGHT}) light them.
  *
  * The side lights cast the shadows of the players on the players, such as the shadow of an arm on
  * the chest, because they light the fronts that the camera sees. The stage takes no shadow of
@@ -90,9 +90,8 @@ export const SIDE_LIGHT = {
  * The back-row lights (design 4.5): two warm spotlights high at the front corners of the hall, the
  * mirror of each other, as the side lights. Each one crosses the stage and lights the fronts of the
  * back rows of the section on the other side, and the choir risers. The narrow cones of the side
- * lights hold the front sections, so the back rows stayed at the edge of the cones or outside them
- * (user, 2026-10-18: "the back rows of the stage are too dark"). The lights have the color of the
- * side lights and cast no shadow, so they cost little GPU time.
+ * lights hold the front sections, so the back rows stay at the edge of the cones or outside them.
+ * The lights have the color of the side lights and cast no shadow, so they cost little GPU time.
  */
 export const BACK_ROW_LIGHT = {
   /**
@@ -149,20 +148,19 @@ export const RIM_LIGHT = {
  * The fill light (design 4.5): low, so that the shadows stay deep. The sky is a neutral gray, so
  * the shade sides of white and gray fur stay gray, as in `orchestra-latest.png`. The ground
  * color is the warm light from the lit stage. The players and the props take the part `players` of
- * the fill light and of the diffuse light of the environment, so their shade sides stay dark
- * (user, 2026-10-18). The stage takes all of it, so its shadows keep their tone.
+ * the fill light and of the diffuse light of the environment, so their shade sides stay dark.
+ * The stage takes all of it, so its shadows keep their tone.
  *
- * The intensity fell from 5 to 3.5, so the floor outside the pool gets less fill (user,
- * 2026-10-21). The part of the players grew from 0.6 to 0.857, so the players keep the fill of
- * 3.0 and take a little more of the diffuse light of the environment.
+ * The intensity of 3.5 gives the floor outside the pool little fill. The part 0.857 gives the
+ * players a fill of 3.0 and a little more of the diffuse light of the environment.
  */
 export const FILL = { sky: '#2c2c2e', ground: '#2c241e', intensity: 3.5, players: 0.857 } as const;
 
 /**
  * The normal bias of the shadow, in texels of the shadow map at the stage, beyond the blur radius
  * of the tier (design 2.6, 4.5). The receiver moves along its normal past the blur disc, so a lit
- * face does not shadow itself. With the first bias of 0.01 m, close shots showed a cross-hatch
- * pattern on the faces (UX audit 2026-10-05, SC5).
+ * face does not shadow itself. With a bias of 0.01 m, close shots show a cross-hatch pattern on
+ * the faces.
  */
 const SHADOW_BIAS_TEXELS = 2;
 
@@ -250,8 +248,8 @@ function shadowNormalBias(
 
 /**
  * The light on the face of the conductor (design 4.5): a weak spotlight from the orchestra side.
- * In the conductor shot, the face was dark brown on dark gray (UX audit 2026-10-05, FI1). This
- * light casts no shadow.
+ * With no such light, the face is dark brown on dark gray in the conductor shot. This light casts
+ * no shadow.
  */
 export const CONDUCTOR_LIGHT = {
   /** The aim point is this high above the podium top: the face of the bear. */

@@ -2,9 +2,8 @@ import { ShaderChunk } from 'three';
 
 /**
  * The number of samples of the soft shadow edge (design 4.5). three.js r186 takes 5 samples of a
- * Vogel disk, turned for each pixel by a noise. The noise showed as a dither on the lit faces of
- * close shots (UX audit 2026-10-05 and 2026-10-06, SC5). 12 samples with no turn give a smooth
- * edge.
+ * Vogel disk, turned for each pixel by a noise. The noise shows as a dither on the lit faces of
+ * close shots. 12 samples with no turn give a smooth edge.
  */
 export const SHADOW_SAMPLES = 12;
 

@@ -39,8 +39,7 @@ export const STAGE_BAKE = {
   mapSize: 2048,
   /**
    * The width of the area light of the key light, in meters. The soft shadows of
-   * `orchestra-latest.png` need a light of about 2 m at the height of the key light
-   * (`docs/research/2026-10-17-cinematic-lighting.md`, 4.1).
+   * `orchestra-latest.png` need a light of about 2 m at the height of the key light.
    */
   lightSize: 2,
   /** The number of points of the area light. */

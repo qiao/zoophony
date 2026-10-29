@@ -26,8 +26,8 @@ import {
 
 /**
  * The move of the orbit target to the stage center after a change from a close shot to Free mode
- * (design 2.5). A drag in a close shot turned the view around a point 4 m away, and the camera
- * looked lost (UX audit 2026-10-05, SC6).
+ * (design 2.5). With no move, a drag in a close shot turns the view around a point 4 m away, and
+ * the camera looks lost.
  */
 const FREE_TARGET_GLIDE = {
   /** The time of the move, in milliseconds. */
@@ -36,8 +36,8 @@ const FREE_TARGET_GLIDE = {
   minDistance: 1,
   /**
    * In the same move, the camera moves out from the stage center to at least this part of the
-   * distance of the default view. After a drag in a close shot, the camera stayed 4 m from the stage center,
-   * among the stands (UX audit 2026-10-06, N19).
+   * distance of the default view. With no move out, the camera stays 4 m from the stage center
+   * after a drag in a close shot, among the stands.
    */
   outShare: 0.6,
 } as const;

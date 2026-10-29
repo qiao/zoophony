@@ -10,8 +10,7 @@ type CurvePoint = readonly [input: number, output: number];
  * The values of the color grade on the display values, after AgX (design 4.5, post effects).
  * {@link gradeColor} applies them, and the lookup table of {@link gradeLut} holds the result. The
  * look lab (`pnpm look-lab`) fitted them to `orchestra-latest.png` at the exposure of
- * `STAGE_TONE` of `scene/renderer.ts` (`docs/research/2026-10-18-cinematic-light.md`,
- * `docs/research/2026-10-21-stage-exposure.md`).
+ * `STAGE_TONE` of `scene/renderer.ts`.
  */
 export const GRADE = {
   /**
@@ -20,9 +19,9 @@ export const GRADE = {
    * by one factor, so it keeps the hue and the saturation. The old lift of each channel toward
    * white made the middle tones milky, and it moved the lit floor from a hue of 28° to 35°.
    *
-   * The curve keeps a soft shoulder above 172, so it does not undo the roll-off of AgX. The old
-   * point (172, 210) took 176 to 216 and 192 to 230: 13.5% of the floor clipped in red, and 19.4%
-   * of the white fur clipped, against 9.2% in `orchestra-latest.png` (user, 2026-10-21).
+   * The curve keeps a soft shoulder above 172, so it does not undo the roll-off of AgX. A point
+   * (172, 210) takes 176 to 216 and 192 to 230: 13.5% of the floor clips in red, and 19.4% of the
+   * white fur clips, against 9.2% in `orchestra-latest.png`.
    */
   curve: [
     [0, 0],

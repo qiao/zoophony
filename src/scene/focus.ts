@@ -9,8 +9,8 @@ import type { Vec3 } from '../models/tuples.ts';
 export const LENS = {
   /**
    * The diameter of the full aperture, in meters. With 0.025 m, a close shot at 4 m blurs the
-   * back of the hall to a disc of about 1.2% of the image height. The first value, 0.07 m, copied
-   * the close shots of `scene.png`, and the user found the area in focus too small (2026-10-07).
+   * back of the hall to a disc of about 1.2% of the image height. An aperture of 0.07 m copies the
+   * close shots of `scene.png`, but its area in focus is too small.
    */
   aperture: 0.025,
   /**
@@ -131,9 +131,9 @@ export const FREE_LENS = {
   /**
    * The part of the aperture of {@link apertureAt} in Free mode. At the near limit of 25° in
    * Boulanger, the focus is on the stage top behind the conductor, 6.7 m away. With the full
-   * aperture, the hall wall 25 m away got a disc of 13 px at the height 900 px, and the head of
-   * the conductor 3 m away got 7 px. With 0.25, they got 3 px and 5 px, and the user still found
-   * the zoomed view too blurry (2026-10-07). With 0, Free mode has no depth of field.
+   * aperture, the hall wall 25 m away gets a disc of 13 px at the height 900 px, and the head of
+   * the conductor 3 m away gets 7 px. With 0.25, they get 3 px and 5 px, and the zoomed view is
+   * still too blurry. With 0, Free mode has no depth of field.
    */
   apertureShare: 0,
   /**

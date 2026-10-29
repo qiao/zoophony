@@ -46,8 +46,8 @@ export const POST_LOOK = {
   /** The part of the bloom that the final pass adds to the scene. */
   bloomStrength: 0.14,
   /**
-   * The part of all the light that the bloom keeps below its threshold: the diffusion filter of
-   * `docs/research/2026-10-17-cinematic-lighting.md` (4.7). With the bloom strength, about 3% of
+   * The part of all the light that the bloom keeps below its threshold: a diffusion filter of a
+   * film camera. With the bloom strength, about 3% of
    * the image comes back as a wide soft glow, as around the lit fur in `orchestra-latest.png`.
    */
   diffusion: 0.015,

@@ -17,13 +17,12 @@ export const LIGHT_POOL = {
   /** The center of the pool, as a part of the way from the stage center to the podium. */
   centerToPodium: 0.5,
   /**
-   * The radius of the pool across the stage (x), in stage sides. With 0.6, the pool covered
-   * almost the full width of the stage, and the user found the floor an even bright amber
-   * (2026-10-21). With 0.45, the floor at the edges keeps 0.36 of the light of the pool, against
-   * 0.34 in `orchestra-latest.png` (`docs/research/2026-10-21-stage-exposure.md`).
+   * The radius of the pool across the stage (x), in stage sides. With 0.6, the pool covers almost
+   * the full width of the stage, and the floor is an even bright amber. With 0.45, the floor at the
+   * edges keeps 0.36 of the light of the pool, against 0.34 in `orchestra-latest.png`.
    */
   radiusX: 0.45,
-  /** The radius of the pool along the stage (z), in stage sides. It was 0.42 with `radiusX` 0.6. */
+  /** The radius of the pool along the stage (z), in stage sides. */
   radiusZ: 0.36,
   /**
    * The radius of the pool on the players and the props behind its center (toward the back), in
@@ -35,9 +34,9 @@ export const LIGHT_POOL = {
   floor: 0.28,
   /**
    * The extra light of the key light at the podium center, as a part of its light: a special on
-   * the conductor and on the floor around the podium. With 0.85, the key light from the front gave
+   * the conductor and on the floor around the podium. With 0.85, the key light from the front gives
    * the lit floor beside the podium a luma of 110 and 106 and the back of the conductor 36, against
-   * 191, 158, and 52 in `orchestra-latest.png` (`docs/research/2026-10-27-key-look.md`). A solo
+   * 191, 158, and 52 in `orchestra-latest.png`. A solo
    * has a boost of its own (`SOLO_LIGHT` of `scene/solo-light.ts`).
    */
   spotBoost: 2.5,

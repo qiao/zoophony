@@ -283,8 +283,8 @@ export function noBakeUniforms(): StageBakeUniforms {
  * the tier times `radius`, with `samples` samples. The edge of the bake of the props is about
  * 7 cm to 20 cm wide, and the edge of the tier alone was 7.8 cm on the high tier. The stage casts
  * no shadow in the map, so a wider blur gives it no self-shadow. The shadows of the players in
- * `orchestra-latest.png` are soft, and the radius 2 gave harder edges. The radius 5 of the high
- * tier (2026-10-21) makes the edge on the floor wider, and the feet keep their contact shadow,
+ * `orchestra-latest.png` are soft, and the radius 2 gives harder edges. The radius 5 of the high
+ * tier makes the edge on the floor wider, and the feet keep their contact shadow,
  * because the baked stage takes no normal bias.
  */
 export const STAGE_SHADOW = { radius: 3, samples: 20 } as const;

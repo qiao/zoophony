@@ -259,10 +259,10 @@ export function lightEffects(scene: Object3D): Object3D[] {
 }
 
 /**
- * The 3D scene of the page: the renderer, and the stage, the lights, the camera, the props, and
- * the players of one layout. The page keeps one renderer, so that a new layout does not compile
- * the shader programs again (review of step 4, F6). The players show the bind pose until
- * {@link StageScene.pose} gives them the poses of a frame.
+ * The 3D scene of the page: the renderer, and the stage, the lights, the camera, the props, and the
+ * players of one layout. The page keeps one renderer, so that a new layout does not compile the
+ * shader programs again. The players show the bind pose until {@link StageScene.pose} gives them
+ * the poses of a frame.
  */
 /**
  * Renders the scene pass of a frame (design 4.5). The depth pass of the beam renders the shadow
@@ -338,14 +338,14 @@ export class StageScene {
     this.#reducedMotion = options.reducedMotion;
     this.#devicePixelRatio = options.devicePixelRatio;
     // A GPU with no target of floats renders with no post effects, so its canvas has the MSAA
-    // (design 2.6, review of step 8, L1).
+    // (design 2.6).
     const look = probeTargetFormat() === 'none' ? 'stage' : 'post';
     this.#renderer = createRenderer(canvas, options.tier, options.devicePixelRatio, look);
     this.#renderer.setOpaqueSort(this.#variants.opaqueSort);
     this.#exposure = this.#renderer.toneMappingExposure;
     this.#environment = createEnvironment(this.#renderer);
     // The renderer listens first, and makes its state again. The PMREM of the environment is
-    // rendered one time, so a lost context loses its content (review of step 8, U1).
+    // rendered one time, so a lost context loses its content.
     canvas.addEventListener('webglcontextrestored', () => {
       this.#restoreEnvironment();
     });

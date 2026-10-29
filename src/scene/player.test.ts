@@ -303,7 +303,7 @@ describe('createPlayers', () => {
       materials,
       new RecordingCache(),
     );
-    // The models come from the cache of the score (audit 2026-10-05-pose-scene, finding 8).
+    // The models come from the cache of the score.
     expect(asked).toEqual(['wolf violin 4', 'cat viola 4', 'wolf violin 4']);
     expect(meshes).toHaveLength(3);
     const [a, b, c] = meshes;

@@ -85,7 +85,7 @@ describe('focusOf (design 4.5, post effects)', () => {
     const focus = focusOf([0, 1.5, 4], [0, 1, 0], FIELD_OF_VIEW, 40, side);
     expect(focus.active).toBe(true);
     // The hall wall stands about 15 m behind the subject of the shot. With the aperture of
-    // 0.025 m (user request of 2026-10-07: a larger area in focus), its disc is about 0.9%.
+    // 0.025 m, its disc is about 0.9%.
     expect(blurAt(19, focus.distance, focus.scale)).toBeGreaterThan(0.008);
     // A player 1 m behind the subject is a little soft, as in the close shots of scene.png.
     expect(blurAt(5, focus.distance, focus.scale)).toBeGreaterThan(LENS.sharpBlur);

@@ -626,8 +626,8 @@ function hallMaterial(unit: number): ShaderMaterial {
     },
   });
   // The depth pass of the post effects keeps this material, so that it also drops the cut parts.
-  // The override material of the pass has no cutaway, and wrote the depth of a cut balcony
-  // (review of step 8, U2). The color that it writes into the depth target is not read.
+  // The override material of the pass has no cutaway, and writes the depth of a cut balcony. The
+  // color that it writes into the depth target is not read.
   material.allowOverride = false;
   return material;
 }

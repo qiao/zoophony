@@ -67,8 +67,8 @@ describe('StageCamera (design 2.5, 5.6)', () => {
   });
 
   it('moves the target to the stage center and the camera out in 0.4 s (SC6, N19)', () => {
-    // A drag in a close shot turned the view around a point 4 m away (UX audit 2026-10-05, SC6),
-    // and the camera stayed among the stands (UX audit 2026-10-06, N19).
+    // A drag in a close shot turned the view around a point 4 m away, and the camera stayed among
+    // the stands.
     const camera = new StageCamera(null, SIDE, false);
     camera.resize(1440, 900);
     camera.follow({ position, target, fov: 24, beam: 1, close: true, light: 1, spot: 0 });
@@ -245,7 +245,7 @@ describe('StageCamera (design 2.5, 5.6)', () => {
     const camera = new StageCamera(null, SIDE, false);
     camera.resize(1440, 900);
     camera.follow({ position, target, fov: 24, beam: 0.15, close: true, light: 1, spot: 0 });
-    // The frame of 900 px fits into the 832 px above the bar (review of step 8, M4).
+    // The frame of 900 px fits into the 832 px above the bar.
     expect(camera.frame.scale).toBeCloseTo(832 / 900, 9);
     expect(camera.frame.y).toBe(416);
     camera.follow({

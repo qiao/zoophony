@@ -189,7 +189,7 @@ describe('createBeam (design 2.6, 4.5)', () => {
   });
 
   it('keeps the dust motes few and dim, and hides them in front of a surface', () => {
-    // 350 bright motes read as a field of stars in the column (user report of 2026-10-06).
+    // 350 bright motes read as a field of stars in the column.
     expect(TIER_SETTINGS.high.motes).toBeLessThanOrEqual(150);
     expect(BEAM_LOOK.moteStrength).toBeLessThanOrEqual(1);
     const motes = hazeParts(createBeam(11.19, 'high')).find((child) => child instanceof Points);

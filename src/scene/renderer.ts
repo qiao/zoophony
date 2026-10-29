@@ -33,9 +33,8 @@ type RendererLook = 'post' | 'stage' | 'gallery';
  */
 export const STAGE_TONE = {
   /**
-   * The exposure. With 0.8, the lit fur and the lit floor sat on the shoulder of the curve, and
-   * the user found the stage over-exposed (2026-10-21). 0.7 is about 0.2 stop less
-   * (`docs/research/2026-10-21-stage-exposure.md`).
+   * The exposure. With 0.8, the lit fur and the lit floor sit on the shoulder of the curve, and
+   * the stage looks over-exposed. 0.7 is about 0.2 stop less.
    */
   exposure: 0.7,
 } as const;
