@@ -542,9 +542,11 @@ showed lumps or a bright ridge at the inner elbow, and the play keeps its skin
     under the arms of the panda (`docs/decisions/2026-10-18-panda-marks.md`). Its option `teeth`
     also gives the white to a dark face with two or more light neighbors.
   - Sharp edges of the texture. A face across a sharp edge of the texture takes the mean of both
-    sides, so the faces of the edge show as a band of a third color. With `colors.split`, a face
-    whose samples spread over a lightness limit takes the larger of its light and dark halves: the
-    black and white of the penguin head meet in a zigzag along the faces, as on the mesh.
+    sides, so the faces of the edge show as a band of a third color. The penguin copy cuts each
+    face across its black and white edge along that edge (`penguin-edge.glb`), so the edge runs
+    through the faces as on the mesh. With `colors.split`, a face whose samples spread over a
+    lightness limit takes the larger of its light and dark halves, such as a face with a small
+    island of the other side.
   - Arm seam. Where the hanging forearm of a mesh touches the belly, short faces join the two.
     When the arm rises, those faces turn over and show, or the belly faces under them shade dark.
     No weight rule, corrective shape, or vertex move fixes both. `cut` removes the faces that join

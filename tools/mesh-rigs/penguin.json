@@ -1,5 +1,5 @@
 {
-  "source": "assets/models/penguin/penguin-beak.glb",
+  "source": "assets/models/penguin/penguin-edge.glb",
   "output": "assets/models/penguin/penguin.rig.glb",
   "name": "Penguin",
   "weld": 1e-05,
@@ -385,7 +385,7 @@
     "dark": 0.0055,
     "eyeShare": 0.34,
     "split": 0.3,
-    "splitNote": "The user said on 2026-10-28: \"the penguine's head has unnatural gradient between black and white. Make it look more like the original mesh\". The texture of the mesh has a sharp edge between the black and the white through the faces, so a face across the edge took the mean of black and white, and the faces of the edge showed as a gray and tan band on the head and the neck. A face whose samples spread over more than 0.3 of Oklab lightness takes the mean of the larger of its light and dark halves (face_colors() of tools/blender/rig_mesh.py), so the edge is black or white, a zigzag along the faces. 0.2 gave the same look.",
+    "splitNote": "The user said on 2026-10-28: \"the penguine's head has unnatural gradient between black and white. Make it look more like the original mesh\". The texture of the mesh has a sharp edge between the black and the white through the faces, so a face across the edge took the mean of black and white, and the faces of the edge showed as a gray and tan band on the head and the neck. A face whose samples spread over more than 0.3 of Oklab lightness takes the mean of the larger of its light and dark halves (face_colors() of tools/blender/rig_mesh.py), so the edge is black or white. 0.2 gave the same look. The faces along the edge are cut since the same day (source), and the rule still gives one side to a face with an island of the other side inside it.",
     "shift": {
       "chroma": [
         0.04,
@@ -438,5 +438,5 @@
     "below": 0.03,
     "note": "The values of the fox, the cat, the dog, the panda, the hippo, the mouse, the pig, the wolf, the monkey, and the rhino."
   },
-  "sourceNote": "The mesh of the user with the beak split along the mouth line and closed with caps of a dark mouth color (docs/research/2026-10-21-penguin-beak/beak_split.py, assets/models/penguin/README.md). The file of the user, penguin.glb, does not change."
+  "sourceNote": "The mesh of the user with the beak split along the mouth line and closed with caps of a dark mouth color (docs/research/2026-10-21-penguin-beak/beak_split.py, assets/models/penguin/README.md). The file of the user, penguin.glb, does not change. The faces across the black and white edge of the texture are cut along that edge (docs/research/2026-10-28-penguin-edge/edge_cut.py, assets/models/penguin/README.md): the user said on 2026-10-28 \"the penguine's head has unnatural gradient between black and white. Make it look more like the original mesh\", and chose to cut the faces along the edge of the texture. 178 faces split, so the mesh has 3,549 triangles (3,185 before)."
 }
