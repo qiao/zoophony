@@ -429,6 +429,9 @@ the removal above 60 players. The soloist then gets one player:
     accompanies it.
 - Exactly one candidate must pass. Two candidates that pass, as in a double concerto, give no
   soloist.
+- The share "above the orchestra" is high enough that a concertino of several equal soloists,
+  as in Brandenburg Concerto 2, gives no single soloist. Thus the first violin desk stays clear
+  in all section sizes, and the K. 315 flute stays the soloist.
 - With the three section sizes, the demos give: K. 315 the flute (it sounds in 0.79 of the
   piece, above the orchestra in 0.91 of its time, and with the orchestra in 0.91), and the other
   thirteen demos no soloist. The violin concertino of the second audit (`score/test-audit-files.ts`)
