@@ -59,9 +59,8 @@ export const BOW_MOTION = {
    * `notes` normal strokes of one pitch, each shorter than `maxSec` (more than about 11 notes a
    * second). A real player bows these notes with short strokes from the wrist and the fingers, so
    * each stroke of the run moves the bow `travel` meters, multiplied by the gesture size, and the
-   * next stroke moves it back. With a bow of its own length for each note, the arm reversed up to
-   * 19 times a second (user, 2026-10-28: "the red fox's bow arm is going up and down too
-   * rapidly").
+   * next stroke moves it back. With a bow of its own length for each note, the arm reverses up to
+   * 19 times a second, and the bow arm moves up and down too fast.
    */
   measured: { notes: 4, maxSec: 0.09, travel: 0.012 },
   /**

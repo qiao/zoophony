@@ -40,8 +40,8 @@ describePlayClearance(['horn', 'trumpet', 'trombone', 'tuba']);
 
 describe('the instruments in the playing pose (design 4.6, 5.3)', () => {
   it('keeps the horn out of the thighs and the belly of the pig', () => {
-    // The first horn hung its coil and its bell 0.17 H into the right thigh and 0.05 H into the
-    // belly of the pig in the bind pose (2026-10-07).
+    // A horn at an incorrect place can hang its coil and its bell into the right thigh and the
+    // belly of the pig in the bind pose.
     const model = buildPlayer('pig', 'horn');
     const posed = poseSkeleton(model, bindPose());
     const h = model.body.headHeight;

@@ -312,8 +312,8 @@ describe('poseHands (design 5.3, 4.7)', () => {
     if (!piano) {
       throw new Error('The test file has a piano.');
     }
-    // The paws rest in the lap, away from the keys. Paws that hung near the case looked as if
-    // the bear held them up at the keys before a first chord.
+    // The paws rest in the lap, away from the keys. Paws that hang near the case look as if the
+    // bear holds them up at the keys before a first chord.
     const posed = posedAt(scene, piano, 1.2, 10, NOT_STARTED);
     const { surface } = pianoCase(posed);
     for (const side of ['L', 'R'] as const) {

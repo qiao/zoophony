@@ -108,7 +108,7 @@ describe('poseAt (design 5.1)', () => {
     // The frame path writes scratch objects in place. Each player must write them before it
     // reads them, so that no player and no frame changes the pose of another. The states seek
     // back and forth, and cover the rest pose, a lowering after a pause, a lift, a silent seat,
-    // pizzicato, tremolo, and a cue of the conductor (review of step 5, F7).
+    // pizzicato, tremolo, and a cue of the conductor.
     const articulations: TestFile = {
       tracks: [
         [tempo(0, 120), timeSignature(0, 4, 4)],

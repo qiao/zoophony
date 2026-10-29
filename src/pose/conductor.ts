@@ -22,54 +22,50 @@ import type { ArmRig } from './ik.ts';
  * head heights `H` of the bear of the cast, the studio bear (0.313 m), in the model axes of the
  * bind pose: the bear faces -z, and its left is -x. The places of the left hand and the elbows
  * keep their values in `H`. The baton lies along the index finger, and its point and pivot keep
- * the direction of the hold of the mesh bear of 2026-10-22 (`docs/research/2026-10-22-mesh-bear.md`)
- * at 0.93 of its meters (`docs/research/2026-10-22-studio-bears.md`). The values of the history
- * below are in the `H` of the bear of their time. `CUE_MOTION` of `cues.ts` gives the directions
- * of a cue.
+ * the direction of the hold of the mesh bear at 0.93 of its meters. `CUE_MOTION` of `cues.ts`
+ * gives the directions of a cue.
  */
 export const CONDUCTOR_HOLD = {
   /**
    * The point of the tip of the baton at beat 1 of each pattern, from the right shoulder joint.
    * With the pivot, it puts the wrist of a soft beat 1 about 0.35 H up, 0.7 H forward, and 0.35 H
    * out: a little below the chin, in front of the shoulder, and beside the head from behind, as in
-   * `mockup.png`. The tip is in front of the shoulder, so that the baton points in. On the
-   * studio bear, the hold of the mesh bear at 0.93 of its meters puts the tip 0.3 H further out,
-   * because with that tip the claws went 7 cm into the muzzle when the head turned to a section on
-   * the right (`pnpm pose-depth conductor`, Mozart K. 525). With the
-   * point of the studio bear of the baton across the fist (0.39, 1.48, -2.0), the baton along the
-   * index finger pointed up 55°, and the arm stood out to the side. The values of the mesh bear
-   * in `H` put the wrist at the chest, and the paw turned 3,735° per second in a lowering of the
-   * arms, past the limit of the arm gate. At the full meters of the mesh bear, the paw stood
-   * beside the eyes. A wrist 0.15 H further in than the wrist of the studio bear put its claws
-   * 2 cm into the long muzzle when the head turned to a section on the right (Mozart K. 525).
-   * Before the studio bear: the first point, 0.9 H up and 1.2 H forward, kept the hand next to
-   * the head (UX audit 2026-10-05, AM1).
+   * `mockup.png`. The tip is in front of the shoulder, so that the baton points in. The tip is
+   * 0.3 H further out than the hold of the mesh bear at 0.93 of its meters, because with that tip
+   * the claws go 7 cm into the muzzle when the head turns to a section on the right
+   * (`pnpm pose-depth conductor`, Mozart K. 525). With the point (0.39, 1.48, -2.0) of a baton
+   * across the fist, the baton along the index finger points up 55°, and the arm stands out to
+   * the side. The values of the mesh bear in `H` put the wrist at the chest, and the paw turns
+   * 3,735° per second in a lowering of the arms, past the limit of the arm gate. At the full
+   * meters of the mesh bear, the paw stands beside the eyes. A wrist 0.15 H further in puts the
+   * claws 2 cm into the long muzzle when the head turns to a section on the right (Mozart
+   * K. 525).
    */
   beatPoint: [0.28, 1.235, -2.177],
   /**
    * The baton points from this place to its tip, from the right shoulder joint: forward, up 18°,
-   * and 20° inward at beat 1, as a conductor points it at the players (30° up before 2026-10-26,
-   * 2026-10-26-second-review decisions). With 25° up, the baton rose past the face in the views
-   * from the front. The pivot is about 0.9 m from the tip, about twice as far as the wrist, so
-   * that the wrist follows about half of the motion of the tip in the beat plane, and the arm
-   * beats with the baton. With 15° up, the right forearm twisted more in the lift (p95 28°
-   * against 12°), and with 10° inward, the baton stood straight up from the front.
+   * and 20° inward at beat 1, as a conductor points it at the players. With 25° up, the baton
+   * rises past the face in the views from the front. The pivot is about 0.9 m from the tip, about
+   * twice as far as the wrist, so that the wrist follows about half of the motion of the tip in
+   * the beat plane, and the arm beats with the baton. With 15° up, the right forearm twists more
+   * in the lift (p95 28° against 12°), and with 10° inward, the baton stands straight up from the
+   * front.
    */
   batonPivot: [1.233, 0.33, 0.442],
   /**
    * The beat plane turns this part of the turn of the upper body to a cued section on the left.
    * Thus the arm opens to the right in a turn to the left, and the hand stays beside the head from
-   * behind. With the full turn of 30° to the left, the right hand went behind the head. In a turn
+   * behind. With the full turn of 30° to the left, the right hand goes behind the head. In a turn
    * to the right, the beat plane turns with the whole turn ({@link beatTurnOf}): the head turns
-   * further, and at half of the turn, the long muzzle of the studio bear came into the right paw.
+   * further, and at half of the turn, the long muzzle of the studio bear comes into the right paw.
    */
   beatTurn: 0.5,
   /**
    * The left elbow points down, a little out, and a little forward, so that it is below the
    * shoulder and further in than the paw, and the forearm leans out to the paw, as in
    * `bear-views.png` and in the view from behind of `mockup.png`. An elbow level with the shoulder
-   * held the upper arm out to the side, and an elbow further out (0.7) put the arms 0.09 H outside
-   * the arms of the sheet.
+   * holds the upper arm out to the side, and an elbow further out (0.7) puts the arms 0.09 H
+   * outside the arms of the sheet.
    */
   poleL: [-0.4, -1, -0.4],
   /** The right elbow points as the left elbow, mirrored. */
@@ -79,61 +75,60 @@ export const CONDUCTOR_HOLD = {
   /**
    * In the lift and in the lowering of the arms (5.2), the baton turns toward this direction: out
    * to the right side and a little down, as a loose wrist lets it fall. Thus its tip leaves the desk
-   * of the conductor stand at the side before it comes down. With a straight lowering, the tip came
-   * 0.006 m near the desk when the arms came down after the song end. With the baton 25° up and
-   * the direction (0.8, -0.6, 0), the right paw turned 4,653°/s at the start of a lowering. The
+   * of the conductor stand at the side before it comes down. With a straight lowering, the tip
+   * comes 0.006 m near the desk when the arms come down after the song end. With the baton 25° up
+   * and the direction (0.8, -0.6, 0), the right paw turns 4,653°/s at the start of a lowering. The
    * twist of the paw on its forearm in this turn is at most {@link CONDUCTOR_HOLD.liftTwist}.
    */
   liftBaton: [1, -0.3, 0],
   /**
    * The largest twist of the paw on its forearm in the turn of the baton of `liftBaton`, in
-   * radians. The full turn twisted the paw by about 130°, past 180° on its forearm. With 60°, the
+   * radians. The full turn twists the paw by about 130°, past 180° on its forearm. With 60°, the
    * paw twist stays at most 105° and the paw swing at most 71° in the moves of the demos, and the
-   * baton keeps clear of the desk (`docs/research/2026-10-21-wrist-lift.md`). With the paw rolled
-   * around the baton ({@link CONDUCTOR_HOLD.batonRoll}), the turn keeps no twist: with 60°, the right
-   * arm folded 9 faces at the start of a lift (limit 8), and the baton still keeps clear of the desk.
+   * baton keeps clear of the desk. With the paw rolled around the baton
+   * ({@link CONDUCTOR_HOLD.batonRoll}), the turn keeps no twist: with 60°, the right arm folds 9
+   * faces at the start of a lift (limit 8), and the baton still keeps clear of the desk.
    */
   liftTwist: 0,
   /**
    * The roll of the right paw around the baton from the top up, in radians, positive by the right
    * hand around the direction of the baton. The palm of the paw of the bear mesh lies about 48° from
-   * the palm of the player, so with no roll the paw faced the players with the pads out and the
-   * claws up, and the baton stood up from it (user, 2026-10-26: "the bear is not holding the baton
-   * in a natural way"). With the roll, the claws curl around the baton, and the back of the paw
-   * faces up, as a conductor holds the baton between the thumb and the fingers with the palm down.
-   * A true palm hint of the mesh (`palm` of `tools/mesh-rigs/bear.json`) turned the left paw too,
-   * and the left arm failed the gate. The full roll of 48° (0.84) twisted the right forearm more in
-   * the lift (p95 28° against 12°), with no change that the eye sees.
+   * the palm of the player, so with no roll the paw faces the players with the pads out and the
+   * claws up, the baton stands up from it, and the bear does not hold the baton in a natural way.
+   * With the roll, the claws curl around the baton, and the back of the paw faces up, as a
+   * conductor holds the baton between the thumb and the fingers with the palm down. A true palm
+   * hint of the mesh (`palm` of `tools/mesh-rigs/bear.json`) turns the left paw too, and the left
+   * arm fails the gate. The full roll of 48° (0.84) twists the right forearm more in the lift (p95
+   * 28° against 12°), with no change that the eye sees.
    */
   batonRoll: 0.7,
   /** The curl of the fingers of the open left hand of a cue. */
   cueCurl: 10 * MathUtils.DEG2RAD,
   /**
    * The curl of the fingers of the left hand in the ready gesture: a loose fist, as the paws of
-   * `bear-views.png`. With the open hand of a cue, the claws pointed up. At 80°, the claws stay
+   * `bear-views.png`. With the open hand of a cue, the claws point up. At 80°, the claws stay
    * clear of the muzzle by at least 2 cm during count-in head turns to the left.
    */
   readyCurl: 80 * MathUtils.DEG2RAD,
   /**
    * In the ready gesture of a count-in, the left hand points this far up, so that both paws are
    * up at the height of the chin, 0.63 H above the shoulder joints, as in `bear-views.png` (design
-   * 5.4). At 21°, the left paw of the studio bear was 0.23 H lower than the right paw. At 40°, the
-   * left paw of the parametric bear was 0.5 H higher than its right paw.
+   * 5.4). At 21°, the left paw of the studio bear is 0.23 H lower than the right paw.
    */
   readyLift: 34 * MathUtils.DEG2RAD,
   /**
    * In the ready gesture, the left wrist is this part of the reach of the arm from the shoulder
    * joint, so that the left paw is as far forward as the right paw, and the side view shows one
-   * paw, as the sheet does. With the reach of a cue (0.85), the left paw was 0.25 H further
-   * forward than the right paw, and it showed in front of the muzzle in the side view.
+   * paw, as the sheet does. With the reach of a cue (0.85), the left paw is 0.25 H further
+   * forward than the right paw, and it shows in front of the muzzle in the side view.
    */
   readyReach: 0.75,
   /**
    * In the ready gesture, the left hand points this far outward, to the left of the front, so
    * that the paw shows beside the head from behind, and the two paws are nearly at the same width,
    * as in `bear-views.png`. The right paw of the studio bear is still 0.3 H further out, because a
-   * paw further in met its muzzle. At 32°, the left paw was 0.16 H further in than now. At 10°
-   * inward, the forearm of option B came 0.8 cm from the head.
+   * paw further in meets its muzzle. At 32°, the left paw is 0.16 H further in. At 10° inward, the
+   * forearm comes 0.8 cm from the head.
    */
   readyOut: 44 * MathUtils.DEG2RAD,
 } as const;
@@ -156,8 +151,8 @@ export const LEFT_HAND_PLACES = {
   /**
    * The quiet hand: raised and ready above the left shoulder, beside the head from behind, as in
    * `mockup.png` and `scene.png` (02, 05), and a little lower than the paw of the ready gesture.
-   * The hand that hung at the side moved too little (user report of 2026-10-06). In front of the
-   * left of the chest, it seemed to hold the head (review of 2026-10-07).
+   * A hand that hangs at the side moves too little. In front of the left of the chest, the hand
+   * seems to hold the head.
    */
   quiet: { wrist: [-0.5, 0.28, -0.81], fingers: [0.2, -0.1, -1], curl: 25 * MathUtils.DEG2RAD },
   /** The mirror of the beat in a loud passage: the wrist at beat 1, above the shoulder. */
@@ -331,9 +326,9 @@ const hangFrame = createFrame();
 
 /**
  * The part of the turn of the upper body that a hanging arm follows. In the bow at the song end,
- * the arms that followed the whole bend of 32° swung the paws 2.8 cm into the belly of the studio
- * bear, and the arms that hung straight down from the bent shoulders put the left paw on the
- * conductor stand.
+ * arms that follow the whole bend of 32° swing the paws 2.8 cm into the belly of the studio bear,
+ * and arms that hang straight down from the bent shoulders put the left paw on the conductor
+ * stand.
  */
 const HANG_FOLLOW = 0.5;
 const tip = new Vector3();
@@ -501,8 +496,8 @@ export function poseConductor(
     along.set(0, 0, -1).applyQuaternion(hand);
     liftTurn.setFromUnitVectors(along, liftBaton.fromArray(rig.liftBaton));
     // The turn in the axes of the hand, with its twist around the line of the forearm (+y) cut
-    // to `liftTwist`. The full twist of about 130° turned the paw past 180° on its forearm, and
-    // its twist bone jumped by 180° (docs/research/2026-10-21-wrist-lift.md).
+    // to `liftTwist`. The full twist of about 130° turns the paw past 180° on its forearm, and
+    // its twist bone jumps by 180°.
     liftTurn.premultiply(handInverse.copy(hand).invert()).multiply(hand);
     liftTwist.set(0, liftTurn.y, 0, liftTurn.w).normalize();
     if (liftTwist.w < 0) {

@@ -133,7 +133,7 @@ export function pedalFoot(model: PlayerModel): PedalFoot | null {
   const y0 = Math.min(...corners.map((c) => c.y));
   const z0 = Math.min(...corners.map((c) => c.z));
   // The heel is the back of the sole. A higher point at the back of the foot is no pivot: the foot
-  // that turned up around it lifted the heel 2 cm off the floor.
+  // that turns up around it lifts the heel 2 cm off the floor.
   const z1 = Math.max(...corners.filter((c) => c.y <= y0 + SOLE).map((c) => c.z));
 
   const at = (point: Vec3): Vec3 => placePoint(model.pieces, { bone: 'instrument', at: point });

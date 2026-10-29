@@ -9,17 +9,16 @@ import { smoothstep } from './rest.ts';
 export const CHOIR_MOTION = {
   /**
    * The jaw or the lower beak opens this far for a note, at a gesture size of 1. The beak of a
-   * singer in the front row of the default view is about 3 pixels long, so 18° did not show.
-   * With 35°, the beak did not show in a section shot at 1440 × 900 (UX audit 2026-10-06, N8).
-   * The singing penguins of `orchestra-side.png` open their beaks about 60° to 75°, so the
-   * penguin mesh keeps this angle (2026-10-21-penguin-beak decisions).
+   * singer in the front row of the default view is about 3 pixels long, so 18° does not show.
+   * With 35°, the beak does not show in a section shot at 1440 × 900. The singing penguins of
+   * `orchestra-side.png` open their beaks about 60° to 75°, so the penguin mesh keeps this
+   * angle.
    */
   jaw: 50 * MathUtils.DEG2RAD,
   /**
    * The neck and the head lift this far at the full opening of the jaw, so that each sung note
    * also shows from the default view, where the beak is a few pixels long. The lift follows the
-   * opening of the jaw. It was 15° and then 22°, while the beak alone moved too little, and it is
-   * 15° again since the beak of the penguin mesh opens (2026-10-21-penguin-beak decisions).
+   * opening of the jaw. The beak of the penguin mesh opens, so a lift of 15° is enough.
    */
   headLift: 15 * MathUtils.DEG2RAD,
   /**
@@ -38,7 +37,7 @@ export const CHOIR_MOTION = {
   dip: 0.5,
   /**
    * The chest turns this far to each side in a phrase, at a gesture size of 1. Neighbor voices
-   * (seats) turn to opposite sides. With 3°, the singers barely moved in 6 s.
+   * (seats) turn to opposite sides. With 3°, the singers move very little in 6 s.
    */
   sway: 6 * MathUtils.DEG2RAD,
   /** The chest turns to one side in this number of beats. */

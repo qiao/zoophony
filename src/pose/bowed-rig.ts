@@ -332,14 +332,12 @@ const FREE_HAIR = 0.03;
  * The violin and the viola share their hold under the chin. While the player plays, the right
  * elbow points out, forward, and down at the frog, and out and up at the tip. The left elbow
  * points down and forward, under the instrument and near the chest, as in the reference images.
- * Out and down, it stood 45° out from the side. Straight down, the folded arm dropped the elbow
- * into the haunch. The instrument
- * moves 0.15 H forward and 0.05 H down, so that the frog of the bow on the lowest string keeps
- * the hand off the chin and the long muzzle of the fox, and the right shoulder turns 30°, so that
- * the bow arm still reaches the tip. With the elbows of 2026-10-06, the bow arm went up to 0.48 H
- * into the torso while the players played (2026-10-07). With a move of 0.08 H to the left and the
- * elbow forward and down at the frog, the bow arm went 0.065 H into the chest at the frog on the
- * highest string.
+ * With the left elbow out and down, the upper arm stands 45° out from the side. With the left
+ * elbow straight down, the folded arm puts the elbow into the haunch. The instrument moves 0.15 H
+ * forward and 0.05 H down, so that the frog of the bow on the lowest string keeps the hand off the
+ * chin and the long muzzle of the fox, and the right shoulder turns 30°, so that the bow arm still
+ * reaches the tip. With a move of 0.08 H to the left and the elbow forward and down at the frog,
+ * the bow arm goes 0.065 H into the chest at the frog on the highest string.
  *
  * The string planes are 17° apart, the lower end of the 17° to 18° of a violinist in motion
  * capture (`docs/reference/string-technique.md`, section 2.2). The reference has no angle of the
@@ -350,7 +348,7 @@ const FREE_HAIR = 0.03;
  * In the rest pose, the instrument stands at 0.85 of the way to the knee, and the bow grip is
  * 0.18 H out from the knee and 0.08 H above it. The left elbow points down and a little back, so
  * that the upper arm hangs at the side. The right elbow points out and a little forward, so that
- * the forearm passes over the front of the thigh: nearer to the side, the arm went into the
+ * the forearm passes over the front of the thigh: nearer to the side, the arm goes into the
  * haunch and the thigh. The bow tip points 0.3 to the front, away from the scroll.
  */
 const CHIN_HOLD = {
@@ -413,11 +411,10 @@ const CHIN_HOLD = {
  * The cello and the contrabass share their hold on the floor. While the player plays, the right
  * elbow points out and up, the bow tip points up and to the left in pizzicato, and the elbow turns
  * 0.3 of the way to the back of the hand in the middle of a change. The left elbow points down,
- * so that the arm hugs the instrument. Level and out, the left upper arm of the dog stood 70° out
- * from the side. In the rest pose, the left elbow points down and a little in. The instrument moves a little
- * forward and to the right, so that the bow hand at the tip of a down-bow on the lowest string
- * stays off the right thigh. With the elbow back, (0.5, 0, 1), and the bow tip up and to the
- * right in pizzicato, the bow arm went up to 0.44 H into the torso (2026-10-07).
+ * so that the arm hugs the instrument. In the rest pose, the left elbow points down and a little
+ * in. The instrument moves a little forward and to the right, so that the bow hand at the tip of a
+ * down-bow on the lowest string stays off the right thigh. With the elbow back, (0.5, 0, 1), and
+ * the bow tip up and to the right in pizzicato, the bow arm goes up to 0.44 H into the torso.
  *
  * The string planes of the cello are 17° apart, the angle of the violin, because the reference
  * has no angle of the cello (`docs/reference/string-technique.md`, section 2.2). The contrabass
@@ -502,17 +499,16 @@ export function violinTurn(yawDeg: number, tiltDeg: number): Quat {
 
 /**
  * The violin upright on the left thigh in the rest pose of the rabbit and the red fox: the scroll
- * up and a little forward, the top plate to the front, as the seated violinist of the image of the
- * user (2026-10-16-bow-rest decisions).
+ * up and a little forward, the top plate to the front, as a seated violinist rests it.
  */
 const LAP_VIOLIN = { axis: [0, 1, -0.15], top: CHIN_HOLD.rest.top } as const;
 
 /**
  * The upright bow at the right side in the rest pose of the rabbit and the red fox, as the seated
- * violinist of the image of the user (2026-10-16-bow-rest decisions): the tip up and a little out,
- * the hair to the front. In the lift and the lowering, the tip turns through the front, and the grip
- * moves 0.4 H to the front (`BowVia`): with a direct mix, the tip turned through the head, and the
- * bow went up to 14.8 cm into the body of the red fox while the arms lowered.
+ * violinist rests it: the tip up and a little out, the hair to the front. In the lift and the
+ * lowering, the tip turns through the front, and the grip moves 0.4 H to the front (`BowVia`):
+ * with a direct mix, the tip turns through the head, and the bow goes up to 14.8 cm into the body
+ * of the red fox while the arms lower.
  */
 const UPRIGHT_BOW = {
   tip: [0.1, 1, 0],
@@ -523,11 +519,11 @@ const UPRIGHT_BOW = {
 /**
  * The bow of the standing rest of a soloist who hangs it from the right paw with the tip down, a
  * little forward and out (design 5.2, {@link BowedHold.standBow}). With the bow of the bind pose
- * of the hand, the long forearms of the cat, the rabbit, and the red fox held the bow up in front
+ * of the hand, the long forearms of the cat, the rabbit, and the red fox hold the bow up in front
  * of the face. In the lift and the lowering, the tip turns through the front, as the tip of the
- * upright bow, and the grip moves 0.3 H out and 0.6 H to the front (2026-10-17-cat-bow
- * decisions): with a direct mix of the hanging bow and the playing bow, the bow went 4.1 cm (cat),
- * 3.9 cm (rabbit), and 3.3 cm (red fox) into the arms (`pnpm pose-depth <role> --soloist`).
+ * upright bow, and the grip moves 0.3 H out and 0.6 H to the front: with a direct mix of the
+ * hanging bow and the playing bow, the bow goes 4.1 cm (cat), 3.9 cm (rabbit), and 3.3 cm (red
+ * fox) into the arms (`pnpm pose-depth <role> --soloist`).
  */
 const HANGING_BOW = {
   tip: [0.15, -1, -0.3],
@@ -538,106 +534,92 @@ const HANGING_BOW = {
 /**
  * The hold of the violin on the left shoulder, for the rabbit (design 4.6, 5.3), as a real
  * violinist holds it (violinonline.com, "How to hold the violin", and Simon Fischer, "Basics:
- * Holding the violin", 2026-10-14-fox-rabbit-form decisions): the tail end on the left
- * collarbone against the left side of the neck, under the jaw, the jaw on the violin, the violin
- * about 38° to the left of the front, and the scroll a little up, so that the strings are about
- * level. The violin is 0.83 of the app violin, so that the arms of the A-pose mesh stretch only a
- * little (`violinScale`, 2026-10-23-rabbit-arms decisions). The middle line of the violin points
- * 50° to the left of the front, near the 45° of a real player (`docs/reference/string-technique.md`,
- * section 1.10, 2026-10-25-string-angle decisions). The left shoulder bone turns 15.5° forward in
- * the play (`reachL`), so that the shoulder joint comes 2.9 cm forward, inside the forward move of
- * the shoulder of real violinists, and the left paw reaches the fingerboard from 0.01 of its length
- * (0.08 at the 60° of 2026-10-24 with no turn). At 45°, the bow paw at the frog went 1.9 cm into
- * the jaw (1.2 cm now). The violin sits 0.09 H below the tail end of the chin hold, and the head
- * turns 17° down while the rabbit plays (`headDrop`), so that the jaw lies on the chin rest, as a
- * violinist rests the jaw on it: 0.03 H lower and 12° down, the violin went 2.6 cm into the chest
- * (1.8 cm now). The back stays straight. The bow lies nearly square
- * across the strings. The right arm has the shoulder turn of the chin hold. At the frog, the right
- * elbow points out and forward, and only a little down, (1.8, -0.3, -1), and the bow keeps 0.06 m
- * of free hair at each end. The user chose the elbow (1.8, -0.7, -1) of the red fox on 2026-10-21
- * ("the rabbit and pig's arms are still very deformed"): with the elbow (1.5, -1.5, -1), the
- * broad side of the long upper arm faced the front as a flat plank, and with this elbow the upper
- * arm reads across the body. With the A-pose mesh, 9 faces of the right arm folded at that elbow
- * in the arm gate (limit 8), and 7 at this elbow (2026-10-23-rabbit-arms decisions). The bow
- * plays no hair within 0.11 m of the frog (`frogHair`): with the violin turned to 50°, the frog
- * brought the bow paw to the jaw, and with 0.09 m the right forearm went 1.7 cm into the body
- * (1.2 cm now). In pizzicato, the paw plucks over the end of the fingerboard
- * (`pluckPlace` 0), with the bow tip up and back: with the pluck of the chin hold, near the bow,
- * the right forearm went 3.5 cm into the body. The right elbow points down at the tip too: up,
- * as in the chin hold, the skin of the studio rabbit folded at the right upper arm
+ * Holding the violin"): the tail end on the left collarbone against the left side of the neck,
+ * under the jaw, the jaw on the violin, the violin about 38° to the left of the front, and the
+ * scroll a little up, so that the strings are about level. The violin is 0.83 of the app violin,
+ * so that the arms of the A-pose mesh stretch only a little (`violinScale`). The middle line of
+ * the violin points 50° to the left of the front, near the 45° of a real player
+ * (`docs/reference/string-technique.md`, section 1.10). The left shoulder bone turns 15.5° forward
+ * in the play (`reachL`), so that the shoulder joint comes 2.9 cm forward, inside the forward move
+ * of the shoulder of real violinists, and the left paw reaches the fingerboard from 0.01 of its
+ * length (0.08 at 60° with no turn). At 45°, the bow paw at the frog goes 1.9 cm into the jaw
+ * (1.2 cm at 50°). The violin sits 0.09 H below the tail end of the chin hold, and the head turns
+ * 17° down while the rabbit plays (`headDrop`), so that the jaw lies on the chin rest, as a
+ * violinist rests the jaw on it: 0.03 H lower and 12° down, the violin goes 2.6 cm into the chest
+ * (1.8 cm at this place). The back stays straight. The bow lies nearly square across the strings.
+ * The right arm has the shoulder turn of the chin hold. At the frog, the right elbow points out
+ * and forward, and only a little down, (1.8, -0.3, -1), and the bow keeps 0.06 m of free hair at
+ * each end. With the elbow (1.5, -1.5, -1), the broad side of the long upper arm faces the front
+ * as a flat plank. With this elbow, the upper arm reads across the body. With the A-pose mesh, 9
+ * faces of the right arm fold in the arm gate (limit 8) at the elbow (1.8, -0.7, -1) of the red
+ * fox, and 7 at this elbow. The bow plays no hair within 0.11 m of the frog (`frogHair`): with the
+ * violin turned to 50°, the frog brings the bow paw to the jaw, and with 0.09 m, the right forearm
+ * goes 1.7 cm into the body (1.2 cm with 0.11 m). In pizzicato, the paw plucks over the end of the
+ * fingerboard (`pluckPlace` 0), with the bow tip up and back: with the pluck of the chin hold, near
+ * the bow, the right forearm goes 3.5 cm into the body. The right elbow points down at the tip
+ * too: up, as in the chin hold, the skin of the studio rabbit folds at the right upper arm
  * (`pnpm fold-probe violinist`). The left elbow points down, forward, and a little out,
  * (-0.5, -1, -0.5), so that it comes toward the middle of the body under the violin, as the elbow
  * of a real player (section 1.10): the upper arm turns 46° from the vertical to the side (57° with
- * the pole (-1, -1.4, -0.3) of 2026-10-23). With the elbow further in, the left paw twisted 174°
- * on its forearm (limit 170).
+ * the pole (-1, -1.4, -0.3)). With the elbow further in, the left paw twists 174° on its forearm
+ * (limit 170).
  *
  * The string planes of the rabbit are 10° apart, below the 17° of the chin hold. A larger turn
  * folds the skin of the right arm and puts the bow paw into the violin at the frog on the E string:
- * the play folded in 2.5% of the samples at 10°, 3.9% at 11°, and 11.1% at 17° (1.7% on `main`),
- * and the paw went 1.7 cm into the violin at 10° and 2.0 cm at 11° (1.4 cm on `main`,
- * 2026-10-17-bow-arm decisions).
+ * the play folds in 2.5% of the samples at 10°, 3.9% at 11°, and 11.1% at 17°, and the paw goes
+ * 1.7 cm into the violin at 10° and 2.0 cm at 11°.
  *
- * The rest pose and the lift are those of the red fox (user, 2026-10-24: "the violinists like
- * rabbit and cat should use similar poses and motion as the fox"): the violin stands upright on
- * the top of the left knee, at the knee joint, 0.1 H out and 0.1 H up, with the top plate to the
- * front: at 0.05 H down, the lower end sank into the knee, and the left leg looked cut from the
- * left side (user, 2026-10-26, 2026-10-26-third-review decisions). On the belly at 0.85 of the way, of 2026-10-24, the scroll came up to the chin, the
- * paw held the neck at the mouth, and the violin went 4.8 cm into the belly. The left paw holds
+ * The rest pose and the lift follow the poses and the motion of the red fox: the violin stands
+ * upright on the top of the left knee, at the knee joint, 0.1 H out and 0.1 H up, with the top
+ * plate to the front. At 0.05 H down, the lower end sinks into the knee, and the left leg looks
+ * cut from the left side. On the belly at 0.85 of the way, the scroll comes up to the chin, the
+ * paw holds the neck at the mouth, and the violin goes 4.8 cm into the belly. The left paw holds
  * the neck at 0.4 of the fingerboard from the nut (`restPlace`), so that the paw closes around it:
- * at 0.1, the paw lay over the scroll, and the user said that the rabbit did not hold the violin
- * properly (2026-10-26-third-review decisions). The left elbow points down, a little out, and a
- * little back, (-0.6, -1, 0.3) (2026-10-17-rabbit-pose decisions).
+ * at 0.1, the paw lies over the scroll and does not hold the violin. The left elbow points down, a
+ * little out, and a little back, (-0.6, -1, 0.3).
  *
- * In the lift and the lowering, the violin hangs from the left paw, and the paw turns with it
- * (`carryLift()` of `pose/bowed.ts`, user, 2026-10-26: "the violin/viola are rotating in the
- * different direction than their player's wrist/arm"). The wrist moves on a line from its rest
- * place to its playing place, and 0.15 H out, 0.15 H up, and 0.15 H to the front in the middle
- * (`liftReach`): with 0.35 H up and 0.2 H to the front, the violin went 2.8 cm into the body in a
- * lowering, and with no move to the front, the bow went 3.6 cm into the body
- * (2026-10-26-fifth-review-strings decisions). At rest, the paw holds the neck in its rest grip
+ * In the lift and the lowering, the violin hangs from the left paw, and the paw turns with it, so
+ * that the violin turns in the same direction as the wrist and the arm (`carryLift()` of
+ * `pose/bowed.ts`). The wrist moves on a line from its rest place to its playing place, and
+ * 0.15 H out, 0.15 H up, and 0.15 H to the front in the middle (`liftReach`): with 0.35 H up and
+ * 0.2 H to the front, the violin goes 2.8 cm into the body in a lowering, and with no move to the
+ * front, the bow goes 3.6 cm into the body. At rest, the paw holds the neck in its rest grip
  * (`restHandAt()` of `pose/bowed.ts`): the playing grip at the rest place, with the fingers curled
  * 60° (`restCurlL`), 5 mm off the neck (`restGapL`), and turned -5° around the normal of the top
  * plate (`restYawL`), and the paw takes a turn of 20° in the plane of its palm (`restPawTurnL`),
  * near the turn of 34° of the play, so that the grip in the paw changes by 22° in a move (56° with
  * the turn of 30° around the normal), and the paw goes 0.2 cm into the violin. With no turn around
- * the normal, the wrist skin flattened in the lift (flat p5 0.70 against 0.76), and with a turn of
- * 25° in the plane of the palm, the violin went 2.0 cm into the body in a lift (1.8 cm,
- * 2026-10-27-violin-carry decisions). In the middle of the move, the elbow points out and a little down, as at rest
- * (`liftPoleL`): down and to the front, (0, -1, -0.5), the left upper arm went 2.5 cm into the
- * body in the lift. The left rest elbow points down and a little out and back, (-0.6, -1, 0.3),
- * so that the left arm bends at the side: with the elbow out, (-1, -0.6, 0), the arm reached up
- * to the nut and looked long (user, 2026-10-26: "the violin player's arms are becoming much
- * longer and bent than before", 2026-10-26-third-review decisions). With
- * the top of the rest of 2026-10-24, the wrist bent past 90°
- * from the knee. In the middle of the move, the bow tip points forward and a little out and up,
+ * the normal, the wrist skin flattens in the lift (flat p5 0.70 against 0.76), and with a turn of
+ * 25° in the plane of the palm, the violin goes 2.0 cm into the body in a lift (1.8 cm with 20°).
+ * In the middle of the move, the elbow points out and a little down, as at rest (`liftPoleL`):
+ * down and to the front, (0, -1, -0.5), the left upper arm goes 2.5 cm into the body in the lift.
+ * The left rest elbow points down and a little out and back, (-0.6, -1, 0.3), so that the left arm
+ * bends at the side: with the elbow out, (-1, -0.6, 0), the arm reaches up to the nut and looks
+ * long and bent. In the middle of the move, the bow tip points forward and a little out and up,
  * (0.4, 0.3, -1), with the hair to the back, and the grip moves 0.3 H out, 0.1 H up, and 0.3 H to
- * the front: with the tip up, (0.2, 0.8, -0.6), the bow stood upright in front of the face, and
- * with the grip 0.2 H to the front only, the right elbow of the red fox went 4.3 cm into the body in
- * a lowering (2026-10-26-violin-lift decisions). With the via of `UPRIGHT_BOW`, the right paw turned 5,188°/s in
- * a lowering (2026-10-24-violin-rest decisions). With 0.2 H to the front, the right forearm went
- * 2.2 cm into the body in a lowering, with no move up, the right elbow opened to 163° (147° now),
- * and with 0.05 H out, the right paw twisted 145° on its forearm in a lowering (142° on `main`,
- * 2026-10-24-violin-poses decisions). With 0.3 H to the front and the violin at the jaw, the right
- * paw twisted 147° in a lowering (145° now, 2026-10-24-violin-review decisions).
+ * the front: with the tip up, (0.2, 0.8, -0.6), the bow stands upright in front of the face, and
+ * with the grip 0.2 H to the front only, the right elbow of the red fox goes 4.3 cm into the body
+ * in a lowering. With the via of `UPRIGHT_BOW`, the right paw turns 5,188°/s in a lowering. With
+ * 0.2 H to the front, the right forearm goes 2.2 cm into the body in a lowering. With no move up,
+ * the right elbow opens to 163° (147° with this move). With 0.05 H out, the right paw twists 145°
+ * on its forearm in a lowering. With 0.3 H to the front and the violin at the jaw, the right paw
+ * twists 147° in a lowering.
  *
- * The right elbow hangs near the side, as the elbows of the violinist (2026-10-16-rabbit-arm
- * decisions). The belly is widest below the elbow, so the right arm hangs out around it, and the
- * paw does not reach the top of the right thigh. The grip rests at the front of the lap, 0.25 H
- * out from the top of the knee, 0.7 H above it, and 0.2 H to the front, and the elbow points
- * down and back, (0.3, -1, 0.6), so that the upper arm hangs 19° from the vertical with a straight
- * wrist, and the paw rests low near the belly (user, 2026-10-26: "All violin / viola players in
- * rest mode should have their bow arm/wrist relaxed and have their bow hand close to their belly /
- * lap", 2026-10-26-fifth-review-strings decisions). With the grip 0.4 H out and 0.85 H up, the
- * paw stood 0.48 H out at the side. With a grip further in on the lap, the place fell on the top
- * of the belly. With the grip 0.5 H to the front, the arm reached nearly
- * straight to the front and looked long. With the grip 0.65 H out
- * and 0.45 H up, the arm hung straight down at the side. With the paw on the top of the thigh, the
- * short right arm folded 13 to 22 faces at rest (2026-10-26-violin-lift decisions). With the stick through the middle of the paw of
- * 2026-10-17, the grip 0.55 H out and 0.45 H above the knee turned face 372 of the right upper arm
- * over in each rest sample (2026-10-17-grip-all decisions). With the grip on the belly over the
- * right thigh, the paw was 25 cm from the shoulder joint, so the bent arm put the elbow 19 cm out
- * from the side, the upper arm turned 81° from the vertical, and 20 faces of the right arm turned
- * over. Each grip nearer to the thigh put the forearm into the belly or turned more faces over.
+ * The right elbow hangs near the side, as the elbows of a seated violinist. The belly is widest
+ * below the elbow, so the right arm hangs out around it, and the paw does not reach the top of the
+ * right thigh. The grip rests at the front of the lap, 0.25 H out from the top of the knee, 0.7 H
+ * above it, and 0.2 H to the front, and the elbow points down and back, (0.3, -1, 0.6), so that
+ * the upper arm hangs 19° from the vertical with a straight wrist. Thus the bow arm and the wrist
+ * are relaxed, and the bow paw rests low near the belly and the lap. With the grip 0.4 H out and
+ * 0.85 H up, the paw stands 0.48 H out at the side. With a grip further in on the lap, the place
+ * falls on the top of the belly. With the grip 0.5 H to the front, the arm reaches nearly straight
+ * to the front and looks long. With the grip 0.65 H out and 0.45 H up, the arm hangs straight down
+ * at the side. With the paw on the top of the thigh, the short right arm folds 13 to 22 faces at
+ * rest. With the grip 0.55 H out and 0.45 H above the knee, face 372 of the right upper arm turns
+ * over in each rest sample. With the grip on the belly over the right thigh, the paw is 25 cm from
+ * the shoulder joint, so the bent arm puts the elbow 19 cm out from the side, the upper arm turns
+ * 81° from the vertical, and 20 faces of the right arm turn over. Each grip nearer to the thigh
+ * puts the forearm into the belly or turns more faces over.
  */
 const SHOULDER_HOLD = {
   ...CHIN_HOLD,
@@ -677,78 +659,61 @@ const SHOULDER_HOLD = {
 /**
  * The hold of the violin on the left shoulder, for the red fox (design 4.6, 5.3): the hold of the
  * rabbit, with the tail end against the left side of the short neck of the fox, under its long
- * jaw, 0.087 H further back and 0.035 H higher than on the collarbone of 2026-10-14, where the
- * violin kept 2.4 cm from the neck (2026-10-14-neck-violin decisions). With the shorter arms of
- * 2026-10-14, the violin sits 0.07 H further back and 0.016 H further left, so that the left paw
- * reaches the nut: at the old place, the paw reached the fingerboard from 0.09 of its length.
- * Straight back by 0.06 H, the violin went 1.3 cm into the neck, and with the place of the arms
- * round 1.1 cm (`violin-probe.txt` of the research folder of the decisions). It sits 0.01 H
- * higher, and goes 1.0 cm into the trunk and the neck (2026-10-14-fox-rabbit-fix decisions). The
- * head stays level (`headDrop` 0), because the long jaw already lies on the violin. The
- * shorter neck of 2026-10-17 moves the head and the violin 1.7 cm down, and the violin went 2.4 cm
- * into the body in the play (1.7 cm before), so it sits 0.01 H higher again (2026-10-17-fox-form
- * decisions). The middle line of the violin points 45° to the left of the front, as a real player
- * holds it (`docs/reference/string-technique.md`, section 1.10), and the left shoulder bone turns
- * 8° forward in the play (`reachL`), so that the long left arm of the rebuilt fox reaches the nut
- * with 1.5 cm to spare (2026-10-25-string-angle decisions). The left elbow keeps the pole of the
- * chin hold: further in, under the violin, the left paw turned 9° to 15° further from its accepted
- * grip. The bow slants 12° and the right shoulder turns
- * 15°, and the right elbow at the tip points less down: with the bow of the rabbit (5°, 30°), the
- * skin of the right shoulder of the fox mesh folded in 18% of the play samples
- * (`pnpm fold-probe fox-violinist`), and with the full violin, the turn of 15° folds fewer samples
- * than 25°. At the frog, the right elbow points out, forward, and a little down,
+ * jaw. On the collarbone, 0.087 H further forward and 0.035 H lower, the violin keeps 2.4 cm from
+ * the neck. The violin sits 0.07 H further back and 0.016 H further left, so that the left paw
+ * reaches the nut. Straight back by 0.06 H, the violin goes 1.3 cm into the neck. It sits 0.01 H
+ * higher, and goes 1.0 cm into the trunk and the neck. The head stays level (`headDrop` 0),
+ * because the long jaw already lies on the violin. The short neck brings the head and the violin
+ * 1.7 cm down, so the violin sits a further 0.01 H higher: 0.01 H lower, it goes 2.4 cm into the
+ * body in the play. The middle line of the violin points 45° to the left of the front, as a real
+ * player holds it (`docs/reference/string-technique.md`, section 1.10), and the left shoulder bone
+ * turns 8° forward in the play (`reachL`), so that the long left arm of the fox reaches the nut
+ * with 1.5 cm to spare. The left elbow keeps the pole of the chin hold: further in, under the
+ * violin, the left paw turns 9° to 15° further from its accepted grip. The bow slants 12° and the
+ * right shoulder turns 15°, and the right elbow at the tip points less down: with the bow of the
+ * rabbit (5°, 30°), the skin of the right shoulder of the fox mesh folds in 18% of the play
+ * samples (`pnpm fold-probe fox-violinist`), and with the full violin, the turn of 15° folds fewer
+ * samples than 25°. At the frog, the right elbow points out, forward, and a little down,
  * (1.8, -0.7, -1), and the bow keeps 0.12 m of free hair at each end: with 0.08 m and the violin
- * further back, the bow paw went 3.7 cm into the body at the frog, with 0.1 m and the elbow
- * (1.4, -0.7, -1) 3.0 cm, and with this hold 2.4 cm, with the same share of folded play samples
- * (2026-10-14-fox-rabbit-fix decisions). The bow paw reaches 0.265 m of the hair, more than half.
- * In pizzicato, the bow tip points up, back, and a little out, (0.3, 0.5, 1): with the tip of the
- * chin hold, (0.3, 1, 0.4), the bent wrist of the plucking paw moved the middle of the paw 2.1 cm
- * from the stick, and with this tip 1.2 cm (2026-10-17-grip-all decisions).
+ * further back, the bow paw goes 3.7 cm into the body at the frog, with 0.1 m and the elbow
+ * (1.4, -0.7, -1) 3.0 cm, and with this hold 2.4 cm, with the same share of folded play samples.
+ * The bow paw reaches 0.265 m of the hair, more than half. In pizzicato, the bow tip points up,
+ * back, and a little out, (0.3, 0.5, 1): with the tip of the chin hold, (0.3, 1, 0.4), the bent
+ * wrist of the plucking paw moves the middle of the paw 2.1 cm from the stick, and with this tip
+ * 1.2 cm.
  *
- * The rest pose is the upright rest of the rabbit (2026-10-16-bow-rest decisions): the violin
- * stands on the left thigh at 0.8 of the way to the knee, 0.18 H down and 0.2 H forward. With the
- * thighs 25° down of 2026-10-17, the place of 2026-10-16 (0.65 of the way, 0.24 H down, and 0.3 H
- * forward) put the lower end 13.8 cm above the thigh (2026-10-17-fox-form decisions). The left
- * paw holds the violin at 0.37 of the fingerboard (`restPlace`), so that it closes around the
- * neck: at 0.2, the paw lay over the scroll (2026-10-26-third-review decisions). The long right arm of the fox reaches the right thigh only nearly straight,
- * and its line from the shoulder to a paw on the top of the thigh passes through the side of the
- * belly: with the grip 0.15 H out at 0.65 of the way, the right upper arm went 6.2 cm into the
- * body. So the grip is at
- * the outer side of the thigh at 0.55 of the way, 0.15 H forward. The stick through the paw of
- * 2026-10-17 moves the hand about 4 cm on the bow, and with the grip 0.3 H out, the right upper arm
- * went 3.9 cm into the body at rest and 5.0 cm while the arms lowered (3.4 cm and 3.7 cm before).
- * The grip is 0.5 H out, and in the middle of the lift and of the lowering it moves 0.2 H out,
- * 0.2 H up, and 0.4 H to the front (the via of `UPRIGHT_BOW` with its own reach): the upper arm
- * goes 3.3 cm into the body in each set (`pnpm hold-fit fox-violinist --base main --sets
- * lift,rest,lower`, 2026-10-17-grip-all decisions). The grip now rests 0.25 H out at 0.75 of
- * the way, 0.5 H up, and 0.25 H to the front, at the front of the lap and nearer to the body, and
- * the right elbow points down, out, and back, (0.5, -1, -0.2), so that the upper arm hangs 22°
- * from the vertical with a straight wrist (user, 2026-10-26: "bow hand close to their belly /
- * lap", 2026-10-26-fifth-review-strings decisions). With the elbow (0.4, -1, 0), the right upper
- * arm went 3.0 cm into the body at rest, and with (0.4, -1, -0.3) and the grip 0.2 H out, the
- * skin of the right arm flattened (flat 0.73 against 0.78). The left rest elbow points down and a
- * little out and back, (-0.6, -1, 0.3), as on the rabbit: out, (-1, -0.6, 0), the arm looked long
- * and bent (2026-10-26-third-review decisions). The left paw holds the neck at rest in the rest
- * grip of the rabbit, 5 mm toward the neck (`restGapL`), with no turn around the normal of the top
- * plate and a turn of 25° in the plane of its palm (`restPawTurnL`), so that the grip in the paw
- * changes by 27° in a move (79° before), and the paw goes 0.5 cm into the violin. At 0.4 of the
- * fingerboard with a turn of 35°, the forearm went 0.2 cm into the violin at rest
- * (2026-10-27-violin-carry decisions). In the lift and the lowering, the violin hangs from the left paw,
- * as on the rabbit, and the wrist moves 0.1 H out and 0.15 H to the front in the middle
+ * The rest pose is the upright rest of the rabbit: the violin stands on the left thigh at 0.8 of
+ * the way to the knee, 0.18 H down and 0.2 H forward. The thighs slope 25° down, so at 0.65 of the
+ * way, 0.24 H down, and 0.3 H forward, the lower end stands 13.8 cm above the thigh. The left paw
+ * holds the violin at 0.37 of the fingerboard (`restPlace`), so that it closes around the neck: at
+ * 0.2, the paw lies over the scroll. The long right arm of the fox reaches the right thigh only
+ * nearly straight, and its line from the shoulder to a paw on the top of the thigh passes through
+ * the side of the belly: with the grip 0.15 H out at 0.65 of the way, the right upper arm goes
+ * 6.2 cm into the body. The stick passes through the paw, so the hand sits about 4 cm further out
+ * on the bow. The grip rests 0.25 H out at 0.75 of the way, 0.5 H up, and 0.25 H to the front, at
+ * the front of the lap and near the body, and the right elbow points down, out, and back,
+ * (0.5, -1, -0.2), so that the upper arm hangs 22° from the vertical with a straight wrist. Thus
+ * the bow paw rests near the belly and the lap. With the elbow (0.4, -1, 0), the right upper arm
+ * goes 3.0 cm into the body at rest, and with (0.4, -1, -0.3) and the grip 0.2 H out, the skin of
+ * the right arm flattens (flat 0.73 against 0.78). The left rest elbow points down and a little
+ * out and back, (-0.6, -1, 0.3), as on the rabbit: out, (-1, -0.6, 0), the arm looks long and
+ * bent. The left paw holds the neck at rest in the rest grip of the rabbit, 5 mm toward the neck
+ * (`restGapL`), with no turn around the normal of the top plate and a turn of 25° in the plane of
+ * its palm (`restPawTurnL`), so that the grip in the paw changes by 27° in a move, and the paw
+ * goes 0.5 cm into the violin. At 0.4 of the fingerboard with a turn of 35°, the forearm goes
+ * 0.2 cm into the violin at rest. In the lift and the lowering, the violin hangs from the left
+ * paw, as on the rabbit, and the wrist moves 0.1 H out and 0.15 H to the front in the middle
  * (`liftReach`), so that the violin near the jaw goes 1.9 cm into the body: with 0.1 H to the
- * front, it went 2.1 cm in, and with 0.1 H up and 0.2 H to the front, 2.6 cm
- * (2026-10-27-violin-unwind decisions). The bow takes the via of the rabbit: with the hair
- * down, the right paw turned 17,038°/s in a lowering.
+ * front, it goes 2.1 cm in, and with 0.1 H up and 0.2 H to the front, 2.6 cm. The bow takes the
+ * via of the rabbit: with the hair down, the right paw turns 17,038°/s in a lowering.
  *
  * The left elbow turns toward the body by 2° for each lower string of the finger: with the 5° of
- * the chin hold, the left forearm went 2.4 cm into the violin in the middle of the lift and of the
- * lowering (1.6 cm and 1.9 cm on `main`), and with 2° 1.9 cm and 2.1 cm (2026-10-17-left-hand
- * decisions).
+ * the chin hold, the left forearm goes 2.4 cm into the violin in the middle of the lift and of the
+ * lowering, and with 2°, 1.9 cm and 2.1 cm.
  *
  * The string planes of the red fox stay 9° apart, and the stick leans 15°. A larger turn or tilt
- * folds the skin of the right arm of the fox mesh: the play folded in 21.7% of the samples at 17°
- * and 30°, 7.0% at 9° and 30°, 6.1% at 9° and 15°, and 6.0% at 10° and no tilt (5.4% on `main`,
- * 2026-10-17-bow-arm decisions).
+ * folds the skin of the right arm of the fox mesh: the play folds in 21.7% of the samples at 17°
+ * and 30°, 7.0% at 9° and 30°, 6.1% at 9° and 15°, and 6.0% at 10° and no tilt.
  */
 const FOX_HOLD = {
   ...SHOULDER_HOLD,
@@ -789,10 +754,10 @@ export const BOWED_HOLDS = {
   violin: CHIN_HOLD,
   // The left arm reaches the nut of the viola only with a smaller forward move.
   viola: { ...CHIN_HOLD, reach: 30 * MathUtils.DEG2RAD, playShift: [0, -0.05, -0.04] },
-  // The chair of the dog fits the low seats of 2026-10-11, so the cello stands higher at its body.
-  // The cellist leans 8° (10° before), and its right shoulder turns 45° (40° before): with the old
-  // values, its head came 0.026 m to the neck (limit 0.03 m), and the bow stick went 6.0 mm into
-  // the right forearm (limit 1 mm).
+  // The chair of the dog fits the low seats, so the cello stands higher at its body. The cellist
+  // leans 8°, and its right shoulder turns 45°: with a lean of 10° and a turn of 40°, its head
+  // comes 0.026 m to the neck (limit 0.03 m), and the bow stick goes 6.0 mm into the right forearm
+  // (limit 1 mm).
   cello: { ...FLOOR_HOLD, reach: 45 * MathUtils.DEG2RAD, lean: 8 * MathUtils.DEG2RAD },
   // The base of the hold of the hippo (HIPPO_HOLD), which moves and turns the contrabass to its
   // body. The real string planes are 25° apart, and the stick leans 10°.
@@ -810,165 +775,146 @@ export const BOWED_HOLDS = {
 /**
  * The hold of the viola under the chin, for the cat mesh (design 4.6, 5.3). The arms of the cat
  * are 1.10 H long, and its jaw lies in front of its chest under the long muzzle, so the tail end
- * of the viola lies about 0.14 m in front of the left shoulder joint (2026-10-27-cat-fox2
- * decisions). Thus the cat plays a viola of about 10 inches, 0.74 of the viola of the app
- * (`SpeciesParams.violaScale`), as a violin shop sizes a viola for the arm less the muzzle, and
- * holds it nearer to the body than the viola hold of {@link BOWED_HOLDS}: 0.05 H further right,
- * 0.14 H higher, and 0.23 H further back (`playShift`), turned 10° further to the left than 45°,
- * near the angle of a real player (`docs/reference/string-technique.md`, section 1.10), and tilted
- * 11° forward, so that it falls 10° to the scroll (`playTurn`). The left paw then reaches the
- * fingerboard from the nut to its end, and the bow paw the hair from the frog to the end of the
- * free hair at the tip (`pnpm hold-reach cat --instrument viola`). The head lifts 15° in the play
- * (`headDrop` below 0), so that the jaw lies on the chin rest of the higher viola: with the head
- * level, the jaw went 2.0 cm into the viola. The left shoulder bone turns 20° forward in the play
- * (`reachL`), near the forward move of the shoulder of real violinists: with 35° and the viola
- * tilted 5°, the back of the left arm root sank into pits of 14.5 cm³ in the play (4.8 cm³ now),
- * and with 20° and that tilt, the paw reached the fingerboard only from 0.03 (2026-10-27-cat3
- * decisions). With the 1/2 viola (0.87) at the place of the long arms, the shorter arm reached
- * the fingerboard from 0.69 and the bow 0.26 m of 0.44 m. With the viola 4 cm back, the bow
- * reached the tip, but the viola went 2.7 cm into the jaw and the chest (1.2 cm now, limit 2.0).
- * The bow lies square across the strings (`slant` 0), as a real bow: with the slant of -20°
- * of the viola hold, the right paw swung 76° on the wrist in the lift (limit 70).
+ * of the viola lies about 0.14 m in front of the left shoulder joint. Thus the cat plays a viola
+ * of about 10 inches, 0.74 of the viola of the app (`SpeciesParams.violaScale`), as a violin shop
+ * sizes a viola for the arm less the muzzle, and holds it nearer to the body than the viola hold
+ * of {@link BOWED_HOLDS}: 0.05 H further right, 0.14 H higher, and 0.23 H further back
+ * (`playShift`), turned 10° further to the left than 45°, near the angle of a real player
+ * (`docs/reference/string-technique.md`, section 1.10), and tilted 11° forward, so that it falls
+ * 10° to the scroll (`playTurn`). The left paw then reaches the fingerboard from the nut to its
+ * end, and the bow paw the hair from the frog to the end of the free hair at the tip
+ * (`pnpm hold-reach cat --instrument viola`). The head lifts 15° in the play (`headDrop` below
+ * 0), so that the jaw lies on the chin rest of the higher viola: with the head level, the jaw goes
+ * 2.0 cm into the viola. The left shoulder bone turns 20° forward in the play (`reachL`), near the
+ * forward move of the shoulder of real violinists: with 35° and the viola tilted 5°, the back of
+ * the left arm root sinks into pits of 14.5 cm³ in the play (4.8 cm³ with this hold), and with 20°
+ * and that tilt, the paw reaches the fingerboard only from 0.03. With the 1/2 viola (0.87) at the
+ * place for longer arms, the arm reaches the fingerboard from 0.69, and the bow 0.26 m of 0.44 m.
+ * With the viola 4 cm back, the bow reaches the tip, but the viola goes 2.7 cm into the jaw and
+ * the chest (1.2 cm with this hold, limit 2.0). The bow lies square across the strings (`slant`
+ * 0), as a real bow: with the slant of -20° of the viola hold, the right paw swings 76° on the
+ * wrist in the lift (limit 70).
  *
- * The deeper chest of the cat form of 2026-10-17 (2026-10-16-cat-form decisions) took the room of
- * the left elbow: with the left elbow pole of the chin hold, the left upper arm went 5.5 cm into
- * the body in the play. The left elbow points down and forward, and a little less out, so that it
- * comes toward the middle under the viola: the upper arm turns 38° from the vertical to the side
- * (43° with the elbow (-1, -1, -0.75) of 2026-10-17). With the elbow (-0.5, -1, -0.75), the left
- * upper arm went 2.4 cm into the body in the play (1.2 cm now). The stick of
- * the bow passes through the middle of the paw since 2026-10-17 (`SpeciesParams.bowGrip`), and the
- * hand sits about 4 cm further out on the bow, so the right elbow of the play points a little
- * further out than the elbow of the chin hold. The right elbow of the play points out to the side,
- * a little down, and forward, (2, -0.3, -0.7), so that it comes near the height of the hand, as the
- * elbow of a real violist at the frog (user, 2026-10-26: "the cat's arm is bent in an unatural
- * way", 2026-10-26-second-review decisions). With the shorter arm and the elbow level, (2, 0, -0.5),
- * the paw twist of the bow arm passed the margin of the arm gate. With (1.2, -0.5, -1), the upper
- * arm hung down the side of the body, and the forearm folded up to the chin. With (1.1, -1, -1) of
- * 2026-10-17 the back of the rebuilt upper arm went 3.8 cm into the body (2026-10-25-cat-arms
- * decisions). At the tip, the right elbow points down, out, and forward, (1.5, -1, -1), further out
- * than the elbow of the rabbit, because the shorter arm reaches the tip nearly straight across the
- * round belly: with (1, -1, -1), the right upper arm went 2.7 cm into the belly at the tip (2.1 cm
- * now). With the elbow up of the chin hold, (0.5, 1, -1), a dark wedge fold opened under
- * the right armpit at the tip (manager review of 2026-10-24), the right paw turned 116° on its
- * forearm (90° now), and the narrowest ring of the right arm kept 0.14 of its axis (0.49 now,
- * 2026-10-24-violin-review decisions). The right shoulder bone turns 36° forward (`reach`, 30° in
- * the viola hold), so that the nearly straight bow arm passes in front of the even oval belly of
- * 2026-10-27: with 30°, the right upper arm went 2.9 cm into the belly in the play, and with 40°,
- * new faces at the back of the right shoulder folded in each play sample (2026-10-27-cat-belly
- * and 2026-10-27-cat-lap decisions). The front of the upper belly is a little flatter, most at
- * the middle line, where the upper arm lies (`flat` of `tools/blender/cat_arms.py`). In
- * pizzicato, the right elbow points out, a little down, and forward, (1.2, -0.5, -1), a little
- * further out than the chin hold, and the right palm plucks 0.1 m from the strings toward the
- * frog side (`pluckSide`), as the hand of a real player comes up from the side: with the palm
- * over the strings, the middle of the upper arm went 2.1 cm into the top of the chest under the
- * chin in a pizzicato and in the lowering after it (1.3 cm in the lowering now). With 0.05 m, it
- * went 1.9 cm in, and with the elbow (1.3, -0.35, -1) or (1.5, -0.5, -1), the move twist of the
- * arm gate passed its margin (2026-10-27-cat-belly and 2026-10-27-cat-lap decisions).
+ * The deep chest of the cat takes the room of the left elbow: with the left elbow pole of the
+ * chin hold, the left upper arm goes 5.5 cm into the body in the play. The left elbow points down
+ * and forward, and a little less out, so that it comes toward the middle under the viola: the
+ * upper arm turns 38° from the vertical to the side. With the elbow (-0.5, -1, -0.75), the left
+ * upper arm goes 2.4 cm into the body in the play (1.2 cm with this elbow). The stick of the bow
+ * passes through the middle of the paw (`SpeciesParams.bowGrip`), and the hand sits about 4 cm
+ * further out on the bow, so the right elbow of the play points a little further out than the
+ * elbow of the chin hold. The right elbow of the play points out to the side, a little down, and
+ * forward, (2, -0.3, -0.7), so that it comes near the height of the hand, as the elbow of a real
+ * violist at the frog, and the arm does not bend in an unnatural way. With the elbow level,
+ * (2, 0, -0.5), the paw twist of the bow arm passes the margin of the arm gate. With
+ * (1.2, -0.5, -1), the upper arm hangs down the side of the body, and the forearm folds up to the
+ * chin. With (1.1, -1, -1), the back of the upper arm goes 3.8 cm into the body. At the tip, the
+ * right elbow points down, out, and forward, (1.5, -1, -1), further out than the elbow of the
+ * rabbit, because the shorter arm reaches the tip nearly straight across the round belly: with
+ * (1, -1, -1), the right upper arm goes 2.7 cm into the belly at the tip (2.1 cm with this elbow).
+ * With the elbow up of the chin hold, (0.5, 1, -1), a dark wedge fold opens under the right armpit
+ * at the tip, the right paw turns 116° on its forearm (90° with this elbow), and the narrowest ring
+ * of the right arm keeps 0.14 of its axis (0.49 with this elbow). The right shoulder bone turns 36°
+ * forward (`reach`, 30° in the viola hold), so that the nearly straight bow arm passes in front of
+ * the even oval belly: with 30°, the right upper arm goes 2.9 cm into the belly in the play, and
+ * with 40°, new faces at the back of the right shoulder fold in each play sample. The front of the
+ * upper belly is a little flatter, most at the middle line, where the upper arm lies (`flat` of
+ * `tools/blender/cat_arms.py`). In pizzicato, the right elbow points out, a little down, and
+ * forward, (1.2, -0.5, -1), a little further out than the chin hold, and the right palm plucks
+ * 0.1 m from the strings toward the frog side (`pluckSide`), as the hand of a real player comes up
+ * from the side: with the palm over the strings, the middle of the upper arm goes 2.1 cm into the
+ * top of the chest under the chin in a pizzicato and in the lowering after it (1.3 cm in the
+ * lowering with this side). With 0.05 m, it goes 1.9 cm in, and with the elbow (1.3, -0.35, -1)
+ * or (1.5, -0.5, -1), the move twist of the arm gate passes its margin.
  *
- * The rest pose is the upright rest of the rabbit and the red fox, as the seated violinist of the
- * image of the user (2026-10-17-cat-bow and 2026-10-17-cat-look decisions): the viola stands
- * upright on the top of the left thigh, 0.6 of the way from the hip to the knee, and 0.12 H in
- * from it, 0.05 H up, and 0.06 H to the front, near the shorter arms of 2026-10-27, and the bow
- * rests in the right paw at the front of the lap. The left paw holds the viola at 0.55 of the
- * fingerboard from the nut (`restPlace`), and the left elbow points down, out, and a little
+ * The rest pose is the upright rest of the rabbit and the red fox, as a seated violinist rests:
+ * the viola stands upright on the top of the left thigh, 0.6 of the way from the hip to the knee,
+ * and 0.12 H in from it, 0.05 H up, and 0.06 H to the front, in the reach of the short arms, and
+ * the bow rests in the right paw at the front of the lap. The left paw holds the viola at 0.55 of
+ * the fingerboard from the nut (`restPlace`), and the left elbow points down, out, and a little
  * forward, (-1.6, -1, -0.2), so that the left elbow bends near the side of the round belly, as a
  * seated violist holds the resting instrument with the elbow bent. With the viola 0.8 of the way
- * and the elbow (-1.2, -1, 0.1) of the longer arms, the shorter left upper arm went 2.3 cm into
- * the belly at rest, and its middle went flat (2026-10-27-cat-fox2 decisions). With 0.95 of the way
- * and 0.03 H back, on the front of the knee, the elbow opened to 131° and the arm reached far
- * forward (user, 2026-10-27: "the cat's arm has dent and is longer than expected",
- * 2026-10-27-cat-fox decisions). With the viola 0.03 H back at 0.8 of the way, the elbow bent to
- * 105°, but the viola went 2.1 cm into the body near the end of a lowering (1.9 cm before). At 0.7
- * of the way, of 2026-10-17, it stood beside the hip and went 7.4 cm into the belly
- * (2026-10-24-violin-rest decisions). With the viola 0.1 H up and 0.1 H forward and the grip at
- * 0.4, the left arm reached out nearly straight, and with the elbow further down, the left upper
- * arm went 2.2 cm to 3.7 cm into the belly (limit 1.5). With 0.2 H in, the viola went 2.6 cm into
- * the body (2026-10-26-fifth-review-strings decisions). The left paw closes around the neck in the
- * rest grip, as a seated violist holds the neck with the left hand
+ * and the elbow (-1.2, -1, 0.1), the left upper arm goes 2.3 cm into the belly at rest, and its
+ * middle goes flat. With 0.95 of the way and 0.03 H back, on the front of the knee, the elbow
+ * opens to 131°, and the arm reaches far forward and looks long. With the viola 0.03 H back at
+ * 0.8 of the way, the elbow bends to 105°, but the viola goes 2.1 cm into the body near the end of
+ * a lowering. With the viola 0.1 H up and 0.1 H forward and the grip at 0.4, the left arm reaches
+ * out nearly straight, and with the elbow further down, the left upper arm goes 2.2 cm to 3.7 cm
+ * into the belly (limit 1.5). With 0.2 H in, the viola goes 2.6 cm into the body. The left paw
+ * closes around the neck in the rest grip, as a seated violist holds the neck with the left hand
  * (`docs/reference/string-technique.md`, section 2.9): the playing grip at the rest place, curled
  * 115°, with the palm on the neck (`restGapL` 0), and turned 10° around the normal of the top
  * plate, and the paw takes a turn of 42° in the plane of its palm (`restPawTurnL`), so that the
  * grip in the paw changes by 29° in a move. The neck then runs through the closed paw, and the
- * paw goes 0.4 cm into the viola. Curled 90° and 11 mm off the neck, the paw closed beside the
- * neck as a fist (user, 2026-10-27: "the cat is not "holding" the viola in rest mode",
- * 2026-10-27-cat-fox2 decisions). With a turn of 12° around the normal, the wrist skin flattened
- * in the lift (flat p5 0.70 against 0.75, 2026-10-27-violin-carry decisions).
+ * paw goes 0.4 cm into the viola. Curled 90° and 11 mm off the neck, the paw closes beside the
+ * neck as a fist and does not hold the viola. With a turn of 12° around the normal, the wrist skin
+ * flattens in the lift (flat p5 0.70 against 0.75).
  *
  * The grip of the bow rests at the front of the lap, 0.4 H out, 0.6 H up, and 0.05 H to the front
  * at 0.6 of the way to the knee, with the tip a little forward, (0.15, 1, -0.45): 0.4 H up, the
- * shorter right forearm went 1.2 cm into the belly at rest (2026-10-27-cat-fox2 decisions). The right
- * elbow hangs down, out, and a little back, (0.9, -1, 0.2): the elbow bends near the side of the
- * round belly with a straight wrist (with (0.8, -1, 0.3) and the even oval belly, the right upper
- * arm went 1.4 cm into the belly at rest, 0.8 cm now, 2026-10-27-cat-belly decisions, and with
- * (0.7, -1, 0.3) and the bind of 2026-10-27, 1.7 cm, 2026-10-27-cat-fox decisions),
- * and the paw rests low near the hip, where before 2026-10-26 the paw stood high at the chest
- * with the elbow bent to 76° as a wing (user, 2026-10-26: "the cat's arms are bent in strange way",
- * 2026-10-26-fifth-review-strings decisions). The round belly keeps the upper arm 35° from the
- * vertical: with the elbow further down and in, (0.3, -1, 0.1), the right upper arm went 4.1 cm and
- * the forearm 3.1 cm into the belly. A place of the lap between 0.5 and 0.6 of the way lies on the
- * top of the belly. The arm of the cat, with the reach of the red fox, reaches the top of the thigh
- * only nearly straight: a grip at 0.7 of the way put the elbow at 180°. The level bow of 2026-10-16
- * ran forward past the knees, and a real violist rests as a violinist.
+ * shorter right forearm goes 1.2 cm into the belly at rest. The right elbow hangs down, out, and a
+ * little back, (0.9, -1, 0.2): the elbow bends near the side of the round belly with a straight
+ * wrist, and the paw rests low near the hip. With (0.8, -1, 0.3), the right upper arm goes 1.4 cm
+ * into the belly at rest (0.8 cm with this elbow), and with (0.7, -1, 0.3), 1.7 cm. With the paw
+ * high at the chest, the elbow bends to 76° as a wing. The round belly keeps the upper arm 35°
+ * from the vertical: with the elbow further down and in, (0.3, -1, 0.1), the right upper arm goes
+ * 4.1 cm and the forearm 3.1 cm into the belly. A place of the lap between 0.5 and 0.6 of the way
+ * lies on the top of the belly. The arm of the cat, with the reach of the red fox, reaches the top
+ * of the thigh only nearly straight: a grip at 0.7 of the way puts the elbow at 180°. A level bow
+ * runs forward past the knees, and a real violist rests as a violinist.
  *
  * In the lift and the lowering, the viola hangs from the left paw, and the paw turns with it, as
  * on the rabbit (`carryLift()` of `pose/bowed.ts`). The wrist moves 0.14 H out, 0.29 H up, and
  * 0.19 H to the front in the middle (`liftReach`), so that the viola near the jaw goes at most
- * 2.0 cm into the body in a lowering: with 0.25 H up and 0.2 H to the front, it went 2.1 cm in.
- * With 0.2 H to the front, the right claws went deeper into the viola, and with 0.23 H, 2.4 cm
- * (2026-10-27-violin-unwind decisions). In the middle of the moves, the left elbow points out and
- * a little down, as at rest (`liftPoleL`). With (-0.45, -1, -0.6), the left upper arm went 1.7 cm into
- * the body in the lift. In the middle, the bow points forward and a little out and up,
- * (0.4, 0.3, -1), and the grip moves 0.5 H out, 0.45 H up, and 0.15 H to the front, so that the
- * bow arm passes outside the round belly and the viola. With 0.45 H out, 0.35 H up, and 0.1 H to
- * the front, the right claws went 2.1 cm into the carried viola at the start of a lowering, and
- * with 0.45 H out, 0.5 H up, and 0.2 H to the front, the right upper arm went flat in the lift
- * (2026-10-27-cat3 decisions). With 0.05 H to the front and the viola
- * nearer to the hip of 2026-10-27, the bow went 0.7 cm into the viola in a lowering of
- * `beethoven-9` (2026-10-27-cat-fox decisions). With 0.3 H out and
- * 0.15 H to the front, the right upper arm went 7.2 cm into the belly in a lowering of `brahms-2`,
- * and with 0.4 H to the front, the arm went straight (180°) (2026-10-26-fifth-review-strings
- * decisions). With the tip up, (0, 1, -0.6), the bow stood
- * upright in front of the face (2026-10-26-violin-lift decisions). With the via of `UPRIGHT_BOW`
- * (the tip forward, the grip 0.3 H out and 0.1 H up), the bow lay across the belly and went 1.3 cm
- * into the viola and 2.7 cm into the arms (2026-10-24-violin-review decisions). With a move of
- * 0.4 H up, the left paw rose to the top of the head (2026-10-24-violin-poses decisions).
+ * 2.0 cm into the body in a lowering: with 0.25 H up and 0.2 H to the front, it goes 2.1 cm in.
+ * With 0.2 H to the front, the right claws go deeper into the viola, and with 0.23 H, 2.4 cm. In
+ * the middle of the moves, the left elbow points out and a little down, as at rest (`liftPoleL`).
+ * With (-0.45, -1, -0.6), the left upper arm goes 1.7 cm into the body in the lift. In the middle,
+ * the bow points forward and a little out and up, (0.4, 0.3, -1), and the grip moves 0.5 H out,
+ * 0.45 H up, and 0.15 H to the front, so that the bow arm passes outside the round belly and the
+ * viola. With 0.45 H out, 0.35 H up, and 0.1 H to the front, the right claws go 2.1 cm into the
+ * carried viola at the start of a lowering, and with 0.45 H out, 0.5 H up, and 0.2 H to the
+ * front, the right upper arm goes flat in the lift. With 0.05 H to the front, the bow goes 0.7 cm
+ * into the viola in a lowering of `beethoven-9`. With 0.3 H out and 0.15 H to the front, the right
+ * upper arm goes 7.2 cm into the belly in a lowering of `brahms-2`, and with 0.4 H to the front,
+ * the arm goes straight (180°). With the tip up, (0, 1, -0.6), the bow stands upright in front of
+ * the face. With the via of `UPRIGHT_BOW` (the tip forward, the grip 0.3 H out and 0.1 H up), the
+ * bow lies across the belly and goes 1.3 cm into the viola and 2.7 cm into the arms. With a move
+ * of 0.4 H up, the left paw rises to the top of the head.
  *
  * A cat soloist who stands hangs the bow from the right paw with the tip down, a little forward and
  * out, and turns it through the front in the lift and the lowering (`HANGING_BOW`).
  *
  * The string planes of the cat are 7° apart, below the 17° of the chin hold: with the shorter arm
- * and the stick leaned 30°, the bow arm reaches the end of the hair with 7°, and the hair to 2 cm
- * before its end with 11° (2026-10-27-cat-fox2 and 2026-10-27-cat3 decisions).
+ * and the stick leaned 30°, the bow arm reaches the end of the hair with 7°, and only to 2 cm
+ * short of the end with 11°.
  *
  * The left elbow turns toward the body by 2° for each lower string of the finger: with the 5° of
- * the chin hold, the left upper arm went 1.5 cm into the deep chest in the play (0.3 cm on `main`),
- * and with 2° 0.0 cm (2026-10-17-left-hand decisions).
+ * the chin hold, the left upper arm goes 1.5 cm into the deep chest in the play, and with 2°,
+ * 0.0 cm.
  *
  * From the second position to the fifth position, the left paw tilts 20° further over the neck, so
  * that the wrist comes up toward the upper bout (`highTilt`, `leftTilt()` of `pose/bowed.ts`). The
  * viola sits back toward the neck, so the left forearm runs from the wrist back under the viola,
- * and with no tilt it went 2.7 cm into the upper bout near the wrist in the fifth position at the
- * end of `mozart-k191`, also while the arms lowered. A turn of the left elbow did not change it,
- * because the forearm leaves the wrist toward the shoulder. With 45°, the forearm went 0.4 cm into
- * the viola, but the paw lay flat across the fingerboard, and the wrist bent 75°: a broken wrist.
- * With 20°, the fingers still point down to the strings, and the wrist bends 48° (30° on `main`).
- * The rest of the depth of the forearm at the upper bout is accepted until the user decides
- * (2026-10-17-cat-hand decisions).
+ * and with no tilt it goes 2.7 cm into the upper bout near the wrist in the fifth position at the
+ * end of `mozart-k191`, also while the arms lower. A turn of the left elbow does not change it,
+ * because the forearm leaves the wrist toward the shoulder. With 45°, the forearm goes 0.4 cm into
+ * the viola, but the paw lies flat across the fingerboard, and the wrist bends 75°: a broken wrist.
+ * With 20°, the fingers still point down to the strings, and the wrist bends 48°. The remaining
+ * depth of the forearm at the upper bout is accepted.
  *
  * The left paw tilts 45° over the neck (`tiltL`, 30° in the chin hold), so that it curls around
  * the neck and the fingers come down on the strings from above, as a real violist holds the neck
- * (`docs/reference/string-technique.md`, section 1.9). With 30°, the paw turned 157° on its
- * forearm from the bind, and the skin of the wrist under the neck pinched into a twisted band of
- * thin faces: the wrist ring kept 0.58 of its narrow axis in the bind. With 45°, the paw turns 147°,
- * the wrist ring keeps 0.66, the left forearm goes 1.5 cm into the viola in the play (2.5 cm with
- * 30°), and the wrist bends 30° from the line of the forearm (15° with 30°). With 40°, the wrist
- * kept a crease, and with 50°, the wrist bent 34°. In the fifth position, the paw tilts 65° with
- * `highTilt` (2026-10-20-cat-left-arm decisions).
+ * (`docs/reference/string-technique.md`, section 1.9). With 30°, the paw turns 157° on its
+ * forearm from the bind, and the skin of the wrist under the neck pinches into a twisted band of
+ * thin faces: the wrist ring keeps 0.58 of its narrow axis in the bind. With 45°, the paw turns
+ * 147°, the wrist ring keeps 0.66, the left forearm goes 1.5 cm into the viola in the play (2.5 cm
+ * with 30°), and the wrist bends 30° from the line of the forearm (15° with 30°). With 40°, the
+ * wrist keeps a crease, and with 50°, the wrist bends 34°. In the fifth position, the paw tilts 65°
+ * with `highTilt`.
  *
  * In the rest pose, the top plate of the viola faces the front and 30° to the left, toward the
  * audience, as the bridge of a resting violin faces out (`docs/reference/string-technique.md`,
- * section 2.9, user, 2026-10-24: "why in the rest mode, the cat's viola's back is facing the
- * audience").
+ * section 2.9). Thus the back of the viola does not face the audience.
  */
 const CAT_HOLD = {
   ...BOWED_HOLDS.viola,
@@ -1013,30 +959,28 @@ const CAT_HOLD = {
 /**
  * The hold of the cello between the knees, for the dog mesh (design 4.6, 5.3), as a real cellist
  * holds it (`docs/reference/string-technique.md`, section 2.7): the cello leans back 25° from the
- * vertical, as the user chose, with the back of the upper bout at the chest, the neck at the left
- * of the head, and the endpin on the floor 0.06 m right of the middle and 0.66 m in front of the
- * floor point of the seat. It leans 14° to the left, and its top plate turns 6° to the right. It
- * keeps this place in the rest pose (`BowedHold.rest` null). The short thighs end far behind the
- * lower bout, so the knees do not touch the cello. The reasons of the values are in the
- * 2026-10-17-mesh-dog, 2026-10-17-dog-arms, and 2026-10-17-dog-rest decisions.
+ * vertical, with the back of the upper bout at the chest, the neck at the left of the head, and
+ * the endpin on the floor 0.06 m right of the middle and 0.66 m in front of the floor point of the
+ * seat. It leans 14° to the left, and its top plate turns 6° to the right. It keeps this place in
+ * the rest pose (`BowedHold.rest` null). The short thighs end far behind the lower bout, so the
+ * knees do not touch the cello.
  *
  * The left paw tilts 55° over the neck (`tiltL`), and the left elbow points out to the left and
  * nearly level, because the leaned neck comes near the left shoulder, and turns up 2° for each
  * lower string. The right shoulder turns 30°.
  *
- * The short arms of 2026-10-17 reach the strings only nearly straight. The trunk leans 3° forward,
- * so that the shoulders come nearer to the strings, and the right elbow points out and down, near
- * the body. The bow plays no hair within 0.12 m of the frog (`frogHair`), and the string planes
- * are 6° apart, because the paw at the frog and on the C string went into the right rim of the
+ * The short arms reach the strings only nearly straight. The trunk leans 3° forward, so that the
+ * shoulders come nearer to the strings, and the right elbow points out and down, near the body.
+ * The bow plays no hair within 0.12 m of the frog (`frogHair`), and the string planes are 6°
+ * apart, so that the paw at the frog and on the C string stays out of the right rim of the
  * cello. In pizzicato, the right paw comes up from the side, as a real player plucks with the hand
  * hanging from the wrist and the thumb near the edge of the fingerboard
  * (`docs/reference/string-technique.md`, section 2.8): it plucks 0.2 of the way from the end of the
  * fingerboard to the bow contact, 0.15 m right of the strings (`pluckSide`), with the elbow out and
- * down (`polePizzicato`). Over the fingerboard (`pluckPlace` -0.3), the paw lay flat across the
- * strings, the right upper arm turned 101° and went 5.2 cm into the body, and the front of the
- * right shoulder folded in 87% of the pizzicato samples. Now it turns 79° and goes 2.2 cm in, and
- * 20% fold (user, 2026-10-23: "the dog's right arm and palm during pizzicato is weird",
- * 2026-10-23-night-fixes decisions).
+ * down (`polePizzicato`). Over the fingerboard (`pluckPlace` -0.3), the paw lies flat across the
+ * strings, the right upper arm turns 101° and goes 5.2 cm into the body, and the front of the
+ * right shoulder folds in 87% of the pizzicato samples. With this pluck, the upper arm turns 79°
+ * and goes 2.2 cm in, and 20% of the samples fold.
  *
  * In the rest pose, the right paw holds the bow over the right knee, 0.25 H out and 0.5 H above
  * the top of the thigh at 0.9 of the way to the knee, with the tip up and leaned out and forward,
@@ -1044,7 +988,7 @@ const CAT_HOLD = {
  * softly at the elbow, and the wrist bends 22° with the palm toward the body. The left paw holds
  * the cello at 0.6 of the fingerboard with the elbow down and out, near the side. In the lift and
  * the lowering, the bow turns through the front, and the grip moves 0.3 H out, away from the
- * cello (2026-10-17-dog-rest decisions).
+ * cello.
  */
 const DOG_HOLD = {
   ...BOWED_HOLDS.cello,
@@ -1078,100 +1022,94 @@ const DOG_HOLD = {
  * leans the contrabass on the body, and the contrabass does not go in
  * (`docs/reference/string-technique.md`, section 2.8). The round belly of the hippo reaches 0.35 m
  * in front of its shoulder joints, the back of its smaller contrabass (`bassScale`) lies 0.26 m
- * behind the strings, and its arms are only 0.51 m long. Thus the back of the contrabass touches the
- * front of the belly, and the arms reach the strings with the help of the shoulders. The end pin of
- * 0.2 m (`BASS_END_PIN`) stands on the floor 0.48 m right of the place of `UPRIGHT_HOLDS` and 8 cm
- * forward (`playShift`), and the contrabass turns around it (`playTurn`): it leans 33° from the
- * vertical, to the left and 6° back, and its top plate faces forward. The strings run from the
- * contact point 0.28 m in front of the belly up to the nut beside the head. With the place of
- * 2026-10-18, which leaned 5° further back and stood 11 cm further back at the contact point, the
- * back of the contrabass went 14.8 cm into the belly and the chest (the 2026-10-21-hippo-bass
- * decisions). The trunk leans 12° forward. The right shoulder turns 50° forward, and the left
- * shoulder 25° (`reachL`), also in the rest: with no left turn, the left paw reached one place of
- * the fingerboard only, and the left forearm went 3.7 cm into the neck. With a right turn of 55°,
- * the skin of the chest under the chin folded (the 2026-10-19-hippo-chest decisions).
+ * behind the strings, and its arms are only 0.51 m long. Thus the back of the contrabass touches
+ * the front of the belly, and the arms reach the strings with the help of the shoulders. The end
+ * pin of 0.2 m (`BASS_END_PIN`) stands on the floor 0.48 m right of the place of
+ * `UPRIGHT_HOLDS` and 8 cm forward (`playShift`), and the contrabass turns around it
+ * (`playTurn`): it leans 33° from the vertical, to the left and 6° back, and its top plate faces
+ * forward. The strings run from the contact point 0.28 m in front of the belly up to the nut beside
+ * the head. With a lean 5° further back and the contact point 11 cm further back, the back of the
+ * contrabass goes 14.8 cm into the belly and the chest. The trunk leans 12° forward. The right
+ * shoulder turns 50° forward, and the left shoulder 25° (`reachL`), also in the rest: with no left
+ * turn, the left paw reaches one place of the fingerboard only, and the left forearm goes 3.7 cm
+ * into the neck. With a right turn of 55°, the skin of the chest under the chin folds.
  *
  * The string planes are 6° apart, below the 25° of a real contrabass, as on the cello of the dog:
- * with 12°, the bow arm reached 4 cm of the hair at the new place, and the right arm went 5.1 cm
- * into the contrabass. The bow plays no hair within 0.25 m of the frog (`frogHair`): the short bow
- * arm reaches the frog only straight, and then the right upper arm went 5.2 cm into the right rim
- * of the upper bout. The right elbow points out, a little up, and forward, and less up at the
- * tip, so that the forearm slopes down to the bow and the wrist stays nearly straight, as on a
- * real bassist. With the elbow forward, out, and a little down, the forearm lay level across the belly
- * and the paw bent down onto the bow like a hook (user, 2026-10-25: "the rhino's arm is bent
- * unnaturally", of the hippo, 2026-10-26-arm-fixes decisions), and the right upper arm went
- * 4.1 cm into the body. With the elbow level at the tip and the grip in the middle of the paw,
- * it went 3.0 cm into the body (2.8 cm now). With the elbow of the frog at the tip, face 443 of the
- * right forearm folded in 0.3% of the play (2026-10-28-hippo-grip decisions). The left elbow
- * points out to the left, a little down, and forward. The user chose lower elbows with the twist
- * bone of the upper arm (the 2026-10-19-arm-skin decisions): with the level elbow, the right upper
- * arm rolled 86° on the median of the play, and the shoulder skin twisted into a flat band. With
- * the left elbow up and back, the left upper arm turned 80° (the 2026-10-19-hippo-arms decisions).
- * The left elbow turns up 2° for each lower string, as on the cello of the dog: with 10°, the thick
- * left upper arm went 7.0 cm into the contrabass (6.4 cm with 2°). The left paw tilts 55° over the
- * neck, as the paw of the dog: with the 30° of the floor hold, the left arm went 6.9 cm into the
- * body (5.6 cm with 55°).
+ * with 12°, the bow arm reaches 4 cm of the hair at this place, and the right arm goes 5.1 cm into
+ * the contrabass. The bow plays no hair within 0.25 m of the frog (`frogHair`): the short bow arm
+ * reaches the frog only straight, and then the right upper arm goes 5.2 cm into the right rim of
+ * the upper bout. The right elbow points out, a little up, and forward, and less up at the tip, so
+ * that the forearm slopes down to the bow and the wrist stays nearly straight, as on a real
+ * bassist. With the elbow forward, out, and a little down, the forearm lies level across the
+ * belly, the paw bends down onto the bow like a hook, the arm looks bent in an unnatural way, and
+ * the right upper arm goes 4.1 cm into the body. With the elbow level at the tip and the grip in
+ * the middle of the paw, it goes 3.0 cm into the body (2.8 cm with this elbow). With the elbow of
+ * the frog at the tip, face 443 of the right forearm folds in 0.3% of the play. The left elbow
+ * points out to the left, a little down, and forward. Both elbows are low, with the twist bone of
+ * the upper arm: with the level elbow, the right upper arm rolls 86° on the median of the play,
+ * and the shoulder skin twists into a flat band. With the left elbow up and back, the left upper
+ * arm turns 80°. The left elbow turns up 2° for each lower string, as on the cello of the dog:
+ * with 10°, the thick left upper arm goes 7.0 cm into the contrabass (6.4 cm with 2°). The left
+ * paw tilts 55° over the neck, as the paw of the dog: with the 30° of the floor hold, the left arm
+ * goes 6.9 cm into the body (5.6 cm with 55°).
  *
  * In pizzicato, the right paw comes up from the side, 0.18 m right of the strings (`pluckSide`),
  * as a real bassist rests the thumb on the edge of the fingerboard
  * (`docs/reference/string-technique.md`, section 2.8). The right shoulder lies 0.16 m behind the
  * back of the contrabass, so the arm reaches the strings nearly straight: with the palm above the
- * strings, the arm went through the right rim of the upper bout, 7.7 cm deep. The elbow points out
- * to the right, up, and forward: with the elbow out and level, the forearm went 1.7 cm into the
- * rim in 3% of the samples of `boulanger-matin`, and with the elbow of the bow, the paw twisted
- * 153° in the lowering after a pizzicato (110° before, the arm gate). The bow tip points up, square
- * to the strings, so that the forearm comes to the hand at about 45° in the plane of the palm, as
- * in the play: with the tip up, left, and forward, it came at 100° to 109°, past the limit of
- * `PAW_TURN` of `models/studio-rig.ts`, and the paw swung up to 41° off the forearm. With the tip
- * up, forward, and a little out and the elbow a little up, the straight paw twisted 159° on its
- * forearm in the lowering after a pizzicato (the arm gate, 144° before, 140° now,
- * 2026-10-28-hippo-grip decisions).
+ * strings, the arm goes through the right rim of the upper bout, 7.7 cm deep. The elbow points out
+ * to the right, up, and forward: with the elbow out and level, the forearm goes 1.7 cm into the
+ * rim in 3% of the samples of `boulanger-matin`, and with the elbow of the bow, the paw twists
+ * 153° in the lowering after a pizzicato (the arm gate). The bow tip points up, square to the
+ * strings, so that the forearm comes to the hand at about 45° in the plane of the palm, as in the
+ * play: with the tip up, left, and forward, it comes at 100° to 109°, past the limit of
+ * `PAW_TURN` of `models/studio-rig.ts`, and the paw swings up to 41° off the forearm. With the tip
+ * up, forward, and a little out and the elbow a little up, the straight paw twists 159° on its
+ * forearm in the lowering after a pizzicato (140° with this tip, the arm gate).
  *
  * The left paw stops the strings only up to 0.7 of the fingerboard from the nut (`stopEnd`): the
- * left shoulder lies behind the upper bout, so a paw over the bout put the thick left forearm
+ * left shoulder lies behind the upper bout, so a paw over the bout puts the thick left forearm
  * 7.0 cm into it, and with 0.73 already 2.4 cm. A real bassist raises the elbow so that the wrist
  * comes over the shoulder of the instrument, but the short arm of the hippo does not reach so far.
  *
  * The right elbow lies near the backward line of the stick, and on the E and the A strings it lies
  * near the far side of the stick for the roll of the hand. With the far side at 180°, a change of
- * the string turned the paw by about 200° (847 jumps above 90° in 0.25 s over the demos). The far
+ * the string turns the paw by about 200° (847 jumps above 90° in 0.25 s over the demos). The far
  * side lies at 30°, in the middle of the angles that no elbow of the play takes (-40° to 110°), so
  * the roll stays at one end of its range: 20 jumps, and the dog cellist has 25. On the low
  * strings, the paw then goes more than 1.5 cm into the belly in 4.6% of the play samples (0% with
- * 180°). The measures are in the 2026-10-18-hippo-arm decisions.
+ * 180°).
  *
  * In the rest pose, the contrabass stays at its playing place, and the left paw holds the neck
  * with the elbow out to the left and a little down: with the elbow further down, the left forearm
- * went 2.2 cm into the neck in the lift and the lowering, and with a level elbow, the left paw
- * twisted 178° on its forearm in the lowering (limit 176°). The right paw hangs beside the belly with the
- * bow tip down (`HANGING_BOW`), and the elbow points down and a little out, as the arms of the
- * mesh hang: the knee of the floor hold lies under the belly, and the right forearm went 13.8 cm
- * into the body. With the elbow further out, the arm segments rolled the hanging upper arm so far
- * that the skin twisted 41° along it (29° with this elbow, the arm gate). With the elbow further
- * in or forward, the right forearm went 1.6 cm to 4.8 cm into the belly. The grip in the middle
+ * goes 2.2 cm into the neck in the lift and the lowering, and with a level elbow, the left paw
+ * twists 178° on its forearm in the lowering (limit 176°). The right paw hangs beside the belly
+ * with the bow tip down (`HANGING_BOW`), and the elbow points down and a little out, as the arms of
+ * the mesh hang: at the knee of the floor hold, under the belly, the right forearm goes 13.8 cm
+ * into the body. With the elbow further out, the arm segments roll the hanging upper arm so far
+ * that the skin twists 41° along it (29° with this elbow, the arm gate). With the elbow further
+ * in or forward, the right forearm goes 1.6 cm to 4.8 cm into the belly. The grip in the middle
  * of the paw holds the paw 2.5 cm nearer to the frog, so the rest grip lies 0.1 H further out:
- * at the place before, two faces of the inner right elbow folded in each rest sample, and with
- * the grip 0.1 H lower, the right upper arm went 6.2 cm into the body at rest (6.1 cm before,
- * 5.7 cm now, 2026-10-28-hippo-grip decisions). In the lift and the lowering, the tip turns through the front, as the upright bow of the violinists,
- * with the grip 0.3 H out, 0.3 H up, and 0.6 H to the front: with no move up, the bow paw turned
- * 2,959°/s at the most in the lowering (1,877°/s on 2026-10-21 before the move of the contrabass).
+ * 0.1 H further in, two faces of the inner right elbow fold in each rest sample, and with the grip
+ * 0.1 H lower, the right upper arm goes 6.2 cm into the body at rest (5.7 cm at this place). In
+ * the lift and the lowering, the tip turns through the front, as the upright bow of the
+ * violinists, with the grip 0.3 H out, 0.3 H up, and 0.6 H to the front: with no move up, the bow
+ * paw turns 2,959°/s at the most in the lowering.
  *
  * The bow paw keeps the bend of its bind pose on the forearm (`pawKeepR` 1), as a bassist holds
  * the French bow "as if the hand is resting by the side" (`docs/reference/string-technique.md`,
  * section 2.1). The bind bends the short paw 25° off the thick forearm, and the turn of the
- * retarget onto the line of the forearm bent the skin of the wrist 25° off that form: the edges
- * of the wrist stretched up to 1.9 times, and the heel of the paw showed as a lump under the bow
- * paw from the right. With the bend, they stretch up to 1.3 times. The measures are in the
- * 2026-10-28-hippo-paw decisions.
+ * retarget onto the line of the forearm bends the skin of the wrist 25° off that form: the edges
+ * of the wrist stretch up to 1.9 times, and the heel of the paw shows as a lump under the bow paw
+ * from the right. With the bend, they stretch up to 1.3 times.
  *
  * The bow hand turns in the plane of its palm around the grip on the stick, so that the forearm
  * keeps 45° in that plane (`stickTurnR`), and the paw keeps one turn on the hand. The grip lies in
  * the middle of the closed paw (`SpeciesParams.bowGrip`), so the stick stays within 0.4 cm of it
- * in the play, the lift, the rest, and the lowering. The bow turns in the paw over a stroke, as on
- * `main` before. With the paw turned toward the forearm by the retarget alone, the forearm turned
- * about 45° against the bow over a stroke, and the paw slid up to 2.4 cm off the stick. The turn
- * goes up to 90°, because the lowering after a pizzicato turns the forearm up to 79° past 45°.
- * The measures are in the 2026-10-28-hippo-grip decisions.
+ * in the play, the lift, the rest, and the lowering. The bow turns in the paw over a stroke. With
+ * the paw turned toward the forearm by the retarget alone, the forearm turns about 45° against the
+ * bow over a stroke, and the paw slides up to 2.4 cm off the stick. The turn goes up to 90°,
+ * because the lowering after a pizzicato turns the forearm up to 79° past 45°.
  */
 const HIPPO_HOLD = {
   ...BOWED_HOLDS.contrabass,
@@ -1237,8 +1175,8 @@ export function holdOf(species: SpeciesId, instrument: BowedInstrument): BowedHo
 /**
  * The rest pose of the violin and the viola of a soloist who stands (design 5.2): the left hand
  * holds the instrument at the left side, with the scroll forward and a little up, and the top plate
- * out. The bow hangs from the right hand. With the scroll up, the body of the instrument hung
- * below the hanging hand, and it went 0.05 m (violin) to 0.12 m (viola) into the floor.
+ * out. The bow hangs from the right hand. With the scroll up, the body of the instrument hangs
+ * below the hanging hand, and it goes 0.05 m (violin) to 0.12 m (viola) into the floor.
  */
 const STANDING_REST = { axis: [0, 0.15, -1], top: [-1, 0, 0] } as const satisfies {
   readonly axis: Vec3;
@@ -1428,8 +1366,8 @@ export function bowRangeOf(rig: RigPoints): BowRange {
   const frog = Math.max(free, rig.hold.frogHair);
   const end = rig.hairLength - free;
   // The places of the search: each step from the frog, and the end of the hair last, so that the
-  // search also tests the tip. With the steps alone, the hair of the cat ended 4.9 mm after the
-  // last step, and its bow stopped there although the arm reached the end.
+  // search also tests the tip. With the steps alone, the hair of the cat ends 4.9 mm after the
+  // last step, and its bow stops there although the arm reaches the end.
   const places: number[] = [];
   for (let bow = frog; bow < end - 1e-9; bow += BOW_STEP) {
     places.push(bow);

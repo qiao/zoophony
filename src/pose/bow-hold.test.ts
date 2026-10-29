@@ -127,8 +127,8 @@ function bowedPlayers(scene: TestScene): BowedPlayer[] {
 
 describe('the bow in the right hand (design 4.6, 5.3)', () => {
   it('keeps the stick and the hair out of the hand and the arm over a full demo', async () => {
-    // The first grip was in the palm ball, and the frog end of the stick went 0.13 H into the
-    // forearm of the dog (user report of 2026-10-06).
+    // With a grip in the palm ball, the frog end of the stick goes 0.13 H into the forearm of the
+    // dog.
     const scene = await demoSceneOf('boulanger-matin.mid');
     const players = bowedPlayers(scene);
     expect(players.map((p) => p.label).toSorted()).toEqual([
@@ -175,7 +175,7 @@ describe('the bow in the right hand (design 4.6, 5.3)', () => {
     // A small file: each bowed section plays four quarter notes. The band of the gap fits the
     // mitten of the parametric biped and the stick of the bow of the app. The rabbit is not
     // here: its bow is smaller (`violinScale` of its species), and its paw has the skin of a
-    // studio body (2026-10-13-studio-rabbit.md).
+    // studio body.
     const scene = sceneOf(STRINGS);
     const parametric = bowedPlayers(scene).filter((player) => !player.model.studio);
     expect(parametric.length).toBeGreaterThan(2);

@@ -138,8 +138,7 @@ function armFaults(
 export function describePlayClearance(instruments: readonly InstrumentId[]): void {
   describe('the arms in the playing pose (design 5.2, 5.3)', () => {
     // The samples: each half second of the default demo, and the lift every 0.1 s. With the
-    // elbows of the winds down, the arms went up to 0.3 H into the thighs and 0.2 H into the belly
-    // (2026-10-07).
+    // elbows of the winds down, the arms go up to 0.3 H into the thighs and 0.2 H into the belly.
     it.each(instruments)('keeps the arms of the %s out of the body', async (instrument) => {
       const scene = await defaultDemoScene();
 

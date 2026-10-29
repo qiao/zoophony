@@ -29,8 +29,9 @@ export const BOWED_HANDS = {
   /**
    * The roll of the left hand around the neck for each string from the middle of the strings, to
    * the string of the finger (`BowState.stopString`). On the depth of the neck, it moves the
-   * finger block across the strings of the violin model by 2.7 mm. The roll of the full space put the left forearm of the red fox 2.4 cm
-   * into the violin in the play (1.9 cm on `main`), and this roll 2.2 cm.
+   * finger block across the strings of the violin model by 2.7 mm. The roll of the full space
+   * puts the left forearm of the red fox 2.4 cm into the violin in the play, and this roll
+   * 2.2 cm.
    */
   rollL: 2.5 * MathUtils.DEG2RAD,
   /**
@@ -869,11 +870,10 @@ function turnToPlay(rig: RigPoints, frames: TorsoFrames, place: InstrumentPlace)
  * Mixes the rest bow and the playing bow, or the hands on them, by the weight of the playing pose
  * (design 5.2). The bow on the strings of the moving instrument turns with it, and it comes near
  * 180° from the rest bow in the middle of the move. There, the short path of {@link mixRotation}
- * jumped to the other side and turned the bow paw by about 170° in one frame
- * (`docs/research/2026-10-21-wrist-lift.md`). So the side of the path comes from the playing bow
- * at its place in the playing pose ({@link toPlay}), which stays far from 180°: the path is the
- * same up to that point, and it keeps its side after it. At the rest and at the play, the mix is
- * the same.
+ * can jump to the other side and turn the bow paw by about 170° in one frame. So the side of the
+ * path comes from the playing bow at its place in the playing pose ({@link toPlay}), which stays
+ * far from 180°: the path is the same up to that point, and it keeps its side after it. At the
+ * rest and at the play, the mix is the same.
  *
  * @param from The rest bow or hand, moved by {@link liftVia}.
  * @param play The playing bow or hand on the posed instrument.
@@ -923,7 +923,7 @@ const HIGH_ELBOW = [
  * shoulder of the instrument from the third position to the sixth position
  * (`docs/reference/string-technique.md`, section 1.5). The tilt starts and ends one position
  * earlier, because the left forearm of the cat touches the upper bout of the viola from the third
- * position (2026-10-17-cat-hand decisions).
+ * position.
  */
 const HIGH_HAND = [handPlaceOf(HAND_FRAMES.violin, 3), handPlaceOf(HAND_FRAMES.violin, 8)] as const;
 
@@ -1172,13 +1172,12 @@ const seenMix = new Quaternion();
  * (`BowedHold.restPawTurnL`) in place of the turn of the retarget toward the forearm, near the
  * turn of the play, so that the grip in the paw changes little. In the move, the paw takes the turn
  * of the retarget plus the rest difference times `(1 - weight)²`: with the difference times
- * `1 - weight`, the claws of the cat went 2.4 cm into the viola in a lowering (1.8 cm on
- * `8a58282b`). The grip in the paw goes on the short path from the rest grip to the playing grip
- * of the note. The wrist moves on a line from its rest place to its playing
- * place, plus `4 × weight × (1 - weight)` times `BowedHold.liftReach`. The twist of the paw on its
- * forearm goes from the rest to the play with a supination ({@link mixTwist}), as a real forearm
- * turns. The bind of the left paw of these bodies is supinated (design 4.4), so the twist of the
- * studio paw stays on one side of 180° on the way.
+ * `1 - weight`, the claws of the cat go 2.4 cm into the viola in a lowering. The grip in the paw
+ * goes on the short path from the rest grip to the playing grip of the note. The wrist moves on a
+ * line from its rest place to its playing place, plus `4 × weight × (1 - weight)` times
+ * `BowedHold.liftReach`. The twist of the paw on its forearm goes from the rest to the play with a
+ * supination ({@link mixTwist}), as a real forearm turns. The bind of the left paw of these bodies
+ * is supinated (design 4.4), so the twist of the studio paw stays on one side of 180° on the way.
  *
  * @param rig The points of the player.
  * @param frames The posed frames of the torso.
@@ -1310,7 +1309,7 @@ function twistOf(q: Quaternion, axis: Vector3): number {
  * Mixes two turns of the left paw in the frame of its arm ({@link armFrame}, design 5.2): the
  * twist around the forearm goes on a straight line from its first angle to its second angle with
  * a supination, as a real forearm turns from the rest grip to the playing grip of a violin, and
- * the rest of the turn, the bend of the wrist, mixes on its own. With a pronation, the paw turned
+ * the rest of the turn, the bend of the wrist, mixes on its own. With a pronation, the paw turns
  * against the instrument, which takes the short turn from the rest to the play. A mix of the
  * whole turns can bend the wrist far past both ends in the middle.
  *
@@ -1401,7 +1400,7 @@ export function poseBowed(
   const pawTurnL = carryLift(rig, frames, state, weight, note, poleL, place, handL);
   const carried = pawTurnL !== null;
   // In a move, the bow goes to the strings of the instrument on its short path from the rest to
-  // the play: on the strings of the carried instrument, the bow arm went 6.3 cm into the body of
+  // the play: on the strings of the carried instrument, the bow arm goes 6.3 cm into the body of
   // the cat in a lowering. The two paths meet at the play.
   const bowPlace = carried ? instrumentAt(rig, frames, weight, bowInstrument) : place;
   turnToPlay(rig, frames, bowPlace);

@@ -123,10 +123,9 @@ interface PercussionHold {
   /**
    * The distance of the playing spot of each kettle from the rim of its head nearest to the
    * player, in meters on the floor plane. A real timpanist strikes about 3 inches in from the
-   * rim, directly in front of the player (`docs/research/2026-10-19-elephant-mesh.md`). The
-   * elephant strikes further in, so that its paws rest above the near rims, as the user chose
-   * (`docs/decisions/2026-10-19-elephant-pose.md`). 0 keeps the target at the middle of the
-   * head, as for the other instruments.
+   * rim, directly in front of the player (`docs/reference/percussion-technique.md` 4). The
+   * elephant strikes further in, so that its paws rest above the near rims. 0 keeps the target at
+   * the middle of the head, as for the other instruments.
    */
   readonly rim: number;
   /**
@@ -221,8 +220,8 @@ const MALLET_HOME: Vec3 = [0, -0.2, -0.75];
 /**
  * The curl of the fingers of the badger around a mallet, a stick, a beater, or the strap of a
  * cymbal. The claws close on a shaft on the palm side of the paw (`PAW_SPOT` of
- * `models/instruments/percussion.ts`). At 60°, the claws stayed open beside the shaft, and above
- * 90°, more faces at the knuckles turned over.
+ * `models/instruments/percussion.ts`). At 60°, the claws stay open beside the shaft, and above
+ * 90°, more faces at the knuckles turn over.
  */
 export const GRIP_CURL = 90 * MathUtils.DEG2RAD;
 
@@ -231,7 +230,7 @@ export const PERCUSSION_HOLDS = {
   // The elephant mesh has short arms behind a deep belly, and its trunk hangs between the two
   // front kettles: each hand strikes the front kettle of its side, and the outer kettles stand
   // beyond its reach (pair). The paw rests above the near rim, and the mallet strikes 0.25 m in
-  // from the rim, as the user chose for the look of the reference images. As a real timpanist,
+  // from the rim, for the look of the reference images. As a real timpanist,
   // the paw holds the head out of the front of the fist (TIMPANI.malletTilt), and each mallet
   // points forward and in. The homes stand out from the shoulders, so that the mallets point
   // forward and 24° to 32° in at a strike, a V of about 55° as in the American grip. Between
@@ -239,27 +238,22 @@ export const PERCUSSION_HOLDS = {
   // 2 cm to 7 cm above the playing spot (across.pitch), as the set position of a real timpanist.
   // Before a strike, the wrist lifts the head 10 cm to 15 cm higher (sizes.lift, across.peak) and
   // brings it down at the note start, as the full stroke of a real player. A turn of the mallet
-  // across the forearm between strikes laid the right mallet level across the belly, and a
-  // larger pitch moved the shaft out of the closed paw (2026-10-25-timpani-piano-rest
-  // decisions). The elbows point down and a little out from the body, so that the upper arms roll
-  // less, the skin does not twist at the shoulder (2026-10-19-arm-skin decisions), no gap shows
-  // between each upper arm and the trunk from the back (2026-10-22-elephant-crease decisions),
-  // and the thick upper arms of the quad tubes go less far into the round belly near the elbows
-  // (2026-10-25-elephant-hippo-creases decisions). The homes stand 0.25 H below the shoulders and
-  // 0.2 H forward, so that each mallet slopes down along the line of its forearm and the paw, as a
-  // real timpanist holds it. With the homes 0.37 H down, the forearm hung down, and the mallet left
-  // the bottom of the paw nearly at a right angle (user, 2026-10-26: "the elephants wrists are
-  // twisting in unnatural way when hitting the drum", 2026-10-26-second-review decisions). Homes
-  // higher than 0.25 H, or elbows that point back, folded more faces of the paws and turned the
-  // paws faster in the lowering. The mallets stay over the kettles in
-  // the rest pose, because the hanging paws reach into the large kettles (ready,
-  // 2026-10-19-elephant-pose decisions).
+  // across the forearm between strikes lays the right mallet level across the belly, and a
+  // larger pitch moves the shaft out of the closed paw. The elbows point down and a little out
+  // from the body, so that the upper arms roll less, the skin does not twist at the shoulder, no
+  // gap shows between each upper arm and the trunk from the back, and the thick upper arms of the
+  // quad tubes go less far into the round belly near the elbows. The homes stand 0.25 H below the
+  // shoulders and 0.2 H forward, so that each mallet slopes down along the line of its forearm and
+  // the paw, as a real timpanist holds it. With the homes 0.37 H down, the forearm hangs down, the
+  // mallet leaves the bottom of the paw nearly at a right angle, and the wrists twist in an
+  // unnatural way at a strike. Homes higher than 0.25 H, or elbows that point back, fold more
+  // faces of the paws and turn the paws faster in the lowering. The mallets stay over the kettles
+  // in the rest pose, because the hanging paws reach into the large kettles (ready).
   timpani: {
     hands: 'sides',
     sizes: { lift: 0.2, rest: 0.03 },
     // The left mallet strikes 8 cm toward the middle, so that it points in as far as the right
-    // mallet: with no offset, the left mallet pointed 17° in and the right mallet 22°
-    // (2026-10-25-timpani-piano-rest decisions).
+    // mallet: with no offset, the left mallet points 17° in and the right mallet 22°.
     offsetL: [0.08, 0, 0],
     offsetR: [-0.05, 0, 0],
     poleL: [-0.8, -1, 0.2],
@@ -281,9 +275,8 @@ export const PERCUSSION_HOLDS = {
     curl: 100 * MathUtils.DEG2RAD,
     // Each paw turns around the shaft until it has no side bend at the strike, and keeps that roll
     // between strikes, so that the shaft stays in the closed paw. Each hand strikes one kettle in
-    // one direction, so the roll stays near one value. With no roll, the shafts left the paws
-    // 80° from the thumb side between strikes, and no paw grasped its mallet
-    // (2026-10-25-timpani-piano-rest decisions).
+    // one direction, so the roll stays near one value. With no roll, the shafts leave the paws
+    // 80° from the thumb side between strikes, and no paw grasps its mallet.
     strikeRoll: true,
   },
   // The badger stands behind the drum, and the right paw holds the beater at the near rim of the
@@ -296,12 +289,11 @@ export const PERCUSSION_HOLDS = {
   // to about 13 cm before a strike (sizes). The paw keeps the roll of the strike around the shaft,
   // so that the shaft leaves the fist at the side of the thumb (strikeRoll). The upper arm hangs
   // near the side, with the elbow down and a little in and back: with the elbow out, the forearm
-  // came within 26° of the shaft, and the shaft left the fist along the claws. The spine leans 7°
-  // over the drum, so that the elbow can bend: with no lean, the wrist reached 0.97 of the arm,
-  // and the paw grasped the shaft in 10% of the play. With 9°, the elbow skin stretched 0.13 of
-  // the upper arm from the rest. The paw holds the beater at the drum and the spine keeps its lean
-  // also at rest (ready). The left arm hangs, because a single note often needs no muffling
-  // (2026-10-27-badger-beater decisions).
+  // comes within 26° of the shaft, and the shaft leaves the fist along the claws. The spine leans
+  // 7° over the drum, so that the elbow can bend: with no lean, the wrist reaches 0.97 of the arm,
+  // and the paw grasps the shaft in 10% of the play. With 9°, the elbow skin stretches 0.13 of the
+  // upper arm from the rest. The paw holds the beater at the drum and the spine keeps its lean
+  // also at rest (ready). The left arm hangs, because a single note often needs no muffling.
   'bass-drum': {
     hands: 'right',
     sizes: { lift: 0.13, rest: 0.05 },
@@ -331,8 +323,7 @@ export const PERCUSSION_HOLDS = {
   // from the shoulders, so that they make a V of about 66° at a strike and slant down 9°, as the
   // matched grip of a real player. Between strikes, each stick keeps its strike direction, and
   // the wrist lifts the tip over the head (across.pitch), as a real player's stroke from the
-  // wrist. With the rest direction across the forearm, the tips swung out over the rim
-  // (2026-10-25-percussion-tips decisions).
+  // wrist. With the rest direction across the forearm, the tips swing out over the rim.
   'snare-drum': {
     hands: 'alternate',
     sizes: { lift: 0.1, rest: 0.03 },
@@ -358,7 +349,7 @@ export const PERCUSSION_HOLDS = {
   },
   // The lift is the half of the gap between the inner faces of the two cymbals. The elbows point
   // down and a little out, so that fewer faces of the left shoulder of the badger mesh fold in the
-  // lift (2026-10-20-mesh-badger decisions).
+  // lift.
   cymbals: {
     hands: 'pair',
     sizes: { lift: 0.15, rest: 0.06 },
@@ -385,8 +376,7 @@ export const PERCUSSION_HOLDS = {
   // The left hand holds the triangle up, and its elbow points out to the left. The beater leaves
   // the front of the right fist (TRIANGLE.malletTilt) and keeps the angle of no twist of the paw
   // between strikes (across). The badger holds the triangle up also at rest (ready), because the
-  // turn of the left paw from the hanging arm swung the paw far in the lift
-  // (2026-10-20-mesh-badger decisions).
+  // turn of the left paw from the hanging arm swings the paw far in the lift.
   'small-percussion': {
     hands: 'right',
     sizes: { lift: 0.05, rest: 0.02 },
@@ -408,29 +398,26 @@ export const PERCUSSION_HOLDS = {
     lean: 0,
     side: null,
     // The left paw closes on the clip of the triangle and the right paw on the short beater with
-    // less curl: at 90°, the left paw folded 10 faces at the knuckles.
+    // less curl: at 90°, the left paw folds 10 faces at the knuckles.
     curl: 75 * MathUtils.DEG2RAD,
-    // A beater near the line of the forearm turned the paw fast with a roll that removes the
-    // side bend, so the forearm lies in the plane of the palm (2026-10-25-percussion-grip
-    // decisions).
+    // A beater near the line of the forearm turns the paw fast with a roll that removes the
+    // side bend, so the forearm lies in the plane of the palm.
     strikeRoll: false,
   },
   // The mallets leave the front of the fists (XYLOPHONE.malletTilt), as the sticks of the snare
-  // drum, because a real player holds them in the matched grip of the snare drum
-  // (2026-10-20-mesh-badger decisions). Between strikes, each mallet keeps its strike direction,
-  // and the wrist lifts the head over its bar (across.pitch), so that the two heads keep apart.
-  // The short arms do not reach the bars from an upright body, so the spine leans over them
-  // (lean), and the body moves from side to side behind the notes with the feet in place (side,
-  // 2026-10-25-xylophone-sway decisions). A run alternates the paws, as a real player plays a
-  // scale with alternate strokes, and goes on in one paw only where the other paw does not reach
-  // (pass, reach, 2026-10-25-percussion-rest decisions).
+  // drum, because a real player holds them in the matched grip of the snare drum. Between
+  // strikes, each mallet keeps its strike direction, and the wrist lifts the head over its bar
+  // (across.pitch), so that the two heads keep apart. The short arms do not reach the bars from an
+  // upright body, so the spine leans over them (lean), and the body moves from side to side
+  // behind the notes with the feet in place (side). A run alternates the paws, as a real player
+  // plays a scale with alternate strokes, and goes on in one paw only where the other paw does not
+  // reach (pass, reach).
   xylophone: {
     hands: 'alternate',
     sizes: { lift: 0.08, rest: 0.03 },
     // The left mallet strikes 2 cm nearer to the player than the middle of the bar, and the right
-    // mallet 2 cm farther, so that the heads keep apart on near bars (2026-10-25-xylophone-sway
-    // decisions). On the smaller bars, 3 cm bent the left wrist 53° at the lowest bars, and 2 cm
-    // 49° (2026-10-25-xylophone-reach decisions).
+    // mallet 2 cm farther, so that the heads keep apart on near bars. On the smaller bars, 3 cm
+    // bends the left wrist 53° at the lowest bars, and 2 cm 49°.
     offsetL: [0, 0, 0.02],
     offsetR: [0, 0, -0.02],
     poleL: [-0.8, -1, 0.3],
@@ -440,16 +427,16 @@ export const PERCUSSION_HOLDS = {
     top: 'up',
     across: { rest: -0.6, lift: 0.3, pitch: 0.5, peak: 1 },
     // Between strikes, the right head stays higher than the left head, so that the heads pass each
-    // other at two heights in a run. At one height, the heads passed through each other, and the
-    // mallets touched in 7% of the samples of the test score. With the right head lower, the right
-    // wrist bent more (2026-10-25-percussion-rest decisions).
+    // other at two heights in a run. At one height, the heads pass through each other, and the
+    // mallets touch in 7% of the samples of the test score. With the right head lower, the right
+    // wrist bends more.
     pitchR: 2,
     ready: false,
     set: null,
     pair: false,
     // A later strike on one bar or a near bar stays in one hand, so that a mallet does not strike
-    // under the head of the other mallet, which rests over its bar. With 1 cm, the mallets touched
-    // where a run goes over from one paw to the other (2026-10-25-xylophone-reach decisions).
+    // under the head of the other mallet, which rests over its bar. With 1 cm, the mallets touch
+    // where a run goes over from one paw to the other.
     gap: 0.02,
     // A fast strike passes the last bar of the other paw by up to about one bar, as a real player
     // alternates the hands in a scale. A wider leap takes a double stroke.
@@ -457,14 +444,13 @@ export const PERCUSSION_HOLDS = {
     reach: 0.53,
     lean: 0.2,
     // The short legs tilt far with a small move of the hips, and the foot skin then sinks into
-    // the floor, so the hips keep their place, and the spine takes the whole move
-    // (2026-10-25-xylophone-reach decisions). A lean of 12° moves the shoulders 5.5 cm toward the
-    // notes, so that both paws reach more bars of a run. At 14°, the left paw bent 70° on the
-    // forearm, the limit of the arm gate (2026-10-25-percussion-rest decisions).
+    // the floor, so the hips keep their place, and the spine takes the whole move. A lean of 12°
+    // moves the shoulders 5.5 cm toward the notes, so that both paws reach more bars of a run. At
+    // 14°, the left paw bends 70° on the forearm, the limit of the arm gate.
     side: { span: 0.25, hips: 0, spine: 12 * MathUtils.DEG2RAD, moveSec: 0.6 },
     curl: GRIP_CURL,
-    // A roll that removes the side bend at each strike turned the paws fast between the bars, so
-    // the forearm lies in the plane of the palm (2026-10-25-percussion-grip decisions).
+    // A roll that removes the side bend at each strike turns the paws fast between the bars, so
+    // the forearm lies in the plane of the palm.
     strikeRoll: false,
   },
 } as const satisfies Readonly<Record<PercussionInstrument, PercussionHold>>;
@@ -477,10 +463,9 @@ export const PERCUSSION_HOLDS = {
  * right (`docs/reference/percussion-technique.md` 7). The offsets move the target, the middle of a
  * cymbal of the scale 1, to these spots, 1.3 cm in from the rim. The homes stand further out than
  * for the snare drum, so that the mallets point in to the spots, and the upper arms of the badger
- * mesh fold less and stay within their accepted depth (2026-10-20-badger-cymbals decisions).
- * Between strikes, each mallet keeps its strike direction, and the wrist lifts the head over its
- * spot (`across.pitch`). With the rest direction across the forearm, the heads swung out past
- * the rim (2026-10-25-percussion-tips decisions).
+ * mesh fold less and stay within their accepted depth. Between strikes, each mallet keeps its
+ * strike direction, and the wrist lifts the head over its spot (`across.pitch`). With the rest
+ * direction across the forearm, the heads swing out past the rim.
  */
 export const SUSPENDED_CYMBAL_HOLD: PercussionHold = {
   hands: 'alternate',
@@ -651,11 +636,10 @@ function bindTarget(model: PlayerModel, target: PlayTarget, at: Vec3 = target.fr
  * Gives the octave shift of a xylophone part (design 5.3): the multiple of 12 semitones that puts
  * the highest key of the part in the highest octave of the bars, as a player plays a part below or
  * above the instrument in another octave. A part within the bars keeps its keys. The short bars of
- * the high keys stand nearest to the player, so the short arms of the badger reach them best. A
- * steel drum part of a file of the user, keys 53 to 62, struck the lowest bar with each note
- * before the shift, out of the reach of the arms. Shifted to the middle of the bars, 0% of its
- * strikes were within 5 mm of their bars, and shifted to the top, 51%
- * (`docs/research/2026-10-21-pirates-clip.md`).
+ * the high keys stand nearest to the player, so the short arms of the badger reach them best. With
+ * no shift, a steel drum part with the keys 53 to 62 strikes the lowest bar with each note, out of
+ * the reach of the arms. Shifted to the middle of the bars, 0% of its strikes are within 5 mm of
+ * their bars, and shifted to the top, 51%.
  *
  * @param lowest The lowest MIDI key of the part.
  * @param highest The highest MIDI key of the part.

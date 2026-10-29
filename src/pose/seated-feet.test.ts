@@ -142,8 +142,8 @@ describe('the feet of the seated players (design 4.5)', () => {
   });
 
   it('rests each foot on the floor, or on the foot ring of the high stool', () => {
-    // On 2026-10-08, the feet of the rigged red fox floated 0.0725 m (right) and 0.0882 m (left)
-    // above the floor on a chair. The model sheet `fox-views.png` lets the feet hang.
+    // The feet of a rigged body can float above the floor on a chair, 0.0725 m (right) and
+    // 0.0882 m (left) on the red fox. The model sheet `fox-views.png` lets the feet hang.
     expect(feetOutOfPlace()).toEqual([]);
   });
 });

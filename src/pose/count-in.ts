@@ -20,7 +20,7 @@ export const COUNT_IN = {
   /**
    * The longest preparatory beat. A conductor gives a slow beat in two, so the baton comes down
    * faster than the beat of the music. With the full beat of K. 315 (46 BPM, 1.3 s), the first
-   * sound came 3.1 s after the tap on a phone (UX audit 2026-10-06, N11).
+   * sound comes 3.1 s after the tap on a phone.
    */
   maxBeatSec: 0.9,
 } as const;

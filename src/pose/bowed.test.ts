@@ -221,15 +221,14 @@ describe('poseBowed (design 5.3, 4.7)', () => {
     };
     const shoulder = place(rabbit);
     const chin = place(fox);
-    // The left side of the animal is -x. The scroll stays within 10° of the level line
-    // (2026-10-13-mesh-rabbit decisions).
+    // The left side of the animal is -x. The scroll stays within 10° of the level line.
     expect(shoulder.side).toBeLessThan(chin.side - 0.15);
     expect(Math.abs(shoulder.rise)).toBeLessThan(Math.sin((10 * Math.PI) / 180));
   });
 
   it('sizes the violin of a species with a violin scale by the rule of real violins (design 4.6)', () => {
     // In the play position with the left arm extended, the scroll lies in the middle of the
-    // palm: a violin shop sizes a violin so (2026-10-13-studio-rabbit.md).
+    // palm: a violin shop sizes a violin so.
     const sized = players.filter((player) => {
       const species: SpeciesParams =
         SPECIES[scene.layout.players[player.index]?.cast.species ?? 'fox-red'];
@@ -277,9 +276,9 @@ describe('poseBowed (design 5.3, 4.7)', () => {
   });
 
   it('puts the left fingers on the strings and the left palm under them', () => {
-    // The first palm was 0.063 m below the strings at the violin model size (0.08 m on the
-    // violin), with the fingers beside the neck, so the hand did not touch the fingerboard. The
-    // distances across the neck scale with the violin of the species (design 4.6).
+    // A palm 0.063 m below the strings at the violin model size (0.08 m on the violin) puts the
+    // fingers beside the neck, and the hand does not touch the fingerboard. The distances across
+    // the neck scale with the violin of the species (design 4.6).
     for (const player of players) {
       const species = scene.layout.players[player.index]?.cast.species ?? 'fox-red';
       const params: SpeciesParams = SPECIES[species];
@@ -289,7 +288,7 @@ describe('poseBowed (design 5.3, 4.7)', () => {
         const label = `${species} ${player.instrument} at ${t}`;
         // The finger block of the mitten reaches through the plane of the strings. The paw of a
         // studio body has one finger bone, and its finger block stays at the side of the neck,
-        // under the plane of the strings (2026-10-13-studio-rabbit.md).
+        // under the plane of the strings.
         if (!player.model.studio) {
           const heights = posedPart(posed, ['fingersL']).triangles.flatMap((triangle) =>
             [triangle.a, triangle.b, triangle.c].map((corner) => stopOf(posed, corner).height),
@@ -510,8 +509,7 @@ describe('the rest pose of the bowed strings (design 5.2, 5.5)', () => {
 
   it('keeps the rest bow of each violinist out of the trunk and the arms, and nearly out of the legs', () => {
     // The paw holds the frog on the lap, so the frog may press 0.03 H into the thighs and the
-    // shins. On 2026-10-11, the shoulder hold of the parametric rabbit put it 0.024 H into the right
-    // thigh, and the chin hold of the red fox kept it out of the legs.
+    // shins.
     const violins = players.filter((p) => p.instrument === 'violin');
     expect(violins).toHaveLength(2);
     for (const player of violins) {
@@ -611,12 +609,10 @@ function turnBetween(a: Float32Array, b: Float32Array, bone: number): number {
 
 describe('the bow hand in the lift (design 5.2, 5.3)', () => {
   it('turns the bow hand and the bow at most 1000° a second', async () => {
-    // While the elbow turned to the back of the hand, the roll of the hand snapped near the line
-    // of the stick: the hand of a violin turned 103,000° a second in the lift of the default
-    // demo, and the cello hand 7.5° in 2 ms (2026-10-07). The limit finds such a snap. On
-    // 2026-10-11, the limit also found the turns of 1,333° to 2,467° a second of a bad rest grip.
-    // The bow paw of the rabbit hangs at its side in the rest pose, and the lift turns it to the
-    // hold with no snap (2026-10-13-mesh-rabbit.md, row "Accepted limits").
+    // While the elbow turns to the back of the hand, the roll of the hand can snap near the line
+    // of the stick: a snap can turn the hand of a violin 103,000° a second in the lift, and the
+    // cello hand 7.5° in 2 ms. The limit finds such a snap, and also the turns of 1,333° to
+    // 2,467° a second of a bad rest grip.
     const scene = await demoSceneOf('boulanger-matin.mid');
     const bones = [boneIndex('handR'), boneIndex('bow')];
     const step = 0.001;

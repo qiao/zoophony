@@ -292,9 +292,9 @@ export function seatHeight(
 }
 
 /**
- * The bow of the conductor at the song end (design 5.4). Nothing marked the end of a piece: the
- * last wide shot held, and the players lowered their instruments (UX audit 2026-10-05, AM2).
- * The times are wall seconds after the pause at the song end.
+ * The bow of the conductor at the song end (design 5.4). The bow marks the end of a piece. With
+ * no bow, the last wide shot holds, and the players only lower their instruments. The times are
+ * wall seconds after the pause at the song end.
  */
 export const END_BOW = {
   /** The bow starts this long after the pause, while the instruments are still up (5.2). */

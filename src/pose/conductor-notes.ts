@@ -45,8 +45,8 @@ export const BEAT_PATTERNS = {
 /** The sizes and the times of the motion of the conductor (design 5.4). */
 export const CONDUCTOR_MOTION = {
   /**
-   * One unit of a pattern, in meters, at a gesture size of 1. The first unit of 0.35 m gave a
-   * small motion of the wrist (UX audit 2026-10-05, AM1).
+   * One unit of a pattern, in meters, at a gesture size of 1. A unit of 0.35 m gives a small
+   * motion of the wrist.
    */
   scale: 0.5,
   /**

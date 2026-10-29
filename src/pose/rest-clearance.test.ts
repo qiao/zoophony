@@ -97,8 +97,8 @@ function castPlan(casts: readonly Cast[]): CastPlan {
 
 describe('the players on the floor (design 5.2)', () => {
   it('keeps each player and its instrument above the floor at rest and while it plays', () => {
-    // The violin and the viola of a soloist who stands hung below the hanging left hand, 0.05 m
-    // to 0.12 m into the floor.
+    // The violin and the viola of a soloist who stands can hang below the hanging left hand,
+    // 0.05 m to 0.12 m into the floor.
     const { players, plan } = castPlan(CASTS);
     const buffer = createScenePose(plan);
 
@@ -129,8 +129,8 @@ describe('the players on the floor (design 5.2)', () => {
 describe('the hanging arms of the standing players (design 5.2)', () => {
   it('holds each palm of a standing player at least at the height of its hip joints', () => {
     // An animal of the reference images holds its arms at its belly. With the short standing legs
-    // of 2026-10-11 and an elbow bend of 30°, the hanging palms came down near the knees: at rest,
-    // and the free left hand of the bass drum while it plays.
+    // and an elbow bend of 30°, the hanging palms come down near the knees: at rest, and the free
+    // left hand of the bass drum while it plays.
     const standing = CASTS.filter((cast) => cast.support === 'stand');
     const { players, plan } = castPlan(standing);
     const bear = buildPlayer(CONDUCTOR.species, CONDUCTOR.instrument);

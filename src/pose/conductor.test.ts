@@ -464,7 +464,7 @@ describe('poseConductor (design 5.4, 4.7)', () => {
   });
 
   it('hangs the arms a little out to the sides in the rest pose (design 5.2)', () => {
-    // The first rest pose kept the arms of the bind pose, and they went 0.25 H into the hips.
+    // A rest pose with the arms of the bind pose puts the arms 0.25 H into the hips.
     const pose = ofConductor(
       poseAt(scene.plan, 6, 0, NOT_STARTED, allAudible(scene.score)).conductor,
     );
@@ -473,7 +473,7 @@ describe('poseConductor (design 5.4, 4.7)', () => {
       const { out, bend } = armHang(rested, side);
       expect(out * MathUtils.RAD2DEG, side).toBeGreaterThan(15);
       expect(out * MathUtils.RAD2DEG, side).toBeLessThan(40);
-      // The elbow bends about 60°, so that the palms rest at the hips (2026-10-11).
+      // The elbow bends about 60°, so that the palms rest at the hips.
       expect(bend * MathUtils.RAD2DEG, side).toBeGreaterThan(45);
       expect(bend * MathUtils.RAD2DEG, side).toBeLessThan(75);
     }

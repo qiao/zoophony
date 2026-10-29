@@ -292,14 +292,14 @@ function holdTurn(
  * Gives the roll of a mallet in its paw that removes the side bend of the paw on the forearm at
  * a strike (design 5.3). The retarget turns each studio paw in the plane of its palm toward the
  * forearm (`PAW_TURN` of `models/studio-rig.ts`), but the mallet follows the hand of the player.
- * With a side bend, the shaft thus moves in the visible paw and leaves it along the fingers
- * (`docs/research/2026-10-25-percussion-grip.md`). The hand turns around the shaft until its thumb
+ * With a side bend, the shaft thus moves in the visible paw and leaves it along the fingers. The
+ * hand turns around the shaft until its thumb
  * axis is normal to the forearm: then the retarget turns no paw, and the shaft stays where the
  * bind pose holds it. Of the two turns, the function takes the smaller one. When the forearm is
  * nearer to the shaft than the shaft to the fingers in the bind pose, no turn removes the side
  * bend, and the function takes the turn with the least side bend. Near the line of the shaft, the
  * roll fades out ({@link GRIP_FADE}). The paw keeps the roll through the stroke, because a roll
- * for each moment of the stroke turned the paws up to 79° in 0.01 s.
+ * for each moment of the stroke turns the paws up to 79° in 0.01 s.
  *
  * @param side The hand with a mallet.
  * @param direction The unit direction of the mallet at the strike, from the grip to the head.

@@ -13,8 +13,8 @@ import type { ArmRig } from './ik.ts';
 export const CHOIR_HOLD = {
   /**
    * The elbows point down and a little out and back, so that the upper arms touch the sides of the
-   * body, as in the reference images. Out and down, (1, -0.6, 0), they stood 49° out from the side.
-   * With the elbows down and back, (0.6, -1, 0.2), the upper arms went 0.022 H into the torso.
+   * body, as in the reference images. Out and down, (1, -0.6, 0), they stand 49° out from the
+   * side. With the elbows down and back, (0.6, -1, 0.2), the upper arms go 0.022 H into the torso.
    */
   poleL: [-0.7, -1, 0.1],
   poleR: [0.7, -1, 0.1],

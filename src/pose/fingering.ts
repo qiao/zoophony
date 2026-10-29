@@ -139,7 +139,7 @@ interface FingeringCosts {
 }
 
 /**
- * The weights of the plan of the left hand (research `2026-10-17-string-hands.md`, section 4.1):
+ * The weights of the plan of the left hand (`docs/reference/string-technique.md`, section 3.1):
  * the orchestral style, with low positions and open strings. A shift costs more in a fast passage
  * and less after an open string or a rest. A high position, an extension, an open string of a
  * long note, and a string crossing also cost.

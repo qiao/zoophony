@@ -345,7 +345,7 @@ describe('posePercussion (design 5.3, 4.7)', () => {
   });
 
   it('hangs the arms a little out to the sides in the rest pose (design 5.2)', () => {
-    // The first rest pose kept the arms of the bind pose, and they went 0.25 H into the hips.
+    // A rest pose with the arms of the bind pose puts the arms 0.25 H into the hips.
     for (const player of players) {
       const posed = posedAt(scene, player, 1, 0, NOT_STARTED);
       for (const side of ['L', 'R'] as const) {
@@ -353,7 +353,7 @@ describe('posePercussion (design 5.3, 4.7)', () => {
         const label = `${player.instrument} ${side}`;
         expect(out * MathUtils.RAD2DEG, label).toBeGreaterThan(15);
         expect(out * MathUtils.RAD2DEG, label).toBeLessThan(40);
-        // The elbow bends about 60°, so that the palms rest at the hips (2026-10-11).
+        // The elbow bends about 60°, so that the palms rest at the hips.
         expect(bend * MathUtils.RAD2DEG, label).toBeGreaterThan(45);
         expect(bend * MathUtils.RAD2DEG, label).toBeLessThan(75);
       }

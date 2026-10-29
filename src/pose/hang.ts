@@ -26,18 +26,18 @@ export interface HangingArm {
 export const HANG = {
   /**
    * The forward swing of the upper arm. The arm hangs in front of the widest part of the hips, so
-   * that it comes nearer to the side: with 8°, the arm stood 8° further out.
+   * that it comes nearer to the side: with 8°, the arm stands 8° further out.
    */
   forward: 20 * MathUtils.DEG2RAD,
   /**
    * The forward bend of the elbow. The palms rest at the hips, as an animal of the reference images
-   * holds its arms at its belly. With 30°, the palms of the short standing legs of 2026-10-11
-   * hung 0.19 H to 0.25 H below the hip joints, near the knees.
+   * holds its arms at its belly. With 30° and the short standing legs, the palms hang 0.19 H to
+   * 0.25 H below the hip joints, near the knees.
    */
   bend: 60 * MathUtils.DEG2RAD,
   /**
    * The smallest swing of the arm out to the side. The paws of the studio bear rest on the front
-   * of its round belly: at 8°, they went 2.2 cm into it.
+   * of its round belly: at 8°, they go 2.2 cm into it.
    */
   minOut: 16 * MathUtils.DEG2RAD,
   /** The largest swing of the arm out to the side. */

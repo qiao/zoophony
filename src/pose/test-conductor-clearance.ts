@@ -107,8 +107,7 @@ function posedParts(posed: PosedSkeleton, groups: readonly (readonly BoneName[])
  * Gives the checks of the conductor beside the sweep (design 4.5, 5.4): in each set, the bear
  * keeps {@link GAP} from its stand. When the arms lift and lower, the left hand also keeps
  * {@link GAP} from the head and from the right forearm, hand, and baton. The check of the left
- * hand against the head in a play stays out: the user removed it when the rigged bear of
- * 2026-10-10 failed it (`docs/decisions/2026-10-11-body-revert.md`).
+ * hand against the head in a play stays out, because a rigged bear fails it.
  *
  * @param stand The stand.
  * @param set The name of the set of samples.

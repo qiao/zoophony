@@ -491,8 +491,8 @@ describe('the pose timing of the choir (design 9.7)', () => {
 
   it('gives each sung note of the first 60 s of the Beethoven 9 demo within 5 ms', async () => {
     const { error, count } = largestChoirError(await demoScene('beethoven-9'), 60);
-    // In the first 60 s, only the vocal soloists sing: one singer for each voice since the
-    // second UX audit (N8). Their 8 singers of the choir row gave more than 600 notes.
+    // In the first 60 s, only the vocal soloists sing: one singer for each voice. With the 8
+    // singers of the choir row, the first 60 s give more than 600 notes.
     expect(count).toBeGreaterThan(100);
     expect(error).toBeLessThanOrEqual(EVENT_TOLERANCE);
   });

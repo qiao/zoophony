@@ -75,14 +75,14 @@ export const CUE_MOTION = {
   eyeHeight: 1.1,
   /**
    * The left hand points at most this far to the right of the front of the upper body: not to the
-   * right of it. With 20°, the forearm crossed in front of the head, which turns further to the
-   * section, and went through its muzzle.
+   * right of it. With 20°, the forearm crosses in front of the head, which turns further to the
+   * section, and goes through its muzzle.
    */
   handRight: 0,
   /**
    * The left hand points at least this far to the left of the front of the bear, so that it shows
    * beside the head from behind. At the front of the upper body, a cue to a section in the middle
-   * or at the right put the hand behind the head in the view from behind (review of 2026-10-07).
+   * or at the right puts the hand behind the head in the view from behind.
    */
   handLeft: 25 * MathUtils.DEG2RAD,
   /** At the cue point, the left hand points this far up, at this part of the reach of the arm. */
