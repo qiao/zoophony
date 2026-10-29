@@ -587,7 +587,7 @@ the body sets the hold, the instrument fits the body, as the table names.
 
 | Instrument | Model and hold |
 | --- | --- |
-| Violin, viola | An arched body with f-holes, a scroll, a bridge, four strings, a chin rest, and a bow. Under the chin on the left shoulder. The cat plays a small viola near the neck. |
+| Violin, viola | An arched body with f-holes, a scroll, a bridge, four strings, a chin rest, a shoulder rest, and a bow. Under the chin on the left shoulder. The cat plays a small viola near the neck. |
 | Cello, contrabass | The violin form with an end pin (`endPinLength()`). The cello leans back between the knees. The contrabass has sloped shoulders and machine heads, and stands at the left side. |
 | Harp | Leaned back onto the right shoulder. The deer plays a smaller harp on a box (`HARP_PLACE`, `HARP_STAND`). |
 | Piano | Larger than a real grand piano (`PIANO_SCALE`), so the keys stand a little below the elbows of the polar bear. The keys stand in front of its belly (`PIANO_FRONT_H`). |
@@ -606,8 +606,12 @@ board (`VIOLIN`), because the holds and the play targets read that height. The n
 first positions is open below the board (`NECK_OPEN`), so the left paw of the hippo does not go
 through it. The chin rest of the violin and the viola is at the left of the tailpiece, on the side
 of the G string (`CHIN_REST`), because a violinist rests the left side of the jaw on it. The
-strings of the violin and the viola have a triangle section (`STRING_SECTION`), because they are
-about 1 mm thick on the stage, and the triangles go to other parts of the budget. The layout
+shoulder rest is a bent bar under the back of the lower bout, with a foot on each rib
+(`SHOULDER_REST`), because a violinist holds the instrument between the chin rest and the shoulder
+rest. Its high end is on the side of the E string, because the left shoulder and the upper arm
+lie under that side in the hold. The strings of the violin and the viola have a triangle section
+(`STRING_SECTION`), because they are about 1 mm thick on the stage, so the shoulder rest fits in
+the triangle budget. The layout
 reads a simple box of each bowed string (`addLayoutSpace()`), so a change of the detail does not
 move the seats.
 

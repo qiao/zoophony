@@ -424,6 +424,9 @@ The app follows these facts:
   tailpiece, on the side of the G string (`CHIN_REST`). The left shoulder bone turns forward
   in the play (`BowedHold.reachL`, `shoulderTurnL()`), as the left shoulder of a violinist moves
   forward, so that the short left arm reaches the nut.
+- **The shoulder rest (1.10).** A shoulder rest lies under the back of the lower bout
+  (`SHOULDER_REST`). Its high end is on the side of the E string, over the left shoulder and the
+  upper arm of the animal.
 - **The size of the viola (1.10).** The cat plays a smaller viola (`SpeciesParams.violaScale`),
   the smallest size of the chart of [81]. The chin rest lies under the long jaw, further from the
   shoulder along the viola than on a person.

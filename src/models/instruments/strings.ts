@@ -705,6 +705,68 @@ function chinRestOutline(): OutlinePoint[] {
 }
 
 /**
+ * The shoulder rest of the violin and the viola under the back of the lower bout, in meters in
+ * the violin axes: a bar across the back, with a foot at each end that holds the edge of the body.
+ * A violinist holds the instrument between the chin rest and the shoulder rest
+ * (`docs/reference/string-technique.md`, section 1.10). The high end is at +z, on the side of the
+ * E string, because the left shoulder and the upper arm lie under that side in the hold. Under the
+ * side of the G string, the body falls away.
+ */
+const SHOULDER_REST = {
+  /** The place of the bar along the violin. */
+  along: 0.07,
+  /** The width of the bar along the violin. */
+  width: 0.02,
+  /** The depth of the bar from its flat face to its edge away from the violin. */
+  depth: 0.007,
+  /**
+   * The line of the flat face, as points (across, height): the top and the bottom of the foot at
+   * the low end, the middle of the bar, and the bottom and the top of the foot at the high end.
+   * The flat face of each foot lies on the rib, inside the edge of the back.
+   */
+  line: [
+    [-0.0645, 0.009],
+    [-0.0645, -0.012],
+    [0, -0.011],
+    [0.0645, -0.018],
+    [0.0645, 0.009],
+  ],
+} as const;
+
+/**
+ * Makes the shoulder rest ({@link SHOULDER_REST}): a bent bar with a triangle section, with its
+ * flat face toward the violin and its edge away from it.
+ *
+ * @returns 26 triangles, as one closed surface.
+ */
+function shoulderRest(): number[] {
+  const r = SHOULDER_REST;
+  const line = r.line.map(([z, y]) => new Vector3(0, y, z));
+  const inside = new Vector3(0, r.line[0][1], 0);
+  // The normal of each segment of the line, toward the violin.
+  const normals = line.slice(1).map((p, i) => {
+    const step = p.clone().sub(line[i] ?? p);
+    const normal = new Vector3(0, -step.z, step.y).normalize();
+    return normal.dot(inside.clone().sub(p)) < 0 ? normal.negate() : normal;
+  });
+  const rings = line.map((p, i): Vec3[] => {
+    const normal = (normals[i - 1] ?? new Vector3())
+      .clone()
+      .add(normals[i] ?? new Vector3())
+      .normalize();
+    const edge = p.clone().addScaledVector(normal, -r.depth);
+    return [
+      [r.along + r.width / 2, p.y, p.z],
+      [r.along - r.width / 2, p.y, p.z],
+      [r.along, edge.y, edge.z],
+    ];
+  });
+  const [a0 = [0, 0, 0], b0 = [0, 0, 0], c0 = [0, 0, 0]] = rings[0] ?? [];
+  const [a1 = [0, 0, 0], b1 = [0, 0, 0], c1 = [0, 0, 0]] = rings.at(-1) ?? [];
+  return [...sweep(rings, false), ...a0, ...c0, ...b0, ...a1, ...b1, ...c1];
+}
+
+/**
  * The four strings of the violin model, in meters in the violin axes: the distance between the
  * middles of the outer strings at the end of the tailpiece and at the nut (at the bridge, the
  * distance is `VIOLIN.stringsWidth` less one string), the place of the end on the tailpiece, and
@@ -740,7 +802,7 @@ const STRING_SECTIONS = {
 /**
  * The section of the strings of each form. The strings of the violin and the viola are
  * triangles, because they are about 1 mm thick on the stage. Thus the violin keeps 16 triangles
- * of its triangle budget for other parts (design 4.6).
+ * of its triangle budget for the shoulder rest (design 4.6).
  */
 const STRING_SECTION = {
   violin: 'triangle',
@@ -1156,7 +1218,8 @@ function addViolinParts(piece: PieceBuilder, frame: Transform, form: StringForm)
       'varnish',
     );
   }
-  // The tailpiece, which tapers from its top end to the edge of the body, and the chin rest.
+  // The tailpiece, which tapers from its top end to the edge of the body, the chin rest, and the
+  // shoulder rest.
   part(sweep(TAILPIECE.map(tailRing)), dark, [0, 0, 0]);
   if (!upright) {
     part(plate(chinRestOutline(), CHIN_REST.levels), dark, [
@@ -1164,6 +1227,7 @@ function addViolinParts(piece: PieceBuilder, frame: Transform, form: StringForm)
       CHIN_REST.bottom,
       CHIN_REST.center[1],
     ]);
+    part(shoulderRest(), dark, [0, 0, 0]);
   }
   // The bridge: a thin plate across the violin, with its feet on the arch.
   const across = new Vector3(0, 0, 1);
