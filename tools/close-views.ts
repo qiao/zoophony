@@ -819,6 +819,14 @@ export function headViews(role: RoleViews): RoleViews {
 export const CELL = { width: 360, height: 450 } as const;
 
 /**
+ * The illuminance of the light from the camera of each close view (the gallery query `fill`), in
+ * lux: about a third of the key light (`KEY_LIGHT.illuminance` 5.8), so that the side of a body
+ * away from the key light shows its form (user, 2026-10-28: "when taking screenshots, remember to
+ * cast a fill light"). A commit before the query renders with no fill.
+ */
+const CLOSE_FILL_LUX = 2;
+
+/**
  * Gives the path of the gallery page of a view and a moment: the animal of a role alone with its
  * instrument, close, at the camera of the view.
  *
@@ -864,6 +872,7 @@ export function closeViewPath(
   if (probe) {
     query.set('probe', probe);
   }
+  query.set('fill', String(CLOSE_FILL_LUX));
   return `/gallery.html?${query.toString()}`;
 }
 
