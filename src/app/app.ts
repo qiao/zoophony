@@ -660,6 +660,9 @@ export class App {
     const scene = this.#scene;
     const steps = (function* (): Steps<BuiltScore> {
       const { score, scene: plans } = yield* planned;
+      // The first call of the pose code is slower, so it runs in a step before the first frame.
+      poseAt(plans.plan, 0, 0, STOPPED.transport, [], createScenePose(plans.plan));
+      yield;
       const prepared = yield* scene.prepareSteps(plans.layout, plans.models);
       return { score, scene: plans, prepared };
     })();
