@@ -223,7 +223,7 @@ Read the group of your work before you plan it.
 
 ### Bow
 
-- A turned paw moves on an arc around the wrist. Put the bow stick along that arc (`stickGrip()`).
+- A turned paw moves on an arc around the wrist. Put the bow stick along that arc.
 - The paw slides on the stick when the forearm turns against the bow. Turn the hand around a grip in
   the middle of the paw (`stickTurnR`).
 - A direct mix from an upright rest bow turns the tip through the head. Use a via (`BowVia`).
