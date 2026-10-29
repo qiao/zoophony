@@ -872,7 +872,11 @@ The code constants of each family hold the times, the angles, and the lengths of
     farther keys made the right leg reach for the damper pedal and pull the haunch into the bench,
     and nearer keys folded the shoulders. The
     trunk leans to the side toward the keys of the two paws, as a pianist leans toward the far keys
-    (`sideLeanOf()`, `docs/decisions/2026-10-24-pianist-pose.md`).
+    (`sideLeanAt()`, `docs/decisions/2026-10-24-pianist-pose.md`). The lean follows the mean place
+    of the paws over a window of the song time around the moment, so the trunk moves slowly toward
+    the register of a passage and does not sway with each note, as the trunk of a real pianist
+    moves smoothly. The window comes from the score and the song time only, so a seek and a pause
+    give the same lean (`SIDE_LEAN_WINDOW`, `docs/decisions/2026-10-29-polar-ratio.md`).
   - The piano palm faces down in front of the keys (`pianoKeyFront()`), because the paw of the
     polar bear is longer than a white key. The curled claws lie on the key tops at each strike.
   - In the play, the right heel of the pianist stays on the floor, and the ball of the foot lies

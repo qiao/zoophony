@@ -13,7 +13,14 @@ import { mixDirection, mixRotation } from './blend.ts';
 import type { InstrumentOf } from './family.ts';
 import { createFrame, posePoint, setBoneRotation, setFromBasis } from './frames.ts';
 import type { TorsoFrames } from './frames.ts';
-import { HAND_MOTION, NO_REACH_LIMIT, buildHandTrack, splitHands } from './hand-notes.ts';
+import {
+  HAND_MOTION,
+  NO_REACH_LIMIT,
+  buildHandTrack,
+  createHandState,
+  handStateAt,
+  splitHands,
+} from './hand-notes.ts';
 import type { HandAction, HandReach, HandState, HandTrack } from './hand-notes.ts';
 import { armRig, limitReach, poseShoulder, writeArm, writeCurl } from './ik.ts';
 import { lapHand } from './lap.ts';
@@ -438,18 +445,53 @@ export interface HandsState {
 }
 
 /**
+ * The half width of the window of the side lean of a keyboard player, in seconds (design 5.3).
+ * The trunk follows the mean place of the hands over this time before and after the song time,
+ * so it moves smoothly toward the register of a passage and does not sway with each note. With no
+ * window, the head of the polar bear swung 21 cm from side to side at up to 2.6 m/s in a fast
+ * passage of `bach-bwv1050`, and with 0.3 s 14 cm at up to 0.5 m/s. A wider window lets the
+ * trunk lag behind the paws, so the arms cross further into the belly: 0.35 s put the upper arms
+ * deeper than before the window (`docs/research/2026-10-29-polar-ratio.md`).
+ */
+export const SIDE_LEAN_WINDOW = 0.3;
+
+/** The number of samples of the window of the side lean on each side of the song time. */
+const SIDE_LEAN_STEPS = 30;
+
+/** The scratch hand of {@link sideLeanAt}. Each call writes it before it reads it. */
+const sideHand = createHandState();
+
+/**
  * Calculates the side lean of the spine toward the keys of the two hands (design 5.3): the mean
  * side offset of the two palms from the middle of the body, times the side lean of the hold, up to
- * its largest lean. A positive lean goes to the left of the player (-x).
+ * its largest lean. The mean takes the palms of the hand tracks over {@link SIDE_LEAN_WINDOW}
+ * before and after the song time, with a raised cosine weight, so the lean comes only from the
+ * score and the song time. A positive lean goes to the left of the player (-x).
  *
  * @param rig The points of the player.
- * @param state The motion of the hands.
+ * @param left The note data of the left hand.
+ * @param right The note data of the right hand.
+ * @param time The song time of the note layer.
  * @returns The lean around the z axis, in radians.
  */
-export function sideLeanOf(rig: HandsRig, state: HandsState): number {
+export function sideLeanAt(rig: HandsRig, left: HandTrack, right: HandTrack, time: number): number {
   const { sideLean, sideLeanMax } = rig.hold;
-  const middle = (state.left.point[0] + state.right.point[0]) / 2;
-  return MathUtils.clamp(-sideLean * middle, -sideLeanMax, sideLeanMax);
+  if (sideLean === 0) {
+    return 0;
+  }
+  let sum = 0;
+  let total = 0;
+  for (let k = -SIDE_LEAN_STEPS; k <= SIDE_LEAN_STEPS; k++) {
+    const t = time + (k / SIDE_LEAN_STEPS) * SIDE_LEAN_WINDOW;
+    const weight = 0.5 + 0.5 * Math.cos((Math.PI * k) / (SIDE_LEAN_STEPS + 1));
+    handStateAt(left, t, sideHand);
+    let middle = sideHand.point[0];
+    handStateAt(right, t, sideHand);
+    middle = (middle + sideHand.point[0]) / 2;
+    sum += weight * middle;
+    total += weight;
+  }
+  return MathUtils.clamp((-sideLean * sum) / total, -sideLeanMax, sideLeanMax);
 }
 
 const Z_AXIS = new Vector3(0, 0, 1);

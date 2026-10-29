@@ -189,6 +189,10 @@ differences. The research reports
   claws curl 30°, and their tips lie on the key tops at each strike, 3 to 5 cm past the front
   edge of the keys (section 5).
 - **Motion.** The trunk leans to the side toward the keys of the two paws, up to 10° (section 7).
+  The lean follows the mean place of the paws over 0.3 s before and after the moment, so the
+  trunk moves smoothly toward the register of a passage, and the weight shifts come at the leaps
+  (section 7). Before this window, the head swung up to 21 cm from side to side with the notes of
+  a fast passage. A wider window lets the trunk lag, and the arms cross further into the belly.
   At the far keys of the demos, the outer upper arm still stands 42° to 47° out, as the arm of
   a pianist that reaches the far end.
 - **Feet.** In the play, the right heel stays on the floor, and the ball of the foot lies on the

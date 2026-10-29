@@ -18,7 +18,7 @@ import type { ChoirState } from './choir-notes.ts';
 import { BIND_ROTATIONS, NECK_SHARE, chainFrames, createFrame, setBoneRotation } from './frames.ts';
 import type { Frame, TorsoFrames } from './frames.ts';
 import { createHandState, handStateAt } from './hand-notes.ts';
-import { poseHands, sideLeanOf } from './hands.ts';
+import { poseHands, sideLeanAt } from './hands.ts';
 import type { HandsState } from './hands.ts';
 import { gestureSize } from './loudness.ts';
 import { activityAt } from './passages.ts';
@@ -402,7 +402,7 @@ function poseAnimal(
       const { lean, restLean, restHeadLift } = note.rig.hold;
       body.lean = restLean + (lean - restLean) * weight;
       body.lift = restHeadLift * (1 - weight);
-      body.sway += sideLeanOf(note.rig, hands) * weight;
+      body.sway += sideLeanAt(note.rig, note.left, note.right, noteTime) * weight;
       writeBody(pose, player, scratch);
       poseHands(note.rig, scratch.torso, hands, weight, pose.rotations);
       // The damper pedal follows the `slide` bone down, under the right foot of a pianist.
