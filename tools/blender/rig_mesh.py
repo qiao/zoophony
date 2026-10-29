@@ -531,7 +531,11 @@ def face_colors(tris, uvs, texture, rules):
     samples of each face. A face with a share of dark samples of at least `eyeShare` is dark, and
     takes the mean of its dark samples. Each other face takes the mean of its samples that are
     not dark, so that the black gaps between the islands of the texture do not darken a face at
-    the edge of an island."""
+    the edge of an island. With `split` (an Oklab lightness), a face whose samples spread over more
+    than `split` takes the mean of the larger of its light and dark halves, cut at the middle of
+    the spread: a face across a sharp edge of the texture took the mean of black and white, and
+    the faces of the edge showed as a gray band (user, 2026-10-28: "the penguine's head has
+    unnatural gradient between black and white")."""
     grid = sample_grid(rules['samples'])
     colors = np.zeros((len(tris), 3))
     dark = np.zeros(len(tris), bool)
@@ -544,8 +548,14 @@ def face_colors(tris, uvs, texture, rules):
         if share[f] >= rules['eyeShare']:
             dark[f] = True
             colors[f] = samples[low].mean(axis=0)
-        else:
-            colors[f] = samples[~low].mean(axis=0)
+            continue
+        kept = samples[~low]
+        if 'split' in rules:
+            light = oklab(kept)[:, 0]
+            if np.ptp(light) > rules['split']:
+                upper = light >= (light.min() + light.max()) / 2
+                kept = kept[upper] if upper.sum() * 2 >= len(kept) else kept[~upper]
+        colors[f] = kept.mean(axis=0)
     return colors, dark, share
 
 
