@@ -3,9 +3,9 @@ import type { Steps } from '../score/steps.ts';
 /**
  * The time after which a slice of the main thread ends, in ms (design 7.2). Lighthouse multiplies
  * each task by 4 for a phone, and a task above 50 ms blocks. A slice ends after the first step past
- * this time, so a step of up to about 6 ms keeps each task below 10 ms on the development Mac.
+ * this time, so a step of up to about 7 ms keeps each task below 10 ms on the development Mac.
  */
-export const SLICE_MS = 4;
+export const SLICE_MS = 3;
 
 /** The time between two checks of a step that waits for the GPU, in ms. */
 const GPU_WAIT_MS = 5;
