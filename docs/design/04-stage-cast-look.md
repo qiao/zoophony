@@ -389,7 +389,8 @@ the hippo arms take a few rounds of Taubin smoothing after the weights (`armSmoo
 helpers by the rules of the app. A shape of `raise` can also smooth the posed arm (`smooth`): the
 bow arms of the hippo and of the red fox take a smooth arm in the rest pose, where the bent tube
 showed lumps or a bright ridge at the inner elbow, and the play keeps its skin
-(`docs/decisions/2026-10-28-followups.md`).
+(`docs/decisions/2026-10-28-followups.md`). The bind mesh of a bent elbow can take Taubin rounds after its
+relax (`bindSmooth`): the left elbow of the hippo folded into a lip there.
 
 ```text
  lowpoly-studio/animals/polar-bear/out/polar-bear.glb

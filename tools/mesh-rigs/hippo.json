@@ -35,6 +35,16 @@
     "bones": ["upper_arm_seg1", "upper_arm_seg2", "forearm_seg1", "forearm_seg2", "forearm_seg3"],
     "note": "6 rounds of taubin() smooth the middle of each arm tube of hippo-arms.glb after the weights (arm_smooth() of tools/blender/rig_mesh.py), at most 0.0083 units: the vertices on the second and the third segments of the upper arm and on the last three segments of the forearm. The user said on 2026-10-28: \"the hippo's arm has lumps / dents\". The play folds fall from 8.9% to 3.2% of the samples, and one face folds in place of three. With the elbow rings and the root in the smoothing, the folds rose to 24.5% and 100% of the play samples, because the elbow rings keep a gap for the helper bone and the root joins the side wall (docs/research/2026-10-28-arm-smooth.md)."
   },
+  "bindSmooth": {
+    "rounds": 12,
+    "sides": "L",
+    "bones": [
+      "elbow",
+      "upper_arm_seg3",
+      "forearm_seg0"
+    ],
+    "note": "The user said on 2026-10-29: \"the hippo's arm has unexpected bump near the elbow\", with images of the bind mesh of hippo.rig.glb, which a viewer shows with no skin. The seated bind bends the left elbow far, and the inner elbow folded into a lip. 12 rounds of taubin() smooth the bind mesh of the left elbow after its relax (arm_smooth() on the bind, main() of tools/blender/rig_mesh.py), at most 0.0085 units, and the play folds fall from 3.2% to 1.7% of the samples. 6 rounds gave 3.0%. Both sides folded the right arm in 14.9% of the samples, and a wider band of five bones gave 3.2% (docs/research/2026-10-28-followups.md)."
+  },
   "raise": [
     {
       "side": "R",
