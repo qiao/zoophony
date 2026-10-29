@@ -326,8 +326,7 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       (`2026-10-25-brass-grips.md`). Done: the bind elbow bends forward, and the tuba elbows point
       down and out. The paws turn 87° and 37° on their forearms, and the stretch reads 0.07
       (`2026-10-26-fifth-review-rhino.md`).
-- [ ] Trim `docs/agents/model-traps.md` to about 3,000 words: it has 3,964 words since the traps
-      of the rhino, the deer, and the penguin meshes, and of the split beak.
+- [x] Trim the traps of the rig to short rules. Done: they are in `docs/agents/rigging.md`.
 - [x] Rig the mesh of the deer (harp). The user gave it on 2026-10-21. The deer sits on the stool
       of the harp with its whole haunch on the seat, at the size of the parametric deer, and plays
       a smaller harp (`2026-10-21-mesh-deer.md`).
@@ -1115,7 +1114,7 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
 - [x] Hippo bassist: a small dark slit shows on the belly beside the right arm at rest from the
       right. The inner side of the hanging arm of the source lies inside the plane of `armSplit`,
       so the rig keeps it on the trunk. Rebuild the arms with a seam cut and a side wall, as the
-      fox (`docs/agents/rig-blender.md`, `2026-10-25-hippo-skin.md`).
+      fox (`docs/agents/rigging.md`, `2026-10-25-hippo-skin.md`).
       Done: the rebuilt arms take the seam cut at the crease of the arm and a side wall, so
       the inner side of the arm moves with the arm, and no slit shows at rest
       (`2026-10-25-hippo-arms.md`).
@@ -1178,8 +1177,7 @@ Open items of the mesh rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       `mesh-badger`).
 - [ ] Hippo nose: the tip lies on a nostril 2.8 cm from the middle plane, and the rig checks warn.
       A tip on the plane moves the jaw of the rig 3.0 cm up (`2026-10-19-mesh-retro.md`).
-- [ ] Brief template: `docs/briefs/studio-body.md` has 2,625 words, above its limit of about
-      2,500 (2,611 before the mesh retro). Cut it in a prose pass.
+- [x] Brief template: cut it in a prose pass. Done: it is in `docs/agents/rigging.md`.
 - [x] Top plate in the sweep: the pair "instrument in body" gives the deepest corner of the
       instrument, for the hippo the back of the upper bout (14.7 cm) against 1.5 cm of the top
       plate. Offer a part of the visible top plate of the bowed instruments, as `top-plate.ts` of
@@ -2057,8 +2055,7 @@ Open items of the pose rounds of 2026-10-16 to 2026-10-18 (each file is in `docs
       `trunk.ts`, `arms.ts`, `legs.ts`, `ears.ts`, `snouts.ts`, `tails.ts`) when the deer and the
       rhino have bodies of their own. Until then, the harp and the tuba players use it.
       `face-patterns.ts` went on 2026-10-20, because no species had a face pattern.
-- [ ] `docs/agents/model-traps.md` has 3,170 words, above its limit of about 3,000
-      (`docs/agents/writing.md`). Cut it in a prose pass.
+- [x] Cut the traps of the rig in a prose pass. Done: they are in `docs/agents/rigging.md`.
 - [x] Bear conductor: at the start of the lift, the baton paw turns from 26° to 180° in 0.13 s, and
       at 0.20 s it snaps from 176° to 105° in 0.01 s. `pnpm arm-check conductor` fails on the paw
       jumps of the right arm in 5.8% of the lift samples (`2026-10-19-arm-gate.md`,
