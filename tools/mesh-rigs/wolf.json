@@ -28,6 +28,11 @@
     "helper": 0.032,
     "note": "Each upper arm and each forearm has 4 deform segments, and each elbow and wrist a helper bone of this length in units, which spans the three rings of its joint in the bind. The app turns them from the joints of the pose (poseArm() of src/models/studio-rig.ts). They replace upperTwist and the raise shapes. The helper of the wolf is 0.032 units, twice the gap of the rings of its elbow (gap of tools/blender/wind_arms.py): with the gap 0.0085 of the rabbit, the thin faces of the inner elbow folded 9 faces of the left arm in the play (limit 8), and with 0.016, 4. The wrist rings keep the gap 0.0085, and the Blender session gives the wrist helper that length: with the gap 0.016 at the wrist, the right paw lost the clarinet."
   },
+  "armSmooth": {
+    "rounds": 6,
+    "sides": "LR",
+    "note": "6 rounds of taubin() smooth the arm tubes of wolf-arms.glb after the weights (arm_smooth() of tools/blender/rig_mesh.py), at most 0.0144 units. The rebuilt arms put dense rings onto the big flat faces of the mesh of the user, so the tubes took the ridges between the faces, and the user said on 2026-10-28: \"the wolf's arm has unexpected dents / bends\". The folded samples of the neck fall from 10,661 to 51 and of the right upper arm from 58 to 0. With 12 rounds, the root of the right upper arm folded in 10,573 samples (docs/research/2026-10-28-arm-smooth.md)."
+  },
   "output": "assets/models/wolf/wolf.rig.glb",
   "name": "Wolf",
   "weld": 1e-05,
