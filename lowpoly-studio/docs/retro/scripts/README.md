@@ -1,15 +1,15 @@
-# Scripts of the transcript retrospective
+# Scripts of a transcript retrospective
 
-These scripts made the numbers of `../retro-transcript.md`. They read the transcript of one
-Claude Code subagent (a JSON Lines file of about 100 MB) line by line, skip the base64 images,
-and write small JSON files between the steps. Use them for the retrospective of another long
-agent round.
+These scripts measure the transcript of one long Claude Code subagent round: the time of each
+round, topic, and phase, the tool calls, and the constants that the agent tuned again and again.
+They read the transcript (a JSON Lines file of about 100 MB) line by line, skip the base64
+images, and write small JSON files between the steps.
 
-The transcript of a subagent is at
-`~/.claude/projects/<project>/<session>/subagents/agent-<id>.jsonl`. Do not read it whole.
+The transcript of a subagent is the file `<project>/<session>/subagents/agent-<id>.jsonl` in the
+projects folder of Claude Code. Do not read it whole.
 
 ```bash
-T=~/.claude/projects/<project>/<session>/subagents/agent-<id>.jsonl
+T=<projects folder>/<project>/<session>/subagents/agent-<id>.jsonl
 W=$(mktemp -d)                            # the files between the steps
 python3 inspect.py "$T" 8                 # the keys and the block types of the first lines
 python3 census.py "$T"                    # the counts of the line types and the blocks
@@ -22,6 +22,6 @@ python3 params.py "$T"                    # the constants that the agent tuned a
 python3 tunes.py "$T"                     # the edits that changed only numbers, and the sweeps
 ```
 
-The rounds of `analyze.py`, the topic patterns of `topics.py`, and the phases of `phases.py` are
-the ones of the bear transcript. Change them for another transcript. The shares come from
-keyword rules on the call descriptions, so each share is about plus or minus 10%.
+The rounds of `analyze.py`, the topic patterns of `topics.py`, and the phases of `phases.py` fit
+one transcript of the bear. Change them for another transcript. The shares come from keyword
+rules on the call descriptions, so each share is about plus or minus 10%.
