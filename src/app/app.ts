@@ -1,4 +1,5 @@
 import { pieceGainDb } from '../audio/demo-loudness.ts';
+import type { MixName } from '../audio/output-chain.ts';
 import type { LoadProgress, Player } from '../audio/player.ts';
 import { fetchPlainBytes } from '../audio/plain-bytes.ts';
 import { layoutScene } from '../models/layout-scene.ts';
@@ -35,6 +36,7 @@ import type { MeterTrack, SeatSpans } from './meter.ts';
 import { failureMessage, followMessage, textMessage } from './messages.ts';
 import type { Failure, Message } from './messages.ts';
 import type { TitleLines } from './file-rules.ts';
+import { mixOfQuery } from './mix-query.ts';
 import { pageTitle } from './page-title.ts';
 import {
   atSongEnd,
@@ -291,6 +293,8 @@ export class App {
   #speed: Speed = DEFAULT_SPEED;
   #volume = DEFAULT_VOLUME;
   #muted = false;
+  /** The mix preset of the session, from the query `mix` (design 6.8). */
+  readonly #mix: MixName = mixOfQuery(window.location.search);
   /** The value of the setting "Section size" (design 2.8, 3.8). */
   #sectionSize: SectionSize = 'auto';
   /** The value of the setting "Quality" (design 2.6). */
@@ -1260,7 +1264,7 @@ export class App {
           this.#fail(this.#piece, error, 'play');
         }
       },
-      'hall',
+      this.#mix,
     );
     player.setRate(this.#speed);
     player.setVolume(volumeGain(this.#volume, this.#muted));
