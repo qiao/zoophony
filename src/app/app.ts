@@ -630,6 +630,10 @@ export class App {
       return ticket === this.#request;
     });
     if (!built) {
+      // A later selection replaced the build. The stage shows the current piece again.
+      if (current) {
+        this.#ui.uncoverStage();
+      }
       return false;
     }
     const { score, scene, prepared } = built;
@@ -747,6 +751,10 @@ export class App {
       () => ticket === this.#request,
     );
     if (!built) {
+      // A later selection replaced the build. The stage shows the current piece again.
+      if (covered) {
+        this.#ui.uncoverStage();
+      }
       return;
     }
     const { score, scene, prepared } = built;
