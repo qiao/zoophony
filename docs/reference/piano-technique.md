@@ -4,12 +4,9 @@ This file is the target of the pose and the motion of the polar bear pianist of 
 describes the bench, the distance to the keys, the trunk, the arms, the wrists, the hands, the
 feet, the motion, and the rest pose of a professional pianist, with a source for each fact.
 
-**Upkeep.** This file is current. It is not a record of one date, as a research report is. A
-round that changes the pose or the motion of the pianist updates this file in the same commit:
-section 9 "Use in the app", and each fact that the round finds wrong. Each new fact gets its
-source. The research report
-[`2026-10-24-pianist-pose.md`](../research/2026-10-24-pianist-pose.md) holds the measures of the
-app.
+**Upkeep.** This file is current. A change of the pose or the motion of the pianist updates
+section 9 "Use in the app" and each fact that it finds wrong, in the same commit. Each new fact
+gets its source.
 
 **Source marks.** Each fact names its source by a number of section 10. "(abstract)" marks a fact
 from an abstract only. "(secondary)" marks a fact that another source quotes. "(derived)" marks a
@@ -60,6 +57,23 @@ text of the source.
 - The pianist sits on the front half of the bench [1][2][4][5][8]. Golandsky puts the pianist in
   the middle of the bench [3].
 - The bench is at the center of the keyboard and faces the piano squarely [1].
+
+The side view below shows the target pose: the elbow level with the key surface and a little in
+front of the trunk, and the trunk upright over the sit bones.
+
+```text
+              head erect, eyes to the keys and the music
+                 O
+                 |  trunk upright, small lean forward
+   shoulder ---> +
+                  \   upper arm 0 to 20 deg forward
+         elbow --> +=========+ <--- hand on the key surface
+                    forearm level   (elbow level with the key top)
+   sit bones --> #####  bench, front half
+                 |    \
+                 |     \  shin
+                 |      \_ foot flat, right heel down, ball on the pedal
+```
 
 ## 3. The trunk and the head
 
@@ -133,91 +147,55 @@ text of the source.
 - In a competition, a pianist waited before the first note with the hands poised over the keys,
   or with the hands in the lap [22 (a search summary only)].
 
-The side view below shows the target pose: the elbow level with the key surface and a little in
-front of the trunk, and the trunk upright over the sit bones.
-
-```text
-              head erect, eyes to the keys and the music
-                 O
-                 |  trunk upright, small lean forward
-   shoulder ---> +
-                  \   upper arm 0 to 20 deg forward
-         elbow --> +=========+ <--- hand on the key surface
-                    forearm level   (elbow level with the key top)
-   sit bones --> #####  bench, front half
-                 |    \
-                 |     \  shin
-                 |      \_ foot flat, right heel down, ball on the pedal
-```
-
-| Measure | Target | Sources |
-|---|---|---|
-| Key surface above the floor | about 0.735 m | [19] |
-| Bench height | 0.41 to 0.56 m, adjustable | [18] |
-| Elbow height against the key top | level, from a little below to about 2.5 cm above | [1][3][4][5][8] |
-| Elbow angle | 90° to 110° | [7] |
-| Forearm | horizontal or nearly | [4][5] |
-| Upper arm from the vertical | 0° to 20° forward (derived) | [5][7] |
-| Trunk | upright, flexion less than 20° | [3][12] |
-| Trunk motion in fast music | 37° to 51° from side to side | [11] |
-| Wrist | in line with the hand and the forearm, or 15° of extension | [3][7][12] |
-| Damper pedal | heel on the floor, ball on the pedal; pedal top 46 to 87 mm, travel 21 to 25 mm | [5][13][20] |
-
 ## 9. Use in the app
 
-The polar bear pianist of the app (`HANDS_HOLDS.piano` of `src/pose/hands.ts`, `PIANO_SCALE` and
-`PIANO_FRONT_H` of `src/models/instruments/piano.ts`) follows sections 1 to 7 with these
-differences. The research reports
-[`2026-10-24-pianist-pose.md`](../research/2026-10-24-pianist-pose.md),
-[`2026-10-28-polar-legs.md`](../research/2026-10-28-polar-legs.md),
-[`2026-10-28-polar-bench2.md`](../research/2026-10-28-polar-bench2.md), and
-[`2026-10-29-polar-ratio.md`](../research/2026-10-29-polar-ratio.md) give the measures.
+The polar bear pianist plays with the hold `HANDS_HOLDS.piano` of `src/pose/hands.ts`, at the
+piano of `src/models/instruments/piano.ts`.
 
-- **Height.** The bear is large, and its body keeps the part ratios of its mesh, with the legs
-  of the mesh. It sits on a bench of 0.20 m with the thighs 25° down, so its hip joints stand
-  0.33 m and its shoulder joints about 1.03 m above the floor. The piano is 1.16 times the size
-  of a real piano, with the key top at 0.81 m. The elbow joints stand about 4 to 6 cm above the
-  key top, because the paw is thick, and the forearms are about level with the keys (section 1).
-- **Trunk.** The spine leans 6° toward the keys, under the 20° of a neutral thorax (section 3),
-  and the shoulders turn down 4° in the play.
-- **Distance.** The keys stand 1.0 H in front of the floor point. Farther keys made the right leg
-  reach for the damper pedal and pull the haunch into the bench, and nearer keys folded the
-  shoulders.
-- **Arms.** The elbows point out, down, and back, and stand about 27° to 30° out from the
-  trunk. Elbows that hang nearer went into the wide trunk (section 4).
-- **Wrists and paws.** The palm faces down, in line with the level forearm (section 5). The
-  claws curl 30°, and their tips lie on the key tops at each strike, 3 to 5 cm past the front
-  edge of the keys (section 5).
-- **Motion.** The trunk leans to the side toward the keys of the two paws, up to 10° (section 7).
-  The lean follows the mean place of the paws over 0.3 s before and after the moment, so the
-  trunk moves smoothly toward the register of a passage, and the weight shifts come at the leaps
-  (section 7). Before this window, the head swung up to 21 cm from side to side with the notes of
-  a fast passage. A wider window lets the trunk lag, and the arms cross further into the belly.
-  At the far keys of the demos, the outer upper arm still stands 42° to 47° out, as the arm of
-  a pianist that reaches the far end.
-- **Feet.** In the play, the right heel stays on the floor, and the ball of the foot lies on the
-  front of the damper pedal (section 6, `posePedalFoot()` of `src/pose/pedal.ts`). The pedal top
-  stands 7 cm above the floor, so the foot turns up about 20° around the heel, and about 12° on
-  the pressed pedal. The paw is 24 cm wide, so the pedal lies under its inner edge, and the paw
-  stays right of the sostenuto pedal. The sustain pedal of the score (CC 64) presses the damper
-  pedal, and the foot follows it. The left foot stays flat on the floor, left of the soft pedal.
-  The report [`2026-10-24-piano-pedals.md`](../research/2026-10-24-piano-pedals.md) gives the
-  measures.
-- **Keys.** Each of the 88 keys goes down with its notes (section 7, `pose/piano-keys.ts`). A
-  key turns around a line 0.25 m behind the front of the white keys, at the height of the key
-  bottom, so its front goes down by the dip of 10 mm and its back less, both times `PIANO_SCALE`
-  (`PIANO.keyDip`, `PIANO.balanceRail`). A key reaches the key bed at its note start after a
-  press of 0.03 s, near a forte press, because the paw strikes at its full speed. It comes up in
-  0.06 s after the note end, slower than a free key, so that the rise shows at 60 frames per
-  second. Before a repeat, the key comes up the whole way, more than a real key does. The claws
-  stay at the key surface and do not follow a pressed key down. The decision file
-  [`2026-10-28-piano-keys.md`](../decisions/2026-10-28-piano-keys.md) gives the reasons.
-- **Rest.** The trunk sits tall, and the paws rest in the lap (section 8). The app differs: the
-  round belly of the polar bear covers its thighs up to 0.45 m in front of the hips, and the top
-  of a thigh past the belly stands about 0.7 m from the shoulder joint, where the arm reaches
-  0.49 m. So the paws lie on the lower belly, as low as the arms reach, 8 cm to 10 cm below
-  the key top, with the palms down and the elbows bent by the sides
-  (`docs/research/2026-10-25-timpani-piano-rest.md`).
+The app follows these facts:
+
+- **The height (section 1).** The forearms are about level with the keys. The bear is larger than
+  a human pianist, so the piano is larger than a real piano (`PIANO_SCALE`), and the bear sits on
+  a low bench (`PIANO_BENCH`). The paw is thick, so the elbows stand a little above the key top.
+- **The distance (section 2).** The keys stand at `PIANO_FRONT_H` in front of the floor point.
+  Farther keys make the right leg reach for the damper pedal and pull the haunch into the bench.
+  Nearer keys fold the shoulders.
+- **The trunk (section 3).** The spine leans a little toward the keys (`lean`), less than the
+  flexion of a posture that is not neutral, and the shoulders stay low (`shoulderDrop`).
+- **The arms (section 4).** The elbows point out, down, and back (`poleL`, `poleR`), clear of the
+  trunk. Elbows that hang nearer go into the wide trunk.
+- **The wrists and the hands (section 5).** The palm faces down, in line with the level forearm
+  (`faceL`, `faceR`). The claws curl (`curl`), and their tips lie on the key tops at each strike.
+  The paw is longer than a white key, so the palm stands in front of the front edge of the keys
+  (`palmL`, `palmR`).
+- **The motion (section 7).** The trunk leans to the side toward the keys of the two paws
+  (`sideLeanAt()`, `sideLean`, `sideLeanMax`). The lean follows the mean place of the paws over
+  `SIDE_LEAN_WINDOW` before and after the song time. Thus the trunk moves smoothly toward the
+  register of a passage, and the weight shifts come at the leaps. A wider window lets the trunk
+  lag, and the arms cross further into the belly.
+- **The feet (section 6).** In the play, the right heel stays on the floor, and the ball of the
+  foot lies on the front of the damper pedal (`posePedalFoot()` of `src/pose/pedal.ts`). The
+  sustain pedal of the score (CC 64) presses the damper pedal, and the foot follows it. The paw is
+  wide, so the damper pedal lies under its inner edge, and the paw stays right of the sostenuto
+  pedal. The left foot stays flat on the floor, left of the soft pedal.
+- **The keys (section 7).** Each of the 88 keys goes down with its notes (`buildKeyTrack()` and
+  `keyLevelsAt()` of `src/pose/piano-keys.ts`). A key turns around a line under the balance rail
+  (`PIANO.balanceRail`), so its front goes down by the key dip (`PIANO.keyDip`) and its back less.
+- **The rest (section 8).** The trunk sits tall, and the paws rest in the lap (`restL`,
+  `restR`). The round belly covers the short thighs, so the paws lie in front of the lower belly,
+  over the thighs, with the palms down. The head lifts against the rest lean (`restHeadLift`), so
+  the gaze is level and the face shows over the lid.
+
+The app does not follow these facts:
+
+- **The press time (section 7).** A key reaches the key bed at its note start after a short press
+  (`KEY_MOTION.pressSec`), near a forte press, because the paw strikes at its full speed.
+- **The release time (section 7).** A key comes up slower than a free key
+  (`KEY_MOTION.releaseSec`), so that the rise shows at 60 frames per second.
+- **The fast repeat (section 7).** Before a repeat, the key comes up the whole way
+  (`KEY_MOTION.repeatShare`).
+- **The key bed (section 7).** The claws stay at the key surface and do not follow a pressed key
+  down.
 
 ## 10. Sources
 
