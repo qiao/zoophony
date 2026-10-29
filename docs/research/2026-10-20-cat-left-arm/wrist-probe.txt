@@ -1,5 +1,0 @@
-left wrist bend of the studio cat, 4426 play samples: p5 10.5°, p50 14.7°, p95 20.0° (bind 25.0°) viola@cat.tiltL=30deg
-left wrist bend of the studio cat, 4426 play samples: p5 15.9°, p50 19.8°, p95 24.8° (bind 25.0°) viola@cat.tiltL=35deg
-left wrist bend of the studio cat, 4426 play samples: p5 21.2°, p50 24.8°, p95 29.5° (bind 25.0°) viola@cat.tiltL=40deg
-left wrist bend of the studio cat, 4426 play samples: p5 26.4°, p50 29.6°, p95 33.8° (bind 25.0°) viola@cat.tiltL=45deg
-left wrist bend of the studio cat, 4426 play samples: p5 31.5°, p50 34.4°, p95 38.0° (bind 25.0°) viola@cat.tiltL=50deg

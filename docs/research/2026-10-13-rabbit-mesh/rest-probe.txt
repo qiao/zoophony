@@ -1,9 +1,0 @@
-set: none
-chair wall 10 s: instrument 2.7 cm, bow 5.0 cm
-stand wall 10 s: instrument 2.7 cm, bow 5.0 cm
-chair wall 13.7 s: instrument 2.7 cm, bow 5.0 cm
-stand wall 13.7 s: instrument 2.7 cm, bow 5.0 cm
-chair wall 21.1 s: instrument 2.7 cm, bow 5.0 cm
-stand wall 21.1 s: instrument 2.7 cm, bow 5.0 cm
-chair wall 29.3 s: instrument 2.7 cm, bow 5.0 cm
-stand wall 29.3 s: instrument 2.7 cm, bow 5.0 cm

@@ -1,9 +1,0 @@
-  rig.across (bow tip side) (-0.0, -100.0, -0.0), rig.fingers (-0.0, -100.0, -0.0)
-song 30:
-  from the nut, cm (along, across to treble, up): shoulder (44.1, -7.1, -22.8) elbow (23.8, 6.8, -28.2) wrist (11.0, 4.4, -6.1)
-  directions (along, across, up): forearm (-49.9, -9.4, 86.2) fingers (8.6, -55.8, 82.6) palm (11.0, -81.8, -56.4) thumb (-99.0, -13.9, 0.9) (x100)
-  wrist bend 43.9°, studio paw turn 35.5° (raw 35.5°), palm to eyes 65.8°, forearm to neck 119.9°
-song 260.63:
-  from the nut, cm (along, across to treble, up): shoulder (44.1, -7.1, -22.8) elbow (24.8, 7.9, -28.9) wrist (15.7, 5.6, -5.1)
-  directions (along, across, up): forearm (-35.6, -9.1, 93.0) fingers (10.7, -71.5, 69.1) palm (8.9, -68.5, -72.3) thumb (-99.0, -13.9, 0.9) (x100)
-  wrist bend 48.0°, studio paw turn 29.1° (raw 29.1°), palm to eyes 63.8°, forearm to neck 110.8°

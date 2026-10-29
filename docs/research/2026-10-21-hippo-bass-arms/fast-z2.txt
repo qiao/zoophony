@@ -1,8 +1,0 @@
-base
-  stop 0.02-0.93 bow 0.250-0.415 | move forearmL>cb 2.0/40% | move handL>cb 1.5/3% | move instrument>body 1.8/0% | play forearmL>cb 6.8/22% | play handL>cb 1.5/4% | play instrument>body 1.9/0% | play upperArmL>cb 2.5/4%
-contrabass@hippo.pluckSide=0.18;contrabass@hippo.pizzicatoTip=[-1,1,-1];contrabass@hippo.polePizzicato=[3,0,-1];contrabass@hippo.stopEnd=0.7
-  stop 0.02-0.70 bow 0.250-0.415 | move forearmL>cb 2.0/31% | move handL>cb 1.5/3% | move instrument>body 1.8/0% | play forearmL>cb 1.5/15% | play handL>cb 1.5/2% | play instrument>body 1.9/0%
-contrabass@hippo.pluckSide=0.18;contrabass@hippo.pizzicatoTip=[-1,1,-1];contrabass@hippo.polePizzicato=[3,0,-1];contrabass@hippo.stopEnd=0.73
-  stop 0.02-0.73 bow 0.250-0.415 | move forearmL>cb 2.0/29% | move handL>cb 1.5/2% | move instrument>body 1.8/0% | play forearmL>cb 2.4/18% | play handL>cb 1.5/8% | play instrument>body 1.9/0%
-contrabass@hippo.pluckSide=0.18;contrabass@hippo.pizzicatoTip=[-1,1,-1];contrabass@hippo.polePizzicato=[3,0,-1];contrabass@hippo.stopEnd=0.76
-  stop 0.02-0.76 bow 0.250-0.415 | move forearmL>cb 2.0/34% | move handL>cb 1.5/2% | move instrument>body 1.8/0% | play forearmL>cb 3.6/17% | play handL>cb 1.5/3% | play instrument>body 1.9/0%

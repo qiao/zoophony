@@ -1,6 +1,0 @@
-wolf: 5 open loops
-  19 edges, length 1.521 m, middle 0.167, 0.987, -0.134, bones shoulderR 14, chest 5
-  2 edges, length 0.062 m, middle 0.115, 1.420, -0.023, bones head 2
-  2 edges, length 0.042 m, middle 0.176, 0.741, -0.138, bones spine 2
-  19 edges, length 1.581 m, middle -0.178, 0.995, -0.154, bones shoulderL 17, chest 2
-  2 edges, length 0.116 m, middle -0.173, 0.716, -0.039, bones spine 2

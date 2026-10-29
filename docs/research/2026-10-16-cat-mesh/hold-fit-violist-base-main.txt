@@ -1,6 +1,0 @@
-
-> zoophony@0.0.0 hold-fit /Users/xueqiaoxu/proj/zoophony/.claude/worktrees/cat-mesh
-> node tools/hold-fit.ts violist --base main
-
-The ref main has no role violist. Its roles are: conductor, pianist, violinist, fox-violinist, flutist.
- ELIFECYCLE  Command failed with exit code 1.

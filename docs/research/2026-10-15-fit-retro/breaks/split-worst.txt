@@ -1,5 +1,0 @@
-The break:
-@@ -585 +584,0 @@ function countPose(
--    count.split = sideSplit(bones);
-Tests that fail (1):
-tools/fold-probe.test.ts > probeFolds > counts each sample set of the demos with the role, and skips the other demos

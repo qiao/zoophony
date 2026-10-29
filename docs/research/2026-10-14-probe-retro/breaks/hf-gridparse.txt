@@ -1,6 +1,0 @@
-The break:
-@@ -223 +223 @@ export function parseFitOptions(args: readonly string[]): FitOptions {
--  variants.push(...gridVariants(grids));
-+  
-Tests that fail (1):
-tools/hold-fit.test.ts > parseFitOptions > adds the variants of the grids after the variants of --set, and takes --faces

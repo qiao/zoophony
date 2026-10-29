@@ -1,7 +1,0 @@
-brow4: rig_mesh: patch: 8 dark faces of the eye patches (4 left, 4 right) take the color of the nearest light fur face. The patches keep the color [0.3924, 0.3553, 0.3457]
-brow4: rig_mesh: patch: 71 dark faces of the eye patches (40 left, 31 right) take the color of the nearest light fur face. The patches keep the color [0.2578, 0.2274, 0.2164]
-brow4: rig_mesh: patch: 80 dark faces of the eye patches (44 left, 36 right) take the color of the nearest light fur face. The patches keep the color [0.2578, 0.2274, 0.2164]
-brow3: rig_mesh: patch: 8 dark faces of the eye patches (4 left, 4 right) take the color of the nearest light fur face. The patches keep the color [0.3924, 0.3553, 0.3457]
-brow3: rig_mesh: patch: 54 dark faces of the eye patches (28 left, 26 right) take the color of the nearest light fur face. The patches keep the color [0.2578, 0.2274, 0.2164]
-brow3: rig_mesh: patch: 73 dark faces of the eye patches (41 left, 32 right) take the color of the nearest light fur face. The patches keep the color [0.366, 0.3307, 0.3225]
-brow3: rig_mesh: patch: 63 dark faces of the eye patches (36 left, 27 right) take the color of the nearest light fur face. The patches keep the color [0.2907, 0.2576, 0.2471]

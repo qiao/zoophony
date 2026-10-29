@@ -1,6 +1,0 @@
-shot-115.png | lamps: L8 1.661 L16 0.386 | fur: L8 1.840 L16 0.920 | mid: L8 1.236 L16 0.371 | horn: L8 1.840 L16 0.920 | all: L8 1.840 L16 0.920
-shot-27.png | lamps: L8 0.033 L16 0.091 | fur: L8 0.033 L16 0.011 | mid: L8 0.649 L16 0.190 | horn: L8 0.649 L16 0.190 | all: L8 1.661 L16 1.164
-default-30.png | lamps: L8 0.011 L16 0.011 | fur: L8 0.667 L16 0.229 | mid: L8 0.562 L16 0.164 | horn: L8 0.962 L16 0.298 | all: L8 0.962 L16 0.298
-brass-0.png | lamps: L8 0.011 L16 0.000 | fur: L8 0.000 L16 0.000 | mid: L8 0.164 L16 0.091 | horn: L8 0.079 L16 0.044 | all: L8 0.164 L16 0.091
-brass-1.png | lamps: L8 0.011 L16 0.000 | fur: L8 0.000 L16 0.000 | mid: L8 0.164 L16 0.091 | horn: L8 0.079 L16 0.044 | all: L8 0.164 L16 0.091
-brass-2.png | lamps: L8 0.011 L16 0.000 | fur: L8 0.000 L16 0.000 | mid: L8 0.152 L16 0.079 | horn: L8 0.079 L16 0.056 | all: L8 0.152 L16 0.079

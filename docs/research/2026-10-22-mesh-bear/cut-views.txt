@@ -1,7 +1,0 @@
-cut-views.webp, from the top (pnpm close-views conductor <dir> --glb <rig> --views back,135,-135 or
-left,right,135,-135 --moments rest --scale 3, each rig from pnpm rig-mesh bear --check --keep):
-- Rows 1 to 4 (back, 135, -135 at rest): cut.top 0.57, 0.5, 0.53, 0.6. The first three show a
-  black triangle on the back under the arm.
-- Rows 5 and 6 (left, right, 135, -135 at rest): cut.top 0.57 and 0.6. Both show black wedges at
-  the back of the armpit.
-- Row 7: cut.top 0.6 with bodyNormals "LR". No black wedge.

@@ -1,8 +1,0 @@
-set: none
-species rabbit, studio true
-rest bow at wall 0: trunk 0.00 mm, arms 0.00 mm, legs 0.0000 H
-rest bow at wall 4: trunk 0.00 mm, arms 0.00 mm, legs 0.0000 H
-boulanger-matin.mid rabbit violin 0: bow paw turn 329° a second at wall 0.465 s
-bach-bwv1048.mid rabbit violin 0: bow paw turn 3690° a second at wall 0.249 s
-bach-bwv1048.mid rabbit violin 2: bow paw turn 3579° a second at wall 0.144 s
-beethoven-9.mid rabbit violin 0: bow paw turn 3601° a second at wall 0.248 s

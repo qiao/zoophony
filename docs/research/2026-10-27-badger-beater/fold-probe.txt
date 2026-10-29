@@ -1,7 +1,0 @@
-base: cached (main, cba5abe5497d)
-Folded faces of the studio body of the bass-drummer on main (81e6462b9) and on the working tree: 16.9 s.
-| Set | main (81e6462b9) | Working tree |
-|---|---:|---:|
-| rest | 100.0% (2/2), most 3 (L 0 / R 3 / other 0) | 0.0% (0/2), most 0 (L 0 / R 0 / other 0) |
-| play | 100.0% (802/802), most 6 (L 0 / R 6 / other 0) | 3.0% (24/802), most 1 (L 0 / R 1 / other 0) |
-| lift | 100.0% (62/62), most 4 (L 0 / R 4 / other 0) | 17.7% (11/62), most 1 (L 0 / R 1 / other 0) |

@@ -1,6 +1,0 @@
-rabbit: 5 open loops
-  26 edges, length 1.675 m, middle 0.113, 0.738, -0.138, bones spine 9, shoulderR 16, neck 1
-  2 edges, length 0.031 m, middle 0.143, 0.638, -0.139, bones spine 2
-  18 edges, length 1.032 m, middle -0.118, 0.743, -0.141, bones shoulderL 13, spine 5
-  1 edges, length 0.008 m, middle 0.188, 0.939, -0.323, bones head 1
-  1 edges, length 0.011 m, middle 0.185, 0.954, -0.318, bones head 1

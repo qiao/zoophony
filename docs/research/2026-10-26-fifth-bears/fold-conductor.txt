@@ -1,6 +1,0 @@
-Folded faces of the studio body of the conductor on 57849ac5 (57849ac5) and on the working tree: 64.5 s.
-| Set | 57849ac5 (57849ac5) | Working tree |
-|---|---:|---:|
-| rest | 100.0% (15/15), most 6 (L 2 / R 4 / other 0) | 100.0% (15/15), most 6 (L 2 / R 4 / other 0) |
-| play | 100.0% (17949/17949), most 24 (L 18 / R 4 / other 2) | 100.0% (17949/17949), most 24 (L 18 / R 4 / other 2) |
-| lift | 100.0% (465/465), most 16 (L 4 / R 12 / other 0) | 100.0% (465/465), most 16 (L 4 / R 12 / other 0) |

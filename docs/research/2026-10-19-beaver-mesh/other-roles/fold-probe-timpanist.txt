@@ -1,7 +1,0 @@
-Folded faces of the studio body of the timpanist on 9a4613b4 (9a4613b4) and on the working tree: 30.0 s.
-
-| Set | 9a4613b4 (9a4613b4) | Working tree |
-|---|---:|---:|
-| rest | 100.0% (4/4), most 3 (L 0 / R 3 / other 0) | 100.0% (4/4), most 3 (L 0 / R 3 / other 0) |
-| play | 100.0% (7728/7728), most 23 (L 21 / R 2 / other 0) | 100.0% (7728/7728), most 23 (L 21 / R 2 / other 0) |
-| lift | 100.0% (124/124), most 22 (L 20 / R 2 / other 0) | 100.0% (124/124), most 22 (L 20 / R 2 / other 0) |

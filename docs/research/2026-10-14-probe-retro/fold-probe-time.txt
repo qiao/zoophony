@@ -1,6 +1,0 @@
-The time of pnpm fold-probe pianist (4 demos, play step 0.25 s), one run each, on 2026-10-14.
-main: git show main:tools/fold-probe.ts > tools/zz-fold-main.ts, then
-/usr/bin/time -p node tools/zz-fold-main.ts pianist; the copy was removed after the run.
-real 10.81
-Branch, after commit 560a27a9: /usr/bin/time -p node tools/fold-probe.ts pianist
-real 11.41

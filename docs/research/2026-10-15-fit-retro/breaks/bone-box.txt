@@ -1,6 +1,0 @@
-The break:
-@@ -137 +137 @@ export function boneBox(
--  return found ? { min: [x0, y0, z0], max: [x1, y1, z1] } : null;
-+  return { min: [x0, y0, z0], max: [x1, y1, z1] };
-Tests that fail (1):
-tools/rig-form.test.ts > boneBox > gives the box of the corners on the bones only, or null with no such corner

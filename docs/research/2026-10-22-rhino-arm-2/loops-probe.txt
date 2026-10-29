@@ -1,5 +1,0 @@
-rhino: 4 open loops
-  3 edges, length 0.082 m, middle -0.002, 0.253, 0.439, box -0.007, 0.227, 0.432 to 0.006, 0.274, 0.446, bones tail1 3
-  2 edges, length 0.058 m, middle -0.018, 0.236, 0.394, box -0.022, 0.218, 0.393 to -0.016, 0.250, 0.400, bones tail1 2
-  2 edges, length 0.055 m, middle 0.025, 0.253, 0.418, box 0.022, 0.226, 0.415 to 0.030, 0.266, 0.423, bones tail1 2
-  1 edges, length 0.015 m, middle -0.027, 0.235, 0.428, box -0.031, 0.228, 0.426 to -0.024, 0.242, 0.430, bones tail1 1

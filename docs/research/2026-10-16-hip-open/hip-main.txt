@@ -1,6 +1,0 @@
-fox-red bind: joint 88.0°, trunk lean 2.0° forward, head pitch 13.2°, back to the rail 5.8 cm
-fox-red rest: joint 87.3°, trunk lean 2.7° forward, head pitch 11.6°, back to the rail 5.8 cm
-fox-red play: joint 87.3°, trunk lean 2.7° forward, head pitch 11.6°, back to the rail 5.8 cm
-rabbit bind: joint 86.4°, trunk lean 3.6° forward, head pitch 24.6°, back to the rail 8.7 cm
-rabbit rest: joint 85.6°, trunk lean 4.4° forward, head pitch 23.1°, back to the rail 8.8 cm
-rabbit play: joint 85.6°, trunk lean 4.4° forward, head pitch 23.1°, back to the rail 8.8 cm

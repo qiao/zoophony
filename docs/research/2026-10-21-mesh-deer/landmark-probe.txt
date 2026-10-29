@@ -1,2 +1,0 @@
-deer harp stand: H 0.418 shoulderL (-0.217, 0.640, 0.000) wristL (-0.217, 0.075, 0.000) eye 1.008 skullTop 1.191 antlerTop 1.344 earTop 1.176 hips 0.293 support stand
-deer harp stool: H 0.418 shoulderL (-0.217, 0.760, 0.000) wristL (-0.217, 0.195, 0.000) eye 1.128 skullTop 1.311 antlerTop 1.465 earTop 1.296 hips 0.413 support stool

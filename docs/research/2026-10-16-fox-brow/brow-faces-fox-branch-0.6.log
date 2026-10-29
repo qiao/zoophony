@@ -1,7 +1,0 @@
-fox: /Users/xueqiaoxu/proj/zoophony/.claude/worktrees/fox-brow/assets/models/fox/fox.rig.glb, 3135 faces
-eye L: middle 0.0585,0.8966,0.2024, radius 0.0330 u, fan color #211006 (Oklab L 0.196), 38 faces within reach 1
-eye R: middle -0.0544,0.9036,0.2063, radius 0.0298 u, fan color #211006 (Oklab L 0.196), 37 faces within reach 1
-  face 691: #302c29, L 0.297, dE to eye 0.105, 2.57 radii across (in 0.48, up -2.52), 0.58 radii along the normal, at -0.047,0.828,0.225, apart
-  face 690: #211d1b, L 0.235, dE to eye 0.048, 2.68 radii across (in 0.65, up -2.60), 0.75 radii along the normal, at -0.044,0.825,0.232, apart
-  face 673: #211d1b, L 0.235, dE to eye 0.048, 2.79 radii across (in 0.85, up -2.65), 0.99 radii along the normal, at -0.041,0.824,0.241, apart
-  face 674: #211d1b, L 0.235, dE to eye 0.048, 2.97 radii across (in 1.12, up -2.74), 1.21 radii along the normal, at -0.036,0.821,0.250, apart

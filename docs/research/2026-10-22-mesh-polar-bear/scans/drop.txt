@@ -1,6 +1,0 @@
-keys lowered by 0 m:
-| piano.lean=24deg | 27.9 | 14.3 | 98.7 |
-| piano.lean=28deg | 0.0 | 0.0 | 100.0 |
-keys lowered by 0.1 m:
-| piano.lean=24deg | 71.5 | 58.6 | 83.1 |
-| piano.lean=28deg | 42.0 | 28.8 | 95.1 |

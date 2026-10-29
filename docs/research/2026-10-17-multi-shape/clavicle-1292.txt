@@ -1,5 +1,0 @@
-faces 1292, side L, key clavicle (clavicle_L in the axes of chest), step 1 s
-samples 4426 folded 1022
-mean turn (model axes) 0.0000, 0.0000, 0.0000, 1.0000, angle from bind 0.0
-studio axes (x, z flip) 0.0000, 0.0000, 0.0000, 1.0000
-0-10 deg: 4426 samples, 1022 folded (23.1%)

@@ -1,7 +1,0 @@
-L rest (9): swing 23/23/24  twist 41/41/42  elbow 120/120/122  fore -156/-156/-155  (5%/50%/95%, deg); folds 0.0%, mean 0.0, most 0
-L play (3232): swing 43/54/58  twist 51/56/89  elbow 87/95/102  fore 152/159/176  (5%/50%/95%, deg); folds 100.0%, mean 5.3, most 11
-L lift (279): swing 22/54/57  twist 41/56/68  elbow 89/97/119  fore -167/161/171  (5%/50%/95%, deg); folds 83.5%, mean 4.3, most 8
-R rest (9): swing 50/50/50  twist -70/-70/-70  elbow 98/98/99  fore -69/-69/-69  (5%/50%/95%, deg); folds 0.0%, mean 0.0, most 0
-R play (3232): swing 41/58/73  twist -107/-96/-70  elbow 66/106/144  fore 11/34/116  (5%/50%/95%, deg); folds 77.3%, mean 2.4, most 12
-R lift (279): swing 34/65/68  twist -106/-103/-61  elbow 98/127/180  fore -68/58/118  (5%/50%/95%, deg); folds 77.8%, mean 2.6, most 6
-exit 0

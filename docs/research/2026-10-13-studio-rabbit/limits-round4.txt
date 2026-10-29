@@ -1,5 +1,0 @@
-set: none
-species rabbit, studio true
-rest bow at wall 0: trunk 0.00 mm, arms 0.53 mm, legs 0.0000 H
-rest bow at wall 4: trunk 0.00 mm, arms 0.53 mm, legs 0.0000 H
-rabbit violin 0: bow paw turn 764° a second at wall 0.707 s

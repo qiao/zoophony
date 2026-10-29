@@ -1,6 +1,0 @@
-The break:
-@@ -734 +734 @@ function moveShare(
--      largest = Math.max(largest, share);
-+      largest = Math.min(largest, share);
-Tests that fail (1):
-src/shots/trace.test.ts > traceShots() (design 5.6) > gives the share of the distance of each camera that the distance refuses

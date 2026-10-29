@@ -1,4 +1,0 @@
-studio-bear: 37664 B packed, 17299 B after gzip
-studio-polar-bear: 36092 B packed, 16597 B after gzip
-studio-rabbit: 41948 B packed, 23682 B after gzip
-budget: 32000 B

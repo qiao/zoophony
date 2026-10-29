@@ -1,2 +1,0 @@
-# 2026-10-05T09:24:48Z node v24.10.0. Demo 1 has no CC 91 (reverb) and no CC 93 (chorus) events.
-first 60 s, left channel: RMS with effects 0.08943, RMS of (on - off) 0.00333, ratio -28.6 dB

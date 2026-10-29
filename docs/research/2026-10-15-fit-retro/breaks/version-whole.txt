@@ -1,6 +1,0 @@
-The break:
-@@ -483 +483 @@ export function formatVersion(text: string): number {
--  if (!Number.isInteger(version) || Number(version) < 1) {
-+  if (!Number.isInteger(version) || Number(version) < 0) {
-Tests that fail (1):
-tools/ref-tree.test.ts > formatVersion > refuses a text with no object, and a version that is not a whole number above 0

@@ -1,5 +1,0 @@
-set: violin@rabbit.poleR=1.5,0.6,-1;violin@rabbit.reach=45deg
-species rabbit, studio true
-rest bow at wall 0: trunk 0.00 mm, arms 0.53 mm, legs 0.0000 H
-rest bow at wall 4: trunk 0.00 mm, arms 0.53 mm, legs 0.0000 H
-rabbit violin 0: bow paw turn 730° a second at wall 0.637 s

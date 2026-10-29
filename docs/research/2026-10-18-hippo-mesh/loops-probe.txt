@@ -1,4 +1,0 @@
-hippo: 3 open loops
-  32 edges, length 3.076 m, middle 0.314, 1.003, -0.185, bones shoulderR 19, spine 13
-  32 edges, length 3.071 m, middle -0.313, 1.026, -0.189, bones shoulderL 17, spine 10, chest 5
-  2 edges, length 0.033 m, middle -0.000, 0.511, 0.061, bones tail1 2

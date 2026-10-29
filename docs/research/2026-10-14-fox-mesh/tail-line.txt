@@ -1,3 +1,0 @@
-tail loops from y 0.01 to 0.25, then the root (0.34, -0.075)
-length of the middle line 0.378 u (0.352 m), largest width 0.206 u (0.191 m), largest depth 0.214 u (0.199 m)
-root: top y 0.42 u (0.390 m), bottom y 0.26 u (0.242 m), middle y 0.34 u (0.316 m). Tip y 0.01 u (0.009 m)

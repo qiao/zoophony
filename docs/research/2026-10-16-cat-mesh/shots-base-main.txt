@@ -1,9 +1,0 @@
-
-> zoophony@0.0.0 test:paused /Users/xueqiaoxu/proj/zoophony/.claude/worktrees/cat-mesh
-> node tools/test-paused.ts src/shots/prepare.test.ts --base main
-
-Paused tests on main (06accea4) and on the working tree, at the same time:
-main (06accea4): 0 failed tests and errors. The working tree: 1 failed tests and errors. 6.5 s.
-Tests that fail and errors on the working tree alone (1):
-  src/shots/prepare.test.ts > the choir shots of prepareShots() (design 5.6) > shows the choir of the Ode to Joy in section shots over the orchestra, low
- ELIFECYCLE  Command failed with exit code 1.

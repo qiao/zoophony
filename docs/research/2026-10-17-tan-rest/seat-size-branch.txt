@@ -1,2 +1,0 @@
-fox-red seat 0.269676 width 0.48 depth 0.287134
-fox-tan seat 0.269676 width 0.48 depth 0.287134

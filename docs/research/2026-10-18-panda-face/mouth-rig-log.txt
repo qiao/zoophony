@@ -1,1 +1,0 @@
-rig_mesh: smile: the bands take [18, 6] faces

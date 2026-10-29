@@ -1,6 +1,0 @@
-The break:
-@@ -1027 +1027 @@ export function turnLines(
--  const mean = meanTurn(folded.map((sample) => sample.turn));
-+  const mean = meanTurn(samples.map((sample) => sample.turn));
-Tests that fail (1):
-tools/fold-probe.test.ts > turnLines > gives the mean turn of the folds, the mean direction of the arm, and the share by angle

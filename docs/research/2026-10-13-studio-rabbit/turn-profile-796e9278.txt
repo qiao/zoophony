@@ -1,6 +1,0 @@
-bach-bwv1048.mid song 0 (count-in 1.50 s): worst 3795°/s at wall 0.250, 21 ms above 1000°/s
-bach-bwv1048.mid count-in (count-in 1.50 s): worst 3710°/s at wall 0.249, 1 ms above 1000°/s
-beethoven-9.mid song 0 (count-in 1.91 s): worst 3704°/s at wall 0.249, 19 ms above 1000°/s
-beethoven-9.mid count-in (count-in 1.91 s): worst 3710°/s at wall 0.249, 1 ms above 1000°/s
-boulanger-matin.mid song 0 (count-in 1.62 s): worst 1030°/s at wall 0.648, 11 ms above 1000°/s
-boulanger-matin.mid count-in (count-in 1.62 s): worst 1114°/s at wall 0.649, 21 ms above 1000°/s

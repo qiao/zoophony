@@ -1,9 +1,0 @@
-
-
-Folded faces of the studio body of the trombonist on main (24a7d555) and on the working tree: 22.2 s.
-
-| Set | main (24a7d555) | Working tree |
-|---|---:|---:|
-| rest | 0.0% (0/3), most 0 (L 0 / R 0 / other 0) | 0.0% (0/3), most 0 (L 0 / R 0 / other 0) |
-| play | 0.0% (0/4788), most 0 (L 0 / R 0 / other 0) | 0.0% (0/4788), most 0 (L 0 / R 0 / other 0) |
-| lift | 0.0% (0/93), most 0 (L 0 / R 0 / other 0) | 0.0% (0/93), most 0 (L 0 / R 0 / other 0) |

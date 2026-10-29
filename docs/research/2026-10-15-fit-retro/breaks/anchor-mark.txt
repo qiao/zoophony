@@ -1,6 +1,0 @@
-The break:
-@@ -1124 +1124 @@ function moveText(move: number | null, sign = false): string {
--  const mark = Math.abs(move) > ANCHOR_MARK ? ' MOVED' : '';
-+  const mark = Math.abs(move) > ANCHOR_MARK * 2 ? ' MOVED' : '';
-Tests that fail (1):
-tools/rig-mesh.test.ts > anchorCells > marks a move above 1 mm only, and gives the sign of a change of the head height

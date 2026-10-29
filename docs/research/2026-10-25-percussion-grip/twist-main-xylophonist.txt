@@ -1,4 +1,0 @@
-| Link | Mean | Largest | Worst sample |
-|---|---:|---:|---|
-L total twist: mean NaN, largest 0.0
-R total twist: mean NaN, largest 0.0

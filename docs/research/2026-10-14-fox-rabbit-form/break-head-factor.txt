@@ -1,6 +1,0 @@
-The break:
-@@ -1297 +1297 @@ export function studioBody(bytes: Uint8Array, source: string, settings: AnimalSe
--      headHeight: round(((top - chin) * scale) / headFactorOf(glb)),
-+      headHeight: round(((top - chin) * scale)),
-Tests that fail (1):
-tools/studio-body.test.ts > pnpm studio-body with a head that the rig grows (design 4.4) > keeps the head height of the holds from the head before the factor

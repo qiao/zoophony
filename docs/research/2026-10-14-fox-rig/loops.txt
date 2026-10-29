@@ -1,3 +1,0 @@
-rabbit chair The bones hips spine chest neck head jaw eyeL eyeR earL earR tail1 tail2 shoulderL shoulderR thighL thighR shinL shinR footL footR have 6 open loops, and the caller expects 0.
-fox-red chair The bones hips spine chest neck head jaw eyeL eyeR earL earR tail1 tail2 shoulderL shoulderR thighL thighR shinL shinR footL footR have 6 open loops, and the caller expects 0.
-fox-red stand The bones hips spine chest neck head jaw eyeL eyeR earL earR tail1 tail2 shoulderL shoulderR thighL thighR shinL shinR footL footR have 6 open loops, and the caller expects 0.

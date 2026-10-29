@@ -1,5 +1,0 @@
-min angle < 2: 5 faces
-min angle < 5: 78 faces
-min angle < 8: 229 faces
-min angle < 10: 335 faces
-min angle < 15: 554 faces

@@ -1,6 +1,0 @@
-The break:
-@@ -500 +500 @@ function countPose(model: PlayerModel, pose: AnimalPose, label: string, count: F
--      count.faceWorst.set(face, { label, angle, ...turnBone(rig.mesh, studio, face) });
-+      
-Tests that fail (1):
-tools/fold-probe.test.ts > probeFolds > counts each sample set of the demos with the role, and skips the other demos

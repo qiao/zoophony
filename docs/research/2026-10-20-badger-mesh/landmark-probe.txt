@@ -1,5 +1,0 @@
-badger bass-drum stand: H 0.244 shoulderL (-0.145, 0.597, 0.021) wristL (-0.145, 0.352, 0.021) eye 0.929 headTop 1.038 earTop -Infinity hips 0.208 support stand
-badger snare-drum stand: H 0.244 shoulderL (-0.145, 0.597, 0.021) wristL (-0.145, 0.352, 0.021) eye 0.929 headTop 1.038 earTop -Infinity hips 0.208 support stand
-badger cymbals stand: H 0.244 shoulderL (-0.145, 0.597, 0.021) wristL (-0.145, 0.352, 0.021) eye 0.929 headTop 1.038 earTop -Infinity hips 0.208 support stand
-badger small-percussion stand: H 0.244 shoulderL (-0.145, 0.597, 0.021) wristL (-0.145, 0.352, 0.021) eye 0.929 headTop 1.038 earTop -Infinity hips 0.208 support stand
-badger xylophone stand: H 0.244 shoulderL (-0.145, 0.597, 0.021) wristL (-0.145, 0.352, 0.021) eye 0.929 headTop 1.038 earTop -Infinity hips 0.208 support stand

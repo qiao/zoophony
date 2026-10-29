@@ -1,5 +1,0 @@
-old-key/cat/play-shot-cat.png: fur px 156441, p50 159, p90 212, any channel 255: 2.0%
-old-key/dog/play-shot-dog.png: fur px 130827, p50 174, p90 228, any channel 255: 10.9%
-old-key/hippo/play-shot-hippo.png: fur px 47091, p50 142, p90 196, any channel 255: 0.0%
-old-key/polar-bear/play-shot-polar-bear.png: fur px 118380, p50 161, p90 207, any channel 255: 0.1%
-old-key/rabbit/play-shot-rabbit.png: fur px 175486, p50 184, p90 220, any channel 255: 2.3%

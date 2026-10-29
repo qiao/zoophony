@@ -1,6 +1,0 @@
-The break:
-@@ -980 +980 @@ export function faceCompareLines(
--    const mark = !row.base ? 'new' : !row.tree ? 'gone' : '';
-+    const mark = '';
-Tests that fail (1):
-tools/fold-probe.test.ts > faceCompareLines > gives the shares of both trees, and marks the new and the gone faces

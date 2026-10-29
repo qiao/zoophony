@@ -1,5 +1,0 @@
-pnpm rig-mesh fox --check --roles fox-violinist --step 4 --demo mozart-k525 and pnpm rig-mesh rabbit --check --roles violinist --step 4 --demo mozart-k525 against git show HEAD:<file> | shasum -a 256:
-fox rig of the check: Rig: 471228 B, sha256 19ade726d9426e2da0ad84fed11ff53994a550c941f25c1ce1b37c883b49c68c.
-fox.rig.glb of the branch: 19ade726d9426e2da0ad84fed11ff53994a550c941f25c1ce1b37c883b49c68c  -
-rabbit rig of the check: Rig: 373948 B, sha256 2ab1d663b8bfe4c203e7542cff2639d4a343c4c06a78336914248f8d6a8ab78f.
-rabbit-4.rig.glb of the branch: 2ab1d663b8bfe4c203e7542cff2639d4a343c4c06a78336914248f8d6a8ab78f  -

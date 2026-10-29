@@ -1,8 +1,0 @@
-The break:
-@@ -2038 +2038 @@ function planShots(
--        planner.fullSearch = entering;
-+        planner.fullSearch = entering || trace !== null;
-Tests that fail (3):
-src/shots/trace.test.ts > traceShots() (design 5.6) > gives the plan of prepareShots()
-src/shots/trace.test.ts > traceShots() (design 5.6) > names the rule that drops each candidate
-src/shots/trace.test.ts > traceShots() (design 5.6) > ends the search of a cut with the candidate of the shot

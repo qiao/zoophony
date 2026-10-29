@@ -1,3 +1,0 @@
-base:
-  rabbit (arm L 0.557 m, bare 0.2881 m): 0.70: reach 0.429 m, factor 1.365; 0.80: reach 0.479 m, factor 1.537; 0.90: reach 0.529 m, factor 1.710; 1.00: reach 0.579 m, factor 1.884
-  fox-red (arm L 0.604 m, bare 0.4183 m): 0.70: reach 0.456 m, factor 0.997; 0.80: reach 0.505 m, factor 1.114; 0.90: reach 0.555 m, factor 1.233; 1.00: reach 0.605 m, factor 1.352

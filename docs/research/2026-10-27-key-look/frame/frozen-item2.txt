@@ -1,6 +1,0 @@
-measure-lock: frame-compare holds the lock.
-scratch/frame-compare/frozen-item2/tree/play.png: song time 30.00 s
-scratch/frame-compare/frozen-item2/tree/conductor.png: song time 73.00 s
-scratch/frame-compare/frozen-item2/tree/perf-wide.png: song time 5.00 s
-scratch/frame-compare/frozen-item2/tree/perf-section.png: song time 36.00 s
-measure-lock: frame-compare frees the lock (exit code 0).

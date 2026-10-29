@@ -1,6 +1,0 @@
-samples 1926 folded 1200
-mean turn (model axes) 0.0215, -0.2898, 0.9524, 0.0918 angle from bind 169.5
-studio axes (x, z flip) -0.0215, -0.2898, -0.9524, 0.0918
-0-10 deg: 1188 samples, 100% folded
-10-20 deg: 18 samples, 67% folded
-20-30 deg: 1 samples, 0% folded

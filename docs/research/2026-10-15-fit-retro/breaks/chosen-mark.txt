@@ -1,6 +1,0 @@
-The break:
-@@ -325 +325 @@ export function cutLines(cuts: readonly CutTrace[], cameras: boolean): string[]
--      const chosen = cut.chosen === i ? ', chosen' : '';
-+      const chosen = '';
-Tests that fail (1):
-tools/shot-trace.test.ts > cutLines() > writes the end of the cut, the rule of each dropped candidate, and each try

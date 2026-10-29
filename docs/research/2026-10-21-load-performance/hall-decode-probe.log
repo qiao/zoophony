@@ -1,4 +1,0 @@
-chromium 153.0.8010.12 {"rows":[{"rate":48000,"frames":120000,"channels":2,"largest":0,"toInteger":0.00001800060272216797,"wavToInteger":0.00001800060272216797,"wavTo32767":1.4256764546694e-8},{"rate":44100,"frames":110249,"channels":2,"largest":0,"toInteger":-1,"wavToInteger":-1,"wavTo32767":-1}]}
-firefox 155.0 {"rows":[{"rate":48000,"frames":120000,"channels":2,"largest":0.00001800060272216797,"toInteger":0,"wavToInteger":0.00001800060272216797,"wavTo32767":1.4256764546694e-8},{"rate":44100,"frames":110250,"channels":2,"largest":0.000020802021026611328,"toInteger":-1,"wavToInteger":-1,"wavTo32767":-1}]}
-webkit 26.6 {"rows":[{"rate":48000,"frames":120000,"channels":2,"largest":0,"toInteger":0,"wavToInteger":0,"wavTo32767":0.000017999289371739557},{"rate":44100,"frames":110250,"channels":2,"largest":0,"toInteger":-1,"wavToInteger":-1,"wavTo32767":-1}]}
-1 browsers: a difference

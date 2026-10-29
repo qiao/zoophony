@@ -1,6 +1,0 @@
-fox-red violin stand: seat 0.000 H 0.380 shoulder 0.581 eye 0.917 headTop 1.083 earTop 1.221 hips 0.266 headTop above the seat 1.083
-fox-red violin chair: seat 0.285 H 0.380 shoulder 0.657 eye 0.993 headTop 1.159 earTop 1.297 hips 0.342 headTop above the seat 0.874
-fox-tan flute stand: seat 0.000 H 0.380 shoulder 0.581 eye 0.917 headTop 1.083 earTop 1.221 hips 0.266 headTop above the seat 1.083
-fox-tan flute chair: seat 0.285 H 0.380 shoulder 0.657 eye 0.993 headTop 1.159 earTop 1.297 hips 0.342 headTop above the seat 0.874
-rabbit violin stand: seat 0.000 H 0.269 shoulder 0.581 eye 0.818 headTop 0.934 earTop 1.223 hips 0.245 headTop above the seat 0.934
-rabbit violin chair: seat 0.103 H 0.269 shoulder 0.534 eye 0.771 headTop 0.887 earTop 1.177 hips 0.198 headTop above the seat 0.784

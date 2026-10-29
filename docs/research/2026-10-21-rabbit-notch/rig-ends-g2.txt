@@ -1,2 +1,0 @@
-| raise.0.grow=2 | 3119 | 24701 | 1.4678 | 0.227 | 0.227 | 0.285 | 0.506 | 0.506 | 0.312 | 0.5% | 25.6% | 100.0% | spine1 293, upper_arm_R 123, forearm_twist_L 19 | arm_raise_R: 250, 360, 364, 423 FAIL / arm_raise_R2: none |
-

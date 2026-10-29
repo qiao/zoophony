@@ -1,6 +1,0 @@
-The break:
-@@ -259 +259 @@ export async function sweepDemos(
--          const pairs = options.gaps ? gapPairs(role) : (options.gapsOf?.(name, player) ?? []);
-+          const pairs = options.gaps ? gapPairs(role) : [];
-Tests that fail (1):
-tools/pose-depth.test.ts > sweepDemos > measures the gap pairs of gapsOf in each set of each player

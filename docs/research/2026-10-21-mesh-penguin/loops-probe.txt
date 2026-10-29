@@ -1,3 +1,0 @@
-penguin: 2 open loops
-  36 edges, length 1.960 m, middle 0.202, 0.602, 0.003, box 0.162, 0.396, -0.071 to 0.258, 0.728, 0.116, bones shoulderR 20, neck 1, spine 14, chest 1
-  41 edges, length 2.130 m, middle -0.202, 0.607, -0.004, box -0.267, 0.473, -0.069 to -0.148, 0.718, 0.118, bones spine 8, chest 1, shoulderL 31, neck 1

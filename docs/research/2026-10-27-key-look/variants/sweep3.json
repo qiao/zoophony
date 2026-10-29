@@ -1,6 +1,0 @@
-{
-  "main": {},
-  "boost2.1": { "LIGHT_POOL.spotBoost": 2.1 },
-  "boost2.3-key6": { "LIGHT_POOL.spotBoost": 2.3, "KEY_LIGHT.illuminance": 6.0 },
-  "boost2.5-key6": { "LIGHT_POOL.spotBoost": 2.5, "KEY_LIGHT.illuminance": 6.0 }
-}

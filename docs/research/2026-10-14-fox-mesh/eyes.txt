@@ -1,5 +1,0 @@
-rig_mesh: source: 1559 vertices, 3111 triangles, scale 0.525468
-rig_mesh: eyes: 23 faces left, 18 faces right, nose: 34 faces
-eye L: 23 dark faces in 2 patches, 19 open edges, 1 corners with two open edges out of them, the longest closed loop 3 points. The face middles: x +0.026..+0.062 y 0.792..0.837 z 0.164..0.199
-eye R: 18 dark faces in 2 patches, 18 open edges, 0 corners with two open edges out of them, the longest closed loop 14 points. The face middles: x -0.060..-0.030 y 0.797..0.840 z 0.166..0.197
-nose: 34 faces, middles y 0.736..0.771 z 0.243..0.281

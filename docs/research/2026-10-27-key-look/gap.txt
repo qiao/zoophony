@@ -1,3 +1,0 @@
-boulanger-matin: close shots by gap to the key (0-30, 30-60, ..., 150-180): 17 11 6 2 0 0 0
-beethoven-9: close shots by gap to the key (0-30, 30-60, ..., 150-180): 9 2 2 1 0 0 0
-brahms-2: close shots by gap to the key (0-30, 30-60, ..., 150-180): 26 32 9 2 1 0 0

@@ -1,7 +1,0 @@
-The break:
-@@ -246 +246 @@ export function armFactorFor(reach: number, arm: number, paw: number): number {
--  return (reach - paw) / (arm - paw);
-+  return reach / arm;
-Tests that fail (2):
-tools/hold-reach.test.ts > scrollReach and armFactorFor > makes the upper arm and the forearm longer, and keeps the paw
-tools/hold-reach.test.ts > sizeReach (design 4.6) > needs the reach of the arm at the size of the rule, and the arm factor of the rig there

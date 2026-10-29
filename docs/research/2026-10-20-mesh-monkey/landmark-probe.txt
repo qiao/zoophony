@@ -1,2 +1,0 @@
-monkey trumpet stand: H 0.361 shoulderL (-0.188, 0.552, 0.000) wristL (-0.188, 0.065, 0.000) eye 0.873 headTop 1.029 earTop 0.933 top 1.029 hips 0.253 support stand
-monkey trumpet chair: H 0.361 shoulderL (-0.188, 0.625, 0.000) wristL (-0.188, 0.137, 0.000) eye 0.945 headTop 1.101 earTop 1.005 top 1.101 hips 0.325 support chair

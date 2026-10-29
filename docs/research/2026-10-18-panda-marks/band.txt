@@ -1,3 +1,0 @@
-# python -I docs/research/2026-10-18-panda-folds/band.py <png> 156,228,228,252 on the front view of the first position of pnpm close-views trombonist scratch/marks/cv-final --base main
-trombonist-base-first-front.png: box (156, 228, 228, 252), 1728 px, 311 below L 0.45 (18.0%), rows with more than 20% dark: 10 (y 229 to 238)
-trombonist-first-front.png: box (156, 228, 228, 252), 1728 px, 314 below L 0.45 (18.2%), rows with more than 20% dark: 10 (y 229 to 238)

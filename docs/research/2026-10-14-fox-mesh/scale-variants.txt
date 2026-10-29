@@ -1,3 +1,0 @@
-shoulder joints 0.581 m: 0.9296 m for each unit, shoulders 0.581 m, head top 0.844 m, ear tips 0.930 m, reach 0.2743 m with no factor, factor for 0.543 m: 2.073, 0.377 m: 1.410
-head top 1.083 m: 1.1927 m for each unit, shoulders 0.745 m, head top 1.083 m, ear tips 1.193 m, reach 0.3519 m with no factor, factor for 0.543 m: 1.595, 0.377 m: 1.078
-ear tips 1.221 m: 1.2210 m for each unit, shoulders 0.763 m, head top 1.109 m, ear tips 1.221 m, reach 0.3602 m with no factor, factor for 0.543 m: 1.555, 0.377 m: 1.051

@@ -1,8 +1,0 @@
-
-> zoophony@0.0.0 test:paused /Users/xueqiaoxu/proj/zoophony/.claude/worktrees/cat-mesh
-> node tools/test-paused.ts src/shots/prepare.test.ts --base main
-
-Paused tests on main (06accea4) and on the working tree, at the same time:
-main (06accea4): 0 failed tests and errors. The working tree: 0 failed tests and errors. 6.5 s.
-No test fails and no error comes on the working tree alone.
-exit 0

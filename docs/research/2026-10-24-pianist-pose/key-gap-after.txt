@@ -1,6 +1,0 @@
-L: 2907 strikes, 0 with no paw vertex over the keys; gap cm: deepest -0.02 (bach-bwv1050.mid 146.88 s), p5 -0.01, median 0.00, p95 0.18, largest 0.18 (bach-bwv1050.mid 122.50 s)
-  reach of the paw past the key front, cm: min 3.2, median 3.6, max 5.2
-  lowest paw point above the white key top, cm: min -0.0, median -0.0, max 0.0
-R: 1005 strikes, 0 with no paw vertex over the keys; gap cm: deepest -0.09 (bach-bwv1050.mid 211.17 s), p5 0.04, median 0.20, p95 0.39, largest 0.40 (bach-bwv1050.mid 11.67 s)
-  reach of the paw past the key front, cm: min 3.3, median 3.6, max 5.1
-  lowest paw point above the white key top, cm: min -0.1, median 0.2, max 0.4

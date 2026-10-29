@@ -1,3 +1,0 @@
-wolf clarinet stand: seat 0.000 H 0.281 shoulder 1.1476 eye 1.604 headTop 1.725 earTop 1.866 top 1.866 hips 0.588 headTop above the seat 1.725
-wolf clarinet chair: seat 0.360 H 0.281 shoulder 1.0230 eye 1.479 headTop 1.600 earTop 1.741 top 1.741 hips 0.463 headTop above the seat 1.240
-dog cello stand: seat 0.000 H 0.328 shoulder 0.8859 eye 1.329 headTop 1.455 earTop 1.281 top 1.455 hips 0.400 headTop above the seat 1.455

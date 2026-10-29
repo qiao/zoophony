@@ -1,2 +1,0 @@
-rig_mesh: patch: 18 dark faces of the eye patches (9 left, 9 right) take the color of the nearest light fur face. The patches keep the color [0.0492, 0.0365, 0.0269]
-rig_mesh: smile: the bands take [18, 13] faces

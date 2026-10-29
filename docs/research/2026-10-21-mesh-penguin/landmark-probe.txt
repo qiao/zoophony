@@ -1,1 +1,0 @@
-penguin folder riser: H 0.342 shoulderL (-0.157, 0.759, 0.000) wristL (-0.157, 0.489, 0.000) eye 0.974 headTop 1.043 earTop -Infinity top 1.043 hips 0.171 support riser

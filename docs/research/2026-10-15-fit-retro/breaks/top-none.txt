@@ -1,5 +1,0 @@
-The break:
-@@ -925 +924,0 @@ export function topFaces(faces: readonly FaceRecord[], count: number): FaceFolds
--    .filter((face) => face.samples > 0)
-Tests that fail (1):
-tools/rig-mesh.test.ts > topFaces > gives the faces with the most samples of all sets, and the lower index first on a tie

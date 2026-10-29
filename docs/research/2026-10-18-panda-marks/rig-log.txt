@@ -1,6 +1,0 @@
-rig_mesh: source: 1575 vertices, 3146 triangles, scale 0.525909
-rig_mesh: palette: 48 colors, the Oklab distance of a face from its color 0.0018 on the mean, 0.0095 at most
-rig_mesh: border: 7 dark faces (3 left, 4 right) take the color of the nearest light fur face
-rig_mesh: border: the faces of the module [359, 485, 488, 493, 1943, 2620, 2621]
-rig_mesh: triangles: 3165 (79 gloss)
-rig_mesh: wrote /Users/xueqiaoxu/proj/zoophony/.claude/worktrees/panda-marks/assets/models/panda/panda.rig.glb: 536540 bytes

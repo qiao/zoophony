@@ -1,6 +1,0 @@
-The break:
-@@ -912 +912 @@ export function sameFace(record: FaceRecord, other: FaceJson, topology: string):
--    if (distance <= nearest) {
-+    if (distance <= nearest * 100) {
-Tests that fail (1):
-tools/fold-probe.test.ts > sameFace > takes the same index when the corners are the same, else the nearest middle within 1 cm

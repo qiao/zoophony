@@ -1,6 +1,0 @@
-The break:
-@@ -422 +422 @@ export function takeSizes(args: readonly string[]): SizeArgs {
--  if (!sizes.every((size) => Number.isFinite(size) && size > 0)) {
-+  if (!sizes.every((size) => Number.isFinite(size))) {
-Tests that fail (1):
-tools/hold-reach.test.ts > takeSizes > stops on no value, a second --size, or a scale that is not above 0

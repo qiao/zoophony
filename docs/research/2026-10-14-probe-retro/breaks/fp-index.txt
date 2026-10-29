@@ -1,7 +1,0 @@
-The break:
-@@ -901 +901 @@ export function sameFace(record: FaceRecord, other: FaceJson, topology: string):
--  if (topology === other.topology) {
-+  if (topology === other.topology + "x") {
-Tests that fail (2):
-tools/fold-probe.test.ts > sameFace > takes the same index when the corners are the same, else the nearest middle within 1 cm
-tools/fold-probe.test.ts > faceCompareLines > gives the shares of both trees, and marks the new and the gone faces

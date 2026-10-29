@@ -1,4 +1,0 @@
-$ pnpm studio-body <animal> --inspect | grep "Arm from"
-rabbit: Arm from the shoulder joint to the middle of the palm, along the joints: L 0.315 u (0.377 m), R 0.315 u (0.377 m)
-bear: Arm from the shoulder joint to the middle of the palm, along the joints: L 0.357 u (0.540 m), R 0.357 u (0.540 m)
-polar-bear: Arm from the shoulder joint to the middle of the palm, along the joints: L 0.346 u (0.625 m), R 0.346 u (0.625 m)

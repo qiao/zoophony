@@ -1,3 +1,0 @@
-rabbit: seat 0.103 m, H 0.269 m, head top 0.887 m, head top above the seat 0.784 m
-fox-red: seat 0.285 m, H 0.380 m, head top 1.159 m, head top above the seat 0.874 m
-ratio of the head tops above the seats: 0.897

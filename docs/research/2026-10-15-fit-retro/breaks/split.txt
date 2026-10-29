@@ -1,6 +1,0 @@
-The break:
-@@ -149 +149 @@ export function sideSplit(bones: readonly string[]): SideSplit {
--  const R = bones.filter((bone) => bone.endsWith('_R')).length;
-+  const R = bones.filter((bone) => bone.endsWith('R')).length;
-Tests that fail (1):
-tools/fold-probe.test.ts > sideSplit > splits the faces by the side of their main bone: _L, _R, and the middle

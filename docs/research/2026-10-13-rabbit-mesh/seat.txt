@@ -1,2 +1,0 @@
-seat height 0.102741 m, chair depth 0.195122 m
-head height 0.268828 m, scale 1.223158 m for each unit

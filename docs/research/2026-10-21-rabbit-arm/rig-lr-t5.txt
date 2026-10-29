@@ -1,2 +1,0 @@
-| cut.bodyNormals="LR";upperTwist={"share":0.5} | 3119 | 24703 | 1.4678 | 0.227 | 0.227 | 0.285 | 0.506 | 0.506 | 0.329 | 0.0% | 6.2% | 0.0% | forearm_twist_L 19, forearm_L 8, hand_L 5 | arm_raise_R: none / arm_raise_R2: none |
-

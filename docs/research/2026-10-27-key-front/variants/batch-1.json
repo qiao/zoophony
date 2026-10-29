@@ -1,7 +1,0 @@
-{
-  "a-sides-as-main": { "KEY_LIGHT.aimToPodium": 0, "RIM_LIGHT.illuminance": 0 },
-  "b-key9-side1.2-rim3": { "KEY_LIGHT.aimToPodium": 0, "SIDE_LIGHT.illuminance": 1.2, "BACK_ROW_LIGHT.illuminance": 1.5, "RIM_LIGHT.illuminance": 3 },
-  "c-key7-side1.2-rim3": { "KEY_LIGHT.aimToPodium": 0, "KEY_LIGHT.illuminance": 7, "SIDE_LIGHT.illuminance": 1.2, "BACK_ROW_LIGHT.illuminance": 1.5, "RIM_LIGHT.illuminance": 3 },
-  "d-high66": { "KEY_LIGHT.aimToPodium": 0, "KEY_PLACE.elevation": "66deg", "SIDE_LIGHT.illuminance": 1.2, "BACK_ROW_LIGHT.illuminance": 1.5, "RIM_LIGHT.illuminance": 3 },
-  "e-low42": { "KEY_LIGHT.aimToPodium": 0, "KEY_PLACE.elevation": "42deg", "SIDE_LIGHT.illuminance": 1.2, "BACK_ROW_LIGHT.illuminance": 1.5, "RIM_LIGHT.illuminance": 3 }
-}

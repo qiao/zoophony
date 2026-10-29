@@ -1,8 +1,0 @@
-
-> zoophony@0.0.0 test:paused /Users/xueqiaoxu/proj/zoophony/.claude/worktrees/bow-arm
-> node tools/test-paused.ts src/shots/prepare.test.ts --base main
-
-Paused tests on main (9bdd6cee) and on the working tree, at the same time:
-main (9bdd6cee): 0 failed tests and errors. The working tree: 0 failed tests and errors. 7.0 s.
-No test fails and no error comes on the working tree alone.
-exit 0

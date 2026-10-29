@@ -1,8 +1,0 @@
-Tree: main
-
-| Instrument | Turn | Tilt | Notes | Bows for each second of sound | Notes in a slur | Crossings | Mean crossing ms | Mean lead ms | Fast crossings with the elbow on the mean string | Sounding point mm, loudness < 0.3 | 0.3 to 0.6 | > 0.6 |
-|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| violin | 9° | 0° | 29038 | 4.39 | 0.0% | 6243 | 88.3 | 0.0 | 0.0% of 3494 | - | 20.5 (29038) | - |
-| viola | 9° | 0° | 12114 | 4.05 | 0.0% | 2553 | 90.2 | 0.0 | 0.0% of 1320 | - | 23.1 (12114) | - |
-| cello | 9° | 0° | 8851 | 3.31 | 0.0% | 3337 | 94.7 | 0.0 | 0.0% of 1106 | - | 43.1 (8851) | - |
-| contrabass | 7° | 0° | 5715 | 3.53 | 0.0% | 2423 | 93.4 | 0.0 | 0.0% of 843 | - | 66.3 (5715) | - |

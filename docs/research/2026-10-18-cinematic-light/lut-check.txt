@@ -1,2 +1,0 @@
-# Output of lut_check.ts at d1bb9738. The worst input is (0.22, 0.83, 0.00), at the edge of the gamut.
-max error 3.79 levels, mean 0.171 levels

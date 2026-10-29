@@ -1,6 +1,0 @@
-The break:
-@@ -501 +501 @@ export function checkFormat(script: string, ref: string, base: number, tree: num
--  if (base !== tree) {
-+  if (base !== tree && false) {
-Tests that fail (1):
-tools/ref-tree.test.ts > checkFormat > passes one version, and stops on two versions with both in the message

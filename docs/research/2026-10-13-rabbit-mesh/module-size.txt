@@ -1,6 +1,0 @@
-# The module src/models/studio/rabbit.ts: bytes, and bytes of gzip -c <file> | wc -c.
-# main (20ce6aea), the studio rabbit:
-40331 17691
-# The temporary swap (glb: 'assets/models/rabbit/rabbit-4.rig.glb' on the rabbit entry of
-# ANIMALS), then pnpm studio-body rabbit, with the rig GLB of sha256 b71278cfaf6f:
-87933 53969

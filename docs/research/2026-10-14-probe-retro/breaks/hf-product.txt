@@ -1,6 +1,0 @@
-The break:
-@@ -130 +130 @@ export function gridVariants(grids: readonly string[]): string[] {
--      (variants, range) => variants.flatMap((variant) => range.map((c) => `${variant};${c}`)),
-+      (variants, range) => range.flatMap((c) => variants.map((variant) => `${variant};${c}`)),
-Tests that fail (1):
-tools/hold-fit.test.ts > gridVariants > gives the product of the grids, the first grid outermost

@@ -1,7 +1,0 @@
-LOW: the footprint keeps only the boxes whose top is above LOW m (scratch/exp-*/src/models/footprint.ts)
-LOW 0 exp-main: stage side 11.381
-LOW 0 exp-branch: stage side 11.853
-LOW 0.2 exp-main: stage side 11.361
-LOW 0.2 exp-branch: stage side 11.833
-LOW 0.3 exp-main: stage side 11.561
-LOW 0.3 exp-branch: stage side 11.561

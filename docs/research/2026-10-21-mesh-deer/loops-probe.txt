@@ -1,4 +1,0 @@
-deer: 3 open loops
-  22 edges, length 0.993 m, middle 0.126, 0.651, 0.029, bones shoulderR 10, chest 10, spine 2
-  20 edges, length 1.013 m, middle -0.136, 0.648, 0.017, bones shoulderL 17, spine 1, chest 2
-  2 edges, length 0.015 m, middle -0.114, 0.003, -0.166, bones footL 2

@@ -1,6 +1,0 @@
-fox-red bind: joint 88.0°, trunk lean 2.0° forward, back to the rail 8.3 cm
-fox-red rest: joint 87.3°, trunk lean 2.7° forward, back to the rail 8.4 cm
-fox-red play: joint 87.3°, trunk lean 2.7° forward, back to the rail 8.4 cm
-rabbit bind: joint 86.4°, trunk lean 3.6° forward, back to the rail 13.1 cm
-rabbit rest: joint 85.6°, trunk lean 4.4° forward, back to the rail 13.4 cm
-rabbit play: joint 85.6°, trunk lean 4.4° forward, back to the rail 13.4 cm

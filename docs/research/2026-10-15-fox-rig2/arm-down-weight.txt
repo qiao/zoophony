@@ -1,8 +1,0 @@
-node docs/research/2026-10-15-fox-rig2/arm-down-weight.ts 1
-(on the module of commit 92fb4845: the smoothed neck, no shape of the raised arm)
-
-as is: n 4454 any 12.1% 389 3.9% 390 10.6%
-0: n 4454 any 10.8% 389 3.2% 390 9.3%
-1: n 4454 any 100.0% 389 5.8% 390 15.5%
-0.5x: n 4454 any 11.4% 389 3.5% 390 10.0%
-1.5x: n 4454 any 15.2% 389 4.5% 390 11.3%

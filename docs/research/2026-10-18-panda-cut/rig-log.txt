@@ -1,9 +1,0 @@
-rig_mesh: source: 1575 vertices, 3146 triangles, scale 0.525909
-rig_mesh: cut L: 20 faces go, 20 new faces close the hole (smallest angle 5.6 degrees, median 18.9), the arm run [482, 475, 474, 797, 794, 792, 673, 461, 464, 463], the body run [432, 455, 457, 460, 788, 790, 791, 798, 796, 473, 472, 539]
-rig_mesh: cut R: 17 faces go, 17 new faces close the hole (smallest angle 8.8 degrees, median 17.8), the arm run [579, 585, 1282, 1281, 1287, 1297, 635, 630, 631], the body run [601, 634, 638, 1301, 1300, 1289, 1286, 588, 586, 587]
-rig_mesh: cut: 3146 triangles before, 3146 after
-rig_mesh: refine: 10 flips, the largest move 2.370 mm, 0 cut edges, 0 new faces
-rig_mesh: border: 13 dark faces (6 left, 7 right) take the color of the nearest light fur face
-rig_mesh: border: the faces of the module [363, 367, 369, 554, 559, 561, 564, 751, 1048, 1130, 1131, 1414, 1424]
-rig_mesh: triangles: 3165 (79 gloss)
-rig_mesh: wrote /Users/xueqiaoxu/proj/zoophony/.claude/worktrees/panda-cut/assets/models/panda/panda.rig.glb: 526444 bytes

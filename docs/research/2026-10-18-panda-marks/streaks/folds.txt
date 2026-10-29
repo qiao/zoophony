@@ -1,9 +1,0 @@
-# pnpm fold-probe trombonist --glb scratch/streaks/out-<variant>/panda.rig.glb
-== s24f0
-| rest | 3 | 2 | 66.7% | 1 (L 1 / R 0 / other 0) | beethoven-9.mid rest |
-| play | 4788 | 79 | 1.6% | 1 (L 1 / R 0 / other 0) | beethoven-9.mid 76.59 s |
-| lift | 93 | 15 | 16.1% | 2 (L 1 / R 1 / other 0) | brahms-2.mid wall 0.5 s |
-== c1
-| rest | 3 | 3 | 100.0% | 6 (L 0 / R 0 / other 6) | beethoven-9.mid rest |
-| play | 4788 | 4788 | 100.0% | 7 (L 0 / R 1 / other 6) | boulanger-matin.mid 258.88 s |
-| lift | 93 | 93 | 100.0% | 6 (L 0 / R 0 / other 6) | beethoven-9.mid wall 0.0 s |

@@ -1,4 +1,0 @@
-source: 1574 vertices, 3139 triangles
-side L: 22 joining faces go, the arm run [587, 588, 646, 647, 617, 610, 609, 605, 608, 615, 614, 607], 13 new vertices, 36 patch faces (the flat cap had 10), target radius 0.0466 / 0.0425 / 0.0394 u and center [0.0044, -0.0049] / [0.0058, -0.0029] / [0.0053, -0.0001] at u 0.6 / 0.9 / 1.2, new vertex distance from the axis 0.0389 to 0.0503 u, the largest move of a run vertex 0.0000 u
-side R: 19 joining faces go, the arm run [695, 712, 693, 694, 723, 725, 743, 742, 741, 677], 9 new vertices, 26 patch faces (the flat cap had 8), target radius 0.0473 / 0.0426 / 0.0392 u and center [0.0041, -0.0042] / [0.006, -0.0033] / [0.0051, -0.0003] at u 0.6 / 0.9 / 1.2, new vertex distance from the axis 0.0431 to 0.0517 u, the largest move of a run vertex 0.0000 u
-copy: 1596 vertices, 3160 triangles, 35 open edges

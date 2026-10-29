@@ -1,6 +1,0 @@
-cat viola stand: seat 0.000 H 0.361 shoulder 0.552 eye 0.871 headTop 1.029 earTop 1.160 hips 0.253 headTop above the seat 1.029
-cat viola chair: seat 0.271 H 0.361 shoulder 0.625 eye 0.943 headTop 1.101 earTop 1.232 hips 0.325 headTop above the seat 0.830
-fox-red violin stand: seat 0.000 H 0.323 shoulder 1.109 eye 1.390 headTop 1.587 earTop 1.758 hips 0.512 headTop above the seat 1.587
-fox-red violin chair: seat 0.219 H 0.323 shoulder 0.914 eye 1.196 headTop 1.393 earTop 1.564 hips 0.316 headTop above the seat 1.174
-rabbit violin stand: seat 0.000 H 0.323 shoulder 0.851 eye 1.135 headTop 1.274 earTop 1.622 hips 0.448 headTop above the seat 1.274
-rabbit violin chair: seat 0.179 H 0.323 shoulder 0.717 eye 1.000 headTop 1.140 earTop 1.487 hips 0.312 headTop above the seat 0.961

@@ -1,7 +1,0 @@
-The break:
-@@ -89 +89 @@ export function gridChanges(grid: string): string[] {
--  const unit = degrees[0] ? 'deg' : '';
-+  const unit = '';
-Tests that fail (2):
-tools/hold-fit.test.ts > parseFitOptions > adds the variants of the grids after the variants of --set, and takes --faces
-tools/hold-fit.test.ts > gridChanges > gives each value from the first to the last at each step, with both ends and the unit

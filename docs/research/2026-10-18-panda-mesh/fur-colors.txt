@@ -1,4 +1,0 @@
-mesh faces colored fur: none
-mesh faces white fur: share 0.524, L 0.957, chroma 0.042, hue 85 deg
-render pixels colored fur: share 0.557, L 0.855, chroma 0.063, hue 82 deg
-render pixels white fur: none

@@ -1,9 +1,0 @@
-
-
-Folded faces of the studio body of the bassist on main (24a7d555) and on the working tree: 41.5 s.
-
-| Set | main (24a7d555) | Working tree |
-|---|---:|---:|
-| rest | 100.0% (9/9), most 14 (L 3 / R 10 / other 1) | 100.0% (9/9), most 14 (L 3 / R 10 / other 1) |
-| play | 100.0% (12912/12912), most 25 (L 11 / R 11 / other 3) | 100.0% (12912/12912), most 25 (L 11 / R 11 / other 3) |
-| lift | 100.0% (279/279), most 19 (L 5 / R 11 / other 3) | 100.0% (279/279), most 19 (L 5 / R 11 / other 3) |

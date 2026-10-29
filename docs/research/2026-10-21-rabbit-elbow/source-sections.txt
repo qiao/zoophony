@@ -1,4 +1,0 @@
-L upper 0.5: 0.52, upper 0.7: 0.89, upper 0.85: 0.83, upper 0.95: 0.82, bisector: 0.82, fore 0.15: 0.78
-R upper 0.5: 0.38, upper 0.7: 0.48, upper 0.85: 0.57, upper 0.95: 0.66, bisector: 0.70, fore 0.15: 0.81
-fox L upper 0.5: 0.54, upper 0.7: 0.90, upper 0.85: 0.90, upper 0.95: 0.90, bisector: 0.89, fore 0.15: 0.92
-fox R upper 0.5: 0.54, upper 0.7: 0.90, upper 0.85: 0.90, upper 0.95: 0.90, bisector: 0.90, fore 0.15: 0.92

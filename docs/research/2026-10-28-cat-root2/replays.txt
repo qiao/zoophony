@@ -1,3 +1,0 @@
-fox: SAME (6 s): fox-arms.glb fox-weights.json
-deer: SAME (7 s): deer-arms.glb deer-weights.json
-cat: SAME (7 s): cat-arms.glb cat-weights.json

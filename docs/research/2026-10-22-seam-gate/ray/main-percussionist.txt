@@ -1,3 +1,0 @@
-trunk faces 586, region L 33 R 33, upper arm 12.6 cm
-L n 13 fin0.05 0/0  notch0.05 0/0  fin0.1 0/0  notch0.1 0/0  fin0.15 0/0  notch0.15 0/2  fin0.2 0/0  notch0.2 2/2  fin0.3 0/0  notch0.3 2/2
-R n 13 fin0.05 0/0  notch0.05 0/0  fin0.1 0/0  notch0.1 0/0  fin0.15 0/0  notch0.15 0/0  fin0.2 0/0  notch0.2 0/0  fin0.3 0/0  notch0.3 0/0

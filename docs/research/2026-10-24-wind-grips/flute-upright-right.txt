@@ -1,9 +1,0 @@
-gate v4 flute@fox-tan.restPoleR=0.5,-1,-0.5;flute@fox-tan.restAim=0 [('L', []), ('R', ['folds 12 FAIL', 'twist 66 FAIL'])]
-gate v0 flute@fox-tan.restPoleR=0.5,-1,0.5;flute@fox-tan.restAim=0 [('L', []), ('R', ['folds 11 FAIL', 'twist 55 FAIL', 'flat 0.49 FAIL'])]
-gate v2 flute@fox-tan.restPoleR=1,-1,0;flute@fox-tan.restAim=0 [('L', []), ('R', ['folds 10 FAIL', 'twist 63 FAIL', 'flat 0.54 FAIL'])]
-gate v6 flute@fox-tan.restPoleR=1,-0.5,0.5;flute@fox-tan.restAim=0 [('L', []), ('R', ['folds 10 FAIL', 'twist 62 FAIL', 'flat 0.53 FAIL'])]
-gate v5 flute@fox-tan.restPoleR=0.5,-1,-0.5;flute@fox-tan.restAim=1 [('L', []), ('R', ['folds 15 FAIL', 'twist 73 FAIL', 'jumps 3.2% FAIL', 'moveturn 13018 FAIL'])]
-gate v1 flute@fox-tan.restPoleR=0.5,-1,0.5;flute@fox-tan.restAim=1 [('L', []), ('R', ['folds 12 FAIL', 'twist 59 FAIL', 'flat 0.48 FAIL', 'jumps 3.2% FAIL', 'moveturn 15494 FAIL'])]
-gate v3 flute@fox-tan.restPoleR=1,-1,0;flute@fox-tan.restAim=1 [('L', []), ('R', ['folds 14 FAIL', 'twist 67 FAIL', 'flat 0.53 FAIL', 'jumps 3.2% FAIL', 'moveturn 13448 FAIL'])]
-gate v7 flute@fox-tan.restPoleR=1,-0.5,0.5;flute@fox-tan.restAim=1 [('L', []), ('R', ['folds 13 FAIL', 'twist 65 FAIL', 'flat 0.51 FAIL', 'jumps 3.2% FAIL', 'moveturn 13605 FAIL'])]
-0 of 8 pass the gate (the grip turn aside)

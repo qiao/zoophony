@@ -1,3 +1,0 @@
-reference                    p10   7  p50  12  p90  49
-7f5d9533 (no haze)           p10   3  p50   8  p90  14
-e371e405 (haze)              p10   9  p50  14  p90  22

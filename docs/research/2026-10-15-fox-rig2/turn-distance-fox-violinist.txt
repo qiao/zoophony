@@ -1,3 +1,0 @@
-rest: 14 samples, smallest angle 41.5 deg, 5th percentile 41.6 deg
-play: 17788 samples, smallest angle 0.0 deg, 5th percentile 13.4 deg
-lift: 434 samples, smallest angle 4.7 deg, 5th percentile 15.9 deg

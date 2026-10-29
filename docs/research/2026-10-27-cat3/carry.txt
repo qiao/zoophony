@@ -1,6 +1,0 @@
-base: cached (main, 3febc84d532a)
-Carry of the instrument in the left paw on the working tree, with main (93700a1e) in parentheses: 14.7 s. A fast step turns both faster than 20°/s, at steps of 0.01 s.
-
-| Role | Moves | Steps >90° of the fast steps | Largest angle | Turn in the paw: path | Turn in the paw: net | Move of the largest angle |
-|---|---|---|---|---|---|---|
-| violist | 84 (84) | 0 of 7660 (0 of 7658) | 18° (19°) | 32° (32°) | 30° (29°) | mozart-k191 lower 224.5 s |

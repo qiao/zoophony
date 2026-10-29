@@ -1,6 +1,0 @@
-The break:
-@@ -653 +653 @@ export const SWEEP_ROLE_TABLE: Omit<RefRole, 'name'> = {
--  module: 'src/pose/test-sweep-roles.ts',
-+  module: 'src/pose/test-sweep.ts',
-Tests that fail (1):
-tools/pose-depth.test.ts > SWEEP_ROLE_TABLE > names the module and the table of the sweep roles, for the role check of --base

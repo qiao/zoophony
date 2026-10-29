@@ -1,2 +1,0 @@
-wrist to finger block 0.059 m, forearm 0.258 m
-forearm skin radius near the wrist (0.8 to 1.05): mean 0.083 m, max 0.103 m, 77 corners

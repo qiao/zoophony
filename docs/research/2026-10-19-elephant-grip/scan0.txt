@@ -1,8 +1,0 @@
-== tree
-  L: strikes 304/304; paw strike 26° (tw 6, sw 25), rest 40° (tw -3, sw 40), all 25° (tw 5, sw 25); mallet strike -23° pitch, -1° out; rest 7° pitch, -16° out; forearm -5° out, forearm to mallet 4°
-  R: strikes 216/216; paw strike 26° (tw -5, sw 26), rest 44° (tw 5, sw 43), all 27° (tw -3, sw 27); mallet strike -20° pitch, -8° out; rest 1° pitch, -14° out; forearm -2° out, forearm to mallet 10°
-  V between strikes: 30° (each mallet in from forward: L 16°, R 14°)
-== kettles.malletTilt=0;timpani.across={"rest":-0.5,"lift":0};timpani.home=[0,-0.37,-0.2];timpani.offsetL=[-0.1,0,0];timpani.offsetR=[0.05,0,0]
-  L: strikes 304/304; paw strike 98° (tw -69, sw 74), rest 46° (tw -39, sw 25), all 89° (tw -63, sw 66); mallet strike -22° pitch, 21° out; rest 24° pitch, -78° out; forearm -17° out, forearm to mallet 35°
-  R: strikes 216/216; paw strike 86° (tw 64, sw 61), rest 45° (tw 39, sw 23), all 79° (tw 60, sw 55); mallet strike -20° pitch, 11° out; rest 19° pitch, -74° out; forearm -14° out, forearm to mallet 24°
-  V between strikes: 152° (each mallet in from forward: L 78°, R 74°)

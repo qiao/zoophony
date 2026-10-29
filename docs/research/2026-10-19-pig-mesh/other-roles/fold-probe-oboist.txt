@@ -1,9 +1,0 @@
-base: cached (9a4613b4, da9320e8ac08)
-Folded faces of the studio body of the oboist on 9a4613b4 (9a4613b4) and on the working tree: 39.3 s.
-
-| Set | 9a4613b4 (9a4613b4) | Working tree |
-|---|---:|---:|
-| rest | 0.0% (0/11), most 0 (L 0 / R 0 / other 0) | 0.0% (0/11), most 0 (L 0 / R 0 / other 0) |
-| play | 0.0% (0/14223), most 0 (L 0 / R 0 / other 0) | 0.0% (0/14223), most 0 (L 0 / R 0 / other 0) |
-| lift | 0.0% (0/341), most 0 (L 0 / R 0 / other 0) | 0.0% (0/341), most 0 (L 0 / R 0 / other 0) |
-exit 0

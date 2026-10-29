@@ -1,2 +1,0 @@
-L: upper arm 0.309, 0.942, -0.130; forearm -0.609, 0.639, -0.470; paw 0.298, -0.250, -0.921; largest angle of a paw from the mean 4.6 deg (1002 samples)
-R: upper arm 0.805, 0.385, -0.452; forearm -0.238, -0.918, 0.318; paw -0.159, -0.376, -0.913; largest angle of a paw from the mean 32.3 deg (1002 samples)

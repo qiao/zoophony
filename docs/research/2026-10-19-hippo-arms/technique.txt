@@ -1,7 +1,0 @@
-boulanger-matin.mid bass notes by technique { normal: 230, pizzicato: 192 }
-120.88 normal,pizzicato
-122.63 normal,pizzicato
-202.63 pizzicato
-248.13 normal
-263.13 pizzicato
-280.13 pizzicato

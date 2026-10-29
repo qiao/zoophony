@@ -1,3 +1,0 @@
-cat: half width within 12 cm over the seat 21.8 cm, seat half width 21.0 cm
-fox-red: half width within 12 cm over the seat 24.8 cm, seat half width 21.0 cm
-rabbit: half width within 12 cm over the seat 22.0 cm, seat half width 21.0 cm

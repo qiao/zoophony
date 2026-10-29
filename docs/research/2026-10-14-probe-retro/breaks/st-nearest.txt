@@ -1,6 +1,0 @@
-The break:
-@@ -254 +254 @@ export function searchSummary(search: SearchTrace): string {
--    .toSorted((a, b) => (a.share ?? 0) - (b.share ?? 0))[0];
-+    .toSorted((a, b) => (b.share ?? 0) - (a.share ?? 0))[0];
-Tests that fail (1):
-tools/shot-trace.test.ts > searchSummary() > counts the refusals and gives the nearest share of the distance and the camera

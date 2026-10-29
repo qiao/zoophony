@@ -1,7 +1,0 @@
-
-> zoophony@0.0.0 fold-probe <worktree>
-> node tools/fold-probe.ts flutist --base 6350b207~1
-
-The ref 6350b207~1 has no role flutist. Its roles are: conductor, pianist, violinist, fox-violinist.
- ELIFECYCLE  Command failed with exit code 1.
-pnpm fold-probe flutist --base 6350b207~1  0.86s user 0.28s system 142% cpu 0.798 total

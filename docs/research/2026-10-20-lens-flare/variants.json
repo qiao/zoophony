@@ -1,9 +1,0 @@
-{
-  "subtle": {
-    "FLARE_LOOK.strength": 0.5
-  },
-  "medium": {},
-  "strong": {
-    "FLARE_LOOK.strength": 2.5
-  }
-}

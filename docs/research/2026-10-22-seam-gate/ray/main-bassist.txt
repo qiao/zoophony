@@ -1,3 +1,0 @@
-trunk faces 807, region L 131 R 128, upper arm 40.3 cm
-L n 64 fin0.05 232/416  notch0.05 329/367  fin0.1 506/513  notch0.1 398/589  fin0.15 541/549  notch0.15 602/712  fin0.2 541/549  notch0.2 603/731  fin0.3 541/549  notch0.3 722/780
-R n 64 fin0.05 565/614  notch0.05 538/626  fin0.1 572/621  notch0.1 731/800  fin0.15 572/630  notch0.15 761/1034  fin0.2 572/630  notch0.2 819/1089  fin0.3 572/630  notch0.3 826/1089

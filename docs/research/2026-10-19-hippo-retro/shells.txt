@@ -1,7 +1,0 @@
-violinist bach-bwv1047.mid: 404 triangles, 13 shells, 0 open ( triangles)
-violist bach-bwv1047.mid: 404 triangles, 13 shells, 0 open ( triangles)
-cellist bach-bwv1047.mid: 402 triangles, 13 shells, 0 open ( triangles)
-bassist bach-bwv1048.mid: 402 triangles, 13 shells, 0 open ( triangles)
-flutist bach-bwv1047.mid: 168 triangles, 12 shells, 0 open ( triangles)
-oboist bach-bwv1047.mid: 192 triangles, 12 shells, 0 open ( triangles)
-trombonist beethoven-9.mid: 516 triangles, 15 shells, 0 open ( triangles)

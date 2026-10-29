@@ -1,3 +1,0 @@
-trunk faces 537, region L 47 R 37, upper arm 39.5 cm
-L n 34 fin0.05 799/910  notch0.05 147/148  fin0.1 1096/1101  notch0.1 288/289  fin0.15 1098/1102  notch0.15 288/289  fin0.2 1239/1245  notch0.2 944/974  fin0.3 1371/1640  notch0.3 954/1154
-R n 34 fin0.05 160/160  notch0.05 94/102  fin0.1 264/265  notch0.1 229/293  fin0.15 300/301  notch0.15 531/532  fin0.2 357/358  notch0.2 531/550  fin0.3 358/475  notch0.3 551/552

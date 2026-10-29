@@ -1,8 +1,0 @@
-Arm look of 2 roles, play step 1 s. Limits: crease share 14.6% (twice the worst arm of the red fox (7.3%)), section 0.44 (0.6 of the worst arm of the red fox (0.74)).
-
-| Role | Arm | Play samples | Crease share p50 | Section p50 |
-|---|---|---:|---:|---:|
-| violist | L | 4454 | 6.6% | 0.62 |
-| violist | R | 4454 | 23.9% FAIL | 0.68 |
-| clarinetist | L | 2591 | 2.5% | 0.91 |
-| clarinetist | R | 2591 | 1.4% | 0.94 |

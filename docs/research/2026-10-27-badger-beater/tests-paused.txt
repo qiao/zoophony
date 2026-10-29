@@ -1,3 +1,0 @@
-Paused tests on main (81e6462b9) and on the working tree, at the same time:
-main (81e6462b9): 13 failed tests and errors. The working tree: 13 failed tests and errors. 2.5 s.
-No test fails and no error comes on the working tree alone.

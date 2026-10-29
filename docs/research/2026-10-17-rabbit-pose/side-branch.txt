@@ -1,4 +1,0 @@
-branch seat 22.7 cm high, 28.5 cm deep
-branch bind: hip 115.6°, trunk lean -0.4° fwd, thigh 25.2° down; back to the chair back 5.5 cm at 20.8 cm above the seat; visible lap 4.8 cm (5.3 cm along the thigh); soles heel 0.0 toes 0.6 cm
-branch rest: hip 114.9°, trunk lean 0.4° fwd, thigh 25.2° down; back to the chair back 5.5 cm at 20.8 cm above the seat; visible lap 4.8 cm (5.3 cm along the thigh); soles heel 0.0 toes 0.6 cm
-branch play: hip 114.9°, trunk lean 0.4° fwd, thigh 25.2° down; back to the chair back 5.5 cm at 20.8 cm above the seat; visible lap 4.8 cm (5.3 cm along the thigh); soles heel 0.0 toes 0.6 cm

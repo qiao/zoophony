@@ -1,8 +1,0 @@
-seat 0.169 m, H 0.294 m, arm L 0.2682 m (reach 0.2602), arm R 0.2682 m (reach 0.2602), hair 0.557 m
-left shoulder joint -0.129,0.694,-0.116: to the nut 0.4341 m, to the end of the fingerboard 0.2496 m, to the contact point 0.3714 m
-right shoulder joint to the wrist with the contact point at the frog (0.030 m of the hair): C string 0.3327 m, A string 0.3725 m
-right shoulder joint to the wrist with the contact point at the tip (0.527 m of the hair): C string 0.1676 m, A string 0.3706 m
-right shoulder joint to the contact point 0.3627 m
-stopRange 0.42,1.00, bowRange 0.145,0.415 of 0.557 m
-fingerboard (left arm): the reach factor 1.6269
-bow hair (right arm): the reach factor 1.2849

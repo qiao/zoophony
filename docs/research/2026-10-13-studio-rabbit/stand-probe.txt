@@ -1,9 +1,0 @@
-lowest seated 0.0000 standing 0.0000
-hips 0.000 0.241 0.012
-thigh_L -0.090 0.241 0.000
-shin_L -0.090 0.146 0.000
-foot_L -0.092 0.062 0.024
-toes_L -0.102 0.028 -0.081
-upper_arm_L -0.084 0.583 -0.030
-head 0.000 0.691 -0.036
-folded faces 0 []

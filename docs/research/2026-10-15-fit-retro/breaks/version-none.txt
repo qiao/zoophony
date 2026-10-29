@@ -1,7 +1,0 @@
-The break:
-@@ -482 +482 @@ export function formatVersion(text: string): number {
--  const version = parsed.version ?? 1;
-+  const version = parsed.version ?? 0;
-Tests that fail (2):
-tools/ref-tree.test.ts > formatVersion > gives the field version, and 1 for a text with no version
-tools/ref-tree.test.ts > formatVersion > refuses a text with no object, and a version that is not a whole number above 0

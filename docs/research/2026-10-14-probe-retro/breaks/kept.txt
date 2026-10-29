@@ -1,6 +1,0 @@
-The break:
-@@ -969 +969 @@ function searchClose(
--      if (kept && refusal) {
-+      if (kept && refusal && search) {
-Tests that fail (1):
-src/shots/trace.test.ts > traceShots() (design 5.6) > gives a cut the same trace in a range that starts at the cut

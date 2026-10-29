@@ -1,5 +1,0 @@
-Paused tests on main (c1908063) and on the working tree, at the same time:
-main (c1908063): 0 failed tests and errors. The working tree: 0 failed tests and errors. 7.0 s.
-No test fails and no error comes on the working tree alone.
-pnpm -s test:paused src/shots/prepare.test.ts --base main  14.74s user 1.46s system 220% cpu 7.340 total
-exit 0

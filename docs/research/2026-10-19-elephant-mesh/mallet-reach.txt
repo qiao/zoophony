@@ -1,4 +1,0 @@
-beethoven-1 (elephant, 2 kettles): L 172/172 within 5 mm, worst 0.0 cm; R 204/204 within 5 mm, worst 0.0 cm
-beethoven-8-4 (elephant, 3 kettles): L 229/229 within 5 mm, worst 0.0 cm; R 245/245 within 5 mm, worst 0.0 cm
-beethoven-9 (elephant, 3 kettles): L 304/304 within 5 mm, worst 0.0 cm; R 216/216 within 5 mm, worst 0.0 cm
-brahms-2 (elephant, 3 kettles): L 381/381 within 5 mm, worst 0.0 cm; R 474/474 within 5 mm, worst 0.0 cm

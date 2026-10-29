@@ -1,9 +1,0 @@
-| Variant | Play | Rest | Both | Spares cm |
-|---|---|---|---|---|
-| oboe@mouse.lipShift=0,-0.04,0.14;oboe@mouse.restShift=-0.13,0,-0.02 | 0.52 | 0.54 | 0.52 | at 0.52: Lp 5.6 Rp 3.0 Lr 5.3 Rr 3.5 |
-| oboe@mouse.lipShift=0,-0.04,0.14;oboe@mouse.restShift=-0.13,0,-0.02;oboe@mouse.reach=40deg | 0.59 | 0.62 | 0.59 | at 0.59: Lp 5.0 Rp 3.1 Lr 4.5 Rr 3.7 |
-| oboe@mouse.lipShift=0,-0.04,0.14;oboe@mouse.restShift=-0.13,0,-0.02;oboe@mouse.play=turn(5,0) | 0.57 | 0.54 | 0.54 | at 0.54: Lp 6.1 Rp 3.7 Lr 5.1 Rr 3.1 |
-| oboe@mouse.lipShift=0,-0.04,0.2;oboe@mouse.restShift=-0.13,0,-0.02 | 0.58 | 0.62 | 0.58 | at 0.58: Lp 6.6 Rp 3.2 Lr 6.1 Rr 3.9 |
-| oboe@mouse.lipShift=0,-0.04,0.23;oboe@mouse.restShift=-0.13,0,-0.02 | 0.62 | 0.65 | 0.62 | at 0.62: Lp 7.0 Rp 3.0 Lr 6.5 Rr 3.8 |
-| oboe@mouse.lipShift=0,-0.04,0.2;oboe@mouse.restShift=-0.13,0,-0.02;oboe@mouse.play=turn(10,10) | 0.61 | 0.62 | 0.61 | at 0.61: Lp 5.9 Rp 3.1 Lr 5.8 Rr 3.2 |
-| base | 0.62 | 0.63 | 0.62 | at 0.62: Lp 7.0 Rp 3.0 Lr 6.2 Rr 3.3 |

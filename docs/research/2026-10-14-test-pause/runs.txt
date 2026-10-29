@@ -1,5 +1,0 @@
-Single runs. The load is the load average that uptime gave before the run, or during it for the base. The summary is the last line of test-times.ts for the JSON report of the run.
-
-base d46d7fbe, pnpm test, load during the run [46.26 36.57 32.69] -> files 224, tests 2347, passed 2325, failed 0, file seconds 634.7, span 121.6
-tip, pnpm test, load before [3.48 9.30 19.35] -> files 189, tests 1987, passed 1987, failed 0, file seconds 94.9, span 17.7
-tip, pnpm test:paused, load before [91.86 57.77 37.86] -> files 35, tests 360, passed 338, failed 0, file seconds 384.2, span 71.7

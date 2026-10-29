@@ -1,8 +1,0 @@
-dog cello stand: seat 0.000 H 0.399 shoulder 0.6105 eye 0.962 headTop 1.137 earTop 1.058 top 1.210 hips 0.279 headTop above the seat 1.137
-dog cello chair: seat 0.299 H 0.399 shoulder 0.6903 eye 1.042 headTop 1.217 earTop 1.137 top 1.217 hips 0.359 headTop above the seat 0.918
-fox-red violin stand: seat 0.000 H 0.323 shoulder 1.1085 eye 1.373 headTop 1.570 earTop 1.741 top 1.741 hips 0.512 headTop above the seat 1.570
-fox-red violin chair: seat 0.270 H 0.323 shoulder 0.9698 eye 1.235 headTop 1.432 earTop 1.602 top 1.602 hips 0.372 headTop above the seat 1.162
-rabbit violin stand: seat 0.000 H 0.323 shoulder 0.8514 eye 1.135 headTop 1.274 earTop 1.622 top 1.622 hips 0.448 headTop above the seat 1.274
-rabbit violin chair: seat 0.227 H 0.323 shoulder 0.7644 eye 1.048 headTop 1.187 earTop 1.535 top 1.535 hips 0.360 headTop above the seat 0.961
-cat viola stand: seat 0.000 H 0.339 shoulder 1.0431 eye 1.304 headTop 1.468 earTop 1.606 top 1.606 hips 0.568 headTop above the seat 1.468
-cat viola chair: seat 0.300 H 0.339 shoulder 0.9055 eye 1.167 headTop 1.331 earTop 1.469 top 1.469 hips 0.430 headTop above the seat 1.031

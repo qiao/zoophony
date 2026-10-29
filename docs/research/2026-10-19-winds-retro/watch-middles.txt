@@ -1,4 +1,0 @@
-variant face 989 play 0 nearest base face 692 at 0.45 mm
-variant face 1738 play 890 nearest base face 427 at 9.74 mm
-variant face 2217 play 0 nearest base face 1084 at 0.24 mm
-variant face 2246 play 0 nearest base face 1909 at 1.54 mm

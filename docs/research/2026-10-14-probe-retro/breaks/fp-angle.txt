@@ -1,9 +1,0 @@
-The break:
-@@ -278 +278 @@ function angleOf(u: Vec3, v: Vec3): number {
--  return Math.acos(Math.min(1, Math.max(-1, cos))) * (180 / Math.PI);
-+  return 90;
-Tests that fail (4):
-tools/fold-probe.test.ts > foldAngle > gives 0° in the bind pose and 180° for a face whose corner crosses the opposite edge
-tools/fold-probe.test.ts > turnBone > names the bone whose turn from its parent folds the face
-tools/fold-probe.test.ts > turnBone > names no bone in the bind pose
-tools/fold-probe.test.ts > probeFolds > counts each sample set of the demos with the role, and skips the other demos

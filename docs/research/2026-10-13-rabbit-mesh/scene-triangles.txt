@@ -1,1 +1,0 @@
-players 60, triangles 166722

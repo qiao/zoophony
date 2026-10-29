@@ -1,4 +1,0 @@
-left mid 0.67  right mid 0.77  front left 0.56  front right 0.57  back right 0.08  back left 0.06  back mid 0.53  (angle 21.6°, aim 0.5)
-left mid 0.56  right mid 0.63  front left 0.49  front right 0.47  back right 0.00  back left 0.00  back mid 0.27  (angle 19°, aim 0.5)
-left mid 0.60  right mid 0.67  front left 0.43  front right 0.39  back right 0.01  back left 0.01  back mid 0.50  (angle 19°, aim 0.3)
-left mid 0.42  right mid 0.48  front left 0.40  front right 0.35  back right 0.00  back left 0.00  back mid 0.06  (angle 17°, aim 0.5)

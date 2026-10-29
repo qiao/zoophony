@@ -1,4 +1,0 @@
-vertices 1557 triangles 3119 parts [1557]
-open edges 8 edges with more than two faces 7
-faces with a corner below 10 degrees 171
-box [-0.272  0.    -0.303] [0.272 1.    0.303]

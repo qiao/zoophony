@@ -1,6 +1,0 @@
-The break:
-@@ -915 +915 @@ export function relativeTurn(matrices: ArrayLike<number>, bone: number, frame: n
--  const q = turnOf(frame).invert().multiply(turnOf(bone));
-+  const q = turnOf(bone);
-Tests that fail (1):
-tools/fold-probe.test.ts > relativeTurn > takes the turn of the frame bone off the turn of the bone

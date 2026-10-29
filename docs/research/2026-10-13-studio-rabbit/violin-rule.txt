@@ -1,8 +1,0 @@
-rabbit chair scale 1 violin 0.507 shoulder->scroll 0.597 arm to palm 0.269 stop 1.00..1.00 bow 0.090..0.130 hair 0.507
-rabbit stand scale 1 violin 0.507 shoulder->scroll 0.597 arm to palm 0.269 stop 1.00..1.00 bow 0.090..0.130 hair 0.507
-rabbit chair scale 0.5 violin 0.253 shoulder->scroll 0.355 arm to palm 0.269 stop 0.69..1.00 bow 0.030..0.220 hair 0.253
-rabbit stand scale 0.5 violin 0.253 shoulder->scroll 0.355 arm to palm 0.269 stop 0.69..1.00 bow 0.030..0.220 hair 0.253
-rabbit chair scale 0.4 violin 0.203 shoulder->scroll 0.309 arm to palm 0.269 stop 0.27..1.00 bow 0.030..0.170 hair 0.203
-rabbit stand scale 0.4 violin 0.203 shoulder->scroll 0.309 arm to palm 0.269 stop 0.27..1.00 bow 0.030..0.170 hair 0.203
-rabbit chair scale 0.3 violin 0.152 shoulder->scroll 0.265 arm to palm 0.269 stop 0.00..1.00 bow 0.030..0.120 hair 0.152
-rabbit stand scale 0.3 violin 0.152 shoulder->scroll 0.265 arm to palm 0.269 stop 0.00..1.00 bow 0.030..0.120 hair 0.152

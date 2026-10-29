@@ -1,2 +1,0 @@
-front 1.4
-"piano.lean=22deg;piano.palmL=0,0.065,0.02;piano.palmR=0,0.065,0.02;piano.poleL=-1,-0.4,0.2;piano.poleR=1,-0.4,0.2": play 14.9% lift 14.5% rest 0.0% | off 0.0% max 0.00 mm | elbow-key p50 10.5 cm | head gap cm: play 1.2 lift 1.0 rest 5.8 lower 0.9 | 25 s | head 111, clavicle_L 64, clavicle_R 11

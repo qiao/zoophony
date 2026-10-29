@@ -1,6 +1,0 @@
-Groove of the L armpit, 29 vertices and 106 edges in the box, step 1 s.
-| Set | Samples | concave growth over the bind p50 | p95 | worst (sample, edge) | dent p50 mm | dent p5 mm |
-|---|---:|---:|---:|---|---:|---:|
-| rest | 14 | 48 | 48 | 48 (bach-bwv1047.mid rest, 343-344 at -0.136,0.694,-0.183) | -10.2 | -10.2 |
-| play | 4454 | 46 | 57 | 96 (boulanger-matin.mid 150.38 s, 343-344 at -0.136,0.694,-0.183) | -8.5 | -8.9 |
-| lift | 434 | 46 | 59 | 59 (mozart-k417.mid wall 2.6 s, 343-344 at -0.136,0.694,-0.183) | -8.7 | -10.9 |

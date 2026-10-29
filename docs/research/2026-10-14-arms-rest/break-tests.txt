@@ -1,6 +1,0 @@
-The break:
-@@ -303 +303 @@ const FOX_FLUTE = {
--  play: fluteTurn(FOX_HEAD_TURN - FOX_FLUTE_BACK, 8),
-+  play: fluteTurn(FOX_HEAD_TURN, 8),
-Tests that fail (1):
-src/pose/wind-head.test.ts > the head turn of a wind hold (design 5.3) > turns the right end of the flute back from square to the turned face by the hold

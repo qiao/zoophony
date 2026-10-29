@@ -1,7 +1,0 @@
-seat { seatHeight: 0.265002, footHeight: 0, seatDepth: 0.254802 } depth 0.254802 width 0.42 center 0.07259900000000002
-committed: into the seat 0.0 cm, outside the seat from above 14.7 cm, into the back posts and the rail 0.0 cm, lowest point 14.0 cm above the floor, into the body 9.9 cm (seat top 26.5 cm, 405 tail corners, 270 with a tail share above 0.95, the body depth of these)
-10 inside corners
-(0.09942679030488073, [-0.001, 0.223, 0.227], [0.044, 0.266, 0.15])
-(0.09913311044720564, [0.054, 0.287, 0.247], [0.044, 0.266, 0.15])
-(0.08713878154761304, [-0.009, 0.28, 0.217], [0.044, 0.266, 0.149])
-(0.08448742074081612, [0.043, 0.255, 0.234], [0.044, 0.266, 0.15])

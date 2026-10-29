@@ -1,9 +1,0 @@
-{
-  "main": {},
-  "fill-side": { "SHOT_RIG.keyTurn": "-35deg" },
-  "fill-side-exp0": { "SHOT_RIG.keyTurn": "-35deg", "SHOT_LOOK.exposure": 0 },
-  "shotkey0.75-exp0": { "SHOT_LOOK.key": 0.75, "SHOT_LOOK.exposure": 0 },
-  "shotkey0-exp0": { "SHOT_LOOK.key": 0, "SHOT_LOOK.exposure": 0 },
-  "key5.2-exp0": { "KEY_LIGHT.illuminance": 5.2, "SHOT_LOOK.exposure": 0 },
-  "shotkey0-exp0-kick1.25": { "SHOT_LOOK.key": 0, "SHOT_LOOK.exposure": 0, "SHOT_LOOK.kicker": 1.25 }
-}

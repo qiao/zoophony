@@ -1,3 +1,0 @@
-badger: 2 open loops
-  34 edges, length 1.623 m, middle 0.153, 0.580, 0.020, bones chest 4, spine 14, shoulderR 12, neck 4
-  29 edges, length 1.446 m, middle -0.141, 0.589, 0.002, bones neck 4, shoulderL 15, spine 10

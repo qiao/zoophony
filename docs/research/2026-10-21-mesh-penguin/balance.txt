@@ -1,8 +1,0 @@
-Demo beethoven-9.mid, player 37, 246 note samples.
-| Sample | Front of the middle cm | Left of the middle cm | Inside the edge cm | Center of mass height cm | Support depth x width cm | Lowest sole cm | Head top cm |
-|---|---|---|---|---|---|---|---|
-| rest | -2.2 | -0.1 | 7.2 | 48.4 | 18.1 x 39.2 | 0.0 | 104.4 |
-| note, p5 (most forward) | -2.2 | -0.2 | 7.1 | 48.3 | 18.1 x 39.2 | 0.0 | 104.6 |
-| note, median | -2.9 | 0.4 | 6.4 | 48.4 | 18.1 x 39.2 | 0.0 | 104.9 |
-Note median: the left hip, knee, and ankle joints are -3.3, -3.8, -4.4 cm in front of the middle.
-| note, p95 (most back) | -3.6 | 0.5 | 5.8 | 48.4 | 18.1 x 39.2 | 0.0 | 104.8 |

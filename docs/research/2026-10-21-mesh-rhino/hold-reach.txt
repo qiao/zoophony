@@ -1,8 +1,0 @@
-rhino with the tuba on the stand, hold tuba@rhino (SPECIES_WIND_HOLDS), the mouthpiece at its place of the hold:
-  Scale 1.000 of the tuba of the app (instrumentScale())
-  L: arm 0.431 m from the shoulder joint to the middle of the palm
-    Playing pose: shoulder joint to the grip 0.347 m, the palm reaches the grip with 0.084 m to spare
-    Rest pose: shoulder joint to the grip 0.377 m, the palm reaches the grip with 0.054 m to spare
-  R: arm 0.431 m from the shoulder joint to the middle of the palm
-    Playing pose: shoulder joint to the grip 0.349 m, the palm reaches the grip with 0.082 m to spare
-    Rest pose: shoulder joint to the grip 0.392 m, the palm reaches the grip with 0.039 m to spare

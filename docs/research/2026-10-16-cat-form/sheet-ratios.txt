@@ -1,2 +1,0 @@
-sheet: crown y 264, soles y 805, height 541 px; head width at the eyes (y 330) 160 px; neck narrowest y 389, head height (crown to the neck) 125 px
-sheet: belly 175 px (y 620) = 1.094 HW = 1.400 HH; hips 181 px (y 657) = 1.131 HW = 1.448 HH; depth 162 px (y 616, the paw rows 556 to 604 left out) = 1.012 HW = 1.296 HH; height 4.33 HH, neck to crotch 311 px = 2.49 HH

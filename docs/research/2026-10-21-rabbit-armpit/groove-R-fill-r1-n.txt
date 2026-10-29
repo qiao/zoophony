@@ -1,6 +1,0 @@
-Groove of the R armpit, 29 vertices and 103 edges in the box, step 1 s.
-| Set | Samples | concave growth over the bind p50 | p95 | worst (sample, edge) | dent p50 mm | dent p5 mm |
-|---|---:|---:|---:|---|---:|---:|
-| rest | 14 | 102 | 102 | 102 (bach-bwv1047.mid rest, 126-131 at 0.134,0.684,-0.174) | -8.7 | -8.7 |
-| play | 4454 | 91 | 102 | 109 (beethoven-1.mid 3.90 s, 126-131 at 0.134,0.684,-0.174) | -6.2 | -6.8 |
-| lift | 434 | 96 | 133 | 150 (mozart-k525.mid wall 0.6 s, 127-130 at 0.134,0.728,-0.216) | -6.6 | -8.7 |

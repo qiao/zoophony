@@ -1,4 +1,0 @@
-mozart-k525 violist 6 (chair) rest sway (56 samples, 4 open loops): seat 0.0 cm, body 5.3 cm, back posts 1.1 cm, outside the seat 15.5 cm, lowest 19.9 cm above the floor (seat 20.2 cm); the front of the tail moves 12.3 cm across and 5.5 cm along
-mozart-k525 violist 6 (chair) play (1002 samples, 4 open loops): seat 0.0 cm, body 5.3 cm, back posts 1.1 cm, outside the seat 15.4 cm, lowest 19.9 cm above the floor (seat 20.2 cm); the front of the tail moves 12.4 cm across and 5.4 cm along
-mozart-k525 violist 6 (chair) lift (31 samples, 4 open loops): seat 0.0 cm, body 5.3 cm, back posts 1.1 cm, outside the seat 15.1 cm, lowest 19.9 cm above the floor (seat 20.2 cm); the front of the tail moves 11.7 cm across and 5.1 cm along
-mozart-k525 violist 6 (chair) lower (30 samples, 4 open loops): seat 0.0 cm, body 5.3 cm, back posts 1.1 cm, outside the seat 15.5 cm, lowest 19.9 cm above the floor (seat 20.2 cm); the front of the tail moves 12.3 cm across and 5.5 cm along

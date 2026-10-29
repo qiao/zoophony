@@ -1,6 +1,0 @@
-mouse oboe stand: seat 0.000 H 0.285 shoulder 0.4361 eye 0.687 headTop 0.812 earTop 0.938 top 0.938 hips 0.200 headTop above the seat 0.812
-mouse oboe chair: seat 0.214 H 0.285 shoulder 0.4931 eye 0.744 headTop 0.869 earTop 0.995 top 0.995 hips 0.257 headTop above the seat 0.655
-fox-red violin stand: seat 0.000 H 0.323 shoulder 1.1085 eye 1.373 headTop 1.570 earTop 1.741 top 1.741 hips 0.512 headTop above the seat 1.570
-fox-red violin chair: seat 0.270 H 0.323 shoulder 0.9698 eye 1.235 headTop 1.432 earTop 1.602 top 1.602 hips 0.372 headTop above the seat 1.162
-fox-tan flute stand: seat 0.000 H 0.323 shoulder 1.1085 eye 1.373 headTop 1.570 earTop 1.741 top 1.741 hips 0.512 headTop above the seat 1.570
-fox-tan flute chair: seat 0.270 H 0.323 shoulder 0.9698 eye 1.235 headTop 1.432 earTop 1.602 top 1.602 hips 0.372 headTop above the seat 1.162

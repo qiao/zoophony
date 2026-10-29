@@ -1,9 +1,0 @@
-commit aaa0f38b, 2026-10-14 10:48, load: 3.96 5.27 9.50
-pnpm build: 1.18 s
-pnpm size: 0.31 s
-pnpm size --base main: 2.72 s
-pnpm close-views violinist <dir>: 14.95 s
-pnpm close-views violinist <dir> --base main: 31.05 s
-pnpm body-probe: 6.06 s
-pnpm body-probe --base main: 5.97 s
-tools/break-test.sh (one break of tools/close-views.ts): 1.95 s

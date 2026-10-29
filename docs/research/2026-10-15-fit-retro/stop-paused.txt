@@ -1,1 +1,0 @@
-{"code":130,"seconds":6.73,"during":["test-paused-uzqv4K"],"groupProcesses":1,"after":[],"left":"","out":"Paused tests on HEAD (e0438361) and on the working tree, at the same time:\n"}

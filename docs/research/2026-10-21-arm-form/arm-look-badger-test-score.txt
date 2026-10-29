@@ -1,8 +1,0 @@
-Arm look of 2 roles, play step 1 s. Limits: crease share 14.6% (twice the worst arm of the red fox (7.3%)), section 0.44 (0.6 of the worst arm of the red fox (0.74)).
-
-| Role | Arm | Play samples | Crease share p50 | Section p50 |
-|---|---|---:|---:|---:|
-| snare-drummer | L | 41 | 2.5% | 0.80 |
-| snare-drummer | R | 41 | 3.5% | 0.80 |
-| xylophonist | L | 41 | 5.1% | 0.84 |
-| xylophonist | R | 41 | 4.5% | 0.83 |

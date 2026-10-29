@@ -1,8 +1,0 @@
-Folded faces of the studio body of the bassist on 9a4613b4 (9a4613b4) and on the working tree: 41.1 s.
-
-| Set | 9a4613b4 (9a4613b4) | Working tree |
-|---|---:|---:|
-| rest | 100.0% (9/9), most 12 (L 1 / R 10 / other 1) | 100.0% (9/9), most 12 (L 1 / R 10 / other 1) |
-| play | 100.0% (12912/12912), most 23 (L 11 / R 10 / other 2) | 100.0% (12912/12912), most 23 (L 11 / R 10 / other 2) |
-| lift | 100.0% (279/279), most 15 (L 5 / R 10 / other 0) | 100.0% (279/279), most 15 (L 5 / R 10 / other 0) |
-exit 0

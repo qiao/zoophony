@@ -1,6 +1,0 @@
-The break:
-@@ -2045 +2045 @@ function planShots(
--            attempt.found = framing !== null;
-+            attempt.found = true;
-Tests that fail (1):
-src/shots/trace.test.ts > traceShots() (design 5.6) > ends the search of a cut with the candidate of the shot

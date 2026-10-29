@@ -1,7 +1,0 @@
-The break:
-@@ -390,2 +390 @@ function spacing(left: Member, right: Member, radius: number): number {
--      ) &&
--      stands.every((stand, i) =>
-+      ) && true && [].every((stand: PlacedStand, i: number) =>
-Tests that fail (1):
-src/models/layout-stands.test.ts > the music stands of a chamber group (design 4.5) > keeps the stands of each chamber test file apart

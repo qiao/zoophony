@@ -1,6 +1,0 @@
-The break:
-@@ -417 +417 @@ export function takeSizes(args: readonly string[]): SizeArgs {
--  const rest = args.filter((...[, i]) => i !== at && i !== at + 1);
-+  const rest = args.filter((...[, i]) => i !== at);
-Tests that fail (1):
-tools/hold-reach.test.ts > takeSizes > takes the scales of --size out of the arguments

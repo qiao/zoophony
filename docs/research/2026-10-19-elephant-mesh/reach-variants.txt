@@ -1,6 +1,0 @@
-kettles.front=0;timpani.rim=0;timpani.home=0,-0.2,-0.75;timpani.poleL=-1,-1,0.3;timpani.poleR=1,-1,0.3
-timpani.hands=sides;kettles.front=0;timpani.rim=0;timpani.home=0,-0.2,-0.75;timpani.poleL=-1,-1,0.3;timpani.poleR=1,-1,0.3
-kettles.front=0.12
-timpani.hands=sides;kettles.front=0.12;timpani.rim=0.055;timpani.home=0,0,-0.2;timpani.poleL=-1,-1,0.3;timpani.poleR=1,-1,0.3
-timpani.hands=sides;kettles.arc=0.8
-timpani.hands=sides

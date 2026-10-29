@@ -1,4 +1,0 @@
-b9-main  front rabbits p50 215 p90 236 | penguins p50 163 p90 178 (0.75 of the front) n 3738
-b9-s1    front rabbits p50 215 p90 236 | penguins p50 164 p90 185 (0.78 of the front) n 7191
-b9-s2    front rabbits p50 216 p90 236 | penguins p50 170 p90 202 (0.85 of the front) n 7395
-b9-s3    front rabbits p50 215 p90 236 | penguins p50 172 p90 213 (0.90 of the front) n 7529

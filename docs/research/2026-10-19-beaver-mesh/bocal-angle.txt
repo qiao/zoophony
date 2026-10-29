@@ -1,4 +1,0 @@
-bend (0.06, 0.69, 0.09), holdTurn(20, 20): the end of the bocal rises 43.7° to the reed, the tube leans 54.5° from the vertical, top toward (-0.81, 0.58, 0.06)
-bend (0.06, 0.69, 0.09), holdTurn(20, 0): the end of the bocal rises 30.4° to the reed, the tube leans 35.9° from the vertical, top toward (-0.57, 0.81, 0.15)
-bend (0.08, 0.78, 0.09), holdTurn(20, 20): the end of the bocal rises 2.8° to the reed, the tube leans 54.5° from the vertical, top toward (-0.81, 0.58, 0.06)
-bend (0.08, 0.78, 0.09), holdTurn(20, 0): the end of the bocal rises -14.6° to the reed, the tube leans 35.9° from the vertical, top toward (-0.57, 0.81, 0.15)

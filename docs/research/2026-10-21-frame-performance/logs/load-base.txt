@@ -1,6 +1,0 @@
-Total time from the load to 2 s after play (ms):
-193.3  computeBoundingSphere
-547.3  setProgram
-193.1  getProgram
-0.0  compile
-329.2  show

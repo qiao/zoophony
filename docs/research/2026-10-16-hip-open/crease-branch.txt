@@ -1,2 +1,0 @@
-fox: crease 35 deg; seam edges 24, fold angle max 60.8 deg, median 10.8 deg, 4 above the crease angle; seam faces 43, luminance 0.326 against the fur 0.360; facing trunk and thigh faces within 2 cm: 0, nearest 13.30 cm
-rabbit: crease 35 deg; seam edges 14, fold angle max 25.0 deg, median 7.0 deg, 0 above the crease angle; seam faces 25, luminance 0.820 against the fur 0.818; facing trunk and thigh faces within 2 cm: 0, nearest 10.90 cm

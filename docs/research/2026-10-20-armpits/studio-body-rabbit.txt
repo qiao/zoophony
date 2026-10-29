@@ -1,5 +1,0 @@
-Finished in 5ms on 1 files using 10 threads.
-Wrote src/models/studio/rabbit.ts from assets/models/rabbit/rabbit-4.rig.glb (sha256 7325dc5399dd).
-Scale 1.46779 m for each unit, head height 0.322593 m.
-Corrective weights of the sheet pose: 1, 1, 1, 1, 0, 0.
-Pea eyes: head height 0.322593 m. Each eye moves 0.000 H (left) and 0.000 H (right) out of the head, and its bone lies 0.010 H (left) and 0.012 H (right) from the middle of the old eye.

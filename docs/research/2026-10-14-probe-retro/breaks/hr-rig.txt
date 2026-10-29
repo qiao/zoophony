@@ -1,6 +1,0 @@
-The break:
-@@ -357 +357 @@ export function sizeReach(
--      rigFactor: rig ? armFactorFor(reach, rig.short, rig.paw) : null,
-+      rigFactor: rig ? armFactorFor(reach, rig.short * 1.05, rig.paw) : null,
-Tests that fail (1):
-tools/hold-reach.test.ts > sizeReach (design 4.6) > needs the reach of the arm at the size of the rule, and the arm factor of the rig there

@@ -1,2 +1,0 @@
-main: palmL from the left knee -24.0, 48.4, 20.7; palmR from the right knee -0.7, 33.1, 16.9; foot joint from the right knee 8.1, 17.2, 15.7; tilt 31.3 deg
-tree: palmL from the left knee 10.7, 13.0, -11.8; palmR from the right knee 9.3, 18.7, 7.2; foot joint from the right knee 5.7, 1.4, 2.6; tilt 10.7 deg

@@ -1,7 +1,0 @@
-The break:
-@@ -1999 +1999 @@ function planShots(
--      trace && cut >= trace.range.fromSec - 1e-9 && cut <= trace.range.toSec + 1e-9
-+      trace && cut > trace.range.fromSec + 1e-9 && cut <= trace.range.toSec + 1e-9
-Tests that fail (2):
-src/shots/trace.test.ts > traceShots() (design 5.6) > traces each cut of the range with both ends, in the order of the cuts
-src/shots/trace.test.ts > traceShots() (design 5.6) > gives a cut the same trace in a range that starts at the cut

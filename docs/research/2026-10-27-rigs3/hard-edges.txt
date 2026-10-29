@@ -1,5 +1,0 @@
-# uv run --no-project --with numpy python -I docs/research/2026-10-26-fifth-bears/hard_edges.py <steps> (main: steps-base, round: steps-final of variants-b.sh; -R: the right leg of mirror.py)
-steps-base 13-knee_relax left: back faces 21, hard edges 0 (0.000 u), pleat faces 8
-steps-final 13-knee_relax left: back faces 21, hard edges 0 (0.000 u), pleat faces 8
-steps-base-R 13-knee_relax left: back faces 25, hard edges 0 (0.000 u), pleat faces 8
-steps-final-R 13-knee_relax left: back faces 24, hard edges 0 (0.000 u), pleat faces 8

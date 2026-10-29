@@ -1,3 +1,0 @@
-largest difference of a seek: 0
-PAUSED exists: false
-poseAt of the scene: 0.082 ms on the mean over 3593 frames

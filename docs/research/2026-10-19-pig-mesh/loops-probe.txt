@@ -1,3 +1,0 @@
-pig: 2 open loops
-  36 edges, length 2.750 m, middle 0.185, 0.593, -0.108, bones spine 16, shoulderR 15, neck 5
-  28 edges, length 2.263 m, middle -0.194, 0.588, -0.091, bones shoulderL 11, spine 14, neck 3

@@ -1,4 +1,0 @@
-fox: same bytes as assets/models/fox/fox.rig.glb
-rabbit: same bytes as assets/models/rabbit/rabbit-4.rig.glb
-cat: same bytes as assets/models/cat/cat.rig.glb
-dog: same bytes as assets/models/dog/dog.rig.glb

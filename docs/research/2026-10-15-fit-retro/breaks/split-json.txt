@@ -1,9 +1,0 @@
-The break:
-@@ -1162,2 +1162,2 @@ export function foldJson(report: FoldReport): string {
--      const { samples, withFold, most, split } = report.sets[set];
--      return [set, { samples, withFold, most, split }];
-+      const { samples, withFold, most } = report.sets[set];
-+      return [set, { samples, withFold, most }];
-Tests that fail (2):
-tools/fold-probe.test.ts > foldJson and readFaceJson > write and read each folded face with its worst fold and the hash of the corners
-tools/fold-probe.test.ts > foldJson and readFoldJson > write and read the samples and the samples with a fold of each set

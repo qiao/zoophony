@@ -1,4 +1,0 @@
-Demo mendelssohn-op61.mid: the bones within 4 cm of the stand in the arms samples.
-Demo boulanger-matin.mid: the bones within 4 cm of the stand in the arms samples.
-Demo mozart-k525.mid: the bones within 4 cm of the stand in the arms samples.
-Demo beethoven-9.mid: the bones within 4 cm of the stand in the arms samples.

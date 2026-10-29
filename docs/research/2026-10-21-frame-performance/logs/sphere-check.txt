@@ -1,2 +1,0 @@
-55 meshes, 55 with bone spheres.
-9431328 skinned vertices. The largest distance outside a sphere: -0.0034179022436303663 m.

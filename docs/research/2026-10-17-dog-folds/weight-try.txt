@@ -1,8 +1,0 @@
-$ git show 914da25c:assets/models/dog/dog.rig.glb > dog-914da25c.glb
-$ node docs/research/2026-10-17-dog-folds/glb-run.ts dog-914da25c.glb weight-try.ts 188,190,191 mean
-188 upper_arm_R 0.50 chest 0.28 spine1 0.17 spine 0.05
-190 upper_arm_R 0.70 chest 0.22 spine1 0.08
-191 upper_arm_R 0.45 chest 0.42 clavicle_R 0.08 spine1 0.05
-rest 14/14 100.0% 1757:14 1803:14 1804:1
-play 525/4454 11.8% 316:159 1733:136 172:109 171:106 1169:86 1756:85
-lift 148/434 34.1% 1803:114 1757:94 1804:43 1756:28 1800:21 1170:17

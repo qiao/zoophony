@@ -1,8 +1,0 @@
-monkey with the trumpet on the chair, hold trumpet@monkey (SPECIES_WIND_HOLDS), the mouthpiece at its place of the hold:
-  Scale 0.800 of the trumpet of the app (instrumentScale())
-  L: arm 0.469 m from the shoulder joint to the middle of the palm
-    Playing pose: shoulder joint to the grip 0.374 m, the palm reaches the grip with 0.095 m to spare
-    Rest pose: shoulder joint to the grip 0.278 m, the palm reaches the grip with 0.191 m to spare
-  R: arm 0.469 m from the shoulder joint to the middle of the palm
-    Playing pose: shoulder joint to the grip 0.387 m, the palm reaches the grip with 0.082 m to spare
-    Rest pose: shoulder joint to the grip 0.274 m, the palm reaches the grip with 0.196 m to spare

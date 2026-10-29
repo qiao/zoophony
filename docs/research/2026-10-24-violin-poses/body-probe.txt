@@ -1,8 +1,0 @@
-pnpm body-probe --base main (tree 9b59deea): the changed pose sets by instrument and species.
-
-base main, new: the working tree
-bodies equal: 95 of 95
-players equal: 23 of 23
-pose sets equal: 1180 of 1492
-41 changed pose sets of viola/cat/viola
-63 changed pose sets of violin/rabbit/violin

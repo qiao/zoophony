@@ -1,7 +1,0 @@
-
-> zoophony@0.0.0 hold-fit <worktree>
-> node tools/hold-fit.ts flutist --base main
-
-The JSON of tools/hold-fit.ts on main has the format version 1, and the working tree has the format version 2. A compare of two formats gives false differences, so compare with a commit whose tools/hold-fit.ts writes the format version 2.
- ELIFECYCLE  Command failed with exit code 1.
-pnpm hold-fit flutist --base main  55.59s user 0.97s system 205% cpu 27.497 total

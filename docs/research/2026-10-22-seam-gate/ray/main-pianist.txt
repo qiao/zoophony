@@ -1,3 +1,0 @@
-trunk faces 676, region L 179 R 162, upper arm 71.0 cm
-L n 25 fin0.05 172/219  notch0.05 276/280  fin0.1 232/276  notch0.1 322/327  fin0.15 236/284  notch0.15 322/327  fin0.2 242/337  notch0.2 348/383  fin0.3 279/337  notch0.3 392/407
-R n 25 fin0.05 228/240  notch0.05 265/278  fin0.1 286/313  notch0.1 293/305  fin0.15 300/328  notch0.15 298/332  fin0.2 300/328  notch0.2 316/359  fin0.3 309/341  notch0.3 323/359

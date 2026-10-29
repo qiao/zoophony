@@ -1,5 +1,0 @@
-base:
-  play: spare L 8.0 cm, R 8.8 cm; grip L 0.046 0.593 -0.366, grip R 0.382 0.555 -0.304
-    coil center 0.148 0.590 -0.388, bell mouth 0.439 0.567 -0.287, mouthpiece 0.001 0.882 -0.380
-  rest: spare L 3.8 cm, R 5.4 cm; grip L 0.008 0.510 -0.426, grip R 0.316 0.416 -0.304
-    coil center 0.109 0.487 -0.430, bell mouth 0.370 0.420 -0.279, mouthpiece 0.022 0.799 -0.462

@@ -1,6 +1,0 @@
-The break:
-@@ -1470 +1470 @@ function candidatesAt(planner: Planner, cut: number, window: WindowMusic): Candi
--      drop(candidate, 'subject');
-+      
-Tests that fail (1):
-src/shots/trace.test.ts > traceShots() (design 5.6) > names the rule that drops each candidate

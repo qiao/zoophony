@@ -1,9 +1,0 @@
-Arm gate of 2 roles against main in 22 s. A cell gives the value, the base in parentheses, and the verdict of a value that does not pass.
-The base has no role harpist, so each value over its limit fails.
-
-| Role | Arm | folds p95 (8) | twist p95 (55) | forearm twist p95 (80) | flat p5 (0.55) | paw twist p95 (170) | paw swing p95 (70) | paw jumps (0.5%) | stretch p95 (0.35) | grip turn p50 (45) | Verdict |
-|---|---|---|---|---|---|---|---|---|---|---|---|
-| harpist | L | 4 (-) | 24 (-) | 23 (-) | 0.71 (-) | 70 (-) | 55 (-) | 0.0% (-) | 0.11 (-) | 8 (-) | PASS |
-| harpist | R | 7 (-) | 40 (-) | 42 (-) | 0.73 (-) | 104 (-) | 29 (-) | 0.0% (-) | 0.07 (-) | 2 (-) | PASS |
-| tubist | L | 2 (2) | 35 (35) | 27 (27) | 0.72 (0.72) | 110 (110) | 36 (36) | 0.0% (0.0%) | 0.05 (0.05) | 0 (0) | PASS |
-| tubist | R | 5 (5) | 27 (27) | 49 (49) | 0.65 (0.65) | 134 (134) | 42 (42) | 0.0% (0.0%) | 0.07 (0.07) | 0 (0) | PASS |

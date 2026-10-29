@@ -1,6 +1,0 @@
-orchestra-latest.png box (1262, 665, 1305, 770) pixels 3907 of 4515 mean #70361b hue 19.0 sat 0.759 val 0.443
-play-base-orchestra.png box (1033, 610, 1060, 655) pixels 1094 of 1215 mean #8f4b2b hue 19.4 sat 0.698 val 0.562
-play-orchestra.png box (1033, 610, 1060, 655) pixels 1202 of 1215 mean #9a502d hue 19.4 sat 0.708 val 0.608
-orchestra-latest.png box (195, 712, 245, 745) pixels 1157 of 1650 mean #884827 hue 20.3 sat 0.708 val 0.536
-play-base-violins.png box (373, 313, 397, 330) pixels 364 of 408 mean #7c3e25 hue 16.7 sat 0.695 val 0.488
-play-violins.png box (373, 313, 397, 330) pixels 367 of 408 mean #89452a hue 16.6 sat 0.687 val 0.538

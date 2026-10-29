@@ -1,8 +1,0 @@
-fox-tan with the flute on the chair, hold flute@fox-tan (SPECIES_WIND_HOLDS), the lip plate at its place of the hold:
-  L: arm 0.545 m from the shoulder joint to the middle of the palm
-    Playing pose: shoulder joint to the grip 0.432 m, the palm reaches the grip with 0.113 m to spare
-    Rest pose: the paw leaves its grip for the thigh (restFreeL), shoulder joint to the middle of the palm 0.528 m, 0.968 of the arm
-  R: arm 0.545 m from the shoulder joint to the middle of the palm
-    Playing pose: shoulder joint to the grip 0.487 m, the palm reaches the grip with 0.058 m to spare
-    Rest pose: shoulder joint to the grip 0.534 m, the palm reaches the grip with 0.012 m to spare
-pnpm -s hold-reach fox-tan --instrument flute  0.62s user 0.06s system 151% cpu 0.449 total

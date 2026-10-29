@@ -1,5 +1,0 @@
-arm L: corrective weight of the retarget 1.0000
-arm R: corrective weight of the retarget 1.0000
-posed vertices 1554 (eye shells 23 left out), source vertices 1543
-largest distance of a posed vertex from the source: 0.234 mm (vertex 524)
-largest distance of a source vertex from the posed mesh: 0.234 mm

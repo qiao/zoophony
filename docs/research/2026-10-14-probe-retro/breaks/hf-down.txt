@@ -1,6 +1,0 @@
-The break:
-@@ -101 +101 @@ export function gridChanges(grid: string): string[] {
--  const direction = b < a ? -1 : 1;
-+  const direction = 1;
-Tests that fail (1):
-tools/hold-fit.test.ts > gridChanges > gives each value from the first to the last at each step, with both ends and the unit

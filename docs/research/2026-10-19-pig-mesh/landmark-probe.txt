@@ -1,8 +1,0 @@
-pig horn stand: seat 0.000 H 0.399 shoulder 0.6105 eye 0.962 headTop 1.137 earTop 1.282 top 1.282 hips 0.279 headTop above the seat 1.137
-pig horn chair: seat 0.299 H 0.399 shoulder 0.6903 eye 1.042 headTop 1.217 earTop 1.362 top 1.362 hips 0.359 headTop above the seat 0.918
-mouse oboe stand: seat 0.000 H 0.272 shoulder 0.5077 eye 0.715 headTop 0.856 earTop 0.602 top 0.856 hips 0.154 headTop above the seat 0.856
-mouse oboe chair: seat 0.076 H 0.272 shoulder 0.4827 eye 0.690 headTop 0.831 earTop 0.577 top 0.831 hips 0.128 headTop above the seat 0.755
-hippo contrabass stand: seat 0.000 H 0.505 shoulder 0.8885 eye 1.468 headTop 1.601 earTop -Infinity top 1.684 hips 0.248 headTop above the seat 1.601
-hippo contrabass chair: seat 0.139 H 0.505 shoulder 0.8527 eye 1.433 headTop 1.565 earTop -Infinity top 1.684 hips 0.213 headTop above the seat 1.427
-panda trombone stand: seat 0.000 H 0.472 shoulder 0.9987 eye 1.374 headTop 1.591 earTop -Infinity top 1.591 hips 0.364 headTop above the seat 1.591
-panda trombone chair: seat 0.277 H 0.472 shoulder 0.9432 eye 1.318 headTop 1.536 earTop -Infinity top 1.536 hips 0.308 headTop above the seat 1.258

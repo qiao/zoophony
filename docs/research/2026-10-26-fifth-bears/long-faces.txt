@@ -1,2 +1,0 @@
-left leg faces 295, faces across the knee joint 35, with a height span above 0.15: 20
-longest edge: median 0.185 across the joint, 0.061 on all leg faces, largest 0.305

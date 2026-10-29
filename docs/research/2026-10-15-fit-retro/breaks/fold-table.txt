@@ -1,6 +1,0 @@
-The break:
-@@ -83 +83 @@ export const FOLD_ROLE_TABLE: Omit<RefRole, 'name'> = {
--  table: 'FOLD_ROLES',
-+  table: "FOLD_ROLE",
-Tests that fail (1):
-tools/fold-probe.test.ts > FOLD_ROLE_TABLE > names the module and the table of the roles, for the role check of --base

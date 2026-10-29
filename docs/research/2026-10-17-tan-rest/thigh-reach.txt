@@ -1,1 +1,0 @@
-Left shoulder joint -0.109, 0.970, -0.063 m. Nearest palm place on the top of the left thigh -0.127, 0.413, -0.231 m: 0.582 m from the shoulder joint, against the arm of 0.545 m (share 1.068).

@@ -1,5 +1,0 @@
-Paused tests on main (cce64562) and on the working tree, at the same time:
-main (cce64562): 53 failed tests. The working tree: 53 failed tests. 224.4 s.
-No test fails on the working tree alone.
-node tools/test-paused.ts --base main  1354.17s user 16.61s system 610% cpu 3:44.50 total
-status 0

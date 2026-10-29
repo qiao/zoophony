@@ -1,6 +1,0 @@
-The break:
-@@ -608 +608 @@ function freeRestLine(reach: FreeRestReach): string {
--  const over = share > 1 ? ', out of reach' : '';
-+  const over = share > 1.1 ? ', out of reach' : '';
-Tests that fail (1):
-tools/hold-reach.test.ts > pnpm hold-reach --instrument flute (design 4.6) > marks a rest place out of the reach of the arm

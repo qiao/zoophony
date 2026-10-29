@@ -1,1 +1,0 @@
-bear baton stand: H 0.313 shoulderL (-0.242, 1.000, -0.023) elbowL (-0.242, 0.702, -0.023) wristL (-0.242, 0.514, -0.023) eye 1.340 headTop 1.483 earTop 1.509 top 1.509 lowest -0.018 hips 0.453 support stand

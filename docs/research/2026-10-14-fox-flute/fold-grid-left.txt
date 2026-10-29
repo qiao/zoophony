@@ -1,6 +1,0 @@
-shift -0.6,-0.5,0.3: 8 folded: 281(neck) 282(chest) 338(upper_arm_R) 389(upper_arm_R) 390(upper_arm_R) 569(chest) 638(upper_arm_L) 1290(upper_arm_L)
-shift -0.6,0,0.3: 1 folded: 638(upper_arm_L)
-shift -0.9,-0.5,0.3: 10 folded: 281(neck) 282(chest) 338(upper_arm_R) 339(upper_arm_R) 385(upper_arm_R) 388(upper_arm_R) 389(upper_arm_R) 390(upper_arm_R) 569(chest) 1290(upper_arm_L)
-shift -0.9,0,0.3: 3 folded: 338(upper_arm_R) 389(upper_arm_R) 1266(forearm_L)
-shift -1.2,-0.5,0.3: 15 folded: 11(hand_R) 268(upper_arm_R) 270(upper_arm_R) 281(neck) 282(chest) 338(upper_arm_R) 339(upper_arm_R) 340(upper_arm_R) 385(upper_arm_R) 388(upper_arm_R) 389(upper_arm_R) 390(upper_arm_R) 391(upper_arm_R) 476(upper_arm_R) 569(chest)
-shift -1.2,0,0.3: 11 folded: 11(hand_R) 268(upper_arm_R) 270(upper_arm_R) 271(upper_arm_R) 338(upper_arm_R) 339(upper_arm_R) 340(upper_arm_R) 388(upper_arm_R) 389(upper_arm_R) 390(upper_arm_R) 475(upper_arm_R)

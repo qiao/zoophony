@@ -1,4 +1,0 @@
-# rig-variants.py rig rs-<front> rabbit '{"chair.front":<front>}' with the config of the branch
-rs--0.01 {"code": 0, "gap": 2.72, "top": 0.2012, "rise_top": 0.2019, "shins": 0.056, "tail": null, "sit_turn": 0, "tris"
-rs--0.02 {"code": 0, "gap": 1.03, "top": 0.2144, "rise_top": 0.2171, "shins": 0.056, "tail": null, "sit_turn": 0, "tris"
-rs--0.03 {"code": 0, "gap": 1.03, "top": 0.2144, "rise_top": 0.2171, "shins": 0.056, "tail": null, "sit_turn": 0, "tris"

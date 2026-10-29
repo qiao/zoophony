@@ -1,6 +1,0 @@
-The break:
-@@ -705 +705 @@ export function foldArgs(role: string, json: string, probe: CheckProbe): string[
--    ...probe.demos.flatMap((demo) => ['--demo', demo]),
-+    
-Tests that fail (1):
-tools/rig-mesh.test.ts > foldArgs > gives the step and the demos to pnpm fold-probe

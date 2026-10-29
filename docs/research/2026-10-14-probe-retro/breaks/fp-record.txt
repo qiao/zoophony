@@ -1,6 +1,0 @@
-The break:
-@@ -860 +860 @@ export function foldJson(report: FoldReport): string {
--          worst: worstFold(report, face),
-+          worst: null,
-Tests that fail (1):
-tools/fold-probe.test.ts > foldJson and readFaceJson > write and read each folded face with its worst fold and the hash of the corners

@@ -1,4 +1,0 @@
-Paused tests on c4951160 (c4951160) and on the working tree, at the same time:
-c4951160 (c4951160): 5 failed tests and errors. The working tree: 5 failed tests and errors. 13.4 s.
-No test fails and no error comes on the working tree alone.
-exit 0

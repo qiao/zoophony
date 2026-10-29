@@ -1,6 +1,0 @@
-cat stand: seat 0.0000 hips 0.4631 shoulders 1.1613 trunk 0.6983 neck 1.2007 eyes 1.4566 headTop 1.6201 ears 1.7579 H 0.3394
-cat chair: seat 0.2016 hips 0.3115 shoulders 1.0101 trunk 0.6986 neck 1.0497 eyes 1.3057 headTop 1.4692 ears 1.6070 H 0.3394
-fox-red stand: seat 0.0000 hips 0.5117 shoulders 1.1086 trunk 0.5969 neck 1.1551 eyes 1.3901 headTop 1.5874 ears 1.7579 H 0.3230
-fox-red chair: seat 0.2185 hips 0.3161 shoulders 0.9141 trunk 0.5980 neck 0.9606 eyes 1.1957 headTop 1.3930 ears 1.5635 H 0.3230
-rabbit stand: seat 0.0000 hips 0.4476 shoulders 0.8513 trunk 0.4036 neck 0.8953 eyes 1.1348 headTop 1.2743 ears 1.6218 H 0.3226
-rabbit chair: seat 0.1794 hips 0.3124 shoulders 0.7171 trunk 0.4047 neck 0.7607 eyes 1.0004 headTop 1.1400 ears 1.4875 H 0.3226

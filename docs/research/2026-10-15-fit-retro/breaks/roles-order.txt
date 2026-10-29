@@ -1,6 +1,0 @@
-The break:
-@@ -688 +688 @@ export function chooseRoles(
--  return roles.filter(({ role }) => asked.includes(role));
-+  return asked.flatMap((name) => roles.filter(({ role }) => role === name));
-Tests that fail (1):
-tools/rig-mesh.test.ts > chooseRoles > keeps the roles of --roles in the order of the animal, and stops on another role

@@ -1,6 +1,0 @@
-monkey: 5 open loops
-  18 edges, length 0.909 m, middle 0.115, 0.563, 0.060, bones shoulderR 16, chest 2
-  24 edges, length 1.299 m, middle -0.111, 0.556, 0.059, bones shoulderL 18, chest 6
-  2 edges, length 0.028 m, middle 0.072, 0.754, -0.019, bones head 2
-  2 edges, length 0.026 m, middle -0.070, 0.754, -0.019, bones head 2
-  2 edges, length 0.033 m, middle -0.162, 0.010, -0.154, bones footL 2

@@ -1,3 +1,0 @@
-faces between the neck joint (0.571 m) and the head joint (0.632 m): 155
-normals: 38 face down (y < -0.3), 58 to the side, 59 up
-linear luminance of their colors: mean 0.818, lowest 0.803

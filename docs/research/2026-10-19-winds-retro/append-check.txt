@@ -1,8 +1,0 @@
-pig: raise 4 -> 5, new keys [], last side R
-rabbit: raise 1 -> 2, new keys [], last side R
-armFactor+=1: armFactor+= adds an item to a list, and armFactor is a number.
-raise+=@nope.json: The file nope.json of the value @nope.json cannot be read.
-raise+={bad: The value "{bad" of raise+= is no JSON text.
-+=1: The change "+=1" is not <path>=<value> or <path>+=<value>.
-nokey.sub+=1: The key "nokey" of nokey.sub+= is not known.
-armFactor=1.4 gives 1.4

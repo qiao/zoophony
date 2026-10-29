@@ -1,7 +1,0 @@
-rig_mesh: source: 1564 vertices, 3123 triangles, scale 0.525813
-head dark faces 83
-paws dark faces 387
-feet dark faces 245
-light faces 2408 L median 0.896 a 0.0055 b 0.0419
-median light color (linear?) [0.92  0.858 0.742]
-

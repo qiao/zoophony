@@ -1,4 +1,0 @@
-sheet fur: 11900 px, median sRGB [119, 107, 104] #776b68, Oklab L 0.538, a +0.0131, b +0.0090, chroma 0.0159, hue 34 deg
-sheet belly: 5400 px, median sRGB [191, 179, 169] #bfb3a9, Oklab L 0.774, a +0.0091, b +0.0174, chroma 0.0197, hue 62 deg
-app fur: 4040 px, median sRGB [107, 71, 46] #6b472e, Oklab L 0.432, a +0.0357, b +0.0511, chroma 0.0623, hue 55 deg
-app belly: 2100 px, median sRGB [220, 189, 148] #dcbd94, Oklab L 0.815, a +0.0175, b +0.0627, chroma 0.0650, hue 74 deg

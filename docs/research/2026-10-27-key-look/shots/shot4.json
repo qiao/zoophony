@@ -1,6 +1,0 @@
-{
-  "b21-kick1.25": { "LIGHT_POOL.spotBoost": 2.1, "SHOT_LOOK.kicker": 1.25 },
-  "b21-kick0": { "LIGHT_POOL.spotBoost": 2.1, "SHOT_LOOK.kicker": 0 },
-  "b23-key6": { "LIGHT_POOL.spotBoost": 2.3, "KEY_LIGHT.illuminance": 6.0 },
-  "b23-key6-kick2": { "LIGHT_POOL.spotBoost": 2.3, "KEY_LIGHT.illuminance": 6.0, "SHOT_LOOK.kicker": 2.0 }
-}

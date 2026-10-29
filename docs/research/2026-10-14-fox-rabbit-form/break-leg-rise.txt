@@ -1,6 +1,0 @@
-The break:
-@@ -418 +418 @@ export function legRise(config: MeshRigConfig): number {
--  return ((config.legFactor ?? 1) - 1) * (hip[1] - ankle[1]);
-+  return ((config.legFactor ?? 1) - 1) * (0);
-Tests that fail (1):
-tools/rig-mesh.test.ts > the check of pnpm rig-mesh > raises the shoulder joint by the growth of the legs, and takes the scale from it

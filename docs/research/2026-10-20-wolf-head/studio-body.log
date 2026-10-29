@@ -1,9 +1,0 @@
-
-> zoophony@0.0.0 studio-body /Users/xueqiaoxu/proj/zoophony
-> node tools/studio-body.ts wolf
-
-Finished in 1ms on 1 files using 10 threads.
-Wrote src/models/studio/wolf.ts from assets/models/wolf/wolf.rig.glb (sha256 f938b76fa0f4).
-Scale 1.865895 m for each unit, head height 0.281081 m.
-Corrective weights of the sheet pose: 1, 1, 1, 1.
-Pea eyes: head height 0.281081 m. Each eye moves 0.019 H (left) and 0.015 H (right) out of the head, and its bone lies 0.014 H (left) and 0.003 H (right) from the middle of the old eye.

@@ -1,5 +1,0 @@
-mouthpiece (bind): 0.004, 0.877, -0.137 m
-L: shoulder joint -0.123, 0.644, 0.052 m, grip -0.020, 0.809, -0.267 m
-  mouthpiece above the joint: 0.233 m, grip above the joint: 0.165 m, grip in front of the joint: 0.319 m
-R: shoulder joint 0.123, 0.644, 0.052 m, grip 0.028, 0.825, -0.277 m
-  mouthpiece above the joint: 0.233 m, grip above the joint: 0.180 m, grip in front of the joint: 0.329 m

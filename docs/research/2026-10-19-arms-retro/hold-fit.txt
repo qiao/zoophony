@@ -1,7 +1,0 @@
-$ pnpm hold-fit timpanist --demo beethoven-1
-| Variant | Play folds | Lift folds | Rest faces (by side) | play depth cm (limit) | lift depth cm (limit) | rest depth cm (limit) | lower depth cm (limit) | Note targets: worst mm (within 5 mm) | play turns: upper arm, paw (twist, swing) L / R |
-|---|---|---|---|---|---|---|---|---|---|
-| base | 1.0% (3/297) OVER | 9.7% (3/31) | 0 (L 0 / R 0 / other 0) | 2.2 mallets>kettles (3.0) | 1.7 mallets>kettles (3.0) | 0.0 paws>body (1.5) | 0.0 paws>body (1.5) | 0.0 (100.0%) | 87°, 64° (40°, 51°) / 87°, 59° (-37°, 47°) |
-real 53.31
-user 54.38
-sys 0.51

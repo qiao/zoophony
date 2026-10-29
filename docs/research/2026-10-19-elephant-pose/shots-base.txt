@@ -1,7 +1,0 @@
-
-> zoophony@0.0.0 test:paused /Users/xueqiaoxu/proj/zoophony-elephant-pose
-> node tools/test-paused.ts --base a3755083 src/shots/
-
-Paused tests on a3755083 (a3755083) and on the working tree, at the same time:
-a3755083 (a3755083): 0 failed tests and errors. The working tree: 0 failed tests and errors. 13.0 s.
-No test fails and no error comes on the working tree alone.

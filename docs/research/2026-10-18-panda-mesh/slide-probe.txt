@@ -1,7 +1,0 @@
-H 0.4560 m, seat 0.342 m
-right arm: upper 0.3192 m, fore 0.2964 m, wrist to palm 0.0365 m, the full reach to the middle of the palm 0.6521 m, the reach of the IK (0.97 of the bones plus the palm) 0.6336 m (ARM_REACH 0.97)
-bind shoulder joint (0.2371, 0.7889, -0.0087), posed (0.1877, 0.7889, -0.1280), grip (0.0200, 0.8781, -0.5721), slide axis (0.0000, -0.2588, -0.9659), slide reach 0.170 m
-travel 0.000 m: the IK reach 0.4830 m, 0.7624 of the reach of the panda, -0.1506 m more
-travel 0.170 m: the IK reach 0.6327 m, 0.9985 of the reach of the panda, -0.0010 m more
-travel 0.275 m: the IK reach 0.7295 m, 1.1514 of the reach of the panda, 0.0959 m more
-travel 0.550 m: the IK reach 0.9911 m, 1.5643 of the reach of the panda, 0.3575 m more

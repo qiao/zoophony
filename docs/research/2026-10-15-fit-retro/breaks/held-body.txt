@@ -1,6 +1,0 @@
-The break:
-@@ -308 +308 @@ export function splitHeld(role: RoleSweep, results: readonly DemoResult[]): Held
--        if (pair.part !== HELD_PART.name || pair.into !== BODY_OBSTACLE) {
-+        if (pair.part !== HELD_PART.name) {
-Tests that fail (1):
-tools/hold-fit.test.ts > splitHeld > gives the instrument in the body nearest to its limit, and takes each pair of it out

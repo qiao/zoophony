@@ -1,7 +1,0 @@
-The break:
-@@ -231 +231 @@ export function scrollReach(tail: Vec3, scroll: Vec3, shoulder: Vec3, factor: nu
--    .multiplyScalar(factor)
-+    .multiplyScalar(1)
-Tests that fail (2):
-tools/hold-reach.test.ts > scrollReach and armFactorFor > grows the instrument from its tail end along its axis
-tools/hold-reach.test.ts > sizeReach (design 4.6) > needs the reach of the arm at the size of the rule, and the arm factor of the rig there

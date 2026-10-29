@@ -1,3 +1,0 @@
-rabbit   tip samples 22 | bow slope p50 60° (52..63) | front view 67° | bow to strings 77° | violin 67° left | top plate roll 40° | bow out of the top plate 23° (13..23)
-cat      tip samples 25 | bow slope p50 37° (26..45) | front view 44° | bow to strings 61° | violin 77° left | top plate roll 40° | bow out of the top plate 8° (2..13)
-fox-red  tip samples 22 | bow slope p50 40° (32..49) | front view 47° | bow to strings 68° | violin 67° left | top plate roll 39° | bow out of the top plate 5° (3..12)

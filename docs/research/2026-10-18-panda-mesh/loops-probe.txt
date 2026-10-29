@@ -1,3 +1,0 @@
-panda: 2 open loops
-  31 edges, length 2.541 m, middle 0.253, 0.857, -0.104, bones shoulderR 9, spine 15, neck 3, chest 4
-  27 edges, length 2.354 m, middle -0.256, 0.880, -0.101, bones shoulderL 11, chest 6, spine 7, head 1, neck 2

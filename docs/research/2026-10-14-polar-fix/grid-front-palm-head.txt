@@ -1,4 +1,0 @@
-front 1.65
-"piano.lean=27deg;piano.palmL=0,0.065,0.04;piano.palmR=0,0.065,0.04": play 29.0% lift 14.5% rest 0.0% | off 0.3% max 0.6 cm | elbow-key p50 10.2 cm | head gap cm: play 4.7 lift 5.2 rest 14.8 lower 5.0 | 30 s | clavicle_R 193, head 109, clavicle_L 67
-"piano.lean=27deg;piano.headLift=-8deg;piano.palmL=0,0.065,0.04;piano.palmR=0,0.065,0.04": play 29.2% lift 14.5% rest 0.0% | off 0.3% max 0.6 cm | elbow-key p50 10.2 cm | head gap cm: play 6.2 lift 6.7 rest 14.8 lower 6.3 | 35 s | clavicle_R 192, head 112, clavicle_L 67
-"piano.lean=28deg;piano.headLift=-8deg;piano.palmL=0,0.065,0.04;piano.palmR=0,0.065,0.04": play 34.6% lift 16.1% rest 0.0% | off 0.0% max 0.0 cm | elbow-key p50 9.5 cm | head gap cm: play 5.8 lift 6.2 rest 14.8 lower 5.9 | 28 s | spine 182, hips 130, head 112, clavicle_R 88, clavicle_L 67

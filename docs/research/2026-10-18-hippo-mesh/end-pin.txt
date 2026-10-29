@@ -1,5 +1,0 @@
-violin body 0.24 contrabass scale 4.8
-contrabass scale 1: end pin 0.200 m, body 1.152 m
-contrabass scale 0.8: end pin 0.200 m, body 0.922 m
-cello end pin 0.2 dog cello 0.86: 0.301
-before 370d2dba: contrabass scale 0.8 end pin 0.550 m (CELLO_END_PIN x 1.6 + body x 0.2, endPinLength of 48f37ef6)

@@ -1,4 +1,0 @@
-fox: same bytes
-rabbit: same bytes
-cat: same bytes
-dog: same bytes

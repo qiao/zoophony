@@ -1,6 +1,0 @@
-{
-  "k-az35-el60-k7": { "KEY_LIGHT.aimToPodium": 0, "KEY_PLACE.azimuth": "35deg", "KEY_PLACE.elevation": "60deg", "KEY_LIGHT.illuminance": 7, "SIDE_LIGHT.illuminance": 0.8, "BACK_ROW_LIGHT.illuminance": 1.2, "RIM_LIGHT.illuminance": 4 },
-  "l-az35-el48-k5.5": { "KEY_LIGHT.aimToPodium": 0, "KEY_PLACE.azimuth": "35deg", "KEY_PLACE.elevation": "48deg", "KEY_LIGHT.illuminance": 5.5, "SIDE_LIGHT.illuminance": 0.6, "BACK_ROW_LIGHT.illuminance": 1.2, "RIM_LIGHT.illuminance": 5 },
-  "m-az35-el70-k8": { "KEY_LIGHT.aimToPodium": 0, "KEY_PLACE.azimuth": "35deg", "KEY_PLACE.elevation": "70deg", "KEY_LIGHT.illuminance": 8, "SIDE_LIGHT.illuminance": 0.8, "BACK_ROW_LIGHT.illuminance": 1.2, "RIM_LIGHT.illuminance": 3 },
-  "n-az45-el55-k6.5": { "KEY_LIGHT.aimToPodium": 0, "KEY_PLACE.azimuth": "45deg", "KEY_PLACE.elevation": "55deg", "KEY_LIGHT.illuminance": 6.5, "SIDE_LIGHT.illuminance": 0.8, "BACK_ROW_LIGHT.illuminance": 1.2, "RIM_LIGHT.illuminance": 4 }
-}

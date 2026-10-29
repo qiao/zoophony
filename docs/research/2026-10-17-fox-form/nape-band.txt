@@ -1,6 +1,0 @@
-# nape_band.py on the back views of pnpm close-views species rabbit --views back --zoom 2.5 --moment play: main (7d7fca49), none (the thighs 25 deg down, no smoothing), A (the chosen box x -0.13 to 0.13, y 0.5 to 0.62, behind z 0.03), B (y 0.52 to 0.6, behind z 0), C (x -0.14 to 0.14, y 0.5 to 0.64, behind z 0.02, 20 rounds)
-main: darkest row mean luminance 66 (row 144 of 450), body pixels below 150: 5029 of 22225
-none: darkest row mean luminance 72 (row 123 of 450), body pixels below 150: 5193 of 22501
-A: darkest row mean luminance 212 (row 103 of 450), body pixels below 150: 140 of 25436
-B: darkest row mean luminance 107 (row 110 of 450), body pixels below 150: 2052 of 24273
-C: darkest row mean luminance 206 (row 99 of 450), body pixels below 150: 183 of 25510

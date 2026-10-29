@@ -1,6 +1,0 @@
-The break:
-@@ -65 +65 @@ export function parsePausedArgs(args: readonly string[]): PausedArgs {
--      if (value === undefined || value.startsWith('--') || base !== null) {
-+      if (value === undefined) {
-Tests that fail (1):
-tools/test-paused.test.ts > parsePausedArgs > stops on --base with no value or two times, and on an unknown option

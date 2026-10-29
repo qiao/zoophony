@@ -1,3 +1,0 @@
-fox exit 0 new 6d8cf83cbccd806b repo 6d8cf83cbccd806b
-rabbit exit 0 new df5ea176e71e16a3 repo df5ea176e71e16a3
-cat exit 0 new 3c68d9d1bdf4a2cb repo 3c68d9d1bdf4a2cb

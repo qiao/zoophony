@@ -1,4 +1,0 @@
-== SET=xylophone.offsetL=[0,0,0];xylophone.offsetR=[0,0,0] ~/Downloads/Disney_Themes_-_Pirates_Of_The_Caribbean.mid
-player 3 L: 82 strikes, median 8 mm, max 147 mm, within 5 mm 41%, within 2 cm 78%
-player 3 R: 132 strikes, median 0 mm, max 82 mm, within 5 mm 89%, within 2 cm 89%
-Disney_Themes_-_Pirates_Of_The_Caribbean.mid player 3: 1100 samples, head gap min -1.2 cm, p5 -0.7 cm, median 7.2 cm, heads touch 80 (7.3%), mallets touch 66 (6.0%), head height p50 13.0 cm, p95 16.3 cm

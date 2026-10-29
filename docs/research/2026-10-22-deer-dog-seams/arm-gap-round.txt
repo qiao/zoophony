@@ -1,8 +1,0 @@
-deer:
-  Arms and trunk in the stance of the source (place along the arm: 1 the elbow, 2 the wrist; join limit 0.79, touch below 0.5 cm): L join none, gap 13.3 cm at 0.48; R join none, gap 16.4 cm at 0.57.
-dog:
-  Arms and trunk in the stance of the source (place along the arm: 1 the elbow, 2 the wrist; join limit 0.79, touch below 0.5 cm): L join 0.38 to 0.80, gap 20.1 cm at 0.96; R join 0.35 to 0.81, gap 21.6 cm at 0.98.
-  WARNING: the L arm of dog joins the trunk down to 0.80 of the arm. A raised arm then shows the hidden trunk faces as flaps, shards, or dents. Ask for a new mesh in an A-pose, with a gap between each arm and the trunk. Else plan a cut and a remodel of the arm (docs/agents/model-traps.md).
-  WARNING: the R arm of dog joins the trunk down to 0.81 of the arm. A raised arm then shows the hidden trunk faces as flaps, shards, or dents. Ask for a new mesh in an A-pose, with a gap between each arm and the trunk. Else plan a cut and a remodel of the arm (docs/agents/model-traps.md).
-fox:
-  Arms and trunk in the stance of the source (place along the arm: 1 the elbow, 2 the wrist; join limit 0.79, touch below 0.5 cm): L join 0.36 to 0.57, gap 18.4 cm at 0.77; R join 0.36 to 0.52, gap 16.2 cm at 0.69.

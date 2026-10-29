@@ -1,8 +1,0 @@
-split 0.15: 156 vertices, y 0.082..0.649, z -0.111..+0.131, x max 0.298; beyond plane total 238
-split 0.16: 140 vertices, y 0.132..0.624, z -0.111..+0.125, x max 0.298; beyond plane total 202
-split 0.165: 132 vertices, y 0.132..0.624, z -0.111..+0.125, x max 0.298; beyond plane total 190
-split 0.17: 94 vertices, y 0.347..0.624, z -0.038..+0.125, x max 0.298; beyond plane total 171
-split 0.175: 91 vertices, y 0.347..0.614, z -0.038..+0.125, x max 0.298; beyond plane total 154
-split 0.18: 88 vertices, y 0.347..0.614, z -0.033..+0.125, x max 0.298; beyond plane total 146
-split 0.19: 83 vertices, y 0.347..0.578, z -0.033..+0.125, x max 0.298; beyond plane total 124
-split 0.2: 81 vertices, y 0.347..0.578, z -0.033..+0.125, x max 0.298; beyond plane total 112

@@ -1,8 +1,0 @@
-Hold scan of the flutist: the lap rest and the folded faces by side of 1 rest sample. Each variant builds only the rig of the player again.
-Rest sample: bach-bwv1050 player 17 (fox-tan, chair) wall 21.1 s
-
-| Variant | Rest faces (by side) | Goals missed | Rest end gap cm (in body) |
-|---|---|---|---|
-| base | 12 (L 1 / R 8 / other 3) | 1 | 3.1 OVER (0.0) |
-
-Scan of 1 variants × 1 samples: 0.0 s, 0.038 s for each variant, and 2.1 s for the scenes of the demos.

@@ -1,3 +1,0 @@
-bach-bwv1050 target/length 1.0451 posed/length 1.0000 miss cm 2.28
-boulanger-matin target/length 1.0482 posed/length 1.0000 miss cm 2.44
-beethoven-8 target/length 1.0462 posed/length 1.0000 miss cm 2.33

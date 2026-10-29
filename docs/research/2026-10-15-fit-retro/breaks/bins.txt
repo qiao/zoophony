@@ -1,6 +1,0 @@
-The break:
-@@ -991 +991 @@ export function turnBins(
--    const bin = Math.min(Math.floor(turnAngle(turn, mean) / width), Math.ceil(180 / width) - 1);
-+    const bin = Math.min(Math.floor(turnAngle(turn, mean) / width), Math.ceil(180 / width));
-Tests that fail (1):
-tools/fold-probe.test.ts > turnBins > counts the samples and the folds in each bin of the angle from the mean, from 0°

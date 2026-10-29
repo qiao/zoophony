@@ -1,6 +1,0 @@
-The break:
-@@ -947 +947 @@ export function meanTurn(turns: readonly Quat[]): Quat | null {
--    const sign = dot < 0 ? -1 : 1;
-+    const sign = 1;
-Tests that fail (1):
-tools/fold-probe.test.ts > turnAngle and meanTurn > gives the middle turn of turns near each other, also with quaternions of the other sign

@@ -1,4 +1,0 @@
-demo status 0 in 21 s
-cached status 0 in 12 s
-all status 0 in 295 s
-unknown status 0

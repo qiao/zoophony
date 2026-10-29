@@ -1,4 +1,0 @@
-rhino: 3 open loops
-  32 edges, length 1.541 m, middle 0.248, 0.942, 0.072, bones shoulderR 31, spine 1
-  33 edges, length 1.586 m, middle -0.259, 0.942, 0.080, bones shoulderL 31, head 1, spine 1
-  2 edges, length 0.038 m, middle -0.100, 1.125, -0.200, bones head 2

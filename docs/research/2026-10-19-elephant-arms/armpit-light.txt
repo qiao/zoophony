@@ -1,6 +1,0 @@
-$ uv run --no-project --with pillow --with numpy python -I lum.py 90,110,160,190 <cells>   (box under the right arm of the cell left-right, 360 x 450 px)
-views-final2-z/timpanist-base-left-right.png: size (360, 450), mean 0.441, dark share 0.157
-views-final-z/timpanist-left-right.png: size (360, 450), mean 0.388, dark share 0.281
-views-final2-z/timpanist-left-right.png: size (360, 450), mean 0.378, dark share 0.300
-probe-poleR/timpanist-left-right.png: size (360, 450), mean 0.408, dark share 0.253
-probe-noshadow/timpanist-left-right.png: size (360, 450), mean 0.507, dark share 0.045

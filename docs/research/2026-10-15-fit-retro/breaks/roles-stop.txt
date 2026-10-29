@@ -1,6 +1,0 @@
-The break:
-@@ -683 +683 @@ export function chooseRoles(
--  if (unknown.length > 0) {
-+  if (unknown.length < 0) {
-Tests that fail (1):
-tools/rig-mesh.test.ts > chooseRoles > keeps the roles of --roles in the order of the animal, and stops on another role

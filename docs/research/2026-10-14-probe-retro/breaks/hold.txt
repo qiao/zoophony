@@ -1,7 +1,0 @@
-The break:
-@@ -2074 +2074 @@ function planShots(
--          traced.outcome = 'hold';
-+          traced.outcome = 'candidate';
-Tests that fail (2):
-src/shots/trace.test.ts > traceShots() (design 5.6) > ends the search of a cut with the candidate of the shot
-src/shots/trace.test.ts > traceShots() (design 5.6) > traces a cut at which the previous shot holds on

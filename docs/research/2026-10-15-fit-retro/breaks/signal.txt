@@ -1,5 +1,0 @@
-The break:
-@@ -380 +379,0 @@ export function refRoleKeys(dir: string, role: RefRole): string[] | null {
--    stopNow(result.signal);
-Tests that fail (1):
-tools/ref-tree.test.ts > withRefTree after Ctrl-C > starts no probe after Ctrl-C during the read of the roles of a commit

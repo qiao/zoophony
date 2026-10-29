@@ -1,3 +1,0 @@
-trunk faces 360, region L 78 R 84, upper arm 41.3 cm
-L n 92 fin0.05 2/2  notch0.05 0/0  fin0.1 2/2  notch0.1 0/0  fin0.15 2/2  notch0.15 0/0  fin0.2 2/2  notch0.2 0/0  fin0.3 2/2  notch0.3 0/0
-R n 92 fin0.05 6/6  notch0.05 0/0  fin0.1 6/6  notch0.1 0/0  fin0.15 6/6  notch0.15 0/0  fin0.2 6/6  notch0.2 0/0  fin0.3 6/6  notch0.3 0/0

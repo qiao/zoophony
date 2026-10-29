@@ -1,2 +1,0 @@
-source shin [ 0.0182 -0.9998  0.    ] (0.0 deg forward of vertical), bind shin [ 0. -1.  0.], knee angle from the side 115.0 deg
-{"thigh": [0.63412, 0.022369, -0.159113, 0.756356], "shin": [0.0, 0.0, 0.00909, 0.999959], "foot": [0.0, 0.0, 0.0, 1.0], "toes": [0.0, 0.0, 0.0, 1.0]}

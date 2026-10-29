@@ -1,5 +1,0 @@
-reach with no factor 0.2538 m, paw 0.0197 m
-viola hold of the cat (shoulder to scroll, hold-reach-cat-viola.txt): 0.617 m, arm factor 2.5510
-red fox (app.reach of fox.json): 0.5452 m, arm factor 2.2444
-parametric cat of main (hold-reach-main-cat.txt): 0.516 m, arm factor 2.1197
-rabbit (app.reach of rabbit.json): 0.5056 m, arm factor 2.0753

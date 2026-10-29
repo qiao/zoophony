@@ -1,3 +1,0 @@
-Paused tests on e1495cfb (e1495cfb) and on the working tree, at the same time:
-e1495cfb (e1495cfb): 5 failed tests and errors. The working tree: 5 failed tests and errors. 13.4 s.
-No test fails and no error comes on the working tree alone.

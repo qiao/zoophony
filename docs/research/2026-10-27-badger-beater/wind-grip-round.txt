@@ -1,8 +1,0 @@
-beethoven-9.mid
-bass-drummer (badger, bass-drum): the gaps and the distances in cm, the median of each set; "worst" names the sample with the largest axis distance
-| Set | Paw | Samples | Holds | Grasps | Gap | Axis | In | Tips | Palm ° | Place ° | Butt | Held | Exit ° | Fingers ° | Top | Drift | Along | Side (right, up, fwd) | Worst axis | Paws gap min | Body gap | End gap |
-|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|---|---:|---:|---:|
-| play | R | 81 | 100% | 83% | 0.0 | 2.4 | 0.7 | 0.0 | 19 | - | 7.3 | 2.0 | 56 | 35 | -24.3 | 1.2 | 8.9 | 2.0, 1.2, -0.3 | 2.4 at 58.09 s, wall 70.00 s | 30.0 | 13.6 | 28.2 |
-| lift | R | 31 | 100% | 100% | 0.0 | 2.4 | 0.7 | 0.0 | 19 | - | 7.3 | 2.0 | 56 | 35 | -24.3 | 1.2 | 8.8 | 2.0, 1.2, -0.3 | 2.4 at -1.31 s, wall 10.60 s | 30.0 | 13.7 | 28.3 |
-| rest | R | 1 | 100% | 100% | 0.0 | 2.4 | 0.7 | 0.1 | 19 | - | 7.3 | 2.0 | 55 | 35 | -24.1 | 1.2 | 8.8 | 2.0, 1.2, -0.3 | 2.4 at -1.91 s, wall 10.00 s | 30.0 | 13.8 | 28.3 |
-| lower | R | 30 | 100% | 100% | 0.0 | 2.4 | 0.7 | 0.1 | 19 | - | 7.3 | 2.0 | 55 | 35 | -24.1 | 1.2 | 8.8 | 2.0, 1.2, -0.3 | 2.4 at 158.30 s, wall 14.80 s | 30.0 | 13.8 | 28.3 |

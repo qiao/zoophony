@@ -1,7 +1,0 @@
-
-> zoophony@0.0.0 hold-fit /Users/xueqiaoxu/proj/zoophony/.claude/worktrees/retro-rig
-> node tools/hold-fit.ts flutist --base 6350b207~1 --demo mozart-k315
-
-The ref 6350b207~1 has no role flutist. Its roles are: conductor, pianist, violinist, fox-violinist.
- ELIFECYCLE  Command failed with exit code 1.
-pnpm hold-fit flutist --base 6350b207~1 --demo mozart-k315  0.99s user 0.33s system 132% cpu 0.992 total

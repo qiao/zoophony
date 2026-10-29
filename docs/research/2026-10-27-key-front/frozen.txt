@@ -1,5 +1,0 @@
-The working tree against main (65b3aad8):
-play: mean 6.482, largest 202, changed 3653598 pixels, above 16: 18.17%
-conductor: mean 4.798, largest 220, changed 3767707 pixels, above 16: 12.60%
-perf-wide: mean 7.370, largest 197, changed 3723145 pixels, above 16: 20.31%
-perf-section: mean 15.964, largest 152, changed 5010374 pixels, above 16: 33.88%

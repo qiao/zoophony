@@ -1,6 +1,0 @@
-The break:
-@@ -1090 +1090 @@ function sceneFrame(
--  frame.offset.y += (settings.seat - low) / scale;
-+  frame.offset.y += 0 * low;
-Tests that fail (1):
-tools/studio-body.test.ts > pnpm studio-body with a seat height in the settings (design 4.4) > puts the seat top at the height of the settings, with the feet above the floor

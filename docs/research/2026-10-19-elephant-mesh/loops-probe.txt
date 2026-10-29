@@ -1,5 +1,0 @@
-elephant: 4 open loops
-  38 edges, length 3.796 m, middle 0.342, 1.065, 0.099, bones shoulderR 18, chest 9, spine 11
-  29 edges, length 2.551 m, middle -0.331, 1.063, 0.085, bones chest 10, shoulderL 9, spine 10
-  2 edges, length 0.071 m, middle -0.400, 1.332, -0.045, bones head 2
-  2 edges, length 0.080 m, middle 0.569, 1.525, 0.109, bones head 2

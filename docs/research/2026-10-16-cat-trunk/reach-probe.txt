@@ -1,8 +1,0 @@
-main (git archive main src):
-cat: front z -0.554, back z 0.201, half width 0.570, front of the boxes below 0.3 m -0.437
-fox-red: front z -0.595, back z 0.563, half width 0.498, front of the boxes below 0.3 m -0.545
-rabbit: front z -0.579, back z 0.211, half width 0.479, front of the boxes below 0.3 m -0.579
-branch:
-cat: front z -0.552, back z 0.202, half width 0.570, front of the boxes below 0.3 m -0.510
-fox-red: front z -0.595, back z 0.563, half width 0.498, front of the boxes below 0.3 m -0.545
-rabbit: front z -0.579, back z 0.211, half width 0.479, front of the boxes below 0.3 m -0.579

@@ -1,8 +1,0 @@
-faces 1292, side L, key elbow (forearm_L in the axes of upper_arm_L), step 1 s
-samples 4426 folded 1022
-mean turn (model axes) 0.0754, -0.0426, -0.0981, 0.9914, angle from bind 15.0
-studio axes (x, z flip) -0.0754, -0.0426, 0.0981, 0.9914
-0-10 deg: 1652 samples, 961 folded (58.2%)
-10-20 deg: 630 samples, 54 folded (8.6%)
-20-30 deg: 2142 samples, 5 folded (0.2%)
-30-40 deg: 2 samples, 2 folded (100.0%)

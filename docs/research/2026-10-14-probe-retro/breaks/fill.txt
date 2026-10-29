@@ -1,6 +1,0 @@
-The break:
-@@ -2102 +2102 @@ function planShots(
--        traced.outcome = framing ? 'conductor' : 'wide';
-+        traced.outcome = framing ? 'wide' : 'wide';
-Tests that fail (1):
-src/shots/trace.test.ts > traceShots() (design 5.6) > traces the conductor that fills the time when no candidate fits

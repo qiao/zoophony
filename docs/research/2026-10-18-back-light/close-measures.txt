@@ -1,6 +1,0 @@
-close-rabbit  main  fur p10   177 p50   223 p90   239 shade 0.74 above 245  1.4% n 70832
-close-rabbit  s2    fur p10   177 p50   223 p90   239 shade 0.74 above 245  1.4% n 70892
-close-badger  main  fur p10    71 p50    89 p90   169 shade 0.42 above 245  0.0% n 16717
-close-badger  s2    fur p10    81 p50   112 p90   205 shade 0.39 above 245  0.0% n 29947
-close-hippo   main  fur p10    62 p50   119 p90   150 shade 0.41 above 245  0.0% n 12060
-close-hippo   s2    fur p10    99 p50   146 p90   189 shade 0.52 above 245  0.0% n 133200

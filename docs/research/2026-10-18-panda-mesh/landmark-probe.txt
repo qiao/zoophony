@@ -1,2 +1,0 @@
-panda trombone stand: seat 0.000 H 0.456 shoulder 0.6977 eye 1.103 headTop 1.300 earTop 1.346 top 1.346 hips 0.319 headTop above the seat 1.300
-panda trombone chair: seat 0.342 H 0.456 shoulder 0.7889 eye 1.194 headTop 1.391 earTop 1.437 top 1.437 hips 0.410 headTop above the seat 1.049

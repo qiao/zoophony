@@ -1,8 +1,0 @@
-flute@fox-tan.rest=-0.502570,0.485118,-0.421707,0.578141;flute@fox-tan.restShift=0.527,-0.518,0.656
-forward 0.0 down 90.0
-flute@fox-tan.rest=0.550883,-0.444214,0.448469,-0.545965;flute@fox-tan.restShift=0.465,-0.610,0.347
-forward -78.7 down 81.3
-flute@fox-tan.rest=-0.648869,0.288969,-0.319050,0.627434;flute@fox-tan.restShift=0.001,-0.672,0.192
-forward -21.8 down 59.1
-flute@fox-tan.rest=0.542124,-0.450136,0.431383,-0.563371;flute@fox-tan.restShift=0.372,-0.610,0.409
-forward -63.4 down 83.6

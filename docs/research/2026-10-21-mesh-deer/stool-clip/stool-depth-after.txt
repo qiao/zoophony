@@ -1,3 +1,0 @@
-boulanger-matin.mid harpist 16: seat 0.243 m, width 0.44 m, depth 0.25069 m (the player faces -z, the seat from z -0.051 to 0.200)
-| Part | Stool piece | Set | Largest depth cm | Samples with depth | Over 5 mm | Worst sample | Point (x, y, z) m |
-|---|---|---|---|---|---|---|---|

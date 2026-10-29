@@ -1,7 +1,0 @@
-Folded faces of the studio body of the flutist on 9a4613b4 (9a4613b4) and on the working tree: 42.2 s.
-
-| Set | 9a4613b4 (9a4613b4) | Working tree |
-|---|---:|---:|
-| rest | 100.0% (10/10), most 14 (L 3 / R 8 / other 3) | 100.0% (10/10), most 14 (L 3 / R 8 / other 3) |
-| play | 0.8% (115/13744), most 1 (L 1 / R 0 / other 0) | 0.8% (115/13744), most 1 (L 1 / R 0 / other 0) |
-| lift | 19.7% (61/310), most 15 (L 3 / R 9 / other 3) | 19.7% (61/310), most 15 (L 3 / R 9 / other 3) |

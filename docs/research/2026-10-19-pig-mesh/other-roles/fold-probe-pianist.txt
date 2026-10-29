@@ -1,8 +1,0 @@
-Folded faces of the studio body of the pianist on 9a4613b4 (9a4613b4) and on the working tree: 28.4 s.
-
-| Set | 9a4613b4 (9a4613b4) | Working tree |
-|---|---:|---:|
-| rest | 0.0% (0/4), most 0 (L 0 / R 0 / other 0) | 0.0% (0/4), most 0 (L 0 / R 0 / other 0) |
-| play | 14.5% (699/4812), most 2 (L 2 / R 0 / other 0) | 14.5% (699/4812), most 2 (L 2 / R 0 / other 0) |
-| lift | 14.5% (18/124), most 1 (L 0 / R 0 / other 1) | 14.5% (18/124), most 1 (L 0 / R 0 / other 1) |
-exit 0

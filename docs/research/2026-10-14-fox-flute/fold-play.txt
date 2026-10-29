@@ -1,7 +1,0 @@
-base: 5/5 samples, faces 637(upper_arm_L)x5 638(upper_arm_L)x5
-flute@fox-tan.headTurn=25deg;flute@fox-tan.lipShift=0,0,0: 5/5 samples, faces 270(upper_arm_R)x5 633(upper_arm_L)x5 634(upper_arm_L)x5 637(upper_arm_L)x5 638(upper_arm_L)x5
-flute@fox-tan.headTurn=30deg;flute@fox-tan.lipShift=0,0,0: 5/5 samples, faces 270(upper_arm_R)x5 271(upper_arm_R)x5 326(head)x5 327(neck)x5 634(upper_arm_L)x5 637(upper_arm_L)x5 638(upper_arm_L)x5 783(neck)x5
-flute@fox-tan.headTurn=25deg;flute@fox-tan.lipShift=0,-0.15,0.3: 5/5 samples, faces 637(upper_arm_L)x5 638(upper_arm_L)x5
-flute@fox-tan.headTurn=25deg;flute@fox-tan.lipShift=0,-0.25,0.3: 5/5 samples, faces 637(upper_arm_L)x5 638(upper_arm_L)x5
-flute@fox-tan.headTurn=25deg;flute@fox-tan.lipShift=-0.4,-0.2,0.3: 0/5 samples, faces 
-flute@fox-tan.headTurn=35deg;flute@fox-tan.lipShift=0,-0.2,0.3: 5/5 samples, faces 326(head)x5 327(neck)x5 637(upper_arm_L)x5 638(upper_arm_L)x5 783(neck)x5 1887(neck)x5

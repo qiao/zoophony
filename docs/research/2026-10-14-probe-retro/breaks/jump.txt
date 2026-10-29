@@ -1,6 +1,0 @@
-The break:
-@@ -959 +959 @@ function searchClose(
--      return refuse(azimuth, elevation, arc, 'repeat');
-+      return refuse(azimuth, elevation, arc, 'jump');
-Tests that fail (1):
-src/shots/trace.test.ts > traceShots() (design 5.6) > accepts the camera of the shot, and refuses a jump cut only near the previous view

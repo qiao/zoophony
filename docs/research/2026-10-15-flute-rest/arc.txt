@@ -1,6 +1,0 @@
-{"keysAngle":123,"down":80,"lean":-136,"shift":[0.89,-0.79,0.32],"poleR":[0.69,-1,-0.21],"along":0.66,"off":[-0.39,-0.13,0.1],"palm":[0.23,-1,0.15],"fingers":[-0.05,-0.22,-1],"poleL":[-0.15,-1,0.38],"arc":[0,0,0]} 
-    liftDepth 5.4 liftFlute 0 lowerDepth 5.3 lowerFlute 0 
-    {"lift@bach-bwv1050":"forearms>body forearmL 0.56 5.1","lower@bach-bwv1050":"forearms>body forearmL 0.56 5.3","lift@boulanger-matin":"upper arms>body upperArmL 0.74 5.4","lower@boulanger-matin":"upper arms>body upperArmL 0.84 5.2","lift@beethoven-8":"forearms>body forearmL 0.56 5.2","lower@beethoven-8":"upper arms>body upperArmL 0.84 5.3"}
-{"keysAngle":123,"down":80,"lean":-136,"shift":[0.89,-0.79,0.32],"poleR":[0.69,-1,-0.21],"along":0.66,"off":[-0.39,-0.13,0.1],"palm":[0.23,-1,0.15],"fingers":[-0.05,-0.22,-1],"poleL":[-0.15,-1,0.38],"arc":[0.57,0.04,0.31]} 
-    liftDepth 1.4 liftFlute 0 lowerDepth 1.5 lowerFlute 0 
-    {"lift@bach-bwv1050":"upper arms>body upperArmL 0.84 1.4","lower@bach-bwv1050":"upper arms>body upperArmR 0.76 1.5","lift@boulanger-matin":"upper arms>body upperArmL 0.84 1.4","lower@boulanger-matin":"upper arms>body upperArmR 0.77 1.5","lift@beethoven-8":"upper arms>body upperArmL 0.84 1.4","lower@beethoven-8":"upper arms>body upperArmL 0.84 1.4"}

@@ -1,6 +1,0 @@
-# rig-variants.py rig fs-<front> fox '{"raise.below":0.22,"raise.fade":[16,25],"chair.front":<front>}': the gap (cm), the seat top (top, units), and the faces that the sit turns over
-fs-0.03 {"code": 0, "gap": 0.35, "top": 0.2642, "rise_top": 0.2658, "shins": 0.144, "tail": 0.0014, "sit_turn": 9, "tris
-fs-0.04 {"code": 0, "gap": 0.35, "top": 0.2642, "rise_top": 0.2658, "shins": 0.144, "tail": 0.0014, "sit_turn": 9, "tris
-fs-0.05 {"code": 0, "gap": 0.35, "top": 0.2642, "rise_top": 0.2658, "shins": 0.144, "tail": 0.0014, "sit_turn": 9, "tris
-fs-0.06 {"code": 0, "gap": 0.98, "top": 0.2601, "rise_top": 0.2658, "shins": 0.144, "tail": 0.0055, "sit_turn": 9, "tris
-fs-0.07 {"code": 0, "gap": 0.59, "top": 0.2583, "rise_top": 0.2614, "shins": 0.144, "tail": 0.0029, "sit_turn": 7, "tris

@@ -1,2 +1,0 @@
-pattern changes at 150.54
-near the changes (0.5 s): max 7.48 deg/frame at 150.88 s; elsewhere p50 2.82, p99 13.56, max 31.18

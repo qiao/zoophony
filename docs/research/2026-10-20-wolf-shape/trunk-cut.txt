@@ -1,3 +1,0 @@
-wolf 980f2bf5: width at the shoulder joints 0.5204 m, at the hips joint 0.4443 m, largest trunk depth 0.4396 m at y 0.3919 u
-wolf round: width at the shoulder joints 0.6245 m, at the hips joint 0.5331 m, largest trunk depth 0.4396 m at y 0.3527 u
-fox-red: width at the shoulder joints 0.4176 m, at the hips joint 0.5218 m, largest trunk depth 0.5929 m at y 0.2795 u

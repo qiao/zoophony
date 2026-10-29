@@ -1,6 +1,0 @@
-The break:
-@@ -644 +644 @@ export function fitTable(rows: readonly FitRow[]): string[] {
--      `${row.folds.rest.most} (${splitText(row.folds.rest.split)})`,
-+      ``,
-Tests that fail (1):
-tools/hold-fit.test.ts > fitTable > marks a depth over its limit and play folds over the goal of 1%

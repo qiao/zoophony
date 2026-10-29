@@ -1,7 +1,0 @@
-base 8010553b, new: the working tree
-bodies equal: 95 of 95
-players equal: 22 of 23
-pose sets equal: 1486 of 1492
-player percussion/badger/cymbals: mesh differs (positions, colors, bones, blendBones, blendWeights, finishes, correctives, normals), moved bones: instrument malletL malletR slide
-pose beethoven-9 35 percussion/badger/cymbals: lift from sample 6 of 40 (song -1.41 s, wall 10.50 s), play from sample 1 of 321 (song -1.91 s, wall 10.00 s), lower from sample 1 of 58 (song 79.15 s, wall 10.00 s)
-pose boulanger-matin 40 percussion/badger/cymbals: lift from sample 3 of 40 (song -1.42 s, wall 10.20 s), play from sample 1 of 565 (song -1.62 s, wall 10.00 s), lower from sample 1 of 58 (song 140.33 s, wall 10.00 s)

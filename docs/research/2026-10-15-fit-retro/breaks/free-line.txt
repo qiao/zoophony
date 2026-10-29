@@ -1,7 +1,0 @@
-The break:
-@@ -588 +588 @@ export function fluteReachLines(species: SpeciesId, support: ReachSupport): stri
--      freed
-+      false
-Tests that fail (2):
-tools/hold-reach.test.ts > pnpm hold-reach --instrument flute (design 4.6) > gives the rest place of a paw that leaves its grip, and no rest grip of that paw
-tools/hold-reach.test.ts > pnpm hold-reach --instrument flute (design 4.6) > marks a rest place out of the reach of the arm

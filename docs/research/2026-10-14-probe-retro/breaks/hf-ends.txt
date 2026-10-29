@@ -1,9 +1,0 @@
-The break:
-@@ -100 +100 @@ export function gridChanges(grid: string): string[] {
--  const count = Math.floor(Math.abs(b - a) / step + 1e-9) + 1;
-+  const count = Math.floor(Math.abs(b - a) / step + 1e-9);
-Tests that fail (4):
-tools/hold-fit.test.ts > parseFitOptions > adds the variants of the grids after the variants of --set, and takes --faces
-tools/hold-fit.test.ts > gridChanges > gives each value from the first to the last at each step, with both ends and the unit
-tools/hold-fit.test.ts > gridVariants > gives the product of the grids, the first grid outermost
-tools/hold-fit.test.ts > gridVariants > stops on more variants than the limit, and states the count

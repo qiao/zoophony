@@ -1,4 +1,0 @@
-Base fecc1605 (fecc1605), built in a temporary folder:
-   593,788 B  total of the base
-   593,758 B  total of the working tree
-       -30 B  difference

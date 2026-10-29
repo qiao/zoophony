@@ -1,6 +1,0 @@
-The break:
-@@ -894 +894 @@ export function faceSide(mesh: Pick<StudioMesh, 'positions' | 'corners'>, face:
--  return x < 0 ? 'L' : 'R';
-+  return x > 0 ? "L" : "R";
-Tests that fail (1):
-tools/fold-probe.test.ts > faceSide > gives the side of the middle of a face: the left side of the animal at x < 0

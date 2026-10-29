@@ -1,6 +1,0 @@
-The break:
-@@ -274 +274 @@ export function fitSweep(role: RoleSource, scene: TestScene): RoleSweep | null {
--    parts: holdsInstrument(role) ? [...sweep.parts, HELD_PART] : sweep.parts,
-+    parts: sweep.parts,
-Tests that fail (1):
-tools/hold-fit.test.ts > freeGaps and holdsInstrument > adds the instrument part to the sweep of a role that holds its instrument

@@ -1,8 +1,0 @@
-node docs/research/2026-10-17-cat-bow/wrist-turn.ts 2116,2007
-Tree: cat-bow at 4bd3d9c4 (the cat rig of main, with no shape of the wrist).
-
-samples 4426 folded 4426
-mean turn (model axes) -0.1076, 0.8349, -0.4893, 0.2278 angle from bind 153.7
-studio axes (x, z flip) 0.1076, 0.8349, 0.4893, 0.2278
-0-10 deg: 4424 samples, 100% folded
-10-20 deg: 2 samples, 100% folded

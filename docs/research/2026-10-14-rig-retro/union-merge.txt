@@ -1,5 +1,0 @@
-union, merge: no conflict, 2 new lines
-union, rebase of b onto a: no conflict, 2 new lines
-none, merge: conflict
-none, rebase of b onto a: conflict
-union, one line changed on both sides: 2 lines of the fox flute after the merge

@@ -1,5 +1,0 @@
-Finished in 1ms on 1 files using 10 threads.
-Wrote src/models/studio/monkey.ts from assets/models/monkey/monkey.rig.glb (sha256 84b4704e52d4).
-Scale 1.1726 m for each unit, head height 0.333629 m.
-Corrective weights of the sheet pose: 1, 1, 1, 1.
-Pea eyes: head height 0.333629 m. Each eye moves 0.000 H (left) and 0.000 H (right) out of the head, and its bone lies 0.004 H (left) and 0.003 H (right) from the middle of the old eye.

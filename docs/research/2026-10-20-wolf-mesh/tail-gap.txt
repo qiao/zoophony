@@ -1,6 +1,0 @@
-boulanger-matin.mid, wolf 24, seat 0.360 m, chair 0.387 m deep, 0.420 m wide (leg 0.035 m)
-lowest point of the tail: 9.3 cm above the floor (rest, wall 10.00 s)
-smallest gap to the seat: -1.2 cm (rest, wall 10.00 s), at -0.086, 0.347, 0.141 m
-smallest gap to the left post: 5.3 cm (rest, wall 10.25 s), at -0.124, 0.387, 0.214 m
-smallest gap to the right post: 5.3 cm (play, song 7 s), at 0.125, 0.389, 0.217 m
-smallest gap to the top rail: 8.8 cm (rest, wall 10.25 s), at 0.015, 0.631, 0.131 m

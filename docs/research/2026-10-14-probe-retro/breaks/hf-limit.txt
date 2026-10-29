@@ -1,6 +1,0 @@
-The break:
-@@ -123 +123 @@ export function gridVariants(grids: readonly string[]): string[] {
--  if (total > GRID_LIMIT) {
-+  if (total > GRID_LIMIT * 2) {
-Tests that fail (1):
-tools/hold-fit.test.ts > gridVariants > stops on more variants than the limit, and states the count

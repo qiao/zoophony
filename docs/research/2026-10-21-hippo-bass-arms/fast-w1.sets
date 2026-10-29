@@ -1,8 +1,0 @@
-contrabass@hippo.pluckSide=0.18;contrabass@hippo.stopEnd=0.7;contrabass@hippo.tiltL=55deg
-contrabass@hippo.pluckSide=0.18;contrabass@hippo.stopEnd=0.7;contrabass@hippo.tiltL=65deg
-contrabass@hippo.pluckSide=0.18;contrabass@hippo.stopEnd=0.7;contrabass@hippo.tiltL=75deg
-contrabass@hippo.pluckSide=0.18;contrabass@hippo.stopEnd=0.7;contrabass@hippo.tiltL=85deg
-contrabass@hippo.pluckSide=0.18;contrabass@hippo.stopEnd=0.7;contrabass@hippo.fingers=[1,0,0.5]
-contrabass@hippo.pluckSide=0.18;contrabass@hippo.stopEnd=0.7;contrabass@hippo.fingers=[1,0,-0.5]
-contrabass@hippo.pluckSide=0.18;contrabass@hippo.stopEnd=0.7;contrabass@hippo.fingers=[1,0.5,0]
-contrabass@hippo.pluckSide=0.18;contrabass@hippo.stopEnd=0.7;contrabass@hippo.fingers=[1,-0.5,0]

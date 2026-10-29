@@ -1,7 +1,0 @@
-head 0 slope 10: L 0.461 (spare 0.029), R 0.431 (spare 0.059), arm 0.490
-head 15 slope 10: L 0.438 (spare 0.052), R 0.456 (spare 0.034), arm 0.490
-head 20 slope 10: L 0.430 (spare 0.060), R 0.465 (spare 0.025), arm 0.490
-head 25 slope 10: L 0.422 (spare 0.068), R 0.475 (spare 0.015), arm 0.490
-head 30 slope 10: L 0.413 (spare 0.077), R 0.484 (spare 0.006), arm 0.490
-head 35 slope 10: L 0.405 (spare 0.086), R 0.493 (spare -0.003), arm 0.490
-head 40 slope 10: L 0.396 (spare 0.094), R 0.502 (spare -0.012), arm 0.490

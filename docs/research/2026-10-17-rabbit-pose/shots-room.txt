@@ -1,8 +1,0 @@
-
-> zoophony@0.0.0 test:paused /Users/xueqiaoxu/proj/zoophony/.claude/worktrees/rabbit-pose
-> node tools/test-paused.ts --base main src/shots/prepare.test.ts
-
-Paused tests on main (c1d256e2) and on the working tree, at the same time:
-main (c1d256e2): 0 failed tests and errors. The working tree: 0 failed tests and errors. 6.0 s.
-No test fails and no error comes on the working tree alone.
-pnpm test:paused --base main src/shots/prepare.test.ts  14.28s user 1.36s system 242% cpu 6.446 total

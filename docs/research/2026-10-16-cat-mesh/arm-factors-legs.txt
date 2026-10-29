@@ -1,2 +1,0 @@
-legs 1: rise 0.00000 u, ear tips 1.00000 u, scale 1.758000 m/u, shoulder joints 0.63600 u = 1.118088 m, reach with no factor 0.5138 m, factor of 0.5452 m: L 1.0662, R 1.0662
-legs 1.5: rise 0.07250 u, ear tips 1.07250 u, scale 1.639161 m/u, shoulder joints 0.70850 u = 1.161345 m, reach with no factor 0.4791 m, factor of 0.5452 m: L 1.1496, R 1.1496

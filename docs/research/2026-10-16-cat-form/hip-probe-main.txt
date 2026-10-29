@@ -1,6 +1,0 @@
-cat bind: joint 106.5°, trunk lean -1.4° forward, head pitch 28.4°, back to the rail 10.7 cm
-cat rest: joint 105.9°, trunk lean -0.8° forward, head pitch 26.8°, back to the rail 10.8 cm
-cat play: joint 105.9°, trunk lean -0.8° forward, head pitch 26.8°, back to the rail 10.8 cm
-fox-red bind: joint 106.1°, trunk lean -1.0° forward, head pitch 13.2°, back to the rail 4.7 cm
-fox-red rest: joint 105.4°, trunk lean -0.3° forward, head pitch 11.6°, back to the rail 4.7 cm
-fox-red play: joint 105.4°, trunk lean -0.3° forward, head pitch 11.6°, back to the rail 4.7 cm

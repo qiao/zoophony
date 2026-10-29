@@ -1,8 +1,0 @@
-percussion-test player 0: 768 samples, eye line p50 1.0°, p95 3.0°, max 3.0° at 24.90 s
-percussion-test player 0: 153 samples. COM side cm min -3.7 max 3.7; COM front cm p50 0.3 max 0.8; inside the posed sole edge cm min 9.6 p50 10.1; inside the bind sole edge cm min 9.6 p50 10.1; lowest sole cm 0.0 to 0.0; ankle move max 0.0 mm
-percussion-test player 0 (381 samples): footL: sink mm p50 0.0 p95 0.0 max 0.0; lift of a sole corner mm p50 0.0 p95 0.0 max 0.0; footR: sink mm p50 0.0 p95 0.0 max 0.0; lift of a sole corner mm p50 0.0 p95 0.0 max 0.0
-Disney_Themes_-_Pirates_Of_The_Caribbean.mid player 3: 1238 samples, eye line p50 1.0°, p95 2.9°, max 4.6° at 4.70 s
-Disney_Themes_-_Pirates_Of_The_Caribbean.mid player 3: 220 samples. COM side cm min 0.4 max 3.5; COM front cm p50 0.4 max 0.8; inside the posed sole edge cm min 9.7 p50 10.0; inside the bind sole edge cm min 9.7 p50 10.0; lowest sole cm 0.0 to 0.0; ankle move max 0.0 mm
-Disney_Themes_-_Pirates_Of_The_Caribbean.mid player 3 (550 samples): footL: sink mm p50 0.0 p95 0.0 max 0.0; lift of a sole corner mm p50 0.0 p95 0.0 max 0.0; footR: sink mm p50 0.0 p95 0.0 max 0.0; lift of a sole corner mm p50 0.0 p95 0.0 max 0.0
-jumps xylophone L: steps 6001, turns over 30 deg in one step 0, largest step 11 deg, forearm to shaft min 2, under 30 deg 4348, elbow bend min 53
-jumps xylophone R: steps 6001, turns over 30 deg in one step 0, largest step 22 deg, forearm to shaft min 2, under 30 deg 878, elbow bend min 28

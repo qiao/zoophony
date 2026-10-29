@@ -1,9 +1,0 @@
-pig with the horn on the chair, hold horn@pig (SPECIES_WIND_HOLDS), the mouthpiece at its place of the hold:
-  Scale 1.000 of the horn of the app (instrumentScale())
-  L: arm 0.385 m from the shoulder joint to the middle of the palm
-    Playing pose: shoulder joint to the grip 0.304 m, the palm reaches the grip with 0.080 m to spare
-    Rest pose: shoulder joint to the grip 0.346 m, the palm reaches the grip with 0.038 m to spare
-  R: arm 0.385 m from the shoulder joint to the middle of the palm
-    Playing pose: shoulder joint to the grip 0.296 m, the palm reaches the grip with 0.088 m to spare
-    Rest pose: shoulder joint to the grip 0.331 m, the palm reaches the grip with 0.054 m to spare
-exit 0

@@ -1,7 +1,0 @@
-ring 0.05 u. rig src | source | rest p50 | play p50 p95 max | lift p50 p95 | weights (cm)
-   73   980 |  0.00 |  0.00 |  1.69  1.91  1.97 |  1.89  1.90 | upper_arm_R 0.34, utwist_R 0.30, spine1 0.24, clavicle_R 0.12 | src [-0.029 -0.033  0.069]
-   94   991 |  0.03 |  0.05 |  0.66  0.79  0.92 |  0.73  0.81 | spine1 0.53, utwist_R 0.21, clavicle_R 0.15, upper_arm_R 0.11 | src [-0.007 -0.045  0.063]
-   77   985 |  0.65 |  0.47 |  1.06  1.22  1.32 |  1.13  1.22 | spine1 0.34, utwist_R 0.26, clavicle_R 0.25, upper_arm_R 0.14 | src [-0.007 -0.036  0.071]
-   93   990 |  1.02 |  0.88 |  0.11  0.35  0.61 |  0.29  0.88 | spine1 0.70, utwist_R 0.12, clavicle_R 0.10, upper_arm_R 0.07 | src [-0.017 -0.053  0.057]
-   92   988 |  1.00 |  0.05 |  0.00  0.00  0.28 |  0.00  0.05 | spine1 0.77, clavicle_R 0.09, utwist_R 0.07, spine 0.07 | src [-0.02  -0.058  0.052]
-   91   987 |  1.17 |  0.23 |  0.00  0.09  0.43 |  0.03  0.23 | spine1 0.82, spine 0.08, clavicle_R 0.08, utwist_R 0.03 | src [-0.017 -0.065  0.046]

@@ -1,8 +1,0 @@
-# The config changes of each variant of scratch/gap/rig.sh (gap-options.patch holds the rules).
-g1: gap={"distance":0.0066}
-g2: gap={"distance":0.0132}
-g1af: gap={"distance":0.0066} weights.armFrom=[0.45,0.55]
-g2af: gap={"distance":0.0132} weights.armFrom=[0.45,0.55]
-g1kw: gap={"distance":0.0066} weights.armFrom=[0.45,0.55] weights.armFromWeb=0.5
-g2kw: gap={"distance":0.0132} weights.armFrom=[0.45,0.55] weights.armFromWeb=0.5
-g2afr: g2af, with "grow": 1 on both rules of raise, and a rule of the left arm at the mean play turns (below 0, grow 1, fade 15 to 30)

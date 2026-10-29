@@ -1,7 +1,0 @@
-violinist exit 0 191 s
-violist exit 0 116 s
-cellist exit 0 71 s
-bassist exit 0 69 s
-flutist exit 0 35 s
-oboist exit 0 53 s
-trombonist exit 0 14 s

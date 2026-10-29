@@ -1,1 +1,0 @@
-blender failed with the status 1: The cut of the seam leaves a vertex with two loop edges.

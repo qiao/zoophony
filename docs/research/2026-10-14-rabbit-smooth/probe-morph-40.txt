@@ -1,8 +1,0 @@
-studio-bear bind shape 0: max move 3.8 cm, corners turned >1deg 485 of 8304, >10deg 79, >20deg 28, turned corners p50/p90/max 0.0/1.1/39.2 deg
-studio-bear bind shape 1: max move 3.8 cm, corners turned >1deg 497 of 8304, >10deg 89, >20deg 30, turned corners p50/p90/max 0.0/1.2/38.7 deg
-studio-polar-bear bind shape 0: max move 7.1 cm, corners turned >1deg 466 of 8076, >10deg 118, >20deg 48, turned corners p50/p90/max 0.0/1.1/60.7 deg
-studio-polar-bear bind shape 1: max move 7.1 cm, corners turned >1deg 468 of 8076, >10deg 121, >20deg 47, turned corners p50/p90/max 0.0/1.1/60.9 deg
-studio-rabbit bind shape 0: max move 4.3 cm, corners turned >1deg 699 of 9300, >10deg 105, >20deg 56, turned corners p50/p90/max 0.0/2.0/119.1 deg
-studio-rabbit bind shape 1: max move 2.1 cm, corners turned >1deg 635 of 9300, >10deg 48, >20deg 16, turned corners p50/p90/max 0.0/1.5/55.1 deg
-studio-rabbit standing shape 0: max move 4.3 cm, corners turned >1deg 700 of 9300, >10deg 107, >20deg 57, turned corners p50/p90/max 0.0/2.0/119.1 deg
-studio-rabbit standing shape 1: max move 2.1 cm, corners turned >1deg 637 of 9300, >10deg 49, >20deg 16, turned corners p50/p90/max 0.0/1.5/55.1 deg

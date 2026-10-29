@@ -1,7 +1,0 @@
-| Variant | Triangles | Mesh gzip B | Scale m/u | Seat m | Leg seat m | Chair m | Reach L m | Reach R m | Standing mm | trombonist play | trombonist lift | trombonist rest | trombonist bones | Shapes: faces left turned |
-|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| base | 3146 | 22782 | 1.5154 | 0.277 | 0.277 | 0.212 | 0.578 | 0.578 | 0.234 | 0.0% | 0.0% | 0.0% | none | arm_raise_R: none / arm_raise_R2: none |
-| weights.armSplit=0.16;cut.fins=true;weights.armFree={"turn":0,"radius":0.11,"floor":0.3,"root":{"split":0.185,"heights":[0.48,0.6],"depths":[-1,0.0]}} | 3144 | 22555 | 1.5154 | 0.277 | 0.277 | 0.212 | 0.578 | 0.578 | 0.234 | 33.7% | 28.0% | 0.0% | forearm_R 1639 | arm_raise_R: none / arm_raise_R2: none |
-| weights.armSplit=0.16;cut.fins=true;weights.armFree={"turn":0,"radius":0.11,"floor":0.3,"root":{"split":0.185,"heights":[0.49,0.6],"depths":[-1,0.0]}} | 3142 | 22563 | 1.5154 | 0.277 | 0.277 | 0.212 | 0.578 | 0.578 | 0.234 | 33.7% | 28.0% | 0.0% | forearm_R 1638 | arm_raise_R: none / arm_raise_R2: none |
-| weights.armSplit=0.16;cut.fins=true;weights.armFree={"turn":0,"radius":0.11,"floor":0.3,"root":{"split":0.185,"heights":[0.5,0.6],"depths":[-1,0.0]}} | 3138 | 22518 | 1.5154 | 0.277 | 0.277 | 0.212 | 0.578 | 0.578 | 0.234 | 0.0% | 17.2% | 100.0% | forearm_R 16, upper_arm_R 3 | arm_raise_R: none / arm_raise_R2: none |
-

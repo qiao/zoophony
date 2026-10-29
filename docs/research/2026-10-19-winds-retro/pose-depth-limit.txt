@@ -1,3 +1,0 @@
-The run has 6 --set rows over all demos of the hornist, more than 5 (ROW_LIMIT). Name the demos with --demo <id>, or give --long to sweep all demos.
-Usage: pnpm pose-depth <conductor | pianist | violinist | violist | cellist | bassist | flutist | trombonist | oboist | timpanist | hornist | bassoonist> [--demo <id>]... [--soloist <species>] [--set <path>=<value>[;<path>=<value>]...]... [--bones <list>] [--into <list>] [--times <list>] [--gaps] [--targets] [--goal <cm>] [--base <ref>] [--json <file>] [--long]
-pnpm -s pose-depth hornist ${=S6}  0.55s user 0.08s system 139% cpu 0.455 total

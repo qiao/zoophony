@@ -1,3 +1,0 @@
-forearm axis [ 0.5391 -0.6693  0.5113]; upper arm 0.1047, forearm 0.1076
-paw: 96 vertices beyond the wrist, middle [0.3247 0.3824 0.05  ], spread [0.351 0.152 0.144], normal of the palm [-0.822 -0.269 -0.502], second [-0.045  0.909 -0.414], first [ 0.567 -0.318 -0.76 ], tip [0.3494 0.3665 0.0518], lowest [0.3411 0.3573 0.0403], farthest 0.0623
-reach shoulder to the middle of the paw 0.2497 u

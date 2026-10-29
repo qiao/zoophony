@@ -1,6 +1,0 @@
-The shot plans of the 14 demos and the 4 chamber test files, from plans.ts.
-main (961e3c4a), before the first change of src/shots/prepare.ts:
-19d09c50d6db0e8f236bf84737e437e15b1b1e01a2463920dea93b5d27553688  main.json
-The branch retro-probe at d44f6b6b:
-19d09c50d6db0e8f236bf84737e437e15b1b1e01a2463920dea93b5d27553688  branch.json
-cmp: the two files are the same, byte for byte.

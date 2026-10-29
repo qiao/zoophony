@@ -1,6 +1,0 @@
-beethoven-1.mid elephant timpani
-beethoven-8-4.mid elephant timpani
-beethoven-9.mid elephant timpani, badger bass-drum, badger cymbals, badger small-percussion
-boulanger-matin.mid badger cymbals, badger small-percussion
-brahms-2.mid elephant timpani
-mozart-k315.mid fox-tan flute

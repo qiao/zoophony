@@ -1,9 +1,0 @@
-base
-  rest 0.9 (upper arms>body bach-bwv1050 w10.0 upperArmR) | lift 2.8 (paws>body beethoven-8 w12.6 handR) | lower 2.6 (upper arms>body mozart-k525 w13.9 upperArmR)
-  folds: rest 100.0% lift 23.0% play 13.3%
-violin@fox-red.rest.lap.offset=0.4,0.2,0
-  rest 0.9 (upper arms>body bach-bwv1050 w10.0 upperArmR) | lift 2.8 (paws>body beethoven-8 w12.6 handR) | lower 2.8 (bow>body boulanger-matin w13.8 bow)
-  folds: rest 100.0% lift 23.0% play 13.3%
-violin@fox-red.rest.lap.offset=0.4,0.35,0
-  rest 0.9 (upper arms>body bach-bwv1050 w10.0 upperArmR) | lift 2.8 (paws>body beethoven-8 w12.6 handR) | lower 2.6 (upper arms>body mozart-k525 w13.9 upperArmR)
-  folds: rest 100.0% lift 23.0% play 13.3%

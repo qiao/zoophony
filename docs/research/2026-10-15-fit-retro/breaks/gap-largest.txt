@@ -1,6 +1,0 @@
-The break:
-@@ -353 +353 @@ export function restGaps(results: readonly DemoResult[]): PawGap[] {
--      if (Number.isFinite(gap.gap) && gap.into === BODY_OBSTACLE && gap.gap >= (known?.gap ?? -1)) {
-+      if (Number.isFinite(gap.gap) && gap.into === BODY_OBSTACLE && gap.gap <= (known?.gap ?? Infinity)) {
-Tests that fail (1):
-tools/hold-fit.test.ts > restGaps > gives the largest smallest gap of each paw in the rest over the players

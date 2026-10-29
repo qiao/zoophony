@@ -1,6 +1,0 @@
-# node docs/research/2026-10-13-rabbit-mesh/standing-probe.ts <dir>/source-long-arms.obj on the same tree as rig-mesh-app.log (the end of the app round), with the preview of that run.
-arm L: corrective weight of the retarget 1.0000
-arm R: corrective weight of the retarget 1.0000
-posed vertices 1547 (eye shells 23 left out), source vertices 1536
-largest distance of a posed vertex from the source: 0.234 mm (vertex 511)
-largest distance of a source vertex from the posed mesh: 0.234 mm

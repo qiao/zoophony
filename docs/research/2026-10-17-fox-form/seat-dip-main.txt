@@ -1,2 +1,0 @@
-fox-red: seat top 21.9 cm, front edge z -13.5 cm; lowest point -0.0 cm from the seat top at x 0.1, z 19.9 cm, bones tail2,tail2,tail2, corners (x/y/z cm) 4.8/24.7/19.0 0.0/21.7/22.3 0.1/22.0/16.2
-rabbit: seat top 17.9 cm, front edge z -6.0 cm; lowest point -5.0 cm from the seat top at x 10.2, z -6.0 cm, bones handR,handR,handR, corners (x/y/z cm) 11.6/13.4/-6.2 10.5/13.1/-5.3 10.1/12.9/-6.2

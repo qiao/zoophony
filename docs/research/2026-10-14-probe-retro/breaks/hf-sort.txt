@@ -1,6 +1,0 @@
-The break:
-@@ -482 +482 @@ export function sortFitRows(rows: readonly FitRow[]): FitRow[] {
--    ...variants.toSorted((a, b) => share(a) - share(b) || margin(a) - margin(b)),
-+    ...variants.toSorted((a, b) => share(a) - share(b)),
-Tests that fail (1):
-tools/hold-fit.test.ts > fitTable > sorts the variants by the play folds, then by the deepest point, after the base

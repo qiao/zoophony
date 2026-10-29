@@ -1,8 +1,0 @@
-b-t09	trunkFactor=0.771912;sit.top=0.274
-b-t08	trunkFactor=0.686144;sit.top=0.2734
-b-w115	girthFactor=1.15;sit.top=0.2714;chair.halfWidth=0.1955
-b-w13	girthFactor=1.3;sit.top=0.2682;chair.halfWidth=0.221
-n-08	neckFactor=0.8
-n-065	neckFactor=0.65
-moderate	trunkFactor=0.771912;girthFactor=1.15;neckFactor=0.8;studio.legTurns.thigh=0.570402,0.007167,-0.07679,0.817737;studio.legTurns.shin=0.021399,0.0,0.021399,0.999542;sit.top=0.2679;chair.halfWidth=0.1955
-strong	trunkFactor=0.686144;girthFactor=1.3;neckFactor=0.65;studio.legTurns.thigh=0.570402,0.007167,-0.07679,0.817737;studio.legTurns.shin=0.021399,0.0,0.021399,0.999542;sit.top=0.2642;chair.halfWidth=0.221

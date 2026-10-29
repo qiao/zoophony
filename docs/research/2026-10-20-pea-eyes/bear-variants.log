@@ -1,9 +1,0 @@
-# The left bear eye of eye-fit.ts on trees with a variant in eyeAt of studioBody() (tools/studio-body.ts),
-# during the round. w: the blend of the axis from the normal (0) to the direction (1). bend: the share
-# of the fit of eyeBend(). lift: the move of the middle out from the surface point, in H.
-bent, direction (w 1, bend 1, lift 0):      rim 0.013 H, rim tilt 2°, closed 0.042 H, angle 44°, middle -0.000 H, front in 0 (worst 0.008 H), seen 0/60/90/120 0.0097/0.0174/0.0155/0.0107 H² (93/94/91/83%)
-bent, normal (w 0, bend 1, lift 0):         rim 0.015 H, rim tilt 1°, closed 0.041 H, angle 0°, middle -0.000 H, front in 0 (worst 0.017 H), seen 0/60/90/120 0.0094/0.0136/0.0122/0.0087 H² (84/95/91/83%)
-bent, no uv, w 0.5 (bend 1 with no uv):     rim 0.019 H, rim tilt 2° fin 0 (worst 0.010 H), seen 0/60/90/120 0.0086/0.0134/0.0118/0.0083 (84/90/86/81%)
-flat, w 0.5 (bend 0, lift -0.01, push):     rim 0.027 H, rim tilt 17°, closed 0.039 H, angle 22°, middle -0.007 H, front in 0 (worst 0.000 H), seen 0/60/90/120 0.0098/0.0128/0.0101/0.0068 H² (77/90/93/82%)
-flat, w 0.3 (bend 0, lift -0.01):           rim 0.026 H, rim tilt 8°, closed 0.040 H, angle 13°, middle -0.010 H, front in 0 (worst 0.008 H), seen 0/60/90/120 0.0089/0.0124/0.0102/0.0067 H² (77/91/89/77%)
-flat, w 0.3, sunk to the front rule:        rim 0.018 H, middle -0.019 H, front in 0 (worst 0.001 H), seen 0/60/90/120 0.0074/0.0106/0.0088/0.0054 H² (64/78/76/62%)

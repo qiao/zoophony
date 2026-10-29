@@ -1,6 +1,0 @@
-The break:
-@@ -156 +156 @@ export function newFailures(base: readonly string[], tree: readonly string[]): s
--  return tree.filter((test) => !old.has(test));
-+  return [...tree];
-Tests that fail (1):
-tools/test-paused.test.ts > newFailures > gives the failed tests of the working tree that do not fail on the commit

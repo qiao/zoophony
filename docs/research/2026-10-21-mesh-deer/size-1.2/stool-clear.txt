@@ -1,6 +1,0 @@
-stool box [ -0.22, 0, -0.18 ] [ 0.22, 0.243208, 0.18 ]
-harp to stool 6.7 cm
-play arms to stool 33.6 cm
-lift arms to stool 33.6 cm
-rest arms to stool 33.6 cm
-lower arms to stool 33.5 cm

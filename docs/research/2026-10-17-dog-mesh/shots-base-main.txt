@@ -1,7 +1,0 @@
-
-> zoophony@0.0.0 test:paused /Users/xueqiaoxu/proj/zoophony/.claude/worktrees/dog-mesh
-> node tools/test-paused.ts src/shots/prepare.test.ts --base main
-
-Paused tests on main (4a04e94f) and on the working tree, at the same time:
-main (4a04e94f): 0 failed tests and errors. The working tree: 0 failed tests and errors. 7.3 s.
-No test fails and no error comes on the working tree alone.

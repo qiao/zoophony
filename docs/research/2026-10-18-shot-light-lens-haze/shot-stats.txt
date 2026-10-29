@@ -1,6 +1,0 @@
-# Columns: 4cfd6e1d (before the shot light) | the first values of the plan, not committed (key 2.5 lux, spot 1.6, kicker 3 lux, 0.3 stops) | e371e405 (end). Values: luma p5/p50/p95/p99.5.
-conductor 9/49/178/215 | 11/60/199/227 | 10/54/189/222
-side 9/34/131/208 | 11/42/159/215 | 10/36/138/209
-section 18/88/182/222 | 22/100/202/231 | 20/93/193/227
-solo 19/78/207/235 | 21/85/222/240 | 19/80/215/238
-wide 9/34/161/208 | 9/34/161/208 | 9/34/161/208

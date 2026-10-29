@@ -1,6 +1,0 @@
-The break:
-@@ -158 +158 @@ export function runChildStatus(
--  return spawnTracked(command, args, cwd).ended.then((end) => (stopping ? NEVER : end));
-+  return spawnTracked(command, args, cwd).ended;
-Tests that fail (1):
-tools/ref-tree.test.ts > withRefTree after Ctrl-C > ends a child of runChildStatus, removes the folder, and exits with 130

@@ -1,9 +1,0 @@
-Medians over play samples. Angles in degrees, thumb moves in cm.
-| Role | Paw | Thumb in the bind mesh | True palm to hint palm | True palm to tube | Hint palm to tube | Thumb tip along the tube (+ to the mouthpiece) | Thumb tip toward the player (+) | True palm to the front (+1 faces the audience) | True palm up (+1 faces up) | Thumb tip behind the tube axis (+ toward the player) | Hint palm to the front | Chirality thumb along the tube (+1 to the mouthpiece) |
-|---|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| oboist | L | cut 0.3, 6 tris, off 0.45 | 24 | 35 | 44 | +3.07 | -0.70 | +0.14 | -0.37 | -0.17 | -0.23 | +1.00 |
-| oboist | R | no separate digit | - | - | 24 | - | - | - | - | - | -0.22 | +1.00 |
-| bassoonist | L | cut 0.6, 2 tris, off 0.48 | 21 | 16 | 17 | +3.73 | +0.77 | -0.04 | +0.15 | +1.13 | -0.06 | +1.00 |
-| bassoonist | R | cut 0.75, 3 tris, off 0.29 | 4 | 15 | 16 | +1.88 | -2.91 | -0.42 | -0.50 | -5.02 | -0.41 | +1.00 |
-| trombonist | L | cut 0.6, 14 tris, off 0.46 | 8 | 43 | 52 | +2.77 | -4.86 | -0.71 | -0.09 | -6.51 | -0.70 | +1.00 |
-| trombonist | R | cut 0.6, 13 tris, off 0.46 | 12 | 11 | 7 | +5.79 | +4.39 | -0.17 | -0.06 | +1.58 | -0.21 | +1.00 |

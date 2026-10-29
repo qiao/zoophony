@@ -1,6 +1,0 @@
-== base
-  H 0.598 m, kettles 3, head height 0.76 m (1.27 H), diameters 1.36/1.23/1.10 H, near rims 0.544/0.372/0.410 m from the middle (belly front 0.29 m)
-  L: strikes 304/304 within 5 mm, worst 0.0 cm
-  L: forearm 21.6° below level (forward share 0.92), upper arm 59.2° below, elbow bend 65.5°, elbow out 0.17 H and forward 0.06 H, mallet -22.0° at strike / 28.3° between (61, out 55.4°), forearm to mallet 25.2°, grip 11.3 cm over the head plane, 1.2 cm inside the near rim
-  R: strikes 216/216 within 5 mm, worst 0.0 cm
-  R: forearm 25.0° below level (forward share 0.90), upper arm 56.2° below, elbow bend 45.4°, elbow out 0.13 H and forward 0.14 H, mallet -20.3° at strike / 30.0° between (42, out 55.1°), forearm to mallet 15.1°, grip 10.4 cm over the head plane, -1.3 cm inside the near rim

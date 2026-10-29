@@ -1,9 +1,0 @@
-| variant | play upper arms>body | lower upper arms>body | play forearms>body | play paws>body | play claws>viola | play upper arms>viola | play forearms>viola | stop | bow |
-|---|---|---|---|---|---|---|---|---|---|
-| base | 2.46 (2.9%) brahms-2 581.38 | 2.47 (10.8%) boulanger-matin w12.5 | 0.00 (0.0%)  | 0.00 (0.0%)  | 2.14 (2.0%) boulanger-matin 117.38 | 0.19 (0.0%) boulanger-matin 265.38 | 0.06 (0.0%) boulanger-matin 266.88 | 0.00-1.00 | 0.030-0.340 |
-| pz2 | 2.38 (0.9%) brahms-2 404.88 | 1.96 (2.5%) brahms-2 w13.5 | 0.00 (0.0%)  | 0.00 (0.0%)  | 2.14 (2.0%) boulanger-matin 117.38 | 0.00 (0.0%)  | 0.06 (0.0%) boulanger-matin 266.88 | 0.00-1.00 | 0.030-0.340 |
-| pz3 | 2.38 (0.9%) brahms-2 404.88 | 1.96 (2.5%) brahms-2 w13.5 | 0.19 (0.0%) boulanger-matin 265.38 | 0.00 (0.0%)  | 2.14 (2.0%) boulanger-matin 117.38 | 0.00 (0.0%)  | 0.06 (0.0%) boulanger-matin 266.88 | 0.00-1.00 | 0.030-0.340 |
-| pz4 | 2.38 (0.9%) brahms-2 404.88 | 1.96 (2.5%) brahms-2 w13.5 | 0.38 (0.0%) boulanger-matin 265.38 | 0.00 (0.0%)  | 2.14 (2.0%) boulanger-matin 117.38 | 0.00 (0.0%)  | 0.06 (0.0%) boulanger-matin 266.88 | 0.00-1.00 | 0.030-0.340 |
-| tip2 | 2.46 (2.2%) brahms-2 581.38 | 2.47 (8.3%) boulanger-matin w12.5 | 0.00 (0.0%)  | 0.00 (0.0%)  | 2.15 (1.9%) brahms-2 533.88 | 0.19 (0.0%) boulanger-matin 265.38 | 0.06 (0.0%) boulanger-matin 266.88 | 0.00-1.00 | 0.030-0.340 |
-| tip3 | 2.46 (2.2%) brahms-2 581.38 | 2.47 (8.3%) boulanger-matin w12.5 | 0.00 (0.0%)  | 0.00 (0.0%)  | 2.15 (1.9%) boulanger-matin 111.88 | 0.19 (0.0%) boulanger-matin 265.38 | 0.06 (0.0%) boulanger-matin 266.88 | 0.00-1.00 | 0.030-0.340 |
-| tip4 | 2.46 (2.2%) brahms-2 581.38 | 2.47 (8.3%) boulanger-matin w12.5 | 0.00 (0.0%)  | 0.00 (0.0%)  | 2.15 (2.0%) boulanger-matin 111.88 | 0.19 (0.0%) boulanger-matin 265.38 | 0.06 (0.0%) boulanger-matin 266.88 | 0.00-1.00 | 0.030-0.340 |

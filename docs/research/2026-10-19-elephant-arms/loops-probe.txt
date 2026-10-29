@@ -1,6 +1,0 @@
-elephant: 5 open loops
-  15 edges, length 1.886 m, middle 0.388, 1.158, 0.074, bones shoulderR 15
-  3 edges, length 0.191 m, middle 0.289, 1.096, -0.020, bones shoulderR 1, chest 2
-  12 edges, length 1.280 m, middle -0.355, 1.163, 0.024, bones shoulderL 12
-  2 edges, length 0.071 m, middle -0.400, 1.332, -0.045, bones head 2
-  2 edges, length 0.080 m, middle 0.569, 1.525, 0.109, bones head 2

@@ -1,2 +1,0 @@
-beaver bassoon stand: seat 0.000 H 0.361 shoulder 0.5523 eye 0.871 headTop 1.029 earTop 1.028 top 1.029 hips 0.253 headTop above the seat 1.029
-beaver bassoon chair: seat 0.271 H 0.361 shoulder 0.6245 eye 0.943 headTop 1.101 earTop 1.100 top 1.101 hips 0.325 headTop above the seat 0.830

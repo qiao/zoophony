@@ -1,1 +1,0 @@
-0.8|: below R 0.29 stop 0.00..1.00 bow 0.035..0.415 of 0.446 | nut -0.45,1.24,-0.25 contact -0.00,0.54,-0.50 | shoulders L -0.30,0.88,-0.01 R 0.25,0.83,-0.19 | L to nut 0.459 R to contact 0.492 reach 0.495 | contact before belly 0.153 m

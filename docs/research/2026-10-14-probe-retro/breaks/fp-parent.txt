@@ -1,7 +1,0 @@
-The break:
-@@ -423 +423 @@ export function turnBone(
--    const turn = angleOf(posed, normalWith([bone, STUDIO_BONES.indexOf(parent)]));
-+    const turn = angleOf(posed, normalWith([bone, bone]));
-Tests that fail (2):
-tools/fold-probe.test.ts > turnBone > names the bone whose turn from its parent folds the face
-tools/fold-probe.test.ts > probeFolds > counts each sample set of the demos with the role, and skips the other demos

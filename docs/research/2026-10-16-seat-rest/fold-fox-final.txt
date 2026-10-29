@@ -1,7 +1,0 @@
-Folded faces of the studio body of the fox-violinist on main (1ba2fe4d) and on the working tree: 41.7 s.
-
-| Set | main (1ba2fe4d) | Working tree |
-|---|---:|---:|
-| rest | 100.0% (14/14), most 13 (L 2 / R 9 / other 2) | 100.0% (14/14), most 17 (L 5 / R 9 / other 3) |
-| play | 2.4% (433/17788), most 2 (L 1 / R 1 / other 0) | 2.4% (426/17788), most 2 (L 1 / R 1 / other 0) |
-| lift | 20.3% (88/434), most 13 (L 2 / R 9 / other 2) | 20.3% (88/434), most 19 (L 5 / R 11 / other 3) |

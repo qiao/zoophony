@@ -1,7 +1,0 @@
-boulanger-matin.mid: shots 41, cuts kept 99.4%, shots kept 75.6%
-beethoven-9.mid: shots 16, cuts kept 100.0%, shots kept 87.5%
-mozart-k525.mid: shots 26, cuts kept 88.5%, shots kept 81.7%
-bach-bwv1048.mid: shots 33, cuts kept 100.0%, shots kept 77.3%
-beethoven-8.mid: shots 23, cuts kept 100.0%, shots kept 91.3%
-mozart-k315.mid: shots 26, cuts kept 100.0%, shots kept 84.6%
-all: cuts kept 98.0%, shots kept 81.7%

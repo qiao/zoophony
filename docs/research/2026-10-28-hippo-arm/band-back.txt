@@ -1,6 +1,0 @@
-# main (src/models/studio/hippo.ts of main)
-R: 36 bridge faces, 10 face back to the elbow, 47.6% of the bridge area
-L: 41 bridge faces, 16 face back to the elbow, 55.3% of the bridge area
-# round
-R: 36 bridge faces, 5 face back to the elbow, 2.9% of the bridge area
-L: 38 bridge faces, 4 face back to the elbow, 3.2% of the bridge area

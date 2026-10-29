@@ -1,8 +1,0 @@
-Demo boulanger-matin.mid, player 16, 188 note samples.
-| Sample | Front of the middle of the soles cm | Left of the middle cm | Inside the edge of the soles cm | Inside the edge of the soles and the haunch cm | Front of the middle of the soles and the haunch cm | Haunch corners on the seat | Center of mass height cm | Support depth x width cm | Lowest sole cm | Head top cm |
-|---|---|---|---|---|---|---|---|---|---|---|
-| rest | -12.5 | -0.0 | -7.2 | 12.4 | -4.5 | 117 | 60.7 | 11.0 x 36.6 | -0.0 | 133.2 |
-| note, p5 (most forward) | -9.2 | -0.7 | -3.8 | 13.4 | -1.2 | 117 | 60.1 | 11.0 x 36.6 | -0.0 | 132.8 |
-| note, median | -9.8 | 0.4 | -4.4 | 13.4 | -1.7 | 117 | 60.2 | 11.0 x 36.6 | -0.0 | 132.7 |
-Note median: the left hip, knee, and ankle joints are -15.8, -4.1, -4.1 cm in front of the middle.
-| note, p95 (most back) | -10.3 | 0.0 | -4.9 | 13.5 | -2.3 | 117 | 60.4 | 11.0 x 36.6 | -0.0 | 132.6 |

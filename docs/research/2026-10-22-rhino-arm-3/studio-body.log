@@ -1,9 +1,0 @@
-
-> zoophony@0.0.0 studio-body /Users/xueqiaoxu/proj/zoophony/.claude/worktrees/rhino-arm-3
-> node tools/studio-body.ts rhino
-
-Finished in 1ms on 1 files using 10 threads.
-Wrote src/models/studio/rhino.ts from assets/models/rhino/rhino.rig.glb (sha256 caec6c6381e0).
-Scale 1.552901 m for each unit, head height 0.419651 m.
-Corrective weights of the sheet pose: 1, 1, 1, 1.
-Pea eyes: head height 0.419651 m. Each eye moves 0.000 H (left) and 0.000 H (right) out of the head, and its bone lies 0.006 H (left) and 0.004 H (right) from the middle of the old eye.

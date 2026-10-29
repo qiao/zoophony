@@ -1,5 +1,0 @@
-# docs/research/2026-10-18-trombone-fit/render.sh <right> <down> <left shoulder> <dir> for each hold, then
-# python -I docs/research/2026-10-18-panda-folds/band.py <dir>/role/trombonist-first-front.png 156,228,228,252
-r20-d25-l9: trombonist-first-front.png: box (156, 228, 228, 252), 1728 px, 361 below L 0.45 (20.9%), rows with more than 20% dark: 13 (y 229 to 241)
-r35-d15-l15: trombonist-first-front.png: box (156, 228, 228, 252), 1728 px, 747 below L 0.45 (43.2%), rows with more than 20% dark: 15 (y 228 to 242)
-r30-d20-l15: trombonist-first-front.png: box (156, 228, 228, 252), 1728 px, 771 below L 0.45 (44.6%), rows with more than 20% dark: 17 (y 228 to 244)

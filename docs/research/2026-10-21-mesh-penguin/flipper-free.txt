@@ -1,3 +1,0 @@
-below y 0.47: flipper 69 vertices, x 0.227..0.324, gap to the chain at most 0.0769
-body side beyond x 0.18: 70 vertices, x at most 0.225, gap to the chain at least 0.0552
-at and above y 0.47 beyond x 0.18: 78 vertices, gap to the chain from 0.0344 to 0.0837

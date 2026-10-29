@@ -1,6 +1,0 @@
-The break:
-@@ -1109 +1109 @@ export function boxMove(box: Bounds | null, old: Bounds | null | undefined): num
--  return box && old ? Math.max(distance(box.min, old.min), distance(box.max, old.max)) : null;
-+  return box && old ? distance(box.min, old.min) : null;
-Tests that fail (1):
-tools/rig-mesh.test.ts > anchorCells > moves a box by the larger move of its corners, and a missing point or box by nothing

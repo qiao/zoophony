@@ -1,5 +1,0 @@
-fox-red chair seat 0.285 H 0.380 shoulder 0.657 eye 0.993 headTop 1.159 earTop 1.297 hips 0.342 z hips 0.000
-rabbit chair seat 0.133 H 0.230 shoulder 0.542 eye 0.746 headTop 0.883 earTop 1.151 hips 0.201 z hips 0.023
-cat chair seat 0.271 H 0.361 shoulder 0.625 eye 0.943 headTop 1.101 earTop 1.232 hips 0.325 z hips 0.000
-fox-red stand seat undefined H 0.380 shoulder 0.581 eye 0.917 headTop 1.083 earTop 1.221 hips 0.266 z hips 0.000
-rabbit stand seat undefined H 0.230 shoulder 0.583 eye 0.787 headTop 0.924 earTop 1.192 hips 0.241 z hips 0.012

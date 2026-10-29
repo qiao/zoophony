@@ -1,6 +1,0 @@
-The break:
-@@ -460 +460 @@ export function foldShares(report: FoldReport): FoldShares {
--    rest: { most: rest.most, split: { ...rest.split } },
-+    rest: { most: 0, split: { ...rest.split } },
-Tests that fail (1):
-tools/hold-fit.test.ts > fitTable > marks a depth over its limit and play folds over the goal of 1%

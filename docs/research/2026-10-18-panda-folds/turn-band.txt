@@ -1,3 +1,0 @@
-# pnpm close-views trombonist <dir> --base aa79fb38 (base: 15 degrees, the tree: 9 degrees), then band.py on the front views of the first position.
-trombonist-base-first-front.png: box (156, 228, 228, 252), 1728 px, 692 below L 0.45 (40.0%), rows with more than 20% dark: 18 (y 229 to 246)
-trombonist-first-front.png: box (156, 228, 228, 252), 1728 px, 317 below L 0.45 (18.3%), rows with more than 20% dark: 10 (y 229 to 238)

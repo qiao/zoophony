@@ -1,6 +1,0 @@
-hang0: trunkFactor 1 legFactor 1.5
-  trunk: 59 vertices of the haunch and the tail rise toward the seat top 0.2157 u of the upright body, at most 0.0017 u (0.27 cm). The lowest point over the seat is 0.2153 u. After 8 rounds of relaxing, 0 faces turn over
-hang1: trunkFactor 0.9 legFactor 1.810345
-  trunk: 60 vertices of the haunch and the tail rise toward the seat top 0.2571 u of the upright body, at most 0.0017 u (0.27 cm). The lowest point over the seat is 0.2566 u. After 7 rounds of relaxing, 0 faces turn over
-hang2: trunkFactor 0.85768 legFactor 1.94168
-  trunk: 61 vertices of the haunch and the tail rise toward the seat top 0.2746 u of the upright body, at most 0.0017 u (0.27 cm). The lowest point over the seat is 0.2742 u. After 6 rounds of relaxing, 0 faces turn over

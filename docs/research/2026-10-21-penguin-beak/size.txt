@@ -1,4 +1,0 @@
-Base 008612b3 (008612b3), built in a temporary folder:
-   818,711 B  total of the base
-   819,199 B  total of the working tree
-      +488 B  difference

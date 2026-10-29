@@ -1,1 +1,0 @@
-"base": play 14.5% lift 14.5% rest 0.0% | off 0.0% max 0.00 mm | elbow-key p50 7.8 cm | head gap cm: play 5.7 lift 6.1 rest 15.8 lower 6.0 | 32 s | head 453, upper_arm_L 268, clavicle_L 114

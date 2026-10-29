@@ -1,6 +1,0 @@
-The break:
-@@ -115 +115 @@ export function parseTraceOptions(args: readonly string[]): TraceOptions {
--  if (fromSec > toSec) {
-+  if (fromSec > toSec + 1e9) {
-Tests that fail (1):
-tools/shot-trace.test.ts > parseTraceOptions() > stops on a missing demo, an empty range, a time that is not a number, or both outputs

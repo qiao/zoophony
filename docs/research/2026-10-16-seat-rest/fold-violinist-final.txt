@@ -1,7 +1,0 @@
-Folded faces of the studio body of the violinist on main (1ba2fe4d) and on the working tree: 42.3 s.
-
-| Set | main (1ba2fe4d) | Working tree |
-|---|---:|---:|
-| rest | 0.0% (0/14), most 0 (L 0 / R 0 / other 0) | 100.0% (14/14), most 1 (L 1 / R 0 / other 0) |
-| play | 0.2% (38/17788), most 1 (L 0 / R 1 / other 0) | 0.2% (37/17788), most 1 (L 0 / R 1 / other 0) |
-| lift | 9.7% (42/434), most 2 (L 1 / R 1 / other 0) | 14.7% (64/434), most 2 (L 2 / R 0 / other 0) |

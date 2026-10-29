@@ -1,9 +1,0 @@
-bach-bwv1048.mid: 427 of 1310 samples outside -30,60 deg; 568 with the elbow beyond 130 deg around the stick; 2 jumps of the roll above 90 deg
-bach-bwv1050.mid: 39 of 1241 samples outside -30,60 deg; 35 with the elbow beyond 130 deg around the stick; 0 jumps of the roll above 90 deg
-beethoven-1.mid: 258 of 1178 samples outside -30,60 deg; 321 with the elbow beyond 130 deg around the stick; 1 jumps of the roll above 90 deg
-beethoven-8-4.mid: 732 of 2876 samples outside -30,60 deg; 837 with the elbow beyond 130 deg around the stick; 4 jumps of the roll above 90 deg
-beethoven-8.mid: 311 of 881 samples outside -30,60 deg; 380 with the elbow beyond 130 deg around the stick; 3 jumps of the roll above 90 deg
-beethoven-9.mid: 74 of 634 samples outside -30,60 deg; 103 with the elbow beyond 130 deg around the stick; 1 jumps of the roll above 90 deg
-boulanger-matin.mid: 618 of 1123 samples outside -30,60 deg; 61 with the elbow beyond 130 deg around the stick; 0 jumps of the roll above 90 deg
-brahms-2.mid: 891 of 3010 samples outside -30,60 deg; 1076 with the elbow beyond 130 deg around the stick; 7 jumps of the roll above 90 deg
-mendelssohn-op61.mid: 264 of 594 samples outside -30,60 deg; 145 with the elbow beyond 130 deg around the stick; 2 jumps of the roll above 90 deg

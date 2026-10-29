@@ -1,3 +1,0 @@
-Sweep of the hornist: 10 demos with the role (beethoven-1, beethoven-8-4, beethoven-8, beethoven-9, boulanger-matin, brahms-2, mendelssohn-op61, mozart-k191, mozart-k315, mozart-k417), 5 rows to sweep.
-Estimated time: about 12.1 minutes: 5 rows of 145.8 s, from the last rows of this sweep, with a time for 10 of 10 demos.
-stopped 34527

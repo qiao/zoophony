@@ -1,8 +1,0 @@
-sets contrabass@hippo.pawKeepR=0: samples 1612; shortest edge p50 0.73 p5 0.72 min 0.37; longest edge p50 1.91 p95 1.94 max 3.04
-all n=1276: gap p50 1.50 p95 1.74 max 1.75 cm; depth p5 1.34 min 1.30 cm; axis out of the paw 0
-sets contrabass@hippo.pawKeepR=0.6: samples 1612; shortest edge p50 0.76 p5 0.76 min 0.48; longest edge p50 1.51 p95 1.54 max 2.67
-all n=1276: gap p50 1.21 p95 1.71 max 1.79 cm; depth p5 1.50 min 1.28 cm; axis out of the paw 0
-sets contrabass@hippo.pawKeepR=1: samples 1612; shortest edge p50 0.79 p5 0.78 min 0.46; longest edge p50 1.26 p95 1.30 max 2.42
-all n=1276: gap p50 1.08 p95 1.76 max 2.43 cm; depth p5 1.60 min 1.40 cm; axis out of the paw 0
-sets contrabass@hippo.pawKeepR=1.4: samples 1612; shortest edge p50 0.82 p5 0.81 min 0.44; longest edge p50 1.21 p95 1.23 max 2.17
-all n=1276: gap p50 0.86 p95 2.38 max 3.15 cm; depth p5 1.68 min 1.56 cm; axis out of the paw 0

@@ -1,4 +1,0 @@
-steps-main   13-knee_relax   inner: edges 473, hard 8, max  77.0, rms 14.3 | outer: edges 104, hard 12, max  78.7, rms 25.1 | calf hard 3 max  54.8 sum>30   90.5
-steps-main-R 13-knee_relax   inner: edges 402, hard 1, max  51.6, rms 13.1 | outer: edges 105, hard 4, max  47.8, rms 19.1 | calf hard 0 max  36.4 sum>30   24.0
-steps-round  14-knee_front   inner: edges 500, hard 7, max  85.6, rms 13.8 | outer: edges 212, hard 2, max  54.1, rms 13.7 | calf hard 3 max  54.9 sum>30   81.7
-steps-round-R 14-knee_front   inner: edges 440, hard 3, max  62.5, rms 13.1 | outer: edges 264, hard 1, max  41.2, rms 12.4 | calf hard 0 max  36.4 sum>30   22.4

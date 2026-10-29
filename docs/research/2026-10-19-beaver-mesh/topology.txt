@@ -1,5 +1,0 @@
-vertices 1567 triangles 3119
-parts 1 sizes [1567]
-open edges 18 edges with more than two faces 8
-  open edge middles box [-0.082  0.515  0.15 ] [0.166 0.86  0.324]
-faces with a corner angle below 10 degrees 325

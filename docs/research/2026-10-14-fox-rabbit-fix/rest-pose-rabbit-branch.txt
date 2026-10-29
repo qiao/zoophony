@@ -1,7 +1,0 @@
-rest: correctives 0.68,0.87, folds 0, with R=0 0, R=1 0
-lift 0.0: correctives 0.68,0.87, folds 0, with R=0 0, R=1 0
-lift 0.5: correctives 0.50,0.74, folds 2, with R=0 1, R=1 2
-lift 1.0: correctives 0.36,0.00, folds 0, with R=0 0, R=1 0
-lift 1.5: correctives 0.36,0.00, folds 0, with R=0 0, R=1 0
-lift 2.0: correctives 0.36,0.00, folds 0, with R=0 0, R=1 0
-lift 2.5: correctives 0.36,0.00, folds 0, with R=0 0, R=1 0

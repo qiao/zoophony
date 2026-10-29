@@ -1,5 +1,0 @@
-badger on the bass-drum in beethoven-9, percussion-test: 159 strikes, strikes 100.0% within 5 mm, worst 0.0 mm.
-badger on the snare-drum in percussion-test: 56 strikes, strikes 100.0% within 5 mm, worst 3.1 mm.
-badger on the small-percussion in beethoven-9, boulanger-matin, percussion-test: 627 strikes, strikes 100.0% within 5 mm, worst 0.0 mm.
-badger on the cymbals in beethoven-9, boulanger-matin, percussion-test: 880 strikes, strikes 0.0% within 5 mm, worst 83.6 mm.
-badger on the xylophone in percussion-test, percussion-test: 256 strikes, strikes 9.0% within 5 mm, worst 362.7 mm.

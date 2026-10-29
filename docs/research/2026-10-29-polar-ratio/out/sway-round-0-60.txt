@@ -1,8 +1,0 @@
-bach-bwv1050.mid 0 s to 60 s, 6001 samples at 0.01 s, x in the axes of the player
-| Part | Range cm | Largest speed cm/s | Turns for each s |
-|---|---|---|---|
-| hips | 0.0 | 0.0 | 0.00 |
-| chest | 12.8 | 45.0 | 1.87 |
-| head | 26.2 | 92.2 | 2.00 |
-| handL | 48.9 | 1107.7 | 2.07 |
-| handR | 48.9 | 1023.7 | 1.10 |

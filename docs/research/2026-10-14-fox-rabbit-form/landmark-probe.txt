@@ -1,4 +1,0 @@
-fox-red stand: seat 0.000 H 0.323 visible head 0.395 shoulder 1.109 headTop 1.626 earTop 1.797 hips 0.512
-fox-red chair: seat 0.360 H 0.323 visible head 0.395 shoulder 1.053 headTop 1.571 earTop 1.741 hips 0.456 trunk 0.693 head/trunk 0.570 seat/head 0.912 seat/H 1.114 seat/trunk 0.520
-rabbit stand: seat 0.000 H 0.323 visible head 0.325 shoulder 0.851 headTop 1.274 earTop 1.622 hips 0.448
-rabbit chair: seat 0.360 H 0.323 visible head 0.325 shoulder 0.863 headTop 1.286 earTop 1.633 hips 0.459 trunk 0.503 head/trunk 0.646 seat/head 1.109 seat/H 1.116 seat/trunk 0.716

@@ -1,9 +1,0 @@
-
-> zoophony@0.0.0 body-probe <worktree>
-> node tools/body-probe.ts --base main
-
-base main, new: the working tree
-bodies equal: 95 of 95
-players equal: 23 of 23
-pose sets equal: 1492 of 1492
-pnpm body-probe --base main  15.47s user 0.79s system 241% cpu 6.738 total

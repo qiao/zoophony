@@ -1,5 +1,0 @@
-The break:
-@@ -94 +93,0 @@ export function vitestArgs(json: string, paths: readonly string[]): string[] {
--    '--passWithNoTests',
-Tests that fail (1):
-tools/test-paused.test.ts > vitestArgs > runs the project paused once with the JSON report, and passes with no test file

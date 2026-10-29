@@ -1,6 +1,0 @@
-The break:
-@@ -635 +635 @@ export function fitTable(rows: readonly FitRow[]): string[] {
--        : `${free.share.toFixed(3)}${free.share > 1 ? ' OVER' : ''}`;
-+        : `${free.share.toFixed(3)}`;
-Tests that fail (1):
-tools/hold-fit.test.ts > fitTable > adds the instrument in the body, the rest gap, and the rest reach of each free paw

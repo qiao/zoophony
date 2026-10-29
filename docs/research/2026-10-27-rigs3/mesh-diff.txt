@@ -1,7 +1,0 @@
-vertices 2095 / 2095, faces 4152 / 4152
-largest vertex move 0.000 mm at v-1, 0 vertices move > 0.01 mm
-faces with other corners: 172 (475, 476, 477, 478, 479, 480, 481, 482, 483, 484)
-weight entries that differ: 0
-corrective 0: largest change 0.000 mm
-corrective 1: largest change 0.000 mm
-faces only on main: 231-232-248 231-247-248; only in the tree: 231-232-247 232-247-248

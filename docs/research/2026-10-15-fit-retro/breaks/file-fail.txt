@@ -1,6 +1,0 @@
-The break:
-@@ -139 +139 @@ export function failedTests(text: string, root: string): string[] {
--      return file.status === 'failed' ? [`${path} > (the file fails with no failed test)`] : [];
-+      return [];
-Tests that fail (1):
-tools/test-paused.test.ts > failedTests > gives each failed test with its file from the root, and a file that fails with no test

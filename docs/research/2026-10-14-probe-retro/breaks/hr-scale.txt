@@ -1,6 +1,0 @@
-The break:
-@@ -350 +350 @@ export function sizeReach(
--    const reach = scrollReach(toVec3(tail), toVec3(scroll), toVec3(shoulder), wanted / scale);
-+    const reach = scrollReach(toVec3(tail), toVec3(scroll), toVec3(shoulder), wanted);
-Tests that fail (1):
-tools/hold-reach.test.ts > sizeReach (design 4.6) > needs the reach of the arm at the size of the rule, and the arm factor of the rig there

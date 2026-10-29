@@ -1,3 +1,0 @@
-rabbit   | base | 89 samples | left of front 60° (strings 60°, ends 67°) | slope -3° | head gap p50 0.0 max 0.1 cm | head depth 0.0 cm | in body 1.7 cm | upper arm in -57° | shoulder forward -0.0 cm | stop 0.08..1.00 | hair 0.060..0.340 m
-fox-red  | base | 89 samples | left of front 60° (strings 60°, ends 67°) | slope -3° | head gap p50 0.0 max 0.0 cm | head depth 0.1 cm | in body 1.8 cm | upper arm in -30° | shoulder forward -0.0 cm | stop 0.00..1.00 | hair 0.120..0.385 m
-cat      | base | 101 samples | left of front 70° (strings 70°, ends 77°) | slope -8° | head gap p50 0.0 max 0.0 cm | head depth 0.1 cm | in body 2.6 cm | upper arm in -43° | shoulder forward 0.0 cm | stop 0.03..1.00 | hair 0.030..0.470 m

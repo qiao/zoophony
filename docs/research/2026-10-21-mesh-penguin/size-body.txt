@@ -1,6 +1,0 @@
-   797,000 B  total
- 1,000,000 B  limit: pass
-Base c4951160 (c4951160), built in a temporary folder:
-   767,793 B  total of the base
-   797,000 B  total of the working tree
-   +29,207 B  difference

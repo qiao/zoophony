@@ -1,5 +1,0 @@
-rabbit: solo at 46.6 s, light 1, camera az 14 el 10, gap to stage key 49; soft key az -21 (gap 14); kicker az 154; shade 0.264; target -2.6,0.9,3.8
-dog: solo at 15.6 s, light 1, camera az -80 el 34, gap to stage key 45; soft key az -45 (gap 10); kicker az 140; shade 0.111; target 2.5,0.9,3.5
-hippo: solo at 69.3 s, light 1, camera az -33 el 30, gap to stage key 2; soft key az -68 (gap 33); kicker az -173; shade 0.067; target -1.9,0.9,-4.7
-polar-bear: solo at 107.7 s, light 1, camera az -11 el 32, gap to stage key 24; soft key az -46 (gap 11); kicker az -151; shade 0.077; target -4.2,0.9,1.7
-cat: solo at 34.1 s, light 1, camera az -3 el 40, gap to stage key 32; soft key az -38 (gap 3); kicker az -143; shade 0.060; target 0.6,0.9,2.0

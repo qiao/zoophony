@@ -1,6 +1,0 @@
-base main, new: the working tree
-bodies equal: 95 of 95
-players equal: 22 of 23
-pose sets equal: 1488 of 1492
-player percussion/badger/bass-drum: mesh differs (positions), moved bones: none
-pose beethoven-9 34 percussion/badger/bass-drum: rest from sample 1 of 4 (song -1.91 s, wall 10.00 s), lift from sample 1 of 40 (song -1.91 s, wall 10.00 s), play from sample 1 of 321 (song -1.91 s, wall 10.00 s), lower from sample 1 of 58 (song 79.15 s, wall 10.00 s)

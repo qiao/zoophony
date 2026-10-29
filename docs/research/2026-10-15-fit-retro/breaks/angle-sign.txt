@@ -1,6 +1,0 @@
-The break:
-@@ -927 +927 @@ export function turnAngle(a: Quat, b: Quat): number {
--  const dot = Math.abs(a[0] * b[0] + a[1] * b[1] + a[2] * b[2] + a[3] * b[3]);
-+  const dot = (a[0] * b[0] + a[1] * b[1] + a[2] * b[2] + a[3] * b[3]);
-Tests that fail (1):
-tools/fold-probe.test.ts > turnAngle and meanTurn > gives the angle between two turns with no regard to the sign of the quaternion

@@ -1,3 +1,0 @@
-rig_mesh: soften: 75 vertices of the creases in the box move to the mean of their neighbors, the largest move 0.0030 u
-rig_mesh: soften: 75 vertices of the creases in the box move to the mean of their neighbors, the largest move 0.0060 u
-rig_mesh: soften: 75 vertices of the creases in the box move to the mean of their neighbors, the largest move 0.0100 u

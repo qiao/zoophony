@@ -1,6 +1,0 @@
-The base set (projects unit and paused) and the new set (project unit) in turn, on the tip of the branch test-pause. The load is the load average before each run. The summary is the last line of test-times.ts for the JSON report of the run.
-
-round 1, set base, exit=0, [11.92 11.97 19.65] -> files 224, tests 2347, passed 2325, failed 0, file seconds 489.6, span 86.1
-round 1, set new, exit=0, [55.95 27.21 24.81] -> files 189, tests 1987, passed 1987, failed 0, file seconds 99.6, span 18.7
-round 2, set base, exit=0, [82.23 34.80 27.57] -> files 224, tests 2347, passed 2325, failed 0, file seconds 508.5, span 81.9
-round 2, set new, exit=0, [103.71 52.73 35.03] -> files 189, tests 1987, passed 1987, failed 0, file seconds 101.1, span 18.9

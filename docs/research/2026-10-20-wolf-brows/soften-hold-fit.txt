@@ -1,3 +1,0 @@
-| Variant | Play folds | Lift folds | Rest faces (by side) | play depth cm (limit) | lift depth cm (limit) | rest depth cm (limit) | lower depth cm (limit) | Note targets: worst mm (within 5 mm) | play turns: upper arm, paw (twist, swing) L / R | Instrument in body cm | Spare L cm play / rest | Spare R cm play / rest |
-|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| base | 0.0% (0/506) | 0.0% (0/62) | 0 (L 0 / R 0 / other 0) | 0.1 paws>clarinet (1.5) | 0.8 paws>clarinet (1.5) | 0.1 upper arms>body (1.5) | 0.8 paws>clarinet (1.5) | 0.0 (100.0%) | 73°, 98° (-95°, 26°) / 71°, 75° (72°, 25°) | 1.2 play | 6.3 / 5.5 | 0.9 / 4.9 |

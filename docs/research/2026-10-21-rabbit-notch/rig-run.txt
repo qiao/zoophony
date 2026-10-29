@@ -1,2 +1,0 @@
-| base | 3119 | 24781 | 1.4678 | 0.227 | 0.227 | 0.285 | 0.506 | 0.506 | 0.312 | 0.2% | 6.2% | 0.0% | upper_arm_R 28, forearm_twist_L 19, forearm_L 8 | arm_raise_R: none / arm_raise_R2: none |
-

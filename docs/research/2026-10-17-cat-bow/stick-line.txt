@@ -1,8 +1,0 @@
-node docs/research/2026-10-17-cat-bow/stick-line.ts
-Tree: the branch cat-bow with the stick at 39 degrees, at [-0.002, 0.022, -0.07] H, and the upright
-rest of the cat (the commit before 589819dd).
-
-samples 812 x range -0.0016 0.0019
-best turn deg 50 max gap cm 0.88
-point (hand axes) cm -0.07, -3.48, -2.66
-at in H -0.0021, 0.0068, -0.0785

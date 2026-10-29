@@ -1,6 +1,0 @@
-TWIST_SHARE 0.65 (temporary edit of src/models/studio-rig.ts)
-| violist | L | 5 | 33 | 79 | 0.53 FAIL | 169 | 31 | 0.0% | 0.24 | 3 | FAIL |
-| violist | R | 4 | 53 | 56 | 0.14 FAIL | 116 | 65 | 0.0% | 0.33 | 12 | FAIL |
-TWIST_SHARE 0.8 (temporary edit of src/models/studio-rig.ts)
-| violist | L | 5 | 33 | 104 FAIL | 0.47 FAIL | 169 | 31 | 0.0% | 0.24 | 3 | FAIL |
-| violist | R | 4 | 53 | 68 | 0.14 FAIL | 116 | 65 | 0.0% | 0.34 | 12 | FAIL |

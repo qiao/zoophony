@@ -1,9 +1,0 @@
-pnpm size --base main
-     4,417 B  dist/assets/OrbitControls-IpBKo7J3.js
-    30,097 B  dist/demos/boulanger-matin.mid
-   803,505 B  total
- 1,000,000 B  limit: pass
-Base main (b00aa7dd), built in a temporary folder:
-   808,401 B  total of the base
-   803,505 B  total of the working tree
-    -4,896 B  difference

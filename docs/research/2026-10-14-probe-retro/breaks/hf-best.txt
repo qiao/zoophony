@@ -1,6 +1,0 @@
-The break:
-@@ -500 +500 @@ export function faceSections(
--  const best = sortFitRows(rows)[1];
-+  const best = rows[1];
-Tests that fail (1):
-tools/hold-fit.test.ts > fitTable > writes the faces of the base and of the best variant

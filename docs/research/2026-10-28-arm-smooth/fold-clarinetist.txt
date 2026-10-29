@@ -1,7 +1,0 @@
-Folded faces of the studio body of the clarinetist on main (211e46bd9) and on the working tree: 40.8 s.
-
-| Set | main (211e46bd9) | Working tree |
-|---|---:|---:|
-| rest | 100.0% (7/7), most 8 (L 1 / R 4 / other 3) | 100.0% (7/7), most 6 (L 1 / R 4 / other 1) |
-| play | 100.0% (10349/10349), most 7 (L 2 / R 4 / other 1) | 100.0% (10349/10349), most 6 (L 2 / R 4 / other 0) |
-| lift | 100.0% (217/217), most 9 (L 2 / R 4 / other 3) | 100.0% (217/217), most 6 (L 2 / R 3 / other 1) |

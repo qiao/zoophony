@@ -1,6 +1,0 @@
-The break:
-@@ -203 +203 @@ export function shotRows(shots: readonly Shot[], fromSec: number, toSec: number)
--    .filter((shot) => shot.startSec >= fromSec - 1e-9 && shot.startSec <= toSec + 1e-9)
-+    .filter((shot) => shot.startSec > fromSec + 1e-9 && shot.startSec <= toSec + 1e-9)
-Tests that fail (1):
-tools/shot-trace.test.ts > shotRows() > writes each shot that starts in the range, with both ends

@@ -1,6 +1,0 @@
-The break:
-@@ -376 +376 @@ export function freeGaps(role: RoleSource): GapsOf {
--  return (set, player) => (set === 'rest' && player.model.support !== 'stand' ? pairs : []);
-+  return (set, player) => (set === 'rest' ? pairs : []);
-Tests that fail (1):
-tools/hold-fit.test.ts > freeGaps and holdsInstrument > measures the free paw of a seated flutist in the rest only, and no paw of a violinist

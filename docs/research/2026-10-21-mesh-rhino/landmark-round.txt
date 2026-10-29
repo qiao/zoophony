@@ -1,2 +1,0 @@
-rhino tuba stand: H 0.420 shoulderL (-0.272, 0.893, 0.070) wristL (-0.272, 0.504, 0.070) eye 1.272 headTop 1.462 earTop 1.553 top 1.553 hips 0.311 support stand
-rhino tuba chair: H 0.420 shoulderL (-0.272, 0.851, -0.241) wristL (-0.272, 0.462, -0.241) eye 1.230 headTop 1.420 earTop 1.511 top 1.511 hips 0.268 support chair

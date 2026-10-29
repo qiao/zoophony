@@ -1,7 +1,0 @@
-The break:
-@@ -2049,3 +2048,0 @@ function planShots(
--            if (traced) {
--              traced.chosen = index;
--            }
-Tests that fail (1):
-src/shots/trace.test.ts > traceShots() (design 5.6) > ends the search of a cut with the chosen candidate, the candidate of the shot

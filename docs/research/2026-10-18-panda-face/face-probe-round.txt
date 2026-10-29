@@ -1,8 +1,0 @@
-module src/models/studio/panda.ts of 2c30f7e6
-head faces 812, head width at the eye height 0.516 m
-left patch: 37 faces, 11.8 x 9.3 cm (23.0% x 18.0% of the head width), front area 65.4 cm2 (2.5% of the head width squared)
-right patch: 31 faces, 11.6 x 11.2 cm (22.4% x 21.8% of the head width), front area 62.8 cm2 (2.4% of the head width squared)
-light holes in the patches: 0
-smile: 31 dark faces under the nose
-smile: 22.5 cm wide (43.6% of the head width), the corners rise 4.4 cm above the lowest point of the middle
-smile: 0 faces share a corner with the nose, 0 with the eye patches

@@ -1,4 +1,0 @@
-Paused tests on main (241bf704) and on the working tree, at the same time:
-main (241bf704): 0 failed tests and errors. The working tree: 0 failed tests and errors. 6.2 s.
-No test fails and no error comes on the working tree alone.
-exit 0

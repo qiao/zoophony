@@ -1,5 +1,0 @@
-| Variant | Triangles | Mesh gzip B | Scale m/u | Seat m | Leg seat m | Chair m | Reach L m | Reach R m | Standing mm | violinist play | violinist lift | violinist rest | violinist bones |
-|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| base | 3118 | 20382 | 1.4831 | 0.254 | 0.254 | 0.265 | 0.506 | 0.506 | 0.397 | 100.0% | 100.0% | 100.0% | upper_arm_R 67880, forearm_twist_R 40875, forearm_L 38863 |
-| armFactor=1 | 3118 | 20232 | 1.4831 | 0.254 | 0.254 | 0.265 | 0.320 | 0.320 | 0.341 | 100.0% | 100.0% | 100.0% | hand_L 18134, upper_arm_R 3202, clavicle_R 2605 |
-| armFactor=1.3 | 3118 | 20302 | 1.4831 | 0.254 | 0.254 | 0.265 | 0.409 | 0.409 | 0.355 | 100.0% | 100.0% | 100.0% | forearm_L 36170, upper_arm_R 29760, forearm_R 18887 |

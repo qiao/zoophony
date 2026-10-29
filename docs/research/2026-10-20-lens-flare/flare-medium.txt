@@ -1,6 +1,0 @@
-brass-0.png      max 0.0000  mean 0.00000  pixels>0.02 0
-brass-1.png      max 0.0000  mean 0.00000  pixels>0.02 0
-brass-2.png      max 0.0000  mean 0.00000  pixels>0.02 0
-default-30.png   max 0.0791  mean 0.00023  pixels>0.02 5120
-shot-115.png     max 0.5788  mean 0.00252  pixels>0.02 29827
-shot-27.png      max 0.1028  mean 0.00041  pixels>0.02 11974

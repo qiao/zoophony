@@ -1,2 +1,0 @@
-The probe of the working tree failed: /opt/homebrew/Cellar/node/24.10.0/bin/node tools/hold-fit.ts violinist --json /var/folders/54/0kcjqfln35d4bzyptzpj1nlm0000gn/T/hold-fit-Rhk4kb/tree.json failed (exit code 1):
-The bones hips spine chest neck head jaw eyeL eyeR earL earR tail1 tail2 shoulderL shoulderR thighL thighR shinL shinR footL footR have 5 open loops, and the caller expects 4.

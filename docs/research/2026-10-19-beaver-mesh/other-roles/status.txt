@@ -1,9 +1,0 @@
-fold oboist 0
-fold flutist 0
-fold trombonist 0
-fold timpanist 0
-fold cellist 0
-depth oboist 0
-depth flutist 0
-depth trombonist 0
-done

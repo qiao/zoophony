@@ -1,6 +1,0 @@
-The break:
-@@ -726 +726 @@ export function worstFold(report: FoldReport, face: number): FaceWorst | null {
--    if (fold && fold.angle > (worst?.angle ?? 0)) {
-+    if (fold) {
-Tests that fail (1):
-tools/fold-probe.test.ts > worstFold > gives the fold with the largest angle over all sets

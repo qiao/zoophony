@@ -1,9 +1,0 @@
-
-> zoophony@0.0.0 clip-probe /Users/xueqiaoxu/proj/zoophony/.claude/worktrees/agent-aac5a55d59251931a
-> node tools/clip-probe.ts --base main --midi /Users/xueqiaoxu/Downloads/Disney_Themes_-_Pirates_Of_The_Caribbean.mid
-
-Clip probe of 1 files at steps of 0.25 s, with main (cf42d8bf) in parentheses. A depth gives the share of the samples over 1.5 cm (1.0 cm under the floor). A measure clips when the share is over 1%.
-
-| File | Players | Samples | seats | paw in paw | held across | in instrument | under floor | between players | Verdict | Base |
-|---|---|---|---|---|---|---|---|---|---|---|
-| Disney_Themes_-_Pirates_Of_The_Caribbean.mid | 4 | 248 | 0 pairs (0 pairs) | 0.0 cm, 0.0% (0.0 cm, 0.0%) | 0.4% (0.0%) | 0.0 cm, 0.0% (0.0 cm, 0.0%) | 0.0 cm, 0.0% (0.0 cm, 0.0%) | 0.0 cm, 0.0% (0.0 cm, 0.0%) | PASS | PASS |

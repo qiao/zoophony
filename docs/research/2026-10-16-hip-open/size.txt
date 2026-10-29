@@ -1,6 +1,0 @@
- 1,000,000 B  limit: pass
-Base main (241bf704), built in a temporary folder:
-   403,662 B  total of the base
-   404,949 B  total of the working tree
-    +1,287 B  difference
-exit 0

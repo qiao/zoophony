@@ -1,6 +1,0 @@
-The break:
-@@ -701 +701 @@ export function faceSections(
--  if (own !== base) {
-+  if (own !== base && false) {
-Tests that fail (1):
-tools/hold-fit.test.ts > fitTable > writes the faces of the base and of the best variant

@@ -1,7 +1,0 @@
-{
-  "main": {},
-  "boost1.85": { "LIGHT_POOL.spotBoost": 1.85 },
-  "boost2.1": { "LIGHT_POOL.spotBoost": 2.1 },
-  "boost1.6-wide": { "LIGHT_POOL.spotBoost": 1.6, "LIGHT_POOL.spotRadiusX": 0.55, "LIGHT_POOL.spotRadiusZ": 0.3, "LIGHT_POOL.playerSpot": 0.22 },
-  "boost1.85-wide": { "LIGHT_POOL.spotBoost": 1.85, "LIGHT_POOL.spotRadiusX": 0.55, "LIGHT_POOL.spotRadiusZ": 0.3, "LIGHT_POOL.playerSpot": 0.22 }
-}

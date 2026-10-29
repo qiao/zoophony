@@ -1,8 +1,0 @@
-base: play 2.3% lift 20.3% rest 100.0% | play bones upper_arm_R 166, forearm_twist_R 61, hand_L 5, ear_L 3
-violin@fox-red.slant=-5deg;violin@fox-red.reach=30deg;violin@fox-red.poleTipR=1,-1,-1: play 15.7% lift 19.8% rest 100.0% | play bones upper_arm_R 872, forearm_twist_R 61, hand_L 5, ear_L 3
-violin@fox-red.slant=-25deg: play 1.6% lift 20.3% rest 100.0% | play bones upper_arm_R 95, forearm_twist_R 62, hand_L 5, ear_L 3
-violin@fox-red.slant=-20deg: play 1.7% lift 20.3% rest 100.0% | play bones upper_arm_R 99, forearm_twist_R 62, hand_L 5, ear_L 3
-violin@fox-red.reach=30deg: play 12.6% lift 19.8% rest 100.0% | play bones upper_arm_R 565, forearm_twist_R 62, hand_L 5, ear_L 3
-violin@fox-red.reach=20deg: play 9.0% lift 22.8% rest 100.0% | play bones upper_arm_R 474, forearm_twist_R 61, hand_L 5, ear_L 3
-violin@fox-red.poleTipR=1,-1,-1: play 3.4% lift 20.3% rest 100.0% | play bones upper_arm_R 221, forearm_twist_R 61, hand_L 5, ear_L 3
-violin@fox-red.playShift=-0.15,0.06,-0.02: play 2.6% lift 19.8% rest 100.0% | play bones upper_arm_R 150, forearm_twist_R 62, hand_L 5, ear_L 3
