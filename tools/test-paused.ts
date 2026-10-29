@@ -37,7 +37,6 @@ export const PAUSED_PATHS: readonly string[] = [
   'tools',
   'demos',
   'docs/design',
-  'docs/decisions',
   'package.json',
   'tsconfig.json',
   'vite.config.ts',
