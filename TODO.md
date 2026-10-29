@@ -156,6 +156,9 @@ passes.
 - [ ] Bear: at the moment "between", a thin dark line stays at the left wrist from the back and
       az150, most at the camera height 40°. From above, the right wrist keeps a soft dark crease.
       A taper on the thumb side of the left forearm end folds the left forearm.
+- [ ] Bear: from the front at beat-3, a small dark wedge shows at the edge of the left paw, larger
+      than on the commit before the wrist taper. The left inner elbow faces 2555 and 1577 now fold
+      in about 90% of the lift (before: none). Check both in crops of the lift.
 - [ ] Bear: from az-150, a soft dark crease stays at the left arm root, most at rest. From az150, a
       small dark pocket stays where the raised right arm meets the back.
 - [ ] Bear: the trunk faces of the notch below the caps of the cut face down under each raised arm.
