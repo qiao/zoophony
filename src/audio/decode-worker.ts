@@ -2,6 +2,7 @@ import { sf3ToPcmSf2 } from './decode.ts';
 import type { DecodeReply, DecodeRequest } from './decode-messages.ts';
 import type { EngineBank } from './engine.ts';
 import { fetchOk } from './fetch-ok.ts';
+import { plainBytes } from './plain-bytes.ts';
 import { readWithProgress } from './read-progress.ts';
 
 /**
@@ -16,7 +17,8 @@ function reply(message: DecodeReply, transfer: Transferable[] = []): void {
 
 async function fetchPcm(url: string, onBytes: (bytes: number) => void): Promise<ArrayBuffer> {
   const response = await fetchOk(url);
-  return sf3ToPcmSf2(await readWithProgress(response, onBytes));
+  // The progress counts the bytes that arrive: in the build, the bytes of the gzip file.
+  return sf3ToPcmSf2(await plainBytes(await readWithProgress(response, onBytes)));
 }
 
 /**
