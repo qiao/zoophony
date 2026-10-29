@@ -48,9 +48,8 @@ export const HARP = {
  * (`docs/reference/harp-technique.md`, section 2). The base stands in front of the player, between
  * the knees in the front view, on a box ({@link HARP_STAND}). The deer is the only harp player, and
  * its body sets the place: the top of the soundbox axis is at (0.12, 0.78, -0.14) m in the model
- * axes, in front of the right shoulder joint, and the soundbox touches the front of the shoulder
- * (`docs/research/2026-10-25-harp-lean.md`). `pnpm hold-fit --set` and the other probes change it
- * as `harpPlace`.
+ * axes, in front of the right shoulder joint, and the soundbox touches the front of the shoulder.
+ * `pnpm hold-fit --set` and the other probes change it as `harpPlace`.
  */
 export const HARP_PLACE = {
   /** The move of the base to the right of the floor point under the seat, in head heights. */
@@ -61,8 +60,8 @@ export const HARP_PLACE = {
   front: 0.684,
   /**
    * The tilt of the harp back to the player. No source gives the angle. At 12°, the neck keeps
-   * 6.6 cm from the muzzle of the deer, near the 6.9 cm of the upright harp of before. At 15°, it
-   * kept 5.0 cm, and at 20°, 2.4 cm.
+   * 6.6 cm from the muzzle of the deer, near the 6.9 cm of an upright harp. At 15°, it keeps
+   * 5.0 cm, and at 20°, 2.4 cm.
    */
   tilt: 12 * MathUtils.DEG2RAD,
   /**

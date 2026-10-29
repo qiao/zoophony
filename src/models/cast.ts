@@ -81,9 +81,8 @@ export const CONDUCTOR = { species: 'bear', instrument: 'baton' } as const satis
 };
 
 /**
- * The largest number of players of a chamber group (design 4.2). The user decided on 2026-10-06
- * that a score with at most 5 players (a solo, a duo, a trio, a quartet, or a quintet) has no
- * conductor and no podium (UX audit 2026-10-06, N9).
+ * The largest number of players of a chamber group (design 4.2). A score with at most 5 players
+ * (a solo, a duo, a trio, a quartet, or a quintet) has no conductor and no podium.
  */
 export const CHAMBER_PLAYERS = 5;
 

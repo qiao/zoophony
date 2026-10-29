@@ -7,9 +7,8 @@ import type { Vec3 } from './tuples.ts';
  * light is the spotlight of the stage, and the only light that casts shadows. It stands far in
  * front of the stage, high over the audience, and to the left, as the front light of a concert
  * hall. It lights the faces, and the shadows of the players fall to the back right of the stage,
- * parallel (user, 2026-10-27: "make the key light go from front to back"). A far light
- * keeps the shadows parallel: a key light 1.4 S from the stage center cast shadows that fanned
- * out from the middle (user, 2026-10-18).
+ * parallel. A far light keeps the shadows parallel: a key light 1.4 S from the stage center casts
+ * shadows that fan out from the middle.
  */
 export const KEY_PLACE = {
   /** The distance from the stage center, in stage sides. */
@@ -17,9 +16,9 @@ export const KEY_PLACE = {
   /**
    * The turn from the front of the stage axis toward the right side, in radians: a negative turn
    * goes to the left. The light stands to one side of the default camera, so each body keeps a
-   * lit side and a shade side, and the shadows fall beside the players. With 20°, the fronts were
-   * flat and the players hid most of their shadows. The user looks at the stage from the front
-   * right too, so the light stands at the left, far from that camera.
+   * lit side and a shade side, and the shadows fall beside the players. With 20°, the fronts are
+   * flat and the players hide most of their shadows. The default camera looks at the stage from
+   * the front right, so the light stands at the left, far from that camera.
    */
   azimuth: -35 * MathUtils.DEG2RAD,
   /**
@@ -52,7 +51,7 @@ export function keyLightPlace(stageSide: number): Vec3 {
  * behind the orchestra, and high, as the back lights on a truss of a concert film. Each rim light
  * has a visible beam, which leans from its foot on the stage toward the light. A rim light stands
  * at the x of its beam, so the beam stands upright in the frontal default view, as the fan of
- * `orchestra-latest.png` (user, 2026-10-18: "why is the beam not vertical?").
+ * `orchestra-latest.png`.
  */
 export const RIM_PLACE = {
   /** The distance from the stage center, in stage sides. */

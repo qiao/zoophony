@@ -14,9 +14,9 @@ import type { InstrumentModel } from './types.ts';
  */
 export const CHOIR_FOLDER = {
   /**
-   * The width of one cover, in meters. With 0.2 m, the grips lay so near the middle that the
-   * upper flippers of the penguin mesh went 1.5 cm into the sides of the body, and 1.1 cm with
-   * 0.22 m (2026-10-21-mesh-penguin decisions).
+   * The width of one cover, in meters. With 0.2 m, the grips lie so near the middle that the
+   * upper flippers of the penguin mesh go 1.5 cm into the sides of the body, and 1.1 cm with
+   * 0.22 m.
    */
   width: 0.22,
   /** The height of one cover, in meters. */
@@ -27,7 +27,7 @@ export const CHOIR_FOLDER = {
    * The distance of the middle of the spine below the head center, in head heights H. The flippers
    * of the penguin mesh reach the grips in front of the round belly only this high: the middle
    * shows 0.37 of the body height below the crown, above the 0.51 to 0.56 of the penguins of
-   * `orchestra-latest.png` and `orchestra-side.png` (2026-10-21-mesh-penguin decisions).
+   * `orchestra-latest.png` and `orchestra-side.png`.
    */
   drop: 1.25,
   /**

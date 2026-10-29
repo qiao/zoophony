@@ -6,10 +6,9 @@ import type { KettleCount } from './instruments/percussion.ts';
 import type { InstrumentId } from './instruments/types.ts';
 
 /**
- * The player models of one score, by species, instrument, kettle count, and support. The layout, the pose
- * plan, and the scene share one cache, so that each kind of player builds its model one time for
- * each score (audit 2026-10-05-pose-scene, finding 8). `buildPlayer()` is pure, so a cached model
- * is equal to a new one.
+ * The player models of one score, by species, instrument, kettle count, and support. The layout,
+ * the pose plan, and the scene share one cache, so that each kind of player builds its model one
+ * time for each score. `buildPlayer()` is pure, so a cached model is equal to a new one.
  */
 export class ModelCache {
   readonly #models = new Map<string, PlayerModel>();

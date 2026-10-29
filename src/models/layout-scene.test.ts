@@ -207,7 +207,7 @@ describe('layoutScene', () => {
 
   it('keeps all chairs, players, instruments, stands, and risers apart (design 4.5)', () => {
     // The footprints of two neighbor players do not touch, so a wide body gets more arc than the
-    // seat arc of 0.95 m (review of step 3, F12).
+    // seat arc of 0.95 m.
     for (const { name, layout } of LAYOUTS) {
       const obstacles = layoutObstacles(layout, MODELS);
       const touching: string[] = [];
@@ -415,7 +415,7 @@ describe('layoutScene', () => {
   });
 
   it('grows no stage of a demo by more than 3% (design 4.5)', () => {
-    // The stage sides of 2026-10-08, in meters.
+    // The base stage sides of the demos, in meters.
     const sides = {
       'boulanger-matin.mid auto': 11.26,
       'mozart-k315.mid auto': 8.93,
@@ -448,7 +448,7 @@ describe('layoutScene', () => {
       }
     }
     // The 60 players fill the corners more. With the back desks in the rows of their first
-    // desks, it was 0.284.
+    // desks, it is 0.284.
     expect(nearCorner(layoutOf('perf-60'))).toBeLessThanOrEqual(0.25);
   });
 
@@ -496,8 +496,7 @@ describe('layoutScene', () => {
           if (splitRows.has(radius) && before < 0 && angle > 0) {
             return;
           }
-          // The pair is in this row: a player of another row can have the same angle (review of
-          // step 4, P3).
+          // The pair is in this row: a player of another row can have the same angle.
           const pair = layout.players
             .filter((p) => {
               const place = polar(layout, p);
@@ -553,8 +552,8 @@ describe('layoutScene', () => {
   });
 
   it('seats a keyboard of the orchestra at the left of the harp, along its row (audit 2, N1)', () => {
-    // The celesta of Boulanger and the harpsichord of Bach play color and continuo. They sat at
-    // the front left, and their cases covered the first violins (UX audit 2026-10-06, N1).
+    // The celesta of Boulanger and the harpsichord of Bach play color and continuo. At the front
+    // left, their cases cover the first violins.
     for (const name of ['boulanger-matin.mid auto', 'bach-bwv1048.mid auto']) {
       const layout = layoutOf(name);
       const [pianist, ...others] = playersWith(layout, 'piano');
@@ -860,8 +859,7 @@ describe('layoutScene', () => {
   });
 
   it('puts the vocal soloists on the lowest level, in front of the choir (audit 2, N8)', () => {
-    // The four soloists of the Ode to Joy stood in the row of the choir as 8 penguins. Until
-    // 2026-10-06, the Ode to Joy demo was the input of this test.
+    // In the row of the choir, the four soloists of the Ode to Joy show as 8 penguins.
     for (const size of ['auto', 'one-per-part', 'full'] as const) {
       const name = `vocal soloists ${size}`;
       const score = scoreOf(vocalSoloistsFile(), size);
@@ -961,7 +959,7 @@ describe('the layout of a chamber group (design 4.2, 4.5)', () => {
     expect(pianist?.facing).toBe(-Math.PI / 2);
     expect(pianist?.cast.support).toBe('bench');
     expect(layout.stands).toEqual([]);
-    // The piano solo of the audit had a stage of 8.06 m with the conductor (N9).
+    // With a conductor, the piano solo has a stage of 8.06 m.
     expect(layout.stageSide).toBe(5);
   });
 

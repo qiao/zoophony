@@ -12,7 +12,7 @@ import { perf60File } from './test-perf-60.ts';
 /**
  * The most time of the shading of the models of `perf-60.mid`, as a multiple of the time of the
  * reference work of {@link timeRatio}: 2 times the ratio of 17.5 on the development Mac (about
- * 45 ms, with the crease normals and the baked occlusion of 2026-10-06). Thus a change that is 3
+ * 45 ms, with the crease normals and the baked occlusion). Thus a change that is 3
  * times slower fails, and a loaded or a slower machine passes, because its reference work is
  * slower too.
  */

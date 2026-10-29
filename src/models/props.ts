@@ -22,12 +22,11 @@ export const STAGE_COLORS = {
   /**
    * The mean color of a plank. Each plank has its own tone around it. The light of the lit floor
    * comes mostly from the diffuse light of the wood (`STAGE_FINISH` of `scene/stage.ts`). The
-   * darker walnut `#3b2618` then gave a lit floor that was too dark and too pale. The side lights
-   * are a warm white, so the wood holds the amber itself: `#5e351a` gave a lit floor with a
-   * saturation of 0.44 against 0.54 in `orchestra-latest.png`, and shadows that were too dark.
-   * `#844c16` read as a bright, even amber, and the user found the stage over-exposed
-   * (2026-10-21). The plank is now 0.85 of it in linear values, so the lit players stand out of
-   * the floor.
+   * darker walnut `#3b2618` then gives a lit floor that is too dark and too pale. The side lights
+   * are a warm white, so the wood holds the amber itself: `#5e351a` gives a lit floor with a
+   * saturation of 0.44 against 0.54 in `orchestra-latest.png`, and shadows that are too dark.
+   * `#844c16` reads as a bright, even amber, and the stage looks over-exposed. The plank is 0.85
+   * of it in linear values, so the lit players stand out of the floor.
    */
   plank: srgb('#7a4614'),
   /**
@@ -73,8 +72,7 @@ export const CHAIR = {
   seatDepth: 0.4,
   /**
    * The height of the top of the back above the seat. A lower seat has a lower back. The top rail
-   * starts above the tail of the red fox, which passes the back posts up to 0.34 m above the seat
-   * (`docs/research/2026-10-16-seat-rest/seat-probe.ts`).
+   * starts above the tail of the red fox, which passes the back posts up to 0.34 m above the seat.
    */
   back: 0.45,
   /**
@@ -116,9 +114,9 @@ export interface SeatHeights {
 
 /**
  * The stool of the harp (design 4.5, props), with no back. Under the parametric biped, its seat has
- * the height of the chair of 2026-10-06, for the strings of the harp. Under a studio body, its seat
- * fits the legs, and it has the width and the depth of the seat of the chair of the body, as the
- * chair does (`seatHeights()`).
+ * the height `seatHeight`, for the strings of the harp. Under a studio body, its seat fits the
+ * legs, and it has the width and the depth of the seat of the chair of the body, as the chair does
+ * (`seatHeights()`).
  */
 export const STOOL = {
   seatHeight: 0.35,
@@ -186,8 +184,8 @@ export const MUSIC_STAND = {
   deskHeight: 1.05,
   /**
    * The gap from the lowest eye of the readers of a stand down to the top edge of its desk, in
-   * meters: the gap of the seated red fox to the desk of 1.05 m before the seats of 2026-10-16,
-   * from its lower eye bone at 1.325 m to the top edge at 1.202 m.
+   * meters: the gap of the seated red fox to a desk of 1.05 m, from its lower eye bone at 1.325 m
+   * to the top edge at 1.202 m.
    */
   eyeGap: 0.123,
   /** The lowest height of the middle of the desk above the floor, in meters. */

@@ -9,14 +9,14 @@ import type { InstrumentModel } from './types.ts';
 
 /**
  * The distance of the tip of the baton from the grip, in meters. With the handle, the baton is
- * 0.51 m long (design 4.6). The first baton of 0.40 m looked short (UX audit 2026-10-05, AM1).
+ * 0.51 m long (design 4.6). A baton of 0.40 m looks short.
  */
 export const BATON_TIP = 0.49;
 
 /**
  * The radii of the stick of the baton at the grip and at the tip, in meters. The baton of
- * `bear-views.png` is a thick stick, about 2 cm at the paw. The first stick of 3 mm was a thin line
- * in the sheet page and on the stage.
+ * `bear-views.png` is a thick stick, about 2 cm at the paw. A stick of 3 mm is a thin line in the
+ * sheet page and on the stage.
  */
 const BATON_RADII = [0.008, 0.0045] as const;
 
@@ -25,8 +25,7 @@ const BATON_RADII = [0.008, 0.0045] as const;
  * model axes: in the hanging right hand, along the fingers (down) and 15° toward the thumb (to
  * the front). A conductor holds the baton between the thumb and the first fingers, along the
  * line of the index finger, with its grip in the palm, so that the stick extends the hand
- * (design 4.6, `docs/research/2026-10-22-mesh-bear.md`). A stick across the fist pointed 90° from
- * the fingers.
+ * (design 4.6). A stick across the fist points 90° from the fingers.
  */
 export const BATON_ALONG: Vec3 = [
   0,

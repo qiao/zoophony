@@ -32,8 +32,7 @@ const EYE_LIGHT_DEPTH = 0.008;
  * The place of the light of each eye to the +x side of the visible middle of the eye, in H. With
  * it, both lights show on the upper left of each eye seen from the front, as the reflection of one
  * lamp does on two real eyes. The eyes face to the sides, so a light in the middle of each oval
- * showed on the outer side of each eye, and the two lights pointed away from each other (user,
- * 2026-10-21).
+ * shows on the outer side of each eye, and the two lights point away from each other.
  */
 const EYE_LIGHT_SIDE = 0.02;
 

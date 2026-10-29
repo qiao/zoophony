@@ -229,8 +229,7 @@ const VALVES_TO_RIGHT_PALM = 0.045;
  * and holds the weight (`docs/reference/wind-technique.md` 2.1). The right palm lies above the
  * valve tops and 3.6 cm to their right at the size 0.8, and faces down, so that the right fingers
  * reach to the left over the valves and arch down onto them. With both palms at the sides of the
- * casings, the two paws of the monkey pressed together in front of the mouth like praying hands
- * (`docs/audits/2026-10-25-role-visual-audit.md`, fault 2).
+ * casings, the two paws of the monkey press together in front of the mouth like praying hands.
  *
  * @param scale The scale of the trumpet, as a factor of its size in {@link BRASS}.
  * @returns The parts and the play data.
@@ -411,9 +410,9 @@ const HORN_TURN = toQuat(
 /**
  * The depth of the middle of the right palm inside the opening of the horn bell, on its axis, in
  * meters. The right paw of the pig points along the line from the shoulder to the palm, about 86°
- * from the axis of the bell. At 6 cm, the wrist went up to 2.3 cm through the wall of the bell in
+ * from the axis of the bell. At 6 cm, the wrist goes up to 2.3 cm through the wall of the bell in
  * each sample. At 2.5 cm, no point of the paw or of the forearm goes through the wall, and 92% of
- * the paw vertices are in the bell (`docs/research/2026-10-20-armpits.md`).
+ * the paw vertices are in the bell.
  */
 const HORN_PALM_DEPTH = 0.025;
 
@@ -431,7 +430,7 @@ function horn(): BrassBuild {
   mouthpiece(piece, toVec3(into), 0.009);
   // The coil leans back 20° from the vertical, with its middle low, 0.08 m at the right of the
   // mouth, and 0.1 m in front of it. With the coil 0.24 m in front of the mouth, the left palm on
-  // the valves was 1.16 times the reach of the arm (review of step 4, the reach of the arms).
+  // the valves is 1.16 times the reach of the arm.
   const center = new Vector3(0.08, -0.3, -0.1);
   const lean = new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), -20 * MathUtils.DEG2RAD);
   const ring = (angle: number, r: number): Vec3 =>
@@ -471,7 +470,7 @@ function horn(): BrassBuild {
   return {
     pieces: [piece.build('instrument', hold('mouth', [0, 0, 0], HORN_TURN))],
     // The left palm holds the coil at 0.9 of a half turn and 0.8 of its radius. At 0.8 and 0.6,
-    // the palm was 0.98 of the arm length of the pig with the turn of the horn.
+    // the palm is 0.98 of the arm length of the pig with the turn of the horn.
     palmL: ring(Math.PI * 0.9, h.coilRadius * 0.8),
     palmR: toVec3(new Vector3(...bellTarget.from).addScaledVector(bellAxis, -HORN_PALM_DEPTH)),
     tubes: {},
@@ -534,8 +533,8 @@ function tuba(lead: readonly [back: number, left: number]): BrassBuild {
   return {
     pieces: [piece.build('instrument', hold('mouth', [0, 0, 0], IDENTITY))],
     // The middle of the left palm is 0.17 m from the axis of the main branch, at its back left,
-    // so that the thick paw of the rhino closes on the tube. At 0.09 m, the paw went 6.4 cm into
-    // the tube (docs/research/2026-10-21-mesh-rhino/pose-depth-grip.txt).
+    // so that the thick paw of the rhino closes on the tube. At 0.09 m, the paw goes 6.4 cm into
+    // the tube.
     palmL: at([-0.22, 0.4, 0.06]),
     palmR: at([0.1, 0.47, 0.05]),
     // The left palm closes around the upright main branch, and the right fingers come down onto

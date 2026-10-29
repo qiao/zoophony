@@ -18,8 +18,8 @@ export type KettleCount = 2 | 3 | 4;
  * the thumb, and the head leaves the front of the closed paw at the side of the thumb, as a real
  * player holds it (`docs/reference/percussion-technique.md` 1). The paw of the app has no side
  * bend on the forearm (`PercussionHold.flex`), so a forearm nearer to the shaft than this angle
- * bends the paw to the side. At 1.3 (the shaft 15° from the fingers), the shaft left the paw along
- * the claws (`docs/research/2026-10-25-percussion-grip.md`).
+ * bends the paw to the side. At 1.3 (the shaft 15° from the fingers), the shaft leaves the paw
+ * along the claws.
  */
 export const PAW_TILT: number = 30 * MathUtils.DEG2RAD;
 
@@ -27,8 +27,7 @@ export const PAW_TILT: number = 30 * MathUtils.DEG2RAD;
  * The grip of a mallet in the closed paw, in head heights `H`, in the axes of the hanging paw of
  * the bind pose, from the middle of the palm: toward the palm, along the fingers, and toward the
  * thumb (design 4.6). The shaft lies on the palm side, under the curled fingers, so that they
- * close on it (`PercussionHold.curl`), and its butt end sticks out of the heel of the paw
- * (`docs/research/2026-10-25-percussion-grip.md`).
+ * close on it (`PercussionHold.curl`), and its butt end sticks out of the heel of the paw.
  */
 export type MalletSpot = readonly [palm: number, fingers: number, thumb: number];
 
@@ -36,8 +35,7 @@ export type MalletSpot = readonly [palm: number, fingers: number, thumb: number]
  * The grip of the mallets in the paws of the badger mesh ({@link MalletSpot}). The shaft runs 60°
  * from the fingers toward the thumb ({@link PAW_TILT}), about 2 cm toward the palm from the
  * middle of the palm, where the claws curled 90° close on it (`PercussionHold.curl`). With the
- * claws curled 120°, 11 to 20 faces at the knuckles turned over, and at 90°, at most 5
- * (`docs/research/2026-10-25-percussion-grip.md`).
+ * claws curled 120°, 11 to 20 faces at the knuckles turn over, and at 90°, at most 5.
  */
 export const PAW_SPOT: MalletSpot = [0.08, -0.04, 0.018];
 
@@ -89,16 +87,14 @@ export const TIMPANI = {
    * the shaft along the thumb, with the head out of the front of the fist
    * (`docs/reference/percussion-technique.md` 1). The paw of the app has no side bend on the
    * forearm (`PercussionHold.flex`), so the forearm stands at least this angle from the shaft. At
-   * the strikes of the elephant, the forearm stands 20° to 44° from the shaft
-   * (`docs/research/2026-10-25-percussion-grip.md`).
+   * the strikes of the elephant, the forearm stands 20° to 44° from the shaft.
    */
   malletTilt: 45 * MathUtils.DEG2RAD,
   /**
    * The grip of the mallet in the closed left paw of the elephant mesh (`MalletSpot`). The mesh
    * is not symmetric: the middle of the right paw lies about 1 cm further toward the palm, so each
    * paw has its own grip. With the end of the round paw curled 100°, the shaft goes about 1.5 cm
-   * deep through each paw, and the end of the paw touches it (`grip-main.txt` and
-   * `grip-branch.txt` of `docs/research/2026-10-25-percussion-grip/`).
+   * deep through each paw, and the end of the paw touches it.
    */
   malletSpotL: [0.045, 0.05, 0.035],
   /** The grip of the mallet in the closed right paw of the elephant mesh. */
@@ -107,7 +103,7 @@ export const TIMPANI = {
    * The length of each shaft behind its grip, in meters ({@link MALLET_BUTT}). The shaft goes
    * about 8 cm through the large paw of the elephant, so the butt end sticks out 2.3 cm (left)
    * and 1.8 cm (right) behind the paw, as a real player holds 13 mm to 25 mm behind the hand
-   * (`docs/reference/percussion-technique.md` 1). With 4 cm, the right butt stayed in the paw.
+   * (`docs/reference/percussion-technique.md` 1). With 4 cm, the right butt stays in the paw.
    */
   // SAFETY: the literal widens to a number, so that a hold tool can set it in memory.
   malletButt: 0.06 as number,
@@ -117,13 +113,11 @@ export const TIMPANI = {
  * The xylophone, in meters (design 4.6). It has 30 bars from C5 to F7: the natural bars in the
  * front row near the player, and the sharp bars in the back row, 0.02 m higher. The bars are
  * below the shoulders of the badger (0.55 m), so that the mallets slant down to them. At 0.72 m,
- * the mallets struck the bars from below. The bars went down from 0.48 m with the shoulders of
- * the short standing legs (2026-10-11). The bars are smaller than real bars, because the short
+ * the mallets strike the bars from below. The bars are smaller than real bars, because the short
  * arms of the badger reach the bars only in a band about 0.12 m deep: nearer bars put the paws
  * into the belly, and the arms do not reach farther bars. With bars of a real size (0.30 m to
- * 0.17 m long), the sharp bars stood about 11 cm out of reach (2026-10-25-xylophone-reach
- * decisions). The bars of 11 cm to 7 cm bring the sharp bars nearer for the grip of the closed paw
- * (2026-10-25-percussion-grip decisions).
+ * 0.17 m long), the sharp bars stand about 11 cm out of reach. The bars of 11 cm to 7 cm bring the
+ * sharp bars nearer for the grip of the closed paw.
  */
 export const XYLOPHONE = {
   keys: [72, 101],
@@ -132,8 +126,8 @@ export const XYLOPHONE = {
   pitch: 0.03,
   /**
    * The lengths of the lowest and of the highest natural bar. With 12 cm to 8 cm and the mallet of
-   * the closed paw, 88% of the right strikes of the test score landed within 5 mm of their bars,
-   * and with 11 cm to 7 cm, 93% (`docs/research/2026-10-25-percussion-grip.md`).
+   * the closed paw, 88% of the right strikes of the test score land within 5 mm of their bars,
+   * and with 11 cm to 7 cm, 93%.
    */
   longest: 0.11,
   shortest: 0.07,
@@ -181,7 +175,7 @@ export const SNARE_DRUM = {
   top: 0.46,
   /**
    * The distance of the middle of the drum in front of the player. At 0.55 m, the short arms of the
-   * badger mesh missed each strike by 6.7 cm (`docs/decisions/2026-10-20-mesh-badger.md`).
+   * badger mesh miss each strike by 6.7 cm.
    */
   forward: 0.45,
   /**
@@ -198,7 +192,7 @@ export const SNARE_DRUM = {
  * standing badger mesh (1.038 m) over the mean height of an adult, 1.683 m, the mean of the men
  * (175.3 cm) and the women (161.3 cm) of the US survey of 2015 to 2018 (CDC, Vital and Health
  * Statistics series 3, no. 46, tables 9 and 11). A real size times this scale gives the size for
- * the badger (`docs/decisions/2026-10-27-badger-beater.md`).
+ * the badger.
  */
 const BADGER_SCALE = 1.038 / 1.683;
 
@@ -268,7 +262,7 @@ export const TAMBOURINE = {
   /**
    * The place of the middle of the tambourine on its stand, from the floor under the player: at
    * the front right of the player, about at the height of the snare drum head, within the reach of
-   * the short arms of the badger mesh (`docs/decisions/2026-10-20-mesh-badger.md`).
+   * the short arms of the badger mesh.
    */
   mount: [0.25, 0.45, -0.35],
 } as const;
@@ -278,8 +272,7 @@ export const TRIANGLE = {
   /**
    * The angle of the beater below the level in the bind pose, toward the fingers of the hanging
    * paw, in radians: the beater runs 33° from the fingers. The beater strikes near the line of
-   * the forearm, and with {@link PAW_TILT}, the turn of the paw jumped up to 38° in 0.01 s
-   * (`docs/research/2026-10-25-percussion-grip.md`).
+   * the forearm, and with {@link PAW_TILT}, the turn of the paw jumps up to 38° in 0.01 s.
    */
   // SAFETY: the literal widens to a number, so that a hold tool can set it in memory.
   malletTilt: 1 as number,
@@ -288,7 +281,7 @@ export const TRIANGLE = {
   /**
    * The length of the shaft behind its grip, in meters ({@link MALLET_BUTT}): the butt end
    * sticks out 2 cm behind the paw, as a real player holds 13 mm to 25 mm behind the hand
-   * (`docs/reference/percussion-technique.md` 1). With 4 cm, it stayed in the paw.
+   * (`docs/reference/percussion-technique.md` 1). With 4 cm, it stays in the paw.
    */
   // SAFETY: the literal widens to a number, so that a hold tool can set it in memory.
   malletButt: 0.07 as number,
@@ -297,10 +290,10 @@ export const TRIANGLE = {
 /**
  * The clip of the triangle and its loop of cord, in meters, in the axes of the piece of the
  * triangle: the triangle hangs in the plane x-y, along -y, with its top corner 0.05 m below the
- * origin. The left paw of the badger holds the triangle up, with its palm toward +x and its
- * fingers along +y, and its skin from 2.6 cm below the origin to 9.2 cm above it, and from 4.7 cm
- * at -x to 3.8 cm at +x (`docs/research/2026-10-25-grips.md`). Thus the clip runs down the palm,
- * under the curled fingers, and leaves the heel of the paw.
+ * origin. The left paw of the badger holds the triangle up, with its palm toward +x and its fingers
+ * along +y, and its skin from 2.6 cm below the origin to 9.2 cm above it, and from 4.7 cm at -x to
+ * 3.8 cm at +x. Thus the clip runs down the palm, under the curled fingers, and leaves the heel of
+ * the paw.
  */
 export const TRIANGLE_CLIP = {
   /** The upper end of the clip, in the palm under the curled fingers. */
@@ -758,9 +751,8 @@ export function buildSnareDrum(): InstrumentModel {
 /**
  * The height of the strap of a cymbal above the palm in the bind pose, in meters (design 4.6).
  * The hanging hand holds the cymbal below its middle, so that the rim (0.2 m from the strap)
- * stays above the floor. The palm of the smallest standing player of step 4, the parametric
- * mouse, was 0.105 m above the floor. With the strap at the palm, the rim of a small player cut
- * 0.08 m into the floor (review of step 4, P1).
+ * stays above the floor. With the strap at the palm, the rim of a small player with the palm
+ * 0.105 m above the floor cuts 0.08 m into the floor.
  */
 const CYMBAL_LIFT = 0.12;
 
@@ -966,7 +958,7 @@ export function buildSmallPercussion(): InstrumentModel {
 
   // The triangle hangs 0.05 m below the origin of its piece, in the plane x-y. In the bind pose,
   // it points forward from the hanging hand, as a mallet does, so that it stays above the floor.
-  // It hung 0.2 m down and cut 0.08 m into the floor (review of step 4, P1).
+  // Else it hangs 0.2 m down and cuts 0.08 m into the floor.
   const side = 0.17;
   const triangle = new PieceBuilder();
   const topCorner: Vec3 = [0, -0.05, 0];

@@ -101,7 +101,7 @@ function heightsOf(mesh: MeshData, color: readonly number[]): number[] {
 
 describe('the desk of a music stand (design 4.5, UX audit 2026-10-05, SC9)', () => {
   it('has a dark warm gray desk with a lighter edge, and a black post and legs', () => {
-    // The black desks were the largest shapes of some close shots.
+    // Black desks are the largest shapes of some close shots.
     const stand = buildMusicStand();
     const deskBottom = 1.05 - (0.35 / 2) * Math.cos(Math.PI / 6);
     expect(Math.min(...heightsOf(stand, SCENE_COLORS.standDesk))).toBeGreaterThan(

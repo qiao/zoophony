@@ -13,10 +13,9 @@ export interface SpeciesColors {
 }
 
 /**
- * The colors of each species (design 4.5, species colors): the colors of 2026-10-06, which the
- * user chose again on 2026-10-09. The fur of the red fox is the fur of its rig after the color
- * shift of 2026-10-19 (`colors.shift` of `tools/mesh-rigs/fox.json`). The models and the seat dots
- * of the UI read them through `SPECIES`.
+ * The colors of each species (design 4.5, species colors). The fur of the red fox is the fur of
+ * its rig after the color shift (`colors.shift` of `tools/mesh-rigs/fox.json`). The models and the
+ * seat dots of the UI read them through `SPECIES`.
  */
 export const SPECIES_COLORS = {
   rabbit: { fur: '#ece6dc', belly: '#f4f0ea', accent: '#e9a7a5' },
@@ -51,8 +50,8 @@ export const SCENE_COLORS = {
   stand: srgb('#1e1a16'),
   /**
    * The two large faces of the desk of a stand: a warm gray, so that the desk reads as an object
-   * in a close shot. The black desks were the largest shapes of some close shots (UX audit
-   * 2026-10-05, SC9). The darker `#2e2722` still looked black in the shade of the desk back.
+   * in a close shot. Black desks are the largest shapes of some close shots. The darker `#2e2722`
+   * still looks black in the shade of the desk back.
    */
   standDesk: srgb('#544840'),
   /** The four narrow faces of the desk of a stand: a lighter edge around the desk. */

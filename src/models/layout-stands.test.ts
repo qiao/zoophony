@@ -15,8 +15,8 @@ import {
 describe('the music stands of a chamber group (design 4.5)', () => {
   it('keeps the stands of each chamber test file apart', () => {
     // The stand of a string player with no partner stands where a partner would share it. The
-    // arc between two players did not check the stands against each other, and the stands of
-    // the second violin and the viola of the string quartet went into each other (2026-10-14).
+    // arc between two players alone does not keep the stands apart: the stands of the second
+    // violin and the viola of the string quartet can go into each other.
     const models = new ModelCache();
     for (const [name, file] of [
       ['piano solo', pianoSoloFile()],

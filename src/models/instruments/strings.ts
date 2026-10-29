@@ -143,11 +143,10 @@ const UPRIGHT_HOLDS = {
 >;
 
 /**
- * The outline of the violin body around its center, from the neck end (+x) along the -z side to
- * the tail end (-x): the upper bout, the upper corner, the C-bout, the lower corner, and the
- * lower bout (`docs/research/2026-10-29-string-models.md`). Each corner is a tip and a point on
- * the line from the tip to the center, so that the outline stays star-shaped around the center
- * for the fan caps.
+ * The outline of the violin body around its center, from the neck end (+x) along the -z side to the
+ * tail end (-x): the upper bout, the upper corner, the C-bout, the lower corner, and the lower
+ * bout. Each corner is a tip and a point on the line from the tip to the center, so that the
+ * outline stays star-shaped around the center for the fan caps.
  */
 const VIOLIN_HALF: readonly OutlinePoint[] = [
   [0.12, 0],
@@ -203,7 +202,7 @@ const VIOLIN_LEVELS: readonly BodyLevel[] = [
 /**
  * The outline of the contrabass body around its center, as {@link VIOLIN_HALF}: the shoulders
  * slope down from the neck to the widest point of the upper bout, as on a real double bass, and
- * the upper corners stand out less (`docs/research/2026-10-29-string-models.md`).
+ * the upper corners stand out less.
  */
 const BASS_HALF: readonly OutlinePoint[] = [
   [0.12, 0],
@@ -923,10 +922,9 @@ const SPACE_BOXES: readonly (readonly [size: Vec3, center: Vec3])[] = [
 
 /**
  * Adds the space of a bowed string in the layout to a piece (`InstrumentPiece.footprint`): the
- * simple box model that the seats were placed with. The layout reads it in place of the detailed
- * model, so that the detail does not move the seats (manager, 2026-10-29). With the footprint of
- * the detailed model, row 0 of `boulanger-matin.mid` moved, and the right arm of the conductor
- * folded more in the lift.
+ * simple box model that places the seats. The layout reads it in place of the detailed model, so
+ * that the detail does not move the seats. With the footprint of the detailed model, row 0 of
+ * `boulanger-matin.mid` moves, and the right arm of the conductor folds more in the lift.
  *
  * @param piece The piece that gets the space.
  * @param frame The placement of the violin axes in the piece axes, before the piece scale.
@@ -1365,8 +1363,8 @@ type BowedStringId = 'violin' | 'viola' | 'cello' | 'contrabass';
  * The place of the bow stick at the grip, from the middle of the right palm, in head heights
  * (design 4.6). The stick lies in the fingers: on the palm side (-x) of the hanging mitten, in the
  * crease between the palm ball and the finger ball, 0.02 H from each (with the fingers curled
- * 45°). The first grip was 0.07 H in front of the palm, inside the palm ball, and the stick went
- * through the hand (user report of 2026-10-06).
+ * 45°). With a grip 0.07 H in front of the palm, inside the palm ball, the stick goes through the
+ * hand.
  */
 export const BOW_GRIP = [-0.127, 0.005, 0] as const satisfies Vec3;
 

@@ -185,11 +185,10 @@ export const CONDUCTOR_STAND = {
   deskDepth: 0.45,
   /**
    * The height of the desk center above the top of the podium: just below the chest of the bear,
-   * so that the top edge of the desk is at its shoulders. With 1.10 m, the desk was above the
-   * shoulders of the bear, and the beat had to stay at the height of its head (UX audit
-   * 2026-10-05, AM1). With 0.80 m, the head of the bear went into the top of the desk in the bow
-   * at the song end, when its shoulders were 0.1 m lower. The bear of 2026-10-11 has the short
-   * legs and the long trunk of `bear-views.png`, so its shoulders are 0.1 m higher than before.
+   * so that the top edge of the desk is at its shoulders. With 1.10 m, the desk is above the
+   * shoulders of the bear, and the beat must stay at the height of its head. The bear has the
+   * short legs and the long trunk of `bear-views.png`, so its head stays out of the top of the
+   * desk in the bow at the song end. With the shoulders 0.1 m lower, the head goes into the desk.
    */
   deskHeight: 0.8,
   /** The tilt of the desk toward the conductor, as for a music stand. */
@@ -197,10 +196,10 @@ export const CONDUCTOR_STAND = {
   /**
    * The distance of the post in front of the podium center, toward the orchestra (-z). The stand
    * stands on the stage, just in front of the podium: its base keeps 8 cm from the front of the
-   * podium. At 0.35 m on the podium, the lower edge of the desk was 0.24 m in front of the bear,
-   * and the belly of the bear (0.36 m) went through the desk and the score. At 0.6 m in front of
-   * the podium of 1.05 m, the base stood 4.5 cm inside the podium. At 0.68 m, the eyes of the
-   * studio bear, whose muzzle is long, touched the desk in the bow at the song end (3 cm from the
+   * podium. At 0.35 m on the podium, the lower edge of the desk is 0.24 m in front of the bear,
+   * and the belly of the bear (0.36 m) goes through the desk and the score. At 0.6 m in front of
+   * the podium of 1.05 m, the base stands 4.5 cm inside the podium. At 0.68 m, the eyes of the
+   * studio bear, whose muzzle is long, touch the desk in the bow at the song end (3 cm from the
    * podium).
    */
   forward: 0.73,

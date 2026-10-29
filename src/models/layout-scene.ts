@@ -100,9 +100,9 @@ export const SOLOIST_PLACE = [-1.75, 0.35] as const;
 export const SOLOIST_FACING = Math.PI + (40 * Math.PI) / 180;
 
 /**
- * The values of the layout of a chamber group (design 4.2, 4.5). The user decided on 2026-10-06
- * that a score with at most 5 players has no conductor and no podium, and that its players sit in
- * a small arc at the stage center and face each other a little (UX audit 2026-10-06, N9).
+ * The values of the layout of a chamber group (design 4.2, 4.5). A score with at most 5 players
+ * has no conductor and no podium, and its players sit in a small arc at the stage center and face
+ * each other a little.
  */
 export const CHAMBER = {
   /**
@@ -398,8 +398,8 @@ function spacing(left: Member, right: Member, radius: number): number {
       stands.push(placeStand(alone, radius - STAND_DISTANCE, left.index, [left]));
     }
     // The right player starts a desk: its stand stands to its right, at half the arc to a
-    // partner of its seat. The string quartet put the stands of the second violin and the viola
-    // into each other (2026-10-14).
+    // partner of its seat. Else the stands of the second violin and the viola of the string
+    // quartet go into each other.
     const next =
       right.stand === 'shared' && right.cast.player % 2 === 0 && !sharesWith(left, right)
         ? [

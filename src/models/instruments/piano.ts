@@ -50,20 +50,17 @@ export const PIANO = {
  * piano, with the keys at 0.81 m, because the polar bear pianist is a large animal on a bench
  * that fits the legs of its mesh. At this scale, its elbows stand 4 to 6 cm above the keys, and
  * its forearms are about level with the keys, as a real pianist sits
- * (`docs/reference/piano-technique.md`). At 1.22, the elbows stood 1 to 4 cm above the keys,
- * and the forearms rose 6° to the keys, and at 1.12 they sloped 5° down
- * (`docs/research/2026-10-29-polar-ratio.md`).
+ * (`docs/reference/piano-technique.md`). At 1.22, the elbows stand 1 to 4 cm above the keys,
+ * and the forearms rise 6° to the keys, and at 1.12 they slope 5° down.
  */
 export const PIANO_SCALE = 1.16;
 
 /**
  * The distance of the front of the keys in front of the floor point of the body of the pianist,
  * in head heights `H`, before a further 0.05 m (design 4.6). The keys and the pedals stand near
- * the polar bear pianist, so that its short right leg reaches the damper pedal. At 1.3 H, the
- * thigh of the pedal leg pulled the haunch 3.9 cm into the bench, and at 1.0 H 0.9 cm
- * (`docs/research/2026-10-28-polar-legs.md`). With the legs of the mesh, it pulls the haunch
- * 2.3 cm in at 1.0 H, and 0.9 H keeps the haunch on the pad but folds up to 3 more faces at the
- * left shoulder (`docs/research/2026-10-29-polar-ratio.md`).
+ * the polar bear pianist, so that its short right leg reaches the damper pedal. At 1.0 H, the
+ * thigh of the pedal leg pulls the haunch 2.3 cm into the bench, and 0.9 H keeps the haunch on the
+ * pad but folds up to 3 more faces at the left shoulder.
  */
 export const PIANO_FRONT_H = 1.0;
 
@@ -91,7 +88,7 @@ export type PianoPedal = 'soft' | 'sostenuto' | 'damper';
 
 /**
  * The pedal lyre and the three pedals of the grand piano, in meters before {@link PIANO_SCALE}
- * (design 4.6). The sizes follow real grand pianos (`docs/research/2026-10-24-piano-pedals.md`).
+ * (design 4.6). The sizes follow real grand pianos.
  * The lyre comes down from the case under the keys to a box just above the floor, and the pedals
  * come out of the front of the box toward the player.
  */
@@ -131,9 +128,9 @@ const CASE_CENTER: OutlinePoint = [-0.1, -1.0];
 
 /**
  * The inside of the open case (design 4.5, 4.6), as the piano of `mockup.png`: a dark well with
- * the soundboard at its bottom, the iron plate at the keys, and the strings above them. The
- * first piano had a gold plate on the top of the rim, which read as a flat gold tray (mockup
- * review of 2026-10-07, gap 10). The depths are below the top of the rim, in meters.
+ * the soundboard at its bottom, the iron plate at the keys, and the strings above them. A gold
+ * plate on the top of the rim reads as a flat gold tray. The depths are below the top of the rim,
+ * in meters.
  */
 export const PIANO_INSIDE = {
   /** The scale of the inner outline of the rim wall, around the center of the rim. */
@@ -562,12 +559,11 @@ export function buildPiano(): InstrumentModel {
   const damper = new PieceBuilder(PIANO_SCALE);
   addPedal(damper, 'damper');
 
-  // The round belly of the studio polar bear reaches 0.45 m in front of the floor point, so the
-  // keys of 2026-10-11 (0.55 H + 0.05 m, 0.26 m) went 15 cm into it. On the T-pose polar bear with
-  // an upright trunk, the keys at 1.37 H stretched the elbows to 117° with the upper arms 28°
-  // forward. With the claws on the key tops (`HANDS_HOLDS.piano`) and the lean of the high bench,
-  // the keys at `PIANO_FRONT_H` bend the elbows about 105°, and the forearms go at most 8.8 cm
-  // into the belly, under the limit of 9 cm (`docs/research/2026-10-27-polar-bench.md`).
+  // The round belly of the studio polar bear reaches 0.45 m in front of the floor point, so keys
+  // at 0.55 H + 0.05 m (0.26 m) go 15 cm into it. With an upright trunk, keys at 1.37 H stretch
+  // the elbows to 117° with the upper arms 28° forward. With the claws on the key tops
+  // (`HANDS_HOLDS.piano`) and the lean of the high bench, the keys at `PIANO_FRONT_H` bend the
+  // elbows about 105°, and the forearms go at most 8.8 cm into the belly, under the limit of 9 cm.
   const instrument = piece.build(
     'instrument',
     hold('floor', [0, 0, -PIANO_FRONT_H], undefined, [0, 0, -0.05]),

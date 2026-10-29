@@ -48,9 +48,8 @@ describe('the seated legs (design 4.3, 4.5)', () => {
   });
 
   it('keeps the knees near the height of the seat, as in the reference images', () => {
-    // The knee tops of the reference images are 0.23 to 0.43 H above the seat
-    // (`docs/research/2026-10-11-short-legs.md`). The round knee of 0.3 H above the seat reached
-    // 0.53 H.
+    // The knee tops of the reference images are 0.23 to 0.43 H above the seat. A round knee of
+    // 0.3 H above the seat reaches 0.53 H.
     for (const { label, model } of seatedCast) {
       const seat = model.seat?.seatHeight ?? NaN;
       const kneeTop = topOf(model.mesh, ['shinL', 'shinR']);

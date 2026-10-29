@@ -346,8 +346,8 @@ describe('studioRig for a seated body that also stands (design 4.4)', () => {
   };
 
   it('puts the soles on the floor when it stands, and the seated feet at most on the floor', () => {
-    // The seat of the rabbit is higher than its legs since 2026-10-14 (`seat` of `ANIMALS`), so
-    // its seated feet hang above the floor, under the seat. No part goes into the floor.
+    // The seat of the rabbit is higher than its legs (`seat` of `ANIMALS`), so its seated feet hang
+    // above the floor, under the seat. No part goes into the floor.
     const seat = STUDIO_RABBIT.seatHeight ?? 0;
     expect(lowest(seated.mesh.positions)).toBeGreaterThan(-0.005);
     expect(lowest(seated.mesh.positions)).toBeLessThan(seat);
@@ -361,8 +361,8 @@ describe('studioRig for a seated body that also stands (design 4.4)', () => {
       const hip = new Vector3(...standing.positions[`thigh${side}`]);
       const knee = new Vector3(...standing.positions[`shin${side}`]);
       const ankle = new Vector3(...standing.positions[`foot${side}`]);
-      // The thigh and the shin point down within 25° of the vertical, as the legs of the mesh of
-      // the user: its shin slants 20° back from the knee to the ankle (tools/mesh-rigs/rabbit.json).
+      // The thigh and the shin point down within 25° of the vertical, as the legs of the mesh: its
+      // shin slants 20° back from the knee to the ankle (tools/mesh-rigs/rabbit.json).
       for (const [from, to] of [
         [hip, knee],
         [knee, ankle],
@@ -372,8 +372,8 @@ describe('studioRig for a seated body that also stands (design 4.4)', () => {
       }
     }
     // The trunk keeps its form: the shoulders stand as high above the hip joints as on the seat.
-    // The seat of the rabbit is higher than its legs since 2026-10-14, so the seated shoulders
-    // can be higher than the standing shoulders.
+    // The seat of the rabbit is higher than its legs, so the seated shoulders can be higher than
+    // the standing shoulders.
     expect(standing.positions.upperArmL[1] - standing.positions.thighL[1]).toBeCloseTo(
       seated.positions.upperArmL[1] - seated.positions.thighL[1],
       6,

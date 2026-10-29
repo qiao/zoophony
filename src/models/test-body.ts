@@ -15,8 +15,7 @@ export const SEAT = 0.45;
 
 /**
  * The deer: the sample body of the tests of the parametric parts. It keeps the parametric biped,
- * with the antlered ears, the long snout, and the puff tail. The badger was the sample body until it
- * got the studio body of the badger mesh (design 4.4).
+ * with the antlered ears, the long snout, and the puff tail (design 4.4).
  */
 const SAMPLE = SPECIES.deer;
 

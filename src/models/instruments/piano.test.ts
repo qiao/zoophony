@@ -57,8 +57,8 @@ describe('buildPiano', () => {
     const plate = heights(INSTRUMENT_COLORS.pianoPlate);
     const strings = heights(INSTRUMENT_COLORS.pianoStrings);
 
-    // The first gold plate lay on the top of the rim and read as a flat gold tray (mockup review
-    // of 2026-10-07, gap 10). Now each part lies in the well, below the top of the rim.
+    // A gold plate on the top of the rim reads as a flat gold tray. Each part lies in the well,
+    // below the top of the rim.
     expect(board.length * plate.length * strings.length).toBeGreaterThan(0);
     expect(Math.max(...board)).toBeLessThan(PIANO.caseTop - 0.1);
     expect(Math.min(...plate)).toBeGreaterThan(Math.max(...board));

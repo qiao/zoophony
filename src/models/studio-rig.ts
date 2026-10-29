@@ -120,8 +120,8 @@ export const PAW_TURN = {
   fade: [0.2, 0.5],
   /**
    * The angle of the forearm in the plane of the palm, in radians, from which the turn fades out
-   * toward the angle π: there, the angle jumps from π to -π, and the turn jumped from the largest
-   * turn to the other side in one frame (`docs/research/2026-10-26-violin-lift.md`).
+   * toward the angle π: there, the angle jumps from π to -π, and with no fade, the turn jumps from
+   * the largest turn to the other side in one frame.
    */
   back: (150 * Math.PI) / 180,
 } as const;
