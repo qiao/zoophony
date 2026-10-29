@@ -97,6 +97,28 @@ SHOULDER_ANGLE = 20.0
 #: The cut planes of `violin_arms.py`, which `cut_planes()` changes for the bear.
 CUT_PLANES = va.cut_planes
 
+#: The rings of `wind_arms.py`, which `arm_stations()` adds the wrist rings to.
+WIND_STATIONS = wa.arm_stations
+
+#: The places of the added rings of each wrist band, in units of the studio from the wrist joint:
+#: a negative place is on the forearm, and a positive place is on the paw.
+WRIST_RINGS = ()
+
+
+def arm_stations(s, line):
+    """Gives the rings of `arm_stations()` of `wind_arms.py`, with a ring at each place of
+    `WRIST_RINGS`. A ring on the forearm stands at a right angle to the forearm, and a ring on the
+    paw at a right angle to the paw. Thus more rings carry the bend of the wrist."""
+    out = WIND_STATIONS(s, line)
+    if not WRIST_RINGS:
+        return out
+    _, e, w, t = line
+    f, h = (w - e).normalized(), (t - w).normalized()
+    fore = [(w + f * s.units(d), f) for d in WRIST_RINGS if d < 0]
+    paw = [(w + h * s.units(d), h) for d in WRIST_RINGS if d > 0]
+    return out[:-1] + sorted(fore, key=lambda r: (r[0] - w).dot(f)) + out[-1:] + sorted(
+        paw, key=lambda r: (r[0] - w).dot(h))
+
 #: The rounds and the factor of Smooth Vertices on the band of each wrist (`step_smooth_wrist()`),
 #: as on the polar bear and the hippo.
 WRIST_SMOOTH = (4, 0.5)
@@ -115,19 +137,19 @@ def cut_planes(s, line, side):
     about as wide all around.
     """
     shoulder, _ = CUT_PLANES(s, line, side)
-    _, e, w, t = line
-    axis = ((w - e).normalized() + (t - w).normalized()).normalized()
+    _, _, w, t = line
+    axis = arm_stations(s, line)[-1][1]
     return [shoulder, (w + axis * ((t - w).length * s.spec['cut']['wrist']), axis)]
 
 
 def step_cut_and_tube(s):
     """Cuts both arms and models both tubes as `step_cut_and_tube()` of `wind_arms.py` does, with
-    the wrist plane of `cut_planes()`."""
-    va.cut_planes = cut_planes
+    the wrist plane of `cut_planes()` and the rings of `arm_stations()`."""
+    va.cut_planes, wa.arm_stations = cut_planes, arm_stations
     try:
         return wa.step_cut_and_tube(s)
     finally:
-        va.cut_planes = CUT_PLANES
+        va.cut_planes, wa.arm_stations = CUT_PLANES, WIND_STATIONS
 
 
 def wrist_band(bm, part):
