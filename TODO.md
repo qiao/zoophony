@@ -50,446 +50,202 @@ passes.
 
 ## Step 4. Models and gallery (4.3 to 4.7)
 
-- [ ] Monkey: two thin faces across the wrists (329 and 1090) fold in each sample of the
-      trumpeter. Rigid weights and a ring at the wrist move the fold to the next faces. Count their
-      pixels in a probe build, or cut the thin faces (`2026-10-20-mesh-monkey.md`).
-- [ ] Monkey trumpeter: from the front at the elevation 20, the right paw across the valve tops
-      covers the mouth. From the stage camera (elevation 40), the mouth shows. A lower right grip
-      or a smaller curl can free the mouth (`2026-10-25-brass-grips.md`).
-- [ ] Monkey trumpeter: the right thumb of the mesh points back toward the mouthpiece at the
-      height of the valve tops. A real player puts it under the lead pipe between the first and
-      the second valve casing (wind-technique 2.1). The thumb has no bone.
-- [ ] Monkey: the manager chose the stand C' while the user slept. The user reviews it against B
-      in `docs/research/2026-10-20-monkey-stand/lineup.webp` (`2026-10-21-monkey-stand.md`).
-- [ ] Mouse and beaver: they also stand in their seated poses with no chair. Measure their balance
-      with `balance.ts` of `docs/research/2026-10-20-monkey-stand/`, and save the probe as a tool
-      when a second body needs it.
-- [ ] Monkey: the rig chair under the stand sets `STUDIO_MONKEY.seatHeight` to 0.292 m, the
-      height of the haunch, for a body with no chair. Check each reader of the seat height of a
-      body with no chair (`2026-10-21-monkey-stand.md`).
-- [ ] Monkey: a chair as high as the haunch puts the root of the tail into the seat of the app.
-      Only when the user asks for a chair again: a tail of three bones, or a tail over the back
-      edge of the seat (`docs/research/2026-10-20-monkey-chair.md`).
-- [ ] Rhino: the agent chose the stand, the arms of the mesh, the lead pipe, and the hold while the
-      user slept. The user reviews them in `docs/research/2026-10-21-mesh-rhino/tubist-base-views.webp`
-      and `lineup-base-views.webp` (`2026-10-21-mesh-rhino.md`).
-- [ ] Rhino: with an assumed tuba of 10 kg, the center of mass is 2.7 cm to 3.4 cm in front of the
-      middle of the soles, at 59% to 61% of the support depth, at the top of the stable range of
-      30% to 60%. A small lean of the trunk back is an option (`balance.txt`).
-- [ ] Rhino: the thick left paw goes 1.9 cm into the main branch of the tuba, an accepted depth of
-      the sweep. The paws are mittens and do not wrap the tube (`TUBIST_SWEEP`).
-- [ ] Deer: the manager chose arms 1.25 while the user slept, and the round `harp-lean` chose a
-      harp of 0.6 (0.84 m) leaned 12° back onto the right shoulder, on a box of 0.23 m. The user
-      reviews the arms against 1.15 or 1 of the report "Arms and harp"
-      (`docs/research/2026-10-21-mesh-deer.md`), and the harp size, the lean, and the box
-      (`docs/research/2026-10-25-harp-lean.md`, `images/`).
-- [ ] Deer harp: the right move twist max of the arm gate is 108° (100° on `main`, margin 3°,
-      limit 176°), a `FAIL` on the margin only. Five right elbows gave 106° to 110°. Try a turn
-      of the right paw toward the treble strings, or accept it in the gate.
-- [ ] Deer harp: the left palm is 0.14 m above the middle of the strings and the right palm at the
-      middle, where a harpist holds both hands at almost one level. At 0.08 m, the left paw swing
-      is 68° (limit 70°) (`palm-scan.txt` of `docs/research/2026-10-25-harp-lean/`).
-- [ ] Deer harp: the forearms rise about 30° from the elbow to the wrist, where a harpist holds them
-      level. The elbows of the short arms hang below the strings.
-- [ ] Deer harp: the knees lie under the round belly, so the base stands in front of them, between
-      them only in the front view. From the front, the crown of the column stands just below the
-      muzzle (`images/views-chord-front.webp` of the round).
-- [ ] Deer harp: the smaller harp moved the seats of `boulanger-matin` by 4 to 6 cm, and 8 to
-      30 cm for the deer, the piano, three violins, and the three oboes (`layout-moves.txt`).
-      Check the shots of the demo after the test pause (`pnpm test:paused src/shots/`).
-- [ ] Deer harp: `HARPIST_SWEEP` keeps the accepted depth of the forearms in the body (2.5 cm), now
-      0.0 cm, and its reason of the right forearm on the soundbox. Trim them when the tests come
-      back.
-- [ ] Deer: a small cream fold of the haunch lies on the seat under the puff tail, with the shadow
-      of the tail above it (`seat/zoom-top-carry.webp` of the research folder).
-- [ ] Add the chair as an obstacle to the sweeps of the seated roles, with the legs and the haunch as
-      parts, as the sweep of the harpist has the stool (`SEATED_PARTS`, `seatSurface()` of
-      `pose/test-sweep-roles.ts`). Then add the accepted contact of each haunch.
-- [ ] Deer: the user reviews the rebuilt arms of round `fifth-deer` (`user-angle.webp` and
-      `arms-e40.webp` of `docs/research/2026-10-26-fifth-deer/`), and the bind upper arm 18° nearer
-      to the hanging arm.
-- [ ] Deer: the forearms come 2.8 cm into the harp in the play (1.8 cm on `main` before the round
-      `fifth-deer`, limit 4.0 cm), and the paw swing of the left arm is 66° (limit 70°).
-- [ ] Remove the parametric biped with its ears, snouts, and tails: no species has it since the
-      rhino and the deer meshes (`2026-10-21-mesh-rhino.md`, `2026-10-21-mesh-deer.md`).
-- [ ] Penguin: the agent chose the size, the flippers of the mesh, the folder place, the bind of
-      the upper arms, and the white throat while the user slept. The user reviews them in
-      `docs/research/2026-10-21-mesh-penguin/singer-base-views.webp` and `options.md`: option B
-      gives flippers 1.25 times as long and the folder at the height of the reference images.
-- [ ] Penguin: black wedges from the roots of the flippers show on the white belly under the
-      folder, in the front views of `docs/research/2026-10-21-mesh-penguin/singer-base-views.webp`.
-- [ ] Penguin: the crease angle 35° is the angle of the other meshes, with no facet probe against
-      the penguins of the reference images (`ANIMALS` of `tools/studio-body.ts`).
-- [ ] Red fox and rabbit: string planes of 9° and 10°, under the real 17°, because larger angles
-      fold the right shoulder. A rig round on the right shoulder (`2026-10-17-bow-arm.md`).
-- [ ] Panda: try `weights.armCrease` on each arm that is one solid with the trunk
-      (`2026-10-22-elephant-crease.md`). The rabbit and the rhino have A-pose meshes since
-      2026-10-23.
-- [ ] Beaver: the narrow axis of the middle of each upper arm is 0.40 and 0.35 of the wide axis in
+- [ ] Monkey trumpeter: two thin faces across the wrists (329 and 1090) fold in each play sample.
+      Cut the thin faces, or count their pixels in a probe build.
+- [ ] Monkey trumpeter: from the front at the elevation 20, the right paw on the valve tops hides
+      the mouth. Try a lower right grip or a smaller curl.
+- [ ] Monkey trumpeter: the right thumb points back to the mouthpiece. A real player puts it under
+      the lead pipe between the first and the second valve casing (wind-technique 2.1).
+- [ ] Monkey: ask the user to confirm the stand of the monkey, which has no chair.
+- [ ] Monkey: `STUDIO_MONKEY.seatHeight` is the height of the haunch for a body with no chair. Check
+      each reader of the seat height of a body with no chair.
+- [ ] Monkey: if the monkey gets a chair again, the root of the tail goes into the seat. Then give
+      the tail three bones, or put it over the back edge of the seat.
+- [ ] Mouse and beaver: they stand in their seated poses with no chair. Measure their balance (the
+      center of mass over the feet), and save the balance probe as a tool.
+- [ ] Rhino tubist: ask the user to confirm the stand, the arms of the mesh, the lead pipe, and the
+      hold.
+- [ ] Rhino tubist: with a tuba of about 10 kg, the center of mass lies at the front end of the
+      stable range of the soles. A small lean of the trunk back is an option.
+- [ ] Rhino tubist: the mitten paws go up to 2.4 cm into the tuba (limit 2.2 cm), and the right arm
+      folds 6 faces at p95. Try a thinner round stump at the nails, or a grip outside the tube.
+- [ ] Rhino tubist: the left forearm comes 1.5 cm into the main branch of the tuba in the moves and
+      at rest (limit 1.5 cm), because the left elbow is low.
+- [ ] Rhino: check the left forearm from az-150 for a flat flap under the arm.
+- [ ] Deer harpist: ask the user to confirm the length of the arms, the size of the harp, its lean
+      back onto the right shoulder, the box under it, and the rebuilt arms.
+- [ ] Deer harpist: the right move twist max fails the arm gate on its margin. Turn the right paw
+      toward the treble strings, or accept the value in the gate.
+- [ ] Deer harpist: the left palm is 0.14 m above the middle of the strings, but a harpist holds
+      both hands at almost one level. A lower palm needs room in the paw swing (66°, limit 70°).
+- [ ] Deer harpist: the forearms rise about 30° from the elbow to the wrist, but a harpist holds
+      them level. The elbows of the short arms hang below the strings (harp-technique).
+- [ ] Deer harpist: the knees lie under the round belly, so the base of the harp stands in front of
+      them. From the front, the crown of the column stands just below the muzzle.
+- [ ] Deer harpist: `HARPIST_SWEEP` accepts a forearm depth of 2.5 cm in the body, but the depth is
+      0 cm now. Trim the entry when the tests come back.
+- [ ] Deer: a small cream fold of the haunch lies on the seat under the puff tail.
+- [ ] Add the chair as an obstacle to the sweeps of the seated roles, with the legs and the haunch
+      as parts (`SEATED_PARTS`, `seatSurface()` of `pose/test-sweep-roles.ts`).
+- [ ] Penguin singer: ask the user to confirm the size, the flippers, the place of the folder, the
+      bind of the upper arms, and the white throat. Option: flippers 1.25 times as long.
+- [ ] Penguin: black wedges from the roots of the flippers show on the white belly under the folder
+      in the front views.
+- [ ] Penguin: the crease angle 35° has no facet probe against the penguins of the reference images
+      (`ANIMALS` of `tools/studio-body.ts`).
+- [ ] Penguin: a round bump at the armpit shows from az90, because the faces with a part of the arm
+      weight stretch when the flipper rises. Try a cut of the flipper with a side wall.
+- [ ] Penguin: the flippers go 1.3 cm into the body, and the edge of the orange beak and feet is not
+      cut. Check the roots of the flippers with a fill light.
+- [ ] Red fox and rabbit: the string planes are 9° and 10°, under the real 17°, because larger
+      angles fold the right shoulder. Fix the right shoulder in a rig round (string-technique).
+- [ ] Panda: try `weights.armCrease` on each arm that is one solid with the trunk.
+- [ ] Panda: a small gray dent shows below each arm from the left side. Move the body run of the cut
+      (vertices 787, 793, and 800, `tools/arm-roots/panda.json`).
+- [ ] Panda face: the round patches have angular edges, and they are smaller than in the reference.
+      Ask the user if a smoother oval is worth a vertex move.
+- [ ] Panda face: from 30° above, the mouthpiece and the paws hide the smile. Check the smile with
+      the user in a close play frame of the stage.
+- [ ] Beaver: the narrow axis of the middle of each upper arm is 0.35 to 0.40 of the wide axis in
       the play, below the limit 0.44 of `pnpm arm-look`.
-- [ ] Pig (T-pose mesh, `2026-10-24-pig-tpose.md`): the trial rig shows a flat slab and a flap
-      at the shoulders in the play, and 9 to 14 folded arm faces (limit 8). The pig of `main`
-      stays. Ask the user: a ring at each shoulder, or another mesh.
-- [ ] Polar bear (`2026-10-24-polar-bear-arms.md`): the arm root between the trunk and the
-      shoulder line keeps the long faces of the user, and the left shoulder top shows a flat facet
-      at rest from the back (`crops.png` of `2026-10-24-polar-bear-arms/`). In the bind, 5 faces
-      of spine1 turn over (2 on `main` before), and no view shows them.
-- [ ] Polar bear (`2026-10-24-polar-bear-seat.md`): with the nearer keys, the play forearms go
-      4.3 cm into the belly (3.1 cm before, accepted limit 9 cm), and the left upper arm keeps
-      0.55 of its round shape, at its limit. From the front, the open lid now hides the head in
-      the play.
-- [ ] Polar bear (`2026-10-24-pianist-pose.md`): from the front, the larger lid hides the bear
-      and its paws. At the far keys, the outer upper arm stands 36° to 41° out, and the upper arms
-      stand about 27° to 30° out and 19° forward around the round trunk (a pianist: 0° to 20°
-      forward, `2026-10-27-polar-bench.md`).
-      The wrist touches the front edge of the keys up to 1.1 cm (limit 1.5 cm).
-- [ ] Polar bear rest: the paws rest 8 cm to 10 cm below the key top, on the lower belly. The
-      thighs past the belly stand 0.7 m from the shoulder joint, and the arm reaches 0.49 m. Lower
-      paws folded up to 6 more faces at the right shoulder (`2026-10-25-timpani-piano-rest.md`).
-- [ ] Polar bear rig: the left shoulder folds about 20 faces at rest and in most play samples
-      (arm gate folds p95 19, limit 8, `OPEN`). An arm-root face folds when the upper arm turns
-      more than 60° from the T bind (`pnpm fold-probe pianist --bins 1750`). No pose of the scan
-      moved it: it needs loop edges or a corrective shape at the armpit
-      (`2026-10-25-timpani-piano-rest.md`).
-- [ ] Polar bear rig (audit 2026-10-25, fault 4): each forearm folds into a hard dark V at the
-      inner elbow in the chord. The right faces 574, 575, and 576 fold in 54% to 77% of the play
-      at each elbow pole of the scan, so the fix needs loop edges or a corrective shape at the
-      elbow (`2026-10-25-timpani-piano-rest.md`).
-- [ ] Polar bear (`2026-10-24-piano-pedals.md`): the case shades the brass pedals in the gallery
-      light. From the stage camera at elevation 40, the bear and the keys hide the pedals and the
-      feet. No demo has sustain pedal data (CC 64) on the piano, so the damper pedal moves only
-      with a file of the user.
-- [ ] Polar bear (`2026-10-29-polar-ratio.md`): with the legs of the mesh, the thigh of the
-      pedal leg pulls the haunch 2.3 cm into the bench pad in the play (0.1 cm on the base).
-      Keys 0.9 H away keep the haunch on the pad, but the left shoulder then folds 22 to 24
-      faces (20 on the base, arm gate limit 8 with a margin of 2).
-- [ ] Polar bear (`2026-10-29-polar-ratio.md`): the play upper arms go 7.6 cm into the belly
-      (limit 4 cm, 8.3 cm on the base). Elbow poles further out, (±1.4, −0.7, 0.4), give 6.6 cm,
-      and need the arm gate.
-- [ ] Polar bear (`2026-10-29-polar-ratio.md`): the knee crease of the seated bind makes the
-      thigh near the knee 0.90 of the mesh by its perimeter (0.97 by its side width). A crease
-      that only fills turned 29 faces over. With no calf fair, the back of each knee has 6 more
-      edges that turn more than 40° (`out/knee-variants.txt` of the report).
-- [ ] Polar bear (`2026-10-29-polar-ratio.md`): with the side lean over 0.3 s, the head still
-      moves about 4 cm to each side about two times each second in the fast passages of
-      `bach-bwv1050`. A wider window lets the trunk lag, and the upper arms go deeper into the
-      belly, so a calmer trunk needs a lean that keeps the reach of the far paw.
-- [ ] Polar bear keys (`2026-10-28-piano-keys.md`): with the gaps of 1 mm between the white keys,
-      the soft shadow of the paws on the keys is weaker than on `main` in the close views. With
-      no gap, it is as on `main`. The cause is not known. The claws stay at the key top and do
-      not follow a pressed key down (about 1 cm).
-- [ ] Bear (T-pose mesh, `2026-10-23-bear-tpose.md`): at rest, the arms stand out about 35° from
-      the body around the wide belly, where the studio bear held its paws at the hips. The
-      upper arms go 2.2 cm into the body while the arms move (3.5 cm before the quad arms of
-      `2026-10-26-arm-fixes.md`, which remove the long sharp facets of the bent arms).
-- [ ] Cat (`2026-10-26-fourth-review.md`): at rest and in the moves, the right upper arm meets the
-      round belly 1.7 cm deep near the elbow (limit 1.5). A lower elbow goes deeper, and an elbow
-      further out bends the arm as a wing.
-- [ ] Rabbit, red fox, cat, and tan fox (`2026-10-27-left-paw-bind.md`): the bind forearm of the
-      left arm is twisted 100° to 120° by the linear skin of the rig, and the arm-down shape of the
-      clip `reference` restores the loss twice. The mean radius of the rest forearm is 3% to 9%
-      above the bind forearm of `main` (`forearm-radius.txt` of
-      `docs/research/2026-10-27-left-paw-bind/`), and four depth pairs grow by 0.1 cm to 0.2 cm
-      (rabbit paws in the violin in the lift 0.9 cm, cat paws in the viola in the play 0.9 cm).
-      Mask the forearm part of the arm-down shape on a supinated side, and compare the 2x crops of
-      the rest from each side.
-- [ ] Cellist, bassist, and hornist (`2026-10-27-left-paw-bind.md`): their accepted left grips
-      twist -146°, -164°, and -153° from the pronated bind of their meshes, near the limit of 170°.
-      A supinated bind paw (`bindSupination`) can lower these twists. Scan the angle with
-      `bind-scan.ts` of `docs/research/2026-10-27-left-paw-bind/` and the arm gate.
-- [ ] Cat (`2026-10-27-cat-fox.md`): the armpit line at the lower back of each arm root still
-      folds a little in the play. The socket of the fox, with no shoulder ring and Blender weights
-      on the first ring, tore the arm root open on the cat. Since `2026-10-27-cat3.md`, the faces
-      729, 688, and 728 at the right armpit line fold in 9 to 14 more points of the play samples
-      (`fold.txt` of `docs/research/2026-10-27-cat3/`).
-- [ ] Cat (`2026-10-27-cat-fox2.md`): with the shorter arm and the viola near the neck, the bow
-      upper arm goes 2.5 cm into the belly at the tip (1.1 cm before, 1.7% of the play over the
-      limit), the viola 1.9 cm into the chest (1.0 cm), and the claws 2.1 cm into the viola in the
-      lowering (1.2 cm). `pnpm pose-depth violist --base main` marks 15 pairs.
-      Partly done (`2026-10-27-cat3.md`): the jaw goes 1.2 cm into the chin rest, the claws 1.1 cm
-      into the viola in the lowering, and the bow reaches the tip. Open: the bow upper arm goes
-      2.7 cm into the belly at the tip and 2.5 cm in pizzicato, and 1.2 cm at rest (0.9 cm before
-      `sixth-cat-fox2`). Fit it after the round of the oval belly (user, 2026-10-27: "make the
-      cat's belly more oval and smooth"), with the levers of section 4 of the report.
-      Partly done (`2026-10-27-cat-belly.md`): with the even oval belly, the right shoulder turn
-      of 36°, and the new pizzicato and rest elbows, the bow upper arm goes 2.3 cm into the belly
-      in the play (2.7 cm on `main`), 1.9 cm in the lowering after a pizzicato (2.7 cm), and
-      0.8 cm at rest (1.2 cm). Open: the play and the lowering over the limit of 1.5 cm, and the
-      right claws 2.2 cm into the viola at the frog. A shoulder turn of 38° folds 8 arm faces, and
-      a pizzicato elbow of (1.5, -0.5, -1) passes the margin of the move twist.
-      Partly done (`2026-10-27-cat-lap.md`): the front of the upper belly is a little flatter,
-      most at the middle line, and the pizzicato palm plucks from the side of the strings. The
-      bow upper arm goes 2.1 cm into the body at the tip on the lowest string (2.3 cm on
-      `main`, 0.7% of the play over the limit) and 1.6 cm in one lowering (1.9 cm). Open: the
-      manager accepts up to 2.0 cm at the tip. A larger flat move left a gap in the side view,
-      and a shoulder turn of 38° (1.97 cm) folds face 785 in 50% of the play. A flatter inner
-      upper arm can take a part (`probes/arm-flat-est.ts` of the report).
-- [ ] Cat (`2026-10-27-cat-lap.md`): the right claws go 2.2 cm into the viola at the frog on the
-      A string in the play and 2.1 cm at the end of the lift (limit 1.5 cm), as on `main`.
-- [ ] Cat (`2026-10-27-cat-belly.md`): the right shoulder turn of 36° folds the faces 820, 821,
-      832, and 1046 at the right clavicle and the neck under the chin in 81% to 100% of the play
-      (none with 30°, all with 33°). The most folded faces in a sample do not grow (28, 29 on
-      `main`). The manager decides on the crops, or a `raise` shape of the clavicle fixes them.
-      Partly done (`2026-10-27-cat-lap.md`): with `weights.armTop` 0.645 to 0.69, faces 820,
-      821, and 1046 fold in no sample. Open: face 832 at the front of the right armpit folds in
-      82% of the play (81% on `main`). A rigid face folded three new faces, and arm segments
-      allow no `raise`.
-- [ ] Cat (`2026-10-27-cat-lap.md`): the right forearm goes 0.3 cm into the upper belly at
-      f 0.6 in one play sample of `brahms-2` (0.4 cm on `main`, limit 1.5 cm). A flat zone from
-      0.5 of the trunk line removed it, but the bow upper arm then went 1.53 cm in at the tip.
-- [ ] Cat (`2026-10-27-cat-belly.md`): from the back, a dark band in a V lies on the lower back
-      above the seat, on `main` too (`belly-back.webp`). Find the faces and the light that make it.
-- [ ] Cat (`2026-10-27-cat-arm.md`): a dark crease lies at the front of the left arm root in the
-      play, between the chest and the upper arm. The root of the tube holds 0.2 to 0.5 of chest
-      weight (`anchor` and Smooth), so it narrows when the arm rises: 4.65 cm at 0.5 of the upper
-      arm in the play, 4.93 cm in the bind (`weights-main.txt`).
-      Tried (`2026-10-28-cat-wall.md`): the Smooth of `step_paint()` gives the second and the
-      third ring of each tube 0.6 and 0.28 of the trunk bones from the socket ring. A Smooth of
-      the arm bones alone kept the root 4.91 cm in the play (bind 5.00 cm), but folded 11 new
-      faces at the root at rest and in the play, and on the right arm a dark
-      notch opened at rest. Each mix that folded no new face kept the crease. Next: a root
-      weight that differs between the front and the inner side, or a bind arm nearer to the rest.
-      Partly done (`2026-10-28-cat-root.md`): two shapes of `raise` take the front of the left
-      root half of the way with the first upper arm segment in the play and at rest. The
-      deepening of the valleys in front of the root goes from 1,830 to 694 cm·° in the play and
-      from 3,643 to 2,185 cm·° at rest, and the root at 0.45 of the upper arm is 4.64 cm in the
-      play (4.48 cm, bind 5.26 cm). A soft fold stays where the chest meets the arm. A smoothing in the pose of the shape filled it, but turned over the
-      thin faces at the front end of the armpit line: clean them in the copy first.
-      Partly done (`2026-10-28-cat-root2.md`): the band of the left armpit line has no thin face
-      (`step_clean_pit()`), a third shape covers the steps between the rest and the play, and
-      the follow reaches 0.05 units. The deepening goes from 694 to 441 cm·° in the play, from
-      2,185 to 1,391 cm·° at rest, and from 1,984 to 1,001 cm·° in the lift sample 5, with no new
-      folded face. A softer fold stays in the play and at rest (`user51-zoom.webp`,
-      `rest-zoom.webp`). A smoothing of the skin in the pose pulled the root front into a dark
-      pocket also after the clean. Next: a root ring with more vertices at the front, or a bind
-      arm nearer to the play.
-      Partly done (`2026-10-28-cat-root3.md`): the shape of the play fills the valleys of the
-      root front and moves no vertex in (`follow.fill`). The valleys in front of the root at 30 s
-      of the play are 828 cm·° (1,154), and the crease at az -72 is lighter. Face 2826 below the
-      root folds in 0.1% of the play. The notch at rest stays: the copy has a fin at the front
-      end of the left armpit line, where the socket and the first shoulder ring lie on the plane
-      of the seam and the trunk in front of them curves in (`fin-copy.webp`). A smoothing of the
-      line ends in the copy folded new faces. Next: put the socket front and the first ring
-      front onto the trunk surface in the copy, before the weights.
-- [ ] Cat (`2026-10-28-cat-wall.md`): at the ends of each armpit line, the wall meets the trunk at
-      up to 108°, and a small point shows from az 150 and az -150. Vertices 1607, 1609, and 1610
-      at the front end of the left line lie on one line, so a smoothing near them turned their
-      thin faces over (`2026-10-28-cat-root.md`).
-      Partly done (`2026-10-28-cat-root2.md`): near the ends of the left line, 4 faces have a
-      corner under 12° (13 before), and no three corners lie on one line. The right line keeps
-      its 14 thin faces: with the clean, the root ring of the bow arm went flatter in the play
-      (flat p5 0.75, 0.84 on `main`, a fail of the gate), and with the new strip alone, the
-      valleys in front of the right root deepened. A clean of the right band needs weights that
-      keep the root ring round, such as the weights of the copy before the clean on the tube.
-      Partly done (`2026-10-28-cat-root3.md`): a fourth shape of `raise` takes the root front of
-      the bow arm along in the play. Faces 772 and 775 fold in 10% of the play (100%), the
-      right valleys at 30 s are 3,158 cm·° (4,991), and the point from az 150 is smaller. Faces
-      815 and 721 at the right shoulder top fold in under 0.05% of the play. The 14 thin faces
-      stay: a clean that keeps the ring and slides its near vertices to the next ring, and a
-      smoothing of the line ends, each folded new faces in each play sample.
-- [ ] Cat (`2026-10-27-cat-arm.md`): near the elbow, the left forearm is 0.89 of the tube in the
-      play (4.65 cm, 5.2 cm), because the app turns the paw about 100° from the bind with the
-      linear blend, over three forearm segments for each ring.
-- [ ] Tan fox (`2026-10-27-cat-fox2.md`): the left flute paw keeps the move twist of 87° (67°
-      before round `sixth-cat-fox`). No left elbow that grasps the flute brings it to 70°.
-- [ ] Red fox and tan fox (`2026-10-28-fox-rabbit-crease.md`): at rest, the crook of the right
-      elbow keeps a soft fold of the skin, with no hard line, because the linear blend pinches the
-      bent inner elbow. The dual quaternion bind folds a bow arm that bends further than the bind.
-- [ ] Rabbit (`2026-10-28-fox-rabbit-crease.md`): at rest, a narrow groove runs between the front
-      of each upper arm and the trunk, with no hard line. It is the gap of the arm copy, which the
-      arm-down shape gives back (`rabbit-arms.glb`). A fill of the gap in the copy can close it.
-- [ ] Red fox and tan fox (`2026-10-28-fox-rabbit-crease.md`): thin dark V lines show on the white
-      chest under the front key: splits of the normals of the fur spikes of the user mesh, on
-      `main` too. Smooth them like the neck notches, or give them the skin normals.
-- [ ] Cat (`2026-10-26-fifth-review-strings.md`): the round belly keeps both elbows 35° to 48°
-      from the vertical at rest. Lower elbows went 2.2 cm to 4.1 cm into the belly (limit 1.5).
-- [ ] Bear (`2026-10-26-fifth-review-bears.md`): in the gallery light, each arm casts a black
-      shadow on the trunk under the armpit. The scene light is an open decision of the user.
-- [ ] Elephant (`2026-10-27-elephant-bake.md`): in the gallery light, each arm casts a black band
-      of shadow on the trunk beside the belly, as on the bear. The probe with no shadow shows the
-      skin there (`armpit-probes.webp`). It waits for the same decision of the scene light.
-- [ ] Polar bear (`2026-10-27-polar-legs-rebuild.md`): the seated thigh keeps a depth of about
-      0.14 units from the haunch to the knee, and the source tapers from 0.183 to 0.148. The
-      haunch above the cut keeps its faces. Next: a cut higher on the outer side of the hip,
-      with tilted top rings, so that the tube takes the thigh up to the haunch.
-- [ ] Polar bear (`2026-10-27-polar-legs-rebuild.md`): 4 edges of the crease of the left instep
-      and 4 edges of the cut loop at the crotch turn more than 40° in the bind (89.6° at most).
-      The instep crease is a crease of the user mesh. Next: check them in the stage light, and
-      give the faces the skin normals if they shade as lines.
-- [ ] Polar bench (`2026-10-28-polar-bench2.md`): the forearms and the upper arms go 8.3 cm into
-      the belly in the play (6.3 and 6.8 cm before). Next: try the elbows a little further out
-      (`poleL`, `poleR` of `HANDS_HOLDS.piano`) with `pnpm pose-depth pianist --base main`.
-- [ ] Polar bench (`2026-10-28-polar-bench2.md`): the piano of 1.22 moves rows of the four demos
-      with a piano again (`gate-body-probe.txt`). Next: check the default view of `bach-bwv1050`
-      and `boulanger-matin`, and show the user the stage with the larger piano.
-- [ ] Tails (`2026-10-28-tails.md`): the cat has 4 faces that stay turned over against the bone
-      turn after the bind (2 before). No image shows them.
-- [ ] Bear wrist (`2026-10-28-followups.md`): a soft notch stays on the top of each wrist at rest,
-      and the right wrist still folds in 18,499 play samples. Next: check the paw of the user mesh
-      at the cut with a fill light.
-- [ ] Rhino T-pose (`2026-10-28-rhino-tpose.md`): the paws go 2.4 cm into the tuba (limit 2.2 cm,
-      1.9 cm on the A-pose mesh), and the right arm folds 6 faces at p95 (3 before). Next: a
-      thinner round stump at the nails, or a grip that keeps the stump on the outside of the tube.
-- [ ] Penguin flank (`2026-10-28-followups.md`): the round bump at the armpit stays a little
-      visible from az90. The faces around the flipper with a part of the arm weight stretch when
-      the flipper rises. Next: a cut of the flipper from the body with a side wall, as the arm
-      copies of route 3.
-- [ ] Penguin edge (`2026-10-28-followups.md`): the flippers go 1.3 cm into the body (1.1 cm
-      before), and the edge of the orange beak and feet stays uncut. Next: check the flipper roots
-      with a fill light.
-- [ ] Hippo arm (`2026-10-28-followups.md`): the arm gate gives `FAIL` on the right stretch p95
-      (0.22 against 0.16), because the shape shortens an inner elbow edge of the rest sample. The
-      left arm on the neck of the bass has no rest shape. Next: check the left arm with a fill
-      light, and count the stretch from the bind for a body with a rest shape.
-- [ ] Fill light (`2026-10-28-followups.md`): `pnpm close-views play` renders the app with no
-      fill light. Next: add a fill to the play mode for the checks.
-- [ ] Cat bow arm (`2026-10-28-arm-smooth.md`): the crumple share of `pnpm arm-look violist` stays
-      23.9% (limit 14.6%). At the tip, thin dark wavy folds cross the right shoulder. A larger
-      rim of skin normals did not remove them, so they are folds of the geometry at the root.
-      Next: a bind of the right upper arm nearer to the bow arm of the play, with the raise
-      shapes fitted again.
-- [ ] Hippo bow at rest (user, 2026-10-28): "not holding the bow properly". The stick goes
-      through the middle of the round paw, and the frog end hides inside it, so the paw reads as a
-      lid on the stick. Next: ask the user for the form of the rest hold, such as the bow on the
-      strings, or the frog end out of the paw on the thumb side.
-- [ ] Polar bear (`2026-10-28-polar-legs.md`): with the wrists 0.2 H up in the lift, the paws go
-      1.0 cm and the forearms up to 1.5 cm into the front of the case in the lift and the
-      lowering (limit 1.5 cm, 0 cm before). In the bind, 3 faces of the left shin and thigh turn
-      over after the groin crease (0 before).
-- [ ] Polar bear wrist (`2026-10-27-polar-wrist.md`): one edge of the left wrist band, on the
-      palm side of the paw, stays concave up to 82° in the play (88° before), at a groove of the
-      paw of the user mesh. It shades soft with the skin normals. Next: check it from below in
-      the stage light, and fair the groove in the copy if it shows.
-- [ ] Polar bear paws (`2026-10-27-polar-wrist.md`): the automatic weights give each paw about
-      0.35 of the wrist helper and 0.1 to 0.25 of the last forearm segment, so the paw turns
-      only about two thirds of the hand turn. Next: take the wrist helper off the paws, as
-      `step_wrist()` of `hippo_arms.py` does, and check the wrist bend and the claws on the keys.
-- [ ] Polar bear copy (`2026-10-27-polar-wrist.md`): `polar_bear_legs.py` stops when the JPEG of
-      the arm image leaks above 0.02 into the free columns of the strip, as a try with no wrist
-      smooth did. Next: skip a border of 8 columns in the check of `atlas_strip()`.
-- [ ] Close views: the pianist has no lift or lowering moment in `ROLE_VIEWS`, so
-      `close-views pianist --moments lift50` fails. Next: give the role the moments of
-      `halfMoves()`, as the violinist has.
-- [ ] Wolf (`2026-10-27-wolf-mouse-rests.md`): the bell of the upright clarinet rests on
-      nothing, 22 cm in front of the seat. On the right knee top, the left forearm went 7 cm to
-      12 cm into the belly. Next: offer the user the bell on the right knee with the right paw
-      alone and the left paw on the left thigh (`restFreeL`), as a real clarinetist rests it.
-- [ ] Wolf (`2026-10-27-wolf-mouse-rests.md`): the clarinet axis turns up to 14° in the closed
-      left paw over a lift (8° on the rest at the knee). Next: read the left paw crops of the
-      lift at 2x, and scan the left rest elbow with `wolf-rest.ts --moves` if it shows.
-- [ ] Mouse (`2026-10-27-wolf-mouse-rests.md`): the left paw twists 134° on its forearm at rest,
-      and the left palm turns 58° from the oboe (grasp limit 60°), so the rest elbows have
-      little room. Next: supinate the bind left paw of the mouse (`studio.bindSupination`), as
-      for the wolf, and scan the rest elbows again.
-- [ ] Badger bass drum (`2026-10-27-badger-beater.md`): from the front, the drum hides the right
-      arm and the beater, as a real drum hides its player. Show the user the front and the stage
-      images, and ask if the badger must show more from the front.
-- [ ] Badger sticks (`2026-10-27-badger-beater.md`): the snare sticks, the yarn mallets, and the
-      xylophone mallets of the badger keep about real lengths (34 cm), longer than the scaled
-      bass drum beater (25.8 cm). Ask the user if the scale of the badger applies to them too.
-- [ ] Badger bass drum (`2026-10-27-badger-beater.md`): between strikes, the paw keeps its turn
-      in the world while the body sways, so its twist on the forearm moves from -15° to 5° in
-      about 1 s. The paw grasps the shaft in 83% of the play samples (`pnpm wind-grip`).
-- [ ] Badger bass drum (`2026-10-27-badger-beater.md`): the left paw hangs and does not muffle
-      the head in the rests, as section 5 of the percussion reference gives for marches.
-- [ ] Hippo stop in pizzicato (`2026-10-28-hippo-grip.md`): in the lowering after a pizzicato,
-      the path of the bow from the pluck to the rest turns the forearm up to 79° off its angle in
-      the plane of the palm. The bow then turns 79° in the paw in about 0.6 s, and the paw swings
-      up to 22° toward the palm. Give this move a path of the bow that keeps the forearm near 45°
-      (`liftMix()` and `BowVia` of `pose/bowed.ts`), and follow it with `probes/move-probe.ts` of
-      `docs/research/2026-10-28-hippo-grip/`.
-- [ ] Rabbit: the largest twist step between two arm bones is 42.1° on the left forearm (target
-      25°, 83.7° on `main`), because the left paw asks for about 150° of twist in the play. A
-      smaller twist of the hold, or more forearm segments, can lower it (`2026-10-24-violin-arms.md`).
-- [ ] Cat: the largest twist step between two arm bones is 40.8° on the left forearm and 26.0° on
-      the right upper arm (target 25°), because the left paw twists about 148° in the play
-      (`2026-10-25-cat-arms.md`).
-- [ ] Cat: the manager decides on the left forearm twist p95 71° of the arm gate (52° on `main`,
-      past the margin), as for the rabbit (`2026-10-25-cat-arms.md`).
-- [ ] Cat: 11 to 12 hidden faces of the armpit lines turn over in each sample of the fold probe
-      (`2026-10-25-cat-arms.md`).
-- [ ] Rabbit: the bow goes up to 2.5 cm into the arms in the lowering and 1.0 cm at rest, near the
-      grip (`shares.txt` of `2026-10-24-violin-arms/`).
-- [ ] Rabbit, red fox, and cat: the forearms and the upper arms go up to 2.1 cm (rabbit), 2.5 cm
-      (red fox, 2.4 cm before the middle turn), and 2.5 cm (cat, 2.9 cm before) into the
-      instrument in the lift and the lowering (limit 1.5), near the end of the lift
-      (`2026-10-25-string-angle.md`).
-- [ ] Rabbit: the violin points 50° to the left, 5° more than a real player: at 45°, the bow paw at
-      the frog went 1.9 cm into the jaw and the right forearm 2.3 cm into the body. A bow arm round
-      or a smaller violin can bring it to 45° (`2026-10-25-string-angle.md`).
-- [ ] Cat: the claws of the bow paw go 2.2 cm into the viola in the play (1.5 cm before), and the
-      left upper arm 2.2 cm into the body in the moves (1.5 cm before) (`2026-10-25-string-angle.md`).
-- [ ] Rabbit, red fox, and cat: the left elbow points to the side under the instrument, and the
-      upper arm turns 29° to 46° to the side, where a violin student turns it 16° to 25° toward the
-      middle. Further in, the paw twisted past 170° on the forearm (`2026-10-25-string-angle.md`).
-- [ ] User decision: the cat plays a 1/2 viola, the size of the red fox violin, so that it can
-      hold it at 45°. A 3/4 viola (0.94) reaches the nut at about 55° (`2026-10-25-string-angle.md`).
-- [ ] The 1/2 viola of the cat moves the seats of the layout by up to 9.5 cm. Run
-      `pnpm test:paused src/shots/` and `src/models/layout-scene.test.ts` when the tests come back
-      (`layout-move.txt` of `docs/research/2026-10-25-string-angle/`).
-- [ ] The gap of a piano case moves the contrabass rows of `bach-bwv1048` and `bach-bwv1050` back,
-      and the stage of `bach-bwv1050` grows by 0.18 m. Run `pnpm test:paused src/shots/` and
-      `src/models/layout-scene.test.ts` when the tests come back (`2026-10-25-bass-piano-gap.md`).
-- [ ] The layout knows only the bind footprints, so only a piano case keeps the reach of a player
-      in play. A bassist stands 0.15 m from a seated clarinet in `beethoven-8` with no clip now.
-      A new hold that reaches further can clip there (`2026-10-25-bass-piano-gap.md`).
-- [ ] In the default view of `bach-bwv1048` and `bach-bwv1050`, the open lid of the harpsichord
-      hides the contrabasses behind it up to the eyes, on main too (`2026-10-25-bass-piano-gap.md`).
+- [ ] Pig: a T-pose mesh gave a flat slab, a flap, and 9 to 14 folded faces at the shoulders, so the
+      current mesh stays. Ask the user: a ring at each shoulder, or another mesh.
+- [ ] Polar bear pianist: the arms go up to about 8 cm into the belly in the play (accepted 4 cm).
+      Try the elbow poles (`HANDS_HOLDS.piano`) further out, with the arm gate.
+- [ ] Polar bear pianist: from the front, the open lid hides the bear and its paws.
+- [ ] Polar bear pianist: at the far keys, the outer upper arm stands 36° to 41° out from the round
+      trunk (piano-technique).
+- [ ] Polar bear pianist: at rest, the paws lie 8 cm to 10 cm below the key top, on the lower belly,
+      because the arms do not reach the thighs. Lower paws fold the right shoulder.
+- [ ] Polar bear rig: the left shoulder folds about 20 faces at rest and in the play (limit 8). Add
+      loop edges or a corrective shape at the armpit (`pnpm fold-probe pianist`).
+- [ ] Polar bear rig: each forearm folds into a hard dark V at the inner elbow in the chord (faces
+      574 to 576 on the right). Add loop edges or a corrective shape at the elbow.
+- [ ] Polar bear pedals: the case shades the brass pedals, and from the stage camera the bear and
+      the keys hide the pedals and the feet. No demo has sustain pedal data (CC 64) on the piano.
+- [ ] Polar bear legs: the thigh of the pedal leg pulls the haunch 2.3 cm into the bench pad in the
+      play. Keys further away keep the haunch on the pad, but fold the left shoulder more.
+- [ ] Polar bear legs: the knee crease of the seated bind makes the thigh near the knee thinner than
+      the mesh, and the back of each knee has 6 edges that turn more than 40°.
+- [ ] Polar bear legs: the seated thigh keeps one depth from the haunch to the knee, but the source
+      tapers. Try a cut higher on the outer side of the hip, with tilted top rings.
+- [ ] Polar bear legs: the thighs are short, so the lap is small.
+- [ ] Polar bear legs: 4 edges of the crease of the left instep and 4 edges of the cut loop at the
+      crotch turn more than 40° in the bind. Check them in the stage light.
+- [ ] Polar bear legs: in the bind, 3 faces of the left shin and thigh turn over after the groin
+      crease.
+- [ ] Polar bear pianist: in the fast passages of `bach-bwv1050`, the head moves about 4 cm to each
+      side two times each second. Find a calmer side lean that keeps the reach of the far paw.
+- [ ] Polar bear keys: with the gaps between the white keys, the soft shadow of the paws on the keys
+      is weaker. The claws stay at the key top and do not follow a pressed key down.
+- [ ] Polar bear pianist: in the lift and the lowering, the paws and the forearms touch the front of
+      the case up to 1.5 cm deep (limit 1.5 cm).
+- [ ] Polar bear wrist: one edge of the left wrist band, on the palm side, stays concave in the play
+      at a groove of the mesh. Check it from below in the stage light, and fair the groove.
+- [ ] Polar bear paws: the automatic weights give each paw about 0.35 of the wrist helper, so the
+      paw turns about two thirds of the hand turn. Take the helper off the paws (`step_wrist()`).
+- [ ] Polar bear copy: `tools/blender/polar_bear_legs.py` stops when the JPEG of the arm image leaks
+      into the free columns of the strip. Skip a border of 8 columns in `atlas_strip()`.
+- [ ] Piano: the larger piano moves the rows of four demos, and in `bach-bwv1048` and `bach-bwv1050`
+      the lid hides the contrabasses. Show the user the default views.
+- [ ] Close views: the pianist has no lift or lowering moment in `ROLE_VIEWS`, so `close-views
+      pianist --moments lift50` fails. Give the role the moments of `halfMoves()`.
+- [ ] Bear: at rest, the arms stand out about 35° around the wide belly, and the upper arms go 2.2
+      cm into the body while the arms move.
+- [ ] Bear: a soft notch stays on the top of each wrist at rest, and the right wrist folds in the
+      play. Check the paw of the mesh at the cut with a fill light.
+- [ ] Bear: from az-150, a soft dark crease stays at the left arm root, most at rest. From az150, a
+      small dark pocket stays where the raised right arm meets the back.
+- [ ] Bear: the trunk faces of the notch below the caps of the cut face down under each raised arm.
+      No view shows them.
+- [ ] Bear: the cheeks and the brow show a few facets in the head crops. Try a larger blend on the
+      head only.
+- [ ] Bear and elephant: in the gallery light, each arm casts a black band of shadow on the trunk
+      beside the belly. Check it in the stage light.
+- [ ] Cat violist: the round belly keeps both elbows 35° to 48° from the vertical at rest, and the
+      right upper arm meets the belly 1.7 cm deep near the elbow (limit 1.5 cm).
+- [ ] Cat violist: the bow upper arm goes 2.1 cm into the body at the tip on the lowest string
+      (limit 1.5 cm). Try a flatter inner upper arm. A larger shoulder turn folds face 785.
+- [ ] Cat violist: the right claws go 2.2 cm into the viola at the frog, and the left upper arm 2.2
+      cm into the body in the moves (limit 1.5 cm).
+- [ ] Cat violist: `pnpm arm-look violist` finds too many thin dark folds across the right shoulder
+      at the tip. Try a bind of the right upper arm nearer to the play.
+- [ ] Cat: face 832 at the front of the right armpit folds in most of the play. Arm segments allow
+      no `raise` shape there.
+- [ ] Cat: the armpit line at the lower back of each arm root folds a little in the play (faces 729,
+      688, and 728 on the right), and 11 to 12 hidden faces of the lines turn over.
+- [ ] Cat: a soft fold stays at the front of the left arm root, and a notch at rest. Put the socket
+      front and the first ring front of the copy onto the trunk surface before the weights.
+- [ ] Cat: at the ends of each armpit line, the wall meets the trunk at up to 108°, and a small
+      point shows from az ±150. Clean the 14 thin faces of the right line.
+- [ ] Cat: near the elbow, the left forearm is 0.89 of the tube in the play, because the linear
+      blend turns the paw about 100° from the bind over three forearm segments.
+- [ ] Cat: from the back, a dark band in a V lies on the lower back above the seat. Find the faces
+      and the light that make it.
+- [ ] Cat tail: 4 faces stay turned over against the bone turn after the bind. No image shows them.
+- [ ] Rabbit, red fox, cat, and tan fox: the arm-down shape restores the twist loss of the bind left
+      forearm twice. Mask the forearm part of the shape on a supinated side.
+- [ ] Bind paws: the bind paws of most configs start pronated, so the cellist, the bassist, the
+      hornist, and the oboist twist the left paw near 170°. Try `studio.bindSupination`.
+- [ ] Red fox and tan fox: at rest, the crook of the right elbow keeps a soft fold, because the
+      linear blend pinches the bent inner elbow. A dual quaternion bind folds the bow arm.
+- [ ] Red fox and tan fox: thin dark V lines on the white chest are splits of the normals of the fur
+      spikes of the mesh. Smooth them like the neck notches, or give them the skin normals.
+- [ ] Tan fox flutist: no left elbow that grasps the flute brings the move twist of the left paw
+      (87°) to 70°.
+- [ ] Rabbit: at rest, a narrow groove runs between the front of each upper arm and the trunk. It is
+      the gap of the arm copy. Fill the gap in the copy.
+- [ ] Rabbit violinist: the bow goes up to 2.5 cm into the arms in the lowering and 1.0 cm at rest,
+      near the grip.
+- [ ] Rabbit violinist: the violin points 50° to the left, 5° more than a real player. A bow arm
+      round or a smaller violin can bring it to 45°.
+- [ ] Rabbit violinist: the round elbow patch drops the section of the right upper arm of `pnpm
+      arm-look` to 0.60. Find the cause, and keep the round elbow.
+- [ ] Rabbit violinist: with the round elbow patch, the upper arms go 2.5 cm into the body at rest
+      and 5.9 cm in the lowering. Keep the patch out of the trunk when the arm hangs.
+- [ ] Rabbit violinist: a dark lower face of the bow elbow shows from az150 in the moves, and a thin
+      dark line under the forearm near the elbow from the front at the frog.
+- [ ] Rabbit violinist: a small dark sliver stays under the right elbow from the right side at the
+      frog.
+- [ ] Bowed strings: the left elbow points to the side under the instrument, and the upper arm turns
+      29° to 46° to the side, but a violin student turns it 16° to 25° in (string-technique).
+- [ ] Bowed strings: near the end of the lift and in the lowering, the arms go up to 2.5 cm into the
+      instrument (limit 1.5 cm), and up to 2.8 cm for the standing soloists.
+- [ ] Cat violist: ask the user to confirm the 1/2 viola. A 3/4 viola reaches the nut at about 55°.
+- [ ] When the tests come back, run `pnpm test:paused src/shots/` and
+      `src/models/layout-scene.test.ts`. The harp, the viola, and the piano gap moved seats.
+- [ ] Layout: it knows only the bind footprints, so only a piano case keeps the reach of a player in
+      play. A hold that reaches further can clip (a bassist beside a clarinet in `beethoven-8`).
 - [ ] Elephant: a short light sliver stays at the inner root of the right arm, near the tusk, from
-      the front (`2026-10-25-elephant-hippo-creases.md`).
-- [ ] Elephant: the right flat p5 of the arm gate is 0.78 at the shoulder ring (0.87 before the
-      arm tubes, margin 0.05). The manager decides (`2026-10-25-elephant-arms.md`,
-      `2026-10-25-elephant-hippo-creases.md`).
+      the front.
 - [ ] Elephant timpanist: between strikes, the heads stay 2 cm to 7 cm above the spots with the
-      shafts 15° to 22° down. A real timpanist sets them one inch above the head with a level
-      shaft. A larger wrist lift moved the shafts out of the closed paws
-      (`2026-10-25-timpani-piano-rest.md`).
-- [ ] Pig: the dome of each new upper arm lies inside the shoulder, so `pnpm pose-depth hornist`
-      gives the upper arms 4.2 cm in the body in each set (0.5 cm before). Give the sweep an
-      accepted depth after the test pause. Small dark facets show at the top of the shoulders.
-- [ ] Rabbit: the dark wedge on the chest under the bow arm is the shadow of the arm (4.5).
-- [ ] Rabbit: a small dark sliver stays under the right elbow from the right side at the frog
-      (2,625 band pixels with no shadows, 740 on `main`, `band-measures.txt` of `round4/`).
-- [ ] Rabbit: the section of the right upper arm of `pnpm arm-look` fell from 0.74 to 0.60 with the
-      round elbow patch (limit 0.44). Find the cause of the drop of the median, and keep the
-      round elbow (`2026-10-22-rabbit-elbow.md`, section 5).
-- [ ] Rabbit: "upper arms in body" of `pnpm pose-depth violinist` grows from 0 to 2.5 cm at rest
-      and 5.9 cm in the lowering with the round elbow patch (3.3 cm on the red fox). Keep the
-      patch out of the trunk when the arm hangs (`2026-10-22-rabbit-elbow.md`, section 5).
-- [ ] Rabbit: a dark lower face of the bow elbow shows from azimuth 150 at `lower50` and
-      `lift50`, and a thin dark line under the forearm near the elbow from the front at the frog
-      (`pairs-*.webp` of `2026-10-22-rabbit-elbow/`).
-- [ ] Remove the unused high stool (`HIGH_STOOL`, the support `high-stool`, and the foot ring of the
-      parametric legs): no player sits on it since the hippo stands (`2026-10-18-mesh-hippo.md`).
-- [ ] Panda face: the round patches have angular edges, because the rule recolors whole faces of
-      1 cm to 2 cm. The left patch is 18% of the head width high, and the right patch 22% (the
-      reference 23% to 27%). Show the user `widths.webp`, and ask if a smoother oval is worth a
-      vertex move (`2026-10-18-panda-face.md`).
-- [ ] Panda smile: from 30° above, the mouthpiece and the paws hide the mouth at both widths of
-      the line. Check the smile in a close play frame of the stage with the user
-      (`2026-10-18-panda-face.md`).
-- [ ] Condense design 1, 3, 7, and 8, which still hold dated history
-      (`2026-10-17-design-condense.md`).
-- [ ] Hippo nose: the tip lies on a nostril 2.8 cm from the middle plane, and the rig checks warn.
-      A tip on the plane moves the jaw of the rig 3.0 cm up (`2026-10-19-mesh-retro.md`).
-- [ ] Mouse eyes: in the front view, the bent pea eyes of the mouse lean in at the top, because
-      the surface under them faces 17° to 21° more up than their direction. Try a direction
-      between the two for the mouse (`2026-10-20-pea-eyes.md`).
-- [ ] Bear left upper arm: in Mozart K. 315 at 125.15 s, the left upper arm of the studio bear of
-      seed 2 goes 2.4 cm into the body (limit 1.5 cm, 2.3% of the samples). Seed 3 had 0 cm. An
-      elbow pole further out changed nothing (`docs/research/2026-10-22-studio-bears.md`).
-- [ ] Polar bear lap: on the near level thighs, the knees show in front of the belly, but the
-      thighs stay short, and the lap is small. A lower knee in the field of the studio failed the
-      gates on most seeds. Try a longer thigh with a new bind of the role and its seeds.
-- [ ] Polar bear upper arms: the upper arms of the studio polar bear go up to 7.2 cm into the
-      belly in a play and 7.5 cm in the lowering (accepted 4 cm). Elbows at (±1, -0.3, 0.3) give
-      5.8 cm and 6.0 cm. Check the arm gate and the folds of that hold
-      (`docs/research/2026-10-22-studio-bears.md`).
-- [ ] Bear head facets: at the crease angle 70° and the blend 0.12, the cheeks and the brow of
-      the bear show a few facets in the head crops. Try a larger blend on the head only.
-- [ ] Bear notch: trunk faces of the notch below the caps of the cut still face down under each
-      raised arm, 19 cm² and 23 cm² against 5 cm² on the red fox (`flap-round.txt` of
-      `docs/research/2026-10-22-bear-armpit/`). No view shows them.
+      shafts down. A real timpanist holds them one inch above the head with a level shaft.
+- [ ] Pig hornist: the dome of each upper arm lies inside the shoulder (4.2 cm in the sweep). Give
+      the pair an accepted depth, and fix the dark facets on the shoulders.
+- [ ] Remove the unused high stool (`HIGH_STOOL` and the support `high-stool` of `props.ts`). No
+      player sits on it.
+- [ ] Hippo: the nose tip lies on a nostril 2.8 cm from the middle plane, and the rig checks warn. A
+      tip on the plane moves the jaw of the rig 3.0 cm up.
+- [ ] Mouse: in the front view, the pea eyes lean in at the top, because the surface under them
+      faces more up. Try a direction between the two.
+- [ ] Hippo bassist: at rest, the stick goes through the middle of the round paw, and the frog end
+      hides in it. Ask the user for the form of the rest hold, such as the bow on the strings.
+- [ ] Hippo bassist: in the lowering after a pizzicato, the bow turns 79° in the paw. Give the move
+      a bow path that keeps the forearm near 45° (`BowVia` of `pose/bowed.ts`).
+- [ ] Wolf clarinetist: at rest, the bell of the clarinet rests on nothing. Offer the user the bell
+      on the right knee and the left paw on the left thigh (`restFreeL`).
+- [ ] Wolf clarinetist: the clarinet turns up to 14° in the closed left paw over a lift. Read the 2x
+      crops of the lift, and scan the left rest elbow if it shows.
+- [ ] Badger bass drummer: from the front, the drum hides the right arm and the beater, as a real
+      drum hides its player. Ask the user if the badger must show more from the front.
+- [ ] Badger: the snare sticks and the mallets keep about real lengths (34 cm), longer than the
+      scaled bass drum beater. Ask the user if the scale of the badger applies to them too.
+- [ ] Badger bass drummer: between strikes, the paw keeps its turn in the world while the body
+      sways, so its twist on the forearm moves 20° in about 1 s.
+- [ ] Badger bass drummer: the left paw hangs and does not muffle the head in the rests
+      (percussion-technique 5).
+- [ ] Close views: `pnpm close-views play` renders with no fill light. Add a fill to the play mode
+      for the checks (9.8).
 
 Done when: the gallery shows each species with its instrument, the budget test passes, and the
 scene of each demo has its seats and stage size with no overlap.
