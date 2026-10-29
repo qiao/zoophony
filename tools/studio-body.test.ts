@@ -751,13 +751,6 @@ describe('eyePush (design 4.5)', () => {
 describe('studioGlbPath', () => {
   const settings = ANIMALS.get('rabbit');
 
-  it('gives the output of the studio for an animal with no glb in its settings', () => {
-    expect(studioGlbPath('bear', ANIMALS.get('bear'))).toMatch(
-      /lowpoly-studio\/animals\/bear\/out\/bear\.glb$/,
-    );
-    expect(studioGlbPath('cat')).toMatch(/lowpoly-studio\/animals\/cat\/out\/cat\.glb$/);
-  });
-
   it('gives the file of the settings when the settings name one', () => {
     if (!settings) {
       throw new Error('ANIMALS has no rabbit.');

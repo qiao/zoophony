@@ -115,9 +115,9 @@ export interface AnimalSettings {
    */
   readonly colorBlend?: number;
   /**
-   * The GLB file of the body, relative to the repository, when the studio does not build it, such
-   * as a mesh of the user that `pnpm rig-mesh` rigs (route 3 of `docs/agents/model-work.md`). With
-   * no file, the body comes from `lowpoly-studio/animals/<animal>/out/<animal>.glb`.
+   * The GLB file of the body, relative to the repository: the rig that `pnpm rig-mesh` writes from
+   * a mesh of the user (route 3 of `docs/agents/model-work.md`). Each animal of `ANIMALS` has one.
+   * The scratch settings of a probe or of `--inspect` can have none.
    */
   readonly glb?: string;
   /**
@@ -190,7 +190,7 @@ const FOX_TEXTURE_COLORS: SpeciesColors = {
   accent: '#4a3324',
 };
 
-/** The animals of the studio that the app shows, by their ids in `lowpoly-studio/animals/`. */
+/** The animals that the app shows, by their ids. */
 export const ANIMALS: ReadonlyMap<string, AnimalSettings> = new Map([
   // The bear conductor: the T-pose mesh of the user (decisions/2026-10-23-bear-tpose.md), with the
   // size of the studio bear of decisions/2026-10-22-studio-bears.md.
@@ -3145,7 +3145,7 @@ export function inspectionLines(facts: StudioInspection): string[] {
 /**
  * Writes the TypeScript module of a studio body.
  *
- * @param animal The id of the animal in `lowpoly-studio/animals/`.
+ * @param animal The id of the animal.
  * @param constant The name of the constant.
  * @param body The body.
  * @returns The source text.
@@ -3195,17 +3195,20 @@ export async function writeStudioModule(
 }
 
 /**
- * Gives the GLB file of an animal: the file of its settings, or the output of the studio.
+ * Gives the GLB file of an animal: the file of its settings.
  *
- * @param animal The id of the animal in `lowpoly-studio/animals/` or in `ANIMALS`.
+ * @param animal The id of the animal.
  * @param settings The settings of the animal, or none for an animal that is not in `ANIMALS`.
  * @returns The absolute path of the file.
+ * @throws Error if the settings name no GLB file.
  */
 export function studioGlbPath(animal: string, settings?: AnimalSettings): string {
-  if (settings?.glb) {
-    return join(ROOT, settings.glb);
+  if (!settings?.glb) {
+    throw new Error(
+      `The animal ${animal} has no GLB file in ANIMALS of tools/studio-body.ts. Give one with --inspect --glb <file>.`,
+    );
   }
-  return join(ROOT, 'lowpoly-studio', 'animals', animal, 'out', `${animal}.glb`);
+  return join(ROOT, settings.glb);
 }
 
 /**
@@ -3219,7 +3222,7 @@ export function studioGlbPath(animal: string, settings?: AnimalSettings): string
 async function readStudioGlb(file: string, animal: string): Promise<Buffer> {
   if (!existsSync(file)) {
     throw new Error(
-      `The GLB file ${relative(ROOT, file)} does not exist. Build it with: python3 studio build ${animal}, or pnpm rig-mesh ${animal} for a mesh of the user`,
+      `The GLB file ${relative(ROOT, file)} does not exist. Build it with: pnpm rig-mesh ${animal}`,
     );
   }
   return readFile(file);
@@ -3227,11 +3230,10 @@ async function readStudioGlb(file: string, animal: string): Promise<Buffer> {
 
 /**
  * Writes the module of a studio body from its GLB file: `node tools/studio-body.ts <animal>`
- * (design 4.4). The GLB file is `lowpoly-studio/animals/<animal>/out/<animal>.glb`, the output
- * of `python3 studio build <animal>`, or the file of the settings of the animal. With
- * `--inspect`, it writes no file, and it prints the facts of the GLB file that a new studio body
- * needs. An animal that is not in `ANIMALS` gets an assumed scale. `--inspect --glb <file>`
- * inspects another file with the settings of the animal.
+ * (design 4.4). The GLB file is `glb` of the settings of the animal. With `--inspect`, it writes
+ * no file, and it prints the facts of the GLB file that a new studio body needs.
+ * `--inspect --glb <file>` inspects another file with the settings of the animal. An animal that
+ * is not in `ANIMALS` needs `--glb`, and gets an assumed scale.
  */
 async function main(): Promise<void> {
   const args = process.argv.slice(2);
@@ -3255,7 +3257,7 @@ async function main(): Promise<void> {
   }
   if (!settings) {
     throw new Error(
-      `Usage: node tools/studio-body.ts <animal> [--inspect [--glb <file>]], with an animal of: ${[...ANIMALS.keys()].join(', ')}. --inspect also takes another animal of the studio.`,
+      `Usage: node tools/studio-body.ts <animal> [--inspect [--glb <file>]], with an animal of: ${[...ANIMALS.keys()].join(', ')}. --inspect --glb <file> also takes another animal.`,
     );
   }
 
