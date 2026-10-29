@@ -140,10 +140,11 @@ export default defineConfig({
   build: {
     // tools/size.ts reads the manifest to find the static imports of the entry chunk.
     manifest: true,
-    // The largest chunk holds three.js and the scene code: 615 kB, or 159 kB after gzip, on
-    // 2026-10-05. Nearly all of it is three.js. The warning of Vite starts at 500 kB, before gzip.
-    // The size check of design 7.2 (`pnpm size`, 1 MB after gzip) is the real limit.
-    chunkSizeWarningLimit: 700,
+    // The largest chunk, `renderer`, holds three.js, the scene code, and the studio bodies: 1,923
+    // kB, or 739 kB after gzip, on 2026-10-29. The base64 text of the studio bodies is about 500 kB
+    // of it after gzip. The limit of the warning of Vite is in kB before gzip, a little above that
+    // chunk. The size check of design 7.2 (`pnpm size`, 1 MB after gzip) is the real limit.
+    chunkSizeWarningLimit: 2000,
     rolldownOptions: {
       // The gallery and the animal views are separate entries, so they do not add to the first
       // download (7.1, 7.2).
