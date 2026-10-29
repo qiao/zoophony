@@ -76,7 +76,7 @@ const PLOT_SCRIPT = join(ROOT, 'tools', 'mesh_options.py');
  * The half width of the middle strip of the head in which the skull top lies, in the units of the
  * studio. The ears of the meshes of the user stand beside the skull, outside the strip, so the
  * head top of a size leaves the ears out, as the head top of the parametric bodies does
- * (`docs/research/2026-10-18-panda-mesh/measures.py`).
+ * (`tools/rig/panda_measures.py`).
  */
 export const HEAD_STRIP = 0.03;
 

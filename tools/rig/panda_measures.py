@@ -1,6 +1,7 @@
+# Output: the joint places of `tools/mesh-rigs/panda.json`.
 """Measures the parts of the panda mesh for the joints of the rig config, in the units of the studio.
 
-    uv run --no-project --with numpy python -I docs/research/2026-10-18-panda-mesh/measures.py <mesh.npz>
+    uv run --no-project --with numpy python -I tools/rig/panda_measures.py <mesh.npz>
 
 It prints the middle of the trunk cut at each height, the middle of the left leg cut at each
 height, the middle line of the left arm, the left paw beyond the wrist (its middle, its spread,
