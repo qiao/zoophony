@@ -6,13 +6,9 @@ at a strike, the stroke, and the playing spot of professional percussionists, wi
 each fact. Sections 1 to 4 give the timpani, and sections 5 to 9 the instruments of the percussion
 section.
 
-**Upkeep.** This file is current. It is not a record of one date, as a research report is. A
-round that changes the percussion motion of the app updates this file in the same commit: section
-10 "Use in the app", and each fact that the round finds wrong. Each new fact gets its source. The
-decision file [`2026-10-19-elephant-grip.md`](../decisions/2026-10-19-elephant-grip.md) records
-this rule. The research report
-[`2026-10-19-elephant-grip.md`](../research/2026-10-19-elephant-grip.md) holds the measures of the
-app.
+**Upkeep.** This file is current. A change of the percussion motion of the app updates section
+10 "Use in the app" and each fact that it finds wrong, in the same commit. Each new fact gets its
+source.
 
 **Source marks.** Each fact names its source by a number of section 11. "(abstract)" marks a fact
 from an abstract or a search summary, because the full text did not open. "(secondary)" marks a
@@ -30,9 +26,8 @@ A fact with no mark comes from the text of the source.
 
 ## 1. The grip
 
-- The fulcrum is between the thumb and the index finger. The back fingers wrap the shaft
-  loosely [1]. Wikipedia puts the fulcrum between the thumb and the middle finger [8
-  (secondary)].
+- The fulcrum is between the thumb and the index finger, and the back fingers wrap the shaft
+  loosely [1]. Wikipedia puts it between the thumb and the middle finger [8 (secondary)].
 - The thumb lies flat along the shaft, and its nail points to the head [1]. In the French grip,
   the thumb points down the shaft toward the head [3]. Thus the head leaves the front of the fist,
   at the side of the thumb and the index finger, and the shaft lies along the thumb side of the
@@ -61,8 +56,7 @@ from the V).
   (a search summary only)].
 - A general stroke is a smooth down-up motion that starts with the mallet above the head, and
   the player lifts the mallet head up at once after the attack [40]. Louder notes fall from a
-  greater height [42]. The heights of 12 inches [5] and
-  18 inches [7] are drills.
+  greater height [42]. The heights of 12 inches [5] and 18 inches [7] are drills.
 - The upper arm hangs beside the body, and the elbow bends so that the mallet reaches the head
   [3]. The shoulders do not lift [1].
 - The wrist has a small bend, which lets it turn [4].
@@ -128,14 +122,13 @@ from the V).
 
 ## 7. The crash cymbals and the suspended cymbal
 
-- Hand cymbals of all weights are 14 to 22 inches wide [23]: 0.356 to 0.559 m (derived). The
-  smallest real hand cymbal of these sources is thus 14 inches, 0.356 m.
+- Hand cymbals of all weights are 14 to 22 inches wide [23]: 0.356 to 0.559 m (derived).
 - The thumb and the forefinger hold the strap near the bell. The hand does not go through the
   strap [15] [20] [23].
 - The plates are in front of the middle of the chest, with their edges about 3 inches from the
   body [21], or with the top edges at about eye level [15] [20].
 - The plates are not vertical. The left plate can lie almost level under the left hand, with the
-  elbow near the stomach, and the right plate comes in at about 20° to it [20]. Other values are
+  elbow near the stomach, and the right plate comes in at about 20° to it [20]. Other sources give
   about 45°, with the plate of the strong hand on top [23], and 5° to 45° from vertical [16].
 - The right plate leads and comes down onto the left plate, one edge first, as a flam [20] [21]
   [23]. Better players move both plates [20] [22].
@@ -144,7 +137,7 @@ from the V).
   [20] [22]. No concert source gives the rest place. A marching method holds the plates at the
   sides, almost vertical [24].
 - A part marked "with stick" or "with mallet" plays on a suspended cymbal: one cymbal on a stand,
-  struck with a stick or a beater, not with another cymbal [23] [32].
+  struck with a stick or a beater [23] [32].
 - A suspended cymbal roll uses medium to soft yarn mallets. A cymbal of 17 inches or less takes a
   lighter mallet [30]. Suspended cymbals for orchestras and bands are sold at 18 inches
   [33 (abstract)].
@@ -154,10 +147,9 @@ from the V).
 - The stroke is legato, as on a marimba bar, and comes off the cymbal at the end of the roll
   [30]. Single notes play at the very edge with a legato stroke [31].
 - The suspended cymbal hangs flat, a little above the height of the waist [38].
-- No source of this file gives where a suspended cymbal player holds the mallets between
-  entrances. The bongos, played with snare sticks on a stand, take the ready position of the
-  snare drum [36], and the photos of [36] show the same rest position as for the snare drum
-  [36 (photo)].
+- No source gives where a suspended cymbal player holds the mallets between entrances. The
+  bongos, played with snare sticks on a stand, take the ready position and the rest position of
+  the snare drum [36] [36 (photo)].
 
 ## 8. The triangle and the tambourine
 
@@ -182,12 +174,10 @@ from the V).
   player (search summary of [29]).
 - The wrists stay low, and the elbows move forward to reach the back row [27].
 - A scale plays with alternate strokes, from either hand, and the hands also alternate on the
-  sharp bars of a chromatic scale [34]. Mallet technique rests on alternate single strokes. Where
-  full alternation would make the hands cross, the player puts in double strokes, two strokes of
-  one hand [35].
-- An ascending chromatic scale takes no double strokes [34]. About 90% of mallet technique is
-  alternate single strokes, and a double stroke is for a small interval, only where it is
-  necessary [35].
+  sharp bars of a chromatic scale. An ascending chromatic scale takes no double strokes [34].
+- About 90% of mallet technique is alternate single strokes. Where full alternation would make
+  the hands cross, the player puts in a double stroke, two strokes of one hand, for a small
+  interval, and only where it is necessary [35].
 - George Hamilton Green held the left mallet in front of the right mallet, the standard
   set-up of two mallets for decades. In his tremolos on the upper manual, the left mallet played
   in the middle of the bar, and the right mallet on the extreme near end [39].
@@ -196,165 +186,100 @@ from the V).
 
 ## 10. Use in the app
 
-The elephant plays the timpani of the app (`PERCUSSION_HOLDS.timpani` of
-`src/pose/percussion-rig.ts`, `TIMPANI` of `src/models/instruments/percussion.ts`). Each item
-gives the rule of the app, or where the app differs from sections 1 to 4. A round that changes the
-motion updates the items.
+The holds are in `PERCUSSION_HOLDS` and `SUSPENDED_CYMBAL_HOLD` of `src/pose/percussion-rig.ts`,
+and the instruments in `src/models/instruments/percussion.ts`. The strokes come from
+`STRIKE_MOTION` and `alternateHands()` of `src/pose/strikes.ts`.
 
-- **The grip.** The end of the round paw curls 100° onto the shaft, and the head leaves the
-  front of the fist about 45° from the thumb side, as section 1 gives (`TIMPANI.malletSpotL`,
-  `malletTilt`). The elephant paw has no fingers, so no finger wraps the shaft. The shaft lies
-  45° from the line of the paw: section 1 gives no angle. The shaft is 6 cm
-  long behind the grip (`TIMPANI.malletButt`), so the butt end sticks out 2.5 cm (left) and
-  2.0 cm (right) behind the paw in the play, as section 1 gives 13 mm to 25 mm. In the play, the
-  shaft leaves the paw 54° (left) and 51° (right) from the thumb side (`pnpm wind-grip`).
-- **The direction between strikes.** Each mallet points forward and in, 24° to 32° from
-  forward (a V of about 55°, as the American grip, `PercussionHold.home`), as section 2 gives.
-  Between strikes and at rest, each mallet keeps that direction, and the wrist lifts the head
-  2 cm to 7 cm above its spot, with the shaft 15° to 22° down (`MalletAcross.pitch`). Section 3
-  gives the set position one inch above the head with a level shaft. The app differs: the grip
-  stands higher, because the mallet strikes 20° to 23° down, and a larger lift of the wrist
-  moved the shaft out of the closed paw. Each paw turns around the shaft until it has no side
-  bend at the strike, and keeps that roll (`PercussionHold.strikeRoll`), so the shaft stays in
-  the paw. A turn of the mallet across the forearm laid the right mallet level across the belly
-  (`docs/research/2026-10-25-timpani-piano-rest.md`). A wider V of the German grip turns the
-  paw of the elephant further on its forearm (`docs/research/2026-10-19-elephant-grip.md`).
-- **The elbows.** Each upper arm hangs near the side of the body, and the elbow points down and
-  a little out (`PercussionHold.poleL` and `poleR`), as section 3 gives. The mallet slopes down
-  along the line of the forearm and the paw (`PercussionHold.home`), so the wrist stays nearly
-  straight, as section 3 gives for the forearm (10° to 15° down to the wrist). With a forearm
-  that hung down, the mallet left the bottom of the paw nearly at a right angle
-  (`docs/decisions/2026-10-26-second-review.md`). Section 3 gives no distance of the elbow from
-  the body, and section 6 gives about a fist for the snare drum. With the elbows farther out on
-  the old arms, the user saw "an unnatural gap between the arm and the body" from the
-  back (`docs/decisions/2026-10-22-elephant-crease.md`). The quad arm tubes show no gap from the
-  back with the elbows a little out, and the thick upper arms go less far into the round belly
-  (`docs/decisions/2026-10-25-elephant-hippo-creases.md`).
-- **The stroke.** The head lifts before the note, comes down at its full speed at the note
-  start, and rebounds (`STRIKE_MOTION` of `src/pose/strikes.ts`), as section 4 gives. The
-  wrist lifts the timpani head up to 11 cm to 21 cm above its spot, more for a louder note
-  (`MalletAcross.peak`), as the full stroke of section 3. The arm moves little, as section 4
-  gives.
-- **The playing spot.** The app differs. Each mallet strikes 0.25 m in from the near rim
-  (`PercussionHold.rim`), because the short arms of the elephant hold the paws above the near
-  rims, as the user chose (`docs/decisions/2026-10-19-elephant-pose.md`). A real player strikes
-  5 to 10 cm in (section 4). Each hand plays only the front kettle on its side of the trunk
-  (`PercussionHold.pair`), so the two mallets never strike one head together. The left mallet
-  strikes 8 cm and the right mallet 5 cm toward the middle of the player (`offsetL`,
-  `offsetR`). Section 4 gives the spot directly in front of the player.
+### The elephant at the timpani
 
-The badger plays the other percussion instruments (`PERCUSSION_HOLDS` of
-`src/pose/percussion-rig.ts`, `BASS_DRUM`, `SNARE_DRUM`, `TAMBOURINE`, `TRIANGLE`, and
-`XYLOPHONE` of `src/models/instruments/percussion.ts`). Its short arms reach 0.27 m from the
-shoulder joint to the palm (`docs/decisions/2026-10-20-mesh-badger.md`).
+The app follows these facts:
 
-- **The grip.** Each paw holds its stick, mallet, or beater in the claws curled 90°, and 75° with
-  the triangle: the shaft lies on the palm side, and the head leaves the front of the fist at the
-  side of the thumb, as section 1 gives (`PAW_SPOT`, `PAW_TILT` of
-  `src/models/instruments/percussion.ts`). The shaft lies 60° from the line of the paw in the
-  bind pose, the xylophone mallet and the triangle beater 30° to 33°, and the bass drum beater
-  38°. The app differs on the xylophone: the paws hang low in front of the belly,
-  and each mallet runs near the line of its forearm, so the shaft leaves the closed paw under the
-  curled claws. The butt end sticks out 0.8 cm to 3.2 cm behind the paw,
-  where section 1 gives 13 mm to 25 mm. The triangle beater has a longer butt
-  (`TRIANGLE.malletButt`), so that 2 cm sticks out. The middle of the paw holds the bass drum
-  beater one third up from the butt, as section 5 gives, so about 7 cm sticks out. The
-  xylophone paws keep their mallets at rest, with the heads up and forward.
+- **The grip (section 1).** The round paw curls onto the shaft, the head leaves the front of the
+  fist at the thumb side (`TIMPANI.malletSpotL`, `malletSpotR`, `malletTilt`), and the butt end
+  sticks out behind the paw (`TIMPANI.malletButt`).
+- **The V (section 2).** Each mallet points forward and in, in the V of the American grip
+  (`PercussionHold.home`). The wider V of the German grip turns the paw further on its forearm.
+- **The elbows (section 3).** Each upper arm hangs near the side, and the elbow points down and a
+  little out (`poleL`, `poleR`). The mallet slopes down along the forearm, so the wrist stays
+  nearly straight. Elbows farther out show a gap between the arm and the body from the back.
+- **The stroke (sections 3 and 4).** The head lifts before the note, comes down at its full speed
+  at the note start, and rebounds (`STRIKE_MOTION`). A louder note lifts higher
+  (`MalletAcross.peak`). The arm moves little.
 
-- **The bass drum.** The drum and the beater have the size of real ones at the scale of the
-  badger (its head top over the mean height of an adult, 0.617): a drum of 36 by 16 inches,
-  0.56 m wide, and a beater of 419 mm (Vic Firth BD3), 25.8 cm long with a head of 4.3 cm
-  [43] [44] [45]. The heads face left and right, and the badger stands behind the drum, as section 5
-  gives: the shell stands in front of its belly, and the right head 0.26 m to the right of its
-  middle. The right paw holds the beater at the near rim of the right head, one third up from
-  the butt, with the thumb side up, in the grip of the snare drum, as section 5 gives. At the
-  strike, the beater lies along the head, 10° down from the level, as the photos of [13] show,
-  and the head of the beater strikes 18 cm from the middle, 3 cm below it and toward the player,
-  about one third in from the rim [16]. Between strikes, the head of the beater rests 5 cm off
-  the drum head, and before a strike it lifts up to about 13 cm along the normal of the drum
-  head: the paw and the forearm turn around the elbow, as the stroke of the wrist and the forearm
-  of section 5. The app differs: the spine leans 7° over the drum, so that the short arm can bend,
-  and the drum hides the right arm from the front. The left arm hangs, because a single note
-  often needs no muffling (section 5).
-- **The snare drum.** The head stands 0.46 m high, at about the height of the wrists, and 0.45 m in
-  front. The sticks leave the front of the fists and make a V of about 66°, 9° down at a strike,
-  as section 6 gives. Between strikes, each stick keeps its strike direction seen from above,
-  and the wrist lifts the tip about 17 cm above its spot (`MalletAcross.pitch`). The tip stays
-  over the head, about 4 cm from its spot, and the V opens to about 78°. Section 6 gives a lift
-  of about 8 inches (20 cm) for a full stroke. The elbows point down and out.
-  At rest, the badger holds the sticks in the rest position of section 6: the upper arms hang,
-  the forearms point forward, and each paw turns its palm down, so that its stick points in
-  across the body in front of the waist (`PercussionHold.set`). The wrists rise 1 cm, so that
-  the tips stay 2 cm (left) and 5 cm (right) above the head at the rim nearest to the body, as
-  section 6 gives about one inch. The left stick rises 1° and the right stick 7°, so that the
-  two sticks cross 2.4 cm apart in height. The sticks also point about 30° forward, because
-  each stick leaves the fist 60° from the fingers, and the forearm of the hanging arm points
-  forward. The lift turns the sticks from there to the play.
-- **The triangle and the tambourine.** The left paw holds the triangle by its clip at the height
-  of the mouth of the badger, below the eye level of section 8, because the short arm reaches no
-  higher in front of the long snout. The clip lies in the palm under the curled fingers and
-  leaves the heel of the paw, and the triangle hangs from it in a loop of cord, as section 8 gives
-  (`TRIANGLE_CLIP` of `src/models/instruments/percussion.ts`). Before 2026-10-25, a thin cord of
-  1.5 mm joined the heel of the paw to the triangle, and the triangle seemed to float below the
-  paw. The paw of the app stands with the fingers up, and a real player holds the clip between
-  the thumb and the fingers at eye level: no source of section 11 gives the turn of the hand. The beater in the right paw strikes the triangle, and the
-  tambourine stands on a stand at the front right, where section 8 gives a tambourine in the hand.
-- **The cymbals.** The badger plays a suspended cymbal, as section 7 gives for a part "with
-  mallet": its short arms cannot hold hand cymbals of the smallest real size (14 inches) out of its
-  round body (`docs/decisions/2026-10-20-badger-cymbals.md`). The cymbal is 0.40 m wide (about 16
-  inches), level on a stand. The yarn mallets take the grip of the snare sticks, and the paws
-  strike in turn about half an inch in from the edge, opposite each other, as section 7 gives.
-  Between strikes, each mallet keeps its strike direction seen from above, and the wrist lifts
-  the head about 12 cm above its spot (`MalletAcross.pitch`). The head stays over the plate,
-  about 3 cm in from the rim. No source of section 11 gives the height between strikes. The
-  roll of the app is the alternate strikes of the notes. At rest, the badger holds the mallets
-  across the body as the snare sticks, above the plate: the wrists rise 6 cm, so that the yarn
-  heads stay about 2 cm above the near part of the plate (`SUSPENDED_CYMBAL_HOLD.set`). No
-  source of section 11 gives this rest, and section 7 gives the bongos with sticks the positions
-  of the snare drum. The app has no muffling of the plate. The hand cymbals of the app meet in
-  front of the shoulders, vertical (`PERCUSSION_PLACES`).
-- **The xylophone.** The mallets leave the front of the fists, as the sticks of the snare drum,
-  as section 9 gives. The badger moves the body from side to side behind the notes with the feet
-  in place, as section 9 gives with few steps: the spine leans up to 12° toward the mean place
-  of the notes, in the 0.6 s before each note (`PercussionHold.side`). The hips keep their
-  place, because the short legs of the badger tilt far with a small move of the hips, and the
-  foot skin then sinks into the floor. The neck and the head turn back by the side lean, so the
-  eyes stay level and look at the bars. The app differs: the spine also leans 11° forward over the
-  bars (`PercussionHold.lean`), because the short arms do not reach the bars from an upright
-  body. Section 9 gives no lean. The app also differs in the size of the bars: they are 3 cm
-  wide and 11 cm to 7 cm long, and the near edge of the bars stands 0.42 m in front of the
-  badger (`XYLOPHONE`), because the short arms reach the bars only in a band about 0.12 m deep.
-  With bars of a real size, the sharp bars stood about 11 cm out of reach. A mallet strikes a
-  sharp bar 2 cm from its edge near the player, as section 9 gives. A part below or
-  above the bars plays in the octave that puts its highest key in the highest octave of the
-  bars (`xylophoneShift()` of `src/pose/percussion-rig.ts`), where the short arms reach best. No
-  source of section 11 gives the octave that a player takes for such a part. A fast strike (within
-  0.5 s) takes the other paw, so that a run and a roll alternate the paws, as section 9 gives.
-  The strike can pass the last bar of the other paw by up to 3.5 cm, about one bar
-  (`PercussionHold.pass`). A wider leap takes a double stroke, as section 9 gives for the
-  intervals where the hands would cross. The app differs where the short arms do not reach: a
-  bar more than 0.53 m on the floor plane from the shoulder joint of its paw goes to the other
-  paw (`PercussionHold.reach`). The shoulders move with the side lean of the body
-  (`HandRules.shift`). So the outer runs of the test score stay in one paw, and the hands
-  change in 35% of its fast pairs and in 74% of the fast pairs of the steel drum part of the
-  pirates file. A real player alternates in each fast pair. A later strike within 2 cm of the
-  last bar of the other paw stays in one paw (`PercussionHold.gap`).
-  The left mallet strikes 2 cm nearer to the player than the middle of a bar, the right mallet
-  2 cm farther (`PERCUSSION_HOLDS.xylophone`). The app differs from the set-up of Green in
-  section 9, the left mallet in the middle and the right mallet at the near end: with the left
-  mallet 2 cm farther, the short left arm missed a third of its strikes by more than 5 mm.
-  Between strikes, each mallet keeps its strike direction seen from above, and the wrist lifts
-  the head about 13 cm above its bar (`MalletAcross.pitch`). The right head lifts with twice the
-  pitch of the left head (`PercussionHold.pitchR`), so that the two heads pass each other at two
-  heights in a run, and keep at least 2 cm apart. Section 9 gives the two mallets at two depths
-  (Green), and no source of section 11 gives the height between strikes. With one height, the
-  heads passed through each other in a run.
+The app does not follow these facts:
+
+- **The fingers (section 1).** The elephant paw has no fingers to wrap the shaft.
+- **The set position (section 3).** Between strikes, the wrist lifts the head above its spot with
+  the shaft down (`MalletAcross.pitch`). A larger lift of the wrist moves the shaft out of the
+  closed paw. Each paw keeps the roll that has no side bend at the strike
+  (`PercussionHold.strikeRoll`), so the shaft stays in the paw.
+- **The playing spot (section 4).** Each mallet strikes farther in from the near rim
+  (`PercussionHold.rim`), because the short arms hold the paws above the near rims. Each hand
+  plays only the front kettle on its side (`PercussionHold.pair`), so the two mallets never strike
+  one head together. The spots move toward the middle of the player (`offsetL`, `offsetR`).
+
+### The badger at the other instruments
+
+The app follows these facts:
+
+- **The grip (section 1).** The curled claws (`GRIP_CURL`) hold the shaft on the palm side, and
+  the head leaves the front of the fist at the thumb side (`PAW_SPOT`, `PAW_TILT`). The butt end
+  sticks out behind the paw (`malletButt()`, `MALLET_BUTT`).
+- **The bass drum (section 5).** The drum and the beater have the size of real ones [43] [44] at
+  the scale of the badger, its head top over the mean height of an adult [45] (`BASS_DRUM`). The
+  badger stands behind the drum, and the right paw holds the beater at the near rim, one third up
+  from the butt. At the strike, the beater lies along the head, as the photos of [13] show, and
+  strikes about one third in from the rim [16]. The left arm hangs, because a single note often
+  needs no muffling.
+- **The snare drum (section 6).** The head is at about the height of the wrists (`SNARE_DRUM`).
+  The sticks make a V and slant down a little at a strike. At rest, the sticks lie across the body
+  in front of the waist, with the tips a little above the near rim (`PercussionHold.set`).
+- **The suspended cymbal (section 7).** The badger plays the cymbal parts on a suspended cymbal
+  (`SpeciesParams.cymbalForm`, `SUSPENDED_CYMBAL`). Its short arms cannot hold hand cymbals of the
+  smallest real size out of its round body. The paws strike in turn near the edge, opposite each
+  other. The roll of the app is the alternate strikes of the notes.
+- **The triangle (section 8).** The clip lies in the palm under the curled fingers, and the
+  triangle hangs from it in a loop of cord (`TRIANGLE_CLIP`).
+- **The xylophone (section 9).** The body moves from side to side behind the notes with the feet
+  in place (`PercussionHold.side`), and the head turns back so the eyes stay level. A fast strike
+  takes the other paw (`PercussionHold.pass`, `PercussionHold.gap`), and a wider leap takes a
+  double stroke. A mallet strikes a sharp bar near its edge near the player.
+
+The app does not follow these facts:
+
+- **The lean over the bass drum (section 5).** The spine leans over the drum
+  (`PercussionHold.lean`), so that the short arm can bend.
+- **The hold of the triangle (section 8).** The clip is at the height of the mouth
+  (`PERCUSSION_PLACES.triangleClip`), because the short arm reaches no higher in front of the
+  long snout. The paw holds the clip in the palm, with the fingers up. No source gives the turn of
+  the hand.
+- **The tambourine (section 8).** The tambourine stands on a stand at the front right
+  (`TAMBOURINE`).
+- **The rest at the suspended cymbal (section 7).** No source gives it. The mallets lie across the
+  body as the snare sticks, above the plate (`SUSPENDED_CYMBAL_HOLD.set`). The plate has no
+  muffling.
+- **The hand cymbals (section 7).** The plates meet vertical, in front of the shoulders
+  (`PERCUSSION_PLACES.crash`, `plateTurn`).
+- **The xylophone grip (section 9).** The paws hang low in front of the belly, so each shaft runs
+  near the line of its forearm and leaves the paw under the curled claws.
+- **The lean over the xylophone (section 9).** The spine leans forward over the bars
+  (`PercussionHold.lean`), because the short arms do not reach the bars from an upright body. The
+  hips keep their place, because a small move of the hips tilts the short legs far.
+- **The size of the bars (section 9).** The bars are smaller than real bars (`XYLOPHONE`), because
+  the short arms reach only a narrow band. A part out of the range of the bars moves by octaves to
+  the highest octave of the bars (`xylophoneShift()`). No source gives this choice.
+- **The reach (section 9).** A bar out of the reach of a paw goes to the other paw
+  (`PercussionHold.reach`). Thus some fast pairs stay in one paw.
+- **The two depths (section 9).** The left mallet strikes nearer to the player than the middle of
+  a bar, and the right mallet farther (`offsetL`, `offsetR`), because the short left arm misses
+  the far part of the bars. The right head lifts higher (`PercussionHold.pitchR`), so that the two
+  heads pass each other at two heights in a run. No source gives the height between strikes.
 
 ## 11. Sources
 
 Sources 1 to 12 opened on 2026-10-19, sources 13 to 33 on 2026-10-20, sources 36 to 42 on
-2026-10-25, and sources 43 to 45 on 2026-10-28, except where a fact has a mark of section "Source marks" or a source says "a search
-summary only".
+2026-10-25, and sources 43 to 45 on 2026-10-28, except where a source says "a search summary
+only".
 
 1. "3 Timpani Grips", The Instrumentalist, December 2014.
    https://theinstrumentalist.com/december-2014/3-timpani-grips/
