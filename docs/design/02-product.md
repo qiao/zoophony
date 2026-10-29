@@ -209,7 +209,8 @@ is instant with reduced motion. Each text keeps the contrast 4.5:1 of WCAG AA ov
 - Title, top left: the logo (a gold paw and "Zoophony", user, 2026-10-06), the piece title, and
   the composer. The name is a wordmark in the font Fraunces, SemiBold with soft serifs (user,
   2026-10-27). It is one SVG path (`WORDMARK_PATH` in `ui/icons.ts`, `assets/fraunces/`), so the
-  page loads no font file. The GitHub mark after the logo links to
+  page loads no font file. An outlined pill after the logo, with the GitHub mark and the text
+  "Open source" (`REPOSITORY_TEXT`, user, 2026-10-28), links to
   <https://github.com/qiao/zoophony> (`REPOSITORY_URL`, user, 2026-10-07). It is gray, because the
   logo rules of GitHub permit only white, black, or gray. Each line of the title has its own soft
   shade, whose level comes from the lightest part of the frame behind the line

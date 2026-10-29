@@ -1,4 +1,4 @@
-import { APP_NAME, REPOSITORY_LABEL, REPOSITORY_URL } from '../app/page-title.ts';
+import { APP_NAME, REPOSITORY_LABEL, REPOSITORY_TEXT, REPOSITORY_URL } from '../app/page-title.ts';
 import { createElement, setText } from './dom.ts';
 import { createIcon, createWordmark } from './icons.ts';
 import { LINE_MARGIN, LOGO_BACKDROP_LIMIT, TEXT_BACKDROP_LIMIT } from './title-shade.ts';
@@ -17,9 +17,10 @@ function createLogo(): HTMLElement {
 }
 
 /**
- * Creates the link to the repository of the app on GitHub (design 2.8): the GitHub mark, which
- * opens the repository in a new tab. The page loads nothing from GitHub, and the link sends no
- * referrer.
+ * Creates the link to the repository of the app on GitHub (design 2.8): an outlined pill with the
+ * GitHub mark and the text "Open source", which opens the repository in a new tab. The pill sets
+ * the link apart from the name of the logo. The page loads nothing from GitHub, and the link sends
+ * no referrer.
  *
  * @returns The link.
  */
@@ -28,8 +29,8 @@ function createRepositoryLink(): HTMLAnchorElement {
   link.href = REPOSITORY_URL;
   link.target = '_blank';
   link.rel = 'noopener noreferrer';
-  link.setAttribute('aria-label', REPOSITORY_LABEL);
-  link.append(createIcon('github'));
+  link.setAttribute('aria-label', `${REPOSITORY_TEXT}: ${REPOSITORY_LABEL}`);
+  link.append(createIcon('github'), createElement('span', '', REPOSITORY_TEXT));
   return link;
 }
 

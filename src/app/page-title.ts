@@ -10,6 +10,13 @@ export const REPOSITORY_URL = 'https://github.com/qiao/zoophony';
 export const REPOSITORY_LABEL = 'Zoophony on GitHub';
 
 /**
+ * The visible text of the link to the repository, in its pill after the logo (design 2.8). The
+ * accessible name of the link starts with it, so that a voice command with the visible text
+ * finds the link.
+ */
+export const REPOSITORY_TEXT = 'Open source';
+
+/**
  * Gives the title of the page for the current piece (design 2.8, audit 2026-10-05-ux-design,
  * CP1): the browser tab and the history then name the piece.
  *

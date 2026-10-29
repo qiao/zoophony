@@ -20,6 +20,7 @@
   /* The gray of the GitHub mark. The logo rules of GitHub permit the mark only in white, black,
      or gray (design 2.8). */
   --github-mark: #c8c8c8;
+  --pill-line: rgba(255, 240, 220, 0.24);
   /* The dark color of an icon or a text on --accent. */
   --on-accent: #1a140d;
   --radius-panel: 10px;
@@ -187,10 +188,9 @@ svg {
 
 /* The flex line centers the box of the wordmark, which holds the tails of the "p" and the "y", so
    the paw and the GitHub mark sat 2 px under the capitals, and the paw hung under the baseline
-   (user, 2026-10-28: "the paw icon and the zoophony text are not aligned"). They move up, so the
-   paw stands on the baseline and reaches the height of the capitals. */
-.title .logo > svg:first-child,
-.title .github svg {
+   (user, 2026-10-28: "the paw icon and the zoophony text are not aligned"). The paw moves up, so
+   it stands on the baseline and reaches the height of the capitals. */
+.title .logo > svg:first-child {
   translate: 0 var(--logo-lift);
 }
 
@@ -201,35 +201,45 @@ svg {
   height: 22px;
 }
 
-/* The link to the repository on GitHub stands after the name in the logo line (design 2.8). Its
-   mark has the visible size of the paw, in the gray of --github-mark, and white on a hover. The
-   negative margins keep the height of the logo line, and the left margin takes back the empty
-   side of the box, so that the mark stands as far from the name as the paw (user, 2026-10-28:
-   "fix the layout of the brand section": the gap was 22 px against 11 px). The title takes no
-   pointer, so the link takes it back. */
+/* The link to the repository on GitHub stands after the name in the logo line (design 2.8): an
+   outlined pill with the GitHub mark and the text "Open source", in the gray of --github-mark,
+   and white on a hover (user, 2026-10-28: "wrap that and the github icon in a outlined pill").
+   The pill sets the link apart from the name, which the mark alone seemed to be a part of. It
+   centers on the capitals of the name (--logo-lift), and the negative margins keep the height of
+   the logo line. The title takes no pointer, so the link takes it back. */
 .title .github {
   position: relative;
-  display: inline-grid;
-  place-items: center;
-  width: 28px;
-  height: 28px;
-  margin: -4px 0 -4px -5px;
-  border-radius: var(--radius-button);
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 22px;
+  margin: -1px 0 -1px 10px;
+  padding: 0 9px 0 7px;
+  border: 1px solid var(--pill-line);
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: 0.02em;
   color: var(--github-mark);
+  text-decoration: none;
+  translate: 0 var(--logo-lift);
   pointer-events: auto;
   transition:
     background-color 0.12s,
+    border-color 0.12s,
     color 0.12s;
 }
 
 .title .github:hover {
   color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.45);
   background: var(--line);
 }
 
 .title .github svg {
-  width: 17px;
-  height: 17px;
+  width: 13px;
+  height: 13px;
 }
 
 .title h1 {
@@ -1710,14 +1720,15 @@ body:has(.first-screen:not([hidden])):has(.drawer:not([hidden])) .messages {
   }
 
   .title .github {
-    width: 24px;
-    height: 24px;
-    margin-left: -3px;
+    height: 20px;
+    margin-left: 8px;
+    padding: 0 8px 0 6px;
+    font-size: 11px;
   }
 
   .title .github svg {
-    width: 14px;
-    height: 14px;
+    width: 12px;
+    height: 12px;
   }
 
   /* On a phone, the drawer is a sheet above the bar, so that the transport stays usable. */
