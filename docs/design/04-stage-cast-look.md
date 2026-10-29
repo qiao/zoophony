@@ -386,7 +386,9 @@ shade of the app shows each ridge as a lump. So the wolf, the cat bow arm, and t
 the hippo arms take a few rounds of Taubin smoothing after the weights (`armSmooth`,
 `docs/decisions/2026-10-28-arm-smooth.md`). A segment rig replaces
 `upperTwist`. It can take the shapes of `raise`: the pose of a rule turns the segments and the
-helpers by the rules of the app.
+helpers by the rules of the app. A shape of `raise` can also smooth the posed arm (`smooth`): the
+hippo bow arm takes a smooth arm in the rest pose, where the bent tube showed lumps, and the play
+keeps its skin (`docs/decisions/2026-10-28-followups.md`).
 
 ```text
  lowpoly-studio/animals/polar-bear/out/polar-bear.glb

@@ -35,6 +35,48 @@
     "bones": ["upper_arm_seg1", "upper_arm_seg2", "forearm_seg1", "forearm_seg2", "forearm_seg3"],
     "note": "6 rounds of taubin() smooth the middle of each arm tube of hippo-arms.glb after the weights (arm_smooth() of tools/blender/rig_mesh.py), at most 0.0083 units: the vertices on the second and the third segments of the upper arm and on the last three segments of the forearm. The user said on 2026-10-28: \"the hippo's arm has lumps / dents\". The play folds fall from 8.9% to 3.2% of the samples, and one face folds in place of three. With the elbow rings and the root in the smoothing, the folds rose to 24.5% and 100% of the play samples, because the elbow rings keep a gap for the helper bone and the root joins the side wall (docs/research/2026-10-28-arm-smooth.md)."
   },
+  "raise": [
+    {
+      "side": "R",
+      "turns": {
+        "clavicle": [
+          0,
+          0,
+          0,
+          1
+        ],
+        "upper_arm": [
+          0.4003,
+          -0.098,
+          0.3335,
+          0.8479
+        ],
+        "forearm": [
+          -0.0677,
+          0.0392,
+          -0.0877,
+          0.9931
+        ]
+      },
+      "fade": [
+        10,
+        25
+      ],
+      "below": -1,
+      "smooth": 10,
+      "smoothBones": [
+        "upper_arm_seg1",
+        "upper_arm_seg2",
+        "upper_arm_seg3",
+        "elbow",
+        "forearm_seg0",
+        "forearm_seg1",
+        "forearm_seg2",
+        "forearm_seg3"
+      ],
+      "note": "The user said on 2026-10-28: \"the hippo's arm is still not fixed\". In the rest pose, the right upper arm turns about 64 degrees from the seated bind, and the skin of the rebuilt tube showed a bulge in the upper arm, a kink at the back of the elbow, and a bump on the top of the forearm. The shape takes the mean turns of the rest samples of the bassist (scratch rest-turns.ts with armSamples() of tools/raise-fit.ts) and smooths the posed skin with 10 rounds of taubin() (smooth, raise_shape() of tools/blender/rig_mesh.py), each vertex by its weight on the bones of smoothBones: the tube from the second segment of the upper arm to the wrist. The root segment and the clavicle stay out, because the root joins the side wall: with them, 5 faces of the root stayed turned in the pose of the rule, and the root folded in each rest sample. below -1 turns off the relax of turned faces, so the shape is the smoothing alone. The shape fades from 10 to 25 degrees of the upper arm from the rest turn, so the play keeps the arm of main. 6 rounds gave a smaller change (docs/research/2026-10-28-followups.md)."
+    }
+  ],
   "output": "assets/models/hippo/hippo.rig.glb",
   "name": "Hippo",
   "weld": 1e-05,
