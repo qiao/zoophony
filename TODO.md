@@ -20,39 +20,21 @@ each section.
 
 ## Step 1. Audio spike (6, 9.5, 9.7)
 
-- [ ] Check each item of the step 1 list in 9.5 in Chrome, Firefox, and Safari.
-      Chrome and Firefox are done (`docs/research/audio-spike.md`).
-      Blocked: Safari WebDriver needs remote automation. In Safari 26, the user selects Safari >
-      Settings > Advanced > "Show features for web developers", then Safari > Settings >
-      Developer > "Allow remote automation", and runs `sudo safaridriver --enable`
-      (`docs/research/webkit-audio.md`, section 8). Section 7 of the spike report gives the check
-      by hand.
-- [ ] Check Safari for the dropouts that Playwright WebKit showed (200 slow blocks, 0.82 s lost).
-      If Safari has them too, fix them before step 2 (spike report, section 8).
-      The cause in Playwright WebKit is outside our code: the AudioWorklet thread of WebKit has
-      no real-time priority (`docs/research/webkit-audio.md`). Check Safari on an idle Mac and
-      with a load (section 8 of that report). If Safari loses time, ask the user about section 7.
-      Blocked: Safari automation is off. A person runs Safari, or turns on remote automation
-      with the Safari 26 steps of the first Safari task.
-- [ ] When the Safari checks free `processor.ts` (review condition 3), remove its `volume`
-      command and `SynthEngine.setVolume()`. Since the fix of SD2 of the UX audit, the `Player`
-      sets the volume in the output chain and sends no `volume` command (6.4, 6.8).
+- [ ] Check the step 1 list of 9.5 in real Safari on macOS, on an idle Mac and with a load.
+      Playwright WebKit drops blocks, because its AudioWorklet thread has no real-time priority.
+      Blocked: turn on "Allow remote automation" in Safari, and run `sudo safaridriver --enable`.
+- [ ] After the Safari check, remove the `volume` command of `processor.ts` and
+      `SynthEngine.setVolume()`. The `Player` sets the volume in the output chain (6.4, 6.8).
 
-Done when: the spike page plays the Beethoven demo to the end in Chrome, Firefox, and Safari on the
-development Mac with no dropout, and the report is committed.
+Done when: the app plays the Beethoven demo to the end in Chrome, Firefox, and Safari on the
+development Mac with no dropout.
 
 ## Step 2. MIDI and score (3, 8.3, 8.5, 9.7)
 
-- [ ] Ask the user if the audio render target (9.7) can use a percentile. In Node, the p99.9 is
-      at most 0.53 ms, but each run has 0 to 6 blocks above 1.3 ms in each demo. Most of them move
-      between runs, and the Mac was busy. The first notes with cold code take 3.1 to 5.0 ms (the
-      warm-up task). Thus the target "each block" fails (`docs/research/step-2-targets.md`).
-- [ ] Make the seek chase fit in one block. In the Boulanger demo (24,514 events), the first seek
-      of a session takes 3.5 to 4.0 ms, and the later seeks 1.0 to 1.9 ms, against a block of
-      2.667 ms. The walk over the events takes 0.70 ms, about 29 ns for each event, so a larger
-      file takes more (`docs/research/step-2-targets.md`, section 6). For example, keep the
-      chase state at fixed points of the event list, or warm up the chase code with the voices.
-      Wait: the Safari result (`docs/research/webkit-audio.md` section 7).
+- [ ] Ask the user if the audio render target of 9.7 can use a percentile. In Node, the p99.9 of
+      a block is at most 0.53 ms, but each run has a few blocks above 1.3 ms.
+- [ ] Make the seek chase fit in one block of 2.667 ms. The first seek in the Boulanger demo takes
+      about 4 ms. For example, keep the chase state at fixed points of the event list (6.5).
 
 Done when: each rule of section 3 has at least one test that fails without the rule, the demo
 tests pass for all demos, and the step 2 targets of 9.7 pass: the score build, the audio
@@ -61,8 +43,7 @@ render, and the memory.
 ## Step 3. Scene and one player (2.5, 2.6, 4.1, 4.5, 4.7)
 
 - [ ] Measure the clock target of 9.7 with the bow.
-- [ ] Measure the steps of `currentTime` in Firefox, and smooth `now()` if the bow needs it. The
-      latency method follows `currentTime`, which moves in steps (spike report, section 8, item 3).
+- [ ] Measure the steps of `currentTime` in Firefox, and smooth `now()` if the bow needs it (6.7).
 
 Done when: the screenshot has the composition of the reference (9.5), and the clock target
 passes.
