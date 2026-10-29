@@ -78,6 +78,10 @@ first download stays below 1 MB (7.2). The sources and their licenses are in
   preset. The app reads the index to find a preset, or its fallback in bank 0 (kit 0 for a drum
   kit), before it fetches a file. `pnpm dev` and `pnpm build` run the split into `public/sf/`,
   which Git ignores.
+- The build gzips each preset file of `dist/sf/` in place, with the same name, and writes the
+  gzip sizes into `dist/sf/index.json` (`tools/gzip-site.ts`). GitHub Pages sends an SF3 file
+  with no gzip, and each Ogg stream of a file repeats its setup header, so gzip makes the files
+  smaller. `public/sf/` and the dev server keep the plain files.
 - The split skips the XG and GM2 drum kits at bank MSB 120, because the score asks for each drum
   kit in bank 128.
 - The credits dialog names GeneralUser GS, VSCO 2 CE, and VCSL, and links to their licenses
@@ -127,6 +131,10 @@ play is enabled
   Worker with the fewest bytes, and the synth gets the banks in the order of the files. A single
   Worker made the decode of the default demo set its ready time on a fast link
   ([`2026-10-21-load-performance.md`](../research/2026-10-21-load-performance.md)).
+- A Worker removes the gzip layer of a preset file only when its first two bytes are `1f 8b`,
+  with the native `DecompressionStream` (`plainBytes()` of `audio/plain-bytes.ts`). An SF3 file
+  starts with `RIFF`, so the plain files of the dev server pass as they are. A browser with no
+  `DecompressionStream` cannot load the presets of the build.
 - Cost: core loads in each decode Worker and in the worklet, after the first frame. The PCM
   data uses 6 to 7 times more memory than the SF3 data.
 
@@ -361,7 +369,8 @@ interface ClockAnchor {
 - The progress of a load (`LoadProgress` in `audio/player.ts`) counts the preset files that are
   ready and the bytes that arrived, for the presets that the synth does not have, on all decode
   Workers. Each Worker reads each file in chunks (`readWithProgress()` in
-  `audio/read-progress.ts`).
+  `audio/read-progress.ts`). The total is the sum of the sizes of `sf/index.json`. In the build,
+  the bytes and the sizes are both of the gzip files (6.2).
 - The processor answers each `banks` message with one `ready` message, in order. Thus a load
   resolves only after its own banks are in the synth.
 
