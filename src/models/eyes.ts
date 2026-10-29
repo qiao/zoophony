@@ -1,10 +1,18 @@
 import { Matrix4, Quaternion, Vector3 } from 'three';
 import type { BodyColors } from './body-parts.ts';
-import type { SurfacePoint } from './head.ts';
 import { toQuat, toVec3 } from './tuples.ts';
+import type { Vec3 } from './tuples.ts';
 import { transform } from './mesh.ts';
 import type { MeshBuilder } from './mesh.ts';
 import { ball } from './primitives.ts';
+
+/** A point on the surface of the head, and the unit normal of the surface there. */
+export interface SurfacePoint {
+  /** The point. */
+  readonly point: Vec3;
+  /** The unit normal of the surface at the point. */
+  readonly normal: Vec3;
+}
 
 /** The size of an eye on x, y, and z, in H (design 4.5). */
 export const EYE = [0.13, 0.18, 0.06] as const;

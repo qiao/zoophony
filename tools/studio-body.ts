@@ -9,8 +9,7 @@ import { Box3, MathUtils, Matrix4, Quaternion, Ray, Triangle, Vector3 } from 'th
 import { SPECIES_COLORS } from '../src/models/colors.ts';
 import type { SpeciesColors } from '../src/models/colors.ts';
 import { EYE, addEye } from '../src/models/eyes.ts';
-import type { EyeBend } from '../src/models/eyes.ts';
-import type { SurfacePoint } from '../src/models/head.ts';
+import type { EyeBend, SurfacePoint } from '../src/models/eyes.ts';
 import { PIANO_BENCH } from '../src/models/instruments/piano.ts';
 import { MeshBuilder } from '../src/models/mesh.ts';
 import type { Finish } from '../src/models/mesh.ts';
