@@ -996,6 +996,33 @@ const scaleY = new Matrix4();
 const span = new Vector3();
 const current = new Vector3();
 
+/** The turn of an arm bone for {@link raiseWeight}. Each call writes it before it reads it. */
+const raiseTurn: [number, number, number, number] = [0, 0, 0, 0];
+
+/** The index of the `chest` bone of the player. */
+const CHEST = boneIndex('chest');
+
+/** The indices of the eye bones of the studio, and of the bones of the player that they follow. */
+const EYE_BONES = [STUDIO_BONES.indexOf('eye_L'), STUDIO_BONES.indexOf('eye_R')] as const;
+
+/** The names of the heads of the arm bones of each side in {@link StudioHeads}. */
+const ARM_HEADS = {
+  L: {
+    upper: 'upper_arm_L',
+    fore: 'forearm_L',
+    twist: 'forearm_twist_L',
+    hand: 'hand_L',
+    fingers: 'fingers_L',
+  },
+  R: {
+    upper: 'upper_arm_R',
+    fore: 'forearm_R',
+    twist: 'forearm_twist_R',
+    hand: 'hand_R',
+    fingers: 'fingers_R',
+  },
+} as const satisfies Record<Side, Record<string, keyof StudioHeads>>;
+
 /**
  * Writes the matrix that moves a point from the bind pose to the pose: `T(head) R T(-bind)`.
  *
@@ -1093,8 +1120,9 @@ export function poseStudioBones(
   out: StudioPose,
 ): StudioPose {
   const studioCount = STUDIO_BONES.length;
-  for (const [i, place] of places.entries()) {
-    const rotation = rotations[i] ?? new Quaternion();
+  for (let i = 0; i < places.length; i++) {
+    const place = places[i] ?? offset;
+    const rotation = rotations[i] ?? local;
     local.fromArray(pose, i * 4);
     place.fromArray(skeleton.positions[i] ?? [0, 0, 0]);
     const parentIndex = skeleton.parents[i] ?? -1;
@@ -1128,8 +1156,7 @@ export function poseStudioBones(
       (studioCount + (rig.follows[s] ?? 0) + 1) * 16,
     );
   }
-  for (const eye of ['eye_L', 'eye_R'] as const) {
-    const s = STUDIO_BONES.indexOf(eye);
+  for (const s of EYE_BONES) {
     const a = rig.follows[s] ?? 0;
     // T(place) R S T(-bind): the eye scales on y around its bone.
     scaleY.makeScale(1, eyeScale, 1);
@@ -1140,10 +1167,11 @@ export function poseStudioBones(
     matrix.toArray(out.matrices, s * 16);
   }
 
-  chestInverse.copy(rotations[boneIndex('chest')] ?? new Quaternion()).invert();
+  chestInverse.copy(rotations[CHEST] ?? local).invert();
   const raises = rig.body.raises ?? [];
   out.correctives.fill(0, RAISED);
-  for (const arm of [rig.arms.L, rig.arms.R]) {
+  for (let side = 0; side < 2; side++) {
+    const arm = side === 0 ? rig.arms.L : rig.arms.R;
     poseArm(rig, arm, pose, offsets, out);
     // The corrective weight: the place of the upper arm on the way from the bind pose of the
     // studio to the pose of the sheet, in the axes of the chest.
@@ -1151,8 +1179,9 @@ export function poseStudioBones(
     span.fromArray(arm.sheet).sub(upperBind.fromArray(arm.upper));
     const weight = current.sub(upperBind).dot(span) / span.lengthSq();
     out.correctives[arm.side === 'L' ? 0 : 1] = Math.min(1, Math.max(0, weight));
-    for (const [k, raise] of raises.entries()) {
-      if (raise.side !== arm.side) {
+    for (let k = 0; k < raises.length; k++) {
+      const raise = raises[k];
+      if (!raise || raise.side !== arm.side) {
         continue;
       }
       // The shape of a bent wrist reads the turn of the paw from the forearm, the shape of a bent
@@ -1165,12 +1194,11 @@ export function poseStudioBones(
       } else {
         relative.copy(chestInverse).multiply(upperTurn);
       }
-      out.correctives[RAISED + k] = raiseWeight(raise, [
-        relative.x,
-        relative.y,
-        relative.z,
-        relative.w,
-      ]);
+      raiseTurn[0] = relative.x;
+      raiseTurn[1] = relative.y;
+      raiseTurn[2] = relative.z;
+      raiseTurn[3] = relative.w;
+      out.correctives[RAISED + k] = raiseWeight(raise, raiseTurn);
     }
   }
   return out;
@@ -1284,47 +1312,30 @@ function poseArm(
   twistTurn.setFromAxisAngle(foreBind, TWIST_SHARE * twist).premultiply(foreTurn);
 
   const side = arm.side;
-  writeMatrix(
-    out.matrices,
-    arm.bones.upper,
-    upperTurn,
-    bind.fromArray(h[`upper_arm_${side}`]),
-    shoulder,
-  );
+  const keys = ARM_HEADS[side];
+  writeMatrix(out.matrices, arm.bones.upper, upperTurn, bind.fromArray(h[keys.upper]), shoulder);
   const share = rig.body.upperTwist;
   if (share !== undefined) {
-    upperTwistTurn(upperTurn, rotations[boneIndex('chest')] ?? local, upperBind, share, rollTurn);
+    upperTwistTurn(upperTurn, rotations[CHEST] ?? local, upperBind, share, rollTurn);
     writeMatrix(
       out.matrices,
       UPPER_TWIST_BONES[side],
       rollTurn,
-      bind.fromArray(h[`upper_arm_${side}`]),
+      bind.fromArray(h[keys.upper]),
       shoulder,
     );
   }
-  writeMatrix(out.matrices, arm.bones.fore, foreTurn, bind.fromArray(h[`forearm_${side}`]), elbow);
+  writeMatrix(out.matrices, arm.bones.fore, foreTurn, bind.fromArray(h[keys.fore]), elbow);
   head.copy(elbow).lerp(wrist, arm.twistAt);
-  writeMatrix(
-    out.matrices,
-    arm.bones.twist,
-    twistTurn,
-    bind.fromArray(h[`forearm_twist_${side}`]),
-    head,
-  );
-  writeMatrix(out.matrices, arm.bones.hand, handTurn, bind.fromArray(h[`hand_${side}`]), wrist);
+  writeMatrix(out.matrices, arm.bones.twist, twistTurn, bind.fromArray(h[keys.twist]), head);
+  writeMatrix(out.matrices, arm.bones.hand, handTurn, bind.fromArray(h[keys.hand]), wrist);
   // The fingers start at the knuckle of the turned paw.
   head
-    .fromArray(h[`fingers_${side}`])
-    .sub(bind.fromArray(h[`hand_${side}`]))
+    .fromArray(h[keys.fingers])
+    .sub(bind.fromArray(h[keys.hand]))
     .applyQuaternion(handTurn)
     .add(wrist);
-  writeMatrix(
-    out.matrices,
-    arm.bones.fingers,
-    fingersTurn,
-    bind.fromArray(h[`fingers_${side}`]),
-    head,
-  );
+  writeMatrix(out.matrices, arm.bones.fingers, fingersTurn, bind.fromArray(h[keys.fingers]), head);
   if (arm.segments) {
     poseSegments(rig, arm.segments, side, twist, out);
   }
@@ -1353,7 +1364,8 @@ function poseSegments(
   out: StudioPose,
 ): void {
   const h = rig.body.heads;
-  const roll = upperRoll(upperTurn, rotations[boneIndex('chest')] ?? local, upperBind);
+  const keys = ARM_HEADS[side];
+  const roll = upperRoll(upperTurn, rotations[CHEST] ?? local, upperBind);
   for (let k = 0; k < ARM_SEGMENTS; k++) {
     const share = segmentShare(k);
     segmentTurn.setFromAxisAngle(upperBind, (share - 1) * roll).premultiply(upperTurn);
@@ -1361,7 +1373,7 @@ function poseSegments(
       out.matrices,
       segments.upper[k] ?? 0,
       segmentTurn,
-      bind.fromArray(h[`upper_arm_${side}`]),
+      bind.fromArray(h[keys.upper]),
       shoulder,
     );
     segmentTurn.setFromAxisAngle(foreBind, share * twist).premultiply(foreTurn);
@@ -1369,20 +1381,14 @@ function poseSegments(
       out.matrices,
       segments.fore[k] ?? 0,
       segmentTurn,
-      bind.fromArray(h[`forearm_${side}`]),
+      bind.fromArray(h[keys.fore]),
       elbow,
     );
   }
   segmentTurn.copy(upperTurn).slerp(foreTurn, 0.5);
-  writeMatrix(
-    out.matrices,
-    segments.elbow,
-    segmentTurn,
-    bind.fromArray(h[`forearm_${side}`]),
-    elbow,
-  );
+  writeMatrix(out.matrices, segments.elbow, segmentTurn, bind.fromArray(h[keys.fore]), elbow);
   segmentTurn.setFromAxisAngle(foreBind, twist).premultiply(foreTurn).slerp(handTurn, 0.5);
-  writeMatrix(out.matrices, segments.wrist, segmentTurn, bind.fromArray(h[`hand_${side}`]), wrist);
+  writeMatrix(out.matrices, segments.wrist, segmentTurn, bind.fromArray(h[keys.hand]), wrist);
 }
 
 /**
