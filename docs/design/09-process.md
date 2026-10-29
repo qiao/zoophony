@@ -5,8 +5,8 @@
 - Git, with the branch `main` and many fine-grained commits.
 - The code license is Apache-2.0. The animal models are under CC BY-NC 4.0 (the license section
   of `README.md`).
-- Each round merges into the local `main`. The project owner decides when to push `main`, and
-  thus when GitHub Pages deploys.
+- Each round merges into the local `main`. The project owner decides when to push `main` and
+  when to deploy the site (9.2).
 
 ## 9.2 CI
 
@@ -28,18 +28,14 @@ GitHub Actions runs these checks:
 - The Linux runners have no GPU, so Chromium uses ANGLE on SwiftShader. The slow frames of
   SwiftShader make the keyboard check fail, and the frame target needs the GPU of the development
   Mac, so both checks stay local.
-- While all tests are paused (9.3), the step `pnpm test:perf`, the job `playwright`, and the
-  end-to-end test of the Pages workflow have `if: false`. Thus a commit that fails a test can
-  deploy. To end the pause, set `ALL_TESTS_PAUSED` of `vite.config.ts` to false, set the default
-  of `MERGE_E2E` in `tools/merge-branch.sh` to 1, and remove each `if: false`. Then run
+- While all tests are paused (9.3), the step `pnpm test:perf` and the job `playwright` have
+  `if: false`. To end the pause, set `ALL_TESTS_PAUSED` of `vite.config.ts` to false, set the
+  default of `MERGE_E2E` in `tools/merge-branch.sh` to 1, and remove each `if: false`. Then run
   `pnpm test`, `pnpm test:perf`, and `pnpm test:e2e` before the next merge.
 
-`.github/workflows/pages.yml` starts when a CI run of a push to `main` passes, so a red commit does
-not deploy. It builds that commit with `ZOOPHONY_BASE=/zoophony/`, and each URL of the app starts
-from `import.meta.env.BASE_URL` or `import.meta.url`.
-
-`pnpm deploy:vercel` deploys the same build at the base path `/` to Vercel, with the cache
-headers of `vercel.json`. The files of `assets/` and the preset files have a content hash in their
+`pnpm deploy:vercel` builds the site at the base path `/` and deploys it to Vercel, with the cache
+headers of `vercel.json`. CI does not deploy. `ZOOPHONY_BASE` sets a different base path, and each
+URL of the app starts from `import.meta.env.BASE_URL` or `import.meta.url`. The files of `assets/` and the preset files have a content hash in their
 names, so they stay in the cache for one year with no new check. `index.html` and
 `sf/index.json` hold the new names, so the browser checks them on each load. The demo files keep
 their names, so they stay in the cache for one hour.
@@ -89,7 +85,7 @@ its review (9.8) is done. `TODO.md` splits each step into tasks, and holds the s
 | 5. Motion | `pose/`, the idle motion, the rest pose, the conductor, and `perf-60.mid` of the frame target. | The pose and frame targets of 9.7 pass. |
 | 6. UI | The bar, the drawer, the lists, the settings, the credits, the tiers, the file drop, the hash, and the messages of 2.8. | The UI matches `docs/prototype/ui.html` at both sizes, and a keyboard alone can use each control. |
 | 6b. Cinematic camera | `shots/` (5.6) and the two camera modes of 2.5. | The shot targets and the frame target pass in Cinematic mode. |
-| 7. Deploy | The demo build, the Playwright tests, and the Pages workflow. | CI passes on `main`, and the site deploys and plays the default demo. |
+| 7. Deploy | The demo build, the Playwright tests, and the deploy to Vercel. | CI passes on `main`, and the site deploys and plays the default demo. |
 
 ## 9.6 Docs
 

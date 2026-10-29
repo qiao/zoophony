@@ -37,7 +37,7 @@ prints only a one-line usage text.
 | `pnpm install` | Installs the dependencies. |
 | `pnpm prepare-site` | Writes the SF3 presets into `public/sf/` and the changed demos into `public/demos/` (design 8.3). `pnpm dev`, `pnpm build`, `pnpm smoke`, `pnpm frame`, and `pnpm frozen` run it first. |
 | `pnpm dev` | Writes the SF3 presets into `public/sf/`, the changed demos into `public/demos/` (design 8.3), and `perf/perf-60.mid`, then starts the Vite dev server. The gallery is at `/gallery.html`, the animal views at `/views.html` (design 7.1), and a demo at `/#demo=<id>`. |
-| `pnpm build` | Writes the same files, then builds the site into `dist/` with the third-party license file (design 7.3). It gzips the preset and demo files of `dist/` in place, and writes their gzip sizes into `dist/sf/index.json` (design 7.2). `pnpm vite preview` serves `dist/`. `ZOOPHONY_BASE=/zoophony/` sets the base path of GitHub Pages. |
+| `pnpm build` | Writes the same files, then builds the site into `dist/` with the third-party license file (design 7.3). It gzips the preset and demo files of `dist/` in place, and writes their gzip sizes into `dist/sf/index.json` (design 7.2). `pnpm vite preview` serves `dist/`. `ZOOPHONY_BASE` sets the base path, `/` by default. |
 | `pnpm size [--base <ref>]` | Prints the gzip size of the first download after `pnpm build`, and fails above 1 MB (design 7.2). `--base` also builds the commit, and prints both totals and the difference. |
 | `pnpm deploy:vercel [--preview]` | Builds the site at the base path `/`, and deploys `dist/` with the cache headers of `vercel.json` to the Vercel project `zoophony` (design 9.2). The Vercel CLI must be logged in. `VERCEL_SCOPE` selects a team. `--preview` makes a preview deploy in place of production. About 2 minutes. |
 | `pnpm load-probe [--phone] [--repeat] [--base <ref>] [--profile] [--runs <n>] [--out <file>]` | Measures the load of the default demo after `pnpm build`: FCP, LCP, the first frame, the time until it is ready to play, the blocking time, and the bytes, as the median of the runs. `--phone` gives Fast 4G and a 4x CPU throttle, `--repeat` a second visit with the HTTP cache, and `--profile` a CPU profile with no minify. It runs through `tools/measure-lock.sh`. About 10 s for each desktop run. |
@@ -132,8 +132,7 @@ All tests are paused ([`workflow.md`](workflow.md), "Tests").
 CI (`.github/workflows/ci.yml`) runs `pnpm install`, `pnpm typecheck`, `pnpm lint`,
 `pnpm format:check`, `pnpm test`, `pnpm test:perf`, `pnpm build`, and `pnpm size`, and
 `pnpm test:e2e` in one job for each browser (design 9.2). While all tests are paused, the speed
-tests and the end-to-end tests have `if: false`. `.github/workflows/pages.yml` deploys the site to
-GitHub Pages under `/zoophony/` after CI passes on `main`.
+tests and the end-to-end tests have `if: false`. CI does not deploy the site.
 
 ## Checks for each kind of change
 
