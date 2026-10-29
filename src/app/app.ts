@@ -1189,7 +1189,7 @@ export class App {
 
   /**
    * Loads the samples of a piece into the `Player`. The piece starts when its samples are ready
-   * if the user asked for it (design 2.2).
+   * and its `playWhenReady` is true (design 2.2).
    *
    * @param loading The piece.
    */
