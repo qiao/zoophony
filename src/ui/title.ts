@@ -58,15 +58,30 @@ export class Title {
   /** The level of the shade of each line, from 0 to 1, or NaN before the first level. */
   readonly #shadeLevels = [Number.NaN, Number.NaN, Number.NaN];
 
-  /** Creates the title with no text. */
-  constructor() {
-    this.element = createElement('header', 'title');
+  /**
+   * Creates the title. It keeps the static title of `index.html` and its text (design 2.8, 7.2):
+   * the browser paints the title lines of the default demo with the first paint, and does not
+   * paint them again. The logo of the app replaces the static logo, because only the logo of the
+   * app has the link to the repository.
+   *
+   * @param page The static title of `index.html`, or `null` for a new title with no text.
+   */
+  constructor(page: HTMLElement | null) {
+    this.element = page ?? createElement('header', 'title');
     this.element.setAttribute('aria-live', 'polite');
     this.#logo = createLogo();
     this.#logo.append(this.repositoryLink);
-    this.#title = createElement('h1');
-    this.#composer = createElement('p');
-    this.element.append(this.#logo, this.#title, this.#composer);
+    const pageLogo = this.element.querySelector(':scope > .logo');
+    if (pageLogo) {
+      pageLogo.replaceWith(this.#logo);
+    } else {
+      this.element.prepend(this.#logo);
+    }
+    this.#title = this.element.querySelector(':scope > h1') ?? createElement('h1');
+    this.#composer = this.element.querySelector(':scope > p') ?? createElement('p');
+    if (!this.#title.isConnected || !this.#composer.isConnected) {
+      this.element.append(this.#title, this.#composer);
+    }
     this.#lines = [
       [this.#logo, LOGO_BACKDROP_LIMIT],
       [this.#title, TEXT_BACKDROP_LIMIT],

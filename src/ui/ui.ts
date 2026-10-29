@@ -55,7 +55,7 @@ interface UiActions extends BarActions {
  * and the buttons of a message come after it.
  */
 export class Ui {
-  readonly title = new Title();
+  readonly title: Title;
   readonly firstScreen: FirstScreen;
   readonly bar: Bar;
   readonly message: MessageBox;
@@ -91,6 +91,8 @@ export class Ui {
     canFullScreen: boolean,
     target: Window,
   ) {
+    // The static title of index.html stays in its place (design 2.8, 7.2).
+    this.title = new Title(parent.querySelector<HTMLElement>(':scope > header.title'));
     this.tooltips = new Tooltips(target);
     this.tooltips.attach(this.title.repositoryLink, () => REPOSITORY_LABEL);
     // The close button gives the focus to the drawer button, as the Escape key does (design 2.4).
@@ -158,8 +160,11 @@ export class Ui {
     };
     phone.addEventListener('change', placePlayback);
     placePlayback();
+    // A move of the static title would paint its text again, as a later contentful paint.
+    if (this.title.element.parentElement !== parent) {
+      parent.append(this.title.element);
+    }
     parent.append(
-      this.title.element,
       this.firstScreen.element,
       this.bar.element,
       this.message.element,
