@@ -20,7 +20,7 @@ export const BLOCK_BUDGET_MS = (BLOCK_FRAMES / TEST_SAMPLE_RATE) * 1000;
 export const MEMORY_LIMIT_BYTES = 100_000_000;
 
 /** The statistics of a list of times, in milliseconds. */
-export interface TimeStats {
+interface TimeStats {
   readonly count: number;
   readonly median: number;
   /** The 99th percentile: the nearest rank of the sorted times. */

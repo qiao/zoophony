@@ -573,10 +573,10 @@ export function canvasWriteFrames(check: FrameCheck): number {
 }
 
 /** The largest time of dropped canvas buffers for each frame, in milliseconds (design 9.7). */
-export const DROPPED_CANVAS_LIMIT_MS = 0.1;
+const DROPPED_CANVAS_LIMIT_MS = 0.1;
 
 /** The largest difference of the frame count from the expected count, as a part of it. */
-export const FRAME_COUNT_TOLERANCE = 0.02;
+const FRAME_COUNT_TOLERANCE = 0.02;
 
 /**
  * Gives the faults of a self-check of the WebGL frames (design 9.7). A fault makes the GPU row

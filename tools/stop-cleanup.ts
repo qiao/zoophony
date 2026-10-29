@@ -7,7 +7,7 @@ import type { ChildProcess } from 'node:child_process';
 import { rmSync } from 'node:fs';
 
 /** The time from the stop signal of a child process to its kill, in milliseconds. */
-export const KILL_AFTER_MS = 3000;
+const KILL_AFTER_MS = 3000;
 
 /** The children that run now. */
 const children = new Set<ChildProcess>();

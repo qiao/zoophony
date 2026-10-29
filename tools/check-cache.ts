@@ -23,7 +23,7 @@ export interface Check {
 }
 
 /** The parts of a cache key that are the same for each commit of one run. */
-export interface RunParts {
+interface RunParts {
   /** The SHA-256 of `tools/check-commits.sh` and of this module. */
   readonly scriptHash: string;
   /** The version, the platform, and the architecture of Node. */
@@ -52,7 +52,7 @@ export interface CheckKeyParts extends RunParts {
 }
 
 /** A line of a test file that `git grep -n` found. */
-export interface GrepLine {
+interface GrepLine {
   /** The path of the test file, from the root of the repository. */
   readonly path: string;
   /** The text of the line. */
@@ -60,7 +60,7 @@ export interface GrepLine {
 }
 
 /** The plan of one revision: its commit, its cache key, and its checks. */
-export interface CheckPlan {
+interface CheckPlan {
   /** The full hash of the commit. */
   readonly commit: string;
   /** The cache key: a SHA-256 in hex. */

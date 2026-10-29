@@ -26,7 +26,7 @@ export interface TailEnvelope {
 }
 
 /** The settings of a cut that loops a sustained sound. */
-export interface SustainCutOptions {
+interface SustainCutOptions {
   /** The length of the loop in seconds. */
   readonly loopSec: number;
   /** The length of the crossfade at the loop end in seconds. */
@@ -36,7 +36,7 @@ export interface SustainCutOptions {
 }
 
 /** The settings of a cut of a decaying sound, such as a piano note or a drum hit. */
-export interface DecayCutOptions {
+interface DecayCutOptions {
   /** The level below the peak at which the sound ends, in dB, such as -50. */
   readonly floorDb: number;
   /** The longest sample in seconds. */
@@ -371,7 +371,7 @@ export function cutDecay(
 }
 
 /** A pitch estimate. */
-export interface PitchEstimate {
+interface PitchEstimate {
   /** The deviation from the expected pitch in cents. */
   readonly cents: number;
   /** The normalized autocorrelation at the found period, from -1 to 1. */

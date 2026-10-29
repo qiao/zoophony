@@ -24,7 +24,7 @@ interface FileSizes {
 }
 
 /** The counts and the sizes of the files that {@link gzipSiteAudio} wrote. */
-export interface GzipSummary {
+interface GzipSummary {
   /** The number of files. */
   readonly files: number;
   /** The sum of the sizes before the gzip, in bytes. */

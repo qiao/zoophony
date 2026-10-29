@@ -29,13 +29,13 @@ export interface VitestFileResult {
 }
 
 /** The parts of the JSON report of Vitest (`--reporter=json`) that the tool reads. */
-export interface VitestReport {
+interface VitestReport {
   /** The result of each test file. */
   readonly testResults: readonly VitestFileResult[];
 }
 
 /** The lines that the tool prints, and its exit code. */
-export interface BreakVerdict {
+interface BreakVerdict {
   /** One line for each test that fails, or one line that says why no test fails. */
   readonly lines: readonly string[];
   /** 0 when a test fails, 1 when no test fails, and 2 when no test ran. */

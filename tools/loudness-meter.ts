@@ -90,7 +90,7 @@ function filter(input: Float32Array, stages: readonly Biquad[]): Float64Array {
  * @param power The sum of the mean squares of both channels.
  * @returns The loudness in LUFS.
  */
-export function loudnessOfPower(power: number): number {
+function loudnessOfPower(power: number): number {
   return -0.691 + 10 * Math.log10(power + 1e-30);
 }
 
@@ -249,7 +249,7 @@ function truePeakOf(channel: Float32Array, samplePeak: number): number {
  * @param value The amplitude.
  * @returns The level in dB.
  */
-export function decibels(value: number): number {
+function decibels(value: number): number {
   return 20 * Math.log10(value + 1e-30);
 }
 

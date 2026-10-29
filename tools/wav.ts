@@ -1,5 +1,5 @@
 /** The audio of a WAV file, as float samples from -1 to 1. */
-export interface WavAudio {
+interface WavAudio {
   /** The sample rate in Hz. */
   readonly sampleRate: number;
   /** One array for each channel, all of the same length. */

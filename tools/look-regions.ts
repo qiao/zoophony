@@ -28,7 +28,7 @@ import type { PixelBox, PixelMask } from './look-lab.ts';
  * saturation of a pixel moves with the color of the light, so the pixel set of the mask changes
  * from one light to the next. Compare two frames with one pixel set (`--mask` of the regions).
  */
-export const WHITE_FUR: PixelMask = { hue: [-1, 361], saturation: [-1, 0.4], luma: [60, 256] };
+const WHITE_FUR: PixelMask = { hue: [-1, 361], saturation: [-1, 0.4], luma: [60, 256] };
 
 /** The names of the regions of the camera `default`. */
 export type DefaultRegionName =
@@ -81,7 +81,7 @@ const REFERENCE_BOXES = {
  * @param height The height of the frame, in pixels.
  * @returns The camera, with its matrices up to date.
  */
-export function defaultCamera(stageSide: number, width: number, height: number): PerspectiveCamera {
+function defaultCamera(stageSide: number, width: number, height: number): PerspectiveCamera {
   const view = defaultView(stageSide, width, height);
   const camera = new PerspectiveCamera(
     FIELD_OF_VIEW,
@@ -226,7 +226,7 @@ function backFloor(
  * @param layout The layout.
  * @returns For each player: `front`, `back`, or `null`.
  */
-export function rowGroups(layout: SceneLayout): ('front' | 'back' | null)[] {
+function rowGroups(layout: SceneLayout): ('front' | 'back' | null)[] {
   const [px, , pz] = layout.podium;
   const rows = layout.players.map((p) =>
     Math.round(Math.hypot(p.position[0] - px, p.position[2] - pz) / ROW_STEP),

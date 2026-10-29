@@ -1,5 +1,5 @@
 /** A sample library in a Git repository, at a fixed commit. */
-export interface SourceRepo {
+interface SourceRepo {
   /** The name for the credits and the README. */
   readonly name: string;
   /** The GitHub repository, as `owner/name`. */

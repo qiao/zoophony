@@ -159,7 +159,7 @@ function startChild(command: string, args: readonly string[], cwd: string): Star
 const NEVER = new Promise<never>(() => undefined);
 
 /** One command of {@link runChildren}. */
-export interface ChildRun {
+interface ChildRun {
   /** The command. */
   readonly command: string;
   /** The arguments. */
@@ -305,13 +305,13 @@ function stopNow(signal: NodeJS.Signals): never {
 }
 
 /** The options of {@link withRefTree}. */
-export interface RefTreeOptions extends TempFolderOptions {
+interface RefTreeOptions extends TempFolderOptions {
   /** The paths of the commit to extract. The default is the whole tree. */
   readonly paths?: readonly string[];
 }
 
 /** The options of {@link withTempFolder}. */
-export interface TempFolderOptions {
+interface TempFolderOptions {
   /** The folder that holds the temporary folder. The default is the temporary folder of the OS. */
   readonly parent?: string;
   /** The start of the name of the temporary folder, such as `body-probe-`. */
@@ -388,7 +388,7 @@ export function withRefTree<T>(
  * export of the studio bodies of `tools/studio-body.ts`, which a newer tool can import from a
  * newer source.
  */
-export const PROBE_PATHS: readonly string[] = [
+const PROBE_PATHS: readonly string[] = [
   'src',
   'package.json',
   'demos/src',
@@ -422,7 +422,7 @@ export interface RefRole {
 }
 
 /** The options of {@link withProbeTree}. */
-export interface ProbeTreeOptions {
+interface ProbeTreeOptions {
   /** The folder that holds the temporary folder. The default is the temporary folder of the OS. */
   readonly parent?: string;
   /** The start of the name of the temporary folder, such as `body-probe-`. */
@@ -488,7 +488,7 @@ export function refRoleKeys(dir: string, role: RefRole): string[] | null {
  * @throws Error if the table of the commit has no such role. A tree with no such table passes,
  *   and the probe of the commit gives its own failure.
  */
-export function checkRefRole(dir: string, ref: string, role: RefRole): void {
+function checkRefRole(dir: string, ref: string, role: RefRole): void {
   const keys = refRoleKeys(dir, role);
   if (keys && !keys.includes(role.name)) {
     throw new Error(
@@ -547,7 +547,7 @@ export function withProbeTree<T>(
 }
 
 /** The arguments of the two children of {@link probeBeside}. */
-export interface BesideArgs {
+interface BesideArgs {
   /** The arguments of the script on the code of the commit. */
   readonly base: readonly string[];
   /** The arguments of the script on the working tree. */
@@ -555,7 +555,7 @@ export interface BesideArgs {
 }
 
 /** The output files of the two children of {@link probeBeside}. */
-export interface BesideTexts {
+interface BesideTexts {
   /** The text of the file of the script on the code of the commit. */
   readonly base: string;
   /** The text of the file of the script on the working tree. */
@@ -573,7 +573,7 @@ export interface BesideTexts {
  *   same meaning. A reader ignores each field that it does not know, and gives `-` for a field of
  *   its version that an older text does not have.
  */
-export interface ProbeFormat {
+interface ProbeFormat {
   /** The format version: the field `version`, or 1 for a text with no field. */
   readonly version: number;
   /**
@@ -592,7 +592,7 @@ export interface ProbeFormat {
  * @throws Error if the text holds no object, a version that is not a whole number above 0, or a
  *   `since` that is not a whole number from 1 to the version.
  */
-export function probeFormat(text: string): ProbeFormat {
+function probeFormat(text: string): ProbeFormat {
   // SAFETY: the text comes from the --json output of a probe, and the checks below read the fields.
   const parsed = JSON.parse(text) as {
     readonly version?: unknown;
@@ -643,7 +643,7 @@ export function formatVersion(text: string): number {
  * @throws Error if the newer version changes or removes a field of the older version, with both
  *   versions.
  */
-export function formatNote(
+function formatNote(
   script: string,
   ref: string,
   base: ProbeFormat,
@@ -690,7 +690,7 @@ export function checkFormat(script: string, ref: string, base: number, tree: num
  * The parts of the cache key of the probe of a commit ({@link baseCacheKey}). The probe of the
  * commit reads only these inputs, so a change of one part gives a new key.
  */
-export interface BaseKeyParts {
+interface BaseKeyParts {
   /** The script of the probe, such as `hold-fit.ts`. */
   readonly script: string;
   /**
@@ -717,7 +717,7 @@ export interface BaseKeyParts {
  * @param parts The parts.
  * @returns The key, in hex.
  */
-export function baseCacheKey(parts: BaseKeyParts): string {
+function baseCacheKey(parts: BaseKeyParts): string {
   const fields = [
     'probe-cache 1',
     parts.script,
@@ -766,7 +766,7 @@ function fileHash(path: string): string {
  * @param args The arguments of the probe.
  * @returns The arguments of the key.
  */
-export function keyArgs(args: readonly string[]): readonly string[] {
+function keyArgs(args: readonly string[]): readonly string[] {
   const files = args.filter((...[, i]) => args[i - 1] === '--midi');
   if (files.length === 0) {
     return args;
@@ -801,7 +801,7 @@ export function probeCacheDir(): string {
  * @returns The path of the file.
  * @throws Error if git does not know the ref.
  */
-export function baseCacheFile(
+function baseCacheFile(
   ref: string,
   script: string,
   args: readonly string[],
@@ -838,7 +838,7 @@ export function baseCacheFile(
  * @returns The entry of each path, as `git ls-tree` writes it.
  * @throws Error if git fails.
  */
-export function workingTrees(): string {
+function workingTrees(): string {
   const dir = mkdtempSync(join(tmpdir(), 'tree-key-'));
   try {
     const index = join(dir, 'index');

@@ -40,7 +40,7 @@ import { decodeWav } from './wav.ts';
 export const LOCK_PATH = join(import.meta.dirname, 'soundfont-lock.json');
 
 /** The quality of the Ogg Vorbis encoder, from 0 to 10 (libvorbis `-q`). */
-export const VORBIS_QUALITY = 5;
+const VORBIS_QUALITY = 5;
 
 /** The date in the INFO chunk, so that two builds write the same bytes. */
 const CREATION_DATE = new Date('2026-10-05T00:00:00Z');
@@ -70,7 +70,7 @@ export interface LockEntry {
 export type SourceLock = Readonly<Record<string, LockEntry>>;
 
 /** One zone of a new instrument, before the encode. */
-export interface ZonePlan {
+interface ZonePlan {
   readonly region: SfzRegion;
   /** The key range of the zone. */
   readonly keys: readonly [number, number];

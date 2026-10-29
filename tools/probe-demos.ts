@@ -94,7 +94,7 @@ function xylophoneNotes(channel: number): TestEvent[][] {
  *
  * @returns The test file.
  */
-export function percussionTestFile(): TestFile {
+function percussionTestFile(): TestFile {
   return {
     tracks: [
       [trackName('Percussion Test'), tempo(0, 100), timeSignature(0, 4, 4)],
@@ -112,7 +112,7 @@ export function percussionTestFile(): TestFile {
  * The scores of the probe tools that are no demo, by their file name: scores with the parts that
  * no demo plays.
  */
-export const TOOL_SCORES: ReadonlyMap<string, () => TestFile> = new Map([
+const TOOL_SCORES: ReadonlyMap<string, () => TestFile> = new Map([
   ['percussion-test.mid', percussionTestFile],
 ]);
 
@@ -165,7 +165,7 @@ export function absoluteMidi(args: readonly string[]): string[] {
  * @returns The files, by the names of {@link userDemoFile}.
  * @throws Error if two files have one name, or a file has the name of a known file.
  */
-export function userDemos(paths: readonly string[], known: readonly string[] = []): DemoFile[] {
+function userDemos(paths: readonly string[], known: readonly string[] = []): DemoFile[] {
   const names: string[] = [...known];
   return paths.map((path) => {
     const file = userDemoFile(path);
