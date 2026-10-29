@@ -1,6 +1,6 @@
 {
   "source": "assets/models/elephant/elephant-arms.glb",
-  "sourceNote": "The A-pose mesh of the user of 2026-10-23 (assets/models/elephant/README.md), with new quad faces on each arm from the shoulder line to the wrist. The user allowed loop edges, retopology, and extra bones for the arm and wrist twist on 2026-10-24 (\"add loop edges and retopology and additional bones if needed to address them\"). tools/blender/elephant_arms.py replays the Blender session that made it. The faces of the paws, the trunk, the legs, and the head are the faces of the user. The file of the user, elephant-apose.glb, stays unchanged.",
+  "sourceNote": "The A-pose elephant mesh (assets/models/elephant/README.md), with new quad faces on each arm from the shoulder line to the wrist. tools/blender/elephant_arms.py replays the Blender session that made it. The faces of the paws, the trunk, the legs, and the head are the faces of the source. elephant-apose.glb stays unchanged.",
   "paintedWeights": "assets/models/elephant/elephant-weights.json",
   "paintedLower": [
     "root",
@@ -22,14 +22,14 @@
     "toes_R",
     "tail"
   ],
-  "paintedNote": "The weights of the clavicles and the arms are the automatic weights of Blender with the Weight Paint fixes of tools/blender/elephant_arms.py. The vertices on the bones of paintedLower (the trunk up to the chest, the neck, the head, the ears, the legs, and the tail) keep the rule weights, as on the rabbit, the mouse, and the wolf: the trunk, the trunk of the head, and the ears depend on them.",
+  "paintedNote": "The weights of the clavicles and the arms are the automatic weights of Blender with the Weight Paint fixes of tools/blender/elephant_arms.py. The vertices on the bones of paintedLower keep the rule weights, because the trunk, the trunk of the head, and the ears depend on them.",
   "armSegments": {
     "helper": 0.052,
-    "note": "Each upper arm and each forearm has 4 deform segments, and each elbow and wrist a helper bone. The elbow helper is 0.052 units, twice the gap of the rings of the elbow (gap of tools/blender/elephant_arms.py): with the gaps 0.016 and 0.022, the faces of the inner elbow folded (9 and 6 faces of the left arm in the arm gate, limit 8). The wrist rings keep the gap 0.016, and the Blender session gives the wrist helper twice that length. The app turns the bones from the joints of the pose (poseArm() of src/models/studio-rig.ts). They replace upperTwist and the raise shapes."
+    "note": "Each upper arm and each forearm has 4 deform segments, and each elbow and wrist a helper bone. The elbow helper is 0.052 units, twice the gap of the elbow rings (gap of tools/blender/elephant_arms.py), so that the inner elbow does not fold."
   },
   "rootNormals": {
     "elbow": 0.07,
-    "note": "The skin faces whose middle lies within elbow (units, 0.134 m) of the head of a forearm take the normals of the skin with no crease angle in the app (root_rim() of tools/blender/rig_mesh.py, studioNormals() of src/models/studio-normals.ts). The bind bends each elbow about 62 degrees, so the faces of the inner elbow meet at sharp angles, and the crease angle 35 of ANIMALS split their normals into short light and dark creases on each bent arm. The colors probe shows no dark face there. With 0.055 and 0.06, light slivers stayed at the inner elbows, and 0.08 smoothed more of the facets of the forearms (docs/research/2026-10-25-elephant-hippo-creases.md)."
+    "note": "The skin faces whose middle lies within elbow (units) of the head of a forearm take the skin normals with no crease angle in the app (root_rim() of tools/blender/rig_mesh.py). This removes the light and dark creases at each bent elbow."
   },
   "output": "assets/models/elephant/elephant.rig.glb",
   "name": "Elephant",
@@ -37,10 +37,10 @@
   "app": {
     "shoulders": 1.1616,
     "reach": 0.387,
-    "note": "The size of the elephant of main: the standing skull top (the highest vertex within 0.03 u of the middle plane, 1.0 u) at 1.920 m, the height that the reference images give (docs/research/2026-10-19-elephant-mesh.md). Thus 1.92 m for each unit, and the standing shoulder joints at 1.1616 m (the entry of the elephant in ANIMALS). The reach is the reach of the arms of the mesh, from the shoulder joint to the middle of the palm."
+    "note": "The size of the elephant that the reference images give: the standing skull top (the highest vertex within 0.03 u of the middle plane, 1.0 u) at 1.920 m. Thus the standing shoulder joints are at 1.1616 m (ANIMALS). The reach goes from the shoulder joint to the middle of the palm."
   },
   "armFactor": 1,
-  "armFactorNote": "The arms keep the length of the mesh: 0.387 m from the shoulder joint to the middle of the palm. The arms of the old mesh were 0.451 m.",
+  "armFactorNote": "The arms keep the length of the mesh: 0.387 m from the shoulder joint to the middle of the palm.",
   "legFactor": 1,
   "legFactorNote": "The legs keep the length of the mesh. The elephant stands at its timpani in the app, so no seat asks for longer legs.",
   "joints": {
@@ -251,7 +251,7 @@
     -0.595,
     -0.442
   ],
-  "jointsNote": "The places are in the units and the axes of the studio in the pose of the source: 1 unit from the soles to the skull top, the soles at y = 0, +z forward, +x the left side. The right side mirrors the left side. The probes are in docs/research/2026-10-22-elephant-apose/: sections.py gives the cuts at each height (sections-y.txt, sections-x.txt, sections-z.txt), measures.py the parts (measures.txt), and arm_axis.py the cuts across the arm. The legs are columns apart below the crotch at y 0.19, with the middle of each leg at x 0.096 and z -0.055. The trunk joints lie on the middle of the body cut, z -0.05 to -0.06. The chin is at y 0.745, so the neck joint lies at 0.68 and the head joint at 0.76. The arms hang in an A-pose, about 45 degrees down and apart from the trunk from y 0.43 to 0.55. The shoulder joint lies on the middle line of the arm 0.03 u inside its root, the elbow halfway to the wrist, the wrist where the arm narrows to the paw, and the finger joint 0.035 u from the paw tip at (0.343, 0.441). The tail hangs straight down behind the rump from y 0.29 to 0.125, a little back, so that the roll hint is not along the bone. The palm turns with the arm: the palm of the old mesh, swung from its hanging arm onto the arm of the A-pose.",
+  "jointsNote": "The places are in the units and the axes of the studio in the source pose: 1 unit from the soles to the skull top, +z forward, +x the left side. The arms hang in an A-pose, about 45 degrees down. The tail hangs straight down behind the rump.",
   "studio": {
     "legTurns": {
       "thigh": [
@@ -307,7 +307,7 @@
         0.731461
       ]
     },
-    "note": "The studio has no elephant. legTurns gives the world turn of each left leg bone from the seated bind pose to the source, and the right side mirrors it: the values of the hippo. The elephant stands in the app (soloist of ANIMALS), so no player sits in this bind. The trunk shares and the bind arms are the values of the cat, the dog, the panda, and the hippo. Bind arms nearer to the A-pose of the source folded more faces (rig-mesh --check)."
+    "note": "legTurns gives the world turn of each left leg bone from the seated bind to the source (the values of the hippo). The elephant stands in the app (soloist of ANIMALS), so no player sits in this bind. Bind arms nearer to the A-pose fold more faces."
   },
   "weights": {
     "armSplit": 0.17,
@@ -329,12 +329,12 @@
     "sliver": {
       "angle": 10,
       "longest": 0.03,
-      "note": "The values of the fox, the cat, the dog, and the panda. The rule takes 51 faces in 17 groups."
+      "note": "The values of the fox, the cat, the dog, and the panda."
     },
     "line": {
       "angle": 170,
       "head": true,
-      "note": "The line rule of the fox, the cat, the dog, and the panda with the angle 150 gave the middle corner of each long thin face of the arms the mix of its far corners. The arm faces of this mesh run up to 0.22 u, from the shoulder to the paw, so 5 vertices of the left arm took trunk weight and forearm or paw weight together, and a few faces folded in each sample. The angle 170 takes only the corners on the line, and no vertex mixes them."
+      "note": "The angle 170 takes only the corners on the line. The long thin arm faces of this mesh run from the shoulder to the paw, and a lower angle mixes the trunk weight and the paw weight in their middle corners, so that faces fold."
     },
     "clavicleFrom": [
       0.565,
@@ -356,7 +356,7 @@
       ],
       "note": "The part of the thigh weight that goes to the hips grows from 0 at the lower height to 1 at the upper height, so that the round haunch stays on the hips. It starts below the crotch at y 0.19 and ends above it."
     },
-    "note": "Beyond the plane |x| = armSplit, only the free arm follows the arm bones: the A-pose arm is apart from the trunk from x 0.17 out below y 0.55, and the trunk there is narrower than 0.17 (91 vertices of the free left arm). The rule weights apply only to the bones of paintedLower. The rig has no crease rule and no split, and the arm faces are the quad tubes of elephant-arms.glb (sourceNote). Above headFrom, each vertex follows the head only: the chin is at y 0.745. earBase lies above the head, so the large ears follow the head. The lowest part of each ear hangs below the head line, so earFlap gives it to the head only (28 and 31 vertices). The trunk and the tusks hang in front of the plane z 0.17, and the belly ends at z 0.154, so noseFront gives them to the head only. The tail is a ball on one bone (tailBall). clavicleFrom and shoulderHead are the rules of the hippo, and armTop lies above the shoulder top at y 0.68.",
+    "note": "Beyond the plane |x| = armSplit, only the free arm follows the arm bones. Above headFrom (the chin), each vertex follows the head only. The large ears follow the head, and earFlap gives the low ear flaps to the head. noseFront gives the trunk and the tusks to the head.",
     "earFlap": {
       "cut": 0.76,
       "apart": 0.09,
@@ -369,7 +369,7 @@
         0.0,
         0.001
       ],
-      "note": "The flap of each ear below y 0.76 and out of x 0.09 is apart from the head. The tip is the lowest vertex of the left flap. At the cut 0.77, the right flap joined the shoulder."
+      "note": "The flap of each ear below y 0.76 and out of x 0.09 is apart from the head. The tip is the lowest vertex of the left flap. A higher cut joins the right flap to the shoulder."
     },
     "noseFront": {
       "front": 0.17
@@ -381,7 +381,7 @@
       "normals": 60,
       "move": 0.0016,
       "rounds": 4,
-      "note": "The values of the fox, the rabbit, the cat, the dog, and the panda. The rule flips 11 edges."
+      "note": "The values of the fox, the rabbit, the cat, the dog, and the panda."
     },
     "rings": []
   },
@@ -475,9 +475,9 @@
           -0.0245
         ]
       ],
-      "note": "The mesh has warmer colors than SPECIES_COLORS.elephant (#a8a198, Oklab hue 74 degrees, chroma 0.015): the plain faces have the hue 43 to 61 degrees and the chroma 0.018 to 0.046 (fur-colors.txt). As the user chose for the panda, each plain face takes the hue and the chroma of the species color of its band and keeps its lightness: a row is [L, dL, da, db] in Oklab, the skin up to L 0.725 moves to the fur color, and the lighter skin to the belly color #b9b2a8. The cream tusks and nails (L above 0.85) keep their colors. Only the toes keep the colors of the source: the Blender weights put most of the top of each paw on the fingers bone, and with the fingers in keep, those faces kept the warm pink of the texture."
+      "note": "The mesh has warmer colors than SPECIES_COLORS.elephant. Each plain face takes the hue and the chroma of the species color of its band and keeps its lightness: a row is [L, dL, da, db] in Oklab. The cream tusks and nails (L above 0.85) and the toes keep their colors."
     },
-    "note": "The values of samples, palette, dark, and eyeShare are the values of the other meshes. A dark face in the eye box is a face of an eye: 13 faces on the left and 12 on the right, at x 0.065 to 0.085, y 0.854 to 0.878, and z 0.144 to 0.162 (head-colors.txt). The config has no nose box: the trunk has no nose pad."
+    "note": "The values of samples, palette, dark, and eyeShare are the values of the other meshes. A dark face in the eye box is a face of an eye. The config has no nose box, because the trunk has no nose pad."
   },
   "eyeShell": {
     "lift": 0.002,

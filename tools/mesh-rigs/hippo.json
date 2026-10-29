@@ -1,6 +1,6 @@
 {
   "source": "assets/models/hippo/hippo-arms.glb",
-  "sourceNote": "The mesh of the user (assets/models/hippo/hippo.glb, assets/models/hippo/README.md), with new quad faces on each arm from the seam where the arm meets the trunk to the wrist, a side wall of the trunk under each arm, and arms 1.5 times longer. The user allowed loop edges, retopology, and extra bones for the arm and wrist twist on 2026-10-24 (\"add loop edges and retopology and additional bones if needed to address them\"). tools/blender/hippo_arms.py replays the Blender session that made it. The faces of the paws, the trunk, the legs, and the head are the faces of the user. Since 2026-10-28, the wrist cut lies parallel to the last ring of the tube, 0.25 of the paw from the wrist joint, and Smooth Vertices evens the band of each wrist: the cut at a right angle to the paw crossed the last ring on the inner side of the wrist turn, and the bridge made a lip with a slit under it, a pale band or a dark slit around the bow wrist in the play (docs/research/2026-10-28-hippo-arm.md). The file of the user, hippo.glb, stays unchanged.",
+  "sourceNote": "The hippo mesh (assets/models/hippo/hippo.glb, assets/models/hippo/README.md), with new quad faces on each arm from the arm seam to the wrist, a side wall of the trunk under each arm, and arms 1.5 times longer. tools/blender/hippo_arms.py replays the Blender session that made it. hippo.glb stays unchanged.",
   "paintedWeights": "assets/models/hippo/hippo-weights.json",
   "paintedLower": [
     "root",
@@ -22,18 +22,18 @@
     "toes_R",
     "tail"
   ],
-  "paintedNote": "The weights of the clavicles and the arms are the automatic weights of Blender with the Weight Paint fixes of tools/blender/hippo_arms.py. The vertices on the bones of paintedLower (the trunk up to the chest, the neck, the head, the ears, the legs, and the tail) keep the rule weights, as on the fox and the elephant: the seated bind of the app depends on them.",
+  "paintedNote": "The weights of the clavicles and the arms are the automatic weights of Blender with the Weight Paint fixes of tools/blender/hippo_arms.py. The vertices on the bones of paintedLower keep the rule weights, because the seated bind of the app depends on them.",
   "armSegments": {
     "helper": 0.044,
     "rootSegment": true,
     "rootSegmentNote": "The rule weight of each upper arm goes to its first segment (segment_joints() and main() of tools/blender/rig_mesh.py), so that the trunk around the socket takes the roll of the first ring of the tube, as on the fox.",
-    "note": "Each upper arm and each forearm has 4 deform segments, and each elbow and wrist a helper bone of this length in units, which spans the rings of its joint in the bind of Blender. The app turns them from the joints of the pose (poseArm() of src/models/studio-rig.ts), and turns each helper around its joint, so the length changes only the automatic weights of Blender. They replace the twist bone of the upper arm and the three raise shapes. With 0.052, twice the gap of the elbow rings (gap of tools/blender/hippo_arms.py) as on the elephant, 36.1% of the play samples folded, and with 0.044 20.0% (docs/research/2026-10-25-hippo-arms.md)."
+    "note": "Each upper arm and each forearm has 4 deform segments, and each elbow and wrist a helper bone of this length in units. The app turns them from the pose joints (poseArm() of src/models/studio-rig.ts), so the length changes only the automatic weights of Blender. A longer helper folds more play samples."
   },
   "armSmooth": {
     "rounds": 6,
     "sides": "LR",
     "bones": ["upper_arm_seg1", "upper_arm_seg2", "forearm_seg1", "forearm_seg2", "forearm_seg3"],
-    "note": "6 rounds of taubin() smooth the middle of each arm tube of hippo-arms.glb after the weights (arm_smooth() of tools/blender/rig_mesh.py), at most 0.0083 units: the vertices on the second and the third segments of the upper arm and on the last three segments of the forearm. The user said on 2026-10-28: \"the hippo's arm has lumps / dents\". The play folds fall from 8.9% to 3.2% of the samples, and one face folds in place of three. With the elbow rings and the root in the smoothing, the folds rose to 24.5% and 100% of the play samples, because the elbow rings keep a gap for the helper bone and the root joins the side wall (docs/research/2026-10-28-arm-smooth.md)."
+    "note": "6 rounds of taubin() smooth the middle of each arm tube after the weights (arm_smooth() of tools/blender/rig_mesh.py), so that the arms show no lumps or dents. The elbow rings and the root stay out, because the elbow rings keep a gap for the helper bone and the root joins the side wall."
   },
   "bindSmooth": {
     "rounds": 12,
@@ -43,7 +43,7 @@
       "upper_arm_seg3",
       "forearm_seg0"
     ],
-    "note": "The user said on 2026-10-29: \"the hippo's arm has unexpected bump near the elbow\", with images of the bind mesh of hippo.rig.glb, which a viewer shows with no skin. The seated bind bends the left elbow far, and the inner elbow folded into a lip. 12 rounds of taubin() smooth the bind mesh of the left elbow after its relax (arm_smooth() on the bind, main() of tools/blender/rig_mesh.py), at most 0.0085 units, and the play folds fall from 3.2% to 1.7% of the samples. 6 rounds gave 3.0%. Both sides folded the right arm in 14.9% of the samples, and a wider band of five bones gave 3.2% (docs/research/2026-10-28-followups.md)."
+    "note": "12 rounds of taubin() smooth the bind mesh of the left elbow after its relax (arm_smooth() on the bind, main() of tools/blender/rig_mesh.py). The seated bind bends the left elbow far, and without this rule the inner elbow folds into a lip."
   },
   "raise": [
     {
@@ -84,7 +84,7 @@
         "forearm_seg2",
         "forearm_seg3"
       ],
-      "note": "The user said on 2026-10-28: \"the hippo's arm is still not fixed\". In the rest pose, the right upper arm turns about 64 degrees from the seated bind, and the skin of the rebuilt tube showed a bulge in the upper arm, a kink at the back of the elbow, and a bump on the top of the forearm. The shape takes the mean turns of the rest samples of the bassist (scratch rest-turns.ts with armSamples() of tools/raise-fit.ts) and smooths the posed skin with 10 rounds of taubin() (smooth, raise_shape() of tools/blender/rig_mesh.py), each vertex by its weight on the bones of smoothBones: the tube from the second segment of the upper arm to the wrist. The root segment and the clavicle stay out, because the root joins the side wall: with them, 5 faces of the root stayed turned in the pose of the rule, and the root folded in each rest sample. below -1 turns off the relax of turned faces, so the shape is the smoothing alone. The shape fades from 10 to 25 degrees of the upper arm from the rest turn, so the play keeps the arm of main. 6 rounds gave a smaller change (docs/research/2026-10-28-followups.md)."
+      "note": "The rest shape of the right arm: the mean turns of the rest samples of the bassist. It smooths the posed tube from the second upper arm segment to the wrist (raise_shape() of tools/blender/rig_mesh.py), with no relax (below -1). The fade keeps it off the play."
     }
   ],
   "output": "assets/models/hippo/hippo.rig.glb",
@@ -93,21 +93,21 @@
   "app": {
     "shoulders": 0.888504,
     "reach": 0.5391,
-    "note": "The head height of the red fox, the size that the user chose for the cat, the dog, and the panda: the scale puts the standing skull top (the highest vertex within 0.03 u of the middle plane, 0.9807 u) at 1.570 m, 1.600907 m for each unit, with the standing shoulder joints at 0.888504 m (the entry of the hippo in ANIMALS). The parametric hippo of main stood 1.462 m high to the head top. The reach is the reach of the arm factor below, from the shoulder joint to the middle of the palm. With no --check, pnpm rig-mesh stops until the arm factor gives this reach."
+    "note": "The scale puts the standing skull top (the highest vertex within 0.03 u of the middle plane) at 1.570 m, the head height of the red fox: 1.600907 m for each unit, with the standing shoulder joints at 0.888504 m (ANIMALS)."
   },
   "armFactor": 1,
-  "armFactorNote": "The factor of the upper arm and the forearm in the rig: 1, because the rig with arm segments does not stretch the arms (armSegments of tools/blender/rig_mesh.py). The arms of hippo-arms.glb are already 1.5 times longer than the arms of the user mesh (step_shape() of tools/blender/violin_arms.py, called by tools/blender/hippo_arms.py), and the arm joints below are the joints of the longer arms, so the reach stays app.reach. The reasons for the factor 1.5 before: The factor of the upper arm and the forearm. The arms of the mesh are short: 0.369 m from the shoulder joint to the middle of the palm with no factor, 0.62 of the trunk from the hips joint to the shoulder joints. With 1.5, the reach is 0.539 m, and the arm is 0.94 of the trunk, as the red fox (0.91) and the dog (0.92); the panda has 1.497. The parametric hippo of main had arms of 0.734 m. The user called the arms of the dog with the factor 1.75 much too long, so the contrabass of the hippo is smaller (bassScale 0.8 of src/models/species.ts), and the hold brings it to the arms (docs/decisions/2026-10-18-mesh-hippo.md).",
+  "armFactorNote": "The factor 1 does not stretch the arms in the rig. The arms of hippo-arms.glb are already 1.5 times longer than the source arms (step_shape() of tools/blender/violin_arms.py, called by tools/blender/hippo_arms.py). The contrabass of the hippo is smaller (bassScale 0.8 of src/models/species.ts).",
   "legFactor": 1,
-  "legFactorNote": "The legs keep the length of the mesh. The hippo stands at its contrabass in the app, as the hippos of the reference images, so no seat asks for longer legs. The seat of the legs of the seated bind is 0.139 m.",
+  "legFactorNote": "The legs keep the length of the mesh. The hippo stands at its contrabass in the app, as the hippos of the reference images, so no seat asks for longer legs.",
   "rootNormals": {
     "radius": 0.1,
     "armShare": 0.3,
     "turn": 60,
-    "note": "The skin faces whose middle lies within radius (units, 0.16 m) of the head of an upper arm take the normals of the skin with no crease angle in the app (root_rim() of tools/blender/rig_mesh.py, studioNormals() of src/models/studio-normals.ts). The seated bind turns the hanging arm up, so the faces under each arm root meet at sharp angles, and the crease angle 35 of ANIMALS split their normals into a hard dark crease under the left arm in the side view. The colors probe shows no dark face there. With 0.14 and 0.18, the arms and the shoulders lost their facets in the views at 35 degrees (docs/research/2026-10-25-elephant-hippo-creases.md).",
-    "armShareNote": "A face of the radius stays in the rim only when the mean weight of its corners on the clavicle and the arm bones of its side is 0.3 or more (root_rim()). The big trunk faces 776 and 777 under the left armpit shared corners with the turned arm root, and with the rim they took its mean normal, which points down and back: 113 degrees from the face at rest, so a soft dark patch showed under the left arm also with no shadow. With 0.3, the rim keeps 74 of 145 faces, and these faces shade 14 to 17 degrees from their own normal. With 0.2, a part of the patch stayed (docs/research/2026-10-25-hippo-skin.md).",
-    "turnNote": "A face of the rim keeps the crease normals when a corner takes a skin normal more than 60 degrees from its own face in the final bind (rim_turns()): 15 faces, so 59 faces stay in the rim. Vertex 25 lies in the notch where the inner right arm meets the trunk, so the skin faces at it point in opposite directions, and the big trunk face 270 under the right armpit took a corner normal 109 degrees from its face, a black wedge under the bow arm from the right side. With 45, a hard crease showed at the inner left elbow, and with 90, the wedge stayed (docs/research/2026-10-25-hippo-skin.md).",
+    "note": "The skin faces whose middle lies within radius (units) of the head of an upper arm take the skin normals with no crease angle in the app (root_rim() of tools/blender/rig_mesh.py). The seated bind turns the arm up, and without this rule a hard dark crease shows under the left arm.",
+    "armShareNote": "A face of the radius stays in the rim only when the mean weight of its corners on the clavicle and the arm bones of its side is 0.3 or more (root_rim()). Thus the big trunk faces under the left armpit keep their own normals and show no dark patch.",
+    "turnNote": "A face of the rim keeps the crease normals when a corner takes a skin normal more than 60 degrees from its own face in the final bind (rim_turns()). Thus the big trunk face under the right armpit shows no black wedge under the bow arm.",
     "elbow": 0.09,
-    "elbowNote": "The faces within 0.09 units of each elbow joint take the skin normals (root_rim() of tools/blender/rig_mesh.py), as on the elephant. On the rebuilt arms, the left paw on the neck bends the left elbow far, and the crease angle split the normals of the elbow into a thin dark line across the arm from the back in each play moment, with no dark color and no fold. With 0.07, the line stayed (docs/research/2026-10-25-hippo-arms.md)."
+    "elbowNote": "The faces within 0.09 units of each elbow joint take the skin normals (root_rim() of tools/blender/rig_mesh.py). The left paw on the neck bends the left elbow far, and without this rule the split normals show a thin dark line across the elbow."
   },
   "joints": {
     "root": {
@@ -317,7 +317,7 @@
     -0.269,
     -0.502
   ],
-  "jointsNote": "The places are in the units and the axes of the studio in the pose of the source: 1 unit from the soles to the top of the ears, the soles at y = 0, +z forward, +x the left side. The right side mirrors the left side. The probes are in docs/research/2026-10-18-hippo-mesh/: sections.py gives the cuts at each height (sections-y.txt, sections-x.txt, sections-z.txt), and measures.py the parts (measures.txt). The legs are short stumps apart below the crotch at y 0.122, with the middle of each leg at x 0.123 and z -0.05. The thigh joint lies a little below the crotch, the knee and the ankle divide the stump, and the toes lie at the ball of the foot (toe tip at z 0.075). The round belly reaches z 0.216 at y 0.35. The trunk joints lie 0.01 to 0.02 behind the middle of the body cut. The hippo has no neck: the head starts at the chin at y 0.70, and the neck joint lies below it. The cuts across the free arm (arm-axis.txt) give its middle line: the arm is apart from the body from x 0.207 out. The shoulder joint lies on that line where it meets x 0.19, inside the root, the elbow halfway to the wrist on the middle line, the wrist at the narrowest cut before the paw, and the finger joint 0.03 before the tip of the paw. The ear joint lies at the root of the small ear on the top of the head, and its tail at the ear tip. The small tail hangs down under the buttock from its root at y 0.215 to its tip at y 0.157. The palm takes the smallest principal direction of the vertices of the left paw beyond the wrist, inward, down, and back (paw.py). The paw is round, so the two smaller spreads are close (0.152 and 0.144). Since 2026-10-25, the joints of the elbow, the forearm twist, the wrist, and the paw are the joints of the arms that are 1.5 times longer (hippo_arms.py), and the joints of the source arms are in source_joints() of tools/blender/violin_arms.py.",
+  "jointsNote": "The places are in the studio units and axes of the source pose: 1 unit from the soles to the ear tops, +z forward, +x the left side. The neck joint lies below the chin. The elbow, forearm twist, wrist, and paw joints are the joints of the longer arms.",
   "studio": {
     "legTurns": {
       "thigh": [
@@ -373,7 +373,7 @@
         0.731461
       ]
     },
-    "note": "The studio has no hippo. legTurns gives the world turn of each left leg bone from the seated bind pose to the source, and the right side mirrors it. The posture is the seated posture of design 5.2: the thigh slopes 25 degrees down from the hip to the knee, the thighs turn 15 degrees out, and the shin is vertical (tools/rig/leg_turns.py <config> 25 15 0). The source shin slants 8.5 degrees forward. The foot and the toes keep the turn of the source, so that the soles stay flat on the foot ring. The trunk shares and the bind arms are the values of the cat, the dog, and the panda. The bind hand bends 25 degrees off the forearm in the plane of the palm, about as the paw of the source (24.5 degrees between the joints of the config), and the bow paw keeps this bend in the play (HIPPO_HOLD.pawKeepR of src/pose/bowed-rig.ts, docs/decisions/2026-10-28-hippo-paw.md). The bow hand turns around the grip in the middle of the paw, so that the paw keeps one place on the stick (HIPPO_HOLD.stickTurnR, docs/decisions/2026-10-28-hippo-grip.md)."
+    "note": "legTurns gives the world turn of each left leg bone from the seated bind to the source (tools/rig/leg_turns.py <config> 25 15 0). The bind hand bends 25 degrees off the forearm in the palm plane, as the source paw, and the bow paw keeps this bend (HIPPO_HOLD.pawKeepR of src/pose/bowed-rig.ts)."
   },
   "weights": {
     "armSplit": 0.26,
@@ -381,7 +381,7 @@
       0.42,
       0.52
     ],
-    "armBelowNote": "Inside the plane of armSplit, the share of the arm weight that a vertex keeps grows from 0 at the lower height to 1 at the upper height (units), and the trunk takes the rest. Since the arms of hippo-arms.glb, the rule weights serve only the trunk and the socket (paintedLower), and the rule weight of the upper arm goes to its first segment (armSegments.rootSegment). The arm vertices hang on no hips, spine, or spine1 (step_tube_trunk() of tools/blender/hippo_arms.py), so the trunk around the socket must follow the first ring: with 0.46 to 0.54 and 0.40 to 0.50, 100% of the play samples folded at the root of the right tube, with 0.44 to 0.52 32.3%, and with 0.42 to 0.52 20.6% (docs/research/2026-10-25-hippo-arms.md).",
+    "armBelowNote": "Inside the plane of armSplit, the share of the arm weight that a vertex keeps grows from 0 at the lower height to 1 at the upper height (units), and the trunk takes the rest. This ramp folds the root of the arm tube the least.",
     "stretchRamp": 0,
     "headFrom": 0.7,
     "earBase": [
@@ -400,12 +400,12 @@
     "sliver": {
       "angle": 10,
       "longest": 0.03,
-      "note": "The values of the fox, the cat, the dog, and the panda. The rule takes 23 faces in 13 groups."
+      "note": "The values of the fox, the cat, the dog, and the panda."
     },
     "line": {
       "angle": 150,
       "head": true,
-      "note": "The values of the fox, the cat, the dog, and the panda. The rule takes 100 corners."
+      "note": "The values of the fox, the cat, the dog, and the panda."
     },
     "clavicleFrom": [
       0.52,
@@ -415,12 +415,12 @@
       0.05,
       0.25
     ],
-    "clavicleMiddleNote": "The share of the clavicle weight that a vertex below headFrom keeps grows from 0 at the smaller distance from the middle plane to 1 at the larger distance (units), and the chest takes the rest. Bone heat gave the chest under the chin weights of both clavicles (0.12 to 0.21). The bow arm turns the right clavicle far, so faces 617 and 618 on the middle plane folded in each play sample. A narrow fade (0.02 to 0.06, 0.04 to 0.10, 0.08 to 0.18) moved the fold to the faces of the fade, and a higher clavicleFrom to the front of the shoulder (docs/research/2026-10-19-hippo-chest/).",
+    "clavicleMiddleNote": "The share of the clavicle weight that a vertex below headFrom keeps grows from 0 at the smaller distance from the middle plane to 1 at the larger distance (units), and the chest takes the rest. Thus the bow arm does not fold the chest under the chin.",
     "armTop": [
       0.625,
       0.7
     ],
-    "armTopNote": "The share of the clavicle and upper arm weights that a vertex gives to the neck grows from 0 at the lower height to 1 at the upper height (units). With the narrow fade 0.64 to 0.68, face 116 at the back of the right shoulder joined a corner of the clavicle and the upper arm to two corners of the neck, and it folded in 13.7% of the play samples. With 0.625 to 0.7, the fade spans more rings of faces, and face 116 folds in no sample. The fade is sensitive: with 0.61, 0.615, 0.6, or 0.62 to 0.69, the relax of a shape of raise fails, and 44% to 99.8% of the play samples fold (docs/research/2026-10-19-hippo-arms.md).",
+    "armTopNote": "The share of the clavicle and upper arm weights that a vertex gives to the neck grows from 0 at the lower height to 1 at the upper height (units). The wide fade keeps the back of the right shoulder from a fold. The fade is sensitive to small changes.",
     "shoulderHead": [
       0.12,
       0.17
@@ -432,7 +432,7 @@
         -0.1188
       ]
     ],
-    "rigidNote": "The face nearest to each point (source units) takes the mean of the weights of its corners, and the faces of a list of points take one mean. Face 323 joins the head, the neck, and a corner with a clavicle weight of 0.51 at the back of the right side of the neck, and it folded in each play sample when the bow arm turned the clavicle forward. The point is its source middle (pnpm fold-probe bassist --faces). The other items of the old arms (faces 1498, 51, 52, and 251) went with the rebuilt arms of 2026-10-25, because the vertices of the arms take the weights of Blender.",
+    "rigidNote": "The face nearest to each point (source units) takes the mean of the weights of its corners. Face 323 at the back of the right side of the neck joins the head, the neck, and the clavicle, and without this rule the bow arm folds it (pnpm fold-probe bassist --faces).",
     "fingers": 0.5,
     "haunch": {
       "height": [
@@ -441,7 +441,7 @@
       ],
       "note": "The part of the thigh weight that goes to the hips grows from 0 at the lower height to 1 at the upper height, so that the round haunch stays on the hips. It starts at the knee and ends at the crotch."
     },
-    "note": "Beyond the plane |x| = armSplit, only the free arm follows the arm bones. Since the arms of hippo-arms.glb, the plane lies out of the whole trunk (the belly reaches |x| 0.253 at y 0.29), so that the rule weights give no trunk vertex a lower arm bone: with 0.207, the belly under each arm took the weights of the free arm. The vertices of the arms take the weights of Blender (paintedWeights). Above headFrom, each vertex follows the head only: the chin starts at y 0.70. earBase lies above the head, so the small ears follow the head. The small tail is a ball on one bone (tailBall): the vertices within radius of the center and behind the plane z = behind follow the tail. clavicleFrom, armTop, and shoulderHead are the rules of the panda, moved with the shoulder joint (y 0.555) and the wide neck of the hippo."
+    "note": "Beyond the plane |x| = armSplit, only the free arm follows the arm bones. The plane lies out of the whole trunk, so that no trunk vertex takes a lower arm bone. The arm vertices take the weights of Blender (paintedWeights). Above headFrom (the chin), each vertex follows the head only."
   },
   "refine": {
     "rings": [],
@@ -450,10 +450,10 @@
       "normals": 90,
       "move": 0.004,
       "rounds": 4,
-      "note": "The values of the fox, the rabbit, the cat, the dog, and the panda. The rule flips 13 edges."
+      "note": "The rule of the fox, the rabbit, the cat, the dog, and the panda, with a lower angle, a larger move, and wider normals (refine.flipNote)."
     },
-    "ringsNote": "The rig has no rings. A ring at each elbow puts the rig at 3,211 triangles, above the budget of 3,200 of a studio body (the mesh has 3,141 triangles), so the long thin faces 753 of the left upper arm and 30 of the right upper arm stay (rig-rings.log). A ring at the left wrist cuts 32 edges and puts the rig at 3,205 triangles (docs/research/2026-10-19-hippo-arms.md).",
-    "flipNote": "The long edge of each thin face of the arms in the seated bind flips (flip_edges() of tools/blender/rig_mesh.py). The bind bends the thick elbows of the hippo 62 degrees, so the faces of the inner elbow are thin there. A face with a corner above 130 degrees flips with a move of up to 0.004 units and normals within 90 degrees: with 150 degrees, 0.0016 units, and 60 degrees, the inner right elbow folded in each rest sample and in 8,464 play samples. With 130 degrees, the play folds fall from 20.6% to 9.6%, and with 120 degrees 9.7% (docs/research/2026-10-25-hippo-arms.md)."
+    "ringsNote": "The rig has no rings. A ring at each elbow or at a wrist puts the rig above 3,200 triangles.",
+    "flipNote": "The long edge of each thin face of the arms in the seated bind flips (flip_edges() of tools/blender/rig_mesh.py). The bind bends the thick elbows 62 degrees, so the inner elbow faces are thin. The angle 130, the move 0.004, and the normals 90 flip more of them."
   },
   "check": {
     "thin": {
@@ -522,23 +522,23 @@
           -0.033
         ]
       ],
-      "note": "The mesh has warmer colors than the hippo of the reference images and of SPECIES_COLORS.hippo (#8f7d83, Oklab hue 356 degrees): the plain fur faces have the hue 12 degrees and the chroma 0.031, and the pale belly and muzzle the hue 50 degrees and the chroma 0.047 (fur-colors.txt). The skin of the reference hippos of orchestra-latest.png has the hue 356 to 7 degrees and the chroma 0.027 to 0.040 (render-colors.txt). As the user chose for the panda, each plain face takes the hue and the chroma of the species color of its band and keeps its lightness: a row is [L, dL, da, db] in Oklab, the fur (L 0.58) moves to the fur color, and the belly (L 0.87) to the belly color #b8a3a6. The claws keep their colors. In the front view of the gallery, the fur then has the hue 32 degrees and the chroma 0.045, and the belly the hue 38 degrees and the chroma 0.044, against 31 and 0.044, and 35 and 0.043, of the parametric hippo of main (render-colors.txt)."
+      "note": "The mesh has warmer colors than SPECIES_COLORS.hippo. Each plain face takes the hue and the chroma of the species color of its band and keeps its lightness: a row is [L, dL, da, db] in Oklab. The claws keep their colors."
     },
-    "note": "The values of samples, palette, dark, and eyeShare are the values of the other meshes. A dark face in the eye box is a face of an eye: 3 faces on the left and 4 on the right, at x 0.062 to 0.076, y 0.908 to 0.917, and z 0.092 to 0.096, far back on the head (head-colors.txt). The config has no nose box: the export takes each gloss shell out of the middle plane as an eye, and the hippo has two nostrils, no nose pad, so the nostrils keep the fur, and the export takes the front of the muzzle as the tip of the nose."
+    "note": "The values of samples, palette, dark, and eyeShare are the values of the other meshes. A dark face in the eye box is an eye face. The config has no nose box, because the hippo has no nose pad: the export takes the front of the muzzle as the nose tip."
   },
   "eyeShell": {
     "lift": 0.002,
     "points": 12,
     "reach": 1,
     "darkReach": 2,
-    "note": "The values of the fox, the cat, and the dog. The old eye of each side is its dark faces and the faces around them: 10 faces on each side. They take the color of 49% (left) and 24% (right) of the area of the faces around them."
+    "note": "The values of the fox, the cat, and the dog. The old eye of each side is its dark faces and the faces around them, and they take the color of the faces around them."
   },
   "chair": {
     "halfWidth": 0.24,
     "front": -0.1,
     "back": -0.26,
     "backHeight": 0.15,
-    "note": "The chair of the rig sets the seat top of the seated bind under the haunch. The short thighs lie under the belly, so the seat ends behind them (front edge at z -0.1 u, the shins from z -0.095 u). The hippo stands in the app (the standing pose of the rig, soloist of ANIMALS), so no player sits on this seat. The side view of the underside of the haunch is 15.1 cm above the seat top behind the hip joints, where the round haunch leaves the small seat."
+    "note": "The chair of the rig sets the seat top of the seated bind under the haunch. The short thighs lie under the belly, so the seat ends behind them. The hippo stands in the app (soloist of ANIMALS), so no player sits on this seat."
   },
   "crease": {
     "rings": 2,
@@ -546,7 +546,7 @@
     "share": 0.5,
     "back": 0.1,
     "below": 0.03,
-    "note": "The values of the cat, the dog, and the panda. The seam has 35 vertices, and 185 vertices move."
+    "note": "The values of the cat, the dog, and the panda."
   },
   "sit": {
     "gap": 0,
@@ -556,6 +556,6 @@
     "smooth": 8,
     "end": 0.0065,
     "most": 0.03,
-    "note": "The values of the panda: 127 vertices of the haunch move down, at most 0.03 u."
+    "note": "The values of the panda: the haunch moves down at most 0.03 u."
   }
 }

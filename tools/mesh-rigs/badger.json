@@ -6,12 +6,12 @@
   "app": {
     "shoulders": 0.59685,
     "reach": 0.2734,
-    "note": "The size of the parametric badger. No reference image shows a badger, so the mesh takes the head top of the parametric badger of 24e47a7e (user rule of 2026-10-19 for the mouse, design 1): 1.038 m (docs/research/2026-10-20-badger-mesh/landmark-probe.txt). The skull top of the mesh is its highest point at the middle plane (1.0 u). The reach is the reach of the arm factor below, from the shoulder joint to the middle of the palm. With no --check, pnpm rig-mesh stops until the arm factor gives this reach."
+    "note": "The size of the parametric badger: the head top is at 1.038 m. The skull top of the mesh is its highest point at the middle plane (1.0 u). The reach goes from the shoulder joint to the middle of the palm."
   },
   "armFactor": 1,
-  "armFactorNote": "The arms keep the mesh. With the factor 1, the reach from the shoulder joint to the middle of the palm is 0.273 m, 0.70 of the trunk from the hips joint to the shoulder joints. The factor 1 reaches each strike of the bass drum, of the snare drum at 0.45 m, and of the small percussion with the tambourine at 0.35 m. No factor up to the limit 1.25 of a mesh of the user keeps the cymbals of the app out of the body or reaches the outer bars of the xylophone (docs/research/2026-10-20-badger-mesh/cymbal-scan.txt, docs/decisions/2026-10-20-mesh-badger.md), so the smallest stretch is no stretch.",
+  "armFactorNote": "The arms keep the length of the mesh. With the factor 1, the reach from the shoulder joint to the middle of the palm is 0.273 m. This reach gets to each strike of the bass drum, the snare drum, and the small percussion.",
   "legFactor": 1,
-  "legFactorNote": "The legs keep the length of the mesh (user rule: do not stretch the legs).",
+  "legFactorNote": "The legs keep the length of the mesh, with no stretch.",
   "joints": {
     "root": {
       "head": [
@@ -220,7 +220,7 @@
     -0.29,
     -0.591
   ],
-  "jointsNote": "The places are in the units and the axes of the studio in the pose of the source: 1 unit from the soles to the skull top, the soles at y = 0, +z forward, +x the left side. The right side mirrors the left side. The probes are in docs/research/2026-10-20-badger-mesh/: sections.py gives the cuts at each height (sections-y.txt, sections-x.txt, sections-z.txt), and measures.py the parts (measures.txt). The badger stands upright on very short legs: the feet below y 0.05 (the toes forward to z 0.10), the legs apart below the crotch at 0.12, the round body from 0.12 to 0.66 (x \u00b10.22 at its widest, 0.25), the shoulders from 0.50 to 0.66, the thick neck at 0.70 to 0.77 (x \u00b10.13), the head from the chin at 0.77 with the snout to z 0.287, and the round ears at the sides of the head (x 0.10 to 0.16, y 0.90 to 0.98). The trunk joints lie 0.01 to 0.02 behind the middle of the body cut (z -0.03 to -0.04). The thigh joint lies inside the haunch above the leg cut, the knee at the top of the free leg (y 0.10), the ankle where the foot starts (y 0.05), and the toes at the ball of the foot. The cuts across the axis of the free arm (arm-axis.txt) give its middle line, (0.42, -0.77, 0.48) down the arm, which leaves the body at x 0.16 (free-arm.txt, sections-x.txt). The shoulder joint lies 0.02 inside the root, at the middle of the arm cut at x 0.17 (y 0.575), the wrist at the narrowest cut, where the claws start (s 0.07), the elbow on the middle line halfway to the wrist, the forearm twist halfway between them, and the finger joint 0.03 before the tips of the claws (paw.txt). The round ears follow the head. The short tail is a ball on one bone behind the haunch (y 0.10 to 0.155, z -0.29 to -0.17). Each roll is the hint of the z axis of the bone, forward by default. The arm bones take the normal of the palm (palm): the smallest principal direction of the vertices of the left paw beyond the wrist, inward, down, and back (paw.txt).",
+  "jointsNote": "The places are in the units and the axes of the studio in the source pose: 1 unit from the soles to the skull top, +z forward, +x the left side. The right side mirrors the left side. Each roll is the hint of the z axis of the bone.",
   "studio": {
     "legTurns": {
       "thigh": [
@@ -276,7 +276,7 @@
         0.731461
       ]
     },
-    "note": "The studio has no badger. legTurns gives the world turn of each left leg bone from the seated bind pose to the source, and the right side mirrors it. The posture is the seated posture of design 5.2: the thigh slopes 25 degrees down from the hip to the knee, the thighs turn 15 degrees out, and the shin is vertical (tools/rig/leg_turns.py <config> 25 15 0). The foot and the toes keep the turn of the source, so that the soles stand flat on the floor. The trunk shares and the bind arms are the values of the cat, the dog, the panda, the hippo, the mouse, the pig, and the wolf. The badger stands at each percussion instrument, so the app takes the standing body of the rig."
+    "note": "legTurns gives the world turn of each left leg bone from the seated bind to the source: the thigh slopes 25 degrees down and turns 15 degrees out, and the shin is vertical (tools/rig/leg_turns.py <config> 25 15 0). The app takes the standing body."
   },
   "weights": {
     "armSplit": 0.16,
@@ -323,7 +323,7 @@
         0.13,
         0.2
       ],
-      "note": "The part of the thigh weight that goes to the hips grows from 0 at the lower height to 1 at the upper height, so that the buttocks stay on the hips. This is the rule of the dog, moved with the joints of the badger: it starts 0.03 units above the knee and ends 0.03 units above the thigh joint."
+      "note": "The part of the thigh weight that goes to the hips grows from 0 at the lower height to 1 at the upper height, so that the buttocks stay on the hips."
     },
     "rigid": [
       [
@@ -347,8 +347,8 @@
         0.117
       ]
     ],
-    "rigidNote": "The corners of each thin face at these points take the mean of their weights (rigid_faces() of tools/blender/rig_mesh.py). The points are the middles of faces 550, 1172, 1254, and 574 in the units of the source (pnpm fold-probe <role> --faces). Faces 550 and 1172 are slivers at the front of the left shoulder, and face 1254 lies in the left armpit: the three folded in each sample of each role, also at rest. Face 574 is a sliver of the right paw that folded when the fingers curl around a stick or a beater.",
-    "note": "Beyond the plane |x| = armSplit, only the free arm follows the arm bones: the cuts show the arm apart from the body from x 0.16 out (free-arm.txt). Above headFrom, each vertex follows the head only: the chin starts at y 0.765. The round ears follow the head (earBase above the head). The tail ball holds the short tail behind the plane z = behind (tailBall). clavicleFrom, armTop, and shoulderHead are the rules of the dog, moved with the shoulder joint (y 0.575) and the neck (x \u00b10.13) of the badger."
+    "rigidNote": "The corners of each thin face at these points take the mean of their weights (rigid_faces() of tools/blender/rig_mesh.py). The points are the middles of slivers at the front of the left shoulder, in the left armpit, and on the right paw (pnpm fold-probe <role> --faces).",
+    "note": "Beyond the plane |x| = armSplit, only the free arm follows the arm bones. Above headFrom (the chin), each vertex follows the head only. The round ears follow the head (earBase). The tail ball holds the short tail behind the plane z = behind (tailBall)."
   },
   "raise": [
     {
@@ -378,7 +378,7 @@
         20
       ],
       "below": 0,
-      "note": "The shape of the raised arm R of the bass-drummer (pnpm raise-fit). Faces 90, 91, 61 fold in 161 of 161 samples of the sets play, and the key upper turns 77.9 degrees from the bind in their mean."
+      "note": "The shape of the raised arm R of the bass-drummer (pnpm raise-fit). It corrects faces 90, 91, and 61 at the front of the right shoulder, which fold when the beater is over the bass drum."
     },
     {
       "side": "L",
@@ -407,10 +407,10 @@
         20
       ],
       "below": 0,
-      "note": "The shape of the raised arm L of the percussionist (pnpm raise-fit). Faces 142, 143, 144, 145, 567, 570 fold in 444 of 444 samples of the sets play, and the key upper turns 73.9 degrees from the bind in their mean."
+      "note": "The shape of the raised arm L of the percussionist (pnpm raise-fit). It corrects faces 142 to 145, 567, and 570 at the front of the left shoulder, which fold when the arm holds the triangle up."
     }
   ],
-  "raiseNote": "Two corrective shapes of a raised arm (pnpm raise-fit, raise-*.json of docs/research/2026-10-20-badger-mesh/): the right arm that holds the beater over the bass drum (faces 90, 91, and 61 at the front of the right shoulder), and the left arm that holds the triangle up (faces 142 to 145, 567, and 570 at the front of the left shoulder). Faces 144, 567, and 570 stay turned after the relax of the left shape (open).",
+  "raiseNote": "Two corrective shapes of a raised arm (pnpm raise-fit): the right arm that holds the beater over the bass drum, and the left arm that holds the triangle up.",
   "refine": {
     "rings": [],
     "flip": {
@@ -420,7 +420,7 @@
       "rounds": 4,
       "note": "The values of the fox, the cat, the dog, the panda, the hippo, the mouse, the pig, and the wolf."
     },
-    "ringsNote": "The first config has no rings. pnpm rig-mesh badger --check lists the thin faces near the joints as candidates for a ring (check.thin). The fold probe of the roles chooses the rings."
+    "ringsNote": "The config has no rings. pnpm rig-mesh badger --check lists the thin faces near the joints as candidates for a ring (check.thin)."
   },
   "check": {
     "thin": {
@@ -464,7 +464,7 @@
       0.05,
       0.05
     ],
-    "note": "A face is dark when at least eyeShare of its samples have a linear luminance below dark. The dark front fur (luminance 0.021) and the black eye stripes (0.019) lie near the limit 0.05 of the other meshes: 1,659 of the 3,129 faces were dark. With 0.01, 23 faces are dark: the pupils and the smile line under the snout (dark-probe.txt). A dark face in the eye box is a face of an eye: 6 faces on the left and 7 on the right, at x 0.057 to 0.074, y 0.884 to 0.901, and z 0.146 to 0.167. A face in the nose box whose color is nearer to the nose color than to white is a face of the black nose, at the tip of the snout (y 0.81 to 0.85, z 0.255 to 0.287). The config has no tone rule: each face keeps the colors of the texture (colors.txt). The values of samples, palette, and eyeShare are the values of the other meshes."
+    "note": "A face is dark when at least eyeShare of its samples have a linear luminance below dark. The dark front fur and the black eye stripes are near 0.02, so dark is 0.01: only the pupils and the smile line are dark. Each face keeps the colors of the texture."
   },
   "eyeShell": {
     "lift": 0.002,
@@ -478,7 +478,7 @@
     "front": -0.07,
     "back": -0.26,
     "backHeight": 0.15,
-    "note": "The seat is level, and its top is the lowest point of the seated body over the seat, with no shin, foot, or tail. The half width holds the haunch of the badger (x 0.22). The app takes the standing body, so the chair only sets the seated bind."
+    "note": "The seat is level, and its top is the lowest point of the seated body over the seat, with no shin, foot, or tail. The half width holds the haunch (x 0.22). The app takes the standing body, so the chair only sets the seated bind."
   },
   "crease": {
     "rings": 2,

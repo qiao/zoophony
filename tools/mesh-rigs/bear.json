@@ -1,13 +1,13 @@
 {
   "source": "assets/models/bear/bear-arms.glb",
-  "sourceNote": "The T-pose bear mesh of the user, of 2026-10-23 (assets/models/bear/README.md), with new quad faces on each arm from the shoulder line to the wrist. The user said on 2026-10-25: \"the bear's arm has unnatural facets underneath\". The long thin faces of the source arm folded into dark shards under the raised forearm, and the inner elbow of the bind collapsed into a hollow. Smooth normals at the arm roots (rootNormals 0.14) and raise shapes did not change them. tools/blender/bear_arms.py replays the Blender session that made it. The faces of the paws, the trunk, the legs, and the head are the faces of the user (docs/decisions/2026-10-26-arm-fixes.md).",
+  "sourceNote": "The T-pose bear mesh (assets/models/bear/README.md), with new quad faces on each arm from the shoulder line to the wrist, so that no long thin faces fold under the raised forearm. tools/blender/bear_arms.py replays the Blender session that made it.",
   "rootNormals": {
     "radius": 0,
     "wrist": [
       0.03,
       0.025
     ],
-    "note": "The arm faces from 0.03 units before each wrist joint to 0.025 units past it take the normals of the skin with no crease angle in the app (root_rim() of tools/blender/rig_mesh.py), as on the polar bear (docs/decisions/2026-10-27-polar-wrist.md). The user said on 2026-10-28: \"the bear has a crease around the wrist\". With radius 0, the shoulders keep the crease angle, as before."
+    "note": "The arm faces from 0.03 units before each wrist joint to 0.025 units past it take the normals of the skin with no crease angle in the app (root_rim() of tools/blender/rig_mesh.py), so that the wrist shows no crease. With radius 0, the shoulders keep the crease angle."
   },
   "paintedWeights": "assets/models/bear/bear-weights.json",
   "paintedLower": [
@@ -30,10 +30,10 @@
     "toes_R",
     "tail"
   ],
-  "paintedNote": "The weights of the clavicles and the arms are the automatic weights of Blender with the Weight Paint fixes of tools/blender/bear_arms.py: the head bone is off the shoulders below y 0.77, and each paw gives half of its fingers weight to the hand bone, as weights.fingers does. The vertices on the bones of paintedLower (the trunk up to the chest, the neck, the head, the ears, the legs, and the tail) keep the rule weights. With Blender weights on the head, the vertices of the gloss nose had a part of the neck, so the search of the tip of the nose (tools/studio-body.ts) took a point at the top of the head, and the largest paw twist of the right arm in a lift was 87\u00b0 (81\u00b0 on the old rig, 82\u00b0 now).",
+  "paintedNote": "The weights of the clavicles and the arms are the automatic weights of Blender with the Weight Paint fixes of tools/blender/bear_arms.py. The vertices on the bones of paintedLower keep the rule weights, so that the gloss nose stays on the head and the search of the nose tip (tools/studio-body.ts) finds it.",
   "armSegments": {
     "helper": 0.044,
-    "note": "Each upper arm and each forearm has 4 deform segments, and each elbow and wrist a helper bone of this length in units, which spans the three rings of its joint in the bind. The app turns them from the joints of the pose (poseArm() of src/models/studio-rig.ts). The helper is twice the gap of the elbow rings (0.022, gap of tools/blender/bear_arms.py): with the gap 0.015, the squeezed rings of the inner elbow of the bind folded 11 faces of the left arm in the lift (limit 8)."
+    "note": "Each upper arm and each forearm has 4 deform segments. Each elbow and wrist has a helper bone of this length in units, which spans the three rings of its joint in the bind. The app turns them from the joints of the pose (poseArm() of src/models/studio-rig.ts)."
   },
   "output": "assets/models/bear/bear-tpose.rig.glb",
   "name": "Bear",
@@ -41,10 +41,10 @@
   "app": {
     "shoulders": 1.0,
     "reach": 0.396,
-    "note": "The bear keeps the size of the studio bear of main: the shoulder joints at 1.0 m (ANIMALS of tools/studio-body.ts). The skull top of the mesh is at 0.955 u, so at 1.5221 m for each unit it is at 1.454 m, 2% below the studio bear (1.483 m). The reach is the reach of the arm factor below at that scale."
+    "note": "The bear keeps the size of the studio bear: the shoulder joints at 1.0 m (ANIMALS of tools/studio-body.ts). The skull top of the mesh is at 0.955 u, thus at 1.454 m. The reach is the reach of the arm factor below at that scale."
   },
   "armFactor": 1,
-  "armFactorNote": "The arms keep the length of the mesh (user rule: keep the limbs of a mesh of the user, and fit the props). The conductor holds no instrument.",
+  "armFactorNote": "The arms keep the length of the mesh, and the props fit the arms. The conductor holds no instrument.",
   "legFactor": 1,
   "legFactorNote": "The legs keep the length of the mesh. The bear stands on its podium, so no seat asks for longer legs.",
   "joints": {
@@ -255,7 +255,7 @@
     -0.5,
     0.85
   ],
-  "jointsNote": "The places are in the units and the axes of the studio in the pose of the source: 1 unit from the soles to the tips of the ears, the soles at y = 0, +z forward, +x the left side. The right side mirrors the left side. The probes are in docs/research/2026-10-23-bear-tpose/. The bear stands upright on short thick legs, apart below the crotch at y 0.18, with the middle of each leg cut at x 0.13. The thigh joint lies at the crotch, the ankle at the narrowest leg cut (y 0.07), the knee halfway between them, and the toes at the ball of the foot (toe tips at z 0.10). The trunk joints lie about 0.015 behind the middle of the body cut. The head starts at y 0.77, and the skull top is at 0.955. The arms are in a T-pose: each arm goes out and a little down, free of the trunk beyond x 0.18 from y 0.58 to 0.75 (sections-x.txt). The cuts across the arm axis give its middle line (arm-axis.txt). The shoulder joint lies inside the root of the arm, the elbow at x 0.31, past the end of the long faces under the upper arm, the wrist where the paw starts (x 0.40), and the forearm twist halfway between the elbow and the wrist. The finger joint lies at the root of the claws, and its tail at the tip of the claws. The ear joint lies at the root of the round ear. The short tail is a ball at y 0.25 behind the back. Each roll is the hint of the z axis of the bone, forward by default. In the T-pose, the palm faces down and forward. Of the palms and the elbows of the scan (gate-variants.txt), this pair gives the least paw twist and stretch in the arm gate: with the elbow halfway to the wrist (x 0.29), three long faces under the upper arm crossed the elbow and stretched 0.51 (limit 0.35), and with the palm straight down, the paws twisted 113 and 105 degrees.",
+  "jointsNote": "The places are in the units and the axes of the studio in the source pose: 1 unit from the soles to the ear tips, +z forward, +x the left side. The right side mirrors the left side. In the T-pose, the palm faces down and forward.",
   "studio": {
     "legTurns": {
       "thigh": [
@@ -311,7 +311,7 @@
         0.731461
       ]
     },
-    "note": "The bear stands on its podium in the app, so the seated bind keeps the legs of the source: each turn is the identity. The trunk does not recline (open 0). The bind arms are the values of the other meshes of the user."
+    "note": "The bear stands on its podium in the app, so the seated bind keeps the legs of the source: each turn is the identity. The trunk does not recline (open 0). The bind arms are the values of the other meshes."
   },
   "weights": {
     "armSplit": 0.18,
@@ -319,7 +319,7 @@
       "turn": 0,
       "radius": 0.1,
       "floor": 0.555,
-      "note": "The arm is free of the trunk beyond x 0.18 and above y 0.575, and the belly bulges out to x 0.239 below y 0.54 (sections-x.txt). A vertex of the free arm lies beyond the plane |x| = armSplit, within radius of the chain of the arm joints, and above the floor, so that the belly is not a part of it."
+      "note": "The arm is free of the trunk beyond x 0.18 and above y 0.575. A vertex of the free arm lies beyond |x| = armSplit, within radius of the arm joints, and above the floor, which keeps the belly out."
     },
     "stretchRamp": 0,
     "headFrom": 0.79,
@@ -339,7 +339,7 @@
     "sliver": {
       "angle": 10,
       "longest": 0.03,
-      "note": "The values of the other meshes of the user."
+      "note": "The values of the other meshes."
     },
     "line": {
       "angle": 170,
@@ -366,7 +366,7 @@
       ],
       "note": "The part of the thigh weight that goes to the hips grows from 0 at the knee to 1 at the thigh joint, so that the round haunch stays on the hips."
     },
-    "note": "Beyond the plane of armSplit (armFree), only the free arm follows the arm bones. Above headFrom, each vertex follows the head only. Each round ear follows its ear bone above earBase. The short tail is a ball on one bone (tailBall). clavicleFrom, armTop, and shoulderHead are the rules of the bear mesh of 2026-10-22, moved with the shoulder joint. The rig has no cut and no split: the arms of the T-pose are free of the trunk. The arm faces from the shoulder line to the wrist are new quad faces (sourceNote), and the other faces of the user stay.",
+    "note": "Beyond the plane of armSplit (armFree), only the free arm follows the arm bones. Above headFrom, each vertex follows the head only. Each round ear follows its ear bone above earBase. The short tail is a ball on one bone (tailBall).",
     "rigidPainted": [
       [
         0.1873,
@@ -389,7 +389,7 @@
         0.0289
       ]
     ],
-    "rigidPaintedNote": "The corners of each thin face at these points take the mean of their painted weights (rigid_faces() of tools/blender/rig_mesh.py, after the painted weights). The points are the middles of four faces of the front of the left shoulder bridge in the units of the source (pnpm fold-probe conductor --faces). They folded in 35% to 86% of the play, and the left arm folded 8 faces at p95 (4 on the old rig, limit 8); with the rule, 6."
+    "rigidPaintedNote": "The corners of each thin face at these points take the mean of their painted weights (rigid_faces() of tools/blender/rig_mesh.py, after the painted weights). The points are the middles of four faces at the front of the left shoulder bridge, which fold in the play (pnpm fold-probe conductor --faces)."
   },
   "refine": {
     "rings": [],
@@ -398,7 +398,7 @@
       "normals": 60,
       "move": 0.0016,
       "rounds": 4,
-      "note": "The values of the other meshes of the user."
+      "note": "The values of the other meshes."
     }
   },
   "check": {
@@ -407,7 +407,7 @@
       "length": 0.08,
       "near": 0.1
     },
-    "note": "The values of the other meshes of the user."
+    "note": "The values of the other meshes."
   },
   "colors": {
     "samples": 6,
@@ -461,7 +461,7 @@
           -0.0224
         ]
       ],
-      "note": "The tone of the bear mesh of 2026-10-22: the brown fur takes the darker brown of orchestra-latest.png. Only the toes keep their colors (keep): the Blender weights put the top of each paw on the fingers bone, and with keep fingers, the top of each paw showed the light raw fur. The claws are darker than the first point, so the tone does not move them."
+      "note": "The brown fur takes the darker brown of orchestra-latest.png. Only the toes keep their colors (keep), because the Blender weights put the top of each paw on the fingers bone. The claws are darker than the first point, so the tone does not move them."
     },
     "noseBox": [
       [
@@ -480,14 +480,14 @@
       0.11,
       0.1
     ],
-    "note": "The values of samples, palette, eyeShare, and dark are the values of the bear mesh of 2026-10-22."
+    "note": "The values of samples, palette, eyeShare, and dark are the values of the first bear mesh."
   },
   "eyeShell": {
     "lift": 0.002,
     "points": 12,
     "reach": 1,
     "darkReach": 2,
-    "note": "The values of the other meshes of the user."
+    "note": "The values of the other meshes."
   },
   "chair": {
     "halfWidth": 0.24,
@@ -502,6 +502,6 @@
     "share": 0.5,
     "back": 0.1,
     "below": 0.03,
-    "note": "The values of the other meshes of the user."
+    "note": "The values of the other meshes."
   }
 }
