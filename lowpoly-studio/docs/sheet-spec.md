@@ -5,12 +5,12 @@ an image generator. The studio builds the model from the sheet alone. A sheet th
 this spec gives a close first build. Each fault of a sheet sets a ceiling that no round of
 work can pass.
 
-The bear sheet (`animals/bear/reference/bear-views.png`) broke three rules: the 3/4 view
-turns the head more than the other views (IoU stays near 0.915), the arms hang against the
-body (the trunk width above the belly is a guess), and the back view is darker than the
-other views (`fur_value.back` fails). The polar bear sheet broke the A-pose rule and the scale
-rule too, and its front and back views disagree on the ears. The pilot still reached the bar
-of the checks in 28 min. A user can accept a known fault, but each one stays a ceiling.
+The bear sheet (`animals/bear/reference/bear-views.png`) breaks three rules: the 3/4 view
+turns the head more than the other views (the 3/4 IoU stays near 0.915), the arms hang against
+the body (the trunk width above the belly is a guess), and the back view is darker than the
+other views (`fur_value.back` fails). The polar bear sheet breaks the A-pose rule and the scale
+rule too, and its front and back views disagree on the ears. A known fault can be accepted, but
+each one stays a ceiling.
 
 ## The files
 
@@ -175,7 +175,7 @@ background, the head <n> px tall."
 the intake (`studio/consistency.py`, `out/sheet-check.json`) tests the scale, the ground line,
 the A-pose (the arm gap), the symmetry, the ears of the front and the back view, and the head
 turn of the front and the 3/4 view (see the README, "The intake"). The other rows of this table
-are not in the tool yet. The values of the two sheets come from test scripts on 2026-10-12.
+are not in the tool yet. The values of the two sheets come from test scripts.
 
 | Check | Method | Pass | Bear sheet | Polar bear sheet |
 |---|---|---|---|---|
@@ -192,5 +192,5 @@ are not in the tool yet. The values of the two sheets come from test scripts on 
 | Holes | the area of the filled holes of each mask | under 1% of the mask | not measured | not measured |
 
 The checker prints each result and a verdict ("follow", "fix the sheet", or "ask the user").
-It does not stop the scaffold, because a user can accept a known limit. Both sheets fail the
-scale and the A-pose checks, and both animals still reached the bar of the checks.
+It does not stop the scaffold, because a known limit can be accepted. Both sheets fail the
+scale and the A-pose checks, and both animals still pass the gates.
