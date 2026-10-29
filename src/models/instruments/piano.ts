@@ -46,22 +46,24 @@ export const PIANO = {
 } as const;
 
 /**
- * The scale of the whole piano around the origin of the piano axes: 1.22 times a real grand
- * piano, with the keys at 0.85 m, because the polar bear pianist is a large animal on a bench
- * that fits its legs. The keys stand about 0.6 m above the bench top, as on the low bench before.
- * At this scale, its elbows stand 5 to 9 cm above the keys, and its forearms slope about 5° down
- * to the keys, as a real pianist sits (`docs/reference/piano-technique.md`). At 1.13, the elbows
- * stood 10 to 13 cm above the keys, and the forearms sloped 17° down
- * (`docs/research/2026-10-28-polar-bench2.md`).
+ * The scale of the whole piano around the origin of the piano axes: 1.16 times a real grand
+ * piano, with the keys at 0.81 m, because the polar bear pianist is a large animal on a bench
+ * that fits the legs of its mesh. At this scale, its elbows stand 4 to 6 cm above the keys, and
+ * its forearms are about level with the keys, as a real pianist sits
+ * (`docs/reference/piano-technique.md`). At 1.22, the elbows stood 1 to 4 cm above the keys,
+ * and the forearms rose 6° to the keys, and at 1.12 they sloped 5° down
+ * (`docs/research/2026-10-29-polar-ratio.md`).
  */
-export const PIANO_SCALE = 1.22;
+export const PIANO_SCALE = 1.16;
 
 /**
  * The distance of the front of the keys in front of the floor point of the body of the pianist,
  * in head heights `H`, before a further 0.05 m (design 4.6). The keys and the pedals stand near
  * the polar bear pianist, so that its short right leg reaches the damper pedal. At 1.3 H, the
- * thigh of the pedal leg pulled the haunch 3.9 cm into the bench, and at 1.0 H 0.9 cm, as at rest
- * (`docs/research/2026-10-28-polar-legs.md`).
+ * thigh of the pedal leg pulled the haunch 3.9 cm into the bench, and at 1.0 H 0.9 cm
+ * (`docs/research/2026-10-28-polar-legs.md`). With the legs of the mesh, it pulls the haunch
+ * 2.3 cm in at 1.0 H, and 0.9 H keeps the haunch on the pad but folds up to 3 more faces at the
+ * left shoulder (`docs/research/2026-10-29-polar-ratio.md`).
  */
 export const PIANO_FRONT_H = 1.0;
 
