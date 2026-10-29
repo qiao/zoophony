@@ -1,11 +1,12 @@
 # Output: the head places of `tools/mesh-rigs/wolf.json` with the kept head.
-"""Moves the head places of the wolf rig config of round wolf-shape onto the source with the head
-kept (`proportions.keep` of `tools/mesh-rigs/wolf.json`, `proportioned()` of
-`tools/blender/rig_mesh.py`). Each place at or above the blend zone takes the map of the rule
-from its place on the source before the factors. The places of round mesh-wolf (980f2bf5) give
-the head joints, the ear joints, the eye box, the nose box, and the heights of the weights. The
-rigid point of round wolf-shape at the top of the left shoulder goes back to the source with
-the factors (1.2, 0.9, 1), and then takes the map. The notes change by hand.
+"""Moves the head places of the scaled wolf rig config (the output of `wolf_shape_config.py`)
+onto the source with the head kept (`proportions.keep` of `tools/mesh-rigs/wolf.json`,
+`proportioned()` of `tools/blender/rig_mesh.py`). Each place at or above the blend zone takes the
+map of the rule from its place on the source before the factors. The places of the unscaled
+config (980f2bf5) give the head joints, the ear joints, the eye box, the nose box, and the
+heights of the weights. The rigid point of the scaled config at the top of the left shoulder goes
+back to the source with the factors (1.2, 0.9, 1), and then takes the map. The notes change by
+hand.
 
     python3 -I tools/rig/wolf_head_config.py <wolf.json of 980f2bf5> <wolf.json of 98875452> <out.json> [lower height of the blend]
 """

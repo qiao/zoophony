@@ -5,10 +5,8 @@ bone from the seated bind pose to the source, as a quaternion (x, y, z, w). The 
 forward, `down` degrees below the level and `out` degrees out to the left. The shin points down
 and `slant` degrees forward of vertical, in the plane of y and z, so that the knee angle from the
 side is 90 degrees plus `slant` plus `down`. The foot and the toes keep the turn of the source,
-so the soles stay flat on the floor. A copy of `docs/research/2026-10-16-seat-rest/leg_turns.py`
-whose print gives the knee angle with the slope of the thigh: that copy printed 90 + `slant` -
-`down`, which is correct only for a level thigh. The turns that it writes do not change. The
-seat of 2026-10-16 (`hip-open`) is `leg_turns.py <config> 15 8 23.8`. Usage:
+so the soles stay flat on the floor. The printed knee angle includes the slope of the thigh. The
+seat `hip-open` is `leg_turns.py <config> 15 8 23.8`. Usage:
 
     uv run --no-project --with numpy python -I tools/rig/leg_turns.py <config.json> <down degrees> <out degrees> <slant degrees>
 """
