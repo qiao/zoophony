@@ -153,6 +153,10 @@ change.
   `demos/README.md`. Then it applies the changes, and writes each file into `public/demos/`,
   which Git ignores. `pnpm dev` and `pnpm build` run it first. Thus the site holds each demo at
   `demos/<file>`, as 7.2 gives for the default demo.
+- The build then gzips each demo file of `dist/demos/` in place, with the same name, because
+  GitHub Pages sends a MIDI file with no gzip (7.2). The app, the animal views, and the spike
+  page fetch a demo with `fetchPlainBytes()` of `audio/plain-bytes.ts`, which removes the gzip
+  layer. `public/demos/` and the dev server keep the plain files.
 - The demo tests (8.5) apply the same changes in memory, so they do not need a build.
 
 ```typescript
