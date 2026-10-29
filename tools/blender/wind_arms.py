@@ -1,14 +1,12 @@
-"""Replays the Blender session that rebuilt the arms of the mouse oboist and the wolf clarinetist.
+"""Replays the Blender session that rebuilds the arms of the mouse oboist and the wolf clarinetist.
 
-On 2026-10-24 the user said about the rabbit and the cat: "note that there's significant twisting
-happening for the arms and wrists. add loop edges and retopology and additional bones if needed to
-address them", and allowed loop edges, retopology, and extra bones for the arm and wrist twist.
-The session of 2026-10-25 used the steps of `violin_arms.py` on the mouse and the wolf, in the live
-Blender through MCP, with an image after each step. This script repeats them in the same order with
-the settings of each animal (`ANIMALS`). The steps are the steps of `violin_arms.py`, with four
-changes (marked *):
+The rebuild uses loop edges, retopology, and extra bones to fix the arm and wrist twist. The
+session uses the steps of `violin_arms.py` on the mouse and the wolf, in the live Blender through
+MCP, with an image after each step. This script repeats them in the same order with the settings
+of each animal (`ANIMALS`). The steps are the steps of `violin_arms.py`, with four changes (marked
+*):
 
-1. Import the mesh of the user and Merge by Distance.
+1. Import the mesh and Merge by Distance.
 2. Replace the faces of each arm from the shoulder line to the wrist with a quad tube, wrap it onto
    the source arm, bridge it to the trunk and to the paw, and beautify the bridge triangles.
    * The rings of the elbow and of the wrist can have their own gaps (`arm_stations()`).
@@ -16,8 +14,8 @@ changes (marked *):
      (`step_clean_cut()`, `step_clean_bridge()`).
 3. Give the new arm faces a UV layout, bake the fur color of the source arm, and transfer the
    custom normals of the source surface.
-4. Make each arm `factor` times longer (`step_shape()`), as `armFactor` of the rig config did
-   before, put the arm image in a strip of the atlas, and write `<animal>-arms.glb`.
+4. Make each arm `factor` times longer (`step_shape()`), as the rule `armFactor` of a rig config
+   does, put the arm image in a strip of the atlas, and write `<animal>-arms.glb`.
 5. Add the studio skeleton with the arm segments and the helpers, parent with automatic weights,
    and paint the fixes with the Weight Paint tools.
    * The paint has two more fixes for the mouse: the side of the trunk and the elbows

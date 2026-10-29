@@ -1,5 +1,5 @@
 # Output: `assets/models/penguin/penguin-beak.glb`.
-"""Splits the closed beak of the penguin mesh of the user into an upper and a lower part along a
+"""Splits the closed beak of the penguin mesh into an upper and a lower part along a
 mouth line, and closes each part with a cap of a dark mouth color, so that a jaw bone can open
 the beak. The outer form of the closed beak does not change, except a gap of `gap` units of the
 file between the two parts, so that the weld of `pnpm rig-mesh` does not join them again.
@@ -40,8 +40,8 @@ GAP = float(argv[3]) if len(argv) > 3 else 0.001
 #: The box of the middles of the faces of the beak, in studio units: (min, max) of x, y, z.
 BEAK_BOX = ((-0.07, 0.84, 0.135), (0.07, 0.95, 0.30))
 
-#: The color of the inside of the mouth, in sRGB: the `MOUTH_COLOR` of the egg body of 2026-10-11,
-#: a little lighter than the darkest samples of the open beaks of `orchestra-side.png`.
+#: The color of the inside of the mouth, in sRGB: a little lighter than the darkest samples of the
+#: open beaks of `orchestra-side.png`.
 MOUTH_COLOR = (0x4d / 255, 0x23 / 255, 0x12 / 255)
 
 #: The size of the painted patch of the mouth color, in pixels of the texture.

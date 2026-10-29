@@ -1,15 +1,13 @@
-"""Replays the Blender session that rebuilt the arms of the cat violist.
+"""Replays the Blender session that rebuilds the arms of the cat violist.
 
-On 2026-10-24 the user said: "note that there's significant twisting happening for the arms and
-wrists. add loop edges and retopology and additional bones if needed to address them", and allowed
-loop edges, a retopology, and extra bones for the arm and the wrist twist. The cat needs more than
-the route of `violin_arms.py`: the upper arm of the user mesh joins the side of the trunk down to
-the elbow, so a cut at a right angle to the bone finds no closed loop around the arm. This script
-gives the cat a real armpit:
+The rebuild uses loop edges, a retopology, and extra bones to fix the arm and the wrist twist.
+The cat needs more than the route of `violin_arms.py`: the upper arm of the source mesh joins the
+side of the trunk down to the elbow, so a cut at a right angle to the bone finds no closed loop
+around the arm. This script gives the cat a real armpit:
 
-1. Import the mesh of the user and Merge by Distance (`violin_arms.import_mesh()`).
+1. Import the mesh and Merge by Distance (`violin_arms.import_mesh()`).
 2. Cut each arm along the seam where it meets the trunk, not at a right angle to the bone: Bisect
-   with the plane of the seam (`seam_plane()`) above the old armpit, and Bisect at the wrist. The
+   with the plane of the seam (`seam_plane()`) above the source armpit, and Bisect at the wrist. The
    faces of the arm beyond the seam and the wrist go (Delete Faces).
 3. Split the hole of the seam at the height `seam.edge` into the top arc (the shoulder) and the
    lower run. A new edge run across the plane, the armpit line, closes the lower run, and Fill
@@ -23,9 +21,9 @@ gives the cat a real armpit:
 6. UV, bake, normals, the shape of the app body, the atlas, and the export, as in
    `violin_arms.py`. Smooth Vertices rounds the two edges of the flat inner side. The inner side
    and the side wall take the fur color of the trunk beside the seam. Before the atlas, the
-   trunk moves to an even oval from the front and from the side (`step_belly()`). The user said
-   "make the cat's belly more oval and smooth" on 2026-10-27. Then the side wall gets vertices
-   inside it and rounds into the trunk, with no lips at its lower tip (`step_round_wall()`), and
+   trunk moves to an even oval from the front and from the side (`step_belly()`). Then the side
+   wall gets vertices inside it and rounds into the trunk, with no lips at its lower tip
+   (`step_round_wall()`), and
    the band between each armpit line and the flat inner side of the arm gets new triangles with
    no thin face (`step_clean_pit()`).
 7. The studio skeleton with the arm segments and the helpers, automatic weights, and the Weight
@@ -56,7 +54,7 @@ import violin_arms as va  # noqa: E402
 #:
 #: - `x`, `lean`: the plane of the seam, |x| from the middle plane at the height `armpit`, and its
 #:   lean out for each unit of height down, as the side of the trunk widens below the armpit.
-#: - `low`: the lowest height of the cut, below the old armpit. `reach`: the distance from the
+#: - `low`: the lowest height of the cut, below the source armpit. `reach`: the distance from the
 #:   forearm line of a face of the free arm below `low`. `under` (optional): a face below `low`
 #:   is also out from |x| `under.x` plus `under.lean` for each unit of height below `low`, so that
 #:   a round belly under a thick forearm stays on the trunk (the hippo). `hole` (optional): the
@@ -82,7 +80,7 @@ import violin_arms as va  # noqa: E402
 #: units of the flatter front of the upper belly.
 #:
 #: `wall` (optional): the round side wall (`step_round_wall()`). `lip`, `depth`, and `over`: a
-#: trunk face at the lower run of the old wall is a lip when the dot product of its normal with
+#: trunk face at the lower run of the flat wall is a lip when the dot product of its normal with
 #: the normal of the plane of the seam is at most `lip`, it lies within `depth` units of the
 #: plane, and at most `over` units over the armpit line. `grid`: the side of the triangles of the
 #: new wall in units. `rings` and `reach`: the rings of trunk vertices around the wall that move,
@@ -92,9 +90,9 @@ import violin_arms as va  # noqa: E402
 #: `pit` (optional): the clean of the band between each armpit line and the flat inner side of
 #: the arm (`step_clean_pit()`). `near`: for the first and the second shoulder ring, the distance
 #: in units under which a vertex below the line merges into the next ring. `close`: the distance
-#: under which a vertex above the line, at its back half, merges into the line. `weld`: the distance under which a socket vertex
-#: merges into an end of the line or into its neighbor on the socket. `sides`: the sides of the
-#: clean, `L` and `R` (the left and the right arm of the animal).
+#: under which a vertex above the line, at its back half, merges into the line. `weld`: the
+#: distance under which a socket vertex merges into an end of the line or into its neighbor on the
+#: socket. `sides`: the sides of the clean, `L` and `R` (the left and the right arm of the animal).
 #:
 #: The other keys are the keys of `violin_arms.ANIMALS`.
 CAT = {
@@ -102,11 +100,10 @@ CAT = {
     'source': 'assets/models/cat/cat.glb',
     'folder': 'assets/models/cat',
     # The upper arm is 0.92 and the forearm 0.78 as long as on the mesh, 1.10 head heights from the
-    # shoulder joint to the wrist, and the forearm is 0.86 of the upper arm, as on a real arm: the
-    # user said "the cat's arm ... is longer than expected" (2026-10-27-cat-fox2 decisions). With
-    # 0.85 for both, the shorter upper arm moved the round part of the tube into the plane of the
-    # seam, and the middle of the upper arm went 22% narrower at rest. With 1 (1.30 H) and with
-    # 1.1496, the reach of the red fox, the arms were too long for the short trunk of the cat.
+    # shoulder joint to the wrist, and the forearm is 0.86 of the upper arm, as on a real arm.
+    # With 0.85 for both, the shorter upper arm moves the round part of the tube into the plane of
+    # the seam, and the middle of the upper arm goes 22% narrower at rest. With 1 (1.30 H) and with
+    # 1.1496, the reach of the red fox, the arms are too long for the short trunk of the cat.
     'factor': (0.92, 0.78),
     'slim': (0.85, 0.85),
     'cut': {'shoulder': 0.0, 'tilt': 0.0, 'wrist': 0.1},
@@ -119,12 +116,12 @@ CAT = {
     'seam': {'x': 0.08, 'lean': 0.1, 'low': 0.45, 'reach': 0.06, 'edge': 0.6, 'armpit': 0.6,
              'lift': -0.004, 'rings': (0.15, 0.45), 'ruled': 1, 'ramp': 10, 'round': 3,
              'wrap': 0.012},
-    # With the shorter arms of factor 1 and the share 0.2, the upper ring of each upper arm narrowed
-    # to 0.66 of its bind width at rest (0.73 before), and with 0.35 the right arm twisted more.
+    # With the shorter arms of factor 1 and the share 0.2, the upper ring of each upper arm narrows
+    # to 0.66 of its bind width at rest (0.73 with no anchor), and with 0.35 the right arm twists
+    # more.
     'anchor': {'share': 0.1, 'reach': 0.05, 'crease': True},
-    # The even oval of the trunk (`step_belly()`). The user said "make the cat's belly more oval
-    # and smooth" on 2026-10-27. The front ends at the lap and at the neck, and the sides at the
-    # hips and at the lower end of the side walls.
+    # The even oval of the trunk (`step_belly()`). The front ends at the lap and at the neck, and
+    # the sides at the hips and at the lower end of the side walls.
     # The bow upper arm lies on the front corners of the upper belly at the tip on the lowest
     # string, 30 to 50 degrees from the front at 0.7 to 0.82 of the line: the oval moved them
     # 0.5 to 1.3 cm forward, and the arm went 2.3 cm in. The flat zone peaks at the middle line
@@ -136,28 +133,27 @@ CAT = {
     'belly': {'front': (0.06, 0.92), 'sides': (0.12, 0.7), 'bend': 1e5, 'step': 0.002,
              'round': {'share': 0.6, 'fade': (0.5, 0.8)},
              'flat': {'f': (0.62, 0.9), 'angle': (-75, 75), 'move': 0.004}},
-    # The round side wall under each arm (`step_round_wall()`). The user said "the cat's arm has
-    # lumps" on 2026-10-27, and the play showed the flat wall as a light patch with a crease at
-    # its lower tip. With `deep` 0.002, the left upper arm went 1.7 cm into the new wall in the
-    # play, the lift, and the lowering (1.0 to 1.2 cm before the round), because the fill took the
-    # room of the lips. With 0.01, the right wall folded at 175 degrees. With 0.006, 7 and 6
-    # vertices of the flat inner side of the arms lie out of the trunk in the copy (2 and 1
-    # before the round), and no slit shows at rest. With no `reach`, the trunk rings took long
-    # faces down to the hips, moved them up to 3 cm, and drew a V of hard edges under the wall.
+    # The round side wall under each arm (`step_round_wall()`). In the play, a flat wall shows as
+    # a light patch with a crease at its lower tip. With `deep` 0.002, the left upper arm goes
+    # 1.7 cm into the new wall in the play, the lift, and the lowering (1.0 to 1.2 cm with a flat
+    # wall), because the fill takes the room of the lips. With 0.01, the right wall folds at 175
+    # degrees. With 0.006, 7 and 6 vertices of the flat inner side of the arms lie out of the trunk
+    # in the copy (2 and 1 with a flat wall), and no slit shows at rest. With no `reach`, the trunk
+    # rings take long faces down to the hips, move them up to 3 cm, and draw a V of hard edges
+    # under the wall.
     'wall': {'lip': 0.2, 'depth': 0.01, 'over': 0.02, 'grid': 0.016, 'rings': 2, 'reach': 0.03,
              'rounds': 6, 'deep': 0.006},
     # The band between each armpit line and the flat inner side of the arm (`step_clean_pit()`).
-    # The user said "the cat's arm has lumps" on 2026-10-27. Before the clean, 27 faces near the
-    # ends of the lines had a corner under 12 degrees, and three corners of a face at the front
-    # end of the left line lay on one line. A merge on both sides of the whole line folded two
-    # new faces of the right arm root at rest, so `close` acts only at the back half of the line.
-    # A merge of such a vertex into the next ring left a small dark point at the back end of the
-    # left line from az -110 in the play, and with no merge, a dark slit showed there.
-    # With no merge of the socket vertices, the back of the left socket folded in 28.6% of the
-    # play (the thin faces there share one set of weights in `rigid_slivers()` of `rig_mesh.py`).
-    # The right side keeps its band: with the clean, the root ring of the bow arm went flatter in
-    # the play (flat p5 of `pnpm arm-check` 0.75, 0.84 before, a fail), and with the strip only,
-    # the valleys in front of the right root were deeper in the play.
+    # With no clean, 27 faces near the ends of the lines have a corner under 12 degrees, and three
+    # corners of a face at the front end of the left line lie on one line. A merge on both sides
+    # of the whole line folds two new faces of the right arm root at rest, so `close` acts only at
+    # the back half of the line. A merge of such a vertex into the next ring leaves a small dark
+    # point at the back end of the left line from az -110 in the play, and with no merge, a dark
+    # slit shows there. With no merge of the socket vertices, the back of the left socket folds in
+    # 28.6% of the play (the thin faces there share one set of weights in `rigid_slivers()` of
+    # `rig_mesh.py`). The right side keeps its band: with the clean, the root ring of the bow arm
+    # goes flatter in the play (flat p5 of `pnpm arm-check` 0.75, and 0.84 with no clean, a fail),
+    # and with the strip only, the valleys in front of the right root are deeper in the play.
     'pit': {'near': (0.0055, 0.003), 'close': 0.003, 'weld': 0.0025, 'sides': 'L'},
 }
 va.ANIMALS['cat'] = CAT
@@ -736,10 +732,10 @@ def step_clean_pit(s):
     The first ring of the shoulder lies 0.15 of the way from the socket to the first ring of the
     tube. On the flat inner side of the arm, that way is short, and `step_shape()` makes it
     shorter, so the first ring lies 0.1 to 0.5 units-cm from the armpit line, and at the ends of
-    the line the second ring comes as near. Bridge Edge Loops joined the line to these vertices
-    with thin triangles, and at the front end of the left line three of their corners lay on one
-    line. In the play, these faces turned over when the skin near them moved, and a smoothing of
-    the root front showed them as a slit (user, 2026-10-27: "the cat's arm has lumps"). The step:
+    the line the second ring comes as near. Bridge Edge Loops joins the line to these vertices
+    with thin triangles, and at the front end of the left line three of their corners lie on one
+    line. In the play, these faces turn over when the skin near them moves, and a smoothing of
+    the root front shows them as a slit and as lumps. The step:
 
     1. Ring by ring, a vertex of the first two shoulder rings below the line and within `near`
        units of it (one value for each ring) merges into the vertex of the next ring on its
@@ -1084,12 +1080,12 @@ def pinned_smooth(ts, ws, ends, bend):
 def step_belly(s):
     """Makes the trunk an even oval from the front and from the side (`belly`).
 
-    The trunk of the user mesh is not an even oval. In the side view, the chest is upright, and
+    The trunk of the source mesh is not an even oval. In the side view, the chest is upright, and
     the belly leans out below it to a peak at 0.33 of the trunk line, with a steep step at its
     lower end. In the front view, the sides are a straight cone with a corner at the hips and a
     notch below each side wall. Along the middle line, the belly has a ridge. The trunk factor of
     the rig (`trunkFactor` 0.686) makes each turn steeper, and the seat shows them as a pinch at
-    the waist and a lump below it (`docs/research/2026-10-27-cat-belly.md`).
+    the waist and a lump below it.
 
     1. Each cut across the trunk line (`trunk_cuts()`) gives the front and the two sides of the
        trunk at its height.
@@ -1229,18 +1225,17 @@ def step_round_wall(s):
     """Rounds the side wall of each arm into the trunk (`wall`).
 
     The fill of `step_wall()` is a flat plate on the plane of the seam: a fan of long thin faces
-    with no vertex inside. The Bisect of the seam also left lips at its lower run: small trunk
-    faces that turn back under the plate. In the play, the raised arm showed the plate as a light
-    patch and the lips as a crease at its lower tip (user, 2026-10-27: "the cat's arm has
-    lumps"). This step makes the wall again:
+    with no vertex inside. The Bisect of the seam also leaves lips at its lower run: small trunk
+    faces that turn back under the plate. In the play, the raised arm shows the plate as a light
+    patch and the lips as a crease at its lower tip. This step makes the wall again:
 
     1. The lips go (Delete Faces): from the lower run, each trunk face whose normal makes a dot
        product of at most `lip` with the normal of the plane, and that lies within `depth` units
        of the plane and at most `over` units over the armpit line, with its neighbors of the same
        kind. A vertex of the outline more than 0.002 units over the armpit line merges into the
        nearer of its neighbors on the outline (Merge at Last). At the front of the left arm, such
-       a vertex rose 2 cm over the line: the outline crossed itself, and the fill left a hole of
-       6 edges, or folded a face over a quad of the trunk.
+       a vertex rises 2 cm over the line with no merge: the outline crosses itself, and the fill
+       leaves a hole of 6 edges, or folds a face over a quad of the trunk.
     2. Fill: a 2D Delaunay triangulation (`delaunay_2d_cdt()` of Blender) of the outline of the
        hole, projected on the plane, and of the points of a grid of the side `grid` units inside
        it. The new vertices lie on the plane, and in the plane, a point of the outline over the
@@ -1505,7 +1500,7 @@ def step_paint(s):
     1. The trunk, the side walls, the socket, and the first `seam.ruled` rings of the shoulder:
        Remove From Group of the arm bones and the clavicles. Then each of these vertices hangs
        only on the bones of `paintedLower`, so `pnpm rig-mesh` gives it the rule weights of the
-       config, as on the mesh of the user: the shoulder turns with the rules of `main`.
+       config, as on the source mesh: the shoulder turns with the rules of `main`.
     2. The other rings of the tube, and the paw: Remove From Group of the trunk bones and the
        clavicles, so that the arm does not drag on the trunk.
     3. The skin of the armpit: a share of the chest on the tube near the side walls (`anchor()`).
@@ -1589,7 +1584,7 @@ def anchor_target(s):
 def anchor(s, island):
     """Gives the tube vertices near each side wall a share of the chest weight (fix 5).
 
-    The upper arm of the user mesh lies against the trunk down to the elbow, so a turn of the arm
+    The upper arm of the source mesh lies against the trunk down to the elbow, so a turn of the arm
     toward the trunk takes the inner side and the back of the tube into the trunk. A Vertex Weight
     Proximity modifier gives each tube vertex a weight by its distance to the side walls: `share`
     on the wall, falling to 0 at the distance `reach` (units). A Vertex Weight Mix modifier adds it

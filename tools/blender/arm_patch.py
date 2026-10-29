@@ -1,11 +1,9 @@
 # Output: `assets/models/dog/dog-arms.glb`.
-"""Remodels the inner side of each arm of a copy of a mesh of the user, in Blender (batch).
+"""Remodels the inner side of each arm of a copy of a mesh, in Blender (batch).
 
-This is `arm_patch.py` of `docs/research/2026-10-22-panda-armpit/` (the `rabbit_elbows.py` of the
-rabbit elbow round). Two changes: it reads the bones of a tail of two bones and of a jaw from
-the config, as `main()` of `tools/blender/rig_mesh.py` does, so that it runs on the dog, and
-`cut.top` comes from the config that it gets. The round `deer-dog-seams` wrote
-`assets/models/deer/deer-arms.glb` with it (`docs/research/2026-10-22-deer-dog-seams.md`).
+It reads the bones of a tail of two bones and of a jaw from the config, as `main()` of
+`tools/blender/rig_mesh.py` does, so that it runs on the dog, and `cut.top` comes from the config
+that it gets.
 
 The arm of the source joins the side of the trunk from the shoulder down to near the elbow. A cut
 of the rig (`cut_seam()` of `tools/blender/rig_mesh.py`) closes the arm there with one flat

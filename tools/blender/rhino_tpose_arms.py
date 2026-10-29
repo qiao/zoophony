@@ -1,14 +1,11 @@
-"""Replays the Blender session that rebuilt the arms of the T-pose rhino tubist.
+"""Replays the Blender session that rebuilds the arms of the T-pose rhino tubist.
 
-On 2026-10-28 the user gave a T-pose mesh of the rhino and said: "use the rhino model at
-/Users/xueqiaoxu/Downloads/Meshy_AI_rhino_tpose_3k_triang_1029050510_texture.glb". The A-pose copy
-of 2026-10-27 needed rebuilt arms, because the long thin faces of each forearm twisted the skin
-into a thin band (`rhino_arms.py`), and the user allowed loop edges, retopology, and extra bones
-for the arm and wrist twist on 2026-10-24. The T-pose arms stand out to the sides as the arms of
-the T-pose bear, so this script runs the steps of `bear_arms.py` with the settings of the rhino
-(`RHINO`):
+The source is the T-pose mesh `assets/models/rhino/rhino-tpose.glb`. The rebuild uses loop edges,
+retopology, and extra bones to fix the arm and wrist twist. The T-pose arms stand out to the sides
+as the arms of the T-pose bear, so this script runs the steps of `bear_arms.py` with the settings
+of the rhino (`RHINO`):
 
-1. Import the mesh of the user and Merge by Distance.
+1. Import the mesh and Merge by Distance.
 2. Replace the faces of each arm from the shoulder line to the wrist with a quad tube, wrap it onto
    the source arm, bridge it to the trunk and to the paw, beautify the bridge triangles, collapse
    the thin faces at the cut loops, and even the band of each wrist (`bear_arms.py`).
@@ -21,8 +18,8 @@ the T-pose bear, so this script runs the steps of `bear_arms.py` with the settin
    and paint the fixes with the Weight Paint tools.
 6. Write the weights for `paintedWeights` of the config (`rhino-tpose-weights.json`).
 
-The faces of the paws, the trunk, the legs, and the head stay the faces of the user. The file of
-the user, `rhino-tpose.glb`, stays unchanged.
+The faces of the paws, the trunk, the legs, and the head stay the faces of the source mesh. The
+source file, `rhino-tpose.glb`, stays unchanged.
 
 Run it in a terminal from the root of the tree:
 
@@ -73,10 +70,9 @@ va = ba.va
 #: The settings of the rhino, with the keys of `ANIMALS` of `violin_arms.py` and `wind_arms.py`,
 #: in the units of the studio (1 unit from the soles to the ear tips). They are the settings of the
 #: bear (`bear_arms.py`), moved to the arm root of the rhino: the arm is free of the trunk beyond
-#: |x| 0.19, from y 0.57 to 0.67 (`sections-x.txt` and `arm-axis.txt` of
-#: `docs/research/2026-10-28-rhino-tpose/`). The upper arm is only 0.105 units long, so the
-#: shoulder cut stands at 0.4 of it (x 0.202), out of the joined root, as on the A-pose rhino
-#: (`rhino_arms.py`): at 0.2 (x 0.181), the cut loop ran over the trunk. The rings of the upper
+#: |x| 0.19, from y 0.57 to 0.67. The upper arm is only 0.105 units long, so the shoulder cut
+#: stands at 0.4 of it (x 0.202), out of the joined root, as on the A-pose rhino
+#: (`rhino_arms.py`): at 0.2 (x 0.181), the cut loop runs over the trunk. The rings of the upper
 #: arm follow the cut. The forearm is 0.11 units long, so it has 4 inner rings. The paint boxes
 #: take the side of the trunk under the arm and the arm root, and the head bone leaves the
 #: shoulders below the head at y 0.7. `neck` and `paw` are the fixes of `rhino_arms.py`
@@ -103,8 +99,8 @@ RHINO = {
     'fingers': 0.5,
 }
 
-#: The name of the session: the files are `rhino-tpose-arms.glb` and `rhino-tpose-weights.json`,
-#: so that the files of the earlier copies of the rhino stay.
+#: The name of the session. It gives the names of the files `rhino-tpose-arms.glb` and
+#: `rhino-tpose-weights.json`, apart from the files of `rhino_arms.py`.
 ANIMAL = 'rhino-tpose'
 
 

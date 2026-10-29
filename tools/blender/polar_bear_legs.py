@@ -1,28 +1,26 @@
-"""Replays the Blender session that rebuilt the legs of the polar bear pianist.
+"""Replays the Blender session that rebuilds the legs of the polar bear pianist.
 
-The user said on 2026-10-27: "the bear's knee is still much bulkier than expected. it's not
-anatomically correct". Long faces of the user mesh ran from the underside of the haunch down to
-the heel, so the seated leg was a wedge with no hollow behind the knee
-(`docs/research/2026-10-27-polar-legs-rebuild.md`). This script gives each leg new quad faces,
-with the method of the arm rebuilds (`docs/agents/rig-blender.md`), and repeats the steps in
-this order:
+Long faces of the source mesh run from the underside of the haunch down to the heel, so the
+seated leg is a wedge with no hollow behind the knee, and the knee looks too bulky. This script
+gives each leg new quad faces, with the method of the arm rebuilds (`docs/agents/rigging.md`,
+"The rebuild of the arms in Blender"), and repeats the steps in this order:
 
 1. Import the copy with the new arms (`polar-bear-arms.glb`) and Merge by Distance.
 2. Cut each leg with Bisect at the haunch line, where the thigh leaves the haunch below the
    crotch, and at the ankle, above the foot. Delete the faces between the cuts, and collapse the
    thin faces at the cut loops.
 3. Model a quad tube of rings at right angles to the bones, Shrinkwrap it onto a hidden copy of
-   the old leg, join it to the haunch and to the foot with Bridge Edge Loops, and collapse the
+   the source leg, join it to the haunch and to the foot with Bridge Edge Loops, and collapse the
    thin bridge faces.
-4. Give the new faces a UV layout, bake the fur color of the old legs onto them (Cycles,
-   Selected to Active), and transfer the custom normals of the old surface (Data Transfer).
+4. Give the new faces a UV layout, bake the fur color of the source legs onto them (Cycles,
+   Selected to Active), and transfer the custom normals of the source surface (Data Transfer).
 5. Put the leg image in the free part of the strip of the atlas, so that the mesh keeps one
    material, and write `polar-bear-limbs.glb`.
 6. Write the weights of `polar-bear-limbs-weights.json`: each kept vertex keeps its weights of
    `polar-bear-weights.json`, and each new vertex takes the automatic weights of Blender.
 
 The faces of the feet, the trunk, the haunch, the arms, and the head stay. The tube is built on
-the legs of the user, before the leg factor of the rig: the rig stretches the thigh and the shin
+the source legs, before the leg factor of the rig: the rig stretches the thigh and the shin
 only along their bones (`segment_stretch()` of `rig_mesh.py`), so each ring stays at a right
 angle to its bone, and the rings move 1.6 times as far apart.
 

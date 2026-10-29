@@ -1,5 +1,5 @@
-"""Edits the arm root of a copy of a mesh of the user, so that the form at the seam of the arm and
-the trunk is smooth and convex (design 4.4, `docs/research/2026-10-22-arm-roots.md`).
+"""Edits the arm root of a copy of a mesh, so that the form at the seam of the arm and the trunk
+is smooth and convex (design 4.4).
 
     blender -b --factory-startup --python tools/blender/arm_root.py -- <edit.json> \
         [--out <file.glb>] [--edits <JSON list>]
@@ -12,17 +12,17 @@ script prints one line for each edit and the SHA-256 of the output.
 The points are in the units and the axes of the rig config (`tools/mesh-rigs/<animal>.json`):
 1 unit from the soles to the top, the soles at y = 0, y up, +z forward, and +x the left side of
 the animal. A vertex is an index of the welded source: the import, a weld at `weld`, and the
-triangulation, as `load_mesh()` of `tools/blender/rig_mesh.py` does. `dump.py` of
-`docs/research/2026-10-22-arm-roots/` writes these indices. Each edit holds for the side `side`
-("L" or "R") of its vertices, and with `mirror` also for the mirror vertices of the other side.
+triangulation, as `load_mesh()` of `tools/blender/rig_mesh.py` does. Each edit holds for the
+side `side` ("L" or "R") of its vertices, and with `mirror` also for the mirror vertices of the
+other side.
 The methods:
 
 - `flip`: each edge of `edges` goes to the other diagonal of its two faces. A long thin face
   across the shoulder joint, with corners of mixed arm weights, folds in a sharp V when the arm
   turns. The flip keeps each vertex in its place.
 - `fair`: the vertices of `vertices` move along `axis` out to a quadratic surface fitted to the
-  vertices of `fit`, by the share `share` of the gap and at most `cap` units, as `fair.py` of
-  `docs/research/2026-10-21-rabbit-notch/`. A vertex outside the surface does not move.
+  vertices of `fit`, by the share `share` of the gap and at most `cap` units. A vertex outside
+  the surface does not move.
 - `smooth`: `rounds` times, each vertex of `vertices` moves by the share `share` toward the mean
   of its neighbors. With `outward`, a vertex moves only out along its normal, so that a notch
   fills and no bump shrinks.

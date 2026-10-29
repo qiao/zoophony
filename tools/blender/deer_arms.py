@@ -1,32 +1,28 @@
-"""Replays the Blender session that rebuilt the arms of the deer harpist.
+"""Replays the Blender session that rebuilds the arms of the deer harpist.
 
-On 2026-10-26 the user said: "the deer's upper arm are missing pieces (have dent)". Each upper arm
-of the user mesh `deer.glb` joins the side of the trunk down to 0.86 (left) and 0.94 (right) of
-its length. The copy of 2026-10-22 removed the faces that join each arm to the trunk, closed the
-inner side of each arm with a round patch, and the rig closed the hole of the trunk with flat caps.
-Thus the arm and the trunk were two shells below the cut, and in the play the back of each upper
-arm moved off the trunk and showed a notch. The user allowed loop edges, retopology, and extra
-bones for the arm and wrist twist on 2026-10-24. This script gives the deer the arms of the cat
-and the fox (`cat_arms.py`, `fox_arms.py`): one skin from the trunk to the paw, with a real
-armpit.
+Each upper arm of the mesh `deer.glb` joins the side of the trunk down to 0.86 (left) and 0.94
+(right) of its length. When the arm and the trunk are two shells below the cut, the back of each
+upper arm moves off the trunk in the play and shows a notch. The rebuild uses loop edges,
+retopology, and extra bones to fix the arm and wrist twist. This script gives the deer the arms
+of the cat and the fox (`cat_arms.py`, `fox_arms.py`): one skin from the trunk to the paw, with a
+real armpit.
 
-1. Import the mesh of the user and Merge by Distance.
+1. Import the mesh and Merge by Distance.
 2. Cut each arm along the seam where it meets the trunk and at the wrist, fill a side wall of the
    trunk under the arm, collapse the thin faces at the cut loops, and model a quad tube with a flat
    inner side on the wall.
 3. Shrinkwrap, Bridge Edge Loops, Beautify Faces, Collapse Edges on the thin bridge faces, UV,
    the bake of the fur color, and the transfer of the custom normals.
-4. Make each arm `factor` times longer (`armFactor` 1.25 of the rig config before), put the arm
-   image in a strip of the atlas, give the inner side the fur color of the trunk, and write
-   `deer-arms.glb`.
+4. Make each arm `factor` times longer, put the arm image in a strip of the atlas, give the inner
+   side the fur color of the trunk, and write `deer-arms.glb`.
 5. Add the studio skeleton with the arm segments and the helpers, parent with automatic weights,
    and paint the fixes of `cat_arms.step_paint()` with the Weight Paint tools. The fingers keep
-   half of their weight (`fox_arms.step_fingers()`), as the rule `weights.fingers` of the old rig.
+   half of their weight (`fox_arms.step_fingers()`), as the rule `weights.fingers` of a rig
+   config.
 6. Write the weights for `paintedWeights` of the config (`deer-weights.json`).
 
-The faces of the paws, the trunk, the legs, and the head stay the faces of the user. The file of
-the user, `deer.glb`, stays unchanged. The decisions are in
-`docs/decisions/2026-10-26-fifth-review-deer.md`.
+The faces of the paws, the trunk, the legs, and the head stay the faces of the source mesh. The
+source file, `deer.glb`, stays unchanged.
 
 Run it in a terminal from the root of the tree:
 
@@ -49,7 +45,7 @@ va = ca.va
 #: The settings of the deer, with the keys of `CAT` of `cat_arms.py`, in the units of the studio
 #: (1 unit from the soles to the tips of the antlers). The upper arm is about 0.06 units thick.
 #: Below the free root at y 0.47, the side of the trunk stands at |x| 0.081 and the inner side of
-#: the arm at |x| 0.084 (`sections-y.txt` of `docs/research/2026-10-21-mesh-deer/`).
+#: the arm at |x| 0.084.
 DEER = {
     'config': 'tools/mesh-rigs/deer.json',
     'source': 'assets/models/deer/deer.glb',
@@ -112,11 +108,11 @@ def step_cut(s):
     and at the wrist.
 
     This is `cat_arms.step_cut()` with one more plane. The shoulder of the deer is a broad round
-    top, and the plane of the seam leaves it only at y 0.6, near the neck. The hole then took the
-    whole top of the shoulder, and the bridge from the socket to the first ring was a long cone of
-    thin faces. The cap plane (`cap_plane()`) keeps the faces above it on the trunk: an arm face
-    lies beyond the plane of the seam and on the side of the elbow of the cap plane. Each plane
-    cuts only the faces on the arm side of the other plane.
+    top, and the plane of the seam leaves it only at y 0.6, near the neck. With the seam plane
+    only, the hole takes the whole top of the shoulder, and the bridge from the socket to the first
+    ring is a long cone of thin faces. The cap plane (`cap_plane()`) keeps the faces above it on
+    the trunk: an arm face lies beyond the plane of the seam and on the side of the elbow of the
+    cap plane. Each plane cuts only the faces on the arm side of the other plane.
     """
     import bmesh
     import bpy
@@ -224,7 +220,7 @@ def step_cut(s):
 
 
 def step_weights(s):
-    """Writes the weights file (`cat_arms.step_weights()`), with the note of this session."""
+    """Writes the weights file (`cat_arms.step_weights()`), with a note that names this script."""
     count = ca.step_weights(s)
     path = os.path.join(s.out_dir, 'deer-weights.json')
     with open(path) as f:

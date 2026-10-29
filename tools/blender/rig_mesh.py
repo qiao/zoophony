@@ -5,13 +5,13 @@
 
 `pnpm rig-mesh <animal>` runs this script with `tools/mesh-rigs/<animal>.json`. The output has
 the format of `lowpoly-studio/animals/<animal>/out/<animal>.glb`, so that `pnpm studio-body`
-reads it (route 3 of `docs/agents/model-work.md`). The steps:
+reads it ("The asset chain" of `docs/agents/rigging.md`). The steps:
 
 1. Import the source GLB file, weld the corners, and scale the mesh to 1 unit from the soles to
    the top, with the soles at y = 0. The math uses the axes of the studio: y up, +z forward, and
    +x the left side of the animal. With `proportions` of the config, the mesh then takes a factor
    on each axis (`width` on x, `height` on y, `depth` on z), so that a body can be shorter or
-   wider than the mesh of the user before the joints. With `keep` of the rule set to `head`, the
+   wider than the source mesh before the joints. With `keep` of the rule set to `head`, the
    head keeps its form, and a blend zone at the neck joins it to the scaled body
    (`proportioned()`). The head keeps its size, or takes the factor `head` of the rule on each
    axis. With `cut` of the config, the faces that join each hanging
@@ -127,19 +127,18 @@ reads it (route 3 of `docs/agents/model-work.md`). The steps:
    which `pnpm studio-body` maps the other palettes. The bytes depend only on the config and the
    source file.
 
-With `--preview`, the script also renders the seated bind and the standing body from four sides,
-the knees of the seated body from the side, the neck from four sides, and the main bone of each
-face, and it writes the long-armed source as `source-long-arms.obj` for the probes of
-`docs/research/`. With `--obj`, it
+With `--preview`, the script also renders the seated bind and the standing body from four sides, the
+knees of the seated body from the side, the neck from four sides, and the main bone of each face,
+and it writes the long-armed source as `source-long-arms.obj` for the probes. With `--obj`, it
 writes only the long-armed source, into the file, for `pnpm rig-mesh --check`. With `--check`, it
 also lists the faces that the stretch turns or squeezes (`stretch_faces()`) and the long thin faces
 across an arm joint that no ring cuts (`uncut_faces()`), before the fold probe of the check. It
-gives the share of the dark faces outside the eye and nose boxes, and warns above `DARK_SHARE`
-with a dark limit that brings the share under it (`dark_check()`). The flag changes no byte of
-the rig. With `--faces`, it also writes the middle of each face of the
-module in the units of the source into the file as JSON (`face_sources()`), for
-`pnpm fold-probe --faces`. With `--corners`, it writes the corners of the source face of each face
-of the module, in the source and in the long-armed source (`face_corners()`), for `pnpm arm-look`.
+gives the share of the dark faces outside the eye and nose boxes, and warns above `DARK_SHARE` with
+a dark limit that brings the share under it (`dark_check()`). The flag changes no byte of the rig.
+With `--faces`, it also writes the middle of each face of the module in the units of the source into
+the file as JSON (`face_sources()`), for `pnpm fold-probe --faces`. With `--corners`, it writes the
+corners of the source face of each face of the module, in the source and in the long-armed source
+(`face_corners()`), for `pnpm arm-look`.
 """
 
 import colorsys
@@ -253,9 +252,9 @@ STRETCH_TURN = 45.0
 STRETCH_EDGE = 0.5
 
 #: The gap from the lowest point of the haunch to the seat top before the sit, in meters, above
-#: which the log warns that the thighs set the seat top (`haunch_gap()`). The short thighs of the
-#: panda of 2026-10-18 put the seat top 6.8 cm below the haunch, and the sit pulled the haunch
-#: down into a sheet behind the seat.
+#: which the log warns that the thighs set the seat top (`haunch_gap()`). With short thighs, the
+#: seat top of the panda goes 6.8 cm below the haunch, and the sit pulls the haunch down into a
+#: sheet behind the seat.
 SEAT_WARNING = 0.05
 
 #: The step of the front edge of the chair that the warning of the seat proposes, in units.
@@ -263,7 +262,7 @@ FRONT_STEP = 0.005
 
 #: The share of the faces that may be dark outside the eye and nose boxes, above which the check
 #: warns (`dark_check()`). The dark limit 0.05 made 890 of the 3,119 faces of the wolf dark, most
-#: of its dark gray fur, and 0.02 made 117 (`docs/research/2026-10-20-wolf-mesh.md`).
+#: of its dark gray fur, and 0.02 made 117.
 DARK_SHARE = 0.05
 
 
@@ -432,8 +431,8 @@ def softened(verts, tris, rule):
     the source before `proportions`, x as |x|). Each vertex of an edge whose two faces meet at more
     than `angle` degrees, with the middle of the edge in `box`, moves `share` of the way to the mean
     of its neighbors, in each of `rounds` rounds, and no vertex moves more than `most` units in
-    all. The crease of the brow ridge of the wolf over each eye went down to the outer side and
-    shaded as a sad brow in each light."""
+    all. Without the soften, the crease of the brow ridge of the wolf over each eye goes down to
+    the outer side and shades as a sad brow in each light."""
     normals = face_normals(verts, tris)
     faces_of = edge_faces(tris)
     lo, hi = np.asarray(rule['box'][0]), np.asarray(rule['box'][1])
@@ -533,9 +532,8 @@ def face_colors(tris, uvs, texture, rules):
     not dark, so that the black gaps between the islands of the texture do not darken a face at
     the edge of an island. With `split` (an Oklab lightness), a face whose samples spread over more
     than `split` takes the mean of the larger of its light and dark halves, cut at the middle of
-    the spread: a face across a sharp edge of the texture took the mean of black and white, and
-    the faces of the edge showed as a gray band (user, 2026-10-28: "the penguine's head has
-    unnatural gradient between black and white")."""
+    the spread. Without the split, a face across a sharp edge of the texture takes the mean of
+    black and white, and the faces of the edge show as a gray band."""
     grid = sample_grid(rules['samples'])
     colors = np.zeros((len(tris), 3))
     dark = np.zeros(len(tris), bool)
@@ -726,7 +724,7 @@ def border_faces(corners, colors, fur, share, rule, tris=None):
     center in `box`, whose share of dark texture samples (`face_colors()`) is below `share`,
     takes the color of the nearest light fur face. A face takes black from the share `eyeShare`
     of dark samples, so that the small dark faces of an eye stay dark. On the large faces of the
-    torso of the panda, this gave the border of the black band teeth, and a raised arm stretched
+    torso of the panda, this gives the border of the black band teeth, and a raised arm stretches
     them into black wedges on the white side. `corners` gives the corners of each face in the
     units of the source (`head_source()`), with the stretch of the arm factor on the faces of the
     arms. With `teeth` of the rule, each dark fur face of the box with at least `teeth` light
@@ -734,8 +732,8 @@ def border_faces(corners, colors, fur, share, rule, tris=None):
     the share rule. The cut of the panda (`cut_seam()`) leaves such small black teeth at the old
     seam. With `gray` of the rule, each fur face of the box with an Oklab lightness from `dark` up
     to `gray` also takes the color of the nearest light fur face (lightness `gray` or more): a face
-    across the edge of the black band of the panda took the mean of its gray edge samples, and
-    showed as a gray wedge under the arm. Gives the new colors and the changed faces."""
+    across the edge of the black band of the panda takes the mean of its gray edge samples, and
+    shows as a gray wedge under the arm. Gives the new colors and the changed faces."""
     centers = corners.mean(axis=1)
     lightness = oklab(colors)[:, 0]
     dark = lightness < rule['dark']
@@ -814,8 +812,8 @@ def belly_patch(corners, hips, neck, colors, fur, trunk, rule):
 
     The faces of the mesh are 3 cm to 6 cm across, so a choice of whole faces gives the outline
     teeth or a waist, and the mix gives an even edge. The texture of the cat gives a patch with a
-    waist below the chest, and the seat shows it as a pinch
-    (`docs/research/2026-10-27-cat-belly.md`). Gives the new colors and the changed faces."""
+    waist below the chest, and the seat shows it as a pinch. Gives the new colors and the changed
+    faces."""
     centers = corners.mean(axis=1)
     up = neck - hips
     length = np.linalg.norm(up)
@@ -856,7 +854,7 @@ def flank_faces(corners, colors, fur, arm_share, rule):
     config). The texture of the penguin paints its black flipper larger than the flipper of the
     mesh, so a band of black skin of the trunk surrounds the flipper at its front and below its
     tip. When the flipper rises to the folder, that band stays on the white side as a black tongue
-    with a hook (user, 2026-10-28: "the rigged one has extra black area and bump under the arm").
+    with a hook.
     `line` gives two points (height, forward) of the side view: the armpit and the lower side,
     where the white side meets the black back. Each fur face with |x| of at least `x`, its center
     between the two heights, forward of the line, an Oklab lightness below 0.5, and a mean share
@@ -1054,8 +1052,8 @@ def painted_weights(verts, path):
     vertex in the units of the studio, and its weights. Each source vertex takes the weights of
     the painted vertex at its place.
 
-    The arm rebuild of 2026-10-24 paints the weights of the polar bear with the tools of Blender
-    (`tools/blender/polar_bear_arms.py`, `docs/decisions/2026-10-24-polar-bear-arms.md`).
+    The arm rebuild of the polar bear paints its weights with the tools of Blender
+    (`tools/blender/polar_bear_arms.py`).
     """
     with open(path) as f:
         data = json.load(f)
@@ -1249,9 +1247,9 @@ def kept_heat(verts, tris, heads, ends, rolls, config):
     """Gives the bone heat of the body bones for each vertex (`bone_heat()`). With `heatSource` of
     the config, a mesh before a rebuild of some faces, each vertex at a place of that mesh takes
     the bone heat of that mesh, and only the new vertices take the bone heat of the source. Bone
-    heat spreads over the whole mesh, so the new leg faces of the polar bear moved the weights of
-    its crotch by up to 0.23 and its seat top 7 mm down. With the heat of the old mesh, the trunk,
-    the haunch, and the seat keep their weights (`docs/research/2026-10-27-polar-legs-rebuild.md`).
+    heat spreads over the whole mesh, so the new leg faces of the polar bear move the weights of
+    its crotch by up to 0.23 and its seat top 7 mm down. With the heat of the mesh before the
+    rebuild, the trunk, the haunch, and the seat keep their weights.
     """
     heat = bone_heat(verts, tris, heads, ends, rolls)
     if 'heatSource' not in config:
@@ -1466,8 +1464,8 @@ def cut_seam(verts, tris, uvs, rules, heads, ends, rule):
     (`clip_polygon()`, `flip_caps()`), and a quad joins the ends of the two runs at the top, where
     the arm and the body stay joined. Thus the forearm and the belly share no vertex below the
     top, and no vertex moves. Each new face takes the UVs of the nearest kept face of its own part.
-    The user permitted the cut for the panda on 2026-10-18. Gives the triangles, the UVs, and for
-    each side the removed faces, the new faces, the run of the arm, and the run of the body."""
+    Gives the triangles, the UVs, and for each side the removed faces, the new faces, the run of
+    the arm, and the run of the body."""
     keep = np.ones(len(tris), bool)
     added, added_uvs, report = [], [], []
     for side, sign in (('L', 1.0), ('R', -1.0)):
@@ -1670,8 +1668,9 @@ def crease_side(verts, tris, rule, heads, ends, sign):
     """Finds the vertices of one side beyond the crease where a joined upper arm meets the trunk
     (`armCrease` of the rules). In a mesh whose hanging arm is one solid with the trunk, the
     surface turns in at a concave crease along the front and the back of the upper arm. The plane
-    of `armSplit` lies out of these creases, so the free arm was only the outer shell of the arm,
-    and the cut closed it with a flat face: a thin plate in each raised pose, with no armpit. The
+    of `armSplit` lies out of these creases, so without the rule the free arm is only the outer
+    shell of the arm, and the cut closes it with a flat face: a thin plate in each raised pose,
+    with no armpit. The
     rule finds each concave edge sharper than `angle` degrees between the heights `heights`,
     farther than `inner` from the middle plane and within `radius` of the arm chain, and fits a
     plane x = a + b y + c z through their middles, with no edge farther than `fit` from it. A
@@ -1942,11 +1941,10 @@ def tail_line(src, share, bones, bins=10):
     """Gives the middle line of the tail of the source: a Catmull-Rom curve from the root of the
     tail through the middle of each of `bins` slices of the vertices only on the tail bones, cut
     along the line of the bones (from the root over the bend to the tip). The tails of the
-    meshes are curved tubes. With the line of the bones, the vertices near the bend took the
-    frame of one bone or the other, and the vertices outside the bend went to the point of the
-    bend, so the curled tail folded and went flat there (user, 2026-10-28: "the cat's tail has
-    malformed meshes", "the dog's tail is unnatural"). Gives the samples, their tangents, and the
-    length at each sample."""
+    meshes are curved tubes. With the line of the bones, the vertices near the bend take the frame
+    of one bone or the other, and the vertices outside the bend go to the point of the bend, so
+    the curled tail folds and goes flat there. Gives the samples, their tangents, and the length at
+    each sample."""
     pure = src[share > 0.99]
     place, _ = polyline_place(pure, bones)
     edges = np.linspace(0.0, float(place.max()), bins + 1)
@@ -1996,7 +1994,7 @@ def tail_curl(src, bind, tris, weights, heads, ends, root, rule):
     out = bind.copy()
     out[ids] = bind[ids] + share[ids, None] * (curled - bind[ids])
     if 'smooth' in rule:
-        # The bend of the curl and the tip of the source tail made a corner and a knob on the
+        # The bend of the curl and the tip of the source tail make a corner and a knob on the
         # seat. Each vertex moves by its share of the curl, so that the root keeps the haunch.
         out = taubin(out, tris, ids, share[ids], rule['smooth'])
     return out, len(ids)
@@ -2025,12 +2023,10 @@ def arm_smooth(verts, tris, weights, rule):
     """Smooths the arm tubes of the source (`armSmooth`): `rounds` rounds of `taubin()` on each
     vertex of the sides of `sides` with a weight on a bone of its side whose name starts with one
     of `bones` (by default an upper arm, a forearm, or an elbow bone). Each vertex moves by that
-    weight, so that the paw and the trunk keep their form. The
-    rebuilt arms put dense rings onto the big flat faces of the mesh of the user, so each ring
-    took the sharp ridges between the faces, and the smooth normals of the app shaded each ridge as
-    a lump or a dent (user, 2026-10-28: "the hippo's arm has lumps / dents", "the wolf's arm has
-    unexpected dents / bends", "the cat's arm has unexpected lumps"). Gives the smoothed vertices,
-    the number of moved vertices, and the largest move."""
+    weight, so that the paw and the trunk keep their form. The rebuilt arms put dense rings onto
+    the big flat faces of the mesh, so each ring takes the sharp ridges between the faces, and the
+    smooth normals of the app shade each ridge as a lump or a dent (on the hippo, the wolf, and the
+    cat). Gives the smoothed vertices, the number of moved vertices, and the largest move."""
     share = np.zeros(len(verts))
     for side in rule.get('sides', 'LR'):
         cols = [k for k, name in enumerate(BONES)
@@ -2721,7 +2717,7 @@ def stretch_faces(source, long, tris):
     """Finds the faces that the stretch of the limbs, the head, and the neck turns or squeezes:
     each face whose normal turns more than `STRETCH_TURN` degrees from the source to the
     long-armed source, or whose shortest edge keeps less than `STRETCH_EDGE` of its length. Such a
-    face can fold in each pose, as the throat face that the linear stretch of the arms pulled
+    face can fold in each pose, as the throat face that the linear stretch of the arms pulls
     across the middle of the fox. Gives the index, the turn in degrees, and the kept part of the
     shortest edge of each face, by index."""
     dots = np.sum(face_normals(source, tris) * face_normals(long, tris), axis=1)
@@ -2911,25 +2907,23 @@ def bind_skin(config, weights, matrices, points):
     ramp, by the upper arm weight. The linear blend moves a vertex between two bones that turn
     by the angle a toward the joint, to about cos(a / 2) of its radius, and the dual quaternion
     blend keeps the radius. The app moves the bind mesh with linear blend skinning in each pose,
-    and the corrective shapes give the source back in the clip `reference`
-    (`docs/research/2026-10-22-dq-bind.md`).
+    and the corrective shapes give the source back in the clip `reference`.
 
     With `bind.knee` set to `dq`, each vertex with a weight on both the thigh and the shin of one
     side takes `dual_skin()` too, whatever `bind.blend` is. The seated bind bends each knee by
-    about 85 degrees, so the linear blend put the front of the rebuilt knee of the polar bear on a
-    flat bevel at 0.83 of the round of the leg, and the knee was 0.120 units deep on its
-    bisector, against 0.148 in the source. A ring at the knee then turns by its share of the bend
-    and keeps its radius, so the knee front is round and the back of the knee folds into a
-    crease (`docs/research/2026-10-27-polar-legs-rebuild.md`).
+    about 85 degrees, so the linear blend puts the front of the rebuilt knee of the polar bear on
+    a flat bevel at 0.83 of the round of the leg, and the knee is 0.120 units deep on its bisector,
+    against 0.148 in the source. With `dq`, a ring at the knee turns by its share of the bend and
+    keeps its radius, so the knee front is round and the back of the knee folds into a crease.
 
     With `bind.arm` set to `dq`, each vertex with a weight on a lower bone of an arm of a side of
     `bind.armSides` (both sides by default) takes `dual_skin()` too, whatever `bind.blend` is:
     the forearm and its segments, the elbow and wrist helpers, the paw, and the fingers. The
     seated bind of the cat bends each elbow by about 79 degrees and turns the left paw 120 degrees
-    (`bindSupination`), so the linear blend put the elbow at 0.86 and the forearm at 0.84 of the
-    radius of the source tube, and the upper arm read as a bulge between a thin elbow and a thin
-    forearm. The ring of an inner elbow then keeps its radius, so an arm that bends further than
-    the bind folds the inner elbow (`docs/research/2026-10-27-cat-arm.md`)."""
+    (`bindSupination`), so the linear blend puts the elbow at 0.86 and the forearm at 0.84 of the
+    radius of the source tube, and the upper arm reads as a bulge between a thin elbow and a thin
+    forearm. With `dq`, the ring of an inner elbow keeps its radius, so an arm that bends further
+    than the bind folds the inner elbow."""
     rule = config.get('bind', {})
     blend = rule.get('blend', 'linear')
     if blend not in ('linear', 'dq'):
@@ -3277,7 +3271,7 @@ def recline(angle):
 def hip_angle(heads):
     """Gives the hip angle from the side, in degrees: the angle between the trunk axis from the
     middle of the hip joints to the neck joint and the thigh axis from the left hip joint to the
-    left knee joint, as `hip-probe.ts` of `docs/research/2026-10-16-seat-rest/` measures it."""
+    left knee joint."""
     hip = (heads['thigh_L'] + heads['thigh_R']) / 2
     trunk = (heads['neck'] - hip)[[2, 1]]
     thigh = (heads['shin_L'] - heads['thigh_L'])[[2, 1]]
@@ -3360,7 +3354,7 @@ def bind_turns(config, heads, ends, rolls, turn=0.0):
             # A recline moves the root of the tail down with the pelvis, and the root keeps its
             # direction, so that its underside lies on the seat (`seat_lift()`). The tip turns up
             # or down in its vertical plane until its end is at the height of the end of the tail
-            # of the upright bind, so that it hangs behind the chair as before.
+            # of the upright bind, so that it hangs behind the chair as with no recline.
             straight = bind_turns(config, heads, ends, rolls)
             tip = ends[TAIL_TIP] - heads[TAIL_TIP]
             end = posed_heads(heads, straight)[TAIL_TIP] + straight[TAIL_TIP] @ tip
@@ -3550,7 +3544,7 @@ def knee_relax(bind, tris, weights, heads, rule):
     `inner` units with the unit sum of the directions from the knee to the hip joint and to the
     ankle. A vertex moves by its share of the weight of the thigh and the shin of its side, less
     its share of the hips: on a short leg, the crotch lies near the knee, and a move of its thin
-    faces folded them. With `fair`, the calf back of each side is faired after the smoothing
+    faces folds them. With `fair`, the calf back of each side is faired after the smoothing
     (`calf_fair()`). Gives the smoothed bind, the number of the seam vertices, the number of
     the moved vertices, the largest move, the number of the faired vertices, and the largest
     move of the fair."""
@@ -4431,9 +4425,9 @@ def raise_shape(rule, bind, tris, weights, heads, down, sheet, earlier=(), upper
             log(f'raise {side}: the valley fill moves {int((lift > 0).sum())} vertices out, at '
                 f'most {lift.max(initial=0.0):.4f} u')
     if 'smooth' in rule:
-        # The rebuilt arm tubes of the hippo showed lumps and dents in the rest pose, where the
-        # arm turns far from the bind (user, 2026-10-28: "the hippo's arm is still not fixed").
-        # Each vertex moves by its weight on the arm bones before the paw.
+        # Without the smooth, the rebuilt arm tubes of the hippo show lumps and dents in the rest
+        # pose, where the arm turns far from the bind. Each vertex moves by its weight on the arm
+        # bones before the paw.
         share = np.zeros(len(bind))
         parts = [part for bone in ('clavicle', 'upper_arm', 'forearm', 'forearm_twist')
                  for part in (bone, *(SEGMENTS_OF[bone] if segmented else ()))]
@@ -4464,7 +4458,7 @@ def fill_valleys(points, tris, share, rule):
     in. In each of `rounds` rounds, a vertex that lies under the middle of its neighbors along its
     normal (the area sum of the normals of its faces) moves out along that normal by `step` of
     that depth, times its `share`. A vertex on a ridge keeps its place, so the round front of an
-    arm root does not shrink: a smoothing of the skin in the pose pulled it into a dark pocket.
+    arm root does not shrink: a smoothing of the skin in the pose pulls it into a dark pocket.
     Gives the new places and the length of the move of each vertex."""
     neighbors = [set() for _ in range(len(points))]
     for a, b, c in tris:
@@ -5091,9 +5085,8 @@ def main():
         f'{turned_on(dots, main_bone)}')
     if 'bindSmooth' in config:
         # The seated bind bends each elbow far, and the inner elbow folds into a lip, which the
-        # bind mesh of the GLB file shows (user, 2026-10-28: "the hippo's arm has unexpected bump
-        # near the elbow"). The rule of `arm_smooth()` smooths the bind mesh of the bones of the
-        # rule after the relax.
+        # bind mesh of the GLB file shows as a bump near the elbow. The rule of `arm_smooth()`
+        # smooths the bind mesh of the bones of the rule after the relax.
         bind, count, largest = arm_smooth(bind, tris, weights, config['bindSmooth'])
         dots = turn_dots(long_verts, bind, tris, weights, upright_matrices)
         log(f'bindSmooth: {count} vertices of the bind elbows, at most {largest:.4f} u, '
@@ -5370,8 +5363,7 @@ def main():
             f'elbow joints, the wrist joints, or at the knee joints take the normals of the skin '
             f'in the app')
     if raised:
-        # One rule writes one pose, as the files before the list of rules did, so that their bytes
-        # stay.
+        # A config whose `raise` is one rule writes one pose, and a list of rules writes a list.
         extras['raise'] = raised if isinstance(config['raise'], list) else raised[0]
     if upper_share is not None:
         # `pnpm studio-body` writes the share into the body, and the app gives the body the twist

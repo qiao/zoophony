@@ -1,18 +1,17 @@
-"""Replays the Blender session that rebuilt the arms of the bear conductor.
+"""Replays the Blender session that rebuilds the arms of the bear conductor.
 
-On 2026-10-25 the user said: "the bear's arm has unnatural facets underneath". The long thin
-faces of the arms of `bear-tpose.glb` folded into dark shards under the raised forearm, and the
-inner elbow of the bind collapsed into a hollow. The user allowed loop edges, retopology, and extra
-bones for the arm and wrist twist on 2026-10-24. This script repeats the steps of
+The long thin faces of the arms of `bear-tpose.glb` fold into dark shards under the raised
+forearm, and the inner elbow of the bind collapses into a hollow. The rebuild uses loop edges,
+retopology, and extra bones to fix the arm and wrist twist. This script repeats the steps of
 `wind_arms.py` with the settings of the bear (`BEAR`):
 
-1. Import the mesh of the user and Merge by Distance.
+1. Import the mesh and Merge by Distance.
 2. Replace the faces of each arm from the shoulder line to the wrist with a quad tube, wrap it onto
    the source arm, bridge it to the trunk and to the paw, beautify the bridge triangles, and
    collapse the thin faces at the cut loops.
 3. Give the new arm faces a UV layout, and bake the fur color of the source arm. Then make the
    inner side of each upper arm a little flatter (`step_flatten()` of `elephant_arms.py`),
-   because the thick upper arm went into the round belly when it came down. Then transfer the
+   because the thick upper arm goes into the round belly when it comes down. Then transfer the
    custom normals of the source surface.
 4. Keep the length and the cross-section of the arms (`factor` 1, `slim` 1), put the arm image in
    a strip of the atlas, and write `bear-arms.glb`.
@@ -20,9 +19,8 @@ bones for the arm and wrist twist on 2026-10-24. This script repeats the steps o
    and paint the fixes with the Weight Paint tools.
 6. Write the weights for `paintedWeights` of the config (`bear-weights.json`).
 
-The faces of the paws, the trunk, the legs, and the head stay the faces of the user. The file of
-the user, `bear-tpose.glb`, stays unchanged. The decisions are in
-`docs/decisions/2026-10-26-arm-fixes.md`.
+The faces of the paws, the trunk, the legs, and the head stay the faces of the source mesh. The
+source file, `bear-tpose.glb`, stays unchanged.
 
 Run it in a terminal from the root of the tree:
 
@@ -65,7 +63,7 @@ va = ea.va
 #: and the zone has the radius 0.12: nearer the trunk, or with a smaller radius, the cut found no
 #: closed loop around the arm. The forearm is 0.09 units long, so it has 4 inner rings. `flatten`
 #: moves the inner side of each upper arm toward its axis, along the mean direction of the corners
-#: that went into the belly (`probes/vertex-depth.ts` of `docs/research/2026-10-25-thick-arm-depth/`).
+#: that go into the belly.
 BEAR = {
     'config': 'tools/mesh-rigs/bear.json',
     'source': 'assets/models/bear/bear-tpose.glb',
@@ -112,9 +110,9 @@ def cut_planes(s, line, side):
     The last ring stands at the wrist joint at a right angle to the line halfway between the
     forearm and the paw (`violin_arms.arm_stations()`). The wrist plane of `violin_arms.py` stands
     at a right angle to the paw, which turns down from the forearm, so the band from the ring to
-    the cut loop was wide on the top of the wrist and thin on the palm side. The bind showed its
-    sharp edges as a notch on the top of each wrist (user, 2026-10-28: "the bear has a crease
-    around the wrist"). With the two planes parallel, the band is about as wide all around.
+    the cut loop is wide on the top of the wrist and thin on the palm side. The bind shows its
+    sharp edges as a crease on the top of each wrist. With the two planes parallel, the band is
+    about as wide all around.
     """
     shoulder, _ = CUT_PLANES(s, line, side)
     _, e, w, t = line
@@ -146,7 +144,7 @@ def step_smooth_wrist(s):
     bridge, then puts it back on the surface of the source arm (Shrinkwrap, Nearest Surface
     Point), as `smooth_wrists()` and `retopo_snap_wrists()` of `polar_bear_arms.py` do. The ring
     is round and the cut loop has the form of the paw, so the bridge keeps small steps. The smooth
-    alone pulls the band in, and the snap gives it the form of the mesh of the user. Gives the
+    alone pulls the band in, and the snap gives it the form of the source mesh. Gives the
     number of the band vertices."""
     import bmesh
     bpy = va.bpy
@@ -249,8 +247,8 @@ def step_weights(s):
 #: The steps of the session: the steps of `wind_arms.py`, with the clean steps of the shoulder
 #: first, the flatter inner upper arms after the bake, the paint fixes above, and the weights file
 #: above. The bake casts its rays from 0.006 units out of the tube (`step_bake()` of
-#: `violin_arms.py`). A flatten before the bake moved the tube up to 0.015 units into the source
-#: arm, the rays missed the source, and the bake wrote black under each armpit. After the bake, the
+#: `violin_arms.py`). A flatten before the bake moves the tube up to 0.015 units into the source
+#: arm, the rays miss the source, and the bake writes black under each armpit. After the bake, the
 #: flatten moves the vertices and keeps their texels.
 STEPS = tuple(
     out for step in wa.STEPS

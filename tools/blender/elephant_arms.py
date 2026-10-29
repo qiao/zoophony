@@ -1,18 +1,17 @@
-"""Replays the Blender session that rebuilt the arms of the elephant timpanist.
+"""Replays the Blender session that rebuilds the arms of the elephant timpanist.
 
-On 2026-10-24 the user allowed loop edges, retopology, and extra bones for the arm and wrist
-twist: "add loop edges and retopology and additional bones if needed to address them". The long
-faces of the A-pose arms of `elephant-apose.glb` showed dark slits and shards on both upper arms in
+The rebuild uses loop edges, retopology, and extra bones to fix the arm and wrist twist. The long
+faces of the A-pose arms of `elephant-apose.glb` show dark slits and shards on both upper arms in
 each moment of the timpanist. This script repeats the steps of `wind_arms.py` with the settings of
 the elephant (`ELEPHANT`):
 
-1. Import the mesh of the user and Merge by Distance.
+1. Import the mesh and Merge by Distance.
 2. Replace the faces of each arm from the shoulder line to the wrist with a quad tube, wrap it onto
    the source arm, bridge it to the trunk and to the paw, beautify the bridge triangles, and
    collapse the thin faces at the cut loops and under each armpit (`cleanPit`).
 3. Give the new arm faces a UV layout, and bake the fur color of the source arm. Then make the
    inner front of each upper arm a little flatter (`step_flatten()`), because the thick upper arm
-   went 2.9 cm into the round belly in the ready pose of the timpani. Then transfer the custom
+   goes 2.9 cm into the round belly in the ready pose of the timpani. Then transfer the custom
    normals of the source surface.
 4. Keep the length and the cross-section of the arms (`factor` 1, `slim` 1), put the arm image in
    a strip of the atlas, and write `elephant-arms.glb`.
@@ -20,9 +19,8 @@ the elephant (`ELEPHANT`):
    and paint the fixes with the Weight Paint tools.
 6. Write the weights for `paintedWeights` of the config (`elephant-weights.json`).
 
-The faces of the paws, the trunk, the legs, and the head stay the faces of the user. The file of
-the user, `elephant-apose.glb`, stays unchanged. The settings and the variants that failed are in
-`docs/research/2026-10-25-elephant-arms.md`.
+The faces of the paws, the trunk, the legs, and the head stay the faces of the source mesh. The
+source file, `elephant-apose.glb`, stays unchanged.
 
 Run it in a terminal from the root of the tree:
 
@@ -60,14 +58,14 @@ va = wa.va
 
 #: The settings of the elephant, with the keys of `ANIMALS` of `violin_arms.py` and
 #: `wind_arms.py`, in the units of the studio (1 unit from the soles to the skull top). The arm is
-#: about 0.1 units thick, so a cut plane with a tilt crossed the first ring, and a wrist cut at 0.1
-#: or 0.2 of the paw turned bridge faces over: `tilt` is 0 and `wrist` 0.3. The elbow rings stand
+#: about 0.1 units thick, so a cut plane with a tilt crosses the first ring, and a wrist cut at 0.1
+#: or 0.2 of the paw turns bridge faces over: `tilt` is 0 and `wrist` 0.3. The elbow rings stand
 #: `gap` from the joint, and the elbow helper of the config spans twice that length. The root
-#: Smooth spans the top of the shoulder, because its long faces folded in each pose. `flatten`
+#: Smooth spans the top of the shoulder, because its long faces fold in each pose. `flatten`
 #: moves the inner front of each upper arm 0.009 units toward its axis, along the mean direction
-#: of the corners that went into the belly. The move 0.008 left the right upper arm 1.5 cm in the
-#: belly at one sample, and 0.010 folded 7 faces of the left arm in the check of `rig-mesh` (4 with
-#: no flatten, `docs/research/2026-10-25-thick-arm-depth.md`).
+#: of the corners that go into the belly. The move 0.008 leaves the right upper arm 1.5 cm in the
+#: belly at one sample, and 0.010 folds 7 faces of the left arm in the check of `rig-mesh` (4 with
+#: no flatten).
 ELEPHANT = {
     'config': 'tools/mesh-rigs/elephant.json',
     'source': 'assets/models/elephant/elephant-apose.glb',
@@ -155,8 +153,8 @@ def step_weights(s):
 
 #: The steps of the session: the steps of `wind_arms.py`, with the flatter inner upper arms after
 #: the bake, and the weights file above. The bake casts its rays from 0.006 units out of the tube
-#: (`step_bake()` of `violin_arms.py`). A flatten before the bake moved the tube 0.009 units into
-#: the source arm, the rays missed the source, and the bake wrote black on the inner upper arms.
+#: (`step_bake()` of `violin_arms.py`). A flatten before the bake moves the tube 0.009 units into
+#: the source arm, the rays miss the source, and the bake writes black on the inner upper arms.
 #: After the bake, the flatten moves the vertices and keeps their texels.
 STEPS = tuple(
     out for step in wa.STEPS

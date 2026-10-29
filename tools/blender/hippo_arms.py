@@ -1,35 +1,34 @@
-"""Replays the Blender session that rebuilt the arms of the hippo bassist.
+"""Replays the Blender session that rebuilds the arms of the hippo bassist.
 
-On 2026-10-24 the user allowed loop edges, retopology, and extra bones for the arm and wrist twist
-("add loop edges and retopology and additional bones if needed to address them"). The hanging
-upper arm of the hippo mesh joins the side of the trunk down to about y 0.45, near the elbow, so
-the inner side of the arm lay inside the plane `armSplit` of the old rig, and the rig kept it on
-the trunk: a small dark slit opened on the belly beside the right arm at rest. The session of
-2026-10-25 therefore used the steps of `cat_arms.py` and `fox_arms.py`, in the live Blender
-through MCP, with an image after each step:
+The rebuild uses loop edges, retopology, and extra bones to fix the arm and wrist twist. The
+hanging upper arm of the hippo mesh joins the side of the trunk down to about y 0.45, near the
+elbow. A rig that splits the arm from the trunk at a plane (`armSplit`) keeps the inner side of
+the arm on the trunk, and a small dark slit opens on the belly beside the right arm at rest. So
+this script uses the steps of `cat_arms.py` and `fox_arms.py`, in the live Blender through MCP,
+with an image after each step:
 
-1. Import the mesh of the user and Merge by Distance.
+1. Import the mesh and Merge by Distance.
 2. Cut each arm along the seam where it meets the trunk and at the wrist (parallel to the last ring
-   of the tube since 2026-10-28, `cut_planes()`), delete the thin ears at the edge of the hole
+   of the tube, `cut_planes()`), delete the thin ears at the edge of the hole
    (`step_trim()`), fill a side wall of the trunk under the arm, triangulate the trunk faces at
    the cut loops (`step_triangulate()`), collapse the thin faces at the cut loops, and model a
    quad tube with a flat inner side on the wall.
 3. Shrinkwrap, Bridge Edge Loops, Beautify Faces, Collapse Edges on the thin bridge faces and on
    the thin faces of the seam (`step_clean_seam()`), Smooth Vertices on the band of each wrist
-   (`step_smooth_wrist()`, 2026-10-28), UV, the bake of the fur color, and the transfer of the
+   (`step_smooth_wrist()`), UV, the bake of the fur color, and the transfer of the
    custom normals.
-4. Make each arm `factor` times longer (`armFactor` 1.5 of the rig config before), mend the UVs
-   of the trunk faces that span two islands (`step_torn_uv()`), put the arm image in a strip of
-   the atlas, give the inner side the fur color of the trunk, and write `hippo-arms.glb`.
+4. Make each arm `factor` times longer, mend the UVs of the trunk faces that span two islands
+   (`step_torn_uv()`), put the arm image in a strip of the atlas, give the inner side the fur color
+   of the trunk, and write `hippo-arms.glb`.
 5. Add the studio skeleton with the arm segments and the helpers, parent with automatic weights,
    and paint the fixes of `cat_arms.step_paint()` with the Weight Paint tools. Then take the lower
    trunk bones off the arm vertices (`step_tube_trunk()`), and the wrist helper off the paws and
    the hand off the rings before the wrist (`step_wrist()`). The fingers keep half of their weight
-   (`fox_arms.step_fingers()`), as the rule `weights.fingers` of the old rig.
+   (`fox_arms.step_fingers()`), as the rule `weights.fingers` of a rig config.
 6. Write the weights for `paintedWeights` of the config (`hippo-weights.json`).
 
-The faces of the paws, the trunk, the legs, and the head stay the faces of the user. The file of
-the user, `hippo.glb`, stays unchanged.
+The faces of the paws, the trunk, the legs, and the head stay the faces of the source mesh. The
+source file, `hippo.glb`, stays unchanged.
 
 Run it in a terminal from the root of the tree:
 
@@ -54,17 +53,17 @@ va = ca.va
 #: (1 unit from the soles to the top of the ears). The crease where the arm meets the trunk lies at
 #: |x| 0.173 to 0.199 from y 0.46 to 0.56, so the plane of the seam stands at |x| 0.172 at y 0.5
 #: and leans out 0.15 for each unit down: with |x| 0.205 and 0.19, flaps of the inner side of the
-#: arm stayed on the trunk. The forearm is about 0.07 units thick, so `seam.reach` is 0.075, and
+#: arm stay on the trunk. The forearm is about 0.07 units thick, so `seam.reach` is 0.075, and
 #: the plane `seam.under` keeps the round belly under it on the trunk. The socket reaches the top of
 #: the shoulder, 0.17 units from the shoulder joint (`seam.hole`). The bridge faces of the shoulder
 #: lie up to 0.02 units inside the source surface, so the bake rays reach 0.08 units (`bake`): with
-#: 0.017, black patches stayed on the shoulders. The elbow rings stand 0.026 units from the joint
-#: (0.022 folded more), and the weights take 4 rounds of Smooth (`seam.ramp`): 10 rounds spread
+#: 0.017, black patches stay on the shoulders. The elbow rings stand 0.026 units from the joint
+#: (0.022 folds more), and the weights take 4 rounds of Smooth (`seam.ramp`): 10 rounds spread
 #: the weights of the short arm over four segments at the elbow. Only the rings of the upper arm
 #: take the chest share of the anchor (`anchor.rings`): the forearm lies near the side wall too.
 #: The wrist cut lies 0.25 of the paw from the wrist joint, parallel to the last ring
-#: (`cut_planes()`): with 0.15, 0.2, and 0.3, the cut left a thin face on a paw or at a socket
-#: that folded in each play sample (`docs/research/2026-10-28-hippo-arm.md`).
+#: (`cut_planes()`): with 0.15, 0.2, and 0.3, the cut leaves a thin face on a paw or at a socket
+#: that folds in each play sample.
 HIPPO = {
     'config': 'tools/mesh-rigs/hippo.json',
     'source': 'assets/models/hippo/hippo.glb',
@@ -103,11 +102,10 @@ def cut_planes(s, line, side):
     forearm and the paw (`violin_arms.arm_stations()`). The plane of the wrist cut of
     `violin_arms.py` stands at a right angle to the paw. The paw of the hippo is short and turns
     about 35 degrees from the forearm, and the wrist is about 0.06 units thick, so that plane
-    crossed the plane of the last ring on the inner side of the turn. The bridge from the ring to
-    the cut loop then went back toward the elbow, as a lip with a dark slit under it, and the play
-    showed it as a pale band or a dark slit around the wrist (user, 2026-10-28: "also the hippo's
-    arm is messed up"). With the two planes parallel, the bridge is an even band of the width
-    `cut.wrist` of the paw.
+    crosses the plane of the last ring on the inner side of the turn. The bridge from the ring to
+    the cut loop then goes back toward the elbow, as a lip with a dark slit under it, and the play
+    shows it as a pale band or a dark slit around the wrist. With the two planes parallel, the
+    bridge is an even band of the width `cut.wrist` of the paw.
     """
     shoulder, _ = CUT_PLANES(s, line, side)
     _, e, w, t = line
@@ -407,7 +405,7 @@ def step_wrist(s):
 
 
 def step_weights(s):
-    """Writes the weights file (`cat_arms.step_weights()`), with the note of this session."""
+    """Writes the weights file (`cat_arms.step_weights()`), with a note that names this script."""
     count = ca.step_weights(s)
     path = os.path.join(s.out_dir, 'hippo-weights.json')
     with open(path) as f:
@@ -423,8 +421,8 @@ def step_weights(s):
 #: The steps of the session: the steps of `cat_arms.py`, with the clean of the cut loops after the
 #: side wall, the clean of the bridge after Beautify Faces, and the share of the fingers after the
 #: paint, as in `fox_arms.py`, and the weights file above. The belly step of the cat
-#: (`cat_arms.step_belly()`, 2026-10-27) is not a step of the hippo session: the hippo has no
-#: `belly` rule, and the step stopped the replay with a KeyError.
+#: (`cat_arms.step_belly()`) is not a step of the hippo session: the hippo has no `belly` rule,
+#: and the step stops the replay with a KeyError.
 STEPS = tuple(out for step in ca.STEPS
               for out in {ca.step_cut: (step_cut, step_trim),
                           ca.step_wall: (ca.step_wall, step_triangulate, fa.step_clean_cut),

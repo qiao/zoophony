@@ -1,5 +1,5 @@
 # Output: `assets/models/pig/pig-arms.glb`.
-"""Remodels the upper arms of a copy of the pig mesh of the user, in Blender (MCP or batch).
+"""Remodels the upper arms of a copy of the pig mesh, in Blender (MCP or batch).
 
 The source has no upper arm of its own: above the elbow, the arm is a bulge of the trunk wall. For
 each side, this script cuts the arm at a plane just below the elbow, where the arm is a separate
@@ -45,8 +45,7 @@ OPTIONS = {
     'rim': 2,
 }
 
-#: The joints of the left side in rig units (`tools/mesh-rigs/pig.json`), and the free arm axis of
-#: `docs/research/2026-10-19-pig-mesh/arm-axis.txt`.
+#: The joints of the left side in rig units (`tools/mesh-rigs/pig.json`), and the free arm axis.
 SHOULDER = (0.16, 0.56, 0.015)
 AXIS_POINT = (0.2516, 0.4102, 0.0676)
 AXIS = (0.4494, -0.799, 0.3995)

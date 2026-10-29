@@ -1,12 +1,12 @@
-"""Replays the Blender session that rebuilt the arms of the polar bear pianist.
+"""Replays the Blender session that rebuilds the arms of the polar bear pianist.
 
-On 2026-10-24 the user saw the rebuilt arms of the Rigify rabbit and said: "now apply similar
-techniques to the polars bear". The session made these steps in the live Blender through MCP,
-with an image after each step, and this script repeats them in the same order:
+The rebuild uses the quad arms of the Rigify rabbit. The session makes these steps in the live
+Blender through MCP, with an image after each step, and this script repeats them in the same
+order:
 
-1. Import the T-pose mesh of the user (`polar-bear-tpose.glb`) and Merge by Distance.
+1. Import the T-pose mesh (`polar-bear-tpose.glb`) and Merge by Distance.
 2. Replace the faces of each arm from the shoulder line to the wrist with a quad tube: Bisect at
-   the shoulder line and at the wrist (parallel to the last ring of the tube, since 2026-10-28),
+   the shoulder line and at the wrist (parallel to the last ring of the tube),
    Delete Faces, Collapse Edges of the thin faces at each wrist cut loop, a tube of
    `len(stations)` rings of `RING_VERTS`, Shrinkwrap onto the source arm, Bridge Edge Loops to the
    trunk and to the paw, Collapse Edges of the thin wrist bridge faces, Smooth Vertices on the band
@@ -73,7 +73,7 @@ def load_config():
 
 
 def import_mesh(source=SOURCE):
-    """Imports the mesh of the user and merges the vertices at its UV seams (Merge by Distance).
+    """Imports the source mesh and merges the vertices at its UV seams (Merge by Distance).
 
     The glTF import splits the vertices at each UV seam. Merge by Distance joins them again, as a
     rigger does before a retopology or automatic weights. The UVs stay on the face corners.
@@ -97,12 +97,11 @@ def seg_distance(p, a, b):
     return (p - (a + ab * t)).length
 
 
-# The retopology of the arms. The user approved quad arms for the Rigify rabbit, and asked for the
-# same on the polar bear on 2026-10-24. The cuts, in the units of the studio: the shoulder line at
-# the share `shoulder` of the upper arm from the shoulder joint (x 0.154, where the T-pose arm is
-# free of the trunk), and the wrist at the share `wrist` of the paw from the wrist joint, along the
-# axis of the last ring of the tube (`cut_planes()`). The faces of the trunk, the head, the legs,
-# and the paws stay.
+# The retopology of the arms: quad arms, as on the Rigify rabbit. The cuts, in the units of the
+# studio: the shoulder line at the share `shoulder` of the upper arm from the shoulder joint
+# (x 0.154, where the T-pose arm is free of the trunk), and the wrist at the share `wrist` of the
+# paw from the wrist joint, along the axis of the last ring of the tube (`cut_planes()`). The
+# faces of the trunk, the head, the legs, and the paws stay.
 ARM_CUT = {'shoulder': 0.15, 'wrist': 0.25}
 
 # The quad tube: `RING_VERTS` vertices in each ring. Rings at the shares `UPPER_RINGS` of the upper
@@ -139,13 +138,11 @@ def cut_planes(line):
 
     The wrist plane stands parallel to the last ring of the tube: the ring stands at the wrist
     joint at a right angle to the line halfway between the forearm and the paw
-    (`arm_stations()`). The paw of the T-pose turns about 14 degrees down from the forearm. The
-    plane of 2026-10-24 stood at a right angle to the paw, 0.1 of the paw from the joint, so the
-    band from the ring to the cut loop was 15 mm wide on the top of the wrist and 2 mm on the
-    palm side. Its thin faces turned sharp in the seated bind and showed as a crease around the
-    wrist (user, 2026-10-27: "there's a crease around the bear's wrist",
-    `docs/decisions/2026-10-27-polar-wrist.md`). With the two planes parallel, the band is about
-    as wide all around.
+    (`arm_stations()`). The paw of the T-pose turns about 14 degrees down from the forearm. With
+    a plane at a right angle to the paw, 0.1 of the paw from the joint, the band from the ring to
+    the cut loop is 15 mm wide on the top of the wrist and 2 mm on the palm side. Its thin faces
+    turn sharp in the seated bind and show as a crease around the wrist. With the two planes
+    parallel, the band is about as wide all around.
     """
     s, e, w, t = line
     axis = ((w - e).normalized() + (t - w).normalized()).normalized()
@@ -255,8 +252,8 @@ def clean_wrist_cut(bm, part, side):
     """Collapses the thin faces at the wrist cut loop of one side (Collapse Edges), before the tube.
 
     The Bisect splits each face that the plane crosses. Near a corner or along an edge, it leaves
-    loop vertices close together: on the left cut of 2026-10-24, loop vertices lay 1 degree or
-    less apart around the arm at three places. While a face at the loop has a corner below
+    loop vertices close together: on the left cut, loop vertices lie 1 degree or less apart
+    around the arm at three places. While a face at the loop has a corner below
     `CUT_ANGLE` and its shortest edge lies along the loop, that edge collapses to its middle. Gives
     the number of collapsed edges.
     """
@@ -474,10 +471,10 @@ def retopo_snap_wrists(mesh, source):
     """Puts the smoothed band of each wrist back on the surface of the source arm (Shrinkwrap,
     Nearest Surface Point), after `smooth_wrists()`.
 
-    The smooth pulls each vertex of the band toward the middle of its neighbors, so the wrist lost
-    about 4 mm of its radius, and the outline of the paw showed a waist at rest. The snap keeps the
-    spacing of the smooth along the surface and gives the band the form of the user mesh. Gives
-    the number of the snapped vertices.
+    The smooth pulls each vertex of the band toward the middle of its neighbors, so the wrist
+    loses about 4 mm of its radius, and the outline of the paw shows a waist at rest. The snap
+    keeps the spacing of the smooth along the surface and gives the band the form of the source
+    mesh. Gives the number of the snapped vertices.
     """
     bpy.context.view_layer.objects.active = mesh
     bpy.ops.object.mode_set(mode='EDIT')

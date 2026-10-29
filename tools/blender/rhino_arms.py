@@ -1,13 +1,12 @@
-"""Replays the Blender session that rebuilt the arms of the rhino tubist.
+"""Replays the Blender session that rebuilds the arms of the rhino tubist from the A-pose mesh.
 
-On 2026-10-26 the user said: "the rhino's arms are stretched / twisted in unnatural ways". The
-A-pose mesh `rhino-apose.glb` had long thin faces along each forearm, and the rig had only two
-bones along the forearm: each one took half of a paw turn of up to 169°, so the skin of the
-forearm collapsed into a twisted band. The user allowed loop edges, retopology, and extra bones
-for the arm and wrist twist on 2026-10-24. This script repeats the steps of `wind_arms.py` with
-the settings of the rhino (`RHINO`), as `bear_arms.py` does for the bear:
+The A-pose mesh `rhino-apose.glb` has long thin faces along each forearm. With only two bones
+along the forearm, each one takes half of a paw turn of up to 169°, so the skin of the forearm
+collapses into a twisted band. The rebuild uses loop edges, retopology, and extra bones to fix
+the arm and wrist twist. This script repeats the steps of `wind_arms.py` with the settings of the
+rhino (`RHINO`), as `bear_arms.py` does for the bear:
 
-1. Import the mesh of the user and Merge by Distance.
+1. Import the mesh and Merge by Distance.
 2. Replace the faces of each arm from the shoulder line to the wrist with a quad tube, wrap it onto
    the source arm, bridge it to the trunk and to the paw, beautify the bridge triangles, and
    collapse the thin faces at the cut loops and under each armpit.
@@ -23,9 +22,8 @@ the settings of the rhino (`RHINO`), as `bear_arms.py` does for the bear:
    wrist helper (`step_paw()`), and the neck off the clavicles (`step_neck()`).
 6. Write the weights for `paintedWeights` of the config (`rhino-apose-weights.json`).
 
-The faces of the paws, the trunk, the legs, and the head stay the faces of the user. The file of
-the user, `rhino-apose.glb`, stays unchanged. The decisions are in
-`docs/decisions/2026-10-26-fifth-review-rhino.md`.
+The faces of the paws, the trunk, the legs, and the head stay the faces of the source mesh. The
+source file, `rhino-apose.glb`, stays unchanged.
 
 Run it in a terminal from the root of the tree:
 
@@ -61,15 +59,15 @@ ea = load_elephant_arms()
 wa = ea.wa
 va = ea.va
 
-#: The name of the session: the files are `rhino-apose-arms.glb` and `rhino-apose-weights.json`,
-#: because `rhino-arms.glb` is the copy of the first mesh of 2026-10-22.
+#: The name of the session. It gives the names of the files `rhino-apose-arms.glb` and
+#: `rhino-apose-weights.json`.
 NAME = 'rhino-apose'
 
 #: The settings of the rhino, with the keys of `ANIMALS` of `violin_arms.py` and `wind_arms.py`,
 #: in the units of the studio (1 unit from the soles to the top of the ears). The arm is about
 #: 0.13 units thick and 0.11 units long, thicker than the arm of the elephant, so the cut planes
 #: have no tilt and the wrist cut lies at 0.3 of the paw. The right arm has a closed loop around it
-#: only from 0.4 of the upper arm (`loops-rhino.txt` of `docs/research/2026-10-25-beaver-rhino-arms/`).
+#: only from 0.4 of the upper arm.
 #: The elbow rings stand `gap` from the joint, and the elbow helper of the config spans twice that
 #: length. `paw` is the distance beyond the wrist joint from which a vertex of the paw leaves the
 #: wrist helper (`step_paw()`), and `neck` the box of the neck that leaves the clavicles
@@ -100,10 +98,9 @@ RHINO = {
 def step_flatten(s):
     """Makes the inner lower side of each upper arm a little flatter, as `step_flatten()` of
     `elephant_arms.py` does, and also moves the vertices of the cut loop of the shoulder line in
-    the cone. The vertices of the upper arm that went deepest into the belly with the elbows down
-    lie from the cut loop (0.4 of the upper arm) to the elbow, on the inner lower side
-    (`vertex-depth.ts` of `docs/research/2026-10-25-thick-arm-depth/probes/`). Gives the number of
-    the selected vertices."""
+    the cone. The vertices of the upper arm that go deepest into the belly with the elbows down
+    lie from the cut loop (0.4 of the upper arm) to the elbow, on the inner lower side. Gives the
+    number of the selected vertices."""
     import math
 
     from mathutils import Vector
@@ -250,8 +247,8 @@ def main():
     wa.ANIMALS[NAME] = RHINO
     va.clear_scene()
     s = wa.Session(NAME, out_dir)
-    # The config of main has no arm segments yet: the session gives the skeleton the helper of
-    # twice the elbow gap, as the config of the rebuilt rig does.
+    # When the config has no arm segments, the session gives the skeleton the helper of twice the
+    # elbow gap, as the config of the rebuilt rig does.
     s.config.setdefault('armSegments', {'helper': 2 * RHINO['gap']})
     run_steps(s)
     print('rhino_arms: wrote %s-arms.glb and %s-weights.json into %s' % (NAME, NAME, s.out_dir))
