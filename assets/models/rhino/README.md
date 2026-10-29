@@ -1,9 +1,8 @@
 # Rhino model
 
 This folder holds the rhino meshes that the user gave, and copies of them. The app does not serve
-them. The rig uses `rhino-apose-arms.glb`, a copy of `rhino-apose.glb` with rebuilt arms, since
-2026-10-27. The T-pose mesh `rhino-tpose.glb` of 2026-10-28 waits for its hold fit. The other files
-stay as the record of the earlier rounds.
+them. The rig uses `rhino-tpose-arms.glb`, a copy of `rhino-tpose.glb` with rebuilt arms, since
+2026-10-28. The other files stay as the record of the earlier rounds.
 
 ## rhino-apose.glb
 
@@ -32,7 +31,7 @@ shasum -a 256 assets/models/rhino/rhino-apose.glb
 `rhino-tpose.glb` is a mesh with no skeleton, with the arms in a T-pose: level and out to the
 sides. The user gave it on 2026-10-28 and said: "use the rhino model at
 /Users/xueqiaoxu/Downloads/Meshy_AI_rhino_tpose_3k_triang_1029050510_texture.glb". The file is the
-file of the user, byte for byte. The rig does not use it yet
+file of the user, byte for byte. The rig uses its copy `rhino-tpose-arms.glb`
 (`docs/research/2026-10-28-rhino-tpose.md`).
 
 | Item | Value |
@@ -48,6 +47,28 @@ The weld at 1e-5 gives 1,560 vertices. The cuts are in `docs/research/2026-10-28
 
 ```bash
 shasum -a 256 assets/models/rhino/rhino-tpose.glb
+```
+
+## rhino-tpose-arms.glb and rhino-tpose-weights.json
+
+`rhino-tpose-arms.glb` is a copy of `rhino-tpose.glb` with new arms, made on 2026-10-28. The rig
+config reads it, with the weights `rhino-tpose-weights.json` of the same Blender session.
+`tools/blender/rhino_tpose_arms.py` replays the session, byte for byte. The copy replaces the faces
+of each arm from 0.4 of the upper arm to 0.3 of the paw with a quad tube, wrapped onto the source
+arm and bridged to the trunk and to the paw, with the steps of the T-pose bear
+(`tools/blender/bear_arms.py`). The arm faces take the fur color of the source arm (a bake into a
+strip of the atlas). The faces of the paws, the trunk, the legs, and the head are the faces of the
+user.
+
+| Item | Value |
+|---|---|
+| `rhino-tpose-arms.glb` | 967,148 bytes, SHA-256 `8f6f5fa8f7e9b835702005fdbd16878a5b7157a85fb977ee7165948879af9fa4` |
+| `rhino-tpose-weights.json` | 429,599 bytes, SHA-256 `0ab29c9964a414d0ed9e62729e74429c9f59382cd46aa71ad1ce9527ce51e297` |
+| Weights | The automatic weights of Blender with the Weight Paint fixes of the session, for `paintedWeights` of the config |
+| License | Derived from the mesh of the user, who holds its rights |
+
+```bash
+shasum -a 256 assets/models/rhino/rhino-tpose-arms.glb assets/models/rhino/rhino-tpose-weights.json
 ```
 
 ## rhino-apose-arms.glb
