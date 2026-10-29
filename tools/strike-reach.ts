@@ -35,7 +35,7 @@ export function isPercussion(instrument: string): instrument is PercussionInstru
 }
 
 /** The strikes of the players of one species on one percussion instrument over the demos. */
-export interface StrikeReach {
+interface StrikeReach {
   /** The demos with a player of the species on the instrument. */
   readonly demos: readonly string[];
   /** The number of strikes of both hands. */

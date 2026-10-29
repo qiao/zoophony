@@ -64,16 +64,16 @@ import { createScenePose, poseAt } from '../src/pose/pose-at.ts';
 import { PLAYING, allAudible, sceneOf } from '../src/pose/test-scene.ts';
 
 /** The azimuths of the views, in degrees: the front, two fronts at 35°, and the side. */
-export const VIEW_AZIMUTHS: readonly number[] = [0, 35, -35, 90];
+const VIEW_AZIMUTHS: readonly number[] = [0, 35, -35, 90];
 
 /** The azimuths that take the place of a view that a stand or another player hides, in order. */
-export const SPARE_AZIMUTHS: readonly number[] = [60, -60, -90, 120, -120, 20, -20, 180];
+const SPARE_AZIMUTHS: readonly number[] = [60, -60, -90, 120, -120, 20, -20, 180];
 
 /**
  * The parts of the gate that the views read. `tools/arm-check.ts` passes them, because a static
  * import of the gate from this module would wait for the top-level await of the gate.
  */
-export interface GateParts {
+interface GateParts {
   /** The limits (`ARM_LIMITS`). */
   readonly limits: typeof ARM_LIMITS;
   /** Gives the vertices of the faces of an arm (`armVertices()`). */
@@ -83,7 +83,7 @@ export interface GateParts {
 }
 
 /** The shortest gap between the notes of a seat that gives a rest frame, in seconds. */
-export const REST_GAP_SEC = 1.5;
+const REST_GAP_SEC = 1.5;
 
 /** The earliest song time of a frame, in seconds, after the seek lead of `close-views play`. */
 const FRAME_FROM_SEC = 5;
@@ -101,7 +101,7 @@ const FRAME_END_MARGIN_SEC = 0.05;
  * @param frame The frame.
  * @returns The frame, with its time and reason changed when the time is too late.
  */
-export function frameInDemo(frame: Frame): Frame {
+function frameInDemo(frame: Frame): Frame {
   const last = Number((DEMOS[frame.demo].lengthSec - FRAME_END_MARGIN_SEC).toFixed(2));
   if (frame.time <= last) {
     return frame;

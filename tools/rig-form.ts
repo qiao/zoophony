@@ -38,7 +38,7 @@ function isInstrument(text: string): text is InstrumentId {
 }
 
 /** A player of `--player`: a species with an instrument. */
-export interface FormPlayer {
+interface FormPlayer {
   /** The species. */
   readonly species: SpeciesId;
   /** The instrument. */
@@ -99,7 +99,7 @@ export interface DemoStage {
 export const FORM_FORMAT = 2;
 
 /** The bones that carry the pieces of an instrument (design 4.7). */
-export const INSTRUMENT_BONES = [
+const INSTRUMENT_BONES = [
   'instrument',
   'slide',
   'bow',
@@ -147,7 +147,7 @@ export interface FormJson {
 }
 
 /** The top and the chin of the head of a player. */
-export interface HeadExtent {
+interface HeadExtent {
   /** The highest corner of the head bone, in meters above the floor. */
   readonly top: number;
   /** The lowest corner of the head bone, in meters above the floor. */

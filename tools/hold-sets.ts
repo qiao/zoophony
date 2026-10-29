@@ -469,7 +469,7 @@ function parseValue(old: HoldValue, text: string, path: string, field: string): 
 }
 
 /** A change of a hold in memory. */
-export interface HoldChange {
+interface HoldChange {
   /** Puts the old value back. */
   readonly undo: () => void;
   /** The text of the old value. */
@@ -485,7 +485,7 @@ export interface HoldChange {
 }
 
 /** The changes of a list of `--set`. */
-export interface HoldChanges {
+interface HoldChanges {
   /** Puts all old values back. */
   readonly undo: () => void;
   /** The text of the list. */
@@ -493,7 +493,7 @@ export interface HoldChanges {
 }
 
 /** The names of the holds that `--set` can change. */
-export const HOLD_NAMES = Object.keys(HOLDS);
+const HOLD_NAMES = Object.keys(HOLDS);
 
 /**
  * The scales of the instruments of a species that `--set` can change, with the id of the species
@@ -501,7 +501,7 @@ export const HOLD_NAMES = Object.keys(HOLDS);
  * 4.6). The tools build the players after the change, so the instrument, its grips, and its
  * shells follow the scale.
  */
-export const SCALE_KEYS = Object.values(SCALE_PARAMS);
+const SCALE_KEYS = Object.values(SCALE_PARAMS);
 
 /**
  * Changes the scale of an instrument of a species in memory, such as `mouse.oboeScale=0.8`. A

@@ -31,7 +31,7 @@ import {
 import type { AnimalSettings } from './studio-body.ts';
 
 /** The largest error of the standing body against the long-armed source, in meters. */
-export const STANDING_LIMIT = 0.001;
+const STANDING_LIMIT = 0.001;
 
 /**
  * The joints of the limbs that the check of the thin faces looks at: the bone that starts at the
@@ -60,7 +60,7 @@ export interface ThinRule {
 }
 
 /** A thin face near a joint of a limb. */
-export interface ThinFace {
+interface ThinFace {
   /** The index of the triangle in the packed mesh, as `pnpm fold-probe` counts the faces. */
   readonly face: number;
   /** The bone that starts at the nearest joint, such as `forearm_L`. */
@@ -148,14 +148,14 @@ export function thinFaces(
 }
 
 /** The bone chains whose lowest point above the floor `--check` gives: each leg, and the tail. */
-export const FLOOR_CHAINS = [
+const FLOOR_CHAINS = [
   ['leg L', ['thigh_L', 'shin_L', 'foot_L', 'toes_L']],
   ['leg R', ['thigh_R', 'shin_R', 'foot_R', 'toes_R']],
   ['tail', ['tail', 'tail_tip']],
 ] as const satisfies readonly (readonly [string, readonly StudioBone[]])[];
 
 /** The lowest point of a bone chain above the floor. */
-export interface ChainLow {
+interface ChainLow {
   /** The name of the chain, such as `leg L`. */
   readonly chain: string;
   /** The height of the lowest point above the floor, in meters. */
@@ -197,7 +197,7 @@ export function chainLows(mesh: Pick<StudioMesh, 'positions' | 'joints' | 'weigh
 }
 
 /** The posed vertex of the standing body with the largest error against the source. */
-export interface WorstVertex {
+interface WorstVertex {
   /** The index of the vertex in the packed mesh of the studio body. */
   readonly index: number;
   /** The distance of the vertex from the nearest vertex of the source, in meters. */
@@ -207,7 +207,7 @@ export interface WorstVertex {
 }
 
 /** The error of the standing body of the app against the long-armed source of the rig. */
-export interface StandingError {
+interface StandingError {
   /** The largest distance of a posed vertex from the nearest vertex of the source, in meters. */
   readonly worst: number;
   /**
@@ -403,7 +403,7 @@ export function noseWarning(body: Pick<StudioBody, 'nose'>): string | null {
 }
 
 /** The measures of a rig for `--check`. */
-export interface RigMeasures {
+interface RigMeasures {
   /** The triangles of the packed mesh. */
   readonly triangles: number;
   /** The studio body with the settings of the animal. */

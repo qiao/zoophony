@@ -28,13 +28,13 @@ import { FOLD_ROLES, roleBodies } from './fold-probe.ts';
 import { probeDemos } from './probe-demos.ts';
 
 /** The first wall time of the samples, in seconds, after the start of the idle motion. */
-export const TAIL_FROM_SEC = 10;
+const TAIL_FROM_SEC = 10;
 
 /** The step of the wall time of the samples, in seconds. */
-export const TAIL_STEP_SEC = 0.25;
+const TAIL_STEP_SEC = 0.25;
 
 /** One part of the chair, with its name. */
-export interface ChairPart {
+interface ChairPart {
   /** The name of the part, such as `seat` or `top rail`. */
   readonly name: string;
   /** The box of the part, in meters, in the axes of the model. */
@@ -50,7 +50,7 @@ export interface ChairPart {
  * @param seatWidth The width of the seat, in meters.
  * @returns The parts.
  */
-export function chairParts(seatHeight: number, seatDepth: number, seatWidth: number): ChairPart[] {
+function chairParts(seatHeight: number, seatDepth: number, seatWidth: number): ChairPart[] {
   const back = chairBack(seatHeight, seatWidth);
   return [
     { name: 'seat', box: chairSeat(seatHeight, seatDepth, seatWidth) },
@@ -66,7 +66,7 @@ export function chairParts(seatHeight: number, seatDepth: number, seatWidth: num
  * @param box The box.
  * @returns The gap, in meters.
  */
-export function boxGap(p: Vector3, box: Bounds): number {
+function boxGap(p: Vector3, box: Bounds): number {
   const { min, max } = box;
   const outside = Math.hypot(
     Math.max(min[0] - p.x, 0, p.x - max[0]),
@@ -87,7 +87,7 @@ export function boxGap(p: Vector3, box: Bounds): number {
 }
 
 /** The tail of a role over one sway period. */
-export interface TailGaps {
+interface TailGaps {
   /** The demo of the samples. */
   readonly demo: string;
   /** The species of the body. */
@@ -109,7 +109,7 @@ export interface TailGaps {
  * @returns The gaps, or `null` when no demo has the role or the body has no tail.
  * @throws Error if the role is not a role of `FOLD_ROLES`.
  */
-export async function tailGaps(role: string): Promise<TailGaps | null> {
+async function tailGaps(role: string): Promise<TailGaps | null> {
   const source = FOLD_ROLES.get(role);
   if (!source) {
     throw new Error(`No role ${role}. The roles: ${[...FOLD_ROLES.keys()].join(', ')}.`);
@@ -185,7 +185,7 @@ export async function tailGaps(role: string): Promise<TailGaps | null> {
  * @param gaps The gaps ({@link tailGaps}), or `null`.
  * @returns The lines.
  */
-export function tailLines(role: string, gaps: TailGaps | null): string[] {
+function tailLines(role: string, gaps: TailGaps | null): string[] {
   if (!gaps) {
     return [`The ${role} has no tail in a demo.`];
   }

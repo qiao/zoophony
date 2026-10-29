@@ -59,7 +59,7 @@ export function copiedTool(source: string): boolean {
 }
 
 /** The arguments of a probe with the option `--glb` taken out. */
-export interface GlbArgs {
+interface GlbArgs {
   /** The GLB file of `--glb`, as an absolute path, or `null` with no option. */
   readonly glb: string | null;
   /** The other arguments, in their order. */
@@ -151,7 +151,7 @@ export function glbAnimal(species: SpeciesId): string | null {
  * @param animal The animal, such as `polar-bear`.
  * @returns The name, such as `STUDIO_POLAR_BEAR`.
  */
-export function studioConstant(animal: string): string {
+function studioConstant(animal: string): string {
   return `STUDIO_${animal.toUpperCase().replaceAll('-', '_')}`;
 }
 
@@ -227,7 +227,7 @@ export function animalSpecies(animal: string): SpeciesId[] {
  * @returns The settings.
  * @throws Error if `ANIMALS` has no such animal and no rig config of the animal exists.
  */
-export function glbSettings(animal: string, file: string): AnimalSettings {
+function glbSettings(animal: string, file: string): AnimalSettings {
   const known = ANIMALS.get(animal);
   if (known) {
     return { ...known, glb: relative(ROOT, file) };
@@ -241,7 +241,7 @@ export function glbSettings(animal: string, file: string): AnimalSettings {
 }
 
 /** The studio body of a GLB file, and the text of its module. */
-export interface GlbModule {
+interface GlbModule {
   /** The body that the export makes from the file. */
   readonly body: StudioBody;
   /** The text of the module, before the formatter of the repository. */
@@ -283,7 +283,7 @@ const SCRATCH_MARK = '// A scratch addition of tools/glb-swap.ts for --glb.';
  * @returns The changed text.
  * @throws Error if the text has not exactly one start of `STUDIO_BODIES`.
  */
-export function withStudioBody(text: string, animal: string, constant: string): string {
+function withStudioBody(text: string, animal: string, constant: string): string {
   const start = 'export const STUDIO_BODIES = {';
   if (text.split(start).length !== 2) {
     throw new Error(`src/models/studio-body.ts has not exactly one "${start}".`);
@@ -307,7 +307,7 @@ export function withStudioBody(text: string, animal: string, constant: string): 
  * @returns The changed text.
  * @throws Error if the text has no `SPECIES`.
  */
-export function withSpeciesBody(
+function withSpeciesBody(
   text: string,
   species: SpeciesId,
   animal: string,
@@ -342,7 +342,7 @@ export function withSpeciesBody(
  * @returns The changed text.
  * @throws Error if the text has no `ANIMALS`.
  */
-export function withAnimalEntry(text: string, animal: string, settings: AnimalSettings): string {
+function withAnimalEntry(text: string, animal: string, settings: AnimalSettings): string {
   if (!text.includes('export const ANIMALS')) {
     throw new Error('tools/studio-body.ts has no "export const ANIMALS".');
   }
@@ -366,7 +366,7 @@ export function withAnimalEntry(text: string, animal: string, settings: AnimalSe
  * @param settings The settings of the export.
  * @throws Error if the animal has no studio body and is not a species.
  */
-export async function addScratchBody(
+async function addScratchBody(
   dir: string,
   animal: string,
   settings: AnimalSettings,

@@ -43,7 +43,7 @@ import { windHoldOf, windRig } from '../src/pose/winds.ts';
  * of the rest probe. The idle motion moves the bow tip of the rabbit by up to 0.8 cm between
  * them.
  */
-export const REST_WALLS: readonly number[] = [10, 13.7, 21.1, 29.3];
+const REST_WALLS: readonly number[] = [10, 13.7, 21.1, 29.3];
 
 /**
  * The bones of the skin under the lower end of an instrument with no bow, such as the flute of the
@@ -76,16 +76,16 @@ const TRUNK_BONES: readonly BoneName[] = ['hips', 'spine', 'chest'];
  * than this above its lowest corner is a corner of the lower end. The same length along the bow
  * from its frog end gives the corners of the frog end.
  */
-export const END_HEIGHT = 0.02;
+const END_HEIGHT = 0.02;
 
 /**
  * The step of the points along each edge of the bow, in meters. The stick is one long box, so its
  * corners alone miss a thigh or an arm that the middle of the stick goes through.
  */
-export const BOW_STEP = 0.01;
+const BOW_STEP = 0.01;
 
 /** The upright bow at the right side in one rest sample. */
-export interface BowRest {
+interface BowRest {
   /**
    * The angle of the bow from the vertical, from the frog to the tip, in degrees: above 90° with
    * the tip below the frog.
@@ -109,7 +109,7 @@ export interface BowRest {
  * -z, and its right is +x). The joints are the posed heads of the `upperArmR` bone (the shoulder
  * joint) and of the `forearmR` bone (the elbow joint).
  */
-export interface ArmRest {
+interface ArmRest {
   /** The height of the elbow joint above the shoulder joint, in meters: negative below it. */
   readonly rise: number;
   /**
@@ -132,7 +132,7 @@ export interface ArmRest {
 }
 
 /** The lap rest of a seated player in one rest sample. */
-export interface LapRest {
+interface LapRest {
   /**
    * The gap of the lower end of the instrument to the lap, in meters: 0 when a corner of the end is
    * in the body. With a bow, it is the height of the end above the left side of the top of the lap,
@@ -411,7 +411,7 @@ function trunkTriangles(posed: PosedSkeleton): Triangle[] {
  * @returns The right arm.
  * @throws Error if a bone of the arm has no frame.
  */
-export function armRest(posed: PosedSkeleton): ArmRest {
+function armRest(posed: PosedSkeleton): ArmRest {
   const at = (bone: BoneName): Vector3 => {
     const frame = posed.frames[boneIndex(bone)];
     if (!frame) {
@@ -451,7 +451,7 @@ export function armRest(posed: PosedSkeleton): ArmRest {
  * @param body The closed surface of the body, such as the obstacle `body` of the sweep.
  * @returns The lap rest, or `null` for a player with no corner of the `instrument` bone.
  */
-export function lapRest(posed: PosedSkeleton, body: ClosedSurface): LapRest | null {
+function lapRest(posed: PosedSkeleton, body: ClosedSurface): LapRest | null {
   const { bones } = posed.model.mesh;
   const instrument = boneIndex('instrument');
   const bowBone = boneIndex('bow');
@@ -570,7 +570,7 @@ export interface LapWorsts {
 export const PAW_PLACES = [0.45, 0.7] as const;
 
 /** The lap rest of one rest sample, with its name. */
-export interface LapSample {
+interface LapSample {
   /** The demo, the player, and the wall time, as {@link LapWorst.sample}. */
   readonly sample: string;
   /** The lap rest of the sample. */
@@ -792,7 +792,7 @@ function rebuiltNote(
  * @throws Error if the plan has no player at the index, or the player has no bowed string or wind
  *   instrument.
  */
-export function rebuiltRig(
+function rebuiltRig(
   plan: PosePlan,
   index: number,
   model: PlayerModel,
@@ -817,7 +817,7 @@ export function rebuiltRig(
  * @param pose The pose of the player.
  * @returns The folded faces by side, or none for a model with no studio rig.
  */
-export function studioFolds(model: PlayerModel, pose: AnimalPose): SideSplit {
+function studioFolds(model: PlayerModel, pose: AnimalPose): SideSplit {
   const rig = model.studio;
   const studio = poseStudioBones(
     rig,
@@ -832,7 +832,7 @@ export function studioFolds(model: PlayerModel, pose: AnimalPose): SideSplit {
 }
 
 /** The rest of one scan sample with the holds of now. */
-export interface ScanRest {
+interface ScanRest {
   /** The name of the sample ({@link ScanSample.sample}). */
   readonly sample: string;
   /** The lap rest of the sample ({@link lapRest}), or `null` for a player with no instrument. */
@@ -855,7 +855,7 @@ export interface ScanRest {
  * @param body The closed surface of the body.
  * @returns The depth, in meters: 0 with no corner in the body.
  */
-export function instrumentDepth(posed: PosedSkeleton, body: ClosedSurface): number {
+function instrumentDepth(posed: PosedSkeleton, body: ClosedSurface): number {
   const wanted = new Set(INSTRUMENT_PART.bones.map(boneIndex));
   const { bones } = posed.model.mesh;
   const corners: Vector3[] = [];

@@ -16,13 +16,13 @@ import type { PairDepth, PairGap, SweepVisit } from '../src/pose/test-sweep.ts';
 export const BOW_PART = 'bow';
 
 /** The name of the upper arms and the forearms as an obstacle of the bow. */
-export const ARMS_OBSTACLE = 'arms';
+const ARMS_OBSTACLE = 'arms';
 
 /** The name of the floor in the gap of the lowest point of the bow. */
-export const FLOOR = 'floor';
+const FLOOR = 'floor';
 
 /** The bow of a player in one sample. */
-export interface BowSample {
+interface BowSample {
   /** The depth of the deepest point of the bow in each obstacle, by its name, in meters. */
   readonly depths: ReadonlyMap<string, number>;
   /** The height of the lowest point of the bow above the floor, in meters: below 0 under it. */
@@ -40,7 +40,7 @@ export interface BowSample {
  * @param arms The closed surface of the upper arms and the forearms.
  * @returns The bow, or `null` for a player with no bow point.
  */
-export function measureBow(
+function measureBow(
   points: readonly Vector3[],
   surfaces: ReadonlyMap<string, ClosedSurface>,
   arms: ClosedSurface,
@@ -56,7 +56,7 @@ export function measureBow(
 }
 
 /** The deepest points and the lowest point of the bow over the samples of a sweep. */
-export interface BowSweep {
+interface BowSweep {
   /** Measures the bow of one posed sample. Give it to `sweepDepths()`. */
   readonly visit: SweepVisit;
   /**

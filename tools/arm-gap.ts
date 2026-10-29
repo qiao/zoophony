@@ -32,26 +32,26 @@ import type { Side, StudioBody, StudioMesh } from '../src/models/studio-format.t
 import { UPPER_TWIST_BONES, standingBody } from '../src/models/studio-rig.ts';
 
 /** The smallest share of the weight of a vertex on a group of bones that puts it in the group. */
-export const GAP_SHARE = 0.5;
+const GAP_SHARE = 0.5;
 
 /** The first place along the arm that counts: 0.35 of the upper arm, below the root. */
-export const GAP_FROM = 0.35;
+const GAP_FROM = 0.35;
 
 /**
  * The deepest end of the join of a good armpit, as a place along the arm. The arms of the known good
  * roles end their join at 0.52 to 0.78 of the upper arm, and the deer and the dog, whose seams
  * show shards, at 0.80 to 0.94.
  */
-export const JOIN_LIMIT = 0.79;
+const JOIN_LIMIT = 0.79;
 
 /** The part of the upper arm below the end of the join from which the gap counts. */
-export const GAP_BELOW = 0.1;
+const GAP_BELOW = 0.1;
 
 /** The gap below which an arm touches the trunk, in meters. */
-export const TOUCH_GAP = 0.005;
+const TOUCH_GAP = 0.005;
 
 /** How one arm meets the trunk. */
-export interface ArmGap {
+interface ArmGap {
   /** The side. */
   readonly side: Side;
   /** The places along the arm of the join, as the first and the last, or `null` for none. */
