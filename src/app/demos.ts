@@ -203,16 +203,3 @@ export function fileFromHash(hash: string, devServer: boolean): StageFile {
 export function demoHash(id: DemoId): string {
   return `#demo=${id}`;
 }
-
-/**
- * Selects the demo of the URL query `?demo=<id>` of the spike page (design 7.1). The app page
- * uses the URL hash ({@link fileFromHash}).
- *
- * @param search The query of the URL, for example `?demo=beethoven-9`.
- * @param fallback The demo for a missing or unknown id.
- * @returns The demo of the query, or the fallback.
- */
-export function demoFromQuery(search: string, fallback: DemoId = DEFAULT_DEMO): DemoId {
-  const value = new URLSearchParams(search).get('demo') ?? '';
-  return isDemoId(value) ? value : fallback;
-}

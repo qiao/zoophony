@@ -6,7 +6,6 @@ import {
   DEFAULT_DEMO,
   DEMOS,
   DEMO_IDS,
-  demoFromQuery,
   demoHash,
   demoRowLabel,
   demoUrl,
@@ -14,25 +13,6 @@ import {
   isDemoId,
 } from './demos.ts';
 import { wholeSeconds } from './time-text.ts';
-
-describe('demoFromQuery (design 7.1, the spike page)', () => {
-  it('selects the demo of the query', () => {
-    expect(demoFromQuery('?demo=beethoven-9')).toBe('beethoven-9');
-    expect(demoFromQuery('?x=1&demo=mozart-k525')).toBe('mozart-k525');
-  });
-
-  it('selects the default demo for a missing or unknown id (design 2.2)', () => {
-    expect(demoFromQuery('')).toBe('boulanger-matin');
-    expect(demoFromQuery('?demo=other')).toBe('boulanger-matin');
-  });
-
-  it('selects the given fallback for a missing or unknown id', () => {
-    expect(demoFromQuery('', 'beethoven-9')).toBe('beethoven-9');
-    expect(demoFromQuery('?demo=other', 'beethoven-9')).toBe('beethoven-9');
-    expect(demoFromQuery('?demo=beethoven-5', 'beethoven-9')).toBe('beethoven-9');
-    expect(demoFromQuery('?demo=mozart-k525', 'beethoven-9')).toBe('mozart-k525');
-  });
-});
 
 describe('fileFromHash (design 2.2)', () => {
   it('selects the demo of the hash', () => {
