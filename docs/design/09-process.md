@@ -38,6 +38,12 @@ GitHub Actions runs these checks:
 not deploy. It builds that commit with `ZOOPHONY_BASE=/zoophony/`, and each URL of the app starts
 from `import.meta.env.BASE_URL` or `import.meta.url`.
 
+`pnpm deploy:vercel` deploys the same build at the base path `/` to Vercel, with the cache
+headers of `vercel.json`. The files of `assets/` and the preset files have a content hash in their
+names, so they stay in the cache for one year with no new check. `index.html` and
+`sf/index.json` hold the new names, so the browser checks them on each load. The demo files keep
+their names, so they stay in the cache for one hour.
+
 ## 9.3 Tests
 
 All tests are paused, because they took too long while the project changes fast. The switch
