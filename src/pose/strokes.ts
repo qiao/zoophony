@@ -55,6 +55,16 @@ export const BOW_MOTION = {
    */
   fastSec: 0.25,
   /**
+   * The measured tremolo (`docs/reference/string-technique.md`, section 2.5): a run of at least
+   * `notes` normal strokes of one pitch, each shorter than `maxSec` (more than about 11 notes a
+   * second). A real player bows these notes with short strokes from the wrist and the fingers, so
+   * each stroke of the run moves the bow `travel` meters, multiplied by the gesture size, and the
+   * next stroke moves it back. With a bow of its own length for each note, the arm reversed up to
+   * 19 times a second (user, 2026-10-28: "the red fox's bow arm is going up and down too
+   * rapidly").
+   */
+  measured: { notes: 4, maxSec: 0.09, travel: 0.012 },
+  /**
    * The slur rule (`docs/reference/string-technique.md`, section 2.5). The MIDI files have no
    * slurs, so two to `notes` normal strokes in one beat join into one bow when each is shorter
    * than `maxSec` and each gap is shorter than `gapSec`. A note that starts at most `beatSlackSec`
@@ -336,6 +346,46 @@ function strokePitches(notes: readonly PlayerNote[], loudness: readonly number[]
   });
 }
 
+/**
+ * Tells for each stroke if it is a stroke of a measured tremolo (`BOW_MOTION.measured`): a run of
+ * at least `notes` normal strokes of one pitch, each shorter than `maxSec`, with each stroke
+ * starting the next within `maxSec`.
+ *
+ * @param strokes The strokes of the player, sorted by start.
+ * @returns For each stroke, `true` in a measured tremolo.
+ */
+function measuredTremolo(strokes: readonly StrokeNotes[]): boolean[] {
+  const { notes, maxSec } = BOW_MOTION.measured;
+  const short = (s: StrokeNotes | undefined): boolean =>
+    s !== undefined && s.technique === 'normal' && s.end - s.start < maxSec;
+  const out = strokes.map(() => false);
+  let k = 0;
+  while (k < strokes.length) {
+    let m = k;
+    for (;;) {
+      const here = strokes[m];
+      const next = strokes[m + 1];
+      if (
+        !here ||
+        !next ||
+        !short(here) ||
+        !short(next) ||
+        next.start - here.start >= maxSec ||
+        next.low !== here.low ||
+        next.high !== here.high
+      ) {
+        break;
+      }
+      m += 1;
+    }
+    if (m - k + 1 >= notes) {
+      out.fill(true, k, m + 1);
+    }
+    k = m + 1;
+  }
+  return out;
+}
+
 /** The times, the pitches, and the technique of a stroke, for the slur rule. */
 type SlurNote = StrokePitch & { readonly technique: Technique };
 
@@ -543,8 +593,9 @@ function bowInSlur(slur: BowSlur, time: number): number {
  * the notes. The bow changes direction on each bow: a note, or a slur of short notes in one beat
  * ({@link slurSizes}). A phrase starts with a down-bow at the frog. The length of a bow comes
  * from its length in time, and a little from the gesture size, and a fast bow moves toward the
- * balance point ({@link balanceShift}). In a fast run across two strings, the right elbow keeps
- * the mean string ({@link crossStrings}). Pizzicato strokes keep the bow where it is. A tremolo
+ * balance point ({@link balanceShift}). A stroke of a measured tremolo moves the bow only a short
+ * way ({@link measuredTremolo}). In a fast run across two strings, the right elbow keeps the mean
+ * string ({@link crossStrings}). Pizzicato strokes keep the bow where it is. A tremolo
  * stroke makes short fast strokes around the place of the bow. A stopped bowed note of at least
  * `LEFT_HAND.vibrato.minSec` gets vibrato.
  *
@@ -571,6 +622,7 @@ export function buildStrokes(
   const pitches = strokePitches(notes, loudness);
   const plan = planHand(pitches, TUNINGS[instrument], HAND_FRAMES[instrument], FINGERING_COSTS);
   const sizes = slurSizes(pitches, beats);
+  const measured = measuredTremolo(pitches);
   const arms = crossStrings(
     pitches.map((p, k) => ({
       start: p.start,
@@ -638,7 +690,9 @@ export function buildStrokes(
       const part = Math.min(l.max, Math.max(l.min, l.base + l.perSecond * duration));
       let travel = direction * part * span * (1 - l.loudness + l.loudness * gesture);
       const next = pitches[k + count];
-      if (next && next.start - p.start < m.fastSec) {
+      if (measured[k]) {
+        travel = direction * m.measured.travel * gesture;
+      } else if (next && next.start - p.start < m.fastSec) {
         travel += balanceShift(from, travel, low + m.balance.place * span);
       }
       to = Math.min(high, Math.max(low, from + travel));

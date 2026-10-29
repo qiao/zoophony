@@ -445,7 +445,9 @@ The code constants of each family hold the times, the angles, and the lengths of
     notes in one beat that change the pitch join into one bow (`slurSizes()`). A bow keeps its
     full speed until its last note, so the turn at the next bow is sharp. A louder note mostly
     moves the sounding point toward the bridge (`soundingPointAt()`), and a fast bow moves toward
-    the balance point (`balanceShift()`), as for real players. The bow turns to the plane of each
+    the balance point (`balanceShift()`), as for real players. In a measured tremolo, a run of
+    fast notes of one pitch, each stroke moves the bow only a short way (`measuredTremolo()`), as
+    a player bows it from the wrist. The bow turns to the plane of each
     string (`BowedHold.stringTurn`), and to the next string just before the note, as a violinist
     leads the bow change. In a fast run across two strings, the elbow stays on the mean string,
     and the forearm makes the crossing (`crossPole()`).

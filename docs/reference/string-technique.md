@@ -634,6 +634,14 @@ A round that changes the motion updates the items.
   `pose/strokes.ts` moves the middle of the bow 0.2 of the way to 0.45 of the bow range
   (`BOW_MOTION.balance`), and keeps the direction of the bow. A long note keeps the length of its
   rule.
+- **A measured tremolo moves the bow a short way** (section 2.5). A run of at least 4 notes of
+  one pitch, each shorter than 0.09 s, is a measured tremolo (`measuredTremolo()` of
+  `pose/strokes.ts`, `BOW_MOTION.measured`). Each stroke of the run moves the bow 1.2 cm,
+  multiplied by the gesture size, and the next stroke moves it back, so the arm stays nearly still
+  and only the hand moves. No source of this file gives the stroke length of a measured tremolo.
+  Before, each note of 0.05 s took a bow of 3 cm to 4 cm, and the bow arm reversed 19 times a
+  second in `boulanger-matin` (user, 2026-10-28: "the red fox's bow arm is going up and down too
+  rapidly").
 
 ### 3.3 The cello on the chair and at rest
 
