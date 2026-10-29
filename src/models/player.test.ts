@@ -15,7 +15,6 @@ import {
 } from './player.ts';
 import type { PlayerModel } from './player.ts';
 import { HIGH_STOOL, STOOL, chairBack } from './props.ts';
-import { proportionsOf } from './proportions.ts';
 import { SPECIES, SPECIES_IDS } from './species.ts';
 import { INSTRUMENT_IDS } from './instruments/catalog.ts';
 import { boneIndex } from './rig.ts';
@@ -164,11 +163,8 @@ describe('buildPlayer with each instrument', () => {
         model.skeleton.positions[boneIndex(bone)]?.[1] ?? NaN;
       // The standing body has its torso base 0.77 H above the floor, and the instrument moves
       // with the head.
-      const { headHeight, shoulderHeight, standingBase } = proportionsOf(SPECIES['fox-tan']);
-      expect(y(standing, 'hips'), id).toBeCloseTo(
-        (standingBase + (0.15 * shoulderHeight) / 0.98) * headHeight,
-        9,
-      );
+      const { headHeight } = SPECIES['fox-tan'];
+      expect(y(standing, 'hips'), id).toBeCloseTo((0.55 + 0.15) * headHeight, 9);
       expect(y(standing, 'instrument') - y(sitting, 'instrument'), id).toBeCloseTo(
         y(standing, 'head') - y(sitting, 'head'),
         2,
@@ -181,7 +177,7 @@ describe('buildPlayer with each instrument', () => {
 
   it('gives each support of 5.1 a stance at the heights of its seat', () => {
     const cat = SPECIES.cat;
-    const legs = proportionsOf(cat).seatHeight * proportionsOf(cat).headHeight;
+    const legs = cat.seatHeight * cat.headHeight;
     expect(stanceOn('chair', cat)).toEqual(seated(legs, 0, chairForward(cat)));
     expect(stanceOn('stool', cat)).toEqual(seated(STOOL.seatHeight));
     expect(stanceOn('bench', cat)).toEqual(seated(0.45));
@@ -286,7 +282,7 @@ describe('chairForward', () => {
     expect(cello.body.floor).toEqual([0, 0, -forward]);
     // The end pin stands 0.42 H + 0.44 m in front of the seat point of the body (design 4.6).
     const pin = cello.pieces[0]?.at.position[2] ?? NaN;
-    const { headHeight } = proportionsOf(SPECIES.elephant);
+    const { headHeight } = SPECIES.elephant;
     expect(pin).toBeCloseTo(-forward - 0.42 * headHeight - 0.44, 9);
   });
 });

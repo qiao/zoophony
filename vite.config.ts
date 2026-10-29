@@ -36,14 +36,11 @@ const PAUSED_TESTS = [
   // faces, the eyes, and the triangle budgets.
   'src/models/species.test.ts',
   'src/models/budget.test.ts',
-  'src/models/proportions.test.ts',
   'src/models/legs.test.ts',
   'src/models/props.test.ts',
   // The layout from the footprints of the bodies: the growth of the stages, the gaps between
-  // the players, the heads that hide behind larger animals, and a shot plan that the layout of
-  // one demo decides.
+  // the players, and a shot plan that the layout of one demo decides.
   'src/models/layout-scene.test.ts',
-  'src/scene/hidden-heads.test.ts',
   'src/shots/choir-theme.test.ts',
   'src/shots/plan-counts.test.ts',
   'src/shots/opening-drawer.test.ts',

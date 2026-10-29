@@ -3,9 +3,8 @@ import { describe, expect, it } from 'vitest';
 import { chord, note, programChange, track } from '../midi/test-smf.ts';
 import { scoreOf } from '../score/test-score.ts';
 import { patchedDemos } from '../../tools/patch-demos.ts';
-import { CHAMBER_PLAYERS, SECTION_SPECIES, castScore, chamberFormOf, speciesOf } from './cast.ts';
+import { CHAMBER_PLAYERS, castScore, chamberFormOf, speciesOf } from './cast.ts';
 import { INSTRUMENT_SUPPORTS } from './player.ts';
-import { SPECIES } from './species.ts';
 import type { PlayerCast } from './cast.ts';
 
 /** Gives the instruments of the cast of one seat. */
@@ -97,31 +96,6 @@ describe('castScore', () => {
       (p) => p.instrument === 'piano',
     );
     expect(piano?.support).toBe('bench');
-  });
-});
-
-describe('SECTION_SPECIES', () => {
-  it('gives the large species only the sections of the back row (design 4.2, 4.3)', () => {
-    // The user asked on 2026-10-05 that big animals sit at the back, so that they hide no
-    // smaller animal.
-    const back = new Set<string>(['contrabass', 'timpani', 'trombone', 'tuba']);
-    for (const [section, list] of Object.entries(SECTION_SPECIES)) {
-      for (const species of list) {
-        if (SPECIES[species].size >= 1.2) {
-          expect(back.has(section), `${section}: ${species}`).toBe(true);
-        }
-      }
-    }
-    // The strings sit in the front rows, and the piano at the front left. The polar bear (1.1)
-    // at the piano hides 0% of each head in the four wide views (design 4.2).
-    for (const section of ['violin', 'viola', 'cello'] as const) {
-      for (const species of SECTION_SPECIES[section]) {
-        expect(SPECIES[species].size, `${section}: ${species}`).toBeLessThanOrEqual(1.05);
-      }
-    }
-    for (const species of SECTION_SPECIES.piano) {
-      expect(SPECIES[species].size, `piano: ${species}`).toBeLessThanOrEqual(1.1);
-    }
   });
 });
 

@@ -21,7 +21,6 @@ import { STUDIO_POLAR_BEAR } from './studio/polar-bear.ts';
 import { STUDIO_RABBIT } from './studio/rabbit.ts';
 import { SCENE_COLORS } from './colors.ts';
 import type { PlayerPlace, SceneLayout } from './layout.ts';
-import { proportionsOf } from './proportions.ts';
 import { SPECIES } from './species.ts';
 
 /** The seat height of the chairs of the tests, in meters. */
@@ -165,7 +164,7 @@ describe('buildSupport', () => {
 describe('seatHeights (design 4.5)', () => {
   it('fits the seat of the chair to the legs of the species', () => {
     for (const species of [SPECIES.mouse, SPECIES['fox-red'], SPECIES.rhino]) {
-      const { seatHeight, headHeight } = proportionsOf(species);
+      const { seatHeight, headHeight } = species;
 
       expect(seatHeights('chair', species)).toEqual({
         seatHeight: seatHeight * headHeight,
@@ -219,7 +218,7 @@ describe('seatHeights (design 4.5)', () => {
   });
 
   it('keeps the seat of the high stool, and fits its foot ring to the legs', () => {
-    const { seatHeight, headHeight } = proportionsOf(SPECIES.hippo);
+    const { seatHeight, headHeight } = SPECIES.hippo;
 
     expect(seatHeights('high-stool', SPECIES.hippo)).toEqual({
       seatHeight: HIGH_STOOL.seatHeight,

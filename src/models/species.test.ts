@@ -4,7 +4,6 @@ import { describe, expect, it } from 'vitest';
 import type { BodyBoneName } from './biped.ts';
 import { seated } from './body-frame.ts';
 import { BONE_NAMES, boneIndex, makeSkeleton } from './rig.ts';
-import { proportionsOf } from './proportions.ts';
 import { SPECIES, SPECIES_IDS } from './species.ts';
 import type { SpeciesParams } from './species.ts';
 import { studioRigOf } from './studio-body.ts';
@@ -33,7 +32,7 @@ describe('buildBiped for each species', () => {
   for (const id of SPECIES_IDS) {
     const species: SpeciesParams = SPECIES[id];
     const { mesh, body } = build(species);
-    const { headHeight: h } = proportionsOf(species);
+    const { headHeight: h } = species;
     // A studio body keeps the mesh, the skin, and the colors of its GLB file (design 4.4).
     const studio = species.body ? studioRigOf(species.body, false) : null;
 

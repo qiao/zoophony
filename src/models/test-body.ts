@@ -7,7 +7,6 @@ import { MeshBuilder } from './mesh.ts';
 import type { MeshData } from './mesh.ts';
 import { BONE_NAMES, boneIndex, makeSkeleton } from './rig.ts';
 import type { BoneName } from './rig.ts';
-import { proportionsOf } from './proportions.ts';
 import { SPECIES } from './species.ts';
 import type { SpeciesParams } from './species.ts';
 
@@ -22,7 +21,7 @@ export const SEAT = 0.45;
 const SAMPLE = SPECIES.deer;
 
 /** The head height `H` of the sample body (design 4.5, body proportions). */
-export const H = proportionsOf(SAMPLE).headHeight;
+export const H = SAMPLE.headHeight;
 
 /** The mesh and the bones of the sample body. */
 export interface SampleBody {

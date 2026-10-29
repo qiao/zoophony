@@ -9,7 +9,6 @@ import type { RiserLevel, SceneLayout } from './layout.ts';
 import { MeshBuilder, splitByFacing, srgb, transform } from './mesh.ts';
 import type { MeshData, Rgb, Transform } from './mesh.ts';
 import { box, quad } from './primitives.ts';
-import { proportionsOf } from './proportions.ts';
 import { SPECIES } from './species.ts';
 import type { SpeciesParams } from './species.ts';
 import { STUDIO_BODIES } from './studio-body.ts';
@@ -283,8 +282,7 @@ function benchHeights(species: SpeciesParams, seatHeight: number): SeatHeights {
  * @returns The heights, or `null` for a standing body.
  */
 export function seatHeights(support: Support, species: SpeciesParams): SeatHeights | null {
-  const proportions = proportionsOf(species);
-  const legs = proportions.seatHeight * proportions.headHeight;
+  const legs = species.seatHeight * species.headHeight;
   const studioLegs = species.body !== undefined;
   switch (support) {
     case 'chair': {

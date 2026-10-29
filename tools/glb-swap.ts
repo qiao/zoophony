@@ -297,7 +297,7 @@ export function withStudioBody(text: string, animal: string, constant: string): 
 
 /**
  * Gives a species the studio body of an animal in the text of `src/models/species.ts`, as the
- * species of a studio body has it: the body, the size 1, and the head height and the seat height
+ * species of a studio body has it: the body, and the head height and the seat height
  * of the body. The other fields stay. The change goes at the end of the file, after `SPECIES`.
  *
  * @param text The text of the file.
@@ -325,11 +325,8 @@ export function withSpeciesBody(
     `  [${key}]: {`,
     `    ...SPECIES[${key}],`,
     `    body: ${JSON.stringify(`studio-${animal}`)},`,
-    '    size: 1,',
-    '    proportions: {',
-    '      headHeight: GLB_SWAP_BODY.headHeight,',
-    '      seatHeight: (GLB_SWAP_BODY.seatHeight ?? 0) / GLB_SWAP_BODY.headHeight,',
-    '    },',
+    '    headHeight: GLB_SWAP_BODY.headHeight,',
+    '    seatHeight: (GLB_SWAP_BODY.seatHeight ?? 0) / GLB_SWAP_BODY.headHeight,',
     '  },',
     '});',
     '',
