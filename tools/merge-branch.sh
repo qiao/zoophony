@@ -18,15 +18,14 @@
 #
 # A branch that changes a file of src/pose/, src/models/, or tools/blender/ can twist
 # or deform an arm, so after the unit suite the script runs the arm gate
-# `pnpm arm-check --all --base main` (decision 2026-10-19-arm-gate.md), prints its
-# table, and stops on a value that fails. The gate takes about 3 minutes with the
+# `pnpm arm-check --all --base main` (docs/agents/rigging.md, "The arm gate"), prints
+# its table, and stops on a value that fails. The gate takes about 3 minutes with the
 # base in the cache, so it runs all roles. --no-arm-check skips the gate. Use it only
 # for a change that moves no arm, such as a color or a face, and give the reason in
 # the merge report.
 #
-# The end-to-end tests are paused with all tests (decision
-# 2026-10-16-all-tests-pause.md), so the script does not run them. MERGE_E2E=1
-# runs them.
+# The end-to-end tests are paused with all tests (design 9.3), so the script does
+# not run them. MERGE_E2E=1 runs them.
 #
 # The end-to-end tests fail on a busy machine (a load average above about 30),
 # and main fails in the same way. Before each run of these tests, the script waits

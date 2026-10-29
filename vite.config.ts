@@ -10,10 +10,10 @@ import { configDefaults, defineConfig } from 'vitest/config';
 const SPEED_TESTS = '**/*-speed.test.ts';
 
 /**
- * The paused test files (design 9.3, decision `2026-10-14-test-pause.md`). Each model round
- * changes the look of the animals, and these tests check the look, the fit, or the clearance of
- * the bodies. `pnpm test` skips them, and `pnpm test:paused` runs them for information. The
- * typecheck and the lint still read them. Remove a file from the list to bring it back.
+ * The paused test files (design 9.3). A change of a model can change the look of the animals, and
+ * these tests check the look, the fit, or the clearance of the bodies. `pnpm test` skips them, and
+ * `pnpm test:paused` runs them for information. The typecheck and the lint still read them. Remove
+ * a file from the list to bring it back.
  */
 const PAUSED_TESTS = [
   // The clearance of the bodies: the sweeps of the roles and the other clearance tests.
@@ -47,10 +47,9 @@ const PAUSED_TESTS = [
 ];
 
 /**
- * The switch of the pause of all tests (design 9.3, decision `2026-10-16-all-tests-pause.md`).
- * While it is true, each unit test file is a paused test: `pnpm test` runs no test and passes,
- * and `pnpm test:paused` runs each unit test for information. Set it to false to end the pause.
- * Then `PAUSED_TESTS` gives the paused files again.
+ * The switch of the pause of all tests (design 9.3). While it is true, each unit test file is a
+ * paused test: `pnpm test` runs no test and passes, and `pnpm test:paused` runs each unit test for
+ * information. Set it to false to end the pause. Then `PAUSED_TESTS` gives the paused files again.
  */
 const ALL_TESTS_PAUSED: boolean = true;
 
@@ -137,8 +136,8 @@ export default defineConfig({
   build: {
     // tools/size.ts reads the manifest to find the static imports of the entry chunk.
     manifest: true,
-    // The largest chunk, `renderer`, holds three.js, the scene code, and the studio bodies: 1,923
-    // kB, or 739 kB after gzip, on 2026-10-29. The base64 text of the studio bodies is about 500 kB
+    // The largest chunk, `renderer`, holds three.js, the scene code, and the studio bodies: about
+    // 1,923 kB, or 739 kB after gzip. The base64 text of the studio bodies is about 500 kB
     // of it after gzip. The limit of the warning of Vite is in kB before gzip, a little above that
     // chunk. The size check of design 7.2 (`pnpm size`, 1 MB after gzip) is the real limit.
     chunkSizeWarningLimit: 2000,

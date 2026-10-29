@@ -1,7 +1,6 @@
 /**
- * Runs the paused tests of the project `paused` of `vite.config.ts` (design 9.3, decision
- * `2026-10-14-test-pause.md`). With no `--base`, it runs Vitest with the output of Vitest, and
- * exits with its exit code. With `--base <ref>`, it runs the paused tests on a temporary copy of a
+ * Runs the paused tests of the project `paused` of `vite.config.ts` (design 9.3). With no
+ * `--base`, it runs Vitest with the output of Vitest, and exits with its exit code. With `--base <ref>`, it runs the paused tests on a temporary copy of a
  * commit, a branch, or a tag (`withRefTree()` of `tools/ref-tree.ts`) and on the working tree at
  * the same time, and prints only the tests that fail on the working tree alone. The copy goes away
  * at the end, also after a failure and after Ctrl-C.

@@ -37,8 +37,7 @@ jobs:
           node-version: 24
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      # All tests are paused (decision 2026-10-16-all-tests-pause.md). Remove each `if: false` to
-      # end the pause.
+      # All tests are paused (design 9.3). Remove each `if: false` to end the pause.
       - if: false
         run: pnpm exec playwright install --with-deps chromium
       - run: pnpm build

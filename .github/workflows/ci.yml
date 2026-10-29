@@ -1,7 +1,6 @@
 # Checks of design 9.2. Each step of the job "check" blocks a merge. The Playwright job blocks a
-# merge in Chromium only. While all tests are paused (decision 2026-10-16-all-tests-pause.md),
-# `pnpm test` runs no test, and a step or a job with `if: false` does not run. Remove each
-# `if: false` to end the pause.
+# merge in Chromium only. While all tests are paused (design 9.3), `pnpm test` runs no test, and a
+# step or a job with `if: false` does not run. Remove each `if: false` to end the pause.
 name: CI
 
 on:
