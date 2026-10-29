@@ -1,8 +1,8 @@
 // Audits the page with Lighthouse (design 9.7, docs/agents/workflow.md, "Performance rounds"). Run
 // it after `pnpm build`:
 //
-//   pnpm lighthouse [--url <url>] [--preset mobile|desktop] [--runs <n>] [--port <p>]
-//     [--out <file.json>]
+//   pnpm lighthouse [--url <url>] [--preset mobile|desktop] [--desktop] [--runs <n>] [--quick]
+//     [--port <p>] [--out <file.json>]
 //
 // With no `--url`, the tool serves `dist/` as Vercel does (`tools/site-server.ts`): brotli for the
 // text types, ETag, and the headers of `vercel.json`, at 40 Mbit/s (`LOCAL_NETWORK`). Then the
@@ -10,9 +10,11 @@
 // `--url` audits a live site, such as
 // https://www.zoophony.com/. The pinned Lighthouse of `package.json` runs in headless Chrome with
 // the default simulated throttle of each preset: mobile (a Moto G Power on slow 4G with a 4x CPU)
-// and desktop. `--preset` runs one preset. Each preset runs `--runs` times (3 by default), and the
-// tool keeps the median run of Lighthouse: the run nearest to the median FCP and the median TTI
-// (`computeMedianRun()`).
+// and desktop. `--preset` runs one preset, and `--desktop` is short for `--preset desktop`. Each
+// preset runs `--runs` times (3 by default), and the tool keeps the median run of Lighthouse: the
+// run nearest to the median FCP and the median TTI (`computeMedianRun()`). Use the default for a
+// report. `--quick` runs one preset one time, for the iteration of a round: the mobile preset, or
+// the desktop preset with `--desktop`.
 //
 // For the median run of each preset, it prints the four category scores, FCP, LCP, TBT, CLS, and
 // SI with their scores, the LCP element with its phases, the long tasks, and each failed audit:
@@ -40,7 +42,7 @@ const LIGHTHOUSE_CLI = join(ROOT, 'node_modules', 'lighthouse', 'cli', 'index.js
 
 /** The usage text of the tool. */
 const USAGE =
-  'Usage: pnpm lighthouse [--url <url>] [--preset mobile|desktop] [--runs <n>] [--port <p>] [--out <file.json>]';
+  'Usage: pnpm lighthouse [--url <url>] [--preset mobile|desktop] [--desktop] [--runs <n>] [--quick] [--port <p>] [--out <file.json>]';
 
 /** The presets of Lighthouse, in the order of the runs. */
 const PRESETS = ['mobile', 'desktop'] as const;
@@ -425,14 +427,16 @@ async function measureMain(options: AuditOptions, resultFile: string): Promise<v
     for (const preset of options.presets) {
       const runs: LhResult[] = [];
       for (let run = 0; run < options.runs; run++) {
+        const start = performance.now();
         const lhr = await runLighthouse(url, preset, chromeFlags);
         runs.push(lhr);
         const { scores, metrics } = summaryOf(lhr);
         const metricParts = METRICS.map(
           ([name]) => `${name} ${metricText(name, metrics[name] ?? null)}`,
         );
+        const seconds = Math.round((performance.now() - start) / 1000);
         console.log(
-          `${preset} run ${run + 1}: performance ${String(scores['performance'])}, ${metricParts.join(', ')}`,
+          `${preset} run ${run + 1} (${seconds} s): performance ${String(scores['performance'])}, ${metricParts.join(', ')}`,
         );
       }
       // SAFETY: computeMedianRun() gives one of the results that it gets.
@@ -452,15 +456,18 @@ async function measureMain(options: AuditOptions, resultFile: string): Promise<v
  * @returns The options, or `null` for a bad use.
  */
 function auditOptions(args: readonly string[]): AuditOptions | null {
+  const quick = args.includes('--quick');
+  const desktop = args.includes('--desktop');
   const url = optionValue(args, '--url');
   const preset = optionValue(args, '--preset');
-  const runs = Number(optionValue(args, '--runs') ?? '3');
+  const runs = Number(optionValue(args, '--runs') ?? (quick ? '1' : '3'));
   const port = Number(optionValue(args, '--port') ?? '4330');
-  if (url === undefined || preset === undefined) {
+  if (url === undefined || preset === undefined || (desktop && preset !== null)) {
     return null;
   }
 
-  const presets = PRESETS.filter((name) => preset === null || name === preset);
+  const chosen = desktop ? 'desktop' : (preset ?? (quick ? 'mobile' : null));
+  const presets = PRESETS.filter((name) => chosen === null || name === chosen);
   if (presets.length === 0 || !Number.isInteger(runs) || runs < 1 || !Number.isInteger(port)) {
     return null;
   }
