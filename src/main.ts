@@ -15,8 +15,9 @@ import { showFullPageMessage } from './ui/full-page-message.ts';
 
 /**
  * Makes the scene of the stage, or gives `null` for a browser with no WebGL2 (design 2.6). The
- * renderer can also fail to make its context, for example with no GPU. The probe and the renderer
- * each start in a later task, so that no task of the load blocks the page (design 7.2).
+ * renderer can also fail to make its context, for example with no GPU. The probe, the renderer,
+ * and the app each start in a later task, so that no task of the load blocks the page (design
+ * 7.2).
  *
  * @param canvas The canvas of the stage.
  * @returns The scene, or `null` with no WebGL2.
@@ -28,8 +29,9 @@ async function createScene(canvas: HTMLCanvasElement): Promise<StageScene | null
     return null;
   }
   await yieldToMain();
+  let scene: StageScene;
   try {
-    return new StageScene(canvas, {
+    scene = new StageScene(canvas, {
       tier: startTierOf(window),
       devicePixelRatio: window.devicePixelRatio,
       targetFormat,
@@ -39,6 +41,9 @@ async function createScene(canvas: HTMLCanvasElement): Promise<StageScene | null
     console.error(error);
     return null;
   }
+  // The app with its UI starts in a later task too.
+  await yieldToMain();
+  return scene;
 }
 
 /**
