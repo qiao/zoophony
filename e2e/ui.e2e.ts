@@ -295,7 +295,7 @@ test.describe('the labels of the "Playback" group (audit 2026-10-05-ux-design, P
 test.describe('the stage beside the open drawer (audit 2026-10-05-ux-design, PH4)', () => {
   /**
    * Opens the drawer and gives the frame of the camera after its move. The canvas stays over the
-   * full window (review of step 8, M3).
+   * full window.
    *
    * @param page The page.
    * @returns The middle of the frame on the canvas, in CSS pixels, and its scale.

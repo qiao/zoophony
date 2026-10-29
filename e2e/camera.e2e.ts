@@ -19,7 +19,7 @@ for (const [width, height] of [
     page,
   }) => {
     // A zoom on the first screen shrank the frame from 0.92 to 0.18 of the window, and the view
-    // looked steeply down at a corner of the stage (bug report of 2026-10-07).
+    // looked steeply down at a corner of the stage.
     await page.setViewportSize({ width, height });
     await page.goto('./');
     await page.waitForSelector('#stage[data-frame]');
@@ -121,9 +121,9 @@ test.describe('a deep zoom in Free mode', () => {
   test.use({ reducedMotion: 'reduce', viewport: { width: 1440, height: 900 } });
 
   test('keeps the middle of the frame sharp (design 2.5, 4.5)', async ({ page }) => {
-    // A zoom put the camera among the players, and the depth of field blurred all of them (bug
-    // report of 2026-10-07). With reduced motion, the page starts in Free mode at the default
-    // view, and the orbit controls have no inertia.
+    // A zoom put the camera among the players, and the depth of field blurred all of them. With
+    // reduced motion, the page starts in Free mode at the default view, and the orbit controls have
+    // no inertia.
     await page.goto('./');
     await page.waitForSelector(SAMPLES_READY, { timeout: 60_000 });
     await page.click(FIRST_PLAY);
