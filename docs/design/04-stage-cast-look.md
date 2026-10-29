@@ -611,9 +611,8 @@ shoulder rest is a bent bar under the back of the lower bout, with a foot on eac
 rest. Its high end is on the side of the E string, because the left shoulder and the upper arm
 lie under that side in the hold. The strings of the violin and the viola have a triangle section
 (`STRING_SECTION`), because they are about 1 mm thick on the stage, so the shoulder rest fits in
-the triangle budget. The layout
-reads a simple box of each bowed string (`addLayoutSpace()`), so a change of the detail does not
-move the seats.
+the triangle budget. The layout reads a simple box of each bowed string (`addLayoutSpace()`), so a
+change of the detail does not move the seats.
 
 **Piano** (`models/instruments/piano.ts`). 88 separate keys, a lyre, and three brass pedals in the
 sizes of a real grand piano (`PIANO_PEDALS`). Each key turns down with its notes (`PIANO.keyDip`),
