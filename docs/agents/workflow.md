@@ -150,6 +150,9 @@ file, because both checks still read it.
 - The machine has no `pdftotext`. Read the text of a PDF source with
   `uv run --no-project --with pypdf python -I <script>`, with `pypdf.PdfReader(path)` and
   `page.extract_text()`.
+- Start each long job in the background: a render, a measure, a sweep, or a check script. Wait
+  for its exit notice, or for one monitor on its last line, and write the docs during the wait.
+  Do not read its log again and again, because each read costs one tool call.
 - Vitest hides the `console.log` output of a passing test, so a probe in a test writes a file.
 - A sweep, such as `pnpm pose-depth` or `pnpm fold-probe`, reads the modules at its start. Do not
   edit or commit a module that it reads while it runs, because its result then belongs to no
