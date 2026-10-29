@@ -45,10 +45,9 @@ import { createGeometry } from './geometry.ts';
  *
  * @param model The player model of `models/`.
  * @returns The geometry. Its skin indices point at the bones of {@link createPlayerMesh}.
- * @throws Error if the model has no studio body.
  */
 export function createPlayerGeometry(model: PlayerModel): BufferGeometry {
-  const render = studioRenderMesh(studioRigOfModel(model), model.mesh);
+  const render = studioRenderMesh(model.studio, model.mesh);
   const geometry = createGeometry(render.data);
   geometry.setAttribute('skinIndex', new BufferAttribute(render.joints, 4));
   geometry.setAttribute('skinWeight', new BufferAttribute(render.weights, 4));
@@ -65,20 +64,6 @@ export function createPlayerGeometry(model: PlayerModel): BufferGeometry {
   // The moves add to the bind places, as in a glTF file.
   geometry.morphTargetsRelative = true;
   return geometry;
-}
-
-/**
- * Gives the rig of the studio body of a player model. Each species has a studio body (design 4.4).
- *
- * @param model The player model.
- * @returns The rig.
- * @throws Error if the model has no studio body.
- */
-function studioRigOfModel(model: PlayerModel): StudioRig {
-  if (!model.studio) {
-    throw new Error('The player model has no studio body.');
-  }
-  return model.studio;
 }
 
 /** The parts of a player mesh with a studio body that a pose needs. */
@@ -253,7 +238,7 @@ export function createPlayerMesh(
   materials: readonly MeshStandardMaterial[],
 ): SkinnedMesh {
   const own = model.keys ? keyGeometry(geometry) : geometry;
-  const mesh = createStudioMesh(model, studioRigOfModel(model), own, materials);
+  const mesh = createStudioMesh(model, model.studio, own, materials);
   const position = own.getAttribute('position');
   const bind = geometry.getAttribute('position').array;
   if (model.keys && position instanceof BufferAttribute && bind instanceof Float32Array) {

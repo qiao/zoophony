@@ -544,10 +544,10 @@ async function measureRows(options: Options): Promise<FormRow[]> {
   }
   const scene = sceneOf(demo.bytes);
   const [player] = options.role.players(scene);
-  const rig = player?.model.studio;
-  if (!player || !rig) {
-    throw new Error(`The first ${options.role.role} of ${demo.file} has no studio body.`);
+  if (!player) {
+    throw new Error(`The first ${options.role.role} of ${demo.file} has no player.`);
   }
+  const rig = player.model.studio;
   const facts = triangleFacts(rig.mesh);
   const rows: FormRow[] = [
     {

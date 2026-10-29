@@ -144,10 +144,10 @@ export interface PlayerModel {
    */
   readonly keys: PianoKeys | null;
   /**
-   * The rig of a studio body (design 4.4), or `null`. The scene draws a studio body with the skin
-   * of the studio, and `mesh` holds the body in the bind pose of the player.
+   * The rig of the studio body (design 4.4). The scene draws the body with the skin of the
+   * studio, and `mesh` holds the body in the bind pose of the player.
    */
-  readonly studio: StudioRig | null;
+  readonly studio: StudioRig;
 }
 
 /**
@@ -216,6 +216,6 @@ export function buildPlayer(
     instrument: model,
     pieces: placed.pieces,
     keys: placed.keys,
-    studio: params.body ? studioRigOf(params.body, stance.kind === 'standing') : null,
+    studio: studioRigOf(params.body, stance.kind === 'standing'),
   };
 }

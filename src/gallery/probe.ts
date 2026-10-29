@@ -30,7 +30,7 @@ export function applyProbe(mesh: SkinnedMesh, model: PlayerModel, probe: Gallery
       : new MeshNormalMaterial();
   const { geometry } = mesh;
   const corners = geometry.getAttribute('position').count;
-  const body = model.studio ? Math.min(corners, model.studio.mesh.corners.length) : corners;
+  const body = Math.min(corners, model.studio.mesh.corners.length);
   geometry.clearGroups();
   geometry.addGroup(0, body, materials.length);
   if (body < corners) {

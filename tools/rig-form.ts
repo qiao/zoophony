@@ -206,7 +206,7 @@ export function playerForm(player: FormPlayer): PlayerForm {
     depth: (bounds.max[2] ?? 0) - (bounds.min[2] ?? 0),
     headCenter: seated.body.headCenter,
     headHeight: seated.body.headHeight,
-    nose: seated.studio?.body.nose ?? null,
+    nose: seated.studio.body.nose ?? null,
     instrumentBox: boneBox(seated.mesh, new Set(INSTRUMENT_BONES.map((bone) => boneIndex(bone)))),
   };
 }

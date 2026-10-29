@@ -28,14 +28,15 @@ export interface LapPlace {
 function legTop(model: PlayerModel, side: 'L' | 'R', point: Vector3): number {
   // The knee is a ball on the shin bone. The skin of a studio body blends the thighs into the
   // hips and the belly, so its lap is the top of the hips, the spine, and the legs (design 4.4).
-  const leg = new Set([boneIndex(`thigh${side}`), boneIndex(`shin${side}`)]);
-  if (model.studio) {
-    leg.add(boneIndex('hips')).add(boneIndex('spine'));
-  }
+  const leg = new Set([
+    boneIndex(`thigh${side}`),
+    boneIndex(`shin${side}`),
+    boneIndex('hips'),
+    boneIndex('spine'),
+  ]);
   const { positions, bones, blendBones } = model.mesh;
   const corner = (v: number, k: number): number => positions[v * 3 + k] ?? 0;
-  const onLeg = (v: number): boolean =>
-    leg.has(bones[v] ?? -1) || (model.studio !== null && leg.has(blendBones[v] ?? -1));
+  const onLeg = (v: number): boolean => leg.has(bones[v] ?? -1) || leg.has(blendBones[v] ?? -1);
   let top = point.y;
   for (let v = 0; v + 2 < bones.length; v += 3) {
     if (!onLeg(v)) {

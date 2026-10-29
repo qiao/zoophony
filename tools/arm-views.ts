@@ -319,10 +319,10 @@ async function frameViews(
   }
   const scene = sceneOf((await patchedDemo(`${frame.demo}.mid`)).bytes);
   const [body] = roleBodies(source, scene);
-  const rig = body?.model.studio;
-  if (!body || !rig) {
+  if (!body) {
     return none;
   }
+  const rig = body.model.studio;
   const start = -countInAt(scene.plan.beats, 0).lengthSec;
   const poses = poseAt(
     scene.plan,

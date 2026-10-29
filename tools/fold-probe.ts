@@ -660,9 +660,6 @@ function countPose(
   visit?: FoldVisit,
 ): void {
   const rig = model.studio;
-  if (!rig) {
-    return;
-  }
   const studio = poseStudioBones(
     rig,
     model.skeleton,
@@ -720,12 +717,12 @@ export interface RoleBody {
  *
  * @param role The role.
  * @param scene The scene of a demo.
- * @returns The bodies with a studio rig, or none when the scene has no body of the role.
+ * @returns The bodies, or none when the scene has no body of the role.
  */
 export function roleBodies(role: RoleSource, scene: TestScene): RoleBody[] {
   if (role.kind === 'conductor') {
     const model = scene.models.get(CONDUCTOR.species, CONDUCTOR.instrument, 4);
-    return scene.plan.conductor && model.studio ? [{ index: null, model }] : [];
+    return scene.plan.conductor ? [{ index: null, model }] : [];
   }
   const bodies: RoleBody[] = [];
   for (const [index, place] of scene.layout.players.entries()) {
@@ -734,7 +731,7 @@ export function roleBodies(role: RoleSource, scene: TestScene): RoleBody[] {
       continue;
     }
     const model = scene.models.get(species, instrument, kettles, support);
-    if (model.studio && !bodies.some((b) => b.model === model)) {
+    if (!bodies.some((b) => b.model === model)) {
       bodies.push({ index, model });
     }
   }
@@ -783,8 +780,8 @@ export function probeFolds(
       continue;
     }
     report.demos.push(demo.file);
-    report.faces = (bodies[0]?.model.studio?.mesh.corners.length ?? 0) / 3;
-    report.mesh ??= bodies[0]?.model.studio?.mesh ?? null;
+    report.faces = (bodies[0]?.model.studio.mesh.corners.length ?? 0) / 3;
+    report.mesh ??= bodies[0]?.model.studio.mesh ?? null;
 
     const audible = allAudible(scene.score);
     const buffer = createScenePose(scene.plan);

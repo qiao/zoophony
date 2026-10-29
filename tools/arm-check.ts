@@ -1302,10 +1302,10 @@ export function probeMoves(role: RoleSource, demos: readonly DemoFile[]): Sample
         const frame = poseAt(scene.plan, song, 10 + wall, transport, audible, buffer);
         for (const { index, model } of bodies) {
           const pose = index === null ? frame.conductor : frame.players[index];
-          const rig = model.studio;
-          if (!pose || !rig) {
+          if (!pose) {
             continue;
           }
+          const rig = model.studio;
           poseStudioBones(rig, model.skeleton, pose.rotations, studioOffsets(pose), 1, studio);
           const who = bodies.length > 1 ? ` player ${index ?? ''}` : '';
           store.labels.push(
@@ -2033,8 +2033,7 @@ export async function traceLines(
   const demo = all.find((d) => d.file === range.demo);
   const scene = demo ? sceneOf(demo.bytes) : null;
   const [body] = source && scene ? roleBodies(source, scene) : [];
-  const rig = body?.model.studio;
-  if (!source || !scene || !body || !rig) {
+  if (!source || !scene || !body) {
     const withRole = source
       ? all.filter((d) => roleBodies(source, sceneOf(d.bytes)).length > 0).map((d) => d.file)
       : [];
@@ -2042,6 +2041,7 @@ export async function traceLines(
       `The demo ${range.demo} has no studio body of the ${role}. The demos with the role are: ${withRole.join(', ') || 'none'}.`,
     );
   }
+  const rig = body.model.studio;
   const count = Math.floor((range.to - range.from) / step + 1e-6) + 1;
   if (count > TRACE_LINES) {
     throw new Error(

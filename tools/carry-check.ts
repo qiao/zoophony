@@ -306,10 +306,10 @@ export function measureCarry(role: string, demos: readonly DemoFile[]): MoveCarr
     const audible = allAudible(scene.score);
     const buffer = createScenePose(scene.plan);
     for (const { index, model } of roleBodies(source, scene)) {
-      const rig = model.studio;
-      if (index === null || !rig) {
+      if (index === null) {
         continue;
       }
+      const rig = model.studio;
       for (const move of demoMoves(scene.score.durationSec)) {
         const lead = countInAt(scene.plan.beats, move.at).lengthSec;
         const transport: Transport =

@@ -822,9 +822,6 @@ export function rebuiltRig(
  */
 export function studioFolds(model: PlayerModel, pose: AnimalPose): SideSplit {
   const rig = model.studio;
-  if (!rig) {
-    return { L: 0, R: 0, other: 0 };
-  }
   const studio = poseStudioBones(
     rig,
     model.skeleton,

@@ -272,7 +272,7 @@ function bodySurface(posed: PosedSkeleton): ClosedSurface {
  * @returns The surface.
  */
 function meshBodySurface(posed: PosedSkeleton): ClosedSurface {
-  const rabbit = posed.model.studio?.body.source === STUDIO_RABBIT.source;
+  const rabbit = posed.model.studio.body.source === STUDIO_RABBIT.source;
   return closedPart(posed, BODY_BONES, rabbit ? RABBIT_BODY_LOOPS : MESH_BODY_LOOPS);
 }
 
