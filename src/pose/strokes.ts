@@ -1,8 +1,16 @@
+import { runAll } from '../score/steps.ts';
+import type { Steps } from '../score/steps.ts';
 import type { PlayerNote, Technique } from '../score/types.ts';
 import { lastAtOrBefore } from './blend.ts';
 import type { InstrumentOf } from './family.ts';
 import { gestureSize } from './loudness.ts';
-import { FINGERING_COSTS, HAND_FRAMES, TUNINGS, fingerboardPlace, planHand } from './fingering.ts';
+import {
+  FINGERING_COSTS,
+  HAND_FRAMES,
+  TUNINGS,
+  fingerboardPlace,
+  planHandSteps,
+} from './fingering.ts';
 import type { HandStep, StrokePitch } from './fingering.ts';
 import { CHORD_SEC, PHRASE_GAP_SEC, groupChords } from './note-groups.ts';
 import { clamp01, smoothstep } from './rest.ts';
@@ -617,9 +625,43 @@ export function buildStrokes(
   vibratoHz: number,
   beats: Float64Array,
 ): Stroke[] {
+  return runAll(buildStrokesSteps(notes, loudness, range, amplitude, instrument, vibratoHz, beats));
+}
+
+/** The number of strokes in one step of the bow plan of {@link buildStrokesSteps}. */
+const BOW_STROKES_PER_STEP = 500;
+
+/**
+ * Builds the strokes of one bowed string player as {@link buildStrokes} does, in steps (design
+ * 7.2).
+ *
+ * @param notes The notes of the player, sorted by start.
+ * @param loudness The loudness of each note, from 0 to 1.
+ * @param range The bow range of the rig.
+ * @param amplitude The amplitude of the player.
+ * @param instrument The instrument.
+ * @param vibratoHz The rate of the vibrato of the player.
+ * @param beats The times of the conducted beats, sorted.
+ * @returns The steps, which return the strokes.
+ */
+export function* buildStrokesSteps(
+  notes: readonly PlayerNote[],
+  loudness: readonly number[],
+  range: BowRange,
+  amplitude: number,
+  instrument: Bowed,
+  vibratoHz: number,
+  beats: Float64Array,
+): Steps<Stroke[]> {
   const m = BOW_MOTION;
   const pitches = strokePitches(notes, loudness);
-  const plan = planHand(pitches, TUNINGS[instrument], HAND_FRAMES[instrument], FINGERING_COSTS);
+  yield;
+  const plan = yield* planHandSteps(
+    pitches,
+    TUNINGS[instrument],
+    HAND_FRAMES[instrument],
+    FINGERING_COSTS,
+  );
   const sizes = slurSizes(pitches, beats);
   const measured = measuredTremolo(pitches);
   const arms = crossStrings(
@@ -652,10 +694,14 @@ export function buildStrokes(
   let previousEnd = -Infinity;
   let bowed = false;
   let k = 0;
+  let done = 0;
   while (k < pitches.length) {
     const p = pitches[k];
     if (!p) {
       break;
+    }
+    if (++done % BOW_STROKES_PER_STEP === 0) {
+      yield;
     }
     const technique = p.technique;
     const count = technique === 'normal' ? Math.max(1, sizes[k] ?? 1) : 1;

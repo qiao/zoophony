@@ -10,6 +10,8 @@ import type { InstrumentId } from '../models/instruments/types.ts';
 import { toVec3 } from '../models/tuples.ts';
 import type { Vec3 } from '../models/tuples.ts';
 import { NO_PEDAL, sustainPedals } from '../score/pedal.ts';
+import { runAll } from '../score/steps.ts';
+import type { Steps } from '../score/steps.ts';
 import type { PedalTrack } from '../score/pedal.ts';
 import type { Beat, PlayerNote, Score, SectionId } from '../score/types.ts';
 import { SPECIES, instrumentScale } from '../models/species.ts';
@@ -49,7 +51,7 @@ import { CONDUCTOR_MOTION, restMotion } from './rest.ts';
 import type { RestMotion } from './rest.ts';
 import type { SideTrack } from './side-move.ts';
 import type { StrikeTrack } from './strikes.ts';
-import { buildStrokes, vibratoRate } from './strokes.ts';
+import { buildStrokesSteps, vibratoRate } from './strokes.ts';
 import type { Stroke } from './strokes.ts';
 import { buildWindTrack } from './wind-notes.ts';
 import type { WindTrack } from './wind-notes.ts';
@@ -124,7 +126,7 @@ export interface ConductorLayer {
 
 /**
  * The note data of one animal, by motion family. A switch on `family` selects the data. Each
- * family has its own member, its branch in `noteLayerOf()`, and its case in `poseAnimal()` of
+ * family has its own member, its branch in `noteLayerSteps()`, and its case in `poseAnimal()` of
  * `pose-at.ts`.
  */
 export type NoteLayer =
@@ -360,7 +362,7 @@ function notesOfPlayers(score: Score, layout: SceneLayout, loudness: Float32Arra
  * @param pedal The sustain pedal of the seat, for the foot of a pianist.
  * @returns The note layer of the motion family of the instrument.
  */
-function noteLayerOf(
+function* noteLayerSteps(
   rigs: RigCache,
   model: PlayerModel,
   species: SpeciesId,
@@ -371,13 +373,14 @@ function noteLayerOf(
   seed: number,
   beats: Float64Array,
   pedal: PedalTrack,
-): NoteLayer {
+): Steps<NoteLayer> {
   if (isInFamily(instrument, ['bowed'])) {
     const rig = cached(rigs.bowedRigs, model, () =>
       bowedRig(model, instrument, holdOf(species, instrument)),
     );
+    yield;
     const vibratoHz = vibratoRate(instrument, hashUnit(seed, 2));
-    const strokes = buildStrokes(
+    const strokes = yield* buildStrokesSteps(
       notes,
       loudness,
       rig.bowRange,
@@ -392,6 +395,7 @@ function noteLayerOf(
     const rig = cached(rigs.windRigs, model, () =>
       windRig(model, instrument, windHoldOf(species, instrument)),
     );
+    yield;
     return {
       family: MOTION_FAMILIES[instrument],
       rig,
@@ -402,7 +406,9 @@ function noteLayerOf(
     const rig = cached(rigs.handsRigs, model, () =>
       handsRig(model, instrument, instrumentScale(SPECIES[species], instrument)),
     );
+    yield;
     const { left, right } = handTracks(rig, notes, loudness, amplitude);
+    yield;
     const family = MOTION_FAMILIES[instrument];
     return {
       family,
@@ -415,10 +421,12 @@ function noteLayerOf(
   }
   if (isInFamily(instrument, ['choir'])) {
     const rig = cached(rigs.choirRigs, model, () => choirRig(model));
+    yield;
     return { family: 'choir', rig, track: buildChoirTrack(notes, loudness, amplitude) };
   }
   if (isInFamily(instrument, ['percussion'])) {
     const rig = cached(rigs.percussionRigs, model, () => percussionRig(model, instrument));
+    yield;
     return {
       family: 'percussion',
       rig,
@@ -482,6 +490,22 @@ export function preparePlayer(
   seed: number,
   rigs = createRigCache(),
 ): PlayerPlan {
+  return runAll(preparePlayerSteps(inputs, seed, rigs));
+}
+
+/**
+ * Calculates the plan of one player as {@link preparePlayer} does, in steps (design 7.2).
+ *
+ * @param inputs The model, the place, the notes, and the other inputs of the player.
+ * @param seed The seed of the player.
+ * @param rigs The rigs of the score, which the players of one model share.
+ * @returns The steps, which return the plan of the player.
+ */
+function* preparePlayerSteps(
+  inputs: PlayerInputs,
+  seed: number,
+  rigs: RigCache,
+): Steps<PlayerPlan> {
   const { model, place, notes, loudness, beats } = inputs;
   const next = mulberry32(seed);
   const timeOffset = (next() * 2 - 1) * PLAYER_OFFSETS.timeSec;
@@ -498,6 +522,20 @@ export function preparePlayer(
     place.facing,
     inputs.lookTarget,
   );
+  const passages = buildPassages(notes, loudness);
+  yield;
+  const note = yield* noteLayerSteps(
+    rigs,
+    model,
+    place.cast.species,
+    place.cast.instrument,
+    notes,
+    loudness,
+    amplitude,
+    seed,
+    beats,
+    inputs.pedal ?? NO_PEDAL,
+  );
   return {
     seatIndex: place.cast.seatIndex,
     instrument: place.cast.instrument,
@@ -510,19 +548,8 @@ export function preparePlayer(
     earTwitch: earTwitchOf(place.cast.species),
     lookYaw,
     lookPitch,
-    passages: buildPassages(notes, loudness),
-    note: noteLayerOf(
-      rigs,
-      model,
-      place.cast.species,
-      place.cast.instrument,
-      notes,
-      loudness,
-      amplitude,
-      seed,
-      beats,
-      inputs.pedal ?? NO_PEDAL,
-    ),
+    passages,
+    note,
   };
 }
 
@@ -603,9 +630,22 @@ export function pulseTimes(beats: readonly Beat[]): Float64Array {
  * @returns The plan of the conductor.
  */
 export function prepareConductor(inputs: ConductorInputs, seed: number): PlayerPlan {
+  return runAll(prepareConductorSteps(inputs, seed));
+}
+
+/**
+ * Calculates the plan of the conductor as {@link prepareConductor} does, in steps (design 7.2).
+ *
+ * @param inputs The model, the place, the beats, and the notes.
+ * @param seed The seed of the conductor.
+ * @returns The steps, which return the plan of the conductor.
+ */
+function* prepareConductorSteps(inputs: ConductorInputs, seed: number): Steps<PlayerPlan> {
   const { model, place, beats, notes, loudness, players } = inputs;
   const rig = conductorRig(model);
+  yield;
   const baton = buildBatonTrack(beats, notes, loudness);
+  yield;
   const cues = findCues({
     beats,
     notes,
@@ -615,6 +655,8 @@ export function prepareConductor(inputs: ConductorInputs, seed: number): PlayerP
     shoulder: rig.left.bind.shoulder,
     baton,
   });
+  yield;
+  const left = buildLeftHandTrack(baton.beats, notes, loudness);
   return {
     seatIndex: -1,
     instrument: CONDUCTOR.instrument,
@@ -633,7 +675,7 @@ export function prepareConductor(inputs: ConductorInputs, seed: number): PlayerP
       rig,
       baton,
       cues,
-      left: buildLeftHandTrack(baton.beats, notes, loudness),
+      left,
     },
   };
 }
@@ -747,6 +789,26 @@ export function preparePoses(
   models = new ModelCache(),
   reuse: PlanReuse | null = null,
 ): PosePlan {
+  return runAll(preparePosesSteps(score, layout, seed, models, reuse));
+}
+
+/**
+ * Calculates the pose plan of a score as {@link preparePoses} does, in steps (design 7.2).
+ *
+ * @param score The score.
+ * @param layout The layout of the score.
+ * @param seed The seed of the scene.
+ * @param models The player models of the score.
+ * @param reuse The plan to reuse for the players that do not change, or `null`.
+ * @returns The steps, which return the plan.
+ */
+export function* preparePosesSteps(
+  score: Score,
+  layout: SceneLayout,
+  seed: number,
+  models: ModelCache,
+  reuse: PlanReuse | null = null,
+): Steps<PosePlan> {
   const rigs = createRigCache();
   const bear = models.get(CONDUCTOR.species, CONDUCTOR.instrument);
   const stand = layout.conductor;
@@ -759,17 +821,22 @@ export function preparePoses(
     looks = chamberLooks(layout, models, leader);
   }
   const loudness = noteLoudness(score);
+  yield;
   const notes = notesOfPlayers(score, layout, loudness);
+  yield;
   const pedals = sustainPedals(score);
   const beats = Float64Array.from(score.beats, (b) => b.timeSec);
-  const players = layout.players.map((place, index): PlayerPlan => {
+  const players: PlayerPlan[] = [];
+  for (const [index, place] of layout.players.entries()) {
+    yield;
     const kept = reuse && !reuse.players.has(index) ? reuse.plan.players[index] : undefined;
     if (kept) {
-      return kept;
+      players.push(kept);
+      continue;
     }
     const { cast } = place;
     const own = notes[index] ?? { notes: [], loudness: [] };
-    return preparePlayer(
+    const plan = yield* preparePlayerSteps(
       {
         model: models.get(cast.species, cast.instrument, cast.kettles, cast.support),
         place,
@@ -783,9 +850,11 @@ export function preparePoses(
       mixHash(seed, index),
       rigs,
     );
-  });
+    players.push(plan);
+  }
+  yield;
   const conductor = stand
-    ? prepareConductor(
+    ? yield* prepareConductorSteps(
         {
           model: bear,
           place: stand,

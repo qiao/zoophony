@@ -1,3 +1,5 @@
+import { runAll } from '../score/steps.ts';
+import type { Steps } from '../score/steps.ts';
 import type { InstrumentOf } from './family.ts';
 
 /** The bowed strings of design 4.6. */
@@ -416,7 +418,36 @@ export function planHand(
   frame: HandFrame,
   costs: FingeringCosts,
 ): FingeredStroke[] {
-  const layers = strokes.map((s) => candidatesOf(s, tuning, frame, costs));
+  return runAll(planHandSteps(strokes, tuning, frame, costs));
+}
+
+/** The number of strokes in one step of {@link planHandSteps}. */
+const STROKES_PER_STEP = 200;
+
+/**
+ * Plans the left hand of one bowed string player as {@link planHand} does, in steps (design 7.2).
+ *
+ * @param strokes The strokes of the player, sorted by start.
+ * @param tuning The open strings, low to high, as MIDI keys.
+ * @param frame The hand frame of the instrument.
+ * @param costs The weights of the cost.
+ * @returns The steps, which return the bow string and the hand of each stroke.
+ * @throws Error if a stroke has no candidate.
+ */
+export function* planHandSteps(
+  strokes: readonly StrokePitch[],
+  tuning: readonly number[],
+  frame: HandFrame,
+  costs: FingeringCosts,
+): Steps<FingeredStroke[]> {
+  const layers: Candidate[][] = [];
+  for (const [i, stroke] of strokes.entries()) {
+    if (i % STROKES_PER_STEP === STROKES_PER_STEP - 1) {
+      yield;
+    }
+    layers.push(candidatesOf(stroke, tuning, frame, costs));
+  }
+  yield;
   const totals: Float64Array[] = [];
   const from: Int32Array[] = [];
   // The fields of the candidates of the stroke before, as typed arrays for the inner loop.
@@ -424,6 +455,9 @@ export function planHand(
   let strings = new Float64Array(0);
   let opens = new Uint8Array(0);
   for (const [i, layer] of layers.entries()) {
+    if (i % STROKES_PER_STEP === STROKES_PER_STEP - 1) {
+      yield;
+    }
     const n = layer.length;
     const total = new Float64Array(n);
     const back = new Int32Array(n).fill(-1);
@@ -474,6 +508,7 @@ export function planHand(
     opens = Uint8Array.from(layer, (c) => (c.open ? 1 : 0));
   }
 
+  yield;
   // Walk back from the cheapest end.
   const picks = Array.from({ length: layers.length }, () => 0);
   const last = totals[totals.length - 1];
