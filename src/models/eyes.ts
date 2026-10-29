@@ -1,9 +1,8 @@
 import { Matrix4, Quaternion, Vector3 } from 'three';
-import type { BodyColors } from './body-parts.ts';
 import { toQuat, toVec3 } from './tuples.ts';
 import type { Vec3 } from './tuples.ts';
 import { transform } from './mesh.ts';
-import type { MeshBuilder } from './mesh.ts';
+import type { MeshBuilder, Rgb } from './mesh.ts';
 import { ball } from './primitives.ts';
 
 /** A point on the surface of the head, and the unit normal of the surface there. */
@@ -41,8 +40,13 @@ const EYE_LIGHT_SIDE = 0.02;
 /** The largest place of the light across the oval from its middle, in H, so it stays on the oval. */
 const EYE_LIGHT_ACROSS = 0.04;
 
-/** The colors of an eye: the black oval and its small white light. */
-export type EyeColors = Pick<BodyColors, 'eye' | 'eyeLight'>;
+/** The colors of an eye, in linear values. */
+export interface EyeColors {
+  /** The black oval. */
+  readonly eye: Rgb;
+  /** The small white light on the oval. */
+  readonly eyeLight: Rgb;
+}
 
 /**
  * The bend of an eye: the move of each point of the oval along the axis of the eye, as a function
