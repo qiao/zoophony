@@ -178,7 +178,10 @@ instant with reduced motion. Each text keeps the contrast 4.5:1 of WCAG AA over 
 - **Title**: the logo (a gold paw and the wordmark "Zoophony" in Fraunces, one SVG path
   `WORDMARK_PATH`, so no font file loads), the piece title, and the composer. A gray pill with the
   GitHub mark and "Open source" (`REPOSITORY_TEXT`) links to `REPOSITORY_URL`. It is gray, because
-  the logo rules of GitHub permit only white, black, or gray.
+  the logo rules of GitHub permit only white, black, or gray. `index.html` holds the title lines
+  of the default demo, and the app keeps that header, so the piece title paints with the first
+  paint (7.2). A hash that names a demo clears the lines before the first paint, and the app
+  writes the title of its demo. The full-page message of 2.6 removes the header.
 - **Title shade**: each title line has a soft shade. Its level comes from the frame behind the
   line (`shadeLevel()` in `ui/title-shade.ts`), because a shade from the camera mode does not see a
   free camera. A shade comes in at once and goes out slowly, so that it does not flicker.

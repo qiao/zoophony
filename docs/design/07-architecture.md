@@ -130,8 +130,15 @@ budget (`STUDIO_MESH_GZIP_BUDGET` of `tools/studio-budgets.ts`). `packStudioMesh
 stream for each kind of number, so that gzip finds the repeats.
 
 `index.html` preloads the file of the default demo with a low priority when the hash names no
-demo, so that the score build does not wait for a fetch after the scripts. A plugin writes the
-URL from `DEFAULT_DEMO` (`DEFAULT_DEMO_URL` of `vite.config.ts`), so that the two cannot differ.
+demo, so that the score build does not wait for a fetch after the scripts.
+
+The largest contentful paint (LCP) of the page is the piece title (2.8). `index.html` holds the
+title lines of the default demo, so the browser paints them with the first paint, before the
+scripts run. `Title` keeps the header and its text nodes, because a new or a moved node paints
+its text again as a later LCP candidate.
+
+The plugin `INDEX_VALUES` of `vite.config.ts` writes the URL and the title lines from
+`DEFAULT_DEMO` into the placeholders of `index.html`, so that the page and the app cannot differ.
 
 GitHub Pages gzips only the text types. Thus the build gzips the demo files and the preset files
 in place, with the same names (`GZIP_AUDIO` of `vite.config.ts`). The client removes the gzip

@@ -1,7 +1,7 @@
 import { resolve } from 'node:path';
 import type { Plugin } from 'vite';
 import { LICENSES_FILE } from './src/app/credits.ts';
-import { DEFAULT_DEMO, demoUrl } from './src/app/demos.ts';
+import { DEFAULT_DEMO, DEMOS, demoUrl } from './src/app/demos.ts';
 import { gzipSiteAudio } from './tools/gzip-site.ts';
 import { licenseDocument, licenseEntries } from './tools/licenses.ts';
 import { configDefaults, defineConfig } from 'vitest/config';
@@ -78,13 +78,47 @@ const DEV_LOOK_OVERRIDE: Plugin = {
 };
 
 /**
- * The plugin that writes the URL of the default demo into the preload script of `index.html`
- * (design 7.2), from `DEFAULT_DEMO` of `src/app/demos.ts`, so that the two cannot differ.
+ * Escapes a text for the text or an attribute of an HTML element.
+ *
+ * @param text The text.
+ * @returns The HTML text.
  */
-const DEFAULT_DEMO_URL: Plugin = {
-  name: 'zoophony:default-demo-url',
+function escapeHtml(text: string): string {
+  return text
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#39;');
+}
+
+/**
+ * Gives the value of each placeholder `%NAME%` of `index.html`, ready for its place in the HTML:
+ * the URL of the default demo for the preload script, and the title lines of the default demo
+ * for the static title (design 2.8, 7.2). Each value comes from a constant of the app, so that
+ * the page and the app cannot differ.
+ *
+ * @param base The base path of the site.
+ * @returns The values by name.
+ */
+function indexValues(base: string): ReadonlyMap<string, string> {
+  const demo = DEMOS[DEFAULT_DEMO];
+  return new Map([
+    ['DEFAULT_DEMO_URL', demoUrl(DEFAULT_DEMO, base)],
+    ['DEFAULT_DEMO_TITLE', escapeHtml(demo.title)],
+    ['DEFAULT_DEMO_COMPOSER', escapeHtml(demo.composer)],
+  ]);
+}
+
+/**
+ * The plugin that writes the values of {@link indexValues} into the placeholders of `index.html`,
+ * in the dev server and in the build. It keeps a placeholder with no value.
+ */
+const INDEX_VALUES: Plugin = {
+  name: 'zoophony:index-values',
   transformIndexHtml(html) {
-    return html.replace('%DEFAULT_DEMO_URL%', demoUrl(DEFAULT_DEMO, BASE));
+    const values = indexValues(BASE);
+    return html.replaceAll(/%([A-Z_]+)%/gu, (text, name: string) => values.get(name) ?? text);
   },
 };
 
@@ -132,7 +166,7 @@ const DEV_LICENSES: Plugin = {
 
 export default defineConfig({
   base: BASE,
-  plugins: [DEV_LOOK_OVERRIDE, DEFAULT_DEMO_URL, GZIP_AUDIO, DEV_LICENSES],
+  plugins: [DEV_LOOK_OVERRIDE, INDEX_VALUES, GZIP_AUDIO, DEV_LICENSES],
   build: {
     // tools/size.ts reads the manifest to find the static imports of the entry chunk.
     manifest: true,

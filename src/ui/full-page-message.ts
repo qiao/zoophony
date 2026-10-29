@@ -5,11 +5,13 @@ import { createElement } from './dom.ts';
 /**
  * Shows a message that covers the page in place of the app, for example for a browser with no
  * WebGL2 (design 2.6, 2.8). The name of the app and one line about it stand above the message.
+ * The message also replaces the static title of `index.html`, because the page shows no piece.
  *
- * @param parent The element that gets the message.
+ * @param parent The element that gets the message, and that holds the static title.
  * @param text The message text of design 2.8.
  */
 export function showFullPageMessage(parent: HTMLElement, text: string): void {
+  parent.querySelector(':scope > header.title')?.remove();
   const page = createElement('main', 'full-page');
   const box = createElement('div', 'full-page-box');
   box.append(
