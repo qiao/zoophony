@@ -201,6 +201,79 @@ const VIOLIN_LEVELS: readonly BodyLevel[] = [
 ];
 
 /**
+ * The outline of the contrabass body around its center, as {@link VIOLIN_HALF}: the shoulders
+ * slope down from the neck to the widest point of the upper bout, as on a real double bass, and
+ * the upper corners stand out less (`docs/research/2026-10-29-string-models.md`).
+ */
+const BASS_HALF: readonly OutlinePoint[] = [
+  [0.12, 0],
+  [0.117, -0.012],
+  [0.1, -0.03],
+  [0.08, -0.046],
+  [0.058, -0.0555],
+  [0.026, -0.049],
+  [0.0227, -0.0428],
+  [0.006, -0.0405],
+  [-0.0138, -0.0443],
+  [-0.016, -0.0515],
+  [-0.035, -0.063],
+  [-0.062, -0.069],
+  [-0.092, -0.063],
+  [-0.112, -0.04],
+  [-0.12, 0],
+];
+
+/**
+ * The levels of the contrabass body: the levels of the violin with a flat back. The back of a
+ * double bass is flat, so the ribs start lower.
+ */
+const BASS_LEVELS: readonly BodyLevel[] = [
+  { scale: 0.95, y: 0, band: 'top' },
+  { scale: 1, y: 0.05, band: 'top' },
+  { scale: 0.965, y: 0.09, band: 'edge' },
+  ...VIOLIN_LEVELS.slice(3),
+];
+
+/**
+ * The break of the flat back of the contrabass: from this place along the body (from its
+ * center), the back slopes toward the top by this rise for each meter, up to the neck. The ribs
+ * keep their top edge.
+ */
+const BASS_BREAK = { from: 0.06, slope: 0.27 } as const;
+
+/**
+ * Gives the rise of the back of a body at a place along it.
+ *
+ * @param form The form of the body.
+ * @param x The place along the body, from its center.
+ * @returns The rise above the back plane.
+ */
+function backRise(form: StringForm, x: number): number {
+  return form === 'contrabass' ? Math.max(0, x - BASS_BREAK.from) * BASS_BREAK.slope : 0;
+}
+
+/**
+ * Moves the corners of the back of a body up by the rise of {@link backRise}. The rise gets
+ * smaller toward the top of the ribs, so the top edge stays.
+ *
+ * @param corners The corner list of the body, with the center at the origin.
+ * @param form The form of the body.
+ * @param ribTop The height of the top of the ribs.
+ * @returns The new corner list.
+ */
+function breakBack(corners: readonly number[], form: StringForm, ribTop: number): number[] {
+  const out = [...corners];
+  for (let i = 0; i + 2 < out.length; i += 3) {
+    const x = out[i] ?? 0;
+    const y = out[i + 1] ?? 0;
+    if (y < ribTop) {
+      out[i + 1] = y + backRise(form, x) * (1 - y / ribTop);
+    }
+  }
+  return out;
+}
+
+/**
  * Makes a closed outline from its half on the -z side.
  *
  * @param half The half from +x to -x, with the two end points on the x axis.
@@ -344,10 +417,13 @@ function boardRing(x: number): Vec3[] {
  * Makes a ring of the neck: a flat top under the fingerboard, and a round back.
  *
  * @param ring The ring of {@link NECK_RINGS}.
+ * @param form The form of the body.
  * @returns The corners, counterclockwise when seen from the nut.
  */
-function neckRing([x, half, bottom]: (typeof NECK_RINGS)[number]): Vec3[] {
+function neckRing([x, half, low]: (typeof NECK_RINGS)[number], form: StringForm): Vec3[] {
   const f = FINGERBOARD;
+  // The heel stays on the back where the back of the contrabass rises toward the neck.
+  const bottom = Math.max(low, backRise(form, x - VIOLIN.bodyLength / 2) + 0.002);
   const top = alongBoard(x, f.endUnder, f.nutUnder) + 0.0003;
   const middle = bottom + 0.55 * (top - bottom);
   return [
@@ -729,11 +805,12 @@ function inFrame(frame: Transform, local: Transform): Transform {
  *
  * @param piece The piece that gets the parts.
  * @param frame The placement of the violin axes in the piece axes, before the piece scale.
- * @param upright Whether the model is a cello or a contrabass. These have the cello wood and no
- *   chin rest (design 4.5, instrument colors).
+ * @param form The form of the body. The cello and the contrabass have the cello wood and no chin
+ *   rest (design 4.5, instrument colors).
  */
-function addViolinParts(piece: PieceBuilder, frame: Transform, upright: boolean): void {
+function addViolinParts(piece: PieceBuilder, frame: Transform, form: StringForm): void {
   const v = VIOLIN;
+  const upright = form !== 'violin';
   const top = upright ? INSTRUMENT_COLORS.celloTop : INSTRUMENT_COLORS.violinTop;
   const wood = upright ? INSTRUMENT_COLORS.celloWood : INSTRUMENT_COLORS.violinWood;
   const dark = INSTRUMENT_COLORS.fingerboard;
@@ -748,14 +825,22 @@ function addViolinParts(piece: PieceBuilder, frame: Transform, upright: boolean)
 
   // The body: the outline with its corners at each level, with the darker edges (design 4.5,
   // instrument colors).
-  const body = bodyBands(mirrorOutline(VIOLIN_HALF), VIOLIN_LEVELS, v.bodyThickness);
+  // The contrabass has its own outline and a flat back with a break.
+  const bass = form === 'contrabass';
+  const levels = bass ? BASS_LEVELS : VIOLIN_LEVELS;
+  const bands = bodyBands(mirrorOutline(bass ? BASS_HALF : VIOLIN_HALF), levels, v.bodyThickness);
+  const ribTop = (levels[3]?.y ?? 0) * v.bodyThickness;
+  const body = {
+    top: breakBack(bands.top, form, ribTop),
+    edge: breakBack(bands.edge, form, ribTop),
+  };
   part(body.top, top, [v.bodyLength / 2, 0, 0]);
   part(body.edge, wood, [v.bodyLength / 2, 0, 0]);
   // The f-holes: dark S-shaped stems with round eyes, a little above the arch.
   const arch = placeCorners(body.top, transform([v.bodyLength / 2, 0, 0]));
   part(fHoles(arch), dark, [0, 0, 0]);
   // The neck with its round heel, the fingerboard as a tapered board, and the nut.
-  part(sweep(NECK_RINGS.map(neckRing)), wood, [0, 0, 0]);
+  part(sweep(NECK_RINGS.map((ring) => neckRing(ring, form))), wood, [0, 0, 0]);
   part(sweep([boardRing(v.fingerboardEnd), boardRing(v.nut)]), dark, [0, 0, 0]);
   const nutWidth = FINGERBOARD.nutWidth + 0.001;
   const nutTop = v.stringHeight - STRING_SIZE;
@@ -1027,6 +1112,12 @@ function uprightRotation(id: keyof typeof UPRIGHT_HOLDS): Quat {
   return toQuat(new Quaternion().setFromRotationMatrix(basis));
 }
 
+/**
+ * The form of a bowed string model: the violin form of the violin, the viola, and the cello, or
+ * the contrabass form with sloped shoulders, a flat back, and machine heads.
+ */
+type StringForm = 'violin' | 'cello' | 'contrabass';
+
 /** The bowed strings of design 4.6. */
 type BowedStringId = 'violin' | 'viola' | 'cello' | 'contrabass';
 
@@ -1139,7 +1230,7 @@ export function buildBowedString(
       )
     : transform([0, 0, 0], IDENTITY);
   const piece = new PieceBuilder(s);
-  addViolinParts(piece, frame, upright);
+  addViolinParts(piece, frame, id === 'viola' ? 'violin' : id);
   if (upright) {
     // The end pin, from its sharp tip on the floor up to the tail end. A blunt tip on the slanted
     // pin went 4 mm into the floor.
