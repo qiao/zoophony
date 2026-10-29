@@ -177,7 +177,13 @@ async function measureBuild(root: string): Promise<DownloadPart[]> {
   const manifest = JSON.parse(manifestText) as Manifest;
   const demo = defaultDemoFile(dist, join(root, 'demos'));
   const html = await readFile(join(dist, 'index.html'), 'utf8');
-  const files = new Set([...staticChunkFiles(manifest, 'index.html'), ...htmlAssetFiles(html)]);
+  // The build puts the CSS of index.html inline (design 7.2), so the page holds the CSS that the
+  // manifest names. The check counts only the CSS files that the page links.
+  const linked = htmlAssetFiles(html);
+  const chunks = staticChunkFiles(manifest, 'index.html').filter(
+    (file) => !file.endsWith('.css') || linked.includes(file),
+  );
+  const files = new Set([...chunks, ...linked]);
   const paths = [join(dist, 'index.html'), ...[...files].map((file) => join(dist, file)), demo];
   return Promise.all(paths.map((path) => measure(root, path)));
 }

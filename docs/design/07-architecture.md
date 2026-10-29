@@ -142,6 +142,11 @@ its text again as a later LCP candidate.
 The plugin `INDEX_VALUES` of `vite.config.ts` writes the URL and the title lines from
 `DEFAULT_DEMO` into the placeholders of `index.html`, so that the page and the app cannot differ.
 
+The build puts the CSS of `index.html` inline in its head (`INLINE_CSS` of `vite.config.ts`),
+because a linked style sheet blocks the first paint for one more request. The CSS is about 6 kB
+after compression. Only a new deploy loads it again, because a repeat visit gets the page from
+its ETag. The dev server keeps the links. `pnpm size` counts the CSS in `index.html`.
+
 GitHub Pages gzips only the text types. Thus the build gzips the demo files and the preset files
 in place, with the same names (`GZIP_AUDIO` of `vite.config.ts`). The client removes the gzip
 layer with `DecompressionStream` when the first two bytes are `1f 8b` (`plainBytes()`), so the

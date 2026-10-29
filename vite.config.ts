@@ -123,6 +123,44 @@ const INDEX_VALUES: Plugin = {
 };
 
 /**
+ * The plugin that puts the style sheets of `index.html` inline in its head, in the build (design
+ * 7.2). A linked style sheet blocks the first paint for one more request, and the CSS is about
+ * 6 kB after compression. It removes a CSS file of the bundle that no other page links. The dev
+ * server keeps the links of `index.html`.
+ */
+const INLINE_CSS: Plugin = {
+  name: 'zoophony:inline-css',
+  apply: 'build',
+  enforce: 'post',
+  generateBundle(_options, bundle) {
+    const page = bundle['index.html'];
+    if (page?.type !== 'asset') {
+      return;
+    }
+
+    const decode = (source: string | Uint8Array): string =>
+      source instanceof Uint8Array ? new TextDecoder().decode(source) : source;
+    const otherPages = Object.values(bundle)
+      .filter((file) => file.type === 'asset' && file.fileName.endsWith('.html') && file !== page)
+      .map((file) => (file.type === 'asset' ? decode(file.source) : ''));
+    page.source = decode(page.source).replaceAll(
+      /<link rel="stylesheet"[^>]*href="([^"]+)"[^>]*>/gu,
+      (link, href: string) => {
+        const fileName = href.slice(BASE.length);
+        const css = bundle[fileName];
+        if (css?.type !== 'asset') {
+          return link;
+        }
+        if (!otherPages.some((html) => html.includes(href))) {
+          delete bundle[fileName];
+        }
+        return `<style>${decode(css.source).trim()}</style>`;
+      },
+    );
+  },
+};
+
+/**
  * The plugin that gzips the preset files and the demo files of the build in place, after Vite
  * writes `dist/` (design 6.2, 7.2, `tools/gzip-site.ts`). GitHub Pages sends these types with no
  * gzip. The dev server and the Node tools keep the plain files of `public/`.
@@ -166,7 +204,7 @@ const DEV_LICENSES: Plugin = {
 
 export default defineConfig({
   base: BASE,
-  plugins: [DEV_LOOK_OVERRIDE, INDEX_VALUES, GZIP_AUDIO, DEV_LICENSES],
+  plugins: [DEV_LOOK_OVERRIDE, INDEX_VALUES, INLINE_CSS, GZIP_AUDIO, DEV_LICENSES],
   build: {
     // tools/size.ts reads the manifest to find the static imports of the entry chunk.
     manifest: true,

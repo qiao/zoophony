@@ -45,7 +45,8 @@
     </script>
     <!-- The style sheets load before the first paint, in the dev server and in the build, so the
          first paint is dark and shows the styled load state (design 2.8). An import in the
-         script loaded them only after the script ran: a white page with a black disc. -->
+         script loaded them only after the script ran: a white page with a black disc. The build
+         puts them inline (INLINE_CSS of vite.config.ts, design 7.2). -->
     <link rel="stylesheet" href="/src/style.css" />
     <link rel="stylesheet" href="/src/ui/ui.css" />
   </head>

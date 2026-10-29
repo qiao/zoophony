@@ -197,8 +197,8 @@ instant with reduced motion. Each text keeps the contrast 4.5:1 of WCAG AA over 
   (`clearFirstScreen()`). A ring shows the load progress of the bytes, and the load text counts
   the files (`loadText()`). Until the first play, an intro line names the app, and "Select a
   piece" opens the demo list. ASD-STE100 has no verb "choose", so the buttons say "Select".
-  `index.html` holds the same load state as static HTML and links the style sheets in its head, so
-  the first paint shows no unstyled page.
+  `index.html` holds the same load state as static HTML and the style sheets in its head (inline
+  in the build, 7.2), so the first paint shows no unstyled page.
 - **Drawer**: a floating panel in `--panel-glass`, nearly opaque, so that its dim text keeps
   4.5:1 over white fur. Only the panel of the current tab scrolls. The arrow keys, Home, and End
   move between the tabs, as the tabs pattern of WAI-ARIA says. While the drawer is open, the
