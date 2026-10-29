@@ -67,8 +67,7 @@ describe('followFrame (design 2.6)', () => {
   });
 
   it('leaves out the longest frames, so that a scene build does not drop the tier', () => {
-    // A change of the section size during play stopped the frames for 350 to 567 ms (review of
-    // step 6, N2).
+    // A change of the section size during play stopped the frames for 350 to 567 ms.
     let watch = run(watchTier('high'), 0, 1 / 60, 60);
     watch = followFrame(watch, 1 + 0.567, true);
     watch = run(watch, 1.567 + 1 / 60, 1 / 60, 120);

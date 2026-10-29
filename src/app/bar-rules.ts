@@ -42,9 +42,8 @@ export function barShows(activity: BarActivity): boolean {
 }
 
 /**
- * Gives the text of a speed in the speed menu (design 2.8): the factor with at least one
- * decimal, as the pill "1.0x" of the mockup, and the sign of the multiplication (audit
- * 2026-10-05-ux-design, CP3).
+ * Gives the text of a speed in the speed menu (design 2.8): the factor with at least one decimal,
+ * as the pill "1.0x" of the mockup, and the sign of the multiplication.
  *
  * @param speed The speed.
  * @returns The text, for example "0.75×" or "1.0×".

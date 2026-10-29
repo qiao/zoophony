@@ -17,8 +17,8 @@ export const REPOSITORY_LABEL = 'Zoophony on GitHub';
 export const REPOSITORY_TEXT = 'Open source';
 
 /**
- * Gives the title of the page for the current piece (design 2.8, audit 2026-10-05-ux-design,
- * CP1): the browser tab and the history then name the piece.
+ * Gives the title of the page for the current piece (design 2.8): the browser tab and the history
+ * then name the piece.
  *
  * @param lines The title lines of the piece.
  * @param demo True for a demo, whose second line is the composer. The second line of a file of

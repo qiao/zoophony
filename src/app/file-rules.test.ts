@@ -93,8 +93,7 @@ describe('fileTitle (design 8.2)', () => {
   });
 
   it('uses the file name with no extension when the file has no usable name', () => {
-    // The second line stays empty, so that the page does not show the name two times (audit
-    // 2026-10-05-ux-design, LE3).
+    // The second line stays empty, so that the page does not show the name two times.
     expect(fileTitle('', 'ravel-bolero.mid')).toEqual({ title: 'ravel-bolero', composer: '' });
     expect(fileTitle('', 'suite.no.2.midi').title).toBe('suite.no.2');
     expect(fileTitle('', 'song').title).toBe('song');

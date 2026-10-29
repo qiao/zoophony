@@ -149,7 +149,7 @@ interface LoadedPiece {
 
 /**
  * Calculates the layout, the pose plan, and the shot plan of a score. The layout, the plans, and
- * the scene share one model cache (audit 2026-10-05-pose-scene, finding 8).
+ * the scene share one model cache.
  *
  * @param score The score.
  * @returns The layout, the player models, and the plans.
@@ -776,8 +776,8 @@ export class App {
     // The button "Auto" of the section size names the size of the new piece (design 2.8).
     this.#applySettings();
     this.#loadAudio(piece);
-    // The screenshot script of the reviews (tools/screenshots.ts) waits for this attribute. A
-    // file of the user has the value `file`.
+    // The screenshot script (tools/screenshots.ts) waits for this attribute. A file of the user
+    // has the value `file`.
     this.#canvas.dataset['demo'] = piece.file ?? 'file';
   }
 
@@ -1166,8 +1166,8 @@ export class App {
   }
 
   /**
-   * Pauses the transport after a failure, and offers a retry on the play buttons (review of
-   * step 5, F9) and in the message of the failure (design 2.8). The console gets the error.
+   * Pauses the transport after a failure, and offers a retry on the play buttons and in the message
+   * of the failure (design 2.8). The console gets the error.
    *
    * @param failed The piece whose audio failed.
    * @param error The error.

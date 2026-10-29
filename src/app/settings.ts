@@ -115,9 +115,8 @@ export interface AutoLabels {
 }
 
 /**
- * Gives the labels of the buttons "Auto" of the settings (design 2.8, audit
- * 2026-10-05-ux-design, DR4): the section size that "Auto" gives the current piece (3.8), and
- * the automatic tier (2.6).
+ * Gives the labels of the buttons "Auto" of the settings (design 2.8): the section size that "Auto"
+ * gives the current piece (3.8), and the automatic tier (2.6).
  *
  * @param orchestral `Score.orchestral` of the current piece, or `null` before the first piece.
  * @param tier The automatic tier.

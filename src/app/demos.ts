@@ -34,7 +34,7 @@ export const DEFAULT_DEMO: DemoId = DEMO_IDS[0];
 interface DemoInfo {
   /**
    * The title of the piece at the top left of the page and in the demo list, in one pattern:
-   * "{work}, {catalogue number}: {movement}" (audit 2026-10-05-ux-design, CP2).
+   * "{work}, {catalogue number}: {movement}".
    */
   readonly title: string;
   readonly composer: string;

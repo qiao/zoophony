@@ -50,8 +50,7 @@ type PlayAction = 'play' | 'pause' | 'wait' | 'cancel' | 'retry';
 
 /**
  * Gives the action of a click on the play button of the bar (design 2.4). Play waits until the
- * samples are ready. After a failed load or an audio failure, a click loads the audio again
- * (review of step 5, F9).
+ * samples are ready. After a failed load or an audio failure, a click loads the audio again.
  *
  * @param status The state of the current piece.
  * @returns The action.
@@ -80,9 +79,8 @@ export function playLabel(status: PieceStatus): 'Play' | 'Pause' {
 }
 
 /**
- * Tells if the piece stopped at its end, so that the play button of the bar shows "Play again"
- * with the icon "replay" (design 2.8, audit 2026-10-05-ux-design, AM2). A play at the end starts
- * the piece again from 0 (6.5).
+ * Tells if the piece stopped at its end, so that the play button of the bar shows "Play again" with
+ * the icon "replay" (design 2.8). A play at the end starts the piece again from 0 (6.5).
  *
  * @param status The state of the current piece.
  * @param songSec The song time that the bar shows, in seconds.
@@ -117,8 +115,8 @@ export function showsFirstScreen(status: PieceStatus): boolean {
 }
 
 /**
- * The line below the play button of the first screen until the first play of the session: the
- * name of the app and what it does (design 2.8, audit 2026-10-05-ux-design, FI2).
+ * The line below the play button of the first screen until the first play of the session: the name
+ * of the app and what it does (design 2.8).
  */
 export const INTRO_TEXT = 'Zoophony: an orchestra of animals plays your MIDI file.';
 
@@ -135,14 +133,14 @@ export const INSTRUMENTS_TEXT = 'Loading instruments';
 export const WAIT_TEXT = 'The music starts after the load.';
 
 /**
- * The part of the load ring that turns before the first byte of the samples arrives, and until
- * the bytes pass it (design 2.8, audit 2026-10-06-ux-design-2, N16).
+ * The part of the load ring that turns before the first byte of the samples arrives, and until the
+ * bytes pass it (design 2.8).
  */
 export const PENDING_SHARE = 0.15;
 
 /**
- * The time of a load after which the load text also gives the megabytes, in seconds (design 2.8,
- * audit 2026-10-06-ux-design-2, N22). A slow network then shows how much remains.
+ * The time of a load after which the load text also gives the megabytes, in seconds (design 2.8). A
+ * slow network then shows how much remains.
  */
 export const SIZE_AFTER_SEC = 10;
 
@@ -224,7 +222,7 @@ export function firstScreenView(
 
 /**
  * Gives the part of the load ring that shows the progress: the bytes of the preset files that
- * arrived, of the sum of their sizes (design 2.8, audit 2026-10-05-ux-design, LD2).
+ * arrived, of the sum of their sizes (design 2.8).
  *
  * @param progress The progress, or `null` before the list of the preset files is known.
  * @returns The part from 0 to 1.

@@ -19,8 +19,8 @@ export const CONTROL_KEYS = {
 } as const satisfies Readonly<Record<string, ControlKey>>;
 
 /**
- * Gives the text of the tooltip of a control (design 2.8, audit 2026-10-05-ux-design, CT1): the
- * name of the action, and its key in parentheses.
+ * Gives the text of the tooltip of a control (design 2.8): the name of the action, and its key in
+ * parentheses.
  *
  * @param label The accessible name of the control, for example "Automatic camera".
  * @param key The key of the control, or `null` for a control with no key.

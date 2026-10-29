@@ -25,7 +25,7 @@ describe('fileFromHash (design 2.2)', () => {
     expect(fileFromHash('#', false)).toBe('boulanger-matin');
     expect(fileFromHash('#demo=other', false)).toBe('boulanger-matin');
     expect(fileFromHash('#mozart-k525', false)).toBe('boulanger-matin');
-    // The demos that the user removed on 2026-10-05 (design 8.2).
+    // Demos that the app no longer has (design 8.2).
     for (const removed of ['beethoven-5', 'grieg-ase', 'mozart-k488']) {
       expect(fileFromHash(`#demo=${removed}`, false)).toBe('boulanger-matin');
     }

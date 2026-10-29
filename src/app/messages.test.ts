@@ -12,8 +12,7 @@ import {
 
 describe('the message texts (design 2.8)', () => {
   it('gives the failures and the missing WebGL2 the texts of the design', () => {
-    // The button "Try again" stands next to the text, so the text does not repeat it (audit
-    // 2026-10-05-ux-design, LE4).
+    // The button "Try again" stands next to the text, so the text does not repeat it.
     expect(FILE_FAILURE_TEXT).toBe('The demo did not load. Check the connection.');
     expect(LOAD_FAILURE_TEXT).toBe('The instruments did not load. Check the connection.');
     expect(NO_WEBGL2_TEXT).toBe(

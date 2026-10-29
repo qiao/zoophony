@@ -27,8 +27,8 @@ const SECTION_NAMES = {
 } as const satisfies Readonly<Record<SectionId, string>>;
 
 /**
- * The name of each section for a seat with one player (design 2.8, audit 2026-10-06-ux-design-2,
- * N20). One singer of the choir is a voice. The names of the other sections stay the same.
+ * The name of each section for a seat with one player (design 2.8). One singer of the choir is a
+ * voice. The names of the other sections stay the same.
  */
 const SECTION_SINGULARS = {
   ...SECTION_NAMES,
@@ -47,9 +47,9 @@ const SECTION_SINGULARS = {
 } as const satisfies Readonly<Record<SectionId, string>>;
 
 /**
- * The name of a seat of the section "piano" after its first program (design 2.8, audit
- * 2026-10-05-ux-design, DR2): the section holds the pianos, the celesta, and the organs (3.5).
- * Each entry gives the highest program of a group of GM programs. The piano model stays.
+ * The name of a seat of the section "piano" after its first program (design 2.8): the section holds
+ * the pianos, the celesta, and the organs (3.5). Each entry gives the highest program of a group of
+ * GM programs. The piano model stays.
  */
 const KEYBOARD_NAMES: readonly (readonly [number, string])[] = [
   [5, 'Piano'],
@@ -90,12 +90,11 @@ export function listText(items: readonly string[]): string {
 
 /**
  * Gives the name of each seat in the seat list (design 2.8). A seat of the section "piano" takes
- * the name of its first program, for example "Celesta". A seat with one player takes the
- * singular, for example "Flute", and the soloist that does not play a keyboard is "Flute
- * soloist" (audit 2026-10-06-ux-design-2, N20). The audit proposed "Solo flute", but the solo
- * button of the row would then read "Solo Solo flute". If more than one seat of a section has a name, the name
- * gets the number of the seat in that section, from 1: "Violins 1", "Violin 2". The soloist gets
- * no number.
+ * the name of its first program, for example "Celesta". A seat with one player takes the singular,
+ * for example "Flute", and the soloist that does not play a keyboard is "Flute soloist". With the
+ * name "Solo flute", the solo button of the row would read "Solo Solo flute". If more than one seat
+ * of a section has a name, the name gets the number of the seat in that section, from 1:
+ * "Violins 1", "Violin 2". The soloist gets no number.
  *
  * @param seats The seats of a score, `Score.seats`.
  * @param counts The number of players of each seat, from {@link playerCounts}.
@@ -243,8 +242,7 @@ const SPECIES_NAMES = {
 export const NO_ANIMAL_TEXT = 'No animal';
 
 /**
- * Gives the animal line of a seat (design 2.8, audit 2026-10-05-ux-design, DR1): the number of
- * players and their species.
+ * Gives the animal line of a seat (design 2.8): the number of players and their species.
  *
  * @param species The species of the seat, or `null` for the sound-only seat.
  * @param count The number of players of the seat.
