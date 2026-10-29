@@ -1,6 +1,7 @@
+# Output: an npz file of the welded vertices and the triangles of a mesh, for a measure script.
 """Writes the welded vertices (studio units and axes) and the triangles of the mesh to an npz file.
 
-    blender -b --factory-startup --python dump.py -- <bear.glb> <out.npz>
+    blender -b --factory-startup --python tools/blender/dump_mesh.py -- <bear.glb> <out.npz>
 """
 import sys
 

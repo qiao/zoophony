@@ -1,9 +1,10 @@
+# Output: `assets/models/penguin/penguin-beak.glb`.
 """Splits the closed beak of the penguin mesh of the user into an upper and a lower part along a
 mouth line, and closes each part with a cap of a dark mouth color, so that a jaw bone can open
 the beak. The outer form of the closed beak does not change, except a gap of `gap` units of the
 file between the two parts, so that the weld of `pnpm rig-mesh` does not join them again.
 
-    /Applications/Blender.app/Contents/MacOS/Blender --background --python beak_split.py -- \
+    /Applications/Blender.app/Contents/MacOS/Blender --background --python tools/blender/penguin_beak.py -- \
         <in.glb> <out.glb> <mouth y> [gap]
 
 The mouth y is the height of the mouth plane in the units of the studio (1 unit from the soles to

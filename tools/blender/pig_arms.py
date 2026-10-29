@@ -1,3 +1,4 @@
+# Output: `assets/models/pig/pig-arms.glb`.
 """Remodels the upper arms of a copy of the pig mesh of the user, in Blender (MCP or batch).
 
 The source has no upper arm of its own: above the elbow, the arm is a bulge of the trunk wall. For

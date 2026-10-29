@@ -1,3 +1,4 @@
+# Output: the `studio.legTurns` value of a rig config of `tools/mesh-rigs/`.
 """Gives the leg turns of a seat with the thighs sloped down, the shins slanted forward, and the
 soles flat, for a config of `pnpm rig-mesh` (`studio.legTurns`): the world turn of each left leg
 bone from the seated bind pose to the source, as a quaternion (x, y, z, w). The thigh points
@@ -9,7 +10,7 @@ whose print gives the knee angle with the slope of the thigh: that copy printed 
 `down`, which is correct only for a level thigh. The turns that it writes do not change. The
 seat of 2026-10-16 (`hip-open`) is `leg_turns.py <config> 15 8 23.8`. Usage:
 
-    uv run --no-project --with numpy python -I leg_turns.py <config.json> <down degrees> <out degrees> <slant degrees>
+    uv run --no-project --with numpy python -I tools/rig/leg_turns.py <config.json> <down degrees> <out degrees> <slant degrees>
 """
 import json
 import math

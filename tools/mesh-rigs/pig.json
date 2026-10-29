@@ -1,6 +1,6 @@
 {
   "source": "assets/models/pig/pig-arms.glb",
-  "sourceNote": "A copy of the mesh of the user (assets/models/pig/pig.glb) with new upper arms (assets/models/pig/README.md). The user said on 2026-10-21: \"the rabbit and pig's arms are still very deformed\", and chose a remodel in Blender. The mesh has no upper arm of its own: above the elbow, the arm is a bulge of the trunk wall, and each turn of the arm crumpled that wall. docs/research/2026-10-21-arm-form/pig_arms.py cuts each arm at a plane just below the elbow, removes the faces of the bulge, fills the wall again, and builds a round tube of two rings of 10 edges up to a closed dome around the shoulder joint. The wall, its rim, and two rings of the trunk around it are smoothed, because the saw rim and the fan showed as dark spikes at the top of each shoulder (docs/research/2026-10-21-arm-form.md).",
+  "sourceNote": "A copy of the mesh of the user (assets/models/pig/pig.glb) with new upper arms (assets/models/pig/README.md). The user said on 2026-10-21: \"the rabbit and pig's arms are still very deformed\", and chose a remodel in Blender. The mesh has no upper arm of its own: above the elbow, the arm is a bulge of the trunk wall, and each turn of the arm crumpled that wall. tools/blender/pig_arms.py cuts each arm at a plane just below the elbow, removes the faces of the bulge, fills the wall again, and builds a round tube of two rings of 10 edges up to a closed dome around the shoulder joint. The wall, its rim, and two rings of the trunk around it are smoothed, because the saw rim and the fan showed as dark spikes at the top of each shoulder (docs/research/2026-10-21-arm-form.md).",
   "output": "assets/models/pig/pig.rig.glb",
   "name": "Pig",
   "weld": 1e-05,
@@ -285,7 +285,7 @@
         0.731461
       ]
     },
-    "note": "The studio has no pig. legTurns gives the world turn of each left leg bone from the seated bind pose to the source, and the right side mirrors it. The posture is the seated posture of design 5.2: the thigh slopes 25 degrees down from the hip to the knee, the thighs turn 15 degrees out, so that the horn has room at the right knee, and the shin is vertical (docs/research/2026-10-16-hip-open/leg_turns.py <config> 25 15 0). The foot and the toes keep the turn of the source, so that the soles stand flat on the floor. The source shin slants 7.6 degrees back. The trunk shares and the bind arms are the values of the cat, the dog, the panda, the hippo, and the mouse."
+    "note": "The studio has no pig. legTurns gives the world turn of each left leg bone from the seated bind pose to the source, and the right side mirrors it. The posture is the seated posture of design 5.2: the thigh slopes 25 degrees down from the hip to the knee, the thighs turn 15 degrees out, so that the horn has room at the right knee, and the shin is vertical (tools/rig/leg_turns.py <config> 25 15 0). The foot and the toes keep the turn of the source, so that the soles stand flat on the floor. The source shin slants 7.6 degrees back. The trunk shares and the bind arms are the values of the cat, the dog, the panda, the hippo, and the mouse."
   },
   "weights": {
     "armSplit": 0.14,

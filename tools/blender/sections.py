@@ -1,6 +1,7 @@
+# Output: the cuts of a mesh that give the joint places of `tools/mesh-rigs/panda.json`.
 """Prints horizontal sections of the rabbit mesh of the user, in the units of the studio.
 
-    blender -b --factory-startup --python sections.py -- <rabbit-4.glb> [axis] [step]
+    blender -b --factory-startup --python tools/blender/sections.py -- <rabbit-4.glb> [axis] [step]
 
 The mesh is welded at 1e-5 and scaled to 1 unit from the soles to the ear tips, with the soles at
 y = 0, in the axes of the studio (y up, +z forward, +x the left side of the animal). For each cut

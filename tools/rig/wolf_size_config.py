@@ -1,3 +1,4 @@
+# Output: the places of `tools/mesh-rigs/wolf.json` for the head factor and the body factor.
 """Moves the places of the wolf rig config of round wolf-head (0e7130db) onto the source with a
 larger kept head and a smaller body (`proportions` of `tools/mesh-rigs/wolf.json`,
 `proportioned()` of `tools/blender/rig_mesh.py`). Each place goes back to the source before the
@@ -6,7 +7,7 @@ on each axis, and the kept head the factor `head` around the point (0, upper hei
 zone, 0). Directions (the palm, the bind arms, the leg turns, the tail bind) do not change,
 because the body scale is the same on each axis and the head scale too. The notes change by hand.
 
-    python3 -I size_config.py <wolf.json of 0e7130db> <out.json> <head> <body>
+    python3 -I tools/rig/wolf_size_config.py <wolf.json of 0e7130db> <out.json> <head> <body>
 """
 import json
 import sys

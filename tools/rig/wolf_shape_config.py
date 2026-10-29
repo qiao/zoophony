@@ -1,9 +1,10 @@
+# Output: the places of `tools/mesh-rigs/wolf.json` at the width 1.2 and the height 0.9.
 """Moves the places of the wolf rig config of round mesh-wolf onto the source at the proportions
 (width 1.2, height 0.9, depth 1): x takes 1.2, y takes 0.9, and z keeps its value. The cuts of
 the scaled source (measures.txt, arm-axis.txt, paw.txt) check the places. The palm normal is the
 measure of paw.txt. Prints the JSON of the changed values; the notes change by hand.
 
-    python3 -I shape_config.py <wolf.json of 980f2bf5> <out.json>
+    python3 -I tools/rig/wolf_shape_config.py <wolf.json of 980f2bf5> <out.json>
 """
 import json
 import sys
@@ -32,7 +33,7 @@ for joint in c['joints'].values():
     if isinstance(joint['tail'], list):
         joint['tail'] = point(joint['tail'])
 c['palm'] = [-0.55, -0.662, -0.51]
-# leg-turns.txt: docs/research/2026-10-16-hip-open/leg_turns.py <config> 25 15 0.
+# leg-turns.txt: tools/rig/leg_turns.py <config> 25 15 0.
 c['studio']['legTurns']['thigh'] = [0.597901, 0.061058, -0.130731, 0.788477]
 c['studio']['legTurns']['shin'] = [-0.03511, 0, 0.084263, 0.995825]
 w = c['weights']
@@ -58,7 +59,7 @@ for key in ('eyeBox', 'noseBox'):
     c['colors'][key] = [point(p) for p in c['colors'][key]]
 c['chair']['halfWidth'] = num(c['chair']['halfWidth'] * W)
 NOTES = {
-    'proportionsNote': 'The user, 2026-10-20: "make the wolf 0.9x shorter while keeping its width", then "actually, make the wolf 1.2x the width, for it to have similar body ratio as the fox", then "both change". The source takes 1.2 of its width (x) and 0.9 of its height (y) after its scale to 1 unit high, and keeps its depth (z), a choice of the manager. The meters for each unit stay, so the standing body is 0.9 times as high and 1.2 times as wide as in round mesh-wolf. Each place, height, width, and box of this config is in the units of the scaled source. The notes give the measures of round mesh-wolf on the source before the scale: x then takes 1.2, and y 0.9 (docs/research/2026-10-20-wolf-shape/shape_config.py). The cuts of the scaled source check the joints (docs/research/2026-10-20-wolf-shape/arm-axis.txt, paw.txt).',
+    'proportionsNote': 'The user, 2026-10-20: "make the wolf 0.9x shorter while keeping its width", then "actually, make the wolf 1.2x the width, for it to have similar body ratio as the fox", then "both change". The source takes 1.2 of its width (x) and 0.9 of its height (y) after its scale to 1 unit high, and keeps its depth (z), a choice of the manager. The meters for each unit stay, so the standing body is 0.9 times as high and 1.2 times as wide as in round mesh-wolf. Each place, height, width, and box of this config is in the units of the scaled source. The notes give the measures of round mesh-wolf on the source before the scale: x then takes 1.2, and y 0.9 (tools/rig/wolf_shape_config.py). The cuts of the scaled source check the joints (docs/research/2026-10-20-wolf-shape/arm-axis.txt, paw.txt).',
 }
 c = {k: v for pair in [((k, v), ('proportionsNote', NOTES['proportionsNote']))
                        if k == 'proportions' else ((k, v),) for k, v in c.items()]

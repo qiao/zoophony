@@ -1,3 +1,4 @@
+# Output: `assets/models/penguin/penguin-edge.glb`, from `penguin-beak.glb`.
 """Cuts the faces of the penguin mesh along the sharp edges of its texture, so that each face of the
 rig lies on one side of an edge, and the black and the white meet on a line through the faces as on
 the mesh of the user (user, 2026-10-28: "the penguine's head has unnatural gradient between black
@@ -5,7 +6,7 @@ and white. Make it look more like the original mesh", then option 1: cut the fac
 of the texture).
 
     /Applications/Blender.app/Contents/MacOS/Blender --background --factory-startup \
-        --python edge_cut.py -- <in.glb> <out.glb> [lightness] [limit]
+        --python tools/blender/penguin_edge.py -- <in.glb> <out.glb> [lightness] [limit]
 
 The steps:
 

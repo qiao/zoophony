@@ -1,3 +1,4 @@
+# Output: `assets/models/dog/dog-arms.glb`.
 """Remodels the inner side of each arm of a copy of a mesh of the user, in Blender (batch).
 
 This is `arm_patch.py` of `docs/research/2026-10-22-panda-armpit/` (the `rabbit_elbows.py` of the
