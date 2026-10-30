@@ -1526,13 +1526,13 @@ function variantPlugin(variant: SiteVariant): Plugin {
 /**
  * Builds the site of the working tree with the plugins of a variant ({@link variantPlugin}) and of
  * `--at` ({@link aimPlugin}) into a temporary folder, and serves it ({@link startSite}). The
- * folder goes away when the site closes.
+ * folder goes away when the site closes. `pnpm share-image` also builds its site with it.
  *
  * @param plugins The plugins.
  * @returns The site.
  * @throws Error if the build fails.
  */
-async function startVariantSite(plugins: readonly Plugin[]): Promise<Site> {
+export async function startVariantSite(plugins: readonly Plugin[]): Promise<Site> {
   const dir = await mkdtemp(join(tmpdir(), 'close-views-variant-'));
   const remove = (): Promise<void> => rm(dir, { recursive: true, force: true });
   try {
@@ -3999,12 +3999,12 @@ const AIM_MODULE = 'virtual:close-views-aim';
  * JSON of a `CameraPose` ({@link aimPose}). The last import of `src/main.ts` replaces `follow()`
  * and `update()` of `StageCamera` with a call of the original `follow()` with that camera. Thus
  * each frame takes that camera, in Free mode and in Cinematic mode. A page with no query `aim` is
- * the page of the app.
+ * the page of the app. `pnpm share-image` sets the camera of the share image with it.
  *
  * @param root The root of the tree to build.
  * @returns The plugin.
  */
-function aimPlugin(root: string): Plugin {
+export function aimPlugin(root: string): Plugin {
   // Vite gives the real path of each module, and a temporary folder can sit under a link.
   const top = realpathSync(root);
   const entry = join(top, 'src', 'main.ts');
