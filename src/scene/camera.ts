@@ -1,4 +1,4 @@
-import { PerspectiveCamera, Vector3 } from 'three';
+import { Matrix4, PerspectiveCamera, Vector3 } from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
 import { STAGE_THICKNESS } from '../models/stage.ts';
@@ -80,6 +80,13 @@ function glideTo(
 
 /** A point or a direction, which `#stageBox()` and `#nearLimit()` write before they read it. */
 const scratchPoint = new Vector3();
+
+/** The camera position and the view matrix of `#stageBox()`, which it writes before it reads. */
+const scratchEye = new Vector3();
+const scratchView = new Matrix4();
+
+/** The scale of the view matrix of `#stageBox()`. */
+const UNIT_SCALE = new Vector3(1, 1, 1);
 
 /** The move of the orbit target that runs: its start point and its start time. */
 interface TargetGlide {
@@ -213,13 +220,19 @@ export class StageCamera {
 
   /**
    * Gives the box of the stage and the players in the units of the full view (from -1 to 1, y
-   * up), with no frame: the 8 corners of the stage slab, up to the highest head.
+   * up), with no frame: the 8 corners of the stage slab, up to the highest head. The box is the
+   * view of a camera in the current direction at the default distance from the orbit target.
+   * Thus a zoom does not change the box, and the clear of the first screen keeps the zoom (design
+   * 2.5). A turn of the view changes the box.
    *
    * @returns The box, or `null` when a corner stands behind the camera.
    */
   #stageBox(): ScreenBox | null {
     const camera = this.camera;
-    camera.updateMatrixWorld();
+    const target = this.#controls.target;
+    const { distance } = defaultView(this.#stageSide, this.#width, this.#height);
+    scratchEye.subVectors(camera.position, target).setLength(distance).add(target);
+    scratchView.compose(scratchEye, camera.quaternion, UNIT_SCALE).invert();
     const tanV = Math.tan(((camera.fov / 2) * Math.PI) / 180);
     const tanH = tanV * camera.aspect;
     const half = this.#stageSide / 2;
@@ -230,7 +243,7 @@ export class StageCamera {
     for (let c = 0; c < 8; c++) {
       scratchPoint
         .set(c & 1 ? half : -half, c & 2 ? this.#stageTop : -STAGE_THICKNESS, c & 4 ? half : -half)
-        .applyMatrix4(camera.matrixWorldInverse);
+        .applyMatrix4(scratchView);
       const depth = -scratchPoint.z;
       if (depth <= camera.near) {
         return null;
