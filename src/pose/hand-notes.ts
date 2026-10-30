@@ -55,6 +55,11 @@ export interface HandNote {
    * since the note before of the same hand.
    */
   readonly since?: number;
+  /**
+   * The hand plays this many semitones from its keys, up for a positive value, so that it keeps
+   * away from the other hand (`splitHands()` with a distance `apart`). 0 when it is missing.
+   */
+  readonly shift?: number;
 }
 
 /**
@@ -70,10 +75,11 @@ export interface HandNote {
  * of the other hand.
  *
  * With a distance `apart`, the middles of the keys of the two hands stay at least that far apart,
- * because two wide paws on near keys go into each other. A chord wider than one octave then
- * splits only when the middles of its two parts are that far apart, and else one hand plays it.
- * When a hand plays nearer to the other hand, the other hand moves out of its way, away from it, at
- * the start of the chord: a note of loudness 0 on the key at that distance, with no sound.
+ * because two wide paws on near keys go into each other. When the middles of the two parts of a
+ * chord wider than one octave are nearer, each hand plays half of the difference away from its
+ * keys (`HandNote.shift`), so that a bass and a melody stay in two hands. When a hand plays nearer
+ * to the other hand, the other hand moves out of its way, away from it, at the start of the chord:
+ * a note of loudness 0 on the key at that distance, with no sound.
  *
  * @param notes The notes of the player, sorted by start.
  * @param loudness The loudness of each note, in the order of `notes`.
@@ -100,11 +106,12 @@ export function splitHands(
       .slice(group.first, group.first + group.count)
       .map((n) => n.pitch)
       .toSorted((a, b) => a - b);
-    const part = (low: number, high: number): HandNote => ({
+    const part = (low: number, high: number, shift = 0): HandNote => ({
       start: group.start,
       low,
       high,
       loudness: group.loudness,
+      shift,
     });
     let toLeft: HandNote | null = null;
     let toRight: HandNote | null = null;
@@ -112,11 +119,15 @@ export function splitHands(
     const below = cut === null ? group.low : (keys[cut - 1] ?? group.low);
     const above = cut === null ? group.high : (keys[cut] ?? group.high);
     const middle = (group.low + group.high) / 2;
-    if (cut !== null && (above + group.high) / 2 - (group.low + below) / 2 >= apart) {
-      toLeft = part(group.low, below);
-      toRight = part(above, group.high);
-      lastLeft = (group.low + below) / 2;
-      lastRight = (above + group.high) / 2;
+    if (cut !== null) {
+      // Each hand moves half of the missing distance away from the other hand.
+      const lowMiddle = (group.low + below) / 2;
+      const highMiddle = (above + group.high) / 2;
+      const shift = Math.ceil(Math.max(0, apart - (highMiddle - lowMiddle)) / 2);
+      toLeft = part(group.low, below, -shift);
+      toRight = part(above, group.high, shift);
+      lastLeft = lowMiddle - shift;
+      lastRight = highMiddle + shift;
     } else {
       const fromLeft = Math.abs(middle - lastLeft);
       const fromRight = Math.abs(middle - lastRight);
@@ -220,7 +231,8 @@ export interface HandTrack {
  *
  * @param notes The notes of the hand, sorted by start.
  * @param action How the hand plays.
- * @param pointOf Gives the place of the palm for the lowest and the highest key of a note.
+ * @param pointOf Gives the place of the palm for the lowest and the highest key of a note, and the
+ *   shift of the hand in semitones.
  * @param amplitude The seeded amplitude of the player.
  * @param firstKey The key of the hand before its first note.
  * @returns The note data.
@@ -228,7 +240,7 @@ export interface HandTrack {
 export function buildHandTrack(
   notes: readonly HandNote[],
   action: HandAction,
-  pointOf: (low: number, high: number) => Vec3,
+  pointOf: (low: number, high: number, shift: number) => Vec3,
   amplitude: number,
   firstKey: number,
 ): HandTrack {
@@ -244,19 +256,23 @@ export function buildHandTrack(
   );
   const rests = notes.map((_, i) => (plucks ? Math.min(m.restSec, 0.2 * gapAfter(i - 1)) : 0));
   const moveEnds = Float64Array.from(notes, (n, i) => n.start - (rests[i] ?? 0));
-  const moveStarts = Float64Array.from(notes, (n, i) => {
-    const gap = n.since === undefined ? gapAfter(i - 1) : n.start - n.since;
+  const gapBefore = (i: number): number => {
+    const n = notes[i];
+    return n?.since === undefined ? gapAfter(i - 1) : n.start - n.since;
+  };
+  const moveStarts = Float64Array.from(notes, (_, i) => {
+    const gap = gapBefore(i);
     const free = plucks ? gap - (rests[i] ?? 0) - (pluckTimes[i - 1] ?? 0) : m.strikeMove * gap;
     return (moveEnds[i] ?? 0) - Math.min(m.moveSec, free);
   });
   return {
     action,
-    first: pointOf(firstKey, firstKey),
+    first: pointOf(firstKey, firstKey, 0),
     starts: Float64Array.from(notes, (n) => n.start),
     moveStarts,
     moveEnds,
     pluckTimes,
-    points: Float64Array.from(notes.flatMap((n) => pointOf(n.low, n.high))),
+    points: Float64Array.from(notes.flatMap((n) => pointOf(n.low, n.high, n.shift ?? 0))),
     gestures: Float64Array.from(notes, (n) => gestureSize(n.loudness, amplitude)),
   };
 }

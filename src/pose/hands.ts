@@ -387,21 +387,28 @@ export function handsRig(model: PlayerModel, instrument: HandsInstrument, scale 
 
 /**
  * Gives the place of a palm for the keys of a note, in the model axes: the middle of its lowest
- * and its highest key, with the offset of the palm.
+ * and its highest key, with the offset of the palm. A shifted hand plays at the side place of the
+ * shifted keys, and at the height and the depth of its own keys.
  *
  * @param rig The points of the player.
  * @param side The hand.
  * @param low The lowest key.
  * @param high The highest key.
+ * @param shift The shift of the hand along the keys, in semitones (`HandNote.shift`).
  * @returns The place of the palm.
  */
-function palmPoint(rig: HandsRig, side: 'L' | 'R', low: number, high: number): Vec3 {
+function palmPoint(rig: HandsRig, side: 'L' | 'R', low: number, high: number, shift: number): Vec3 {
   const { keyPoint } = rig.hold;
   const offset = side === 'L' ? rig.hold.palmL : rig.hold.palmR;
-  const at = new Vector3(...keyPoint(low, rig.scale))
-    .add(new Vector3(...keyPoint(high, rig.scale)))
-    .multiplyScalar(0.5)
-    .add(new Vector3(...offset));
+  const middle = (a: number, b: number): Vector3 =>
+    new Vector3(...keyPoint(a, rig.scale))
+      .add(new Vector3(...keyPoint(b, rig.scale)))
+      .multiplyScalar(0.5);
+  const at = middle(low, high);
+  if (shift !== 0) {
+    at.x = middle(low + shift, high + shift).x;
+  }
+  at.add(new Vector3(...offset));
   return placePoint(rig.pieces, { bone: 'instrument', at: toVec3(at) });
 }
 
@@ -430,8 +437,20 @@ export function handTracks(
   const [firstL, firstR] = HAND_MOTION.startKeys;
   const { action } = rig.hold;
   return {
-    left: buildHandTrack(left, action, (l, h) => palmPoint(rig, 'L', l, h), amplitude, firstL),
-    right: buildHandTrack(right, action, (l, h) => palmPoint(rig, 'R', l, h), amplitude, firstR),
+    left: buildHandTrack(
+      left,
+      action,
+      (l, h, k) => palmPoint(rig, 'L', l, h, k),
+      amplitude,
+      firstL,
+    ),
+    right: buildHandTrack(
+      right,
+      action,
+      (l, h, k) => palmPoint(rig, 'R', l, h, k),
+      amplitude,
+      firstR,
+    ),
   };
 }
 

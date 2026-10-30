@@ -276,6 +276,9 @@ The rest of each family:
 
 - The left hand plays low notes and the right hand high notes. A narrow chord goes to the nearer
   hand, so a melody stays in one hand (`HANDS_HOLDS`, `splitHands()`).
+- The wide paws keep apart (`apart`). When the two parts of a wide chord, such as a bass and a
+  melody, come nearer, each paw plays a few keys away from its part (`HandNote.shift`). Thus the
+  two parts stay in two paws, and one paw does not jump between them.
 - Each key goes down with its notes, from the note start to the note end (`keyLevelsAt()`), so a
   seek and a mute give the correct keys at once.
 - The paw moves in for a black key, so the claws lie on it, as a pianist moves the hand in toward
