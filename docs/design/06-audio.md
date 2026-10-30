@@ -322,8 +322,9 @@ interface Tone {
 - **Gain of the piece.** `pieceGainDb()` brings each demo to `TARGET_LOUDNESS` (integrated) with
   the values of `DEMO_LOUDNESS` of the mix preset. The target is the music loudness of AES TD1008,
   because a louder target needs more gain reduction on the dynamic demos. A file of the user gets
-  0 dB. `pnpm loudness --fit --mix <name>` measures the values again after a change of a demo, the
-  SoundFont, the velocity curve, the mix, the mix bus, the hall, or the limiter.
+  0 dB. `pnpm loudness --fit --write --mix <name>` measures and writes the values again after a
+  change of a demo, the SoundFont, the velocity curve, the mix, the mix bus, the hall, or the
+  limiter.
 - **Loudness range.** A soft passage must stay audible at a volume that suits the loud passages.
   The median short-term loudness of the first 10 s of `beethoven-8` and `brahms-2` must be at most
   12 LU below `TARGET_LOUDNESS` (`st10` of `pnpm loudness`). `VELOCITY_ATTENUATION_CB` (6.1) is the
