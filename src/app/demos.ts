@@ -11,6 +11,7 @@ export const DEMO_IDS = [
   'beethoven-9',
   'pachelbel-p37',
   'beethoven-5-4',
+  'beethoven-7-4',
   'boulanger-matin',
   'mozart-k525',
   'bach-bwv1048',
@@ -85,6 +86,13 @@ export const DEMOS = {
     credit:
       'Score: OpenScore Orchestra, CC0. The exposition plays one time. MIDI file made with MuseScore 4.',
     lengthSec: 564,
+  },
+  'beethoven-7-4': {
+    title: 'Symphony No. 7, Op. 92: IV',
+    composer: 'Ludwig van Beethoven',
+    credit:
+      'Score: OpenScore Orchestra, CC0. The exposition plays one time. MIDI file made with MuseScore 4.',
+    lengthSec: 420,
   },
   'boulanger-matin': {
     title: "D'un matin de printemps",
