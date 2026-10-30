@@ -285,9 +285,11 @@ export function noBakeUniforms(): StageBakeUniforms {
  * no shadow in the map, so a wider blur gives it no self-shadow. The shadows of the players in
  * `orchestra-latest.png` are soft, and the radius 2 gives harder edges. The radius 5 of the high
  * tier makes the edge on the floor wider, and the feet keep their contact shadow,
- * because the baked stage takes no normal bias.
+ * because the baked stage takes no normal bias. 12 samples, as on the players, in place of 20:
+ * the stage top fills a large part of the screen, so 20 cost about 0.9 ms of GPU time in each
+ * frame of `perf-60.mid`, with no visible change of the edge.
  */
-export const STAGE_SHADOW = { radius: 3, samples: 20 } as const;
+export const STAGE_SHADOW = { radius: 3, samples: 12 } as const;
 
 /** The normal bias of the spot shadows in the vertex chunk of three.js r186. */
 const SPOT_NORMAL_BIAS =
