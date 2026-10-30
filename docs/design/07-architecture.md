@@ -156,7 +156,7 @@ stays below about 10 ms on the development Mac.
 
 ```text
 module task ─> probe of WebGL2 ─> renderer ─> app and fetch ─> slices of the build ─> show
-                                                                │ (about 4 ms each)
+                                                                │ (SLICE_MS each)
    score ─> models and layout ─> pose plan ─> shot plan ─> scene steps (GPU waits)
 ```
 
@@ -170,7 +170,7 @@ module task ─> probe of WebGL2 ─> renderer ─> app and fetch ─> slices of
 - **Scene build.** `StageScene.prepareSteps()` builds the scene of a layout, and `show()` swaps
   it in one task. The steps compile the programs of each pass with a render target, as the pass
   draws them, and wait for `KHR_parallel_shader_compile`. The bake, the environment, and the
-  capture render in steps, with a fence wait after each GPU step, because an upload waits on the
+  capture render in steps, with a fence wait at the end of each, because an upload waits on the
   main thread while the GPU is busy. One draw of each player geometry on a warm layer uploads its
   buffers and builds its morph texture. The first frame thus compiles and uploads nothing new.
 - **Start.** One probe context gives WebGL2 and the target format (`probeWebgl2()`). The probe
