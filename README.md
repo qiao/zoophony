@@ -63,6 +63,16 @@ pnpm build
 | Drag (> 4 px) | Orbit 3D camera |
 | Scroll / Pinch | Zoom in or out |
 
+## Technology
+
+- [Three.js](https://threejs.org/) renders the stage with WebGL2.
+- [TypeScript](https://www.typescriptlang.org/) and [Vite](https://vite.dev/). The UI uses no
+  framework, because it is small.
+- [spessasynth_core](https://github.com/spessasus/spessasynth_core) plays the SoundFont in an
+  AudioWorklet.
+- [Oxlint](https://oxc.rs/) checks the code, and oxfmt formats it.
+- The site is static, and [Vercel](https://vercel.com/) hosts it.
+
 ## Architecture
 
 One `Score` drives both the sound and the animals. `poseAt()` calculates each pose only from the
