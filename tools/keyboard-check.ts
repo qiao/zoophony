@@ -6,9 +6,16 @@ import type { Browser, CDPSession, Page, Route } from '@playwright/test';
 import { preview } from 'vite';
 
 import { FIRST_PLAY, SAMPLES_READY } from '../src/app/dev-hook.ts';
+import { DEFAULT_DEMO, DEMOS } from '../src/app/demos.ts';
 import { FILE_FAILURE_TEXT } from '../src/app/messages.ts';
-import { REPOSITORY_LABEL, REPOSITORY_URL } from '../src/app/page-title.ts';
+import { REPOSITORY_LABEL, REPOSITORY_TEXT, REPOSITORY_URL } from '../src/app/page-title.ts';
 import { chromiumArgs } from './chromium-args.ts';
+
+/** The accessible name of the link to GitHub, as `src/ui/title.ts` writes it (design 2.8). */
+const REPOSITORY_NAME = `${REPOSITORY_TEXT}: ${REPOSITORY_LABEL}`;
+
+/** The title of the default demo: the current row of the demo list at start. */
+const DEFAULT_TITLE = DEMOS[DEFAULT_DEMO].title;
 
 /** The result of one keyboard operation of one control. */
 export interface KeyCheck {
@@ -300,7 +307,7 @@ async function checkSelectPiece(browser: Browser, base: string): Promise<KeyChec
       'Select music (first screen)',
       `Tab x${tabs}, Enter`,
       `the drawer opens: ${opened}; focus on "${focus}"`,
-      tabs === 3 && opened && focus.startsWith("D'un matin"),
+      tabs === 3 && opened && focus.startsWith(DEFAULT_TITLE),
     );
   } finally {
     await page.close();
@@ -569,7 +576,7 @@ async function checkRepositoryLink(c: Checker, page: Page): Promise<void> {
   await page.context().route(REPOSITORY_URL, async (route) => {
     await route.fulfill({ contentType: 'text/plain', body: 'Zoophony' });
   });
-  const tabs = await c.tabTo(named(REPOSITORY_LABEL));
+  const tabs = await c.tabTo(named(REPOSITORY_NAME));
   const [tab] = await Promise.all([
     page.context().waitForEvent('page'),
     page.keyboard.press('Enter'),
@@ -582,7 +589,7 @@ async function checkRepositoryLink(c: Checker, page: Page): Promise<void> {
     'Link to GitHub',
     `Tab x${tabs}, Enter`,
     `opens ${url} in a new tab; focus stays on "${focus}"`,
-    tabs === 1 && url === REPOSITORY_URL && focus === REPOSITORY_LABEL,
+    tabs === 1 && url === REPOSITORY_URL && focus === REPOSITORY_NAME,
   );
 }
 
@@ -620,7 +627,7 @@ async function checkDrawer(c: Checker, page: Page, phone: boolean): Promise<void
   const toButton = await c.tabTo(named('Open the drawer'));
   await c.press(['Enter']);
   const open = await c.attribute('.bar button[aria-expanded]', 'aria-expanded');
-  await c.tabTo((label) => label.startsWith("D'un matin"));
+  await c.tabTo((label) => label.startsWith(DEFAULT_TITLE));
   await c.press(['Escape']);
   const closed = await page.evaluate(() =>
     document.querySelector('.drawer')?.hasAttribute('hidden'),
@@ -651,7 +658,7 @@ async function checkDrawer(c: Checker, page: Page, phone: boolean): Promise<void
     shown.join(' > '),
     order[0] === 'Music' &&
       order[1] === 'Close the drawer' &&
-      order[2]?.startsWith("D'un matin") === true &&
+      order[2]?.startsWith(DEFAULT_TITLE) === true &&
       order.at(-1) === 'Open a MIDI file',
   );
 
