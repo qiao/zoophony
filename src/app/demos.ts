@@ -9,6 +9,7 @@ export const DEMO_IDS = [
   'mozart-k417',
   'bach-bwv1050',
   'beethoven-9',
+  'pachelbel-p37',
   'boulanger-matin',
   'mozart-k525',
   'bach-bwv1048',
@@ -70,6 +71,12 @@ export const DEMOS = {
     credit:
       'Score: OpenScore Orchestra, CC0. Bars 543 to 590 and 851 to 940 of the finale. MIDI file made with MuseScore 4.',
     lengthSec: 158,
+  },
+  'pachelbel-p37': {
+    title: 'Canon in D, P. 37',
+    composer: 'Johann Pachelbel',
+    credit: 'Score: Mutopia Project, piece 2047, CC BY 4.0. Typeset by Michael Fischer v. Mollard.',
+    lengthSec: 245,
   },
   'boulanger-matin': {
     title: "D'un matin de printemps",

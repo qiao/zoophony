@@ -157,6 +157,7 @@ describe('the demo files after demos/patches.json (design 8.3)', () => {
       'mozart-k315.mid',
       'mozart-k417.mid',
       'mozart-k525.mid',
+      'pachelbel-p37.mid',
     ]);
   });
 

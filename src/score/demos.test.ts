@@ -210,6 +210,13 @@ const EXPECTED_SECTIONS: ReadonlyMap<string, ReadonlyMap<SectionId, number>> = n
       cello: 1,
     }),
   ],
+  [
+    'pachelbel-p37.mid',
+    sectionTable({
+      violin: 3,
+      cello: 1,
+    }),
+  ],
 ]);
 
 /** Puts the seat counts of one row of the table in the order of `SECTION_ORDER`. */
@@ -300,8 +307,9 @@ describe('the demo tests of design 8.5, after the changes of demos/patches.json'
     // No seat of another section, and no sound-only seat: no note has a wrong program.
     expect(seats.some((seat) => seat.section === 'sound-only')).toBe(false);
     expect([...seatCounts(seats)]).toEqual([...(EXPECTED_SECTIONS.get(name) ?? [])]);
-    // Eine kleine Nachtmusik has no contrabass part and no ensemble program (design 3.8).
-    expect(result.score.orchestral).toBe(name !== 'mozart-k525.mid');
+    // Eine kleine Nachtmusik and the Canon have no contrabass part, no wind part, and no ensemble
+    // program (design 3.8).
+    expect(result.score.orchestral).toBe(!['mozart-k525.mid', 'pachelbel-p37.mid'].includes(name));
     // The first track of each demo has a generic name: "control track" or "Conductor".
     expect(result.score.sequenceName).toBe('');
   });

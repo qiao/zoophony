@@ -21,6 +21,7 @@ export const DEMO_LOUDNESS: Readonly<Record<MixName, Readonly<Record<DemoId, num
   hall: {
     'boulanger-matin': -19.8,
     'beethoven-9': -11.0,
+    'pachelbel-p37': -20.4,
     'mozart-k525': -29.7,
     'bach-bwv1048': -19.9,
     'beethoven-8': -23.4,
@@ -37,6 +38,7 @@ export const DEMO_LOUDNESS: Readonly<Record<MixName, Readonly<Record<DemoId, num
   cinematic: {
     'boulanger-matin': -18.2,
     'beethoven-9': -9.0,
+    'pachelbel-p37': -18.5,
     'mozart-k525': -27.9,
     'bach-bwv1048': -17.6,
     'beethoven-8': -21.7,

@@ -31,13 +31,16 @@ All compositions are in the public domain. Each file also has its own license.
 | `mendelssohn-op61` | `src/mendelssohn-op61.mid` | Mendelssohn, A Midsummer Night's Dream, Op. 61: V | [Mutopia 80](https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=80) | Public Domain | Aaron Gage |
 | `mozart-k417` | `src/mozart-k417.mid` | Mozart, Horn Concerto No. 2, K. 417, mvt 3 | [Mutopia 901](https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=901) | Public Domain | Maurizio Tomasi |
 | `mozart-k191` | `src/mozart-k191.mid` | Mozart, Bassoon Concerto, K. 191, mvt 3 | [Mutopia 686](https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=686) | Public Domain | Maurizio Tomasi |
+| `pachelbel-p37` | `src/pachelbel-p37.mid` | Pachelbel, Canon in D, P. 37 ("Canon per 3 Violini e Basso") | [Mutopia 2047](https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=2047), file `canon_per_3_violini_e_basso.mid` in the MIDI zip | CC BY 4.0 | Michael Fischer v. Mollard |
 
-The licenses do not require a credit line. The credits panel of the app still lists each source
-and each typesetter.
+Only the CC BY 4.0 license of `pachelbel-p37` requires a credit line. The credits panel of the
+app lists each source and each typesetter.
 
 The Mutopia pages were read on 2026-10-04, and the page of piece 2230 on 2026-10-05. Each page
 shows "Copyright: Public Domain". The LilyPond source of piece 2230 also holds
-`license = "Public Domain"`.
+`license = "Public Domain"`. The page of piece 2047 was read on 2026-10-30. It shows
+"Copyright: Creative Commons Attribution 4.0", and its LilyPond source holds
+`license = "Creative Commons Attribution 4.0"`.
 
 The OpenScore Orchestra README gives "Scores: CC0 1.0 Universal; Annotations: CC-By-SA" (read
 on 2026-10-05 at commit `8f677853`). Each score holds the same text in its `copyright` meta tag.
@@ -60,6 +63,7 @@ on 2026-10-05 at commit `8f677853`). Each score holds the same text in its `copy
 | `src/mendelssohn-op61.mid` | `2f421b302892d4bc8de5832d61c1d9c8b091eeba62fb31b180626d1dd895261a` |
 | `src/mozart-k417.mid` | `d6ab9bc12bfdc4dedd0751a45d3ad1cd1d8a549101a5c3649c38e202ef3d84fb` |
 | `src/mozart-k191.mid` | `3fa97dfb3136ffe1c62e5420a44c5a630954a92e7fb33b8858a05717d9adf284` |
+| `src/pachelbel-p37.mid` | `953b73e270117d388e9ef1a76f8b9e97ff640d1400768849f41a3cf71c59cbc1` |
 | `boulanger/matin-nolyrics.mscz` | `cbcca2cd6b43c0d58ba0c3f38b7e9bfbc438e1b1ec4720b6bea784e7fbcd013f` |
 
 ## Program changes

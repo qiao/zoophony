@@ -33,7 +33,7 @@ describe('the decoded samples of each demo (design 9.7, "Memory")', () => {
   }, 120_000);
 
   it('decodes the presets of each demo to at most 100 MB of PCM', () => {
-    expect(demoPresets.size).toBe(14);
+    expect(demoPresets.size).toBe(15);
     for (const [file, presets] of demoPresets) {
       const bytes = resolvePresetFiles(index, presets).reduce(
         (sum, entry) => sum + (sizes.get(entry.file) ?? 0),
