@@ -189,6 +189,10 @@ PARENTS = {
 #: The arm bones of each side, from the shoulder out. The clavicle does not move.
 ARM = ('upper_arm', 'forearm', 'forearm_twist', 'hand', 'fingers')
 
+#: The arm bones that keep the turn of the upper arm in the bind with `studio.straightArms`
+#: (`bind_turns()`), so that the elbow and the wrist of the bind keep the angles of the source.
+STRAIGHT_ARM = ('forearm', 'hand')
+
 #: The share of the twist from the forearm to the paw that the forearm twist bone takes, as
 #: `TWIST_SHARE` of `src/models/studio-rig.ts`.
 TWIST_SHARE = 0.5
@@ -3343,9 +3347,11 @@ def bind_turns(config, heads, ends, rolls, turn=0.0):
     With a recline (`turn` degrees, `trunk_turn()`), each trunk bone of the shares of
     `studio.trunk` takes its share of it (`recline()`), the clavicles turn with the chest, and the
     ears with the head. Each arm bone turns the least way onto its bind direction after the turn
-    of its parent, so that the arm does not twist. With `bindSupination`, the paw of a side then
-    turns about its bind forearm toward supination by its angle in degrees, and the fingers turn
-    with it (`paw_supination()`). The bones of a tail of two bones turn so onto the directions of
+    of its parent, so that the arm does not twist. With `studio.straightArms`, the forearm and the
+    paw keep the turn of the upper arm, so that the elbow and the wrist keep the angles of the
+    source (`bind_hinges()`). With `bindSupination`, the paw of a side then turns about its bind
+    forearm toward supination by its angle in degrees, and the fingers turn with it
+    (`paw_supination()`). The bones of a tail of two bones turn so onto the directions of
     `tailBind`. With a recline, the tip of the tail turns until its end is at the height of the
     upright bind. The other bones do not turn."""
     studio = config['studio']
@@ -3370,11 +3376,14 @@ def bind_turns(config, heads, ends, rolls, turn=0.0):
                 # The twist bone and the fingers keep the turn of their parent.
                 turns[name] = parent
                 continue
-            target = np.asarray(studio['bindArms'][bone], float)
-            if side == 'R':
-                target = mirrored(target)
-            now = parent @ unit(ends[name] - heads[name])
-            turns[name] = swing(now, target) @ parent
+            if bone in STRAIGHT_ARM and studio.get('straightArms', False):
+                turns[name] = parent
+            else:
+                target = np.asarray(studio['bindArms'][bone], float)
+                if side == 'R':
+                    target = mirrored(target)
+                now = parent @ unit(ends[name] - heads[name])
+                turns[name] = swing(now, target) @ parent
             if bone == 'hand':
                 turns[name] = paw_supination(studio, side, turns, heads) @ turns[name]
             parent = turns[name]
@@ -3420,6 +3429,28 @@ def paw_supination(studio, side, turns, heads):
         return np.eye(3)
     along = turns[f'forearm_{side}'] @ unit(heads[f'hand_{side}'] - heads[f'forearm_{side}'])
     return axis_turn(along, np.radians(angle) * (-1 if side == 'L' else 1))
+
+
+def bind_hinges(config, turns, heads, ends):
+    """Gives the unit elbow axis of each arm in the bind pose for a config with
+    `studio.straightArms`, or `None` with no such rule. The app turns each elbow about this axis
+    (`StudioBody.hinges`, `poseArm()` of `src/models/studio-rig.ts`). A straight bind arm has no
+    plane of its own, so the axis is the axis of the bent bind of `studio.bindArms`: the bind
+    upper arm × the bind forearm direction of the config. Thus the upper arm and the paw take the
+    same world turns in each pose as with the bent bind. The forearm differs by the angle of the
+    source forearm out of the plane of the bent bind."""
+    studio = config['studio']
+    if not studio.get('straightArms', False):
+        return None
+    out = {}
+    for side in 'LR':
+        name = f'upper_arm_{side}'
+        upper = turns[name] @ unit(ends[name] - heads[name])
+        fore = np.asarray(studio['bindArms']['forearm'], float)
+        if side == 'R':
+            fore = mirrored(fore)
+        out[side] = unit(np.cross(upper, unit(fore)))
+    return out
 
 
 def posed_heads(heads, turns):
@@ -5009,6 +5040,7 @@ def main():
     trunk = trunk_turn(config, long_heads, long_ends, rolls)
     turns = bind_turns(config, long_heads, long_ends, rolls, trunk)
     bind_heads = posed_heads(long_heads, turns)
+    hinges = bind_hinges(config, turns, long_heads, long_ends)
     bind_frames = {n: turns[n] @ src_frames[n] for n in BONES}
     matrices = [move(turns[n], long_heads[n], bind_heads[n]) for n in BONES]
     if trunk:
@@ -5410,6 +5442,12 @@ def main():
         # bones of the upper arms (`StudioBody.upperTwist`).
         extras['upperTwist'] = float(upper_share)
         log(f'upper twist: the twist bone of each upper arm takes {upper_share} of its roll')
+    if hinges is not None:
+        # `pnpm studio-body` writes the elbow axes into the body (`StudioBody.hinges`).
+        extras['hinges'] = {side: [round(float(x), 6) + 0.0 for x in axis]
+                            for side, axis in hinges.items()}
+        log(f"hinges: the bind arms are straight, and the elbows turn about the axes "
+            f"L {extras['hinges']['L']} and R {extras['hinges']['R']}")
     if trunk:
         # `pnpm studio-body` takes the scale of the standing shoulders from the clip `reference`
         # of a rig whose trunk reclines in the seated bind pose.
