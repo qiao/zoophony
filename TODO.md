@@ -141,6 +141,12 @@ passes.
       is weaker. The claws stay at the key top and do not follow a pressed key down.
 - [ ] Polar bear pianist: in the lift and the lowering, the paws and the forearms touch the front of
       the case up to 1.5 cm deep (limit 1.5 cm).
+- [ ] Polar bear pianist: at 7 black key notes of the demos, the arm is at its full reach, and the
+      palm stops 2.8 to 5.7 cm short of the key (the note target check of the pianist clearance).
+      A lean toward the keys for a far black key can give the reach.
+- [ ] Polar bear pianist: on a white key, the lowest claw point hangs about 3 cm in front of the
+      front edge, at the height of the key top, so the claws do not rest on the key. Check it in a
+      close view, and move the palm in (`palmL`, `palmR`) with the arm gate.
 - [ ] Polar bear wrist: one edge of the left wrist band, on the palm side, stays concave in the play
       at a groove of the mesh. Check it from below in the stage light, and fair the groove.
 - [ ] Polar bear paws: the automatic weights give each paw about 0.35 of the wrist helper, so the
