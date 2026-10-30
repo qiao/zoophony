@@ -327,5 +327,7 @@ instant with reduced motion. Each text keeps the contrast 4.5:1 of WCAG AA over 
 - The focus order is the title, the bar, then the drawer.
 - When a focused play button of the first screen or a focused message goes away, the play button
   of the bar gets the focus.
+- A row of the music list that a click focused shows no focus ring, also after Space or an arrow
+  key. A Tab into the list shows the ring.
 - The bar stays visible while a control of the bar has the keyboard focus (`:focus-visible`),
   while the pointer is over it, and while the drawer is open.

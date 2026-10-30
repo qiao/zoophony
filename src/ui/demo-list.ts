@@ -63,6 +63,15 @@ export class DemoList {
           event.preventDefault();
         }
       });
+      // The browser shows the focus ring after each key press, also on a row that a click
+      // focused. A row that gets the focus with no ring keeps no ring, so that Space and the
+      // arrows of the page do not show it (design 2.8). A Tab into the list shows the ring.
+      row.addEventListener('focus', () => {
+        row.classList.toggle('is-pointer-focus', !row.matches(':focus-visible'));
+      });
+      row.addEventListener('blur', () => {
+        row.classList.remove('is-pointer-focus');
+      });
       const item = createElement('li');
       item.append(row);
       this.element.append(item);
