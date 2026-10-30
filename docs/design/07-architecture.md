@@ -251,12 +251,25 @@ the constants of `app/page-title.ts`, so that the page and the app cannot differ
   font file of the line (`assets/fraunces/fraunces.ttf`) stays out of the build, so the license file
   (7.3) does not change.
 - **Structured data**: a JSON-LD `WebApplication` with the name, the URL, the description, the
-  image, the category, the need for WebGL2 (2.6), and a free offer. It holds no personal data.
+  image, the category, the need for WebGL2 (2.6), and a free offer. It holds no personal data, so
+  it has no `Organization` with a contact point and a postal address.
 - **Crawlers**: `public/robots.txt` lets each crawler read each path, and names
-  `public/sitemap.xml`, which lists the start page. Both name `SITE_URL`. The development pages
-  keep their `noindex` (7.1) and stay open in `robots.txt`, because a crawler that may not read a
-  page does not see its `noindex`.
+  `public/sitemap.xml`, which lists the start page and the site pages. Both name `SITE_URL`. The
+  development pages keep their `noindex` (7.1) and stay open in `robots.txt`, because a crawler
+  that may not read a page does not see its `noindex`.
 - **Text of the page**: Google renders the page, maybe with no WebGL2. With WebGL2, the page shows
   the wordmark as its `h1` (2.8), the piece title, and the intro line with the name and one line
   about the app. With no WebGL2, the full-page message shows the name as its `h1`, `ABOUT_TEXT`,
-  and the message (2.6). Each text is visible, and each visitor gets the same HTML.
+  and the message (2.6). Each text is visible, and each visitor gets the same HTML. The start page
+  adds no long text for crawlers, because a visible text block covers the stage and a hidden one
+  breaks this rule. An agent reads the Markdown copy and the site pages.
+- **Site pages**: `tools/site-pages.ts` writes them from one source into the build. `/about`,
+  `/contact`, and `/privacy` are static HTML pages in the colors of the UI, with all text in the
+  HTML, because an agent checks such pages before it names a site. The contact page sends each
+  message to the issues of the repository, so no page holds an email address.
+- **Markdown for agents**: each site page and the start page have a Markdown copy. `llms.txt` holds
+  the text of `index.md`, with the sections "When to use" and "When to use a different tool".
+  The routes of `vercel.json` send the copy when the `Accept` header names `text/markdown`, and
+  `404.md` with the status 404 for a missing path. Browsers do not name `text/markdown`, so they
+  get the HTML. These paths send `Vary: Accept`, so that a cache keeps the two copies apart. The
+  head of `index.html` names `index.md` as its alternate, for an agent that sends no such header.

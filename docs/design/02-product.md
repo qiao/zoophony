@@ -140,6 +140,9 @@ Version 1 has no analytics, no cookies, and no service worker.
 The link to the repository on GitHub (2.8) is a plain link. The page loads nothing from GitHub,
 and the link sends no referrer (`rel="noopener noreferrer"`).
 
+The page `/privacy` (7.4) gives these facts to the visitors, from `PRIVACY` of
+`tools/site-pages.ts`. A change of this section updates that page in the same commit.
+
 ## 2.8 UI spec
 
 The prototype [`prototype/ui.html`](../prototype/ui.html) and its screenshots show the tokens
