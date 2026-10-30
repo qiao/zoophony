@@ -1,7 +1,7 @@
 /**
  * Measures the loudness of each demo at the output of the app (design 6.8).
  *
- * Usage: `pnpm loudness [--mix <name>] [--demo <id>]... [--file <path>]... [--fit]
+ * Usage: `pnpm loudness [--mix <name>] [--demo <id>]... [--file <path>]... [--fit [--write]]
  * [--target <LUFS>]... [--json] [--check] [--wav <dir> [--seconds <s>]]`
  *
  * For each demo (all demos when the run has no `--demo` and no `--file`) and each file of
@@ -25,6 +25,9 @@
  *   `--check` refuses a file.
  * - `--fit` finds the piece gain that brings each demo within 0.05 LU of `TARGET_LOUDNESS`, in
  *   steps of 0.1 dB, and gives the value for `DEMO_LOUDNESS`: the target minus that gain.
+ * - `--write` with `--fit` writes the value of each demo of the run into `DEMO_LOUDNESS` of
+ *   `src/audio/demo-loudness.ts`, in the block of the mix preset, after the last demo. It changes
+ *   only these rows, so the order of the keys and the format stay. It refuses a file of `--file`.
  * - `--target <LUFS>` fits to this target in place of `TARGET_LOUDNESS`. Each target gives one
  *   row for each demo, from one synth render.
  * - `--json` prints one JSON object for each demo, with the short-term loudness at each second.
@@ -93,6 +96,9 @@ const CHECK_TOLERANCE = 0.5;
 
 /** The highest true peak of a demo in dBTP for `--check` (EBU R 128). */
 const CHECK_TRUE_PEAK = -1;
+
+/** The file of `DEMO_LOUDNESS`, which `--write` changes. */
+const TABLE_FILE = 'src/audio/demo-loudness.ts';
 
 /** The synth output of one demo and its song length. */
 export interface SynthRender {
@@ -605,6 +611,35 @@ function checkFailures(row: Row): string[] {
 }
 
 /**
+ * Writes fitted values into `DEMO_LOUDNESS` of {@link TABLE_FILE}. It replaces only the value of
+ * each given demo in the block of the mix preset, so the order of the keys and the format stay.
+ *
+ * @param mix The mix preset.
+ * @param values The value of each demo in LUFS, rounded to 0.1.
+ * @throws Error if the file has no block of the mix, or the block has no row of a demo.
+ */
+function writeTable(mix: MixName, values: ReadonlyMap<DemoId, number>): void {
+  const path = join(ROOT, TABLE_FILE);
+  const text = readFileSync(path, 'utf8');
+  const table = text.indexOf('export const DEMO_LOUDNESS');
+  const start = table === -1 ? -1 : text.indexOf(`\n  ${mix}: {\n`, table);
+  const end = start === -1 ? -1 : text.indexOf('\n  },', start);
+  if (end === -1) {
+    throw new Error(`${TABLE_FILE} has no block ${mix} in DEMO_LOUDNESS.`);
+  }
+
+  let block = text.slice(start, end);
+  for (const [demo, value] of values) {
+    const row = new RegExp(`^    '${demo}': -?\\d+\\.\\d,$`, 'mu');
+    if (!row.test(block)) {
+      throw new Error(`The block ${mix} of ${TABLE_FILE} has no row of ${demo}.`);
+    }
+    block = block.replace(row, `    '${demo}': ${value.toFixed(1)},`);
+  }
+  writeFileSync(path, `${text.slice(0, start)}${block}${text.slice(end)}`);
+}
+
+/**
  * Reads the values of an option that can repeat.
  *
  * @param args The arguments.
@@ -628,13 +663,13 @@ function optionValues(args: readonly string[], name: string): string[] {
 
 /**
  * Runs the tool: `node tools/loudness.ts [--mix <name>] [--demo <id>]... [--file <path>]...
- * [--fit] [--target <LUFS>]... [--json] [--check] [--wav <dir> [--seconds <s>]]`.
+ * [--fit [--write]] [--target <LUFS>]... [--json] [--check] [--wav <dir> [--seconds <s>]]`.
  */
 async function main(): Promise<void> {
   const args = process.argv.slice(2);
   if (args.includes('--help')) {
     console.log(
-      'Usage: pnpm loudness [--mix <name>] [--demo <id>]... [--file <path>]... [--fit] [--target <LUFS>]... [--json] [--check] [--wav <dir> [--seconds <s>]]',
+      'Usage: pnpm loudness [--mix <name>] [--demo <id>]... [--file <path>]... [--fit [--write]] [--target <LUFS>]... [--json] [--check] [--wav <dir> [--seconds <s>]]',
     );
     return;
   }
@@ -661,6 +696,10 @@ async function main(): Promise<void> {
   if (check && paths.length) {
     throw new Error('--check measures only demos. A file of --file has no piece gain.');
   }
+  const write = args.includes('--write');
+  if (write && (!targets.includes(TARGET_LOUDNESS) || paths.length)) {
+    throw new Error('--write needs --fit, and a file of --file has no row in DEMO_LOUDNESS.');
+  }
   const [wavDir, ...extraWavs] = optionValues(args, '--wav');
   const [secondsText, ...extraSeconds] = optionValues(args, '--seconds');
   const seconds = secondsText === undefined ? Infinity : Number(secondsText);
@@ -682,6 +721,7 @@ async function main(): Promise<void> {
     console.log(HEAD);
   }
   const failures: string[] = [];
+  const fitted = new Map<DemoId, number>();
   try {
     for (const piece of pieces) {
       const synth = await renderSynth(piece.bytes);
@@ -698,9 +738,20 @@ async function main(): Promise<void> {
       for (const row of rows) {
         console.log(json ? JSON.stringify(jsonOf(row)) : line(row));
       }
+      const value = rows.find((row) => row.target === TARGET_LOUDNESS)?.tableValue;
+      if (piece.demo && value !== undefined && value !== null) {
+        fitted.set(piece.demo, value);
+      }
     }
   } finally {
     await browser?.close();
+  }
+
+  if (write) {
+    writeTable(mix, fitted);
+    console.error(
+      `Wrote DEMO_LOUDNESS.${mix} of ${[...fitted.keys()].join(', ')} to ${TABLE_FILE}.`,
+    );
   }
 
   if (check) {
