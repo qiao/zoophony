@@ -201,7 +201,8 @@ count-in (5.4, 6.5), and lower them when the hold of `transport.holdSec` after a
   level, and its height fits the legs (`seatHeights()` of `models/props.ts`, 4.4). The polar bear
   sits on the front half of a low bench, as a pianist does (piano 2).
 - **Hanging arms.** A standing player with free hands hangs its arms (`HANG` of `pose/hang.ts`),
-  with the palms at the height of the hips.
+  with the palms at the height of the hips. The slim standing tan fox bends the free left elbow
+  less (`FOX_HANG`), because the full bend points its forearm forward into the air.
 
 The rest of each family:
 

@@ -12,7 +12,7 @@ import type { InstrumentOf } from './family.ts';
 import { NECK_SHARE, createFrame, posePoint, setBoneRotation, setFromBasis } from './frames.ts';
 import type { Frame, TorsoFrames } from './frames.ts';
 import { hangingArm, hangingHand, hangingWrist } from './hang.ts';
-import type { HangingArm } from './hang.ts';
+import type { HangAngles, HangingArm } from './hang.ts';
 import { armRig, handToward, poseShoulder, writeArm, writeCurl } from './ik.ts';
 import type { ArmRig } from './ik.ts';
 import { lapHand } from './lap.ts';
@@ -185,6 +185,11 @@ export interface FreePaw extends LapHand {
    * paw passes in front of a round belly.
    */
   readonly arc: Vec3;
+  /**
+   * The forward angles of the hanging arm of a standing player (`hangingArm()`). The angles of
+   * `HANG` when they are missing.
+   */
+  readonly hang?: HangAngles;
 }
 
 /**
@@ -451,7 +456,7 @@ export const FOX_FLUTE_BACK = 9;
  * the axis of the tube, and the paw turns 180° in one frame. With the roll of the play at rest, the
  * paw passes through the tube at the end of the lift and turns 175°. The elbows point down and out
  * at rest. The left paw leaves its grip ({@link WindHold.restFreeL}), and the left arm hangs down
- * along the side.
+ * along the side. A standing fox hangs it with a small bend of the elbow ({@link FOX_HANG}).
  *
  * The top of the left thigh is out of reach of the left arm: the nearest place of the palm on it is
  * 0.582 m from the shoulder joint, and the arm is 0.545 m. So the left arm hangs near the side with
@@ -462,6 +467,16 @@ export const FOX_FLUTE_BACK = 9;
  * 1.5 cm). With the paw nearer to the haunch or the elbow more bent, the inner elbow goes further
  * into the side of the trunk.
  */
+/**
+ * The forward swing of the upper arm and the forward bend of the elbow of the free left arm of the
+ * standing tan fox, in degrees (`FreePaw.hang`). The `HANG` angles of 20° and 60° point the
+ * forearm 80° forward, almost level, with the paw in the air in front of the slim body. With
+ * 20° and 20°, the arm hangs down along the side with a soft bend, as a flutist keeps the arms
+ * loose and the elbows down (`docs/reference/wind-technique.md` 2.4). The upper arm swings 19° out
+ * to clear the side of the body, and the forearm 16°.
+ */
+const FOX_HANG = [20, 20] as const;
+
 const FOX_FLUTE = {
   ...WOODWIND,
   headTurn: FOX_HEAD_TURN * MathUtils.DEG2RAD,
@@ -478,6 +493,10 @@ const FOX_FLUTE = {
     palm: [0.85, -0.37, 0.38],
     fingers: [0, -1, -0.3],
     arc: [0.57, 0.04, 0.31],
+    hang: {
+      forward: FOX_HANG[0] * MathUtils.DEG2RAD,
+      bend: FOX_HANG[1] * MathUtils.DEG2RAD,
+    },
   },
   faceTube: ['palm', 'palm'],
   aimAcross: 1,
@@ -1151,7 +1170,7 @@ function freeRestOf(model: PlayerModel, arm: ArmRig, rest: FreePaw): FreeRest {
   const [out, up, forward] = rest.arc;
   const arc: Vec3 = [-out * h, up * h, -forward * h];
   if (model.support === 'stand') {
-    return { kind: 'hang', hang: hangingArm(model, arm), arc };
+    return { kind: 'hang', hang: hangingArm(model, arm, rest.hang), arc };
   }
   return { kind: 'lap', ...lapHand(model, arm, rest), arc };
 }

@@ -22,6 +22,14 @@ export interface HangingArm {
   readonly pole: Vec3;
 }
 
+/** The forward angles of a hanging arm, in radians. */
+export interface HangAngles {
+  /** The forward swing of the upper arm. */
+  readonly forward: number;
+  /** The forward bend of the elbow. */
+  readonly bend: number;
+}
+
 /** The angles of the hanging arm, and its gap to the body. */
 const HANG = {
   /**
@@ -190,9 +198,12 @@ function downward(out: number, forward: number, side: number, result: Vector3): 
  *
  * @param model The player model.
  * @param arm The arm.
+ * @param angles The forward swing of the upper arm and the forward bend of the elbow, in radians.
+ *   The angles of {@link HANG} by default.
  * @returns The hanging arm.
  */
-export function hangingArm(model: PlayerModel, arm: ArmRig): HangingArm {
+export function hangingArm(model: PlayerModel, arm: ArmRig, angles: HangAngles = HANG): HangingArm {
+  const { forward, bend } = angles;
   const h = model.body.headHeight;
   const side = arm.side === 'L' ? -1 : 1;
   const shoulder = new Vector3(...arm.bind.shoulder);
@@ -229,8 +240,8 @@ export function hangingArm(model: PlayerModel, arm: ArmRig): HangingArm {
   const lower = new Vector3();
   const point = new Vector3();
   const isClear = (outUpper: number, outLower: number, parts: readonly string[]): boolean => {
-    downward(outUpper, HANG.forward, side, upper);
-    downward(outLower, HANG.forward + HANG.bend, side, lower);
+    downward(outUpper, forward, side, upper);
+    downward(outLower, forward + bend, side, lower);
     return checks.every(([part, along]) => {
       if (!parts.includes(part)) {
         return true;
@@ -261,8 +272,8 @@ export function hangingArm(model: PlayerModel, arm: ArmRig): HangingArm {
     outLower += HANG.step;
   }
 
-  downward(outUpper, HANG.forward, side, upper);
-  downward(outLower, HANG.forward + HANG.bend, side, lower);
+  downward(outUpper, forward, side, upper);
+  downward(outLower, forward + bend, side, lower);
   const hangWrist = upper.clone().multiplyScalar(upperLength).addScaledVector(lower, lowerLength);
   const along = hangWrist.clone().normalize();
   const pole = upper.clone().addScaledVector(along, -upper.dot(along)).normalize();

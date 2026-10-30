@@ -292,6 +292,8 @@ from the first position (derived).
   when the note starts [41].
 - **The rest.** The flute stands "vertically on the right leg with the right hand on the
   right-hand keys" [42].
+- **The arms of a standing flutist.** "A rather floppy feeling is best for the arms", and the
+  elbows stay down [69].
 
 ## 3. Clarinet, bassoon, and tuba
 
@@ -388,7 +390,8 @@ The app follows these facts:
   `play`). The left paw holds the flute near the lip plate from its front, and the right paw lies
   behind the flute and a little below it, so that the fingers of both paws curl over the top onto
   the keys (`aimSide`, `gripCurl`). At rest, the flute stands on the right thigh in the right paw
-  (`rest`, `restShift`, `gripAround`).
+  (`rest`, `restShift`, `gripAround`). A standing fox lets the free left arm hang down along the
+  side with a small bend of the elbow (`FOX_HANG`).
 - **The oboe (2.3, `MOUSE_OBOE`).** The oboe stands at about 40° from the body (`hanging()` of
   `src/models/instruments/woodwinds.ts`, `play`). The reed is in the mouth under the long muzzle
   (`lipShift`), and the head stays up. The left paw holds the upper joint, and the right paw the
@@ -615,3 +618,5 @@ Each source opened on 2026-10-18, except where its entry gives another date.
     https://lowecc.pressbooks.sunycreate.cloud/chapter/supporting-the-bassoon-teaching-and-playing-the-bassoon-a-modern-guide/
 68. Yamaha, Musical Instrument Guide, "Bassoon" trivia (opened 2026-10-25).
     https://www.yamaha.com/en/musical_instrument_guide/bassoon/trivia/trivia002.html
+69. "Stand and Deliver", Flute Talk, The Instrumentalist (December 2011, opened 2026-10-30).
+    https://theinstrumentalist.com/december-2011-flute-talk/stand-and-deliver/
