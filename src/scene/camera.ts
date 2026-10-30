@@ -408,16 +408,6 @@ export class StageCamera {
     this.#applyFrame();
   }
 
-  /**
-   * Turns the zoom of the orbit controls (the wheel and the pinch) on or off. The zoom is off
-   * while the first screen shows, because its frame shrinks with the camera (design 2.5, 2.8).
-   *
-   * @param allowed True to turn the zoom on.
-   */
-  allowZoom(allowed: boolean): void {
-    this.#controls.enableZoom = allowed;
-  }
-
   /** Removes the event listeners of the orbit controls from the canvas. */
   dispose(): void {
     if (this.#controls.domElement) {

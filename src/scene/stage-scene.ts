@@ -381,8 +381,6 @@ export class StageScene {
   #width = 1;
   #height = 1;
   #devicePixelRatio = 1;
-  /** False while the first screen shows: then the orbit controls do not zoom (design 2.5). */
-  #zoomAllowed = true;
   /** The focus distance of the last frame, in meters, or `null` before the first frame. */
   #focusDistance: number | null = null;
   /** The time of the last frame, in milliseconds, for the move of the focus of Free mode. */
@@ -496,7 +494,6 @@ export class StageScene {
     );
     pending.camera = camera;
     camera.resize(this.#width, this.#height);
-    camera.allowZoom(this.#zoomAllowed);
     yield;
     const stage = stageGroup.children.find((child) => child instanceof Mesh);
     const beam = lights.children.find((child) => child instanceof Group);
@@ -854,17 +851,6 @@ export class StageScene {
     }
     this.#post?.setTier(tier);
     this.resize(this.#width, this.#height, this.#devicePixelRatio);
-  }
-
-  /**
-   * Turns the zoom of the orbit controls on or off, also for the camera of the next layout. The
-   * zoom is off while the first screen shows (design 2.5, 2.8).
-   *
-   * @param allowed True to turn the zoom on.
-   */
-  allowZoom(allowed: boolean): void {
-    this.#zoomAllowed = allowed;
-    this.#view?.camera.allowZoom(allowed);
   }
 
   /**
