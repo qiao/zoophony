@@ -65,11 +65,45 @@ pnpm build
 
 ## Architecture
 
-- `src/score/`: Parses MIDI events into timed notes, sections, and player seat assignments.
-- `src/pose/`: Calculates animal poses, bow angles, and finger placements from score time.
-- `src/models/`: Builds low-poly animal geometries, rigs, and instrument meshes.
-- `src/scene/`: Manages Three.js rendering, lighting, spotlight beams, and camera transitions.
-- `src/audio/`: Coordinates the SoundFont synthesizer inside a Web Audio worklet.
+One `Score` drives both the sound and the animals. `poseAt()` calculates each pose only from the
+score, the layout of the stage, and the song time. Thus a seek, a pause, or a change of the speed
+always gives the correct pose.
+
+```text
+ .mid file
+     │
+     v
+ ┌────────┐    ┌────────┐    ┌────────┐    ┌──────────┐
+ │ midi/  │───>│ score/ │─┬─>│ pose/  │───>│ scene/   │───> canvas
+ │ parse  │    │ Score  │ │  │ poseAt │    │ Three.js │
+ └────────┘    └────────┘ │  └────────┘    └──────────┘
+                          │      ^              ^
+                          │   models/        shots/
+                          │
+                          │  ┌──────────────────────────┐
+                          └─>│ audio/: SoundFont synth  │───> speakers
+                             └──────────────────────────┘
+```
+
+- `src/midi/`: Parses the bytes of a Standard MIDI File into tracks of events.
+- `src/score/`: Builds the `Score`: the timed notes, the sections, and the seats of the players.
+- `src/pose/`: Calculates the pose of each animal at a song time: the bow strokes, the fingers,
+  the breaths, and the mallet strokes.
+- `src/models/`: Builds the animal bodies, the instruments, and the layout of the stage.
+- `src/shots/`: Plans the camera shots, and calculates the camera at a song time.
+- `src/scene/`: Renders the stage with Three.js: the lights, the stage beam, the quality tiers,
+  and the bones of the animals.
+- `src/audio/`: Plays the SoundFont in an AudioWorklet. A Worker decodes the SoundFont files
+  before play.
+- `src/app/`, `src/ui/`: The load flow, the transport, the seat list, the URL hash, and the
+  settings.
+- `src/gallery/`: The development pages `gallery.html` and `views.html`.
+- `tools/`: The build scripts, the probes, and the image tools
+  ([`docs/agents/commands.md`](docs/agents/commands.md)).
+
+The modules `midi/`, `score/`, `pose/`, `models/`, and `shots/` are pure. They get all inputs as
+arguments, read no clock, and touch no DOM, so they also run in Node. Design 7.1 in
+[`docs/design/07-architecture.md`](docs/design/07-architecture.md) gives the details.
 
 ## Contributing
 
