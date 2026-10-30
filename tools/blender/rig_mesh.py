@@ -49,8 +49,7 @@ reads it ("The asset chain" of `docs/agents/rigging.md`). The steps:
    first move toward the middle of their neighbors (`smooth_box()`), before the weights. The file
    then gives the move of the head center back to the head before the smoothing (`head_shift()`),
    so that the holds keep their places. With `paintedWeights`, the weights come from a file of
-   Blender, and `weights.wristFade` then gives each ring of the band of each wrist even weights
-   (`wrist_fade()`).
+   Blender.
 4. Make the upper arm and the forearm longer by the arm factor of the config, and the thigh and
    the shin by the leg factor. Each bone scales along its axis, and the weights blend the stretch
    to 0 at the shoulder and at the hip. The paws and the feet keep their size, and the body rises
@@ -2361,41 +2360,6 @@ def rigid_faces(verts, tris, weights, rules):
         else:
             log(f'rigid: the {len(faces)} faces at ({places}) u take the mean of the weights of '
                 f'their {len(corners)} corners, the largest change {change:.3f}')
-    return out
-
-
-def wrist_fade(verts, weights, heads, rule):
-    """Gives the vertices of the band of each wrist even weights around each ring, so that the
-    skin fades from the forearm to the paw over several rings. `rule` holds `back` and `ahead`
-    (units before the wrist joint along the forearm and past it along the paw), `reach` (units
-    from the joint), and `window` (units along the arm). A vertex of the band is within `reach`
-    of the joint and on the arm bones of its side for at least half of its weight. It takes the
-    mean of the weights of the band vertices of its side, each by a Gaussian of their gap along
-    the arm with the width `window`. The share of the mean falls to 0 over one `window` at each
-    end of the band, so that the band joins the painted weights. The painted weights of one ring
-    can differ by 0.5 on the wrist helper, and then a bent paw pinches the skin of the ring into
-    a slit. A config with no `wristFade` changes no weight."""
-    out = weights.copy()
-    back, ahead, reach, window = (float(rule[k]) for k in ('back', 'ahead', 'reach', 'window'))
-    for side in 'LR':
-        elbow, wrist, tip = (np.asarray(heads[f'{b}_{side}'], float)
-                             for b in ('forearm', 'hand', 'fingers'))
-        gap = verts - wrist
-        along = np.where(gap @ unit(wrist - elbow) < 0, gap @ unit(wrist - elbow),
-                         gap @ unit(tip - wrist))
-        bones = [BONES.index(b) for b in arm_bones(side)]
-        share = weights[:, bones].sum(axis=1)
-        band = np.flatnonzero((along > -back) & (along < ahead) & (share >= 0.5)
-                              & (np.linalg.norm(gap, axis=1) < reach))
-        if len(band) == 0:
-            continue
-        a = along[band]
-        kernel = np.exp(-0.5 * ((a[:, None] - a[None, :]) / window) ** 2)
-        mean = (kernel @ weights[band]) / kernel.sum(axis=1)[:, None]
-        edge = np.clip(np.minimum(a + back, ahead - a) / window, 0.0, 1.0)[:, None]
-        out[band] = (1.0 - edge) * weights[band] + edge * mean
-        change = np.abs(out[band] - weights[band]).max()
-        log(f'wristFade {side}: {len(band)} vertices of the band, the largest change {change:.3f}')
     return out
 
 
@@ -4965,9 +4929,6 @@ def main():
             # as `rigid` does for the rule weights.
             weights = limit(rigid_faces(verts, source_tris, weights,
                                         {'rigid': rules['rigidPainted']}))
-        if 'wristFade' in rules:
-            # The fade comes after the rigid faces, so that a rigid face of the band evens out too.
-            weights = limit(wrist_fade(verts, weights, heads, rules['wristFade']))
     else:
         weights = apply_rules(verts, source_tris,
                               kept_heat(verts, source_tris, heads, ends, rolls, config), rules, heads,
