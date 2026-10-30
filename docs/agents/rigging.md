@@ -13,7 +13,7 @@ arm tubes, Blender weights, and arm segments (see "The rebuild of the arms in Bl
 
 | Species | Body | Role |
 |---|---|---|
-| bear | T-pose mesh, rebuilt arms (`bear_arms.py`), wrist skin normals (`rootNormals.wrist`), a larger crease angle and a color blend. Stands on the podium, with the baton along the index finger. | `conductor` |
+| bear | T-pose mesh, rebuilt arms (`bear_arms.py`), straight bind arms (`straightArms`) with a `raise` shape of each bent elbow, wrist skin normals (`rootNormals.wrist`), a larger crease angle and a color blend. Stands on the podium, with the baton along the index finger. | `conductor` |
 | polar-bear | T-pose mesh, rebuilt arms and legs (`polar_bear_arms.py`, `polar_bear_legs.py`), dual quaternion knees (`bind.knee`, `kneeCrease`), the old bone heat (`heatSource`), and the leg length of the mesh. Sits on a bench that fits its haunch (`benchFitOf()`) at a piano of `PIANO_SCALE`, with the right foot on the damper pedal. | `pianist` |
 | rabbit | A-pose mesh, longer rebuilt arms (`violin_arms.py`), a supinated bind left paw (`bindSupination`), root and elbow skin normals, a smaller violin. | `violinist` |
 | fox-red | Longer rebuilt arms (`fox_arms.py`), a supinated bind left paw, a `raise` shape that smooths the bow arm at rest, a tail of two bones. | `fox-violinist` |
@@ -101,6 +101,9 @@ with a worse look is also not done.
 - The grip turn compares each paw with `ACCEPTED_GRIPS` of `tools/arm-check.ts`. A new role adds
   its entry. Change an entry only after the manager accepts the 2x paw crops at a strike and at
   rest.
+- The paw swing, the paw twist, and the flat share count from the bind. A new bind moves their
+  zero, so `--base` can fail with the same world pose. Compare the world bone turns and the ring
+  widths in meters.
 - `pnpm arm-look <role>` measures a crumpled or a flat upper arm. Read the 2x crops from the front,
   the back, and each side, because a defect can show from one side only.
 
@@ -193,7 +196,8 @@ Read the group of your work before you plan it.
 - `twistAngle()` flips when the paw turn passes 180°. Lower the twist of the hold, or move its zero
   with the bind paw. Carry no value from the last frame.
 - A turn of the bind forearm about the upper arm (`studio.bindArms`) moves the zero of the paw twist
-  and of the upper arm roll.
+  and of the upper arm roll. Straight bind arms keep the roll zero with the elbow axes of the bent
+  bind (`StudioBody.hinges`).
 - The `palm` of a rig config sets the roll of the arm bones. Read it from the curl of the claws.
 - A paw that turns about 160° on its forearm folds the wrist. Hold the part near the direction of
   no paw twist.
@@ -251,10 +255,10 @@ Read the group of your work before you plan it.
   `pnpm pose-depth`.
 - Automatic weights give the clavicle most of a thick arm root, and the wrist helper half of a
   short paw. Check both.
-- Even ring weights at a wrist (`weights.wristFade`) clear the wrist folds of a fold count. A
-  thick paw that bends 40° or more can still push its heel behind the end of the forearm, and the
-  overlap shows as a dark slit. No weight rule, bind, or `raise` removes it. Judge a wrist by
-  its 2x crops.
+- A bind that bends a thick paw (`studio.bindArms`) gives a rest shape with the inner wrist skin
+  pressed, and each pose blends its bend on top. The wrist then shows a dark slit that no weight
+  rule, ring, taper, or `raise` removes. Bind the arms straight (`studio.straightArms`), and judge
+  a wrist by its 2x crops.
 - Blender weights on the trunk, the head, or the neck fold faces. Keep the rule weights there
   (`paintedLower`).
 - The glTF skin has no B-Bones and 4 weights for each vertex. In the Blender preview, set
