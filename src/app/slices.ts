@@ -7,9 +7,6 @@ import type { Steps } from '../score/steps.ts';
  */
 export const SLICE_MS = 3;
 
-/** The time between two checks of a step that waits for the GPU, in ms. */
-const GPU_WAIT_MS = 5;
-
 /** The resolvers of the calls of {@link yieldToMain} that wait for the message of the channel. */
 const waiting: (() => void)[] = [];
 
@@ -53,13 +50,16 @@ export function yieldToMain(): Promise<void> {
 
 /**
  * Waits for the GPU between two checks of a step that waits, such as a shader program that
- * compiles in parallel.
+ * compiles in parallel. The message of a `MessageChannel` comes in a new task with no minimum
+ * delay of a timer, so the wait ends soon after the GPU. The other tasks of the page keep their
+ * place before it.
  *
- * @returns A promise that resolves after {@link GPU_WAIT_MS}.
+ * @returns A promise that resolves in a later task.
  */
 function waitForGpu(): Promise<void> {
   return new Promise((resolve) => {
-    setTimeout(resolve, GPU_WAIT_MS);
+    waiting.push(resolve);
+    yieldPort().postMessage(null, []);
   });
 }
 
