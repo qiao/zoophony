@@ -3,6 +3,7 @@ import { join } from 'node:path';
 
 import { beforeAll, describe, expect, it } from 'vitest';
 
+import { DEMO_IDS } from '../src/app/demos.ts';
 import {
   controlChange,
   noteOff,
@@ -142,26 +143,7 @@ describe('the demo files after demos/patches.json (design 8.3)', () => {
   ]);
 
   it('gives all demo files, sorted by name', () => {
-    expect(demos.map((demo) => demo.file)).toEqual([
-      'bach-bwv1047.mid',
-      'bach-bwv1048.mid',
-      'bach-bwv1050.mid',
-      'beethoven-1.mid',
-      'beethoven-5-4.mid',
-      'beethoven-6-1.mid',
-      'beethoven-7-4.mid',
-      'beethoven-8-4.mid',
-      'beethoven-8.mid',
-      'beethoven-9.mid',
-      'boulanger-matin.mid',
-      'brahms-2.mid',
-      'mendelssohn-op61.mid',
-      'mozart-k191.mid',
-      'mozart-k315.mid',
-      'mozart-k417.mid',
-      'mozart-k525.mid',
-      'pachelbel-p37.mid',
-    ]);
+    expect(demos.map((demo) => demo.file)).toEqual(DEMO_IDS.map((id) => `${id}.mid`).toSorted());
   });
 
   it('gives the new programs to the changed tracks, and keeps all other programs', () => {
