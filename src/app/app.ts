@@ -380,6 +380,14 @@ export class App {
     window.addEventListener('keydown', (event) => {
       this.#pressKey(event);
     });
+    // Safari on iOS zooms the page on a pinch in spite of `touch-action` of the root. Its own
+    // gesture events stop that, so a pinch zooms only the stage (design 2.5).
+    const keepPageScale = (event: Event): void => {
+      event.preventDefault();
+    };
+    for (const name of ['gesturestart', 'gesturechange']) {
+      document.addEventListener(name, keepPageScale, { passive: false });
+    }
     this.#listenForMotion(canvas);
     this.#applySettings();
   }
