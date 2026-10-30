@@ -134,19 +134,15 @@ interface Row {
 }
 
 /**
- * Renders the synth output of a demo as the worklet does, with the stage mix of design 6.1 and
- * the section size "Auto".
+ * Renders the synth output of a MIDI file as the worklet does, with the stage mix of design 6.1
+ * and the section size "Auto".
  *
- * @param demo The demo.
+ * @param bytes The MIDI file. For a demo, the file after the changes of `demos/patches.json`.
  * @returns The stereo output of the synth, before the output chain, and the song length.
- * @throws Error if the demo file does not give a score.
+ * @throws Error if the file does not give a score.
  */
-export async function renderSynth(demo: DemoId): Promise<SynthRender> {
-  const file = (await patchedDemos()).find((item) => item.file === `${demo}.mid`);
-  if (!file) {
-    throw new Error(`The demo file ${demo}.mid does not exist.`);
-  }
-  const result = buildScore(file.bytes, 'auto');
+export async function renderSynth(bytes: Uint8Array): Promise<SynthRender> {
+  const result = buildScore(bytes, 'auto');
   if (!result.ok) {
     throw new Error(result.error);
   }
@@ -632,6 +628,16 @@ async function main(): Promise<void> {
   if (METER_RATE !== TEST_SAMPLE_RATE) {
     throw new Error('The meter and the render need the same sample rate.');
   }
+  // The run reads each demo file one time, before the first render. Thus a change of demos/
+  // during the run, such as a new checksum row, cannot stop the run.
+  const files = await patchedDemos();
+  const inputs = demos.map((demo) => {
+    const file = files.find((item) => item.file === `${demo}.mid`);
+    if (!file) {
+      throw new Error(`The demo file ${demo}.mid does not exist.`);
+    }
+    return { demo, bytes: file.bytes };
+  });
 
   if (!json) {
     console.log(
@@ -641,8 +647,8 @@ async function main(): Promise<void> {
   }
   const failures: string[] = [];
   try {
-    for (const demo of demos) {
-      const synth = await renderSynth(demo);
+    for (const { demo, bytes } of inputs) {
+      const synth = await renderSynth(bytes);
       const wav =
         wavDir === undefined ? undefined : { path: join(wavDir, `${demo}-${mix}.wav`), seconds };
       const first = await measureAt(demo, synth, pieceGainDb(demo, mix), null, mix, wav);
