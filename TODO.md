@@ -630,8 +630,6 @@ passes, and the quality tiers of 2.6 keep 60 fps on a laptop.
 - [ ] Remove the audit and review labels from the `it()` and `describe()` names of the paused
       tests, and the dated notes that the `_arms.py` scripts write into the weights files of
       `assets/models/`.
-- [ ] Give the paused tests `src/app/credits.test.ts` and `tools/screenshots.test.ts` the order of
-      `DEMO_IDS`. They still list `boulanger-matin` first, so they fail.
 - [ ] Find or make one file of the famous pieces with no usable file (8.1):
       - Mozart, The Magic Flute overture: Mutopia 248 has four MIDI files. It needs a join tool.
       - Tchaikovsky, The Nutcracker: no orchestral file has a permitted license.

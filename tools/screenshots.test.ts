@@ -15,8 +15,15 @@ describe('reviewShots', () => {
   it('lists each demo at 1440 × 900, the default demo at 390 × 844, the gallery, and the views pages (9.8)', () => {
     const shots = reviewShots();
     expect(shots.map((shot) => shot.file)).toEqual([
-      'boulanger-matin-1440x900.webp',
+      'mozart-k191-1440x900.webp',
+      'mozart-k417-1440x900.webp',
+      'bach-bwv1050-1440x900.webp',
       'beethoven-9-1440x900.webp',
+      'pachelbel-p37-1440x900.webp',
+      'beethoven-5-4-1440x900.webp',
+      'beethoven-7-4-1440x900.webp',
+      'beethoven-6-1-1440x900.webp',
+      'boulanger-matin-1440x900.webp',
       'mozart-k525-1440x900.webp',
       'bach-bwv1048-1440x900.webp',
       'beethoven-8-1440x900.webp',
@@ -25,11 +32,8 @@ describe('reviewShots', () => {
       'brahms-2-1440x900.webp',
       'beethoven-8-4-1440x900.webp',
       'bach-bwv1047-1440x900.webp',
-      'bach-bwv1050-1440x900.webp',
       'mendelssohn-op61-1440x900.webp',
-      'mozart-k417-1440x900.webp',
-      'mozart-k191-1440x900.webp',
-      'boulanger-matin-390x844.webp',
+      'mozart-k191-390x844.webp',
       'gallery-species-1440x900.webp',
       'gallery-instruments-1440x900.webp',
       'animals-views.webp',
@@ -39,18 +43,18 @@ describe('reviewShots', () => {
       'polar-bear-sheet-views.webp',
       'bear-sheet-views.webp',
     ]);
-    expect(shots[14]).toEqual({
-      file: 'boulanger-matin-390x844.webp',
-      path: '/#demo=boulanger-matin',
+    expect(shots[18]).toEqual({
+      file: 'mozart-k191-390x844.webp',
+      path: '/#demo=mozart-k191',
       width: 390,
       height: 844,
-      ready: 'canvas[data-demo="boulanger-matin"]',
+      ready: 'canvas[data-demo="mozart-k191"]',
     });
-    expect(shots[16]?.ready).toBe('canvas[data-ready="instruments"]');
+    expect(shots[20]?.ready).toBe('canvas[data-ready="instruments"]');
     // The views page has the size of docs/reference/animals.webp.
-    expect(shots[17]).toMatchObject({ path: '/views.html', width: 1024, height: 1024 });
+    expect(shots[21]).toMatchObject({ path: '/views.html', width: 1024, height: 1024 });
     // The page of fox-views.png has half of its size (design 7.1).
-    expect(shots[18]).toMatchObject({ path: '/views.html?sheet=fox', width: 1247, height: 677 });
+    expect(shots[22]).toMatchObject({ path: '/views.html?sheet=fox', width: 1247, height: 677 });
   });
 });
 
@@ -58,8 +62,8 @@ describe('playShots', () => {
   it('lists the default demo and the Beethoven 9 demo at 1440 × 900, and the default demo at 390 × 844, during play (9.8)', () => {
     expect(playShots()).toEqual([
       {
-        file: 'boulanger-matin-play-1440x900.webp',
-        path: '/#demo=boulanger-matin',
+        file: 'mozart-k191-play-1440x900.webp',
+        path: '/#demo=mozart-k191',
         width: 1440,
         height: 900,
         ready: 'body[data-samples="ready"]',
@@ -74,8 +78,8 @@ describe('playShots', () => {
         playSec: 6,
       },
       {
-        file: 'boulanger-matin-play-390x844.webp',
-        path: '/#demo=boulanger-matin',
+        file: 'mozart-k191-play-390x844.webp',
+        path: '/#demo=mozart-k191',
         width: 390,
         height: 844,
         ready: 'body[data-samples="ready"]',
