@@ -8,8 +8,8 @@ This folder holds the demo pieces of the app (design section 8).
   file into `public/demos/`. `pnpm dev` and `pnpm build` run it first.
 - `boulanger/` holds the source score of the Boulanger file.
 - `groups/` holds the group maps of the other OpenScore files.
-- The Boulanger demo is the default demo: the first screen shows it, and it is part of the first
-  download (design 2.2, 7.2).
+- The first demo of `DEMO_IDS` (`mozart-k191`) is the default demo: the first screen shows it,
+  and it is part of the first download (design 2.2, 7.2, 8.2).
 
 ## Sources and licenses
 
