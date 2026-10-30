@@ -9,7 +9,7 @@ channel name, so the export ignores them. This script adds:
 where NAME0 is the name of the first Channel of the part ("arco" or "normal").
 With no voice attribute, the switch applies to all four voices.
 
-Usage: python3 add_switches.py in.mscz out.mscz
+Usage: python3 -I add_switches.py in.mscz out.mscz
 """
 import re, sys, zipfile
 

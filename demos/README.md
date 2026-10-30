@@ -99,13 +99,13 @@ the piece.
 P=tools/musescore
 T=$(mktemp -d)
 MS=mscore                                                  # the CLI of MuseScore 4.7.5
-python3 $P/remap_score.py unique demos/boulanger/matin-nolyrics.mscz $T/matin-unique.mscz
-python3 $P/add_switches.py $T/matin-unique.mscz $T/matin-unique-sw.mscz
+python3 -I $P/remap_score.py unique demos/boulanger/matin-nolyrics.mscz $T/matin-unique.mscz
+python3 -I $P/add_switches.py $T/matin-unique.mscz $T/matin-unique-sw.mscz
 "$MS" -o $T/matin-unique-sw.mid $T/matin-unique-sw.mscz    # exits with 134 after the write
 test -s $T/matin-unique-sw.mid
-python3 $P/remap_midi.py $T/matin-unique-sw.mid $T/matin-unique-sw.mscz $T/boulanger-matin.mid --programs group
+python3 -I $P/remap_midi.py $T/matin-unique-sw.mid $T/matin-unique-sw.mscz $T/boulanger-matin.mid --programs group
 cmp $T/boulanger-matin.mid demos/src/boulanger-matin.mid
-(cd $P && python3 validate.py $T/matin-unique-sw.mid $T/matin-unique-sw.mscz $T/boulanger-matin.mid)
+python3 -I $P/validate.py $T/matin-unique-sw.mid $T/matin-unique-sw.mscz $T/boulanger-matin.mid
 ```
 
 The check prints 12,139 attacks, 0 missed, 0 extra, 15 with a wrong program, and 0 s of lost
@@ -188,14 +188,14 @@ ID=beethoven-9 S='Beethoven,_Ludwig_van/Symphony_No.9,_Op.125/4/Beethoven_Op.125
 G=demos/groups/$ID.json
 curl -sfL -o $T/score.mscz "$H/$S"
 shasum -a 256 $T/score.mscz                                # compare with the table above
-python3 $P/strip_lyrics.py $T/score.mscz $T/nolyrics.mscz
-python3 $P/remap_score.py unique $T/nolyrics.mscz $T/unique.mscz --groups $G
-python3 $P/add_switches.py $T/unique.mscz $T/unique-sw.mscz
+python3 -I $P/strip_lyrics.py $T/score.mscz $T/nolyrics.mscz
+python3 -I $P/remap_score.py unique $T/nolyrics.mscz $T/unique.mscz --groups $G
+python3 -I $P/add_switches.py $T/unique.mscz $T/unique-sw.mscz
 "$MS" -o $T/unique-sw.mid $T/unique-sw.mscz                # can exit with 134 after the write
 test -s $T/unique-sw.mid
-python3 $P/remap_midi.py $T/unique-sw.mid $T/unique-sw.mscz $T/full.mid --programs group --groups $G
-python3 $P/validate.py $T/unique-sw.mid $T/unique-sw.mscz $T/full.mid --groups $G
-if [ -n "$CUT" ]; then python3 $P/cut_midi.py $T/full.mid $T/$ID.mid $CUT; else cp $T/full.mid $T/$ID.mid; fi
+python3 -I $P/remap_midi.py $T/unique-sw.mid $T/unique-sw.mscz $T/full.mid --programs group --groups $G
+python3 -I $P/validate.py $T/unique-sw.mid $T/unique-sw.mscz $T/full.mid --groups $G
+if [ -n "$CUT" ]; then python3 -I $P/cut_midi.py $T/full.mid $T/$ID.mid $CUT; else cp $T/full.mid $T/$ID.mid; fi
 cmp $T/$ID.mid demos/src/$ID.mid
 ```
 

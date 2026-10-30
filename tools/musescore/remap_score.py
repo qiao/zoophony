@@ -24,7 +24,7 @@ With --groups FILE, the group map comes from a JSON file with the keys
 "short" (the short name of each part, in score order) and "groups" (rows of
 GROUPS). With no option, the scripts use the map of the Boulanger score below.
 
-Usage: python3 remap_score.py MODE in.mscz out.mscz [--groups FILE]
+Usage: python3 -I remap_score.py MODE in.mscz out.mscz [--groups FILE]
 """
 import json, re, sys, zipfile
 

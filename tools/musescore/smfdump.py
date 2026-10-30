@@ -1,6 +1,6 @@
 """Detailed SMF dump: per-track port, channels, programs, meta types, notes.
 
-Usage: python3 smfdump.py file.mid [--events TRACK] [--meta]
+Usage: python3 -I smfdump.py file.mid [--events TRACK] [--meta]
 """
 import struct, sys, collections
 

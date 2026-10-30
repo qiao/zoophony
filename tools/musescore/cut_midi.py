@@ -14,7 +14,7 @@ Each later range starts with its own state at the join tick, after the
 note-offs at the end of the range before it. A channel track stays if it has
 a note in one of the ranges.
 
-Usage: python3 cut_midi.py in.mid out.mid START_TICK END_TICK [START_TICK END_TICK ...]
+Usage: python3 -I cut_midi.py in.mid out.mid START_TICK END_TICK [START_TICK END_TICK ...]
 """
 import os, struct, sys
 # Python -I does not put the folder of this script on sys.path. The imports below need it.

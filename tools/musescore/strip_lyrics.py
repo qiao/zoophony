@@ -4,7 +4,7 @@ The edit is textual: it deletes each <Lyrics>...</Lyrics> block and keeps all
 other bytes. MuseScore does not nest Lyrics elements, so a non-greedy match is
 safe. The script also checks that each result is well-formed XML.
 
-Usage: python3 strip_lyrics.py in.mscz out.mscz
+Usage: python3 -I strip_lyrics.py in.mscz out.mscz
 """
 import re, sys, zipfile
 import xml.etree.ElementTree as ET

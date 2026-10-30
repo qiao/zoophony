@@ -19,7 +19,7 @@ It also reports FF 21 events, channels used, and non-drum keys on channel 10.
 With --programs part, the intended program of articulation 0 is the program
 of the part itself (as in remap_midi.py --programs part).
 
-Usage: python3 validate.py unique.mid score.mscz candidate.mid [...] [--programs part]
+Usage: python3 -I validate.py unique.mid score.mscz candidate.mid [...] [--programs part]
        [--groups FILE]
 """
 import collections, os, sys

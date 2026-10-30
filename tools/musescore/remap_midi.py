@@ -36,7 +36,7 @@ CC 2 (MuseScore single-note dynamics) is dropped unless --keep-cc2 is given,
 because CC 2 values from different parts on one channel conflict. The note-on
 velocity still holds the dynamic level.
 
-Usage: python3 remap_midi.py in.mid score.mscz out.mid [--programs group|part] [--keep-cc2]
+Usage: python3 -I remap_midi.py in.mid score.mscz out.mid [--programs group|part] [--keep-cc2]
        [--groups FILE]
 """
 import collections, os, struct, sys, zipfile
