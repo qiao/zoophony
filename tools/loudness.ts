@@ -1,12 +1,12 @@
 /**
  * Measures the loudness of each demo at the output of the app (design 6.8).
  *
- * Usage: `pnpm loudness [--mix <name>] [--demo <id>]... [--fit] [--target <LUFS>]... [--json]
- * [--check] [--wav <dir> [--seconds <s>]]`
+ * Usage: `pnpm loudness [--mix <name>] [--demo <id>]... [--file <path>]... [--fit]
+ * [--target <LUFS>]... [--json] [--check] [--wav <dir> [--seconds <s>]]`
  *
- * For each demo (all demos by default), it renders the synth output in Node with the
- * `SynthEngine`, the SoundFont of design 6.2, the room of the synth, and the stage mix of the
- * layout, as the app and its worklet do. Then the code of `src/audio/output-chain.ts` runs in an
+ * For each demo (all demos when the run has no `--demo` and no `--file`) and each file of
+ * `--file`, it renders the synth output in Node with the `SynthEngine`, the SoundFont of design
+ * 6.2, the room of the synth, and the stage mix of the layout, as the app and its worklet do. Then the code of `src/audio/output-chain.ts` runs in an
  * `OfflineAudioContext` of headless Chromium, with the mix bus of the mix preset, its hall
  * impulse response, the glue compressor, the limiter, and their trims. The input gain is
  * `SOUNDFONT_HEADROOM_DB` plus `pieceGainDb()`, as in the `Player`. The render has the full song
@@ -19,6 +19,10 @@
  * reduction of the limiter (its highest value, and the share of the blocks above 1 dB and 3 dB).
  *
  * - `--mix <name>` selects the mix preset of `MIX_BUSES`: `hall` (the default) or `cinematic`.
+ * - `--file <path>` measures a MIDI file that is not a demo, such as a new demo before its entry
+ *   in `DEMO_IDS` and its checksum row in `demos/README.md`. The file gets the stage mix of its
+ *   own score and the piece gain 0 dB of a file of the user. The row has the file name.
+ *   `--check` refuses a file.
  * - `--fit` finds the piece gain that brings each demo within 0.05 LU of `TARGET_LOUDNESS`, in
  *   steps of 0.1 dB, and gives the value for `DEMO_LOUDNESS`: the target minus that gain.
  * - `--target <LUFS>` fits to this target in place of `TARGET_LOUDNESS`. Each target gives one
@@ -39,7 +43,7 @@ import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { createServer } from 'node:http';
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import { stripTypeScriptTypes } from 'node:module';
-import { join } from 'node:path';
+import { basename, extname, join } from 'node:path';
 
 import { chromium } from '@playwright/test';
 import type { Browser } from '@playwright/test';
@@ -110,9 +114,10 @@ interface ChainRender {
   readonly renderMs: number;
 }
 
-/** The measures of one demo at one piece gain. */
+/** The measures of one demo or one file of `--file` at one piece gain. */
 interface Row {
-  readonly demo: DemoId;
+  /** The demo, or the file name of a file of `--file`. */
+  readonly name: string;
   /** The target of a fit in LUFS, or `null` for the gain of `pieceGainDb()`. */
   readonly target: number | null;
   readonly gainDb: number;
@@ -170,6 +175,41 @@ export async function renderSynth(bytes: Uint8Array): Promise<SynthRender> {
     right.set(r, frame);
   }
   return { audio: { left, right }, durationSec: score.durationSec };
+}
+
+/** One input of a run: a demo, or a MIDI file of `--file`. */
+interface Piece {
+  /** The demo, or the file name of a file of `--file`. */
+  readonly name: string;
+  /** The demo, or `null` for a file of `--file`. */
+  readonly demo: DemoId | null;
+  /** The MIDI file. For a demo, the file after the changes of `demos/patches.json`. */
+  readonly bytes: Uint8Array;
+}
+
+/**
+ * Reads the MIDI file of each demo and of each path, one time before the first render. Thus a
+ * change of `demos/` during the run, such as a new checksum row, cannot stop the run. A file of a
+ * path needs no entry in `DEMO_IDS` and no checksum row.
+ *
+ * @param demos The demos.
+ * @param paths The paths of `--file`.
+ * @returns The demos, then the files, each in the order of the arguments.
+ * @throws Error if a demo file does not exist or has a wrong checksum, or if a path has no file.
+ */
+async function readPieces(demos: readonly DemoId[], paths: readonly string[]): Promise<Piece[]> {
+  const files = demos.length ? await patchedDemos() : [];
+  const pieces = demos.map((demo): Piece => {
+    const file = files.find((item) => item.file === `${demo}.mid`);
+    if (!file) {
+      throw new Error(`The demo file ${demo}.mid does not exist.`);
+    }
+    return { name: demo, demo, bytes: file.bytes };
+  });
+  for (const path of paths) {
+    pieces.push({ name: basename(path), demo: null, bytes: new Uint8Array(readFileSync(path)) });
+  }
+  return pieces;
 }
 
 /**
@@ -358,10 +398,10 @@ function writeWav(audio: Stereo, request: WavRequest): void {
 }
 
 /**
- * Measures one demo at one piece gain.
+ * Measures one demo or one file at one piece gain.
  *
- * @param demo The demo.
- * @param synth The synth output of the demo.
+ * @param name The demo, or the file name of a file of `--file`.
+ * @param synth The synth output of the demo or the file.
  * @param gainDb The piece gain in dB.
  * @param target The target of a fit, or `null`.
  * @param mix The mix preset.
@@ -369,7 +409,7 @@ function writeWav(audio: Stereo, request: WavRequest): void {
  * @returns The row.
  */
 async function measureAt(
-  demo: DemoId,
+  name: string,
   synth: SynthRender,
   gainDb: number,
   target: number | null,
@@ -382,7 +422,7 @@ async function measureAt(
   }
   const loudness = measureLoudness(chain.output);
   return {
-    demo,
+    name,
     target,
     gainDb,
     tableValue: target === null ? null : Math.round((target - gainDb) * 10) / 10,
@@ -397,17 +437,17 @@ async function measureAt(
 }
 
 /**
- * Finds the piece gain that brings a demo to a target, in steps of 0.1 dB.
+ * Finds the piece gain that brings a demo or a file to a target, in steps of 0.1 dB.
  *
- * @param demo The demo.
- * @param synth The synth output of the demo.
+ * @param name The demo, or the file name of a file of `--file`.
+ * @param synth The synth output of the demo or the file.
  * @param target The target in LUFS.
  * @param first The measures at the gain of `pieceGainDb()`.
  * @param mix The mix preset.
  * @returns The row at the fitted gain.
  */
 async function fit(
-  demo: DemoId,
+  name: string,
   synth: SynthRender,
   target: number,
   first: Row,
@@ -425,7 +465,7 @@ async function fit(
       break;
     }
     tried.add(gainDb);
-    row = await measureAt(demo, synth, gainDb, target, mix);
+    row = await measureAt(name, synth, gainDb, target, mix);
   }
   return row;
 }
@@ -451,7 +491,7 @@ function cell(value: number, digits: number, width: number): string {
 function line(row: Row): string {
   const { loudness, reduction, glue } = row;
   return [
-    row.demo.padEnd(17),
+    row.name.padEnd(17),
     row.target === null ? '     app' : cell(row.target, 1, 8),
     cell(row.gainDb, 1, 6),
     row.tableValue === null ? '     -' : cell(row.tableValue, 1, 6),
@@ -477,7 +517,8 @@ const HEAD = [
 
 /** The JSON object of one row of `--json`. The levels are in LUFS, dB, or dBTP. */
 interface RowJson {
-  readonly demo: DemoId;
+  /** The demo, or the file name of a file of `--file`. */
+  readonly demo: string;
   readonly target: number | null;
   readonly gainDb: number;
   readonly tableValue: number | null;
@@ -522,7 +563,7 @@ function jsonOf(row: Row): RowJson {
     perSecond.push(round(Math.max(-99, row.loudness.shortTerm[i] ?? -99), 1));
   }
   return {
-    demo: row.demo,
+    demo: row.name,
     target: row.target,
     gainDb: row.gainDb,
     tableValue: row.tableValue,
@@ -555,10 +596,10 @@ function checkFailures(row: Row): string[] {
   const failures: string[] = [];
   const error = row.loudness.integrated - TARGET_LOUDNESS;
   if (Math.abs(error) > CHECK_TOLERANCE) {
-    failures.push(`${row.demo}: ${error.toFixed(2)} LU from the target`);
+    failures.push(`${row.name}: ${error.toFixed(2)} LU from the target`);
   }
   if (row.loudness.truePeak > CHECK_TRUE_PEAK) {
-    failures.push(`${row.demo}: true peak ${row.loudness.truePeak.toFixed(2)} dBTP`);
+    failures.push(`${row.name}: true peak ${row.loudness.truePeak.toFixed(2)} dBTP`);
   }
   return failures;
 }
@@ -586,14 +627,14 @@ function optionValues(args: readonly string[], name: string): string[] {
 }
 
 /**
- * Runs the tool: `node tools/loudness.ts [--mix <name>] [--demo <id>]... [--fit]
- * [--target <LUFS>]... [--json] [--check] [--wav <dir> [--seconds <s>]]`.
+ * Runs the tool: `node tools/loudness.ts [--mix <name>] [--demo <id>]... [--file <path>]...
+ * [--fit] [--target <LUFS>]... [--json] [--check] [--wav <dir> [--seconds <s>]]`.
  */
 async function main(): Promise<void> {
   const args = process.argv.slice(2);
   if (args.includes('--help')) {
     console.log(
-      'Usage: pnpm loudness [--mix <name>] [--demo <id>]... [--fit] [--target <LUFS>]... [--json] [--check] [--wav <dir> [--seconds <s>]]',
+      'Usage: pnpm loudness [--mix <name>] [--demo <id>]... [--file <path>]... [--fit] [--target <LUFS>]... [--json] [--check] [--wav <dir> [--seconds <s>]]',
     );
     return;
   }
@@ -606,7 +647,8 @@ async function main(): Promise<void> {
   if (unknown.length) {
     throw new Error(`No demo ${unknown.join(', ')}. The demos: ${DEMO_IDS.join(', ')}.`);
   }
-  const demos = names.length ? names.filter(isDemoId) : [...DEMO_IDS];
+  const paths = optionValues(args, '--file');
+  const demos = names.length || paths.length ? names.filter(isDemoId) : [...DEMO_IDS];
   const targets = optionValues(args, '--target').map(Number);
   if (targets.some((target) => !Number.isFinite(target))) {
     throw new Error('A target is a number in LUFS, such as -16.');
@@ -616,6 +658,9 @@ async function main(): Promise<void> {
   }
   const json = args.includes('--json');
   const check = args.includes('--check');
+  if (check && paths.length) {
+    throw new Error('--check measures only demos. A file of --file has no piece gain.');
+  }
   const [wavDir, ...extraWavs] = optionValues(args, '--wav');
   const [secondsText, ...extraSeconds] = optionValues(args, '--seconds');
   const seconds = secondsText === undefined ? Infinity : Number(secondsText);
@@ -628,16 +673,7 @@ async function main(): Promise<void> {
   if (METER_RATE !== TEST_SAMPLE_RATE) {
     throw new Error('The meter and the render need the same sample rate.');
   }
-  // The run reads each demo file one time, before the first render. Thus a change of demos/
-  // during the run, such as a new checksum row, cannot stop the run.
-  const files = await patchedDemos();
-  const inputs = demos.map((demo) => {
-    const file = files.find((item) => item.file === `${demo}.mid`);
-    if (!file) {
-      throw new Error(`The demo file ${demo}.mid does not exist.`);
-    }
-    return { demo, bytes: file.bytes };
-  });
+  const pieces = await readPieces(demos, paths);
 
   if (!json) {
     console.log(
@@ -647,15 +683,17 @@ async function main(): Promise<void> {
   }
   const failures: string[] = [];
   try {
-    for (const { demo, bytes } of inputs) {
-      const synth = await renderSynth(bytes);
+    for (const piece of pieces) {
+      const synth = await renderSynth(piece.bytes);
+      const stem = basename(piece.name, extname(piece.name));
       const wav =
-        wavDir === undefined ? undefined : { path: join(wavDir, `${demo}-${mix}.wav`), seconds };
-      const first = await measureAt(demo, synth, pieceGainDb(demo, mix), null, mix, wav);
+        wavDir === undefined ? undefined : { path: join(wavDir, `${stem}-${mix}.wav`), seconds };
+      const gainDb = pieceGainDb(piece.demo, mix);
+      const first = await measureAt(piece.name, synth, gainDb, null, mix, wav);
       failures.push(...checkFailures(first));
       const rows = [first];
       for (const target of targets) {
-        rows.push(await fit(demo, synth, target, first, mix));
+        rows.push(await fit(piece.name, synth, target, first, mix));
       }
       for (const row of rows) {
         console.log(json ? JSON.stringify(jsonOf(row)) : line(row));
