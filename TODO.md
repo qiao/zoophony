@@ -529,6 +529,10 @@ navigation menu at the top of the mockup is out of scope.
 - [ ] Bring the high tier within the frame target of 9.7 (4 ms p95 on the GPU and the main thread).
       The main thread is near 4 ms p95. The GPU is about 7 ms p95 on a view of the stage top, and
       no option with the same look passes. The choice of the path waits for the user.
+- [ ] Cut the main-thread cost of the read of the title backdrop (`app/backdrop-probe.ts`, 2.8).
+      A frame with a read or its result took about 2 ms more than another frame, mostly in the
+      browser, in about 18% of the frames. With no read, the main thread p95 went from 4.00 ms to
+      3.04 ms (median of two runs each). A longer interval changes how fast the shade follows the frame.
 - [ ] Pin the views of the traces of `pnpm frame`, for example with a fixed shot. The shot plan
       follows the layout, so the piano scale of 2026-10-24 moved the Metal trace from a view of
       the hall to a view of the stage top: 2.2 ms more GPU time with no change of a frame (9.7).
