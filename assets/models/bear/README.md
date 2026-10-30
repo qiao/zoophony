@@ -77,3 +77,14 @@ A run gives the same bytes:
 blender -b --factory-startup -P tools/blender/bear_arms.py
 shasum -a 256 assets/models/bear/*.glb assets/models/bear/bear-weights.json
 ```
+
+## bear-tpose.rig.glb
+
+| Item | Value |
+|---|---|
+| Size | 619,764 bytes |
+| SHA-256 | `ecb7f01559db5d0fb46cb34fcd74b8e9a3efe5434ab4a3011a82df2f4277c2de` |
+| Bind | The arms of the source, straight (`studio.straightArms` of the config): the elbow and the wrist keep the angles of the source |
+| Shapes | The arm-down shape of each arm, the straight legs of each side, and a `raise` shape of each bent elbow |
+
+A run of `pnpm rig-mesh bear` gives the same bytes.
