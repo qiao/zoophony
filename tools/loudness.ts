@@ -26,7 +26,8 @@
  * - `--json` prints one JSON object for each demo, with the short-term loudness at each second.
  * - `--check` exits with 1 when a demo at the gain of `pieceGainDb()` is more than 0.5 LU from
  *   `TARGET_LOUDNESS`, or has a true peak above -1 dBTP. Run it for each mix preset after a
- *   change of a demo file, the SoundFont, the mix, the mix bus, the hall, or the limiter.
+ *   change of a demo file, the SoundFont, the velocity curve, the mix, the mix bus, the hall, or
+ *   the limiter.
  * - `--wav <dir>` writes the output of the chain of each demo at the gain of `pieceGainDb()` as a
  *   16-bit WAV file `<dir>/<demo>-<mix>.wav`, with no normalization. `--seconds <s>` keeps only the
  *   first `s` seconds.
