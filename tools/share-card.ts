@@ -51,9 +51,9 @@ const CARD_STYLE = `
   .card { position: relative; width: 100vw; height: 100vh; overflow: hidden; isolation: isolate; }
   .card > * { position: absolute; }
   .frame, .haze, .glow { inset: 0; width: 100%; height: 100%; }
-  .frame { filter: sepia(0.08) saturate(0.88) brightness(1.1) contrast(1.06); }
+  .frame { filter: sepia(0.08) saturate(0.82) brightness(1.1) contrast(1.06); }
   .haze {
-    filter: sepia(0.08) saturate(0.88) brightness(1.1) blur(16px);
+    filter: sepia(0.08) saturate(0.82) brightness(1.1) blur(16px);
     mask-image: linear-gradient(black 18%, transparent 25%);
   }
   .glow { filter: brightness(0.75) contrast(2.6) blur(9px); mix-blend-mode: screen; opacity: 0.45; }
@@ -82,8 +82,8 @@ const CARD_STYLE = `
   .vignette {
     inset: 0;
     background:
-      linear-gradient(to top, rgba(6, 4, 2, 0.8), transparent 20%),
-      radial-gradient(ellipse 85% 80% at 50% 50%, transparent 48%, rgba(0, 0, 0, 0.92));
+      linear-gradient(to top, rgba(6, 4, 2, 0.86), transparent 22%),
+      radial-gradient(ellipse 95% 80% at 50% 50%, transparent 48%, rgba(0, 0, 0, 0.92));
   }
   .logo {
     left: 0;
