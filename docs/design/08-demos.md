@@ -27,16 +27,17 @@ and the SHA-256 of each file.
 | 3 | `bach-bwv1050` | Bach, Brandenburg Concerto 5, mvt 3 | Mutopia 548 | public domain | Solo flute, violin, harpsichord |
 | 4 | `beethoven-9` | Beethoven, Symphony 9, finale, excerpt ("Ode to Joy") | OpenScore | CC0 | Choir on the risers, full orchestra, timpani, percussion |
 | 5 | `pachelbel-p37` | Pachelbel, Canon in D, P. 37 | Mutopia 2047 | CC BY 4.0 | Three violins and a cello, with one player for each note |
-| 6 | `boulanger-matin` | Boulanger, D'un matin de printemps | OpenScore | CC0 | Percussion, harp, celesta, trombones, tuba |
-| 7 | `mozart-k525` | Mozart, Eine kleine Nachtmusik, mvt 1 | Mutopia 2230 | public domain | Four string parts with one player for each note |
-| 8 | `bach-bwv1048` | Bach, Brandenburg Concerto 3, mvt 1 | OpenScore | CC0 | Three violin seats, string orchestra, harpsichord |
-| 9 | `beethoven-8` | Beethoven, Symphony 8, mvt 2 | OpenScore | CC0 | Woodwinds and horns with the strings |
-| 10 | `mozart-k315` | Mozart, Andante K. 315 | Mutopia 344 | public domain | Solo flute |
-| 11 | `beethoven-1` | Beethoven, Symphony 1, mvt 4 | OpenScore | CC0 | Classical woodwinds, brass, and timpani |
-| 12 | `brahms-2` | Brahms, Symphony 2, mvt 4 | OpenScore | CC0 | Full romantic brass, woodwinds, and strings |
-| 13 | `beethoven-8-4` | Beethoven, Symphony 8, mvt 4 | OpenScore | CC0 | Full orchestra |
-| 14 | `bach-bwv1047` | Bach, Brandenburg Concerto 2, mvt 1 | Mutopia 1680 | public domain | Solo trumpet, flute, oboe, violin, harpsichord |
-| 15 | `mendelssohn-op61` | Mendelssohn, A Midsummer Night's Dream, Op. 61: V | Mutopia 80 | public domain | Woodwinds and strings |
+| 6 | `beethoven-5-4` | Beethoven, Symphony 5, mvt 4, with no exposition repeat | OpenScore | CC0 | Piccolo, contrabassoon, and three trombones with the full orchestra |
+| 7 | `boulanger-matin` | Boulanger, D'un matin de printemps | OpenScore | CC0 | Percussion, harp, celesta, trombones, tuba |
+| 8 | `mozart-k525` | Mozart, Eine kleine Nachtmusik, mvt 1 | Mutopia 2230 | public domain | Four string parts with one player for each note |
+| 9 | `bach-bwv1048` | Bach, Brandenburg Concerto 3, mvt 1 | OpenScore | CC0 | Three violin seats, string orchestra, harpsichord |
+| 10 | `beethoven-8` | Beethoven, Symphony 8, mvt 2 | OpenScore | CC0 | Woodwinds and horns with the strings |
+| 11 | `mozart-k315` | Mozart, Andante K. 315 | Mutopia 344 | public domain | Solo flute |
+| 12 | `beethoven-1` | Beethoven, Symphony 1, mvt 4 | OpenScore | CC0 | Classical woodwinds, brass, and timpani |
+| 13 | `brahms-2` | Brahms, Symphony 2, mvt 4 | OpenScore | CC0 | Full romantic brass, woodwinds, and strings |
+| 14 | `beethoven-8-4` | Beethoven, Symphony 8, mvt 4 | OpenScore | CC0 | Full orchestra |
+| 15 | `bach-bwv1047` | Bach, Brandenburg Concerto 2, mvt 1 | Mutopia 1680 | public domain | Solo trumpet, flute, oboe, violin, harpsichord |
+| 16 | `mendelssohn-op61` | Mendelssohn, A Midsummer Night's Dream, Op. 61: V | Mutopia 80 | public domain | Woodwinds and strings |
 
 - `DEMOS` of `app/demos.ts` holds the title, the composer, and the credit line of each demo, in
   the order of `DEMO_IDS`. Demo 1 is the default demo (`DEFAULT_DEMO`, 2.2), and it is part of
@@ -108,6 +109,8 @@ the 16-channel demo file
 - `cut_midi.py` joins tick ranges into an excerpt. Each part starts with the tempo, the programs,
   and the controllers that apply at its start. The first part of the Beethoven 9 demo ends with
   the D major chords, because the next bars turn to G major.
+- The `beethoven-5-4` demo plays the exposition one time. Many conductors skip its repeat, so
+  the cut is a normal performance choice.
 
 The repository holds the Boulanger score with no lyrics (`demos/boulanger/`) and the result
 files. `demos/README.md` gives the commit and the SHA-256 of each other score, and the commands.

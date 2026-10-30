@@ -10,6 +10,7 @@ export const DEMO_IDS = [
   'bach-bwv1050',
   'beethoven-9',
   'pachelbel-p37',
+  'beethoven-5-4',
   'boulanger-matin',
   'mozart-k525',
   'bach-bwv1048',
@@ -77,6 +78,13 @@ export const DEMOS = {
     composer: 'Johann Pachelbel',
     credit: 'Score: Mutopia Project, piece 2047, CC BY 4.0. Typeset by Michael Fischer v. Mollard.',
     lengthSec: 245,
+  },
+  'beethoven-5-4': {
+    title: 'Symphony No. 5, Op. 67: IV',
+    composer: 'Ludwig van Beethoven',
+    credit:
+      'Score: OpenScore Orchestra, CC0. The exposition plays one time. MIDI file made with MuseScore 4.',
+    lengthSec: 564,
   },
   'boulanger-matin': {
     title: "D'un matin de printemps",

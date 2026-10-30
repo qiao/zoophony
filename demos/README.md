@@ -32,6 +32,7 @@ All compositions are in the public domain. Each file also has its own license.
 | `mozart-k417` | `src/mozart-k417.mid` | Mozart, Horn Concerto No. 2, K. 417, mvt 3 | [Mutopia 901](https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=901) | Public Domain | Maurizio Tomasi |
 | `mozart-k191` | `src/mozart-k191.mid` | Mozart, Bassoon Concerto, K. 191, mvt 3 | [Mutopia 686](https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=686) | Public Domain | Maurizio Tomasi |
 | `pachelbel-p37` | `src/pachelbel-p37.mid` | Pachelbel, Canon in D, P. 37 ("Canon per 3 Violini e Basso") | [Mutopia 2047](https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=2047), file `canon_per_3_violini_e_basso.mid` in the MIDI zip | CC BY 4.0 | Michael Fischer v. Mollard |
+| `beethoven-5-4` | `src/beethoven-5-4.mid` | Beethoven, Symphony No. 5, Op. 67, mvt 4, with no exposition repeat | [OpenScore Orchestra](https://github.com/MarkGotham/Hauptstimme/blob/8f677853c45b74ca0afcd79677e5379c06c82354/data/Beethoven,_Ludwig_van/Symphony_No.5,_Op.67/4/Beethoven_Op.67_4.mscz), made by the OpenScore pipeline below | CC0 1.0 (score) | OpenScore |
 
 Only the CC BY 4.0 license of `pachelbel-p37` requires a credit line. The credits panel of the
 app lists each source and each typesetter.
@@ -43,7 +44,8 @@ shows "Copyright: Public Domain". The LilyPond source of piece 2230 also holds
 `license = "Creative Commons Attribution 4.0"`.
 
 The OpenScore Orchestra README gives "Scores: CC0 1.0 Universal; Annotations: CC-By-SA" (read
-on 2026-10-05 at commit `8f677853`). Each score holds the same text in its `copyright` meta tag.
+on 2026-10-05 and on 2026-10-30, at commit `8f677853`). Each score holds the same text in its
+`copyright` meta tag.
 
 ## Checksums (SHA-256)
 
@@ -64,6 +66,7 @@ on 2026-10-05 at commit `8f677853`). Each score holds the same text in its `copy
 | `src/mozart-k417.mid` | `d6ab9bc12bfdc4dedd0751a45d3ad1cd1d8a549101a5c3649c38e202ef3d84fb` |
 | `src/mozart-k191.mid` | `3fa97dfb3136ffe1c62e5420a44c5a630954a92e7fb33b8858a05717d9adf284` |
 | `src/pachelbel-p37.mid` | `953b73e270117d388e9ef1a76f8b9e97ff640d1400768849f41a3cf71c59cbc1` |
+| `src/beethoven-5-4.mid` | `241ddab0fe831ea1e14699d0030e0a52d45c23a7eaf707a0d59b66bd289c8da2` |
 | `boulanger/matin-nolyrics.mscz` | `cbcca2cd6b43c0d58ba0c3f38b7e9bfbc438e1b1ec4720b6bea784e7fbcd013f` |
 
 ## Program changes
@@ -111,8 +114,8 @@ The pipeline gives a file that is byte-identical to `src/boulanger-matin.mid`.
 
 ## The other OpenScore files
 
-`src/beethoven-9.mid`, `src/bach-bwv1048.mid`, `src/beethoven-8.mid`, and `src/beethoven-1.mid` come from the
-OpenScore scores at commit `8f677853` of the Hauptstimme repository. The repository does not hold
+The OpenScore files of `src/`, other than `src/boulanger-matin.mid`, come from the OpenScore
+scores at commit `8f677853` of the Hauptstimme repository. The repository does not hold
 these scores. The pipeline downloads each score and removes all lyrics first, so the annotations
 of the instrumental scores (CC BY-SA, stored as lyrics) do not enter it. The Beethoven 9 score
 has the sung text as lyrics and its annotations as staff text. The MuseScore export writes no
@@ -129,6 +132,8 @@ MIDI channel:
   do the three cello parts. With nine string groups, the layout made a stage side of 20.71 m,
   against 10.43 m with seven.
 - Beethoven 8: one group for each instrument.
+- Beethoven 5: one group for each instrument. The piccolo plays with the flutes, and the
+  contrabassoon with the bassoons. The alto, tenor, and bass trombones form one group.
 
 The Beethoven 9 demo is an excerpt of two parts of the finale, both in D major:
 
@@ -142,12 +147,22 @@ tick 880,800, bar 591 at tick 949,920, and bar 851 at tick 1,610,880, with 480 t
 quarter note. The finale ends at tick 1,781,760. The two parts give a traditional and joyful
 version of the finale.
 
+Some demos play the exposition one time (design 8.4). The MuseScore export plays each repeat,
+so `cut_midi.py` keeps the ticks before the second pass of the exposition and the ticks after
+it. The ticks are ticks of the export, with 480 ticks for each quarter note. In each demo, the
+two passes of the export hold the same notes, and no note sounds across a join.
+
+| Demo | Kept bars of the score | Kept ticks of the export |
+|---|---|---|
+| `beethoven-5-4` | 1 to 84, then 87 to 446 (the second ending) | 0 to 161,280 and 324,480 to 989,760 |
+
 | Score file | SHA-256 |
 |---|---|
 | `Beethoven_Op.125_4.mscz` | `7055e0c60a1d819ec21e455676aaca0106f0d251a17e311714a0de62434dca55` |
 | `Bach_BWV.1048_1.mscz` | `7ea8d2cf64a0aa54cdd4d7f5df8f7433fdf5f3169b27111e9c62be4e30d90a4c` |
 | `Beethoven_Op.93_2.mscz` | `6e3437c0edd2729f49302fc2728595624f87ff4a4f1b38e71cd244583a522fb8` |
 | `Beethoven_Op.21_4.mscz` | `7f8843cd12e525dbd7731e67ddd98bc505d6567088d3abfebda5e7a56411a9a5` |
+| `Beethoven_Op.67_4.mscz` | `19179c3e140362cd1c8ad05445b95eab2105d7b1c1a203c793b46bb6dbe56b2e` |
 
 ```bash
 P=tools/musescore
@@ -158,6 +173,7 @@ H=https://raw.githubusercontent.com/MarkGotham/Hauptstimme/8f677853c45b74ca0afcd
 ID=beethoven-9 S='Beethoven,_Ludwig_van/Symphony_No.9,_Op.125/4/Beethoven_Op.125_4.mscz' CUT='880800 949920 1610880 1781760'
 # ID=bach-bwv1048 S='Bach,_Johann_Sebastian/Brandenburg_Concerto_No.3,_BWV.1048/1/Bach_BWV.1048_1.mscz' CUT=
 # ID=beethoven-8 S='Beethoven,_Ludwig_van/Symphony_No.8,_Op.93/2/Beethoven_Op.93_2.mscz' CUT=
+# ID=beethoven-5-4 S='Beethoven,_Ludwig_van/Symphony_No.5,_Op.67/4/Beethoven_Op.67_4.mscz' CUT='0 161280 324480 989760'
 G=demos/groups/$ID.json
 curl -sfL -o $T/score.mscz "$H/$S"
 shasum -a 256 $T/score.mscz                                # compare with the table above
@@ -173,8 +189,8 @@ cmp $T/$ID.mid demos/src/$ID.mid
 ```
 
 The check prints 0 missed attacks, 0 extra attacks, 0 notes with a wrong program, and 0 s of lost
-sound for each score: 46,224 attacks for the full Beethoven 9 finale, 9,301 for the Bach, and
-5,694 for the Beethoven 8. Its count of keys on channel 10 that are not drum keys reads the keys
-of the Boulanger kit. The finale uses other keys (234). The pipeline gives files that are
-byte-identical to the files in `src/`. The MuseScore runs can exit with code 134 after the
-write.
+sound for each score: 46,224 attacks for the full Beethoven 9 finale, 9,301 for the Bach, 5,694
+for the Beethoven 8, and 34,768 for the full Beethoven 5 finale. Its count of keys on channel 10
+that are not drum keys reads the keys of the Boulanger kit. The finale uses other keys (234).
+The pipeline gives files that are byte-identical to the files in `src/`. The MuseScore runs can
+exit with code 134 after the write.

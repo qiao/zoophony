@@ -217,6 +217,23 @@ const EXPECTED_SECTIONS: ReadonlyMap<string, ReadonlyMap<SectionId, number>> = n
       cello: 1,
     }),
   ],
+  [
+    'beethoven-5-4.mid',
+    sectionTable({
+      violin: 2,
+      viola: 1,
+      cello: 1,
+      contrabass: 1,
+      flute: 1,
+      oboe: 1,
+      clarinet: 1,
+      bassoon: 1,
+      horn: 1,
+      trumpet: 1,
+      trombone: 1,
+      timpani: 1,
+    }),
+  ],
 ]);
 
 /** Puts the seat counts of one row of the table in the order of `SECTION_ORDER`. */

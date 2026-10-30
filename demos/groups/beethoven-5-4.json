@@ -1,0 +1,20 @@
+{
+  "short": ["Picc", "Fl 1", "Fl 2", "Ob 1", "Ob 2", "Cl 1", "Cl 2", "Bsn 1", "Bsn 2", "C Bsn",
+            "Hn 1", "Hn 2", "Tpt 1", "Tpt 2", "A Trb", "T Trb", "B Trb", "Timp",
+            "Vln 1", "Vln 2", "Vla", "Vc", "Cb"],
+  "groups": [
+    ["Flutes", 0, 73, [0, 1, 2]],
+    ["Oboes", 1, 68, [3, 4]],
+    ["Clarinets", 2, 71, [5, 6]],
+    ["Bassoons", 3, 70, [7, 8, 9]],
+    ["Horns", 4, 60, [10, 11]],
+    ["Trumpets", 5, 56, [12, 13]],
+    ["Trombones", 6, 57, [14, 15, 16]],
+    ["Timpani", 7, 47, [17]],
+    ["Violin 1", 8, 40, [18]],
+    ["Violin 2", 10, 40, [19]],
+    ["Violas", 11, 41, [20]],
+    ["Cellos", 12, 42, [21]],
+    ["Contrabass", 13, 43, [22]]
+  ]
+}

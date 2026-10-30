@@ -63,13 +63,14 @@ describe('DEFAULT_DEMO', () => {
 });
 
 describe('isDemoId', () => {
-  it('accepts only the fifteen hash ids of design 8.2', () => {
+  it('accepts only the sixteen hash ids of design 8.2', () => {
     expect(DEMO_IDS).toEqual([
       'mozart-k191',
       'mozart-k417',
       'bach-bwv1050',
       'beethoven-9',
       'pachelbel-p37',
+      'beethoven-5-4',
       'boulanger-matin',
       'mozart-k525',
       'bach-bwv1048',
@@ -114,6 +115,7 @@ describe('DEMOS (design 8.2)', () => {
       'Brandenburg Concerto No. 5, BWV 1050: III',
       'Symphony No. 9, Op. 125: Ode to Joy',
       'Canon in D, P. 37',
+      'Symphony No. 5, Op. 67: IV',
       "D'un matin de printemps",
       'Eine kleine Nachtmusik, K. 525: I',
       'Brandenburg Concerto No. 3, BWV 1048: I',
