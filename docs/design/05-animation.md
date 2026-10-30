@@ -279,6 +279,8 @@ The rest of each family:
 - The wide paws keep apart (`apart`). When the two parts of a wide chord, such as a bass and a
   melody, come nearer, each paw plays a few keys away from its part (`HandNote.shift`). Thus the
   two parts stay in two paws, and one paw does not jump between them.
+- The paw lifts less before a near note (`HAND_MOTION.liftGapSec`), because the motion of a
+  pianist gets smaller as the speed rises (piano 7).
 - Each key goes down with its notes, from the note start to the note end (`keyLevelsAt()`), so a
   seek and a mute give the correct keys at once.
 - The paw moves in for a black key, so the claws lie on it, as a pianist moves the hand in toward

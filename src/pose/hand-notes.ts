@@ -13,6 +13,11 @@ export const HAND_MOTION = {
   strikeMove: 0.6,
   /** A piano hand lifts this high in its move, at a gesture size of 1. */
   lift: 0.03,
+  /**
+   * A piano hand lifts its full height for a note at least this long after the note before, and
+   * less for a nearer note, as the motion of a pianist gets smaller with the speed.
+   */
+  liftGapSec: 0.4,
   /** A harp finger rests on its string for this time before the pluck: at most 0.2 of the gap. */
   restSec: 0.04,
   /** A pluck takes this time: at most 0.3 of the gap to the next note of the hand. */
@@ -222,7 +227,10 @@ export interface HandTrack {
   readonly pluckTimes: Float64Array;
   /** The place of the palm for each note, in the model axes: three numbers for each note. */
   readonly points: Float64Array;
-  /** The gesture size of each note (design 5.3). */
+  /**
+   * The gesture size of each note (design 5.3). For a strike, it also holds the smaller lift of a
+   * near note (`HAND_MOTION.liftGapSec`).
+   */
   readonly gestures: Float64Array;
 }
 
@@ -265,6 +273,8 @@ export function buildHandTrack(
     const free = plucks ? gap - (rests[i] ?? 0) - (pluckTimes[i - 1] ?? 0) : m.strikeMove * gap;
     return (moveEnds[i] ?? 0) - Math.min(m.moveSec, free);
   });
+  // A piano hand lifts less for a near note.
+  const liftShare = (i: number): number => (plucks ? 1 : Math.min(1, gapBefore(i) / m.liftGapSec));
   return {
     action,
     first: pointOf(firstKey, firstKey, 0),
@@ -273,7 +283,7 @@ export function buildHandTrack(
     moveEnds,
     pluckTimes,
     points: Float64Array.from(notes.flatMap((n) => pointOf(n.low, n.high, n.shift ?? 0))),
-    gestures: Float64Array.from(notes, (n) => gestureSize(n.loudness, amplitude)),
+    gestures: Float64Array.from(notes, (n, i) => gestureSize(n.loudness, amplitude) * liftShare(i)),
   };
 }
 

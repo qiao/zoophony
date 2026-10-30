@@ -127,9 +127,10 @@ describe('handStateAt (design 5.3)', () => {
 
   it('moves in 0.6 of the gap of two fast notes, and strikes each of them', () => {
     const t = track('strike', [1, 1.1, 1.2], [60, 60, 62]);
-    // The hand stays on the keys for 0.04 s, and moves in the last 0.06 s before each note.
+    // The hand stays on the keys for 0.04 s, and moves in the last 0.06 s before each note. It
+    // lifts less for a near note.
     expect(stateAt(t, 1.039).lift).toBe(0);
-    expect(stateAt(t, 1.07).lift).toBeCloseTo(HAND_MOTION.lift, 9);
+    expect(stateAt(t, 1.07).lift).toBeCloseTo((HAND_MOTION.lift * 0.1) / HAND_MOTION.liftGapSec, 9);
     expect(stateAt(t, 1.1).lift).toBe(0);
     expect(stateAt(t, 1.17).point[0]).toBeCloseTo(0.61, 9);
   });

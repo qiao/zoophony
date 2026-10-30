@@ -130,6 +130,9 @@ front of the trunk, and the trunk upright over the sit bones.
 - The trunk moved smoothly. The weight shifts came at the leaps [11].
 - The hand hovers over the keys before it plays [6]. Teachers train a lift and a drop of the hand
   and the forearm as one unit from the elbow [17].
+- In fast passages, the fingers stay near the keys, and the motion gets smaller as the speed
+  rises. The arm is too slow for fast notes, so the fingers and the wrist do the work [32][33]
+  (a search summary only).
 - **The keys.** A grand piano key is 50 cm to 60 cm long, with its balance pin at about its
   middle [27]. On a Boston grand, the felt under the key front is 217.5 mm in front of the pin
   (derived) [26]. The key dip is about 10 mm [25][26][27]: 9.5 mm (secondary) [24], 10 ± 0.2 mm
@@ -177,7 +180,9 @@ The app follows these facts:
   (`sideLeanAt()`, `sideLean`, `sideLeanMax`). The lean follows the mean place of the paws over
   `SIDE_LEAN_WINDOW` before and after the song time. Thus the trunk moves smoothly toward the
   register of a passage, and the weight shifts come at the leaps. A wider window lets the trunk
-  lag, and the arms cross further into the belly.
+  lag, and the arms cross further into the belly. The paw has no fingers that move, so the
+  whole paw lifts for each note, but less for a near note (`HAND_MOTION.liftGapSec`). Thus the
+  motion gets smaller in a fast passage.
 - **The feet (section 6).** In the play, the right heel stays on the floor, and the ball of the
   foot lies on the front of the damper pedal (`posePedalFoot()` of `src/pose/pedal.ts`). The
   sustain pedal of the score (CC 64) presses the damper pedal, and the foot follows it. The paw is
@@ -205,7 +210,7 @@ The app does not follow these facts:
 ## 10. Sources
 
 Sources 1 to 20 opened on 2026-10-24, source 21 on 2026-10-25, and sources 23 to 29 on
-2026-10-28.
+2026-10-28. Sources 32 and 33 come from a web search on 2026-10-30.
 
 1. Yamaha Corporation. "How to Play the Piano: Correct Posture." Musical Instrument Guide.
    https://www.yamaha.com/en/musical_instrument_guide/piano/play/play002.html
@@ -278,6 +283,10 @@ Sources 1 to 20 opened on 2026-10-24, source 21 on 2026-10-25, and sources 23 to
 30. The Golandsky Institute. Resources of the Taubman Approach.
     https://www.golandskyinstitute.org/resources/
 31. Tonebase. Piano hand placement. https://www.tonebase.co/piano-blog-posts/piano-hand-placement
+32. Living Pianos. "How to Achieve Speed and Lightness in Your Piano Playing."
+    https://livingpianos.com/how-to-achieve-speed-lightness-in-your-piano-playing
+33. Living Pianos. "Finger Staccato Technique on the Piano."
+    https://www.livingpianos.com/articles/finger-staccato-technique-on-the-piano/
 
 **Conflicts.** The sources put the elbow from a little below the keys [5][8] to about 2.5 cm
 above them [4][5]. Most sources put the pianist on the front half of the bench, and one on the
