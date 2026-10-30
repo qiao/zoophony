@@ -206,3 +206,20 @@ the Beethoven 8, 34,768 for the full Beethoven 5 finale, 25,121 for the full Bee
 keys reads the keys of the Boulanger kit. The Beethoven 9 finale uses other keys (234). The pipeline
 gives files that are byte-identical to the files in `src/`. The MuseScore runs can exit with code
 134 after the write.
+
+## Search for a new demo
+
+The facts below come from a search on 2026-10-30. Check each file with the license rules of
+design 8.1.
+
+- Hauptstimme (OpenScore Orchestra, `MarkGotham/Hauptstimme`) has only 22 works. Its tree at
+  commit `8f677853` holds all of them.
+- Mutopia: the filter `https://www.mutopiaproject.org/cgibin/make-table.cgi?Instrument=Orchestra`
+  gives 67 pieces. 54 of them have a permitted license (public domain or CC BY).
+- IMSLP: read the `Copyright=` field of each file block in the page text from `api.php`. A direct
+  download of a file gets a bot check.
+- Wikimedia Commons has almost no full orchestral MIDI files.
+- Send the Wikimedia API requests at least 1.5 s apart. With less time between them, the APIs
+  answer HTTP 429 to the neutral User-Agent `zoophony-build/1.0`.
+- Measure the fame of a work with the page views of its en.wikipedia article over 12 months, from
+  the Wikimedia REST API.
