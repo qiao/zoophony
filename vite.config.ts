@@ -11,6 +11,7 @@ import {
 } from './src/app/page-title.ts';
 import { gzipSiteAudio } from './tools/gzip-site.ts';
 import { licenseDocument, licenseEntries } from './tools/licenses.ts';
+import { sitePages } from './tools/site-pages.ts';
 import { configDefaults, defineConfig } from 'vitest/config';
 
 /** The speed tests: each one compares the time of a work with a reference work (design 9.3). */
@@ -163,6 +164,20 @@ const INDEX_VALUES: Plugin = {
 };
 
 /**
+ * The plugin that writes the files of `sitePages()` into the build (design 7.4): the Markdown copy
+ * of the start page and `llms.txt`.
+ */
+const SITE_PAGES: Plugin = {
+  name: 'zoophony:site-pages',
+  apply: 'build',
+  generateBundle() {
+    for (const [fileName, source] of sitePages()) {
+      this.emitFile({ type: 'asset', fileName, source });
+    }
+  },
+};
+
+/**
  * The plugin that puts the style sheets of `index.html` inline in its head, in the build (design
  * 7.2). A linked style sheet blocks the first paint for one more request, and the CSS is about
  * 6 kB after compression. It removes a CSS file of the bundle that no other page links. The dev
@@ -244,7 +259,7 @@ const DEV_LICENSES: Plugin = {
 
 export default defineConfig({
   base: BASE,
-  plugins: [DEV_LOOK_OVERRIDE, INDEX_VALUES, INLINE_CSS, GZIP_AUDIO, DEV_LICENSES],
+  plugins: [DEV_LOOK_OVERRIDE, INDEX_VALUES, SITE_PAGES, INLINE_CSS, GZIP_AUDIO, DEV_LICENSES],
   build: {
     // tools/size.ts reads the manifest to find the static imports of the entry chunk.
     manifest: true,
