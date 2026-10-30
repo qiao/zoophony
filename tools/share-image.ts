@@ -86,10 +86,9 @@ const HIDE_BEAM_MODULE = 'virtual:share-hide-beam';
 /**
  * Gives the plugin of a build of the app with no visible beam of the stage (design 7.4). The scene
  * aims the beam from the rim light, which stands on the middle line behind the stage. From
- * {@link SHARE_CAMERA}, 1.5 m left of that line, the beam shows left of the middle, as a second
- * light beside the cone of the card. The beam only scatters light to the camera, so with no beam
- * the players, the floor, and the room haze keep their light. The card draws its own cone
- * (`tools/share-card.ts`). The last import of `src/main.ts` hides each part of
+ * {@link SHARE_CAMERA}, 1.5 m left of that line, the beam shows left of the middle. The card has no
+ * beam, so that the logo stands out on a dark wall. The beam only scatters light to the camera, so
+ * with no beam the players, the floor, and the room haze keep their light. The last import of `src/main.ts` hides each part of
  * {@link STAGE_BEAM_PARTS} before each render of a scene, and keeps the largest count in
  * {@link HIDDEN_BEAM_ATTRIBUTE}.
  *

@@ -242,12 +242,11 @@ the constants of `app/page-title.ts`, so that the page and the app cannot differ
   because the layout is wider on the right. The conductor stands in the middle of the lower half, no
   player is cut, and the head of each back row shows above the row in front of it. The front edge of
   the stage crosses the bottom. The build of the tool hides the visible beam of the stage (4.5),
-  because from this camera it shows left of the middle, as a second light beside the cone of the
-  card. The top third stays dark for the title: the paw and the wordmark in gold, and under them the
-  line "A web-based MIDI player with an animal orchestra." in Fraunces (`SHARE_LINE`). The layer of
-  `tools/share-card.ts` adds a cone of warm light with soft edges behind the title, which fades out
-  above the back row so that the players keep their colors, a vignette, a warm grade, and a soft
-  glow. It blurs the hall wall behind the title, so that the wall is dark and smooth and no lamp
+  and the card adds no beam, so that the logo stands out on a dark wall. The target image has a cone
+  of light behind the title, and the card leaves it out for this reason. The top third stays dark
+  for the title: the paw and the wordmark in gold, and under them the line "A web-based MIDI player
+  with an animal orchestra." in Fraunces (`SHARE_LINE`). The layer of `tools/share-card.ts` adds a
+  vignette, a warm grade, and a soft glow. It blurs the hall wall behind the title, so that the wall is dark and smooth and no lamp
   shows there. Chromium draws the layer from HTML and CSS, so the tool needs no image library. The
   font file of the line (`assets/fraunces/fraunces.ttf`) stays out of the build, so the license file
   (7.3) does not change.

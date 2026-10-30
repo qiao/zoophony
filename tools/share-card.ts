@@ -11,9 +11,6 @@
 //   glow      a copy of the frame: only its highlights (contrast), blurred, added with `screen`
 //   pool      a warm light on the floor in the middle of the stage, added with `screen`
 //   shade     a dark neutral band at the top, behind the text
-//   beam      a cone of warm light from the top middle: a trapezoid with blurred edges that
-//             widens down behind the text and fades out above the back row, added with `screen`
-//   core      a small bright glow at the top of the beam, added with `screen`
 //   vignette  a dark edge that is darkest in the corners and lighter in the middle of the
 //             sides, and a dark band at the bottom
 //   title     the paw and the wordmark in gold, and one line in Fraunces
@@ -65,19 +62,6 @@ const CARD_STYLE = `
   .shade {
     inset: 0;
     background: linear-gradient(rgba(18, 14, 11, 0.9), rgba(18, 14, 11, 0.74) 20%, transparent 31%);
-  }
-  .beam { inset: 0; filter: blur(20px); mix-blend-mode: screen; }
-  .beam > div {
-    position: absolute;
-    inset: 0;
-    clip-path: polygon(41% 0, 59% 0, 76% 100%, 24% 100%);
-    background: linear-gradient(rgba(255, 216, 170, 0.42), rgba(255, 210, 160, 0.26) 16%,
-      transparent 27%);
-  }
-  .core {
-    inset: 0;
-    background: radial-gradient(ellipse 12% 30% at 50% -4%, rgba(255, 226, 190, 0.45), transparent);
-    mix-blend-mode: screen;
   }
   .vignette {
     inset: 0;
@@ -136,8 +120,6 @@ function cardHtml(frame: string, font: string): string {
   <img class="glow" src="${frame}" alt="">
   <div class="pool"></div>
   <div class="shade"></div>
-  <div class="beam"><div></div></div>
-  <div class="core"></div>
   <div class="vignette"></div>
   <div class="logo">
     <svg class="paw" viewBox="0 0 24 24" aria-hidden="true">${PAW_MARKUP}</svg>
