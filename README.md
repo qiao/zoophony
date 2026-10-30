@@ -4,7 +4,7 @@ Zoophony is a WebGL MIDI player. Low-poly animals play orchestral music on a sma
 
 Live site: <https://www.zoophony.com/>
 
-![Zoophony](zoophony.png)
+![Zoophony](docs/zoophony.png)
 
 ## Features
 
