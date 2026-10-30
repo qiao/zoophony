@@ -12,7 +12,8 @@ Live site: <https://www.zoophony.com/>
   percussion, the piano, and the harp, and a choir of animals sings. The poses follow each note:
   the fingers, the bow strokes, the breaths, the mallet strokes, and the keys.
 - **Your own MIDI files.** Drop a `.mid` file onto the window, or select one of the built-in
-  public domain pieces.
+  public domain pieces. A link with `#demo=<id>` opens a demo, for example
+  <https://www.zoophony.com/#demo=bach-bwv1047>.
 - **SoundFont synth.** An AudioWorklet plays the instruments from a SoundFont, with the reverb of
   a real concert hall.
 - **Camera.** Select the cinematic camera, which follows the sections that play, or the free
