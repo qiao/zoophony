@@ -164,9 +164,9 @@ These traps make a task of the main thread long:
   needs other programs.
 - With `KHR_parallel_shader_compile`, poll `isReady()` of each program in steps, then call
   `getUniforms()` before the first frame. The first draw with a new program waits for the link.
-- Keep one `PMREMGenerator`, and compile its materials with a geometry that has a position
-  attribute (`src/scene/pmrem-steps.ts`). `compileCubemapShader()` uses an empty geometry, so the
-  draw makes a new program, and a disposed generator frees its programs.
+- Keep one `PMREMGenerator`, because a disposed generator frees its programs. three.js r187 makes
+  the blur, GGX, and integration materials only in the first draw. Make them with no draw, and
+  compile them with `_compileMaterial()` (`createMaterials()` of `src/scene/pmrem-steps.ts`).
 - Wait on a fence at the end of each long GPU step, such as the bake. With no wait, the next buffer
   upload blocked the main thread for about 100 ms.
 - Call `navigator.mediaDevices.enumerateDevices()` at the start of the app
