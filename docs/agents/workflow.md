@@ -130,6 +130,8 @@ These rules hold for each test:
 - Run each timed measure through `tools/measure-lock.sh run --owner <name> -- <cmd>`: a trace,
   `pnpm load-probe`, `pnpm frame`, and each timed probe. The lock serves the tickets in order, so
   two agents do not measure at the same time. `--gate <load>` also waits for a quiet CPU.
+- Run a long `pnpm loudness` fit through `tools/measure-lock.sh run --owner <name> -- <cmd>` when
+  another agent measures. Two runs at the same time make each run about 3 times slower.
 - A load round measures the times of the app with `pnpm load-probe`, and the scores and the metrics
   of Lighthouse with `pnpm lighthouse`. Use the saved tool, because the Lighthouse of the
   chrome-devtools MCP server has no performance category. `--url https://www.zoophony.com/` audits
