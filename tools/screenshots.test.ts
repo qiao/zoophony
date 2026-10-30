@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
+import { DEMO_IDS } from '../src/app/demos.ts';
 import type { Shot as CameraPlanShot, ShotKind, ShotPlan } from '../src/shots/types.ts';
 import {
   cameraShots,
@@ -14,25 +15,10 @@ import {
 describe('reviewShots', () => {
   it('lists each demo at 1440 × 900, the default demo at 390 × 844, the gallery, and the views pages (9.8)', () => {
     const shots = reviewShots();
+    // The index of the shot at 390 × 844. It follows the shot of each demo at 1440 × 900.
+    const phone = DEMO_IDS.length;
     expect(shots.map((shot) => shot.file)).toEqual([
-      'mozart-k191-1440x900.webp',
-      'mozart-k417-1440x900.webp',
-      'bach-bwv1050-1440x900.webp',
-      'beethoven-9-1440x900.webp',
-      'pachelbel-p37-1440x900.webp',
-      'beethoven-5-4-1440x900.webp',
-      'beethoven-7-4-1440x900.webp',
-      'beethoven-6-1-1440x900.webp',
-      'boulanger-matin-1440x900.webp',
-      'mozart-k525-1440x900.webp',
-      'bach-bwv1048-1440x900.webp',
-      'beethoven-8-1440x900.webp',
-      'mozart-k315-1440x900.webp',
-      'beethoven-1-1440x900.webp',
-      'brahms-2-1440x900.webp',
-      'beethoven-8-4-1440x900.webp',
-      'bach-bwv1047-1440x900.webp',
-      'mendelssohn-op61-1440x900.webp',
+      ...DEMO_IDS.map((id) => `${id}-1440x900.webp`),
       'mozart-k191-390x844.webp',
       'gallery-species-1440x900.webp',
       'gallery-instruments-1440x900.webp',
@@ -43,18 +29,22 @@ describe('reviewShots', () => {
       'polar-bear-sheet-views.webp',
       'bear-sheet-views.webp',
     ]);
-    expect(shots[18]).toEqual({
+    expect(shots[phone]).toEqual({
       file: 'mozart-k191-390x844.webp',
       path: '/#demo=mozart-k191',
       width: 390,
       height: 844,
       ready: 'canvas[data-demo="mozart-k191"]',
     });
-    expect(shots[20]?.ready).toBe('canvas[data-ready="instruments"]');
+    expect(shots[phone + 2]?.ready).toBe('canvas[data-ready="instruments"]');
     // The views page has the size of docs/reference/animals.webp.
-    expect(shots[21]).toMatchObject({ path: '/views.html', width: 1024, height: 1024 });
+    expect(shots[phone + 3]).toMatchObject({ path: '/views.html', width: 1024, height: 1024 });
     // The page of fox-views.png has half of its size (design 7.1).
-    expect(shots[22]).toMatchObject({ path: '/views.html?sheet=fox', width: 1247, height: 677 });
+    expect(shots[phone + 4]).toMatchObject({
+      path: '/views.html?sheet=fox',
+      width: 1247,
+      height: 677,
+    });
   });
 });
 
