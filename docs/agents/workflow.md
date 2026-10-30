@@ -176,6 +176,14 @@ These traps make a task of the main thread long:
 - Let a step poll a fence or a program status, and never wait on a promise. `runAll()` runs the
   steps with no yield, so a promise wait stops it.
 
+## Report images
+
+Write the images of a report into `reports/<date>-<topic>/` of your checkout. Git ignores this
+folder, and the manager reads the images there before the merge. Commit no report image. The hook
+`tools/git-hooks/pre-commit` stops a commit that adds an image or a video outside the folders of
+the product images, such as `src/`, `public/`, and `docs/reference/`. Report images made most of
+the size of the git history.
+
 ## Images of a mesh
 
 Each image set that checks a mesh, a hold, or a clip shows the front, the back, the left side, and
