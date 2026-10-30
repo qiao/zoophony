@@ -1,0 +1,16 @@
+{
+  "short": ["Fl 1", "Fl 2", "Ob 1", "Ob 2", "Cl 1", "Cl 2", "Bsn 1", "Bsn 2", "Hn 1", "Hn 2",
+            "Vln 1", "Vln 2", "Vla", "Vc", "Cb"],
+  "groups": [
+    ["Flutes", 0, 73, [0, 1]],
+    ["Oboes", 1, 68, [2, 3]],
+    ["Clarinets", 2, 71, [4, 5]],
+    ["Bassoons", 3, 70, [6, 7]],
+    ["Horns", 4, 60, [8, 9]],
+    ["Violin 1", 5, 40, [10]],
+    ["Violin 2", 6, 40, [11]],
+    ["Violas", 7, 41, [12]],
+    ["Cellos", 8, 42, [13]],
+    ["Contrabass", 10, 43, [14]]
+  ]
+}

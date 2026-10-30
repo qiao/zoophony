@@ -63,7 +63,7 @@ describe('DEFAULT_DEMO', () => {
 });
 
 describe('isDemoId', () => {
-  it('accepts only the seventeen hash ids of design 8.2', () => {
+  it('accepts only the eighteen hash ids of design 8.2', () => {
     expect(DEMO_IDS).toEqual([
       'mozart-k191',
       'mozart-k417',
@@ -72,6 +72,7 @@ describe('isDemoId', () => {
       'pachelbel-p37',
       'beethoven-5-4',
       'beethoven-7-4',
+      'beethoven-6-1',
       'boulanger-matin',
       'mozart-k525',
       'bach-bwv1048',
@@ -118,6 +119,7 @@ describe('DEMOS (design 8.2)', () => {
       'Canon in D, P. 37',
       'Symphony No. 5, Op. 67: IV',
       'Symphony No. 7, Op. 92: IV',
+      'Symphony No. 6, Op. 68: I',
       "D'un matin de printemps",
       'Eine kleine Nachtmusik, K. 525: I',
       'Brandenburg Concerto No. 3, BWV 1048: I',

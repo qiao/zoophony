@@ -148,6 +148,7 @@ describe('the demo files after demos/patches.json (design 8.3)', () => {
       'bach-bwv1050.mid',
       'beethoven-1.mid',
       'beethoven-5-4.mid',
+      'beethoven-6-1.mid',
       'beethoven-7-4.mid',
       'beethoven-8-4.mid',
       'beethoven-8.mid',

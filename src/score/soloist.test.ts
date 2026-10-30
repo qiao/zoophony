@@ -227,6 +227,7 @@ describe('the soloist of each demo (design 3.8, 8.2)', () => {
     ['pachelbel-p37.mid', 'none'],
     ['beethoven-5-4.mid', 'none'],
     ['beethoven-7-4.mid', 'none'],
+    ['beethoven-6-1.mid', 'none'],
   ]);
 
   it.each(demos.map((d) => d.file))('gives %s its soloist with each section size', (file) => {

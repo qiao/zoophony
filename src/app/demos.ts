@@ -12,6 +12,7 @@ export const DEMO_IDS = [
   'pachelbel-p37',
   'beethoven-5-4',
   'beethoven-7-4',
+  'beethoven-6-1',
   'boulanger-matin',
   'mozart-k525',
   'bach-bwv1048',
@@ -93,6 +94,13 @@ export const DEMOS = {
     credit:
       'Score: OpenScore Orchestra, CC0. The exposition plays one time. MIDI file made with MuseScore 4.',
     lengthSec: 420,
+  },
+  'beethoven-6-1': {
+    title: 'Symphony No. 6, Op. 68: I',
+    composer: 'Ludwig van Beethoven',
+    credit:
+      'Score: OpenScore Orchestra, CC0. The exposition plays one time. MIDI file made with MuseScore 4.',
+    lengthSec: 467,
   },
   'boulanger-matin': {
     title: "D'un matin de printemps",

@@ -29,16 +29,17 @@ and the SHA-256 of each file.
 | 5 | `pachelbel-p37` | Pachelbel, Canon in D, P. 37 | Mutopia 2047 | CC BY 4.0 | Three violins and a cello, with one player for each note |
 | 6 | `beethoven-5-4` | Beethoven, Symphony 5, mvt 4, with no exposition repeat | OpenScore | CC0 | Piccolo, contrabassoon, and three trombones with the full orchestra |
 | 7 | `beethoven-7-4` | Beethoven, Symphony 7, mvt 4, with no exposition repeat | OpenScore | CC0 | Classical orchestra with trumpets and timpani at a fast tempo |
-| 8 | `boulanger-matin` | Boulanger, D'un matin de printemps | OpenScore | CC0 | Percussion, harp, celesta, trombones, tuba |
-| 9 | `mozart-k525` | Mozart, Eine kleine Nachtmusik, mvt 1 | Mutopia 2230 | public domain | Four string parts with one player for each note |
-| 10 | `bach-bwv1048` | Bach, Brandenburg Concerto 3, mvt 1 | OpenScore | CC0 | Three violin seats, string orchestra, harpsichord |
-| 11 | `beethoven-8` | Beethoven, Symphony 8, mvt 2 | OpenScore | CC0 | Woodwinds and horns with the strings |
-| 12 | `mozart-k315` | Mozart, Andante K. 315 | Mutopia 344 | public domain | Solo flute |
-| 13 | `beethoven-1` | Beethoven, Symphony 1, mvt 4 | OpenScore | CC0 | Classical woodwinds, brass, and timpani |
-| 14 | `brahms-2` | Brahms, Symphony 2, mvt 4 | OpenScore | CC0 | Full romantic brass, woodwinds, and strings |
-| 15 | `beethoven-8-4` | Beethoven, Symphony 8, mvt 4 | OpenScore | CC0 | Full orchestra |
-| 16 | `bach-bwv1047` | Bach, Brandenburg Concerto 2, mvt 1 | Mutopia 1680 | public domain | Solo trumpet, flute, oboe, violin, harpsichord |
-| 17 | `mendelssohn-op61` | Mendelssohn, A Midsummer Night's Dream, Op. 61: V | Mutopia 80 | public domain | Woodwinds and strings |
+| 8 | `beethoven-6-1` | Beethoven, Symphony 6 ("Pastoral"), mvt 1, with no exposition repeat | OpenScore | CC0 | Woodwinds, two horns, and strings |
+| 9 | `boulanger-matin` | Boulanger, D'un matin de printemps | OpenScore | CC0 | Percussion, harp, celesta, trombones, tuba |
+| 10 | `mozart-k525` | Mozart, Eine kleine Nachtmusik, mvt 1 | Mutopia 2230 | public domain | Four string parts with one player for each note |
+| 11 | `bach-bwv1048` | Bach, Brandenburg Concerto 3, mvt 1 | OpenScore | CC0 | Three violin seats, string orchestra, harpsichord |
+| 12 | `beethoven-8` | Beethoven, Symphony 8, mvt 2 | OpenScore | CC0 | Woodwinds and horns with the strings |
+| 13 | `mozart-k315` | Mozart, Andante K. 315 | Mutopia 344 | public domain | Solo flute |
+| 14 | `beethoven-1` | Beethoven, Symphony 1, mvt 4 | OpenScore | CC0 | Classical woodwinds, brass, and timpani |
+| 15 | `brahms-2` | Brahms, Symphony 2, mvt 4 | OpenScore | CC0 | Full romantic brass, woodwinds, and strings |
+| 16 | `beethoven-8-4` | Beethoven, Symphony 8, mvt 4 | OpenScore | CC0 | Full orchestra |
+| 17 | `bach-bwv1047` | Bach, Brandenburg Concerto 2, mvt 1 | Mutopia 1680 | public domain | Solo trumpet, flute, oboe, violin, harpsichord |
+| 18 | `mendelssohn-op61` | Mendelssohn, A Midsummer Night's Dream, Op. 61: V | Mutopia 80 | public domain | Woodwinds and strings |
 
 - `DEMOS` of `app/demos.ts` holds the title, the composer, and the credit line of each demo, in
   the order of `DEMO_IDS`. Demo 1 is the default demo (`DEFAULT_DEMO`, 2.2), and it is part of
@@ -110,8 +111,8 @@ the 16-channel demo file
 - `cut_midi.py` joins tick ranges into an excerpt. Each part starts with the tempo, the programs,
   and the controllers that apply at its start. The first part of the Beethoven 9 demo ends with
   the D major chords, because the next bars turn to G major.
-- The `beethoven-5-4` and `beethoven-7-4` demos play the exposition one time. Many conductors
-  skip its repeat, so the cut is a normal performance choice.
+- The `beethoven-5-4`, `beethoven-7-4`, and `beethoven-6-1` demos play the exposition one time.
+  Many conductors skip its repeat, so the cut is a normal performance choice.
 
 The repository holds the Boulanger score with no lyrics (`demos/boulanger/`) and the result
 files. `demos/README.md` gives the commit and the SHA-256 of each other score, and the commands.
