@@ -20,7 +20,7 @@ interface FrameBox {
 /** The size of the window of the test. The drawer with the seat list is open at this size. */
 const WINDOW = { width: 1440, height: 900 } as const;
 
-/** The box of the conductor in the default view of the default demo (Boulanger). */
+/** The box of the conductor in the default view of the Boulanger demo. */
 const CONDUCTOR: FrameBox = { x: 0, y: 0.43, width: 0.12, height: 0.23 };
 
 /** The box of the three cellos at the front right in the default view of Boulanger. */
@@ -100,7 +100,7 @@ test.describe('the spotlight of a solo (design 2.4, 4.5)', () => {
   test.use({ reducedMotion: 'reduce', viewport: WINDOW });
 
   test('moves to the soloed cellos, and back when the solo ends', async ({ page }) => {
-    await page.goto('./');
+    await page.goto('./#demo=boulanger-matin');
     await page.waitForSelector(SAMPLES_READY, { timeout: 60_000 });
     const frame = await stillFrame(page);
     const solo = page.locator('button[aria-label="Solo Cellos"]');
