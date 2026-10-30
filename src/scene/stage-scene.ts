@@ -676,8 +676,9 @@ export class StageScene {
         object.layers.disable(WARM_LAYER);
       }
       mesh.frustumCulled = culled;
-      yield* gpuDoneSteps(renderer);
+      yield;
     }
+    yield* gpuDoneSteps(renderer);
     return undefined;
   }
 

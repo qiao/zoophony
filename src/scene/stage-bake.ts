@@ -436,8 +436,7 @@ export function* bakeStageSteps(
 
   for (const [i, { material, camera, weight }] of passes.entries()) {
     if (i % BAKE_PASSES_PER_STEP === 0) {
-      // The GPU ends the samples before, so that no upload of the page waits for the bake.
-      yield* gpuDoneSteps(renderer);
+      yield;
     }
     run(() => {
       renderer.setRenderTarget(depth);
@@ -458,6 +457,7 @@ export function* bakeStageSteps(
     });
   }
 
+  // The GPU ends the bake before the next step, so that no upload of the page waits for it.
   yield* gpuDoneSteps(renderer);
   depth.depthTexture.dispose();
   depth.dispose();

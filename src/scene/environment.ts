@@ -15,7 +15,6 @@ import type { Object3D, PMREMGenerator, WebGLRenderTarget, WebGLRenderer } from 
 import type { Vec3 } from '../models/tuples.ts';
 import type { Steps } from '../score/steps.ts';
 import { fromCubemapSteps, fromSceneSteps } from './pmrem-steps.ts';
-import { gpuDoneSteps } from './programs.ts';
 
 /**
  * The environment of the reflections (design 4.5, light and render): a dark room with warm lamps
@@ -166,7 +165,7 @@ export function* captureEnvironmentSteps(
   for (const [i, object] of options.hidden.entries()) {
     object.visible = shown[i] ?? true;
   }
-  yield* gpuDoneSteps(renderer);
+  yield;
 
   const target = yield* fromCubemapSteps(renderer, generator, cube.texture, CAPTURE.size);
   cube.dispose();

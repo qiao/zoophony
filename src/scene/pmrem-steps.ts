@@ -122,11 +122,11 @@ export function* fromSceneSteps(
   const saved = renderer.getRenderTarget();
   generator._sceneToCubeUV(source.scene, 0.1, 100, target, new Vector3());
   renderer.setRenderTarget(saved);
-  yield* gpuDoneSteps(renderer);
+  yield;
   if (source.sigma > 0) {
     generator._blur(target, 0, 0, source.sigma);
     renderer.setRenderTarget(saved);
-    yield* gpuDoneSteps(renderer);
+    yield;
   }
   generator._applyPMREM(target);
   generator._cleanup(target);
@@ -157,7 +157,7 @@ export function* fromCubemapSteps(
   const target = generator._allocateTargets();
   generator._textureToCubeUV(texture, target);
   renderer.setRenderTarget(saved);
-  yield* gpuDoneSteps(renderer);
+  yield;
   generator._applyPMREM(target);
   generator._cleanup(target);
   renderer.setRenderTarget(saved);
