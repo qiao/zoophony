@@ -6,11 +6,11 @@
  *
  * For each demo (all demos when the run has no `--demo` and no `--file`) and each file of
  * `--file`, it renders the synth output in Node with the `SynthEngine`, the SoundFont of design
- * 6.2, the room of the synth, and the stage mix of the layout, as the app and its worklet do. Then the code of `src/audio/output-chain.ts` runs in an
- * `OfflineAudioContext` of headless Chromium, with the mix bus of the mix preset, its hall
- * impulse response, the glue compressor, the limiter, and their trims. The input gain is
- * `SOUNDFONT_HEADROOM_DB` plus `pieceGainDb()`, as in the `Player`. The render has the full song
- * and 3 s of tail, at 48 kHz.
+ * 6.2, the room of the synth, and the stage mix of the layout, as the app and its worklet do.
+ * Then the code of `src/audio/output-chain.ts` runs in an `OfflineAudioContext` of headless
+ * Chromium, with the mix bus of the mix preset, its hall impulse response, the glue compressor,
+ * the limiter, and their trims. The input gain is `SOUNDFONT_HEADROOM_DB` plus `pieceGainDb()`,
+ * as in the `Player`. The render has the full song and 3 s of tail, at 48 kHz.
  *
  * Each row gives the integrated loudness and the loudness range (ITU-R BS.1770-4, EBU Tech 3342),
  * the true peak, the median short-term loudness of the first 10 s (`st10`) and of the first 30 s
