@@ -627,6 +627,20 @@ passes, and the quality tiers of 2.6 keep 60 fps on a laptop.
 - [ ] Remove the audit and review labels from the `it()` and `describe()` names of the paused
       tests, and the dated notes that the `_arms.py` scripts write into the weights files of
       `assets/models/`.
+- [ ] Find or make one file of the famous pieces with no usable file (8.1):
+      - Mozart, The Magic Flute overture: Mutopia 248 has four MIDI files. It needs a join tool.
+      - Tchaikovsky, The Nutcracker: no orchestral file has a permitted license.
+      - Vivaldi, The Four Seasons, Spring: Mutopia 301 is CC BY-SA.
+      - Holst, The Planets, Jupiter: the CC0 score on IMSLP has only Dorico files.
+      - Dvořák, Symphony 9: Mutopia 1793 is CC BY-SA.
+      - Saint-Saëns, The Carnival of the Animals: the public domain Aquarium file of IMSLP does
+        not download with a script, and Aquarium is not cheerful.
+      - Haydn, Symphony 94: the CC BY score on IMSLP has only LilyPond files, from a modern
+        edition.
+      - Mozart, Clarinet Concerto: the MIDI file of Mutopia 1635 has no clarinet part.
+      - Bizet, Carmen. Mozart, The Marriage of Figaro. Strauss II, The Blue Danube. Rossini,
+        William Tell. Offenbach, Orpheus in the Underworld. Elgar, Pomp and Circumstance. Strauss
+        I, Radetzky March: no file with a permitted license.
 
 Done when: CI passes on `main` with Playwright in Chromium, and the deployed site plays the
 default demo.
