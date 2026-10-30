@@ -490,13 +490,16 @@ Done when: the pose tests pass, and the pose and frame targets pass.
 
 - [ ] Run `node tools/measure-targets.ts` on a quiet machine. The render target of 9.7 failed only
       under the load of other processes.
-- [ ] Ask the user for the range rule of the soft demos (6.8). Beethoven 8 keeps 58% of its time
-      below -30 LUFS short-term. A velocity curve of `30 log10(v / 127)` for the demos is an option.
-- [ ] `beethoven-6-1` starts soft. The median short-term loudness of its first 10 s is 21.8 LU
-      (hall) and 20.1 LU (cinematic) below `TARGET_LOUDNESS`, and a demo start must be at most
-      12 LU below it. Decide with the range rule above, and change no velocity of the file.
+- [ ] Decide a second step for the soft starts that the velocity curve does not reach (6.1, 6.8).
+      With `VELOCITY_ATTENUATION_CB`, the first 10 s of `beethoven-8-4` sit 17 LU below
+      `TARGET_LOUDNESS`, and the 10 s to 30 s of `beethoven-1` sit 22 LU below. The curve at 0 cB
+      leaves them 10 LU and 16 LU below. The first 10 s of `beethoven-6-1` sit at the limit of
+      12 LU (hall). A slow leveler is an option, and no velocity of a file changes.
+- [ ] Decide if the GeneralUser GS presets with their own velocity curve need a smaller cut
+      (6.1). With `VELOCITY_ATTENUATION_CB`, p (velocity 40) of Concert Choir is 4.8 dB below f
+      (velocity 96), and of Brass Section 3.9 dB, below the limit of 5 dB of the sweep.
 - [ ] Add `pnpm loudness --check` to CI or to the merge checks. Until then, run it after each change
-      of a demo file, the SoundFont, the mix, the hall, or the limiter (6.8).
+      of a demo file, the SoundFont, the velocity curve, the mix, the hall, or the limiter (6.8).
 - [ ] Move the seat flags and the settings of `App` into small classes next to it, because
       `src/app/app.ts` is long. Do it after the work on the audio chain and the camera in `app.ts`.
 - [ ] Ask the user if a silent seat row needs a second cue. With one row soloed, the silent rows
