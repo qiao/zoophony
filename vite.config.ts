@@ -165,13 +165,13 @@ const INDEX_VALUES: Plugin = {
 
 /**
  * The plugin that writes the files of `sitePages()` into the build (design 7.4): the Markdown copy
- * of the start page and `llms.txt`.
+ * of the start page, `llms.txt`, and the other pages for agents and for visitors.
  */
 const SITE_PAGES: Plugin = {
   name: 'zoophony:site-pages',
   apply: 'build',
   generateBundle() {
-    for (const [fileName, source] of sitePages()) {
+    for (const [fileName, source] of sitePages(BASE)) {
       this.emitFile({ type: 'asset', fileName, source });
     }
   },
