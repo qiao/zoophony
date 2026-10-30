@@ -501,6 +501,9 @@ Done when: the pose tests pass, and the pose and frame targets pass.
 - [ ] Show the user the seat rings in play, and ask if the pulse of fast short notes is correct
       (2.8). A tutti turns on each ring, so the rings then show no lead.
 - [ ] Check the seat rings in Safari, in Firefox, and on a real phone (2.8).
+- [ ] Make `pnpm keyboard` pass again. At 1440 × 900 the check "Tooltips of the speed menu and the
+      volume slider" fails, and `checkHiddenBarTap` stops at a timeout, because the UI has no
+      `.collapse` element now. Thus the run never reaches its last checks.
 
 Done when: the UI matches the prototype at both sizes, and a keyboard alone can reach and use
 each control.
