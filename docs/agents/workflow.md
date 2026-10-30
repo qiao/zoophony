@@ -153,6 +153,29 @@ These traps make a load measure wrong:
 - Commit or set aside each later edit before a build for a measure. The build reads the working
   tree, so the edit goes into the measure.
 
+These traps make a task of the main thread long:
+
+- Compile each pass with its render target set (`compileInto()` of `src/scene/programs.ts`).
+  `renderer.compile()` with no target makes the programs of the canvas, and a pass into a target
+  needs other programs.
+- With `KHR_parallel_shader_compile`, poll `isReady()` of each program in steps, then call
+  `getUniforms()` before the first frame. The first draw with a new program waits for the link.
+- Keep one `PMREMGenerator`, and compile its materials with a geometry that has a position
+  attribute (`src/scene/pmrem-steps.ts`). `compileCubemapShader()` uses an empty geometry, so the
+  draw makes a new program, and a disposed generator frees its programs.
+- Wait on a fence at the end of each long GPU step, such as the bake. With no wait, the next buffer
+  upload blocked the main thread for about 100 ms.
+- Call `navigator.mediaDevices.enumerateDevices()` at the start of the app
+  (`src/app/audio-session.ts`). It starts the audio service of Chrome, so the first `AudioContext`
+  takes about 1 ms in place of about 145 ms.
+- Read no layout value, such as `clientWidth`, in the start task, and make no throwaway WebGL2
+  context. A layout read puts the first layout into that task (about 10 ms), and each context
+  costs about 4 ms.
+- Yield with `scheduler.yield()` or a `MessageChannel` message, as `runSliced()` of
+  `src/app/slices.ts` does. The browser clamps nested `setTimeout` calls to 4 ms.
+- Let a step poll a fence or a program status, and never wait on a promise. `runAll()` runs the
+  steps with no yield, so a promise wait stops it.
+
 ## Images of a mesh
 
 Each image set that checks a mesh, a hold, or a clip shows the front, the back, the left side, and
