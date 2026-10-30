@@ -83,7 +83,7 @@ shasum -a 256 assets/models/bear/*.glb assets/models/bear/bear-weights.json
 | Item | Value |
 |---|---|
 | Size | 619,764 bytes |
-| SHA-256 | `ecb7f01559db5d0fb46cb34fcd74b8e9a3efe5434ab4a3011a82df2f4277c2de` |
+| SHA-256 | `6bacf9ea3a64557f26613e28b54cefad5a0a31c7a1a13be441a573cf08d11134` |
 | Bind | The arms of the source, straight (`studio.straightArms` of the config): the elbow and the wrist keep the angles of the source |
 | Shapes | The arm-down shape of each arm, the straight legs of each side, and a `raise` shape of each bent elbow |
 

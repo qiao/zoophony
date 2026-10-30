@@ -525,11 +525,11 @@
         ]
       },
       "fade": [
-        10,
-        20
+        20,
+        40
       ],
       "below": 0.3,
-      "note": "The shape of the bent elbow L of the conductor (pnpm raise-fit with the straight bind). 13 faces of the inner elbow fold in each sample of the rest and the lift, and the key elbow turns 86.3 degrees from the bind in their mean."
+      "note": "The shape of the bent elbow L of the conductor (pnpm raise-fit with the straight bind). 13 faces of the inner elbow fold in each sample of the rest and the lift, and the key elbow turns 86.3 degrees from the bind in their mean. The fade of 20 to 40 degrees also covers the bent elbows of the play: with 10 to 20, the same faces folded in 7% to 12% of the play."
     },
     {
       "side": "R",
