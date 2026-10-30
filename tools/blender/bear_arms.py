@@ -196,59 +196,6 @@ def step_smooth_wrist(s):
     return len(ids)
 
 
-def step_taper(s):
-    """Makes the end of each forearm thinner on the inner side of the bend of its wrist (`taper`
-    of `BEAR`, one rule for each side). The rule selects the tube and cut loop vertices from `from`
-    to `to` units along the forearm from the wrist joint, whose direction from the forearm axis lies
-    within `cone` degrees of the palm (`palm` of the config) turned `turn` degrees toward the thumb.
-    Translate moves them `move` units toward the axis, with Proportional Editing (Smooth falloff,
-    Connected Only) of the size `size`. The paw heel then lies over a lower forearm end, so that
-    the bent paw does not push the skin of the inner side into a ridge and a dark slit. Gives the
-    number of the selected vertices."""
-    import math
-    from mathutils import Vector
-    rules = s.spec.get('taper')
-    if not rules:
-        return 0
-    mesh = s.mesh
-    bpy.context.view_layer.objects.active = mesh
-    if mesh.mode != 'OBJECT':
-        bpy.ops.object.mode_set(mode='OBJECT')
-    x, y, z = s.config['palm']
-    count = 0
-    for side, off, key in ((1, 0, 'L'), (-1, 10, 'R')):
-        rule = rules[key]
-        # The edit mode of the other side makes new mesh data, so read the codes again.
-        attr = mesh.data.attributes['arm_part'].data
-        _, e, w, _ = va.arm_line(s, side)
-        f = (w - e).normalized()
-        palm = Vector((x * side, -z, y))
-        palm = (palm - f * palm.dot(f)).normalized()
-        thumb = palm.cross(f) * side
-        turn = math.radians(rule['turn'])
-        inner = palm * math.cos(turn) + thumb * math.sin(turn)
-        cone = math.cos(math.radians(rule['cone']))
-        low, high = s.units(rule['from']), s.units(rule['to'])
-        codes = (va.PART['tube'] + off, va.PART['wrist'] + off)
-        for p in mesh.data.vertices:
-            rel = p.co - w
-            along = rel.dot(f)
-            radial = rel - f * along
-            p.select = (attr[p.index].value in codes and low <= along <= high
-                        and radial.length > 0 and radial.normalized().dot(inner) >= cone)
-            count += p.select
-        mesh.data.update()
-        bpy.ops.object.mode_set(mode='EDIT')
-        bpy.ops.transform.translate(value=tuple(-inner * s.units(rule['move'])),
-                                    orient_type='GLOBAL', use_proportional_edit=True,
-                                    proportional_edit_falloff='SMOOTH',
-                                    proportional_size=s.units(rule['size']),
-                                    use_proportional_connected=True)
-        bpy.ops.mesh.select_all(action='DESELECT')
-        bpy.ops.object.mode_set(mode='OBJECT')
-    return count
-
-
 def shoulder_first(step):
     """Gives a clean step of `wind_arms.py` that first runs on the shoulder loops alone with
     `SHOULDER_ANGLE`, then on all loops with the angle of `wind_arms.py`. The clean steps find the
@@ -337,14 +284,14 @@ def step_weights(s):
 #: above. The bake casts its rays from 0.006 units out of the tube (`step_bake()` of
 #: `violin_arms.py`). A flatten before the bake moves the tube up to 0.015 units into the source
 #: arm, the rays miss the source, and the bake writes black under each armpit. After the bake, the
-#: flatten and the taper of the wrists (`step_taper()`) move the vertices and keep their texels.
+#: flatten moves the vertices and keeps their texels.
 STEPS = tuple(
     out for step in wa.STEPS
     for out in {wa.step_weights: (step_weights,), wa.step_paint: (step_paint,),
                 wa.step_cut_and_tube: (step_cut_and_tube,),
                 wa.step_clean_cut: (shoulder_first(wa.step_clean_cut),),
                 wa.step_clean_bridge: (shoulder_first(wa.step_clean_bridge), step_smooth_wrist),
-                va.step_bake: (va.step_bake, ea.step_flatten, step_taper)}
+                va.step_bake: (va.step_bake, ea.step_flatten)}
     .get(step, (step,)))
 
 
