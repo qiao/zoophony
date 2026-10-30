@@ -54,6 +54,15 @@ export class DemoList {
       row.addEventListener('click', () => {
         onSelect(id);
       });
+      // A row with the focus gives Space to the page, so that Space plays and pauses after a
+      // click on a row (design 2.4). Enter still selects the piece. The browser clicks a button
+      // on the keyup of Space, so the row stops that default.
+      row.dataset['focusKind'] = 'page';
+      row.addEventListener('keyup', (event) => {
+        if (event.key === ' ') {
+          event.preventDefault();
+        }
+      });
       const item = createElement('li');
       item.append(row);
       this.element.append(item);

@@ -70,9 +70,13 @@ export function setAttribute(element: Element, name: string, value: string): voi
  *
  * @param element The element with the focus, `document.activeElement`.
  * @returns The kind: a button, a range, a menu or a tab, a text field, or the page for any other
- *   element.
+ *   element. A control with `data-focus-kind="page"` uses no key of the page, so it also gives the
+ *   page.
  */
 export function focusKindOf(element: Element | null): FocusKind {
+  if (element instanceof HTMLElement && element.dataset['focusKind'] === 'page') {
+    return 'page';
+  }
   // A tab of the drawer uses Space, the arrows, and Home, as a menu does.
   if (element?.getAttribute('role') === 'tab') {
     return 'menu';
