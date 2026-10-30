@@ -1,5 +1,5 @@
-import { BufferAttribute } from 'three';
-import type { BufferGeometry, TypedArray } from 'three';
+import { BufferAttribute, BufferGeometry, StaticDrawUsage } from 'three';
+import type { TypedArray } from 'three';
 
 /** The keys of the morph attributes of a geometry. */
 const MORPH_KEYS = ['position', 'normal', 'color'] as const;
@@ -186,4 +186,54 @@ export function shareCorners(geometry: BufferGeometry): BufferGeometry {
   }
   geometry.setIndex(new BufferAttribute(keptCount <= 0xffff ? new Uint16Array(index) : index, 1));
   return geometry;
+}
+
+/** The attributes that a depth pass reads: the place of each vertex. */
+const DEPTH_ATTRIBUTES = ['position', 'skinIndex', 'skinWeight'] as const;
+
+/** The depth geometry of each player geometry ({@link createDepthGeometry}). */
+const depthGeometries = new WeakMap<BufferGeometry, BufferGeometry>();
+
+/**
+ * Creates the geometry of the depth passes and of the shadow maps of a geometry, and keeps it for
+ * {@link depthGeometryOf} (design 4.5, 9.7): only the attributes that move a vertex, the
+ * positions, the skin, and the morph positions, with the groups of the geometry. A depth pass
+ * writes no color, so the normals, the colors, and the finish coordinates are not needed, and
+ * more corners share one vertex ({@link shareCorners}). The corners of a dynamic position
+ * attribute, such as the positions of a keyboard, keep one vertex each.
+ *
+ * @param geometry A geometry with no index.
+ * @returns The depth geometry. It shares the attributes of the geometry that it does not change.
+ */
+export function createDepthGeometry(geometry: BufferGeometry): BufferGeometry {
+  const depth = new BufferGeometry();
+  for (const name of DEPTH_ATTRIBUTES) {
+    if (geometry.hasAttribute(name)) {
+      depth.setAttribute(name, geometry.getAttribute(name));
+    }
+  }
+  const moves = geometry.morphAttributes.position;
+  if (moves) {
+    depth.morphAttributes.position = moves;
+  }
+  depth.morphTargetsRelative = geometry.morphTargetsRelative;
+  for (const group of geometry.groups) {
+    depth.addGroup(group.start, group.count, group.materialIndex);
+  }
+  const position = geometry.getAttribute('position');
+  if (position instanceof BufferAttribute && position.usage === StaticDrawUsage) {
+    shareCorners(depth);
+  }
+  depthGeometries.set(geometry, depth);
+  return depth;
+}
+
+/**
+ * Gives the depth geometry of a geometry from {@link createDepthGeometry}.
+ *
+ * @param geometry The geometry.
+ * @returns The depth geometry, or `null` for a geometry with none.
+ */
+export function depthGeometryOf(geometry: BufferGeometry): BufferGeometry | null {
+  return depthGeometries.get(geometry) ?? null;
 }

@@ -86,6 +86,7 @@ import { VariantMaterials } from './variants.ts';
 import type { StageBakeUniforms } from './stage.ts';
 import { bakeStageSteps } from './stage-bake.ts';
 import { compileInto, gpuDoneSteps, programsReadySteps } from './programs.ts';
+import { depthGeometryOf } from './shared-corners.ts';
 
 /** The inputs of {@link StageScene}. */
 interface StageSceneOptions {
@@ -612,19 +613,23 @@ export class StageScene {
       });
       yield;
     }
-    // The shadow map draws each player with its depth material and the other side of its own
-    // material (`getDepthMaterial()` of three.js).
+    // The shadow map draws each player with its depth material, the other side of its own
+    // material (`getDepthMaterial()` of three.js), and its depth geometry: the depth pass of the
+    // beam renders the shadow map (`VariantMaterials.renderDepth()`).
     for (const mesh of players) {
       const own = mesh.material;
+      const full = mesh.geometry;
       const depth = mesh.customDepthMaterial;
       if (depth) {
         const side = depth.side;
         depth.side = BackSide;
         mesh.material = depth;
+        mesh.geometry = depthGeometryOf(full) ?? full;
         compileInto(renderer, target, () => {
           renderer.compile(mesh, camera, scene);
         });
         mesh.material = own;
+        mesh.geometry = full;
         depth.side = side;
       }
       yield;
@@ -640,8 +645,10 @@ export class StageScene {
    * Draws each player geometry of a scene one time into the target of the compile, each in its own
    * step (design 7.2). The first draw of a geometry uploads its buffers and builds the texture of
    * its morph targets: 25 ms for the default demo on the development Mac. The first frame then
-   * does neither. The draw sees only one player and the lights ({@link WARM_LAYER}), with the
-   * programs of the scene pass and of the shadow map. The next frame renders the shadow map again.
+   * does neither. The draws see only one player and the lights ({@link WARM_LAYER}): one draw of
+   * the geometry with the program of the scene pass, and one draw of its depth geometry with the
+   * programs of the depth passes and of the shadow map. The next frame renders the shadow map
+   * again.
    *
    * @param scene The scene of the layout.
    * @param camera The camera of the layout.
@@ -669,8 +676,18 @@ export class StageScene {
       for (const object of [...lights, mesh]) {
         object.layers.enable(WARM_LAYER);
       }
+      // The scene pass draws the geometry, and the depth passes and the shadow map draw the depth
+      // geometry (`VariantMaterials.renderDepth()`).
+      const shadows = renderer.shadowMap.autoUpdate;
+      renderer.shadowMap.autoUpdate = false;
       compileInto(renderer, this.#compileTarget, () => {
         renderer.render(scene, view);
+      });
+      renderer.shadowMap.autoUpdate = shadows;
+      this.#variants.renderDepthOf(mesh, () => {
+        compileInto(renderer, this.#compileTarget, () => {
+          renderer.render(scene, view);
+        });
       });
       for (const object of [...lights, mesh]) {
         object.layers.disable(WARM_LAYER);

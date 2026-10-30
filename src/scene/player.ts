@@ -36,7 +36,7 @@ import type { StudioPose, StudioRig } from '../models/studio-rig.ts';
 import type { Skeleton as PlayerSkeleton } from '../models/rig.ts';
 import type { AnimalPose, ScenePose } from '../pose/types.ts';
 import { createGeometry } from './geometry.ts';
-import { shareCorners } from './shared-corners.ts';
+import { createDepthGeometry, shareCorners } from './shared-corners.ts';
 
 /**
  * Creates the geometry of a player model with a studio body (design 4.4): the body in the bind
@@ -79,8 +79,11 @@ function* createPlayerGeometrySteps(model: PlayerModel): Steps<BufferGeometry> {
   // The moves add to the bind places, as in a glTF file.
   geometry.morphTargetsRelative = true;
   // The keys of a keyboard move by their ranges of corners (`PianoKeys.corners`), so a geometry
-  // with keys keeps one vertex for each corner.
+  // with keys keeps one vertex for each corner, and each player with keys gets its own depth
+  // geometry ({@link keyGeometry}).
   if (!model.keys) {
+    yield;
+    createDepthGeometry(geometry);
     yield;
     shareCorners(geometry);
   }
@@ -229,6 +232,7 @@ function keyGeometry(shared: BufferGeometry): BufferGeometry {
   for (const group of shared.groups) {
     geometry.addGroup(group.start, group.count, group.materialIndex);
   }
+  createDepthGeometry(geometry);
   return geometry;
 }
 

@@ -1,6 +1,8 @@
 import { Light, Mesh, Points, ShaderMaterial, SkinnedMesh, Texture } from 'three';
 import type { BufferGeometry, Material, Object3D } from 'three';
 
+import { depthGeometryOf } from './shared-corners.ts';
+
 /**
  * Frees the GPU resources of an object and of all its children: each geometry and each material
  * one time, each texture of a shader material, each skeleton texture, and each shadow map of a
@@ -37,6 +39,7 @@ export function disposeTree(root: Object3D, keep: ReadonlySet<Material> = new Se
   });
   for (const geometry of geometries) {
     geometry.dispose();
+    depthGeometryOf(geometry)?.dispose();
   }
   for (const material of materials) {
     if (material instanceof ShaderMaterial) {

@@ -1,5 +1,14 @@
 import { Mesh, MeshBasicMaterial, MeshDepthMaterial, SkinnedMesh } from 'three';
-import type { Material, MaterialEventMap, MeshStandardMaterial, Object3D, RenderItem } from 'three';
+import type {
+  BufferGeometry,
+  Material,
+  MaterialEventMap,
+  MeshStandardMaterial,
+  Object3D,
+  RenderItem,
+} from 'three';
+
+import { depthGeometryOf } from './shared-corners.ts';
 
 declare module 'three' {
   interface Material<TEventMap extends MaterialEventMap = MaterialEventMap> {
@@ -63,8 +72,23 @@ interface DepthMesh {
   readonly mesh: Mesh;
   /** The depth material of the variant of the mesh. */
   readonly depth: MeshBasicMaterial;
+  /** The depth geometry of the mesh (`depthGeometryOf()`), or `null` to keep its geometry. */
+  readonly geometry: BufferGeometry | null;
+  /** The own geometry of the mesh. */
+  readonly full: BufferGeometry;
   /** The depth material once for each material of a mesh with a list of materials. */
   list: MeshBasicMaterial[];
+}
+
+/**
+ * Gives a mesh of a depth pass with its depth material and its depth geometry.
+ *
+ * @param mesh The mesh.
+ * @param depth The depth material of its variant.
+ * @returns The entry.
+ */
+function depthMesh(mesh: Mesh, depth: MeshBasicMaterial): DepthMesh {
+  return { mesh, depth, geometry: depthGeometryOf(mesh.geometry), full: mesh.geometry, list: [] };
 }
 
 /**
@@ -180,7 +204,7 @@ export class VariantMaterials {
     const meshes: DepthMesh[] = [];
     scene.traverse((object) => {
       if (writesDepth(object)) {
-        meshes.push({ mesh: object, depth: this.#depthOf(object), list: [] });
+        meshes.push(depthMesh(object, this.#depthOf(object)));
       }
     });
     this.#depthMeshes = meshes;
@@ -211,7 +235,7 @@ export class VariantMaterials {
     const meshes: DepthMesh[] = [];
     object.traverse((child) => {
       if (writesDepth(child)) {
-        meshes.push({ mesh: child, depth: this.#depthOf(child), list: [] });
+        meshes.push(depthMesh(child, this.#depthOf(child)));
       }
     });
     this.#swapDepth(meshes, [], draw);
@@ -230,6 +254,9 @@ export class VariantMaterials {
     for (const entry of meshes) {
       const material = entry.mesh.material;
       own.push(material);
+      if (entry.geometry) {
+        entry.mesh.geometry = entry.geometry;
+      }
       if (Array.isArray(material)) {
         if (entry.list.length !== material.length) {
           entry.list = material.map(() => entry.depth);
@@ -246,6 +273,9 @@ export class VariantMaterials {
         const material = own[i];
         if (material) {
           entry.mesh.material = material;
+        }
+        if (entry.geometry) {
+          entry.mesh.geometry = entry.full;
         }
       }
       own.length = 0;
