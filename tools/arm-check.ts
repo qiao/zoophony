@@ -377,7 +377,9 @@ export const ACCEPTED_GRIPS: ReadonlyMap<string, Readonly<Record<Side, number>>>
   // (from accepted 2x paw crops). The bind sets the zero of the paw twist.
   ['tubist', { L: -87, R: -32 }],
   ['singer', { L: -79, R: -79 }],
-  ['bass-drummer', { L: -102, R: 21 }],
+  // The hanging left arm of the badger, from accepted 2x crops: the arm hangs nearer to the body
+  // since the side test of `pose/hang.ts` counts only the inner side of each part.
+  ['bass-drummer', { L: -81, R: 21 }],
   // The wrist lifts the tip of the stick or the mallet over its spot between strikes, and the paws
   // close on their sticks and mallets, from accepted paw crops.
   ['snare-drummer', { L: -4, R: -4 }],

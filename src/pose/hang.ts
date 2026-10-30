@@ -113,20 +113,25 @@ function outermost(triangles: readonly SideTriangle[], point: Vector3, side: num
 }
 
 /**
- * Finds the largest distance of the corners of some bones from a vertical line: the radius of a
- * part of the hanging arm of the bind pose.
+ * Finds how far the corners of some bones reach from a vertical line toward the middle of the
+ * body: the inner half width of a part of the hanging arm of the bind pose. The test of the arm
+ * against the side of the body counts only this side. The front and the back of a part can reach
+ * further, as the front of the upper arm of the tan fox does: 0.140 m against 0.061 m on the
+ * inner side.
  *
  * @param model The player model.
  * @param bones The bones of the part.
  * @param axis A point of the vertical line.
  * @param below Only the corners below this height count.
- * @returns The radius, in meters.
+ * @param side -1 for the left arm (-x) and 1 for the right arm.
+ * @returns The inner half width, in meters.
  */
 function radiusOf(
   model: PlayerModel,
   bones: readonly BoneName[],
   axis: Vec3,
   below: number,
+  side: number,
 ): number {
   const wanted = new Set(bones.map(boneIndex));
   const { positions, bones: cornerBones } = model.mesh;
@@ -134,9 +139,7 @@ function radiusOf(
   for (let v = 0; v < cornerBones.length; v++) {
     const y = positions[v * 3 + 1] ?? 0;
     if (wanted.has(cornerBones[v] ?? -1) && y <= below) {
-      const dx = (positions[v * 3] ?? 0) - axis[0];
-      const dz = (positions[v * 3 + 2] ?? 0) - axis[2];
-      radius = Math.max(radius, Math.hypot(dx, dz));
+      radius = Math.max(radius, side * (axis[0] - (positions[v * 3] ?? 0)));
     }
   }
   return radius;
@@ -182,8 +185,8 @@ function downward(out: number, forward: number, side: number, result: Vector3): 
 /**
  * Finds the hanging arm of a standing player for the rest pose (design 5.2). The arm swings out
  * to the side by the smallest angle at which each part keeps {@link HANG.gap} from the torso and
- * the legs of the bind pose, seen along x: it touches their side. The radius of each part comes from the mesh, so a
- * thicker body or arm swings the arm further out.
+ * the legs of the bind pose, seen along x: it touches their side. The inner half width of each part
+ * comes from the mesh (`radiusOf()`), so a thicker body or arm swings the arm further out.
  *
  * @param model The player model.
  * @param arm The arm.
@@ -200,10 +203,10 @@ export function hangingArm(model: PlayerModel, arm: ArmRig): HangingArm {
   const triangles = bodyTriangles(model);
   const s = arm.side;
   const radii = {
-    upper: radiusOf(model, [`upperArm${s}`], arm.bind.shoulder, shoulder.y),
-    elbow: radiusOf(model, [`forearm${s}`], arm.bind.elbow, Infinity),
-    lower: radiusOf(model, [`forearm${s}`], arm.bind.elbow, Infinity),
-    hand: radiusOf(model, [`hand${s}`, `fingers${s}`], arm.bind.wrist, Infinity),
+    upper: radiusOf(model, [`upperArm${s}`], arm.bind.shoulder, shoulder.y, side),
+    elbow: radiusOf(model, [`forearm${s}`], arm.bind.elbow, Infinity, side),
+    lower: radiusOf(model, [`forearm${s}`], arm.bind.elbow, Infinity, side),
+    hand: radiusOf(model, [`hand${s}`, `fingers${s}`], arm.bind.wrist, Infinity, side),
   };
   // The points of the arm that must keep clear: the lower half of the upper arm, the forearm,
   // and the hand, each with the radius of its part. The shoulder ball sinks into the torso. The
