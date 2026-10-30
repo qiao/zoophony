@@ -15,7 +15,7 @@ for (const [width, height] of [
   [1440, 900],
   [1000, 486],
 ] as const) {
-  test(`a wheel on the first screen keeps the view at ${width} × ${height} (design 2.5)`, async ({
+  test(`a wheel on the first screen keeps the frame at ${width} × ${height} (design 2.5)`, async ({
     page,
   }) => {
     // A zoom on the first screen shrank the frame from 0.92 to 0.18 of the window, and the view

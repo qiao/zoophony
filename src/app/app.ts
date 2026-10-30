@@ -19,7 +19,7 @@ import { Ui } from '../ui/ui.ts';
 import { playWithSilentSwitch, warmAudioOutput } from './audio-session.ts';
 import { BackdropProbe } from './backdrop-probe.ts';
 import { DEFAULT_SPEED, DEFAULT_VOLUME, barShows, volumeGain } from './bar-rules.ts';
-import { motionEvent, movesCamera, nextMode } from './camera-mode.ts';
+import { motionEvent, nextMode } from './camera-mode.ts';
 import type { CameraEvent, CameraMode } from './camera-mode.ts';
 import type { Speed } from './bar-rules.ts';
 import { DEMOS, PERF_60, demoHash, demoUrl, isDemoId } from './demos.ts';
@@ -544,20 +544,12 @@ export class App {
   }
 
   /**
-   * Changes the camera mode after an event (design 2.5). A wheel or a pinch on the first screen
-   * does not move the camera, so it changes nothing.
+   * Changes the camera mode after an event (design 2.5).
    *
    * @param event The event.
    */
   #changeCamera(event: CameraEvent): void {
-    if (movesCamera(event, this.#onFirstScreen)) {
-      this.#cameraMode = nextMode(this.#cameraMode, event);
-    }
-  }
-
-  /** True while the first screen shows: before the first play of the current piece (2.8). */
-  get #onFirstScreen(): boolean {
-    return !(this.#piece?.played ?? false);
+    this.#cameraMode = nextMode(this.#cameraMode, event);
   }
 
   /** Cinematic or Free (design 2.5). */
@@ -960,8 +952,6 @@ export class App {
     });
     // The sheet of a phone covers the first screen, so the stage does not need to clear it.
     const ring = this.#phone.matches && drawer.open ? null : this.#ui.firstScreen.ringBox;
-    // The frame of the first screen shrinks with the camera, so a zoom there is off (2.5).
-    this.#scene.allowZoom(!this.#onFirstScreen);
     this.#scene.render(shot, cover, ring);
     this.#followShade(wallTime, shade);
     this.#showFrame();

@@ -103,8 +103,10 @@ page starts in Free mode (`app/camera-mode.ts`).
 - **Cinematic** takes each frame from `cameraAt()`: the shots of 5.6. The first shot starts from
   the default view, so a click on play makes no cut. A drag, a pinch, or a wheel changes to Free
   at once.
-- While the first screen shows, the zoom is off (`movesCamera()`), because a wheel there is often
-  an attempt to scroll the page.
+- On the first screen, the frame shrinks until the stage is clear of the play button (2.8). The
+  frame uses the view of the stage at the default distance in the current direction, so a drag
+  changes it and a zoom does not. Thus a wheel or a pinch zooms the camera there as during play,
+  and a zoom in can move the stage under the play button.
 - A pinch never zooms the page, because the page is the frame of the stage. On the stage, a pinch
   zooms the camera. The root takes `touch-action: pan-x pan-y`, and the app stops the gesture
   events of Safari, which does not obey that rule for a pinch.
