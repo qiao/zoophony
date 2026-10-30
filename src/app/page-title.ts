@@ -38,7 +38,7 @@ export const SHARE_IMAGE: ShareImage = {
 
 /** The description of the start page for search results and shares, at most 155 characters. */
 export const SITE_DESCRIPTION =
-  'An orchestra of low-poly animals plays classical music on a 3D stage in your browser. Play a demo by Bach, Mozart, or Beethoven, or open a MIDI file.';
+  'An orchestra of animals plays classical music on a 3D stage in your browser. Play a demo by Bach, Mozart, or Beethoven, or open a MIDI file.';
 
 /** The repository of the app on GitHub, which the link after the logo opens (design 2.8). */
 export const REPOSITORY_URL = 'https://github.com/qiao/zoophony';
