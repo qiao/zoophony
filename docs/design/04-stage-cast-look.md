@@ -237,7 +237,7 @@ joints and the rules, each with a note.
 | Seat | `studio.legTurns`, `sit`, `studio.trunk`, `chair.front`, `crease` | Bind a seated role in its pose of 5.2, with the haunch on the seat. |
 | Weights | `weights.*`, `refine.rings`, `refine.pointFlip`, `heatSource` | Bone heat, with rules and rings that keep the faces at the joints from a fold. |
 | Shapes | `raise` | Give the source back in the standing pose, and relax the faces of a bent arm. |
-| Arms | `upperTwist`, `armSegments`, `studio.bindSupination`, `studio.bindArms`, `armSmooth` | Spread the roll of an arm along the arm, so the skin does not twist. |
+| Arms | `upperTwist`, `armSegments`, `studio.bindSupination`, `studio.bindArms`, `studio.straightArms`, `armSmooth` | Spread the roll of an arm along the arm, so the skin does not twist. |
 | Splits | `weights.armSplit`, `weights.armFree`, `weights.armCrease`, `cut` | Free an arm that the mesh joins to the trunk, so a raised arm pulls no flap out. |
 | Normals | `cut.skinNormals`, `cut.bodyNormals`, `rootNormals` | Shade a bent arm root, elbow, wrist, or knee soft, with no dark slot. |
 | Colors | `colors.tone`, `colors.shift`, `colors.dark`, `colors.border`, `colors.split`, `colors.flank` | Move the face colors toward the reference, and keep the black borders clean. |
@@ -250,6 +250,15 @@ upper arm (`upperTwist`), or arm segments with a helper bone at the elbow and at
 (`armSegments`). The arms of a body with segments are quad tubes that a script of
 `tools/blender/` builds on the arms of the mesh. The bind paw sets the zero of the paw twist, so
 the rig turns it toward supination where a hold supinates far (`studio.bindSupination`).
+
+**Straight bind.** A bind that bends a thick elbow or paw (`studio.bindArms`) makes the rest shape
+a linear blend of that bend, with the skin on the inner side already pressed. Each pose then blends
+its own bend on top of it, and the bent wrists of the bear showed a dark slit that no weight rule
+removed. So a body can bind its arms as straight as the source (`studio.straightArms`): the skin
+blends one time, from the source. A straight arm has no elbow plane, so the body gives the elbow
+axis of each arm (`StudioBody.hinges`). The axis is the axis of the bent bind of
+`studio.bindArms`, so that the upper arms and the paws keep their world turns in each pose. The
+inner elbow then bends further from its bind, so a `raise` shape of a bent elbow relaxes its faces.
 
 **Arm gate.** A fold count does not see a twisted or a flat arm. So `pnpm arm-check` reads all
 arm measures of each arm against one table of limits (`ARM_LIMITS`), and each change of a pose,
