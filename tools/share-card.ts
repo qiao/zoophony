@@ -12,7 +12,7 @@
 //   pool      a warm light on the floor in the middle of the stage, added with `screen`
 //   shade     a dark neutral band at the top, behind the text
 //   beam      a cone of warm light from the top middle: a trapezoid with blurred edges that
-//             widens down behind the text and fades out over the back rows, added with `screen`
+//             widens down behind the text and fades out above the back row, added with `screen`
 //   core      a small bright glow at the top of the beam, added with `screen`
 //   vignette  a dark edge that is darkest in the corners, and a dark band at the bottom
 //   title     the paw and the wordmark in gold, and one line in Fraunces
@@ -53,7 +53,7 @@ const CARD_STYLE = `
   .frame { filter: sepia(0.08) saturate(0.88) brightness(1.1) contrast(1.06); }
   .haze {
     filter: sepia(0.08) saturate(0.88) brightness(1.1) blur(16px);
-    mask-image: linear-gradient(black 20%, transparent 27%);
+    mask-image: linear-gradient(black 18%, transparent 25%);
   }
   .glow { filter: brightness(0.75) contrast(2.6) blur(9px); mix-blend-mode: screen; opacity: 0.45; }
   .pool {
@@ -63,15 +63,15 @@ const CARD_STYLE = `
   }
   .shade {
     inset: 0;
-    background: linear-gradient(rgba(18, 14, 11, 0.9), rgba(18, 14, 11, 0.74) 28%, transparent 46%);
+    background: linear-gradient(rgba(18, 14, 11, 0.9), rgba(18, 14, 11, 0.74) 20%, transparent 31%);
   }
   .beam { inset: 0; filter: blur(20px); mix-blend-mode: screen; }
   .beam > div {
     position: absolute;
     inset: 0;
     clip-path: polygon(41% 0, 59% 0, 76% 100%, 24% 100%);
-    background: linear-gradient(rgba(255, 216, 170, 0.42), rgba(255, 210, 160, 0.26) 30%,
-      rgba(255, 204, 150, 0.1) 55%, transparent 75%);
+    background: linear-gradient(rgba(255, 216, 170, 0.42), rgba(255, 210, 160, 0.26) 16%,
+      transparent 27%);
   }
   .core {
     inset: 0;
