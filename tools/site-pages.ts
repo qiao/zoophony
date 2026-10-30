@@ -249,6 +249,22 @@ const PRIVACY: SitePage = {
 const TRUST_PAGES: readonly SitePage[] = [ABOUT, CONTACT, PRIVACY];
 
 /**
+ * The Markdown body of a missing page, for an agent that accepts `text/markdown` (design 7.4). It
+ * names the pages that guide an agent back.
+ */
+const NOT_FOUND: SitePage = {
+  path: '404',
+  title: 'Page not found',
+  description: `${APP_NAME} has no page at this address.`,
+  blocks: [
+    {
+      kind: 'paragraph',
+      text: 'Open the [start page](/), read [llms.txt](/llms.txt) for a guide to the site, or read the [site map](/sitemap.xml).',
+    },
+  ],
+};
+
+/**
  * Escapes a text for the text or an attribute of an HTML element.
  *
  * @param text The text.
@@ -411,8 +427,9 @@ ${body.join('\n')}
 
 /**
  * Gives the files of the site pages for the build (design 7.4): the Markdown copy of the start
- * page as `index.md` and as `llms.txt`, and the pages "About", "Contact", and "Privacy" in HTML
- * and in Markdown.
+ * page as `index.md` and as `llms.txt`, the pages "About", "Contact", and "Privacy" in HTML and in
+ * Markdown, and `404.md`, the Markdown body of a missing page. `vercel.json` sends a Markdown file
+ * for a request that accepts `text/markdown`.
  *
  * @param base The base path of the site, with a final `/`.
  * @returns The text of each file by its path in `dist/`.
@@ -422,6 +439,7 @@ export function sitePages(base: string): ReadonlyMap<string, string> {
   const files = new Map([
     ['index.md', home],
     ['llms.txt', home],
+    ['404.md', pageMarkdown(NOT_FOUND)],
   ]);
   for (const page of TRUST_PAGES) {
     files.set(`${page.path}.md`, pageMarkdown(page));
