@@ -55,6 +55,7 @@ pnpm build
 |---|---|
 | `Space` | Play or pause |
 | `Left` / `Right` | Seek 5 seconds backward or forward |
+| `Up` / `Down` | Turn the volume up or down |
 | `Home` | Return to start |
 | `C` | Toggle automatic cinematic camera |
 | `M` | Toggle mute |
