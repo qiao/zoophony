@@ -4,9 +4,10 @@
 // `docs/reference/share-card.webp`. Run it with `pnpm share-image [--out <file>]`, which writes
 // the presets and the demos of `public/` first.
 //
-// The tool builds the site with the camera plugin of `pnpm close-views` (`aimPlugin()`) into a
-// temporary folder, and serves it (`startVariantSite()`). The page gets `SHARE_CAMERA` in the query
-// `aim`, so each frame takes that camera. It opens in headless Chromium with the GPU of the Mac,
+// The tool builds the site with the camera plugin of `pnpm close-views` (`aimPlugin()`) and with
+// `hideBeamPlugin()` into a temporary folder, and serves it (`startVariantSite()`). The page gets
+// `SHARE_CAMERA` in the query `aim`, so each frame takes that camera, and the visible beam of the
+// stage does not show. The page opens in headless Chromium with the GPU of the Mac,
 // at `RENDER_SCALE` device pixels for each CSS pixel. A window of 1200 × 630 has the wide layout,
 // so the drawer opens at start (design 2.8). The tool closes the drawer, so that the frame of the
 // camera has the full width, and clicks play. After `PLAY_SEC`, it hides each element of the page
@@ -14,10 +15,12 @@
 // scale. The tool then scales the card down to 1200 × 630 in a canvas, and saves the JPEG at the
 // highest quality that keeps the file at most `MAX_SHARE_BYTES`. The default file is
 // `public/share.jpg`. No page element loads it, so the first download does not change.
+import { realpathSync } from 'node:fs';
 import { writeFile } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 
 import type { Browser } from '@playwright/test';
+import type { Plugin } from 'vite';
 
 import { DEFAULT_DEMO } from '../src/app/demos.ts';
 import { FIRST_PLAY, SAMPLES_READY } from '../src/app/dev-hook.ts';
@@ -56,7 +59,7 @@ const RENDER_SCALE = 2;
  * rows overlap. A camera with a larger angle down moves the back row up into the title. The hall
  * wall has a radius of about 16.5 m, so the camera stays nearer than that to the stage middle.
  * The scene sets the beam and the light of a free camera from its place, so `beam`, `light`, and
- * `spot` do nothing.
+ * `spot` do nothing. The build hides the visible beam ({@link hideBeamPlugin}).
  */
 const SHARE_CAMERA: CameraPose = {
   position: [-1.5, 4.25, 15.5],
@@ -68,15 +71,76 @@ const SHARE_CAMERA: CameraPose = {
   spot: 0,
 };
 
+/**
+ * The names of the parts of the visible beam of the stage (`createBeam()` of `src/scene/beam.ts`):
+ * the cone of scattered light and its dust motes.
+ */
+const STAGE_BEAM_PARTS = ['beam', 'motes'];
+
+/** The attribute of the body that counts the parts of the stage beam that a render hid. */
+const HIDDEN_BEAM_ATTRIBUTE = 'data-share-hidden-beam';
+
+/** The id of the module that hides the visible beam of the stage in the build of the tool. */
+const HIDE_BEAM_MODULE = 'virtual:share-hide-beam';
+
+/**
+ * Gives the plugin of a build of the app with no visible beam of the stage (design 7.4). The scene
+ * aims the beam from the rim light, which stands on the middle line behind the stage. From
+ * {@link SHARE_CAMERA}, 1.5 m left of that line, the beam shows left of the middle, as a second
+ * light beside the cone of the card. The beam only scatters light to the camera, so with no beam
+ * the players, the floor, and the room haze keep their light. The card draws its own cone
+ * (`tools/share-card.ts`). The last import of `src/main.ts` hides each part of
+ * {@link STAGE_BEAM_PARTS} before each render of a scene, and keeps the largest count in
+ * {@link HIDDEN_BEAM_ATTRIBUTE}.
+ *
+ * @param root The root of the tree to build.
+ * @returns The plugin.
+ */
+function hideBeamPlugin(root: string): Plugin {
+  // Vite gives the real path of each module, and a temporary folder can sit under a link.
+  const entry = join(realpathSync(root), 'src', 'main.ts');
+  const resolved = `\0${HIDE_BEAM_MODULE}`;
+  const code = [
+    "import { Scene } from 'three';",
+    `const parts = ${JSON.stringify(STAGE_BEAM_PARTS)};`,
+    'Scene.prototype.onBeforeRender = function () {',
+    '  let count = 0;',
+    '  this.traverse((object) => {',
+    '    if (parts.includes(object.name)) {',
+    '      object.visible = false;',
+    '      count += 1;',
+    '    }',
+    '  });',
+    `  const before = Number(document.body.getAttribute('${HIDDEN_BEAM_ATTRIBUTE}') ?? 0);`,
+    `  document.body.setAttribute('${HIDDEN_BEAM_ATTRIBUTE}', String(Math.max(before, count)));`,
+    '};',
+  ].join('\n');
+  return {
+    name: 'zoophony:share-hide-beam',
+    apply: 'build',
+    resolveId(id) {
+      return id === HIDE_BEAM_MODULE ? resolved : null;
+    },
+    load(id) {
+      return id === resolved ? code : null;
+    },
+    transform(text, id) {
+      return id === entry ? `${text}\nimport ${JSON.stringify(HIDE_BEAM_MODULE)};\n` : null;
+    },
+  };
+}
+
 /** The style that hides each element of the page but the canvas of the stage. */
 const HIDE_UI = 'body > :not(#stage), body > :not(#stage) * { visibility: hidden !important; }';
 
 /**
  * Renders the stage of the default demo during play from {@link SHARE_CAMERA}, with no UI.
  *
- * @param site The site of the build with the camera plugin.
+ * @param site The site of the build with the camera plugin and {@link hideBeamPlugin}.
  * @param size The size of the card.
  * @returns The PNG image, at the scale of the card.
+ * @throws Error when the frame hid no part of the stage beam, for example after a rename of a part
+ *   in `src/scene/beam.ts`.
  */
 async function renderStage(site: Site, size: CardSize): Promise<Buffer> {
   const aim = encodeURIComponent(JSON.stringify(SHARE_CAMERA));
@@ -103,6 +167,12 @@ async function renderStage(site: Site, size: CardSize): Promise<Buffer> {
           requestAnimationFrame(() => requestAnimationFrame(() => done()));
         }),
     );
+    const hidden = await page.locator('body').getAttribute(HIDDEN_BEAM_ATTRIBUTE);
+    if (!(Number(hidden) > 0)) {
+      throw new Error(
+        `The build hid no part of the stage beam. Its parts must have the names ${STAGE_BEAM_PARTS.join(' and ')} (createBeam() of src/scene/beam.ts).`,
+      );
+    }
     return await page.screenshot({ type: 'png' });
   } finally {
     await page.close();
@@ -179,7 +249,7 @@ async function main(): Promise<void> {
     height: SHARE_IMAGE.height,
     scale: RENDER_SCALE,
   };
-  const site = await startVariantSite([aimPlugin(ROOT)]);
+  const site = await startVariantSite([aimPlugin(ROOT), hideBeamPlugin(ROOT)]);
   try {
     const stage = await renderStage(site, size);
     const card = await composeCard(site.browser, ROOT, stage, size);
