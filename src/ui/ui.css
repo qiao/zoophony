@@ -50,6 +50,9 @@
     sans-serif;
   font-size: 14px;
   color: var(--text);
+  /* A pinch zooms only the stage, not the page (design 2.5). A list can still scroll. The orbit
+     controls set touch-action none on the canvas and take the pinch there. */
+  touch-action: pan-x pan-y;
 }
 
 *,

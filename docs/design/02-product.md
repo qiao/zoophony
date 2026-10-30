@@ -103,6 +103,8 @@ page starts in Free mode (`app/camera-mode.ts`).
   at once.
 - While the first screen shows, the zoom is off (`movesCamera()`), because a wheel there is often
   an attempt to scroll the page.
+- A pinch never zooms the page, because the page is the frame of the stage. On the stage, a pinch
+  zooms the camera. The root takes `touch-action: pan-x pan-y`.
 - With reduced motion, Free mode has no inertia, a shot holds its first camera, and each
   transition is a hard cut.
 - A new piece keeps the mode and makes new shots. The shots do not follow a solo, because they come
