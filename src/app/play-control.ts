@@ -121,7 +121,7 @@ export function showsFirstScreen(status: PieceStatus): boolean {
 export const INTRO_TEXT = 'Zoophony: an orchestra of animals plays your MIDI file.';
 
 /** The text button below {@link INTRO_TEXT}. It opens the drawer at the demo list (design 2.8). */
-export const SELECT_PIECE_TEXT = 'Select a piece';
+export const SELECT_PIECE_TEXT = 'Select music';
 
 /** The load text before the file of the first piece shows: the page loads the piece. */
 export const LOADING_TEXT = 'Loading';

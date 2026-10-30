@@ -280,7 +280,7 @@ async function openPage(
 }
 
 /**
- * Checks the button "Select a piece" of the first screen (design 2.8): Enter opens the drawer at
+ * Checks the button "Select music" of the first screen (design 2.8): Enter opens the drawer at
  * the demo list, and the row of the current demo gets the focus.
  *
  * @param browser The browser.
@@ -291,13 +291,13 @@ async function checkSelectPiece(browser: Browser, base: string): Promise<KeyChec
   const { page } = await openPage(browser, base, 1440, 900);
   const c = new Checker(page, '1440 × 900');
   try {
-    const tabs = await c.tabTo(named('Select a piece'));
+    const tabs = await c.tabTo(named('Select music'));
     await c.press(['Enter'], 400);
     const opened = !(await drawerHidden(page));
     const focus = await c.focused();
     // The link to GitHub in the title and the play button come first (design 2.8).
     c.record(
-      'Select a piece (first screen)',
+      'Select music (first screen)',
       `Tab x${tabs}, Enter`,
       `the drawer opens: ${opened}; focus on "${focus}"`,
       tabs === 3 && opened && focus.startsWith("D'un matin"),

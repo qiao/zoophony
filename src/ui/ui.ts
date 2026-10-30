@@ -211,7 +211,7 @@ export class Ui {
 
   /**
    * Opens the drawer at the demo list, and gives the focus to the row of the current demo (design
-   * 2.8). The button "Select a piece" of the first screen uses it.
+   * 2.8). The button "Select music" of the first screen uses it.
    */
   openDemoList(): void {
     this.drawer.showTab('demos');

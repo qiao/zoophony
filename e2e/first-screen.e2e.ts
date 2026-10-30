@@ -115,7 +115,7 @@ test.describe('a message on the first screen (audit 2026-10-06-ux-design-2, N12)
       await page.goto('./', { waitUntil: 'commit' });
       await expect(page.locator('.message:not([hidden])')).toContainText(LOAD_FAILURE_TEXT);
       // Beside the drawer that a short and wide window opens at start, the drawer holds the demo
-      // list, and the first screen has no "Select a piece" (design 2.8).
+      // list, and the first screen has no "Select music" (design 2.8).
       const wayOut = (await page.locator('.drawer').isVisible())
         ? page.locator('.drawer .demo[aria-current="true"]')
         : page.locator('.first-screen .select-piece');

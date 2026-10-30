@@ -1525,7 +1525,7 @@ body.is-building #stage {
 }
 
 /* While the first screen shows, a message sits 12 px above the load ring of the play button, so
-   that it does not cover "Select a piece", the way out of a failure (design 2.8). The ring has a
+   that it does not cover "Select music", the way out of a failure (design 2.8). The ring has a
    radius of 42 px. Beside the open drawer, the message moves with the first screen. */
 body:has(.first-screen:not([hidden])) .messages {
   bottom: calc(100% - var(--play-y) + 54px);

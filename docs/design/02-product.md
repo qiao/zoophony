@@ -313,7 +313,7 @@ instant with reduced motion. Each text keeps the contrast 4.5:1 of WCAG AA over 
 | Second line of the load text while the piece waits for its samples | The music starts after the load. |
 | Drop overlay | Drop the MIDI file to play it. |
 | First screen, until the first play of the session | Zoophony: an orchestra of animals plays your MIDI file. |
-| First screen, the button that opens the demo list | Select a piece |
+| First screen, the button that opens the demo list | Select music |
 
 **Accessibility**
 
