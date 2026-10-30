@@ -125,10 +125,13 @@ export class VariantMaterials {
 
   /**
    * Sorts the opaque draws of a render as `painterSortStable()` of three.js does, with the id of
-   * the shared material in place of the id of a copy. Thus the players keep the order of their
-   * draws with the shared material: by the distance from the camera, after the props. With the
-   * order of the ids of the copies, two draws at one depth of a sample of the scene target came in
-   * the other order, and 1 or 2 pixels of a frozen frame changed by up to 14 of 255.
+   * the shared material first: the props draw before the players. Then the players of one copy
+   * draw together, by the distance from the camera, so that the scene pass changes its program
+   * and uploads the uniforms of the material once for each variant in place of at about each
+   * player. With the copies in the order of their ids before the props, two draws at one depth of
+   * a sample of the scene target came in the other order, and 1 or 2 pixels of a frozen frame
+   * changed by up to 14 of 255. The order of this sort gave the same pixels in the four frozen
+   * shots.
    *
    * @param a A draw.
    * @param b Another draw.
@@ -145,6 +148,9 @@ export class VariantMaterials {
     const idB = this.#sharedIds.get(b.material) ?? b.material.id;
     if (idA !== idB) {
       return idA - idB;
+    }
+    if (a.material.id !== b.material.id) {
+      return a.material.id - b.material.id;
     }
     if (a.materialVariant !== b.materialVariant) {
       return a.materialVariant - b.materialVariant;
