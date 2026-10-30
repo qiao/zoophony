@@ -383,8 +383,7 @@ under the hard key light.
   shadows keep one direction. The vertex shaders calculate them (`scene/rim-light.ts`), because a
   spotlight costs GPU time on each lit pixel (9.7).
 - **Side and back-row lights** (`SIDE_LIGHT`, `BACK_ROW_LIGHT`). Weak cross lights from the
-  front corners. The side lights cast the shadows of the players on the players, with a soft edge
-  on the high tier (`TIER_SETTINGS`), because a hard edge showed black wedges on white fur. The
+  front corners. They cast no shadow (2.6), so the key light alone casts the shadows. The
   back-row lights keep the back rows almost as bright as the front rows. These lights are a warm
   white, so white, gray, and purple fur keep their colors.
 - **Pool** (`LIGHT_POOL`, `addLightPool()`). A factor in the shaders makes a pool on the

@@ -58,9 +58,8 @@ export const KEY_LIGHT = {
  * and its shade side is gone. The back rows stay at the edge of the cone, so the back-row lights
  * ({@link BACK_ROW_LIGHT}) light them.
  *
- * The side lights cast the shadows of the players on the players, such as the shadow of an arm on
- * the chest, because they light the fronts that the camera sees. The stage takes no shadow of
- * them (scene/stage.ts), so the floor keeps the shadows of the key light alone.
+ * The side lights cast no shadow on any tier (design 2.6), so only the key light casts the
+ * shadows of the players.
  */
 export const SIDE_LIGHT = {
   /**

@@ -31,13 +31,14 @@ interface TierSettings {
 /**
  * The values of each tier (design 2.6). The low tier keeps the final pass of the post effects
  * (the tone mapping, the color grade, the vignette, and the grain), because it costs one sample
- * for each pixel. It drops the bloom, the depth of field, the dust motes, and the shadows of the
- * side lights.
+ * for each pixel. It drops the bloom, the depth of field, and the dust motes. No tier has the
+ * shadows of the side lights: they cost about 0.9 ms of GPU time in each frame of `perf-60.mid`,
+ * and they changed only small shadows on the players.
  */
 export const TIER_SETTINGS = {
   high: {
     shadowMapSize: 2048,
-    sideShadowMapSize: 1024,
+    sideShadowMapSize: 0,
     // 5 in place of 3: with 3, the shadow of an arm on the white trunk of the rabbit shows black
     // wedges with the steps of the map.
     shadowRadius: 5,
@@ -51,7 +52,7 @@ export const TIER_SETTINGS = {
   },
   medium: {
     shadowMapSize: 1024,
-    sideShadowMapSize: 512,
+    sideShadowMapSize: 0,
     shadowRadius: 1,
     maxPixelRatio: 1.5,
     bloomLevels: 5,
