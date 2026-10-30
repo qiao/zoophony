@@ -63,6 +63,12 @@ pnpm build
 | Drag (> 4 px) | Orbit 3D camera |
 | Scroll / Pinch | Zoom in or out |
 
+## Browser support
+
+The app needs WebGL2. It supports the current and the previous major versions of Chrome, Firefox,
+and Safari (macOS and iOS), and Chrome on Android. Desktop browsers come first. A phone plays the
+music with a lower visual quality.
+
 ## Technology
 
 - [Three.js](https://threejs.org/) renders the stage with WebGL2.
