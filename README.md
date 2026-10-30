@@ -70,6 +70,12 @@ The app needs WebGL2. It supports the current and the previous major versions of
 and Safari (macOS and iOS), and Chrome on Android. Desktop browsers come first. A phone plays the
 music with a lower visual quality.
 
+## Privacy
+
+The site has no analytics, no cookies, and no service worker. A MIDI file that you open stays on
+your device: the app sends it to no server. The page
+[`/privacy`](https://www.zoophony.com/privacy) of the live site gives the same facts.
+
 ## Technology
 
 - [Three.js](https://threejs.org/) renders the stage with WebGL2.
