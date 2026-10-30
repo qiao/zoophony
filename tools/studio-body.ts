@@ -742,6 +742,12 @@ interface Gltf {
        * the config of the mesh rig, `StudioBody.upperTwist`). The file has none with no such rule.
        */
       readonly upperTwist?: number;
+      /**
+       * The unit elbow axis of each arm in the bind pose of a rig with straight bind arms
+       * (`studio.straightArms` of the config of the mesh rig, `StudioBody.hinges`), in the axes
+       * of the file. The file has none with no such rule.
+       */
+      readonly hinges?: Readonly<Record<Side, readonly number[]>>;
     };
   };
 }
@@ -816,6 +822,30 @@ export function upperTwistOf(glb: Glb): number | null {
     throw new Error(`The upper twist ${share} of the file is not a share from 0 to 1.`);
   }
   return share;
+}
+
+/**
+ * Gives the unit elbow axes of the bind arms in the rig of a GLB file with straight bind arms
+ * (`studio.straightArms` of the config of `pnpm rig-mesh`, design 4.4), in the axes of the file.
+ *
+ * @param glb The file.
+ * @returns The axis of each side, or `null` for a file with bent bind arms.
+ * @throws Error if an axis is not a unit vector of three numbers.
+ */
+export function hingesOf(glb: Glb): Record<Side, Vector3> | null {
+  const hinges = glb.json.asset?.extras?.hinges;
+  if (hinges === undefined) {
+    return null;
+  }
+  const axis = (side: Side): Vector3 => {
+    const [x, y, z] = hinges[side];
+    const out = new Vector3(x, y, z);
+    if (hinges[side].length !== 3 || Math.abs(out.length() - 1) > 1e-3) {
+      throw new Error(`The hinge ${side} of the file is not a unit vector of three numbers.`);
+    }
+    return out;
+  };
+  return { L: axis('L'), R: axis('R') };
 }
 
 /**
@@ -2628,6 +2658,10 @@ export function studioBody(bytes: Uint8Array, source: string, settings: AnimalSe
   const upperTwist = upperTwistOf(glb);
   if (upperTwist !== null) {
     body = { ...body, upperTwist };
+  }
+  const hinges = hingesOf(glb);
+  if (hinges !== null) {
+    body = { ...body, hinges: { L: direction(hinges.L), R: direction(hinges.R) } };
   }
   if (frame.chairWidth !== null) {
     body = { ...body, chairWidth: frame.chairWidth };
