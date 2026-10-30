@@ -25,6 +25,15 @@ The sound is full and professional, in the room of a concert hall, and never dry
 - **Choir gain.** A choir channel gets `CHOIR_GAIN_DB`, because one channel sings for a full
   choir. The vocal soloists get no gain. It is a channel gain of spessasynth_core, because CC 7
   gives only a few dB above its value 100.
+- **Velocity curve.** The demo files give each dynamic mark only as a note velocity, with CC 7 at
+  100 and no CC 11. The SF2 default curve (960 cB) puts pp (velocity 28) 21 dB below f (velocity
+  96), and p (velocity 40) 15 dB below f. A soft sample layer adds `LAYER_STEP_DB`. Thus
+  `narrowVelocityCurve()` of `audio/velocity-curve.ts` sets the amount of this modulator in each
+  bank to `VELOCITY_ATTENUATION_CB`. Each modulator of GeneralUser GS with the same source and
+  destination gets the same share. `SynthEngine.addBanks()` applies it before the synth makes a
+  voice. The curve acts on each note, so it has no pumping, and each crescendo keeps its timing.
+  The synth gets the velocity of the file, so it selects the same sample layer. 6.8 gives the rule
+  for the amount.
 - `mixSynthEvents()` replaces the pan (CC 10) and the reverb send (CC 91) of the file with the mix.
 - **Room and hall.** The synth has no chorus. Its reverb is the short GS room "Room 1", locked
   with `reverbLock` over each reset. The worklet has one stereo output, so the hall reverb of the
@@ -312,10 +321,17 @@ interface Tone {
   6 ms in Chromium, and the clock (6.7) does not correct this small delay.
 - **Gain of the piece.** `pieceGainDb()` brings each demo to `TARGET_LOUDNESS` (integrated) with
   the values of `DEMO_LOUDNESS` of the mix preset. The target is the music loudness of AES TD1008,
-  because a louder target needs more gain reduction on the dynamic demos. Each demo keeps its
-  loudness range, and a file of the user gets 0 dB. `pnpm loudness --fit --mix <name>` measures
-  the values again after a change of a demo, the SoundFont, the mix, the mix bus, the hall, or the
-  limiter.
+  because a louder target needs more gain reduction on the dynamic demos. A file of the user gets
+  0 dB. `pnpm loudness --fit --mix <name>` measures the values again after a change of a demo, the
+  SoundFont, the velocity curve, the mix, the mix bus, the hall, or the limiter.
+- **Loudness range.** A soft passage must stay audible at a volume that suits the loud passages.
+  The median short-term loudness of the first 10 s of `beethoven-8` and `brahms-2` must be at most
+  12 LU below `TARGET_LOUDNESS` (`st10` of `pnpm loudness`). `VELOCITY_ATTENUATION_CB` (6.1) is the
+  largest amount of a sweep that obeys this rule and the limit of the limiter of
+  `TARGET_LOUDNESS`. Thus each demo keeps as much range as the rule permits. A public domain
+  recording of Brahms 2 mvt 4 by the Musopen Symphony
+  ([Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Brahms_-_Symphony_No._2_in_D_major,_Op._73_-_IV._Allegro_con_spirito_%28Musopen_Symphony%29.flac))
+  starts 13 LU to 14 LU below its integrated loudness. The piece gain does not compress a demo.
 - **Limiter.** The trim removes the makeup gain of the compressor, so the chain does not change the
   level below the threshold. The threshold keeps the true peak of each demo at or below -1 dBTP
   (EBU R 128).
