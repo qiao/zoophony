@@ -49,7 +49,7 @@ interface UiActions extends BarActions {
 
 /**
  * The UI over the canvas (design 2.3, 2.8): the title, the first screen, the bar, the drawer with
- * the tabs "Pieces" (the demo list and the file button), "Seats" (the seat list), and "Settings"
+ * the tabs "Music" (the demo list and the file button), "Seats" (the seat list), and "Settings"
  * (the settings and the link "Credits"), the credits dialog, the message, and the drop overlay. The DOM order gives the focus order of 2.8:
  * the title, the bar, then the drawer. The play button of the first screen comes before the bar,
  * and the buttons of a message come after it.
@@ -121,7 +121,7 @@ export class Ui {
     // The file button stands below the demo list, because it also selects a piece (design 2.8).
     this.drawer.addTab(
       'demos',
-      'Pieces',
+      'Music',
       this.demoList.element,
       new FilePicker(actions.onFile).element,
     );
@@ -147,7 +147,7 @@ export class Ui {
     const creditsLine = createElement('div', 'credits-line');
     creditsLine.append(creditsLink);
     this.drawer.addTab('settings', 'Settings', this.settings.element, creditsLine);
-    // A wide window opens the drawer at start, at the tab "Pieces" (design 2.8).
+    // A wide window opens the drawer at start, at the tab "Music" (design 2.8).
     if (isWideLayout(target.innerWidth, target.innerHeight)) {
       this.drawer.setOpen(true);
     }

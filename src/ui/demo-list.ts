@@ -34,7 +34,7 @@ export class DemoList {
    */
   constructor(onSelect: (id: DemoId) => void) {
     this.element = createElement('ul', 'list');
-    this.element.setAttribute('aria-label', 'Pieces');
+    this.element.setAttribute('aria-label', 'Music');
     this.#meter = createElement('span', 'meter');
     this.#meter.setAttribute('aria-hidden', 'true');
     for (const still of STILL_LEVELS) {

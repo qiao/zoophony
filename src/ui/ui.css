@@ -675,7 +675,7 @@ input[type='range']:disabled::-moz-range-thumb {
   border-radius: var(--radius-float);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
   /* The drawer itself does not scroll and does not bounce. The panel of a tab scrolls below the
-     tabs, and in the tab "Pieces" only the demo list scrolls (design 2.8). */
+     tabs, and in the tab "Music" only the demo list scrolls (design 2.8). */
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -812,7 +812,7 @@ body.is-building #stage {
   scrollbar-color: rgba(255, 240, 220, 0.18) transparent;
 }
 
-/* In the tab "Pieces", only the demo list scrolls, and it can bounce at its ends. The file
+/* In the tab "Music", only the demo list scrolls, and it can bounce at its ends. The file
    button stays below it. */
 #panel-demos:not([hidden]) {
   display: flex;

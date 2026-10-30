@@ -587,7 +587,7 @@ async function checkRepositoryLink(c: Checker, page: Page): Promise<void> {
 }
 
 /**
- * Checks the drawer at start (design 2.8): a wide window opens it at the tab "Pieces", and a
+ * Checks the drawer at start (design 2.8): a wide window opens it at the tab "Music", and a
  * phone keeps it closed. Escape then closes an open drawer, so that the next checks start from
  * a closed drawer.
  *
@@ -634,7 +634,7 @@ async function checkDrawer(c: Checker, page: Page, phone: boolean): Promise<void
   );
 
   await c.press(['Space']);
-  // The tab "Pieces" and the close button come first, and the file button ends the demo list
+  // The tab "Music" and the close button come first, and the file button ends the demo list
   // (design 2.8).
   const order: string[] = [];
   while (order.length < 80 && order.at(-1) !== 'Open a MIDI file') {
@@ -649,7 +649,7 @@ async function checkDrawer(c: Checker, page: Page, phone: boolean): Promise<void
     'Focus order into the drawer',
     `Space on the drawer button, Tab x${order.length}`,
     shown.join(' > '),
-    order[0] === 'Pieces' &&
+    order[0] === 'Music' &&
       order[1] === 'Close the drawer' &&
       order[2]?.startsWith("D'un matin") === true &&
       order.at(-1) === 'Open a MIDI file',
@@ -750,7 +750,7 @@ async function checkDrawer(c: Checker, page: Page, phone: boolean): Promise<void
   await page.waitForSelector(SAMPLES_READY, { timeout: 60_000 });
   await reopenSheet(c, phone);
   // The right arrow on a tab selects the next tab, and it does not seek (design 2.4, 2.8).
-  await c.tabTo(named('Pieces'), !phone);
+  await c.tabTo(named('Music'), !phone);
   const seekBefore = Number(await c.value('.seek'));
   await c.press(['ArrowRight']);
   const seekAfter = Number(await c.value('.seek'));
@@ -759,7 +759,7 @@ async function checkDrawer(c: Checker, page: Page, phone: boolean): Promise<void
   const rows = await page.locator('.seat:visible').count();
   c.record(
     'Tab "Seats"',
-    'Tab to "Pieces", Right',
+    'Tab to "Music", Right',
     `aria-selected ${seatsTab}; focus on "${onSeats}"; ${rows} seat rows; seek moves ` +
       `${(seekAfter - seekBefore).toFixed(1)} s`,
     seatsTab === 'true' && onSeats === 'Seats' && rows > 0 && Math.abs(seekAfter - seekBefore) < 3,

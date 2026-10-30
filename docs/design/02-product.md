@@ -33,7 +33,7 @@ The UI has the style of a video player. The theme is dark only, because the scen
 │ Logo (paw, Zoophony)                                 ┌─────────────────┐ │
 │ Title of the piece                                   │ Drawer:         │ │
 │ Composer                                             │                 │ │
-│                                                      │  Pieces         │ │
+│                                                      │  Music          │ │
 │                                                      │  Seats          │ │
 │                 3D scene (canvas)                    │  Settings       │ │
 │                                                      │  (Credits)      │ │
@@ -49,9 +49,10 @@ The UI has the style of a video player. The theme is dark only, because the scen
   "Automatic camera", "Reset view" (2.5), full screen, and the drawer. During play, the bar and
   the pointer hide after a short time with no pointer motion. A hidden bar ignores the pointer, so
   the first tap only shows it.
-- The drawer has the tabs "Pieces" (the demos and the file button), "Seats", and "Settings" (with
-  the link "Credits"). The UI says "Pieces", because "track" names a track of a MIDI file. The
-  code keeps the name "demo".
+- The drawer has the tabs "Music" (the demos and the file button), "Seats", and "Settings" (with
+  the link "Credits"). The UI says "Music", because each user knows the word, and it covers a demo
+  and a MIDI file of the user. "Track" names a track of a MIDI file, and "song" does not fit the
+  movement of a symphony. The code keeps the names "demo" and "piece".
 - Each seat row has a mute button and a solo button. A click on an animal does nothing.
 - The UI uses the system fonts, so the first download does not grow and no request goes to a
   font server.

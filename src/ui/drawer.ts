@@ -12,7 +12,7 @@ interface TabParts {
 }
 
 /**
- * The drawer on the right (design 2.3, 2.8): 340 px wide, with the tabs "Pieces", "Seats", and
+ * The drawer on the right (design 2.3, 2.8): 340 px wide, with the tabs "Music", "Seats", and
  * "Settings" and a close button at the top. Only the panel of the current tab shows. On a screen
  * narrower than 700 px, it is a sheet above the bar with a drag handle: a drag of the handle down
  * closes the sheet. It starts closed, and it slides and fades in and out in 200 ms.
@@ -119,7 +119,7 @@ export class Drawer {
    * Adds a tab and its panel at the end of the drawer. The first tab is the current tab.
    *
    * @param id The tab.
-   * @param label The text of the tab, for example "Pieces".
+   * @param label The text of the tab, for example "Music".
    * @param content The content of the panel.
    */
   addTab(id: DrawerTab, label: string, ...content: Element[]): void {
