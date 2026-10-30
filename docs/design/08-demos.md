@@ -12,6 +12,8 @@
 - OpenScore scores are CC0, but their annotations are CC BY-SA and are stored as lyrics. Remove
   the lyrics before the repository gets the file.
 - The credits list the source and the typesetter of each demo, also with no required credit.
+  The credit of a CC BY file ends with links to its source and to its license, because CC BY 4.0
+  asks for a link to the license (section 3(a)(1)(C)).
 - A MIDI file whose music is under copyright stays out of the repository, also as a test input.
 - The demo list holds only positive and cheerful pieces.
 

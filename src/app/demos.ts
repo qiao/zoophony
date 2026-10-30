@@ -34,8 +34,16 @@ export type DemoId = (typeof DEMO_IDS)[number];
  */
 export const DEFAULT_DEMO: DemoId = DEMO_IDS[0];
 
+/** A link of the credits dialog (design 2.8). */
+export interface CreditLink {
+  /** The text of the link. */
+  readonly text: string;
+  /** The URL. */
+  readonly href: string;
+}
+
 /** The texts and the length of one demo (design 8.2). */
-interface DemoInfo {
+export interface DemoInfo {
   /**
    * The title of the piece at the top left of the page and in the demo list, in one pattern:
    * "{work}, {catalogue number}: {movement}".
@@ -44,6 +52,11 @@ interface DemoInfo {
   readonly composer: string;
   /** The credit line of the credits dialog. */
   readonly credit: string;
+  /**
+   * The links after the credit line: the source and the license of a CC BY file, because CC BY 4.0
+   * asks for a link to the license, section 3(a)(1)(C) (design 8.1). No other demo has links.
+   */
+  readonly links?: readonly CreditLink[];
   /** The song length in whole seconds, from `wholeSeconds()` of `app/time-text.ts`. */
   readonly lengthSec: number;
 }
@@ -79,6 +92,10 @@ export const DEMOS = {
     title: 'Canon in D, P. 37',
     composer: 'Johann Pachelbel',
     credit: 'Score: Mutopia Project, piece 2047, CC BY 4.0. Typeset by Michael Fischer v. Mollard.',
+    links: [
+      { text: 'Source', href: 'https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=2047' },
+      { text: 'CC BY 4.0', href: 'https://creativecommons.org/licenses/by/4.0/' },
+    ],
     lengthSec: 245,
   },
   'beethoven-5-4': {

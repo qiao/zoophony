@@ -1,7 +1,7 @@
 import { HALL_CREDIT, KONZERTHAUS_CREDIT } from '../audio/hall-credit.ts';
 import { SOUNDFONT_CREDITS } from '../audio/soundfont-info.ts';
 import { DEMOS, DEMO_IDS } from './demos.ts';
-import type { DemoId } from './demos.ts';
+import type { CreditLink, DemoId, DemoInfo } from './demos.ts';
 
 /** The text of the link in the drawer that opens the credits, and the heading of their dialog. */
 export const CREDITS_TEXT = 'Credits';
@@ -14,14 +14,6 @@ export const LICENSES_TEXT = 'Third-party licenses';
 
 /** The third-party license file in the site. `tools/licenses.ts` writes it (design 7.3). */
 export const LICENSES_FILE = 'third-party-licenses.txt';
-
-/** A link of the credits dialog. */
-interface CreditLink {
-  /** The text of the link. */
-  readonly text: string;
-  /** The URL. */
-  readonly href: string;
-}
 
 /**
  * A row of the group "Sounds": the name of a sound source in the left column, and its credit
@@ -44,6 +36,8 @@ export interface PieceCredit {
   readonly composer: string;
   /** The credit line of the score and of the MIDI file. */
   readonly credit: string;
+  /** The links after the credit line, for a CC BY file only (design 8.1). */
+  readonly links?: readonly CreditLink[];
 }
 
 /** The small line above the name of the author, on the title card of the credits dialog. */
@@ -125,11 +119,15 @@ export function creditTexts(current: DemoId | null): CreditTexts {
  * Gives the credit block of a demo.
  *
  * @param id The demo.
- * @returns The title, the composer, and the credit line of the demo.
+ * @returns The title, the composer, the credit line, and the links of the demo.
  */
 function pieceCredit(id: DemoId): PieceCredit {
-  const demo = DEMOS[id];
-  return { title: demo.title, composer: demo.composer, credit: demo.credit };
+  const demo: DemoInfo = DEMOS[id];
+  const piece = { title: demo.title, composer: demo.composer, credit: demo.credit };
+  if (demo.links) {
+    return { ...piece, links: demo.links };
+  }
+  return piece;
 }
 
 /**

@@ -11,7 +11,7 @@ import {
   creditTexts,
 } from '../app/credits.ts';
 import type { PieceCredit, SoundCredit } from '../app/credits.ts';
-import type { DemoId } from '../app/demos.ts';
+import type { CreditLink, DemoId } from '../app/demos.ts';
 import { createElement } from './dom.ts';
 import { createIcon } from './icons.ts';
 
@@ -104,17 +104,22 @@ function creditGroup(label: string, content: HTMLElement): HTMLElement {
 }
 
 /**
- * Writes the credit block of a piece into an element: the title, the composer, and the source.
+ * Writes the credit block of a piece into an element: the title, the composer, and the source,
+ * with the links of a CC BY file after the source.
  *
  * @param element The element of the block.
  * @param piece The texts of the block.
  * @returns The element.
  */
 function fillPiece<T extends HTMLElement>(element: T, piece: PieceCredit): T {
+  const source = createElement('small', '', piece.credit);
+  if (piece.links) {
+    appendLinks(source, piece.links);
+  }
   element.replaceChildren(
     createElement('span', 'piece-title', piece.title),
     createElement('span', 'piece-composer', piece.composer),
-    createElement('small', '', piece.credit),
+    source,
   );
   return element;
 }
@@ -128,13 +133,24 @@ function fillPiece<T extends HTMLElement>(element: T, piece: PieceCredit): T {
  */
 function soundRow(credit: SoundCredit): HTMLDivElement {
   const row = createElement('div', 'credit-row');
-  const line = createElement('dd', '', `${credit.credit} `);
-  credit.links.forEach((link, index) => {
+  const line = createElement('dd', '', credit.credit);
+  appendLinks(line, credit.links);
+  row.append(createElement('dt', '', credit.title), line);
+  return row;
+}
+
+/**
+ * Appends links to a credit line, such as " Source, CC BY 4.0.".
+ *
+ * @param line The element of the credit line, which holds its text.
+ * @param links The links.
+ */
+function appendLinks(line: HTMLElement, links: readonly CreditLink[]): void {
+  line.append(' ');
+  links.forEach((link, index) => {
     line.append(index > 0 ? ', ' : '', newTabLink(link.text, link.href));
   });
   line.append('.');
-  row.append(createElement('dt', '', credit.title), line);
-  return row;
 }
 
 /**

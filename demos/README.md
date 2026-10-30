@@ -36,8 +36,9 @@ All compositions are in the public domain. Each file also has its own license.
 | `beethoven-7-4` | `src/beethoven-7-4.mid` | Beethoven, Symphony No. 7, Op. 92, mvt 4, with no exposition repeat | [OpenScore Orchestra](https://github.com/MarkGotham/Hauptstimme/blob/8f677853c45b74ca0afcd79677e5379c06c82354/data/Beethoven,_Ludwig_van/Symphony_No.7,_Op.92/4/Beethoven_Op.92_4.mscz), made by the OpenScore pipeline below | CC0 1.0 (score) | OpenScore |
 | `beethoven-6-1` | `src/beethoven-6-1.mid` | Beethoven, Symphony No. 6, Op. 68 ("Pastoral"), mvt 1, with no exposition repeat | [OpenScore Orchestra](https://github.com/MarkGotham/Hauptstimme/blob/8f677853c45b74ca0afcd79677e5379c06c82354/data/Beethoven,_Ludwig_van/Symphony_No.6,_Op.68/1/Beethoven_Op.68_1.mscz), made by the OpenScore pipeline below | CC0 1.0 (score) | OpenScore |
 
-Only the CC BY 4.0 license of `pachelbel-p37` requires a credit line. The credits panel of the
-app lists each source and each typesetter.
+Only the CC BY 4.0 license of `pachelbel-p37` requires a credit line and a link to the license.
+The credits panel of the app lists each source and each typesetter. For `pachelbel-p37`, it also
+links to the source and to the license.
 
 The Mutopia pages were read on 2026-10-04, and the page of piece 2230 on 2026-10-05. Each page
 shows "Copyright: Public Domain". The LilyPond source of piece 2230 also holds
