@@ -370,7 +370,6 @@ scene of each demo has its seats and stage size with no overlap.
       the lowering), then merge or remove it.
 - [ ] Rabbit: under the raised bow arm, a shallow hollow with a small sharp tip stays in the right
       armpit. A smoother hollow needs more vertices in the notch.
-- [ ] Rabbit: the shadows of the side lights make the seam of the arm darker than no shadow does.
 - [ ] Rabbit: the narrow axis of each upper arm keeps 0.62 to 0.81 of the bind, so the shoulders
       look flatter than the source from the back. Try a bind arm nearer to the play.
 - [ ] Rabbit: a flap face with two open edges (3.1 cm) stays under the right armpit. No frame shows
@@ -527,8 +526,9 @@ navigation menu at the top of the mockup is out of scope.
 - [ ] Audit the seating of design 4.2 against professional orchestras and choirs, with sources and
       the file and the line of each finding. Then fix the findings that the user approves.
 - [ ] Bring the high tier within the frame target of 9.7 (4 ms p95 on the GPU and the main thread).
-      The main thread is near 4 ms p95. The GPU is about 7 ms p95 on a view of the stage top, and
-      no option with the same look passes. The choice of the path waits for the user.
+      The main thread passes. With the pixel ratio 1.5, no side light shadows, and 12 stage
+      samples, the GPU was about 5 ms p95 on a view of the stage top, in one run that was not
+      valid (another process used the GPU). Measure it on an idle machine.
 - [ ] Cut the main-thread cost of the read of the title backdrop (`app/backdrop-probe.ts`, 2.8).
       A frame with a read or its result took about 2 ms more than another frame, mostly in the
       browser, in about 18% of the frames. With no read, the main thread p95 went from 4.00 ms to
@@ -542,10 +542,7 @@ navigation menu at the top of the mockup is out of scope.
 - [ ] Compile the shaders before the first frame with no block (`compileAsync()`): `setProgram()`
       takes about 335 ms in the first frame of the default demo. The first frame stays the same.
 - [ ] Cut the frame cost of the cinematic light: about 0.67 ms in each frame of `perf-60.mid`,
-      0.42 ms of it in the bake step. 12 shadow samples of the baked stage in place of 20 saved
-      about 0.85 ms of GPU p50 in one run on a view of the stage top. The choice waits for the user.
-- [ ] Cut the frame cost of the shadows of the side lights: about 0.9 ms of GPU p50 in one run
-      on a view of the stage top, with the depth geometry. Maps of 512 save about 0.2 ms.
+      0.42 ms of it in the bake step.
 - [ ] Decide on the two back-row lights: they cost about 1.0 ms of GPU p50 in one run on a view
       of the stage top.
 - [ ] When the test pause ends, fix `scene/player.test.ts` (6 of 13 fail) and the pool test of
