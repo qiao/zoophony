@@ -12,25 +12,9 @@ describe('creditTexts (design 2.8, 7.3, 8.1)', () => {
       composer: 'Wolfgang Amadeus Mozart',
       credit: 'Score: Mutopia Project, piece 2230, public domain. Typeset by Mike Blackstock.',
     });
-    expect(texts.otherDemos.map((d) => d.title)).toEqual([
-      'Bassoon Concerto, K. 191: III',
-      'Horn Concerto No. 2, K. 417: III',
-      'Brandenburg Concerto No. 5, BWV 1050: III',
-      'Symphony No. 9, Op. 125: Ode to Joy',
-      'Canon in D, P. 37',
-      'Symphony No. 5, Op. 67: IV',
-      'Symphony No. 7, Op. 92: IV',
-      'Symphony No. 6, Op. 68: I',
-      "D'un matin de printemps",
-      'Brandenburg Concerto No. 3, BWV 1048: I',
-      'Symphony No. 8, Op. 93: II',
-      'Andante in C, K. 315',
-      'Symphony No. 1, Op. 21: IV',
-      'Symphony No. 2, Op. 73: IV',
-      'Symphony No. 8, Op. 93: IV',
-      'Brandenburg Concerto No. 2, BWV 1047: I',
-      "A Midsummer Night's Dream, Op. 61: V",
-    ]);
+    expect(texts.otherDemos.map((d) => d.title)).toEqual(
+      DEMO_IDS.filter((id) => id !== 'mozart-k525').map((id) => DEMOS[id].title),
+    );
     expect(texts.otherDemos[0]?.credit).toBe(
       'Score: Mutopia Project, piece 686, public domain. Typeset by Maurizio Tomasi.',
     );
