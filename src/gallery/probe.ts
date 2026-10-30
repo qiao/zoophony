@@ -29,7 +29,7 @@ export function applyProbe(mesh: SkinnedMesh, model: PlayerModel, probe: Gallery
       ? new MeshBasicMaterial({ vertexColors: true, toneMapped: false })
       : new MeshNormalMaterial();
   const { geometry } = mesh;
-  const corners = geometry.getAttribute('position').count;
+  const corners = geometry.index?.count ?? geometry.getAttribute('position').count;
   const body = Math.min(corners, model.studio.mesh.corners.length);
   geometry.clearGroups();
   geometry.addGroup(0, body, materials.length);

@@ -36,6 +36,7 @@ import type { StudioPose, StudioRig } from '../models/studio-rig.ts';
 import type { Skeleton as PlayerSkeleton } from '../models/rig.ts';
 import type { AnimalPose, ScenePose } from '../pose/types.ts';
 import { createGeometry } from './geometry.ts';
+import { shareCorners } from './shared-corners.ts';
 
 /**
  * Creates the geometry of a player model with a studio body (design 4.4): the body in the bind
@@ -77,6 +78,12 @@ function* createPlayerGeometrySteps(model: PlayerModel): Steps<BufferGeometry> {
   );
   // The moves add to the bind places, as in a glTF file.
   geometry.morphTargetsRelative = true;
+  // The keys of a keyboard move by their ranges of corners (`PianoKeys.corners`), so a geometry
+  // with keys keeps one vertex for each corner.
+  if (!model.keys) {
+    yield;
+    shareCorners(geometry);
+  }
   return geometry;
 }
 
@@ -554,7 +561,7 @@ export function* createPlayersSteps(
  * @returns The mesh. It casts and receives shadows.
  */
 export function createStaticMesh(data: MeshData, materials: readonly MeshStandardMaterial[]): Mesh {
-  const mesh = new Mesh(createGeometry(data), [...materials]);
+  const mesh = new Mesh(shareCorners(createGeometry(data)), [...materials]);
   mesh.castShadow = true;
   mesh.receiveShadow = true;
   return mesh;
