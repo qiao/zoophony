@@ -27,7 +27,7 @@ Live site: <https://www.zoophony.com/>
 ### Prerequisites
 
 - [Node.js](https://nodejs.org/) version 24 or newer
-- [pnpm](https://pnpm.io/) package manager
+- [pnpm](https://pnpm.io/) version 10
 
 ### Run locally
 
