@@ -21,19 +21,19 @@ describe('fileFromHash (design 2.2)', () => {
   });
 
   it('selects the default demo for a missing or unknown id', () => {
-    expect(fileFromHash('', false)).toBe('boulanger-matin');
-    expect(fileFromHash('#', false)).toBe('boulanger-matin');
-    expect(fileFromHash('#demo=other', false)).toBe('boulanger-matin');
-    expect(fileFromHash('#mozart-k525', false)).toBe('boulanger-matin');
+    expect(fileFromHash('', false)).toBe('mozart-k191');
+    expect(fileFromHash('#', false)).toBe('mozart-k191');
+    expect(fileFromHash('#demo=other', false)).toBe('mozart-k191');
+    expect(fileFromHash('#mozart-k525', false)).toBe('mozart-k191');
     // Demos that the app no longer has (design 8.2).
     for (const removed of ['beethoven-5', 'grieg-ase', 'mozart-k488']) {
-      expect(fileFromHash(`#demo=${removed}`, false)).toBe('boulanger-matin');
+      expect(fileFromHash(`#demo=${removed}`, false)).toBe('mozart-k191');
     }
   });
 
   it('gives perf-60.mid only on the dev server (design 9.5)', () => {
     expect(fileFromHash('#demo=perf-60', true)).toBe('perf-60');
-    expect(fileFromHash('#demo=perf-60', false)).toBe('boulanger-matin');
+    expect(fileFromHash('#demo=perf-60', false)).toBe('mozart-k191');
   });
 
   it('reads back the hash of each demo', () => {
@@ -56,8 +56,8 @@ describe('demoRowLabel (design 2.8)', () => {
 });
 
 describe('DEFAULT_DEMO', () => {
-  it('is the Boulanger demo, the first demo of the list (design 2.2, 8.2)', () => {
-    expect(DEFAULT_DEMO).toBe('boulanger-matin');
+  it('is the Mozart bassoon concerto, the first demo of the list (design 2.2, 8.2)', () => {
+    expect(DEFAULT_DEMO).toBe('mozart-k191');
     expect(DEMO_IDS[0]).toBe(DEFAULT_DEMO);
   });
 });
@@ -65,8 +65,11 @@ describe('DEFAULT_DEMO', () => {
 describe('isDemoId', () => {
   it('accepts only the fourteen hash ids of design 8.2', () => {
     expect(DEMO_IDS).toEqual([
-      'boulanger-matin',
+      'mozart-k191',
+      'mozart-k417',
+      'bach-bwv1050',
       'beethoven-9',
+      'boulanger-matin',
       'mozart-k525',
       'bach-bwv1048',
       'beethoven-8',
@@ -75,10 +78,7 @@ describe('isDemoId', () => {
       'brahms-2',
       'beethoven-8-4',
       'bach-bwv1047',
-      'bach-bwv1050',
       'mendelssohn-op61',
-      'mozart-k417',
-      'mozart-k191',
     ]);
     for (const id of DEMO_IDS) {
       expect(isDemoId(id)).toBe(true);
@@ -108,8 +108,11 @@ describe('DEMOS (design 8.2)', () => {
 
   it('writes each title in one pattern (audit 2026-10-05-ux-design, CP2)', () => {
     expect(DEMO_IDS.map((id) => DEMOS[id].title)).toEqual([
-      "D'un matin de printemps",
+      'Bassoon Concerto, K. 191: III',
+      'Horn Concerto No. 2, K. 417: III',
+      'Brandenburg Concerto No. 5, BWV 1050: III',
       'Symphony No. 9, Op. 125: Ode to Joy',
+      "D'un matin de printemps",
       'Eine kleine Nachtmusik, K. 525: I',
       'Brandenburg Concerto No. 3, BWV 1048: I',
       'Symphony No. 8, Op. 93: II',
@@ -118,10 +121,7 @@ describe('DEMOS (design 8.2)', () => {
       'Symphony No. 2, Op. 73: IV',
       'Symphony No. 8, Op. 93: IV',
       'Brandenburg Concerto No. 2, BWV 1047: I',
-      'Brandenburg Concerto No. 5, BWV 1050: III',
       "A Midsummer Night's Dream, Op. 61: V",
-      'Horn Concerto No. 2, K. 417: III',
-      'Bassoon Concerto, K. 191: III',
     ]);
     for (const id of DEMO_IDS) {
       expect(DEMOS[id].title).not.toMatch(/mvt|movement/u);

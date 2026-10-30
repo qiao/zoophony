@@ -22,20 +22,20 @@ and the SHA-256 of each file.
 
 | # | Hash id | Piece | Source | License | What it shows |
 |---|---|---|---|---|---|
-| 1 | `boulanger-matin` | Boulanger, D'un matin de printemps | OpenScore | CC0 | Percussion, harp, celesta, trombones, tuba |
-| 2 | `beethoven-9` | Beethoven, Symphony 9, finale, excerpt ("Ode to Joy") | OpenScore | CC0 | Choir on the risers, full orchestra, timpani, percussion |
-| 3 | `mozart-k525` | Mozart, Eine kleine Nachtmusik, mvt 1 | Mutopia 2230 | public domain | Four string parts with one player for each note |
-| 4 | `bach-bwv1048` | Bach, Brandenburg Concerto 3, mvt 1 | OpenScore | CC0 | Three violin seats, string orchestra, harpsichord |
-| 5 | `beethoven-8` | Beethoven, Symphony 8, mvt 2 | OpenScore | CC0 | Woodwinds and horns with the strings |
-| 6 | `mozart-k315` | Mozart, Andante K. 315 | Mutopia 344 | public domain | Solo flute |
-| 7 | `beethoven-1` | Beethoven, Symphony 1, mvt 4 | OpenScore | CC0 | Classical woodwinds, brass, and timpani |
-| 8 | `brahms-2` | Brahms, Symphony 2, mvt 4 | OpenScore | CC0 | Full romantic brass, woodwinds, and strings |
-| 9 | `beethoven-8-4` | Beethoven, Symphony 8, mvt 4 | OpenScore | CC0 | Full orchestra |
-| 10 | `bach-bwv1047` | Bach, Brandenburg Concerto 2, mvt 1 | Mutopia 1680 | public domain | Solo trumpet, flute, oboe, violin, harpsichord |
-| 11 | `bach-bwv1050` | Bach, Brandenburg Concerto 5, mvt 3 | Mutopia 548 | public domain | Solo flute, violin, harpsichord |
-| 12 | `mendelssohn-op61` | Mendelssohn, A Midsummer Night's Dream, Op. 61: V | Mutopia 80 | public domain | Woodwinds and strings |
-| 13 | `mozart-k417` | Mozart, Horn Concerto 2, mvt 3 | Mutopia 901 | public domain | Horns, oboes, and strings |
-| 14 | `mozart-k191` | Mozart, Bassoon Concerto, mvt 3 | Mutopia 686 | public domain | Solo bassoon, oboes, horns, strings |
+| 1 | `mozart-k191` | Mozart, Bassoon Concerto, mvt 3 | Mutopia 686 | public domain | Solo bassoon, oboes, horns, strings |
+| 2 | `mozart-k417` | Mozart, Horn Concerto 2, mvt 3 | Mutopia 901 | public domain | Horns, oboes, and strings |
+| 3 | `bach-bwv1050` | Bach, Brandenburg Concerto 5, mvt 3 | Mutopia 548 | public domain | Solo flute, violin, harpsichord |
+| 4 | `beethoven-9` | Beethoven, Symphony 9, finale, excerpt ("Ode to Joy") | OpenScore | CC0 | Choir on the risers, full orchestra, timpani, percussion |
+| 5 | `boulanger-matin` | Boulanger, D'un matin de printemps | OpenScore | CC0 | Percussion, harp, celesta, trombones, tuba |
+| 6 | `mozart-k525` | Mozart, Eine kleine Nachtmusik, mvt 1 | Mutopia 2230 | public domain | Four string parts with one player for each note |
+| 7 | `bach-bwv1048` | Bach, Brandenburg Concerto 3, mvt 1 | OpenScore | CC0 | Three violin seats, string orchestra, harpsichord |
+| 8 | `beethoven-8` | Beethoven, Symphony 8, mvt 2 | OpenScore | CC0 | Woodwinds and horns with the strings |
+| 9 | `mozart-k315` | Mozart, Andante K. 315 | Mutopia 344 | public domain | Solo flute |
+| 10 | `beethoven-1` | Beethoven, Symphony 1, mvt 4 | OpenScore | CC0 | Classical woodwinds, brass, and timpani |
+| 11 | `brahms-2` | Brahms, Symphony 2, mvt 4 | OpenScore | CC0 | Full romantic brass, woodwinds, and strings |
+| 12 | `beethoven-8-4` | Beethoven, Symphony 8, mvt 4 | OpenScore | CC0 | Full orchestra |
+| 13 | `bach-bwv1047` | Bach, Brandenburg Concerto 2, mvt 1 | Mutopia 1680 | public domain | Solo trumpet, flute, oboe, violin, harpsichord |
+| 14 | `mendelssohn-op61` | Mendelssohn, A Midsummer Night's Dream, Op. 61: V | Mutopia 80 | public domain | Woodwinds and strings |
 
 - `DEMOS` of `app/demos.ts` holds the title, the composer, and the credit line of each demo, in
   the order of `DEMO_IDS`. Demo 1 is the default demo (`DEFAULT_DEMO`, 2.2), and it is part of

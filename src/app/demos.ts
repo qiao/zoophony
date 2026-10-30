@@ -5,8 +5,11 @@ import { spokenTime } from './time-text.ts';
  * default demo.
  */
 export const DEMO_IDS = [
-  'boulanger-matin',
+  'mozart-k191',
+  'mozart-k417',
+  'bach-bwv1050',
   'beethoven-9',
+  'boulanger-matin',
   'mozart-k525',
   'bach-bwv1048',
   'beethoven-8',
@@ -15,10 +18,7 @@ export const DEMO_IDS = [
   'brahms-2',
   'beethoven-8-4',
   'bach-bwv1047',
-  'bach-bwv1050',
   'mendelssohn-op61',
-  'mozart-k417',
-  'mozart-k191',
 ] as const;
 
 /** The hash id of one demo (design 8.2). */
@@ -46,11 +46,23 @@ interface DemoInfo {
 
 /** The texts and the length of each demo (design 8.2). */
 export const DEMOS = {
-  'boulanger-matin': {
-    title: "D'un matin de printemps",
-    composer: 'Lili Boulanger',
-    credit: 'Score: OpenScore Orchestra, CC0. MIDI file made with MuseScore 4.',
-    lengthSec: 280,
+  'mozart-k191': {
+    title: 'Bassoon Concerto, K. 191: III',
+    composer: 'Wolfgang Amadeus Mozart',
+    credit: 'Score: Mutopia Project, piece 686, public domain. Typeset by Maurizio Tomasi.',
+    lengthSec: 224,
+  },
+  'mozart-k417': {
+    title: 'Horn Concerto No. 2, K. 417: III',
+    composer: 'Wolfgang Amadeus Mozart',
+    credit: 'Score: Mutopia Project, piece 901, public domain. Typeset by Maurizio Tomasi.',
+    lengthSec: 203,
+  },
+  'bach-bwv1050': {
+    title: 'Brandenburg Concerto No. 5, BWV 1050: III',
+    composer: 'Johann Sebastian Bach',
+    credit: 'Score: Mutopia Project, piece 548, public domain. Typeset by Eric van der Velden.',
+    lengthSec: 310,
   },
   'beethoven-9': {
     title: 'Symphony No. 9, Op. 125: Ode to Joy',
@@ -58,6 +70,12 @@ export const DEMOS = {
     credit:
       'Score: OpenScore Orchestra, CC0. Bars 543 to 590 and 851 to 940 of the finale. MIDI file made with MuseScore 4.',
     lengthSec: 158,
+  },
+  'boulanger-matin': {
+    title: "D'un matin de printemps",
+    composer: 'Lili Boulanger',
+    credit: 'Score: OpenScore Orchestra, CC0. MIDI file made with MuseScore 4.',
+    lengthSec: 280,
   },
   'mozart-k525': {
     title: 'Eine kleine Nachtmusik, K. 525: I',
@@ -107,29 +125,11 @@ export const DEMOS = {
     credit: 'Score: Mutopia Project, piece 1680, public domain. Typeset by Allen Garvin.',
     lengthSec: 277,
   },
-  'bach-bwv1050': {
-    title: 'Brandenburg Concerto No. 5, BWV 1050: III',
-    composer: 'Johann Sebastian Bach',
-    credit: 'Score: Mutopia Project, piece 548, public domain. Typeset by Eric van der Velden.',
-    lengthSec: 310,
-  },
   'mendelssohn-op61': {
     title: "A Midsummer Night's Dream, Op. 61: V",
     composer: 'Felix Mendelssohn',
     credit: 'Score: Mutopia Project, piece 80, public domain. Typeset by Aaron Gage.',
     lengthSec: 148,
-  },
-  'mozart-k417': {
-    title: 'Horn Concerto No. 2, K. 417: III',
-    composer: 'Wolfgang Amadeus Mozart',
-    credit: 'Score: Mutopia Project, piece 901, public domain. Typeset by Maurizio Tomasi.',
-    lengthSec: 203,
-  },
-  'mozart-k191': {
-    title: 'Bassoon Concerto, K. 191: III',
-    composer: 'Wolfgang Amadeus Mozart',
-    credit: 'Score: Mutopia Project, piece 686, public domain. Typeset by Maurizio Tomasi.',
-    lengthSec: 224,
   },
 } as const satisfies Readonly<Record<DemoId, DemoInfo>>;
 
