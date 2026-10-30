@@ -61,6 +61,7 @@
     "frame-compare": "node tools/frame-compare.ts"
   },
   "dependencies": {
+    "@vercel/analytics": "2.0.1",
     "spessasynth_core": "4.3.22",
     "three": "0.186.1"
   },

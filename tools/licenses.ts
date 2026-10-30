@@ -7,7 +7,12 @@ import { HALL_CREDIT, KONZERTHAUS_CREDIT } from '../src/audio/hall-credit.ts';
 import type { AssetCredit } from '../src/audio/hall-credit.ts';
 
 /** npm packages that the site bundles, and whose license texts it ships (design 7.3). */
-const BUNDLED_PACKAGES: readonly string[] = ['three', 'spessasynth_core', 'stb-vorbis'];
+const BUNDLED_PACKAGES: readonly string[] = [
+  'three',
+  'spessasynth_core',
+  'stb-vorbis',
+  '@vercel/analytics',
+];
 
 /** Link to the legal code of CC0 1.0, which has no condition, so the file holds no copy of it. */
 const CC0_LINK = 'CC0 1.0 Universal: https://creativecommons.org/publicdomain/zero/1.0/legalcode';

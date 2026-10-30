@@ -192,11 +192,11 @@ presets and the demos, and the app adds no fallback for it.
 ## 7.3 Third-party licenses
 
 The build writes `third-party-licenses.txt`, and the credits dialog links to it (8.1). The file
-holds Three.js (MIT), spessasynth_core (Apache-2.0), stb-vorbis (Apache-2.0), and the three
-sources of the SoundFont (6.2): GeneralUser GS (GeneralUser GS License v2.0), VSCO 2 CE (CC0 1.0),
-and VCSL (CC0 1.0). It also holds the two hall impulse responses (CC BY 4.0, 6.8), the GitHub
-mark (MIT, Primer Octicons, 2.8), and the font Fraunces of the wordmark (SIL Open Font License
-1.1, 2.8).
+holds Three.js (MIT), spessasynth_core (Apache-2.0), stb-vorbis (Apache-2.0), the package
+`@vercel/analytics` of the deploy build (MIT, 2.7), and the three sources of the SoundFont (6.2):
+GeneralUser GS (GeneralUser GS License v2.0), VSCO 2 CE (CC0 1.0), and VCSL (CC0 1.0). It also
+holds the two hall impulse responses (CC BY 4.0, 6.8), the GitHub mark (MIT, Primer Octicons,
+2.8), and the font Fraunces of the wordmark (SIL Open Font License 1.1, 2.8).
 
 `tools/licenses.ts` writes the file after the Vite build, and the plugin `DEV_LICENSES` of
 `vite.config.ts` serves the same text on the dev server. The script fails when a package in
