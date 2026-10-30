@@ -199,18 +199,18 @@ the constants of `app/page-title.ts`, so that the page and the app cannot differ
   (`SHARE_IMAGE`), 1200 × 630, which `pnpm share-image` writes. No element of the page loads it,
   so the first download (7.2) does not hold it. `theme-color` is the dark edge of the page
   background.
-- **Share image**: the target is `docs/reference/share-card.webp`. A card shows small in a feed,
-  so the image tells what the app is and shows the animals. It is a frame of the default demo
-  during play from `SHARE_CAMERA` of `tools/share-image.ts`: above and behind the conductor, so that
-  the whole orchestra shows with depth. The conductor stands in the middle of the lower half, each
+- **Share image**: the target is `docs/reference/share-card.webp`. A card shows small in a feed, so
+  the image tells what the app is and shows the animals. It is a frame of the default demo during
+  play from `SHARE_CAMERA` of `tools/share-image.ts`: above and behind the conductor, so that the
+  whole orchestra shows with depth. The conductor stands in the middle of the lower half, each
   player is in the frame, and the head of each back row shows above the row in front of it. The
   front edge of the stage crosses the bottom with its two corner cuts. The top third stays dark for
-  the title: the paw and the wordmark in gold, the headline in Fraunces, and the subtitle in the
-  sans-serif face of the UI (`SHARE_TEXT`). The layer of `tools/share-card.ts` adds a cone of warm
-  light with soft edges behind the title, a vignette, a warm grade, and a soft glow. It blurs the
-  hall wall behind the title, so that the wall is dark and smooth and no lamp shows there. Chromium
-  draws the layer from HTML and CSS, so the tool needs no image library. The font file of the
-  headline (`assets/fraunces/fraunces.ttf`) stays out of the build, so the license file (7.3) does
+  the title: the paw and the wordmark in gold, and under them the line "A web-based MIDI player with
+  an animal orchestra." in Fraunces (`SHARE_LINE`). The layer of `tools/share-card.ts` adds a cone
+  of warm light with soft edges behind the title, a vignette, a warm grade, and a soft glow. It
+  blurs the hall wall behind the title, so that the wall is dark and smooth and no lamp shows there.
+  Chromium draws the layer from HTML and CSS, so the tool needs no image library. The font file of
+  the line (`assets/fraunces/fraunces.ttf`) stays out of the build, so the license file (7.3) does
   not change.
 - **Structured data**: a JSON-LD `WebApplication` with the name, the URL, the description, the
   image, the category, the need for WebGL2 (2.6), and a free offer. It holds no personal data.

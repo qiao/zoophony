@@ -15,9 +15,9 @@
 //             widens down behind the text and fades out over the back rows, added with `screen`
 //   core      a small bright glow at the top of the beam, added with `screen`
 //   vignette  a dark edge that is darkest in the corners, and a dark band at the bottom
-//   title     the paw and the wordmark in gold, the headline in Fraunces, and the subtitle
+//   title     the paw and the wordmark in gold, and one line in Fraunces
 //
-// The headline uses `assets/fraunces/fraunces.ttf` through `@font-face`. The logo uses the paw and
+// The line uses `assets/fraunces/fraunces.ttf` through `@font-face`. The logo uses the paw and
 // the wordmark path of `src/ui/icons.ts`, so it is the logo of the app.
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
@@ -27,13 +27,8 @@ import type { Browser } from '@playwright/test';
 import { APP_NAME } from '../src/app/page-title.ts';
 import { PAW_MARKUP, WORDMARK_PATH, WORDMARK_VIEW_BOX } from '../src/ui/icons.ts';
 
-/** The texts of the share card under the logo. */
-export const SHARE_TEXT = {
-  /** The headline, in Fraunces. */
-  headline: 'Play MIDI. Hear the Animals.',
-  /** The line under the headline, in the sans-serif face of the UI. */
-  subtitle: 'A web-based MIDI player with a charming animal orchestra.',
-} as const;
+/** The one line of the share card under the logo, in Fraunces. */
+export const SHARE_LINE = 'A web-based MIDI player with an animal orchestra.';
 
 /** The size of a card. */
 export interface CardSize {
@@ -102,19 +97,17 @@ const CARD_STYLE = `
   .logo svg { fill: currentColor; }
   .paw { width: 6.98vh; height: 6.98vh; }
   .wordmark { height: 6.9vh; margin-top: 0.56vh; }
-  h1, p { left: 0; right: 0; margin: 0; text-align: center; white-space: nowrap; }
   h1 {
-    top: 18.2vh;
+    left: 0;
+    right: 0;
+    margin: 0;
+    top: 18.35vh;
     font: 500 5.71vh / 1 'Fraunces';
     font-variation-settings: 'opsz' 48, 'SOFT' 50, 'WONK' 0;
     color: rgb(233, 225, 212);
+    text-align: center;
+    white-space: nowrap;
     text-shadow: 0 0 16px rgba(255, 214, 160, 0.3), 0 1px 3px rgba(0, 0, 0, 0.6);
-  }
-  p {
-    top: 26.19vh;
-    font: 500 2.14vh / 1 system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-    color: rgb(190, 178, 165);
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.7);
   }
 `;
 
@@ -151,8 +144,7 @@ function cardHtml(frame: string, font: string): string {
       <path d="${WORDMARK_PATH}"/>
     </svg>
   </div>
-  <h1>${SHARE_TEXT.headline}</h1>
-  <p>${SHARE_TEXT.subtitle}</p>
+  <h1>${SHARE_LINE}</h1>
 </div>
 </body>
 </html>`;
