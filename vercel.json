@@ -1,23 +1,56 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "headers": [
+  "routes": [
     {
-      "source": "/assets/(.*)",
-      "headers": [{ "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }]
+      "src": "/assets/(.*)",
+      "headers": { "Cache-Control": "public, max-age=31536000, immutable" },
+      "continue": true
     },
     {
-      "source": "/sf/(\\d+)/(.+)\\.([0-9a-f]{10})\\.sf3",
-      "headers": [{ "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }]
+      "src": "/sf/(\\d+)/(.+)\\.([0-9a-f]{10})\\.sf3",
+      "headers": { "Cache-Control": "public, max-age=31536000, immutable" },
+      "continue": true
     },
     {
-      "source": "/demos/(.*)",
-      "headers": [
-        { "key": "Cache-Control", "value": "public, max-age=3600, stale-while-revalidate=86400" }
-      ]
+      "src": "/demos/(.*)",
+      "headers": { "Cache-Control": "public, max-age=3600, stale-while-revalidate=86400" },
+      "continue": true
     },
     {
-      "source": "/favicon.svg",
-      "headers": [{ "key": "Cache-Control", "value": "public, max-age=86400" }]
+      "src": "/favicon\\.svg",
+      "headers": { "Cache-Control": "public, max-age=86400" },
+      "continue": true
+    },
+    {
+      "src": "/(.*)\\.md",
+      "headers": { "Content-Type": "text/markdown; charset=utf-8" },
+      "continue": true
+    },
+    {
+      "src": "/(about|contact|privacy)?",
+      "headers": { "Vary": "Accept" },
+      "continue": true
+    },
+    {
+      "src": "/",
+      "has": [{ "type": "header", "key": "accept", "value": ".*text/markdown.*" }],
+      "headers": { "Content-Type": "text/markdown; charset=utf-8" },
+      "dest": "/index.md"
+    },
+    {
+      "src": "/(about|contact|privacy)",
+      "has": [{ "type": "header", "key": "accept", "value": ".*text/markdown.*" }],
+      "headers": { "Content-Type": "text/markdown; charset=utf-8" },
+      "dest": "/$1.md"
+    },
+    { "src": "/(about|contact|privacy)", "dest": "/$1.html" },
+    { "handle": "filesystem" },
+    {
+      "src": "/.*",
+      "has": [{ "type": "header", "key": "accept", "value": ".*text/markdown.*" }],
+      "status": 404,
+      "headers": { "Content-Type": "text/markdown; charset=utf-8", "Vary": "Accept" },
+      "dest": "/404.md"
     }
   ]
 }

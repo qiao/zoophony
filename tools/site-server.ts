@@ -4,7 +4,8 @@
 //
 // - GitHub Pages (`pages`): gzip for the text types, ETag, and `Cache-Control: max-age=600`.
 // - Vercel (`vercel`): brotli or gzip for the text types, ETag, the default
-//   `Cache-Control: public, max-age=0, must-revalidate`, and the header rules of `vercel.json`.
+//   `Cache-Control: public, max-age=0, must-revalidate`, and the headers of the routes of
+//   `vercel.json` for a browser request.
 //
 // The network of the server can delay each request and share one link rate among all bodies, so
 // that the fetches of the Workers also get it (`--phone` of `pnpm load-probe`).
@@ -77,13 +78,20 @@ const VERCEL_CACHE = 'public, max-age=0, must-revalidate';
 
 /** The part of `vercel.json` that the server reads. */
 interface VercelConfig {
-  /** The header rules: each path that matches a source gets the headers of the rule. */
-  readonly headers?: readonly {
-    /** The path pattern, in the syntax of path-to-regexp. */
-    readonly source: string;
-    /** The headers of the rule. */
-    readonly headers: readonly { readonly key: string; readonly value: string }[];
-  }[];
+  /** The routes, in order. */
+  readonly routes: readonly VercelRoute[];
+}
+
+/** A route of `vercel.json`, with the fields that the server reads. */
+interface VercelRoute {
+  /** The path pattern: a regular expression of the whole path. */
+  readonly src?: string;
+  /** The response headers of the route, by name. */
+  readonly headers?: Readonly<Record<string, string>>;
+  /** The conditions on the request, such as an `Accept` header that names `text/markdown`. */
+  readonly has?: readonly { readonly type: string; readonly key: string }[];
+  /** The start of a new phase of the routes, such as `filesystem`. */
+  readonly handle?: string;
 }
 
 /** A header rule of `vercel.json`, with its source as a regular expression. */
@@ -95,52 +103,29 @@ interface HeaderRule {
 }
 
 /**
- * Converts a source of a header rule of `vercel.json` into a regular expression. The server knows
- * the parts that `vercel.json` uses: plain text, an escaped character, and a group of a regular
- * expression in parentheses.
- *
- * @param source The source, such as `/assets/(.*)`.
- * @returns The expression of the whole path.
- * @throws Error for a part that the server does not know, such as `:name` or `*`.
- */
-function sourcePattern(source: string): RegExp {
-  let pattern = '';
-  let depth = 0;
-  for (let i = 0; i < source.length; i++) {
-    const char = source.charAt(i);
-    if (char === '\\') {
-      pattern += source.slice(i, i + 2);
-      i++;
-      continue;
-    }
-
-    if (char === '(') {
-      depth++;
-    } else if (char === ')') {
-      depth--;
-    } else if (depth === 0 && /[:*?+{}]/u.test(char)) {
-      throw new Error(`The site server does not know the part "${char}" of the source ${source}.`);
-    } else if (depth === 0) {
-      pattern += char.replaceAll(/[.^$|[\]]/gu, '\\$&');
-      continue;
-    }
-    pattern += char;
-  }
-  return new RegExp(`^${pattern}$`, 'u');
-}
-
-/**
- * Reads the header rules of `vercel.json` of the repository.
+ * Reads the header rules of `vercel.json` of the repository: the headers of each route before the
+ * first `handle`. A route with conditions does not apply, because a browser request of the load
+ * measures meets none of them (design 7.4).
  *
  * @returns The rules, in the order of the file.
  */
 function vercelRules(): HeaderRule[] {
   // SAFETY: vercel.json of the repository follows the schema of Vercel.
   const config = JSON.parse(readFileSync(join(ROOT, 'vercel.json'), 'utf8')) as VercelConfig;
-  return (config.headers ?? []).map((rule) => ({
-    pattern: sourcePattern(rule.source),
-    headers: rule.headers.map(({ key, value }) => [key.toLowerCase(), value] as const),
-  }));
+  const end = config.routes.findIndex((route) => route.handle !== undefined);
+  const routes = end === -1 ? config.routes : config.routes.slice(0, end);
+  return routes.flatMap(({ src, headers, has }) =>
+    src && headers && !has
+      ? [
+          {
+            pattern: new RegExp(`^${src}$`, 'u'),
+            headers: Object.entries(headers).map(
+              ([key, value]) => [key.toLowerCase(), value] as const,
+            ),
+          },
+        ]
+      : [],
+  );
 }
 
 /** A body that the shaper sends: the bytes that are left, and the functions of the response. */

@@ -33,8 +33,9 @@ GitHub Actions runs these checks:
   default of `MERGE_E2E` in `tools/merge-branch.sh` to 1, and remove each `if: false`. Then run
   `pnpm test`, `pnpm test:perf`, and `pnpm test:e2e` before the next merge.
 
-`pnpm deploy:vercel` builds the site at the base path `/` and deploys it to Vercel, with the cache
-headers of `vercel.json`. CI does not deploy. `ZOOPHONY_BASE` sets a different base path, and each
+`pnpm deploy:vercel` builds the site at the base path `/` and deploys it to Vercel, with the routes
+of `vercel.json`: the cache headers and the Markdown copies of 7.4. The routes use the form
+`routes`, because only a route after `handle: filesystem` can send `404.md` with the status 404. CI does not deploy. `ZOOPHONY_BASE` sets a different base path, and each
 URL of the app starts from `import.meta.env.BASE_URL` or `import.meta.url`. The files of `assets/` and the preset files have a content hash in their
 names, so they stay in the cache for one year with no new check. `index.html` and
 `sf/index.json` hold the new names, so the browser checks them on each load. The demo files keep
