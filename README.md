@@ -1,6 +1,6 @@
 # Zoophony
 
-Zoophony is a WebGL MIDI player. Low-poly animals play orchestral music on a small stage.
+Zoophony is a WebGL MIDI player. An orchestra of 3D animals plays the music on a small stage.
 
 Live site: <https://www.zoophony.com/>
 
@@ -8,7 +8,7 @@ Live site: <https://www.zoophony.com/>
 
 ## Features
 
-- **3D animal orchestra.** Low-poly animals play the strings, the woodwinds, the brass, the
+- **3D animal orchestra.** The animals play the strings, the woodwinds, the brass, the
   percussion, the piano, and the harp, and a choir of animals sings. The poses follow each note:
   the fingers, the bow strokes, the breaths, the mallet strokes, and the keys.
 - **Your own MIDI files.** Drop a `.mid` file onto the window, or select one of the built-in
