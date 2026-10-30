@@ -196,9 +196,19 @@ the constants of `app/page-title.ts`, so that the page and the app cannot differ
   same build also deploys to GitHub Pages (9.2), so the copy there points to the main URL.
 - **Share card**: Open Graph (`og:site_name`, `og:title`, `og:description`, `og:image` with its
   size and alt text) and `twitter:card` `summary_large_image`. The image is `public/share.jpg`
-  (`SHARE_IMAGE`), a frame of the default demo during play with the logo, 1200 × 630, which
-  `pnpm share-image` writes. No element of the page loads it, so the first download (7.2) does not
-  hold it. `theme-color` is the dark edge of the page background.
+  (`SHARE_IMAGE`), 1200 × 630, which `pnpm share-image` writes. No element of the page loads it,
+  so the first download (7.2) does not hold it. `theme-color` is the dark edge of the page
+  background.
+- **Share image**: the target is `docs/reference/share-card.webp`. A card shows small in a feed,
+  so the image tells what the app is and shows the animals. It is a frame of the default demo
+  during play from `SHARE_CAMERA` of `tools/share-image.ts`: low and behind the conductor, so that
+  the conductor stands in the middle and the players fill the width. The top third stays dark for
+  the title: the paw and the wordmark in gold, the headline in Fraunces, and the subtitle in the
+  sans-serif face of the UI (`SHARE_TEXT`). The layer of `tools/share-card.ts` adds a warm beam
+  behind the title, a vignette, a warm grade, and a soft glow. Chromium draws the layer from HTML
+  and CSS, so the tool needs no image library. The font file of the headline
+  (`assets/fraunces/fraunces.ttf`) stays out of the build, so the license file (7.3) does not
+  change.
 - **Structured data**: a JSON-LD `WebApplication` with the name, the URL, the description, the
   image, the category, the need for WebGL2 (2.6), and a free offer. It holds no personal data.
 - **Crawlers**: `public/robots.txt` lets each crawler read each path, and names
