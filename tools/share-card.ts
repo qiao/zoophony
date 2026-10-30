@@ -9,8 +9,9 @@
 //   glow      a copy of the frame: only its highlights (contrast), blurred, added with `screen`
 //   pool      a warm light on the floor in the middle of the stage, added with `screen`
 //   shade     a dark band at the top, so that the hall wall and its lamps go dark behind the text
-//   beam      a warm cone of light from the top middle, behind the text, added with `screen`
-//   vignette  a dark edge that is darkest in the corners
+//   beam      a warm glow from the top middle, behind the text, added with `screen`
+//   cone      a soft cone of warm light from the same place, which fades out above the players
+//   vignette  a dark edge that is darkest in the corners, and a dark band at the bottom
 //   title     the paw and the wordmark in gold, the headline in Fraunces, and the subtitle
 //
 // The headline uses `assets/fraunces/fraunces.ttf` through `@font-face`. The logo uses the paw and
