@@ -25,7 +25,7 @@ import type { Speed } from './bar-rules.ts';
 import { DEMOS, PERF_60, demoHash, demoUrl, isDemoId } from './demos.ts';
 import type { StageFile } from './demos.ts';
 import { FILE_ERROR_TEXTS, fileTitle, readScoreFile } from './file-rules.ts';
-import { keyAction, keySeekPoint } from './keys.ts';
+import { keyAction, keySeekPoint, keyVolume } from './keys.ts';
 import { METER_BARS, meterLevels, meterTrack, seatLevels, seatSpans } from './meter.ts';
 import type { MeterTrack, SeatSpans } from './meter.ts';
 import { failureMessage, followMessage, textMessage } from './messages.ts';
@@ -314,9 +314,7 @@ export class App {
           this.#audio?.player.setRate(speed);
         },
         onVolume: (volume) => {
-          this.#volume = volume;
-          this.#muted = false;
-          this.#applyVolume();
+          this.#setVolume(volume);
         },
         onMute: () => {
           this.#toggleMute();
@@ -393,12 +391,12 @@ export class App {
   }
 
   /**
-   * Does the action of a key of the page (design 2.4). Space plays and pauses, the arrows seek
-   * 5 s, Home goes to the start, C toggles the automatic camera, M the mute button, and F the
-   * full screen. Escape closes the drawer,
-   * and the drawer button gets the focus that the drawer held. A key action shows the bar, as a
-   * pointer motion does. While the credits dialog is open, no key of the page acts, and Escape
-   * closes only the dialog (design 2.8).
+   * Does the action of a key of the page (design 2.4). Space plays and pauses, the left and the
+   * right arrows seek 5 s, Home goes to the start, the up and the down arrows change the volume, C
+   * toggles the automatic camera, M the mute button, and F the full screen. Escape closes the
+   * drawer, and the drawer button gets the focus that the drawer held. A key action shows the bar,
+   * as a pointer motion does. While the credits dialog is open, no key of the page acts, and
+   * Escape closes only the dialog (design 2.8).
    *
    * @param event The key event.
    */
@@ -426,6 +424,8 @@ export class App {
       this.#changeCamera('toggle');
     } else if (action === 'mute') {
       this.#toggleMute();
+    } else if (action === 'volume-up' || action === 'volume-down') {
+      this.#setVolume(keyVolume(action, this.#volume));
     } else if (action === 'full-screen') {
       // The bar has no full screen button when the browser has no full screen for the page.
       if (document.fullscreenEnabled) {
@@ -1061,6 +1061,7 @@ export class App {
       lengthSec: piece ? wholeSeconds(piece.score.durationSec) : 0,
       seekable: status.samples === 'ready',
       muted: this.#muted || this.#volume === 0,
+      volume: this.#volume,
       automaticCamera: this.#cameraMode === 'cinematic',
       fullScreen: document.fullscreenElement !== null,
       drawerOpen: ui.drawer.open,
@@ -1196,6 +1197,18 @@ export class App {
     audio.player.seek(point);
     this.#seekSec = point;
     this.#state = seekPlayState(this.#state, point);
+  }
+
+  /**
+   * Moves the volume slider (design 2.8): the slider and the up and the down arrow keys. A move of
+   * the volume turns the mute button off.
+   *
+   * @param volume The new position of the volume slider, from 0 to 100.
+   */
+  #setVolume(volume: number): void {
+    this.#volume = volume;
+    this.#muted = false;
+    this.#applyVolume();
   }
 
   /** Turns the mute button on or off (design 2.8): the mute button and the key M. */

@@ -60,11 +60,12 @@ The UI has the style of a video player. The theme is dark only, because the scen
 
 - Play waits until all samples of the file are loaded and decoded. The speed goes from 0.5× to
   1.5×.
-- Space plays and pauses. The arrows seek 5 s, and Home goes to the start. C toggles the automatic
-  camera, M the mute, and F the full screen. Escape closes the drawer, a message, or the dialog.
-  The keys do nothing in a text field, with Ctrl, Alt, or Meta, while the dialog is open, and when
-  the focused control uses the key (`keyAction()` in `app/keys.ts`). C also acts on a focused
-  button or slider, because no control uses it.
+- Space plays and pauses. The left and the right arrows seek 5 s, and Home goes to the start. The
+  up and the down arrows move the volume slider by 5 of 100, and turn the mute off, as the slider
+  does. C toggles the automatic camera, M the mute, and F the full screen. Escape closes the
+  drawer, a message, or the dialog. The keys do nothing in a text field, with Ctrl, Alt, or Meta,
+  while the dialog is open, and when the focused control uses the key (`keyAction()` in
+  `app/keys.ts`). C also acts on a focused button or slider, because no control uses it.
 - A solo moves the spotlight to the soloed players. The solo flags alone give the light, so a
   seek, a pause, and a mute keep it (4.5, 6.6).
 - A click on play starts a count-in of the conductor before the music (5.4, 6.5).

@@ -1,6 +1,9 @@
 /** The seek of the left and the right arrow keys, in seconds (design 2.4). */
 const KEY_SEEK_SEC = 5;
 
+/** The volume step of the up and the down arrow keys, on the slider scale from 0 to 100 (2.4). */
+const KEY_VOLUME_STEP = 5;
+
 /**
  * The action of a key of the page (design 2.4). `camera` toggles the automatic camera (2.5),
  * `mute` the mute button, and `full-screen` the full screen.
@@ -10,12 +13,17 @@ type KeyAction =
   | 'seek-back'
   | 'seek-forward'
   | 'seek-start'
+  | 'volume-up'
+  | 'volume-down'
   | 'camera'
   | 'mute'
   | 'full-screen';
 
 /** A key action that seeks. */
 type SeekAction = Extract<KeyAction, 'seek-back' | 'seek-forward' | 'seek-start'>;
+
+/** A key action that changes the volume. */
+type VolumeAction = Extract<KeyAction, 'volume-up' | 'volume-down'>;
 
 /**
  * The letter keys that toggle a control of the bar, in lower case (design 2.4): C the automatic
@@ -46,10 +54,11 @@ export interface KeyPress {
 
 /**
  * Gives the action of a key of the page (design 2.4): Space plays and pauses, the left and the
- * right arrows seek 5 s, Home goes to the start, C toggles the automatic camera, M the mute
- * button, and F the full screen. The keys do nothing while the focus is in a text field, while a
- * modal dialog is open, with Ctrl, Alt, or Meta, and when the control with the focus uses the key
- * itself. Space and the letters do not repeat, so that a held key does not toggle many times.
+ * right arrows seek 5 s, Home goes to the start, the up and the down arrows change the volume, C
+ * toggles the automatic camera, M the mute button, and F the full screen. The keys do nothing
+ * while the focus is in a text field, while a modal dialog is open, with Ctrl, Alt, or Meta, and
+ * when the control with the focus uses the key itself. Space and the letters do not repeat, so
+ * that a held key does not toggle many times.
  *
  * @param press The key press.
  * @param focus The kind of the element with the focus.
@@ -68,6 +77,10 @@ export function keyAction(press: KeyPress, focus: FocusKind): KeyAction | null {
       return focus === 'range' || focus === 'menu' ? null : 'seek-forward';
     case 'Home':
       return focus === 'range' || focus === 'menu' ? null : 'seek-start';
+    case 'ArrowUp':
+      return focus === 'range' || focus === 'menu' ? null : 'volume-up';
+    case 'ArrowDown':
+      return focus === 'range' || focus === 'menu' ? null : 'volume-down';
     default:
       return press.repeat ? null : (LETTER_ACTIONS.get(press.key.toLowerCase()) ?? null);
   }
@@ -89,4 +102,16 @@ export function keySeekPoint(action: SeekAction, songSec: number): number {
     case 'seek-start':
       return 0;
   }
+}
+
+/**
+ * Gives the volume after a volume key.
+ *
+ * @param action The volume action.
+ * @param volume The position of the volume slider, from 0 to 100.
+ * @returns The new position of the volume slider, from 0 to 100.
+ */
+export function keyVolume(action: VolumeAction, volume: number): number {
+  const step = action === 'volume-up' ? KEY_VOLUME_STEP : -KEY_VOLUME_STEP;
+  return Math.min(100, Math.max(0, volume + step));
 }

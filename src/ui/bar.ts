@@ -45,6 +45,8 @@ interface BarView {
   /** False while the seek bar cannot seek: before the samples are ready. */
   readonly seekable: boolean;
   readonly muted: boolean;
+  /** The position of the volume slider, from 0 to 100. A volume key also moves it (design 2.4). */
+  readonly volume: number;
   /** True in Cinematic mode: the "Automatic camera" toggle is on (design 2.5). */
   readonly automaticCamera: boolean;
   readonly fullScreen: boolean;
@@ -416,6 +418,10 @@ export class Bar {
     this.element.classList.toggle('is-empty', !view.pieceShown);
 
     setAttribute(this.#mute, 'aria-pressed', String(view.muted));
+    if (this.#volume.value !== String(view.volume)) {
+      this.#volume.value = String(view.volume);
+      showFill(this.#volume);
+    }
     if (this.#muteIcon.dataset['shown'] !== String(view.muted)) {
       this.#muteIcon.dataset['shown'] = String(view.muted);
       setIcon(this.#muteIcon, view.muted ? 'volume-off' : 'volume');
