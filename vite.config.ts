@@ -11,7 +11,7 @@ import {
 } from './src/app/page-title.ts';
 import { gzipSiteAudio } from './tools/gzip-site.ts';
 import { licenseDocument, licenseEntries } from './tools/licenses.ts';
-import { sitePages } from './tools/site-pages.ts';
+import { escapeHtml, sitePages } from './tools/site-pages.ts';
 import { configDefaults, defineConfig } from 'vitest/config';
 
 /** The speed tests: each one compares the time of a work with a reference work (design 9.3). */
@@ -84,21 +84,6 @@ const DEV_LOOK_OVERRIDE: Plugin = {
     return id.endsWith('/src/app/look-override.ts') ? 'export function soloFromQuery() {}' : null;
   },
 };
-
-/**
- * Escapes a text for the text or an attribute of an HTML element.
- *
- * @param text The text.
- * @returns The HTML text.
- */
-function escapeHtml(text: string): string {
-  return text
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;')
-    .replaceAll("'", '&#39;');
-}
 
 /**
  * Gives the structured data of the start page (design 7.4): a schema.org `WebApplication` with the
