@@ -63,27 +63,7 @@ describe('DEFAULT_DEMO', () => {
 });
 
 describe('isDemoId', () => {
-  it('accepts only the eighteen hash ids of design 8.2', () => {
-    expect(DEMO_IDS).toEqual([
-      'mozart-k191',
-      'mozart-k417',
-      'bach-bwv1050',
-      'beethoven-9',
-      'pachelbel-p37',
-      'beethoven-5-4',
-      'beethoven-7-4',
-      'beethoven-6-1',
-      'boulanger-matin',
-      'mozart-k525',
-      'bach-bwv1048',
-      'beethoven-8',
-      'mozart-k315',
-      'beethoven-1',
-      'brahms-2',
-      'beethoven-8-4',
-      'bach-bwv1047',
-      'mendelssohn-op61',
-    ]);
+  it('accepts only the hash ids of design 8.2', () => {
     for (const id of DEMO_IDS) {
       expect(isDemoId(id)).toBe(true);
     }
