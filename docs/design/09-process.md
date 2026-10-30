@@ -124,6 +124,10 @@ The development Mac is an Apple M1 Max with Chrome.
 - A timed test fails when the ratio of its work to the reference work is more than 2 times its
   ratio on the development Mac. Thus a loaded machine passes, and a work 3 times slower fails.
 - The frame target also holds in Cinematic mode (2.5).
+- The GPU time depends on the view: a view of the stage top and the players costs more than a
+  view of the dark hall. The shot plan follows the layout, so a change of a model, such as the
+  size of the piano, can move the shot of the Metal trace. Before a GPU change counts as a
+  regression, compare the frames of the trace time on both commits.
 - The GPU time of a frame comes from a Metal System Trace with no frame cap, because at 60 fps the
   GPU lowers its clock and a timer query measures the clock more than the work. Guards check a
   quiet CPU and the highest GPU state.
