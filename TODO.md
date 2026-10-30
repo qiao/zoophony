@@ -528,8 +528,6 @@ navigation menu at the top of the mockup is out of scope.
       the file and the line of each finding. Then fix the findings that the user approves.
 - [ ] Bring the high tier within the frame target of 9.7 (4 ms p95 on the GPU and the main thread).
       Only the device scale 1.5 passes alone. The choice of the path waits for the user.
-- [ ] Skin the players one time in each frame. Each pass skins them again in its vertex shader, and
-      each shadow map and depth pass costs 0.2 ms to 0.5 ms. The pixels stay the same.
 - [ ] Cut `poseStudioBones()`: about 0.5 ms of each frame for the 55 bodies of `perf-60.mid`.
 - [ ] Compile the shaders before the first frame with no block (`compileAsync()`): `setProgram()`
       takes about 335 ms in the first frame of the default demo. The first frame stays the same.

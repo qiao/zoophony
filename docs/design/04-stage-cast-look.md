@@ -341,7 +341,11 @@ All meshes share the values of one `MeshStandardMaterial` with vertex colors and
 (`models/shading.ts`), so each player has one material and one draw call. Each program variant
 of the players (skin, morph count) gets its own copy of the material and a depth material
 (`scene/variants.ts`). A pass draws a player only when its camera sees the sphere of the pose
-(`scene/bounds.ts`). Each triangle has a finish (`FINISHES` of `models/mesh.ts`):
+(`scene/bounds.ts`). The corners with the same values share one vertex, and the depth passes and
+the shadow maps draw a depth geometry with only the positions, the skin, and the morph positions
+(`scene/shared-corners.ts`). The GPU then skins each vertex one time in place of each corner, and
+the pixels do not change. The stage computes the bone matrices from the pose with the products
+of three.js in the same order, so each bit stays (`FrameSkeleton` of `scene/player.ts`). Each triangle has a finish (`FINISHES` of `models/mesh.ts`):
 
 | Finish    | Parts                                                     | Intent                                                                |
 | --------- | --------------------------------------------------------- | --------------------------------------------------------------------- |
