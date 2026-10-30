@@ -149,4 +149,6 @@ At the end of a step or a round of the look, take the images at 1440 × 900 and 
 (`pnpm screenshots`, `pnpm close-views`, `docs/agents/commands.md`). Each close view has a fill
 light from the camera, so that the dark side shows. The images of a mesh, a hold, or a clip show
 the front, the back, and each side, in the playing pose and in the rest pose. Give the images to
-the manager with the report and the results of the targets of the step.
+the manager with the report and the results of the targets of the step. The images stay in the
+folder `reports/`, which git ignores, because report images made most of the size of the git
+history. The hook `tools/git-hooks/pre-commit` stops a commit that adds one.
