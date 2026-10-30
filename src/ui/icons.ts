@@ -40,8 +40,10 @@ const ICONS = {
   'volume-off': '<path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path d="M16 9.5l5 5M21 9.5l-5 5"/>',
   'reset-view':
     '<circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/>',
-  camera:
-    '<path d="M3.5 9a2 2 0 0 1 2-2h2l1.5-2.5h6L16.5 7h2a2 2 0 0 1 2 2v8.5a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2z"/><circle cx="12" cy="13" r="3.5"/>',
+  // A movie camera with two film reels for "Automatic camera". A still camera looks like a button
+  // that takes a photo (design 2.8).
+  'movie-camera':
+    '<circle cx="6.75" cy="6.75" r="2.75"/><circle cx="12.75" cy="6.75" r="2.75"/><rect x="3" y="10.75" width="12.5" height="8.75" rx="1.5"/><path d="M15.5 13.75l5.5-2.75v8l-5.5-2.75"/>',
   'full-screen':
     '<path d="M4 8.5V4h4.5M4 4l5.5 5.5M20 8.5V4h-4.5M20 4l-5.5 5.5M4 15.5V20h4.5M4 20l5.5-5.5M20 15.5V20h-4.5M20 20l-5.5-5.5"/>',
   'exit-full-screen':

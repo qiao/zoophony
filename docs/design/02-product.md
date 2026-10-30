@@ -278,7 +278,8 @@ instant with reduced motion. Each text keeps the contrast 4.5:1 of WCAG AA over 
   1.4.13, and never shows for a touch. A screen reader skips it, because `aria-label` and
   `aria-keyshortcuts` give the name and the key.
 - **Icons**: inline SVG, 20 × 20, stroke width 1.75, round caps and joins, `currentColor`
-  (`ui/icons.ts`).
+  (`ui/icons.ts`). "Automatic camera" shows a movie camera with two film reels. A still camera
+  looks like a button that takes a photo.
 
 **Seat texts**
 
