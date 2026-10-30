@@ -278,6 +278,8 @@ The rest of each family:
   hand, so a melody stays in one hand (`HANDS_HOLDS`, `splitHands()`).
 - Each key goes down with its notes, from the note start to the note end (`keyLevelsAt()`), so a
   seek and a mute give the correct keys at once.
+- The paw moves in for a black key, so the claws lie on it, as a pianist moves the hand in toward
+  the fallboard (piano 5, `pianoKeyFront()`).
 - The piano is larger than a real grand piano (`PIANO_SCALE`), because the bear is large. The keys
   stand near the bear (`PIANO_FRONT_H`), because farther keys pull the haunch into the bench, and
   nearer keys fold the shoulders.

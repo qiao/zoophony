@@ -106,6 +106,9 @@ front of the trunk, and the trunk upright over the sit bones.
 - The knuckles form a bridge across the hand and support curved fingers [15].
 - The fingers play on the tips. Flat fingers and curled fingers are both errors [16].
 - The thumb plays on its corner and is slightly bent [16].
+- The hand moves in toward the fallboard to play a black key and out to play a white key. The arm
+  and the elbow move it, so the fingers do not curl or twist to reach the black key
+  (a search summary only) [30][31].
 
 ## 6. The feet
 
@@ -167,7 +170,9 @@ The app follows these facts:
 - **The wrists and the hands (section 5).** The palm faces down, in line with the level forearm
   (`faceL`, `faceR`). The claws curl (`curl`), and their tips lie on the key tops at each strike.
   The paw is longer than a white key, so the palm stands in front of the front edge of the keys
-  (`palmL`, `palmR`).
+  (`palmL`, `palmR`). For a black key, the whole paw moves in, so the claws lie on the black key
+  (`pianoKeyFront()`, `BLACK_KEY_INSET`). At a few far keys, the paw stops at the full reach of
+  the arm, up to 6 cm short.
 - **The motion (section 7).** The trunk leans to the side toward the keys of the two paws
   (`sideLeanAt()`, `sideLean`, `sideLeanMax`). The lean follows the mean place of the paws over
   `SIDE_LEAN_WINDOW` before and after the song time. Thus the trunk moves smoothly toward the
@@ -270,6 +275,9 @@ Sources 1 to 20 opened on 2026-10-24, source 21 on 2026-10-25, and sources 23 to
     http://moypiano.com/ptg/pianotech.php/2002-October/120252.html
 29. Burgett Inc. US Patent 6,153,819 A, 2000.
     https://patents.google.com/patent/US6153819A/en
+30. The Golandsky Institute. Resources of the Taubman Approach.
+    https://www.golandskyinstitute.org/resources/
+31. Tonebase. Piano hand placement. https://www.tonebase.co/piano-blog-posts/piano-hand-placement
 
 **Conflicts.** The sources put the elbow from a little below the keys [5][8] to about 2.5 cm
 above them [4][5]. Most sources put the pianist on the front half of the bench, and one on the

@@ -196,6 +196,16 @@ function whiteKeysBelow(key: number): number {
 }
 
 /**
+ * Gives the key of the piano that plays a MIDI key.
+ *
+ * @param key The MIDI key.
+ * @returns The key, or the nearest key of the piano for a key outside it.
+ */
+function pianoKey(key: number): number {
+  return Math.min(Math.max(Math.round(key), PIANO.keys[0]), PIANO.keys[1]);
+}
+
+/**
  * Calculates the place on a piano key where a finger plays it, in the piano axes.
  *
  * @param key The MIDI key. A key outside the piano plays the nearest key.
@@ -216,7 +226,7 @@ export function pianoKeyPosition(key: number): Vec3 {
  */
 function unscaledKeyPosition(key: number): Vec3 {
   const p = PIANO;
-  const k = Math.min(Math.max(Math.round(key), p.keys[0]), p.keys[1]);
+  const k = pianoKey(key);
   const width = p.keyboardWidth / 52;
   const left = -p.keyboardWidth / 2;
   if (isBlack(k)) {
@@ -406,19 +416,31 @@ export function pianoPedalTip(pedal: PianoPedal): Vec3 {
 }
 
 /**
- * Calculates the point in front of a piano key on the front edge of the white keys, at the height
- * of the top of the white keys, in the piano axes. For a white key, the point is at the middle of
- * its front edge. A black key is shorter and stands back from this edge, so its point is at the
- * line between the two white keys at its sides. The paw of the studio polar bear is longer than a
- * white key, so the palm of the pianist stays in front of this point, and the claws lie on the key
- * (design 5.3).
+ * How far the point of a black key ({@link pianoKeyFront}) stands behind the front edge of the
+ * black key, in meters. The claws of the studio polar bear hang about 3 cm in front of the point,
+ * so with no inset they stop over the white keys in front of the black key. A pianist also plays
+ * a black key farther in than a white key.
+ */
+const BLACK_KEY_INSET = 0.05;
+
+/**
+ * Calculates the point of a piano key that the paw of a pianist aims at, at the height of the top
+ * of the key, in the piano axes. For a white key, it is the middle of its front edge. The paw of
+ * the studio polar bear is longer than a white key, so the palm stays in front of this point, and
+ * the claws lie at the front of the key (design 5.3). A black key is shorter and higher, so its
+ * point stands {@link BLACK_KEY_INSET} behind its own front edge, at its top. The claws then
+ * reach over the white keys and lie on the black key.
  *
  * @param key The MIDI key. A key outside the piano plays the nearest key.
  * @returns The point.
  */
 export function pianoKeyFront(key: number): Vec3 {
-  const [x] = pianoKeyPosition(key);
-  return [x, PIANO.keyTop * PIANO_SCALE, 0];
+  const p = PIANO;
+  const [x, y] = pianoKeyPosition(key);
+  if (!isBlack(pianoKey(key))) {
+    return [x, y, 0];
+  }
+  return [x, y, -(p.whiteKeyLength - p.blackKeyLength) * PIANO_SCALE - BLACK_KEY_INSET];
 }
 
 /**
