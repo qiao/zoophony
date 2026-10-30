@@ -153,10 +153,16 @@ passes.
       pianist --moments lift50` fails. Give the role the moments of `halfMoves()`.
 - [ ] Bear: at rest, the arms stand out about 35° around the wide belly, and the upper arms go 2.2
       cm into the body while the arms move.
-- [ ] Bear: in the play, a dark slit shows at each wrist from the back and az150. The heel of the
-      bent paw goes behind the end of the forearm. Even ring weights, a dual quaternion bind, a
-      straight bind paw, and a `raise` shape do not remove it. Try a mesh change of
-      `bear_arms.py` (a longer wrist band with more rings), or a wrist joint nearer the inner side.
+- [ ] Bear arm gate: with the straight bind, `pnpm arm-check conductor --base` fails the paw swing
+      (L 43, R 51 against 26, 31), the move twist (63, 58 against 60, 52), and the flat share
+      (0.84, 0.87 against 0.94, 0.92). They count from the bind. The world turns of the paws stay
+      within 0.2°, and the elbow ring is 0.5 cm thicker in the lift. Accept the new base values.
+- [ ] Bear forearm: one elbow axis serves the upper arm and the forearm, and the source forearm
+      lies about 4° out of the plane of the old bent bind. So the forearm frame turns 4.07° from
+      its old world turn in each pose. Give the forearm its own axis if a crop shows it.
+- [ ] Bear wrist folds: two faces of the right palm heel fold in 99% of the play (the base had
+      one), inside the crease, and two faces of the right forearm fold in 4% to 7%. No crop shows
+      them. From az150 at elevation 40, the left wrist shows a soft shade where it bends.
 - [ ] Bear: from az-150, a soft dark crease stays at the left arm root, most at rest. From az150, a
       small dark pocket stays where the raised right arm meets the back.
 - [ ] Bear: the trunk faces of the notch below the caps of the cut face down under each raised arm.
