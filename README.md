@@ -73,8 +73,9 @@ music with a lower visual quality.
 
 ## Privacy
 
-The site has no analytics, no cookies, and no service worker. A MIDI file that you open stays on
-your device: the app sends it to no server. The page
+The site counts the page views with Vercel Web Analytics, which sets no cookies and stores no
+personal identifier. The site has no service worker. A MIDI file that you open stays on your
+device: the app sends it to no server. The page
 [`/privacy`](https://www.zoophony.com/privacy) of the live site gives the same facts.
 
 ## Technology
@@ -85,7 +86,8 @@ your device: the app sends it to no server. The page
 - [spessasynth_core](https://github.com/spessasus/spessasynth_core) plays the SoundFont in an
   AudioWorklet.
 - [Oxlint](https://oxc.rs/) checks the code, and oxfmt formats it.
-- The site is static, and [Vercel](https://vercel.com/) hosts it.
+- The site is static. [Vercel](https://vercel.com/) hosts it, and Vercel Web Analytics counts the
+  page views.
 
 ## Architecture
 
