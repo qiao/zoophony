@@ -14,6 +14,7 @@ export const CONTROL_KEYS = {
   play: { text: 'Space', shortcuts: 'Space' },
   seek: { text: '← →, Home', shortcuts: 'ArrowLeft ArrowRight Home' },
   mute: { text: 'M', shortcuts: 'M' },
+  volume: { text: '↑ ↓', shortcuts: 'ArrowUp ArrowDown' },
   camera: { text: 'C', shortcuts: 'C' },
   fullScreen: { text: 'F', shortcuts: 'F' },
 } as const satisfies Readonly<Record<string, ControlKey>>;

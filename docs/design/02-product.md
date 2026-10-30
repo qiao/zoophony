@@ -247,12 +247,12 @@ instant with reduced motion. Each text keeps the contrast 4.5:1 of WCAG AA over 
 - **Page title**: "{title}, {composer} · Zoophony" for a demo, and "{title} · Zoophony" for a
   file (`pageTitle()`). The default demo keeps the title of the start page (7.4).
 - **Tooltips** name the action and its key: "Play (Space)", "Pause (Space)", "Play again (Space)",
-  "Seek (← →, Home)", "Mute (M)", "Automatic camera (C)", "Full screen (F)", "Exit full screen
-  (F)", and "Speed", "Volume", "Reset view", and "Open the drawer" with no key. The link to GitHub
-  shows "Zoophony on GitHub". The tooltips keep their keys, although the mockup shows only the
-  names, because they are the only visible hint of the keys. A tooltip follows WCAG 1.4.13, and
-  never shows for a touch. A screen reader skips it, because `aria-label` and `aria-keyshortcuts`
-  give the name and the key.
+  "Seek (← →, Home)", "Mute (M)", "Volume (↑ ↓)", "Automatic camera (C)", "Full screen (F)",
+  "Exit full screen (F)", and "Speed", "Reset view", and "Open the drawer" with no key. The link
+  to GitHub shows "Zoophony on GitHub". The tooltips keep their keys, although the mockup shows
+  only the names, because they are the only visible hint of the keys. A tooltip follows WCAG
+  1.4.13, and never shows for a touch. A screen reader skips it, because `aria-label` and
+  `aria-keyshortcuts` give the name and the key.
 - **Icons**: inline SVG, 20 × 20, stroke width 1.75, round caps and joins, `currentColor`
   (`ui/icons.ts`).
 

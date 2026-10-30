@@ -258,7 +258,7 @@ export class Bar {
     this.#addTooltip(this.#seek, CONTROL_KEYS.seek);
     this.#addTooltip(this.#speed, null);
     this.#addTooltip(this.#mute, CONTROL_KEYS.mute);
-    this.#addTooltip(this.#volume, null);
+    this.#addTooltip(this.#volume, CONTROL_KEYS.volume);
     this.#addTooltip(this.#camera, CONTROL_KEYS.camera);
     this.#addTooltip(this.#reset, null);
     this.#addTooltip(this.#fullScreen, CONTROL_KEYS.fullScreen);
