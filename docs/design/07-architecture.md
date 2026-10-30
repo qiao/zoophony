@@ -201,8 +201,10 @@ the constants of `app/page-title.ts`, so that the page and the app cannot differ
   background.
 - **Share image**: the target is `docs/reference/share-card.webp`. A card shows small in a feed,
   so the image tells what the app is and shows the animals. It is a frame of the default demo
-  during play from `SHARE_CAMERA` of `tools/share-image.ts`: low and behind the conductor, so that
-  the conductor stands in the middle and the players fill the width. The top third stays dark for
+  during play from `SHARE_CAMERA` of `tools/share-image.ts`: above and behind the conductor, so that
+  the whole orchestra shows with depth. The conductor stands in the middle of the lower half, each
+  player is in the frame, and the head of each back row shows above the row in front of it. The
+  front edge of the stage crosses the bottom with its two corner cuts. The top third stays dark for
   the title: the paw and the wordmark in gold, the headline in Fraunces, and the subtitle in the
   sans-serif face of the UI (`SHARE_TEXT`). The layer of `tools/share-card.ts` adds a warm beam
   behind the title, a vignette, a warm grade, and a soft glow. Chromium draws the layer from HTML
