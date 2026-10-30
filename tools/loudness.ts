@@ -2,7 +2,7 @@
  * Measures the loudness of each demo at the output of the app (design 6.8).
  *
  * Usage: `pnpm loudness [--mix <name>] [--demo <id>]... [--fit] [--target <LUFS>]... [--json]
- * [--check]`
+ * [--check] [--wav <dir> [--seconds <s>]]`
  *
  * For each demo (all demos by default), it renders the synth output in Node with the
  * `SynthEngine`, the SoundFont of design 6.2, the room of the synth, and the stage mix of the
@@ -27,11 +27,14 @@
  * - `--check` exits with 1 when a demo at the gain of `pieceGainDb()` is more than 0.5 LU from
  *   `TARGET_LOUDNESS`, or has a true peak above -1 dBTP. Run it for each mix preset after a
  *   change of a demo file, the SoundFont, the mix, the mix bus, the hall, or the limiter.
+ * - `--wav <dir>` writes the output of the chain of each demo at the gain of `pieceGainDb()` as a
+ *   16-bit WAV file `<dir>/<demo>-<mix>.wav`, with no normalization. `--seconds <s>` keeps only the
+ *   first `s` seconds.
  *
  * The page server listens on a free port that the system gives. A run of all demos takes about
  * 5 minutes. The renders are deterministic, so two runs give the same numbers.
  */
-import { readFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { createServer } from 'node:http';
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import { stripTypeScriptTypes } from 'node:module';
@@ -39,6 +42,7 @@ import { join } from 'node:path';
 
 import { chromium } from '@playwright/test';
 import type { Browser } from '@playwright/test';
+import { audioToWav } from 'spessasynth_core';
 
 import { DEMO_IDS, isDemoId } from '../src/app/demos.ts';
 import type { DemoId } from '../src/app/demos.ts';
@@ -332,6 +336,30 @@ async function renderChain(input: Stereo, inputDb: number, mix: MixName): Promis
   };
 }
 
+/** A WAV file of the output of the chain, for `--wav`. */
+interface WavRequest {
+  /** The path of the file. */
+  readonly path: string;
+  /** The length of the file in seconds, at most the length of the render. */
+  readonly seconds: number;
+}
+
+/**
+ * Writes the start of a stereo signal as a 16-bit WAV file at 48 kHz, with no normalization.
+ *
+ * @param audio The signal at 48 kHz.
+ * @param request The path and the length.
+ */
+function writeWav(audio: Stereo, request: WavRequest): void {
+  const frames = Math.min(audio.left.length, Math.round(request.seconds * TEST_SAMPLE_RATE));
+  const data = audioToWav(
+    [audio.left.subarray(0, frames), audio.right.subarray(0, frames)],
+    TEST_SAMPLE_RATE,
+    { normalizeAudio: false },
+  );
+  writeFileSync(request.path, new Uint8Array(data));
+}
+
 /**
  * Measures one demo at one piece gain.
  *
@@ -340,6 +368,7 @@ async function renderChain(input: Stereo, inputDb: number, mix: MixName): Promis
  * @param gainDb The piece gain in dB.
  * @param target The target of a fit, or `null`.
  * @param mix The mix preset.
+ * @param wav The WAV file of the output, if any.
  * @returns The row.
  */
 async function measureAt(
@@ -348,8 +377,12 @@ async function measureAt(
   gainDb: number,
   target: number | null,
   mix: MixName,
+  wav?: WavRequest,
 ): Promise<Row> {
   const chain = await renderChain(synth.audio, SOUNDFONT_HEADROOM_DB + gainDb, mix);
+  if (wav) {
+    writeWav(chain.output, wav);
+  }
   const loudness = measureLoudness(chain.output);
   return {
     demo,
@@ -557,13 +590,13 @@ function optionValues(args: readonly string[], name: string): string[] {
 
 /**
  * Runs the tool: `node tools/loudness.ts [--mix <name>] [--demo <id>]... [--fit]
- * [--target <LUFS>]... [--json] [--check]`.
+ * [--target <LUFS>]... [--json] [--check] [--wav <dir> [--seconds <s>]]`.
  */
 async function main(): Promise<void> {
   const args = process.argv.slice(2);
   if (args.includes('--help')) {
     console.log(
-      'Usage: pnpm loudness [--mix <name>] [--demo <id>]... [--fit] [--target <LUFS>]... [--json] [--check]',
+      'Usage: pnpm loudness [--mix <name>] [--demo <id>]... [--fit] [--target <LUFS>]... [--json] [--check] [--wav <dir> [--seconds <s>]]',
     );
     return;
   }
@@ -586,6 +619,15 @@ async function main(): Promise<void> {
   }
   const json = args.includes('--json');
   const check = args.includes('--check');
+  const [wavDir, ...extraWavs] = optionValues(args, '--wav');
+  const [secondsText, ...extraSeconds] = optionValues(args, '--seconds');
+  const seconds = secondsText === undefined ? Infinity : Number(secondsText);
+  if (extraWavs.length || extraSeconds.length || !(seconds > 0)) {
+    throw new Error('Give at most one --wav <dir>, and at most one --seconds above 0.');
+  }
+  if (wavDir !== undefined) {
+    mkdirSync(wavDir, { recursive: true });
+  }
   if (METER_RATE !== TEST_SAMPLE_RATE) {
     throw new Error('The meter and the render need the same sample rate.');
   }
@@ -600,7 +642,9 @@ async function main(): Promise<void> {
   try {
     for (const demo of demos) {
       const synth = await renderSynth(demo);
-      const first = await measureAt(demo, synth, pieceGainDb(demo, mix), null, mix);
+      const wav =
+        wavDir === undefined ? undefined : { path: join(wavDir, `${demo}-${mix}.wav`), seconds };
+      const first = await measureAt(demo, synth, pieceGainDb(demo, mix), null, mix, wav);
       failures.push(...checkFailures(first));
       const rows = [first];
       for (const target of targets) {
