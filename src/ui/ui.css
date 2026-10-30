@@ -405,6 +405,13 @@ svg {
   color: var(--accent-strong);
 }
 
+/* While the drawer shows the demo list, "Select music" has nothing to open, so it hides. A wide
+   window opens the drawer at the demo list at start (design 2.8). The button keeps its box, so
+   that the first screen and the stage do not move. */
+body:has(.drawer:not([hidden]) #panel-demos:not([hidden])) .first-screen .select-piece {
+  visibility: hidden;
+}
+
 /* The box keeps its height with no text, so that the play button does not move when the load
    ends. */
 .first-screen .status {

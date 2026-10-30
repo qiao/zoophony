@@ -287,8 +287,10 @@ async function openPage(
 }
 
 /**
- * Checks the button "Select music" of the first screen (design 2.8): Enter opens the drawer at
- * the demo list, and the row of the current demo gets the focus.
+ * Checks the button "Select music" of the first screen (design 2.8). The wide window opens the
+ * drawer at the demo list at start, so the button hides until Escape closes the drawer. Then
+ * Enter on the button opens the drawer at the demo list, and the row of the current demo gets the
+ * focus.
  *
  * @param browser The browser.
  * @param base The URL of the site.
@@ -298,6 +300,9 @@ async function checkSelectPiece(browser: Browser, base: string): Promise<KeyChec
   const { page } = await openPage(browser, base, 1440, 900);
   const c = new Checker(page, '1440 × 900');
   try {
+    const hiddenAtStart = !(await page.isVisible('.first-screen .select-piece'));
+    // The focus is not in the drawer, so it stays on the page, and Tab starts at the top.
+    await c.press(['Escape'], 400);
     const tabs = await c.tabTo(named('Select music'));
     await c.press(['Enter'], 400);
     const opened = !(await drawerHidden(page));
@@ -305,9 +310,9 @@ async function checkSelectPiece(browser: Browser, base: string): Promise<KeyChec
     // The link to GitHub in the title and the play button come first (design 2.8).
     c.record(
       'Select music (first screen)',
-      `Tab x${tabs}, Enter`,
-      `the drawer opens: ${opened}; focus on "${focus}"`,
-      tabs === 3 && opened && focus.startsWith(DEFAULT_TITLE),
+      `Escape, Tab x${tabs}, Enter`,
+      `hidden beside the demo list: ${hiddenAtStart}; the drawer opens: ${opened}; focus on "${focus}"`,
+      hiddenAtStart && tabs === 3 && opened && focus.startsWith(DEFAULT_TITLE),
     );
   } finally {
     await page.close();

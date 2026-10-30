@@ -226,8 +226,11 @@ instant with reduced motion. Each text keeps the contrast 4.5:1 of WCAG AA over 
 - **First screen**: a round play button below the front edge of the stage, so that it does not
   cover the orchestra. The camera frame shrinks until the stage is clear of it
   (`clearFirstScreen()`). A ring shows the load progress of the bytes, and the load text counts
-  the files (`loadText()`). Until the first play, an intro line names the app, and "Select a
-  piece" opens the demo list. ASD-STE100 has no verb "choose", so the buttons say "Select".
+  the files (`loadText()`). Until the first play, an intro line names the app, and "Select
+  music" opens the demo list. While the drawer shows the demo list, the button has nothing to
+  open, so it hides (`visibility: hidden`, so that the first screen keeps its size). A wide window
+  opens the drawer at the demo list at start, so there the intro line shows alone. ASD-STE100 has
+  no verb "choose", so the buttons say "Select".
   `index.html` holds the same load state as static HTML and the style sheets in its head (inline
   in the build, 7.2), so the first paint shows no unstyled page.
 - **Drawer**: a floating panel in `--panel-glass`, nearly opaque, so that its dim text keeps
