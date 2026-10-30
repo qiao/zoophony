@@ -143,7 +143,24 @@ The image is a little softer.
 
 ## 2.7 Privacy
 
-Version 1 has no analytics, no cookies, and no service worker.
+The site counts the page views with Vercel Web Analytics (`@vercel/analytics`), and has no cookies
+and no service worker. The owner of the project needs the number of visits, and Web Analytics
+gives it with no cookie and no identifier that follows a visitor to other sites.
+
+- Only the build of `pnpm deploy:vercel` loads the analytics. The script sets
+  `ZOOPHONY_ANALYTICS=1`, and `vite.config.ts` gives the constant `ZOOPHONY_ANALYTICS` to
+  `src/main.ts`. The dev server and the local builds load no analytics. Thus the local probes get
+  no request for a missing script, and the dev server sends no request to a host of Vercel.
+- `inject()` loads `/_vercel/insights/script.js` from the site itself, and the script sends the
+  page views to the same site.
+- The app page gives one page view at each load. A demo selection changes only the hash with
+  `history.replaceState()`, and the script counts a page view only at a new path. The pages of 7.4
+  run no script, so they give no page views. The app sends no custom events.
+- For each page view, Vercel stores the URL, the referrer, the place, the browser, the operating
+  system, and the type of device. It identifies a visit with a hash of the request, and discards
+  the hash after 24 hours.
+- Web Analytics must be on in the settings of the Vercel project. Else the script gets a 404, and
+  the app works with no count.
 
 The link to the repository on GitHub (2.8) is a plain link. The page loads nothing from GitHub,
 and the link sends no referrer (`rel="noopener noreferrer"`).

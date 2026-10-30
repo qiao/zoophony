@@ -206,11 +206,11 @@ const CONTACT: SitePage = {
 const PRIVACY: SitePage = {
   path: 'privacy',
   title: 'Privacy',
-  description: `${APP_NAME} collects no personal data: no account, no cookies, no analytics, and your MIDI files stay in your browser.`,
+  description: `${APP_NAME} has no account and no cookies, and your MIDI files stay in your browser. It counts the page views with no personal identifier.`,
   blocks: [
     {
       kind: 'paragraph',
-      text: `${APP_NAME} collects no personal data. This page tells which data the site uses and where the data goes.`,
+      text: `${APP_NAME} counts the page views, but it does not identify you. This page tells which data the site uses and where the data goes.`,
     },
     { kind: 'heading', text: 'What the app does not do' },
     {
@@ -218,9 +218,14 @@ const PRIVACY: SitePage = {
       items: [
         'It has no account and no sign-in.',
         'It sets no cookies and writes nothing to the storage of your browser.',
-        'It has no analytics, no ads, and no scripts that track you.',
+        'It has no ads, and no scripts that follow you to other sites.',
         'It installs no service worker.',
       ],
+    },
+    { kind: 'heading', text: 'Page views' },
+    {
+      kind: 'paragraph',
+      text: 'The site counts the page views with [Vercel Web Analytics](https://vercel.com/docs/analytics/privacy-policy). For each page view, Vercel stores the address of the page, the page that sent you, your country and city, your browser, your operating system, and the type of your device. Vercel identifies a visit with a hash of the request, and discards the hash after 24 hours. The data does not show who you are.',
     },
     { kind: 'heading', text: 'Your MIDI files' },
     {
@@ -230,7 +235,7 @@ const PRIVACY: SitePage = {
     { kind: 'heading', text: 'Requests to other sites' },
     {
       kind: 'paragraph',
-      text: `The page, the sounds, and the demo pieces come from the site itself. The page loads no fonts, scripts, or images from other sites. A link to a different site, such as GitHub, loads nothing until you click it.`,
+      text: `The page, the sounds, the demo pieces, and the script that counts the page views come from the site itself. The page loads no fonts, scripts, or images from other sites. A link to a different site, such as GitHub, loads nothing until you click it.`,
     },
     { kind: 'heading', text: 'The host' },
     {

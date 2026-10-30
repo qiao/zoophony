@@ -71,6 +71,13 @@ const PAUSED_FILES = ALL_TESTS_PAUSED ? ['**/*.test.ts'] : PAUSED_TESTS;
 const BASE = process.env['ZOOPHONY_BASE'] ?? '/';
 
 /**
+ * True in the build of `pnpm deploy:vercel`, which sets `ZOOPHONY_ANALYTICS=1`. Only that build
+ * loads Vercel Web Analytics (design 2.7), so that the local servers of the probes get no request
+ * for its script.
+ */
+const ANALYTICS = process.env['ZOOPHONY_ANALYTICS'] === '1';
+
+/**
  * The plugin that gives the production build an empty module in place of the look override of
  * the dev server (`src/app/look-override.ts`, design 9.3). The override is the first import of
  * `src/main.ts`, so that it acts before the other modules load. Its code is dead in the build, but
@@ -244,6 +251,8 @@ const DEV_LICENSES: Plugin = {
 
 export default defineConfig({
   base: BASE,
+  // `src/main.ts` reads the constant. A build with no analytics drops the code of the package.
+  define: { ZOOPHONY_ANALYTICS: JSON.stringify(ANALYTICS) },
   plugins: [DEV_LOOK_OVERRIDE, INDEX_VALUES, SITE_PAGES, INLINE_CSS, GZIP_AUDIO, DEV_LICENSES],
   build: {
     // tools/size.ts reads the manifest to find the static imports of the entry chunk.

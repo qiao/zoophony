@@ -1,6 +1,7 @@
 // The look override of the dev server is the first import, so that it changes the look values
 // before the other modules read them at their load (`src/app/look-override.ts`).
 import { soloFromQuery } from './app/look-override.ts';
+import { inject } from '@vercel/analytics';
 import { App } from './app/app.ts';
 import { fileFromHash } from './app/demos.ts';
 import type { DevHook } from './app/dev-hook.ts';
@@ -12,6 +13,9 @@ import { watchPixelRatio } from './scene/pixel-ratio.ts';
 import { startTierOf } from './scene/quality.ts';
 import { StageScene } from './scene/stage-scene.ts';
 import { showFullPageMessage } from './ui/full-page-message.ts';
+
+/** True in the build of `pnpm deploy:vercel` (`vite.config.ts`, design 2.7). */
+declare const ZOOPHONY_ANALYTICS: boolean;
 
 /**
  * Makes the scene of the stage, or gives `null` for a browser with no WebGL2 (design 2.6). The
@@ -118,6 +122,12 @@ function start(canvas: HTMLCanvasElement, scene: StageScene): void {
   // The first screen waits for a click, because the browser needs a user gesture (design 2.2).
   app.select(first, false).catch(reportError);
   requestAnimationFrame(frame);
+}
+
+// The deploy build counts the page views with Vercel Web Analytics. The script comes from the
+// site itself, at `/_vercel/insights/script.js` (design 2.7).
+if (ZOOPHONY_ANALYTICS) {
+  inject({ mode: 'production' });
 }
 
 // The script replaces the load state of index.html (design 2.8).
