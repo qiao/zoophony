@@ -21,6 +21,7 @@ import type {
 import type { ClockAnchor } from './clock.ts';
 import { synthChannelCount } from './synth-events.ts';
 import type { SynthEventTable } from './synth-events.ts';
+import { VELOCITY_ATTENUATION_CB, narrowVelocityCurve } from './velocity-curve.ts';
 
 /** The status nibble of a MIDI note off. */
 const NOTE_OFF = 0x80;
@@ -230,15 +231,18 @@ export class SynthEngine {
   }
 
   /**
-   * Adds sound banks, then warms up the voice code with the presets of the score. Each add resets
-   * the synth, so all banks must load before play (design 6.3). The `Player` sends the banks of a
-   * load after its score, also when the list is empty, so each load warms up.
+   * Adds sound banks, then warms up the voice code with the presets of the score. Each bank first
+   * gets the velocity curve of {@link VELOCITY_ATTENUATION_CB} (design 6.1). Each add resets the
+   * synth, so all banks must load before play (design 6.3). The `Player` sends the banks of a load
+   * after its score, also when the list is empty, so each load warms up.
    *
    * @param banks The PCM SF2 banks.
    */
   addBanks(banks: readonly EngineBank[]): void {
     for (const bank of banks) {
-      this.synth.soundBankManager.addSoundBank(SoundBankLoader.fromArrayBuffer(bank.data), bank.id);
+      const soundBank = SoundBankLoader.fromArrayBuffer(bank.data);
+      narrowVelocityCurve(soundBank, VELOCITY_ATTENUATION_CB);
+      this.synth.soundBankManager.addSoundBank(soundBank, bank.id);
     }
     this.#warmUp();
   }
