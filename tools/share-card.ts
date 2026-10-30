@@ -6,11 +6,14 @@
 // the frame, from the bottom to the top:
 //
 //   frame     the stage frame, with the warm grade as a CSS filter
+//   haze      a blurred copy of the frame over the top part only, so the hall lamps and the
+//             balcony rail behind the title become a smooth dark wall
 //   glow      a copy of the frame: only its highlights (contrast), blurred, added with `screen`
 //   pool      a warm light on the floor in the middle of the stage, added with `screen`
-//   shade     a dark band at the top, so that the hall wall and its lamps go dark behind the text
-//   beam      a warm glow from the top middle, behind the text, added with `screen`
-//   cone      a soft cone of warm light from the same place, which fades out above the players
+//   shade     a dark neutral band at the top, behind the text
+//   beam      a cone of warm light from the top middle: a trapezoid with blurred edges that
+//             widens down behind the text and fades out over the back rows, added with `screen`
+//   core      a small bright glow at the top of the beam, added with `screen`
 //   vignette  a dark edge that is darkest in the corners, and a dark band at the bottom
 //   title     the paw and the wordmark in gold, the headline in Fraunces, and the subtitle
 //
@@ -51,31 +54,33 @@ const CARD_STYLE = `
   html, body { margin: 0; background: #000; }
   .card { position: relative; width: 100vw; height: 100vh; overflow: hidden; isolation: isolate; }
   .card > * { position: absolute; }
-  .frame, .glow { inset: 0; width: 100%; height: 100%; }
-  .frame { filter: sepia(0.18) saturate(1.2) brightness(1.08) contrast(1.06); }
+  .frame, .haze, .glow { inset: 0; width: 100%; height: 100%; }
+  .frame { filter: sepia(0.08) saturate(0.88) brightness(1.1) contrast(1.06); }
+  .haze {
+    filter: sepia(0.08) saturate(0.88) brightness(1.1) blur(16px);
+    mask-image: linear-gradient(black 20%, transparent 27%);
+  }
   .glow { filter: brightness(0.75) contrast(2.6) blur(9px); mix-blend-mode: screen; opacity: 0.45; }
   .pool {
     inset: 0;
-    background: radial-gradient(ellipse 34% 30% at 50% 78%, rgba(255, 178, 102, 0.34), transparent);
+    background: radial-gradient(ellipse 34% 30% at 50% 74%, rgba(255, 196, 140, 0.18), transparent);
     mix-blend-mode: screen;
   }
   .shade {
     inset: 0;
-    background: linear-gradient(rgba(8, 5, 3, 0.86), rgba(8, 5, 3, 0.7) 30%, transparent 52%);
+    background: linear-gradient(rgba(18, 14, 11, 0.9), rgba(18, 14, 11, 0.74) 28%, transparent 46%);
   }
-  .beam {
+  .beam { inset: 0; filter: blur(20px); mix-blend-mode: screen; }
+  .beam > div {
+    position: absolute;
     inset: 0;
-    background:
-      radial-gradient(ellipse 13% 52% at 50% -6%, rgba(255, 196, 128, 0.62), transparent),
-      radial-gradient(ellipse 30% 70% at 50% -10%, rgba(214, 140, 72, 0.32), transparent);
-    mix-blend-mode: screen;
+    clip-path: polygon(41% 0, 59% 0, 76% 100%, 24% 100%);
+    background: linear-gradient(rgba(255, 216, 170, 0.42), rgba(255, 210, 160, 0.26) 30%,
+      rgba(255, 204, 150, 0.1) 55%, transparent 75%);
   }
-  .cone {
+  .core {
     inset: 0;
-    background: conic-gradient(from 166deg at 50% -30%, transparent, rgba(255, 190, 120, 0.3) 14deg,
-      transparent 28deg);
-    mask-image: linear-gradient(black, transparent 62%);
-    filter: blur(14px);
+    background: radial-gradient(ellipse 12% 30% at 50% -4%, rgba(255, 226, 190, 0.45), transparent);
     mix-blend-mode: screen;
   }
   .vignette {
@@ -133,11 +138,12 @@ function cardHtml(frame: string, font: string): string {
 <body>
 <div class="card">
   <img class="frame" src="${frame}" alt="">
+  <img class="haze" src="${frame}" alt="">
   <img class="glow" src="${frame}" alt="">
   <div class="pool"></div>
   <div class="shade"></div>
-  <div class="beam"></div>
-  <div class="cone"></div>
+  <div class="beam"><div></div></div>
+  <div class="core"></div>
   <div class="vignette"></div>
   <div class="logo">
     <svg class="paw" viewBox="0 0 24 24" aria-hidden="true">${PAW_MARKUP}</svg>
