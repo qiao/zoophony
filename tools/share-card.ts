@@ -14,7 +14,8 @@
 //   beam      a cone of warm light from the top middle: a trapezoid with blurred edges that
 //             widens down behind the text and fades out above the back row, added with `screen`
 //   core      a small bright glow at the top of the beam, added with `screen`
-//   vignette  a dark edge that is darkest in the corners, and a dark band at the bottom
+//   vignette  a dark edge that is darkest in the corners and lighter in the middle of the
+//             sides, and a dark band at the bottom
 //   title     the paw and the wordmark in gold, and one line in Fraunces
 //
 // The line uses `assets/fraunces/fraunces.ttf` through `@font-face`. The logo uses the paw and
@@ -82,7 +83,7 @@ const CARD_STYLE = `
     inset: 0;
     background:
       linear-gradient(to top, rgba(6, 4, 2, 0.8), transparent 20%),
-      radial-gradient(ellipse 70% 80% at 50% 50%, transparent 48%, rgba(0, 0, 0, 0.92));
+      radial-gradient(ellipse 85% 80% at 50% 50%, transparent 48%, rgba(0, 0, 0, 0.92));
   }
   .logo {
     left: 0;
