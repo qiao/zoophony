@@ -492,6 +492,9 @@ Done when: the pose tests pass, and the pose and frame targets pass.
       under the load of other processes.
 - [ ] Ask the user for the range rule of the soft demos (6.8). Beethoven 8 keeps 58% of its time
       below -30 LUFS short-term. A velocity curve of `30 log10(v / 127)` for the demos is an option.
+- [ ] `beethoven-6-1` starts soft. The median short-term loudness of its first 10 s is 21.8 LU
+      (hall) and 20.1 LU (cinematic) below `TARGET_LOUDNESS`, and a demo start must be at most
+      12 LU below it. Decide with the range rule above, and change no velocity of the file.
 - [ ] Add `pnpm loudness --check` to CI or to the merge checks. Until then, run it after each change
       of a demo file, the SoundFont, the mix, the hall, or the limiter (6.8).
 - [ ] Move the seat flags and the settings of `App` into small classes next to it, because
@@ -627,6 +630,8 @@ passes, and the quality tiers of 2.6 keep 60 fps on a laptop.
 - [ ] Remove the audit and review labels from the `it()` and `describe()` names of the paused
       tests, and the dated notes that the `_arms.py` scripts write into the weights files of
       `assets/models/`.
+- [ ] Give the paused tests `src/app/credits.test.ts` and `tools/screenshots.test.ts` the order of
+      `DEMO_IDS`. They still list `boulanger-matin` first, so they fail.
 - [ ] Find or make one file of the famous pieces with no usable file (8.1):
       - Mozart, The Magic Flute overture: Mutopia 248 has four MIDI files. It needs a join tool.
       - Tchaikovsky, The Nutcracker: no orchestral file has a permitted license.
