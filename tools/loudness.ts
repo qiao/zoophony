@@ -13,10 +13,10 @@
  * and 3 s of tail, at 48 kHz.
  *
  * Each row gives the integrated loudness and the loudness range (ITU-R BS.1770-4, EBU Tech 3342),
- * the true peak, the median short-term loudness of the first 30 s, the share of the song with a
- * short-term loudness below -30 LUFS, the gain reduction of the glue compressor (its 95th
- * percentile and its highest value in a block of 50 ms), and the gain reduction of the limiter
- * (its highest value, and the share of the blocks above 1 dB and 3 dB).
+ * the true peak, the median short-term loudness of the first 10 s (`st10`) and of the first 30 s
+ * (`st30`), the share of the song with a short-term loudness below -30 LUFS, the gain reduction of
+ * the glue compressor (its 95th percentile and its highest value in a block of 50 ms), and the gain
+ * reduction of the limiter (its highest value, and the share of the blocks above 1 dB and 3 dB).
  *
  * - `--mix <name>` selects the mix preset of `MIX_BUSES`: `hall` (the default) or `cinematic`.
  * - `--fit` finds the piece gain that brings each demo within 0.05 LU of `TARGET_LOUDNESS`, in
@@ -67,8 +67,11 @@ import { ROOT } from './ref-tree.ts';
 /** The tail after the song end in seconds, for the release of the notes and the hall. */
 const TAIL_SEC = 3;
 
-/** The length of the start that the start column measures, in seconds. */
-const START_SEC = 30;
+/** The length of the start that the column `st10` measures, in seconds. */
+const SHORT_START_SEC = 10;
+
+/** The length of the start that the column `st30` measures, in seconds. */
+const LONG_START_SEC = 30;
 
 /** The largest error of a fit in LU. */
 const FIT_TOLERANCE = 0.05;
@@ -111,8 +114,10 @@ interface Row {
   /** The value for `DEMO_LOUDNESS` at the target, or `null` with no fit. */
   readonly tableValue: number | null;
   readonly loudness: Loudness;
-  /** The median short-term loudness of the first {@link START_SEC} s in LUFS. */
-  readonly start: number;
+  /** The median short-term loudness of the first {@link SHORT_START_SEC} s in LUFS. */
+  readonly start10: number;
+  /** The median short-term loudness of the first {@link LONG_START_SEC} s in LUFS. */
+  readonly start30: number;
   /** The share of the song with a short-term loudness below {@link QUIET_LUFS}. */
   readonly quiet: number;
   /** The gain reduction of the limiter. */
@@ -352,7 +357,8 @@ async function measureAt(
     gainDb,
     tableValue: target === null ? null : Math.round((target - gainDb) * 10) / 10,
     loudness,
-    start: medianShortTerm(loudness.shortTerm, 3, START_SEC),
+    start10: medianShortTerm(loudness.shortTerm, 3, SHORT_START_SEC),
+    start30: medianShortTerm(loudness.shortTerm, 3, LONG_START_SEC),
     quiet: shareBelow(loudness.shortTerm, synth.durationSec, QUIET_LUFS),
     reduction: gainReduction(chain.limiterInput, chain.output),
     glue: gainReduction(chain.glueInput, chain.limiterInput),
@@ -422,7 +428,8 @@ function line(row: Row): string {
     cell(loudness.integrated, 2, 7),
     cell(loudness.range, 1, 5),
     cell(loudness.truePeak, 2, 6),
-    cell(row.start, 1, 6),
+    cell(row.start10, 1, 6),
+    cell(row.start30, 1, 6),
     cell(row.quiet * 100, 0, 5),
     cell(glue.p95, 1, 5),
     cell(glue.max, 1, 5),
@@ -434,8 +441,8 @@ function line(row: Row): string {
 
 /** The head of the text table. */
 const HEAD = [
-  'demo              target   gain  table    LUFS   LRA  dBTP  start quiet glue95 glue  GRmax  GR>1  GR>3',
-  '                  LUFS     dB    LUFS                       LUFS    %     dB    dB     dB     %     %',
+  'demo              target   gain  table    LUFS   LRA  dBTP  st10   st30 quiet glue95 glue  GRmax  GR>1  GR>3',
+  '                  LUFS     dB    LUFS                       LUFS   LUFS    %     dB    dB     dB     %     %',
 ].join('\n');
 
 /** The JSON object of one row of `--json`. The levels are in LUFS, dB, or dBTP. */
@@ -449,8 +456,10 @@ interface RowJson {
   readonly maxShortTerm: number;
   readonly samplePeak: number;
   readonly truePeak: number;
+  /** The median short-term loudness of the first 10 s. */
+  readonly start10: number;
   /** The median short-term loudness of the first 30 s. */
-  readonly start: number;
+  readonly start30: number;
   /** The share of the song below -30 LUFS short-term, from 0 to 1. */
   readonly quiet: number;
   readonly reductionMax: number;
@@ -492,7 +501,8 @@ function jsonOf(row: Row): RowJson {
     maxShortTerm: round(row.loudness.maxShortTerm, 2),
     samplePeak: round(row.loudness.samplePeak, 2),
     truePeak: round(row.loudness.truePeak, 2),
-    start: round(row.start, 2),
+    start10: round(row.start10, 2),
+    start30: round(row.start30, 2),
     quiet: round(row.quiet, 4),
     reductionMax: round(row.reduction.max, 2),
     reductionOver1: round(row.reduction.over1, 4),
