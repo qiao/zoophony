@@ -5,10 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <!-- The texts of search and share (design 7.4). The plugin INDEX_VALUES of vite.config.ts
          writes them from src/app/page-title.ts. The canonical URL names www in each build, also
-         on GitHub Pages. The theme color is the dark edge of the page background (style.css). -->
+         on GitHub Pages. The theme color is the dark edge of the page background (style.css). The
+         alternate link names the Markdown copy of the page for agents (tools/site-pages.ts). -->
     <title>%SITE_TITLE%</title>
     <meta name="description" content="%SITE_DESCRIPTION%" />
     <link rel="canonical" href="%SITE_URL%" />
+    <link rel="alternate" type="text/markdown" href="%SITE_URL%index.md" />
     <meta name="theme-color" content="#0b0908" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <meta property="og:type" content="website" />
