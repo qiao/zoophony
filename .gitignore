@@ -27,3 +27,7 @@ perf/
 # Probe scripts of an agent. A script here imports `three` and the source modules through the
 # node_modules of its worktree: `node scratch/<name>.ts`.
 scratch/
+
+# The images of a round report. The manager reads them in the checkout of the agent. Git keeps no
+# report image (design 9.8).
+reports/
