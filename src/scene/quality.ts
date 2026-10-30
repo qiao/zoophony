@@ -41,7 +41,9 @@ export const TIER_SETTINGS = {
     // 5 in place of 3: with 3, the shadow of an arm on the white trunk of the rabbit shows black
     // wedges with the steps of the map.
     shadowRadius: 5,
-    maxPixelRatio: 2,
+    // 1.5 in place of 2: the GPU time grows with the pixels, and 2 cost about 2.8 ms more of each
+    // frame of `perf-60.mid` on a Retina screen (design 9.7). The image is a little softer.
+    maxPixelRatio: 1.5,
     bloomLevels: 6,
     blurSamples: 32,
     motes: 140,
