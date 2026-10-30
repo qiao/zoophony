@@ -22,7 +22,9 @@ of the part itself (as in remap_midi.py --programs part).
 Usage: python3 validate.py unique.mid score.mscz candidate.mid [...] [--programs part]
        [--groups FILE]
 """
-import collections, sys
+import collections, os, sys
+# Python -I does not put the folder of this script on sys.path. The imports below need it.
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from smfdump import parse
 from remap_midi import score_parts
 from remap_score import GROUPS

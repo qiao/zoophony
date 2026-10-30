@@ -16,7 +16,9 @@ a note in one of the ranges.
 
 Usage: python3 cut_midi.py in.mid out.mid START_TICK END_TICK [START_TICK END_TICK ...]
 """
-import struct, sys
+import os, struct, sys
+# Python -I does not put the folder of this script on sys.path. The imports below need it.
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from smfdump import parse
 from remap_midi import meta, track_bytes
 

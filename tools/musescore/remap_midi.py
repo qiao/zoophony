@@ -39,8 +39,10 @@ velocity still holds the dynamic level.
 Usage: python3 remap_midi.py in.mid score.mscz out.mid [--programs group|part] [--keep-cc2]
        [--groups FILE]
 """
-import collections, struct, sys, zipfile
+import collections, os, struct, sys, zipfile
 import xml.etree.ElementTree as ET
+# Python -I does not put the folder of this script on sys.path. The imports below need it.
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from smfdump import parse
 from remap_score import GROUPS, positional
 
