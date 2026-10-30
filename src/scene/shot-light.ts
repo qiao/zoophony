@@ -32,14 +32,17 @@ export const SHOT_LOOK = {
 export interface ShotUniforms {
   /** 1 while a lamp has light, else 0, so the shader skips the lamps in a wide shot. */
   readonly uShotOn: { value: number };
-  /** The positions of the lamps, in world space. */
-  readonly uShotPosition: { value: [Vector3, Vector3] };
+  /**
+   * The positions of the lamps, in world space, three numbers for each lamp. Each array uniform
+   * is a flat array, so three.js uploads it with no copy at each change of material.
+   */
+  readonly uShotPosition: { value: Float32Array };
   /** The unit axes of the cones, from each lamp to its target. */
-  readonly uShotAxis: { value: [Vector3, Vector3] };
+  readonly uShotAxis: { value: Float32Array };
   /** The cosine of the half angle of each cone. */
-  readonly uShotCone: { value: [number, number] };
+  readonly uShotCone: { value: Float32Array };
   /** The linear color times the intensity of each lamp, as for a spotlight with decay 2. */
-  readonly uShotColor: { value: [Vector3, Vector3] };
+  readonly uShotColor: { value: Float32Array };
 }
 
 /**
@@ -50,10 +53,10 @@ export interface ShotUniforms {
 export function createShotUniforms(): ShotUniforms {
   return {
     uShotOn: { value: 0 },
-    uShotPosition: { value: [new Vector3(), new Vector3()] },
-    uShotAxis: { value: [new Vector3(0, -1, 0), new Vector3(0, -1, 0)] },
-    uShotCone: { value: [1, 1] },
-    uShotColor: { value: [new Vector3(), new Vector3()] },
+    uShotPosition: { value: new Float32Array(6) },
+    uShotAxis: { value: Float32Array.of(0, -1, 0, 0, -1, 0) },
+    uShotCone: { value: Float32Array.of(1, 1) },
+    uShotColor: { value: new Float32Array(6) },
   };
 }
 
@@ -62,6 +65,15 @@ export function createShotUniforms(): ShotUniforms {
  * holds no state.
  */
 const lampColor = new Color();
+
+/** The place of a lamp, written before each read. */
+const lampPosition = new Vector3();
+
+/** The axis of a lamp, written before each read. */
+const lampAxis = new Vector3();
+
+/** The light of a lamp, written before each read. */
+const lampLight = new Vector3();
 
 /**
  * Writes one lamp into the uniforms: its place, its cone, and an illuminance at its target. It
@@ -74,14 +86,18 @@ const lampColor = new Color();
  * @param illuminance The illuminance at the target, in lux.
  */
 function writeLamp(uniforms: ShotUniforms, i: 0 | 1, place: ShotLamp, illuminance: number): void {
-  const position = uniforms.uShotPosition.value[i].set(...place.position);
-  const axis = uniforms.uShotAxis.value[i].set(...place.target).sub(position);
+  const position = lampPosition.set(...place.position);
+  const axis = lampAxis.set(...place.target).sub(position);
   const distanceSquared = axis.lengthSq();
   axis.normalize();
+  position.toArray(uniforms.uShotPosition.value, i * 3);
+  axis.toArray(uniforms.uShotAxis.value, i * 3);
   uniforms.uShotCone.value[i] = Math.cos(place.angle);
   const { r, g, b } = lampColor.set(i === 0 ? SHOT_LOOK.keyColor : SHOT_LOOK.kickerColor);
   const intensity = illuminance * distanceSquared;
-  uniforms.uShotColor.value[i].set(r * intensity, g * intensity, b * intensity);
+  lampLight
+    .set(r * intensity, g * intensity, b * intensity)
+    .toArray(uniforms.uShotColor.value, i * 3);
 }
 
 /**

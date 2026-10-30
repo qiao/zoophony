@@ -16,14 +16,17 @@ const MAX_RIM_LIGHTS = 3;
 export interface RimUniforms {
   /** The number of rim lights, at most {@link MAX_RIM_LIGHTS}. */
   readonly uRimCount: { value: number };
-  /** The position of each rim light, in world space. */
-  readonly uRimPosition: { value: Vector3[] };
+  /**
+   * The position of each rim light, in world space, three numbers for each light. Each array
+   * uniform is a flat array, so three.js uploads it with no copy at each change of material.
+   */
+  readonly uRimPosition: { value: Float32Array };
   /** The unit axis of the cone of each rim light, from the light to its target. */
-  readonly uRimAxis: { value: Vector3[] };
+  readonly uRimAxis: { value: Float32Array };
   /** The cosine of the outer and of the inner angle of the cone of each rim light. */
-  readonly uRimCone: { value: Vector2[] };
+  readonly uRimCone: { value: Float32Array };
   /** The linear color times the intensity of each rim light. */
-  readonly uRimColor: { value: Vector3[] };
+  readonly uRimColor: { value: Float32Array };
 }
 
 /**
@@ -32,15 +35,28 @@ export interface RimUniforms {
  * @returns The uniforms.
  */
 export function createRimUniforms(): RimUniforms {
-  const list = <T>(make: () => T): T[] => Array.from({ length: MAX_RIM_LIGHTS }, make);
+  const list = (...item: readonly number[]): Float32Array =>
+    Float32Array.from(
+      { length: MAX_RIM_LIGHTS * item.length },
+      (_, i) => item[i % item.length] ?? 0,
+    );
   return {
     uRimCount: { value: 0 },
-    uRimPosition: { value: list(() => new Vector3()) },
-    uRimAxis: { value: list(() => new Vector3(0, -1, 0)) },
-    uRimCone: { value: list(() => new Vector2(1, 1)) },
-    uRimColor: { value: list(() => new Vector3()) },
+    uRimPosition: { value: list(0, 0, 0) },
+    uRimAxis: { value: list(0, -1, 0) },
+    uRimCone: { value: list(1, 1) },
+    uRimColor: { value: list(0, 0, 0) },
   };
 }
+
+/** The axis of a rim light. Each call of {@link setRimLights} writes it before it reads it. */
+const rimAxis = new Vector3();
+
+/** The cone of a rim light, written before each read. */
+const rimCone = new Vector2();
+
+/** The light of a rim light, written before each read. */
+const rimColor = new Vector3();
 
 /**
  * Writes the rim lights of a light group into the uniforms: the place, the aim, the cone, and the
@@ -56,18 +72,14 @@ export function setRimLights(uniforms: RimUniforms, lights: Group): void {
     .slice(0, MAX_RIM_LIGHTS);
   uniforms.uRimCount.value = rims.length;
   for (const [i, rim] of rims.entries()) {
-    const position = uniforms.uRimPosition.value[i];
-    const axis = uniforms.uRimAxis.value[i];
-    const cone = uniforms.uRimCone.value[i];
-    const color = uniforms.uRimColor.value[i];
-    if (!position || !axis || !cone || !color) {
-      continue;
-    }
-    position.copy(rim.position);
-    axis.subVectors(rim.target.position, rim.position).normalize();
-    cone.set(Math.cos(rim.angle), Math.cos(rim.angle * (1 - rim.penumbra)));
+    rim.position.toArray(uniforms.uRimPosition.value, i * 3);
+    rimAxis.subVectors(rim.target.position, rim.position).normalize();
+    rimAxis.toArray(uniforms.uRimAxis.value, i * 3);
+    rimCone.set(Math.cos(rim.angle), Math.cos(rim.angle * (1 - rim.penumbra)));
+    rimCone.toArray(uniforms.uRimCone.value, i * 2);
     const { r, g, b } = rim.color;
-    color.set(r * rim.intensity, g * rim.intensity, b * rim.intensity);
+    rimColor.set(r * rim.intensity, g * rim.intensity, b * rim.intensity);
+    rimColor.toArray(uniforms.uRimColor.value, i * 3);
   }
 }
 
