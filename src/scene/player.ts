@@ -9,7 +9,7 @@ import {
   Skeleton,
   SkinnedMesh,
 } from 'three';
-import type { MeshStandardMaterial } from 'three';
+import type { Matrix4Tuple, MeshStandardMaterial, Object3D } from 'three';
 
 import type { Vec3 } from '../models/tuples.ts';
 import type { MeshData } from '../models/mesh.ts';
@@ -112,12 +112,54 @@ class FrameSkeleton extends Skeleton {
   #held = false;
 
   /**
-   * Computes the bone matrices from the world matrices of the bones, and keeps them until
-   * {@link FrameSkeleton.release}.
+   * The matrix of each bone in the axes of its parent, from the pose of the frame, or `null` to
+   * read the world matrices of the bones ({@link FrameSkeleton.readLocals}).
+   */
+  #locals: Float32Array | null = null;
+
+  /** The mesh of the skeleton, whose world matrix moves the bones. */
+  #mesh: Object3D | null = null;
+
+  /** The group that holds the bones in the mesh ({@link createBoneGroup}). */
+  #group: Object3D | null = null;
+
+  /** The world matrix of the group of the bones in a hold. */
+  readonly #groupWorld = new Matrix4();
+
+  /**
+   * Computes the bone matrices from the local matrices of a pose and the world matrix of the
+   * mesh in each {@link FrameSkeleton.hold}, as three.js computes them from the world matrices of
+   * the group and of the bones: the same products in the same order, so each bone matrix keeps
+   * each bit. The bones then need no copy of the pose and no world matrix, and the scene does not
+   * visit them: about 1 ms of main-thread time in each frame of `perf-60.mid` (design 9.7).
+   *
+   * @param locals The matrices of the bones in the axes of the group, 16 numbers for each bone.
+   * @param mesh The mesh of the skeleton.
+   * @param group The group of the bones. Its matrix stays the same.
+   */
+  readLocals(locals: Float32Array, mesh: Object3D, group: Object3D): void {
+    this.#locals = locals;
+    this.#mesh = mesh;
+    this.#group = group;
+  }
+
+  /** True when the pose gives the bone matrices ({@link FrameSkeleton.readLocals}). */
+  get readsLocals(): boolean {
+    return this.#locals !== null;
+  }
+
+  /**
+   * Computes the bone matrices from the world matrices of the bones, or from the local matrices
+   * of {@link FrameSkeleton.readLocals}, and keeps them until {@link FrameSkeleton.release}.
    */
   hold(): void {
     this.#held = false;
-    this.update();
+    if (this.#locals && this.#mesh && this.#group) {
+      this.#groupWorld.multiplyMatrices(this.#mesh.matrixWorld, this.#group.matrix);
+      this.#computeFromLocals(this.#locals, this.#groupWorld.elements);
+    } else {
+      this.update();
+    }
     this.#held = true;
   }
 
@@ -132,7 +174,116 @@ class FrameSkeleton extends Skeleton {
       super.update();
     }
   }
+
+  /**
+   * Writes each bone matrix: the world matrix of the group times the local matrix
+   * (`Object3D.updateMatrixWorld()`), times the inverse of the bind matrix of the bone
+   * (`Skeleton.update()`). Each product takes the terms in the order of
+   * `Matrix4.multiplyMatrices()` of three.js r186.
+   *
+   * @param locals The local matrices of the bones.
+   * @param a The world matrix of the group of the bones.
+   */
+  #computeFromLocals(locals: Float32Array, a: Matrix4Tuple): void {
+    const out = this.boneMatrices;
+    const inverses = this.boneInverses;
+    if (!out) {
+      return;
+    }
+    const a11 = a[0];
+    const a21 = a[1];
+    const a31 = a[2];
+    const a41 = a[3];
+    const a12 = a[4];
+    const a22 = a[5];
+    const a32 = a[6];
+    const a42 = a[7];
+    const a13 = a[8];
+    const a23 = a[9];
+    const a33 = a[10];
+    const a43 = a[11];
+    const a14 = a[12];
+    const a24 = a[13];
+    const a34 = a[14];
+    const a44 = a[15];
+    for (let i = 0; i < inverses.length; i++) {
+      const o = i * 16;
+      const b11 = locals[o] ?? 0;
+      const b21 = locals[o + 1] ?? 0;
+      const b31 = locals[o + 2] ?? 0;
+      const b41 = locals[o + 3] ?? 0;
+      const b12 = locals[o + 4] ?? 0;
+      const b22 = locals[o + 5] ?? 0;
+      const b32 = locals[o + 6] ?? 0;
+      const b42 = locals[o + 7] ?? 0;
+      const b13 = locals[o + 8] ?? 0;
+      const b23 = locals[o + 9] ?? 0;
+      const b33 = locals[o + 10] ?? 0;
+      const b43 = locals[o + 11] ?? 0;
+      const b14 = locals[o + 12] ?? 0;
+      const b24 = locals[o + 13] ?? 0;
+      const b34 = locals[o + 14] ?? 0;
+      const b44 = locals[o + 15] ?? 0;
+
+      const w11 = a11 * b11 + a12 * b21 + a13 * b31 + a14 * b41;
+      const w12 = a11 * b12 + a12 * b22 + a13 * b32 + a14 * b42;
+      const w13 = a11 * b13 + a12 * b23 + a13 * b33 + a14 * b43;
+      const w14 = a11 * b14 + a12 * b24 + a13 * b34 + a14 * b44;
+      const w21 = a21 * b11 + a22 * b21 + a23 * b31 + a24 * b41;
+      const w22 = a21 * b12 + a22 * b22 + a23 * b32 + a24 * b42;
+      const w23 = a21 * b13 + a22 * b23 + a23 * b33 + a24 * b43;
+      const w24 = a21 * b14 + a22 * b24 + a23 * b34 + a24 * b44;
+      const w31 = a31 * b11 + a32 * b21 + a33 * b31 + a34 * b41;
+      const w32 = a31 * b12 + a32 * b22 + a33 * b32 + a34 * b42;
+      const w33 = a31 * b13 + a32 * b23 + a33 * b33 + a34 * b43;
+      const w34 = a31 * b14 + a32 * b24 + a33 * b34 + a34 * b44;
+      const w41 = a41 * b11 + a42 * b21 + a43 * b31 + a44 * b41;
+      const w42 = a41 * b12 + a42 * b22 + a43 * b32 + a44 * b42;
+      const w43 = a41 * b13 + a42 * b23 + a43 * b33 + a44 * b43;
+      const w44 = a41 * b14 + a42 * b24 + a43 * b34 + a44 * b44;
+
+      const c = inverses[i]?.elements ?? IDENTITY;
+      const c11 = c[0];
+      const c21 = c[1];
+      const c31 = c[2];
+      const c41 = c[3];
+      const c12 = c[4];
+      const c22 = c[5];
+      const c32 = c[6];
+      const c42 = c[7];
+      const c13 = c[8];
+      const c23 = c[9];
+      const c33 = c[10];
+      const c43 = c[11];
+      const c14 = c[12];
+      const c24 = c[13];
+      const c34 = c[14];
+      const c44 = c[15];
+      out[o] = w11 * c11 + w12 * c21 + w13 * c31 + w14 * c41;
+      out[o + 4] = w11 * c12 + w12 * c22 + w13 * c32 + w14 * c42;
+      out[o + 8] = w11 * c13 + w12 * c23 + w13 * c33 + w14 * c43;
+      out[o + 12] = w11 * c14 + w12 * c24 + w13 * c34 + w14 * c44;
+      out[o + 1] = w21 * c11 + w22 * c21 + w23 * c31 + w24 * c41;
+      out[o + 5] = w21 * c12 + w22 * c22 + w23 * c32 + w24 * c42;
+      out[o + 9] = w21 * c13 + w22 * c23 + w23 * c33 + w24 * c43;
+      out[o + 13] = w21 * c14 + w22 * c24 + w23 * c34 + w24 * c44;
+      out[o + 2] = w31 * c11 + w32 * c21 + w33 * c31 + w34 * c41;
+      out[o + 6] = w31 * c12 + w32 * c22 + w33 * c32 + w34 * c42;
+      out[o + 10] = w31 * c13 + w32 * c23 + w33 * c33 + w34 * c43;
+      out[o + 14] = w31 * c14 + w32 * c24 + w33 * c34 + w34 * c44;
+      out[o + 3] = w41 * c11 + w42 * c21 + w43 * c31 + w44 * c41;
+      out[o + 7] = w41 * c12 + w42 * c22 + w43 * c32 + w44 * c42;
+      out[o + 11] = w41 * c13 + w42 * c23 + w43 * c33 + w44 * c43;
+      out[o + 15] = w41 * c14 + w42 * c24 + w43 * c34 + w44 * c44;
+    }
+    if (this.boneTexture) {
+      this.boneTexture.needsUpdate = true;
+    }
+  }
 }
+
+/** The elements of the identity matrix. */
+const IDENTITY: Matrix4Tuple = new Matrix4().elements;
 
 /**
  * Computes the bone matrices of the players of a frame one time, and keeps them for each render of
@@ -347,8 +498,10 @@ function applyStudioPose(mesh: SkinnedMesh, pose: AnimalPose): void {
     eyeScale,
     player.pose,
   );
+  // A skeleton that reads the pose computes its bone matrices from it, so its bones keep no copy.
+  const skeleton = mesh.skeleton;
+  const bones = skeleton instanceof FrameSkeleton && skeleton.readsLocals ? [] : skeleton.bones;
   // A copy by index: an iterator of entries with Matrix4.fromArray() took twice the time.
-  const bones = mesh.skeleton.bones;
   for (let b = 0; b < bones.length; b++) {
     const bone = bones[b];
     if (!bone) {
@@ -368,6 +521,25 @@ function applyStudioPose(mesh: SkinnedMesh, pose: AnimalPose): void {
     for (let i = 0; i < influences.length; i++) {
       influences[i] = correctives[i] ?? 0;
     }
+  }
+}
+
+/**
+ * Lets the skeleton of a player mesh compute its bone matrices from the pose of each frame
+ * ({@link FrameSkeleton.readLocals}), and takes the group of the bones out of the mesh, so that
+ * no update of the world matrices visits the bones. The stage holds the skeletons in each frame
+ * ({@link holdSkeletons}). The bones of the mesh then keep the bind pose, so {@link hideBone}
+ * does not apply to the mesh.
+ *
+ * @param mesh A mesh of {@link createStudioMesh}. Another mesh does not change.
+ */
+function readPoseLocals(mesh: SkinnedMesh): void {
+  const player = studioPlayers.get(mesh);
+  const skeleton = mesh.skeleton;
+  const group = skeleton.bones[0]?.parent;
+  if (player && group && skeleton instanceof FrameSkeleton) {
+    skeleton.readLocals(player.pose.matrices, mesh, group);
+    mesh.remove(group);
   }
 }
 
@@ -550,6 +722,7 @@ export function* createPlayersSteps(
       yield;
     }
     const mesh = createPlayerMesh(model, geometry, materials);
+    readPoseLocals(mesh);
     mesh.position.set(...spot.position);
     mesh.rotation.y = spot.facing;
     meshes.push(mesh);
