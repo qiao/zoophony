@@ -51,31 +51,25 @@ z -0.221 to 0.220. Each arm is free of the trunk beyond x 0.18, from y 0.58 to 0
 
 | Item | Value |
 |---|---|
-| `bear-arms.glb` | 880,212 bytes, SHA-256 `668dc799b8d8b35efe89c39deacae21dcdd50dba3dcfddce02c4f9e8eaa432c2` |
-| Mesh | 4,070 triangles: on each arm a tube of 16 rings of 16 vertices, joined to the trunk and the paw with Bridge Edge Loops |
+| `bear-arms.glb` | 874,864 bytes, SHA-256 `128b7d5483003962dd6bd0feecf06fffd88a66191ba1fca6bad85cb86d658375` |
+| Mesh | 3,846 triangles: on each arm a tube of 13 rings of 16 vertices, joined to the trunk and the paw with Bridge Edge Loops |
 | Material | One material with one base color JPEG of 4096 × 4608 pixels: the atlas of the source, and a strip of 512 pixels on top with the fur color of the source arms, baked onto the new faces. No metallic-roughness texture |
-| `bear-weights.json` | 455,330 bytes, SHA-256 `7e970caab8f2ad1f46b83825c98e73ab2ddb376fa9a74e3892f3bfc6e58747f9` |
+| `bear-weights.json` | 428,745 bytes, SHA-256 `97b30e46d7629af1702b932a5954154f843d77a899591d97a8eb9b61f0bb7415` |
 | Weights | The automatic weights of Blender with the Weight Paint fixes of the script, on the studio bones and the arm segments and helpers (`armSegments` of the config), for `paintedWeights` of the config |
 
 The script puts new quad faces on each arm from the shoulder line to the wrist, because the long
 thin faces of the source arm folded into shards under the bent elbow. The faces of the paws, the
 trunk, the legs, and the head are the faces of the source. The new arm surface lies on the old
-one, with the arm length of the source, except at the taper of each wrist (below).
+one, with the arm length of the source.
 
 - **Flatten.** The inner side of each upper arm is a little flatter, so that it stays out of the
   round belly. The flatten comes after the bake, so that each texel takes the fur of its own place
   on the source arm. A flatten before the bake moves the tube out of the reach of the bake rays,
   and the bake then writes black texels under the armpits.
-- **Wrist.** Each wrist band has 5 rings, from 0.016 units before the joint to 0.016 units past
-  it on the paw (`WRIST_RINGS`). The wrist cut stands parallel to the last ring. Smooth Vertices
-  and a Shrinkwrap even the band of each wrist (`cut_planes()` and `step_smooth_wrist()`), as on
-  the polar bear, and a Smooth of the weights near each joint (`wristSmooth`) lets the paw
-  weights start with no kink.
-- **Taper.** The end of each forearm is thinner on the palm side: up to 0.02 units on the left
-  and 0.03 units on the right, from 0.04 or 0.05 units before the joint (`step_taper()`). The
-  paw is thick, so a bend of 40° about a joint on its axis bunches the skin of the inner side.
-  Over the full source radius, the bunched skin made a light ridge and a dark slit across the
-  wrist. The taper comes after the bake, as the flatten does.
+- **Wrist.** The wrist cut stands parallel to the last ring. Smooth Vertices and a Shrinkwrap
+  even the band of each wrist (`cut_planes()` and `step_smooth_wrist()`), as on the polar bear. A
+  cut at a right angle to the paw makes the band thin on the palm side, and its sharp edges show
+  as a notch on the top of each wrist.
 
 A run gives the same bytes:
 

@@ -63,10 +63,7 @@ va = ea.va
 #: and the zone has the radius 0.12: nearer the trunk, or with a smaller radius, the cut found no
 #: closed loop around the arm. The forearm is 0.09 units long, so it has 4 inner rings. `flatten`
 #: moves the inner side of each upper arm toward its axis, along the mean direction of the corners
-#: that go into the belly. `wristSmooth` and `taper` act on the wrists (`step_paint()` and
-#: `step_taper()`). The right paw of the conductor bends about 42 degrees to the palm in the play,
-#: so its taper is deeper. With no taper, or with a taper on the thumb side of the left paw, the
-#: skin of the inner side bunched into a dark slit, or the left forearm folded.
+#: that go into the belly.
 BEAR = {
     'config': 'tools/mesh-rigs/bear.json',
     'source': 'assets/models/bear/bear-tpose.glb',
@@ -87,11 +84,6 @@ BEAR = {
                 'move': 0.015, 'size': 0.05},
     'head': {'x': 0.12, 'y': 0.77},
     'fingers': 0.5,
-    'wristSmooth': {'radius': 0.1, 'repeat': 8},
-    'taper': {
-        'L': {'from': -0.04, 'to': 0.01, 'cone': 70, 'move': 0.02, 'size': 0.03, 'turn': 0},
-        'R': {'from': -0.05, 'to': 0.01, 'cone': 75, 'move': 0.03, 'size': 0.04, 'turn': 0},
-    },
 }
 
 
@@ -109,10 +101,8 @@ CUT_PLANES = va.cut_planes
 WIND_STATIONS = wa.arm_stations
 
 #: The places of the added rings of each wrist band, in units of the studio from the wrist joint:
-#: a negative place is on the forearm, and a positive place is on the paw. With the last forearm
-#: ring of `wristGap` and the ring at the joint, each band has 5 rings from 0.016 units before the
-#: joint to 0.016 units past it, so that the bend of the paw spreads over more rings.
-WRIST_RINGS = (-0.008, 0.008, 0.016)
+#: a negative place is on the forearm, and a positive place is on the paw.
+WRIST_RINGS = ()
 
 
 def arm_stations(s, line):
@@ -139,12 +129,12 @@ def cut_planes(s, line, side):
     the axis of the last ring of the tube, as `cut_planes()` of `hippo_arms.py` and of
     `polar_bear_arms.py` do.
 
-    The last ring of `arm_stations()` stands on the paw at a right angle to the paw (with no
-    `WRIST_RINGS`, at the wrist joint at a right angle to the line halfway between the forearm and
-    the paw). A wrist plane at an angle to the last ring makes the band from the ring to the cut
-    loop wide on one side of the wrist and thin on the other, and the bind shows the sharp edges
-    of the thin side as a crease. With the two planes parallel, the band is about as wide all
-    around.
+    The last ring stands at the wrist joint at a right angle to the line halfway between the
+    forearm and the paw (`violin_arms.arm_stations()`). The wrist plane of `violin_arms.py` stands
+    at a right angle to the paw, which turns down from the forearm, so the band from the ring to
+    the cut loop is wide on the top of the wrist and thin on the palm side. The bind shows its
+    sharp edges as a crease on the top of each wrist. With the two planes parallel, the band is
+    about as wide all around.
     """
     shoulder, _ = CUT_PLANES(s, line, side)
     _, _, w, t = line

@@ -1,6 +1,6 @@
 {
   "source": "assets/models/bear/bear-arms.glb",
-  "sourceNote": "The T-pose bear mesh (assets/models/bear/README.md), with new quad faces on each arm from the shoulder line to the wrist, so that no long thin faces fold under the raised forearm. tools/blender/bear_arms.py replays the Blender session that made it. Each wrist band has 5 rings, and the end of each forearm is thinner on the palm side (taper), so that the bent paw shows no dark slit.",
+  "sourceNote": "The T-pose bear mesh (assets/models/bear/README.md), with new quad faces on each arm from the shoulder line to the wrist, so that no long thin faces fold under the raised forearm. tools/blender/bear_arms.py replays the Blender session that made it.",
   "rootNormals": {
     "radius": 0,
     "wrist": [
@@ -503,29 +503,5 @@
     "back": 0.1,
     "below": 0.03,
     "note": "The values of the other meshes."
-  },
-  "raise": [
-    {
-      "side": "L",
-      "bone": "hand",
-      "turns": {
-        "hand": [
-          0.283,
-          -0.4134,
-          -0.225,
-          0.8357
-        ]
-      },
-      "fade": [
-        30,
-        40
-      ],
-      "below": 0.3,
-      "smooth": 40,
-      "smoothBones": [
-        "wrist"
-      ],
-      "note": "The shape of the bent left wrist of the conductor (pnpm raise-fit conductor --faces 1587,1586,2532 --side L --bone hand on the rig with the wrist rings and the taper of bear_arms.py). In the pose of the rule, 40 rounds of taubin() smooth the skin by its weight on the wrist helper, so that the inner side of the bend shows a soft crease and no dark line. The right wrist needs no shape: its deeper taper keeps it smooth."
-    }
-  ]
+  }
 }
