@@ -74,7 +74,9 @@ worktree only when another agent works on the repository at the same time. Then 
 - A rebase with `--exec` runs in the tree of each commit, which has an old copy of a script or
   none. Copy a script of the branch to a temporary path first.
 - After a merge or a rebase, make each generated file again with its tool. Do not merge its
-  conflict lines by hand.
+  conflict lines by hand. A fitted table, such as `DEMO_LOUDNESS` (`pnpm loudness --fit --write`),
+  is such a file. Make its commit the last code commit of the branch, after a rebase on `main`,
+  because a new demo on `main` needs a fit too.
 
 In both cases:
 
