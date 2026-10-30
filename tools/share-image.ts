@@ -47,20 +47,21 @@ const MAX_SHARE_BYTES = 200_000;
 const RENDER_SCALE = 2;
 
 /**
- * The camera of the share image, in the axes of the stage, in meters (design 7.4): on the middle
- * line, behind the conductor and above it, with its view axis about 14° down. The conductor then
- * stands in the middle of the lower half, each player and the piano are in the frame, the head of
- * each back row shows above the row in front of it, and the front edge of the stage with its two
- * corner cuts crosses the bottom. A camera with a smaller angle down makes the rows overlap. A
- * camera with a larger angle down moves the back row up into the title. The hall wall has a
- * radius of about 16.5 m, so the camera stays nearer than that to the stage middle. The scene sets
- * the beam and the light of a free camera from its place, so `beam`, `light`, and `spot` do
- * nothing.
+ * The camera of the share image, in the axes of the stage, in meters (design 7.4): behind the
+ * conductor and above it, with its view axis about 11° down, and 1.5 m left of the middle line.
+ * The left place balances the layout, whose right side is wider, and it turns the conductor by
+ * about 8°. The conductor then stands in the middle of the lower half, the players fill most of
+ * the width with no player cut, the head of each back row shows above the row in front of it,
+ * and the front edge of the stage crosses the bottom. A camera with a smaller angle down makes the
+ * rows overlap. A camera with a larger angle down moves the back row up into the title. The hall
+ * wall has a radius of about 16.5 m, so the camera stays nearer than that to the stage middle.
+ * The scene sets the beam and the light of a free camera from its place, so `beam`, `light`, and
+ * `spot` do nothing.
  */
 const SHARE_CAMERA: CameraPose = {
-  position: [0, 5.25, 15.25],
-  target: [0, 1.33, 0],
-  fov: 30,
+  position: [-1.5, 4.25, 15.5],
+  target: [0.65, 1.11, 0],
+  fov: 24,
   beam: 1,
   close: false,
   light: 0,

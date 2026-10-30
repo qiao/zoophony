@@ -202,9 +202,10 @@ the constants of `app/page-title.ts`, so that the page and the app cannot differ
 - **Share image**: the target is `docs/reference/share-card.webp`. A card shows small in a feed, so
   the image tells what the app is and shows the animals. It is a frame of the default demo during
   play from `SHARE_CAMERA` of `tools/share-image.ts`: above and behind the conductor, so that the
-  whole orchestra shows with depth. The conductor stands in the middle of the lower half, each
-  player is in the frame, and the head of each back row shows above the row in front of it. The
-  front edge of the stage crosses the bottom with its two corner cuts. The top third stays dark for
+  players fill most of the width with depth. The camera stands a little left of the middle line,
+  because the layout is wider on the right. The conductor stands in the middle of the lower half,
+  no player is cut, and the head of each back row shows above the row in front of it. The front
+  edge of the stage crosses the bottom. The top third stays dark for
   the title: the paw and the wordmark in gold, and under them the line "A web-based MIDI player with
   an animal orchestra." in Fraunces (`SHARE_LINE`). The layer of `tools/share-card.ts` adds a cone
   of warm light with soft edges behind the title, a vignette, a warm grade, and a soft glow. It
