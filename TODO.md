@@ -527,15 +527,23 @@ navigation menu at the top of the mockup is out of scope.
 - [ ] Audit the seating of design 4.2 against professional orchestras and choirs, with sources and
       the file and the line of each finding. Then fix the findings that the user approves.
 - [ ] Bring the high tier within the frame target of 9.7 (4 ms p95 on the GPU and the main thread).
-      Only the device scale 1.5 passes alone. The choice of the path waits for the user.
+      The main thread is near 4 ms p95. The GPU is about 7 ms p95 on a view of the stage top, and
+      no option with the same look passes. The choice of the path waits for the user.
+- [ ] Pin the views of the traces of `pnpm frame`, for example with a fixed shot. The shot plan
+      follows the layout, so the piano scale of 2026-10-24 moved the Metal trace from a view of
+      the hall to a view of the stage top: 2.2 ms more GPU time with no change of a frame (9.7).
+- [ ] Move `shareCorners()` and `createDepthGeometry()` out of the main thread, into the build or
+      a Worker: about 75 ms of the build of `perf-60.mid` on the development Mac, in steps.
 - [ ] Cut `poseStudioBones()`: about 0.5 ms of each frame for the 55 bodies of `perf-60.mid`.
 - [ ] Compile the shaders before the first frame with no block (`compileAsync()`): `setProgram()`
       takes about 335 ms in the first frame of the default demo. The first frame stays the same.
-- [ ] Cut the frame cost of the cinematic light in the performance sweep: about 0.67 ms in each
-      frame of `perf-60.mid`, 0.42 ms of it in the bake step.
-- [ ] Cut the frame cost of the shadows of the side lights: about 0.9 ms of GPU time and 0.4 ms of
-      main-thread time on the high tier. Smaller maps save little, because skinning is the cost.
-- [ ] Measure the frame cost of the two back-row lights in the performance sweep.
+- [ ] Cut the frame cost of the cinematic light: about 0.67 ms in each frame of `perf-60.mid`,
+      0.42 ms of it in the bake step. 12 shadow samples of the baked stage in place of 20 saved
+      about 0.85 ms of GPU p50 in one run on a view of the stage top. The choice waits for the user.
+- [ ] Cut the frame cost of the shadows of the side lights: about 0.9 ms of GPU p50 in one run
+      on a view of the stage top, with the depth geometry. Maps of 512 save about 0.2 ms.
+- [ ] Decide on the two back-row lights: they cost about 1.0 ms of GPU p50 in one run on a view
+      of the stage top.
 - [ ] When the test pause ends, fix `scene/player.test.ts` (6 of 13 fail) and the pool test of
       `scene/light-pool.test.ts` (no `#include <lights_fragment_end>`).
 - [ ] The glow of the haze around the beam is weaker than in `orchestra-latest.png` above the stage
