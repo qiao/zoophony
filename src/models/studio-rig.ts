@@ -148,7 +148,10 @@ interface StudioArm {
   readonly upper: Vec3;
   /** The unit direction of the forearm in the bind pose of the studio: elbow to wrist. */
   readonly fore: Vec3;
-  /** The unit axis of the elbow in the bind pose of the studio: upper × fore. */
+  /**
+   * The unit axis of the elbow in the bind pose of the studio: {@link StudioBody.hinges}, or
+   * upper × fore for a bent bind arm.
+   */
   readonly hinge: Vec3;
   /** The part of the way from the elbow to the wrist at the head of the twist bone. */
   readonly twistAt: number;
@@ -825,7 +828,7 @@ export function studioRig(seated: StudioBody, stands = false): StudioRig {
       },
       upper: toVec3(upper),
       fore: toVec3(fore),
-      hinge: toVec3(new Vector3().crossVectors(upper, fore).normalize()),
+      hinge: body.hinges?.[side] ?? toVec3(new Vector3().crossVectors(upper, fore).normalize()),
       twistAt,
       paw: [paw.x, paw.y, paw.z, paw.w],
       bindBend: -Math.atan2(-bindFore.z, -bindFore.y),

@@ -482,6 +482,13 @@ export interface StudioBody {
    * arm, and the skin does not twist at the shoulder. A body with no share has no twist bone.
    */
   readonly upperTwist?: number;
+  /**
+   * The unit elbow axis of each arm in the bind pose of a body with straight bind arms (design
+   * 4.4): the axis about which the app bends the elbow (`poseArm()` of `models/studio-rig.ts`). A
+   * straight arm has no plane of its own. A body with no axes takes the axis of its bent bind arm:
+   * the upper arm × the forearm.
+   */
+  readonly hinges?: Readonly<Record<Side, Vec3>>;
 }
 
 /** The largest number of bones of a vertex of a studio body. */
