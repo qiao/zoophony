@@ -33,7 +33,7 @@ export const SHARE_IMAGE: ShareImage = {
   path: 'share.jpg',
   width: 1200,
   height: 630,
-  alt: 'A bear conducts an orchestra of low-poly animals on a wooden stage in a dark concert hall.',
+  alt: 'The Zoophony logo and the title "Play MIDI. Hear the Animals." above an orchestra of low-poly animals on a wooden stage. A bear conducts them, and the view is from behind the bear.',
 };
 
 /** The description of the start page for search results and shares, at most 155 characters. */
