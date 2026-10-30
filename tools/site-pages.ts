@@ -120,11 +120,11 @@ const HOME: SitePage = {
 const ABOUT: SitePage = {
   path: 'about',
   title: 'About',
-  description: `${APP_NAME} is a free, open-source MIDI player for the web. An orchestra of low-poly animals plays each part of a piece on a 3D stage.`,
+  description: `${APP_NAME} is a free, open-source MIDI player for the web. An orchestra of animals plays each part of a piece on a 3D stage.`,
   blocks: [
     {
       kind: 'paragraph',
-      text: `${APP_NAME} is a free web app that plays MIDI files. An orchestra of low-poly animals sits on a small 3D stage, and each animal plays one part of the piece. A bear conducts. You hear the music, and you see which instrument plays each note.`,
+      text: `${APP_NAME} is a free web app that plays MIDI files. An orchestra of animals sits on a small 3D stage, and each animal plays one part of the piece. A bear conducts. You hear the music, and you see which instrument plays each note.`,
     },
     { kind: 'heading', text: 'Who it is for' },
     {
