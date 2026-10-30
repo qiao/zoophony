@@ -50,7 +50,7 @@ The head comment of a tool file gives the details and each option: `tools/<name>
 | Command | Action |
 |---|---|
 | `pnpm screenshots <dir> [--sheet] [--play] [--ui] [--drawer] [--load] [--shots]` | Writes the review screenshots of design 9.8 as WebP files of at most 300 kB: each demo at 1440 × 900 and 390 × 844, the gallery, the animal views, and the sheets. The flags add close views, play frames, UI states, and camera shots. |
-| `pnpm share-image [--out <file>]` | Builds the site, and writes `public/share.jpg` (design 7.4): the default demo during play at 1200 × 630, with the logo, at most 200 kB. Run it after a change of the look. About 20 s. |
+| `pnpm share-image [--out <file>]` | Writes `public/share.jpg` (design 7.4): the default demo during play from `SHARE_CAMERA`, with the layer of `tools/share-card.ts`, at 1200 × 630 and at most 200 kB. Run it after a change of the look. About 15 s. |
 | `pnpm snapshot` | Saves the play frame of the default demo and a close view of each gallery model into `scratch/snapshots/<date>-<hash>/`. |
 | `pnpm sheet-check <sheet> <dir>` | Compares a sheet page of `views.html` with its sheet in `docs/reference/` (design 7.1). A matte of `tools/sheet-mattes/` adds the silhouette IoU of each view. |
 | `pnpm choir-check <dir>` | Puts the gallery penguin beside a penguin of each of the two newest reference images. |
